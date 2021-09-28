@@ -1,0 +1,250 @@
+/*
+ * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.app.xrs.service.discovery;
+
+import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.database.model.profile.ProfileFakes;
+import io.xeres.app.net.peer.PeerConnection;
+import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.LocationService;
+import io.xeres.app.service.ProfileService;
+import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.discovery.item.DiscoveryContactItem;
+import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem;
+import io.xeres.common.id.LocationId;
+import io.xeres.common.protocol.NetMode;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(SpringExtension.class)
+class DiscoveryServiceTest
+{
+	@Mock
+	private PeerConnectionManager peerConnectionManager;
+
+	@Mock
+	private ProfileService profileService;
+
+	@Mock
+	private LocationService locationService;
+
+	@InjectMocks
+	private DiscoveryService discoveryService;
+
+	/**
+	 * This is a case that is handled by RS but that I think is never actually sent.
+	 * We ignore it, just in case.
+	 */
+	@Test
+	void DiscoveryService_handleDiscoveryContactItem_NewLocation_FriendOfFriend_Known_Ignore()
+	{
+		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
+
+		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
+		when(profileService.findProfileByPgpIdentifier(anyLong())).thenReturn(Optional.empty());
+
+		discoveryService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
+
+		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+	}
+
+	/**
+	 * This is a case that shouldn't happen either.
+	 */
+	@Test
+	void DiscoveryService_handleDiscoveryContactItem_NewLocation_FriendOfFriend_Unknown_Ignore()
+	{
+		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
+		var profile = ProfileFakes.createProfile();
+
+		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
+		when(profileService.findProfileByPgpIdentifier(anyLong())).thenReturn(Optional.of(ProfileFakes.createProfile()));
+
+		discoveryService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
+
+		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+	}
+
+	/**
+	 * The peer sends the new location of a common friend. We keep that new location.
+	 */
+	@Test
+	void DiscoveryService_handleDiscoveryContactItem_NewLocation_Friend_OK()
+	{
+		var peerLocation = LocationFakes.createLocation();
+		var peerConnection = new PeerConnection(peerLocation, null);
+		var profile = ProfileFakes.createProfile();
+		profile.setAccepted(true);
+		var newLocation = LocationFakes.createLocation("foo", profile);
+
+		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.empty());
+		when(profileService.findProfileByPgpIdentifier(profile.getPgpIdentifier())).thenReturn(Optional.of(profile));
+
+		discoveryService.handleItem(peerConnection, createDiscoveryContact(newLocation));
+
+		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+		verify(locationService).update(eq(newLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+	}
+
+	/**
+	 * The peer sends an updated location of a common friend. We update
+	 * the location.
+	 */
+	@Test
+	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Friend_OK()
+	{
+		var peerLocation = LocationFakes.createLocation();
+		var peerConnection = new PeerConnection(peerLocation, null);
+		var profile = ProfileFakes.createProfile();
+		profile.setAccepted(true);
+		var friendLocation = LocationFakes.createLocation("foo", profile);
+
+		when(locationService.findLocationById(friendLocation.getLocationId())).thenReturn(Optional.of(friendLocation));
+		when(locationService.findOwnLocation()).thenReturn(Optional.of(LocationFakes.createOwnLocation()));
+
+		discoveryService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
+
+		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+		verify(locationService).update(eq(friendLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+	}
+
+	/**
+	 * The peer sends our own location. We do nothing (could be used to help find out our external
+	 * IP address).
+	 */
+	@Test
+	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Own_Ignore()
+	{
+		var peerLocation = LocationFakes.createLocation();
+		var peerConnection = new PeerConnection(peerLocation, null);
+		var profile = ProfileFakes.createProfile();
+		profile.setAccepted(true);
+		var friendLocation = LocationFakes.createLocation("foo", profile);
+
+		when(locationService.findLocationById(friendLocation.getLocationId())).thenReturn(Optional.of(friendLocation));
+		when(locationService.findOwnLocation()).thenReturn(Optional.of(friendLocation));
+
+		discoveryService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
+
+		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+	}
+
+	/**
+	 * The peer sends his location. We update its location and send our list
+	 * of friends.
+	 */
+	@Test
+	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Peer_OK()
+	{
+		var peerLocation = LocationFakes.createLocation();
+		var peerConnection = new PeerConnection(peerLocation, null);
+		var ownLocation = LocationFakes.createLocation();
+		var profile = ProfileFakes.createProfile();
+		profile.setAccepted(true);
+
+		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
+		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
+		when(profileService.getAllDiscoverableProfiles()).thenReturn(List.of(profile));
+
+		discoveryService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
+
+		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+		ArgumentCaptor<DiscoveryPgpListItem> discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
+		verify(peerConnectionManager).writeItem(eq(peerConnection), discoveryPgpListItem.capture(), any(RsService.class));
+
+		assertEquals(DiscoveryPgpListItem.Mode.FRIENDS, discoveryPgpListItem.getValue().getMode());
+		assertTrue(discoveryPgpListItem.getValue().getPgpIds().contains(profile.getPgpIdentifier()));
+	}
+
+	/**
+	 * The peer sends his location. We update its location but don't send our list of
+	 * friends because we're not discoverable.
+	 */
+	@Test
+	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Peer_OurLocation_NotDiscoverable_OK()
+	{
+		var peerLocation = LocationFakes.createLocation();
+		var peerConnection = new PeerConnection(peerLocation, null);
+		var ownLocation = LocationFakes.createLocation();
+		ownLocation.setDiscoverable(false);
+
+		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
+		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
+
+		discoveryService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
+
+		verify(locationService).findLocationById(eq(peerLocation.getLocationId()));
+		verify(locationService).findOwnLocation();
+		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+	}
+
+	/**
+	 * The peer sends his location. We update its location and since it's a partial profile (added through
+	 * ShortInvites) we ask for its PGP key.
+	 */
+	@Test
+	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Peer_Partial_OK()
+	{
+		var peerLocation = LocationFakes.createLocation();
+		var peerConnection = new PeerConnection(peerLocation, null);
+		var peerProfile = ProfileFakes.createProfile();
+		peerProfile.setAccepted(true);
+		peerProfile.setPgpPublicKeyData(null); // partial profile
+		peerLocation.setProfile(peerProfile);
+
+		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
+
+		discoveryService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
+
+		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+		ArgumentCaptor<DiscoveryPgpListItem> discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
+		verify(peerConnectionManager).writeItem(eq(peerConnection), discoveryPgpListItem.capture(), any(RsService.class));
+
+		assertEquals(DiscoveryPgpListItem.Mode.GET_CERT, discoveryPgpListItem.getValue().getMode());
+		assertTrue(discoveryPgpListItem.getValue().getPgpIds().contains(peerProfile.getPgpIdentifier()));
+	}
+
+	private DiscoveryContactItem createDiscoveryContact(Location location)
+	{
+		DiscoveryContactItem.Builder builder = DiscoveryContactItem.builder();
+
+		builder.setPgpIdentifier(location.getProfile().getPgpIdentifier());
+		builder.setLocationId(location.getLocationId());
+		builder.setLocationName(location.getName());
+		builder.setHostname("foobar.com"); // XXX: no hostname support in location yet
+		builder.setNetMode(location.getNetMode());
+		builder.setVersion(location.getVersion());
+		return builder.build();
+	}
+}

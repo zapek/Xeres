@@ -1,0 +1,71 @@
+= Just a test
+:tabsize: 4
+:icons: font
+
+First let's start with some paragraph.
+
+I can also have one line in it.
+
+Then I can have paragraph literals
+
+ Like this for example. It's emphasized :)
+ And I can continue
+
+NOTE: There are some common tips!
+
+TIP: this is a tip for testing.
+
+IMPORTANT: don't forget that you must do it!
+
+And now: this is some *bold* text, some _italic_ and `monospace` font too.
+
+`{cpp}` is valid syntax.
+
+== And this is a header
+
+And we can have some code examples directly from the source:
+
+[source,java]
+----
+include::../app/src/test/java/io/xeres/app/crypto/x509/X509Test.java[tag=X509_GenerateCertificate_OK]
+----
+
+And another source code:
+
+[source,java]
+----
+include::../app/src/test/java/io/xeres/app/crypto/rsa/RSATest.java[tag=RSA_GenerateKeys_OK]
+----
+
+* [x] this is ok
+* [ ] this is not
+
+
+Source code with callouts:
+
+[source,java]
+----
+public class TestClass
+{
+	public void doStuff()
+    {
+        Foobar foobar = Foobar.generate(); // <1>
+        foobar.doThings(); // <2>
+        foobar.cleanup(); // <3>
+    }
+}
+----
+
+<1> We start here
+<2> Then we do the things
+<3> And we cleanup
+
+.Sidebar content
+****
+And this is a sidebar content
+****
+
+[quote,Max Payne,Max Payne 3]
+____
+I had a hole in my second favourite drinking arm.
+____

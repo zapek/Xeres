@@ -1,0 +1,77 @@
+= Chat
+:icons: font
+
+Service type: 18
+
+Is used to chat.
+Contains distant chat, peer chat and distributed chat.
+
+== Items
+
+|===
+|Item | Subtype | Purpose
+
+|ChatMessage
+|1
+|Contains a chat message
+
+|ChatAvatar
+|3
+|Contains a JPEG image of the peer's avatar
+
+|ChatStatus
+|4
+|Contains the chat status string (ie. `Foo is typing...`).
+Sent at most every 5 seconds and only for private chats
+
+|PrivateChatMessageConfig
+|5
+|
+
+|ChatRoomConnectChallenge
+|9
+|Contains a connect challenge code.
+Used to find if a peer is on the same private channel but also used for public ones.
+If successful, a ChatRoomInvite is sent back.
+
+|ChatRoomUnsubscribe
+|10
+|
+
+|ChatRoomListRequest
+|13
+|Requests a ChatRoomList item.
+Sent every 120 seconds
+
+|ChatRoomConfig
+|21
+|
+
+|ChatRoomMessage
+|23
+|
+
+|ChatRoomEvent
+|24
+|
+
+|ChatRoomList
+|25
+|Contains the list of rooms a peer is subscribed to
+
+|ChatRoomInvite
+|27
+|Contains a chat room details.
+Sent either when responding to a challenge or when needing to subscribe to an available room.
+The flags are set accordingly
+
+|PrivateOutgoingMap
+|28
+|
+
+|SubscribedChatRoomConfig
+|29
+|
+
+|===
+

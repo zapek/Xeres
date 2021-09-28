@@ -1,0 +1,21 @@
+= Heartbeat
+:icons: font
+
+Service type: 6
+
+Sends a ping each 5 seconds.
+Can be used to detect if a peer is gone.
+Is redundant with the slice probe (1 minute) and RTT (10 seconds).
+
+NOTE: Retroshare sends a heartbeat to all peers every 5 seconds.
+If an heartbeat is not received for 100 seconds, it checks if there was traffic and if there wasn't, it assumes the peer is dead.
+
+== Items
+
+|===
+|Item | Subtype | Purpose
+
+|Beat
+|1
+|Tells the other peer that we are alive
+|===

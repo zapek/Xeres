@@ -1,0 +1,39 @@
+= Gxs Transfers
+
+No service type
+
+This is used to transfer groups and messages between Gxs services.
+All Gxs services are a sub-service of this one.
+
+== Items
+
+|===
+|Item | Subtype | Purpose
+
+|GxsSyncGroupRequestItem +
+[small]#RsNxsSyncGrpReqItem#
+|1
+|Requests a GxsSyncGroupItem.
+Sent every 60 seconds.
+
+|GxsSyncGroupItem +
+[small]#RsNxsSyncGrpItem#
+|2
+|Contains a group id which have to be transferred.
+
+|GxsSyncGroupStatsItem +
+[small]#RsNxsSyncGrpStatsItem#
+|3
+|Requests or contains statistics about a group (number of posts and last timestamp).
+
+|GxsTransferGroupItem +
+[small]#RsNxsGrp#
+|4
+|Contains the Gxs group data.
+
+|GxsTransactionItem +
+[small]#RsNxsTransacItem#
+|64
+|Controls transactions which is a way to send a collection of items.
+
+|===

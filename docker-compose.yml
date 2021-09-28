@@ -1,0 +1,13 @@
+version: '2.4'
+services:
+    xeres:
+        image: zapek/xeres:0.1.0
+        ports:
+            - "1067:1066"
+            - "3335:3335"
+        environment:
+            - SPRING_PROFILES_ACTIVE=cloud
+            - XERES_SERVER_PORT=3335
+            - XERES_DATA_DIR=/tmp
+            - "JAVA_TOOL_OPTIONS=-Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8"
+        mem_limit: 1G

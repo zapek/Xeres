@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="244.0" prefWidth="333.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.account.AccountCreationWindowController">
+    <padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+    </padding>
+    <Label alignment="CENTER" text="Xeres">
+        <font>
+            <Font size="48.0"/>
+        </font>
+    </Label>
+    <GridPane>
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+        </rowConstraints>
+        <Label text="Profile"/>
+        <TextField fx:id="profileName" promptText="Profile name" GridPane.columnIndex="1">
+            <tooltip>
+                <Tooltip showDuration="30s" text="Use a nickname or real name. A profile can have several locations."/>
+            </tooltip>
+        </TextField>
+        <Label text="Location" GridPane.rowIndex="1"/>
+        <TextField fx:id="locationName" promptText="Location name" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <tooltip>
+                <Tooltip showDuration="30s" text="This is your Xeres' instance on this device. Use your device's nickname or model."/>
+            </tooltip>
+        </TextField>
+    </GridPane>
+    <ProgressIndicator fx:id="progress" prefWidth="27.0" visible="false"/>
+    <Label fx:id="status"/>
+    <Region VBox.vgrow="ALWAYS"/>
+    <Button fx:id="okButton" disable="true" mnemonicParsing="false" text="OK"/>
+</VBox>

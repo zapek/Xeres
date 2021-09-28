@@ -1,0 +1,52 @@
+/*
+ * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+.text-field:error {
+    -fx-text-box-border: red;
+    -fx-focus-color: red;
+}
+
+.text-field:warning {
+    -fx-text-box-border: #ff8b00;
+    -fx-focus-color: #ff8b00;
+}
+
+.text-area:error {
+    -fx-background-color: red;
+    -fx-text-fill: red;
+}
+
+.text-area:warning {
+    -fx-text-box-border: #ff8b00;
+    -fx-focus-color: #ff8b00;
+}
+
+.tooltip {
+    -fx-background-color: #ff8b00;
+    -fx-text-fill: black;
+    -fx-wrap-text: true;
+}
+
+.chatlist .list-cell:odd {
+    -fx-background: -fx-control-inner-background;
+}
+
+.chatlist .list-cell {
+    -fx-padding: 0px 0.25em 0px 0.25em
+}

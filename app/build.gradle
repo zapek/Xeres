@@ -1,0 +1,130 @@
+/*
+ * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+plugins {
+    id 'org.springframework.boot'
+    id 'org.flywaydb.flyway'
+    id 'jacoco'
+    id 'org.panteleyev.jpackageplugin'
+}
+
+flyway {
+    url = "jdbc:h2:file:${project.rootDir}/data/userdata"
+    user = 'sa'
+}
+
+bootJar {
+    manifest {
+        attributes 'Implementation-Version': "${project.version}"
+        attributes 'Implementation-Title': "${project.name}"
+    }
+}
+
+bootRun {
+    bootRun.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
+    bootRun.systemProperty 'spring.profiles.active', 'dev'
+}
+
+springBoot {
+    buildInfo {
+        properties {
+            time = null // make the build repeatable
+            name = rootProject.name
+        }
+    }
+}
+
+editorconfig {
+    includes = ['src/**']
+    excludes = ['src/test/resources/upnp/**', 'src/main/webapp/dist/**', 'src/main/webapp/node_modules/**']
+}
+
+test {
+    useJUnitPlatform()
+    test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
+}
+
+// XXX: hack to make IntelliJ actually build properly. Maybe report to JetBrains
+processResources {
+    dependsOn ":ui:processResources"
+    dependsOn ":webui:processResources"
+}
+
+task copyInstaller(type: Copy) {
+    from "${parent.rootDir}/installer"
+    include "*"
+    into "${project.buildDir}/${project.libsDirName}"
+}
+
+bootBuildImage {
+    imageName = "zapek/${rootProject.name.toLowerCase()}:${project.version}"
+}
+
+jpackage {
+    dependsOn "bootJar"
+    dependsOn "copyInstaller"
+    appName = parent.project.name
+    vendor = "David Gerber"
+    copyright = "Copyright 2019-2021 All Rights Reserved"
+    appDescription = "Xeres P2P Software"
+    input = "${project.buildDir}/${project.libsDirName}"
+    destination = "${project.buildDir}/dist"
+    mainClass = "org.springframework.boot.loader.JarLauncher"
+    mainJar = "app-${project.version}.jar"
+    icon = "${parent.rootDir}/icon.ico"
+    licenseFile = "${parent.rootDir}/LICENSE"
+    javaOptions = ['-Djava.net.preferIPv4Stack=true', '-Dfile.encoding=UTF-8', '-splash:$APPDIR/startup.jpg']
+    windows {
+        winMenu = true
+        winPerUserInstall = true
+        winDirChooser = true
+        winMenuGroup = "Xeres"
+    }
+    linux {
+        linuxShortcut = true
+    }
+}
+
+dependencies {
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation project(':common')
+    implementation project(':ui')
+    implementation project(':webui')
+    implementation 'org.springframework.boot:spring-boot-starter-json'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    runtimeOnly 'com.h2database:h2:1.4.200'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux' // to bring in netty
+    implementation "org.flywaydb:flyway-core:$flywayVersion"
+    implementation "org.bouncycastle:bcpg-jdk15on:$bouncycastleVersion"
+    implementation "org.bouncycastle:bcpkix-jdk15on:$bouncycastleVersion"
+    implementation 'org.jsoup:jsoup:1.14.2'
+    implementation 'com.github.peter-gergely-horvath:windpapi4j:1.0'
+    implementation 'net.harawata:appdirs:1.2.1'
+    implementation 'com.github.atomashpolskiy:bt-dht:1.9'
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
+    implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
+    implementation "org.springdoc:springdoc-openapi-ui:$springOpenApi"
+    implementation 'io.netty:netty-tcnative-boringssl-static:2.0.43.Final'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

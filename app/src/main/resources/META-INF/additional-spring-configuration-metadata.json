@@ -1,0 +1,44 @@
+{
+    "properties": [
+        {
+            "name": "xrs.service.rtt.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the RTT service, used to calculate Round Trip Time between peers."
+        },
+        {
+            "name": "xrs.service.sliceprobe.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the slice probe service, used to advertise we support incoming packet slicing."
+        },
+        {
+            "name": "xrs.service.serviceinfo.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the serviceinfo service, used to advertise which services we support."
+        },
+        {
+            "name": "xrs.service.discovery.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the discovery service, used to exchange keys and contacts between locations."
+        },
+        {
+            "name": "xrs.service.heartbeat.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the heartbeat service, used to ping a peer to know if it's up but kind of useless as it overlaps with sliceprobe and rtt."
+        },
+        {
+            "name": "xrs.service.chat.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the chat service, used for distributed chat, private chat, distant chat, ..."
+        },
+        {
+            "name": "xrs.service.status.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the status service, used to tell about status (away, busy, online, etc...)."
+        },
+        {
+            "name": "xrs.service.gxsid.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the GxsId service, used to exchange GXS IDs."
+        }
+    ]
+}

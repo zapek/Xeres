@@ -1,0 +1,59 @@
+= RTT
+:icons: font
+
+Service type: 37
+
+Sends a ping each 10 seconds.
+Responds with a pong when a ping is received.
+Allows to measure the times it takes to reach a peer, and back.
+
+== Items
+
+|===
+|Item | Subtype | Purpose
+
+|Ping
+|1
+|Sent to the peer to receive a reply
+
+|Pong
+|2
+|Sent as a reply to a ping item
+
+|===
+
+== Fields
+
+=== Ping
+
+|===
+|Name | Type | Description
+
+|Sequence number
+|int
+|Is incremented for each new item sent.
+
+|Timestamp
+|long
+|Contains the current time when the item is sent.
+This is a 64-bit timestamp which contains the number of seconds from 01-01-1970 on the 32-bit MSB part and the number of nanoseconds on the 32-bit LSB part.
+|===
+
+=== Pong
+
+|===
+|Name | Type | Description
+
+|Sequence number
+|int
+|The sequence number corresponding to the ping item.
+
+|Ping timestamp
+|long
+|The timestamp from the corresponding ping item.
+
+|Pong timestamp
+|long
+
+|The current time when the item is sent.
+|===

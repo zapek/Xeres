@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
+    <MenuBar>
+        <Menu text="Friends">
+            <MenuItem fx:id="addFriend" text="_Add Friend..."/>
+            <MenuItem fx:id="showProfilesWindow" text="_Profiles..."/>
+            <MenuItem fx:id="showFriendsWindow" text="_Friends..."/>
+            <MenuItem fx:id="showBroadcastWindow" text="_Broadcast..."/>
+            <MenuItem fx:id="copyOwnId" text="_Copy own ID to Clipboard"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="exitApplication" text="E_xit"/>
+        </Menu>
+        <Menu text="Chat">
+            <MenuItem fx:id="createChatRoom" text="_Create Chat Room..."/>
+        </Menu>
+        <Menu text="_Tools">
+            <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="Web Interface..."/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem disable="true" text="Se_ttings...">
+                <accelerator>
+                    <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                </accelerator>
+            </MenuItem>
+        </Menu>
+        <Menu text="_Help">
+            <MenuItem fx:id="showAboutWindow" text="_About"/>
+        </Menu>
+    </MenuBar>
+    <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <Tab text="Home">
+            <VBox alignment="CENTER">
+                <Label fx:id="titleLabel" text="Xeres">
+                    <font>
+                        <Font size="36.0"/>
+                    </font>
+                </Label>
+                <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+        <Tab text="Chat">
+            <fx:include fx:id="chatViewController" source="chat/chatview.fxml"/>
+        </Tab>
+    </TabPane>
+</VBox>

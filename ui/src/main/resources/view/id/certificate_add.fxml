@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox prefHeight="400.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddCertificateWindowController">
+    <padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+    </padding>
+    <Label text="Paste below your friend's ID.">
+        <VBox.margin>
+            <Insets/>
+        </VBox.margin>
+    </Label>
+    <TextArea fx:id="certificateTextArea" promptText="Paste friend's ID" VBox.vgrow="SOMETIMES">
+        <font>
+            <Font name="Consolas" size="12.0"/>
+        </font>
+        <VBox.margin>
+            <Insets top="8.0"/>
+        </VBox.margin>
+    </TextArea>
+    <TitledPane fx:id="titledPane" expanded="false" text="Friend's details" VBox.vgrow="ALWAYS">
+        <GridPane>
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints/>
+            </rowConstraints>
+            <Label text="Name"/>
+            <TextField fx:id="certName" editable="false" GridPane.columnIndex="1">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="Make sure it matches your friend's name or nickname"/>
+                </tooltip>
+            </TextField>
+            <Label text="Profile ID" GridPane.rowIndex="1"/>
+            <TextField fx:id="certId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="Unique ID to give a quick and easy way to check if your friend's profile is the right one. If you need absolute certainty, use the fingerprint instead."/>
+                </tooltip>
+            </TextField>
+            <Label text="Fingerprint" GridPane.rowIndex="2"/>
+            <TextField fx:id="certFingerprint" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="Cryptographic checksum to certify the authenticity of your friend's profile."/>
+                </tooltip>
+            </TextField>
+            <Label text="Location" GridPane.rowIndex="3"/>
+            <TextField fx:id="certLocName" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="Name of your friend's machine (desktop, laptop, server, etc...). Can be used to get an idea of the connectivity expected."/>
+                </tooltip>
+            </TextField>
+            <Label text="Location ID" GridPane.rowIndex="4"/>
+            <TextField fx:id="certLocId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="Location identifier. A friend can have several locations but each has a unique ID."/>
+                </tooltip>
+            </TextField>
+            <Label text="Address" GridPane.rowIndex="5"/>
+            <TextField fx:id="certIp" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+        </GridPane>
+    </TitledPane>
+    <AnchorPane>
+        <VBox.margin>
+            <Insets top="8.0"/>
+        </VBox.margin>
+        <Button fx:id="addButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Add" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"/>
+        <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" text="Cancel" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+    </AnchorPane>
+</VBox>

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0" configId="1337">
+    <specVersion>
+        <major>1</major>
+        <minor>1</minor>
+    </specVersion>
+    <device>
+        <deviceType>urn:schemas-upnp-org:device:InternetGatewayDevice:1</deviceType>
+        <friendlyName>RT-AC87U</friendlyName>
+        <manufacturer>ASUSTek</manufacturer>
+        <manufacturerURL>http://www.asus.com/</manufacturerURL>
+        <modelDescription>ASUS Wireless Router</modelDescription>
+        <modelName>RT-AC87U</modelName>
+        <modelNumber>384.13</modelNumber>
+        <modelURL>http://www.asus.com/</modelURL>
+        <serialNumber>88:d7:f6:44:f8:d8</serialNumber>
+        <UDN>uuid:3ddcd1d3-2380-45f5-b069-88d7f644f8d8</UDN>
+        <serviceList>
+            <service>
+                <serviceType>urn:schemas-upnp-org:service:Layer3Forwarding:1</serviceType>
+                <serviceId>urn:upnp-org:serviceId:L3Forwarding1</serviceId>
+                <SCPDURL>/L3F.xml</SCPDURL>
+                <controlURL>/ctl/L3F</controlURL>
+                <eventSubURL>/evt/L3F</eventSubURL>
+            </service>
+        </serviceList>
+        <deviceList>
+            <device>
+                <deviceType>urn:schemas-upnp-org:device:WANDevice:1</deviceType>
+                <friendlyName>WANDevice</friendlyName>
+                <manufacturer>MiniUPnP</manufacturer>
+                <manufacturerURL>http://miniupnp.free.fr/</manufacturerURL>
+                <modelDescription>WAN Device</modelDescription>
+                <modelName>WAN Device</modelName>
+                <modelNumber>20200628</modelNumber>
+                <modelURL>http://miniupnp.free.fr/</modelURL>
+                <serialNumber>88:d7:f6:44:f8:d8</serialNumber>
+                <UDN>uuid:3ddcd1d3-2380-45f5-b069-88d7f644f8d9</UDN>
+                <UPC>000000000000</UPC>
+                <serviceList>
+                    <service>
+                        <serviceType>urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1</serviceType>
+                        <serviceId>urn:upnp-org:serviceId:WANCommonIFC1</serviceId>
+                        <SCPDURL>/WANCfg.xml</SCPDURL>
+                        <controlURL>/ctl/CmnIfCfg</controlURL>
+                        <eventSubURL>/evt/CmnIfCfg</eventSubURL>
+                    </service>
+                </serviceList>
+                <deviceList>
+                    <device>
+                        <deviceType>urn:schemas-upnp-org:device:WANConnectionDevice:1</deviceType>
+                        <friendlyName>WANConnectionDevice</friendlyName>
+                        <manufacturer>MiniUPnP</manufacturer>
+                        <manufacturerURL>http://miniupnp.free.fr/</manufacturerURL>
+                        <modelDescription>MiniUPnP daemon</modelDescription>
+                        <modelName>MiniUPnPd</modelName>
+                        <modelNumber>20200628</modelNumber>
+                        <modelURL>http://miniupnp.free.fr/</modelURL>
+                        <serialNumber>88:d7:f6:44:f8:d8</serialNumber>
+                        <UDN>uuid:3ddcd1d3-2380-45f5-b069-88d7f644f8da</UDN>
+                        <UPC>000000000000</UPC>
+                        <serviceList>
+                            <service>
+                                <serviceType>urn:schemas-upnp-org:service:WANIPConnection:1</serviceType>
+                                <serviceId>urn:upnp-org:serviceId:WANIPConn1</serviceId>
+                                <SCPDURL>/WANIPCn.xml</SCPDURL>
+                                <controlURL>/ctl/IPConn</controlURL>
+                                <eventSubURL>/evt/IPConn</eventSubURL>
+                            </service>
+                        </serviceList>
+                    </device>
+                </deviceList>
+            </device>
+        </deviceList>
+        <presentationURL>http://192.168.1.1:80/</presentationURL>
+    </device>
+</root>

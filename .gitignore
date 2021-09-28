@@ -7,3 +7,4 @@
 /out/
 /build/
 .xeres.lock
+/.jpb/persistence-units.xml

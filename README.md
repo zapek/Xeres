@@ -23,6 +23,19 @@ This is an attempted reimplementation of [Retroshare](https://retroshare.cc) in 
 
 https://xeres.io
 
+## Donations
+
+| Method | Address |
+|---     |---      |
+| GitHub | https://github.com/sponsors/zapek |
+| PayPal | https://www.paypal.me/zapek666 |
+| BTC    | bc1qn57zvp8s3h6renf805fan53kt7q4j963g7prvt |
+| XMR    | 84czz4Vg44GaGmQF8Lst3uWEMyXLSahBffhrDd77jdVJEoKCtUJF96mGQ4XzcYrLG1JGaj2hr2sMoDoihQ52MT1jMBnucyu |
+| GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K |
+| ETH    | 0x7d9EfEe706c81227c73DA7814319301C6Bd63D05 |
+| ZEN    | zcB7QRPTJzjPPXYsqSmnaUHUpn3yheqzV9ygkhj8MvFFbq87unRdnYbxztSJ6LXBKrGywDzjm4qGyXfmGMe9Cf1TnJCNPvR |
+| BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)
+
 ## How to run
 
 ##### IntelliJ IDEA Ultimate

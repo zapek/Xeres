@@ -93,7 +93,6 @@ public class MessagingWindowController implements WindowController
 		receive.setCellFactory(ChatListCell::new);
 		receive.setItems(messages);
 		receive.setSelectionModel(new NullSelectionModel());
-		receive.setMouseTransparent(true);
 
 		send.setOnKeyPressed(event ->
 		{
@@ -101,7 +100,7 @@ public class MessagingWindowController implements WindowController
 			{
 				var message = new ChatMessage(send.getText());
 				messageClient.sendToLocation(locationId, message);
-				messages.add("<" + nickname + "> " + send.getText());
+				addMessageLine("<" + nickname + "> " + send.getText());
 				send.clear();
 			}
 			else
@@ -153,9 +152,15 @@ public class MessagingWindowController implements WindowController
 			}
 			else
 			{
-				messages.add("<" + targetProfile.getName() + "> " + message.getContent());
+				addMessageLine("<" + targetProfile.getName() + "> " + message.getContent());
 				notification.setText("");
 			}
 		}
+	}
+
+	private void addMessageLine(String line)
+	{
+		messages.add(line);
+		receive.scrollTo(line);
 	}
 }

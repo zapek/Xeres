@@ -38,7 +38,7 @@ jobs:
         # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
 
     steps:
-    - name: Checkout repository
+        - name: Checkout repository
       uses: actions/checkout@v2
 
     # Initializes the CodeQL tools for scanning.
@@ -63,8 +63,13 @@ jobs:
         #    and modify them (or add more) to build your code if your project
         #    uses a compiled language
 
-    -   run: |
-            ./gradlew build
+        -   name: Set up JDK 17
+            uses: actions/setup-java@v1
+            with:
+                java-version: 17
 
-    -   name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
+        -   run: |
+                ./gradlew build
+
+        -   name: Perform CodeQL Analysis
+            uses: github/codeql-action/analyze@v1

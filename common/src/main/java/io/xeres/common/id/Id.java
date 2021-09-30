@@ -155,7 +155,7 @@ public final class Id
 					throw new IllegalArgumentException("id has an invalid ascii value: " + number);
 				}
 				number -= 'a';
-				number += 10;
+				number += (byte) 10;
 			}
 			else if (number >= '0')
 			{

@@ -51,17 +51,16 @@ public class ChatListView
 		listView.setCellFactory(ChatListCell::new);
 		listView.setItems(messages);
 		listView.setSelectionModel(new NullSelectionModel());
-		listView.setMouseTransparent(true);
 	}
 
 	public void addMessage(String message)
 	{
-		messages.add("<" + nickname + "> " + message);
+		addMessageLine("<" + nickname + "> " + message);
 	}
 
 	public void addMessage(String from, String message)
 	{
-		messages.add("<" + from + "> " + message);
+		addMessageLine("<" + from + "> " + message);
 	}
 
 	public void setNickname(String nickname)
@@ -77,5 +76,11 @@ public class ChatListView
 	public RoomInfo getRoomInfo()
 	{
 		return roomInfo;
+	}
+
+	private void addMessageLine(String line)
+	{
+		messages.add(line);
+		listView.scrollTo(line);
 	}
 }

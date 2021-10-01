@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="244.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatRoomCreationWindowController">
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="244.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatRoomCreationWindowController">
     <padding>
-        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
     </padding>
     <GridPane>
         <columnConstraints>
@@ -31,11 +30,18 @@
         </TextField>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>
-    <AnchorPane>
-        <VBox.margin>
-            <Insets top="8.0"/>
-        </VBox.margin>
-        <Button fx:id="createButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Create" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"/>
-        <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" text="Cancel" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
-    </AnchorPane>
+    <HBox alignment="TOP_RIGHT">
+        <children>
+            <Button fx:id="createButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Create">
+                <HBox.margin>
+                    <Insets right="4.0"/>
+                </HBox.margin>
+            </Button>
+            <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="Cancel">
+                <HBox.margin>
+                    <Insets left="4.0"/>
+                </HBox.margin>
+            </Button>
+        </children>
+    </HBox>
 </VBox>

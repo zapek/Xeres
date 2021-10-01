@@ -21,20 +21,26 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
     <padding>
-        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
     </padding>
     <Label text="Xeres">
         <font>
             <Font size="24.0"/>
         </font>
     </Label>
+    <HBox alignment="CENTER">
+        <children>
+            <Label text="Version: "/>
+            <Label fx:id="version"/>
+        </children>
+    </HBox>
     <Hyperlink fx:id="website" text="https://xeres.io"/>
     <Label text="Copyright by David Gerber"/>
-    <TextArea fx:id="licenseTextArea" editable="false" prefHeight="155.0" prefWidth="454.0" VBox.vgrow="ALWAYS">
+    <TextArea fx:id="licenseTextArea" editable="false" prefHeight="260.0" prefWidth="550.0" VBox.vgrow="ALWAYS">
         <font>
             <Font name="Consolas" size="12.0"/>
         </font>
@@ -42,9 +48,12 @@
             <Insets bottom="4.0" top="4.0"/>
         </VBox.margin>
     </TextArea>
-    <Button fx:id="closeWindow" mnemonicParsing="false" text="OK">
+    <HBox alignment="TOP_RIGHT">
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>
-    </Button>
+        <children>
+            <Button fx:id="closeWindow" minWidth="72.0" mnemonicParsing="false" text="OK"/>
+        </children>
+    </HBox>
 </VBox>

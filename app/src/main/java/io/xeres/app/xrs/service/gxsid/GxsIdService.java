@@ -133,7 +133,7 @@ public class GxsIdService extends GxsService
 		{
 			var gxsIds = ((List<GxsSyncGroupItem>) items).stream().map(GxsSyncGroupItem::getGroupId).toList();
 			log.debug("Peer wants the following gxs ids: {}", gxsIds);
-			// XXX: for now we just send back our own identity
+			// XXX: for now we just send back our own identity. we should ideally just send back the identities that we have that match the request (there can be more than 1 of course)
 			try (var session = new DatabaseSession(databaseSessionManager))
 			{
 				Identity ownIdentity = identityService.getOwnIdentity();
@@ -143,7 +143,7 @@ public class GxsIdService extends GxsService
 				}
 				else
 				{
-					throw new IllegalArgumentException("Requested an ID that we don't have");
+					// Requested an ID that we don't have
 				}
 			}
 		}

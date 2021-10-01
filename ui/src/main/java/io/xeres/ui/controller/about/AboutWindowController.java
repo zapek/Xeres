@@ -26,8 +26,10 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -45,8 +47,19 @@ public class AboutWindowController implements WindowController
 	@FXML
 	private TextArea licenseTextArea;
 
+	@FXML
+	private Label version;
+
+	private final BuildProperties buildProperties;
+
+	public AboutWindowController(BuildProperties buildProperties)
+	{
+		this.buildProperties = buildProperties;
+	}
+
 	public void initialize() throws IOException
 	{
+		version.setText(buildProperties.getVersion());
 		licenseTextArea.setText(UiUtils.getResourceFileAsString(getClass().getResourceAsStream("/LICENSE")));
 
 		closeWindow.setOnAction(UiUtils::closeWindow);

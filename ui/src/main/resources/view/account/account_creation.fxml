@@ -23,9 +23,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="244.0" prefWidth="333.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.account.AccountCreationWindowController">
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="244.0" prefWidth="333.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.account.AccountCreationWindowController">
     <padding>
-        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
     </padding>
     <Label alignment="CENTER" text="Xeres">
         <font>
@@ -57,5 +57,9 @@
     <ProgressIndicator fx:id="progress" prefWidth="27.0" visible="false"/>
     <Label fx:id="status"/>
     <Region VBox.vgrow="ALWAYS"/>
-    <Button fx:id="okButton" disable="true" mnemonicParsing="false" text="OK"/>
+    <HBox alignment="TOP_RIGHT">
+        <children>
+            <Button fx:id="okButton" disable="true" minWidth="72.0" mnemonicParsing="false" text="OK"/>
+        </children>
+    </HBox>
 </VBox>

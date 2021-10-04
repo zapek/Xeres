@@ -19,7 +19,7 @@
 
 package io.xeres.app.net.upnp;
 
-import io.xeres.testutils.FakeHTTPServer;
+import io.xeres.testutils.FakeHttpServer;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -60,13 +60,13 @@ class SoapTest
 	{
 		String KEY1 = "NewExternalPort", KEY2 = "NewProtocol";
 		String VALUE1 = "1234", VALUE2 = "TCP";
-		var fakeHTTPServer = new FakeHTTPServer("/soaptest.xml", HttpURLConnection.HTTP_OK, "OK".getBytes());
+		var fakeHTTPServer = new FakeHttpServer("/soaptest.xml", HttpURLConnection.HTTP_OK, "OK".getBytes());
 
 		LinkedHashMap<String, String> args = new LinkedHashMap<>(2);
 		args.put(KEY1, VALUE1);
 		args.put(KEY2, VALUE2);
 
-		ResponseEntity<String> responseEntity = Soap.sendRequest(URI.create("http://localhost:" + FakeHTTPServer.LOCAL_PORT + "/soaptest.xml").toURL(), SERVICE_TYPE, ACTION, args);
+		ResponseEntity<String> responseEntity = Soap.sendRequest(URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/soaptest.xml").toURL(), SERVICE_TYPE, ACTION, args);
 		assertEquals("OK", responseEntity.getBody());
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();

@@ -19,7 +19,7 @@
 
 package io.xeres.app.net.upnp;
 
-import io.xeres.testutils.FakeHTTPServer;
+import io.xeres.testutils.FakeHttpServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
@@ -35,22 +35,22 @@ class DeviceTest
 	@Test
 	void Device_From_OK() throws IOException
 	{
-		var inetSocketAddress = new InetSocketAddress(1068);
+		byte[] routerReply = Files.readAllBytes(ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "upnp/routers/RT-AC87U.xml").toPath());
+		var fakeHTTPServer = new FakeHttpServer("/rootDesc.xml", 200, routerReply);
+
+		var inetSocketAddress = new InetSocketAddress(fakeHTTPServer.getPort());
 		String httpuReply = "HTTP/1.1 200 OK\n" +
 				"CACHE-CONTROL: max-age=120\n" +
 				"ST: urn:schemas-upnp-org:device:InternetGatewayDevice:1\n" +
 				"USN: uuid:3ddcd1d3-2380-45f5-b069-88d7f644f8d8::urn:schemas-upnp-org:device:InternetGatewayDevice:1\n" +
 				"EXT:\n" +
 				"SERVER: AsusWRT/384.13 UPnP/1.1 MiniUPnPd/2.1\n" +
-				"LOCATION: http://localhost:" + FakeHTTPServer.LOCAL_PORT + "/rootDesc.xml\n" +
+				"LOCATION: http://localhost:" + fakeHTTPServer.getPort() + "/rootDesc.xml\n" +
 				"OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\n" +
 				"01-NLS: 1594920600\n" +
 				"BOOTID.UPNP.ORG: 1594920600\n" +
 				"CONFIGID.UPNP.ORG: 1337\n" +
 				"\n";
-
-		byte[] routerReply = Files.readAllBytes(ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "upnp/routers/RT-AC87U.xml").toPath());
-		var fakeHTTPServer = new FakeHTTPServer("/rootDesc.xml", 200, routerReply);
 
 		Device device = Device.from(
 				inetSocketAddress,
@@ -60,7 +60,7 @@ class DeviceTest
 		assertFalse(device.isInvalid());
 		assertEquals(inetSocketAddress, device.getInetSocketAddress());
 		assertTrue(device.hasLocation());
-		assertEquals("http://localhost:" + FakeHTTPServer.LOCAL_PORT + "/rootDesc.xml", device.getLocationUrl().toString());
+		assertEquals("http://localhost:" + fakeHTTPServer.getPort() + "/rootDesc.xml", device.getLocationUrl().toString());
 		assertTrue(device.hasServer());
 		assertEquals("AsusWRT/384.13 UPnP/1.1 MiniUPnPd/2.1", device.getServer());
 		assertTrue(device.hasUsn());
@@ -70,7 +70,7 @@ class DeviceTest
 		assertTrue(device.hasControlPoint());
 
 		assertTrue(device.hasControlUrl());
-		assertEquals("http://localhost:" + FakeHTTPServer.LOCAL_PORT + "/ctl/IPConn", device.getControlUrl().toString());
+		assertEquals("http://localhost:" + fakeHTTPServer.getPort() + "/ctl/IPConn", device.getControlUrl().toString());
 		assertTrue(device.hasManufacturer());
 		assertEquals("ASUSTek", device.getManufacturer());
 		assertEquals("http://www.asus.com/", device.getManufacturerUrl().toString());

@@ -23,19 +23,18 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 
-public class FakeHTTPServer
+public class FakeHttpServer
 {
-	public static final int LOCAL_PORT = 1068; // XXX: add a retry system when the port is taken
-
+	private int port = 1068;
 	private final HttpServer httpServer;
 	private byte[] requestBody;
 
-	public FakeHTTPServer(String path, int responseCode, byte[] responseBody) throws IOException
+	public FakeHttpServer(String path, int responseCode, byte[] responseBody)
 	{
-		var address = new InetSocketAddress(LOCAL_PORT);
-		httpServer = HttpServer.create(address, 0);
+		httpServer = createHttpServer();
 
 		HttpHandler handler = exchange -> {
 			requestBody = exchange.getRequestBody().readAllBytes();
@@ -59,5 +58,28 @@ public class FakeHTTPServer
 	public void shutdown()
 	{
 		httpServer.stop(0);
+	}
+
+	public int getPort()
+	{
+		return port;
+	}
+
+	private HttpServer createHttpServer()
+	{
+		var address = new InetSocketAddress(port);
+		try
+		{
+			return HttpServer.create(address, 0);
+		}
+		catch (BindException e)
+		{
+			port++;
+			return createHttpServer();
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException("I/O error: " + e.getMessage());
+		}
 	}
 }

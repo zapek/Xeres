@@ -19,7 +19,7 @@
 
 package io.xeres.app.net.upnp;
 
-import io.xeres.testutils.FakeHTTPServer;
+import io.xeres.testutils.FakeHttpServer;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
@@ -40,10 +40,10 @@ class ControlPointTest
 	@Test
 	void ControlPoint_AddPortMapping_OK() throws IOException
 	{
-		var fakeHTTPServer = new FakeHTTPServer("/control", 200, null);
+		var fakeHTTPServer = new FakeHttpServer("/control", 200, null);
 
 		boolean added = ControlPoint.addPortMapping(
-				URI.create("http://localhost:" + FakeHTTPServer.LOCAL_PORT + "/control").toURL(),
+				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
 				"urn:schemas-upnp-org:service:WANIPConnection:1",
 				"192.168.1.78",
 				2000,
@@ -59,10 +59,10 @@ class ControlPointTest
 	@Test
 	void ControlPoint_RemovePortMapping_OK() throws IOException
 	{
-		var fakeHTTPServer = new FakeHTTPServer("/control", 200, null);
+		var fakeHTTPServer = new FakeHttpServer("/control", 200, null);
 
 		boolean removed = ControlPoint.removePortMapping(
-				URI.create("http://localhost:" + FakeHTTPServer.LOCAL_PORT + "/control").toURL(),
+				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
 				"urn:schemas-upnp-org:service:WANIPConnection:1",
 				2000,
 				Protocol.TCP
@@ -83,10 +83,10 @@ class ControlPointTest
 				"</s:Body>" +
 				"</s:Envelope>";
 
-		var fakeHTTPServer = new FakeHTTPServer("/control", 200, responseBody.getBytes());
+		var fakeHTTPServer = new FakeHttpServer("/control", 200, responseBody.getBytes());
 
 		String response = ControlPoint.getExternalIpAddress(
-				URI.create("http://localhost:" + FakeHTTPServer.LOCAL_PORT + "/control").toURL(),
+				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
 				"urn:schemas-upnp-org:service:WANIPConnection:1"
 		);
 

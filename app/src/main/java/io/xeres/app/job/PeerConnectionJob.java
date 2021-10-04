@@ -24,6 +24,7 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.peer.bootstrap.PeerClient;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.PeerService;
 import io.xeres.common.properties.StartupProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
+
 @Component
 public class PeerConnectionJob
 {
@@ -39,18 +42,37 @@ public class PeerConnectionJob
 
 	private final LocationService locationService;
 	private final PeerClient peerClient;
+	private final PeerService peerService;
 
-	public PeerConnectionJob(LocationService locationService, PeerClient peerClient)
+	public PeerConnectionJob(LocationService locationService, PeerClient peerClient, PeerService peerService)
 	{
 		this.locationService = locationService;
 		this.peerClient = peerClient;
+		this.peerService = peerService;
 	}
 
 	@Scheduled(initialDelay = 5 * 1000, fixedDelay = 60 * 1000)
 	protected void checkConnections()
 	{
-		// XXX: don't try to connect when we're shutting down... I wonder if this is a spring boot bug... maybe ask them?
-		if (!StartupProperties.getBoolean(StartupProperties.Property.SERVER_ONLY, false) && !XeresApplication.isRemoteUiClient())
+		// Do not connect if we're in server mode (i.e. only accepting connections)
+		if (StartupProperties.getBoolean(SERVER_ONLY, false))
+		{
+			return;
+		}
+
+		// Do not connect if we're only a remote UI client
+		if (XeresApplication.isRemoteUiClient())
+		{
+			return;
+		}
+
+		// Do not connect if there's no network or if we're shutting down
+		if (!peerService.isRunning())
+		{
+			return;
+		}
+
+		if (!StartupProperties.getBoolean(SERVER_ONLY, false) && !XeresApplication.isRemoteUiClient())
 		{
 			connectToPeers();
 		}
@@ -58,7 +80,6 @@ public class PeerConnectionJob
 
 	private void connectToPeers()
 	{
-		// XXX: check if the network is UP before attempting
 		List<Connection> connections = locationService.getConnectionsToConnectTo();
 
 		for (Connection connection : connections)

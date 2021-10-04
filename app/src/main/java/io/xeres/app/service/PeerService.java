@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @Service
 public class PeerService
 {
@@ -42,6 +44,8 @@ public class PeerService
 	private EventExecutorGroup sslExecutorGroup;
 	private EventExecutorGroup handlerExecutorGroup;
 
+	private final AtomicBoolean running = new AtomicBoolean();
+
 	public PeerService(PeerClient peerClient, PeerServer peerServer)
 	{
 		this.peerClient = peerClient;
@@ -50,6 +54,7 @@ public class PeerService
 
 	public void start()
 	{
+		running.lazySet(true);
 		sslExecutorGroup = new DefaultEventExecutorGroup(SSL_THREADS);
 		handlerExecutorGroup = new DefaultEventExecutorGroup(HANDLER_THREADS);
 
@@ -62,6 +67,7 @@ public class PeerService
 
 	public void stop()
 	{
+		running.set(false);
 		peerServer.stop();
 		peerClient.stop();
 		try
@@ -81,5 +87,10 @@ public class PeerService
 			log.error("Error while shutting down executor group: {}", e.getMessage());
 			Thread.currentThread().interrupt();
 		}
+	}
+
+	public boolean isRunning()
+	{
+		return running.get();
 	}
 }

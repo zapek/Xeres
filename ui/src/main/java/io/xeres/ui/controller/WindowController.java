@@ -34,11 +34,6 @@ public interface WindowController extends Controller
 		// default
 	}
 
-	default void onCloseRequest()
-	{
-		// default
-	}
-
 	default void onHiding()
 	{
 		// default

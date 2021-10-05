@@ -29,15 +29,28 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxWeaver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 final class UiWindow
 {
+	private static final Logger log = LoggerFactory.getLogger(UiWindow.class);
+
+	private static final String WINDOW_X = "PosX";
+	private static final String WINDOW_Y = "PosY";
+	private static final String WINDOW_WIDTH = "Width";
+	private static final String WINDOW_HEIGHT = "Height";
+
 	private static FxWeaver fxWeaver;
 
 	final Scene scene;
@@ -85,13 +98,53 @@ final class UiWindow
 		stage.setTitle(builder.title);
 		stage.setScene(scene);
 
+		if (builder.rememberEnvironment)
+		{
+			setWindowPreferences(stage, builder.root.getId());
+		}
+
 		stage.setOnShowing(event -> builder.controller.onShowing());
 		stage.setOnShown(event -> builder.controller.onShown());
-		stage.setOnCloseRequest(event -> builder.controller.onCloseRequest());
 		stage.setOnHiding(event -> builder.controller.onHiding());
 		stage.setOnHidden(event -> builder.controller.onHidden());
 
 		scene.getWindow().setUserData(builder.controller);
+	}
+
+	private void setWindowPreferences(Stage stage, String id)
+	{
+		if (isEmpty(id))
+		{
+			throw new IllegalArgumentException("A Window requires an ID");
+		}
+
+		boolean preferencesExist;
+		try
+		{
+			preferencesExist = Preferences.userRoot().nodeExists("/Windows/" + id);
+		}
+		catch (BackingStoreException e)
+		{
+			log.debug("Error while trying to retrieve Windows' preferences: " + e.getMessage());
+			preferencesExist = false;
+		}
+
+		if (preferencesExist)
+		{
+			var preferences = Preferences.userRoot().node("Windows").node(id);
+			stage.setX(preferences.getDouble(WINDOW_X, 0));
+			stage.setY(preferences.getDouble(WINDOW_Y, 0));
+			stage.setWidth(preferences.getDouble(WINDOW_WIDTH, 0));
+			stage.setHeight(preferences.getDouble(WINDOW_HEIGHT, 0));
+		}
+
+		stage.setOnCloseRequest(event -> {
+			var preferences = Preferences.userRoot().node("Windows").node(id);
+			preferences.putDouble(WINDOW_X, stage.getX());
+			preferences.putDouble(WINDOW_Y, stage.getY());
+			preferences.putDouble(WINDOW_WIDTH, stage.getWidth());
+			preferences.putDouble(WINDOW_HEIGHT, stage.getHeight());
+		});
 	}
 
 	static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass)
@@ -163,6 +216,7 @@ final class UiWindow
 		private String title = AppName.NAME;
 		private String localId;
 		private Object userData;
+		private boolean rememberEnvironment;
 
 		private Builder(Parent root, WindowController controller)
 		{
@@ -203,6 +257,12 @@ final class UiWindow
 		Builder setLocalId(String id)
 		{
 			this.localId = id;
+			return this;
+		}
+
+		Builder setRememberEnvironment(boolean remember)
+		{
+			this.rememberEnvironment = remember;
 			return this;
 		}
 

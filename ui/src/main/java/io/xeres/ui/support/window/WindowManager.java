@@ -85,7 +85,10 @@ public class WindowManager
 			}
 			else
 			{
-				UiWindow.builder(FriendsWindowController.class).build().open();
+				UiWindow.builder(FriendsWindowController.class)
+						.setRememberEnvironment(true)
+						.build()
+						.open();
 			}
 		});
 	}
@@ -168,6 +171,7 @@ public class WindowManager
 				.setStage(stage)
 				.setMinWidth(600)
 				.setMinHeight(400)
+				.setRememberEnvironment(true)
 				.build()
 				.open());
 	}

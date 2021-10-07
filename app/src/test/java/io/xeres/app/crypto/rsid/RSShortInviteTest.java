@@ -35,7 +35,6 @@ class RSShortInviteTest
 		RSId rsId = RSId.parse(string);
 
 		assertNotNull(rsId);
-		assertNull(rsId.getPgpPublicKey());
 		assertFalse(rsId.hasInternalIp()); // XXX: try with a later ID... which has the right IP in the certificate
 		assertNull(rsId.getInternalIp());
 		assertTrue(rsId.hasExternalIp());

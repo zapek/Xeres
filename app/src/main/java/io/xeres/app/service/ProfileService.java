@@ -21,7 +21,6 @@ package io.xeres.app.service;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsid.RSId;
-import io.xeres.app.crypto.rsid.RSId.Type;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.repository.ProfileRepository;
@@ -158,41 +157,13 @@ public class ProfileService
 		}
 	}
 
-	public Profile getProfileFromRSId(RSId rsId, Type type) throws CertificateException
+	public Profile getProfileFromRSId(RSId rsId) throws CertificateException
 	{
-		if (rsId.hasPgpPublicKey())
-		{
-			if (type == Type.SHORT_INVITE)
-			{
-				throw new CertificateException("Old certificates are deprecated. Only ShortInvites are accepted.");
-			}
-
-			var key = rsId.getPgpPublicKey();
-			Profile profile;
-			try
-			{
-				profile = Profile.createProfile(key.getUserIDs().next(), key.getKeyID(), new ProfileFingerprint(key.getFingerprint()), key.getEncoded());
-				profile.setAccepted(true);
-			}
-			catch (IOException e)
-			{
-				throw new IllegalStateException("The PGP provider is seriously broken"); // can't happen since we just parsed it
-			}
-
-			if (rsId.hasLocationInfo())
-			{
-				profile.addLocation(Location.createLocation(rsId));
-			}
-			return profile;
-		}
-		else
-		{
-			var profileFingerprint = new ProfileFingerprint(rsId.getPgpFingerprint());
-			var profile = findProfileByPgpFingerprint(profileFingerprint).orElseGet(() -> Profile.createEmptyProfile(rsId.getName(), rsId.getPgpIdentifier(), profileFingerprint));
-			profile.setAccepted(true);
-			profile.addLocation(Location.createLocation(rsId));
-			return profile;
-		}
+		var profileFingerprint = new ProfileFingerprint(rsId.getPgpFingerprint());
+		var profile = findProfileByPgpFingerprint(profileFingerprint).orElseGet(() -> Profile.createEmptyProfile(rsId.getName(), rsId.getPgpIdentifier(), profileFingerprint));
+		profile.setAccepted(true);
+		profile.addLocation(Location.createLocation(rsId));
+		return profile;
 	}
 
 	@Transactional

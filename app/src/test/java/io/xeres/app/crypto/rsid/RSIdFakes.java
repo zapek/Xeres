@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,20 +17,23 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.crypto.rsid.certificate;
+package io.xeres.app.crypto.rsid;
 
-import java.io.IOException;
-import java.security.cert.CertificateParsingException;
+import io.xeres.app.database.model.location.LocationFakes;
 
-public final class RSCertificateFakes
+public final class RSIdFakes
 {
-	private RSCertificateFakes()
+	private RSIdFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static RSCertificate createRSCertificate() throws IOException, CertificateParsingException
+	public static RSId createShortInvite()
 	{
-		return new RSCertificate();
+		var builder = new RSIdBuilder(RSId.Type.SHORT_INVITE);
+		return builder.setName("foobar".getBytes())
+				.setLocationId(LocationFakes.createLocation().getLocationId())
+				.setPgpFingerprint(new byte[]{1, 2, 3})
+				.build();
 	}
 }

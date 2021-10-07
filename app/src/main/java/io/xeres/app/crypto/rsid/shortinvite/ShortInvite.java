@@ -23,7 +23,6 @@ import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdCrc;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
-import org.bouncycastle.openpgp.PGPPublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,18 +186,6 @@ public class ShortInvite extends RSId
 		return ext4Locator;
 	}
 
-	@Override
-	public boolean hasPgpPublicKey()
-	{
-		return false;
-	}
-
-	@Override
-	public PGPPublicKey getPgpPublicKey()
-	{
-		return null;
-	}
-
 	public void setPgpFingerprint(byte[] pgpFingerprint)
 	{
 		this.pgpFingerprint = pgpFingerprint;
@@ -248,7 +235,7 @@ public class ShortInvite extends RSId
 	@Override
 	public boolean hasDnsName()
 	{
-		return false;
+		return hostnameLocator != null;
 	}
 
 	@Override
@@ -296,6 +283,11 @@ public class ShortInvite extends RSId
 		{
 			this.hiddenLocator = PeerAddress.fromInvalid();
 		}
+	}
+
+	public void addLocator(String locator)
+	{
+		locators.add(locator);
 	}
 
 	@Override

@@ -21,7 +21,7 @@ package io.xeres.app.web.api.controller.profile;
 
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdArmor;
-import io.xeres.app.crypto.rsid.certificate.RSCertificateFakes;
+import io.xeres.app.crypto.rsid.RSIdFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.service.ProfileService;
@@ -131,9 +131,9 @@ class ProfileControllerTest extends AbstractControllerTest
 	void ProfileController_CreateProfile_OK() throws Exception
 	{
 		var expected = ProfileFakes.createProfile("test", 1);
-		var profileRequest = new CertificateRequest(RSIdArmor.getArmored(RSCertificateFakes.createRSCertificate()));
+		var profileRequest = new CertificateRequest(RSIdArmor.getArmored(RSIdFakes.createShortInvite()));
 
-		when(profileService.getProfileFromRSId(any(RSId.class), any(RSId.Type.class))).thenReturn(expected);
+		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
 		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));
 
 		mvc.perform(postJson(BASE_URL, profileRequest))

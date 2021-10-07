@@ -46,8 +46,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static io.xeres.app.crypto.rsid.RSId.Type.BOTH;
-import static io.xeres.app.crypto.rsid.RSId.Type.SHORT_INVITE;
 import static io.xeres.app.database.model.profile.ProfileMapper.*;
 import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -103,7 +101,7 @@ public class ProfileController
 		Profile profile;
 		try
 		{
-			profile = profileService.getProfileFromRSId(RSId.parse(certificateRequest.certificate()), SHORT_INVITE);
+			profile = profileService.getProfileFromRSId(RSId.parse(certificateRequest.certificate()));
 		}
 		catch (CertificateException e)
 		{
@@ -128,7 +126,7 @@ public class ProfileController
 		try
 		{
 			rsId = RSId.parse(certificateRequest.certificate());
-			profileDTO = toDeepDTO(profileService.getProfileFromRSId(rsId, BOTH));
+			profileDTO = toDeepDTO(profileService.getProfileFromRSId(rsId));
 		}
 		catch (CertificateException e)
 		{

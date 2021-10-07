@@ -20,12 +20,10 @@
 package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.crypto.pgp.PGP;
-import io.xeres.app.crypto.rsid.certificate.RSCertificate;
 import io.xeres.app.crypto.rsid.shortinvite.ShortInvite;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.openpgp.PGPPublicKey;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,8 +35,7 @@ public abstract class RSId
 {
 	public enum Type
 	{
-		SHORT_INVITE,
-		BOTH
+		SHORT_INVITE
 	}
 
 	public static RSId parse(String data) throws CertificateParsingException
@@ -54,12 +51,9 @@ public abstract class RSId
 		}
 		catch (CertificateParsingException e)
 		{
-			// XXX: this is not very nice... how do I know which parsing failed?
-			return RSCertificate.parseRSCertificate(data);
+			throw new CertificateParsingException("Parse error: " + e.getMessage(), e);
 		}
 	}
-
-	// XXX: the names need to be adjusted...
 
 	public abstract boolean hasInternalIp();
 
@@ -68,10 +62,6 @@ public abstract class RSId
 	public abstract boolean hasExternalIp();
 
 	public abstract PeerAddress getExternalIp();
-
-	public abstract boolean hasPgpPublicKey();
-
-	public abstract PGPPublicKey getPgpPublicKey();
 
 	public abstract byte[] getPgpFingerprint();
 

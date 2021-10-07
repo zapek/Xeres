@@ -19,12 +19,9 @@
 
 package io.xeres.app.crypto.rsid;
 
-import io.xeres.app.crypto.rsid.certificate.RSCertificate;
-import io.xeres.app.crypto.rsid.certificate.RSCertificateTags;
 import io.xeres.app.crypto.rsid.shortinvite.ShortInvite;
 import io.xeres.app.crypto.rsid.shortinvite.ShortInviteQuirks;
 import io.xeres.app.crypto.rsid.shortinvite.ShortInviteTags;
-import io.xeres.common.id.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,24 +58,20 @@ public final class RSIdArmor
 	{
 		try (var out = new ByteArrayOutputStream())
 		{
-			if (rsId instanceof RSCertificate)
-			{
-				return getArmoredCertificate(rsId, out);
-			}
-			else if (rsId instanceof ShortInvite)
+			if (rsId instanceof ShortInvite)
 			{
 				return getArmoredShortInvite(rsId, out);
 			}
 			else
 			{
-				throw new UnsupportedOperationException("Armor mode not implemented");
+				throw new UnsupportedOperationException("Armor mode not implemented for RSId of " + rsId.getClass().getSimpleName());
 			}
 		}
 	}
 
 	private static String getArmoredShortInvite(RSId rsId, ByteArrayOutputStream out) throws IOException
 	{
-		addPacket(ShortInviteTags.SSLID, rsId.getLocationId(), out);
+		addPacket(ShortInviteTags.SSLID, rsId.getLocationId().getBytes(), out);
 		addPacket(ShortInviteTags.NAME, rsId.getName().getBytes(), out);
 		addPacket(ShortInviteTags.PGP_FINGERPRINT, rsId.getPgpFingerprint(), out);
 		if (rsId.isHiddenNode())
@@ -97,63 +90,10 @@ public final class RSIdArmor
 		{
 			// XXX: use ONE most recently known locator. I still think the url scheme is a waste
 		}
+		// Note that we don't use LOC4_LOCATOR as we expect the broadcast discovery to work
 		addCrcPacket(ShortInviteTags.CHECKSUM, out);
 
 		return wrapWithBase64(out.toByteArray(), WrapMode.CONTINUOUS);
-	}
-
-	private static String getArmoredCertificate(RSId rsId, ByteArrayOutputStream out) throws IOException
-	{
-		addPacket(RSCertificateTags.VERSION, new byte[]{RSCertificate.VERSION_06}, out);
-		if (rsId.hasPgpPublicKey())
-		{
-			addPacket(RSCertificateTags.PGP, rsId.getPgpPublicKey().getEncoded(), out);
-		}
-
-		if (rsId.hasLocationInfo())
-		{
-			if (rsId.isHiddenNode())
-			{
-				addPacket(RSCertificateTags.HIDDEN_NODE, rsId.getHiddenNodeAddress().getAddressAsBytes().orElseThrow(), out);
-			}
-			else
-			{
-				if (rsId.hasExternalIp())
-				{
-					addPacket(RSCertificateTags.EXTERNAL_IP_AND_PORT, rsId.getExternalIp().getAddressAsBytes().orElseThrow(), out);
-				}
-				if (rsId.hasInternalIp())
-				{
-					addPacket(RSCertificateTags.INTERNAL_IP_AND_PORT, rsId.getInternalIp().getAddressAsBytes().orElseThrow(), out);
-				}
-				//if (rsId.hasDnsName())
-				//{
-				//addPacket(DNS, rsId.getDnsName().getBytes(), out);
-				//}
-			}
-
-			if (rsId.hasName())
-			{
-				addPacket(RSCertificateTags.NAME, rsId.getName().getBytes(), out);
-			}
-			addPacket(RSCertificateTags.SSLID, rsId.getLocationId(), out);
-
-			if (rsId.hasLocators())
-			{
-				for (String locator : rsId.getLocators())
-				{
-					addPacket(RSCertificateTags.EXTRA_LOCATOR, locator.getBytes(), out);
-				}
-			}
-		}
-		addCrcPacket(RSCertificateTags.CHECKSUM, out);
-
-		return wrapWithBase64(out.toByteArray(), WrapMode.SLICED);
-	}
-
-	private static void addPacket(int pTag, Identifier identifier, OutputStream out) throws IOException
-	{
-		addPacket(pTag, identifier.getBytes(), out);
 	}
 
 	private static void addPacket(int pTag, byte[] data, OutputStream out) throws IOException

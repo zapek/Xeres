@@ -20,8 +20,7 @@
 package io.xeres.app.database.model.location;
 
 import io.xeres.app.crypto.rsid.RSId;
-import io.xeres.app.crypto.rsid.certificate.RSCertificate;
-import io.xeres.app.crypto.rsid.shortinvite.ShortInvite;
+import io.xeres.app.crypto.rsid.RSIdBuilder;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.common.id.LocationId;
@@ -29,7 +28,6 @@ import io.xeres.common.protocol.NetMode;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.security.cert.CertificateParsingException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -147,50 +145,15 @@ public class Location
 
 	public RSId getRSId()
 	{
-		return getShortInvite();
-		// XXX: here always return a shortId since this is the new format (can this be adjusted?)
-		//return RSCertificate.createRSCertificateFromLocation(location);
-	}
+		var builder = new RSIdBuilder(RSId.Type.SHORT_INVITE);
 
-	public ShortInvite getShortInvite()
-	{
-		var si = new ShortInvite();
+		builder.setName(getProfile().getName().getBytes())
+				.setLocationId(getLocationId())
+				.setPgpFingerprint(getProfile().getProfileFingerprint().getBytes());
 
-		si.setName(getProfile().getName().getBytes());
-		si.setLocationId(getLocationId());
-		si.setPgpFingerprint(getProfile().getProfileFingerprint().getBytes());
-		getConnections().forEach(connection ->
-		{
-			if (connection.isExternal())
-			{
-				si.setExt4Locator(connection.getAddress());
-			}
-			else
-			{
-				si.setLoc4Locator(connection.getAddress());
-			}
-		});
-		return si;
-	}
+		getConnections().forEach(connection -> builder.addLocator(connection.getAddress(), connection.isExternal()));
 
-	public RSCertificate getRSCertificate() throws CertificateParsingException
-	{
-		var rsc = new RSCertificate();
-
-		rsc.setName(getName());
-		rsc.setLocationId(getLocationId());
-		rsc.setPgpPublicKey(getProfile().getPgpPublicKeyData());
-		getConnections().forEach(connection -> {
-			if (connection.isExternal())
-			{
-				rsc.setExternalIp(connection.getAddress());
-			}
-			else
-			{
-				rsc.setInternalIp(connection.getAddress());
-			}
-		});
-		return rsc;
+		return builder.build();
 	}
 
 	public void addConnection(Connection connection)

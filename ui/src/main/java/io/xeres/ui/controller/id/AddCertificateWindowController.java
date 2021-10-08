@@ -99,18 +99,9 @@ public class AddCertificateWindowController implements WindowController
 		profileClient.checkCertificate(certificateString.replaceAll("([\r\n\t])", ""))
 				.doOnSuccess(profile -> Platform.runLater(() ->
 				{
-					if (profile.getPgpPublicKeyData() != null)
-					{
-						certificateTextArea.setTooltip(new Tooltip("A RS Certificate cannot be used. Please use a Short ID instead (version higher than Retroshare 0.6.5)"));
-						addButton.setDisable(true);
-						UiUtils.showWarning(certificateTextArea);
-					}
-					else
-					{
-						certificateTextArea.setTooltip(new Tooltip("ID is valid"));
-						addButton.setDisable(false);
-						UiUtils.clearError(certificateTextArea);
-					}
+					certificateTextArea.setTooltip(new Tooltip("ID is valid"));
+					addButton.setDisable(false);
+					UiUtils.clearError(certificateTextArea);
 
 					certName.setText(profile.getName());
 					certId.setText(Id.toString(profile.getPgpIdentifier()));
@@ -125,12 +116,12 @@ public class AddCertificateWindowController implements WindowController
 								location.getConnections().stream()
 										.filter(Connection::isExternal)
 										.findFirst().ifPresent(connection ->
-										certIp.setText(connection.getAddress()));
+												certIp.setText(connection.getAddress()));
 
 								location.getConnections().stream()
 										.filter(not(Connection::isExternal))
 										.findFirst().ifPresent(connection ->
-										certIp.setTooltip(new Tooltip("LAN address: " + connection.getAddress())));
+												certIp.setTooltip(new Tooltip("LAN address: " + connection.getAddress())));
 							});
 					titledPane.setExpanded(true);
 				}))

@@ -312,17 +312,12 @@ public class BroadcastDiscoveryService implements Runnable
 							log.debug("Trying to update friend's IP");
 
 							locationService.findLocationById(peer.getLocationId()).ifPresent(location -> {
-								if (!location.isConnected())
-								{
-									var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
-									location.getConnections().stream()
-											.filter(connection -> connection.equals(lanConnection))
-											.findFirst()
-													.ifPresentOrElse(connection -> {
-													}, () -> {
-														log.debug("Updating friend {} with ip {}", location, lanConnection);
-														location.addConnection(lanConnection);
-													});
+										if (!location.isConnected())
+										{
+											var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
+
+											log.debug("Updating friend {} with ip {}", location, lanConnection);
+											location.addConnection(lanConnection);
 										}
 									}
 							);

@@ -156,10 +156,25 @@ public class Location
 		return builder.build();
 	}
 
-	public void addConnection(Connection connection)
+	/**
+	 * Add a connection while avoiding duplicates.
+	 *
+	 * @param connection the connection to add
+	 * @return true if added, false if it's already present
+	 */
+	public boolean addConnection(Connection connection)
 	{
-		connection.setLocation(this);
-		getConnections().add(connection);
+		var connectionAlreadyExists = getConnections().stream()
+				.filter(existingConnection -> existingConnection.equals(connection))
+				.findFirst();
+
+		if (connectionAlreadyExists.isEmpty())
+		{
+			connection.setLocation(this);
+			getConnections().add(connection);
+			return true;
+		}
+		return false;
 	}
 
 	public Profile getProfile()

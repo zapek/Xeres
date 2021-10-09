@@ -265,30 +265,17 @@ public class LocationService
 		{
 			for (Connection connection : location.getConnections())
 			{
-				updated = updateConnectionIfSameType(peerAddress, connection);
+				updated = updateAddressIfSameType(peerAddress, connection);
 				if (updated)
 				{
 					break;
 				}
 			}
-
 		}
-		else
-		{
-			for (Connection connection : location.getConnections())
-			{
-				if (peerAddress.getType() == connection.getType()
-						&& peerAddress.getAddress().orElseThrow().equals(connection.getAddress()))
-				{
-					updated = true;
-					break;
-				}
-			}
 
-		}
 		if (!updated)
 		{
-			location.addConnection(Connection.from(peerAddress));
+			updated = location.addConnection(Connection.from(peerAddress));
 		}
 		locationRepository.save(location);
 		return updated ? UpdateConnectionStatus.UPDATED : UpdateConnectionStatus.ADDED;
@@ -309,7 +296,7 @@ public class LocationService
 		return username;
 	}
 
-	private boolean updateConnectionIfSameType(PeerAddress from, Connection to)
+	private boolean updateAddressIfSameType(PeerAddress from, Connection to)
 	{
 		if ((from.isExternal() && to.isExternal())
 				|| (!from.isExternal() && !to.isExternal()))

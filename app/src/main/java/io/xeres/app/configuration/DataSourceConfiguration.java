@@ -20,6 +20,7 @@
 package io.xeres.app.configuration;
 
 import io.xeres.app.properties.DatabaseProperties;
+import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -45,18 +46,22 @@ public class DataSourceConfiguration
 	private final Environment environment;
 	private final DatabaseProperties databaseProperties;
 	private final DataDirConfiguration dataDirConfiguration;
+	private final SplashService splashService;
 
-	public DataSourceConfiguration(Environment environment, DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration)
+	public DataSourceConfiguration(Environment environment, DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, SplashService splashService)
 	{
 		this.environment = environment;
 		this.databaseProperties = databaseProperties;
 		this.dataDirConfiguration = dataDirConfiguration;
+		this.splashService = splashService;
 	}
 
 	@Bean
 	@ConditionalOnProperty(prefix = "spring.datasource", name = "url", havingValue = "false", matchIfMissing = true)
 	public DataSource getDataSource()
 	{
+		splashService.status("Loading database");
+
 		var useJMX = "";
 
 		if (environment.acceptsProfiles(Profiles.of("dev")))

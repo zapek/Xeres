@@ -49,11 +49,17 @@ public class JavaFxApplication extends Application
 		return new SpringFxWeaver(applicationContext);
 	}
 
+	private boolean isHeadless()
+	{
+		return getParameters().getUnnamed().contains("no-gui");
+	}
+
 	@Override
 	public void init()
 	{
 		springContext = new SpringApplicationBuilder()
 				.sources(springApplicationClass)
+				.headless(isHeadless()) // JavaFX defaults to true which is not what we want
 				.run(getParameters().getRaw().toArray(new String[0]));
 	}
 

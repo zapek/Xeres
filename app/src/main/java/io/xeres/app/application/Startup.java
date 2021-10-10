@@ -39,6 +39,7 @@ import io.xeres.app.service.PrefsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.common.AppName;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -50,7 +51,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -58,7 +58,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static io.xeres.app.application.environment.Cloud.isRunningOnCloud;
 import static java.util.function.Predicate.not;
 
 @Component
@@ -80,8 +79,9 @@ public class Startup implements ApplicationRunner
 	private final DataDirConfiguration dataDirConfiguration;
 	private final ChatRoomService chatRoomService;
 	private final PeerConnectionManager peerConnectionManager;
+	private final SplashService splashService;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, PrefsService prefsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, ChatRoomService chatRoomService, PeerConnectionManager peerConnectionManager)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, PrefsService prefsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, ChatRoomService chatRoomService, PeerConnectionManager peerConnectionManager, SplashService splashService)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
@@ -97,6 +97,7 @@ public class Startup implements ApplicationRunner
 		this.dataDirConfiguration = dataDirConfiguration;
 		this.chatRoomService = chatRoomService;
 		this.peerConnectionManager = peerConnectionManager;
+		this.splashService = splashService;
 	}
 
 	@Override
@@ -113,8 +114,6 @@ public class Startup implements ApplicationRunner
 			showDebug();
 		}
 
-		hideSplashScreen();
-
 		if (XeresApplication.isRemoteUiClient())
 		{
 			log.info("Remote UI mode");
@@ -123,6 +122,7 @@ public class Startup implements ApplicationRunner
 
 		if (prefsService.isOwnProfilePresent())
 		{
+			splashService.status("Starting network");
 			try (var session = new DatabaseSession(databaseSessionManager))
 			{
 				var location = locationService.findOwnLocation().orElseThrow();
@@ -144,6 +144,7 @@ public class Startup implements ApplicationRunner
 		else
 		{
 			log.info("Waiting... Use the user interface to send commands to create a profile");
+			splashService.close();
 		}
 	}
 
@@ -182,6 +183,7 @@ public class Startup implements ApplicationRunner
 				log.error("Local address is invalid: {}, can't start network services", event.localIpAddress());
 			}
 		}
+		splashService.close();
 	}
 
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown and we don't want them in shutdown state already
@@ -248,32 +250,6 @@ public class Startup implements ApplicationRunner
 		else
 		{
 			log.debug("Netty leak detector disabled");
-		}
-	}
-
-	private void hideSplashScreen()
-	{
-		if (isRunningOnCloud())
-		{
-			return;
-		}
-
-		// XXX: how to avoid the splash screen with --no-gui?
-		System.setProperty("java.awt.headless", "false"); // XXX: same problem as in 'ui'... should the splash screen be handled by the 'ui' module?
-		try
-		{
-			var splashScreen = SplashScreen.getSplashScreen();
-
-			// XXX: we could print stuff over the splashscreen while starting, see: https://docs.oracle.com/javase/tutorial/uiswing/misc/splashscreen.html
-			if (splashScreen != null)
-			{
-				splashScreen.close();
-			}
-		}
-		catch (Exception | UnsatisfiedLinkError e)
-		{
-			// Apparently that splashscreen stuff is brittle
-			log.error("Error while trying to close splash screen: {}", e.getMessage());
 		}
 	}
 

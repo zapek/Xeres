@@ -56,7 +56,6 @@ public class TrayService
 		{
 			return;
 		}
-		System.setProperty("java.awt.headless", "false");
 
 		if (!SystemTray.isSupported())
 		{

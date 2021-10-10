@@ -8,6 +8,12 @@ Contributions are welcome! Please read the following in order to make it easier.
 * make sure the bug is not already in the list, to avoid duplicates (a simple search should do)
 * if in doubt, feel free to [discuss it](https://github.com/zapek/Xeres/discussions) first
 
+## Making a feature request
+
+* use the [issue tracker](https://github.com/zapek/Xeres/issues)
+* make sure the feature request is not already in the list, to avoid duplicates (a simple search should do)
+* if in doubt, feel free to [discuss it](https://github.com/zapek/Xeres/discussions) first
+
 ## Submitting changes
 
 * make sure you use the same formatting and style (there's an .editorconfig file that does it automatically)

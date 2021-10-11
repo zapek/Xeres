@@ -47,7 +47,7 @@ public class ShortInvite extends RSId
 	private PeerAddress ext4Locator;
 	private PeerAddress loc4Locator;
 	private PeerAddress hostnameLocator;
-	private final Set<String> locators = new HashSet<>();
+	private final Set<PeerAddress> locators = new HashSet<>();
 
 	public ShortInvite()
 	{
@@ -79,50 +79,22 @@ public class ShortInvite extends RSId
 
 				switch (ptag)
 				{
-					case ShortInviteTags.PGP_FINGERPRINT:
-						shortInvite.setPgpFingerprint(buf);
-						break;
-
-					case ShortInviteTags.NAME:
-						shortInvite.setName(buf);
-						break;
-
-					case ShortInviteTags.SSLID:
-						shortInvite.setLocationId(new LocationId(buf));
-						break;
-
-					case ShortInviteTags.DNS_LOCATOR:
-						shortInvite.setDnsName(buf);
-						break;
-
-					case ShortInviteTags.HIDDEN_LOCATOR:
-						shortInvite.setHiddenNodeAddress(buf);
-						break;
-
-					case ShortInviteTags.EXT4_LOCATOR:
-						shortInvite.setExt4Locator(buf);
-						break;
-
-					case ShortInviteTags.LOC4_LOCATOR:
-						shortInvite.setLoc4Locator(buf);
-						break;
-
-					case ShortInviteTags.CHECKSUM:
+					case ShortInviteTags.PGP_FINGERPRINT -> shortInvite.setPgpFingerprint(buf);
+					case ShortInviteTags.NAME -> shortInvite.setName(buf);
+					case ShortInviteTags.SSLID -> shortInvite.setLocationId(new LocationId(buf));
+					case ShortInviteTags.DNS_LOCATOR -> shortInvite.setDnsName(buf);
+					case ShortInviteTags.HIDDEN_LOCATOR -> shortInvite.setHiddenNodeAddress(buf);
+					case ShortInviteTags.EXT4_LOCATOR -> shortInvite.setExt4Locator(buf);
+					case ShortInviteTags.LOC4_LOCATOR -> shortInvite.setLoc4Locator(buf);
+					case ShortInviteTags.LOCATOR -> shortInvite.addLocator(new String(buf));
+					case ShortInviteTags.CHECKSUM -> {
 						if (buf.length != 3)
 						{
 							throw new IllegalArgumentException("Checksum corrupted");
 						}
 						checksumPassed = checksum == (Byte.toUnsignedInt(buf[2]) << 16 | Byte.toUnsignedInt(buf[1]) << 8 | Byte.toUnsignedInt(buf[0])); // little endian
-						break;
-
-					case ShortInviteTags.LOCATOR:
-						// XXX: handle the URLs...
-						break;
-
-					default:
-						ShortInvite.log.warn("Unhandled tag {}, ignoring.", ptag);
-						break;
-
+					}
+					default -> ShortInvite.log.warn("Unhandled tag {}, ignoring.", ptag);
 				}
 			}
 
@@ -287,7 +259,12 @@ public class ShortInvite extends RSId
 
 	public void addLocator(String locator)
 	{
-		locators.add(locator);
+		var peerAddress = PeerAddress.fromUrl(locator);
+
+		if (peerAddress.isValid())
+		{
+			locators.add(peerAddress);
+		}
 	}
 
 	@Override
@@ -297,7 +274,7 @@ public class ShortInvite extends RSId
 	}
 
 	@Override
-	public Set<String> getLocators()
+	public Set<PeerAddress> getLocators()
 	{
 		return locators;
 	}

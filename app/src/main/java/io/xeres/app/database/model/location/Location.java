@@ -139,8 +139,10 @@ public class Location
 			addConnection(Connection.from(rsId.getExternalIp())); // XXX: this one has the proper port to use for external connections. how to handle it? what did I mean by that comment?
 		}
 
-		// XXX: continue here
-		// XXX: the internal/external ipv4/port thing should use the same mechanism as RsUrl I believe
+		if (rsId.hasLocators())
+		{
+			rsId.getLocators().forEach(peerAddress -> addConnection(Connection.from(peerAddress)));
+		}
 	}
 
 	public RSId getRSId()

@@ -83,7 +83,7 @@ public abstract class RSId
 
 	public abstract boolean hasLocators();
 
-	public abstract Set<String> getLocators();
+	public abstract Set<PeerAddress> getLocators();
 
 	/**
 	 * Gets the PGP identifier, which is the last long of the PGP fingerprint

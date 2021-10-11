@@ -86,24 +86,22 @@
                 </tooltip>
             </TextField>
             <Label text="Address" GridPane.rowIndex="5"/>
-            <TextField fx:id="certIp" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+            <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
         </GridPane>
     </TitledPane>
     <HBox alignment="TOP_RIGHT">
-        <children>
-            <Button fx:id="addButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Add">
-                <HBox.margin>
-                    <Insets right="4.0"/>
-                </HBox.margin>
-            </Button>
-            <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="Cancel">
-                <HBox.margin>
-                    <Insets left="4.0"/>
-                </HBox.margin>
-            </Button>
-        </children>
         <VBox.margin>
             <Insets top="8.0"/>
         </VBox.margin>
+        <Button fx:id="addButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Add">
+            <HBox.margin>
+                <Insets right="4.0"/>
+            </HBox.margin>
+        </Button>
+        <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="Cancel">
+            <HBox.margin>
+                <Insets left="4.0"/>
+            </HBox.margin>
+        </Button>
     </HBox>
 </VBox>

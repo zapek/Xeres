@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static java.util.function.Predicate.not;
+import java.util.Comparator;
 
 @Component
 @FxmlView(value = "/view/id/certificate_add.fxml")
@@ -66,7 +66,7 @@ public class AddCertificateWindowController implements WindowController
 	private TextField certLocId;
 
 	@FXML
-	private TextField certIp;
+	private ChoiceBox<String> certIps;
 
 	@FXML
 	private TitledPane titledPane;
@@ -113,15 +113,15 @@ public class AddCertificateWindowController implements WindowController
 								// XXX: display the hostname if available!
 								certLocName.setText(location.getName());
 								certLocId.setText(location.getLocationId().toString());
-								location.getConnections().stream()
-										.filter(Connection::isExternal)
-										.findFirst().ifPresent(connection ->
-												certIp.setText(connection.getAddress()));
 
-								location.getConnections().stream()
-										.filter(not(Connection::isExternal))
-										.findFirst().ifPresent(connection ->
-												certIp.setTooltip(new Tooltip("LAN address: " + connection.getAddress())));
+								var otherIps = location.getConnections().stream()
+										.sorted(Comparator.comparing(Connection::isExternal).reversed())
+										.map(Connection::getAddress)
+										.toList();
+
+								certIps.getItems().addAll(otherIps);
+								certIps.getSelectionModel().select(0);
+								certIps.setTooltip(new Tooltip("All addresses will be tried. You can preselect one as a hint."));
 							});
 					titledPane.setExpanded(true);
 				}))

@@ -59,11 +59,11 @@ class ProfileControllerTest extends AbstractControllerTest
 
 		mvc.perform(getJson(BASE_URL + "/" + expected.getId()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id", is((int) expected.getId())))
+				.andExpect(jsonPath("$.id").value(is(expected.getId()), Long.class))
 				.andExpect(jsonPath("$.name", is(expected.getName())))
 				.andExpect(jsonPath("$.pgpFingerprint", is(Base64.toBase64String(expected.getProfileFingerprint().getBytes()))))
 				.andExpect(jsonPath("$.pgpPublicKeyData", is(Base64.toBase64String(expected.getPgpPublicKeyData()))))
-				.andExpect(jsonPath("$.accepted", is(expected.isAccepted())))
+				.andExpect(jsonPath("$.accepted").value(is(expected.isAccepted()), Boolean.class))
 				.andExpect(jsonPath("$.trust", is(expected.getTrust().name())));
 
 		verify(profileService).findProfileById(expected.getId());
@@ -91,7 +91,7 @@ class ProfileControllerTest extends AbstractControllerTest
 
 		mvc.perform(getJson(BASE_URL + "?name=" + expected.getName()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.[0].id", is((int) expected.getId())))
+				.andExpect(jsonPath("$.[0].id").value(is(expected.getId()), Long.class))
 				.andExpect(jsonPath("$.[0].name", is(expected.getName())));
 
 		verify(profileService).findProfileByName(expected.getName());
@@ -122,7 +122,7 @@ class ProfileControllerTest extends AbstractControllerTest
 
 		mvc.perform(getJson(BASE_URL))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.[0].id", is((int) profiles.get(0).getId())));
+				.andExpect(jsonPath("$.[0].id").value(is(profiles.get(0).getId()), Long.class));
 
 		verify(profileService).getAllProfiles();
 	}

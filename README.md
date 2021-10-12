@@ -34,6 +34,7 @@ https://xeres.io
 | GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K |
 | ETH    | 0x7d9EfEe706c81227c73DA7814319301C6Bd63D05 |
 | ZEN    | zcB7QRPTJzjPPXYsqSmnaUHUpn3yheqzV9ygkhj8MvFFbq87unRdnYbxztSJ6LXBKrGywDzjm4qGyXfmGMe9Cf1TnJCNPvR |
+| DASH   | Xqa3APRoHKzrF1w8fWVHG3Ae5ZaaSZMgio |
 | BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)
 
 ## How to run

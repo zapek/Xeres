@@ -103,11 +103,7 @@ With IntelliJ Ultimate, create the following Database connection with the built-
 
 The project was started on 2019-10-30.
 
-##### How to write proper git commit messages
-
-https://chris.beams.io/posts/git-commit/
-
-##### Branching model
+##### Git branching model
 
 The current plan is to use *master* for everything. Use a feature branch to work on a feature (ie. feature/165 if there's a ticket). Once it's ready, have someone review it then merge to master.
 
@@ -115,7 +111,7 @@ Releases will use tags and release branches if further fixes are needed.
 
 https://reallifeprogramming.com/git-process-that-works-say-no-to-gitflow-50bf2038ccf7
 
-## Useful tasks
+## Useful Gradle tasks
 
 ##### Cleaning the build directory
 

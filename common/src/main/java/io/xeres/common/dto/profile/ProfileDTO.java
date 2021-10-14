@@ -28,7 +28,9 @@ import io.xeres.common.pgp.Trust;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static io.xeres.common.dto.profile.ProfileConstants.NAME_LENGTH_MAX;
@@ -64,5 +66,32 @@ public record ProfileDTO(
 		{
 			locations = new ArrayList<>();
 		}
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ProfileDTO that = (ProfileDTO) o;
+		return name.equals(that.name) && Objects.equals(pgpIdentifier, that.pgpIdentifier) && Arrays.equals(pgpFingerprint, that.pgpFingerprint) && Arrays.equals(pgpPublicKeyData, that.pgpPublicKeyData);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = Objects.hash(name, pgpIdentifier);
+		result = 31 * result + Arrays.hashCode(pgpFingerprint);
+		result = 31 * result + Arrays.hashCode(pgpPublicKeyData);
+		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ProfileDTO{" +
+				"name='" + name + '\'' +
+				", pgpIdentifier='" + pgpIdentifier + '\'' +
+				'}';
 	}
 }

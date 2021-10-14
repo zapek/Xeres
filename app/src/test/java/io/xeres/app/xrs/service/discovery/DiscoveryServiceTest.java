@@ -203,7 +203,7 @@ class DiscoveryServiceTest
 
 		discoveryService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
-		verify(locationService).findLocationById(eq(peerLocation.getLocationId()));
+		verify(locationService).findLocationById(peerLocation.getLocationId());
 		verify(locationService).findOwnLocation();
 		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));

@@ -33,6 +33,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Note: this class has a natural ordering that is inconsistent with equals.
+ */
 public abstract class RsService implements Comparable<RsService>
 {
 	private final Map<Integer, Class<? extends Item>> searchBySubType = new HashMap<>();
@@ -153,6 +156,7 @@ public abstract class RsService implements Comparable<RsService>
 	}
 
 	@Override
+	@SuppressWarnings("java:S1210")
 	public int compareTo(RsService o)
 	{
 		return Integer.compare(getInitPriority().ordinal(), o.getInitPriority().ordinal());

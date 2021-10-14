@@ -21,6 +21,7 @@ package io.xeres.app.web.api.error.exception;
 
 public class UnprocessableEntityException extends RuntimeException
 {
+	@SuppressWarnings("java:S1165")
 	private String id;
 
 	public UnprocessableEntityException(String message)

@@ -125,7 +125,7 @@ final class UiWindow
 		}
 		catch (BackingStoreException e)
 		{
-			log.debug("Error while trying to retrieve Windows' preferences: " + e.getMessage());
+			log.debug("Error while trying to retrieve Windows' preferences: {}", e.getMessage());
 			preferencesExist = false;
 		}
 

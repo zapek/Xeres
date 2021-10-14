@@ -29,7 +29,6 @@ import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
 
 public class SecurityKeySet
 {
-	private final String groupId = ""; // XXX: seems unused, confirm
 	private final Map<GxsId, SecurityKey> privateKeys = new HashMap<>();
 	private final Map<GxsId, SecurityKey> publicKeys = new HashMap<>();
 
@@ -40,7 +39,7 @@ public class SecurityKeySet
 
 	public String getGroupId()
 	{
-		return groupId;
+		return ""; // Unused
 	}
 
 	public void put(SecurityKey securityKey)

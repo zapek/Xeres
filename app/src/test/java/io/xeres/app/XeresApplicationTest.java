@@ -27,6 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class XeresApplicationTest
 {
 	@Test
+	@SuppressWarnings("java:S2699")
 	void XeresApplication_ContextLoads_OK()
 	{
 		XeresApplication.main(new String[]{"--no-gui"});

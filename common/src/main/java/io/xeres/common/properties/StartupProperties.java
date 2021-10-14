@@ -35,18 +35,18 @@ public final class StartupProperties
 		UI_PORT("xrs.ui.port", Integer.class),
 		FAST_SHUTDOWN("xrs.network.fast-shutdown", Boolean.class);
 
-		Property(String property, Class<?> javaClass)
+		Property(String propertyName, Class<?> javaClass)
 		{
-			this.property = property;
+			this.propertyName = propertyName;
 			this.javaClass = javaClass;
 		}
 
-		private final String property;
+		private final String propertyName;
 		private final Class<?> javaClass;
 
 		public String getKey()
 		{
-			return property;
+			return propertyName;
 		}
 
 		public Class<?> getJavaClass()
@@ -72,7 +72,10 @@ public final class StartupProperties
 
 	public static void setString(Property property, String value)
 	{
-		assert property.getJavaClass().equals(String.class);
+		if (!property.getJavaClass().equals(String.class))
+		{
+			throw new IllegalArgumentException("Property class for " + property.getKey() + " must be a String but it's a " + property.getJavaClass());
+		}
 
 		if (StringUtils.isBlank(value))
 		{
@@ -82,6 +85,7 @@ public final class StartupProperties
 		System.setProperty(property.getKey(), value);
 	}
 
+	@SuppressWarnings("java:S2447")
 	public static Boolean getBoolean(Property property)
 	{
 		String value = System.getProperty(property.getKey());
@@ -105,15 +109,15 @@ public final class StartupProperties
 
 	public static void setBoolean(Property property, String value)
 	{
-		assert property.getJavaClass().equals(Boolean.class);
+		if (!property.getJavaClass().equals(Boolean.class))
+		{
+			throw new IllegalArgumentException("Property class for " + property.getKey() + " must be a Boolean but it's a " + property.getJavaClass());
+		}
 
 		boolean val = value.equals("1") || value.equalsIgnoreCase("yes") || Boolean.parseBoolean(value);
-		if (!val)
+		if (!val && !(value.equals("0") || value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")))
 		{
-			if (!(value.equals("0") || value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")))
-			{
-				throw new IllegalArgumentException("Property " + property.name() + " (" + property.getKey() + ") does not contain a boolean value (" + value + ")");
-			}
+			throw new IllegalArgumentException("Property " + property.name() + " (" + property.getKey() + ") does not contain a boolean value (" + value + ")");
 		}
 		System.setProperty(property.getKey(), String.valueOf(val));
 	}
@@ -130,7 +134,10 @@ public final class StartupProperties
 
 	public static void setPort(Property property, String value)
 	{
-		assert property.getJavaClass().equals(Integer.class);
+		if (!property.getJavaClass().equals(Integer.class))
+		{
+			throw new IllegalArgumentException("Property class for " + property.getKey() + " must be an Integer but it's a " + property.getJavaClass());
+		}
 
 		try
 		{

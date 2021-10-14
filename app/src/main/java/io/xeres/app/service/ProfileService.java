@@ -38,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.Security;
-import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Optional;
 
@@ -157,7 +156,7 @@ public class ProfileService
 		}
 	}
 
-	public Profile getProfileFromRSId(RSId rsId) throws CertificateException
+	public Profile getProfileFromRSId(RSId rsId)
 	{
 		var profileFingerprint = new ProfileFingerprint(rsId.getPgpFingerprint());
 		var profile = findProfileByPgpFingerprint(profileFingerprint).orElseGet(() -> Profile.createEmptyProfile(rsId.getName(), rsId.getPgpIdentifier(), profileFingerprint));

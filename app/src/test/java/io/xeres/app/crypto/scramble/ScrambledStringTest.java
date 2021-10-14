@@ -73,7 +73,7 @@ class ScrambledStringTest
 		assertThrows(IllegalStateException.class, () -> ss.access(System.out::print));
 		assertThrows(IllegalStateException.class, () -> ss.appendChar('a'));
 		assertThrows(IllegalStateException.class, () -> ss.verifyBase64SHA256Hash("a"));
-		assertThrows(IllegalStateException.class, () -> System.out.println(ss.getBase64SHA256Hash()));
+		assertThrows(IllegalStateException.class, ss::getBase64SHA256Hash);
 		assertEquals("", ss.toString());
 	}
 

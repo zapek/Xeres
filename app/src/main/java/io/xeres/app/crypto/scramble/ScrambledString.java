@@ -19,12 +19,11 @@
 
 package io.xeres.app.crypto.scramble;
 
-import org.apache.tomcat.util.codec.binary.Base64;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Base64;
 
 /**
  * String obfuscator. This class is used to store a password in memory (for example after asking
@@ -201,7 +200,7 @@ public class ScrambledString
 
 		clear(scrambledBytes);
 		scrambledBytes = newBytes;
-		hash = Base64.encodeBase64String(digest.digest(bytes));
+		hash = Base64.getEncoder().encodeToString(digest.digest(bytes));
 	}
 
 	private byte[] unscrambleBytes()

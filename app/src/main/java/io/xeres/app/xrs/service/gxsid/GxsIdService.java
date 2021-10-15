@@ -125,12 +125,12 @@ public class GxsIdService extends GxsService
 		// XXX: I think those only exist when doing a transfer between distant peers
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void processItems(PeerConnection peerConnection, List<? extends GxsExchange> items)
 	{
 		if (items.get(0) instanceof GxsSyncGroupItem) // XXX: this is not very nice. maybe I should have some transaction type or so
 		{
+			@SuppressWarnings("unchecked")
 			var gxsIds = ((List<GxsSyncGroupItem>) items).stream().map(GxsSyncGroupItem::getGroupId).toList();
 			log.debug("Peer wants the following gxs ids: {}", gxsIds);
 			// XXX: for now we just send back our own identity. we should ideally just send back the identities that we have that match the request (there can be more than 1 of course)

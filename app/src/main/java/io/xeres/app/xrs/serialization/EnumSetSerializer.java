@@ -113,10 +113,10 @@ final class EnumSetSerializer
 		return size;
 	}
 
-	@SuppressWarnings("unchecked")
 	static <E extends Enum<E>> Set<E> deserialize(ByteBuf buf, ParameterizedType type, RsSerialized annotation)
 	{
 		Objects.requireNonNull(annotation, "Annotation is needed for EnumSet");
+		@SuppressWarnings("unchecked")
 		Class<E> enumClass = (Class<E>) type.getActualTypeArguments()[0];
 
 		var fieldSize = annotation.fieldSize();

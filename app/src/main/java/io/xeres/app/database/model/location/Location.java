@@ -122,7 +122,7 @@ public class Location
 
 	public Location(RSId rsId)
 	{
-		setName(rsId.getName()); // XXX: how do we handle the constraints?
+		setName("[" + rsId.getLocationId().toString() + "]");
 		setLocationId(rsId.getLocationId());
 		// XXX: add connections from: hostname, internal, external, locators (ipv4 and ipv6), hidden
 		// XXX: also we should have validation of internal IPs (192.168, etc... 169, etc...) and external IP to avoid the current Retroshare mess that attempts connecting to bullshit IPs

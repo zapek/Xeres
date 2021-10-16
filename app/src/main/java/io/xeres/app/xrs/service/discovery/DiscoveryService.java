@@ -168,7 +168,10 @@ public class DiscoveryService extends RsService
 			// Tell the peer about how we see its IP address
 			builder.setCurrentConnectAddress(PeerAddress.fromSocketAddress(toLocationAddress));
 		}
-		// XXX: missing hostname support
+		aboutLocation.getConnections().stream()
+				.filter(connection -> connection.getType() == PeerAddress.Type.HOSTNAME)
+				.findFirst()
+				.ifPresent(connection -> builder.setHostname(connection.getHostname()));
 		writeItem(toLocation, builder.build());
 	}
 

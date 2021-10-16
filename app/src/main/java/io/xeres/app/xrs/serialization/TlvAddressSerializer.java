@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.*;
 
 final class TlvAddressSerializer
@@ -45,8 +46,8 @@ final class TlvAddressSerializer
 
 		if (peerAddress == null)
 		{
-			buf.writeInt(6);
-			return 6;
+			buf.writeInt(TLV_HEADER_SIZE);
+			return TLV_HEADER_SIZE;
 		}
 
 		switch (peerAddress.getType())
@@ -78,7 +79,7 @@ final class TlvAddressSerializer
 		{
 			var totalSize = buf.readInt(); // XXX: check size
 
-			if (totalSize > 6)
+			if (totalSize > TLV_HEADER_SIZE)
 			{
 				int addrType = buf.readUnsignedShort();
 				if (addrType == IPV4.getValue())
@@ -118,7 +119,7 @@ final class TlvAddressSerializer
 	{
 		// XXX: missing ensureWritable()
 		buf.writeShort(ADDRESS_SET.getValue());
-		var totalSize = 6;
+		var totalSize = TLV_HEADER_SIZE;
 		int totalSizeOffset = buf.writerIndex();
 		buf.writeInt(0);
 

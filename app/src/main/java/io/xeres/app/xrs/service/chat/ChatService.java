@@ -192,7 +192,6 @@ public class ChatService extends RsService
 	public void shutdown()
 	{
 		chatRooms.forEach((id, chatRoom) -> sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_LEFT));
-		// XXX: check if that works, otherwise add some delays...
 	}
 
 	@Override

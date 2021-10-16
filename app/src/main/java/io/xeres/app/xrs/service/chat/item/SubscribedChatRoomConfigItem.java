@@ -40,7 +40,7 @@ public class SubscribedChatRoomConfigItem extends Item
 	private String roomTopic;
 
 	@RsSerialized
-	private Set<LocationId> participatingLocations; // XXX: do we serialize Sets yet?
+	private Set<LocationId> participatingLocations; // XXX: do we serialize Sets yet? no, see #19
 
 	@RsSerialized
 	private GxsId gxsId;

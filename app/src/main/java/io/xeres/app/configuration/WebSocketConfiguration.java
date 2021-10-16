@@ -56,7 +56,6 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer
 		registry.enableSimpleBroker(CHAT_PATH); // this is for the broker (subscriptions, ...)
 	}
 
-	// XXX: the following is useful for debugging... remove them once I'm done and if I don't need it (they could still be useful to DETECT if a client fails to subscribe to websockets)
 	@EventListener
 	public void handleSessionSubscribeEvent(SessionSubscribeEvent event)
 	{
@@ -66,7 +65,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer
 	@EventListener
 	public void handleSessionUnsubscribeEvent(SessionUnsubscribeEvent event)
 	{
-		log.debug("Unsubscription from {}", event); // XXX: seems to not be called?!
+		log.debug("Unsubscription from {}", event);
 	}
 
 	@EventListener

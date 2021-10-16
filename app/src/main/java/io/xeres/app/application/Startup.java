@@ -38,6 +38,7 @@ import io.xeres.app.service.PeerService;
 import io.xeres.app.service.PrefsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.common.AppName;
+import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
@@ -128,14 +129,14 @@ public class Startup implements ApplicationRunner
 				var location = locationService.findOwnLocation().orElseThrow();
 				String localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new IllegalStateException("Current host has no IP address. Please configure your network"));
 
-				// Get the previously saved port. If there isn't any because there was an
+				// If there's no --server-port specified, get the previously saved port. If there isn't any because there was an
 				// error on initialization, simply try to get a new one.
-				// XXX: should --server-port change this?
-				int localPort = location.getConnections().stream()
-						.filter(not(Connection::isExternal))
-						.findFirst()
-						.orElseGet(() -> Connection.from(PeerAddress.from(localIpAddress, IP.getFreeLocalPort())))
-						.getPort();
+				int localPort = Optional.ofNullable(StartupProperties.getInteger(StartupProperties.Property.SERVER_PORT))
+						.orElseGet(() -> location.getConnections().stream()
+								.filter(not(Connection::isExternal))
+								.findFirst()
+								.orElseGet(() -> Connection.from(PeerAddress.from(localIpAddress, IP.getFreeLocalPort())))
+								.getPort());
 
 				// Send the event asynchronously so that our transaction can complete first
 				CompletableFuture.runAsync(() -> publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)));
@@ -203,7 +204,7 @@ public class Startup implements ApplicationRunner
 
 	private void backupUserData()
 	{
-		// XXX: find a smarter way to do backups. either provide a way to do them manually, by external script or every X time or while running
+		// Right now we perform a backup on every shutdown, see #26 for possible improvements
 		if (dataDirConfiguration.getDataDir() != null)
 		{
 			var backupFile = Path.of(dataDirConfiguration.getDataDir(), "backup.zip").toString();

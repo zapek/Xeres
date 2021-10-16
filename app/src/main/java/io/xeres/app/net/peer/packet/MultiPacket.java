@@ -96,9 +96,9 @@ public class MultiPacket extends Packet
 		buf.writeShort(size);
 	}
 
-	public void setStart(boolean start)
+	public void setStart()
 	{
-		addFlags(SLICE_FLAG_START); // XXX: why the boolean?
+		addFlags(SLICE_FLAG_START);
 	}
 
 	public boolean isStart()
@@ -106,9 +106,9 @@ public class MultiPacket extends Packet
 		return (getFlags() & SLICE_FLAG_START) == SLICE_FLAG_START;
 	}
 
-	public void setEnd(boolean end)
+	public void setEnd()
 	{
-		addFlags(SLICE_FLAG_END); // XXX: why the boolean?
+		addFlags(SLICE_FLAG_END);
 	}
 
 	public boolean isEnd()

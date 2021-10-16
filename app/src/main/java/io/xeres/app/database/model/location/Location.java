@@ -124,10 +124,7 @@ public class Location
 	{
 		setName("[" + rsId.getLocationId().toString() + "]");
 		setLocationId(rsId.getLocationId());
-		// XXX: add connections from: hostname, internal, external, locators (ipv4 and ipv6), hidden
-		// XXX: also we should have validation of internal IPs (192.168, etc... 169, etc...) and external IP to avoid the current Retroshare mess that attempts connecting to bullshit IPs
-		// XXX: RsUrls *DO* have a port! eg, I have ipv4://169.254.209.149:11416, 169.254.67.38:11416, 172.18.23.225:11416, 169.254.167.200:11416, 10.0.75.1:11416, 172.17.153.241:11416, etc... only one with external port :)
-		if (rsId.hasDnsName()) // XXX: this will not work with certificates!
+		if (rsId.hasDnsName())
 		{
 			addConnection(Connection.from(rsId.getDnsName()));
 		}
@@ -137,7 +134,7 @@ public class Location
 		}
 		if (rsId.hasExternalIp())
 		{
-			addConnection(Connection.from(rsId.getExternalIp())); // XXX: this one has the proper port to use for external connections. how to handle it? what did I mean by that comment?
+			addConnection(Connection.from(rsId.getExternalIp()));
 		}
 
 		if (rsId.hasLocators())

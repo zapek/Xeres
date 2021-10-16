@@ -261,7 +261,7 @@ public class BroadcastDiscoveryService implements Runnable
 			}
 			catch (IOException e)
 			{
-				log.error("Glitch, continuing...", e); // XXX: I think I should keep that part in case there's a transient network error. need experimenting
+				log.warn("Glitch, continuing...", e);
 			}
 		}
 

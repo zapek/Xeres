@@ -52,13 +52,13 @@ public class PeerService
 		this.peerServer = peerServer;
 	}
 
-	public void start()
+	public void start(int localPort)
 	{
 		running.lazySet(true);
 		sslExecutorGroup = new DefaultEventExecutorGroup(SSL_THREADS);
 		handlerExecutorGroup = new DefaultEventExecutorGroup(HANDLER_THREADS);
 
-		peerServer.start(sslExecutorGroup, handlerExecutorGroup);
+		peerServer.start(sslExecutorGroup, handlerExecutorGroup, localPort);
 		if (!StartupProperties.getBoolean(StartupProperties.Property.SERVER_ONLY, false))
 		{
 			peerClient.start(sslExecutorGroup, handlerExecutorGroup);

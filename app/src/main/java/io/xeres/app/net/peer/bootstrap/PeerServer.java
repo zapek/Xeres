@@ -77,7 +77,7 @@ public class PeerServer
 	}
 
 	@Transactional(readOnly = true) // needed for getPort() to work
-	public void start(EventExecutorGroup sslExecutorGroup, EventExecutorGroup eventExecutorGroup)
+	public void start(EventExecutorGroup sslExecutorGroup, EventExecutorGroup eventExecutorGroup, int localPort)
 	{
 		bossGroup = new NioEventLoopGroup(1);
 		workerGroup = new NioEventLoopGroup();
@@ -92,9 +92,8 @@ public class PeerServer
 					.handler(new LoggingHandler(LogLevel.DEBUG))
 					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoService, INCOMING));
 
-			int port = getPort();
-			channel = serverBootstrap.bind(port).sync(); // XXX: what if we cannot bind on the local port for some reasons because some other process uses it? investigate port ranges?
-			log.info("Listening on {}, port {}", channel.channel().localAddress(), port);
+			channel = serverBootstrap.bind(localPort).sync();
+			log.info("Listening on {}, port {}", channel.channel().localAddress(), localPort);
 		}
 		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException e)
 		{
@@ -134,10 +133,5 @@ public class PeerServer
 				Thread.currentThread().interrupt();
 			}
 		}
-	}
-
-	private int getPort()
-	{
-		return profileService.getOwnProfile().getLocations().get(0).getConnections().get(0).getPort();
 	}
 }

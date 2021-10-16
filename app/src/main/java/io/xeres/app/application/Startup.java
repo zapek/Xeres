@@ -177,7 +177,7 @@ public class Startup implements ApplicationRunner
 				{
 					dhtService.start(event.localPort());
 				}
-				peerService.start();
+				peerService.start(event.localPort());
 			}
 			else
 			{

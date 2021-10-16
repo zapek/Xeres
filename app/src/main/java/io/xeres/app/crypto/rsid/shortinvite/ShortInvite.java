@@ -22,7 +22,9 @@ package io.xeres.app.crypto.rsid.shortinvite;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdCrc;
 import io.xeres.app.net.protocol.PeerAddress;
+import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.LocationId;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,8 +185,7 @@ public class ShortInvite extends RSId
 
 	public void setName(byte[] name)
 	{
-		// XXX: need maximum name size
-		this.name = new String(name, StandardCharsets.UTF_8);
+		this.name = StringUtils.substring(new String(name, StandardCharsets.UTF_8), 0, ProfileConstants.NAME_LENGTH_MAX);
 	}
 
 	@Override

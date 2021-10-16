@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -52,24 +51,21 @@ public final class RSIdArmor
 	 *
 	 * @param rsId the RSId
 	 * @return an ascii armored version of it
-	 * @throws IOException I/O error
 	 */
-	public static String getArmored(RSId rsId) throws IOException
+	public static String getArmored(RSId rsId)
 	{
-		try (var out = new ByteArrayOutputStream())
+		var out = new ByteArrayOutputStream();
+		if (rsId instanceof ShortInvite)
 		{
-			if (rsId instanceof ShortInvite)
-			{
-				return getArmoredShortInvite(rsId, out);
-			}
-			else
-			{
-				throw new UnsupportedOperationException("Armor mode not implemented for RSId of " + rsId.getClass().getSimpleName());
-			}
+			return getArmoredShortInvite(rsId, out);
+		}
+		else
+		{
+			throw new UnsupportedOperationException("Armor mode not implemented for RSId of " + rsId.getClass().getSimpleName());
 		}
 	}
 
-	private static String getArmoredShortInvite(RSId rsId, ByteArrayOutputStream out) throws IOException
+	private static String getArmoredShortInvite(RSId rsId, ByteArrayOutputStream out)
 	{
 		addPacket(ShortInviteTags.SSLID, rsId.getLocationId().getBytes(), out);
 		addPacket(ShortInviteTags.NAME, rsId.getName().getBytes(), out);
@@ -88,7 +84,10 @@ public final class RSIdArmor
 		}
 		else if (rsId.hasLocators())
 		{
-			// XXX: use ONE most recently known locator. I still think the url scheme is a waste
+			// Use one locator. Ideally, the first one should be the most recent address
+			rsId.getLocators().stream()
+					.findFirst()
+					.ifPresent(peerAddress -> addPacket(ShortInviteTags.LOCATOR, peerAddress.getAddressAsBytes().orElseThrow(), out));
 		}
 		// Note that we don't use LOC4_LOCATOR as we expect the broadcast discovery to work
 		addCrcPacket(ShortInviteTags.CHECKSUM, out);
@@ -96,7 +95,7 @@ public final class RSIdArmor
 		return wrapWithBase64(out.toByteArray(), WrapMode.CONTINUOUS);
 	}
 
-	private static void addPacket(int pTag, byte[] data, OutputStream out) throws IOException
+	private static void addPacket(int pTag, byte[] data, ByteArrayOutputStream out)
 	{
 		if (data != null)
 		{
@@ -118,7 +117,7 @@ public final class RSIdArmor
 				// We don't support more as it makes little sense to have an oversized certificate
 				throw new IllegalArgumentException("Packet data size too big: " + data.length);
 			}
-			out.write(data);
+			out.writeBytes(data);
 		}
 		else
 		{
@@ -126,7 +125,7 @@ public final class RSIdArmor
 		}
 	}
 
-	private static void addCrcPacket(int pTag, ByteArrayOutputStream out) throws IOException
+	private static void addCrcPacket(int pTag, ByteArrayOutputStream out)
 	{
 		byte[] data = out.toByteArray();
 

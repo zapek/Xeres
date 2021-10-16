@@ -30,6 +30,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -153,7 +154,10 @@ public class Location
 				.setLocationId(getLocationId())
 				.setPgpFingerprint(getProfile().getProfileFingerprint().getBytes());
 
-		getConnections().forEach(connection -> builder.addLocator(connection.getAddress(), connection.isExternal()));
+		// Sort the connections with the most recently connected address first
+		getConnections().stream()
+				.sorted(Comparator.comparing(Connection::getLastConnected).reversed())
+				.forEach(connection -> builder.addLocator(connection.getAddress(), connection.isExternal()));
 
 		return builder.build();
 	}

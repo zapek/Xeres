@@ -46,17 +46,26 @@ import static java.util.function.Predicate.not;
  */
 public final class PeerAddress
 {
-	private static final String PREFIX_IPV4 = "ipv4://";
-	private static final String PREFIX_IPV6 = "ipv6://";
-
 	public enum Type
 	{
-		INVALID,
-		IPV4,
-		IPV6,
-		TOR,
-		HOSTNAME,
-		I2P
+		INVALID(""),
+		IPV4("ipv4://"),
+		IPV6("ipv6://"),
+		TOR(""),
+		HOSTNAME(""),
+		I2P("");
+
+		private final String scheme;
+
+		Type(String scheme)
+		{
+			this.scheme = scheme;
+		}
+
+		public String scheme()
+		{
+			return scheme;
+		}
 	}
 
 	private SocketAddress socketAddress;
@@ -75,9 +84,9 @@ public final class PeerAddress
 			return fromInvalid();
 		}
 
-		if (url.startsWith(PREFIX_IPV4))
+		if (url.startsWith(IPV4.scheme()))
 		{
-			return fromIpAndPort(url.substring(PREFIX_IPV4.length()));
+			return fromIpAndPort(url.substring(IPV4.scheme().length()));
 		}
 		return fromInvalid();
 	}
@@ -344,6 +353,11 @@ public final class PeerAddress
 	public Type getType()
 	{
 		return type;
+	}
+
+	public String getUrlScheme()
+	{
+		return type.scheme();
 	}
 
 	/**

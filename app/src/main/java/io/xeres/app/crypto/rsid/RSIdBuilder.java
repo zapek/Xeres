@@ -20,6 +20,7 @@
 package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.crypto.rsid.shortinvite.ShortInvite;
+import io.xeres.app.database.model.connection.Connection;
 import io.xeres.common.id.LocationId;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class RSIdBuilder
 	private byte[] pgpFingerprint;
 	private final List<String> locators = new ArrayList<>();
 	private String externalLocator;
+	private String lanLocator;
 
 	public RSIdBuilder(RSId.Type type)
 	{
@@ -55,19 +57,19 @@ public class RSIdBuilder
 		return this;
 	}
 
-	public RSIdBuilder addLocator(String address, boolean external)
+	public RSIdBuilder addLocator(Connection connection)
 	{
-		// We ignore the internal address on purpose as we expect broadcast discovery to work
-		if (external)
+		if (externalLocator == null && connection.isExternal())
 		{
-			if (externalLocator == null)
-			{
-				externalLocator = address;
-			}
-			else
-			{
-				locators.add("ipv4://" + address); // XXX
-			}
+			externalLocator = connection.getAddress();
+		}
+		else if (lanLocator == null && !connection.isExternal())
+		{
+			lanLocator = connection.getAddress();
+		}
+		else
+		{
+			locators.add(connection.getType().scheme() + connection.getAddress());
 		}
 		return this;
 	}
@@ -83,8 +85,11 @@ public class RSIdBuilder
 		{
 			si.setExt4Locator(externalLocator);
 		}
-		locators.stream().findFirst().ifPresent(si::setLoc4Locator);
-		locators.stream().skip(1).forEach(si::addLocator);
+		if (lanLocator != null)
+		{
+			si.setLoc4Locator(lanLocator);
+		}
+		locators.forEach(si::addLocator);
 
 		return si;
 	}

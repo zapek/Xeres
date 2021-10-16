@@ -37,7 +37,7 @@ public class RawItem
 {
 	private static final Logger log = LoggerFactory.getLogger(RawItem.class);
 
-	private int priority = 3; // XXX: priority levels, implement later (see itempriorities.h)
+	private int priority = ItemPriority.DEFAULT.getPriority();
 	protected ByteBuf buf;
 
 	public RawItem()
@@ -50,9 +50,10 @@ public class RawItem
 		buf = packet.getItemBuffer();
 	}
 
-	public RawItem(ByteBuf buf)
+	public RawItem(ByteBuf buf, int priority)
 	{
 		this.buf = buf;
+		this.priority = priority;
 	}
 
 	public Item deserialize()

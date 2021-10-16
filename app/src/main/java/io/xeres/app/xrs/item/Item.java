@@ -77,7 +77,7 @@ public class Item
 		log.debug("==> {} ({})", getClass().getSimpleName(), size + HEADER_SIZE);
 		setItemSize(size + HEADER_SIZE);
 
-		return new RawItem(buf);
+		return new RawItem(buf, getPriority());
 	}
 
 	public int getPriority()

@@ -110,7 +110,6 @@ public class PeerHandler extends ChannelDuplexHandler
 			{
 				log.warn("Unknown item. Ignoring.");
 			}
-			// XXX: add code to handle non service items (if those exist at all)
 		}
 		catch (IllegalArgumentException | NoSuchMethodException e)
 		{

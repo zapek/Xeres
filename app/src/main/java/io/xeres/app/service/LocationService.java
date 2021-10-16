@@ -150,7 +150,7 @@ public class LocationService
 
 		String localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new CertificateException("Current host has no IP address. Please configure your network"));
 
-		// Create an IPv4 location (XXX: add other protocols later)
+		// Create an IPv4 location
 		int localPort = Optional.ofNullable(StartupProperties.getInteger(StartupProperties.Property.SERVER_PORT)).orElseGet(IP::getFreeLocalPort);
 		log.info("Using local ip address {} and port {}", localIpAddress, localPort);
 

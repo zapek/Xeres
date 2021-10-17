@@ -77,6 +77,8 @@ public abstract class RSId
 
 	public abstract PeerAddress getDnsName();
 
+	public abstract byte[] getDnsNameAsBytes();
+
 	public abstract boolean isHiddenNode();
 
 	public abstract PeerAddress getHiddenNodeAddress();

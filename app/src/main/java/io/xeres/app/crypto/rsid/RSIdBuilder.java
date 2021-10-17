@@ -21,6 +21,7 @@ package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.crypto.rsid.shortinvite.ShortInvite;
 import io.xeres.app.database.model.connection.Connection;
+import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class RSIdBuilder
 	private final List<String> locators = new ArrayList<>();
 	private String externalLocator;
 	private String lanLocator;
+	private String dnsLocator;
 
 	public RSIdBuilder(RSId.Type type)
 	{
@@ -67,6 +69,10 @@ public class RSIdBuilder
 		{
 			lanLocator = connection.getAddress();
 		}
+		else if (dnsLocator == null && connection.getType() == PeerAddress.Type.HOSTNAME)
+		{
+			dnsLocator = connection.getAddress();
+		}
 		else
 		{
 			locators.add(connection.getType().scheme() + connection.getAddress());
@@ -88,6 +94,10 @@ public class RSIdBuilder
 		if (lanLocator != null)
 		{
 			si.setLoc4Locator(lanLocator);
+		}
+		if (dnsLocator != null)
+		{
+			si.setDnsName(dnsLocator);
 		}
 		locators.forEach(si::addLocator);
 

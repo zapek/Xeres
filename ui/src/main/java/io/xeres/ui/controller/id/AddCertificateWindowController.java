@@ -60,9 +60,6 @@ public class AddCertificateWindowController implements WindowController
 	private TextField certFingerprint;
 
 	@FXML
-	private TextField certLocName;
-
-	@FXML
 	private TextField certLocId;
 
 	@FXML
@@ -111,15 +108,14 @@ public class AddCertificateWindowController implements WindowController
 							.ifPresent(location ->
 							{
 								// XXX: display the hostname if available!
-								certLocName.setText(location.getName());
 								certLocId.setText(location.getLocationId().toString());
 
-								var otherIps = location.getConnections().stream()
+								var allIps = location.getConnections().stream()
 										.sorted(Comparator.comparing(Connection::isExternal).reversed())
 										.map(Connection::getAddress)
 										.toList();
 
-								certIps.getItems().addAll(otherIps);
+								certIps.getItems().addAll(allIps);
 								certIps.getSelectionModel().select(0);
 								certIps.setTooltip(new Tooltip("All addresses will be tried. You can preselect one as a hint."));
 							});

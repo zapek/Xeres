@@ -52,7 +52,6 @@
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints/>
             </rowConstraints>
             <Label text="Name"/>
@@ -73,20 +72,14 @@
                     <Tooltip showDuration="30s" text="Cryptographic checksum to certify the authenticity of your friend's profile."/>
                 </tooltip>
             </TextField>
-            <Label text="Location" GridPane.rowIndex="3"/>
-            <TextField fx:id="certLocName" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                <tooltip>
-                    <Tooltip showDuration="30s" text="Name of your friend's machine (desktop, laptop, server, etc...). Can be used to get an idea of the connectivity expected."/>
-                </tooltip>
-            </TextField>
-            <Label text="Location ID" GridPane.rowIndex="4"/>
-            <TextField fx:id="certLocId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <Label text="Location ID" GridPane.rowIndex="3"/>
+            <TextField fx:id="certLocId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <tooltip>
                     <Tooltip showDuration="30s" text="Location identifier. A friend can have several locations but each has a unique ID."/>
                 </tooltip>
             </TextField>
-            <Label text="Address" GridPane.rowIndex="5"/>
-            <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+            <Label text="Address" GridPane.rowIndex="4"/>
+            <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
         </GridPane>
     </TitledPane>
     <HBox alignment="TOP_RIGHT">

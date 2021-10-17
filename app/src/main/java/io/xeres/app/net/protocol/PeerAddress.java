@@ -26,6 +26,7 @@ import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -336,11 +337,24 @@ public final class PeerAddress
 		if (socketAddress instanceof InetSocketAddress inetSocketAddress)
 		{
 			int port = inetSocketAddress.getPort();
-			var bytes = new byte[6];
-			System.arraycopy(inetSocketAddress.getAddress().getAddress(), 0, bytes, 0, 4);
-			bytes[4] = (byte) (port >> 8);
-			bytes[5] = (byte) (port & 0xff);
-			return Optional.of(bytes);
+
+			if (type == HOSTNAME)
+			{
+				var hostname = inetSocketAddress.getHostName().getBytes(StandardCharsets.US_ASCII);
+				var bytes = new byte[hostname.length + 2];
+				System.arraycopy(hostname, 0, bytes, 0, hostname.length);
+				bytes[bytes.length - 2] = (byte) (port >> 8);
+				bytes[bytes.length - 1] = (byte) (port & 0xff);
+				return Optional.of(bytes);
+			}
+			else
+			{
+				var bytes = new byte[6];
+				System.arraycopy(inetSocketAddress.getAddress().getAddress(), 0, bytes, 0, 4);
+				bytes[4] = (byte) (port >> 8);
+				bytes[5] = (byte) (port & 0xff);
+				return Optional.of(bytes);
+			}
 		}
 		return Optional.empty();
 	}
@@ -355,9 +369,9 @@ public final class PeerAddress
 		return type;
 	}
 
-	public String getUrlScheme()
+	public String getUrl()
 	{
-		return type.scheme();
+		return type.scheme() + getAddress().orElseThrow();
 	}
 
 	/**
@@ -441,7 +455,7 @@ public final class PeerAddress
 
 	private static boolean isInvalidHostname(String hostname)
 	{
-		return hostname != null && hostname.length() <= 253;
+		return !(hostname != null && hostname.length() <= 253); // XXX: add better hostname validation here
 	}
 
 	@Override

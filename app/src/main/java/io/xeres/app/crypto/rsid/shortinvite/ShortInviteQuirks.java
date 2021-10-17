@@ -51,4 +51,18 @@ public final class ShortInviteQuirks
 
 		return bytes;
 	}
+
+	public static byte[] swapDnsBytes(byte[] data)
+	{
+		if (data == null || data.length < 4)
+		{
+			return data; // don't touch anything, input is bad
+		}
+		var bytes = new byte[data.length];
+		System.arraycopy(data, 0, bytes, 2, data.length - 2);
+		bytes[0] = data[data.length - 2];
+		bytes[1] = data[data.length - 1];
+
+		return bytes;
+	}
 }

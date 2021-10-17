@@ -217,6 +217,17 @@ public class ShortInvite extends RSId
 		return hostnameLocator;
 	}
 
+	@Override
+	public byte[] getDnsNameAsBytes()
+	{
+		return hostnameLocator.getAddressAsBytes().orElseThrow();
+	}
+
+	public void setDnsName(String dnsName)
+	{
+		hostnameLocator = PeerAddress.fromHostnameAndPort(dnsName);
+	}
+
 	private void setDnsName(byte[] portAndDns)
 	{
 		if (portAndDns == null || portAndDns.length <= 3 || portAndDns.length > 255)

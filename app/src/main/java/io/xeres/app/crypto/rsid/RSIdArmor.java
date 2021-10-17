@@ -74,20 +74,27 @@ public final class RSIdArmor
 		{
 			addPacket(ShortInviteTags.HIDDEN_LOCATOR, rsId.getHiddenNodeAddress().getAddressAsBytes().orElseThrow(), out);
 		}
-		else if (rsId.hasDnsName())
+		else
 		{
-			addPacket(ShortInviteTags.DNS_LOCATOR, rsId.getDnsName().getAddressAsBytes().orElseThrow(), out);
-		}
-		else if (rsId.hasExternalIp())
-		{
-			addPacket(ShortInviteTags.EXT4_LOCATOR, ShortInviteQuirks.swapBytes(rsId.getExternalIp().getAddressAsBytes().orElseThrow()), out);
-		}
-		else if (rsId.hasLocators())
-		{
-			// Use one locator. Ideally, the first one should be the most recent address
-			rsId.getLocators().stream()
-					.findFirst()
-					.ifPresent(peerAddress -> addPacket(ShortInviteTags.LOCATOR, peerAddress.getAddressAsBytes().orElseThrow(), out));
+			if (rsId.hasDnsName())
+			{
+				addPacket(ShortInviteTags.DNS_LOCATOR, ShortInviteQuirks.swapDnsBytes(rsId.getDnsNameAsBytes()), out);
+			}
+			if (rsId.hasExternalIp())
+			{
+				addPacket(ShortInviteTags.EXT4_LOCATOR, ShortInviteQuirks.swapBytes(rsId.getExternalIp().getAddressAsBytes().orElseThrow()), out);
+			}
+			if (rsId.hasInternalIp())
+			{
+				addPacket(ShortInviteTags.LOC4_LOCATOR, ShortInviteQuirks.swapBytes(rsId.getInternalIp().getAddressAsBytes().orElseThrow()), out);
+			}
+			if (rsId.hasLocators())
+			{
+				// Use one locator. Ideally, the first one should be the most recent address
+				rsId.getLocators().stream()
+						.findFirst()
+						.ifPresent(peerAddress -> addPacket(ShortInviteTags.LOCATOR, peerAddress.getUrl().getBytes(StandardCharsets.US_ASCII), out));
+			}
 		}
 		// Note that we don't use LOC4_LOCATOR as we expect the broadcast discovery to work
 		addCrcPacket(ShortInviteTags.CHECKSUM, out);

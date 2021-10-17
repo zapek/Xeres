@@ -153,7 +153,7 @@ public class Location
 
 		// Sort the connections with the most recently connected address first
 		getConnections().stream()
-				.sorted(Comparator.comparing(Connection::getLastConnected).reversed())
+				.sorted(Comparator.comparing(Connection::getLastConnected, Comparator.nullsFirst(Comparator.naturalOrder())).reversed())
 				.forEach(builder::addLocator);
 
 		return builder.build();

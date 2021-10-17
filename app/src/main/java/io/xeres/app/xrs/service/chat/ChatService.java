@@ -70,7 +70,7 @@ public class ChatService extends RsService
 	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
 
 	/**
-	 * Time between housekeeping runs to cleanup the message cache and so on.
+	 * Time between housekeeping runs to clean up the message cache and so on.
 	 */
 	private static final Duration HOUSEKEEPING_DELAY = Duration.ofSeconds(10);
 
@@ -489,7 +489,7 @@ public class ChatService extends RsService
 	private void handleChatStatusItem(PeerConnection peerConnection, ChatStatusItem item)
 	{
 		// There's a whole protocol with the flags (REQUEST_CUSTOM_STATE, CUSTOM_STATE and CUSTOM_STATE_AVAILABLE)
-		// to send and request states but it seems all RS does is send the typing state every
+		// to send and request states; but it seems all RS does is send the typing state every
 		// 5 seconds while the user is typing.
 		log.debug("Got status item from peer {} with status string: {}", peerConnection, item.getStatus());
 		if (MESSAGE_TYPING_CONTENT.equals(item.getStatus()))
@@ -576,7 +576,7 @@ public class ChatService extends RsService
 
 		if (peerConnection != null)
 		{
-			chatRoom.addParticipatingPeer(peerConnection); // If we didn't receive the list yet it means he's participating still
+			chatRoom.addParticipatingPeer(peerConnection); // If we didn't receive the list yet, it means he's participating still
 		}
 
 		if (chatRoom.getMessageCache().exists(bounce.getMessageId()))
@@ -683,7 +683,7 @@ public class ChatService extends RsService
 	}
 
 	/**
-	 * Sets the status message (the one appearing at the top of the profile peer, ie. "I'm eating", "Gone for a walk", etc...).
+	 * Sets the status message (the one appearing at the top of the profile peer; for example, "I'm eating", "Gone for a walk", etc...).
 	 *
 	 * @param message the status message
 	 */

@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 
 /**
  * This is the old packet format of RS. It is still
- * used by RS in some cases (ie. transmission of a single small packet).
+ * used by RS in some cases (for example, transmission of a single small packet).
  */
 public class SimplePacket extends Packet
 {

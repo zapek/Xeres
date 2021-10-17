@@ -36,8 +36,8 @@ public class MessageCache
 
 
 	/**
-	 * Check if a message has been recorded already. If yes, update
-	 * its time to prevent echoes.
+	 * Checks if a message has been recorded already. If yes, update
+	 * its own time to prevent echoes.
 	 *
 	 * @param id the id of the message to check
 	 * @return true if it exists
@@ -48,7 +48,7 @@ public class MessageCache
 	}
 
 	/**
-	 * Add a message id to the cache.
+	 * Adds a message id to the cache.
 	 *
 	 * @param id the message id
 	 */
@@ -58,7 +58,7 @@ public class MessageCache
 	}
 
 	/**
-	 * Update the time of a message id.
+	 * Updates the time of a message id.
 	 *
 	 * @param id the message id
 	 */
@@ -68,7 +68,7 @@ public class MessageCache
 	}
 
 	/**
-	 * Get a new unique message id
+	 * Gets a new unique message id
 	 *
 	 * @return the message id
 	 */
@@ -86,7 +86,7 @@ public class MessageCache
 	}
 
 	/**
-	 * Check if this message cache contains a challenge code.
+	 * Checks if this message cache contains a challenge code.
 	 *
 	 * @param locationId    the location id of the peer
 	 * @param chatRoomId    the chat room id
@@ -108,7 +108,7 @@ public class MessageCache
 	}
 
 	/**
-	 * Return a recent message id.
+	 * Returns a recent message id.
 	 *
 	 * @return the message id of a recent message. If there's nothing suitable, return 0
 	 */
@@ -127,7 +127,7 @@ public class MessageCache
 	}
 
 	/**
-	 * Remove all messages older than LIFETIME_MAX seconds.
+	 * Removes all messages older than LIFETIME_MAX seconds.
 	 */
 	public void purge()
 	{

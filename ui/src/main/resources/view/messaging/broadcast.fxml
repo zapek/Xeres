@@ -41,20 +41,18 @@
         </VBox.margin>
     </TextArea>
     <HBox alignment="TOP_RIGHT">
-        <children>
-            <Button fx:id="send" disable="true" minWidth="72.0" mnemonicParsing="false" text="Send">
-                <HBox.margin>
-                    <Insets right="4.0"/>
-                </HBox.margin>
-            </Button>
-            <Button fx:id="cancel" minWidth="72.0" mnemonicParsing="false" text="Cancel">
-                <HBox.margin>
-                    <Insets left="4.0"/>
-                </HBox.margin>
-            </Button>
-        </children>
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>
+        <Button fx:id="send" disable="true" minWidth="72.0" mnemonicParsing="false" text="Send">
+            <HBox.margin>
+                <Insets right="4.0"/>
+            </HBox.margin>
+        </Button>
+        <Button fx:id="cancel" minWidth="72.0" mnemonicParsing="false" text="Cancel">
+            <HBox.margin>
+                <Insets left="4.0"/>
+            </HBox.margin>
+        </Button>
     </HBox>
 </VBox>

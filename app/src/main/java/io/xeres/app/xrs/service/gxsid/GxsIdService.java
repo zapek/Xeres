@@ -149,7 +149,9 @@ public class GxsIdService extends GxsService
 		}
 		else if (items.get(0) instanceof GxsTransferGroupItem)
 		{
-			((List<GxsTransferGroupItem>) items).forEach(item -> {
+			@SuppressWarnings("unchecked")
+			var transferItems = (List<GxsTransferGroupItem>) items;
+			transferItems.forEach(item -> {
 				log.debug("Saving id {}", item.getGroupId());
 
 				var buf = Unpooled.copiedBuffer(item.getMeta(), item.getGroup()); //XXX: use ctx().alloc()?

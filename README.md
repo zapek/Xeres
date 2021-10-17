@@ -64,7 +64,7 @@ Then just run the _XeresApplication_ Spring Boot configuration.
 
 Run the Gradle ``bootRun`` target. It's in the top right _Gradle_ panel, Tasks / application. It's already preconfigured.
 
-(This way also works with IntelliJ IDEA Ultimate but you'll miss some extras like colored debug output and faster launch)
+(This way also works with IntelliJ IDEA Ultimate, but you'll miss some extras like colored debug output and faster launch)
 
 ##### Command line
 
@@ -76,13 +76,13 @@ Run the Gradle ``bootRun`` target. It's in the top right _Gradle_ panel, Tasks /
 
 	./gradlew
 
-To pass Xeres arguments, just use the args feature, ie.
+To pass Xeres arguments, just use the args feature, for example:
 
 	./gradlew bootRun --args="--no-gui --fast-shutdown"
 
 (Use ``--help`` to know all arguments)
 
-## How to setup the WebUI
+## How to set up the WebUI
 
 _Note: the webui is currently nonfunctional._
 
@@ -105,7 +105,7 @@ The project was started on 2019-10-30.
 
 ##### Git branching model
 
-The current plan is to use *master* for everything. Use a feature branch to work on a feature (ie. feature/165 if there's a ticket). Once it's ready, have someone review it then merge to master.
+The current plan is to use *master* for everything. Use a feature branch to work on a feature (for example, feature/165 if there's a ticket). Once it's ready, have someone review it then merge to master.
 
 Releases will use tags and release branches if further fixes are needed.
 

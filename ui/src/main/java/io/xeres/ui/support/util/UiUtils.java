@@ -168,7 +168,7 @@ public final class UiUtils
 	 * <pre>
 	 *     closeButton.setOnAction(UiUtils::closeWindow);
 	 * </pre>
-	 * Beware because not all events contain a node (eg. events from MenuItems).
+	 * Beware because not all events contain a node (for example, events from MenuItems).
 	 *
 	 * @param event the event which needs a node in its source
 	 */

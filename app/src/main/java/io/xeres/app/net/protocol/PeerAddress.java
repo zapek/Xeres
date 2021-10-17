@@ -73,7 +73,7 @@ public final class PeerAddress
 	private final Type type;
 
 	/**
-	 * Creates a PeerAddress from an URL (ipv4://, etc...).
+	 * Creates a PeerAddress from a URL (ipv4://, etc...).
 	 *
 	 * @param url the URL
 	 * @return a PeerAddress
@@ -171,7 +171,7 @@ public final class PeerAddress
 	/**
 	 * Creates a PeerAddress from an "ip:port" string.
 	 *
-	 * @param ipAndPort a string in the form "ip:port", eg. "192.168.1.2:8002"
+	 * @param ipAndPort a string in the form "ip:port"; for example, "192.168.1.2:8002"
 	 * @return a PeerAddress
 	 */
 	public static PeerAddress fromIpAndPort(String ipAndPort)
@@ -405,7 +405,7 @@ public final class PeerAddress
 	}
 
 	/**
-	 * Checks if the PeerAddress is an external address (ie. something that can be connected to from outside a LAN).
+	 * Checks if the PeerAddress is an external address (that is, something that can be connected to from outside a LAN).
 	 *
 	 * @return true if external address
 	 */

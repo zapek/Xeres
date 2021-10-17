@@ -20,7 +20,7 @@
 package io.xeres.app.database;
 
 /**
- * Allows to use transactions from outside spring controllers, while still allowing the controller
+ * Allows using transactions from outside spring controllers, while still allowing the controller
  * to call such methods directly. For example:
  * <pre>
  *     &#64;Autowired

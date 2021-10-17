@@ -19,6 +19,6 @@
 
 /**
  * TCP over UDP. Will be implemented later on because it's complex and not strictly necessary.
- * Also a pure UDP protocol (DTLS) might be better for some things like realtime audio/video.
+ * Also, a pure UDP protocol (DTLS) might be better for some things like realtime audio/video.
  */
 package io.xeres.app.net.tou;

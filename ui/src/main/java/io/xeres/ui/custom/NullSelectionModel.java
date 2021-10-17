@@ -24,7 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.MultipleSelectionModel;
 
 /**
- * Allows to disable the selection in eg. ListViews.
+ * Allows to disable the selection; for example, in listviews.
  */
 public class NullSelectionModel extends MultipleSelectionModel<String>
 {

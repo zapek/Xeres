@@ -36,7 +36,7 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 	private byte position; // used for splitting up groups
 	private GxsId groupId;
 	private byte[] group; // actual group data (I think this is the serialization of GxsGroupItem, the service specific data (ie. avatar, etc...))
-	private byte[] meta; // Binary data for the group meta that is sent to friends. should not contain any private key part. this seems to be the serialization of GxsGroupItem
+	private byte[] meta; // Binary data for the group meta that is sent to our friends. Should not contain any private key part. This seems to be the serialization of GxsGroupItem
 
 	// XXX: RS also uses a RsGxsGrpMetaData metaData which is the deserialized metadata (may contain private key parts). basically RS juggles with various copies
 

@@ -34,7 +34,7 @@ import java.time.Duration;
 /**
  * Event handler that automatically closes the connection if the peer doesn't send anything
  * during a certain time. We also send a SliceProbeItem if we're idle ourselves (which is unlikely
- * to happen during normal operations (ie. RTT and heartbeat services).
+ * to happen during normal operations (for example, RTT and heartbeat services)).
  */
 @ChannelHandler.Sharable
 public class IdleEventHandler extends SimpleUserEventChannelHandler<IdleStateEvent>

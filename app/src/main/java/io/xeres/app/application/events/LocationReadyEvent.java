@@ -20,8 +20,8 @@
 package io.xeres.app.application.events;
 
 /**
- * Event that is sent once the application has a location (eg. a profile + location has been created)
- * and is thus ready to connect to peers.
+ * Event that is sent once the application has a location (that is, a profile + location has been created or is available)
+ * and is thus ready to connect to other peers.
  */
 public record LocationReadyEvent(String localIpAddress, int localPort)
 {

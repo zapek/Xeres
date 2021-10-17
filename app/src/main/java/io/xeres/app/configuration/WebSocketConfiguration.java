@@ -35,7 +35,7 @@ import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 /**
  * Configuration of the WebSocket. This is used for anything that requires a persistent connection from
- * the UI client to the server because of a bidirectional data stream (ie. chat windows).
+ * the UI client to the server because of a bidirectional data stream (for example, chat windows).
  */
 @Configuration
 @EnableWebSocketMessageBroker

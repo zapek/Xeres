@@ -181,7 +181,7 @@ public final class PGP
 	 * @param suffix the suffix appended to the id
 	 * @param size   the size of the key
 	 * @return the {@link PGPSecretKey}
-	 * @throws PGPException if somehow the PGP key generation failed (ie. wrong key size)
+	 * @throws PGPException if somehow the PGP key generation failed (for example, wrong key size)
 	 */
 	public static PGPSecretKey generateSecretKey(String id, String suffix, int size) throws PGPException
 	{

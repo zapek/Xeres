@@ -187,7 +187,7 @@ public class Startup implements ApplicationRunner
 		splashService.close();
 	}
 
-	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown and we don't want them in shutdown state already
+	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
 	public void onApplicationEvent(ContextClosedEvent event)
 	{
 		backupUserData();

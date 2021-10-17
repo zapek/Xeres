@@ -35,7 +35,7 @@ public enum Trust
 	UNKNOWN,
 
 	/**
-	 * No trust about the owner. Ie. he's known to sign stuff without
+	 * No trust about the owner. For example, he's known to sign stuff without
 	 * checking or without the other owner's consent.
 	 */
 	NEVER,

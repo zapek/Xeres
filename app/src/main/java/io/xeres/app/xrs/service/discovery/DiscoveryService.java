@@ -240,7 +240,7 @@ public class DiscoveryService extends RsService
 			}
 			else if (contactLocation.get().equals(locationService.findOwnLocation().orElseThrow()))
 			{
-				// Contact information about ourself (this can be used to help us find our external IP address
+				// Contact information about ourselves (this can be used to help us find our external IP address
 				updateOwnContactLocation(discoveryContactItem);
 			}
 			else
@@ -321,8 +321,8 @@ public class DiscoveryService extends RsService
 		}
 		else
 		{
-			// Friend of friend, but shouldn't happen because RS only sends common contacts
-			// We don't have any use for those. RS uses them as potential proxies/relays for the DHT but I have
+			// Friend of friend, but shouldn't happen because RS only sends common contacts.
+			// We don't have any use for those. RS uses them as potential proxies/relays for the DHT, but I have
 			// yet to see this in the wild because it shouldn't happen.
 			log.debug("New location for friend of friend {}, ignoring...", log.isDebugEnabled() ? Id.toString(discoveryContactItem.getPgpIdentifier()) : "");
 		}

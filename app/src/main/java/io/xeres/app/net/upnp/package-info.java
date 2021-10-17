@@ -21,8 +21,8 @@
  * UPNP implementation.
  * <p>
  * This is a limited UPNP implementation that finds an active router on the network and sets the
- * proper port forwarding. There is no active listening capabilities (eg. detecting if some new device was turned on)
- * because the use cases for it are limited and it directly clashes with the OS (for example Windows
+ * proper port forwarding. There is no active listening capabilities (for example, detecting if some new device was turned on)
+ * because the use cases for it are limited, and it directly clashes with the OS (for example Windows
  * is already listening on port 1900). Using the OS' UPNP stack would require the use of JNI on Windows, Linux
  * has too many possible setups and OSX is unknown.
  * <p>

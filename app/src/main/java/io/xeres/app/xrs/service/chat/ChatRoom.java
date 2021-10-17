@@ -40,7 +40,7 @@ public class ChatRoom
 	private final String topic;
 	private final Set<PeerConnection> participatingPeers = ConcurrentHashMap.newKeySet();
 	private GxsId gxsId; // signing entity
-	private final Map<GxsId, Long> gxsIds = new ConcurrentHashMap<>(); // non direct friends who are participating
+	private final Map<GxsId, Long> gxsIds = new ConcurrentHashMap<>(); // non-direct friends who are participating
 	private final int userCount;
 	private Instant lastActivity;
 	private final RoomType type;

@@ -303,7 +303,7 @@ public class UPNPService implements Runnable
 			}
 			else
 			{
-				// Device has no control point or it's unreachable, keep searching
+				// Device has no control point, or it's unreachable; keep searching
 				setState(State.WAITING, key);
 			}
 		}

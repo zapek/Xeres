@@ -28,7 +28,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
 /**
- * Allows to use @Transaction from outside Spring Boot threads. Prefer using {@link DatabaseSession} which implements
+ * Allows using @Transaction from outside Spring Boot threads. Prefer using {@link DatabaseSession} which implements
  * an AutoCloseable interface.
  */
 @Component

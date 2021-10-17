@@ -53,7 +53,7 @@ final class ControlPoint
 
 	static boolean updateDevice(DeviceSpecs upnpDevice, URL location)
 	{
-		var controlUrlFound = false;
+		var controlPointFound = false;
 
 		try
 		{
@@ -66,7 +66,7 @@ final class ControlPoint
 
 			XPathNodes services = xPath.evaluateExpression("//service[serviceType[contains(text(), 'WANIPConnection') or contains(text(), 'WANPPPConnection')]]", document, XPathNodes.class);
 
-			controlUrlFound = getServices(upnpDevice, controlUrlFound, services);
+			controlPointFound = getServices(upnpDevice, services);
 		}
 		catch (FileNotFoundException e)
 		{
@@ -88,7 +88,7 @@ final class ControlPoint
 		{
 			log.error("I/O error when parsing UPNP's router URL {}: {}", location, e.getMessage());
 		}
-		return controlUrlFound;
+		return controlPointFound;
 	}
 
 	private static void getDeviceInfo(DeviceSpecs upnpDevice, XPathNodes devices) throws XPathException
@@ -114,8 +114,10 @@ final class ControlPoint
 		}
 	}
 
-	private static boolean getServices(DeviceSpecs upnpDevice, boolean controlUrlFound, XPathNodes services) throws XPathException
+	private static boolean getServices(DeviceSpecs upnpDevice, XPathNodes services) throws XPathException
 	{
+		var controlUrlFound = false;
+
 		if (services.size() != 1)
 		{
 			throw new IllegalStateException("More than one service: " + services.size());

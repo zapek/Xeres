@@ -46,7 +46,7 @@ public abstract class Packet implements Comparable<Packet>
 
 	/**
 	 * The maximum packet size, which is the buffer size per connection
-	 * used by Retroshare actually.
+	 * used by Retroshare, actually.
 	 */
 	public static final int MAXIMUM_PACKET_SIZE = 262143;
 

@@ -650,8 +650,7 @@ public final class Serializer
 	}
 
 	/**
-	 * Checks that a class is allowed for serialization. Retroshare is C++ so compound types should be disallowed
-	 * but they are used for lists and maps and we cannot check them here.
+	 * Checks that a class is allowed for serialization. Retroshare is C++ so compound types should be disallowed; but they are used for lists and maps, and we cannot check them here.
 	 *
 	 * @param javaClass the class to check for support, an IllegalArgumentException is thrown if it is not supported
 	 */

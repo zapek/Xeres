@@ -62,7 +62,7 @@ public class DataDirConfiguration
 			return dataDir;
 		}
 
-		// If a datasource is already set (ie. tests), then we don't return anything
+		// If a datasource is already set (that is, tests), then we don't return anything
 		if (environment.getProperty("spring.datasource.url") != null)
 		{
 			return null;
@@ -126,7 +126,7 @@ public class DataDirConfiguration
 		// Find out if we're running from rootProject, which means
 		// we have an 'app' folder in there.
 		// We use a relative directory because currentDir is not supposed
-		// to change and it looks clearer.
+		// to change, and it looks clearer.
 		var appDir = Path.of("app");
 		if (Files.exists(appDir))
 		{

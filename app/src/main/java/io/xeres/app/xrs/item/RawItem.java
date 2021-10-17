@@ -71,7 +71,7 @@ public class RawItem
 		}
 		else
 		{
-			// Otherwise use the more convenient @RsSerialized notations (recommended)
+			// Otherwise, use the more convenient @RsSerialized notations (recommended)
 			log.trace("Deserializing class {} using annotations", item.getClass().getSimpleName());
 			Serializer.deserializeAnnotatedFields(buf, item);
 		}

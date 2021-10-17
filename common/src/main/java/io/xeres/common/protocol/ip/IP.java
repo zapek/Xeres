@@ -38,7 +38,7 @@ public final class IP
 
 	// List of port to avoid picking up as default because of their popularity in a NAT setup.
 	// Xeres uses a range from 1025 to 32767.
-	// Note that some ports aren't really popular but they're scanned by default by some anti-virus.
+	// Note that some ports aren't really popular, but they're scanned by default by some anti-virus.
 	private static final Set<Integer> reservedPorts = Set.of(
 			1080,  // Socks proxy
 			1194,  // Open VPN
@@ -171,7 +171,7 @@ public final class IP
 	}
 
 	/**
-	 * Checks if the IP address can be bound to (ie. a server can run on it).
+	 * Checks if the IP address can be bound to (that is, a server can run on it).
 	 *
 	 * @param ip the IP address to check
 	 * @return true if it's bindable
@@ -182,7 +182,7 @@ public final class IP
 	}
 
 	/**
-	 * Checks if the IP address is routable, which means it's either a valid LAN address (ie. 192.168.1.4) or a public IP address.
+	 * Checks if the IP address is routable, which means it's either a valid LAN address (for example, 192.168.1.4) or a public IP address.
 	 *
 	 * @param ip the IP address to check
 	 * @return true if it's routable
@@ -193,7 +193,7 @@ public final class IP
 	}
 
 	/**
-	 * Checks if the IP address if from a LAN (ie. a privately routable IP address, like 192.168.1.4 or 10.0.0.5).
+	 * Checks if the IP address if from a LAN (that is, a privately routable IP address; for example, 192.168.1.4 or 10.0.0.5).
 	 *
 	 * @param ip the IP address to check
 	 * @return true if it's a LAN address
@@ -211,7 +211,7 @@ public final class IP
 	}
 
 	/**
-	 * Checks if the IP address is a publicly routable IP address (ie. an IP that an Internet router will forward).
+	 * Checks if the IP address is a publicly routable IP address (that is, an IP that an Internet router will forward).
 	 *
 	 * @param ip the IP address to check
 	 * @return true if it's a public IP address
@@ -248,8 +248,8 @@ public final class IP
 
 	/**
 	 * Try to find the local IP by iterating all interfaces.<br>
-	 * Note: this doesn't work in all cases (eg. if docker has some 10.0.75.1 then it might be
-	 * picked up before the proper interface.
+	 * Note: this doesn't work in all cases (for example, if docker has some address like 10.0.75.1 then it might be
+	 * picked up before the proper interface).
 	 *
 	 * @return the IP address if found, otherwise null
 	 * @throws SocketException if there's a failure to get the interfaces

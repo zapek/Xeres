@@ -59,7 +59,7 @@ public final class Id
 	}
 
 	/**
-	 * Converts an hexadecimal string into an array of bytes. For example
+	 * Converts a hexadecimal string into an array of bytes. For example
 	 * if the input contains "1c03", then the result is an array of 2 bytes with 28 then 3.
 	 *
 	 * @param id the values as a lowercase hexadecimal series of bytes, without prefix
@@ -86,7 +86,7 @@ public final class Id
 	 * Converts an id into its hexadecimal representation.
 	 *
 	 * @param id the id
-	 * @return an hexadecimal uppercase representation of the id, without prefix
+	 * @return a hexadecimal uppercase representation of the id, without prefix
 	 */
 	public static String toString(long id)
 	{
@@ -97,7 +97,7 @@ public final class Id
 	 * Converts an id into its hexadecimal representation.
 	 *
 	 * @param id the id
-	 * @return an hexadecimal lowercase representation of the id, without prefix
+	 * @return a hexadecimal lowercase representation of the id, without prefix
 	 */
 	public static String toStringLowerCase(long id)
 	{
@@ -108,7 +108,7 @@ public final class Id
 	 * Converts an identifier into its hexadecimal representation.
 	 *
 	 * @param identifier the identifier
-	 * @return an hexadecimal lowercase representation of the identifier, without prefix
+	 * @return a hexadecimal lowercase representation of the identifier, without prefix
 	 */
 	public static String toString(Identifier identifier)
 	{
@@ -121,7 +121,7 @@ public final class Id
 	}
 
 	/**
-	 * Converts an array containing an hexadecimal ASCII representation of bytes into an array of
+	 * Converts an array containing a hexadecimal ASCII representation of bytes into an array of
 	 * the corresponding byte values. For example, if the array contains 0x31 ('1') and 0x33 ('3')
 	 * which represents 0x13, the result is an array of bytes which is { 0x13 }.
 	 *

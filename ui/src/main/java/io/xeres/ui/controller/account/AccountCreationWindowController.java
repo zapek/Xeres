@@ -90,7 +90,7 @@ public class AccountCreationWindowController implements WindowController
 
 	/**
 	 * Try to make the hostname better by removing the domain part, if present.
-	 * ie. bar.foo.baz -> bar
+	 * For example, bar.foo.baz -> bar
 	 *
 	 * @param hostname a hostname
 	 * @return a hostname without the domain part

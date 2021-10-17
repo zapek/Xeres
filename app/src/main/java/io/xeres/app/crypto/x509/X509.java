@@ -40,7 +40,7 @@ import java.util.Date;
 import java.util.Optional;
 
 /**
- * Implements all X509 certificate functions. Used to create a SSL certificate for the location.
+ * Implements all X509 certificate functions. Used to create an SSL certificate for the location.
  */
 public final class X509
 {

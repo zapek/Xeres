@@ -27,7 +27,7 @@ import java.util.Optional;
 import static io.xeres.common.properties.StartupProperties.Property.*;
 
 /**
- * This utility class allows to set properties using the content of env variables.
+ * This utility class allows setting properties using the content of env variables.
  * This is especially useful when run from containers.
  */
 public final class HostVariable
@@ -38,7 +38,7 @@ public final class HostVariable
 	public static final String XERES_DATA_DIR = "XERES_DATA_DIR";
 
 	/**
-	 * The control port of the server (ie. where the UI client is sending commands to).
+	 * The control port of the server (that is, where the UI client is sending commands to).
 	 */
 	public static final String XERES_CONTROL_PORT = "XERES_CONTROL_PORT";
 
@@ -48,7 +48,7 @@ public final class HostVariable
 	public static final String XERES_SERVER_PORT = "XERES_SERVER_PORT";
 
 	/**
-	 * If we are running in server mode only (ie. we're only accepting incoming connections).
+	 * If we are running in server mode only (that is, we're only accepting incoming connections).
 	 * Ideal for a chat server.
 	 */
 	public static final String XERES_SERVER_ONLY = "XERES_SERVER_ONLY";

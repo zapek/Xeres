@@ -58,7 +58,7 @@ public class TestClass
 
 <1> We start here
 <2> Then we do the things
-<3> And we cleanup
+<3> And we clean up
 
 .Sidebar content
 ****

@@ -21,7 +21,7 @@ Contains distant chat, peer chat and distributed chat.
 
 |ChatStatus
 |4
-|Contains the chat status string (ie. `Foo is typing...`).
+|Contains the chat status string (for example, `Foo is typing...`).
 Sent at most every 5 seconds and only for private chats
 
 |PrivateChatMessageConfig

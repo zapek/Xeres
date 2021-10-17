@@ -39,7 +39,7 @@ public final class RSA
 	}
 
 	/**
-	 * Generates a RSA private/public key pair.
+	 * Generates an RSA private/public key pair.
 	 *
 	 * @param size the key size (512, 1024, 2048, 3072, 4096, etc...)
 	 * @return the key pair

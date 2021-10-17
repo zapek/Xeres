@@ -41,7 +41,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * This service periodically sends an UDP broadcast packet to find out
+ * This service periodically sends a UDP broadcast packet to find out
  * if other Retroshare clients are on the LAN. It implements more or
  * less the same protocol as found in https://github.com/truvorskameikin/udp-discovery-cpp
  * (which is what Retroshare uses).
@@ -177,7 +177,7 @@ public class BroadcastDiscoveryService implements Runnable
 
 	private void updateOwnInfo()
 	{
-		// For now we do nothing but we could implement something better if for
+		// For now, we do nothing; but we could implement something better if for
 		// example there's a change of IP or port. Don't forget to increase the
 		// counter for each update otherwise it won't be taken into account.
 	}

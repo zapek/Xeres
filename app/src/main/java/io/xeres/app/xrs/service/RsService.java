@@ -77,7 +77,7 @@ public abstract class RsService implements Comparable<RsService>
 
 	/**
 	 * Sent once when the application is exiting but before closing the connections.
-	 * Good place to send last messages (eg. leaving a room, etc...).
+	 * Good place to send last messages (for example, leaving a room, etc...).
 	 */
 	public void shutdown()
 	{

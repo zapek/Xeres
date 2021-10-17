@@ -29,8 +29,8 @@ import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.id.AddCertificateWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
-import io.xeres.ui.controller.messaging.FriendsWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
+import io.xeres.ui.controller.messaging.PeersWindowController;
 import io.xeres.ui.controller.profile.ProfilesUiController;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -39,6 +39,7 @@ import net.rgielen.fxweaver.core.FxWeaver;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -68,24 +69,27 @@ public class WindowManager
 	{
 		Platform.runLater(() ->
 		{
-			// XXX: add a shutdown window (with updatable message?)
 			List<Window> windows = UiWindow.getOpenedWindows();
-			windows.forEach(Window::hide); // XXX: race condition issue here... find out why (NoSuchElementException). Well, probably because hide() removes them :-/
+
+			// There's a strange side effect here when windows are hidden, apparently JavaFX changes the list, so
+			// we make a copy.
+			var copyOfWindows = new ArrayList<>(windows);
+			copyOfWindows.forEach(Window::hide);
 		});
 	}
 
-	public void openFriends()
+	public void openPeers()
 	{
 		Platform.runLater(() ->
 		{
-			Window friends = UiWindow.getOpenedWindow(FriendsWindowController.class).orElse(null);
-			if (friends != null)
+			Window peers = UiWindow.getOpenedWindow(PeersWindowController.class).orElse(null);
+			if (peers != null)
 			{
-				friends.requestFocus();
+				peers.requestFocus();
 			}
 			else
 			{
-				UiWindow.builder(FriendsWindowController.class)
+				UiWindow.builder(PeersWindowController.class)
 						.setRememberEnvironment(true)
 						.build()
 						.open();
@@ -154,12 +158,12 @@ public class WindowManager
 						.open());
 	}
 
-	public void openAddFriend(Window parent)
+	public void openAddPeer(Window parent)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(AddCertificateWindowController.class)
 						.setParent(parent)
-						.setTitle("Add friend certificate")
+						.setTitle("Add peer ID")
 						.setMinHeight(380)
 						.build()
 						.open());

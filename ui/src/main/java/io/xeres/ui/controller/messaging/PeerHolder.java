@@ -22,22 +22,22 @@ package io.xeres.ui.controller.messaging;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 
-public class ProfileHolder // XXX: rename it as PeerHolder perhaps...
+public class PeerHolder
 {
 	private Profile profile;
 	private Location location;
 
-	public ProfileHolder()
+	public PeerHolder()
 	{
 
 	}
 
-	public ProfileHolder(Profile profile)
+	public PeerHolder(Profile profile)
 	{
 		this.profile = profile;
 	}
 
-	public ProfileHolder(Profile profile, Location location)
+	public PeerHolder(Profile profile, Location location)
 	{
 		this.profile = profile;
 		this.location = location;

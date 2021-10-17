@@ -25,7 +25,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<VBox prefHeight="400.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.messaging.FriendsWindowController">
+<VBox prefHeight="400.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.messaging.PeersWindowController">
     <HBox alignment="CENTER_LEFT">
         <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
             <HBox.margin>
@@ -39,5 +39,5 @@
             </HBox.margin>
         </Label>
     </HBox>
-    <TreeView fx:id="friendsTree" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS"/>
+    <TreeView fx:id="peersTree" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS"/>
 </VBox>

@@ -23,7 +23,6 @@ import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.support.tray.TrayService;
-import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -46,7 +45,7 @@ public class MainWindowController implements WindowController
 	private Label titleLabel;
 
 	@FXML
-	private MenuItem addFriend;
+	private MenuItem addPeer;
 
 	@FXML
 	private MenuItem copyOwnId;
@@ -67,7 +66,7 @@ public class MainWindowController implements WindowController
 	private MenuItem showProfilesWindow;
 
 	@FXML
-	private MenuItem showFriendsWindow;
+	private MenuItem showPeersWindow;
 
 	@FXML
 	private MenuItem showBroadcastWindow;
@@ -85,8 +84,7 @@ public class MainWindowController implements WindowController
 
 	public void initialize()
 	{
-		// Friends
-		addFriend.setOnAction(event -> addFriend());
+		addPeer.setOnAction(event -> addPeer());
 		copyOwnId.setOnAction(event -> copyOwnId());
 
 		launchWebInterface.setOnAction(event -> launchBrowser());
@@ -99,12 +97,10 @@ public class MainWindowController implements WindowController
 
 		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(titleLabel.getScene().getWindow()));
 
-		showFriendsWindow.setOnAction(event -> windowManager.openFriends());
+		showPeersWindow.setOnAction(event -> windowManager.openPeers());
 
 		exitApplication.setOnAction(event ->
 		{
-			UiUtils.closeWindow(titleLabel); // the event can contain a MenuItem which is not a Node
-
 			windowManager.closeAllWindows();
 
 			if (trayService.hasSystemTray())
@@ -131,9 +127,9 @@ public class MainWindowController implements WindowController
 		}));
 	}
 
-	private void addFriend()
+	private void addPeer()
 	{
-		windowManager.openAddFriend(titleLabel.getScene().getWindow());
+		windowManager.openAddPeer(titleLabel.getScene().getWindow());
 	}
 
 	private void launchBrowser()

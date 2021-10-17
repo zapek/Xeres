@@ -77,12 +77,12 @@ public class AddCertificateWindowController implements WindowController
 
 	public void initialize()
 	{
-		addButton.setOnAction(event -> addFriend());
+		addButton.setOnAction(event -> addPeer());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 		certificateTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkCertificate(newValue)); // XXX: add a debouncer for this
 	}
 
-	private void addFriend()
+	private void addPeer()
 	{
 		Mono<Void> profile = profileClient.createProfile(certificateTextArea.getText());
 

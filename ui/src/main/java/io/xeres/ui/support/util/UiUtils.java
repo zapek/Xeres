@@ -40,7 +40,7 @@ import java.io.InputStreamReader;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public final class UiUtils // XXX: should be renamed as TextfieldUtils perhaps... depends how much of those I end up with
+public final class UiUtils
 {
 	private UiUtils()
 	{

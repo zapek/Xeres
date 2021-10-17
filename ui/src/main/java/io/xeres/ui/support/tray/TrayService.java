@@ -73,12 +73,12 @@ public class TrayService
 			Platform.exit();
 		});
 
-		var friendsItem = new MenuItem("Friends");
-		friendsItem.addActionListener(e ->
-				windowManager.openFriends());
+		var peersItem = new MenuItem("Peers");
+		peersItem.addActionListener(e ->
+				windowManager.openPeers());
 
 		var popupMenu = new PopupMenu();
-		popupMenu.add(friendsItem);
+		popupMenu.add(peersItem);
 		popupMenu.add(exitItem);
 
 		var image = Toolkit.getDefaultToolkit().getImage(stage.getClass().getResource("/image/trayicon.png"));

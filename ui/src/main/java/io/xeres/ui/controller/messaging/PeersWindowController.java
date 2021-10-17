@@ -35,22 +35,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-@FxmlView(value = "/view/messaging/friends.fxml")
-public class FriendsWindowController implements WindowController
+@FxmlView(value = "/view/messaging/peers.fxml")
+public class PeersWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(FriendsWindowController.class);
+	private static final Logger log = LoggerFactory.getLogger(PeersWindowController.class);
 
 	@FXML
 	private Label nickname;
 
 	@FXML
-	private TreeView<ProfileHolder> friendsTree;
+	private TreeView<PeerHolder> peersTree;
 
 	private final ProfileClient profileClient;
 	private final ConnectionClient connectionClient;
 	private final WindowManager windowManager;
 
-	public FriendsWindowController(ProfileClient profileClient, ConnectionClient connectionClient, WindowManager windowManager)
+	public PeersWindowController(ProfileClient profileClient, ConnectionClient connectionClient, WindowManager windowManager)
 	{
 		this.profileClient = profileClient;
 		this.connectionClient = connectionClient;
@@ -60,17 +60,17 @@ public class FriendsWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		TreeItem<ProfileHolder> root = new TreeItem<>(new ProfileHolder());
+		TreeItem<PeerHolder> root = new TreeItem<>(new PeerHolder());
 		root.setExpanded(true);
-		friendsTree.setRoot(root);
-		friendsTree.setShowRoot(false);
+		peersTree.setRoot(root);
+		peersTree.setShowRoot(false);
 
-		friendsTree.setCellFactory(param ->
+		peersTree.setCellFactory(param ->
 		{
-			TreeCell<ProfileHolder> cell = new TreeCell<>()
+			TreeCell<PeerHolder> cell = new TreeCell<>()
 			{
 				@Override
-				protected void updateItem(ProfileHolder profileHolder, boolean empty)
+				protected void updateItem(PeerHolder profileHolder, boolean empty)
 				{
 					super.updateItem(profileHolder, empty);
 					if (empty)
@@ -87,10 +87,10 @@ public class FriendsWindowController implements WindowController
 			return cell;
 		});
 
-		friendsTree.setOnMouseClicked(event -> {
+		peersTree.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) // XXX: add another condition to make sure we're double clicking on a leaf
 			{
-				var profileHolder = friendsTree.getSelectionModel().getSelectedItem().getValue();
+				var profileHolder = peersTree.getSelectionModel().getSelectedItem().getValue();
 				if (profileHolder.hasLocation())
 				{
 					windowManager.openMessaging(profileHolder.getLocation().getLocationId().toString(), null);
@@ -106,13 +106,13 @@ public class FriendsWindowController implements WindowController
 				.doOnSuccess(profiles -> Platform.runLater(() -> profiles.forEach(profile -> {
 					if (profile.getLocations().size() == 1)
 					{
-						root.getChildren().add(new TreeItem<>(new ProfileHolder(profile, profile.getLocations().get(0))));
+						root.getChildren().add(new TreeItem<>(new PeerHolder(profile, profile.getLocations().get(0))));
 					}
 					else
 					{
-						var parent = new TreeItem<>(new ProfileHolder(profile));
+						var parent = new TreeItem<>(new PeerHolder(profile));
 						root.getChildren().add(parent);
-						profile.getLocations().forEach(location -> parent.getChildren().add(new TreeItem<>(new ProfileHolder(profile, location))));
+						profile.getLocations().forEach(location -> parent.getChildren().add(new TreeItem<>(new PeerHolder(profile, location))));
 					}
 				})))
 				.doOnError(throwable -> log.error("Error while getting profiles: {}", throwable.getMessage(), throwable))

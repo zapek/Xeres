@@ -31,7 +31,7 @@
     <TextFlow>
         <Text text="Send a message to "/>
         <Text style="-fx-font-weight: bold" text="all"/>
-        <Text text=" currently connected friends.&#10;"/>
+        <Text text=" currently connected peers.&#10;"/>
         <Text fill="red" style="-fx-font-weight: bold;" text="Warning:"/>
         <Text text=" do not abuse this function. Only use it for emergencies or exceptional situations."/>
     </TextFlow>

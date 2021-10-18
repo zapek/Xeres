@@ -40,11 +40,11 @@ public final class SingleInstanceRun
 {
 	private static final Logger log = LoggerFactory.getLogger(SingleInstanceRun.class);
 
-	private static final String LOCK_FILE = "." + AppName.NAME.toLowerCase(Locale.ROOT) + ".lock";
+	private static final String LOCK_FILE_NAME = "." + AppName.NAME.toLowerCase(Locale.ROOT) + ".lock";
 
-	private static File lockFile;
+	private static File file;
 	private static RandomAccessFile randomAccessFile;
-	private static FileLock fileLock;
+	private static FileLock lock;
 
 	private SingleInstanceRun()
 	{
@@ -59,15 +59,15 @@ public final class SingleInstanceRun
 	 */
 	public static boolean enforceSingleInstance(String dataDir)
 	{
-		lockFile = new File(dataDir, LOCK_FILE);
+		file = new File(dataDir, LOCK_FILE_NAME);
 
 		var result = false;
 		try
 		{
-			randomAccessFile = new RandomAccessFile(lockFile, "rw");
+			randomAccessFile = new RandomAccessFile(file, "rw");
 
-			fileLock = Optional.ofNullable(randomAccessFile.getChannel().tryLock()).orElseThrow(IllegalStateException::new);
-			if (fileLock != null)
+			lock = Optional.ofNullable(randomAccessFile.getChannel().tryLock()).orElseThrow(IllegalStateException::new);
+			if (lock != null)
 			{
 				result = true;
 				Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
@@ -79,7 +79,7 @@ public final class SingleInstanceRun
 		}
 		catch (SecurityException e)
 		{
-			log.warn("Shutdown hook denied by SecurityManager; There will be a dangling lock file at {}", LOCK_FILE);
+			log.warn("Shutdown hook denied by SecurityManager; There will be a dangling lock file at {}", LOCK_FILE_NAME);
 		}
 		return result;
 	}
@@ -91,9 +91,9 @@ public final class SingleInstanceRun
 		{
 			try
 			{
-				fileLock.release();
+				lock.release();
 				randomAccessFile.close();
-				Files.delete(lockFile.toPath());
+				Files.delete(file.toPath());
 			}
 			catch (NoSuchFileException e)
 			{

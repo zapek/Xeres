@@ -24,10 +24,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
-<VBox prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
-    <padding>
-        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
-    </padding>
+<VBox prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" styleClass="base-spacing">
     <ListView fx:id="receive" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" styleClass="chatlist" VBox.vgrow="ALWAYS">
         <VBox.margin>
             <Insets bottom="4.0"/>

@@ -23,10 +23,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
-    <padding>
-        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
-    </padding>
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController" styleClass="base-spacing">
     <Label text="Xeres">
         <font>
             <Font size="24.0"/>

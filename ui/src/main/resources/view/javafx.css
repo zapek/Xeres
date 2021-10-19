@@ -17,6 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+.base-spacing {
+    -fx-padding: 12px;
+}
+
 .text-field:error {
     -fx-text-box-border: red;
     -fx-focus-color: red;

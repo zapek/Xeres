@@ -24,10 +24,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.messaging.BroadcastWindowController">
-    <padding>
-        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
-    </padding>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.messaging.BroadcastWindowController" styleClass="base-spacing">
     <TextFlow>
         <Text text="Send a message to "/>
         <Text style="-fx-font-weight: bold" text="all"/>

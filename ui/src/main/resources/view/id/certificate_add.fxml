@@ -23,10 +23,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox prefHeight="400.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddCertificateWindowController">
-    <padding>
-        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
-    </padding>
+<VBox prefHeight="400.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddCertificateWindowController" styleClass="base-spacing">
     <Label text="Paste below your peer's ID.">
         <VBox.margin>
             <Insets/>

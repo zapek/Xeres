@@ -19,7 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.*?>

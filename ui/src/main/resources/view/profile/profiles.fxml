@@ -20,7 +20,6 @@
   -->
 
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <VBox prefHeight="400.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.profile.ProfilesUiController" styleClass="base-spacing">

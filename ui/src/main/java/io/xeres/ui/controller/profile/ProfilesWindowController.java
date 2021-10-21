@@ -39,9 +39,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @FxmlView(value = "/view/profile/profiles.fxml")
-public class ProfilesUiController implements WindowController
+public class ProfilesWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(ProfilesUiController.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfilesWindowController.class);
 
 	private final ProfileClient profileClient;
 
@@ -60,7 +60,7 @@ public class ProfilesUiController implements WindowController
 	@FXML
 	private TableColumn<Profile, Trust> tableTrust;
 
-	public ProfilesUiController(ProfileClient profileClient)
+	public ProfilesWindowController(ProfileClient profileClient)
 	{
 		this.profileClient = profileClient;
 	}

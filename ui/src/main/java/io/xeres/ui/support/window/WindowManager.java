@@ -31,7 +31,7 @@ import io.xeres.ui.controller.id.AddCertificateWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.messaging.PeersWindowController;
-import io.xeres.ui.controller.profile.ProfilesUiController;
+import io.xeres.ui.controller.profile.ProfilesWindowController;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -151,7 +151,7 @@ public class WindowManager
 	public void openProfiles(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(ProfilesUiController.class)
+				UiWindow.builder(ProfilesWindowController.class)
 						.setParent(parent)
 						.setTitle("Profiles")
 						.build()

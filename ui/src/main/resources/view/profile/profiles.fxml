@@ -22,7 +22,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<VBox prefHeight="400.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.profile.ProfilesUiController" styleClass="base-spacing">
+<VBox prefHeight="400.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.profile.ProfilesWindowController" styleClass="base-spacing">
     <TableView fx:id="profilesTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="tableName" editable="false" prefWidth="117.0" text="Name"/>

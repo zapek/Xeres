@@ -21,6 +21,7 @@ package io.xeres.common.id;
 
 import javax.persistence.Embeddable;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Embeddable
 public class GxsId implements Identifier
@@ -36,10 +37,7 @@ public class GxsId implements Identifier
 
 	public GxsId(byte[] identifier)
 	{
-		if (identifier == null)
-		{
-			throw new IllegalArgumentException("Null identifier");
-		}
+		Objects.requireNonNull(identifier, "Null identifier");
 		if (identifier.length != LENGTH)
 		{
 			throw new IllegalArgumentException("Bad identifier length, expected " + LENGTH + ", got " + identifier.length);

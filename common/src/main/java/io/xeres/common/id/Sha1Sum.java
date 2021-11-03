@@ -21,6 +21,7 @@ package io.xeres.common.id;
 
 import javax.persistence.Embeddable;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Embeddable
 public class Sha1Sum implements Identifier
@@ -36,13 +37,10 @@ public class Sha1Sum implements Identifier
 
 	public Sha1Sum(byte[] sum)
 	{
-		if (sum == null)
-		{
-			throw new IllegalArgumentException("Null sha1sum");
-		}
+		Objects.requireNonNull(sum, "Null sha1 sum");
 		if (sum.length != LENGTH)
 		{
-			throw new IllegalArgumentException("Bad sha1sum length, expected " + LENGTH + ", got " + sum.length);
+			throw new IllegalArgumentException("Bad sha1 sum length, expected " + LENGTH + ", got " + sum.length);
 		}
 		this.identifier = sum;
 	}

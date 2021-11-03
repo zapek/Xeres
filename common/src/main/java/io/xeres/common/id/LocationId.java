@@ -21,6 +21,7 @@ package io.xeres.common.id;
 
 import javax.persistence.Embeddable;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -38,10 +39,7 @@ public class LocationId implements Identifier
 
 	public LocationId(byte[] identifier)
 	{
-		if (identifier == null)
-		{
-			throw new IllegalArgumentException("Null identifier");
-		}
+		Objects.requireNonNull(identifier, "Null identifier");
 		if (identifier.length != LENGTH)
 		{
 			throw new IllegalArgumentException("Bad identifier length, expected " + LENGTH + ", got " + identifier.length);

@@ -33,7 +33,6 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
 import javax.validation.Valid;
-
 import java.util.Objects;
 
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;

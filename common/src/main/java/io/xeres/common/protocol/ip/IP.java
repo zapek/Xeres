@@ -136,10 +136,10 @@ public final class IP
 	}
 
 	/**
-	 * Tries its best to get the public IP address, without requiring an external
+	 * Tries its best to get the local IP address, without requiring an external
 	 * server. Should work at all times unless the host has no Internet access.
 	 *
-	 * @return the public IP address or null
+	 * @return the local IP address or null
 	 */
 	public static String getLocalIpAddress()
 	{

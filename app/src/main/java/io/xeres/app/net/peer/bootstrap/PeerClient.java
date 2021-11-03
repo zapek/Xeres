@@ -40,6 +40,7 @@ import org.springframework.stereotype.Component;
 import javax.net.ssl.SSLException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Objects;
 
 import static io.xeres.app.net.peer.ConnectionDirection.OUTGOING;
 
@@ -114,7 +115,7 @@ public class PeerClient
 
 	public ChannelFuture connect(PeerAddress peerAddress)
 	{
-		assert group != null;
+		Objects.requireNonNull(group);
 		return bootstrap.connect(peerAddress.getSocketAddress());
 	}
 }

@@ -34,6 +34,8 @@ import org.springframework.stereotype.Controller;
 
 import javax.validation.Valid;
 
+import java.util.Objects;
+
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
@@ -59,13 +61,12 @@ public class ChatMessageController
 		switch (messageType)
 		{
 			case CHAT_PRIVATE_MESSAGE -> {
-				assert destinationId != null;
 				log.debug("Received websocket message, sending to peer location: {}, content {}", destinationId, message);
 				chatService.sendPrivateMessage(new LocationId(destinationId), message.getContent());
 			}
 			case CHAT_ROOM_MESSAGE -> {
-				assert destinationId != null;
 				log.debug("Sending to room: {}, content {}", destinationId, message);
+				Objects.requireNonNull(destinationId);
 				chatService.sendChatRoomMessage(Long.parseLong(destinationId), message.getContent());
 			}
 			case CHAT_BROADCAST_MESSAGE -> {
@@ -73,13 +74,13 @@ public class ChatMessageController
 				chatService.sendBroadcastMessage(message.getContent());
 			}
 			case CHAT_TYPING_NOTIFICATION -> {
-				assert destinationId != null;
 				log.debug("Sending typing notification...");
+				Objects.requireNonNull(destinationId);
 				chatService.sendPrivateTypingNotification(new LocationId(destinationId));
 			}
 			case CHAT_ROOM_TYPING_NOTIFICATION -> {
-				assert destinationId != null;
 				log.debug("Sending typing notification...");
+				Objects.requireNonNull(destinationId);
 				chatService.sendChatRoomTypingNotification(Long.parseLong(destinationId));
 			}
 			default -> log.error("Couldn't figure out which message to send");

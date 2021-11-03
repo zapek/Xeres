@@ -36,6 +36,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
@@ -92,7 +93,7 @@ public class MessageClient
 
 	public void sendToLocation(LocationId locationId, ChatMessage message)
 	{
-		assert stompSession != null;
+		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
 		headers.setDestination("/app" + CHAT_PATH);
@@ -103,7 +104,7 @@ public class MessageClient
 
 	public void sendToChatRoom(long chatRoomId, ChatMessage message)
 	{
-		assert stompSession != null;
+		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
 		headers.setDestination("/app" + CHAT_PATH);
@@ -114,7 +115,7 @@ public class MessageClient
 
 	public void sendBroadcast(ChatMessage message)
 	{
-		assert stompSession != null;
+		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
 		headers.setDestination("/app" + CHAT_PATH);

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 /**
  * Configuration for everything related to the user data directory (database, keys, user data, ...).
@@ -83,7 +84,7 @@ public class DataDirConfiguration
 			dataDir = getDataDirFromNativePlatform();
 		}
 
-		assert dataDir != null;
+		Objects.requireNonNull(dataDir);
 
 		var path = Path.of(dataDir);
 		if (Files.notExists(path))

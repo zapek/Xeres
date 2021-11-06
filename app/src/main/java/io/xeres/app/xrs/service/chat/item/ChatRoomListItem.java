@@ -44,7 +44,7 @@ public class ChatRoomListItem extends Item
 	@Override
 	public int getPriority()
 	{
-		return ItemPriority.CHAT.getPriority();
+		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
 	@Override

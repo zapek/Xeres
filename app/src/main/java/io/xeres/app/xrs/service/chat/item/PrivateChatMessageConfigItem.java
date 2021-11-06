@@ -49,7 +49,7 @@ public class PrivateChatMessageConfigItem extends Item
 	@Override
 	public int getPriority()
 	{
-		return ItemPriority.CHAT.getPriority();
+		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
 	public LocationId getLocationId()

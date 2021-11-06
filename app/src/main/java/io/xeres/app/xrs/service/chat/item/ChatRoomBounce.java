@@ -47,7 +47,7 @@ public abstract class ChatRoomBounce extends Item
 	@Override
 	public int getPriority()
 	{
-		return ItemPriority.CHAT.getPriority();
+		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
 	int writeBounceableObject(ByteBuf buf, Set<SerializationFlags> flags)

@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.discovery.item;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.common.id.Id;
@@ -81,6 +82,12 @@ public class DiscoveryPgpListItem extends Item implements RsSerializable
 	{
 		mode = deserializeEnum(buf, Mode.class);
 		pgpIds = (Set<Long>) deserialize(buf, SET_PGP_ID);
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	@Override

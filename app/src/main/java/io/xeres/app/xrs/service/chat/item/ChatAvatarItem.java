@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.chat.item;
 
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.Id;
 
@@ -37,7 +38,7 @@ public class ChatAvatarItem extends Item
 	@Override
 	public int getPriority()
 	{
-		return 2;
+		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	public byte[] getImageData()

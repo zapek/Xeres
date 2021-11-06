@@ -31,7 +31,7 @@ public abstract class GxsExchange extends Item
 	@Override
 	public int getPriority()
 	{
-		return ItemPriority.GXS.getPriority();
+		return ItemPriority.HIGH.getPriority();
 	}
 
 	public int getTransactionId()

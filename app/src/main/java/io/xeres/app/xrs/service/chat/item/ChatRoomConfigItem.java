@@ -34,7 +34,7 @@ public class ChatRoomConfigItem extends Item
 	@Override
 	public int getPriority()
 	{
-		return ItemPriority.CHAT.getPriority();
+		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
 	public long getRoomId()

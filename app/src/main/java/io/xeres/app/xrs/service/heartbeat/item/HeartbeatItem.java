@@ -20,9 +20,16 @@
 package io.xeres.app.xrs.service.heartbeat.item;
 
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
 
 public class HeartbeatItem extends Item
 {
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.IMPORTANT.getPriority();
+	}
+
 	@Override
 	public String toString()
 	{

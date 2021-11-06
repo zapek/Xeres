@@ -33,7 +33,7 @@ public class ChatRoomConnectChallengeItem extends Item
 	@Override
 	public int getPriority()
 	{
-		return ItemPriority.CHAT.getPriority();
+		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
 	public ChatRoomConnectChallengeItem()

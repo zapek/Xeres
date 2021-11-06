@@ -50,7 +50,7 @@ public class ChatStatusItem extends Item
 	@Override
 	public int getPriority()
 	{
-		return ItemPriority.CHAT.getPriority();
+		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	public Set<ChatFlags> getFlags()

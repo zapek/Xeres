@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.discovery.item;
 
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.Id;
 
@@ -49,6 +50,12 @@ public class DiscoveryPgpKeyItem extends Item
 	public byte[] getKeyData()
 	{
 		return keyData;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	@Override

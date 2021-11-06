@@ -29,8 +29,11 @@ class ItemPriorityTest
 	@Test
 	void ItemPriority_Enum_Value()
 	{
+		assertEquals(2, BACKGROUND.getPriority());
 		assertEquals(3, DEFAULT.getPriority());
-		assertEquals(6, GXS.getPriority());
-		assertEquals(7, CHAT.getPriority());
+		assertEquals(6, HIGH.getPriority());
+		assertEquals(7, INTERACTIVE.getPriority());
+		assertEquals(8, IMPORTANT.getPriority());
+		assertEquals(9, REALTIME.getPriority());
 	}
 }

@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.rtt.item;
 
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
 public class RttPingItem extends Item
@@ -49,6 +50,12 @@ public class RttPingItem extends Item
 	public long getTimestamp()
 	{
 		return timestamp;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.REALTIME.getPriority();
 	}
 
 	@Override

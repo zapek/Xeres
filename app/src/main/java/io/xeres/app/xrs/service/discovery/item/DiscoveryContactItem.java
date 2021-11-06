@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.discovery.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.common.id.Id;
@@ -252,6 +253,12 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	public List<PeerAddress> getExternalAddressList()
 	{
 		return externalAddressList;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	@Override

@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 @Component
 public class GxsIdService extends GxsService
@@ -128,7 +129,12 @@ public class GxsIdService extends GxsService
 	@Override
 	public void processItems(PeerConnection peerConnection, List<? extends GxsExchange> items)
 	{
-		if (items.get(0) instanceof GxsSyncGroupItem) // XXX: this is not very nice. maybe I should have some transaction type or so
+		if (isEmpty(items))
+		{
+			throw new IllegalArgumentException("Empty transaction items");
+		}
+
+		if (items.get(0) instanceof GxsSyncGroupItem)
 		{
 			@SuppressWarnings("unchecked")
 			var gxsIds = ((List<GxsSyncGroupItem>) items).stream().map(GxsSyncGroupItem::getGroupId).toList();

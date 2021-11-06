@@ -43,5 +43,7 @@ class ChatFlagsTest
 		assertEquals(11, ACK_DISTANT_CONNECTION.ordinal());
 		assertEquals(12, KEEP_ALIVE.ordinal());
 		assertEquals(13, CONNECTION_REFUSED.ordinal());
+
+		assertEquals(14, values().length);
 	}
 }

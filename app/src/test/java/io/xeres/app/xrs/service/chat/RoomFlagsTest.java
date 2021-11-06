@@ -34,5 +34,7 @@ class RoomFlagsTest
 		assertEquals(2, PUBLIC.ordinal());
 		assertEquals(3, CHALLENGE.ordinal());
 		assertEquals(4, PGP_SIGNED.ordinal());
+
+		assertEquals(5, values().length);
 	}
 }

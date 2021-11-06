@@ -43,5 +43,7 @@ class TransactionFlagsTest
 		assertEquals(12, TYPE_GROUPS.ordinal());
 		assertEquals(13, TYPE_MESSAGES.ordinal());
 		assertEquals(14, TYPE_ENCRYPTED_DATA.ordinal());
+
+		assertEquals(15, values().length);
 	}
 }

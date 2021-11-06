@@ -32,5 +32,7 @@ class GxsRequestTypeTest
 		assertEquals(0, NONE.ordinal());
 		assertEquals(1, REQUEST.ordinal());
 		assertEquals(2, RESPONSE.ordinal());
+
+		assertEquals(3, values().length);
 	}
 }

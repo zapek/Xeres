@@ -21,8 +21,7 @@ package io.xeres.app.xrs.service.gxs;
 
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.xrs.service.gxs.item.SyncFlags.REQUEST;
-import static io.xeres.app.xrs.service.gxs.item.SyncFlags.RESPONSE;
+import static io.xeres.app.xrs.service.gxs.item.SyncFlags.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SyncFlagsTest
@@ -32,5 +31,7 @@ class SyncFlagsTest
 	{
 		assertEquals(0, REQUEST.ordinal());
 		assertEquals(1, RESPONSE.ordinal());
+
+		assertEquals(2, values().length);
 	}
 }

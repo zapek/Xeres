@@ -34,5 +34,7 @@ class StatusTest
 		assertEquals(2, BUSY.ordinal());
 		assertEquals(3, ONLINE.ordinal());
 		assertEquals(4, INACTIVE.ordinal());
+
+		assertEquals(5, values().length);
 	}
 }

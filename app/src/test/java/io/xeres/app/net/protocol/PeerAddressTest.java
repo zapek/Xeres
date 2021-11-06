@@ -303,5 +303,7 @@ class PeerAddressTest
 		assertEquals(3, TOR.ordinal());
 		assertEquals(4, HOSTNAME.ordinal());
 		assertEquals(5, I2P.ordinal());
+
+		assertEquals(6, values().length);
 	}
 }

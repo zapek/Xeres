@@ -19,9 +19,9 @@
 
 package io.xeres.app.xrs.service.discovery;
 
-import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem.Mode;
 import org.junit.jupiter.api.Test;
 
+import static io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem.Mode.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DiscoveryPgpListItemTest
@@ -29,8 +29,10 @@ class DiscoveryPgpListItemTest
 	@Test
 	void DiscoveryPgpListItem_Mode_Enum_Order()
 	{
-		assertEquals(0, Mode.NONE.ordinal());
-		assertEquals(1, Mode.FRIENDS.ordinal());
-		assertEquals(2, Mode.GET_CERT.ordinal());
+		assertEquals(0, NONE.ordinal());
+		assertEquals(1, FRIENDS.ordinal());
+		assertEquals(2, GET_CERT.ordinal());
+
+		assertEquals(3, values().length);
 	}
 }

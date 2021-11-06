@@ -36,5 +36,7 @@ class GxsCircleTypeTest
 		assertEquals(4, LOCAL.ordinal());
 		assertEquals(5, EXTERNAL_SELF.ordinal());
 		assertEquals(6, YOUR_EYES_ONLY.ordinal());
+
+		assertEquals(7, values().length);
 	}
 }

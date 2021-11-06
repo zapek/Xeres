@@ -35,6 +35,8 @@ class RSSerialVersionTest
 		assertEquals(0, V06_0000.ordinal());
 		assertEquals(1, V06_0001.ordinal());
 		assertEquals(2, V07_0001.ordinal());
+
+		assertEquals(3, values().length);
 	}
 
 	@Test

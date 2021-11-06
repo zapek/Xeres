@@ -33,5 +33,7 @@ class GxsSignatureFlagsTest
 		assertEquals(1, ALL_SIGNED.ordinal());
 		assertEquals(2, THREAD_HEAD.ordinal());
 		assertEquals(3, NONE_REQUIRED.ordinal());
+
+		assertEquals(4, values().length);
 	}
 }

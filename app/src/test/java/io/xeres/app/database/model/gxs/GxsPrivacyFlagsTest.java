@@ -33,5 +33,7 @@ class GxsPrivacyFlagsTest
 		assertEquals(1, RESTRICTED.ordinal());
 		assertEquals(2, PUBLIC.ordinal());
 		assertEquals(8, READ_ID.ordinal());
+
+		assertEquals(9, values().length);
 	}
 }

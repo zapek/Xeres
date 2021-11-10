@@ -70,7 +70,7 @@ public class HeartbeatService extends RsService
 	}
 
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
 		// do nothing
 	}

@@ -73,7 +73,7 @@ public class ServiceInfoService extends RsService
 	}
 
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
 		if (item instanceof ServiceListItem serviceListItem)
 		{
@@ -84,17 +84,17 @@ public class ServiceInfoService extends RsService
 				var rsService = RsServiceRegistry.getServiceFromType(serviceInfo.getType());
 				if (rsService != null)
 				{
-					peerConnection.addService(rsService);
+					sender.addService(rsService);
 					services.add(rsService);
 				}
 			});
 			if (log.isDebugEnabled())
 			{
-				log.debug("Enabling services {} to peer {}", services.stream().map(rsService -> rsService.getServiceType().name()).collect(joining(", ")), peerConnection);
+				log.debug("Enabling services {} to peer {}", services.stream().map(rsService -> rsService.getServiceType().name()).collect(joining(", ")), sender);
 			}
-			sendFirstServiceList(peerConnection);
+			sendFirstServiceList(sender);
 
-			initializeServices(peerConnection, services);
+			initializeServices(sender, services);
 		}
 	}
 

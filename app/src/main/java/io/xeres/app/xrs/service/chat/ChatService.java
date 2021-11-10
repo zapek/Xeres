@@ -272,43 +272,43 @@ public class ChatService extends RsService
 	}
 
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
 		if (item instanceof ChatRoomListRequestItem)
 		{
-			handleChatRoomListRequestItem(peerConnection);
+			handleChatRoomListRequestItem(sender);
 		}
 		else if (item instanceof ChatRoomListItem chatRoomListItem)
 		{
-			handleChatRoomListItem(peerConnection, chatRoomListItem);
+			handleChatRoomListItem(sender, chatRoomListItem);
 		}
 		else if (item instanceof ChatMessageItem chatMessageItem)
 		{
-			handleChatMessageItem(peerConnection, chatMessageItem);
+			handleChatMessageItem(sender, chatMessageItem);
 		}
 		else if (item instanceof ChatRoomMessageItem chatRoomMessageItem)
 		{
-			handleChatRoomMessageItem(peerConnection, chatRoomMessageItem);
+			handleChatRoomMessageItem(sender, chatRoomMessageItem);
 		}
 		else if (item instanceof ChatStatusItem chatStatusItem)
 		{
-			handleChatStatusItem(peerConnection, chatStatusItem);
+			handleChatStatusItem(sender, chatStatusItem);
 		}
 		else if (item instanceof ChatRoomInviteItem chatRoomInviteItem)
 		{
-			handleChatRoomInviteItem(peerConnection, chatRoomInviteItem);
+			handleChatRoomInviteItem(sender, chatRoomInviteItem);
 		}
 		else if (item instanceof ChatRoomEventItem chatRoomEventItem)
 		{
-			handleChatRoomEventItem(peerConnection, chatRoomEventItem);
+			handleChatRoomEventItem(sender, chatRoomEventItem);
 		}
 		else if (item instanceof ChatRoomConnectChallengeItem chatRoomConnectChallengeItem)
 		{
-			handleChatRoomConnectChallengeItem(peerConnection, chatRoomConnectChallengeItem);
+			handleChatRoomConnectChallengeItem(sender, chatRoomConnectChallengeItem);
 		}
 		else if (item instanceof ChatRoomUnsubscribeItem chatRoomUnsubscribeItem)
 		{
-			handleChatRoomUnsubscribeItem(peerConnection, chatRoomUnsubscribeItem);
+			handleChatRoomUnsubscribeItem(sender, chatRoomUnsubscribeItem);
 		}
 	}
 

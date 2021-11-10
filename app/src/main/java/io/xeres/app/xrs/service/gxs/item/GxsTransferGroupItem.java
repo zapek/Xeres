@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.service.RsService;
 import io.xeres.common.id.GxsId;
 
 import java.util.Set;
@@ -45,12 +46,13 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 		// Needed
 	}
 
-	public GxsTransferGroupItem(GxsId groupId, byte[] group, byte[] meta, int transactionId)
+	public GxsTransferGroupItem(GxsId groupId, byte[] group, byte[] meta, int transactionId, RsService service)
 	{
 		this.groupId = groupId;
 		this.group = group;
 		this.meta = meta;
 		setTransactionId(transactionId);
+		setService(service);
 	}
 
 	public byte getPosition()

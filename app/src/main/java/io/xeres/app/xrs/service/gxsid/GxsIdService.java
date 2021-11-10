@@ -104,20 +104,20 @@ public class GxsIdService extends GxsService
 	}
 
 	@Override
-	public List<? extends GxsGroupItem> getGroups(PeerConnection peerConnection, Instant since)
+	public List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
 	{
 		// XXX: use identityService to return the identities we need. for now we just return ours
 		return List.of(identityService.getOwnIdentity().getGxsIdGroupItem());
 	}
 
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
 //		if (item instanceof GxsIdGroupItem gxsIdGroupItem)
 //		{
 //			handleGxsIdGroupItem(peerConnection, gxsIdGroupItem);
 //		}
-		super.handleItem(peerConnection, item);
+		super.handleItem(sender, item);
 	}
 
 	private void handleGxsIdGroupItem(PeerConnection peerConnection, GxsIdGroupItem item)
@@ -194,15 +194,14 @@ public class GxsIdService extends GxsService
 			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
 			log.debug("Writing meta buf");
 			gxsGroupItem.writeObject(metaBuf, EnumSet.of(SerializationFlags.SUPERCLASS_ONLY));
-			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId);
-			gxsTransferGroupItem.setService(this); // XXX: maybe move that on the constructor? since it's kinda needed
+			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, this);
 			items.add(gxsTransferGroupItem);
 		});
 
 		gxsTransactionManager.startOutgoingTransaction(
 				peerConnection,
 				items,
-				Instant.now(), // XXX: not sure about that one... recheck
+				Instant.now(), // XXX: not sure about that one... recheck. I think it has to be when our group last changed
 				transactionId,
 				this
 		);

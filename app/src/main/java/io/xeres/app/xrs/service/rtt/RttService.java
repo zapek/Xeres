@@ -102,12 +102,12 @@ public class RttService extends RsService
 	}
 
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
 		if (item instanceof RttPingItem pingItem)
 		{
 			var pong = new RttPongItem(pingItem, get64bitsTimeStamp());
-			writeItem(peerConnection, pong);
+			writeItem(sender, pong);
 		}
 		else if (item instanceof RttPongItem pongItem)
 		{

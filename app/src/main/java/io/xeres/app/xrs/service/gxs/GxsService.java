@@ -80,8 +80,21 @@ public abstract class GxsService extends RsService
 	 */
 	public abstract Class<? extends GxsMessageItem> getMessageClass();
 
-	public abstract List<? extends GxsGroupItem> getGroups(PeerConnection peerConnection, Instant since);
+	/**
+	 * Gets the list of Gxs groups to transfer.
+	 *
+	 * @param recipient the recipient of the groups
+	 * @param since     the time after which the groups are relevant
+	 * @return
+	 */
+	public abstract List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since);
 
+	/**
+	 * Processes the items of the transaction.
+	 *
+	 * @param peerConnection the peer connection who sent the items
+	 * @param items
+	 */
 	public abstract void processItems(PeerConnection peerConnection, List<? extends GxsExchange> items);
 
 	@Override
@@ -120,18 +133,18 @@ public abstract class GxsService extends RsService
 	}
 
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
 		log.debug("Got item: {}", item);
 		if (item instanceof GxsExchange gxsExchangeItem)
 		{
 			if (gxsExchangeItem.getTransactionId() != 0)
 			{
-				handleTransaction(peerConnection, gxsExchangeItem);
+				handleTransaction(sender, gxsExchangeItem);
 			}
 			else if (item instanceof GxsSyncGroupRequestItem gxsSyncGroupRequestItem)
 			{
-				handleGxsSyncGroupRequestItem(peerConnection, gxsSyncGroupRequestItem);
+				handleGxsSyncGroupRequestItem(sender, gxsSyncGroupRequestItem);
 			}
 		}
 		else
@@ -163,7 +176,7 @@ public abstract class GxsService extends RsService
 				List<GxsExchange> items = new ArrayList<>();
 
 				// XXX: check if the group is subscribed (subscribeFlags & SUBSCRIBED)... what to do with gxsid? seems subscribe to all groups?
-				getGroups(peerConnection, since).forEach(gxsGroupItem -> {
+				getPendingGroups(peerConnection, since).forEach(gxsGroupItem -> {
 					log.debug("Adding groupId of item: {}", gxsGroupItem);
 					if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
 					{

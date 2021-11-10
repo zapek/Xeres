@@ -45,7 +45,7 @@ public abstract class RsService implements Comparable<RsService>
 
 	public abstract Map<Class<? extends Item>, Integer> getSupportedItems();
 
-	public abstract void handleItem(PeerConnection peerConnection, Item item);
+	public abstract void handleItem(PeerConnection sender, Item item);
 
 	private final Environment environment;
 	private final PeerConnectionManager peerConnectionManager;

@@ -75,12 +75,12 @@ public class StatusService extends RsService
 	}
 
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
 		// XXX: print peer's status (ideally refresh a list)
 		if (item instanceof StatusItem statusItem)
 		{
-			log.debug("Got status {} from peer {}", statusItem.getStatus(), peerConnection);
+			log.debug("Got status {} from peer {}", statusItem.getStatus(), sender);
 		}
 	}
 }

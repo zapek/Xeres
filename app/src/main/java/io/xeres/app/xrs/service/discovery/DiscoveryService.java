@@ -206,23 +206,23 @@ public class DiscoveryService extends RsService
 
 	@Transactional
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
 		if (item instanceof DiscoveryContactItem discoveryContactItem)
 		{
-			handleContact(peerConnection, discoveryContactItem);
+			handleContact(sender, discoveryContactItem);
 		}
 		else if (item instanceof DiscoveryIdentityListItem discoveryIdentityListItem)
 		{
-			handleIdentityList(peerConnection, discoveryIdentityListItem);
+			handleIdentityList(sender, discoveryIdentityListItem);
 		}
 		else if (item instanceof DiscoveryPgpListItem discoveryPgpListItem)
 		{
-			handlePgpList(peerConnection, discoveryPgpListItem);
+			handlePgpList(sender, discoveryPgpListItem);
 		}
 		else if (item instanceof DiscoveryPgpKeyItem discoveryPgpKeyItem)
 		{
-			handlePgpKey(peerConnection, discoveryPgpKeyItem);
+			handlePgpKey(sender, discoveryPgpKeyItem);
 		}
 	}
 

@@ -60,12 +60,12 @@ public class SliceProbeService extends RsService
 	}
 
 	@Override
-	public void handleItem(PeerConnection peerConnection, Item item)
+	public void handleItem(PeerConnection sender, Item item)
 	{
-		if (!Boolean.TRUE.equals(peerConnection.getCtx().channel().attr(PeerAttribute.MULTI_PACKET).get()))
+		if (!Boolean.TRUE.equals(sender.getCtx().channel().attr(PeerAttribute.MULTI_PACKET).get()))
 		{
 			log.debug("Received slice probe, switching to new packet format for current session");
-			peerConnection.getCtx().channel().attr(PeerAttribute.MULTI_PACKET).set(true);
+			sender.getCtx().channel().attr(PeerAttribute.MULTI_PACKET).set(true);
 		}
 	}
 }

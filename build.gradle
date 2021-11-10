@@ -19,11 +19,11 @@
 
 buildscript {
     ext {
-        flywayVersion = "8.0.1"
+        flywayVersion = "8.0.2"
         bouncycastleVersion = "1.69"
         apacheCommonsLangVersion = "3.12.0"
         apacheCommonsCollectionsVersion = "4.4"
-        springOpenApi = "1.5.11"
+        springOpenApi = "1.5.12"
     }
 }
 
@@ -36,7 +36,7 @@ plugins {
 
 // To upgrade Gradle, change the version here, refresh, then run the 'wrapper' task
 wrapper {
-    gradleVersion = '7.2'
+    gradleVersion = '7.3'
 }
 
 subprojects {

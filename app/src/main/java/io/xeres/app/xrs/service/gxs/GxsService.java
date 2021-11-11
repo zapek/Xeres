@@ -85,7 +85,7 @@ public abstract class GxsService extends RsService
 	 *
 	 * @param recipient the recipient of the groups
 	 * @param since     the time after which the groups are relevant
-	 * @return
+	 * @return the pending groups
 	 */
 	public abstract List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since);
 
@@ -93,7 +93,7 @@ public abstract class GxsService extends RsService
 	 * Processes the items of the transaction.
 	 *
 	 * @param peerConnection the peer connection who sent the items
-	 * @param items
+	 * @param items the items to process
 	 */
 	public abstract void processItems(PeerConnection peerConnection, List<? extends GxsExchange> items);
 

@@ -175,17 +175,17 @@ public class GxsIdService extends GxsService
 	public void requestGxsGroups(PeerConnection peerConnection, List<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
 	{
 		int transactionId = getTransactionId(peerConnection);
-		List<GxsExchange> items = new ArrayList<>();
+		List<GxsSyncGroupItem> items = new ArrayList<>();
 
 		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(EnumSet.of(SyncFlags.REQUEST), gxsId, transactionId)));
 
-		gxsTransactionManager.startOutgoingTransactionRequest(peerConnection, items, transactionId, this);
+		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}
 
 	public void sendGxsGroups(PeerConnection peerConnection, List<GxsGroupItem> gxsGroupItems)
 	{
 		int transactionId = getTransactionId(peerConnection);
-		List<GxsExchange> items = new ArrayList<>();
+		List<GxsTransferGroupItem> items = new ArrayList<>();
 		gxsGroupItems.forEach(gxsGroupItem -> {
 			signGroup(gxsGroupItem);
 			var groupBuf = Unpooled.buffer(); // XXX: size... well, it autogrows
@@ -198,7 +198,7 @@ public class GxsIdService extends GxsService
 			items.add(gxsTransferGroupItem);
 		});
 
-		gxsTransactionManager.startOutgoingTransaction(
+		gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
 				peerConnection,
 				items,
 				Instant.now(), // XXX: not sure about that one... recheck. I think it has to be when our group last changed

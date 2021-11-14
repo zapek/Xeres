@@ -48,9 +48,9 @@ final class TlvSecurityKeySerializer
 		buf.ensureWritable(len);
 		buf.writeShort(SECURITY_KEY.getValue());
 		buf.writeInt(len);
-		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.getGxsId())); // XXX: RS uses some weird bytes to ascii here... not sure this is correct :-/ (I first used Id.toAsciiBytes() but it wants a string. see deserialization)
+		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.getGxsId()));
 
-		Serializer.serialize(buf, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN), FieldSize.INTEGER); // keyFlags (XXX: set them to TSTLV_KEY_DISTRIB_ADMIN, possibly others)
+		Serializer.serialize(buf, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), FieldSize.INTEGER);
 		Serializer.serialize(buf, 0); // startTS (XXX: I think it stays at 0)
 		Serializer.serialize(buf, 0); // endTS (XXX: I think it stays at 0)
 

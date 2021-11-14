@@ -19,7 +19,7 @@ Sent every 60 seconds.
 |GxsSyncGroupItem +
 [small]#RsNxsSyncGrpItem#
 |2
-|Contains a group id which have to be transferred.
+|Contains a group id which has to be transferred.
 
 |GxsSyncGroupStatsItem +
 [small]#RsNxsSyncGrpStatsItem#

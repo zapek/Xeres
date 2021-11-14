@@ -173,7 +173,7 @@ public abstract class GxsService extends RsService
 			try (var session = new DatabaseSession(databaseSessionManager))
 			{
 				log.debug("Updates available for peer, sending...");
-				List<GxsExchange> items = new ArrayList<>();
+				List<GxsSyncGroupItem> items = new ArrayList<>();
 
 				// XXX: check if the group is subscribed (subscribeFlags & SUBSCRIBED)... what to do with gxsid? seems subscribe to all groups?
 				getPendingGroups(peerConnection, since).forEach(gxsGroupItem -> {
@@ -191,7 +191,7 @@ public abstract class GxsService extends RsService
 				// the items are included in a transaction (they all have the same transaction number)
 
 				log.debug("Calling transaction, number of items: {}", items.size());
-				gxsTransactionManager.startOutgoingTransaction(
+				gxsTransactionManager.startOutgoingTransactionForGroupIdResponse(
 						peerConnection,
 						items,
 						gxsExchangeService.getLastServiceUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
@@ -214,11 +214,11 @@ public abstract class GxsService extends RsService
 	{
 		if (item instanceof GxsTransactionItem gxsTransactionItem)
 		{
-			gxsTransactionManager.processTransaction(peerConnection, gxsTransactionItem, this);
+			gxsTransactionManager.processIncomingTransaction(peerConnection, gxsTransactionItem, this);
 		}
 		else
 		{
-			if (gxsTransactionManager.addContent(peerConnection, item, this))
+			if (gxsTransactionManager.addIncomingItemToTransaction(peerConnection, item, this))
 			{
 				gxsExchangeService.setLastPeerUpdate(peerConnection.getLocation(), getServiceType(), Instant.now());
 			}

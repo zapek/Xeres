@@ -105,7 +105,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	private byte[] adminPrivateKeyData; // XXX: must NOT be serialized
 	private byte[] adminPublicKeyData;
 
-	private byte[] authorPrivateKeyData; // XXX: must NOT be serialized
+	private byte[] authorPrivateKeyData; // XXX: must NOT be serialized (is the key name author or publish?)
 	private byte[] authorPublicKeyData;
 
 	@Transient
@@ -366,7 +366,6 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	{
 		int size = 0;
 
-		// XXX:  it's all in rsgxsdata.cc/serialize() and rsgenexchange.cc/createGroup()|publishGrps()|generateGroupKeys()
 		size += serialize(buf, 0xaf01); // current RS API (XXX: put that constant somewhere)
 		int sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end

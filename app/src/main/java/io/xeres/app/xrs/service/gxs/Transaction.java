@@ -26,10 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
-public final class Transaction
+public class Transaction<T extends GxsExchange>
 {
 	private static final Logger log = LoggerFactory.getLogger(Transaction.class);
 
@@ -49,26 +48,18 @@ public final class Transaction
 		OUTGOING
 	}
 
+	private static final Duration TRANSACTION_TIMEOUT = Duration.ofSeconds(2000);
+
 	private final int id;
 	private State state;
 	private final Type type;
 	private final Instant start;
 	private final Duration timeout;
-	private final List<GxsExchange> items;
+	private final List<T> items;
 	private final int itemCount;
 	private final GxsService service;
 
-	public static Transaction createOutgoing(int id, List<GxsExchange> items, Duration timeout, GxsService service)
-	{
-		return new Transaction(id, items, items.size(), timeout, service, State.WAITING_CONFIRMATION, Type.OUTGOING);
-	}
-
-	public static Transaction createIncoming(int id, int itemCount, Duration timeout, GxsService service)
-	{
-		return new Transaction(id, new ArrayList<>(), itemCount, timeout, service, State.STARTING, Type.INCOMING);
-	}
-
-	private Transaction(int id, List<GxsExchange> items, int itemCount, Duration timeout, GxsService service, State state, Type type)
+	Transaction(int id, List<T> items, int itemCount, GxsService service, Type type)
 	{
 		if (itemCount == 0)
 		{
@@ -77,9 +68,9 @@ public final class Transaction
 		this.id = id;
 		this.items = items;
 		this.itemCount = itemCount;
-		this.timeout = timeout;
+		this.timeout = TRANSACTION_TIMEOUT;
 		this.service = service;
-		this.state = state;
+		this.state = type == Type.OUTGOING ? State.WAITING_CONFIRMATION : State.STARTING;
 		this.type = type;
 		this.start = Instant.now();
 	}
@@ -104,14 +95,14 @@ public final class Transaction
 		this.state = state;
 	}
 
-	public List<GxsExchange> getItems()
+	public List<T> getItems()
 	{
 		return items;
 	}
 
 	public void addItem(GxsExchange item)
 	{
-		items.add(item);
+		items.add((T) item);
 	}
 
 	public RsService getService()

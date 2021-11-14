@@ -51,6 +51,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -88,34 +89,37 @@ public class IdentityService
 			throw new IllegalArgumentException("Cannot create an identity without a location; Create a location first");
 		}
 		log.debug("Creating identity key...");
-		//RsGenExchange::publishGroup(); with a RsGxsIdGroupItem()
 
 		var keyPair = RSA.generateKeys(2048);
 		var rsaPrivateKey = (RSAPrivateKey) keyPair.getPrivate();
+		var rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
 
 		var gxsId = makeGxsId(
-				getAsOneComplement(rsaPrivateKey.getModulus()),
-				getAsOneComplement(rsaPrivateKey.getPrivateExponent()));
+				getAsOneComplement(rsaPublicKey.getModulus()),
+				getAsOneComplement(rsaPublicKey.getPublicExponent()));
 
 		var gxsIdGroupItem = new GxsIdGroupItem(gxsId, name);
-		gxsIdGroupItem.setAdminPrivateKeyData(keyPair.getPrivate().getEncoded());
-		gxsIdGroupItem.setAdminPublicKeyData(keyPair.getPublic().getEncoded());
+		gxsIdGroupItem.setAdminPrivateKeyData(rsaPrivateKey.getEncoded()); // X.509
+		gxsIdGroupItem.setAdminPublicKeyData(RSA.getPublicKeyAsPkcs1(rsaPublicKey)); // PKCS #1
 
 		gxsIdGroupItem.setCircleType(GxsCircleType.PUBLIC);
 
 		if (type == Type.SIGNED)
 		{
-			var hash = makeProfileHash(gxsId, profileService.getOwnProfile().getProfileFingerprint());
+			var ownProfile = profileService.getOwnProfile();
+			var hash = makeProfileHash(gxsId, ownProfile.getProfileFingerprint());
 			gxsIdGroupItem.setProfileHash(hash);
 			gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(prefsService.getSecretProfileKey()), hash));
 
 			// This is because of some backward compatibility, ideally it should be PUBLIC | REAL_ID
 			// PRIVATE is equal to READ_ID_deprecated
 			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PRIVATE, GxsPrivacyFlags.READ_ID));
+			gxsIdGroupItem.setServiceString(String.format("v2 {P:K:1 I:%s}{T:F:0 P:0 T:0}{R:5 5 0 0}", Id.toString(ownProfile.getPgpIdentifier())));
 		}
 		else
 		{
 			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
+			// XXX: what should the serviceString have?
 		}
 
 		gxsIdGroupItem = gxsIdRepository.save(gxsIdGroupItem);

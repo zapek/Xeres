@@ -421,23 +421,26 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	 */
 	private SecurityKeySet createSecurityKeySet()
 	{
+		int startTs = (int) getPublished().getEpochSecond();
+		int stopTs = startTs + 60 * 60 * 24 * 365 * 5; // 5 years
+
 		var securityKeySet = new SecurityKeySet();
 		if (adminPublicKeyData != null)
 		{
-			securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), 0, 0, adminPublicKeyData)); // XXX: ADMIN or IDENTITY (identity is when we have authorId)?
+			securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, adminPublicKeyData)); // XXX: ADMIN or IDENTITY (identity is when we have authorId)?
 		}
 		if (authorPublicKeyData != null)
 		{
-			securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISH, SecurityKey.Flags.TYPE_PUBLIC_ONLY), 0, 0, authorPublicKeyData));
+			securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISH, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, authorPublicKeyData));
 		}
 		return securityKeySet;
 	}
 
 	private SignatureSet createSignatureSet()
 	{
-		Objects.requireNonNull(signature);
+		Objects.requireNonNull(getSignature());
 		var signatureSet = new SignatureSet();
-		signatureSet.put(SignatureSet.Type.ADMIN, new Signature(gxsId, signature));
+		signatureSet.put(SignatureSet.Type.ADMIN, new Signature(gxsId, getSignature()));
 		return signatureSet;
 	}
 

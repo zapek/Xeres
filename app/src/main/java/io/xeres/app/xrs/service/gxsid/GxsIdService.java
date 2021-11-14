@@ -189,10 +189,8 @@ public class GxsIdService extends GxsService
 		gxsGroupItems.forEach(gxsGroupItem -> {
 			signGroup(gxsGroupItem);
 			var groupBuf = Unpooled.buffer(); // XXX: size... well, it autogrows
-			log.debug("Writing group buf");
 			gxsGroupItem.writeObject(groupBuf, EnumSet.of(SerializationFlags.SUBCLASS_ONLY));
 			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
-			log.debug("Writing meta buf");
 			gxsGroupItem.writeObject(metaBuf, EnumSet.of(SerializationFlags.SUPERCLASS_ONLY));
 			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, this);
 			items.add(gxsTransferGroupItem);

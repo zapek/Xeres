@@ -100,6 +100,7 @@ public class Transaction<T extends GxsExchange>
 		return items;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void addItem(GxsExchange item)
 	{
 		items.add((T) item);

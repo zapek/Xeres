@@ -51,8 +51,8 @@ final class TlvSecurityKeySerializer
 		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.getGxsId()));
 
 		Serializer.serialize(buf, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), FieldSize.INTEGER);
-		Serializer.serialize(buf, 0); // startTS (XXX: I think it stays at 0)
-		Serializer.serialize(buf, 0); // endTS (XXX: I think it stays at 0)
+		Serializer.serialize(buf, securityKey.getStartTs());
+		Serializer.serialize(buf, securityKey.getEndTs());
 
 		TlvSerializer.serialize(buf, KEY_EVP_PKEY, securityKey.getData());
 		return len;

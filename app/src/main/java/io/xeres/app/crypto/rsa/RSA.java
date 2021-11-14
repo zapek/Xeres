@@ -19,6 +19,10 @@
 
 package io.xeres.app.crypto.rsa;
 
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+
+import java.io.IOException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -127,5 +131,34 @@ public final class RSA
 		{
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	/**
+	 * Converts an RSA private key from PKCS #8 to PKCS #1
+	 *
+	 * @param privateKey the RSA private key
+	 * @return the RSA private key in PKCS #8 format
+	 * @throws IOException wrong key format
+	 */
+	public static byte[] getPrivateKeyAsPkcs1(PrivateKey privateKey) throws IOException
+	{
+		var privateKeyInfo = PrivateKeyInfo.getInstance(privateKey.getEncoded());
+		var encodable = privateKeyInfo.parsePrivateKey();
+		var primitive = encodable.toASN1Primitive();
+		return primitive.getEncoded();
+	}
+
+	/**
+	 * Converts an RSA public key from X.509 to PKCS #1
+	 *
+	 * @param publicKey the RSA public key
+	 * @return the RSA public key in PKCS #1 format
+	 * @throws IOException wrong key format
+	 */
+	public static byte[] getPublicKeyAsPkcs1(PublicKey publicKey) throws IOException
+	{
+		var subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
+		var primitive = subjectPublicKeyInfo.parsePublicKey();
+		return primitive.getEncoded();
 	}
 }

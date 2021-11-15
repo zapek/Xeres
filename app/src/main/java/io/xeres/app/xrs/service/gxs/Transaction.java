@@ -28,6 +28,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * A Transaction is a way to group multiple items of the same type that have the same transaction id. Transactions can be outgoing or incoming and have
+ * different states. Once a transaction is complete, its items can be accessed.
+ *
+ * @param <T> the GxsExchange type. GxsExchange for incoming transactions and a subclass for outgoing transactions.
+ * @see GxsTransactionManager
+ */
 public class Transaction<T extends GxsExchange>
 {
 	private static final Logger log = LoggerFactory.getLogger(Transaction.class);
@@ -113,7 +120,7 @@ public class Transaction<T extends GxsExchange>
 
 	public boolean hasAllItems()
 	{
-		log.debug("itemcount: {}, current items size: {}", itemCount, items.size());
+		log.debug("expected number of items: {}, current number of items: {}", itemCount, items.size());
 		return itemCount == items.size();
 	}
 

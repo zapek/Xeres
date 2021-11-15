@@ -111,7 +111,7 @@ public class IdentityService
 			gxsIdGroupItem.setProfileHash(hash);
 			gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(prefsService.getSecretProfileKey()), hash));
 
-			// This is because of some backward compatibility, ideally it should be PUBLIC | REAL_ID
+			// This is because of some backward compatibility, ideally it should be PUBLIC | READ_ID
 			// PRIVATE is equal to READ_ID_deprecated
 			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PRIVATE, GxsPrivacyFlags.READ_ID));
 			gxsIdGroupItem.setServiceString(String.format("v2 {P:K:1 I:%s}{T:F:0 P:0 T:0}{R:5 5 0 0}", Id.toString(ownProfile.getPgpIdentifier())));

@@ -24,6 +24,7 @@ import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 
@@ -104,7 +105,7 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 		int size = 0;
 
 		size += serialize(buf, (byte) 2);
-		size += serialize(buf, (short) 0x211);
+		size += serialize(buf, (short) RsServiceType.GXSID.getType());
 		size += serialize(buf, (byte) 2);
 		int sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at end

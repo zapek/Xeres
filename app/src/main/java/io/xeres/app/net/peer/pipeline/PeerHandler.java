@@ -115,6 +115,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		{
 			log.error("Failed to deserialize: {}, {}", e.getClass().getSimpleName(), e.getMessage(), e);
 			rawItem.dispose();
+			item = null; // Don't dispose twice
 		}
 		finally
 		{

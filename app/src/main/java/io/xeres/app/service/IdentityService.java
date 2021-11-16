@@ -88,7 +88,6 @@ public class IdentityService
 		{
 			throw new IllegalArgumentException("Cannot create an identity without a location; Create a location first");
 		}
-		log.debug("Creating identity key...");
 
 		var keyPair = RSA.generateKeys(2048);
 		var rsaPrivateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -132,7 +131,7 @@ public class IdentityService
 		return saved.getId();
 	}
 
-	public Identity getOwnIdentity() // XXX: temporary, we'll have several identites later
+	public Identity getOwnIdentity() // XXX: temporary, we'll have several identities later
 	{
 		return identityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own identity"));
 	}

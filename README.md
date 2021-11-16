@@ -70,11 +70,11 @@ Run the Gradle ``bootRun`` target. It's in the top right _Gradle_ panel, Tasks /
 
 ###### Windows
 
-	gradlew.bat
+	gradlew.bat bootRun
 
 ###### Linux
 
-	./gradlew
+	./gradlew bootRun
 
 To pass Xeres arguments, just use the args feature, for example:
 

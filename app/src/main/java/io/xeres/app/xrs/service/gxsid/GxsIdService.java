@@ -193,6 +193,8 @@ public class GxsIdService extends GxsService
 			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
 			gxsGroupItem.writeObject(metaBuf, EnumSet.of(SerializationFlags.SUPERCLASS_ONLY));
 			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, this);
+			groupBuf.release();
+			metaBuf.release();
 			items.add(gxsTransferGroupItem);
 		});
 

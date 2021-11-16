@@ -86,6 +86,11 @@ public class ChatService extends RsService
 	private static final int CHATROOM_LIST_MAX = 50;
 
 	/**
+	 * When to refresh nearby chat rooms by asking peers.
+	 */
+	private static final Duration CHATROOM_NEARBY_REFRESH = Duration.ofMinutes(2);
+
+	/**
 	 * Time after which a keep alive packet is sent.
 	 */
 	private static final Duration KEEPALIVE_DELAY = Duration.ofMinutes(2);
@@ -181,8 +186,8 @@ public class ChatService extends RsService
 	{
 		executorService = Executors.newSingleThreadScheduledExecutor();
 
-		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageChatRooms
-				, HOUSEKEEPING_DELAY.toSeconds(),
+		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageChatRooms,
+				HOUSEKEEPING_DELAY.toSeconds(),
 				HOUSEKEEPING_DELAY.toSeconds(),
 				TimeUnit.SECONDS
 		);
@@ -206,7 +211,7 @@ public class ChatService extends RsService
 		peerConnection.scheduleAtFixedRate(
 				() -> askForNearbyChatRooms(peerConnection)
 				, 0,
-				120,
+				CHATROOM_NEARBY_REFRESH.toSeconds(),
 				TimeUnit.SECONDS
 		);
 	}

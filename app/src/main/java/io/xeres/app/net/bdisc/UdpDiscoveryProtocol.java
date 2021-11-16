@@ -112,6 +112,7 @@ public final class UdpDiscoveryProtocol
 		buffer.putShort((short) buf.writerIndex());
 		buffer.putShort((short) 0);
 		buffer.put(buf.nioBuffer());
+		buf.release();
 
 		return buffer;
 	}

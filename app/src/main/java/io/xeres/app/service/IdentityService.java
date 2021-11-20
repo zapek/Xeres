@@ -89,17 +89,27 @@ public class IdentityService
 			throw new IllegalArgumentException("Cannot create an identity without a location; Create a location first");
 		}
 
-		var keyPair = RSA.generateKeys(2048);
-		var rsaPrivateKey = (RSAPrivateKey) keyPair.getPrivate();
-		var rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+		var adminKeyPair = RSA.generateKeys(2048);
+		var publishingKeyPair = RSA.generateKeys(2048);
 
+		var adminPrivateKey = (RSAPrivateKey) adminKeyPair.getPrivate();
+		var adminPublicKey = (RSAPublicKey) adminKeyPair.getPublic();
+
+		var publishingPrivateKey = (RSAPrivateKey) publishingKeyPair.getPrivate();
+		var publishingPublicKey = (RSAPublicKey) publishingKeyPair.getPublic();
+
+		// The GxsId is from the publishing (identity) key
 		var gxsId = makeGxsId(
-				getAsOneComplement(rsaPublicKey.getModulus()),
-				getAsOneComplement(rsaPublicKey.getPublicExponent()));
+				getAsOneComplement(publishingPublicKey.getModulus()),
+				getAsOneComplement(publishingPublicKey.getPublicExponent()));
 
 		var gxsIdGroupItem = new GxsIdGroupItem(gxsId, name);
-		gxsIdGroupItem.setAdminPrivateKeyData(rsaPrivateKey.getEncoded()); // X.509
-		gxsIdGroupItem.setAdminPublicKeyData(RSA.getPublicKeyAsPkcs1(rsaPublicKey)); // PKCS #1
+		gxsIdGroupItem.setAdminPrivateKeyData(adminPrivateKey.getEncoded()); // X.509
+		gxsIdGroupItem.setAdminPublicKeyData(RSA.getPublicKeyAsPkcs1(adminPublicKey)); // PKCS #1
+
+		// XXX: might not be needed for Type.ANONYMOUS
+		gxsIdGroupItem.setPublishingPrivateKeyData(publishingPrivateKey.getEncoded()); // X.509 XXX: should maybe be PKCS #8 if we start transferring those keys with RS
+		gxsIdGroupItem.setPublishingPublicKeyData(RSA.getPublicKeyAsPkcs1(publishingPublicKey)); // PKCS #1
 
 		gxsIdGroupItem.setCircleType(GxsCircleType.PUBLIC);
 
@@ -110,9 +120,9 @@ public class IdentityService
 			gxsIdGroupItem.setProfileHash(hash);
 			gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(prefsService.getSecretProfileKey()), hash));
 
-			// This is because of some backward compatibility, ideally it should be PUBLIC | READ_ID
-			// PRIVATE is equal to READ_ID_deprecated
-			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PRIVATE, GxsPrivacyFlags.READ_ID));
+			// This is because of some backward compatibility, ideally it should be PUBLIC | REAL_ID
+			// PRIVATE is equal to REAL_ID_deprecated
+			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PRIVATE, GxsPrivacyFlags.SIGNED_ID));
 			gxsIdGroupItem.setServiceString(String.format("v2 {P:K:1 I:%s}{T:F:0 P:0 T:0}{R:5 5 0 0}", Id.toString(ownProfile.getPgpIdentifier())));
 		}
 		else
@@ -152,7 +162,7 @@ public class IdentityService
 	{
 		try
 		{
-			return RSA.sign(data, RSA.getPrivateKey(identity.getGxsIdGroupItem().getAdminPrivateKeyData()));
+			return RSA.sign(data, RSA.getPrivateKey(identity.getGxsIdGroupItem().getPublishingPrivateKeyData()));
 		}
 		catch (NoSuchAlgorithmException e)
 		{

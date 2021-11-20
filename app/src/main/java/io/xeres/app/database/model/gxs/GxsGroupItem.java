@@ -102,11 +102,12 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	@AttributeOverride(name = "identifier", column = @Column(name = "internal_circle"))
 	private GxsId internalCircle;
 
-	private byte[] adminPrivateKeyData; // XXX: must NOT be serialized
+	private byte[] adminPrivateKeyData;
 	private byte[] adminPublicKeyData;
 
-	private byte[] authorPrivateKeyData; // XXX: must NOT be serialized (is the key name author or publish?)
-	private byte[] authorPublicKeyData;
+	// the publishing key is used for both DISTRIBUTION_PUBLISHING and DISTRIBUTION_IDENTITY
+	private byte[] publishingPrivateKeyData;
+	private byte[] publishingPublicKeyData;
 
 	@Transient
 	private byte[] signature;
@@ -331,24 +332,24 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		this.adminPublicKeyData = adminPublicKeyData;
 	}
 
-	public byte[] getAuthorPrivateKeyData()
+	public byte[] getPublishingPrivateKeyData()
 	{
-		return authorPrivateKeyData;
+		return publishingPrivateKeyData;
 	}
 
-	public void setAuthorPrivateKeyData(byte[] authorPrivateKeyData)
+	public void setPublishingPrivateKeyData(byte[] publishingPrivateKeyData)
 	{
-		this.authorPrivateKeyData = authorPrivateKeyData;
+		this.publishingPrivateKeyData = publishingPrivateKeyData;
 	}
 
-	public byte[] getAuthorPublicKeyData()
+	public byte[] getPublishingPublicKeyData()
 	{
-		return authorPublicKeyData;
+		return publishingPublicKeyData;
 	}
 
-	public void setAuthorPublicKeyData(byte[] authorPublicKeyData)
+	public void setPublishingPublicKeyData(byte[] publishingPublicKeyData)
 	{
-		this.authorPublicKeyData = authorPublicKeyData;
+		this.publishingPublicKeyData = publishingPublicKeyData;
 	}
 
 	public byte[] getSignature()
@@ -427,11 +428,19 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		var securityKeySet = new SecurityKeySet();
 		if (adminPublicKeyData != null)
 		{
-			securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, adminPublicKeyData)); // XXX: ADMIN or IDENTITY (identity is when we have authorId)?
+			securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, adminPublicKeyData));
 		}
-		if (authorPublicKeyData != null)
+		if (publishingPublicKeyData != null)
 		{
-			securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISH, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, authorPublicKeyData));
+			// Identities use a publishing key of type DISTRIBUTION_IDENTITY
+			if (diffusionFlags.contains(GxsPrivacyFlags.SIGNED_ID))
+			{
+				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_IDENTITY, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, publishingPublicKeyData));
+			}
+			else
+			{
+				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, publishingPublicKeyData));
+			}
 		}
 		return securityKeySet;
 	}
@@ -448,13 +457,14 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	{
 		var securityKeySet = (SecurityKeySet) deserialize(buf, TlvType.SECURITY_KEY_SET);
 		securityKeySet.getPublicKeys().forEach((keyId, securityKey) -> {
-			if (securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY))) // XXX: ADMIN or IDENTITY?
+			if (securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
 			{
 				adminPublicKeyData = securityKey.getData();
 			}
-			else if (securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_PUBLISH, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
+			else if (securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_IDENTITY, SecurityKey.Flags.TYPE_PUBLIC_ONLY)) ||
+					securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
 			{
-				authorPublicKeyData = securityKey.getData();
+				publishingPublicKeyData = securityKey.getData();
 			}
 		});
 	}

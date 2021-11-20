@@ -29,5 +29,5 @@ public enum GxsPrivacyFlags
 	UNUSED_6,
 	UNUSED_7,
 	UNUSED_8,
-	READ_ID
+	SIGNED_ID // ID backed by Profile
 }

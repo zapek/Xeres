@@ -32,9 +32,9 @@ public class SecurityKey
 		TYPE_FULL,
 		UNUSED_3,
 		UNUSED_4,
-		DISTRIBUTION_PUBLISH,
+		DISTRIBUTION_PUBLISHING,
 		DISTRIBUTION_ADMIN,
-		DISTRIBUTION_IDENTITY; // XXX: not used? actually yes! I got it from the peer after the PUBLISH key (it was an... identity)
+		DISTRIBUTION_IDENTITY;
 
 		public static Set<Flags> ofTypes()
 		{
@@ -43,7 +43,7 @@ public class SecurityKey
 
 		public static Set<Flags> ofDistributions()
 		{
-			return EnumSet.of(DISTRIBUTION_PUBLISH, DISTRIBUTION_ADMIN, DISTRIBUTION_IDENTITY);
+			return EnumSet.of(DISTRIBUTION_PUBLISHING, DISTRIBUTION_ADMIN, DISTRIBUTION_IDENTITY);
 		}
 	}
 

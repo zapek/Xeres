@@ -26,8 +26,6 @@ import io.xeres.common.id.Id;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
-
 import static io.xeres.app.xrs.serialization.Serializer.*;
 import static io.xeres.app.xrs.serialization.TlvType.*;
 
@@ -50,7 +48,7 @@ final class TlvSecurityKeySerializer
 		buf.writeInt(len);
 		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.getGxsId()));
 
-		Serializer.serialize(buf, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), FieldSize.INTEGER);
+		Serializer.serialize(buf, securityKey.getFlags(), FieldSize.INTEGER);
 		Serializer.serialize(buf, securityKey.getStartTs());
 		Serializer.serialize(buf, securityKey.getEndTs());
 

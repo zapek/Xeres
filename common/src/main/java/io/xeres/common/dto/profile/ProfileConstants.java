@@ -21,8 +21,8 @@ package io.xeres.common.dto.profile;
 
 public final class ProfileConstants
 {
-	public static final int NAME_LENGTH_MIN = 1;
-	public static final int NAME_LENGTH_MAX = 64;
+	public static final int NAME_LENGTH_MIN = 2;
+	public static final int NAME_LENGTH_MAX = 30;
 
 	public static final long OWN_PROFILE_ID = 1L;
 

@@ -138,7 +138,7 @@ public class GxsIdService extends GxsService
 		{
 			@SuppressWarnings("unchecked")
 			var gxsIds = ((List<GxsSyncGroupItem>) items).stream().map(GxsSyncGroupItem::getGroupId).toList();
-			log.debug("Peer wants the following gxs ids: {}", gxsIds);
+			log.debug("Peer wants the following gxs ids: {} ...", gxsIds.stream().limit(10).toList());
 			// XXX: for now we just send back our own identity. we should ideally just send back the identities that we have that match the request (there can be more than 1 of course)
 			try (var session = new DatabaseSession(databaseSessionManager))
 			{

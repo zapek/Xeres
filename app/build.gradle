@@ -73,7 +73,7 @@ task copyInstaller(type: Copy) {
 }
 
 bootBuildImage {
-    imageName = "zapek/${rootProject.name.toLowerCase()}:${project.version}"
+    imageName = "zapek/${rootProject.name.toLowerCase(Locale.ROOT)}:${project.version}"
 }
 
 jpackage {

@@ -23,6 +23,7 @@ import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomListMessage;
 import io.xeres.common.message.chat.ChatRoomMessage;
+import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.window.WindowManager;
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ public class ChatFrameHandler implements StompFrameHandler
 					case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
 					case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE -> ChatRoomMessage.class;
 					case CHAT_ROOM_LIST -> ChatRoomListMessage.class;
+					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
 					default -> throw new IllegalArgumentException("Missing class for message type " + messageType);
 				};
 	}
@@ -73,9 +75,12 @@ public class ChatFrameHandler implements StompFrameHandler
 		{
 			case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(headers.getFirst(DESTINATION_ID), (ChatMessage) payload);
 			case CHAT_ROOM_MESSAGE -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
-			case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getChatRoomMessage(headers, payload).getRoomId());
-			case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getChatRoomMessage(headers, payload).getRoomId());
+			case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
+			case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));
 			case CHAT_ROOM_LIST -> chatViewController.addRooms(((ChatRoomListMessage) payload).getRooms());
+			case CHAT_ROOM_USER_JOIN -> chatViewController.userJoined(getRoomId(headers), (ChatRoomUserEvent) payload);
+			case CHAT_ROOM_USER_LEAVE -> chatViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
+			case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
 			default -> log.error("Missing handling of {}", messageType);
 		}
 	}
@@ -85,5 +90,10 @@ public class ChatFrameHandler implements StompFrameHandler
 		var chatRoomMessage = (ChatRoomMessage) payload;
 		chatRoomMessage.setRoomId(Long.parseLong(Objects.requireNonNull(headers.getFirst(DESTINATION_ID))));
 		return chatRoomMessage;
+	}
+
+	private long getRoomId(StompHeaders headers)
+	{
+		return Long.parseLong(Objects.requireNonNull(headers.getFirst(DESTINATION_ID)));
 	}
 }

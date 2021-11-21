@@ -19,10 +19,7 @@
 
 package io.xeres.ui.controller.chat;
 
-import io.xeres.common.message.chat.ChatMessage;
-import io.xeres.common.message.chat.ChatRoomMessage;
-import io.xeres.common.message.chat.RoomInfo;
-import io.xeres.common.message.chat.RoomType;
+import io.xeres.common.message.chat.*;
 import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
@@ -37,6 +34,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -45,6 +44,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -53,6 +53,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @FxmlView(value = "/view/chat/chatview.fxml")
 public class ChatViewController implements Controller
 {
+	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
+
 	@FXML
 	private TreeView<RoomHolder> roomTree;
 
@@ -61,6 +63,9 @@ public class ChatViewController implements Controller
 
 	@FXML
 	private TextField send;
+
+	@FXML
+	private VBox userListContent;
 
 	private final MessageClient messageClient;
 	private final ChatClient chatClient;
@@ -160,7 +165,7 @@ public class ChatViewController implements Controller
 		chatRoomInfoController = loader.getController();
 
 		VBox.setVgrow(roomInfoView, Priority.ALWAYS);
-		switchChatContent(roomInfoView);
+		switchChatContent(roomInfoView, null);
 		send.setVisible(false);
 	}
 
@@ -241,15 +246,47 @@ public class ChatViewController implements Controller
 					publicRooms.getChildren().add(roomHolderTreeItem); // XXX: could be public too...
 					roomHolderTreeItem.getValue().clearChatListView();
 				});
+		// XXX: remove ourselves from the room
 	}
 
-	private void switchChatContent(Node node)
+	public void userJoined(long roomId, ChatRoomUserEvent event)
+	{
+		performOnChatListView(roomId, chatListView -> chatListView.addUser(event));
+	}
+
+	public void userLeft(long roomId, ChatRoomUserEvent event)
+	{
+		performOnChatListView(roomId, chatListView -> chatListView.removeUser(event));
+	}
+
+	public void userKeepAlive(long roomId, ChatRoomUserEvent event)
+	{
+		performOnChatListView(roomId, chatListView -> chatListView.addUser(event)); // XXX: use this to know if a user is "idle"
+	}
+
+	private void switchChatContent(Node contentNode, Node userListNode)
 	{
 		if (content.getChildren().size() > 1)
 		{
 			content.getChildren().remove(0);
 		}
-		content.getChildren().add(0, node);
+		content.getChildren().add(0, contentNode);
+
+		if (userListNode == null)
+		{
+			if (userListContent.getChildren().size() > 0)
+			{
+				userListContent.getChildren().remove(0);
+			}
+		}
+		else
+		{
+			if (userListContent.getChildren().size() > 0)
+			{
+				userListContent.getChildren().remove(0);
+			}
+			userListContent.getChildren().add(0, userListNode);
+		}
 	}
 
 	// XXX: also we should merge/refresh... (ie. new rooms added, older rooms removed, etc...). merging properly is very difficult it seems
@@ -289,13 +326,13 @@ public class ChatViewController implements Controller
 				roomInfoTreeItem.getValue().setChatListView(chatListView);
 			}
 			selectedChatListView = chatListView;
-			switchChatContent(chatListView.getListView());
+			switchChatContent(chatListView.getChatView(), chatListView.getUserListView());
 			send.setVisible(true);
 		}
 		else
 		{
 			chatRoomInfoController.setRoomInfo(roomInfo);
-			switchChatContent(roomInfoView);
+			switchChatContent(roomInfoView, null);
 			send.setVisible(false);
 			selectedChatListView = null;
 		}
@@ -309,11 +346,16 @@ public class ChatViewController implements Controller
 		}
 		else
 		{
-			subscribedRooms.getChildren().stream()
-					.map(roomInfoTreeItem -> roomInfoTreeItem.getValue().getChatListView())
-					.filter(chatListView -> chatListView.getRoomInfo().getId() == chatRoomMessage.getRoomId())
-					.findFirst()
-					.ifPresent(chatListView -> chatListView.addMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getContent()));
+			performOnChatListView(chatRoomMessage.getRoomId(), chatListView -> chatListView.addMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getContent()));
 		}
+	}
+
+	private void performOnChatListView(long roomId, Consumer<ChatListView> action)
+	{
+		Platform.runLater(() -> subscribedRooms.getChildren().stream()
+				.map(roomInfoTreeItem -> roomInfoTreeItem.getValue().getChatListView())
+				.filter(chatListView -> chatListView.getRoomInfo().getId() == roomId)
+				.findFirst()
+				.ifPresent(action));
 	}
 }

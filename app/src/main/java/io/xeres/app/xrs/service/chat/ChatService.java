@@ -35,10 +35,7 @@ import io.xeres.app.xrs.service.chat.item.*;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
-import io.xeres.common.message.chat.ChatRoomListMessage;
-import io.xeres.common.message.chat.ChatRoomMessage;
-import io.xeres.common.message.chat.PrivateChatMessage;
-import io.xeres.common.message.chat.RoomType;
+import io.xeres.common.message.chat.*;
 import io.xeres.common.util.NoSuppressedRunnable;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
@@ -382,12 +379,6 @@ public class ChatService extends RsService
 
 		var chatRoom = chatRooms.get(item.getRoomId());
 
-		if (chatRoom == null)
-		{
-			log.debug("Received message from peer {} but we're not subscribed to chat room id {}, dropping", peerConnection, log.isDebugEnabled() ? Id.toStringLowerCase(item.getRoomId()) : null);
-			return;
-		}
-
 		if (!bounce(item, peerConnection))
 		{
 			return;
@@ -404,7 +395,7 @@ public class ChatService extends RsService
 	{
 		if (!chatRooms.containsKey(item.getRoomId()))
 		{
-			log.error("We're not subscribed to chat room id {}, dropping event", log.isErrorEnabled() ? Id.toStringLowerCase(item.getRoomId()) : null);
+			log.error("We're not subscribed to chat room id {}, dropping event {}", log.isErrorEnabled() ? Id.toStringLowerCase(item.getRoomId()) : null, item);
 			return;
 		}
 
@@ -437,16 +428,19 @@ public class ChatService extends RsService
 
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
-			// XXX: remove nickname from the list
+			var chatRoomUserEvent = new ChatRoomUserEvent(item.getSignature().getGxsId(), item.getSenderNickname());
+			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_LEAVE, item.getRoomId(), chatRoomUserEvent);
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_JOINED.getCode())
 		{
-			// XXX: add nickname to the list
 			// XXX: send a keep alive event to the participant so that he knows we are in the room (RS sends to everyone but that's lame)
+			var chatRoomUserEvent = new ChatRoomUserEvent(item.getSignature().getGxsId(), item.getSenderNickname());
+			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_JOIN, item.getRoomId(), chatRoomUserEvent);
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
-			// XXX: not sure what to do... refresh the time of the gxsid in the room?
+			var chatRoomUserEvent = new ChatRoomUserEvent(item.getSignature().getGxsId(), item.getSenderNickname());
+			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_KEEP_ALIVE, item.getRoomId(), chatRoomUserEvent);
 		}
 	}
 
@@ -751,13 +745,18 @@ public class ChatService extends RsService
 		}
 		chatRooms.put(chatRoomId, chatRoom);
 
-		chatRoomService.subscribeToChatRoomAndJoin(chatRoom, identityService.getOwnIdentity()); // XXX: allow multiple identities
+		var ownIdentity = identityService.getOwnIdentity(); // XXX: allow multiple identities later on
+		chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
 		chatRoom.getParticipatingPeers().forEach(peer -> invitePeerToChatRoom(peer, chatRoom, Invitation.PLAIN));
 
 		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_JOIN, chatRoom.getId(), new ChatRoomMessage());
 
 		sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED); // XXX: produces an exception!
+
+		// Send a keep alive event from ourselves so that we are added to the user list in the UI
+		var chatRoomUserEvent = new ChatRoomUserEvent(ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
+		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_KEEP_ALIVE, chatRoom.getId(), chatRoomUserEvent);
 	}
 
 	/**
@@ -780,6 +779,8 @@ public class ChatService extends RsService
 
 		chatRoomToRemove.getParticipatingPeers().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));
 		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LEAVE, chatRoomToRemove.getId(), new ChatRoomMessage());
+
+		// XXX: find a way to remove ourselves from the UI...
 	}
 
 	public long createChatRoom(String roomName, String topic, GxsId identity, Set<RoomFlags> flags)

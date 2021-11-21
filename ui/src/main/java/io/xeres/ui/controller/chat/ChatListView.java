@@ -19,38 +19,90 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.id.GxsId;
+import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.common.message.chat.RoomInfo;
 import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.custom.NullSelectionModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-// XXX: custom object which contains a ListView and its messages...
+import java.util.HashMap;
+import java.util.Map;
+
 public class ChatListView
 {
+	private static final Logger log = LoggerFactory.getLogger(ChatListView.class);
+
 	private final ObservableList<String> messages = FXCollections.observableArrayList();
+	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
+	private final ObservableList<ChatRoomUser> users = FXCollections.observableArrayList();
 
 	private String nickname;
 	private final RoomInfo roomInfo;
 
-	private final ListView<String> listView;
+	private final ListView<String> chatView;
+	private final ListView<ChatRoomUser> userListView;
+
+	private record ChatRoomUser(GxsId gxsId, String nickname)
+	{
+	}
 
 	public ChatListView(String nickname, RoomInfo roomInfo)
 	{
 		this.nickname = nickname;
 		this.roomInfo = roomInfo;
 
-		listView = new ListView<>();
-		listView.setFocusTraversable(false);
-		listView.getStyleClass().add("chatlist");
-		VBox.setVgrow(listView, Priority.ALWAYS);
+		chatView = createChatView();
+		userListView = createUserListView();
+	}
 
-		listView.setCellFactory(ChatListCell::new);
-		listView.setItems(messages);
-		listView.setSelectionModel(new NullSelectionModel());
+	private ListView<String> createChatView()
+	{
+		final ListView<String> view;
+		view = new ListView<>();
+		view.setFocusTraversable(false);
+		view.getStyleClass().add("chatlist");
+		VBox.setVgrow(view, Priority.ALWAYS);
+
+		view.setCellFactory(ChatListCell::new);
+		view.setItems(messages);
+		view.setSelectionModel(new NullSelectionModel());
+		return view;
+	}
+
+	private ListView<ChatRoomUser> createUserListView()
+	{
+		final ListView<ChatRoomUser> view;
+		view = new ListView<>();
+		view.getStyleClass().add("chatuserlist");
+		VBox.setVgrow(view, Priority.ALWAYS);
+
+		view.setCellFactory(param -> new ListCell<>()
+		{
+			@Override
+			protected void updateItem(ChatRoomUser item, boolean empty)
+			{
+				super.updateItem(item, empty);
+				if (empty)
+				{
+					setText(null);
+				}
+				else
+				{
+					setText(item.nickname());
+				}
+			}
+		});
+		view.setItems(users);
+		return view;
 	}
 
 	public void addMessage(String message)
@@ -63,14 +115,40 @@ public class ChatListView
 		addMessageLine("<" + from + "> " + message);
 	}
 
+	public void addUser(ChatRoomUserEvent user)
+	{
+		if (!userMap.containsKey(user.getGxsId()))
+		{
+			var chatRoomUser = new ChatRoomUser(user.getGxsId(), user.getNickname());
+			users.add(chatRoomUser);
+			userMap.put(user.getGxsId(), chatRoomUser);
+			users.sort((o1, o2) -> o1.nickname().compareToIgnoreCase(o2.nickname()));
+		}
+	}
+
+	public void removeUser(ChatRoomUserEvent user)
+	{
+		var chatRoomUser = userMap.remove(user.getGxsId());
+
+		if (chatRoomUser != null)
+		{
+			users.remove(chatRoomUser);
+		}
+	}
+
 	public void setNickname(String nickname)
 	{
 		this.nickname = nickname;
 	}
 
-	public ListView<String> getListView()
+	public Node getChatView()
 	{
-		return listView;
+		return chatView;
+	}
+
+	public Node getUserListView()
+	{
+		return userListView;
 	}
 
 	public RoomInfo getRoomInfo()
@@ -81,6 +159,6 @@ public class ChatListView
 	private void addMessageLine(String line)
 	{
 		messages.add(line);
-		listView.scrollTo(line);
+		chatView.scrollTo(line);
 	}
 }

@@ -17,44 +17,43 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-.base-spacing {
-    -fx-padding: 12px;
-}
+package io.xeres.common.message.chat;
 
-.text-field:error {
-    -fx-text-box-border: red;
-    -fx-focus-color: red;
-}
+import io.xeres.common.id.GxsId;
 
-.text-field:warning {
-    -fx-text-box-border: #ff8b00;
-    -fx-focus-color: #ff8b00;
-}
+public class ChatRoomUserEvent
+{
+	private GxsId gxsId;
+	private String nickname;
 
-.text-area:error {
-    -fx-background-color: red;
-    -fx-text-fill: red;
-}
+	public ChatRoomUserEvent()
+	{
+		// Needed for JSON
+	}
 
-.text-area:warning {
-    -fx-text-box-border: #ff8b00;
-    -fx-focus-color: #ff8b00;
-}
+	public ChatRoomUserEvent(GxsId gxsId, String nickname)
+	{
+		this.gxsId = gxsId;
+		this.nickname = nickname;
+	}
 
-.tooltip {
-    -fx-background-color: #ff8b00;
-    -fx-text-fill: black;
-    -fx-wrap-text: true;
-}
+	public GxsId getGxsId()
+	{
+		return gxsId;
+	}
 
-.chatlist .list-cell:odd {
-    -fx-background: -fx-control-inner-background;
-}
+	public void setGxsId(GxsId gxsId)
+	{
+		this.gxsId = gxsId;
+	}
 
-.chatlist .list-cell {
-    -fx-padding: 0px 0.25em 0px 0.25em
-}
+	public String getNickname()
+	{
+		return nickname;
+	}
 
-.chatuserlist .list-cell:odd {
-    -fx-background: -fx-control-inner-background;
+	public void setNickname(String nickname)
+	{
+		this.nickname = nickname;
+	}
 }

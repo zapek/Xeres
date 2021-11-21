@@ -19,15 +19,15 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
-    <SplitPane dividerPositions="0.1" VBox.vgrow="ALWAYS">
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
+    <SplitPane dividerPositions="0.1, 0.7" VBox.vgrow="ALWAYS">
         <TreeView fx:id="roomTree" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
         <VBox fx:id="content">
             <TextField fx:id="send" promptText="Type a message"/>
+        </VBox>
+        <VBox fx:id="userListContent" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false">
         </VBox>
     </SplitPane>
 </VBox>

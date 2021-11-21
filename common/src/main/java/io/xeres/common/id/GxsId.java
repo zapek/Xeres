@@ -51,6 +51,12 @@ public class GxsId implements Identifier
 		return identifier;
 	}
 
+	// This is used for serialization (for example passing a GxsId in a STOMP message)
+	public void setBytes(byte[] identifier)
+	{
+		this.identifier = identifier;
+	}
+
 	@Override
 	public int getLength()
 	{

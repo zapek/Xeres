@@ -335,12 +335,7 @@ public class ChatViewController implements Controller
 		if (roomTreeItem.isPresent())
 		{
 			TreeItem<RoomHolder> roomInfoTreeItem = roomTreeItem.get();
-			var chatListView = roomInfoTreeItem.getValue().getChatListView();
-			if (chatListView == null)
-			{
-				chatListView = new ChatListView(nickname, roomInfo);
-				roomInfoTreeItem.getValue().setChatListView(chatListView);
-			}
+			var chatListView = getChatListViewOrCreate(roomInfoTreeItem);
 			selectedChatListView = chatListView;
 			switchChatContent(chatListView.getChatView(), chatListView.getUserListView());
 			send.setVisible(true);
@@ -366,12 +361,24 @@ public class ChatViewController implements Controller
 		}
 	}
 
+	// XXX: concurrent modification. it happens because some events come from the STOMP thread and others from the service
 	private void performOnChatListView(long roomId, Consumer<ChatListView> action)
 	{
-		Platform.runLater(() -> subscribedRooms.getChildren().stream()
-				.map(roomInfoTreeItem -> roomInfoTreeItem.getValue().getChatListView())
+		subscribedRooms.getChildren().stream()
+				.map(this::getChatListViewOrCreate)
 				.filter(chatListView -> chatListView.getRoomInfo().getId() == roomId)
 				.findFirst()
-				.ifPresent(action));
+				.ifPresent(action);
+	}
+
+	private ChatListView getChatListViewOrCreate(TreeItem<RoomHolder> roomInfoTreeItem)
+	{
+		var chatListView = roomInfoTreeItem.getValue().getChatListView();
+		if (chatListView == null)
+		{
+			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo());
+			roomInfoTreeItem.getValue().setChatListView(chatListView);
+		}
+		return chatListView;
 	}
 }

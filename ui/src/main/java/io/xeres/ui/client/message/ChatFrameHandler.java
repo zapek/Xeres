@@ -26,6 +26,7 @@ import io.xeres.common.message.chat.ChatRoomMessage;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
@@ -71,18 +72,21 @@ public class ChatFrameHandler implements StompFrameHandler
 	public void handleFrame(StompHeaders headers, Object payload)
 	{
 		var messageType = MessageType.valueOf(headers.getFirst(MESSAGE_TYPE));
-		switch (messageType)
-		{
-			case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(headers.getFirst(DESTINATION_ID), (ChatMessage) payload);
-			case CHAT_ROOM_MESSAGE -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
-			case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
-			case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));
-			case CHAT_ROOM_LIST -> chatViewController.addRooms(((ChatRoomListMessage) payload).getRooms());
-			case CHAT_ROOM_USER_JOIN -> chatViewController.userJoined(getRoomId(headers), (ChatRoomUserEvent) payload);
-			case CHAT_ROOM_USER_LEAVE -> chatViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
-			case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
-			default -> log.error("Missing handling of {}", messageType);
-		}
+		Platform.runLater(() -> {
+					switch (messageType)
+					{
+						case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(headers.getFirst(DESTINATION_ID), (ChatMessage) payload);
+						case CHAT_ROOM_MESSAGE -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
+						case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
+						case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));
+						case CHAT_ROOM_LIST -> chatViewController.addRooms(((ChatRoomListMessage) payload).getRooms());
+						case CHAT_ROOM_USER_JOIN -> chatViewController.userJoined(getRoomId(headers), (ChatRoomUserEvent) payload);
+						case CHAT_ROOM_USER_LEAVE -> chatViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
+						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
+						default -> log.error("Missing handling of {}", messageType);
+					}
+				}
+		);
 	}
 
 	private ChatRoomMessage getChatRoomMessage(StompHeaders headers, Object payload)

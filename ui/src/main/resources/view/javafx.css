@@ -47,14 +47,14 @@
     -fx-wrap-text: true;
 }
 
-.chatlist .list-cell:odd {
-    -fx-background: -fx-control-inner-background;
+.chatlist .list-cell {
+    -fx-control-inner-background-alt: -fx-control-inner-background;
 }
 
 .chatlist .list-cell {
     -fx-padding: 0px 0.25em 0px 0.25em
 }
 
-.chatuserlist .list-cell:odd {
-    -fx-background: -fx-control-inner-background;
+.chatuserlist .list-cell {
+    -fx-control-inner-background-alt: -fx-control-inner-background;
 }

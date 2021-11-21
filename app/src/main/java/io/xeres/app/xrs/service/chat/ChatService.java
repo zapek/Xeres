@@ -211,6 +211,12 @@ public class ChatService extends RsService
 				CHATROOM_NEARBY_REFRESH.toSeconds(),
 				TimeUnit.SECONDS
 		);
+
+		// XXX: we should do that when the network/UI is ready, not upon the first connection. this is a workaround for now (also Priority.LOW makes it happen pretty late...)
+//		try (var ignored = new DatabaseSession(databaseSessionManager))
+//		{
+//			subscribeToAllSavedRooms();
+//		}
 	}
 
 	private void manageChatRooms()
@@ -271,6 +277,31 @@ public class ChatService extends RsService
 			// Send connection challenge to all connected friends
 			peerConnectionManager.doForAllPeers(peerConnection -> writeItem(peerConnection, new ChatRoomConnectChallengeItem(peerConnection.getLocation().getLocationId(), chatRoom.getId(), recentMessage)), this);
 		}
+	}
+
+	// XXX: not sure that thing works well enough... it has to be called early before packets start coming
+	private void subscribeToAllSavedRooms()
+	{
+		log.debug("doing the subscribe thing");
+		var roomListMessage = new ChatRoomListMessage();
+
+		chatRoomService.getAllChatRoomsPendingToSubscribe().forEach(savedRoom -> {
+			var chatRoom = new ChatRoom(
+					savedRoom.getRoomId(),
+					savedRoom.getName(),
+					savedRoom.getTopic(),
+					savedRoom.getFlags().contains(RoomFlags.PUBLIC) ? RoomType.PUBLIC : RoomType.PRIVATE,
+					1,
+					savedRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
+			); // XXX: add copy constructor?
+			log.debug("adding room {}", chatRoom);
+			roomListMessage.add(chatRoom.getAsRoomInfo());
+			availableChatRooms.put(chatRoom.getId(), chatRoom);
+		});
+
+		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LIST, roomListMessage);
+
+		availableChatRooms.forEach((chatRoomId, chatRoom) -> joinChatRoom(chatRoomId));
 	}
 
 	@Override
@@ -341,7 +372,6 @@ public class ChatService extends RsService
 		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LIST, roomListMessage);
 
 		chatRoomService.getAllChatRoomsPendingToSubscribe().forEach(chatRoom -> joinChatRoom(chatRoom.getRoomId()));
-		// then just send a message with the subscribed/unsubscribed lists for the UI. don't forget to protect the calls
 	}
 
 	private void handleChatRoomListRequestItem(PeerConnection peerConnection)
@@ -745,18 +775,21 @@ public class ChatService extends RsService
 		}
 		chatRooms.put(chatRoomId, chatRoom);
 
-		var ownIdentity = identityService.getOwnIdentity(); // XXX: allow multiple identities later on
-		chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
+		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: ugly, it's because we can be called from a lambda.. make it take the arguments later (needed for multi identity support)
+		{
+			var ownIdentity = identityService.getOwnIdentity(); // XXX: allow multiple identities later on
+			chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
-		chatRoom.getParticipatingPeers().forEach(peer -> invitePeerToChatRoom(peer, chatRoom, Invitation.PLAIN));
+			chatRoom.getParticipatingPeers().forEach(peer -> invitePeerToChatRoom(peer, chatRoom, Invitation.PLAIN));
 
-		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_JOIN, chatRoom.getId(), new ChatRoomMessage());
+			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_JOIN, chatRoom.getId(), new ChatRoomMessage());
 
-		sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED); // XXX: produces an exception!
+			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED); // XXX: produces an exception!
 
-		// Send a keep alive event from ourselves so that we are added to the user list in the UI
-		var chatRoomUserEvent = new ChatRoomUserEvent(ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
-		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_KEEP_ALIVE, chatRoom.getId(), chatRoomUserEvent);
+			// Send a keep alive event from ourselves so that we are added to the user list in the UI
+			var chatRoomUserEvent = new ChatRoomUserEvent(ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
+			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_KEEP_ALIVE, chatRoom.getId(), chatRoomUserEvent);
+		}
 	}
 
 	/**

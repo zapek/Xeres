@@ -45,6 +45,12 @@ public abstract class RsService implements Comparable<RsService>
 
 	public abstract Map<Class<? extends Item>, Integer> getSupportedItems();
 
+	/**
+	 * Handle incoming items. You can use JPA calls in there.
+	 *
+	 * @param sender the peer sending the item
+	 * @param item   the item
+	 */
 	public abstract void handleItem(PeerConnection sender, Item item);
 
 	private final Environment environment;

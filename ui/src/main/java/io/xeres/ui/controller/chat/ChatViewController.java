@@ -59,6 +59,9 @@ public class ChatViewController implements Controller
 	private TreeView<RoomHolder> roomTree;
 
 	@FXML
+	private SplitPane splitPane;
+
+	@FXML
 	private VBox content;
 
 	@FXML
@@ -83,6 +86,8 @@ public class ChatViewController implements Controller
 	private ChatRoomInfoController chatRoomInfoController;
 
 	private Instant lastTypingNotification = Instant.EPOCH;
+
+	private double[] dividerPositions;
 
 	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient)
 	{
@@ -278,6 +283,11 @@ public class ChatViewController implements Controller
 			{
 				userListContent.getChildren().remove(0);
 			}
+			if (splitPane.getItems().contains(userListContent))
+			{
+				dividerPositions = splitPane.getDividerPositions();
+				splitPane.getItems().remove(userListContent);
+			}
 		}
 		else
 		{
@@ -286,6 +296,12 @@ public class ChatViewController implements Controller
 				userListContent.getChildren().remove(0);
 			}
 			userListContent.getChildren().add(0, userListNode);
+
+			if (!splitPane.getItems().contains(userListContent))
+			{
+				splitPane.getItems().add(userListContent);
+				splitPane.setDividerPositions(dividerPositions);
+			}
 		}
 	}
 
@@ -312,13 +328,13 @@ public class ChatViewController implements Controller
 	{
 		selectedRoom = roomInfo;
 
-		Optional<TreeItem<RoomHolder>> treeItem = subscribedRooms.getChildren().stream()
+		Optional<TreeItem<RoomHolder>> roomTreeItem = subscribedRooms.getChildren().stream()
 				.filter(roomInfoTreeItem -> roomInfoTreeItem.getValue().getRoomInfo().equals(roomInfo))
 				.findFirst();
 
-		if (treeItem.isPresent())
+		if (roomTreeItem.isPresent())
 		{
-			TreeItem<RoomHolder> roomInfoTreeItem = treeItem.get();
+			TreeItem<RoomHolder> roomInfoTreeItem = roomTreeItem.get();
 			var chatListView = roomInfoTreeItem.getValue().getChatListView();
 			if (chatListView == null)
 			{

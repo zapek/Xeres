@@ -22,7 +22,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
-    <SplitPane dividerPositions="0.1, 0.7" VBox.vgrow="ALWAYS">
+    <SplitPane fx:id="splitPane" dividerPositions="0.1, 0.7" VBox.vgrow="ALWAYS">
         <TreeView fx:id="roomTree" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
         <VBox fx:id="content">
             <TextField fx:id="send" promptText="Type a message"/>

@@ -26,6 +26,7 @@ import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
@@ -41,6 +42,7 @@ import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 @FxmlView(value = "/view/main.fxml")
 public class MainWindowController implements WindowController
 {
+	public static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	@FXML
 	private Label titleLabel;
 
@@ -60,6 +62,9 @@ public class MainWindowController implements WindowController
 	private MenuItem createChatRoom;
 
 	@FXML
+	private MenuItem showHelp;
+
+	@FXML
 	private MenuItem showAboutWindow;
 
 	@FXML
@@ -70,6 +75,9 @@ public class MainWindowController implements WindowController
 
 	@FXML
 	private MenuItem showBroadcastWindow;
+
+	@FXML
+	public Button webHelpButton;
 
 	private final LocationClient locationClient;
 	private final TrayService trayService;
@@ -87,9 +95,12 @@ public class MainWindowController implements WindowController
 		addPeer.setOnAction(event -> addPeer());
 		copyOwnId.setOnAction(event -> copyOwnId());
 
-		launchWebInterface.setOnAction(event -> launchBrowser());
+		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
 
 		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation(titleLabel.getScene().getWindow()));
+
+		showHelp.setOnAction(event -> openUrl(XERES_DOCS_URL));
+		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));
 
 		showAboutWindow.setOnAction(event -> windowManager.openAbout(titleLabel.getScene().getWindow()));
 
@@ -132,8 +143,8 @@ public class MainWindowController implements WindowController
 		windowManager.openAddPeer(titleLabel.getScene().getWindow());
 	}
 
-	private void launchBrowser()
+	private void openUrl(String url)
 	{
-		JavaFxApplication.openUrl(JavaFxApplication.getControlUrl());
+		JavaFxApplication.openUrl(url);
 	}
 }

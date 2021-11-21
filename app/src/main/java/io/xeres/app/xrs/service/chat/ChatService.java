@@ -213,6 +213,7 @@ public class ChatService extends RsService
 		);
 
 		// XXX: we should do that when the network/UI is ready, not upon the first connection. this is a workaround for now (also Priority.LOW makes it happen pretty late...)
+		// XXX: it also gives problems with join events
 //		try (var ignored = new DatabaseSession(databaseSessionManager))
 //		{
 //			subscribeToAllSavedRooms();
@@ -466,6 +467,7 @@ public class ChatService extends RsService
 			// XXX: send a keep alive event to the participant so that he knows we are in the room (RS sends to everyone but that's lame)
 			var chatRoomUserEvent = new ChatRoomUserEvent(item.getSignature().getGxsId(), item.getSenderNickname());
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_JOIN, item.getRoomId(), chatRoomUserEvent);
+			//sendKeepAliveIfNeeded(chatRooms.get(item.getRoomId()));
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
@@ -784,7 +786,7 @@ public class ChatService extends RsService
 
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_JOIN, chatRoom.getId(), new ChatRoomMessage());
 
-			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED); // XXX: produces an exception!
+			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED);
 
 			// Send a keep alive event from ourselves so that we are added to the user list in the UI
 			var chatRoomUserEvent = new ChatRoomUserEvent(ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());

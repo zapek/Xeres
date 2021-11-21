@@ -144,6 +144,7 @@ final class UiWindow
 			preferences.putDouble(WINDOW_Y, stage.getY());
 			preferences.putDouble(WINDOW_WIDTH, stage.getWidth());
 			preferences.putDouble(WINDOW_HEIGHT, stage.getHeight());
+			log.debug("Saving Window {}, x: {}, y: {}, width: {}, height: {}", id, stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
 		});
 	}
 

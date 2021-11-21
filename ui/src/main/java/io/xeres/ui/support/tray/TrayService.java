@@ -97,13 +97,22 @@ public class TrayService
 				{
 					Platform.runLater(() ->
 					{
-						if (stage.isShowing())
+						// Do not hide an iconified stage otherwise
+						// it's not trivial to recover
+						if (stage.isIconified())
 						{
-							stage.hide();
+							stage.setIconified(false);
 						}
 						else
 						{
-							stage.show();
+							if (stage.isShowing())
+							{
+								stage.hide();
+							}
+							else
+							{
+								stage.show();
+							}
 						}
 					});
 				}

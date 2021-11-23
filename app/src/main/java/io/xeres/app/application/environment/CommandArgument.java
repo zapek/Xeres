@@ -24,6 +24,7 @@ import io.xeres.common.properties.StartupProperties;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.DefaultApplicationArguments;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -151,19 +152,22 @@ public final class CommandArgument
 
 	private static void showHelp()
 	{
-		System.out.print("Usage: " + AppName.NAME + " [--options]\n" +
-				"where options include:\n" +
-				"   --no-gui                            start without an UI\n" +
-				"   --data-dir=<path>                   specify the data directory\n" +
-				"   --control-port=<port>               specify the control port for remote access\n" +
-				"   --server-port=<port>                specify the local port to bind to for incoming peer connections\n" +
-				"   --fast-shutdown                     ignore proper shutdown procedure (not recommended)\n" +
-				"   --server-only                       only accept incoming connections, do not make outgoing ones\n" +
-				"   --remote-connect=<host>[:<port>]    act as an UI client only and connect to a remote server\n" +
-				"   --version                           print the version of the software\n" +
-				"   --help                              print this help message\n" +
-				"See https://xeres.io/docs/ for more details.\n"
-		);
+		var output = String.format("""
+				Usage: %s [--options]
+				where options include:
+				   --no-gui                            start without an UI
+				   --data-dir=<path>                   specify the data directory
+				   --control-port=<port>               specify the control port for remote access
+				   --server-port=<port>                specify the local port to bind to for incoming peer connections
+				   --fast-shutdown                     ignore proper shutdown procedure (not recommended)
+				   --server-only                       only accept incoming connections, do not make outgoing ones
+				   --remote-connect=<host>[:<port>]    act as an UI client only and connect to a remote server
+				   --version                           print the version of the software
+				   --help                              print this help message
+				See https://xeres.io/docs/ for more details.
+				""", AppName.NAME);
+
+		portableOutput(output);
 		System.exit(0);
 	}
 
@@ -174,8 +178,20 @@ public final class CommandArgument
 		{
 			var reader = new BufferedReader(new InputStreamReader(buildInfo));
 			reader.lines().filter(s -> s.startsWith("build.version="))
-					.forEach(s -> System.out.println(AppName.NAME + " " + s.substring(s.indexOf('=') + 1)));
+					.forEach(s -> portableOutput(AppName.NAME + " " + s.substring(s.indexOf('=') + 1)));
 		}
 		System.exit(0);
+	}
+
+	private static void portableOutput(String s)
+	{
+		if (System.console() != null)
+		{
+			System.out.print(s);
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(null, s, "Xeres Output", JOptionPane.INFORMATION_MESSAGE);
+		}
 	}
 }

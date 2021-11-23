@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
@@ -279,7 +280,7 @@ public class ChatViewController implements Controller
 
 		if (userListNode == null)
 		{
-			if (userListContent.getChildren().size() > 0)
+			if (!isEmpty(userListContent.getChildren()))
 			{
 				userListContent.getChildren().remove(0);
 			}
@@ -291,7 +292,7 @@ public class ChatViewController implements Controller
 		}
 		else
 		{
-			if (userListContent.getChildren().size() > 0)
+			if (!isEmpty(userListContent.getChildren()))
 			{
 				userListContent.getChildren().remove(0);
 			}

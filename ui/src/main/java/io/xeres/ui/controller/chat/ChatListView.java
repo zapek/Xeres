@@ -27,7 +27,6 @@ import io.xeres.ui.custom.NullSelectionModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -50,10 +49,6 @@ public class ChatListView
 
 	private final ListView<String> chatView;
 	private final ListView<ChatRoomUser> userListView;
-
-	private record ChatRoomUser(GxsId gxsId, String nickname)
-	{
-	}
 
 	public ChatListView(String nickname, RoomInfo roomInfo)
 	{
@@ -85,22 +80,7 @@ public class ChatListView
 		view.getStyleClass().add("chatuserlist");
 		VBox.setVgrow(view, Priority.ALWAYS);
 
-		view.setCellFactory(param -> new ListCell<>()
-		{
-			@Override
-			protected void updateItem(ChatRoomUser item, boolean empty)
-			{
-				super.updateItem(item, empty);
-				if (empty)
-				{
-					setText(null);
-				}
-				else
-				{
-					setText(item.nickname());
-				}
-			}
-		});
+		view.setCellFactory(ChatUserCell::new);
 		view.setItems(users);
 		return view;
 	}

@@ -29,7 +29,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -108,26 +111,15 @@ public class ChatViewController implements Controller
 		root.setExpanded(true);
 		roomTree.setRoot(root);
 		roomTree.setShowRoot(false);
-		roomTree.setCellFactory(param -> {
-			TreeCell<RoomHolder> cell = new TreeCell<>()
-			{
-				@Override
-				protected void updateItem(RoomHolder roomHolder, boolean empty)
-				{
-					super.updateItem(roomHolder, empty);
-					if (empty)
-					{
-						setText(null);
-					}
-					else
-					{
-						setText(roomHolder.getRoomInfo().getName());
-					}
-				}
-			};
-			var cm = createRoomContextMenu(cell);
-			cell.setContextMenu(cm);
-			return cell;
+		roomTree.setCellFactory(ChatRoomCell::new);
+		roomTree.addEventHandler(ChatRoomContextMenu.JOIN, event -> joinChatRoom(event.getTreeItem().getValue().getRoomInfo()));
+		roomTree.addEventHandler(ChatRoomContextMenu.LEAVE, event -> {
+			var roomInfo = event.getTreeItem().getValue().getRoomInfo();
+			subscribedRooms.getChildren().stream()
+					.filter(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(roomInfo))
+					.findAny()
+					.ifPresent(roomHolderTreeItem -> chatClient.leaveChatRoom(roomInfo.getId())
+							.subscribe());
 		});
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
@@ -137,8 +129,7 @@ public class ChatViewController implements Controller
 		roomTree.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2 && selectedRoom != null && selectedRoom.getId() != 0)
 			{
-				chatClient.joinChatRoom(selectedRoom.getId())
-						.subscribe(); // XXX: only do that if we're not already subscribed
+				joinChatRoom(selectedRoom);
 			}
 		});
 
@@ -175,35 +166,16 @@ public class ChatViewController implements Controller
 		send.setVisible(false);
 	}
 
-	private ContextMenu createRoomContextMenu(TreeCell<RoomHolder> cell)
+	private void joinChatRoom(RoomInfo roomInfo)
 	{
-		// XXX: isn't there a better way to find which object the context menu is called upon?
-		var cm = new ContextMenu();
+		boolean found = subscribedRooms.getChildren().stream()
+				.anyMatch(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(roomInfo));
 
-		var subscribeItem = new MenuItem("Join");
-		subscribeItem.setOnAction(event -> {
-			var roomInfo = cell.getTreeItem().getValue().getRoomInfo();
-			boolean found = subscribedRooms.getChildren().stream()
-					.noneMatch(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(roomInfo));
-
-			if (!found)
-			{
-				chatClient.joinChatRoom(selectedRoom.getId())
-						.subscribe(); // XXX: only do that if we're not already subscribed. also doOnSuccess(), etc... sometimes the id of the roomInfo is wrong... of course! because we set the context menu BEFORE the room id is refreshed into it
-			}
-		});
-
-		var unsubscribeItem = new MenuItem("Leave");
-		unsubscribeItem.setOnAction(event -> {
-			var roomInfo = cell.getTreeItem().getValue().getRoomInfo();
-			subscribedRooms.getChildren().stream()
-					.filter(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(roomInfo))
-					.findAny()
-					.ifPresent(roomHolderTreeItem -> chatClient.leaveChatRoom(roomInfo.getId())
-							.subscribe());
-		});
-		cm.getItems().addAll(subscribeItem, unsubscribeItem);
-		return cm;
+		if (!found)
+		{
+			chatClient.joinChatRoom(selectedRoom.getId())
+					.subscribe(); // XXX: sometimes the id of the roomInfo is wrong... of course! because we set the context menu BEFORE the room id is refreshed into it
+		}
 	}
 
 	public void addRooms(List<RoomInfo> newRooms)

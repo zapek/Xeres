@@ -26,7 +26,6 @@ import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -65,36 +64,13 @@ public class PeersWindowController implements WindowController
 		peersTree.setRoot(root);
 		peersTree.setShowRoot(false);
 
-		peersTree.setCellFactory(param ->
-		{
-			TreeCell<PeerHolder> cell = new TreeCell<>()
-			{
-				@Override
-				protected void updateItem(PeerHolder profileHolder, boolean empty)
-				{
-					super.updateItem(profileHolder, empty);
-					if (empty)
-					{
-						setText(null);
-					}
-					else
-					{
-						setText(profileHolder.getProfile().getName()); // XXX: add some logic for leaves, etc...
-					}
-				}
-			};
-			// XXX: add context menu here, maybe
-			return cell;
-		});
+		peersTree.setCellFactory(PeerCell::new);
+		peersTree.addEventHandler(PeerContextMenu.DIRECT_MESSAGE, event -> directMessage(event.getTreeItem().getValue()));
 
 		peersTree.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) // XXX: add another condition to make sure we're double clicking on a leaf
 			{
-				var profileHolder = peersTree.getSelectionModel().getSelectedItem().getValue();
-				if (profileHolder.hasLocation())
-				{
-					windowManager.openMessaging(profileHolder.getLocation().getLocationId().toString(), null);
-				}
+				directMessage(peersTree.getSelectionModel().getSelectedItem().getValue());
 			}
 		});
 
@@ -119,5 +95,13 @@ public class PeersWindowController implements WindowController
 				.subscribe();
 
 		// XXX: here lies a good example of a connection that should stay open to get refreshed... ponder how to do it
+	}
+
+	private void directMessage(PeerHolder peerHolder)
+	{
+		if (peerHolder.hasLocation())
+		{
+			windowManager.openMessaging(peerHolder.getLocation().getLocationId().toString(), null);
+		}
 	}
 }

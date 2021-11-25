@@ -103,6 +103,10 @@ public class ChatListView
 			users.add(chatRoomUser);
 			userMap.put(user.getGxsId(), chatRoomUser);
 			users.sort((o1, o2) -> o1.nickname().compareToIgnoreCase(o2.nickname()));
+			if (!nickname.equals(user.getNickname()))
+			{
+				addMessageLine("--> " + user.getNickname() + " (" + user.getGxsId() + ")");
+			}
 		}
 	}
 
@@ -113,6 +117,7 @@ public class ChatListView
 		if (chatRoomUser != null)
 		{
 			users.remove(chatRoomUser);
+			addMessageLine("<-- " + user.getNickname() + " (" + user.getGxsId() + ")");
 		}
 	}
 

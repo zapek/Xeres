@@ -334,7 +334,6 @@ public class ChatViewController implements Controller
 		}
 	}
 
-	// XXX: concurrent modification. it happens because some events come from the STOMP thread and others from the service
 	private void performOnChatListView(long roomId, Consumer<ChatListView> action)
 	{
 		subscribedRooms.getChildren().stream()

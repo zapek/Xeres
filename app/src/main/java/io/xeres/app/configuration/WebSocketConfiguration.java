@@ -27,6 +27,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
@@ -72,5 +73,12 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer
 	public void handleSessionDisconnectEvent(SessionDisconnectEvent event)
 	{
 		log.debug("Disconnection from {}", event);
+	}
+
+	@Override
+	public void configureWebSocketTransport(WebSocketTransportRegistration registry)
+	{
+		registry.setMessageSizeLimit(1024 * 1024); // 1 MB XXX: adjust maybe, see also the client
+		registry.setSendBufferSizeLimit(1024 * 1024);
 	}
 }

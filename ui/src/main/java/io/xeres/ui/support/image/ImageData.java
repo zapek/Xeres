@@ -17,24 +17,35 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-plugins {
-    id 'org.openjfx.javafxplugin' version '0.0.10'
-}
+package io.xeres.ui.support.image;
 
-editorconfig {
-    includes = ['src/**']
-}
+import javafx.scene.image.Image;
 
-javafx {
-    version = "17"
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
-}
+public final class ImageData
+{
+	private final Image image;
 
-dependencies {
-    implementation project(':common')
-    implementation 'org.springframework.boot:spring-boot-starter-webflux' // for the client
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'net.rgielen:javafx-weaver-spring-boot-starter:1.3.0'
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
-    implementation "org.jsoup:jsoup:$jsoupVersion"
+	public static ImageData fromDataUrl(String data)
+	{
+		return new ImageData(data);
+	}
+
+	private ImageData(String data)
+	{
+		image = new Image(data);
+	}
+
+	public Image getImage()
+	{
+		if (image.isError())
+		{
+			return null;
+		}
+		return image;
+	}
+
+	public boolean hasImage()
+	{
+		return !image.isError();
+	}
 }

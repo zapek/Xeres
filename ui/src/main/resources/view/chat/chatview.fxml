@@ -19,13 +19,23 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
     <SplitPane fx:id="splitPane" dividerPositions="0.1, 0.7" VBox.vgrow="ALWAYS">
         <TreeView fx:id="roomTree" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
         <VBox fx:id="content">
-            <TextField fx:id="send" promptText="Type a message"/>
+            <VBox fx:id="sendGroup">
+                <ImageView fx:id="imagePreview" pickOnBounds="true" preserveRatio="true" visible="false"/>
+                <Label fx:id="typingNotification">
+                    <VBox.margin>
+                        <Insets bottom="4.0" left="8.0" top="4.0"/>
+                    </VBox.margin>
+                </Label>
+                <TextField fx:id="send" promptText="Type a message"/>
+            </VBox>
         </VBox>
         <VBox fx:id="userListContent" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false">
         </VBox>

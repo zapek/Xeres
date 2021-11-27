@@ -34,6 +34,7 @@ import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import javax.websocket.ContainerProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -65,7 +66,11 @@ public class MessageClient
 	{
 		String url = "ws://" + JavaFxApplication.getHostnameAndPort() + "/ws";
 
-		WebSocketClient client = new StandardWebSocketClient();
+		var container = ContainerProvider.getWebSocketContainer();
+		container.setDefaultMaxTextMessageBufferSize(1024 * 1024); // 1 MB XXX: adjust maybe!
+		container.setDefaultMaxBinaryMessageBufferSize(1024 * 1024);
+
+		WebSocketClient client = new StandardWebSocketClient(container);
 		stompClient = new WebSocketStompClient(client);
 		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 

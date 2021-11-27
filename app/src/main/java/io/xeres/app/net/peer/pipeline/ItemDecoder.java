@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class ItemDecoder extends MessageToMessageDecoder<ByteBuf>
 {
-	private static final int MAX_SLICES = 32; // maximum number of slices per packets
+	private static final int MAX_SLICES = 64; // maximum number of slices per packets (XXX: does RS have an limit there? I don't think so actually)
 	private static final int MAX_CONCURRENT_PACKETS = 16; // maximum number of concurrent packets
 	private final Map<Integer, List<Packet>> accumulator = new HashMap<>();
 
@@ -53,6 +53,7 @@ public class ItemDecoder extends MessageToMessageDecoder<ByteBuf>
 		}
 	}
 
+	// XXX: when an error happens (eg. slices exceeded), we should remove (dispose) all packets from the accumulator and refuse any further packet with such id because they're incomplete and will reach the decoding stage (and fail there)
 	private void decodeNewPacket(ChannelHandlerContext ctx, MultiPacket packet, List<Object> out) throws ProtocolException
 	{
 		if (packet.isComplete())

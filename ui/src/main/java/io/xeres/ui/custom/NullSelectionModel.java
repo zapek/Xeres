@@ -26,7 +26,7 @@ import javafx.scene.control.MultipleSelectionModel;
 /**
  * Allows to disable the selection; for example, in listviews.
  */
-public class NullSelectionModel extends MultipleSelectionModel<String>
+public class NullSelectionModel<T> extends MultipleSelectionModel<T>
 {
 	@Override
 	public ObservableList<Integer> getSelectedIndices()
@@ -35,7 +35,7 @@ public class NullSelectionModel extends MultipleSelectionModel<String>
 	}
 
 	@Override
-	public ObservableList<String> getSelectedItems()
+	public ObservableList<T> getSelectedItems()
 	{
 		return FXCollections.emptyObservableList();
 	}
@@ -65,7 +65,7 @@ public class NullSelectionModel extends MultipleSelectionModel<String>
 	}
 
 	@Override
-	public void select(String obj)
+	public void select(T obj)
 	{
 		// Disabled
 	}

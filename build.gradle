@@ -23,7 +23,8 @@ buildscript {
         bouncycastleVersion = "1.69"
         apacheCommonsLangVersion = "3.12.0"
         apacheCommonsCollectionsVersion = "4.4"
-        springOpenApi = "1.5.12"
+        springOpenApiVersion = "1.5.12"
+        jsoupVersion = "1.14.3"
     }
 }
 

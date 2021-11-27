@@ -19,21 +19,26 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
-import javafx.scene.input.KeyCode;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -41,9 +46,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +72,9 @@ public class ChatViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
 
+	private static final int IMAGE_WIDTH_MAX = 640;
+	private static final int IMAGE_HEIGHT_MAX = 480;
+
 	@FXML
 	private TreeView<RoomHolder> roomTree;
 
@@ -70,6 +86,15 @@ public class ChatViewController implements Controller
 
 	@FXML
 	private TextField send;
+
+	@FXML
+	private VBox sendGroup;
+
+	@FXML
+	private Label typingNotification;
+
+	@FXML
+	private ImageView imagePreview;
 
 	@FXML
 	private VBox userListContent;
@@ -92,6 +117,8 @@ public class ChatViewController implements Controller
 	private Instant lastTypingNotification = Instant.EPOCH;
 
 	private double[] dividerPositions;
+
+	private Timeline lastTypingTimeline;
 
 	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient)
 	{
@@ -139,10 +166,7 @@ public class ChatViewController implements Controller
 			{
 				if (event.getCode().equals(KeyCode.ENTER) && isNotBlank(send.getText()))
 				{
-					var chatMessage = new ChatMessage(send.getText());
-					messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
-					selectedChatListView.addMessage(send.getText());
-					send.clear();
+					sendChatMessage(send.getText());
 				}
 				else
 				{
@@ -163,7 +187,13 @@ public class ChatViewController implements Controller
 
 		VBox.setVgrow(roomInfoView, Priority.ALWAYS);
 		switchChatContent(roomInfoView, null);
-		send.setVisible(false);
+		sendGroup.setVisible(false);
+		imagePreview.setVisible(false);
+
+		lastTypingTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(5),
+				ae -> typingNotification.setText("")));
+
+		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 	}
 
 	private void joinChatRoom(RoomInfo roomInfo)
@@ -311,13 +341,13 @@ public class ChatViewController implements Controller
 			var chatListView = getChatListViewOrCreate(roomInfoTreeItem);
 			selectedChatListView = chatListView;
 			switchChatContent(chatListView.getChatView(), chatListView.getUserListView());
-			send.setVisible(true);
+			sendGroup.setVisible(true);
 		}
 		else
 		{
 			chatRoomInfoController.setRoomInfo(roomInfo);
 			switchChatContent(roomInfoView, null);
-			send.setVisible(false);
+			sendGroup.setVisible(false);
 			selectedChatListView = null;
 		}
 	}
@@ -326,7 +356,8 @@ public class ChatViewController implements Controller
 	{
 		if (chatRoomMessage.isEmpty())
 		{
-			// XXX: show a typing notification somewhere
+			typingNotification.setText(chatRoomMessage.getSenderNickname() + " is typing...");
+			lastTypingTimeline.playFromStart();
 		}
 		else
 		{
@@ -352,5 +383,187 @@ public class ChatViewController implements Controller
 			roomInfoTreeItem.getValue().setChatListView(chatListView);
 		}
 		return chatListView;
+	}
+
+	private final KeyCodeCombination TAB_KEY = new KeyCodeCombination(KeyCode.TAB);
+	private final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+	private final KeyCodeCombination ENTER_KEY = new KeyCodeCombination(KeyCode.ENTER);
+	private final KeyCodeCombination BACKSPACE_KEY = new KeyCodeCombination(KeyCode.BACK_SPACE);
+	private int completionIndex;
+
+	private void handleInputKeys(KeyEvent event)
+	{
+		if (TAB_KEY.match(event))
+		{
+			var line = send.getText();
+			String suggestedNickname = null;
+			if (line.length() == 0)
+			{
+				// empty line, insert the first nickname
+				suggestedNickname = selectedChatListView.getUsername("", completionIndex);
+			}
+			else
+			{
+				if (send.getCaretPosition() <= IdentityConstants.NAME_LENGTH_MAX)
+				{
+					int separator = line.indexOf(":");
+					if (separator == -1)
+					{
+						separator = line.length();
+					}
+					suggestedNickname = selectedChatListView.getUsername(line.substring(0, separator), completionIndex);
+				}
+			}
+			if (suggestedNickname != null)
+			{
+				send.setText(suggestedNickname + ": ");
+				send.positionCaret(suggestedNickname.length() + 2);
+			}
+			completionIndex++;
+			event.consume(); // XXX: find a way to tab into another field (shift + tab currently does)
+		}
+		else if (PASTE_KEY.match(event))
+		{
+			Image image = Clipboard.getSystemClipboard().getImage();
+			if (image != null)
+			{
+				imagePreview.setImage(image);
+
+				limitMaximumImageSize(imagePreview);
+
+				imagePreview.setVisible(true);
+				event.consume();
+			}
+		}
+		else if (ENTER_KEY.match(event))
+		{
+			if (imagePreview.getImage() != null)
+			{
+				sendChatMessage("<img src=\"" + writeImageAsJpegData(imagePreview.getImage()) + "\"/>");
+
+				imagePreview.setImage(null);
+				imagePreview.setVisible(false);
+
+				// Reset the size so that smaller images aren't magnified
+				imagePreview.setFitWidth(0);
+				imagePreview.setFitHeight(0);
+				event.consume();
+			}
+		}
+		else if (BACKSPACE_KEY.match(event))
+		{
+			if (imagePreview.getImage() != null)
+			{
+				imagePreview.setImage(null);
+				imagePreview.setVisible(false);
+
+				event.consume();
+			}
+		}
+		else
+		{
+			completionIndex = 0;
+		}
+	}
+
+	private void sendChatMessage(String message)
+	{
+		var chatMessage = new ChatMessage(message);
+		messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
+		selectedChatListView.addMessage(message);
+		send.clear();
+	}
+
+	private static String writeImageAsPngData(Image image)
+	{
+		var out = new ByteArrayOutputStream();
+		try
+		{
+			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", out);
+			if (out.size() > 262000) // XXX: this size might be exceeded frequently
+			{
+				log.warn("PNG size too big: {}, expect problems", out.size());
+			}
+		}
+		catch (IOException e)
+		{
+			log.error("Couldn't save image as PNG: {}", e.getMessage());
+		}
+		return "data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray());
+	}
+
+	private static String writeImageAsJpegData(Image image)
+	{
+		byte[] out;
+		try
+		{
+			BufferedImage bufferedImage = stripAlphaIfNeeded(SwingFXUtils.fromFXImage(image, null));
+			out = compressBufferedImageToJpegArray(bufferedImage, 0.7f);
+			if (out.length > 262000)
+			{
+				log.warn("JPEG size too big: {}, expect problems", out.length);
+			}
+			return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(out);
+		}
+		catch (IOException e)
+		{
+			log.error("Couldn't save image as JPEG: {}", e.getMessage());
+			return "";
+		}
+	}
+
+	private static byte[] compressBufferedImageToJpegArray(BufferedImage image, float quality) throws IOException
+	{
+		var jpegWriter = ImageIO.getImageWritersByFormatName("JPEG").next();
+		var jpegWriteParam = jpegWriter.getDefaultWriteParam();
+		jpegWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		jpegWriteParam.setCompressionQuality(quality);
+
+		var out = new ByteArrayOutputStream();
+
+		ImageOutputStream ios = ImageIO.createImageOutputStream(out);
+		jpegWriter.setOutput(ios);
+		IIOImage outputImage = new IIOImage(image, null, null);
+		jpegWriter.write(null, outputImage, jpegWriteParam);
+		byte[] result = out.toByteArray();
+		jpegWriter.dispose();
+		return result;
+	}
+
+	private static BufferedImage stripAlphaIfNeeded(BufferedImage originalImage)
+	{
+		if (originalImage.getTransparency() == Transparency.OPAQUE)
+		{
+			return originalImage;
+		}
+
+		int w = originalImage.getWidth();
+		int h = originalImage.getHeight();
+		BufferedImage newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+		int[] rgb = originalImage.getRGB(0, 0, w, h, null, 0, w);
+		newImage.setRGB(0, 0, w, h, rgb, 0, w);
+		return newImage;
+	}
+
+	private static void limitMaximumImageSize(ImageView imageView)
+	{
+		var width = imageView.getImage().getWidth();
+		var height = imageView.getImage().getHeight();
+
+		if (width > IMAGE_WIDTH_MAX || height > IMAGE_HEIGHT_MAX)
+		{
+			ImageView scaleImageView = new ImageView(imageView.getImage());
+			if (width > height)
+			{
+				scaleImageView.setFitWidth(IMAGE_WIDTH_MAX);
+			}
+			else
+			{
+				scaleImageView.setFitHeight(IMAGE_HEIGHT_MAX);
+			}
+			scaleImageView.setPreserveRatio(true);
+			scaleImageView.setSmooth(true);
+			imageView.setImage(scaleImageView.snapshot(null, null));
+		}
 	}
 }

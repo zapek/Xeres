@@ -17,24 +17,33 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-plugins {
-    id 'org.openjfx.javafxplugin' version '0.0.10'
-}
+package io.xeres.ui.controller.chat;
 
-editorconfig {
-    includes = ['src/**']
-}
+import io.xeres.ui.support.image.ImageData;
 
-javafx {
-    version = "17"
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
-}
+public class ChatLine
+{
+	private final String text;
+	private final ImageData image;
 
-dependencies {
-    implementation project(':common')
-    implementation 'org.springframework.boot:spring-boot-starter-webflux' // for the client
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'net.rgielen:javafx-weaver-spring-boot-starter:1.3.0'
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
-    implementation "org.jsoup:jsoup:$jsoupVersion"
+	public ChatLine(String text, ImageData image)
+	{
+		this.text = text;
+		this.image = image;
+	}
+
+	public String getText()
+	{
+		return text;
+	}
+
+	public ImageData getImage()
+	{
+		return image;
+	}
+
+	public boolean hasImage()
+	{
+		return image != null && image.hasImage();
+	}
 }

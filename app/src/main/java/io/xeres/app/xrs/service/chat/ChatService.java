@@ -38,6 +38,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.util.NoSuppressedRunnable;
 import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -416,7 +417,7 @@ public class ChatService extends RsService
 		}
 
 		// And display the message for us
-		var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), Jsoup.parse(item.getMessage()).text());
+		var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), parseIncomingText(item.getMessage()));
 		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_MESSAGE, item.getRoomId(), chatRoomMessage);
 
 		chatRoom.incrementConnectionChallengeCount(); // XXX: this allows to find out when to send challenges. do that (where?)
@@ -473,6 +474,11 @@ public class ChatService extends RsService
 		{
 			var chatRoomUserEvent = new ChatRoomUserEvent(item.getSignature().getGxsId(), item.getSenderNickname());
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_KEEP_ALIVE, item.getRoomId(), chatRoomUserEvent);
+		}
+		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
+		{
+			var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), null);
+			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_TYPING_NOTIFICATION, item.getRoomId(), chatRoomMessage);
 		}
 	}
 
@@ -538,7 +544,7 @@ public class ChatService extends RsService
 	{
 		if (item.isPrivate() && !item.isAvatarRequest()) // XXX: handle avatars later
 		{
-			var privateChatMessage = new PrivateChatMessage(Jsoup.parse(item.getMessage()).text()); // XXX: jsoup also supports removing against a whitelist only (eg. if we want to keep <b>, <i>, etc... https://jsoup.org/cookbook/cleaning-html/whitelist-sanitizer
+			var privateChatMessage = new PrivateChatMessage(parseIncomingText(item.getMessage()));
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
 		}
 	}
@@ -874,5 +880,13 @@ public class ChatService extends RsService
 
 		initializeBounce(chatRoom, chatRoomEvent);
 		bounce(chatRoomEvent);
+	}
+
+	private String parseIncomingText(String text)
+	{
+		return Jsoup.clean(text, Safelist.none()
+				.addAttributes("img", "src")
+				.addProtocols("img", "src", "data")
+				.preserveRelativeLinks(true));
 	}
 }

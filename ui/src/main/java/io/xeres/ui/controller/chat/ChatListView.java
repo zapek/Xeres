@@ -24,30 +24,36 @@ import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.common.message.chat.RoomInfo;
 import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.custom.NullSelectionModel;
+import io.xeres.ui.support.image.ImageData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ChatListView
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatListView.class);
 
-	private final ObservableList<String> messages = FXCollections.observableArrayList();
+	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
 	private final ObservableList<ChatRoomUser> users = FXCollections.observableArrayList();
 
 	private String nickname;
 	private final RoomInfo roomInfo;
 
-	private final ListView<String> chatView;
+	private final ListView<ChatLine> chatView;
 	private final ListView<ChatRoomUser> userListView;
 
 	public ChatListView(String nickname, RoomInfo roomInfo)
@@ -59,9 +65,9 @@ public class ChatListView
 		userListView = createUserListView();
 	}
 
-	private ListView<String> createChatView()
+	private ListView<ChatLine> createChatView()
 	{
-		final ListView<String> view;
+		final ListView<ChatLine> view;
 		view = new ListView<>();
 		view.setFocusTraversable(false);
 		view.getStyleClass().add("chatlist");
@@ -69,7 +75,7 @@ public class ChatListView
 
 		view.setCellFactory(ChatListCell::new);
 		view.setItems(messages);
-		view.setSelectionModel(new NullSelectionModel());
+		view.setSelectionModel(new NullSelectionModel<>());
 		return view;
 	}
 
@@ -87,12 +93,23 @@ public class ChatListView
 
 	public void addMessage(String message)
 	{
-		addMessageLine("<" + nickname + "> " + message);
+		addMessage(nickname, message); // XXX: this will decode PNG images twice but well...
 	}
 
 	public void addMessage(String from, String message)
 	{
-		addMessageLine("<" + from + "> " + message);
+		var img = Jsoup.parse(message).selectFirst("img");
+		ImageData imageData = null;
+
+		if (img != null)
+		{
+			var data = img.absUrl("src");
+			if (isNotEmpty(data))
+			{
+				imageData = ImageData.fromDataUrl(data);
+			}
+		}
+		addMessageLine("<" + from + "> " + ((imageData != null && imageData.hasImage()) ? "" : message), imageData);
 	}
 
 	public void addUser(ChatRoomUserEvent user)
@@ -121,6 +138,27 @@ public class ChatListView
 		}
 	}
 
+	public String getUsername(String prefix, int index)
+	{
+		var prefixLower = prefix.toLowerCase(Locale.ENGLISH);
+		if (isEmpty(prefix))
+		{
+			return users.get(index % users.size()).nickname();
+		}
+		else
+		{
+			var matchingUsers = users.stream()
+					.filter(chatRoomUser -> !chatRoomUser.nickname().equals(nickname) && chatRoomUser.nickname().toLowerCase(Locale.ENGLISH).startsWith(prefixLower))
+					.toList();
+
+			if (matchingUsers.isEmpty())
+			{
+				return null;
+			}
+			return matchingUsers.get(index % matchingUsers.size()).nickname();
+		}
+	}
+
 	public void setNickname(String nickname)
 	{
 		this.nickname = nickname;
@@ -141,9 +179,20 @@ public class ChatListView
 		return roomInfo;
 	}
 
-	private void addMessageLine(String line)
+	private void addMessageLine(ChatLine line)
 	{
 		messages.add(line);
 		chatView.scrollTo(line);
+	}
+
+	private void addMessageLine(String line, ImageData imageData)
+	{
+		var chatLine = new ChatLine(line, imageData);
+		addMessageLine(chatLine);
+	}
+
+	private void addMessageLine(String line)
+	{
+		addMessageLine(line, null);
 	}
 }

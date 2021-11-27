@@ -61,7 +61,7 @@ public class ChatFrameHandler implements StompFrameHandler
 		return switch (messageType)
 				{
 					case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
-					case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE -> ChatRoomMessage.class;
+					case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> ChatRoomMessage.class;
 					case CHAT_ROOM_LIST -> ChatRoomListMessage.class;
 					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
 					default -> throw new IllegalArgumentException("Missing class for message type " + messageType);
@@ -76,7 +76,7 @@ public class ChatFrameHandler implements StompFrameHandler
 					switch (messageType)
 					{
 						case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(headers.getFirst(DESTINATION_ID), (ChatMessage) payload);
-						case CHAT_ROOM_MESSAGE -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
+						case CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
 						case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
 						case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));
 						case CHAT_ROOM_LIST -> chatViewController.addRooms(((ChatRoomListMessage) payload).getRooms());

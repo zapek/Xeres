@@ -19,21 +19,48 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.ui.controller.chat.ChatLine;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.text.FontSmoothingType;
-import javafx.scene.text.Text;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
-public class ChatListCell<T extends String> extends ListCell<T>
+public class ChatListCell extends ListCell<ChatLine>
 {
-	public ChatListCell(ListView<T> listView)
+	public ChatListCell(ListView<ChatLine> listView)
 	{
-		Text text = new Text();
-		text.setFontSmoothingType(FontSmoothingType.LCD);
-		text.wrappingWidthProperty().bind(listView.widthProperty().subtract(15));
-		text.textProperty().bind(itemProperty());
-
+		super();
 		setPrefWidth(0);
-		setGraphic(text);
+	}
+
+	@Override
+	protected void updateItem(ChatLine item, boolean empty)
+	{
+		super.updateItem(item, empty);
+		if (!empty)
+		{
+			setGraphic(createChatListCell(item));
+		}
+	}
+
+	private static Node createChatListCell(ChatLine item)
+	{
+		if (item.hasImage())
+		{
+			return new HBox(createLabel(item.getText()), new ImageView(item.getImage().getImage())); // XXX: the double getImage() is ugly...
+		}
+		else
+		{
+			return createLabel(item.getText());
+		}
+	}
+
+	private static Label createLabel(String line)
+	{
+		Label label = new Label(line);
+		label.setWrapText(true);
+		return label;
 	}
 }

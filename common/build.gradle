@@ -31,7 +31,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-json'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
-    implementation "org.springdoc:springdoc-openapi-ui:$springOpenApi"
+    implementation "org.springdoc:springdoc-openapi-ui:$springOpenApiVersion"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 }

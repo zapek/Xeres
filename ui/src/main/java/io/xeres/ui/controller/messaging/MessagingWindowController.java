@@ -24,6 +24,7 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.controller.chat.ChatLine;
 import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.custom.NullSelectionModel;
 import io.xeres.ui.model.profile.Profile;
@@ -61,13 +62,13 @@ public class MessagingWindowController implements WindowController
 	private Label notification;
 
 	@FXML
-	private ListView<String> receive;
+	private ListView<ChatLine> receive;
 
 	private final ProfileClient profileClient;
 	private final LocationId locationId;
 	private Profile targetProfile;
 
-	private final ObservableList<String> messages = FXCollections.observableArrayList();
+	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 
 	private final MessageClient messageClient;
 
@@ -92,7 +93,7 @@ public class MessagingWindowController implements WindowController
 
 		receive.setCellFactory(ChatListCell::new);
 		receive.setItems(messages);
-		receive.setSelectionModel(new NullSelectionModel());
+		receive.setSelectionModel(new NullSelectionModel<>());
 
 		send.setOnKeyPressed(event ->
 		{
@@ -160,7 +161,8 @@ public class MessagingWindowController implements WindowController
 
 	private void addMessageLine(String line)
 	{
-		messages.add(line);
-		receive.scrollTo(line);
+		var chatLine = new ChatLine(line, null);
+		messages.add(chatLine);
+		receive.scrollTo(chatLine);
 	}
 }

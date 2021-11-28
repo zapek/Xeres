@@ -24,11 +24,11 @@ import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.common.message.chat.RoomInfo;
 import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.custom.NullSelectionModel;
-import io.xeres.ui.support.image.ImageData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.jsoup.Jsoup;
@@ -99,17 +99,17 @@ public class ChatListView
 	public void addMessage(String from, String message)
 	{
 		var img = Jsoup.parse(message).selectFirst("img");
-		ImageData imageData = null;
+		Image image = null;
 
 		if (img != null)
 		{
 			var data = img.absUrl("src");
 			if (isNotEmpty(data))
 			{
-				imageData = ImageData.fromDataUrl(data);
+				image = new Image(data);
 			}
 		}
-		addMessageLine("<" + from + "> " + ((imageData != null && imageData.hasImage()) ? "" : message), imageData);
+		addMessageLine("<" + from + "> " + ((image != null && !image.isError()) ? "" : message), image);
 	}
 
 	public void addUser(ChatRoomUserEvent user)
@@ -185,9 +185,9 @@ public class ChatListView
 		chatView.scrollTo(line);
 	}
 
-	private void addMessageLine(String line, ImageData imageData)
+	private void addMessageLine(String line, Image image)
 	{
-		var chatLine = new ChatLine(line, imageData);
+		var chatLine = new ChatLine(line, image);
 		addMessageLine(chatLine);
 	}
 

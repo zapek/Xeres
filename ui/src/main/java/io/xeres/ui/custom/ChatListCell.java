@@ -20,19 +20,34 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.controller.chat.ChatLine;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChatListCell extends ListCell<ChatLine>
 {
+	private static final Logger log = LoggerFactory.getLogger(ChatListCell.class);
+
+	private final HBox content;
+	private final Label label;
+	private final ImageView imageView;
+
 	public ChatListCell(ListView<ChatLine> listView)
 	{
 		super();
 		setPrefWidth(0);
+		getStyleClass().add("chat-list-cell");
+
+		content = new HBox();
+		label = new Label();
+		label.setWrapText(true);
+		imageView = new ImageView();
+
+		content.getChildren().addAll(label, imageView);
 	}
 
 	@Override
@@ -41,26 +56,15 @@ public class ChatListCell extends ListCell<ChatLine>
 		super.updateItem(item, empty);
 		if (!empty)
 		{
-			setGraphic(createChatListCell(item));
-		}
-	}
-
-	private static Node createChatListCell(ChatLine item)
-	{
-		if (item.hasImage())
-		{
-			return new HBox(createLabel(item.getText()), new ImageView(item.getImage().getImage())); // XXX: the double getImage() is ugly...
+			label.setText(item.getText());
+			imageView.setImage(item.getImage());
+			setGraphic(content);
 		}
 		else
 		{
-			return createLabel(item.getText());
+			label.setText(null);
+			imageView.setImage(null);
+			setGraphic(null);
 		}
-	}
-
-	private static Label createLabel(String line)
-	{
-		Label label = new Label(line);
-		label.setWrapText(true);
-		return label;
 	}
 }

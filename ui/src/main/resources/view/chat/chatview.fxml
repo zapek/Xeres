@@ -37,6 +37,9 @@
                         <Button fx:id="previewCancel" mnemonicParsing="false" text="Cancel"/>
                         <Region VBox.vgrow="ALWAYS"/>
                         <Button fx:id="previewSend" mnemonicParsing="false" text="Send"/>
+                        <HBox.margin>
+                            <Insets left="8.0"/>
+                        </HBox.margin>
                     </VBox>
                 </HBox>
                 <Label fx:id="typingNotification">

@@ -19,14 +19,14 @@
 
 package io.xeres.ui.controller.chat;
 
-import io.xeres.ui.support.image.ImageData;
+import javafx.scene.image.Image;
 
 public class ChatLine
 {
 	private final String text;
-	private final ImageData image;
+	private final Image image;
 
-	public ChatLine(String text, ImageData image)
+	public ChatLine(String text, Image image)
 	{
 		this.text = text;
 		this.image = image;
@@ -37,13 +37,12 @@ public class ChatLine
 		return text;
 	}
 
-	public ImageData getImage()
+	public Image getImage()
 	{
-		return image;
-	}
-
-	public boolean hasImage()
-	{
-		return image != null && image.hasImage();
+		if (image != null && !image.isError())
+		{
+			return image;
+		}
+		return null;
 	}
 }

@@ -28,7 +28,17 @@
         <TreeView fx:id="roomTree" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
         <VBox fx:id="content">
             <VBox fx:id="sendGroup">
-                <ImageView fx:id="imagePreview" pickOnBounds="true" preserveRatio="true" visible="false"/>
+                <HBox fx:id="previewGroup">
+                    <VBox.margin>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+                    </VBox.margin>
+                    <ImageView fx:id="imagePreview" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true"/>
+                    <VBox>
+                        <Button fx:id="previewCancel" mnemonicParsing="false" text="Cancel"/>
+                        <Region VBox.vgrow="ALWAYS"/>
+                        <Button fx:id="previewSend" mnemonicParsing="false" text="Send"/>
+                    </VBox>
+                </HBox>
                 <Label fx:id="typingNotification">
                     <VBox.margin>
                         <Insets bottom="4.0" left="8.0" top="4.0"/>

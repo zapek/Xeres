@@ -33,12 +33,14 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -74,6 +76,7 @@ public class ChatViewController implements Controller
 
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
+	private static final int IMAGE_MAXIMUM_SIZE = 196000; // maximum size in bytes before base64 encoding
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -94,7 +97,16 @@ public class ChatViewController implements Controller
 	private Label typingNotification;
 
 	@FXML
+	private HBox previewGroup;
+
+	@FXML
 	private ImageView imagePreview;
+
+	@FXML
+	private Button previewSend;
+
+	@FXML
+	private Button previewCancel;
 
 	@FXML
 	private VBox userListContent;
@@ -188,7 +200,10 @@ public class ChatViewController implements Controller
 		VBox.setVgrow(roomInfoView, Priority.ALWAYS);
 		switchChatContent(roomInfoView, null);
 		sendGroup.setVisible(false);
-		imagePreview.setVisible(false);
+		setPreviewGroupVisibility(false);
+
+		previewSend.setOnAction(event -> sendImage());
+		previewCancel.setOnAction(event -> cancelImage());
 
 		lastTypingTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(5),
 				ae -> typingNotification.setText("")));
@@ -431,7 +446,7 @@ public class ChatViewController implements Controller
 
 				limitMaximumImageSize(imagePreview);
 
-				imagePreview.setVisible(true);
+				setPreviewGroupVisibility(true);
 				event.consume();
 			}
 		}
@@ -439,14 +454,7 @@ public class ChatViewController implements Controller
 		{
 			if (imagePreview.getImage() != null)
 			{
-				sendChatMessage("<img src=\"" + writeImageAsJpegData(imagePreview.getImage()) + "\"/>");
-
-				imagePreview.setImage(null);
-				imagePreview.setVisible(false);
-
-				// Reset the size so that smaller images aren't magnified
-				imagePreview.setFitWidth(0);
-				imagePreview.setFitHeight(0);
+				sendImage();
 				event.consume();
 			}
 		}
@@ -454,9 +462,7 @@ public class ChatViewController implements Controller
 		{
 			if (imagePreview.getImage() != null)
 			{
-				imagePreview.setImage(null);
-				imagePreview.setVisible(false);
-
+				cancelImage();
 				event.consume();
 			}
 		}
@@ -464,6 +470,24 @@ public class ChatViewController implements Controller
 		{
 			completionIndex = 0;
 		}
+	}
+
+	private void sendImage()
+	{
+		sendChatMessage("<img src=\"" + writeImageAsJpegData(imagePreview.getImage()) + "\"/>");
+
+		imagePreview.setImage(null);
+		setPreviewGroupVisibility(false);
+
+		// Reset the size so that smaller images aren't magnified
+		imagePreview.setFitWidth(0);
+		imagePreview.setFitHeight(0);
+	}
+
+	private void cancelImage()
+	{
+		imagePreview.setImage(null);
+		setPreviewGroupVisibility(false);
 	}
 
 	private void sendChatMessage(String message)
@@ -474,13 +498,19 @@ public class ChatViewController implements Controller
 		send.clear();
 	}
 
+	private void setPreviewGroupVisibility(boolean visible)
+	{
+		previewGroup.setVisible(visible);
+		previewGroup.setManaged(visible);
+	}
+
 	private static String writeImageAsPngData(Image image)
 	{
 		var out = new ByteArrayOutputStream();
 		try
 		{
 			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", out);
-			if (out.size() > 262000) // XXX: this size might be exceeded frequently
+			if (out.size() > IMAGE_MAXIMUM_SIZE) // XXX: this size might be exceeded frequently
 			{
 				log.warn("PNG size too big: {}, expect problems", out.size());
 			}
@@ -499,7 +529,7 @@ public class ChatViewController implements Controller
 		{
 			BufferedImage bufferedImage = stripAlphaIfNeeded(SwingFXUtils.fromFXImage(image, null));
 			out = compressBufferedImageToJpegArray(bufferedImage, 0.7f);
-			if (out.length > 262000)
+			if (out.length > IMAGE_MAXIMUM_SIZE)
 			{
 				log.warn("JPEG size too big: {}, expect problems", out.length);
 			}

@@ -76,7 +76,8 @@ public class ChatViewController implements Controller
 
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
-	private static final int IMAGE_MAXIMUM_SIZE = 196000; // maximum size in bytes before base64 encoding
+	private static final int IMAGE_MAXIMUM_SIZE = 196000; // XXX: maximum size for normal messages?
+	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -510,7 +511,7 @@ public class ChatViewController implements Controller
 		try
 		{
 			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", out);
-			if (out.size() > IMAGE_MAXIMUM_SIZE) // XXX: this size might be exceeded frequently
+			if (out.size() > IMAGE_MAXIMUM_SIZE) // XXX: this size might be exceeded frequently. also we don't check for the maximum size. do like the jpeg version
 			{
 				log.warn("PNG size too big: {}, expect problems", out.size());
 			}
@@ -524,15 +525,18 @@ public class ChatViewController implements Controller
 
 	private static String writeImageAsJpegData(Image image)
 	{
-		byte[] out;
 		try
 		{
+			byte[] out;
+			var quality = 0.7f;
 			BufferedImage bufferedImage = stripAlphaIfNeeded(SwingFXUtils.fromFXImage(image, null));
-			out = compressBufferedImageToJpegArray(bufferedImage, 0.7f);
-			if (out.length > IMAGE_MAXIMUM_SIZE)
+			do
 			{
-				log.warn("JPEG size too big: {}, expect problems", out.length);
+				out = compressBufferedImageToJpegArray(bufferedImage, quality);
+				quality -= 0.1;
 			}
+			while (Math.ceil((double) out.length / 3) * 4 > MESSAGE_MAXIMUM_SIZE - 200 && quality > 0); // 200 bytes to be safe as the message might contain tags and so on
+
 			return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(out);
 		}
 		catch (IOException e)

@@ -20,6 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.controller.chat.ChatLine;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -40,12 +41,12 @@ public class ChatListCell extends ListCell<ChatLine>
 	{
 		super();
 		setPrefWidth(0);
-		getStyleClass().add("chat-list-cell");
 
 		content = new HBox();
 		label = new Label();
 		label.setWrapText(true);
 		imageView = new ImageView();
+		setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
 		content.getChildren().addAll(label, imageView);
 	}
@@ -54,17 +55,17 @@ public class ChatListCell extends ListCell<ChatLine>
 	protected void updateItem(ChatLine item, boolean empty)
 	{
 		super.updateItem(item, empty);
-		if (!empty)
-		{
-			label.setText(item.getText());
-			imageView.setImage(item.getImage());
-			setGraphic(content);
-		}
-		else
+		if (empty)
 		{
 			label.setText(null);
 			imageView.setImage(null);
 			setGraphic(null);
+		}
+		else
+		{
+			label.setText(item.getText());
+			imageView.setImage(item.getImage());
+			setGraphic(content);
 		}
 	}
 }

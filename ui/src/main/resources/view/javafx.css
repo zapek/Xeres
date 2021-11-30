@@ -47,14 +47,22 @@
     -fx-wrap-text: true;
 }
 
-.chatlist .list-cell {
+.chat-list {
+    -fx-background-color: white;
+}
+
+.chat-list .list-cell {
+    -fx-padding: 0px 0.25em 0px 0.25em;
+}
+
+.oldchatlist .list-cell {
     -fx-control-inner-background-alt: -fx-control-inner-background;
 }
 
-.chatlist .list-cell {
+.oldchatlist .list-cell {
     -fx-padding: 0px 0.25em 0px 0.25em
 }
 
-.chatuserlist .list-cell {
+.chat-user-list .list-cell {
     -fx-control-inner-background-alt: -fx-control-inner-background;
 }

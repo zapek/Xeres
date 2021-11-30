@@ -20,50 +20,52 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.controller.chat.ChatLine;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import org.fxmisc.flowless.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChatListCell implements Cell<ChatLine, HBox>
+public class OldChatListCell extends ListCell<ChatLine>
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatListCell.class);
+	private static final Logger log = LoggerFactory.getLogger(OldChatListCell.class);
 
 	private final HBox content;
 	private final Label label;
 	private final ImageView imageView;
 
-	public ChatListCell(ChatLine line)
+	public OldChatListCell(ListView<ChatLine> listView)
 	{
+		super();
+		setPrefWidth(0);
+
 		content = new HBox();
-		content.getStyleClass().add("list-cell");
 		label = new Label();
 		label.setWrapText(true);
 		imageView = new ImageView();
-
-		updateItem(line);
+		setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
 		content.getChildren().addAll(label, imageView);
 	}
 
 	@Override
-	public HBox getNode()
+	protected void updateItem(ChatLine item, boolean empty)
 	{
-		return content;
-	}
-
-	@Override
-	public boolean isReusable()
-	{
-		return true;
-	}
-
-	@Override
-	public void updateItem(ChatLine item)
-	{
-		label.setText(item.getText());
-		imageView.setImage(item.getImage());
+		super.updateItem(item, empty);
+		if (empty)
+		{
+			label.setText(null);
+			imageView.setImage(null);
+			setGraphic(null);
+		}
+		else
+		{
+			label.setText(item.getText());
+			imageView.setImage(item.getImage());
+			setGraphic(content);
+		}
 	}
 }

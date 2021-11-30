@@ -25,7 +25,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 <VBox prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" styleClass="base-spacing">
-    <ListView fx:id="receive" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" styleClass="chatlist" VBox.vgrow="ALWAYS">
+    <ListView fx:id="receive" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" styleClass="oldchatlist" VBox.vgrow="ALWAYS">
         <VBox.margin>
             <Insets bottom="4.0"/>
         </VBox.margin>

@@ -23,14 +23,16 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.common.message.chat.RoomInfo;
 import io.xeres.ui.custom.ChatListCell;
-import io.xeres.ui.custom.NullSelectionModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.fxmisc.flowless.VirtualFlow;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +55,7 @@ public class ChatListView
 	private String nickname;
 	private final RoomInfo roomInfo;
 
-	private final ListView<ChatLine> chatView;
+	private final VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> chatView;
 	private final ListView<ChatRoomUser> userListView;
 
 	public ChatListView(String nickname, RoomInfo roomInfo)
@@ -65,25 +67,19 @@ public class ChatListView
 		userListView = createUserListView();
 	}
 
-	private ListView<ChatLine> createChatView()
+	private VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> createChatView()
 	{
-		final ListView<ChatLine> view;
-		view = new ListView<>();
+		final VirtualFlow<ChatLine, ChatListCell> view = VirtualFlow.createVertical(messages, ChatListCell::new, VirtualFlow.Gravity.REAR);
 		view.setFocusTraversable(false);
-		view.getStyleClass().add("chatlist");
-		VBox.setVgrow(view, Priority.ALWAYS);
-
-		view.setCellFactory(ChatListCell::new);
-		view.setItems(messages);
-		view.setSelectionModel(new NullSelectionModel<>());
-		return view;
+		view.getStyleClass().add("chat-list");
+		return new VirtualizedScrollPane<>(view);
 	}
 
 	private ListView<ChatRoomUser> createUserListView()
 	{
 		final ListView<ChatRoomUser> view;
 		view = new ListView<>();
-		view.getStyleClass().add("chatuserlist");
+		view.getStyleClass().add("chat-user-list");
 		VBox.setVgrow(view, Priority.ALWAYS);
 
 		view.setCellFactory(ChatUserCell::new);
@@ -93,7 +89,7 @@ public class ChatListView
 
 	public void addMessage(String message)
 	{
-		addMessage(nickname, message); // XXX: this will decode PNG images twice but well...
+		addMessage(nickname, message); // XXX: this will decode images twice but well...
 	}
 
 	public void addMessage(String from, String message)
@@ -166,7 +162,16 @@ public class ChatListView
 
 	public Node getChatView()
 	{
-		return chatView;
+		// We use an anchor to force the VirtualFlow to be bigger
+		// than its default size of 100 x 100. It doesn't behave
+		// well in a VBox only.
+		var anchor = new AnchorPane(chatView);
+		AnchorPane.setTopAnchor(chatView, 0.0);
+		AnchorPane.setLeftAnchor(chatView, 0.0);
+		AnchorPane.setRightAnchor(chatView, 0.0);
+		AnchorPane.setBottomAnchor(chatView, 0.0);
+		VBox.setVgrow(anchor, Priority.ALWAYS);
+		return anchor;
 	}
 
 	public Node getUserListView()
@@ -182,7 +187,11 @@ public class ChatListView
 	private void addMessageLine(ChatLine line)
 	{
 		messages.add(line);
-		chatView.scrollTo(line);
+		var lastIndex = messages.size() - 1;
+		if (chatView.getContent().getLastVisibleIndex() == lastIndex - 1) // XXX: why -1?!
+		{
+			chatView.getContent().showAsFirst(lastIndex);
+		}
 	}
 
 	private void addMessageLine(String line, Image image)

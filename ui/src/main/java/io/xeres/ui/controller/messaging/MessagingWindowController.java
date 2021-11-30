@@ -25,8 +25,8 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatLine;
-import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.custom.NullSelectionModel;
+import io.xeres.ui.custom.OldChatListCell;
 import io.xeres.ui.model.profile.Profile;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -91,7 +91,7 @@ public class MessagingWindowController implements WindowController
 		ownProfileResult.doOnSuccess(profile -> nickname = profile.getName())
 				.subscribe();
 
-		receive.setCellFactory(ChatListCell::new);
+		receive.setCellFactory(OldChatListCell::new);
 		receive.setItems(messages);
 		receive.setSelectionModel(new NullSelectionModel<>());
 

@@ -369,16 +369,17 @@ public class DiscoveryService extends RsService
 		else if (discoveryPgpListItem.getMode() == DiscoveryPgpListItem.Mode.FRIENDS)
 		{
 			// The peer sent us his list of friends.
-			log.debug("Received peer's list of friends");
+			log.debug("Received peer's list of friends: {}", discoveryPgpListItem);
 
-			// Only ask for the ones we don't already have.
-			Set<Long> unknownFriendIds = discoveryPgpListItem.getPgpIds().stream()
-					.filter(pgpId -> profileService.findProfileByPgpIdentifier(pgpId).isEmpty())
-					.collect(toSet());
+			// Only ask for the ones we don't already have, including partial profiles
+			Set<Long> pgpIds = discoveryPgpListItem.getPgpIds();
+			profileService.findAllCompleteProfilesByPgpIdentifiers(pgpIds).stream()
+					.map(Profile::getPgpIdentifier)
+					.forEach(pgpIds::remove);
 
-			if (!unknownFriendIds.isEmpty())
+			if (!pgpIds.isEmpty())
 			{
-				askForPgpKeys(peerConnection, unknownFriendIds);
+				askForPgpKeys(peerConnection, pgpIds);
 			}
 
 			// Send contact info of all mutual friends with discovery enabled to peer,
@@ -401,10 +402,7 @@ public class DiscoveryService extends RsService
 
 	private List<Profile> getMutualFriends(Set<Long> pgpIds)
 	{
-		return pgpIds.stream()
-				.map(profileService::findDiscoverableProfileByPgpIdentifier)
-				.flatMap(Optional::stream)
-				.toList();
+		return profileService.findAllDiscoverableProfilesByPgpIdentifiers(pgpIds);
 	}
 
 	private void handlePgpKey(PeerConnection peerConnection, DiscoveryPgpKeyItem discoveryPgpKeyItem)

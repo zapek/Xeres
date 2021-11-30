@@ -45,6 +45,12 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>
 	@Query("SELECT p FROM Profile p, IN(p.locations) l WHERE p.pgpIdentifier = :pgpIdentifier AND p.accepted = true AND p.pgpPublicKeyData is not null AND l.discoverable = true")
 	Optional<Profile> findDiscoverableProfileByPgpIdentifier(@Param("pgpIdentifier") long pgpIdentifier);
 
+	@Query("SELECT p FROM Profile p, IN(p.locations) l WHERE p.pgpIdentifier IN (:ids) AND p.accepted = true AND p.pgpPublicKeyData is not null AND l.discoverable = true")
+	List<Profile> findAllDiscoverableProfilesByPgpIdentifiers(@Param("ids") Iterable<Long> ids);
+
 	@Query("SELECT p FROM Profile p, IN(p.locations) l WHERE p.accepted = true AND p.pgpPublicKeyData is not null AND l.discoverable = true")
 	List<Profile> getAllDiscoverableProfiles();
+
+	@Query("SELECT p FROM Profile p WHERE p.pgpIdentifier IN (:ids) AND p.pgpPublicKeyData is not null")
+	List<Profile> findAllCompleteByPgpIdentifiers(@Param("ids") Iterable<Long> ids);
 }

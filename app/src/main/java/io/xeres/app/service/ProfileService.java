@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.security.Security;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -127,9 +128,19 @@ public class ProfileService
 		return profileRepository.findByPgpIdentifier(pgpIdentifier);
 	}
 
+	public List<Profile> findAllCompleteProfilesByPgpIdentifiers(Set<Long> pgpIdentifiers)
+	{
+		return profileRepository.findAllCompleteByPgpIdentifiers(pgpIdentifiers);
+	}
+
 	public Optional<Profile> findDiscoverableProfileByPgpIdentifier(long pgpIdentifier)
 	{
 		return profileRepository.findDiscoverableProfileByPgpIdentifier(pgpIdentifier);
+	}
+
+	public List<Profile> findAllDiscoverableProfilesByPgpIdentifiers(Set<Long> pgpIdentifiers)
+	{
+		return profileRepository.findAllDiscoverableProfilesByPgpIdentifiers(pgpIdentifiers);
 	}
 
 	public Optional<Profile> findProfileByLocationId(LocationId locationId)

@@ -28,9 +28,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
@@ -67,19 +65,7 @@ public class ProfilesWindowController implements WindowController
 
 	public void initialize()
 	{
-		profilesTableView.setRowFactory(tv -> new TableRow<>()
-		{
-			@Override
-			protected void updateItem(Profile item, boolean empty)
-			{
-				super.updateItem(item, empty);
-				if (item != null && item.getPgpPublicKeyData() == null)
-				{
-					setStyle("-fx-font-style: italic");
-					setTooltip(new Tooltip("This manually added profile has never been connected to"));
-				}
-			}
-		});
+		profilesTableView.setRowFactory(ProfileCell::new);
 
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableIdentifier.setCellValueFactory(param -> new SimpleStringProperty(Id.toString(param.getValue().getPgpIdentifier())));

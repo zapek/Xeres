@@ -23,6 +23,7 @@ import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -100,5 +101,23 @@ class RSATest
 		boolean result = RSA.verify(keyPair.getPublic(), signature, data);
 
 		assertFalse(result);
+	}
+
+	@Test
+	void RSA_Convert_Private_Pkcs8_To_Pkcs1_And_Back() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
+	{
+		var pkcs1 = RSA.getPrivateKeyAsPkcs1(keyPair.getPrivate());
+		var privateKey = RSA.getPrivateKeyFromPkcs1(pkcs1);
+
+		assertArrayEquals(keyPair.getPrivate().getEncoded(), privateKey.getEncoded());
+	}
+
+	@Test
+	void RSA_Convert_Public_X509_To_Pkcs1_And_Back() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
+	{
+		var pkcs1 = RSA.getPublicKeyAsPkcs1(keyPair.getPublic());
+		var publicKey = RSA.getPublicKeyFromPkcs1(pkcs1);
+
+		assertArrayEquals(keyPair.getPublic().getEncoded(), publicKey.getEncoded());
 	}
 }

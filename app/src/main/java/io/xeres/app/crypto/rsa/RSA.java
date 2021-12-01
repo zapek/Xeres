@@ -19,7 +19,11 @@
 
 package io.xeres.app.crypto.rsa;
 
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.DERNull;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
 import java.io.IOException;
@@ -134,10 +138,10 @@ public final class RSA
 	}
 
 	/**
-	 * Converts an RSA private key from PKCS #8 to PKCS #1
+	 * Converts an RSA private key from PKCS#8 to PKCS#1
 	 *
 	 * @param privateKey the RSA private key
-	 * @return the RSA private key in PKCS #8 format
+	 * @return the RSA private key in PKCS#8 format
 	 * @throws IOException wrong key format
 	 */
 	public static byte[] getPrivateKeyAsPkcs1(PrivateKey privateKey) throws IOException
@@ -148,11 +152,20 @@ public final class RSA
 		return primitive.getEncoded();
 	}
 
+	public static PrivateKey getPrivateKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
+	{
+		var asn1InputStream = new ASN1InputStream(data);
+		var asn1Primitive = asn1InputStream.readObject();
+		var algorithmIdentifier = new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
+		var privateKeyInfo = new PrivateKeyInfo(algorithmIdentifier, asn1Primitive);
+		return getPrivateKey(privateKeyInfo.getEncoded());
+	}
+
 	/**
-	 * Converts an RSA public key from X.509 to PKCS #1
+	 * Converts an RSA public key from X.509 to PKCS#1
 	 *
 	 * @param publicKey the RSA public key
-	 * @return the RSA public key in PKCS #1 format
+	 * @return the RSA public key in PKCS#1 format
 	 * @throws IOException wrong key format
 	 */
 	public static byte[] getPublicKeyAsPkcs1(PublicKey publicKey) throws IOException
@@ -160,5 +173,21 @@ public final class RSA
 		var subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
 		var primitive = subjectPublicKeyInfo.parsePublicKey();
 		return primitive.getEncoded();
+	}
+
+	/**
+	 * Converts a PKCS#1 byte array to an RSA public key.
+	 *
+	 * @param data the DER encoded PKCS#1 array
+	 * @return an RSA public key
+	 * @throws IOException              wrong key format
+	 * @throws NoSuchAlgorithmException wrong key format
+	 * @throws InvalidKeySpecException  wrong encoding
+	 */
+	public static PublicKey getPublicKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
+	{
+		var algorithmIdentifier = new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
+		var subjectPublicKeyInfo = new SubjectPublicKeyInfo(algorithmIdentifier, data);
+		return getPublicKey(subjectPublicKeyInfo.getEncoded());
 	}
 }

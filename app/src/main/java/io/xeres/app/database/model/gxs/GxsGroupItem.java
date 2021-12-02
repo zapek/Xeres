@@ -20,8 +20,11 @@
 package io.xeres.app.database.model.gxs;
 
 import io.netty.buffer.ByteBuf;
+import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.converter.GxsPrivacyFlagsConverter;
 import io.xeres.app.database.converter.GxsSignatureFlagsConverter;
+import io.xeres.app.database.converter.PrivateKeyConverter;
+import io.xeres.app.database.converter.PublicKeyConverter;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.SecurityKeySet;
 import io.xeres.app.xrs.common.Signature;
@@ -34,9 +37,16 @@ import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -48,6 +58,8 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class GxsGroupItem extends Item implements RsSerializable
 {
+	private static final Logger log = LoggerFactory.getLogger(GxsGroupItem.class);
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -102,12 +114,16 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	@AttributeOverride(name = "identifier", column = @Column(name = "internal_circle"))
 	private GxsId internalCircle;
 
-	private byte[] adminPrivateKeyData;
-	private byte[] adminPublicKeyData;
+	@Convert(converter = PrivateKeyConverter.class)
+	private PrivateKey adminPrivateKey;
+	@Convert(converter = PublicKeyConverter.class)
+	private PublicKey adminPublicKey;
 
 	// the publishing key is used for both DISTRIBUTION_PUBLISHING and DISTRIBUTION_IDENTITY
-	private byte[] publishingPrivateKeyData;
-	private byte[] publishingPublicKeyData;
+	@Convert(converter = PrivateKeyConverter.class)
+	private PrivateKey publishingPrivateKey;
+	@Convert(converter = PublicKeyConverter.class)
+	private PublicKey publishingPublicKey;
 
 	@Transient
 	private byte[] signature;
@@ -312,44 +328,44 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		this.internalCircle = internalCircle;
 	}
 
-	public byte[] getAdminPrivateKeyData()
+	public PrivateKey getAdminPrivateKey()
 	{
-		return adminPrivateKeyData;
+		return adminPrivateKey;
 	}
 
-	public void setAdminPrivateKeyData(byte[] adminPrivateKeyData)
+	public void setAdminPrivateKey(PrivateKey adminPrivateKey)
 	{
-		this.adminPrivateKeyData = adminPrivateKeyData;
+		this.adminPrivateKey = adminPrivateKey;
 	}
 
-	public byte[] getAdminPublicKeyData()
+	public PublicKey getAdminPublicKey()
 	{
-		return adminPublicKeyData;
+		return adminPublicKey;
 	}
 
-	public void setAdminPublicKeyData(byte[] adminPublicKeyData)
+	public void setAdminPublicKey(PublicKey adminPublicKey)
 	{
-		this.adminPublicKeyData = adminPublicKeyData;
+		this.adminPublicKey = adminPublicKey;
 	}
 
-	public byte[] getPublishingPrivateKeyData()
+	public PrivateKey getPublishingPrivateKey()
 	{
-		return publishingPrivateKeyData;
+		return publishingPrivateKey;
 	}
 
-	public void setPublishingPrivateKeyData(byte[] publishingPrivateKeyData)
+	public void setPublishingPrivateKey(PrivateKey publishingPrivateKey)
 	{
-		this.publishingPrivateKeyData = publishingPrivateKeyData;
+		this.publishingPrivateKey = publishingPrivateKey;
 	}
 
-	public byte[] getPublishingPublicKeyData()
+	public PublicKey getPublishingPublicKey()
 	{
-		return publishingPublicKeyData;
+		return publishingPublicKey;
 	}
 
-	public void setPublishingPublicKeyData(byte[] publishingPublicKeyData)
+	public void setPublishingPublicKey(PublicKey publishingPublicKey)
 	{
-		this.publishingPublicKeyData = publishingPublicKeyData;
+		this.publishingPublicKey = publishingPublicKey;
 	}
 
 	public byte[] getSignature()
@@ -426,21 +442,28 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		int stopTs = startTs + 60 * 60 * 24 * 365 * 5; // 5 years
 
 		var securityKeySet = new SecurityKeySet();
-		if (adminPublicKeyData != null)
+		try
 		{
-			securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, adminPublicKeyData));
+			if (adminPublicKey != null)
+			{
+				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, RSA.getPublicKeyAsPkcs1(adminPublicKey)));
+			}
+			if (publishingPublicKey != null)
+			{
+				// Identities use a publishing key of type DISTRIBUTION_IDENTITY
+				if (diffusionFlags.contains(GxsPrivacyFlags.SIGNED_ID))
+				{
+					securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_IDENTITY, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, RSA.getPublicKeyAsPkcs1(publishingPublicKey)));
+				}
+				else
+				{
+					securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, RSA.getPublicKeyAsPkcs1(publishingPublicKey)));
+				}
+			}
 		}
-		if (publishingPublicKeyData != null)
+		catch (IOException e)
 		{
-			// Identities use a publishing key of type DISTRIBUTION_IDENTITY
-			if (diffusionFlags.contains(GxsPrivacyFlags.SIGNED_ID))
-			{
-				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_IDENTITY, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, publishingPublicKeyData));
-			}
-			else
-			{
-				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, publishingPublicKeyData));
-			}
+			throw new IllegalArgumentException("Couldn't create RSA key from byte array: " + e.getMessage(), e);
 		}
 		return securityKeySet;
 	}
@@ -459,12 +482,26 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		securityKeySet.getPublicKeys().forEach((keyId, securityKey) -> {
 			if (securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
 			{
-				adminPublicKeyData = securityKey.getData();
+				try
+				{
+					adminPublicKey = RSA.getPublicKeyFromPkcs1(securityKey.getData());
+				}
+				catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
+				{
+					log.error("Identity {} has wrong admin public key: {}", gxsId, e.getMessage());
+				}
 			}
 			else if (securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_IDENTITY, SecurityKey.Flags.TYPE_PUBLIC_ONLY)) ||
 					securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
 			{
-				publishingPublicKeyData = securityKey.getData();
+				try
+				{
+					publishingPublicKey = RSA.getPublicKeyFromPkcs1(securityKey.getData());
+				}
+				catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
+				{
+					log.error("Identity {} has wrong publishing public key: {}", gxsId, e.getMessage());
+				}
 			}
 		});
 	}

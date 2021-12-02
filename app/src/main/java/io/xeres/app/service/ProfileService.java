@@ -74,12 +74,12 @@ public class ProfileService
 
 		if (name.length() < KEY_ID_LENGTH_MIN)
 		{
-			throw new IllegalArgumentException("Key ID is too short, minimum is " + KEY_ID_LENGTH_MIN);
+			throw new IllegalArgumentException("Profile name is too short, minimum is " + KEY_ID_LENGTH_MIN);
 		}
 
-		if (name.length() + KEY_ID_SUFFIX.length() + 1 > KEY_ID_LENGTH_MAX)
+		if (name.length() > KEY_ID_LENGTH_MAX)
 		{
-			throw new IllegalArgumentException("Key ID is too long, maximum is " + (KEY_ID_LENGTH_MAX - KEY_ID_SUFFIX.length()));
+			throw new IllegalArgumentException("Profile name is too long, maximum is " + KEY_ID_LENGTH_MAX);
 		}
 
 		log.info("Generating PGP keys, algorithm: RSA, bits: {} ...", KEY_SIZE);

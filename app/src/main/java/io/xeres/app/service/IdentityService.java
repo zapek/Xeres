@@ -48,11 +48,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -104,12 +102,12 @@ public class IdentityService
 				getAsOneComplement(publishingPublicKey.getPublicExponent()));
 
 		var gxsIdGroupItem = new GxsIdGroupItem(gxsId, name);
-		gxsIdGroupItem.setAdminPrivateKeyData(adminPrivateKey.getEncoded()); // X.509
-		gxsIdGroupItem.setAdminPublicKeyData(RSA.getPublicKeyAsPkcs1(adminPublicKey)); // PKCS #1
+		gxsIdGroupItem.setAdminPrivateKey(adminPrivateKey);
+		gxsIdGroupItem.setAdminPublicKey(adminPublicKey);
 
 		// XXX: might not be needed for Type.ANONYMOUS
-		gxsIdGroupItem.setPublishingPrivateKeyData(publishingPrivateKey.getEncoded()); // X.509 XXX: should maybe be PKCS #8 if we start transferring those keys with RS
-		gxsIdGroupItem.setPublishingPublicKeyData(RSA.getPublicKeyAsPkcs1(publishingPublicKey)); // PKCS #1
+		gxsIdGroupItem.setPublishingPrivateKey(publishingPrivateKey);
+		gxsIdGroupItem.setPublishingPublicKey(publishingPublicKey);
 
 		gxsIdGroupItem.setCircleType(GxsCircleType.PUBLIC);
 
@@ -160,18 +158,7 @@ public class IdentityService
 
 	public byte[] signData(Identity identity, byte[] data)
 	{
-		try
-		{
-			return RSA.sign(data, RSA.getPrivateKey(identity.getGxsIdGroupItem().getPublishingPrivateKeyData()));
-		}
-		catch (NoSuchAlgorithmException e)
-		{
-			throw new IllegalStateException("No such algorithm: " + e.getMessage());
-		}
-		catch (InvalidKeySpecException e)
-		{
-			throw new IllegalArgumentException("Invalid key spec: " + e.getMessage());
-		}
+		return RSA.sign(data, identity.getGxsIdGroupItem().getPublishingPrivateKey());
 	}
 
 	private byte[] getAsOneComplement(BigInteger number)

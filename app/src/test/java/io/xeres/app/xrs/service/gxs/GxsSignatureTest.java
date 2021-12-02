@@ -28,8 +28,6 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
 import org.junit.jupiter.api.Test;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,18 +35,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class GxsSignatureTest
 {
 	@Test
-	void GxsSignature_Create_And_Verify_OK() throws NoSuchAlgorithmException, InvalidKeySpecException
+	void GxsSignature_Create_And_Verify_OK()
 	{
 		var gxsIdGroupItem = GxsIdGroupItemFakes.createGxsIdGroupItem();
 
 		var keyPair = RSA.generateKeys(512);
 
-		gxsIdGroupItem.setAdminPrivateKeyData(keyPair.getPrivate().getEncoded());
-		gxsIdGroupItem.setAdminPublicKeyData(keyPair.getPublic().getEncoded());
+		gxsIdGroupItem.setAdminPrivateKey(keyPair.getPrivate());
+		gxsIdGroupItem.setAdminPublicKey(keyPair.getPublic());
 
 		var data = serializeItemForSignature(gxsIdGroupItem);
 
-		var signature = RSA.sign(data, RSA.getPrivateKey(gxsIdGroupItem.getAdminPrivateKeyData()));
+		var signature = RSA.sign(data, gxsIdGroupItem.getAdminPrivateKey());
 		gxsIdGroupItem.setSignature(signature);
 
 		var rawItem = serializeItem(gxsIdGroupItem);

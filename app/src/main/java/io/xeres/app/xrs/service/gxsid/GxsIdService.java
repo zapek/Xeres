@@ -48,8 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -217,15 +215,7 @@ public class GxsIdService extends GxsService
 	private static void signGroup(GxsGroupItem gxsGroupItem)
 	{
 		var data = serializeItemForSignature(gxsGroupItem);
-		byte[] signature;
-		try
-		{
-			signature = RSA.sign(data, RSA.getPrivateKey(gxsGroupItem.getAdminPrivateKeyData()));
-		}
-		catch (NoSuchAlgorithmException | InvalidKeySpecException e)
-		{
-			throw new IllegalArgumentException("Error in private key: " + e.getMessage());
-		}
+		var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
 		gxsGroupItem.setSignature(signature);
 	}
 

@@ -1,13 +1,11 @@
 --
 -- Database creation
 --
--- Do not touch this file if unnecessary (even comments) as this will trigger
--- a flyway migration.
+-- Avoid touching this file if unnecessary (even comments) as this will trigger
+-- a flyway migration. Migrations will be consistently used and this file won't
+-- be touched anymore when we reach 1.0.0
 --
 -- See https://h2database.com/html/datatypes.html for the data types
---
--- Do not put indexes on identifiers and fingerprints as they have a random
--- distribution that don't play well with b-trees.
 --
 CREATE TABLE profiles
 (
@@ -81,30 +79,30 @@ CREATE TABLE gxs_service_settings
 
 CREATE TABLE gxs_groups
 (
-	id                          IDENTITY     NOT NULL PRIMARY KEY,
-	gxs_id                      BINARY(16)   NOT NULL UNIQUE,
-	original_gxs_id             BINARY(16),
-	name                        VARCHAR(512) NOT NULL,
-	diffusion_flags             INT          NOT NULL                                                                                   DEFAULT 0,
-	signature_flags             INT          NOT NULL                                                                                   DEFAULT 0,
-	published                   TIMESTAMP,
-	author                      BINARY(16),
-	circle_id                   BINARY(16),
-	circle_type                 ENUM ('unknown', 'public', 'external', 'your_friends_only', 'local', 'external_self', 'your_eyes_only') DEFAULT 'unknown',
-	authentication_flags        INT          NOT NULL                                                                                   DEFAULT 0,
-	parent_id                   BINARY(16),
-	subscribe_flags             INT          NOT NULL                                                                                   DEFAULT 0,
-	popularity                  INT          NOT NULL                                                                                   DEFAULT 0,
-	visible_message_count       INT          NOT NULL                                                                                   DEFAULT 0,
-	last_posted                 TIMESTAMP,
-	status                      INT          NOT NULL                                                                                   DEFAULT 0,
-	service_string              VARCHAR(512),
-	originator                  BINARY(16),
-	internal_circle             BINARY(16),
-	admin_private_key_data      VARBINARY(16384),
-	admin_public_key_data       VARBINARY(16384),
-	publishing_private_key_data VARBINARY(16384),
-	publishing_public_key_data  VARBINARY(16384)
+	id                     IDENTITY     NOT NULL PRIMARY KEY,
+	gxs_id                 BINARY(16)   NOT NULL UNIQUE,
+	original_gxs_id        BINARY(16),
+	name                   VARCHAR(512) NOT NULL,
+	diffusion_flags        INT          NOT NULL                                                                                   DEFAULT 0,
+	signature_flags        INT          NOT NULL                                                                                   DEFAULT 0,
+	published              TIMESTAMP,
+	author                 BINARY(16),
+	circle_id              BINARY(16),
+	circle_type            ENUM ('unknown', 'public', 'external', 'your_friends_only', 'local', 'external_self', 'your_eyes_only') DEFAULT 'unknown',
+	authentication_flags   INT          NOT NULL                                                                                   DEFAULT 0,
+	parent_id              BINARY(16),
+	subscribe_flags        INT          NOT NULL                                                                                   DEFAULT 0,
+	popularity             INT          NOT NULL                                                                                   DEFAULT 0,
+	visible_message_count  INT          NOT NULL                                                                                   DEFAULT 0,
+	last_posted            TIMESTAMP,
+	status                 INT          NOT NULL                                                                                   DEFAULT 0,
+	service_string         VARCHAR(512),
+	originator             BINARY(16),
+	internal_circle        BINARY(16),
+	admin_private_key      VARBINARY(16384),
+	admin_public_key       VARBINARY(16384),
+	publishing_private_key VARBINARY(16384),
+	publishing_public_key  VARBINARY(16384)
 );
 
 CREATE TABLE gxs_id_groups

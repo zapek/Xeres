@@ -74,6 +74,9 @@ public class MainWindowController implements WindowController
 	private MenuItem showPeersWindow;
 
 	@FXML
+	private MenuItem showIdentitiesWindow;
+
+	@FXML
 	private MenuItem showBroadcastWindow;
 
 	@FXML
@@ -107,6 +110,8 @@ public class MainWindowController implements WindowController
 		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast(titleLabel.getScene().getWindow()));
 
 		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(titleLabel.getScene().getWindow()));
+
+		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(titleLabel.getScene().getWindow()));
 
 		showPeersWindow.setOnAction(event -> windowManager.openPeers());
 

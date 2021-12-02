@@ -28,6 +28,7 @@ import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.id.AddCertificateWindowController;
+import io.xeres.ui.controller.identity.IdentitiesWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.messaging.PeersWindowController;
@@ -154,6 +155,16 @@ public class WindowManager
 				UiWindow.builder(ProfilesWindowController.class)
 						.setParent(parent)
 						.setTitle("Profiles")
+						.build()
+						.open());
+	}
+
+	public void openIdentities(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(IdentitiesWindowController.class)
+						.setParent(parent)
+						.setTitle("Identities")
 						.build()
 						.open());
 	}

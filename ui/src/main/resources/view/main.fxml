@@ -32,6 +32,7 @@
             <MenuItem fx:id="addPeer" text="_Add Peer..."/>
             <MenuItem fx:id="showProfilesWindow" text="_Profiles..."/>
             <MenuItem fx:id="showPeersWindow" text="P_eers..."/>
+            <MenuItem fx:id="showIdentitiesWindow" text="_Identities..."/>
             <MenuItem fx:id="showBroadcastWindow" text="_Broadcast..."/>
             <MenuItem fx:id="copyOwnId" text="_Copy own ID to Clipboard"/>
             <SeparatorMenuItem mnemonicParsing="false"/>

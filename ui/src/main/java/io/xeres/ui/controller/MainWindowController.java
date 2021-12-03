@@ -28,11 +28,14 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -80,17 +83,25 @@ public class MainWindowController implements WindowController
 	private MenuItem showBroadcastWindow;
 
 	@FXML
+	private Menu debug;
+
+	@FXML
+	private MenuItem runGc;
+
+	@FXML
 	public Button webHelpButton;
 
 	private final LocationClient locationClient;
 	private final TrayService trayService;
 	private final WindowManager windowManager;
+	private final Environment environment;
 
-	public MainWindowController(LocationClient locationClient, TrayService trayService, WindowManager windowManager)
+	public MainWindowController(LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment)
 	{
 		this.locationClient = locationClient;
 		this.trayService = trayService;
 		this.windowManager = windowManager;
+		this.environment = environment;
 	}
 
 	public void initialize()
@@ -114,6 +125,12 @@ public class MainWindowController implements WindowController
 		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(titleLabel.getScene().getWindow()));
 
 		showPeersWindow.setOnAction(event -> windowManager.openPeers());
+
+		if (environment.acceptsProfiles(Profiles.of("dev")))
+		{
+			debug.setVisible(true);
+			runGc.setOnAction(event -> System.gc());
+		}
 
 		exitApplication.setOnAction(event ->
 		{

@@ -54,6 +54,9 @@
             <MenuItem fx:id="showHelp" text="_Help (Website)"/>
             <MenuItem fx:id="showAboutWindow" text="_About"/>
         </Menu>
+        <Menu fx:id="debug" text="_Debug" visible="false">
+            <MenuItem fx:id="runGc" text="_Run GC"/>
+        </Menu>
     </MenuBar>
     <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <Tab text="Home">

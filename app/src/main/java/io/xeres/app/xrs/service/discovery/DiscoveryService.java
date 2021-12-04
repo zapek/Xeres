@@ -258,7 +258,7 @@ public class DiscoveryService extends RsService
 
 	private void updateConnectedContact(PeerConnection peerConnection, DiscoveryContactItem discoveryContactItem, Location peerLocation, Location contactLocation)
 	{
-		log.debug("LocationId of peer itself");
+		log.debug("Peer is sending its own location: {}", discoveryContactItem);
 		if (discoveryContactItem.getPgpIdentifier() != contactLocation.getProfile().getPgpIdentifier())
 		{
 			log.error("PGP identifier or peer doesn't match the key we have about him. Ignoring.");
@@ -283,10 +283,10 @@ public class DiscoveryService extends RsService
 
 	private void updateOwnContactLocation(DiscoveryContactItem discoveryContactItem)
 	{
-		log.debug("Peer is sending our own location, IP: {}", discoveryContactItem.getCurrentConnectAddress());
+		log.debug("Peer is sending our own location: {}", discoveryContactItem);
 		// XXX: process the IP in case we don't find our external address and it could help
 		// XXX: beware! RS seems to send ipv4 address in the ipv6 structure...
-		// XXX: comments also seem to suggest this can be used to check if the connected IP is the same as our external IP
+		// XXX: comments also seem to suggest this can be used to check if the connected IP is the same as our external IP (currentConnectedAddress is null/invalid, though (maybe ipv6? grmbl))
 	}
 
 	private void updateCommonContactLocation(PeerConnection peerConnection, DiscoveryContactItem discoveryContactItem, Location contactLocation)

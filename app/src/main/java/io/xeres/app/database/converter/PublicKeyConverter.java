@@ -27,6 +27,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+
 @Converter
 public class PublicKeyConverter implements AttributeConverter<PublicKey, byte[]>
 {
@@ -39,6 +41,10 @@ public class PublicKeyConverter implements AttributeConverter<PublicKey, byte[]>
 	@Override
 	public PublicKey convertToEntityAttribute(byte[] dbData)
 	{
+		if (isEmpty(dbData))
+		{
+			return null;
+		}
 		try
 		{
 			return RSA.getPublicKey(dbData);

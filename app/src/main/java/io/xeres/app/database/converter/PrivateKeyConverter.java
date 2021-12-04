@@ -27,6 +27,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+
 @Converter
 public class PrivateKeyConverter implements AttributeConverter<PrivateKey, byte[]>
 {
@@ -39,6 +41,11 @@ public class PrivateKeyConverter implements AttributeConverter<PrivateKey, byte[
 	@Override
 	public PrivateKey convertToEntityAttribute(byte[] dbData)
 	{
+		if (isEmpty(dbData))
+		{
+			return null;
+		}
+
 		try
 		{
 			return RSA.getPrivateKey(dbData);

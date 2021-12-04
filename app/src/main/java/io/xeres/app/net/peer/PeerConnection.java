@@ -54,7 +54,10 @@ public class PeerConnection
 
 	public void updateLocation(Location location)
 	{
-		this.location = location;
+		if (location.equals(this.location)) // Only update, don't change for another
+		{
+			this.location = location;
+		}
 	}
 
 	public void addService(RsService service)

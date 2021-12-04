@@ -41,7 +41,7 @@ final class TlvAddressSerializer
 
 	static int serialize(ByteBuf buf, PeerAddress peerAddress)
 	{
-		// XXX: missing ensureWritable()
+		buf.ensureWritable(peerAddress == null ? TLV_HEADER_SIZE : (TLV_HEADER_SIZE * 2 + 6));
 		buf.writeShort(ADDRESS.getValue());
 
 		if (peerAddress == null)
@@ -53,18 +53,18 @@ final class TlvAddressSerializer
 		switch (peerAddress.getType())
 		{
 			case IPV4 -> {
-				buf.writeInt(18);
+				buf.writeInt(TLV_HEADER_SIZE * 2 + 6);
 				buf.writeShort(IPV4.getValue());
-				buf.writeInt(12);
-				byte[] addr = peerAddress.getAddressAsBytes().orElseThrow();
+				buf.writeInt(TLV_HEADER_SIZE + 6);
+				byte[] address = peerAddress.getAddressAsBytes().orElseThrow();
 				// RS expects little endian
-				buf.writeByte(addr[3]);
-				buf.writeByte(addr[2]);
-				buf.writeByte(addr[1]);
-				buf.writeByte(addr[0]);
-				buf.writeByte(addr[5]);
-				buf.writeByte(addr[4]);
-				return 18;
+				buf.writeByte(address[3]);
+				buf.writeByte(address[2]);
+				buf.writeByte(address[1]);
+				buf.writeByte(address[0]);
+				buf.writeByte(address[5]);
+				buf.writeByte(address[4]);
+				return TLV_HEADER_SIZE * 2 + 6;
 			}
 			default -> throw new IllegalArgumentException("Unsupported address type " + peerAddress.getType().name());
 		}
@@ -81,29 +81,33 @@ final class TlvAddressSerializer
 
 			if (totalSize > TLV_HEADER_SIZE)
 			{
-				int addrType = buf.readUnsignedShort();
-				if (addrType == IPV4.getValue())
+				int addressType = buf.readUnsignedShort();
+				var addressSize = buf.readInt();
+
+				if (addressType == IPV4.getValue())
 				{
-					var addrSize = buf.readInt(); // XXX: check size
-					log.trace("reading IPv4 address of {} bytes", addrSize);
-					var a = new byte[6];
+					if (addressSize != TLV_HEADER_SIZE + 6)
+					{
+						throw new IllegalArgumentException("Wrong IPV4 address size: " + addressSize);
+					}
+					log.trace("reading IPv4 address of {} bytes", addressSize);
+					var address = new byte[6];
 
 					// RS stores both in little endian
-					a[3] = buf.readByte();
-					a[2] = buf.readByte();
-					a[1] = buf.readByte();
-					a[0] = buf.readByte();
+					address[3] = buf.readByte();
+					address[2] = buf.readByte();
+					address[1] = buf.readByte();
+					address[0] = buf.readByte();
 
-					a[5] = buf.readByte();
-					a[4] = buf.readByte();
+					address[5] = buf.readByte();
+					address[4] = buf.readByte();
 
-					return PeerAddress.fromByteArray(a);
+					return PeerAddress.fromByteArray(address);
 				}
 				else
 				{
-					log.debug("Skipping unsupported address type {}", addrType);
-					var addrSize = buf.readInt();
-					buf.skipBytes(addrSize - 6);
+					log.debug("Skipping unsupported address type {}, size: {}", addressType, addressSize);
+					buf.skipBytes(addressSize - TLV_HEADER_SIZE);
 					return PeerAddress.fromInvalid();
 				}
 			}
@@ -117,7 +121,7 @@ final class TlvAddressSerializer
 
 	static int serializeList(ByteBuf buf, List<PeerAddress> addresses)
 	{
-		// XXX: missing ensureWritable()
+		buf.ensureWritable(TLV_HEADER_SIZE);
 		buf.writeShort(ADDRESS_SET.getValue());
 		var totalSize = TLV_HEADER_SIZE;
 		int totalSizeOffset = buf.writerIndex();
@@ -127,13 +131,13 @@ final class TlvAddressSerializer
 		{
 			for (PeerAddress address : addresses)
 			{
-				var size = 18;
+				var size = TLV_HEADER_SIZE + 12; // long + int below
 				buf.writeShort(ADDRESS_INFO.getValue());
 				int sizeOffset = buf.writerIndex();
 				buf.writeInt(0);
 				size += serialize(buf, address);
 				buf.writeLong(0); // XXX: seenTime (64-bits)... we don't have that in PeerAddress... where do we get it from?!
-				buf.writeInt(0); // XXX: source (64-bits)... likewise
+				buf.writeInt(0); // XXX: source (32-bits)... likewise
 				buf.setInt(sizeOffset, size);
 				totalSize += size;
 			}
@@ -144,19 +148,25 @@ final class TlvAddressSerializer
 
 	static List<PeerAddress> deserializeList(ByteBuf buf)
 	{
-		int type = buf.readUnsignedShort();
 		var addresses = new ArrayList<PeerAddress>();
 
-		if (type != ADDRESS_SET.getValue())
+		var totalSize = TlvUtils.checkTypeAndLength(buf, ADDRESS_SET);
+		int index = buf.readerIndex();
+
+		while (buf.readerIndex() < index + totalSize)
 		{
-			throw new IllegalArgumentException("Type " + type + " does not match " + ADDRESS_SET.getValue());
+			var size = TlvUtils.checkTypeAndLength(buf, ADDRESS_INFO);
+			if (size > 0)
+			{
+				var peerAddress = deserialize(buf);
+				if (peerAddress.isValid())
+				{
+					addresses.add(peerAddress);
+				}
+				buf.readLong(); // XXX: seenTime
+				buf.readInt(); // XXX: source
+			}
 		}
-
-		var totalSize = buf.readInt(); // XXX: check size
-		log.trace("Skiping address list (for now)");
-		// XXX: add code to parse multiple addresses, it's not very hard, just call the unserialize above
-		// XXX: don't forget there can be empty addresses... so probably remove the invalid ones
-
 		return addresses;
 	}
 }

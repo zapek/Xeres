@@ -2,6 +2,8 @@
 
 This is an attempted reimplementation of [Retroshare](https://retroshare.cc) in Java.
 
+A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
+
 ## Supported platforms
 
 - Windows (x86_64)

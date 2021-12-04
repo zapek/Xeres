@@ -54,7 +54,7 @@ public class PeerConnection
 
 	public void updateLocation(Location location)
 	{
-		if (location.equals(this.location)) // Only update, don't change for another
+		if (this.location.equals(location)) // Only update, don't change for another
 		{
 			this.location = location;
 		}

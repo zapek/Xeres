@@ -29,7 +29,7 @@ public record IdentityDTO(
 		long id,
 		String name,
 		GxsId gxsId,
-		Instant created,
+		Instant updated,
 		Type type
 )
 {

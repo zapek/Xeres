@@ -56,7 +56,7 @@ public class IdentitiesWindowController implements WindowController
 	private TableColumn<Identity, String> tableGxsId;
 
 	@FXML
-	private TableColumn<Identity, String> tableCreated;
+	private TableColumn<Identity, String> tableUpdated;
 
 	public IdentitiesWindowController(IdentityClient identityClient)
 	{
@@ -68,11 +68,11 @@ public class IdentitiesWindowController implements WindowController
 	{
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableGxsId.setCellValueFactory(param -> new SimpleStringProperty(Id.toString(param.getValue().getGxsId())));
-		tableCreated.setCellValueFactory(param ->
+		tableUpdated.setCellValueFactory(param ->
 				new SimpleStringProperty(
 						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 								.withZone(ZoneId.systemDefault())
-								.format(param.getValue().getCreated())));
+								.format(param.getValue().getUpdated())));
 
 		identityClient.getIdentities().collectList()
 				.doOnSuccess(identities -> Platform.runLater(() -> identitiesTableView.getItems().addAll(identities)))

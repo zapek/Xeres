@@ -39,7 +39,7 @@ public final class IdentityMapper
 		identity.setId(dto.id());
 		identity.setName(dto.name());
 		identity.setGxsId(dto.gxsId());
-		identity.setCreated(dto.created());
+		identity.setUpdated(dto.updated());
 		identity.setType(dto.type());
 		return identity;
 	}

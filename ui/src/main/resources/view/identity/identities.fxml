@@ -28,7 +28,7 @@
         <columns>
             <TableColumn fx:id="tableName" editable="false" prefWidth="117.0" text="Name"/>
             <TableColumn fx:id="tableGxsId" prefWidth="210.0" text="GxsId"/>
-            <TableColumn fx:id="tableCreated" minWidth="0.0" prefWidth="120.0" text="Created"/>
+            <TableColumn fx:id="tableUpdated" minWidth="0.0" prefWidth="120.0" text="Updated"/>
         </columns>
     </TableView>
 </VBox>

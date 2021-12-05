@@ -29,7 +29,7 @@ public class Identity
 	private long id;
 	private String name;
 	private GxsId gxsId;
-	private Instant created;
+	private Instant updated;
 	private Type type;
 
 	public long getId()
@@ -62,14 +62,14 @@ public class Identity
 		this.gxsId = gxsId;
 	}
 
-	public Instant getCreated()
+	public Instant getUpdated()
 	{
-		return created;
+		return updated;
 	}
 
-	public void setCreated(Instant created)
+	public void setUpdated(Instant updated)
 	{
-		this.created = created;
+		this.updated = updated;
 	}
 
 	public Type getType()

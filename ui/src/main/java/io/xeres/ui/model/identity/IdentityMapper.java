@@ -19,66 +19,28 @@
 
 package io.xeres.ui.model.identity;
 
-import io.xeres.common.id.GxsId;
-import io.xeres.common.identity.Type;
+import io.xeres.common.dto.identity.IdentityDTO;
 
-import java.time.Instant;
-
-public class Identity
+public final class IdentityMapper
 {
-	private long id;
-	private String name;
-	private GxsId gxsId;
-	private Instant created;
-	private Type type;
-
-	public long getId()
+	private IdentityMapper()
 	{
-		return id;
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public void setId(long id)
+	public static Identity fromDTO(IdentityDTO dto)
 	{
-		this.id = id;
-	}
+		if (dto == null)
+		{
+			return null;
+		}
 
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public GxsId getGxsId()
-	{
-		return gxsId;
-	}
-
-	public void setGxsId(GxsId gxsId)
-	{
-		this.gxsId = gxsId;
-	}
-
-	public Instant getCreated()
-	{
-		return created;
-	}
-
-	public void setCreated(Instant created)
-	{
-		this.created = created;
-	}
-
-	public Type getType()
-	{
-		return type;
-	}
-
-	public void setType(Type type)
-	{
-		this.type = type;
+		var identity = new Identity();
+		identity.setId(dto.id());
+		identity.setName(dto.name());
+		identity.setGxsId(dto.gxsId());
+		identity.setCreated(dto.created());
+		identity.setType(dto.type());
+		return identity;
 	}
 }

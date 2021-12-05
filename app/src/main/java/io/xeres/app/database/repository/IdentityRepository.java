@@ -20,11 +20,20 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.identity.Identity;
+import io.xeres.common.id.GxsId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IdentityRepository extends JpaRepository<Identity, Long>
 {
+	@Query("SELECT i FROM Identity i, IN(i.gxsIdGroupItem) g WHERE g.name = :name")
+	List<Identity> findAllByName(String name);
 
+	@Query("SELECT i FROM Identity i, IN(i.gxsIdGroupItem) g WHERE g.gxsId = :gxsId")
+	Optional<Identity> findByGxsId(GxsId gxsId);
 }

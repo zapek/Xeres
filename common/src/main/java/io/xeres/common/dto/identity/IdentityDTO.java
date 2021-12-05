@@ -17,68 +17,45 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.model.identity;
+package io.xeres.common.dto.identity;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
 
 import java.time.Instant;
+import java.util.Objects;
 
-public class Identity
+public record IdentityDTO(
+		long id,
+		String name,
+		GxsId gxsId,
+		Instant created,
+		Type type
+)
 {
-	private long id;
-	private String name;
-	private GxsId gxsId;
-	private Instant created;
-	private Type type;
 
-	public long getId()
+	@Override
+	public boolean equals(Object o)
 	{
-		return id;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		IdentityDTO that = (IdentityDTO) o;
+		return name.equals(that.name) && gxsId.equals(that.gxsId);
 	}
 
-	public void setId(long id)
+	@Override
+	public int hashCode()
 	{
-		this.id = id;
+		return Objects.hash(name, gxsId);
 	}
 
-	public String getName()
+	@Override
+	public String toString()
 	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public GxsId getGxsId()
-	{
-		return gxsId;
-	}
-
-	public void setGxsId(GxsId gxsId)
-	{
-		this.gxsId = gxsId;
-	}
-
-	public Instant getCreated()
-	{
-		return created;
-	}
-
-	public void setCreated(Instant created)
-	{
-		this.created = created;
-	}
-
-	public Type getType()
-	{
-		return type;
-	}
-
-	public void setType(Type type)
-	{
-		this.type = type;
+		return "IdentityDTO{" +
+				"name='" + name + '\'' +
+				", gxsId=" + gxsId +
+				", type=" + type +
+				'}';
 	}
 }

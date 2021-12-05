@@ -53,6 +53,8 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -144,6 +146,11 @@ public class IdentityService
 		return identityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own identity"));
 	}
 
+	public Optional<Identity> findIdentityById(long id)
+	{
+		return identityRepository.findById(id);
+	}
+
 	public void saveIdentity(Identity identity)
 	{
 		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
@@ -154,6 +161,26 @@ public class IdentityService
 		{
 			identityRepository.save(identity);
 		}
+	}
+
+	public List<Identity> findAllIdentitiesByName(String name)
+	{
+		return identityRepository.findAllByName(name);
+	}
+
+	public Optional<Identity> findIdentityByGxsId(GxsId gxsId)
+	{
+		return identityRepository.findByGxsId(gxsId);
+	}
+
+	public List<Identity> getAllIdentities()
+	{
+		return identityRepository.findAll();
+	}
+
+	public List<GxsIdGroupItem> getAllGxsIdentities()
+	{
+		return gxsIdRepository.findAll();
 	}
 
 	public byte[] signData(Identity identity, byte[] data)

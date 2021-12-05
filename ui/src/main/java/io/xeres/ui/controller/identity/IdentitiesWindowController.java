@@ -19,22 +19,32 @@
 
 package io.xeres.ui.controller.identity;
 
+import io.xeres.common.id.Id;
+import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.identity.Identity;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Component
 @FxmlView(value = "/view/identity/identities.fxml")
 public class IdentitiesWindowController implements WindowController
 {
-	// XXX: need client, and controller
+	private static final Logger log = LoggerFactory.getLogger(IdentitiesWindowController.class);
+
+	private final IdentityClient identityClient;
 
 	@FXML
 	private TableView<Identity> identitiesTableView;
@@ -42,13 +52,31 @@ public class IdentitiesWindowController implements WindowController
 	@FXML
 	private TableColumn<Identity, String> tableName;
 
+	@FXML
+	private TableColumn<Identity, String> tableGxsId;
+
+	@FXML
+	private TableColumn<Identity, String> tableCreated;
+
+	public IdentitiesWindowController(IdentityClient identityClient)
+	{
+		this.identityClient = identityClient;
+	}
+
 	@Override
 	public void initialize() throws IOException
 	{
-		//identitiesTableView.setRowFactory(IdentityCell::new);
-
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
+		tableGxsId.setCellValueFactory(param -> new SimpleStringProperty(Id.toString(param.getValue().getGxsId())));
+		tableCreated.setCellValueFactory(param ->
+				new SimpleStringProperty(
+						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+								.withZone(ZoneId.systemDefault())
+								.format(param.getValue().getCreated())));
 
-		// XXX: call client
+		identityClient.getIdentities().collectList()
+				.doOnSuccess(identities -> Platform.runLater(() -> identitiesTableView.getItems().addAll(identities)))
+				.doOnError(throwable -> log.error("Error while getting the identities: {}", throwable.getMessage(), throwable))
+				.subscribe();
 	}
 }

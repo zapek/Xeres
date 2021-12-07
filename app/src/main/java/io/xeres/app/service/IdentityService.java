@@ -183,6 +183,11 @@ public class IdentityService
 		return gxsIdRepository.findAll();
 	}
 
+	public Optional<GxsIdGroupItem> getGxsIdentity(GxsId gxsId)
+	{
+		return gxsIdRepository.findByGxsId(gxsId);
+	}
+
 	public byte[] signData(Identity identity, byte[] data)
 	{
 		return RSA.sign(data, identity.getGxsIdGroupItem().getPublishingPrivateKey());

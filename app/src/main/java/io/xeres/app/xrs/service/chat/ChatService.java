@@ -32,6 +32,7 @@ import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
+import io.xeres.app.xrs.service.gxsid.GxsIdService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
@@ -132,10 +133,11 @@ public class ChatService extends RsService
 	private final IdentityService identityService;
 	private final ChatRoomService chatRoomService;
 	private final DatabaseSessionManager databaseSessionManager;
+	private final GxsIdService gxsIdService;
 
 	private ScheduledExecutorService executorService;
 
-	public ChatService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager)
+	public ChatService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, GxsIdService gxsIdService)
 	{
 		super(environment, peerConnectionManager);
 		this.locationService = locationService;
@@ -143,6 +145,7 @@ public class ChatService extends RsService
 		this.identityService = identityService;
 		this.chatRoomService = chatRoomService;
 		this.databaseSessionManager = databaseSessionManager;
+		this.gxsIdService = gxsIdService;
 	}
 
 	@Override
@@ -395,26 +398,12 @@ public class ChatService extends RsService
 			log.warn("Received message from peer {} failed time validation, dropping", peerConnection);
 		}
 
-		if (isBanned(item.getSignature().getGxsId()))
+		if (!validateChatRoomBounce(peerConnection, item))
 		{
-			log.debug("Dropping message from banned entity {}", item.getSignature().getGxsId());
 			return;
 		}
-
-		if (!validateBounceSignature(item))
-		{
-			log.error("Received invalid message from peer {}, dropping", peerConnection);
-			return;
-		}
-
-		// XXX: add routing clue (ie. best peer for channel)
 
 		var chatRoom = chatRooms.get(item.getRoomId());
-
-		if (!bounce(item, peerConnection))
-		{
-			return;
-		}
 
 		// And display the message for us
 		var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), parseIncomingText(item.getMessage()));
@@ -425,38 +414,19 @@ public class ChatService extends RsService
 
 	private void handleChatRoomEventItem(PeerConnection peerConnection, ChatRoomEventItem item)
 	{
-		if (!chatRooms.containsKey(item.getRoomId()))
-		{
-			log.error("We're not subscribed to chat room id {}, dropping event {}", log.isErrorEnabled() ? Id.toStringLowerCase(item.getRoomId()) : null, item);
-			return;
-		}
-
-		if (isBanned(item.getSignature().getGxsId()))
-		{
-			log.debug("Dropping event from banned entity {}", item.getSignature().getGxsId());
-			return;
-		}
-
-		if (!validateBounceSignature(item))
-		{
-			log.error("Received invalid message from peer {}, dropping", peerConnection);
-			return;
-		}
-
-		// XXX: check if it's for signed lobby
-
-		// XXX: addTimeShiftStatistics()... why isn't this done for messages as well? it just displays a warning anyway (and it's disabled in RS so it does nothing)
 		if (!validateExpiration(item.getSendTime()))
 		{
 			log.warn("Received message from peer {} failed time validation, dropping", peerConnection);
 		}
 
-		// XXX: add routing clue
-
-		if (!bounce(item, peerConnection))
+		if (!validateChatRoomBounce(peerConnection, item))
 		{
 			return;
 		}
+
+		// XXX: addTimeShiftStatistics()... why isn't this done for messages as well? it just displays a warning anyway (and it's disabled in RS so it does nothing)
+
+		// XXX: add routing clue
 
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
@@ -480,6 +450,37 @@ public class ChatService extends RsService
 			var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), null);
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_TYPING_NOTIFICATION, item.getRoomId(), chatRoomMessage);
 		}
+	}
+
+	private boolean validateChatRoomBounce(PeerConnection peerConnection, ChatRoomBounce item)
+	{
+		if (!chatRooms.containsKey(item.getRoomId()))
+		{
+			log.error("We're not subscribed to chat room id {}, dropping item {}", log.isErrorEnabled() ? Id.toStringLowerCase(item.getRoomId()) : null, item);
+			return false;
+		}
+
+		if (isBanned(item.getSignature().getGxsId()))
+		{
+			log.debug("Dropping item from banned entity {}", item.getSignature().getGxsId());
+			return false;
+		}
+
+		if (!validateBounceSignature(peerConnection, item))
+		{
+			log.error("Invalid signature for item from peer {}, dropping", peerConnection);
+			return false;
+		}
+
+		// XXX: add routing clue (ie. best peer for channel)
+
+		// XXX: check if it's for signed lobby. need to get the key and check it
+
+		if (!bounce(peerConnection, item))
+		{
+			return false;
+		}
+		return true;
 	}
 
 	private void handleChatRoomUnsubscribeItem(PeerConnection peerConnection, ChatRoomUnsubscribeItem item)
@@ -599,10 +600,10 @@ public class ChatService extends RsService
 
 	private boolean bounce(ChatRoomBounce bounce)
 	{
-		return bounce(bounce, null);
+		return bounce(null, bounce);
 	}
 
-	private boolean bounce(ChatRoomBounce bounce, PeerConnection peerConnection)
+	private boolean bounce(PeerConnection peerConnection, ChatRoomBounce bounce)
 	{
 		var chatRoom = chatRooms.get(bounce.getRoomId());
 		if (chatRoom == null)
@@ -641,10 +642,15 @@ public class ChatService extends RsService
 		return true;
 	}
 
-	private boolean validateBounceSignature(ChatRoomBounce bounce)
+	private boolean validateBounceSignature(PeerConnection peerConnection, ChatRoomBounce bounce)
 	{
-		// XXX: implement signature validation. needs public key from the gxsid on the peer. there must be a way to request the peer's key
-		return true;
+		var gxsGroup = gxsIdService.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
+		// XXX: getBounceData() won't work for an incoming buffer! because serializeItemForSignature() sets it as outgoing... it needs to be copied or so
+//		if (gxsGroup != null)
+//		{
+//			return RSA.verify(gxsGroup.getPublishingPublicKey(), bounce.getSignature().getData(), getBounceData(bounce));
+//		}
+		return true; // if we don't have the identity yet, we let the item pass because it could be valid, and it's impossible to impersonate an identity this way
 	}
 
 	private boolean isBanned(GxsId gxsId)

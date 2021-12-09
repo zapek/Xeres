@@ -169,21 +169,6 @@ public class GxsIdService extends GxsService
 		}
 	}
 
-	public GxsIdGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)
-	{
-		var gxsIdentity = identityService.getGxsIdentity(gxsId);
-		if (gxsIdentity.isPresent())
-		{
-			return gxsIdentity.get();
-		}
-		else
-		{
-			// XXX: we should find a way to group the requests. RS seems to not be happy when requesting too many of them in a row
-			requestGxsGroups(peerConnection, List.of(gxsId));
-			return null;
-		}
-	}
-
 	// XXX: maybe this should be in GxsService. also other methods I think (though there are gxsIds... hmm... what a mess)
 	public void requestGxsGroups(PeerConnection peerConnection, List<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
 	{

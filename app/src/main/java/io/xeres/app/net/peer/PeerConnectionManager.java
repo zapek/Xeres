@@ -77,6 +77,11 @@ public class PeerConnectionManager
 		peers.get(location.getId()).updateLocation(location);
 	}
 
+	public PeerConnection getPeerByLocationId(long id)
+	{
+		return peers.get(id);
+	}
+
 	public void removePeer(Location location)
 	{
 		if (!peers.containsKey(location.getId()))

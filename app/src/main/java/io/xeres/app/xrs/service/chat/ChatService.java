@@ -32,7 +32,7 @@ import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
-import io.xeres.app.xrs.service.gxsid.GxsIdService;
+import io.xeres.app.xrs.service.gxsid.GxsIdManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
@@ -133,11 +133,11 @@ public class ChatService extends RsService
 	private final IdentityService identityService;
 	private final ChatRoomService chatRoomService;
 	private final DatabaseSessionManager databaseSessionManager;
-	private final GxsIdService gxsIdService;
+	private final GxsIdManager gxsIdManager;
 
 	private ScheduledExecutorService executorService;
 
-	public ChatService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, GxsIdService gxsIdService)
+	public ChatService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, GxsIdManager gxsIdManager)
 	{
 		super(environment, peerConnectionManager);
 		this.locationService = locationService;
@@ -145,7 +145,7 @@ public class ChatService extends RsService
 		this.identityService = identityService;
 		this.chatRoomService = chatRoomService;
 		this.databaseSessionManager = databaseSessionManager;
-		this.gxsIdService = gxsIdService;
+		this.gxsIdManager = gxsIdManager;
 	}
 
 	@Override
@@ -644,7 +644,7 @@ public class ChatService extends RsService
 
 	private boolean validateBounceSignature(PeerConnection peerConnection, ChatRoomBounce bounce)
 	{
-		var gxsGroup = gxsIdService.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
+		var gxsGroup = gxsIdManager.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
 		// XXX: getBounceData() won't work for an incoming buffer! because serializeItemForSignature() sets it as outgoing... it needs to be copied or so
 //		if (gxsGroup != null)
 //		{

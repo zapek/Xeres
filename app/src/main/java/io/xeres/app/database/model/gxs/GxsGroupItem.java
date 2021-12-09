@@ -60,6 +60,9 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsGroupItem.class);
 
+	private static final int API_VERSION_1 = 0x0000;
+	private static final int API_VERSION_2 = 0xaf01;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -383,7 +386,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	{
 		int size = 0;
 
-		size += serialize(buf, 0xaf01); // current RS API (XXX: put that constant somewhere)
+		size += serialize(buf, API_VERSION_2); // current RS API
 		int sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end
 		size += serialize(buf, gxsId);
@@ -409,7 +412,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
 		int apiVersion = deserializeInt(buf);
-		if (apiVersion != 0xaf01)
+		if (apiVersion != API_VERSION_1 && apiVersion != API_VERSION_2)
 		{
 			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
 		}
@@ -427,7 +430,10 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		circleId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignature(buf);
 		deserializePublicKeys(buf);
-		signatureFlags = deserializeEnumSet(buf, GxsSignatureFlags.class, FieldSize.INTEGER);
+		if (apiVersion == API_VERSION_2)
+		{
+			signatureFlags = deserializeEnumSet(buf, GxsSignatureFlags.class, FieldSize.INTEGER);
+		}
 	}
 
 	/**

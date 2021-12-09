@@ -133,7 +133,7 @@ public class PeerConnection
 	{
 		return "PeerConnection{" +
 				"location=" + location +
-				", ip=" + ctx.channel().remoteAddress() +
+				", ip=" + (ctx != null ? ctx.channel().remoteAddress() : "<unknown>") +
 				'}';
 	}
 }

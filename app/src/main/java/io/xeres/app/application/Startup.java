@@ -37,6 +37,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PeerService;
 import io.xeres.app.service.PrefsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
+import io.xeres.app.xrs.service.gxsid.GxsIdManager;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
@@ -81,8 +82,9 @@ public class Startup implements ApplicationRunner
 	private final ChatRoomService chatRoomService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final SplashService splashService;
+	private final GxsIdManager gxsIdManager;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, PrefsService prefsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, ChatRoomService chatRoomService, PeerConnectionManager peerConnectionManager, SplashService splashService)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, PrefsService prefsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, ChatRoomService chatRoomService, PeerConnectionManager peerConnectionManager, SplashService splashService, GxsIdManager gxsIdManager)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
@@ -99,6 +101,7 @@ public class Startup implements ApplicationRunner
 		this.chatRoomService = chatRoomService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.splashService = splashService;
+		this.gxsIdManager = gxsIdManager;
 	}
 
 	@Override
@@ -193,6 +196,7 @@ public class Startup implements ApplicationRunner
 		backupUserData();
 
 		log.info("Shutting down...");
+		gxsIdManager.shutdown();
 		peerConnectionManager.shutdown();
 		dhtService.stop();
 		upnpService.stop();

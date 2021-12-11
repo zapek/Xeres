@@ -221,7 +221,7 @@ public class GxsIdRsService extends GxsRsService
 
 	private static byte[] serializeItemForSignature(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), 2, RsServiceType.GXSID, 1); // XXX: not very nice to have those arguments hardcoded here
+		item.setSerialization(Unpooled.buffer().alloc(), 2, RsServiceType.GXSID, 1); // XXX: not very nice to have those arguments hardcoded here
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);

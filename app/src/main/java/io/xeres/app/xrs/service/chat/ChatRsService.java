@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.chat;
 
+import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnection;
@@ -645,11 +646,10 @@ public class ChatRsService extends RsService
 	private boolean validateBounceSignature(PeerConnection peerConnection, ChatRoomBounce bounce)
 	{
 		var gxsGroup = gxsIdManager.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
-		// XXX: getBounceData() won't work for an incoming buffer! because serializeItemForSignature() sets it as outgoing... it needs to be copied or so
-//		if (gxsGroup != null)
-//		{
-//			return RSA.verify(gxsGroup.getPublishingPublicKey(), bounce.getSignature().getData(), getBounceData(bounce));
-//		}
+		if (gxsGroup != null)
+		{
+			return RSA.verify(gxsGroup.getPublishingPublicKey(), bounce.getSignature().getData(), getBounceData(bounce));
+		}
 		return true; // if we don't have the identity yet, we let the item pass because it could be valid, and it's impossible to impersonate an identity this way
 	}
 

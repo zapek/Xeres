@@ -41,6 +41,7 @@ import java.util.Map;
  */
 public abstract class RsService implements Comparable<RsService>
 {
+	public static final String RS_SERVICE_CLASS_SUFFIX = "RsService";
 	private final Map<Integer, Class<? extends Item>> searchBySubType = new HashMap<>();
 	private Map<Class<? extends Item>, Integer> searchByClass = new HashMap<>();
 
@@ -150,8 +151,8 @@ public abstract class RsService implements Comparable<RsService>
 	private String getPropertyName()
 	{
 		String className = getClass().getSimpleName();
-		assert className.endsWith("Service");
-		return "xrs.service." + className.substring(0, className.length() - 7).toLowerCase(Locale.ROOT) + ".enabled";
+		assert className.endsWith(RS_SERVICE_CLASS_SUFFIX);
+		return "xrs.service." + className.substring(0, className.length() - RS_SERVICE_CLASS_SUFFIX.length()).toLowerCase(Locale.ROOT) + ".enabled";
 	}
 
 	protected ChannelFuture writeItem(PeerConnection peerConnection, Item item)

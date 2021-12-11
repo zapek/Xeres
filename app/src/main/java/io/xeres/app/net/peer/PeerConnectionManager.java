@@ -122,7 +122,7 @@ public class PeerConnectionManager
 	 */
 	public ByteBuf serializeItemForSignature(Item item, RsService rsService)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), 2, rsService.getServiceType(), rsService.getItemSubtype(item));
+		item.setSerialization(Unpooled.buffer().alloc(), 2, rsService.getServiceType(), rsService.getItemSubtype(item));
 		return item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 	}
 

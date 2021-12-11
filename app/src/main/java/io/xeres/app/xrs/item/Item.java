@@ -39,6 +39,7 @@ public class Item
 	private static final Logger log = LoggerFactory.getLogger(Item.class);
 
 	protected ByteBuf buf;
+	private ByteBuf backupBuf;
 	private RsService service;
 
 	public Item()
@@ -60,6 +61,12 @@ public class Item
 		buf.writeInt(HEADER_SIZE);
 	}
 
+	public void setSerialization(ByteBufAllocator allocator, int version, RsServiceType service, int subType)
+	{
+		backupBuf = buf;
+		setOutgoing(allocator, version, service, subType);
+	}
+
 	public RawItem serializeItem(Set<SerializationFlags> flags)
 	{
 		var size = 0;
@@ -77,7 +84,13 @@ public class Item
 		log.debug("==> {} ({})", getClass().getSimpleName(), size + HEADER_SIZE);
 		setItemSize(size + HEADER_SIZE);
 
-		return new RawItem(buf, getPriority());
+		var rawItem = new RawItem(buf, getPriority());
+		if (flags.contains(SerializationFlags.SIGNATURE))
+		{
+			buf = backupBuf;
+			backupBuf = null;
+		}
+		return rawItem;
 	}
 
 	public int getPriority()

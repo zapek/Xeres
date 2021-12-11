@@ -38,7 +38,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.app.xrs.service.serviceinfo.ServiceInfoService;
+import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
@@ -62,12 +62,12 @@ public class PeerHandler extends ChannelDuplexHandler
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
-	private final ServiceInfoService serviceInfoService;
+	private final ServiceInfoRsService serviceInfoRsService;
 
-	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoService serviceInfoService, ConnectionDirection direction)
+	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionDirection direction)
 	{
 		super();
-		this.serviceInfoService = serviceInfoService;
+		this.serviceInfoRsService = serviceInfoRsService;
 		this.direction = direction;
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
@@ -167,7 +167,7 @@ public class PeerHandler extends ChannelDuplexHandler
 					location = SSL.checkPeerCertificate(locationService, ctx.pipeline().get(SslHandler.class).engine().getSession().getPeerCertificates());
 					var peerConnection = peerConnectionManager.addPeer(location, ctx);
 					locationService.setConnected(location, ctx.channel().remoteAddress());
-					ctx.executor().schedule(() -> serviceInfoService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
+					ctx.executor().schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
 				}
 
 				TrayService.showNotification("Established " + direction.toString().toLowerCase(Locale.ROOT) + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")");

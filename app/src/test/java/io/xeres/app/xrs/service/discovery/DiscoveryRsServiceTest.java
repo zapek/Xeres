@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class DiscoveryServiceTest
+class DiscoveryRsServiceTest
 {
 	@Mock
 	private PeerConnectionManager peerConnectionManager;
@@ -59,7 +59,7 @@ class DiscoveryServiceTest
 	private LocationService locationService;
 
 	@InjectMocks
-	private DiscoveryService discoveryService;
+	private DiscoveryRsService discoveryRsService;
 
 	/**
 	 * This is a case that is handled by RS but that I think is never actually sent.
@@ -73,7 +73,7 @@ class DiscoveryServiceTest
 		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
 		when(profileService.findProfileByPgpIdentifier(anyLong())).thenReturn(Optional.empty());
 
-		discoveryService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
+		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
 
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 	}
@@ -90,7 +90,7 @@ class DiscoveryServiceTest
 		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
 		when(profileService.findProfileByPgpIdentifier(anyLong())).thenReturn(Optional.of(ProfileFakes.createProfile()));
 
-		discoveryService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
+		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
 
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 	}
@@ -110,7 +110,7 @@ class DiscoveryServiceTest
 		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.empty());
 		when(profileService.findProfileByPgpIdentifier(profile.getPgpIdentifier())).thenReturn(Optional.of(profile));
 
-		discoveryService.handleItem(peerConnection, createDiscoveryContact(newLocation));
+		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(newLocation));
 
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 		verify(locationService).update(eq(newLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
@@ -132,7 +132,7 @@ class DiscoveryServiceTest
 		when(locationService.findLocationById(friendLocation.getLocationId())).thenReturn(Optional.of(friendLocation));
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(LocationFakes.createOwnLocation()));
 
-		discoveryService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
+		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
 
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 		verify(locationService).update(eq(friendLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
@@ -154,7 +154,7 @@ class DiscoveryServiceTest
 		when(locationService.findLocationById(friendLocation.getLocationId())).thenReturn(Optional.of(friendLocation));
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(friendLocation));
 
-		discoveryService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
+		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
 
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 	}
@@ -176,7 +176,7 @@ class DiscoveryServiceTest
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
 		when(profileService.getAllDiscoverableProfiles()).thenReturn(List.of(profile));
 
-		discoveryService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
+		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
 		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
 		ArgumentCaptor<DiscoveryPgpListItem> discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
@@ -201,7 +201,7 @@ class DiscoveryServiceTest
 		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
 
-		discoveryService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
+		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
 		verify(locationService).findLocationById(peerLocation.getLocationId());
 		verify(locationService).findOwnLocation();
@@ -225,7 +225,7 @@ class DiscoveryServiceTest
 
 		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
 
-		discoveryService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
+		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
 		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
 		ArgumentCaptor<DiscoveryPgpListItem> discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);

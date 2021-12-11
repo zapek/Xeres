@@ -17,50 +17,47 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.rtt;
+package io.xeres.app.xrs.service.chat;
 
-import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.xrs.service.RsService;
-import io.xeres.app.xrs.service.rtt.item.RttPingItem;
-import io.xeres.app.xrs.service.rtt.item.RttPongItem;
+import io.xeres.app.xrs.service.chat.item.ChatMessageItem;
+import io.xeres.common.message.MessageType;
+import io.xeres.common.message.chat.PrivateChatMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import java.util.EnumSet;
+
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
-class RttServiceTest
+class ChatRsServiceTest
 {
 	@Mock
 	private PeerConnectionManager peerConnectionManager;
 
 	@InjectMocks
-	private RttService rttService;
+	private ChatRsService chatRsService;
+
+	// Unfortunately, only simple stuff can be tested. The rest requires mocking a lot of stuff (identities, keys, etc...)
 
 	@Test
-	void RttService_handlePing_OK()
+	void ChatService_HandleChatMessageItem_OK()
 	{
-		int SEQUENCE = 1;
-		long TIMESTAMP = 2;
+		var MESSAGE = "hello";
+		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
-		var peerConnection = new PeerConnection(Location.createLocation("foo"), null);
+		var item = new ChatMessageItem(MESSAGE, EnumSet.of(ChatFlags.PRIVATE));
+		chatRsService.handleItem(peerConnection, item);
 
-		rttService.handleItem(peerConnection, new RttPingItem(SEQUENCE, TIMESTAMP));
-
-		ArgumentCaptor<RttPongItem> rttPongItem = ArgumentCaptor.forClass(RttPongItem.class);
-		verify(peerConnectionManager).writeItem(eq(peerConnection), rttPongItem.capture(), any(RsService.class));
-
-		assertEquals(TIMESTAMP, rttPongItem.getValue().getPingTimestamp());
-		assertNotEquals(0, rttPongItem.getValue().getPongTimestamp());
+		verify(peerConnectionManager).sendToSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), any(PrivateChatMessage.class));
 	}
 }

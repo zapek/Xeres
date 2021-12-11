@@ -19,6 +19,11 @@
 
 package io.xeres.app.xrs.service;
 
+/**
+ * Priority for running service initializations. Except when OFF (default),
+ * contains a time range with random triggering in between, to increase handshake
+ * chances between peers.
+ */
 public enum RsServiceInitPriority
 {
 	OFF(0, 0),

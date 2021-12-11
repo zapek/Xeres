@@ -43,9 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public abstract class GxsService extends RsService
+public abstract class GxsRsService extends RsService
 {
-	private static final Logger log = LoggerFactory.getLogger(GxsService.class);
+	private static final Logger log = LoggerFactory.getLogger(GxsRsService.class);
 
 	private static final int KEY_TRANSACTION_ID = 1;
 
@@ -58,7 +58,7 @@ public abstract class GxsService extends RsService
 	protected final GxsTransactionManager gxsTransactionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 
-	protected GxsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager)
+	protected GxsRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager)
 	{
 		super(environment, peerConnectionManager);
 		this.gxsExchangeService = gxsExchangeService;

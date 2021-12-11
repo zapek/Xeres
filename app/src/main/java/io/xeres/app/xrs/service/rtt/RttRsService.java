@@ -41,13 +41,13 @@ import java.util.concurrent.TimeUnit;
 import static io.xeres.app.xrs.service.RsServiceType.RTT;
 
 @Component
-public class RttService extends RsService
+public class RttRsService extends RsService
 {
-	private static final Logger log = LoggerFactory.getLogger(RttService.class);
+	private static final Logger log = LoggerFactory.getLogger(RttRsService.class);
 
 	private static final int KEY_COUNTER = 1;
 
-	public RttService(Environment environment, PeerConnectionManager peerConnectionManager)
+	public RttRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
 		super(environment, peerConnectionManager);
 	}

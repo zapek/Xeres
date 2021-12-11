@@ -31,7 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class HeartbeatTest
 {
 	@InjectMocks
-	private HeartbeatService heartbeatService;
+	private HeartbeatRsService heartbeatRsService;
 
 	@Test
 	@SuppressWarnings("java:S2699")
@@ -39,7 +39,7 @@ class HeartbeatTest
 	{
 		var peerConnection = new PeerConnection(Location.createLocation("foo"), null);
 
-		heartbeatService.handleItem(peerConnection, new HeartbeatItem());
+		heartbeatRsService.handleItem(peerConnection, new HeartbeatItem());
 
 		// The service does nothing
 	}

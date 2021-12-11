@@ -35,9 +35,9 @@ import java.util.concurrent.TimeUnit;
 import static io.xeres.app.xrs.service.RsServiceType.HEARTBEAT;
 
 @Component
-public class HeartbeatService extends RsService
+public class HeartbeatRsService extends RsService
 {
-	public HeartbeatService(Environment environment, PeerConnectionManager peerConnectionManager)
+	public HeartbeatRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
 		super(environment, peerConnectionManager);
 	}

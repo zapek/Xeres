@@ -46,11 +46,11 @@ import static io.xeres.app.xrs.service.RsServiceType.SERVICEINFO;
 import static java.util.stream.Collectors.joining;
 
 @Component
-public class ServiceInfoService extends RsService
+public class ServiceInfoRsService extends RsService
 {
-	private static final Logger log = LoggerFactory.getLogger(ServiceInfoService.class);
+	private static final Logger log = LoggerFactory.getLogger(ServiceInfoRsService.class);
 
-	public ServiceInfoService(Environment environment, PeerConnectionManager peerConnectionManager)
+	public ServiceInfoRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
 		super(environment, peerConnectionManager);
 	}

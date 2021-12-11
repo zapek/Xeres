@@ -48,7 +48,7 @@ class GxsIdManagerTest
 	private IdentityService identityService;
 
 	@Mock
-	private GxsIdService gxsIdService;
+	private GxsIdRsService gxsIdService;
 
 	@Mock
 	private PeerConnectionManager peerConnectionManager;

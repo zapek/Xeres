@@ -17,47 +17,50 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.chat;
+package io.xeres.app.xrs.service.rtt;
 
-import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.xrs.service.chat.item.ChatMessageItem;
-import io.xeres.common.message.MessageType;
-import io.xeres.common.message.chat.PrivateChatMessage;
+import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.rtt.item.RttPingItem;
+import io.xeres.app.xrs.service.rtt.item.RttPongItem;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.EnumSet;
-
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
-class ChatServiceTest
+class RttRsServiceTest
 {
 	@Mock
 	private PeerConnectionManager peerConnectionManager;
 
 	@InjectMocks
-	private ChatService chatService;
-
-	// Unfortunately, only simple stuff can be tested. The rest requires mocking a lot of stuff (identities, keys, etc...)
+	private RttRsService rttRsService;
 
 	@Test
-	void ChatService_HandleChatMessageItem_OK()
+	void RttService_handlePing_OK()
 	{
-		var MESSAGE = "hello";
-		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
+		int SEQUENCE = 1;
+		long TIMESTAMP = 2;
 
-		var item = new ChatMessageItem(MESSAGE, EnumSet.of(ChatFlags.PRIVATE));
-		chatService.handleItem(peerConnection, item);
+		var peerConnection = new PeerConnection(Location.createLocation("foo"), null);
 
-		verify(peerConnectionManager).sendToSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), any(PrivateChatMessage.class));
+		rttRsService.handleItem(peerConnection, new RttPingItem(SEQUENCE, TIMESTAMP));
+
+		ArgumentCaptor<RttPongItem> rttPongItem = ArgumentCaptor.forClass(RttPongItem.class);
+		verify(peerConnectionManager).writeItem(eq(peerConnection), rttPongItem.capture(), any(RsService.class));
+
+		assertEquals(TIMESTAMP, rttPongItem.getValue().getPingTimestamp());
+		assertNotEquals(0, rttPongItem.getValue().getPongTimestamp());
 	}
 }

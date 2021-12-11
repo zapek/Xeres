@@ -19,7 +19,7 @@
 
 package io.xeres.app.web.api.controller.chat;
 
-import io.xeres.app.xrs.service.chat.ChatService;
+import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
@@ -44,11 +44,11 @@ public class ChatMessageController
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatMessageController.class);
 
-	private final ChatService chatService;
+	private final ChatRsService chatRsService;
 
-	public ChatMessageController(ChatService chatService)
+	public ChatMessageController(ChatRsService chatRsService)
 	{
-		this.chatService = chatService;
+		this.chatRsService = chatRsService;
 	}
 
 	@MessageMapping(CHAT_PATH)
@@ -61,26 +61,26 @@ public class ChatMessageController
 		{
 			case CHAT_PRIVATE_MESSAGE -> {
 				log.debug("Received websocket message, sending to peer location: {}, content {}", destinationId, message);
-				chatService.sendPrivateMessage(new LocationId(destinationId), message.getContent());
+				chatRsService.sendPrivateMessage(new LocationId(destinationId), message.getContent());
 			}
 			case CHAT_ROOM_MESSAGE -> {
 				log.debug("Sending to room: {}, content {}", destinationId, message);
 				Objects.requireNonNull(destinationId);
-				chatService.sendChatRoomMessage(Long.parseLong(destinationId), message.getContent());
+				chatRsService.sendChatRoomMessage(Long.parseLong(destinationId), message.getContent());
 			}
 			case CHAT_BROADCAST_MESSAGE -> {
 				log.debug("Sending broadcast message");
-				chatService.sendBroadcastMessage(message.getContent());
+				chatRsService.sendBroadcastMessage(message.getContent());
 			}
 			case CHAT_TYPING_NOTIFICATION -> {
 				log.debug("Sending typing notification...");
 				Objects.requireNonNull(destinationId);
-				chatService.sendPrivateTypingNotification(new LocationId(destinationId));
+				chatRsService.sendPrivateTypingNotification(new LocationId(destinationId));
 			}
 			case CHAT_ROOM_TYPING_NOTIFICATION -> {
 				log.debug("Sending typing notification...");
 				Objects.requireNonNull(destinationId);
-				chatService.sendChatRoomTypingNotification(Long.parseLong(destinationId));
+				chatRsService.sendChatRoomTypingNotification(Long.parseLong(destinationId));
 			}
 			default -> log.error("Couldn't figure out which message to send");
 		}

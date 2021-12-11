@@ -56,13 +56,13 @@ public class GxsIdManager
 
 	private static final int MAXIMUM_IDS_PER_LOCATION = 5;
 
-	private final GxsIdService gxsIdService;
+	private final GxsIdRsService gxsIdService;
 	private final IdentityService identityService;
 	private final PeerConnectionManager peerConnectionManager;
 
 	private final ScheduledExecutorService executorService;
 
-	public GxsIdManager(GxsIdService gxsIdService, IdentityService identityService, PeerConnectionManager peerConnectionManager)
+	public GxsIdManager(GxsIdRsService gxsIdService, IdentityService identityService, PeerConnectionManager peerConnectionManager)
 	{
 		this.gxsIdService = gxsIdService;
 		this.identityService = identityService;

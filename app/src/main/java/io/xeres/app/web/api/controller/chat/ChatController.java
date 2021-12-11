@@ -25,7 +25,7 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.xrs.service.chat.ChatService;
+import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import org.springframework.http.HttpStatus;
@@ -44,11 +44,11 @@ import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 @RequestMapping(value = CHAT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ChatController
 {
-	private final ChatService chatService;
+	private final ChatRsService chatRsService;
 
-	public ChatController(ChatService chatService)
+	public ChatController(ChatRsService chatRsService)
 	{
-		this.chatService = chatService;
+		this.chatRsService = chatRsService;
 	}
 
 	@PostMapping("/rooms")
@@ -56,7 +56,7 @@ public class ChatController
 	@ApiResponse(responseCode = "201", description = "Room created successfully", headers = @Header(name = "Room", description = "The location of the created room", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createChatRoom(@Valid @RequestBody CreateChatRoomRequest createChatRoomRequest)
 	{
-		long id = chatService.createChatRoom(createChatRoomRequest.name(), createChatRoomRequest.topic(), null, EnumSet.of(RoomFlags.PUBLIC)); // XXX: fix arguments
+		long id = chatRsService.createChatRoom(createChatRoomRequest.name(), createChatRoomRequest.topic(), null, EnumSet.of(RoomFlags.PUBLIC)); // XXX: fix arguments
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath("/rooms/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -66,7 +66,7 @@ public class ChatController
 	@ResponseStatus(HttpStatus.OK)
 	public long subscribeToChatRoom(@PathVariable long id)
 	{
-		chatService.joinChatRoom(id); // XXX: error if we're already subscribed
+		chatRsService.joinChatRoom(id); // XXX: error if we're already subscribed
 		return id;
 	}
 
@@ -74,6 +74,6 @@ public class ChatController
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void unsubscribeFromChatRoom(@PathVariable long id)
 	{
-		chatService.leaveChatRoom(id); // XXX: error if we're not subscribed
+		chatRsService.leaveChatRoom(id); // XXX: error if we're not subscribed
 	}
 }

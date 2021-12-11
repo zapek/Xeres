@@ -31,7 +31,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PrefsService;
-import io.xeres.app.xrs.service.serviceinfo.ServiceInfoService;
+import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,19 +54,19 @@ public class PeerClient
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
-	private final ServiceInfoService serviceInfoService;
+	private final ServiceInfoRsService serviceInfoRsService;
 
 	private Bootstrap bootstrap;
 	private EventLoopGroup group;
 
-	public PeerClient(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoService serviceInfoService)
+	public PeerClient(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService)
 	{
 		this.prefsService = prefsService;
 		this.networkProperties = networkProperties;
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
-		this.serviceInfoService = serviceInfoService;
+		this.serviceInfoRsService = serviceInfoRsService;
 	}
 
 	public void start(EventExecutorGroup sslExecutorGroup, EventExecutorGroup eventExecutorGroup)
@@ -78,7 +78,7 @@ public class PeerClient
 			bootstrap = new Bootstrap();
 			bootstrap.group(group)
 					.channel(NioSocketChannel.class)
-					.handler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoService, OUTGOING));
+					.handler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoRsService, OUTGOING));
 		}
 		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException e)
 		{

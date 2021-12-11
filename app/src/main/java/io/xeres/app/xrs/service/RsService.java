@@ -34,6 +34,9 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * Base class for "Retroshare services".
+ * These services have a unique number assigned which directs matching packets to them.
+ * <p>
  * Note: this class has a natural ordering that is inconsistent with equals.
  */
 public abstract class RsService implements Comparable<RsService>

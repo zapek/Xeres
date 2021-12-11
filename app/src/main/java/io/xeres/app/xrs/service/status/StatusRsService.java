@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,30 +17,32 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.sliceprobe;
+package io.xeres.app.xrs.service.status;
 
-import io.xeres.app.net.peer.PeerAttribute;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
+import io.xeres.app.xrs.service.status.item.StatusItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static io.xeres.app.xrs.service.RsServiceType.PACKET_SLICING_PROBE;
+import static io.xeres.app.xrs.service.RsServiceType.STATUS;
+import static io.xeres.app.xrs.service.status.item.StatusItem.Status.ONLINE;
 
 @Component
-public class SliceProbeService extends RsService
+public class StatusRsService extends RsService
 {
-	private static final Logger log = LoggerFactory.getLogger(SliceProbeService.class);
+	private static final Logger log = LoggerFactory.getLogger(StatusRsService.class);
 
-	public SliceProbeService(Environment environment, PeerConnectionManager peerConnectionManager)
+	public StatusRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
 		super(environment, peerConnectionManager);
 	}
@@ -48,24 +50,37 @@ public class SliceProbeService extends RsService
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return PACKET_SLICING_PROBE;
+		return STATUS;
 	}
 
 	@Override
 	public Map<Class<? extends Item>, Integer> getSupportedItems()
 	{
-		return Map.of(
-				SliceProbeItem.class, 0xCC
-		);
+		return Map.of(StatusItem.class, 1);
+	}
+
+	@Override
+	public RsServiceInitPriority getInitPriority()
+	{
+		return RsServiceInitPriority.NORMAL;
+	}
+
+	@Override
+	public void initialize(PeerConnection peerConnection)
+	{
+		peerConnection.schedule(
+				() -> writeItem(peerConnection, new StatusItem(ONLINE)),
+				0,
+				TimeUnit.SECONDS);
 	}
 
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		if (!Boolean.TRUE.equals(sender.getCtx().channel().attr(PeerAttribute.MULTI_PACKET).get()))
+		// XXX: print peer's status (ideally refresh a list)
+		if (item instanceof StatusItem statusItem)
 		{
-			log.debug("Received slice probe, switching to new packet format for current session");
-			sender.getCtx().channel().attr(PeerAttribute.MULTI_PACKET).set(true);
+			log.debug("Got status {} from peer {}", statusItem.getStatus(), sender);
 		}
 	}
 }

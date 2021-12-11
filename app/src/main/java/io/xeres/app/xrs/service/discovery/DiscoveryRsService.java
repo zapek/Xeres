@@ -40,7 +40,7 @@ import io.xeres.app.xrs.service.discovery.item.DiscoveryContactItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryIdentityListItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpKeyItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem;
-import io.xeres.app.xrs.service.gxsid.GxsIdService;
+import io.xeres.app.xrs.service.gxsid.GxsIdRsService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import org.slf4j.Logger;
@@ -62,18 +62,18 @@ import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 
 @Component
-public class DiscoveryService extends RsService
+public class DiscoveryRsService extends RsService
 {
-	private static final Logger log = LoggerFactory.getLogger(DiscoveryService.class);
+	private static final Logger log = LoggerFactory.getLogger(DiscoveryRsService.class);
 
 	private final ProfileService profileService;
 	private final LocationService locationService;
 	private final IdentityService identityService;
-	private final GxsIdService gxsIdService;
+	private final GxsIdRsService gxsIdService;
 	private final BuildProperties buildProperties;
 	private final DatabaseSessionManager databaseSessionManager;
 
-	public DiscoveryService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, GxsIdService gxsIdService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
+	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, GxsIdRsService gxsIdService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
 	{
 		super(environment, peerConnectionManager);
 		this.profileService = profileService;

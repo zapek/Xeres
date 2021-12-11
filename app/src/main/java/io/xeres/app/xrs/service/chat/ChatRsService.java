@@ -61,9 +61,9 @@ import static java.util.Map.entry;
 
 // XXX: check if everything is thread safe (the lists are but are the operations ok?)
 @Component
-public class ChatService extends RsService
+public class ChatRsService extends RsService
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatService.class);
+	private static final Logger log = LoggerFactory.getLogger(ChatRsService.class);
 
 	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
@@ -137,7 +137,7 @@ public class ChatService extends RsService
 
 	private ScheduledExecutorService executorService;
 
-	public ChatService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, GxsIdManager gxsIdManager)
+	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, GxsIdManager gxsIdManager)
 	{
 		super(environment, peerConnectionManager);
 		this.locationService = locationService;

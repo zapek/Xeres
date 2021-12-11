@@ -35,7 +35,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.app.xrs.service.gxs.GxsService;
+import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.item.GxsExchange;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem;
@@ -58,14 +58,14 @@ import static io.xeres.app.xrs.service.RsServiceType.GXSID;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 @Component
-public class GxsIdService extends GxsService
+public class GxsIdRsService extends GxsRsService
 {
-	private static final Logger log = LoggerFactory.getLogger(GxsIdService.class);
+	private static final Logger log = LoggerFactory.getLogger(GxsIdRsService.class);
 
 	private final IdentityService identityService;
 	private final DatabaseSessionManager databaseSessionManager;
 
-	public GxsIdService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService)
+	public GxsIdRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService)
 	{
 		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager, databaseSessionManager);
 		this.identityService = identityService;

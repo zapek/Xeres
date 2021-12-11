@@ -64,9 +64,9 @@ public class Transaction<T extends GxsExchange>
 	private final Duration timeout;
 	private final List<T> items;
 	private final int itemCount;
-	private final GxsService service;
+	private final GxsRsService service;
 
-	Transaction(int id, List<T> items, int itemCount, GxsService service, Type type)
+	Transaction(int id, List<T> items, int itemCount, GxsRsService service, Type type)
 	{
 		if (itemCount == 0)
 		{

@@ -69,7 +69,7 @@ class GxsIdManagerTest
 
 		gxsIdManager.requestGxsIds();
 
-		verify(gxsIdService).requestGxsGroups(eq(PEER_CONNECTION), eq(List.of(GXSID.getGxsId())));
+		verify(gxsIdService).requestGxsGroups(PEER_CONNECTION, List.of(GXSID.getGxsId()));
 	}
 
 	@Test

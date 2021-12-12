@@ -126,30 +126,6 @@ public class PeerConnectionManager
 		return item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 	}
 
-	@Deprecated(forRemoval = true) // use doForAllPeers()
-	public void writeItemToAllPeers(Item item, RsService rsService)
-	{
-		peers.forEach((aLong, peerConnection) ->
-		{
-			if (peerConnection.isServiceSupported(rsService))
-			{
-				writeItem(peerConnection, item, rsService);
-			}
-		});
-	}
-
-	@Deprecated(forRemoval = true) // use doForAllPeers()
-	public void writeItemToAllPeersExceptSender(PeerConnection senderPeerConnection, Item item, RsService rsService)
-	{
-		peers.forEach((peerId, peerConnection) ->
-		{
-			if (peerConnection.isServiceSupported(rsService) && !senderPeerConnection.equals(peerConnection))
-			{
-				writeItem(peerConnection, item, rsService);
-			}
-		});
-	}
-
 	public void doForAllPeers(Consumer<PeerConnection> action, RsService rsService)
 	{
 		peers.forEach((peerId, peerConnection) ->

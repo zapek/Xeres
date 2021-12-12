@@ -22,7 +22,7 @@ package io.xeres.app.net.protocol;
 import io.xeres.app.net.protocol.tor.OnionAddress;
 import io.xeres.common.protocol.ip.IP;
 
-import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
@@ -160,7 +160,7 @@ public final class PeerAddress
 		}
 		try
 		{
-			return new PeerAddress(new InetSocketAddress(Inet4Address.getByName(ip), port), IPV4);
+			return new PeerAddress(new InetSocketAddress(InetAddress.getByName(ip), port), IPV4);
 		}
 		catch (UnknownHostException e)
 		{

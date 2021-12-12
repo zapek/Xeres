@@ -118,7 +118,7 @@ public class GxsIdManager
 			{
 				gxsIdService.requestGxsGroups(peerConnection, gxsIdsToGet);
 				gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is  not there anymore, we should try to get it from other peers...
-				if (gxsIds.size() == 0)
+				if (gxsIds.isEmpty())
 				{
 					pendingGxsIds.remove(locationId);
 				}

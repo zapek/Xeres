@@ -102,7 +102,7 @@ public class GxsIdRsService extends GxsRsService
 	}
 
 	@Override
-	public List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
+	public List<GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
 	{
 		// XXX: use identityService to return the identities we need. for now we just return ours
 		return List.of(identityService.getOwnIdentity().getGxsIdGroupItem());

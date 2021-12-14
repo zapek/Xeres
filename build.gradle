@@ -19,7 +19,7 @@
 
 buildscript {
     ext {
-        flywayVersion = "8.2.0"
+        flywayVersion = "8.2.2"
         bouncycastleVersion = "1.70"
         apacheCommonsLangVersion = "3.12.0"
         apacheCommonsCollectionsVersion = "4.4"

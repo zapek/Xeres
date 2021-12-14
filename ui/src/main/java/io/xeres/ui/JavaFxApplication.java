@@ -19,6 +19,7 @@
 
 package io.xeres.ui;
 
+import io.xeres.common.mui.MinimalUserInterface;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -57,10 +58,24 @@ public class JavaFxApplication extends Application
 	@Override
 	public void init()
 	{
-		springContext = new SpringApplicationBuilder()
-				.sources(springApplicationClass)
-				.headless(isHeadless()) // JavaFX defaults to true which is not what we want
-				.run(getParameters().getRaw().toArray(new String[0]));
+		try
+		{
+			springContext = new SpringApplicationBuilder()
+					.sources(springApplicationClass)
+					.headless(isHeadless()) // JavaFX defaults to true which is not what we want
+					.run(getParameters().getRaw().toArray(new String[0]));
+		}
+		catch (Exception e)
+		{
+			if (!isHeadless())
+			{
+				MinimalUserInterface.showError(e.getMessage());
+			}
+			else
+			{
+				throw e;
+			}
+		}
 	}
 
 	@Override

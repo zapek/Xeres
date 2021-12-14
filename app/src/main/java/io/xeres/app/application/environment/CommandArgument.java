@@ -20,11 +20,11 @@
 package io.xeres.app.application.environment;
 
 import io.xeres.common.AppName;
+import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.properties.StartupProperties;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.DefaultApplicationArguments;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -191,7 +191,7 @@ public final class CommandArgument
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(null, s, "Xeres Output", JOptionPane.INFORMATION_MESSAGE);
+			MinimalUserInterface.showInformation(s);
 		}
 	}
 }

@@ -82,7 +82,7 @@ jpackage {
     appName = parent.project.name
     vendor = "David Gerber"
     copyright = "Copyright 2019-2021 All Rights Reserved"
-    appDescription = "Xeres P2P Software"
+    appDescription = "Xeres"
     input = "${project.buildDir}/${project.libsDirName}"
     destination = "${project.buildDir}/dist"
     mainClass = "org.springframework.boot.loader.JarLauncher"

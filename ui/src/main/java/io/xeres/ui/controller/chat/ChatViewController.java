@@ -322,6 +322,7 @@ public class ChatViewController implements Controller
 				splitPane.setDividerPositions(dividerPositions);
 			}
 		}
+		typingNotification.setText("");
 	}
 
 	// XXX: also we should merge/refresh... (ie. new rooms added, older rooms removed, etc...). merging properly is very difficult it seems
@@ -372,8 +373,11 @@ public class ChatViewController implements Controller
 	{
 		if (chatRoomMessage.isEmpty())
 		{
-			typingNotification.setText(chatRoomMessage.getSenderNickname() + " is typing...");
-			lastTypingTimeline.playFromStart();
+			if (chatRoomMessage.getRoomId() == selectedRoom.getId())
+			{
+				typingNotification.setText(chatRoomMessage.getSenderNickname() + " is typing...");
+				lastTypingTimeline.playFromStart();
+			}
 		}
 		else
 		{

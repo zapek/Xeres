@@ -26,7 +26,7 @@ import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.web.api.controller.AbstractControllerTest;
-import io.xeres.common.rest.profile.CertificateRequest;
+import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -131,7 +131,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	void ProfileController_CreateProfile_OK() throws Exception
 	{
 		var expected = ProfileFakes.createProfile("test", 1);
-		var profileRequest = new CertificateRequest(RSIdArmor.getArmored(RSIdFakes.createShortInvite()));
+		var profileRequest = new RsIdRequest(RSIdArmor.getArmored(RSIdFakes.createShortInvite()));
 
 		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
 		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));
@@ -146,7 +146,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void ProfileController_CreateProfile_MissingCertificate() throws Exception
 	{
-		var profileRequest = new CertificateRequest(null);
+		var profileRequest = new RsIdRequest(null);
 
 		mvc.perform(postJson(BASE_URL, profileRequest))
 				.andExpect(status().isBadRequest());
@@ -155,7 +155,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void ProfileController_CreateProfile_BrokenCertificate() throws Exception
 	{
-		var profileRequest = new CertificateRequest("foo");
+		var profileRequest = new RsIdRequest("foo");
 
 		mvc.perform(postJson(BASE_URL, profileRequest))
 				.andExpect(status().isBadRequest());

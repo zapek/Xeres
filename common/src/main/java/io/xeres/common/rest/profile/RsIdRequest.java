@@ -22,10 +22,10 @@ package io.xeres.common.rest.profile;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public record CertificateRequest(
-		@NotNull(message = "Missing certificate")
+public record RsIdRequest(
+		@NotNull(message = "Missing RS id")
 		@Size(min = LENGTH_MIN, max = LENGTH_MAX)
-		String certificate
+		String rsId
 )
 {
 	private static final int LENGTH_MIN = 8;

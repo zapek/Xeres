@@ -21,7 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
-import io.xeres.common.rest.profile.CertificateRequest;
+import io.xeres.common.rest.profile.RsIdRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.model.profile.ProfileMapper;
@@ -55,13 +55,13 @@ public class ProfileClient
 				.build();
 	}
 
-	public Mono<Void> createProfile(String certificate)
+	public Mono<Void> createProfile(String rsId)
 	{
-		var certificateRequest = new CertificateRequest(certificate);
+		var rsIdRequest = new RsIdRequest(rsId);
 
 		return webClient.post()
 				.uri("/")
-				.bodyValue(certificateRequest)
+				.bodyValue(rsIdRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
@@ -82,7 +82,7 @@ public class ProfileClient
 
 	public Mono<Profile> checkCertificate(String certificate)
 	{
-		var certificateRequest = new CertificateRequest(certificate);
+		var certificateRequest = new RsIdRequest(certificate);
 
 		return webClient.post()
 				.uri("/check")

@@ -33,7 +33,7 @@ import io.xeres.app.web.api.error.Error;
 import io.xeres.app.web.api.error.exception.UnprocessableEntityException;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
-import io.xeres.common.rest.profile.CertificateRequest;
+import io.xeres.common.rest.profile.RsIdRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -92,20 +92,20 @@ public class ProfileController
 	}
 
 	@PostMapping
-	@Operation(summary = "Create a profile and its possible location from a certificate")
+	@Operation(summary = "Create a profile and its possible location from an RS id")
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "location", description = "the location of the profile"))
 	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<Void> createProfileFromCertificate(@Valid @RequestBody CertificateRequest certificateRequest)
+	public ResponseEntity<Void> createProfileFromCertificate(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
 		Profile profile;
 		try
 		{
-			profile = profileService.getProfileFromRSId(RSId.parse(certificateRequest.certificate()));
+			profile = profileService.getProfileFromRSId(RSId.parse(rsIdRequest.rsId()));
 		}
 		catch (CertificateException e)
 		{
-			throw new UnprocessableEntityException("Couldn't parse certificate/shortinvite: " + e.getMessage());
+			throw new UnprocessableEntityException("Couldn't parse RS id: " + e.getMessage());
 		}
 
 		var savedProfile = profileService.createOrUpdateProfile(profile).orElseThrow(() -> new UnprocessableEntityException("Failed to save profile"));
@@ -119,13 +119,13 @@ public class ProfileController
 	@ApiResponse(responseCode = "200", description = "Profile certificate is OK")
 	@ApiResponse(responseCode = "422", description = "Profile certificate cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<ProfileDTO> checkProfileFromCertificate(@Valid @RequestBody CertificateRequest certificateRequest)
+	public ResponseEntity<ProfileDTO> checkProfileFromCertificate(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
 		ProfileDTO profileDTO;
 		RSId rsId;
 		try
 		{
-			rsId = RSId.parse(certificateRequest.certificate());
+			rsId = RSId.parse(rsIdRequest.rsId());
 			profileDTO = toDeepDTO(profileService.getProfileFromRSId(rsId));
 		}
 		catch (CertificateException e)

@@ -40,6 +40,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.util.NoSuppressedRunnable;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Entities;
 import org.jsoup.safety.Safelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -469,7 +470,7 @@ public class ChatRsService extends RsService
 
 		if (!validateBounceSignature(peerConnection, item))
 		{
-			log.error("Invalid signature for item from peer {}, dropping", peerConnection);
+			log.error("Invalid signature for item {} from peer {}, dropping", item, peerConnection);
 			return false;
 		}
 
@@ -890,9 +891,11 @@ public class ChatRsService extends RsService
 
 	private String parseIncomingText(String text)
 	{
-		return Jsoup.clean(text, Safelist.none()
-				.addAttributes("img", "src")
-				.addProtocols("img", "src", "data")
-				.preserveRelativeLinks(true));
+		return Entities.unescape(
+				Jsoup.clean(text, Safelist.none()
+						.addAttributes("img", "src")
+						.addProtocols("img", "src", "data")
+						.preserveRelativeLinks(true))
+		);
 	}
 }

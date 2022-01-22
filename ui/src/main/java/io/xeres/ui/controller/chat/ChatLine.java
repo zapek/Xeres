@@ -21,15 +21,24 @@ package io.xeres.ui.controller.chat;
 
 import javafx.scene.image.Image;
 
+import java.time.Instant;
+
 public class ChatLine
 {
+	private final Instant instant;
 	private final String text;
 	private final Image image;
 
-	public ChatLine(String text, Image image)
+	public ChatLine(Instant instant, String text, Image image)
 	{
+		this.instant = instant;
 		this.text = text;
 		this.image = image;
+	}
+
+	public Instant getInstant()
+	{
+		return instant;
 	}
 
 	public String getText()

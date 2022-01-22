@@ -55,6 +55,11 @@
     -fx-padding: 0px 0.25em 0px 0.25em;
 }
 
+.chat-list .list-cell .time {
+    -fx-padding: 0px 0.25em 0px 0px;
+    -fx-text-fill: grey;
+}
+
 .oldchatlist .list-cell {
     -fx-control-inner-background-alt: -fx-control-inner-background;
 }

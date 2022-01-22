@@ -37,6 +37,7 @@ import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -196,7 +197,7 @@ public class ChatListView
 
 	private void addMessageLine(String line, Image image)
 	{
-		var chatLine = new ChatLine(line, image);
+		var chatLine = new ChatLine(Instant.now(), line, image);
 		addMessageLine(chatLine);
 	}
 

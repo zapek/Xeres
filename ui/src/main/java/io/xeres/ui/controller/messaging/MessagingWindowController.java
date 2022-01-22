@@ -161,7 +161,7 @@ public class MessagingWindowController implements WindowController
 
 	private void addMessageLine(String line)
 	{
-		var chatLine = new ChatLine(line, null);
+		var chatLine = new ChatLine(Instant.now(), line, null);
 		messages.add(chatLine);
 		receive.scrollTo(chatLine);
 	}

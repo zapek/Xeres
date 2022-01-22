@@ -37,7 +37,6 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.service.RsService;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import io.xeres.ui.support.tray.TrayService;
@@ -170,7 +169,10 @@ public class PeerHandler extends ChannelDuplexHandler
 					ctx.executor().schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
 				}
 
-				TrayService.showNotification("Established " + direction.toString().toLowerCase(Locale.ROOT) + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")");
+				var message = "Established " + direction.toString().toLowerCase(Locale.ROOT) + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")";
+
+				log.info(message);
+				TrayService.showNotification(message);
 
 				sendSliceProbe(ctx);
 			}
@@ -197,8 +199,7 @@ public class PeerHandler extends ChannelDuplexHandler
 
 	private void sendSliceProbe(ChannelHandlerContext ctx)
 	{
-		var sliceProbeItem = new SliceProbeItem();
-		sliceProbeItem.setOutgoing(ctx.alloc(), 2, RsServiceType.PACKET_SLICING_PROBE, 0xCC);
+		var sliceProbeItem = SliceProbeItem.from(ctx);
 		PeerConnectionManager.writeItem(ctx, sliceProbeItem); // this makes the remote RS send packets in the new format
 	}
 }

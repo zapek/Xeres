@@ -100,7 +100,7 @@ public final class SSL
 		{
 			throw new CertificateException("Already connected");
 		}
-		log.debug("Found location: {}, already connected: {}", location.getName(), location.isConnected());
+		log.debug("Found location: {} {}", location.getName(), location.isConnected() ? ", is already connected" : "");
 
 		// XXX: make sure everything is allright and there's no way to fool the system with shortInvites
 		if (location.getProfile().isComplete())

@@ -60,7 +60,7 @@ public class IdleEventHandler extends SimpleUserEventChannelHandler<IdleStateEve
 		else if (evt.state() == IdleState.WRITER_IDLE)
 		{
 			log.info("Sending idle slicing probe");
-			PeerConnectionManager.writeItem(ctx, new SliceProbeItem());
+			PeerConnectionManager.writeItem(ctx, SliceProbeItem.from(ctx));
 		}
 	}
 }

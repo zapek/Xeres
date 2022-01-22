@@ -19,10 +19,19 @@
 
 package io.xeres.app.xrs.service.sliceprobe.item;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public class SliceProbeItem extends Item
 {
+	public static SliceProbeItem from(ChannelHandlerContext ctx)
+	{
+		var sliceProbeItem = new SliceProbeItem();
+		sliceProbeItem.setOutgoing(ctx.alloc(), 2, RsServiceType.PACKET_SLICING_PROBE, 0xCC);
+		return sliceProbeItem;
+	}
+
 	@Override
 	public String toString()
 	{

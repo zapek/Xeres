@@ -373,7 +373,7 @@ public class ChatViewController implements Controller
 	{
 		if (chatRoomMessage.isEmpty())
 		{
-			if (chatRoomMessage.getRoomId() == selectedRoom.getId())
+			if (selectedRoom != null && chatRoomMessage.getRoomId() == selectedRoom.getId())
 			{
 				typingNotification.setText(chatRoomMessage.getSenderNickname() + " is typing...");
 				lastTypingTimeline.playFromStart();

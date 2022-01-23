@@ -24,10 +24,12 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
-import io.xeres.ui.controller.chat.ChatLine;
 import io.xeres.ui.custom.NullSelectionModel;
 import io.xeres.ui.custom.OldChatListCell;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.chat.ChatAction;
+import io.xeres.ui.support.chat.ChatContentText;
+import io.xeres.ui.support.chat.ChatLine;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -48,6 +50,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static io.xeres.ui.support.chat.ChatAction.Type.SAY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @FxmlView(value = "/view/messaging/messaging.fxml")
@@ -159,9 +162,10 @@ public class MessagingWindowController implements WindowController
 		}
 	}
 
-	private void addMessageLine(String action, String message)
+	private void addMessageLine(String from, String message)
 	{
-		var chatLine = new ChatLine(Instant.now(), action, message, null);
+		var action = new ChatAction(SAY, from, null);
+		var chatLine = new ChatLine(Instant.now(), action, new ChatContentText(message));
 		messages.add(chatLine);
 		receive.scrollTo(chatLine);
 	}

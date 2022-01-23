@@ -19,10 +19,9 @@
 
 package io.xeres.ui.custom;
 
-import io.xeres.ui.controller.chat.ChatLine;
+import io.xeres.ui.support.chat.ChatContent;
+import io.xeres.ui.support.chat.ChatLine;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 import org.slf4j.Logger;
@@ -44,8 +43,7 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	private final TextFlow content;
 	private final Label time;
 	private final Label action;
-	private final Text message;
-	private final ImageView imageView;
+	private boolean isComplex;
 
 	public ChatListCell(ChatLine line)
 	{
@@ -58,12 +56,9 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 		action = new Label();
 		action.getStyleClass().add("action");
 
-		message = new Text();
-		imageView = new ImageView();
+		content.getChildren().addAll(time, action);
 
 		updateItem(line);
-
-		content.getChildren().addAll(time, action, message, imageView);
 	}
 
 	@Override
@@ -75,15 +70,30 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	@Override
 	public boolean isReusable()
 	{
-		return true;
+		return !isComplex;
 	}
 
 	@Override
-	public void updateItem(ChatLine item)
+	public void reset()
 	{
-		time.setText(formatter.format(item.getInstant()));
-		action.setText(item.getAction());
-		message.setText(item.getMessage());
-		imageView.setImage(item.getImage());
+		if (isReusable())
+		{
+			content.getChildren().remove(2);
+		}
+	}
+
+	@Override
+	public void updateItem(ChatLine line)
+	{
+		isComplex = line.isRich();
+
+		time.setText(formatter.format(line.getInstant()));
+		action.setText(line.getAction());
+
+		var nodes = line.getChatContents().stream()
+				.map(ChatContent::getNode)
+				.toList();
+
+		content.getChildren().addAll(nodes);
 	}
 }

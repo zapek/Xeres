@@ -19,7 +19,7 @@
 
 package io.xeres.ui.custom;
 
-import io.xeres.ui.controller.chat.ChatLine;
+import io.xeres.ui.support.chat.ChatLine;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -63,9 +63,11 @@ public class OldChatListCell extends ListCell<ChatLine>
 		}
 		else
 		{
-			label.setText(item.getMessage());
-			imageView.setImage(item.getImage());
-			setGraphic(content);
+			// XXX:fix!!
+
+			//label.setText(item.getMessage());
+			//imageView.setImage(item.getImage());
+			//setGraphic(content);
 		}
 	}
 }

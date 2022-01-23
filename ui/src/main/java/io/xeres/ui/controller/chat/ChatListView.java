@@ -23,6 +23,10 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.common.message.chat.RoomInfo;
 import io.xeres.ui.custom.ChatListCell;
+import io.xeres.ui.support.chat.ChatAction;
+import io.xeres.ui.support.chat.ChatContentImage;
+import io.xeres.ui.support.chat.ChatContentText;
+import io.xeres.ui.support.chat.ChatLine;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -42,6 +46,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static io.xeres.ui.support.chat.ChatAction.Type.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -104,9 +109,33 @@ public class ChatListView
 			if (isNotEmpty(data))
 			{
 				image = new Image(data);
+				if (image.isError())
+				{
+					image = null;
+				}
 			}
 		}
-		addMessageLine("<" + from + ">", ((image != null && !image.isError()) ? "" : message), image);
+		else
+		{
+			// XXX: parse URLs and smileys... this is hard because I have to return text nodes between them
+			// XXX: warning! I think RS can show things that aren't URL *and* URLs as well (ie. past my certificate)
+//			if (message.contains("placeholder"))
+//			{
+//				var chatLine = new ChatLine(Instant.now(), new ChatAction(SAY, from, null), new ChatContentText("the URL is: "), new ChatContentURI(URI.create("https://zapek.com")));
+//				addMessageLine(chatLine);
+//				return;
+//			}
+		}
+
+		var chatAction = new ChatAction(SAY, from, null);
+		if (image != null)
+		{
+			addMessageLine(chatAction, image);
+		}
+		else
+		{
+			addMessageLine(chatAction, message);
+		}
 	}
 
 	public void addUser(ChatRoomUserEvent user)
@@ -119,7 +148,7 @@ public class ChatListView
 			users.sort((o1, o2) -> o1.nickname().compareToIgnoreCase(o2.nickname()));
 			if (!nickname.equals(user.getNickname()))
 			{
-				addMessageLine("--> ", user.getNickname() + " (" + user.getGxsId() + ")");
+				addMessageLine(new ChatAction(JOIN, user.getNickname(), user.getGxsId()));
 			}
 		}
 	}
@@ -131,7 +160,7 @@ public class ChatListView
 		if (chatRoomUser != null)
 		{
 			users.remove(chatRoomUser);
-			addMessageLine("<-- ", user.getNickname() + " (" + user.getGxsId() + ")");
+			addMessageLine(new ChatAction(LEAVE, user.getNickname(), user.getGxsId()));
 		}
 	}
 
@@ -195,14 +224,21 @@ public class ChatListView
 		}
 	}
 
-	private void addMessageLine(String action, String message, Image image)
+	private void addMessageLine(ChatAction action, Image image)
 	{
-		var chatLine = new ChatLine(Instant.now(), action, message, image);
+		var chatLine = new ChatLine(Instant.now(), action, new ChatContentImage(image));
 		addMessageLine(chatLine);
 	}
 
-	private void addMessageLine(String action, String message)
+	private void addMessageLine(ChatAction action)
 	{
-		addMessageLine(action, message, null);
+		var chatLine = new ChatLine(Instant.now(), action);
+		addMessageLine(chatLine);
+	}
+
+	private void addMessageLine(ChatAction action, String message)
+	{
+		var chatLine = new ChatLine(Instant.now(), action, new ChatContentText(message));
+		addMessageLine(chatLine);
 	}
 }

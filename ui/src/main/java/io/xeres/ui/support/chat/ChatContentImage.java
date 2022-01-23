@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,48 +17,25 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.chat;
+package io.xeres.ui.support.chat;
 
+import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
-import java.time.Instant;
-
-public class ChatLine
+public class ChatContentImage implements ChatContent
 {
-	private final Instant instant;
-	private final String action;
-	private final String message;
-	private final Image image;
+	private final ImageView node;
 
-	public ChatLine(Instant instant, String action, String message, Image image)
+	public ChatContentImage(Image image)
 	{
-		this.instant = instant;
-		this.action = action;
-		this.message = message;
-		this.image = image;
+		node = new ImageView();
+		node.setImage(image);
 	}
 
-	public Instant getInstant()
+	@Override
+	public Node getNode()
 	{
-		return instant;
-	}
-
-	public String getAction()
-	{
-		return action;
-	}
-
-	public String getMessage()
-	{
-		return message;
-	}
-
-	public Image getImage()
-	{
-		if (image != null && !image.isError())
-		{
-			return image;
-		}
-		return null;
+		return node;
 	}
 }

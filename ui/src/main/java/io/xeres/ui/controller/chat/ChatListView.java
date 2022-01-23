@@ -106,7 +106,7 @@ public class ChatListView
 				image = new Image(data);
 			}
 		}
-		addMessageLine("<" + from + "> " + ((image != null && !image.isError()) ? "" : message), image);
+		addMessageLine("<" + from + ">", ((image != null && !image.isError()) ? "" : message), image);
 	}
 
 	public void addUser(ChatRoomUserEvent user)
@@ -119,7 +119,7 @@ public class ChatListView
 			users.sort((o1, o2) -> o1.nickname().compareToIgnoreCase(o2.nickname()));
 			if (!nickname.equals(user.getNickname()))
 			{
-				addMessageLine("--> " + user.getNickname() + " (" + user.getGxsId() + ")");
+				addMessageLine("--> ", user.getNickname() + " (" + user.getGxsId() + ")");
 			}
 		}
 	}
@@ -131,7 +131,7 @@ public class ChatListView
 		if (chatRoomUser != null)
 		{
 			users.remove(chatRoomUser);
-			addMessageLine("<-- " + user.getNickname() + " (" + user.getGxsId() + ")");
+			addMessageLine("<-- ", user.getNickname() + " (" + user.getGxsId() + ")");
 		}
 	}
 
@@ -195,14 +195,14 @@ public class ChatListView
 		}
 	}
 
-	private void addMessageLine(String line, Image image)
+	private void addMessageLine(String action, String message, Image image)
 	{
-		var chatLine = new ChatLine(Instant.now(), line, image);
+		var chatLine = new ChatLine(Instant.now(), action, message, image);
 		addMessageLine(chatLine);
 	}
 
-	private void addMessageLine(String line)
+	private void addMessageLine(String action, String message)
 	{
-		addMessageLine(line, null);
+		addMessageLine(action, message, null);
 	}
 }

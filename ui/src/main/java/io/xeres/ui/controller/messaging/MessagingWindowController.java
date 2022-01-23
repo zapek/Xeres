@@ -101,7 +101,7 @@ public class MessagingWindowController implements WindowController
 			{
 				var message = new ChatMessage(send.getText());
 				messageClient.sendToLocation(locationId, message);
-				addMessageLine("<" + nickname + "> " + send.getText());
+				addMessageLine("<" + nickname + ">", send.getText());
 				send.clear();
 			}
 			else
@@ -153,15 +153,15 @@ public class MessagingWindowController implements WindowController
 			}
 			else
 			{
-				addMessageLine("<" + targetProfile.getName() + "> " + message.getContent());
+				addMessageLine("<" + targetProfile.getName() + ">", message.getContent());
 				notification.setText("");
 			}
 		}
 	}
 
-	private void addMessageLine(String line)
+	private void addMessageLine(String action, String message)
 	{
-		var chatLine = new ChatLine(Instant.now(), line, null);
+		var chatLine = new ChatLine(Instant.now(), action, message, null);
 		messages.add(chatLine);
 		receive.scrollTo(chatLine);
 	}

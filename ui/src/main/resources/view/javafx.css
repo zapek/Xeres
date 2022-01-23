@@ -21,21 +21,25 @@
     -fx-padding: 12px;
 }
 
+/*noinspection CssInvalidPseudoSelector*/
 .text-field:error {
     -fx-text-box-border: red;
     -fx-focus-color: red;
 }
 
+/*noinspection CssInvalidPseudoSelector*/
 .text-field:warning {
     -fx-text-box-border: #ff8b00;
     -fx-focus-color: #ff8b00;
 }
 
+/*noinspection CssInvalidPseudoSelector*/
 .text-area:error {
     -fx-background-color: red;
     -fx-text-fill: red;
 }
 
+/*noinspection CssInvalidPseudoSelector*/
 .text-area:warning {
     -fx-text-box-border: #ff8b00;
     -fx-focus-color: #ff8b00;
@@ -58,6 +62,13 @@
 .chat-list .list-cell .time {
     -fx-padding: 0px 0.25em 0px 0px;
     -fx-text-fill: grey;
+}
+
+.chat-list .list-cell .action {
+    -fx-padding: 0px 0.25em 0px 0px;
+    -fx-alignment: baseline-right;
+    -fx-min-width: 10em;
+    -fx-text-fill: -fx-dark-text-color;
 }
 
 .oldchatlist .list-cell {

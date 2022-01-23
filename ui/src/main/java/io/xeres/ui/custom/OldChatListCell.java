@@ -63,7 +63,7 @@ public class OldChatListCell extends ListCell<ChatLine>
 		}
 		else
 		{
-			label.setText(item.getText());
+			label.setText(item.getMessage());
 			imageView.setImage(item.getImage());
 			setGraphic(content);
 		}

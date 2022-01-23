@@ -26,13 +26,15 @@ import java.time.Instant;
 public class ChatLine
 {
 	private final Instant instant;
-	private final String text;
+	private final String action;
+	private final String message;
 	private final Image image;
 
-	public ChatLine(Instant instant, String text, Image image)
+	public ChatLine(Instant instant, String action, String message, Image image)
 	{
 		this.instant = instant;
-		this.text = text;
+		this.action = action;
+		this.message = message;
 		this.image = image;
 	}
 
@@ -41,9 +43,14 @@ public class ChatLine
 		return instant;
 	}
 
-	public String getText()
+	public String getAction()
 	{
-		return text;
+		return action;
+	}
+
+	public String getMessage()
+	{
+		return message;
 	}
 
 	public Image getImage()

@@ -22,7 +22,8 @@ package io.xeres.ui.custom;
 import io.xeres.ui.controller.chat.ChatLine;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 
-public class ChatListCell implements Cell<ChatLine, HBox>
+public class ChatListCell implements Cell<ChatLine, TextFlow>
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatListCell.class);
 
@@ -40,28 +41,33 @@ public class ChatListCell implements Cell<ChatLine, HBox>
 			.withLocale(Locale.ROOT)
 			.withZone(ZoneId.systemDefault());
 
-	private final HBox content;
+	private final TextFlow content;
 	private final Label time;
-	private final Label label;
+	private final Label action;
+	private final Text message;
 	private final ImageView imageView;
 
 	public ChatListCell(ChatLine line)
 	{
-		content = new HBox();
+		content = new TextFlow();
 		content.getStyleClass().add("list-cell");
+
 		time = new Label();
 		time.getStyleClass().add("time");
-		label = new Label();
-		label.setWrapText(true);
+
+		action = new Label();
+		action.getStyleClass().add("action");
+
+		message = new Text();
 		imageView = new ImageView();
 
 		updateItem(line);
 
-		content.getChildren().addAll(time, label, imageView);
+		content.getChildren().addAll(time, action, message, imageView);
 	}
 
 	@Override
-	public HBox getNode()
+	public TextFlow getNode()
 	{
 		return content;
 	}
@@ -76,7 +82,8 @@ public class ChatListCell implements Cell<ChatLine, HBox>
 	public void updateItem(ChatLine item)
 	{
 		time.setText(formatter.format(item.getInstant()));
-		label.setText(item.getText());
+		action.setText(item.getAction());
+		message.setText(item.getMessage());
 		imageView.setImage(item.getImage());
 	}
 }

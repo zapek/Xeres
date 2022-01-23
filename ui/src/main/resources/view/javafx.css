@@ -71,6 +71,14 @@
     -fx-text-fill: -fx-dark-text-color;
 }
 
+.chat-list .list-cell .hyperlink {
+    -fx-padding: 0px 0px 0px 0px;
+}
+
+.chat-list .list-cell .hyperlink:focused {
+    -fx-border-color: transparent;
+}
+
 .oldchatlist .list-cell {
     -fx-control-inner-background-alt: -fx-control-inner-background;
 }

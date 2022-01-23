@@ -23,10 +23,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.common.message.chat.RoomInfo;
 import io.xeres.ui.custom.ChatListCell;
-import io.xeres.ui.support.chat.ChatAction;
-import io.xeres.ui.support.chat.ChatContentImage;
-import io.xeres.ui.support.chat.ChatContentText;
-import io.xeres.ui.support.chat.ChatLine;
+import io.xeres.ui.support.chat.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -100,23 +97,27 @@ public class ChatListView
 
 	public void addMessage(String from, String message)
 	{
+		var chatAction = new ChatAction(SAY, from, null);
+
 		var img = Jsoup.parse(message).selectFirst("img");
-		Image image = null;
 
 		if (img != null)
 		{
 			var data = img.absUrl("src");
 			if (isNotEmpty(data))
 			{
-				image = new Image(data);
-				if (image.isError())
+				var image = new Image(data);
+				if (!image.isError())
 				{
-					image = null;
+					addMessageLine(chatAction, image);
 				}
 			}
 		}
 		else
 		{
+			var chatContents = ChatParser.parse(message);
+			var chatLine = new ChatLine(Instant.now(), chatAction, chatContents.toArray(ChatContent[]::new));
+			addMessageLine(chatLine);
 			// XXX: parse URLs and smileys... this is hard because I have to return text nodes between them
 			// XXX: warning! I think RS can show things that aren't URL *and* URLs as well (ie. past my certificate)
 //			if (message.contains("placeholder"))
@@ -125,16 +126,6 @@ public class ChatListView
 //				addMessageLine(chatLine);
 //				return;
 //			}
-		}
-
-		var chatAction = new ChatAction(SAY, from, null);
-		if (image != null)
-		{
-			addMessageLine(chatAction, image);
-		}
-		else
-		{
-			addMessageLine(chatAction, message);
 		}
 	}
 

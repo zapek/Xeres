@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.chat;
 
+import io.xeres.ui.JavaFxApplication;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 
@@ -31,11 +32,17 @@ public class ChatContentURI implements ChatContent
 	public ChatContentURI(URI uri)
 	{
 		node = new Hyperlink(uri.toString());
+		node.setOnAction(event -> JavaFxApplication.openUrl(node.getText()));
 	}
 
 	@Override
 	public Node getNode()
 	{
 		return node;
+	}
+
+	public String getUri()
+	{
+		return node.getText();
 	}
 }

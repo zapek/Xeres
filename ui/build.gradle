@@ -38,4 +38,5 @@ dependencies {
     implementation 'org.fxmisc.flowless:flowless:0.6.7'
     implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.jsoup:jsoup:$jsoupVersion"
+    implementation 'com.vdurmont:emoji-java:5.1.1'
 }

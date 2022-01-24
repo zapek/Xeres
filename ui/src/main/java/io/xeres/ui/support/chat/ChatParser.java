@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.chat;
 
+import com.vdurmont.emoji.EmojiParser;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,8 @@ public final class ChatParser
 
 	public static List<ChatContent> parse(String s)
 	{
+		s = EmojiParser.parseToUnicode(s);
+
 		List<ChatContent> chatContents = new ArrayList<>();
 		var matcher = URL_PATTERN.matcher(s);
 		var previousRange = new Range(0, 0);

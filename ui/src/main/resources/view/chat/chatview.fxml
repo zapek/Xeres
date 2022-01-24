@@ -47,7 +47,7 @@
                         <Insets bottom="4.0" left="8.0" top="4.0"/>
                     </VBox.margin>
                 </Label>
-                <TextField fx:id="send" promptText="Type a message"/>
+                <TextField fx:id="send" styleClass="chat-send" promptText="Type a message"/>
             </VBox>
         </VBox>
         <VBox fx:id="userListContent" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false">

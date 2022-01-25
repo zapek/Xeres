@@ -891,8 +891,8 @@ public class ChatRsService extends RsService
 
 	private String parseIncomingText(String text)
 	{
-		return Entities.unescape(
-				Jsoup.clean(text, Safelist.none()
+		return Entities.unescape( // &lt; -> <
+				Jsoup.clean(text, Safelist.none() // <span> -> nothing
 						.addAttributes("img", "src")
 						.addProtocols("img", "src", "data")
 						.preserveRelativeLinks(true))

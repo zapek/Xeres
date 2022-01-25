@@ -118,14 +118,6 @@ public class ChatListView
 			var chatContents = ChatParser.parse(message);
 			var chatLine = new ChatLine(Instant.now(), chatAction, chatContents.toArray(ChatContent[]::new));
 			addMessageLine(chatLine);
-			// XXX: parse URLs and smileys... this is hard because I have to return text nodes between them
-			// XXX: warning! I think RS can show things that aren't URL *and* URLs as well (ie. past my certificate)
-//			if (message.contains("placeholder"))
-//			{
-//				var chatLine = new ChatLine(Instant.now(), new ChatAction(SAY, from, null), new ChatContentText("the URL is: "), new ChatContentURI(URI.create("https://zapek.com")));
-//				addMessageLine(chatLine);
-//				return;
-//			}
 		}
 	}
 

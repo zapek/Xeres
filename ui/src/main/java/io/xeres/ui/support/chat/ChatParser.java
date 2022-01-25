@@ -20,6 +20,7 @@
 package io.xeres.ui.support.chat;
 
 import com.vdurmont.emoji.EmojiParser;
+import io.xeres.ui.support.util.SmileyUtils;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -38,7 +39,8 @@ public final class ChatParser
 
 	public static List<ChatContent> parse(String s)
 	{
-		s = EmojiParser.parseToUnicode(s);
+		s = SmileyUtils.smileysToUnicode(s); // ;-)
+		s = EmojiParser.parseToUnicode(s); // :wink:
 
 		List<ChatContent> chatContents = new ArrayList<>();
 		var matcher = URL_PATTERN.matcher(s);

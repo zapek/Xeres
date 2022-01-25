@@ -400,7 +400,7 @@ public class ChatRsService extends RsService
 			log.warn("Received message from peer {} failed time validation, dropping", peerConnection);
 		}
 
-		if (!validateChatRoomBounce(peerConnection, item))
+		if (!validateAndBounceItem(peerConnection, item))
 		{
 			return;
 		}
@@ -421,7 +421,7 @@ public class ChatRsService extends RsService
 			log.warn("Received message from peer {} failed time validation, dropping", peerConnection);
 		}
 
-		if (!validateChatRoomBounce(peerConnection, item))
+		if (!validateAndBounceItem(peerConnection, item))
 		{
 			return;
 		}
@@ -454,7 +454,7 @@ public class ChatRsService extends RsService
 		}
 	}
 
-	private boolean validateChatRoomBounce(PeerConnection peerConnection, ChatRoomBounce item)
+	private boolean validateAndBounceItem(PeerConnection peerConnection, ChatRoomBounce item)
 	{
 		if (!chatRooms.containsKey(item.getRoomId()))
 		{
@@ -635,7 +635,7 @@ public class ChatRsService extends RsService
 		chatRoom.getParticipatingPeers().forEach(peer -> {
 			if (!Objects.equals(peer, peerConnection))
 			{
-				writeItem(peer, bounce);
+				writeItem(peer, bounce); // XXX: that cannot work! bounce will be freed multiple times
 			}
 		});
 

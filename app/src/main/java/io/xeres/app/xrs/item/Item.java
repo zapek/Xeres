@@ -100,8 +100,11 @@ public class Item
 
 	public void dispose()
 	{
-		assert buf.refCnt() == 1;
-		ReferenceCountUtil.release(buf);
+		if (buf != null)
+		{
+			assert buf.refCnt() == 1 : "buffer refCount is " + buf.refCnt();
+			ReferenceCountUtil.release(buf);
+		}
 	}
 
 	protected void setItemSize(int size)

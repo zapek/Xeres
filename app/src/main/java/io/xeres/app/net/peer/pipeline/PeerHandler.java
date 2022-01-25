@@ -125,7 +125,7 @@ public class PeerHandler extends ChannelDuplexHandler
 
 			if (item != null)
 			{
-				item.dispose(); // Dispose the item since it was unserialized
+				item.dispose(); // Dispose the item
 			}
 		}
 	}

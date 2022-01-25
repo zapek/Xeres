@@ -29,7 +29,7 @@ import java.util.Set;
 import static io.xeres.app.xrs.serialization.Serializer.*;
 import static io.xeres.app.xrs.serialization.TlvType.STR_NAME;
 
-public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
+public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable, Cloneable
 {
 	private byte eventType;
 	private String status;
@@ -95,5 +95,11 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 				", sendTime=" + sendTime +
 				", super=" + super.toString() +
 				'}';
+	}
+
+	@Override
+	public ChatRoomEventItem clone()
+	{
+		return (ChatRoomEventItem) super.clone();
 	}
 }

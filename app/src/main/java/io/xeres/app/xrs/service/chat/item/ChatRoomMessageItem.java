@@ -34,7 +34,7 @@ import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 import static io.xeres.app.xrs.service.chat.ChatFlags.LOBBY;
 import static io.xeres.app.xrs.service.chat.ChatFlags.PRIVATE;
 
-public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializable
+public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializable, Cloneable
 {
 	private Set<ChatFlags> flags;
 	private int sendTime;
@@ -98,5 +98,13 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 		parentMessageId = deserializeLong(buf);
 
 		readBounceableObject(buf);
+	}
+
+	@Override
+	public ChatRoomMessageItem clone()
+	{
+		ChatRoomMessageItem clone = (ChatRoomMessageItem) super.clone();
+		clone.flags = EnumSet.copyOf(flags);
+		return clone;
 	}
 }

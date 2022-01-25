@@ -635,7 +635,7 @@ public class ChatRsService extends RsService
 		chatRoom.getParticipatingPeers().forEach(peer -> {
 			if (!Objects.equals(peer, peerConnection))
 			{
-				writeItem(peer, bounce); // XXX: that cannot work! bounce will be freed multiple times
+				writeItem(peer, bounce.clone()); // Netty frees sent items so we need to clone
 			}
 		});
 

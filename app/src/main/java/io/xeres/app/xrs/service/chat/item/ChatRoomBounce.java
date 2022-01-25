@@ -32,7 +32,7 @@ import java.util.Set;
 import static io.xeres.app.xrs.serialization.TlvType.SIGNATURE;
 import static io.xeres.app.xrs.serialization.TlvType.STR_NAME;
 
-public abstract class ChatRoomBounce extends Item
+public abstract class ChatRoomBounce extends Item implements Cloneable
 {
 	private long roomId;
 	private long messageId;
@@ -122,5 +122,20 @@ public abstract class ChatRoomBounce extends Item
 				", senderNickname='" + senderNickname + '\'' +
 				", signature=[something]" +
 				'}';
+	}
+
+	@Override
+	public ChatRoomBounce clone()
+	{
+		try
+		{
+			ChatRoomBounce clone = (ChatRoomBounce) super.clone();
+			clone.buf = null; // the cloning is done to write multiple buffers, we don't need to copy it
+			return clone;
+		}
+		catch (CloneNotSupportedException e)
+		{
+			throw new AssertionError();
+		}
 	}
 }

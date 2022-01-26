@@ -155,8 +155,15 @@ public class PeerHandler extends ChannelDuplexHandler
 	@Override
 	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
 	{
-		if (evt instanceof SslHandshakeCompletionEvent)
+		if (evt instanceof SslHandshakeCompletionEvent sslHandshakeCompletionEvent)
 		{
+			if (!sslHandshakeCompletionEvent.isSuccess())
+			{
+				log.error("SSL handshake failed: {}", sslHandshakeCompletionEvent.cause().getMessage());
+				ctx.close();
+				return;
+			}
+
 			try (var session = new DatabaseSession(databaseSessionManager))
 			{
 				Location location;

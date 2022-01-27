@@ -84,13 +84,7 @@ public class GxsIdManager
 	// XXX: not sure the synchronization will work... maybe needs synchronized...
 	public GxsIdGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)
 	{
-		var gxsIdentity = identityService.getGxsIdentity(gxsId);
-		if (gxsIdentity.isPresent())
-		{
-			return gxsIdentity.get();
-		}
-		else
-		{
+		return identityService.getGxsIdentity(gxsId).orElseGet(() -> {
 			var gxsIds = pendingGxsIds.get(peerConnection.getLocation().getId());
 			if (gxsIds != null)
 			{
@@ -106,7 +100,7 @@ public class GxsIdManager
 			var set = pendingGxsIds.getOrDefault(peerConnection.getLocation().getId(), ConcurrentHashMap.newKeySet());
 			set.add(gxsId);
 			return null;
-		}
+		});
 	}
 
 	void requestGxsIds()

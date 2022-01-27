@@ -43,6 +43,7 @@ import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem;
 import io.xeres.app.xrs.service.gxsid.GxsIdRsService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
@@ -229,16 +230,15 @@ public class DiscoveryRsService extends RsService
 	private void handleContact(PeerConnection peerConnection, DiscoveryContactItem discoveryContactItem)
 	{
 		var peerLocation = peerConnection.getLocation();
-		Optional<Location> contactLocation = locationService.findLocationById(discoveryContactItem.getLocationId());
+		Optional<Location> existingContactLocation = locationService.findLocationById(discoveryContactItem.getLocationId());
 
-		if (contactLocation.isPresent())
-		{
-			if (contactLocation.get().equals(peerLocation))
+		existingContactLocation.ifPresentOrElse(contactLocation -> {
+			if (contactLocation.equals(peerLocation))
 			{
 				// Contact information of the peer
-				updateConnectedContact(peerConnection, discoveryContactItem, peerLocation, contactLocation.get());
+				updateConnectedContact(peerConnection, discoveryContactItem, peerLocation, contactLocation);
 			}
-			else if (contactLocation.get().equals(locationService.findOwnLocation().orElseThrow()))
+			else if (contactLocation.equals(locationService.findOwnLocation().orElseThrow()))
 			{
 				// Contact information about ourselves (this can be used to help us find our external IP address
 				updateOwnContactLocation(discoveryContactItem);
@@ -246,14 +246,9 @@ public class DiscoveryRsService extends RsService
 			else
 			{
 				// Contact information about our friends
-				updateCommonContactLocation(peerConnection, discoveryContactItem, contactLocation.get());
+				updateCommonContactLocation(peerConnection, discoveryContactItem, contactLocation);
 			}
-		}
-		else
-		{
-			// New locations
-			addNewContactLocation(discoveryContactItem);
-		}
+		}, () -> addNewContactLocation(discoveryContactItem));
 	}
 
 	private void updateConnectedContact(PeerConnection peerConnection, DiscoveryContactItem discoveryContactItem, Location peerLocation, Location contactLocation)
@@ -303,29 +298,26 @@ public class DiscoveryRsService extends RsService
 	{
 		log.debug("New location");
 
-		Optional<Profile> profile = profileService.findProfileByPgpIdentifier(discoveryContactItem.getPgpIdentifier());
-		if (profile.isPresent())
-		{
-			if (profile.get().isAccepted())
-			{
-				// New location of a friend
-				var newLocation = Location.createLocation(discoveryContactItem.getLocationName(), profile.get(), discoveryContactItem.getLocationId());
-				newLocation = updateLocation(newLocation, discoveryContactItem);
-				log.debug("New location of a friend, added: {}", newLocation);
-			}
-			else
-			{
-				// Friend of friend, but shouldn't happen because RS only sends common contacts.
-				log.debug("New location for profile {} that we have but is not a friend, ignoring...", profile.get());
-			}
-		}
-		else
-		{
-			// Friend of friend, but shouldn't happen because RS only sends common contacts.
-			// We don't have any use for those. RS uses them as potential proxies/relays for the DHT, but I have
-			// yet to see this in the wild because it shouldn't happen.
-			log.debug("New location for friend of friend {}, ignoring...", log.isDebugEnabled() ? Id.toString(discoveryContactItem.getPgpIdentifier()) : "");
-		}
+		profileService.findProfileByPgpIdentifier(discoveryContactItem.getPgpIdentifier())
+				.ifPresentOrElse(profile -> {
+					if (profile.isAccepted())
+					{
+						// New location of a friend
+						var newLocation = Location.createLocation(discoveryContactItem.getLocationName(), profile, discoveryContactItem.getLocationId());
+						newLocation = updateLocation(newLocation, discoveryContactItem);
+						log.debug("New location of a friend, added: {}", newLocation);
+					}
+					else
+					{
+						// Friend of friend, but shouldn't happen because RS only sends common contacts.
+						log.debug("New location for profile {} that we have but is not a friend, ignoring...", profile);
+					}
+				}, () -> {
+					// Friend of friend, but shouldn't happen because RS only sends common contacts.
+					// We don't have any use for those. RS uses them as potential proxies/relays for the DHT, but I have
+					// yet to see this in the wild because it shouldn't happen.
+					log.debug("New location for friend of friend {}, ignoring...", log.isDebugEnabled() ? Id.toString(discoveryContactItem.getPgpIdentifier()) : "");
+				});
 	}
 
 	private Location updateLocation(Location location, DiscoveryContactItem discoveryContactItem)
@@ -420,43 +412,48 @@ public class DiscoveryRsService extends RsService
 			}
 
 			var profileFingerprint = new ProfileFingerprint(pgpPublicKey.getFingerprint());
-			Optional<Profile> profile = profileService.findProfileByPgpFingerprint(profileFingerprint);
-			if (profile.isPresent())
-			{
-				if (profile.get().isPartial())
-				{
-					// The PGP key is about a partial profile, thoroughly check if the peer is the partial profile itself
-					if (discoveryPgpKeyItem.getPgpIdentifier() == peerConnection.getLocation().getProfile().getPgpIdentifier() // Incoming key PGP id is the one of the remote peer
-							&& profile.get().getPgpIdentifier() == peerConnection.getLocation().getProfile().getPgpIdentifier() // ShortInvite PGP ID matches remote peer
-							&& profileFingerprint.equals(peerConnection.getLocation().getProfile().getProfileFingerprint())) // Incoming key fingerprint matches remote peer
-					{
-						// We can save its PGP key and promote it to full profile.
-						profile.get().setPgpPublicKeyData(discoveryPgpKeyItem.getKeyData());
-						profileService.createOrUpdateProfile(profile.get());
+			profileService.findProfileByPgpFingerprint(profileFingerprint)
+					.ifPresentOrElse(profile -> {
+						if (profile.isPartial())
+						{
+							// The PGP key is about a partial profile, thoroughly check if the peer is the partial profile itself
+							if (discoveryPgpKeyItem.getPgpIdentifier() == peerConnection.getLocation().getProfile().getPgpIdentifier() // Incoming key PGP id is the one of the remote peer
+									&& profile.getPgpIdentifier() == peerConnection.getLocation().getProfile().getPgpIdentifier() // ShortInvite PGP ID matches remote peer
+									&& profileFingerprint.equals(peerConnection.getLocation().getProfile().getProfileFingerprint())) // Incoming key fingerprint matches remote peer
+							{
+								// We can save its PGP key and promote it to full profile.
+								profile.setPgpPublicKeyData(discoveryPgpKeyItem.getKeyData());
+								profileService.createOrUpdateProfile(profile);
 
-						sendOwnContacts(peerConnection);
-					}
-				}
-				else
-				{
-					// XXX: check the key and complain if it doesn't match
-				}
-			}
-			else
-			{
-				// Create a new profile and save the key
-				log.debug("Creating new profile for id {}", log.isDebugEnabled() ? Id.toString(discoveryPgpKeyItem.getPgpIdentifier()) : "");
-				var newProfile = Profile.createProfile(pgpPublicKey.getUserIDs().next(), pgpPublicKey.getKeyID(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
-				profileService.createOrUpdateProfile(newProfile);
-			}
+								sendOwnContacts(peerConnection);
+							}
+						}
+						else
+						{
+							// XXX: check the key and complain if it doesn't match
+						}
+					}, () -> {
+						// Create a new profile and save the key
+						log.debug("Creating new profile for id {}", log.isDebugEnabled() ? Id.toString(discoveryPgpKeyItem.getPgpIdentifier()) : "");
+						var newProfile = createNewProfile(pgpPublicKey);
+						profileService.createOrUpdateProfile(newProfile);
+					});
 		}
 		catch (InvalidKeyException e)
 		{
 			log.warn("Invalid PGP public key for profile id {}", Id.toString(discoveryPgpKeyItem.getPgpIdentifier()));
 		}
+	}
+
+	private static Profile createNewProfile(PGPPublicKey pgpPublicKey)
+	{
+		try
+		{
+			return Profile.createProfile(pgpPublicKey.getUserIDs().next(), pgpPublicKey.getKeyID(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
+		}
 		catch (IOException e)
 		{
-			log.error("Error while reading PGP public key: {}", e.getMessage());
+			throw new IllegalArgumentException("Error while reading PGP public key for PGP id {}" + pgpPublicKey.getUserIDs().next() + ": {}" + e.getMessage());
 		}
 	}
 

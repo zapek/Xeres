@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.security.Security;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -149,22 +150,13 @@ public class ProfileService
 	}
 
 	@Transactional
-	public Optional<Profile> createOrUpdateProfile(Profile profile)
+	public Optional<Profile> createOrUpdateProfile(final Profile profile)
 	{
-		Optional<Profile> savedProfile = findProfileByPgpFingerprint(profile.getProfileFingerprint());
-		if (savedProfile.isPresent())
-		{
-			profile = savedProfile.get().updateWith(profile);
-		}
+		Objects.requireNonNull(profile);
 
-		try
-		{
-			return Optional.of(profileRepository.save(profile));
-		}
-		catch (IllegalArgumentException e)
-		{
-			return Optional.empty();
-		}
+		return Optional.of(profileRepository.save(findProfileByPgpFingerprint(profile.getProfileFingerprint())
+				.map(foundProfile -> foundProfile.updateWith(profile))
+				.orElse(profile)));
 	}
 
 	public Profile getProfileFromRSId(RSId rsId)

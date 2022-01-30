@@ -90,12 +90,12 @@ public class ChatListView
 		return view;
 	}
 
-	public void addMessage(String message)
+	public void addOwnMessage(String message)
 	{
-		addMessage(nickname, message); // XXX: this will decode images twice but well...
+		addUserMessage(nickname, message); // XXX: this will decode images twice but well...
 	}
 
-	public void addMessage(String from, String message)
+	public void addUserMessage(String from, String message)
 	{
 		var chatAction = new ChatAction(SAY, from, null);
 

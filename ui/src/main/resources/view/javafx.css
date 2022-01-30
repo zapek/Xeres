@@ -67,8 +67,6 @@
 
 .chat-list .list-cell .action {
     -fx-padding: 0px 0.25em 0px 0px;
-    -fx-alignment: baseline-right;
-    -fx-min-width: 10em;
     -fx-text-fill: -fx-dark-text-color;
 }
 

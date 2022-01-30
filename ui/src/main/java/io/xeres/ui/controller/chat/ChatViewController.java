@@ -394,7 +394,7 @@ public class ChatViewController implements Controller
 		}
 		else
 		{
-			performOnChatListView(chatRoomMessage.getRoomId(), chatListView -> chatListView.addMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getContent()));
+			performOnChatListView(chatRoomMessage.getRoomId(), chatListView -> chatListView.addUserMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getContent()));
 		}
 	}
 
@@ -512,7 +512,7 @@ public class ChatViewController implements Controller
 	{
 		var chatMessage = new ChatMessage(message);
 		messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
-		selectedChatListView.addMessage(message);
+		selectedChatListView.addOwnMessage(message);
 		send.clear();
 	}
 

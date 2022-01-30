@@ -372,6 +372,8 @@ public class ChatViewController implements Controller
 			selectedChatListView = chatListView;
 			switchChatContent(chatListView.getChatView(), chatListView.getUserListView());
 			sendGroup.setVisible(true);
+			send.requestFocus();
+			selectedChatListView.jumpToBottom(true);
 		}
 		else
 		{

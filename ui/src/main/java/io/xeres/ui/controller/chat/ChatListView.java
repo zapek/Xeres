@@ -200,11 +200,7 @@ public class ChatListView
 	private void addMessageLine(ChatLine line)
 	{
 		messages.add(line);
-		var lastIndex = messages.size() - 1;
-		if (chatView.getContent().getLastVisibleIndex() == lastIndex - 1) // XXX: why -1?!
-		{
-			chatView.getContent().showAsFirst(lastIndex);
-		}
+		jumpToBottom(false);
 	}
 
 	private void addMessageLine(ChatAction action, Image image)
@@ -223,5 +219,14 @@ public class ChatListView
 	{
 		var chatLine = new ChatLine(Instant.now(), action, new ChatContentText(message));
 		addMessageLine(chatLine);
+	}
+
+	public void jumpToBottom(boolean force)
+	{
+		var lastIndex = messages.size() - 1;
+		if (force || chatView.getContent().getLastVisibleIndex() == lastIndex - 1) // XXX: why -1?!
+		{
+			chatView.getContent().showAsFirst(lastIndex);
+		}
 	}
 }

@@ -19,7 +19,7 @@
 
 package io.xeres.app.service;
 
-import io.xeres.app.database.model.chatroom.ChatRoom;
+import io.xeres.app.database.model.chat.ChatRoom;
 import io.xeres.app.database.model.identity.Identity;
 import io.xeres.app.database.repository.ChatRoomRepository;
 import org.springframework.stereotype.Service;
@@ -75,7 +75,7 @@ public class ChatRoomService
 
 	public List<ChatRoom> getAllChatRoomsPendingToSubscribe()
 	{
-		return chatRoomRepository.findAllBySubscribedTrueAndJoinedFalse();
+		return chatRoomRepository.findAllBySubscribedTrueAndJoinedFalse(); // Remember joined is set to false on startup
 	}
 
 	@Transactional

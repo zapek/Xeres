@@ -19,8 +19,11 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.dto.chat.ChatRoomListsDTO;
+import io.xeres.common.message.chat.ChatRoomLists;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.model.chat.ChatMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -78,5 +81,14 @@ public class ChatClient
 						.build(id))
 				.retrieve()
 				.bodyToMono(Void.class);
+	}
+
+	public Mono<ChatRoomLists> getChatRooms()
+	{
+		return webClient.get()
+				.uri("/rooms")
+				.retrieve()
+				.bodyToMono(ChatRoomListsDTO.class)
+				.map(ChatMapper::fromDTO);
 	}
 }

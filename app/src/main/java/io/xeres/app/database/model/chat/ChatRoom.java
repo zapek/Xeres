@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.chatroom;
+package io.xeres.app.database.model.chat;
 
 import io.xeres.app.database.model.identity.Identity;
 import io.xeres.app.xrs.service.chat.RoomFlags;

@@ -21,7 +21,7 @@ package io.xeres.ui.client.message;
 
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
-import io.xeres.common.message.chat.ChatRoomListMessage;
+import io.xeres.common.message.chat.ChatRoomLists;
 import io.xeres.common.message.chat.ChatRoomMessage;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.controller.chat.ChatViewController;
@@ -62,7 +62,7 @@ public class ChatFrameHandler implements StompFrameHandler
 				{
 					case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
 					case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> ChatRoomMessage.class;
-					case CHAT_ROOM_LIST -> ChatRoomListMessage.class;
+					case CHAT_ROOM_LIST -> ChatRoomLists.class;
 					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
 					default -> throw new IllegalArgumentException("Missing class for message type " + messageType);
 				};
@@ -79,7 +79,7 @@ public class ChatFrameHandler implements StompFrameHandler
 						case CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
 						case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
 						case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));
-						case CHAT_ROOM_LIST -> chatViewController.addRooms(((ChatRoomListMessage) payload).getRooms());
+						case CHAT_ROOM_LIST -> chatViewController.addRooms((ChatRoomLists) payload);
 						case CHAT_ROOM_USER_JOIN -> chatViewController.userJoined(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_LEAVE -> chatViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);

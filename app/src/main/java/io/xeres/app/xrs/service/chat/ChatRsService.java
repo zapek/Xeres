@@ -194,6 +194,11 @@ public class ChatRsService extends RsService
 				HOUSEKEEPING_DELAY.toSeconds(),
 				TimeUnit.SECONDS
 		);
+
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			subscribeToAllSavedRooms();
+		}
 	}
 
 	@Override
@@ -217,13 +222,6 @@ public class ChatRsService extends RsService
 				CHATROOM_NEARBY_REFRESH.toSeconds(),
 				TimeUnit.SECONDS
 		);
-
-		// XXX: we should do that when the network/UI is ready, not upon the first connection. this is a workaround for now (also Priority.LOW makes it happen pretty late...)
-		// XXX: it also gives problems with join events
-//		try (var ignored = new DatabaseSession(databaseSessionManager))
-//		{
-//			subscribeToAllSavedRooms();
-//		}
 	}
 
 	private void manageChatRooms()
@@ -290,7 +288,6 @@ public class ChatRsService extends RsService
 	private void subscribeToAllSavedRooms()
 	{
 		log.debug("doing the subscribe thing");
-		var roomListMessage = new ChatRoomListMessage();
 
 		chatRoomService.getAllChatRoomsPendingToSubscribe().forEach(savedRoom -> {
 			var chatRoom = new ChatRoom(
@@ -300,15 +297,28 @@ public class ChatRsService extends RsService
 					savedRoom.getFlags().contains(RoomFlags.PUBLIC) ? RoomType.PUBLIC : RoomType.PRIVATE,
 					1,
 					savedRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
-			); // XXX: add copy constructor?
+			);
 			log.debug("adding room {}", chatRoom);
-			roomListMessage.add(chatRoom.getAsRoomInfo());
 			availableChatRooms.put(chatRoom.getId(), chatRoom);
 		});
 
-		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LIST, roomListMessage);
-
 		availableChatRooms.forEach((chatRoomId, chatRoom) -> joinChatRoom(chatRoomId));
+		refreshChatRoomsInClients();
+	}
+
+	private ChatRoomLists buildChatRoomLists()
+	{
+		var chatRoomLists = new ChatRoomLists();
+
+		chatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addSubscribed(chatRoom.getAsRoomInfo()));
+		availableChatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addAvailable(chatRoom.getAsRoomInfo()));
+
+		return chatRoomLists;
+	}
+
+	public ChatRoomLists getChatRoomLists()
+	{
+		return buildChatRoomLists();
 	}
 
 	@Override
@@ -359,7 +369,6 @@ public class ChatRsService extends RsService
 		{
 			log.warn("Location {} is sending a chat room list of {} items, which is bigger than the allowed {}", peerConnection, item.getChatRooms().size(), CHATROOM_LIST_MAX);
 		}
-		var roomListMessage = new ChatRoomListMessage();
 		item.getChatRooms().stream()
 				.limit(CHATROOM_LIST_MAX)
 				.forEach(visibleRoom -> {
@@ -372,13 +381,16 @@ public class ChatRsService extends RsService
 							visibleRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
 					);
 					chatRoom.addParticipatingPeer(peerConnection);
-					roomListMessage.add(chatRoom.getAsRoomInfo());
 					availableChatRooms.put(chatRoom.getId(), chatRoom);
 				});
 
-		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LIST, roomListMessage);
-
 		chatRoomService.getAllChatRoomsPendingToSubscribe().forEach(chatRoom -> joinChatRoom(chatRoom.getRoomId()));
+		refreshChatRoomsInClients();
+	}
+
+	private void refreshChatRoomsInClients()
+	{
+		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LIST, buildChatRoomLists());
 	}
 
 	private void handleChatRoomListRequestItem(PeerConnection peerConnection)
@@ -845,6 +857,7 @@ public class ChatRsService extends RsService
 
 		joinChatRoom(newChatRoom.getId());
 
+		refreshChatRoomsInClients();
 		// XXX: we could invite friends in there... supply a list of friends as parameter
 
 		return newChatRoom.getId();

@@ -22,6 +22,7 @@ package io.xeres.app.application;
 import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
 import io.xeres.app.application.events.LocationReadyEvent;
+import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -153,17 +154,17 @@ public class Startup implements ApplicationRunner
 	}
 
 	/**
-	 * Called when the network is ready (aka we have a location).
+	 * Called when the application setup is ready (aka we have a location).
 	 *
 	 * @param event the LocationReadyEvent
 	 */
 	@EventListener
 	public void onApplicationEvent(LocationReadyEvent event)
 	{
-		try (var session = new DatabaseSession(databaseSessionManager))
+		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			locationService.markAllConnectionsAsDisconnected();
-			chatRoomService.markAllChatRoomsAsLeft();
+			chatRoomService.markAllChatRoomsAsLeft(); // XXX: move that in chatRsService!
 
 			log.info("Starting network services...");
 			var ownAddress = PeerAddress.from(event.localIpAddress(), event.localPort());
@@ -181,6 +182,9 @@ public class Startup implements ApplicationRunner
 					dhtService.start(event.localPort());
 				}
 				peerService.start(event.localPort());
+
+				// Send the event asynchronously so that our transaction can complete first
+				CompletableFuture.runAsync(() -> publisher.publishEvent(new NetworkReadyEvent()));
 			}
 			else
 			{

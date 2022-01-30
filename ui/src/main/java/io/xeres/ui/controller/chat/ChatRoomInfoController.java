@@ -20,7 +20,7 @@
 package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.Id;
-import io.xeres.common.message.chat.RoomInfo;
+import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.ui.controller.Controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -51,16 +51,16 @@ public class ChatRoomInfoController implements Controller
 		// Nothing to do
 	}
 
-	public void setRoomInfo(RoomInfo roomInfo)
+	public void setRoomInfo(ChatRoomInfo chatRoomInfo)
 	{
-		this.roomName.setText(roomInfo.getName());
+		this.roomName.setText(chatRoomInfo.getName());
 
-		this.roomId.setText(roomInfo.getId() != 0L ? Id.toString(roomInfo.getId()) : "");
+		this.roomId.setText(chatRoomInfo.getId() != 0L ? Id.toString(chatRoomInfo.getId()) : "");
 
-		this.roomTopic.setText(roomInfo.getTopic() != null ? roomInfo.getTopic() : "");
+		this.roomTopic.setText(chatRoomInfo.getTopic() != null ? chatRoomInfo.getTopic() : "");
 
-		this.roomType.setText(roomInfo.getRoomType() != null ? roomInfo.getRoomType().toString() : "");
-		this.roomSecurity.setText(roomInfo.isSigned() ? "Signed IDs" : "All IDs");
-		this.roomCount.setText(String.valueOf(roomInfo.getCount()));
+		this.roomType.setText(chatRoomInfo.getRoomType() != null ? chatRoomInfo.getRoomType().toString() : "");
+		this.roomSecurity.setText(chatRoomInfo.isSigned() ? "Signed IDs" : "All IDs");
+		this.roomCount.setText(String.valueOf(chatRoomInfo.getCount()));
 	}
 }

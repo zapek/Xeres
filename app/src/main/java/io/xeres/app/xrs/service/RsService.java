@@ -20,13 +20,14 @@
 package io.xeres.app.xrs.service;
 
 import io.netty.channel.ChannelFuture;
+import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -77,8 +78,10 @@ public abstract class RsService implements Comparable<RsService>
 	}
 
 	/**
-	 * Sent once upon startup when the service is enabled. Good place to initialize
+	 * Sent once upon startup when the service is enabled and the network is ready. Good place to initialize
 	 * executors, etc...
+	 * <p>
+	 * Keep in mind that your service can receive some packets before initialize() is called.
 	 */
 	public void initialize()
 	{
@@ -108,8 +111,8 @@ public abstract class RsService implements Comparable<RsService>
 		throw new IllegalStateException("Implement initialize() method if you override getInitPriority() to be anything else than OFF");
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(NetworkReadyEvent event) // XXX: it has to be public but I don't like it :-/
 	{
 		if (Boolean.TRUE.equals(environment.getProperty(getPropertyName(), Boolean.class, false)))
 		{

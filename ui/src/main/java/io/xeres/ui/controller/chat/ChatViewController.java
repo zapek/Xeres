@@ -122,7 +122,7 @@ public class ChatViewController implements Controller
 
 	private String nickname;
 
-	private RoomInfo selectedRoom;
+	private ChatRoomInfo selectedRoom;
 	private ChatListView selectedChatListView;
 	private Node roomInfoView;
 	private ChatRoomInfoController chatRoomInfoController;
@@ -210,12 +210,14 @@ public class ChatViewController implements Controller
 				ae -> typingNotification.setText("")));
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+
+		refreshRooms();
 	}
 
-	private void joinChatRoom(RoomInfo roomInfo)
+	private void joinChatRoom(ChatRoomInfo chatRoomInfo)
 	{
 		boolean found = subscribedRooms.getChildren().stream()
-				.anyMatch(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(roomInfo));
+				.anyMatch(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(chatRoomInfo));
 
 		if (!found)
 		{
@@ -224,25 +226,36 @@ public class ChatViewController implements Controller
 		}
 	}
 
-	public void addRooms(List<RoomInfo> newRooms)
+	private void refreshRooms()
+	{
+		chatClient.getChatRooms()
+				.doOnSuccess(this::addRooms)
+				.subscribe();
+	}
+
+	public void addRooms(ChatRoomLists chatRoomLists)
 	{
 		ObservableList<TreeItem<RoomHolder>> subscribedTree = subscribedRooms.getChildren();
 		ObservableList<TreeItem<RoomHolder>> publicTree = publicRooms.getChildren();
 		ObservableList<TreeItem<RoomHolder>> privateTree = privateRooms.getChildren();
 
+		chatRoomLists.getSubscribed().stream()
+				.sorted(Comparator.comparing(ChatRoomInfo::getName))
+				.forEach(roomInfo -> addOrUpdate(subscribedTree, roomInfo));
+
 		// Make sure we don't add rooms that we're already subscribed to
-		List<RoomInfo> unsubscribedRooms = newRooms.stream()
+		List<ChatRoomInfo> unsubscribedRooms = chatRoomLists.getAvailable().stream()
 				.filter(roomInfo -> !isInside(subscribedTree, roomInfo))
 				.toList();
 
 		unsubscribedRooms.stream()
 				.filter(roomInfo -> roomInfo.getRoomType() == RoomType.PUBLIC)
-				.sorted(Comparator.comparing(RoomInfo::getName))
+				.sorted(Comparator.comparing(ChatRoomInfo::getName))
 				.forEach(roomInfo -> addOrUpdate(publicTree, roomInfo));
 
 		unsubscribedRooms.stream()
 				.filter(roomInfo -> roomInfo.getRoomType() == RoomType.PRIVATE)
-				.sorted(Comparator.comparing(RoomInfo::getName))
+				.sorted(Comparator.comparing(ChatRoomInfo::getName))
 				.forEach(roomInfo -> addOrUpdate(privateTree, roomInfo));
 	}
 
@@ -327,29 +340,29 @@ public class ChatViewController implements Controller
 
 	// XXX: also we should merge/refresh... (ie. new rooms added, older rooms removed, etc...). merging properly is very difficult it seems
 	// right now I use a simple implementation. It also has a drawback that it doesn't sort new entries and doesn't update the counter
-	private void addOrUpdate(ObservableList<TreeItem<RoomHolder>> tree, RoomInfo roomInfo)
+	private void addOrUpdate(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
 	{
 		if (tree.stream()
 				.map(TreeItem::getValue)
-				.noneMatch(existingRoom -> existingRoom.getRoomInfo().equals(roomInfo)))
+				.noneMatch(existingRoom -> existingRoom.getRoomInfo().equals(chatRoomInfo)))
 		{
-			tree.add(new TreeItem<>(new RoomHolder(roomInfo)));
+			tree.add(new TreeItem<>(new RoomHolder(chatRoomInfo)));
 		}
 	}
 
-	private boolean isInside(ObservableList<TreeItem<RoomHolder>> tree, RoomInfo roomInfo)
+	private boolean isInside(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
 	{
 		return tree.stream()
 				.map(TreeItem::getValue)
-				.anyMatch(roomHolder -> roomHolder.getRoomInfo().equals(roomInfo));
+				.anyMatch(roomHolder -> roomHolder.getRoomInfo().equals(chatRoomInfo));
 	}
 
-	private void changeSelectedRoom(RoomInfo roomInfo)
+	private void changeSelectedRoom(ChatRoomInfo chatRoomInfo)
 	{
-		selectedRoom = roomInfo;
+		selectedRoom = chatRoomInfo;
 
 		Optional<TreeItem<RoomHolder>> roomTreeItem = subscribedRooms.getChildren().stream()
-				.filter(roomInfoTreeItem -> roomInfoTreeItem.getValue().getRoomInfo().equals(roomInfo))
+				.filter(roomInfoTreeItem -> roomInfoTreeItem.getValue().getRoomInfo().equals(chatRoomInfo))
 				.findFirst();
 
 		if (roomTreeItem.isPresent())
@@ -362,7 +375,7 @@ public class ChatViewController implements Controller
 		}
 		else
 		{
-			chatRoomInfoController.setRoomInfo(roomInfo);
+			chatRoomInfoController.setRoomInfo(chatRoomInfo);
 			switchChatContent(roomInfoView, null);
 			sendGroup.setVisible(false);
 			selectedChatListView = null;

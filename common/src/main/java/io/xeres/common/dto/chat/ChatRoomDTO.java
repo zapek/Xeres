@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.message.chat;
+package io.xeres.common.dto.chat;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.xeres.common.message.chat.RoomType;
 
-public class ChatRoomListMessage
+public record ChatRoomDTO(
+		long id,
+		String name,
+		RoomType roomType,
+		String topic,
+		int count,
+		boolean isSigned
+)
 {
-	private final List<RoomInfo> rooms = new ArrayList<>();
-
-	public void add(RoomInfo roomInfo)
-	{
-		rooms.add(roomInfo);
-	}
-
-	public List<RoomInfo> getRooms()
-	{
-		return rooms;
-	}
 }

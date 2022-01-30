@@ -21,7 +21,7 @@ package io.xeres.common.message.chat;
 
 import java.util.Objects;
 
-public class RoomInfo
+public class ChatRoomInfo
 {
 	private long id;
 	private String name;
@@ -30,17 +30,17 @@ public class RoomInfo
 	private int count;
 	private boolean isSigned;
 
-	public RoomInfo()
+	public ChatRoomInfo()
 	{
 
 	}
 
-	public RoomInfo(String name)
+	public ChatRoomInfo(String name)
 	{
 		this.name = name;
 	}
 
-	public RoomInfo(long id, String name, RoomType roomType, String topic, int count, boolean isSigned)
+	public ChatRoomInfo(long id, String name, RoomType roomType, String topic, int count, boolean isSigned)
 	{
 		this.id = id;
 		this.name = name;
@@ -115,7 +115,7 @@ public class RoomInfo
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		var roomInfo = (RoomInfo) o;
+		var roomInfo = (ChatRoomInfo) o;
 		return id == roomInfo.id;
 	}
 

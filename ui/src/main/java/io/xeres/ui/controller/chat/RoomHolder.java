@@ -19,32 +19,32 @@
 
 package io.xeres.ui.controller.chat;
 
-import io.xeres.common.message.chat.RoomInfo;
+import io.xeres.common.message.chat.ChatRoomInfo;
 
 public class RoomHolder
 {
 	private ChatListView chatListView;
-	private final RoomInfo roomInfo;
+	private final ChatRoomInfo chatRoomInfo;
 
-	public RoomHolder(ChatListView chatListView, RoomInfo roomInfo)
+	public RoomHolder(ChatListView chatListView, ChatRoomInfo chatRoomInfo)
 	{
 		this.chatListView = chatListView;
-		this.roomInfo = roomInfo;
+		this.chatRoomInfo = chatRoomInfo;
 	}
 
 	public RoomHolder(String name)
 	{
-		this.roomInfo = new RoomInfo(name);
+		this.chatRoomInfo = new ChatRoomInfo(name);
 	}
 
-	public RoomHolder(RoomInfo roomInfo)
+	public RoomHolder(ChatRoomInfo chatRoomInfo)
 	{
-		this.roomInfo = roomInfo;
+		this.chatRoomInfo = chatRoomInfo;
 	}
 
 	public RoomHolder()
 	{
-		this.roomInfo = new RoomInfo("");
+		this.chatRoomInfo = new ChatRoomInfo("");
 	}
 
 	public void setChatListView(ChatListView chatListView)
@@ -62,14 +62,14 @@ public class RoomHolder
 		return chatListView;
 	}
 
-	public RoomInfo getRoomInfo()
+	public ChatRoomInfo getRoomInfo()
 	{
-		return roomInfo;
+		return chatRoomInfo;
 	}
 
 	@Override
 	public String toString()
 	{
-		return roomInfo.getName();
+		return chatRoomInfo.getName();
 	}
 }

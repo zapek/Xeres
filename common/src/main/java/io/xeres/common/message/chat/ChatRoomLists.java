@@ -17,26 +17,33 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.repository;
+package io.xeres.common.message.chat;
 
-import io.xeres.app.database.model.chat.ChatRoom;
-import io.xeres.app.database.model.identity.Identity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
-
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Repository
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
+public class ChatRoomLists
 {
-	Optional<ChatRoom> findByRoomIdAndIdentity(long roomId, Identity identity);
+	private final List<ChatRoomInfo> subscribedRooms = new ArrayList<>();
+	private final List<ChatRoomInfo> availableRooms = new ArrayList<>();
 
-	List<ChatRoom> findAllBySubscribedTrueAndJoinedFalse();
+	public void addSubscribed(ChatRoomInfo chatRoomInfo)
+	{
+		subscribedRooms.add(chatRoomInfo);
+	}
 
-	@Modifying
-	@Query("UPDATE ChatRoom c SET c.joined = false WHERE c.joined = true")
-	void putAllJoinedToFalse();
+	public void addAvailable(ChatRoomInfo chatRoomInfo)
+	{
+		availableRooms.add(chatRoomInfo);
+	}
+
+	public List<ChatRoomInfo> getSubscribed()
+	{
+		return subscribedRooms;
+	}
+
+	public List<ChatRoomInfo> getAvailable()
+	{
+		return availableRooms;
+	}
 }

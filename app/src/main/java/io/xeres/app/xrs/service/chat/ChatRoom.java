@@ -24,7 +24,7 @@ import io.xeres.app.xrs.service.chat.item.VisibleChatRoomInfo;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
-import io.xeres.common.message.chat.RoomInfo;
+import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.RoomType;
 
 import java.time.Instant;
@@ -69,9 +69,9 @@ public class ChatRoom
 	 *
 	 * @return a RoomInfo
 	 */
-	public RoomInfo getAsRoomInfo()
+	public ChatRoomInfo getAsRoomInfo()
 	{
-		return new RoomInfo(
+		return new ChatRoomInfo(
 				id,
 				name,
 				type,

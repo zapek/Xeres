@@ -19,8 +19,8 @@
 
 package io.xeres.app.database.repository;
 
-import io.xeres.app.database.model.chatroom.ChatRoom;
-import io.xeres.app.database.model.chatroom.ChatRoomFakes;
+import io.xeres.app.database.model.chat.ChatRoom;
+import io.xeres.app.database.model.chat.ChatRoomFakes;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.common.identity.Type;
 import org.junit.jupiter.api.Test;

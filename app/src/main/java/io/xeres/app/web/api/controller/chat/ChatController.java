@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
+import io.xeres.common.dto.chat.ChatRoomListsDTO;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,6 +38,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.util.EnumSet;
 
+import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Tag(name = "Chat", description = "Chat service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/chat", description = "Chat documentation"))
@@ -75,5 +77,12 @@ public class ChatController
 	public void unsubscribeFromChatRoom(@PathVariable long id)
 	{
 		chatRsService.leaveChatRoom(id); // XXX: error if we're not subscribed
+	}
+
+	@GetMapping("/rooms")
+	@Operation(summary = "Get the status of all rooms")
+	public ChatRoomListsDTO getChatRooms()
+	{
+		return toDTO(chatRsService.getChatRoomLists());
 	}
 }

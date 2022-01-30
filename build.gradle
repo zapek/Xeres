@@ -19,17 +19,17 @@
 
 buildscript {
     ext {
-        flywayVersion = "8.2.2"
+        flywayVersion = "8.4.2"
         bouncycastleVersion = "1.70"
         apacheCommonsLangVersion = "3.12.0"
         apacheCommonsCollectionsVersion = "4.4"
-        springOpenApiVersion = "1.5.12"
+        springOpenApiVersion = "1.6.4"
         jsoupVersion = "1.14.3"
     }
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.6.2' apply false
+    id 'org.springframework.boot' version '2.6.3' apply false
     id 'org.flywaydb.flyway' version "$flywayVersion" apply false
     id 'org.ec4j.editorconfig' version '0.0.3' apply false
     id 'org.panteleyev.jpackageplugin' version '1.3.1' apply false

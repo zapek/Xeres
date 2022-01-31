@@ -24,22 +24,16 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
-import io.xeres.ui.custom.NullSelectionModel;
-import io.xeres.ui.custom.OldChatListCell;
+import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.model.profile.Profile;
-import io.xeres.ui.support.chat.ChatAction;
-import io.xeres.ui.support.chat.ChatContentText;
-import io.xeres.ui.support.chat.ChatLine;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -50,7 +44,6 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
-import static io.xeres.ui.support.chat.ChatAction.Type.SAY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @FxmlView(value = "/view/messaging/messaging.fxml")
@@ -65,17 +58,15 @@ public class MessagingWindowController implements WindowController
 	private Label notification;
 
 	@FXML
-	private ListView<ChatLine> receive;
+	private VBox content;
+
+	private ChatListView receive;
 
 	private final ProfileClient profileClient;
 	private final LocationId locationId;
 	private Profile targetProfile;
 
-	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
-
 	private final MessageClient messageClient;
-
-	private String nickname;
 
 	private Instant lastTypingNotification = Instant.EPOCH;
 
@@ -91,12 +82,8 @@ public class MessagingWindowController implements WindowController
 	public void initialize()
 	{
 		Mono<Profile> ownProfileResult = profileClient.getOwnProfile();
-		ownProfileResult.doOnSuccess(profile -> nickname = profile.getName())
+		ownProfileResult.doOnSuccess(profile -> setupChatListView(profile.getName(), profile.getId()))
 				.subscribe();
-
-		receive.setCellFactory(OldChatListCell::new);
-		receive.setItems(messages);
-		receive.setSelectionModel(new NullSelectionModel<>());
 
 		send.setOnKeyPressed(event ->
 		{
@@ -104,7 +91,7 @@ public class MessagingWindowController implements WindowController
 			{
 				var message = new ChatMessage(send.getText());
 				messageClient.sendToLocation(locationId, message);
-				addMessageLine("<" + nickname + ">", send.getText());
+				receive.addOwnMessage(send.getText());
 				send.clear();
 			}
 			else
@@ -121,6 +108,14 @@ public class MessagingWindowController implements WindowController
 
 		lastTypingTimeline = new Timeline(new KeyFrame(Duration.seconds(5),
 				ae -> notification.setText("")));
+	}
+
+	private void setupChatListView(String nickname, long id)
+	{
+		Platform.runLater(() -> {
+			receive = new ChatListView(nickname, id);
+			content.getChildren().add(0, receive.getChatView());
+		});
 	}
 
 	@Override
@@ -156,17 +151,9 @@ public class MessagingWindowController implements WindowController
 			}
 			else
 			{
-				addMessageLine("<" + targetProfile.getName() + ">", message.getContent());
+				receive.addUserMessage(targetProfile.getName(), message.getContent());
 				notification.setText("");
 			}
 		}
-	}
-
-	private void addMessageLine(String from, String message)
-	{
-		var action = new ChatAction(SAY, from, null);
-		var chatLine = new ChatLine(Instant.now(), action, new ChatContentText(message));
-		messages.add(chatLine);
-		receive.scrollTo(chatLine);
 	}
 }

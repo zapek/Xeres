@@ -20,7 +20,6 @@
 package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.support.chat.*;
@@ -56,15 +55,15 @@ public class ChatListView
 	private final ObservableList<ChatRoomUser> users = FXCollections.observableArrayList();
 
 	private String nickname;
-	private final ChatRoomInfo chatRoomInfo;
+	private final long id;
 
 	private final VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> chatView;
 	private final ListView<ChatRoomUser> userListView;
 
-	public ChatListView(String nickname, ChatRoomInfo chatRoomInfo)
+	public ChatListView(String nickname, long id)
 	{
 		this.nickname = nickname;
-		this.chatRoomInfo = chatRoomInfo;
+		this.id = id;
 
 		chatView = createChatView();
 		userListView = createUserListView();
@@ -192,9 +191,9 @@ public class ChatListView
 		return userListView;
 	}
 
-	public ChatRoomInfo getRoomInfo()
+	public long getId()
 	{
-		return chatRoomInfo;
+		return id;
 	}
 
 	private void addMessageLine(ChatLine line)

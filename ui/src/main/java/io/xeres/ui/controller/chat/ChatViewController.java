@@ -404,7 +404,7 @@ public class ChatViewController implements Controller
 	{
 		subscribedRooms.getChildren().stream()
 				.map(this::getChatListViewOrCreate)
-				.filter(chatListView -> chatListView.getRoomInfo().getId() == roomId)
+				.filter(chatListView -> chatListView.getId() == roomId)
 				.findFirst()
 				.ifPresent(action);
 	}
@@ -414,7 +414,7 @@ public class ChatViewController implements Controller
 		var chatListView = roomInfoTreeItem.getValue().getChatListView();
 		if (chatListView == null)
 		{
-			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo());
+			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId());
 			roomInfoTreeItem.getValue().setChatListView(chatListView);
 		}
 		return chatListView;

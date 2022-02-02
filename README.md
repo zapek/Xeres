@@ -12,7 +12,9 @@ A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure applicati
 
 ## Build requirements
 
-- Everything should be automatic
+- Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 17)
+
+If you want to quickly try the current development version without installing anything, see the [command line](#Command-line) section below.
 
 ## Features
 

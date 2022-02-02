@@ -1,0 +1,15 @@
+name: Feature request
+description: You have some cool idea or suggestion for improvement.
+labels: [ "feature" ]
+body:
+    -   type: markdown
+        attributes:
+            value: |
+                Thanks for your interest in improving Xeres.
+    -   type: textarea
+        id: feature
+        attributes:
+            label: Description
+            description: Your idea or improvement
+        validations:
+            required: true

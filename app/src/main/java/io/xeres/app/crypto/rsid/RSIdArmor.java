@@ -19,9 +19,6 @@
 
 package io.xeres.app.crypto.rsid;
 
-import io.xeres.app.crypto.rsid.shortinvite.ShortInvite;
-import io.xeres.app.crypto.rsid.shortinvite.ShortInviteQuirks;
-import io.xeres.app.crypto.rsid.shortinvite.ShortInviteTags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +27,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public final class RSIdArmor
+final class RSIdArmor
 {
 	private static final Logger log = LoggerFactory.getLogger(RSIdArmor.class);
 
-	private enum WrapMode
+	enum WrapMode
 	{
 		CONTINUOUS,
 		SLICED
@@ -45,64 +42,7 @@ public final class RSIdArmor
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Gets an armored version of the certificate or short invite. It's encoded using base64 and can be
-	 * used in emails, forums, etc...
-	 *
-	 * @param rsId the RSId
-	 * @return an ascii armored version of it
-	 */
-	public static String getArmored(RSId rsId)
-	{
-		var out = new ByteArrayOutputStream();
-		if (rsId instanceof ShortInvite)
-		{
-			return getArmoredShortInvite(rsId, out);
-		}
-		else
-		{
-			throw new UnsupportedOperationException("Armor mode not implemented for RSId of " + rsId.getClass().getSimpleName());
-		}
-	}
-
-	private static String getArmoredShortInvite(RSId rsId, ByteArrayOutputStream out)
-	{
-		addPacket(ShortInviteTags.SSLID, rsId.getLocationId().getBytes(), out);
-		addPacket(ShortInviteTags.NAME, rsId.getName().getBytes(), out);
-		addPacket(ShortInviteTags.PGP_FINGERPRINT, rsId.getPgpFingerprint(), out);
-		if (rsId.isHiddenNode())
-		{
-			addPacket(ShortInviteTags.HIDDEN_LOCATOR, rsId.getHiddenNodeAddress().getAddressAsBytes().orElseThrow(), out);
-		}
-		else
-		{
-			if (rsId.hasDnsName())
-			{
-				addPacket(ShortInviteTags.DNS_LOCATOR, ShortInviteQuirks.swapDnsBytes(rsId.getDnsNameAsBytes()), out);
-			}
-			if (rsId.hasExternalIp())
-			{
-				addPacket(ShortInviteTags.EXT4_LOCATOR, ShortInviteQuirks.swapBytes(rsId.getExternalIp().getAddressAsBytes().orElseThrow()), out);
-			}
-			if (rsId.hasInternalIp())
-			{
-				addPacket(ShortInviteTags.LOC4_LOCATOR, ShortInviteQuirks.swapBytes(rsId.getInternalIp().getAddressAsBytes().orElseThrow()), out);
-			}
-			if (rsId.hasLocators())
-			{
-				// Use one locator. Ideally, the first one should be the most recent address
-				rsId.getLocators().stream()
-						.findFirst()
-						.ifPresent(peerAddress -> addPacket(ShortInviteTags.LOCATOR, peerAddress.getUrl().getBytes(StandardCharsets.US_ASCII), out));
-			}
-		}
-		// Note that we don't use LOC4_LOCATOR as we expect the broadcast discovery to work
-		addCrcPacket(ShortInviteTags.CHECKSUM, out);
-
-		return wrapWithBase64(out.toByteArray(), WrapMode.CONTINUOUS);
-	}
-
-	private static void addPacket(int pTag, byte[] data, ByteArrayOutputStream out)
+	static void addPacket(int pTag, byte[] data, ByteArrayOutputStream out)
 	{
 		if (data != null)
 		{
@@ -132,7 +72,7 @@ public final class RSIdArmor
 		}
 	}
 
-	private static void addCrcPacket(int pTag, ByteArrayOutputStream out)
+	static void addCrcPacket(int pTag, ByteArrayOutputStream out)
 	{
 		byte[] data = out.toByteArray();
 
@@ -147,7 +87,7 @@ public final class RSIdArmor
 		addPacket(pTag, le, out);
 	}
 
-	private static String wrapWithBase64(byte[] data, WrapMode wrapMode)
+	static String wrapWithBase64(byte[] data, WrapMode wrapMode)
 	{
 		byte[] base64 = Base64.getEncoder().encode(data);
 

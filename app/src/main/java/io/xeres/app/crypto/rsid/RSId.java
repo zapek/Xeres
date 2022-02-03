@@ -20,7 +20,6 @@
 package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.crypto.pgp.PGP;
-import io.xeres.app.crypto.rsid.shortinvite.ShortInvite;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
 import org.apache.commons.lang3.StringUtils;
@@ -86,6 +85,14 @@ public abstract class RSId
 	public abstract boolean hasLocators();
 
 	public abstract Set<PeerAddress> getLocators();
+
+	/**
+	 * Gets an armored version of the certificate or short invite. It's encoded using base64 and can be
+	 * used in emails, forums, etc...
+	 *
+	 * @return an ascii armored version of it
+	 */
+	public abstract String getArmored();
 
 	/**
 	 * Gets the PGP identifier, which is the last long of the PGP fingerprint

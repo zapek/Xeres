@@ -20,7 +20,6 @@
 package io.xeres.app.web.api.controller.profile;
 
 import io.xeres.app.crypto.rsid.RSId;
-import io.xeres.app.crypto.rsid.RSIdArmor;
 import io.xeres.app.crypto.rsid.RSIdFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
@@ -131,7 +130,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	void ProfileController_CreateProfile_OK() throws Exception
 	{
 		var expected = ProfileFakes.createProfile("test", 1);
-		var profileRequest = new RsIdRequest(RSIdArmor.getArmored(RSIdFakes.createShortInvite()));
+		var profileRequest = new RsIdRequest(RSIdFakes.createShortInvite().getArmored());
 
 		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
 		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));

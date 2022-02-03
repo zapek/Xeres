@@ -19,7 +19,6 @@
 
 package io.xeres.app.crypto.rsid;
 
-import io.xeres.app.crypto.rsid.shortinvite.ShortInvite;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;

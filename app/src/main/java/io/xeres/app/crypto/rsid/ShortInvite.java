@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,10 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.crypto.rsid.shortinvite;
+package io.xeres.app.crypto.rsid;
 
-import io.xeres.app.crypto.rsid.RSId;
-import io.xeres.app.crypto.rsid.RSIdCrc;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.LocationId;
@@ -29,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateParsingException;
@@ -37,9 +36,21 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ShortInvite extends RSId
+import static io.xeres.app.crypto.rsid.RSIdArmor.*;
+
+class ShortInvite extends RSId
 {
 	private static final Logger log = LoggerFactory.getLogger(ShortInvite.class);
+
+	static final int SSL_ID = 0x0;
+	static final int NAME = 0x1;
+	static final int LOCATOR = 0x2;
+	static final int PGP_FINGERPRINT = 0x3;
+	static final int CHECKSUM = 0x4;
+	static final int HIDDEN_LOCATOR = 0x90;
+	static final int DNS_LOCATOR = 0x91;
+	static final int EXT4_LOCATOR = 0x92;
+	static final int LOC4_LOCATOR = 0x93;
 
 	private String name;
 	private LocationId locationId;
@@ -81,15 +92,15 @@ public class ShortInvite extends RSId
 
 				switch (ptag)
 				{
-					case ShortInviteTags.PGP_FINGERPRINT -> shortInvite.setPgpFingerprint(buf);
-					case ShortInviteTags.NAME -> shortInvite.setName(buf);
-					case ShortInviteTags.SSLID -> shortInvite.setLocationId(new LocationId(buf));
-					case ShortInviteTags.DNS_LOCATOR -> shortInvite.setDnsName(buf);
-					case ShortInviteTags.HIDDEN_LOCATOR -> shortInvite.setHiddenNodeAddress(buf);
-					case ShortInviteTags.EXT4_LOCATOR -> shortInvite.setExt4Locator(buf);
-					case ShortInviteTags.LOC4_LOCATOR -> shortInvite.setLoc4Locator(buf);
-					case ShortInviteTags.LOCATOR -> shortInvite.addLocator(new String(buf));
-					case ShortInviteTags.CHECKSUM -> {
+					case PGP_FINGERPRINT -> shortInvite.setPgpFingerprint(buf);
+					case NAME -> shortInvite.setName(buf);
+					case SSL_ID -> shortInvite.setLocationId(new LocationId(buf));
+					case DNS_LOCATOR -> shortInvite.setDnsName(buf);
+					case HIDDEN_LOCATOR -> shortInvite.setHiddenNodeAddress(buf);
+					case EXT4_LOCATOR -> shortInvite.setExt4Locator(buf);
+					case LOC4_LOCATOR -> shortInvite.setLoc4Locator(buf);
+					case LOCATOR -> shortInvite.addLocator(new String(buf));
+					case CHECKSUM -> {
 						if (buf.length != 3)
 						{
 							throw new IllegalArgumentException("Checksum corrupted");
@@ -118,7 +129,7 @@ public class ShortInvite extends RSId
 
 	public void setExt4Locator(byte[] data)
 	{
-		ext4Locator = PeerAddress.fromByteArray(ShortInviteQuirks.swapBytes(data));
+		ext4Locator = PeerAddress.fromByteArray(swapBytes(data));
 	}
 
 	public void setExt4Locator(String ipAndPort)
@@ -128,7 +139,7 @@ public class ShortInvite extends RSId
 
 	private void setLoc4Locator(byte[] data)
 	{
-		loc4Locator = PeerAddress.fromByteArray(ShortInviteQuirks.swapBytes(data));
+		loc4Locator = PeerAddress.fromByteArray(swapBytes(data));
 	}
 
 	public void setLoc4Locator(String ipAndPort)
@@ -289,5 +300,85 @@ public class ShortInvite extends RSId
 	public Set<PeerAddress> getLocators()
 	{
 		return locators;
+	}
+
+	@Override
+	public String getArmored()
+	{
+		var out = new ByteArrayOutputStream();
+
+		addPacket(SSL_ID, getLocationId().getBytes(), out);
+		addPacket(NAME, getName().getBytes(), out);
+		addPacket(PGP_FINGERPRINT, getPgpFingerprint(), out);
+		if (isHiddenNode())
+		{
+			addPacket(HIDDEN_LOCATOR, getHiddenNodeAddress().getAddressAsBytes().orElseThrow(), out);
+		}
+		else
+		{
+			if (hasDnsName())
+			{
+				addPacket(DNS_LOCATOR, swapDnsBytes(getDnsNameAsBytes()), out);
+			}
+			if (hasExternalIp())
+			{
+				addPacket(EXT4_LOCATOR, swapBytes(getExternalIp().getAddressAsBytes().orElseThrow()), out);
+			}
+			if (hasInternalIp())
+			{
+				addPacket(LOC4_LOCATOR, swapBytes(getInternalIp().getAddressAsBytes().orElseThrow()), out);
+			}
+			if (hasLocators())
+			{
+				// Use one locator. Ideally, the first one should be the most recent address
+				getLocators().stream()
+						.findFirst()
+						.ifPresent(peerAddress -> addPacket(LOCATOR, peerAddress.getUrl().getBytes(StandardCharsets.US_ASCII), out));
+			}
+		}
+		// Note that we don't use LOC4_LOCATOR as we expect the broadcast discovery to work
+		addCrcPacket(CHECKSUM, out);
+
+		return wrapWithBase64(out.toByteArray(), RSIdArmor.WrapMode.CONTINUOUS);
+	}
+
+	/**
+	 * Retroshare puts IP addresses in big-endian in certificates, but when it comes
+	 * to short invites, a mistake was made and, while the port is in big-endian, the
+	 * IP address is not. Since the mistake is done on output and input, it works fine
+	 * within Retroshare so a workaround has to be implemented here.
+	 *
+	 * @param data the IP address + port
+	 * @return the IP address in swapped endian + port left alone
+	 */
+	static byte[] swapBytes(byte[] data)
+	{
+		if (data == null || data.length != 6)
+		{
+			return data; // don't touch anything, input is bad
+		}
+		var bytes = new byte[6];
+		bytes[0] = data[3];
+		bytes[1] = data[2];
+		bytes[2] = data[1];
+		bytes[3] = data[0];
+		bytes[4] = data[4];
+		bytes[5] = data[5];
+
+		return bytes;
+	}
+
+	private static byte[] swapDnsBytes(byte[] data)
+	{
+		if (data == null || data.length < 4)
+		{
+			return data; // don't touch anything, input is bad
+		}
+		var bytes = new byte[data.length];
+		System.arraycopy(data, 0, bytes, 2, data.length - 2);
+		bytes[0] = data[data.length - 2];
+		bytes[1] = data[data.length - 1];
+
+		return bytes;
 	}
 }

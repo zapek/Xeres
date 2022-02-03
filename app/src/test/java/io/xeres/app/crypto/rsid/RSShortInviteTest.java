@@ -29,10 +29,43 @@ import org.junit.jupiter.api.Test;
 
 import java.security.cert.CertificateParsingException;
 
+import static io.xeres.app.crypto.rsid.ShortInvite.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RSShortInviteTest
 {
+	@Test
+	void ShortInviteTags_Values()
+	{
+		assertEquals(0x0, SSL_ID);
+		assertEquals(0x1, NAME);
+		assertEquals(0x2, LOCATOR);
+		assertEquals(0x3, PGP_FINGERPRINT);
+		assertEquals(0X4, CHECKSUM);
+		assertEquals(0X90, HIDDEN_LOCATOR);
+		assertEquals(0X91, DNS_LOCATOR);
+		assertEquals(0X92, EXT4_LOCATOR);
+		assertEquals(0X93, LOC4_LOCATOR);
+	}
+
+	@Test
+	void ShortInviteQuirks_SwapBytes_OK()
+	{
+		var INPUT = new byte[]{1, 2, 3, 4, 5, 6};
+		var OUTPUT = new byte[]{4, 3, 2, 1, 5, 6};
+
+		assertArrayEquals(OUTPUT, swapBytes(INPUT));
+	}
+
+	@Test
+	void ShortInviteQuirks_SwapBytes_WrongInput_NoSwap()
+	{
+		var INPUT = new byte[]{1, 2, 3, 4, 5, 6, 7};
+		var OUTPUT = new byte[]{1, 2, 3, 4, 5, 6, 7};
+
+		assertArrayEquals(OUTPUT, swapBytes(INPUT));
+	}
+
 	@Test
 	void ShortInvite_Build_OK()
 	{
@@ -49,7 +82,7 @@ class RSShortInviteTest
 				.addLocator(Connection.from(PeerAddress.fromAddress("85.1.2.4:1234")))
 				.build();
 
-		var armored = RSIdArmor.getArmored(rsId);
+		var armored = rsId.getArmored();
 
 		assertEquals("ABBzjqGSBk4/IOdmQ4zJMFvVAQdOZW1lc2lzAxQG1LRG0gnnUvpxGjl5KyDKZX4nBpENBNJmb28uYmFyLmNvbZIGAwIBVQTSkwYyAajABNICFGlwdjQ6Ly84NS4xLjIuNDoxMjM0BAOiD+U=", armored);
 	}

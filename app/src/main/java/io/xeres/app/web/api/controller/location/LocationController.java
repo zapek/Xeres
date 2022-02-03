@@ -25,7 +25,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.crypto.rsid.RSIdArmor;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.web.api.error.Error;
 import io.xeres.common.dto.location.LocationDTO;
@@ -69,6 +68,6 @@ public class LocationController
 	{
 		var location = locationService.findLocationById(id).orElseThrow();
 
-		return new RSIdResponse(RSIdArmor.getArmored(location.getRSId()));
+		return new RSIdResponse(location.getRSId().getArmored());
 	}
 }

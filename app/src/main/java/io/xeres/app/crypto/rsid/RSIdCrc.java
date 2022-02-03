@@ -19,14 +19,14 @@
 
 package io.xeres.app.crypto.rsid;
 
-public final class RSIdCrc
+final class RSIdCrc
 {
 	private RSIdCrc()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static int calculate24bitsCrc(byte[] data, int length)
+	static int calculate24bitsCrc(byte[] data, int length)
 	{
 		var crc = 0xb704ce;
 

@@ -27,8 +27,6 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import org.junit.jupiter.api.Test;
 
-import java.security.cert.CertificateParsingException;
-
 import static io.xeres.app.crypto.rsid.ShortInvite.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,40 +85,40 @@ class RSShortInviteTest
 		assertEquals("ABBzjqGSBk4/IOdmQ4zJMFvVAQdOZW1lc2lzAxQG1LRG0gnnUvpxGjl5KyDKZX4nBpENBNJmb28uYmFyLmNvbZIGAwIBVQTSkwYyAajABNICFGlwdjQ6Ly84NS4xLjIuNDoxMjM0BAOiD+U=", armored);
 	}
 
+	// XXX: write a test to parse null input or empty input... should return an empty optional
+
 	@Test
-	void ShortInvite_Parse_OK() throws CertificateParsingException
+	void ShortInvite_Parse_OK()
 	{
 		var string = "\nABBzjqGSBk4/IOdmQ4zJMFvVAQdOZW1lc2lzAxQG1LRG0gnnUvpxGjl5KyDKZX4nBpENBNJmb28uYmFyLmNvbZIGAwIBVQTSkwYyAajABNICFGlwdjQ6Ly84NS4xLjIuNDoxMjM0BAOiD+U=\n";
 
-		var rsId = RSId.parse(string);
+		var rsId = RSId.parse(string, Type.SHORT_INVITE);
 
-		assertNotNull(rsId);
+		assertTrue(rsId.isPresent());
 
-		assertTrue(rsId.hasName());
-		assertEquals("Nemesis", rsId.getName());
+		assertEquals("Nemesis", rsId.get().getName());
 
-		assertEquals(0x792b20ca657e2706L, rsId.getPgpIdentifier());
-		assertArrayEquals(Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), rsId.getPgpFingerprint());
+		assertEquals(0x792b20ca657e2706L, rsId.get().getPgpIdentifier());
+		assertArrayEquals(Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), rsId.get().getPgpFingerprint());
 
-		assertTrue(rsId.hasLocationInfo());
-		assertArrayEquals(Id.toBytes("738ea192064e3f20e766438cc9305bd5"), rsId.getLocationId().getBytes());
+		assertArrayEquals(Id.toBytes("738ea192064e3f20e766438cc9305bd5"), rsId.get().getLocationId().getBytes());
 
-		assertFalse(rsId.isHiddenNode());
+		assertTrue(rsId.get().getHiddenNodeAddress().isEmpty());
 
-		assertTrue(rsId.hasInternalIp());
-		assertTrue(rsId.getInternalIp().getAddress().isPresent());
-		assertEquals("192.168.1.50:1234", rsId.getInternalIp().getAddress().get());
+		assertTrue(rsId.get().getInternalIp().isPresent());
+		assertTrue(rsId.get().getInternalIp().get().getAddress().isPresent());
+		assertEquals("192.168.1.50:1234", rsId.get().getInternalIp().get().getAddress().get());
 
-		assertTrue(rsId.hasExternalIp());
-		assertTrue(rsId.getExternalIp().getAddress().isPresent());
-		assertEquals("85.1.2.3:1234", rsId.getExternalIp().getAddress().get());
+		assertTrue(rsId.get().getExternalIp().isPresent());
+		assertTrue(rsId.get().getExternalIp().get().getAddress().isPresent());
+		assertEquals("85.1.2.3:1234", rsId.get().getExternalIp().get().getAddress().get());
 
-		assertTrue(rsId.hasDnsName());
-		assertTrue(rsId.getDnsName().getAddress().isPresent());
-		assertEquals("foo.bar.com:1234", rsId.getDnsName().getAddress().get());
+		assertTrue(rsId.get().getDnsName().isPresent());
+		assertTrue(rsId.get().getDnsName().get().getAddress().isPresent());
+		assertEquals("foo.bar.com:1234", rsId.get().getDnsName().get().getAddress().get());
 
-		assertTrue(rsId.hasLocators());
-		assertTrue(rsId.getLocators().stream().findFirst().isPresent());
-		assertEquals("85.1.2.4:1234", rsId.getLocators().stream().findFirst().get().getAddress().get());
+		assertFalse(rsId.get().getLocators().isEmpty());
+		assertTrue(rsId.get().getLocators().stream().findFirst().isPresent());
+		assertEquals("85.1.2.4:1234", rsId.get().getLocators().stream().findFirst().get().getAddress().orElseThrow());
 	}
 }

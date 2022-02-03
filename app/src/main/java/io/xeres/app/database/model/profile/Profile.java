@@ -22,11 +22,13 @@ package io.xeres.app.database.model.profile;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.util.encoders.Hex;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +80,18 @@ public class Profile
 		profile.setTrust(Trust.ULTIMATE);
 		profile.setAccepted(true);
 		return profile;
+	}
+
+	public static Profile createProfile(String name, long pgpIdentifier, byte[] pgpFingerprint, PGPPublicKey pgpPublicKey)
+	{
+		try
+		{
+			return createProfile(name, pgpIdentifier, pgpFingerprint, pgpPublicKey.getEncoded());
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static Profile createProfile(String name, long pgpIdentifier, byte[] pgpFingerprint, byte[] pgpPublicKeyData)

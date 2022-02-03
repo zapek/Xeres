@@ -28,6 +28,7 @@ import java.util.List;
 
 public class RSIdBuilder
 {
+	private final RSId.Type type;
 	private byte[] name;
 	private LocationId locationId;
 	private byte[] pgpFingerprint;
@@ -38,6 +39,7 @@ public class RSIdBuilder
 
 	public RSIdBuilder(RSId.Type type)
 	{
+		this.type = type;
 	}
 
 	public RSIdBuilder setName(byte[] name)
@@ -81,25 +83,38 @@ public class RSIdBuilder
 
 	public RSId build()
 	{
-		var si = new ShortInvite();
+		RSId rsId = switch (type)
+				{
+					case SHORT_INVITE -> {
+						var si = new ShortInvite();
 
-		si.setName(name);
-		si.setLocationId(locationId);
-		si.setPgpFingerprint(pgpFingerprint);
-		if (externalLocator != null)
-		{
-			si.setExt4Locator(externalLocator);
-		}
-		if (lanLocator != null)
-		{
-			si.setLoc4Locator(lanLocator);
-		}
-		if (dnsLocator != null)
-		{
-			si.setDnsName(dnsLocator);
-		}
-		locators.forEach(si::addLocator);
+						si.setName(name);
+						si.setLocationId(locationId);
+						si.setPgpFingerprint(pgpFingerprint);
 
-		return si;
+						if (externalLocator != null)
+						{
+							si.setExt4Locator(externalLocator);
+						}
+						if (lanLocator != null)
+						{
+							si.setLoc4Locator(lanLocator);
+						}
+						if (dnsLocator != null)
+						{
+							si.setDnsName(dnsLocator);
+						}
+						locators.forEach(si::addLocator);
+
+						yield si;
+					}
+					default -> null;
+				};
+
+		if (rsId != null)
+		{
+			rsId.checkRequiredFields();
+		}
+		return rsId;
 	}
 }

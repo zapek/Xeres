@@ -124,23 +124,11 @@ public class Location
 	{
 		setName("[" + rsId.getLocationId().toString() + "]");
 		setLocationId(rsId.getLocationId());
-		if (rsId.hasDnsName())
-		{
-			addConnection(Connection.from(rsId.getDnsName()));
-		}
-		if (rsId.hasInternalIp())
-		{
-			addConnection(Connection.from(rsId.getInternalIp()));
-		}
-		if (rsId.hasExternalIp())
-		{
-			addConnection(Connection.from(rsId.getExternalIp()));
-		}
+		rsId.getDnsName().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
+		rsId.getInternalIp().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
+		rsId.getExternalIp().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
 
-		if (rsId.hasLocators())
-		{
-			rsId.getLocators().forEach(peerAddress -> addConnection(Connection.from(peerAddress)));
-		}
+		rsId.getLocators().forEach(peerAddress -> addConnection(Connection.from(peerAddress)));
 	}
 
 	public RSId getRSId()

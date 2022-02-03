@@ -23,6 +23,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.LocationId;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateParsingException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static io.xeres.app.crypto.rsid.RSIdArmor.*;
 
@@ -62,15 +60,15 @@ class ShortInvite extends RSId
 	private PeerAddress hostnameLocator;
 	private final Set<PeerAddress> locators = new HashSet<>();
 
-	public ShortInvite()
+	ShortInvite()
 	{
 	}
 
-	public static ShortInvite parseShortInvite(String data) throws CertificateParsingException
+	@Override
+	void parseInternal(String data) throws CertificateParsingException
 	{
 		try
 		{
-			var shortInvite = new ShortInvite();
 			byte[] shortInviteBytes = Base64.getDecoder().decode(cleanupInput(data.getBytes()));
 			int checksum = RSIdCrc.calculate24bitsCrc(shortInviteBytes, shortInviteBytes.length - 5); // ignore the checksum PTAG which is 5 bytes in total and at the end
 			var in = new ByteArrayInputStream(shortInviteBytes);
@@ -92,14 +90,14 @@ class ShortInvite extends RSId
 
 				switch (ptag)
 				{
-					case PGP_FINGERPRINT -> shortInvite.setPgpFingerprint(buf);
-					case NAME -> shortInvite.setName(buf);
-					case SSL_ID -> shortInvite.setLocationId(new LocationId(buf));
-					case DNS_LOCATOR -> shortInvite.setDnsName(buf);
-					case HIDDEN_LOCATOR -> shortInvite.setHiddenNodeAddress(buf);
-					case EXT4_LOCATOR -> shortInvite.setExt4Locator(buf);
-					case LOC4_LOCATOR -> shortInvite.setLoc4Locator(buf);
-					case LOCATOR -> shortInvite.addLocator(new String(buf));
+					case PGP_FINGERPRINT -> setPgpFingerprint(buf);
+					case NAME -> setName(buf);
+					case SSL_ID -> setLocationId(new LocationId(buf));
+					case DNS_LOCATOR -> setDnsName(buf);
+					case HIDDEN_LOCATOR -> setHiddenNodeAddress(buf);
+					case EXT4_LOCATOR -> setExt4Locator(buf);
+					case LOC4_LOCATOR -> setLoc4Locator(buf);
+					case LOCATOR -> addLocator(new String(buf));
 					case CHECKSUM -> {
 						if (buf.length != 3)
 						{
@@ -107,7 +105,7 @@ class ShortInvite extends RSId
 						}
 						checksumPassed = checksum == (Byte.toUnsignedInt(buf[2]) << 16 | Byte.toUnsignedInt(buf[1]) << 8 | Byte.toUnsignedInt(buf[0])); // little endian
 					}
-					default -> ShortInvite.log.warn("Unhandled tag {}, ignoring.", ptag);
+					default -> log.warn("Unhandled tag {}, ignoring.", ptag);
 				}
 			}
 
@@ -119,7 +117,6 @@ class ShortInvite extends RSId
 			{
 				throw new IllegalArgumentException("Wrong checksum");
 			}
-			return shortInvite;
 		}
 		catch (IllegalArgumentException | IOException e)
 		{
@@ -127,51 +124,64 @@ class ShortInvite extends RSId
 		}
 	}
 
-	public void setExt4Locator(byte[] data)
+	@Override
+	void checkRequiredFields()
+	{
+		if (getLocationId() == null)
+		{
+			throw new IllegalArgumentException("Missing location id");
+		}
+		if (getName() == null)
+		{
+			throw new IllegalArgumentException("Missing name");
+		}
+		if (getPgpFingerprint() == null)
+		{
+			throw new IllegalArgumentException("Missing PGP fingerprint");
+		}
+	}
+
+	void setExt4Locator(byte[] data)
 	{
 		ext4Locator = PeerAddress.fromByteArray(swapBytes(data));
 	}
 
-	public void setExt4Locator(String ipAndPort)
+	void setExt4Locator(String ipAndPort)
 	{
 		ext4Locator = PeerAddress.fromIpAndPort(ipAndPort);
 	}
 
-	private void setLoc4Locator(byte[] data)
+	void setLoc4Locator(byte[] data)
 	{
 		loc4Locator = PeerAddress.fromByteArray(swapBytes(data));
 	}
 
-	public void setLoc4Locator(String ipAndPort)
+	void setLoc4Locator(String ipAndPort)
 	{
 		loc4Locator = PeerAddress.fromIpAndPort(ipAndPort);
 	}
 
 	@Override
-	public boolean hasInternalIp()
+	public Optional<PeerAddress> getInternalIp()
 	{
-		return loc4Locator != null && loc4Locator.isValid();
+		if (loc4Locator != null && loc4Locator.isValid())
+		{
+			return Optional.of(loc4Locator);
+		}
+		return Optional.empty();
 	}
 
 	@Override
-	public PeerAddress getInternalIp()
+	public Optional<PeerAddress> getExternalIp()
 	{
-		return loc4Locator;
+		if (ext4Locator != null && ext4Locator.isValid())
+		{
+			return Optional.of(ext4Locator);
+		}
+		return Optional.empty();
 	}
 
-	@Override
-	public boolean hasExternalIp()
-	{
-		return ext4Locator != null && ext4Locator.isValid();
-	}
-
-	@Override
-	public PeerAddress getExternalIp()
-	{
-		return ext4Locator;
-	}
-
-	public void setPgpFingerprint(byte[] pgpFingerprint)
+	void setPgpFingerprint(byte[] pgpFingerprint)
 	{
 		this.pgpFingerprint = pgpFingerprint;
 	}
@@ -183,9 +193,9 @@ class ShortInvite extends RSId
 	}
 
 	@Override
-	public boolean hasName()
+	public Optional<PGPPublicKey> getPgpPublicKey()
 	{
-		return name != null;
+		return Optional.empty();
 	}
 
 	@Override
@@ -194,15 +204,9 @@ class ShortInvite extends RSId
 		return name;
 	}
 
-	public void setName(byte[] name)
+	void setName(byte[] name)
 	{
 		this.name = StringUtils.substring(new String(name, StandardCharsets.UTF_8), 0, ProfileConstants.NAME_LENGTH_MAX);
-	}
-
-	@Override
-	public boolean hasLocationInfo()
-	{
-		return locationId != null;
 	}
 
 	@Override
@@ -211,30 +215,18 @@ class ShortInvite extends RSId
 		return locationId;
 	}
 
-	public void setLocationId(LocationId locationId)
+	void setLocationId(LocationId locationId)
 	{
 		this.locationId = locationId;
 	}
 
 	@Override
-	public boolean hasDnsName()
+	public Optional<PeerAddress> getDnsName()
 	{
-		return hostnameLocator != null;
+		return Optional.ofNullable(hostnameLocator);
 	}
 
-	@Override
-	public PeerAddress getDnsName()
-	{
-		return hostnameLocator;
-	}
-
-	@Override
-	public byte[] getDnsNameAsBytes()
-	{
-		return hostnameLocator.getAddressAsBytes().orElseThrow();
-	}
-
-	public void setDnsName(String dnsName)
+	void setDnsName(String dnsName)
 	{
 		hostnameLocator = PeerAddress.fromHostnameAndPort(dnsName);
 	}
@@ -252,15 +244,9 @@ class ShortInvite extends RSId
 	}
 
 	@Override
-	public boolean isHiddenNode()
+	public Optional<PeerAddress> getHiddenNodeAddress()
 	{
-		return hiddenLocator != null;
-	}
-
-	@Override
-	public PeerAddress getHiddenNodeAddress()
-	{
-		return hiddenLocator;
+		return Optional.ofNullable(hiddenLocator);
 	}
 
 	private void setHiddenNodeAddress(String hiddenNodeAddress)
@@ -280,7 +266,7 @@ class ShortInvite extends RSId
 		}
 	}
 
-	public void addLocator(String locator)
+	void addLocator(String locator)
 	{
 		var peerAddress = PeerAddress.fromUrl(locator);
 
@@ -288,12 +274,6 @@ class ShortInvite extends RSId
 		{
 			locators.add(peerAddress);
 		}
-	}
-
-	@Override
-	public boolean hasLocators()
-	{
-		return !locators.isEmpty();
 	}
 
 	@Override
@@ -310,31 +290,19 @@ class ShortInvite extends RSId
 		addPacket(SSL_ID, getLocationId().getBytes(), out);
 		addPacket(NAME, getName().getBytes(), out);
 		addPacket(PGP_FINGERPRINT, getPgpFingerprint(), out);
-		if (isHiddenNode())
+		if (getHiddenNodeAddress().isPresent())
 		{
-			addPacket(HIDDEN_LOCATOR, getHiddenNodeAddress().getAddressAsBytes().orElseThrow(), out);
+			addPacket(HIDDEN_LOCATOR, getHiddenNodeAddress().get().getAddressAsBytes().orElseThrow(), out);
 		}
 		else
 		{
-			if (hasDnsName())
-			{
-				addPacket(DNS_LOCATOR, swapDnsBytes(getDnsNameAsBytes()), out);
-			}
-			if (hasExternalIp())
-			{
-				addPacket(EXT4_LOCATOR, swapBytes(getExternalIp().getAddressAsBytes().orElseThrow()), out);
-			}
-			if (hasInternalIp())
-			{
-				addPacket(LOC4_LOCATOR, swapBytes(getInternalIp().getAddressAsBytes().orElseThrow()), out);
-			}
-			if (hasLocators())
-			{
-				// Use one locator. Ideally, the first one should be the most recent address
-				getLocators().stream()
-						.findFirst()
-						.ifPresent(peerAddress -> addPacket(LOCATOR, peerAddress.getUrl().getBytes(StandardCharsets.US_ASCII), out));
-			}
+			getDnsName().ifPresent(peerAddress -> addPacket(DNS_LOCATOR, swapDnsBytes(peerAddress.getAddressAsBytes().orElseThrow()), out));
+			getExternalIp().ifPresent(peerAddress -> addPacket(EXT4_LOCATOR, swapBytes(peerAddress.getAddressAsBytes().orElseThrow()), out));
+			getInternalIp().ifPresent(peerAddress -> addPacket(LOC4_LOCATOR, swapBytes(peerAddress.getAddressAsBytes().orElseThrow()), out));
+			// Use one locator. Ideally, the first one should be the most recent address
+			getLocators().stream()
+					.findFirst()
+					.ifPresent(peerAddress -> addPacket(LOCATOR, peerAddress.getUrl().getBytes(StandardCharsets.US_ASCII), out));
 		}
 		// Note that we don't use LOC4_LOCATOR as we expect the broadcast discovery to work
 		addCrcPacket(CHECKSUM, out);

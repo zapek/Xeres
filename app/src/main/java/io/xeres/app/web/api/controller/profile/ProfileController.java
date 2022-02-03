@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.security.cert.CertificateException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -98,15 +97,7 @@ public class ProfileController
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> createProfileFromCertificate(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
-		Profile profile;
-		try
-		{
-			profile = profileService.getProfileFromRSId(RSId.parse(rsIdRequest.rsId()));
-		}
-		catch (CertificateException e)
-		{
-			throw new UnprocessableEntityException("Couldn't parse RS id: " + e.getMessage());
-		}
+		var profile = profileService.getProfileFromRSId(RSId.parse(rsIdRequest.rsId(), RSId.Type.ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid")));
 
 		var savedProfile = profileService.createOrUpdateProfile(profile).orElseThrow(() -> new UnprocessableEntityException("Failed to save profile"));
 
@@ -121,17 +112,9 @@ public class ProfileController
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<ProfileDTO> checkProfileFromCertificate(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
-		ProfileDTO profileDTO;
-		RSId rsId;
-		try
-		{
-			rsId = RSId.parse(rsIdRequest.rsId());
-			profileDTO = toDeepDTO(profileService.getProfileFromRSId(rsId));
-		}
-		catch (CertificateException e)
-		{
-			throw new UnprocessableEntityException("Couldn't parse certificate/shortinvite: " + e.getMessage());
-		}
+		var rsId = RSId.parse(rsIdRequest.rsId(), RSId.Type.ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid"));
+		var profileDTO = toDeepDTO(profileService.getProfileFromRSId(rsId));
+
 		return ResponseEntity.ok()
 				.body(profileDTO);
 	}

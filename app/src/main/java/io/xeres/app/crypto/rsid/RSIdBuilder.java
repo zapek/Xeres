@@ -20,6 +20,7 @@
 package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.database.model.connection.Connection;
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
 
@@ -31,6 +32,7 @@ public class RSIdBuilder
 	private final RSId.Type type;
 	private byte[] name;
 	private LocationId locationId;
+	private Profile profile;
 	private byte[] pgpFingerprint;
 	private final List<String> locators = new ArrayList<>();
 	private String externalLocator;
@@ -51,6 +53,12 @@ public class RSIdBuilder
 	public RSIdBuilder setLocationId(LocationId locationId)
 	{
 		this.locationId = locationId;
+		return this;
+	}
+
+	public RSIdBuilder setProfile(Profile profile)
+	{
+		this.profile = profile;
 		return this;
 	}
 
@@ -107,6 +115,29 @@ public class RSIdBuilder
 						locators.forEach(si::addLocator);
 
 						yield si;
+					}
+					case CERTIFICATE -> {
+						var cert = new RSCertificate();
+
+						cert.setName(name);
+						cert.setLocationId(locationId);
+						cert.setVerifiedPgpPublicKey(profile.getPgpPublicKeyData());
+
+						if (externalLocator != null)
+						{
+							cert.setExternalIp(externalLocator);
+						}
+						if (lanLocator != null)
+						{
+							cert.setInternalIp(lanLocator);
+						}
+						if (dnsLocator != null)
+						{
+							cert.setDnsName(dnsLocator);
+						}
+						locators.forEach(cert::addLocator);
+
+						yield cert;
 					}
 					default -> null;
 				};

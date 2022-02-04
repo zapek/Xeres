@@ -22,6 +22,7 @@ package io.xeres.app.crypto.rsid;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.id.ProfileFingerprint;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPPublicKey;
 
@@ -39,10 +40,13 @@ public abstract class RSId
 	public enum Type
 	{
 		ANY,
-		SHORT_INVITE
+		SHORT_INVITE,
+		CERTIFICATE
 	}
 
-	private static final Map<Class<? extends RSId>, Type> engines = Map.of(ShortInvite.class, Type.SHORT_INVITE);
+	private static final Map<Class<? extends RSId>, Type> engines = Map.of(
+			ShortInvite.class, Type.SHORT_INVITE,
+			RSCertificate.class, Type.CERTIFICATE);
 
 	public static Optional<RSId> parse(String data, Type type)
 	{
@@ -92,7 +96,7 @@ public abstract class RSId
 
 	public abstract Optional<PeerAddress> getExternalIp();
 
-	public abstract byte[] getPgpFingerprint();
+	public abstract ProfileFingerprint getPgpFingerprint();
 
 	public abstract Optional<PGPPublicKey> getPgpPublicKey();
 
@@ -121,13 +125,11 @@ public abstract class RSId
 	 */
 	public Long getPgpIdentifier()
 	{
-		byte[] bytes = getPgpFingerprint();
-
-		if (bytes == null)
+		if (getPgpFingerprint() == null)
 		{
 			return null;
 		}
-		return PGP.getPGPIdentifierFromFingerprint(bytes);
+		return PGP.getPGPIdentifierFromFingerprint(getPgpFingerprint().getBytes());
 	}
 
 	protected static byte[] cleanupInput(byte[] data)

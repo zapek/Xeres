@@ -20,6 +20,11 @@
 package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.database.model.profile.Profile;
+import io.xeres.app.database.model.profile.ProfileFakes;
+
+import static io.xeres.app.crypto.rsid.RSId.Type.CERTIFICATE;
+import static io.xeres.app.crypto.rsid.RSId.Type.SHORT_INVITE;
 
 public final class RSIdFakes
 {
@@ -30,10 +35,30 @@ public final class RSIdFakes
 
 	public static RSId createShortInvite()
 	{
-		var builder = new RSIdBuilder(RSId.Type.SHORT_INVITE);
+		var profile = ProfileFakes.createProfile();
+
+		var builder = new RSIdBuilder(SHORT_INVITE);
 		return builder.setName("foobar".getBytes())
 				.setLocationId(LocationFakes.createLocation().getLocationId())
-				.setPgpFingerprint(new byte[]{1, 2, 3})
+				.setPgpFingerprint(profile.getProfileFingerprint().getBytes())
+				.build();
+	}
+
+	public static RSId createRsCertificate()
+	{
+		var builder = new RSIdBuilder(CERTIFICATE);
+		return builder.setName("foobar".getBytes())
+				.setProfile(ProfileFakes.createProfile())
+				.setLocationId(LocationFakes.createLocation().getLocationId())
+				.build();
+	}
+
+	public static RSId createRsCertificate(Profile profile)
+	{
+		var builder = new RSIdBuilder(CERTIFICATE);
+		return builder.setName(profile.getName().getBytes())
+				.setProfile(profile)
+				.setLocationId(LocationFakes.createLocation().getLocationId())
 				.build();
 	}
 }

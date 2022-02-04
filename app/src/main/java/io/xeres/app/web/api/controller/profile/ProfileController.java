@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.xeres.app.crypto.rsid.RSId.Type.ANY;
 import static io.xeres.app.database.model.profile.ProfileMapper.*;
 import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -97,7 +98,7 @@ public class ProfileController
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> createProfileFromCertificate(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
-		var profile = profileService.getProfileFromRSId(RSId.parse(rsIdRequest.rsId(), RSId.Type.ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid")));
+		var profile = profileService.getProfileFromRSId(RSId.parse(rsIdRequest.rsId(), ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid")));
 
 		var savedProfile = profileService.createOrUpdateProfile(profile).orElseThrow(() -> new UnprocessableEntityException("Failed to save profile"));
 
@@ -112,7 +113,7 @@ public class ProfileController
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<ProfileDTO> checkProfileFromCertificate(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
-		var rsId = RSId.parse(rsIdRequest.rsId(), RSId.Type.ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid"));
+		var rsId = RSId.parse(rsIdRequest.rsId(), ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid"));
 		var profileDTO = toDeepDTO(profileService.getProfileFromRSId(rsId));
 
 		return ResponseEntity.ok()

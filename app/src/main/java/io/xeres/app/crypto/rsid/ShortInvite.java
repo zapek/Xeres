@@ -22,6 +22,7 @@ package io.xeres.app.crypto.rsid;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.id.ProfileFingerprint;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ class ShortInvite extends RSId
 	private String name;
 	private LocationId locationId;
 
-	private byte[] pgpFingerprint;
+	private ProfileFingerprint pgpFingerprint;
 	private PeerAddress hiddenLocator;
 	private PeerAddress ext4Locator;
 	private PeerAddress loc4Locator;
@@ -183,11 +184,11 @@ class ShortInvite extends RSId
 
 	void setPgpFingerprint(byte[] pgpFingerprint)
 	{
-		this.pgpFingerprint = pgpFingerprint;
+		this.pgpFingerprint = new ProfileFingerprint(pgpFingerprint);
 	}
 
 	@Override
-	public byte[] getPgpFingerprint()
+	public ProfileFingerprint getPgpFingerprint()
 	{
 		return pgpFingerprint;
 	}
@@ -246,7 +247,11 @@ class ShortInvite extends RSId
 	@Override
 	public Optional<PeerAddress> getHiddenNodeAddress()
 	{
-		return Optional.ofNullable(hiddenLocator);
+		if (hiddenLocator != null && hiddenLocator.isValid())
+		{
+			return Optional.of(hiddenLocator);
+		}
+		return Optional.empty();
 	}
 
 	private void setHiddenNodeAddress(String hiddenNodeAddress)
@@ -289,7 +294,7 @@ class ShortInvite extends RSId
 
 		addPacket(SSL_ID, getLocationId().getBytes(), out);
 		addPacket(NAME, getName().getBytes(), out);
-		addPacket(PGP_FINGERPRINT, getPgpFingerprint(), out);
+		addPacket(PGP_FINGERPRINT, getPgpFingerprint().getBytes(), out);
 		if (getHiddenNodeAddress().isPresent())
 		{
 			addPacket(HIDDEN_LOCATOR, getHiddenNodeAddress().get().getAddressAsBytes().orElseThrow(), out);
@@ -304,7 +309,6 @@ class ShortInvite extends RSId
 					.findFirst()
 					.ifPresent(peerAddress -> addPacket(LOCATOR, peerAddress.getUrl().getBytes(StandardCharsets.US_ASCII), out));
 		}
-		// Note that we don't use LOC4_LOCATOR as we expect the broadcast discovery to work
 		addCrcPacket(CHECKSUM, out);
 
 		return wrapWithBase64(out.toByteArray(), RSIdArmor.WrapMode.CONTINUOUS);

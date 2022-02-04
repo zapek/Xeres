@@ -161,13 +161,20 @@ public class ProfileService
 
 	public Profile getProfileFromRSId(RSId rsId)
 	{
-		var profileFingerprint = new ProfileFingerprint(rsId.getPgpFingerprint());
-		var profile = findProfileByPgpFingerprint(profileFingerprint).orElseGet(() -> rsId.getPgpPublicKey().isPresent() ?
-				Profile.createProfile(rsId.getName(), rsId.getPgpIdentifier(), rsId.getPgpFingerprint(), rsId.getPgpPublicKey().get()) :
-				Profile.createEmptyProfile(rsId.getName(), rsId.getPgpIdentifier(), profileFingerprint));
+		var profile = findProfileByPgpFingerprint(rsId.getPgpFingerprint()).orElseGet(() -> createNewProfile(rsId));
 		profile.setAccepted(true);
 		profile.addLocation(Location.createLocation(rsId));
 		return profile;
+	}
+
+	private Profile createNewProfile(RSId rsId)
+	{
+		if (rsId.getPgpPublicKey().isPresent())
+		{
+			var pgpPublicKey = rsId.getPgpPublicKey().get();
+			return Profile.createProfile(pgpPublicKey.getUserIDs().next(), pgpPublicKey.getKeyID(), rsId.getPgpFingerprint(), pgpPublicKey);
+		}
+		return Profile.createEmptyProfile(rsId.getName(), rsId.getPgpIdentifier(), rsId.getPgpFingerprint());
 	}
 
 	@Transactional

@@ -82,7 +82,7 @@ public class Profile
 		return profile;
 	}
 
-	public static Profile createProfile(String name, long pgpIdentifier, byte[] pgpFingerprint, PGPPublicKey pgpPublicKey)
+	public static Profile createProfile(String name, long pgpIdentifier, ProfileFingerprint pgpFingerprint, PGPPublicKey pgpPublicKey)
 	{
 		try
 		{

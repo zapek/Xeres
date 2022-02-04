@@ -27,6 +27,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import org.junit.jupiter.api.Test;
 
+import static io.xeres.app.crypto.rsid.RSId.Type.SHORT_INVITE;
 import static io.xeres.app.crypto.rsid.ShortInvite.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -70,7 +71,7 @@ class RSShortInviteTest
 		var profile = ProfileFakes.createProfile("Nemesis", 0x792b20ca657e2706L, Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), new byte[]{1});
 		var location = LocationFakes.createLocation("Home", profile, new LocationId("738ea192064e3f20e766438cc9305bd5"));
 
-		var rsId = new RSIdBuilder(RSId.Type.SHORT_INVITE)
+		var rsId = new RSIdBuilder(SHORT_INVITE)
 				.setName(profile.getName().getBytes())
 				.setPgpFingerprint(profile.getProfileFingerprint().getBytes())
 				.setLocationId(location.getLocationId())
@@ -92,14 +93,14 @@ class RSShortInviteTest
 	{
 		var string = "\nABBzjqGSBk4/IOdmQ4zJMFvVAQdOZW1lc2lzAxQG1LRG0gnnUvpxGjl5KyDKZX4nBpENBNJmb28uYmFyLmNvbZIGAwIBVQTSkwYyAajABNICFGlwdjQ6Ly84NS4xLjIuNDoxMjM0BAOiD+U=\n";
 
-		var rsId = RSId.parse(string, Type.SHORT_INVITE);
+		var rsId = RSId.parse(string, SHORT_INVITE);
 
 		assertTrue(rsId.isPresent());
 
 		assertEquals("Nemesis", rsId.get().getName());
 
 		assertEquals(0x792b20ca657e2706L, rsId.get().getPgpIdentifier());
-		assertArrayEquals(Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), rsId.get().getPgpFingerprint());
+		assertArrayEquals(Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), rsId.get().getPgpFingerprint().getBytes());
 
 		assertArrayEquals(Id.toBytes("738ea192064e3f20e766438cc9305bd5"), rsId.get().getLocationId().getBytes());
 

@@ -223,6 +223,15 @@ public final class PeerAddress
 		return from(ip, port);
 	}
 
+	public static PeerAddress fromHostname(String hostname)
+	{
+		if (isInvalidHostname(hostname))
+		{
+			return fromInvalid();
+		}
+		return new PeerAddress(DomainNameSocketAddress.of(hostname), HOSTNAME);
+	}
+
 	public static PeerAddress fromHostname(String hostname, int port)
 	{
 		if (isInvalidHostname(hostname) || isInvalidPort(port))
@@ -314,15 +323,19 @@ public final class PeerAddress
 	}
 
 	/**
-	 * Gets the IP address and port of the PeerAddress (if the protocol allows it).
+	 * Gets the address and port of the PeerAddress (if the protocol allows it), or any other suitable format.
 	 *
-	 * @return the IP address and port in the following format: "ip:port"
+	 * @return the IP address and port in the following format: "ip:port" or any other suitable format
 	 */
 	public Optional<String> getAddress()
 	{
 		if (socketAddress instanceof InetSocketAddress inetSocketAddress)
 		{
 			return Optional.of(inetSocketAddress.getHostString() + ":" + inetSocketAddress.getPort());
+		}
+		else if (socketAddress instanceof DomainNameSocketAddress domainNameSocketAddress)
+		{
+			return Optional.of(domainNameSocketAddress.getName());
 		}
 		return Optional.empty();
 	}
@@ -355,6 +368,10 @@ public final class PeerAddress
 				bytes[5] = (byte) (port & 0xff);
 				return Optional.of(bytes);
 			}
+		}
+		else if (socketAddress instanceof DomainNameSocketAddress)
+		{
+			throw new IllegalStateException("Can't get the address of a DomainNameSocketAddress as it requires a port");
 		}
 		return Optional.empty();
 	}

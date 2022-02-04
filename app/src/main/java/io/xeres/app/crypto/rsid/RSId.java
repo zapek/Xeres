@@ -35,19 +35,45 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.xeres.app.crypto.rsid.RSId.Type.*;
+
+/**
+ * This abstract class represents an RS ID, which is a string that allows to exchange a profile identity
+ * with another user.
+ */
 public abstract class RSId
 {
 	public enum Type
 	{
+		/**
+		 * This accepts any ID and generates the best one.
+		 */
 		ANY,
+
+		/**
+		 * A short invite is a shorter version of an ID which contains enough information
+		 * to connect to one node. Its usage is recommended.
+		 */
 		SHORT_INVITE,
+
+		/**
+		 * This is the legacy version of the ID which contains a full PGP key and allows
+		 * connecting to several nodes. Use short invites instead.
+		 */
 		CERTIFICATE
 	}
 
 	private static final Map<Class<? extends RSId>, Type> engines = Map.of(
-			ShortInvite.class, Type.SHORT_INVITE,
-			RSCertificate.class, Type.CERTIFICATE);
+			ShortInvite.class, SHORT_INVITE,
+			RSCertificate.class, CERTIFICATE);
 
+	/**
+	 * Parses an ID.
+	 *
+	 * @param data the ID encoded in a string
+	 * @param type restrict the type to parse or use ANY
+	 * @return an RSId
+	 */
 	public static Optional<RSId> parse(String data, Type type)
 	{
 		if (StringUtils.isBlank(data))
@@ -60,7 +86,7 @@ public abstract class RSId
 			Class<? extends RSId> engineClass = entry.getKey();
 			Type engineType = entry.getValue();
 
-			if (type != Type.ANY && type != engineType)
+			if (type != ANY && type != engineType)
 			{
 				continue;
 			}
@@ -92,29 +118,74 @@ public abstract class RSId
 
 	abstract void checkRequiredFields();
 
+	/**
+	 * Gets the internal IP (IP used on the LAN).
+	 *
+	 * @return the internal IP (for example 192.168.1.10)
+	 */
 	public abstract Optional<PeerAddress> getInternalIp();
 
+	/**
+	 * Gets the external IP (IP used on the Internet).
+	 *
+	 * @return the external IP (for example 85.12.43.18)
+	 */
 	public abstract Optional<PeerAddress> getExternalIp();
 
+	/**
+	 * Gets the PGP fingerprint. Should always be available.
+	 *
+	 * @return the PGP fingerprint
+	 */
 	public abstract ProfileFingerprint getPgpFingerprint();
 
+	/**
+	 * Gets the PGP public key (optional).
+	 *
+	 * @return the PGP public key
+	 */
 	public abstract Optional<PGPPublicKey> getPgpPublicKey();
 
+	/**
+	 * Gets the profile name (usually the name or nickname of the user).
+	 *
+	 * @return the profile name
+	 */
 	public abstract String getName();
 
+	/**
+	 * Gets the location ID (node identifier).
+	 *
+	 * @return the location ID
+	 */
 	public abstract LocationId getLocationId();
 
+	/**
+	 * Gets the DNS name.
+	 *
+	 * @return the DNS name
+	 */
 	public abstract Optional<PeerAddress> getDnsName();
 
+	/**
+	 * Gets the hidden node address, if this is a hidden node.
+	 *
+	 * @return the hidden node address
+	 */
 	public abstract Optional<PeerAddress> getHiddenNodeAddress();
 
+	/**
+	 * Gets a set of addresses where the node is available.
+	 *
+	 * @return a set of addresses
+	 */
 	public abstract Set<PeerAddress> getLocators();
 
 	/**
 	 * Gets an armored version of the certificate or short invite. It's encoded using base64 and can be
 	 * used in emails, forums, etc...
 	 *
-	 * @return an ascii armored version of it
+	 * @return an ASCII armored version of it
 	 */
 	public abstract String getArmored();
 

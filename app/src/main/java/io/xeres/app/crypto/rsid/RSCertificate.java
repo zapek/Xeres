@@ -20,6 +20,7 @@
 package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.crypto.pgp.PGP;
+import io.xeres.app.net.protocol.DomainNameSocketAddress;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.LocationId;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.cert.CertificateParsingException;
@@ -68,7 +70,7 @@ class RSCertificate extends RSId
 	private PeerAddress hiddenNodeAddress;
 	private PeerAddress internalIp;
 	private PeerAddress externalIp;
-	private PeerAddress dnsName; // Note that dnsName is not supported because it doesn't have a port (XXX: it could be supported by using the one from externalIp though)
+	private PeerAddress dnsName;
 	private final Set<PeerAddress> locators = new HashSet<>();
 
 	RSCertificate()
@@ -188,6 +190,24 @@ class RSCertificate extends RSId
 			throw new IllegalArgumentException("Missing name");
 		}
 		getPgpPublicKey().orElseThrow(() -> new IllegalArgumentException("Missing PGP public key"));
+
+		addPortToDnsName();
+	}
+
+	private void addPortToDnsName()
+	{
+		if (dnsName != null && dnsName.isValid() && dnsName.getSocketAddress() instanceof DomainNameSocketAddress)
+		{
+			// Find another address for a port, then add it
+			if (externalIp != null && externalIp.isValid())
+			{
+				dnsName = PeerAddress.fromHostname(dnsName.getAddress().orElseThrow(), ((InetSocketAddress) externalIp.getSocketAddress()).getPort());
+			}
+			else
+			{
+				dnsName = PeerAddress.fromInvalid();
+			}
+		}
 	}
 
 	void setPgpPublicKey(byte[] data) throws CertificateParsingException
@@ -260,12 +280,6 @@ class RSCertificate extends RSId
 		this.locationId = locationId;
 	}
 
-	private void setDnsName(byte[] dnsName)
-	{
-		// XXX: a peerAddress needs a port and we don't have one in there... what to do? use something else than a peerAddress obviously...
-		//this.dnsName = PeerAddress.fromHostname()
-	}
-
 	private void setHiddenNodeAddress(byte[] hiddenNodeAddress)
 	{
 		if (hiddenNodeAddress != null && hiddenNodeAddress.length >= 5 && hiddenNodeAddress.length <= 255)
@@ -335,12 +349,21 @@ class RSCertificate extends RSId
 	@Override
 	public Optional<PeerAddress> getDnsName()
 	{
-		return Optional.empty(); // XXX: implement support? needs missing port... or just return the name and don't worry about the port, let the rest of the system figure it out
+		if (dnsName != null && dnsName.isValid())
+		{
+			return Optional.of(dnsName);
+		}
+		return Optional.empty();
+	}
+
+	private void setDnsName(byte[] dnsName)
+	{
+		setDnsName(new String(dnsName, StandardCharsets.US_ASCII));
 	}
 
 	void setDnsName(String dnsName)
 	{
-		// XXX: ditto
+		this.dnsName = PeerAddress.fromHostname(dnsName);
 	}
 
 	@Override

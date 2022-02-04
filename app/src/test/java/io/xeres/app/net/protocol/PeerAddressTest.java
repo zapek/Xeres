@@ -22,6 +22,7 @@ package io.xeres.app.net.protocol;
 import io.xeres.app.net.protocol.PeerAddress.Type;
 import org.junit.jupiter.api.Test;
 
+import java.net.InetSocketAddress;
 import java.util.Optional;
 
 import static io.xeres.app.net.protocol.PeerAddress.Type.*;
@@ -292,6 +293,40 @@ class PeerAddressTest
 
 		assertFalse(peerAddress.isValid());
 		assertFalse(peerAddress.isHidden());
+	}
+
+	@Test
+	void PeerAddress_FromHostname_OK()
+	{
+		var peerAddress = PeerAddress.fromHostname("foo.bar.com");
+
+		assertTrue(peerAddress.isValid());
+		assertTrue(peerAddress.isHostname());
+		assertTrue(peerAddress.getSocketAddress() instanceof DomainNameSocketAddress);
+	}
+
+	@Test
+	void PeerAddress_FromHostNameAndPort_OK()
+	{
+		var peerAddress = PeerAddress.fromHostname("foo.bar.com", 8080);
+
+		assertTrue(peerAddress.isValid());
+		assertTrue(peerAddress.isHostname());
+		assertTrue(peerAddress.getSocketAddress() instanceof InetSocketAddress);
+		assertEquals("foo.bar.com", ((InetSocketAddress) peerAddress.getSocketAddress()).getHostString());
+		assertEquals(8080, ((InetSocketAddress) peerAddress.getSocketAddress()).getPort());
+	}
+
+	@Test
+	void PeerAddress_FromHostNameAndPortString_OK()
+	{
+		var peerAddress = PeerAddress.fromHostnameAndPort("foo.bar.com:8080");
+
+		assertTrue(peerAddress.isValid());
+		assertTrue(peerAddress.isHostname());
+		assertTrue(peerAddress.getSocketAddress() instanceof InetSocketAddress);
+		assertEquals("foo.bar.com", ((InetSocketAddress) peerAddress.getSocketAddress()).getHostString());
+		assertEquals(8080, ((InetSocketAddress) peerAddress.getSocketAddress()).getPort());
 	}
 
 	@Test

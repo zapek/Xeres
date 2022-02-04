@@ -44,7 +44,7 @@ class RSCertificateTest
 				.setLocationId(location.getLocationId())
 				.addLocator(Connection.from(PeerAddress.fromAddress("192.168.1.50:1234")))
 				.addLocator(Connection.from(PeerAddress.fromAddress("85.1.2.3:1234")))
-				.addLocator(Connection.from(PeerAddress.fromAddress("foo.bar.com:1234")))
+				.addLocator(Connection.from(PeerAddress.fromHostname("foo.bar.com")))
 				.addLocator(Connection.from(PeerAddress.fromAddress("85.1.2.4:1234")))
 				.build();
 
@@ -55,8 +55,8 @@ class RSCertificateTest
 				9F2yL7Zwu14F9IRq1taGIkrMIpZvKOGlDZnUr7KV+wARAQABtAhOZW1lc2lzIIhc
 				BBABAgAGBQJh/YBAAAoJEJ8AshJ3aY2Nl+QB/2iNK5tzVRWHhYmUMJSFkJo2tUAV
 				GHFmmBMeGBHY+CBDSDksiemfyyFlHXSQ6Yd7gM7X4Rqru3wFOIU5VNd9BHsCBlUB
-				AgME0gMGwKgBMgTSBgdOZW1lc2lzBRBzjqGSBk4/IOdmQ4zJMFvVCgZVAQIEBNIH
-				A8LjCQ==""", armored);
+				AgME0gMGwKgBMgTSBA1mb28uYmFyLmNvbQTSBgdOZW1lc2lzBRBzjqGSBk4/IOdm
+				Q4zJMFvVCgZVAQIEBNIHA90yoQ==""", armored);
 	}
 
 	@Test

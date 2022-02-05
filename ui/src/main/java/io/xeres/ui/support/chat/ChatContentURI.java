@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.function.Consumer;
 
 public class ChatContentURI implements ChatContent
 {
@@ -39,10 +40,10 @@ public class ChatContentURI implements ChatContent
 		node.setOnAction(event -> JavaFxApplication.openUrl(node.getText()));
 	}
 
-	public ChatContentURI(URI uri, String description)
+	public ChatContentURI(URI uri, String description, Consumer<String> action)
 	{
 		node = new Hyperlink(description);
-		node.setOnAction(event -> log.info("Would add certificate for {}", uri.toString())); // XXX: call AddCertificateWindowController, just need a way to give it arguments!
+		node.setOnAction(event -> action.accept(uri.toString()));
 	}
 
 	@Override

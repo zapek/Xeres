@@ -20,6 +20,7 @@
 package io.xeres.ui.support.chat;
 
 import com.vdurmont.emoji.EmojiParser;
+import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.support.util.SmileyUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -66,7 +67,7 @@ public final class ChatParser
 		{
 			var href = link.attr("href");
 			var text = link.text();
-			chatContents.add(new ChatContentURI(URI.create(getCertificateFromHref(href)), text));
+			chatContents.add(new ChatContentURI(URI.create(getCertificateFromHref(href)), text, JavaFxApplication::addPeer));
 			links.remove();
 		}
 		return document.text();

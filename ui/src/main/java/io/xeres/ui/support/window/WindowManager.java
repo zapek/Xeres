@@ -169,13 +169,14 @@ public class WindowManager
 						.open());
 	}
 
-	public void openAddPeer(Window parent)
+	public void openAddPeer(Window parent, String rsId)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(AddCertificateWindowController.class)
 						.setParent(parent)
 						.setTitle("Add peer ID")
 						.setMinHeight(380)
+						.setUserData(rsId)
 						.build()
 						.open());
 	}

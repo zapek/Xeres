@@ -106,7 +106,7 @@ public class MainWindowController implements WindowController
 
 	public void initialize()
 	{
-		addPeer.setOnAction(event -> addPeer());
+		addPeer.setOnAction(event -> addPeer(null));
 		copyOwnId.setOnAction(event -> copyOwnId());
 
 		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
@@ -160,9 +160,9 @@ public class MainWindowController implements WindowController
 		}));
 	}
 
-	private void addPeer()
+	public void addPeer(String rsId)
 	{
-		windowManager.openAddPeer(titleLabel.getScene().getWindow());
+		windowManager.openAddPeer(titleLabel.getScene().getWindow(), rsId);
 	}
 
 	private void openUrl(String url)

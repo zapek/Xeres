@@ -20,6 +20,7 @@
 package io.xeres.ui;
 
 import io.xeres.common.mui.MinimalUserInterface;
+import io.xeres.ui.controller.MainWindowController;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -37,6 +38,8 @@ public class JavaFxApplication extends Application
 	private static HostServices hostServices;
 
 	private static Class<?> springApplicationClass;
+
+	private static MainWindowController mainWindowController;
 
 	static void start(Class<?> springApplicationClass, String[] args)
 	{
@@ -91,11 +94,18 @@ public class JavaFxApplication extends Application
 		hostServices = getHostServices();
 
 		springContext.publishEvent(new StageReadyEvent(primaryStage));
+
+		mainWindowController = springContext.getBean(MainWindowController.class);
 	}
 
 	public static void openUrl(String url)
 	{
 		hostServices.showDocument(url);
+	}
+
+	public static void addPeer(String rsId)
+	{
+		mainWindowController.addPeer(rsId);
 	}
 
 	public static String getHostnameAndPort()

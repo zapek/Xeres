@@ -80,6 +80,17 @@ public class AddCertificateWindowController implements WindowController
 		addButton.setOnAction(event -> addPeer());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 		certificateTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkCertificate(newValue)); // XXX: add a debouncer for this
+
+		Platform.runLater(this::handleArgument);
+	}
+
+	private void handleArgument()
+	{
+		var userData = certificateTextArea.getScene().getRoot().getUserData();
+		if (userData != null)
+		{
+			certificateTextArea.setText((String) userData);
+		}
 	}
 
 	private void addPeer()

@@ -27,8 +27,8 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.crypto.rsid.RSId.Type.SHORT_INVITE;
 import static io.xeres.app.crypto.rsid.ShortInvite.*;
+import static io.xeres.common.rsid.Type.SHORT_INVITE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RSShortInviteTest

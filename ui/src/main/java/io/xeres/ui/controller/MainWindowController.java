@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller;
 
+import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.support.tray.TrayService;
@@ -149,7 +150,7 @@ public class MainWindowController implements WindowController
 
 	private void copyOwnId()
 	{
-		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID);
+		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID, Type.ANY);
 		rsIdResponse.subscribe(reply -> Platform.runLater(() -> {
 			var clipboard = Clipboard.getSystemClipboard();
 			var content = new ClipboardContent();

@@ -27,7 +27,7 @@ import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
-import io.xeres.ui.controller.id.AddCertificateWindowController;
+import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.identity.IdentitiesWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
@@ -172,7 +172,7 @@ public class WindowManager
 	public void openAddPeer(Window parent, String rsId)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(AddCertificateWindowController.class)
+				UiWindow.builder(AddRsIdWindowController.class)
 						.setParent(parent)
 						.setTitle("Add peer ID")
 						.setMinHeight(380)

@@ -23,8 +23,8 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 
-import static io.xeres.app.crypto.rsid.RSId.Type.CERTIFICATE;
-import static io.xeres.app.crypto.rsid.RSId.Type.SHORT_INVITE;
+import static io.xeres.common.rsid.Type.CERTIFICATE;
+import static io.xeres.common.rsid.Type.SHORT_INVITE;
 
 public final class RSIdFakes
 {

@@ -23,6 +23,7 @@ import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.ProfileFingerprint;
+import io.xeres.common.rsid.Type;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPPublicKey;
 
@@ -35,7 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.xeres.app.crypto.rsid.RSId.Type.*;
+import static io.xeres.common.rsid.Type.*;
 
 /**
  * This abstract class represents an RS ID, which is a string that allows to exchange a profile identity
@@ -43,26 +44,6 @@ import static io.xeres.app.crypto.rsid.RSId.Type.*;
  */
 public abstract class RSId
 {
-	public enum Type
-	{
-		/**
-		 * This accepts any ID and generates the best one.
-		 */
-		ANY,
-
-		/**
-		 * A short invite is a shorter version of an ID which contains enough information
-		 * to connect to one node. Its usage is recommended.
-		 */
-		SHORT_INVITE,
-
-		/**
-		 * This is the legacy version of the ID which contains a full PGP key and allows
-		 * connecting to several nodes. Use short invites instead.
-		 */
-		CERTIFICATE
-	}
-
 	private static final Map<Class<? extends RSId>, Type> engines = Map.of(
 			ShortInvite.class, SHORT_INVITE,
 			RSCertificate.class, CERTIFICATE);

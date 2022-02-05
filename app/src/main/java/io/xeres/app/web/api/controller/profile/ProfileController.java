@@ -45,9 +45,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static io.xeres.app.crypto.rsid.RSId.Type.ANY;
 import static io.xeres.app.database.model.profile.ProfileMapper.*;
 import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
+import static io.xeres.common.rsid.Type.ANY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Tag(name = "Profile", description = "User's profiles", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/profile", description = "Profile documentation"))
@@ -92,11 +92,11 @@ public class ProfileController
 	}
 
 	@PostMapping
-	@Operation(summary = "Create a profile and its possible location from an RS id")
+	@Operation(summary = "Create a profile and its possible location from an RS ID")
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "location", description = "the location of the profile"))
 	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<Void> createProfileFromCertificate(@Valid @RequestBody RsIdRequest rsIdRequest)
+	public ResponseEntity<Void> createProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
 		var profile = profileService.getProfileFromRSId(RSId.parse(rsIdRequest.rsId(), ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid")));
 
@@ -107,11 +107,11 @@ public class ProfileController
 	}
 
 	@PostMapping("/check")
-	@Operation(summary = "Check a profile certificate")
-	@ApiResponse(responseCode = "200", description = "Profile certificate is OK")
-	@ApiResponse(responseCode = "422", description = "Profile certificate cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
+	@Operation(summary = "Check an RS ID")
+	@ApiResponse(responseCode = "200", description = "RS ID is OK")
+	@ApiResponse(responseCode = "422", description = "RS ID cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<ProfileDTO> checkProfileFromCertificate(@Valid @RequestBody RsIdRequest rsIdRequest)
+	public ResponseEntity<ProfileDTO> checkProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
 		var rsId = RSId.parse(rsIdRequest.rsId(), ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid"));
 		var profileDTO = toDeepDTO(profileService.getProfileFromRSId(rsId));

@@ -27,7 +27,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.crypto.rsid.RSId.Type.CERTIFICATE;
+import static io.xeres.common.rsid.Type.CERTIFICATE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RSCertificateTest

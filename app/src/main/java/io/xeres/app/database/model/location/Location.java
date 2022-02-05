@@ -25,6 +25,7 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.NetMode;
+import io.xeres.common.rsid.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -122,7 +123,7 @@ public class Location
 
 	public Location(RSId rsId)
 	{
-		setName("[" + rsId.getLocationId().toString() + "]");
+		setName(rsId.getName());
 		setLocationId(rsId.getLocationId());
 		rsId.getDnsName().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
 		rsId.getInternalIp().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
@@ -131,11 +132,12 @@ public class Location
 		rsId.getLocators().forEach(peerAddress -> addConnection(Connection.from(peerAddress)));
 	}
 
-	public RSId getRsId()
+	public RSId getRsId(Type type)
 	{
-		var builder = new RSIdBuilder(RSId.Type.SHORT_INVITE);
+		var builder = new RSIdBuilder(type);
 
 		builder.setName(getProfile().getName().getBytes())
+				.setProfile((getProfile()))
 				.setLocationId(getLocationId())
 				.setPgpFingerprint(getProfile().getProfileFingerprint().getBytes());
 

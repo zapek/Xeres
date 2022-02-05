@@ -22,6 +22,7 @@ package io.xeres.ui.controller.chat;
 import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.rest.location.RSIdResponse;
+import io.xeres.common.rsid.Type;
 import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ProfileClient;
@@ -548,14 +549,14 @@ public class ChatViewController implements Controller
 
 	private void appendOwnId(TextInputControl textInputControl)
 	{
-		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID);
+		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID, Type.CERTIFICATE);
 		rsIdResponse.subscribe(reply -> Platform.runLater(() -> textInputControl.appendText(buildRetroshareUrl(reply))));
 	}
 
 	private String buildRetroshareUrl(RSIdResponse rsIdResponse)
 	{
 		var uri = URI.create("retroshare://certificate?" +
-				"radix=" + URLEncoder.encode(rsIdResponse.rsId(), UTF_8) +
+				"radix=" + URLEncoder.encode(rsIdResponse.rsId().replace("\n", ""), UTF_8) + // Removing the '\n' is in case this is a certificate which is sliced for presentation
 				"&amp;name=" + URLEncoder.encode(rsIdResponse.name(), UTF_8) +
 				"&amp;location=" + URLEncoder.encode(rsIdResponse.location(), UTF_8));
 		return "<a href=\"" + uri + "\">Xeres Certificate (" + rsIdResponse.name() + ", @" + rsIdResponse.location() + ")</a>";
@@ -563,6 +564,12 @@ public class ChatViewController implements Controller
 
 	private List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
 	{
+		var undo = new MenuItem("Undo");
+		undo.setOnAction(event -> textInputControl.undo());
+
+		var redo = new MenuItem("Redo");
+		redo.setOnAction(event -> textInputControl.redo());
+
 		var cut = new MenuItem("Cut");
 		cut.setOnAction(event -> textInputControl.cut());
 
@@ -584,7 +591,13 @@ public class ChatViewController implements Controller
 		copy.disableProperty().bind(emptySelection);
 		delete.disableProperty().bind(emptySelection);
 
-		return List.of(cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
+		var canUndo = Bindings.createBooleanBinding(() -> !textInputControl.isUndoable(), textInputControl.undoableProperty());
+		var canRedo = Bindings.createBooleanBinding(() -> !textInputControl.isRedoable(), textInputControl.redoableProperty());
+
+		undo.disableProperty().bind(canUndo);
+		redo.disableProperty().bind(canRedo);
+
+		return List.of(undo, redo, cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
 	}
 
 	private static String writeImageAsPngData(Image image)

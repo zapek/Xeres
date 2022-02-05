@@ -36,10 +36,10 @@ import reactor.core.publisher.Mono;
 import java.util.Comparator;
 
 @Component
-@FxmlView(value = "/view/id/certificate_add.fxml")
-public class AddCertificateWindowController implements WindowController
+@FxmlView(value = "/view/id/rsid_add.fxml")
+public class AddRsIdWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(AddCertificateWindowController.class);
+	private static final Logger log = LoggerFactory.getLogger(AddRsIdWindowController.class);
 
 	@FXML
 	private Button cancelButton;
@@ -48,7 +48,7 @@ public class AddCertificateWindowController implements WindowController
 	private Button addButton;
 
 	@FXML
-	private TextArea certificateTextArea;
+	private TextArea rsIdTextArea;
 
 	@FXML
 	private TextField certName;
@@ -70,7 +70,7 @@ public class AddCertificateWindowController implements WindowController
 
 	private final ProfileClient profileClient;
 
-	public AddCertificateWindowController(ProfileClient profileClient)
+	public AddRsIdWindowController(ProfileClient profileClient)
 	{
 		this.profileClient = profileClient;
 	}
@@ -79,37 +79,37 @@ public class AddCertificateWindowController implements WindowController
 	{
 		addButton.setOnAction(event -> addPeer());
 		cancelButton.setOnAction(UiUtils::closeWindow);
-		certificateTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkCertificate(newValue)); // XXX: add a debouncer for this
+		rsIdTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkRsId(newValue)); // XXX: add a debouncer for this
 
 		Platform.runLater(this::handleArgument);
 	}
 
 	private void handleArgument()
 	{
-		var userData = certificateTextArea.getScene().getRoot().getUserData();
+		var userData = rsIdTextArea.getScene().getRoot().getUserData();
 		if (userData != null)
 		{
-			certificateTextArea.setText((String) userData);
+			rsIdTextArea.setText((String) userData);
 		}
 	}
 
 	private void addPeer()
 	{
-		Mono<Void> profile = profileClient.createProfile(certificateTextArea.getText());
+		Mono<Void> profile = profileClient.createProfile(rsIdTextArea.getText());
 
 		profile.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
 				.doOnError(throwable -> log.error("Error: {}", throwable.getMessage()))
 				.subscribe();
 	}
 
-	private void checkCertificate(String certificateString)
+	private void checkRsId(String rsId)
 	{
-		profileClient.checkCertificate(certificateString.replaceAll("([\r\n\t])", ""))
+		profileClient.checkRsId(rsId.replaceAll("([\r\n\t])", ""))
 				.doOnSuccess(profile -> Platform.runLater(() ->
 				{
-					certificateTextArea.setTooltip(new Tooltip("ID is valid"));
+					rsIdTextArea.setTooltip(new Tooltip("ID is valid"));
 					addButton.setDisable(false);
-					UiUtils.clearError(certificateTextArea);
+					UiUtils.clearError(rsIdTextArea);
 
 					certName.setText(profile.getName());
 					certId.setText(Id.toString(profile.getPgpIdentifier()));
@@ -134,15 +134,15 @@ public class AddCertificateWindowController implements WindowController
 				}))
 				.doOnError(throwable ->
 				{
-					certificateTextArea.setTooltip(new Tooltip(throwable.getMessage()));
+					rsIdTextArea.setTooltip(new Tooltip(throwable.getMessage()));
 					addButton.setDisable(true);
-					if (certificateTextArea.getText().isBlank())
+					if (rsIdTextArea.getText().isBlank())
 					{
-						UiUtils.clearError(certificateTextArea);
+						UiUtils.clearError(rsIdTextArea);
 					}
 					else
 					{
-						UiUtils.showError(certificateTextArea);
+						UiUtils.showError(rsIdTextArea);
 					}
 					titledPane.setExpanded(false);
 				})

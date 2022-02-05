@@ -23,13 +23,15 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.rsid.Type;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RSIdBuilder
 {
-	private final RSId.Type type;
+	private final Type type;
 	private byte[] name;
 	private LocationId locationId;
 	private Profile profile;
@@ -39,7 +41,7 @@ public class RSIdBuilder
 	private String lanLocator;
 	private String dnsLocator;
 
-	public RSIdBuilder(RSId.Type type)
+	public RSIdBuilder(Type type)
 	{
 		this.type = type;
 	}
@@ -96,6 +98,10 @@ public class RSIdBuilder
 					case SHORT_INVITE -> {
 						var si = new ShortInvite();
 
+						Objects.requireNonNull(name);
+						Objects.requireNonNull(locationId);
+						Objects.requireNonNull(pgpFingerprint);
+
 						si.setName(name);
 						si.setLocationId(locationId);
 						si.setPgpFingerprint(pgpFingerprint);
@@ -118,6 +124,10 @@ public class RSIdBuilder
 					}
 					case CERTIFICATE -> {
 						var cert = new RSCertificate();
+
+						Objects.requireNonNull(name);
+						Objects.requireNonNull(locationId);
+						Objects.requireNonNull(profile);
 
 						cert.setName(name);
 						cert.setLocationId(locationId);

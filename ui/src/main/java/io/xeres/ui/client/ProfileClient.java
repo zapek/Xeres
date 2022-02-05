@@ -80,13 +80,13 @@ public class ProfileClient
 		return findById(OWN_PROFILE_ID);
 	}
 
-	public Mono<Profile> checkCertificate(String certificate)
+	public Mono<Profile> checkRsId(String rsId)
 	{
-		var certificateRequest = new RsIdRequest(certificate);
+		var rsIdRequest = new RsIdRequest(rsId);
 
 		return webClient.post()
 				.uri("/check")
-				.bodyValue(certificateRequest)
+				.bodyValue(rsIdRequest)
 				.retrieve()
 				.bodyToMono(ProfileDTO.class)
 				.map(ProfileMapper::fromDeepDTO);

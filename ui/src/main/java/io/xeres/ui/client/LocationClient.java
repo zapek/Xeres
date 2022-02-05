@@ -22,6 +22,7 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.rest.location.RSIdResponse;
+import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.location.LocationMapper;
@@ -62,10 +63,13 @@ public class LocationClient
 				.map(LocationMapper::fromDTO);
 	}
 
-	public Mono<RSIdResponse> getRSId(long id)
+	public Mono<RSIdResponse> getRSId(long id, Type type)
 	{
 		return webClient.get()
-				.uri("/{id}/rsid", id)
+				.uri(uriBuilder -> uriBuilder
+						.path("/{id}/rsid")
+						.queryParam("type", type)
+						.build(id))
 				.retrieve()
 				.bodyToMono(RSIdResponse.class);
 	}

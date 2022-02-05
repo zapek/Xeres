@@ -23,16 +23,24 @@ import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.support.util.SmileyUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 public final class ChatParser
 {
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b((?:https?|ftps?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
+	private static final String RS_PROTOCOL = "retroshare";
+	private static final String RS_HOST = "certificate";
+	private static final String RS_QUERY_PARAM = "radix";
 
 	private ChatParser()
 	{
@@ -58,10 +66,41 @@ public final class ChatParser
 		{
 			var href = link.attr("href");
 			var text = link.text();
-			chatContents.add(new ChatContentURI(URI.create(href), text));
+			chatContents.add(new ChatContentURI(URI.create(getCertificateFromHref(href)), text));
 			links.remove();
 		}
 		return document.text();
+	}
+
+	private static String getCertificateFromHref(String href)
+	{
+		if (isBlank(href))
+		{
+			return "";
+		}
+
+		try
+		{
+			var uri = new URI(href);
+			if (!RS_PROTOCOL.equals(uri.getScheme()))
+			{
+				return "";
+			}
+			if (!RS_HOST.equals(uri.getHost()))
+			{
+				return "";
+			}
+			var uriComponents = UriComponentsBuilder.fromPath(uri.getPath())
+					.query(uri.getQuery())
+					.build();
+
+			var parameter = uriComponents.getQueryParams().getFirst(RS_QUERY_PARAM);
+			return defaultString(parameter);
+		}
+		catch (URISyntaxException e)
+		{
+			return "";
+		}
 	}
 
 	private static void parseInlineUrls(String s, List<ChatContent> chatContents)

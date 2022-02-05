@@ -42,7 +42,7 @@ public class ChatContentURI implements ChatContent
 	public ChatContentURI(URI uri, String description)
 	{
 		node = new Hyperlink(description);
-		node.setOnAction(event -> log.info("Would add certificate for {}", uri.toString())); // XXX: call AddCertificateWindowController, we just need a method to fill its area (also decide who has to parse the url args and clean the input)
+		node.setOnAction(event -> log.info("Would add certificate for {}", uri.toString())); // XXX: call AddCertificateWindowController, just need a way to give it arguments!
 	}
 
 	@Override

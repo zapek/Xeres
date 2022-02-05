@@ -22,17 +22,27 @@ package io.xeres.ui.support.chat;
 import io.xeres.ui.JavaFxApplication;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
 public class ChatContentURI implements ChatContent
 {
+	private static final Logger log = LoggerFactory.getLogger(ChatContentURI.class);
+
 	private final Hyperlink node;
 
 	public ChatContentURI(URI uri)
 	{
 		node = new Hyperlink(uri.toString());
 		node.setOnAction(event -> JavaFxApplication.openUrl(node.getText()));
+	}
+
+	public ChatContentURI(URI uri, String description)
+	{
+		node = new Hyperlink(description);
+		node.setOnAction(event -> log.info("Would add certificate for {}", uri.toString())); // XXX: call AddCertificateWindowController, we just need a method to fill its area (also decide who has to parse the url args and clean the input)
 	}
 
 	@Override

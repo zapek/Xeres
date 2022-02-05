@@ -21,6 +21,8 @@ package io.xeres.ui.support.chat;
 
 import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.support.util.SmileyUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -43,6 +45,27 @@ public final class ChatParser
 		s = EmojiParser.parseToUnicode(s); // :wink:
 
 		List<ChatContent> chatContents = new ArrayList<>();
+		s = parseHrefs(s, chatContents);
+		parseInlineUrls(s, chatContents);
+		return chatContents;
+	}
+
+	private static String parseHrefs(String s, List<ChatContent> chatContents)
+	{
+		var document = Jsoup.parse(s);
+		var links = document.getElementsByTag("a");
+		for (Element link : links)
+		{
+			var href = link.attr("href");
+			var text = link.text();
+			chatContents.add(new ChatContentURI(URI.create(href), text));
+			links.remove();
+		}
+		return document.text();
+	}
+
+	private static void parseInlineUrls(String s, List<ChatContent> chatContents)
+	{
 		var matcher = URL_PATTERN.matcher(s);
 		var previousRange = new Range(0, 0);
 
@@ -74,7 +97,6 @@ public final class ChatParser
 			// Text after the last URL
 			chatContents.add(new ChatContentText(s.substring(previousRange.end)));
 		}
-		return chatContents;
 	}
 
 	private static class Range

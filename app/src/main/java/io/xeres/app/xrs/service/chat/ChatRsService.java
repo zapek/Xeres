@@ -908,6 +908,8 @@ public class ChatRsService extends RsService
 				Jsoup.clean(text, Safelist.none() // <span> -> nothing
 						.addAttributes("img", "src")
 						.addProtocols("img", "src", "data")
+						.addAttributes("a", "href")
+						.addProtocols("a", "href", "retroshare")
 						.preserveRelativeLinks(true))
 		);
 	}

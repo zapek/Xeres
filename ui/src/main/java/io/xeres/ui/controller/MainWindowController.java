@@ -19,7 +19,6 @@
 
 package io.xeres.ui.controller;
 
-import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.support.tray.TrayService;
@@ -37,7 +36,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 
@@ -151,11 +149,11 @@ public class MainWindowController implements WindowController
 
 	private void copyOwnId()
 	{
-		Mono<RSIdResponse> certificate = locationClient.getRSId(OWN_LOCATION_ID);
-		certificate.subscribe(reply -> Platform.runLater(() -> {
+		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID);
+		rsIdResponse.subscribe(reply -> Platform.runLater(() -> {
 			var clipboard = Clipboard.getSystemClipboard();
 			var content = new ClipboardContent();
-			content.putString(reply.RSId());
+			content.putString(reply.rsId());
 			clipboard.setContent(content);
 		}));
 	}

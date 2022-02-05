@@ -68,6 +68,6 @@ public class LocationController
 	{
 		var location = locationService.findLocationById(id).orElseThrow();
 
-		return new RSIdResponse(location.getRSId().getArmored());
+		return new RSIdResponse(location.getProfile().getName(), location.getName(), location.getRsId().getArmored());
 	}
 }

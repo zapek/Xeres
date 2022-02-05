@@ -131,7 +131,7 @@ public class Location
 		rsId.getLocators().forEach(peerAddress -> addConnection(Connection.from(peerAddress)));
 	}
 
-	public RSId getRSId()
+	public RSId getRsId()
 	{
 		var builder = new RSIdBuilder(RSId.Type.SHORT_INVITE);
 

@@ -19,6 +19,10 @@
 
 package io.xeres.common.rest.location;
 
-public record RSIdResponse(String RSId)
+public record RSIdResponse(
+		String name,
+		String location,
+		String rsId
+)
 {
 }

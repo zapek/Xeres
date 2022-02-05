@@ -21,13 +21,16 @@ package io.xeres.ui.controller.chat;
 
 import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.message.chat.*;
+import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.client.ChatClient;
+import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -35,6 +38,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -56,6 +60,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
@@ -64,7 +70,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -115,6 +123,7 @@ public class ChatViewController implements Controller
 	private final MessageClient messageClient;
 	private final ChatClient chatClient;
 	private final ProfileClient profileClient;
+	private final LocationClient locationClient;
 
 	private final TreeItem<RoomHolder> subscribedRooms = new TreeItem<>(new RoomHolder("Subscribed"));
 	private final TreeItem<RoomHolder> privateRooms = new TreeItem<>(new RoomHolder("Private"));
@@ -133,11 +142,12 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
 		this.profileClient = profileClient;
+		this.locationClient = locationClient;
 	}
 
 	public void initialize() throws IOException
@@ -210,6 +220,7 @@ public class ChatViewController implements Controller
 				ae -> typingNotification.setText("")));
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+		send.setContextMenu(createChatInputContextMenu(send));
 
 		refreshRooms();
 	}
@@ -522,6 +533,58 @@ public class ChatViewController implements Controller
 	{
 		previewGroup.setVisible(visible);
 		previewGroup.setManaged(visible);
+	}
+
+	private ContextMenu createChatInputContextMenu(TextInputControl textInputControl)
+	{
+		var contextMenu = new ContextMenu();
+
+		contextMenu.getItems().addAll(createDefaultChatInputMenuItems(textInputControl));
+		var pasteId = new MenuItem("Paste own ID");
+		pasteId.setOnAction(event -> appendOwnId(textInputControl));
+		contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
+		return contextMenu;
+	}
+
+	private void appendOwnId(TextInputControl textInputControl)
+	{
+		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID);
+		rsIdResponse.subscribe(reply -> Platform.runLater(() -> textInputControl.appendText(buildRetroshareUrl(reply))));
+	}
+
+	private String buildRetroshareUrl(RSIdResponse rsIdResponse)
+	{
+		var uri = URI.create("retroshare://certificate?" +
+				"radix=" + URLEncoder.encode(rsIdResponse.rsId(), UTF_8) +
+				"&amp;name=" + URLEncoder.encode(rsIdResponse.name(), UTF_8) +
+				"&amp;location=" + URLEncoder.encode(rsIdResponse.location(), UTF_8));
+		return "<a href=\"" + uri + "\">Xeres Certificate (" + rsIdResponse.name() + ", @" + rsIdResponse.location() + ")</a>";
+	}
+
+	private List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
+	{
+		var cut = new MenuItem("Cut");
+		cut.setOnAction(event -> textInputControl.cut());
+
+		var copy = new MenuItem("Copy");
+		copy.setOnAction(event -> textInputControl.copy());
+
+		var paste = new MenuItem("Paste");
+		paste.setOnAction(event -> textInputControl.paste());
+
+		var delete = new MenuItem("Delete");
+		delete.setOnAction(event -> textInputControl.deleteText(textInputControl.getSelection()));
+
+		var selectAll = new MenuItem("Select All");
+		selectAll.setOnAction(event -> textInputControl.selectAll());
+
+		var emptySelection = Bindings.createBooleanBinding(() -> textInputControl.getSelection().getLength() == 0, textInputControl.selectionProperty());
+
+		cut.disableProperty().bind(emptySelection);
+		copy.disableProperty().bind(emptySelection);
+		delete.disableProperty().bind(emptySelection);
+
+		return List.of(cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
 	}
 
 	private static String writeImageAsPngData(Image image)

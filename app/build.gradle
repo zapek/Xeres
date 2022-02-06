@@ -87,7 +87,6 @@ jpackage {
     destination = "${project.buildDir}/dist"
     mainClass = "org.springframework.boot.loader.JarLauncher"
     mainJar = "app-${project.version}.jar"
-    icon = "${parent.rootDir}/icon.ico"
     licenseFile = "${parent.rootDir}/LICENSE"
     javaOptions = ['-Djava.net.preferIPv4Stack=true', '-Dfile.encoding=UTF-8', '-splash:$APPDIR/startup.jpg']
     windows {
@@ -95,9 +94,11 @@ jpackage {
         winPerUserInstall = true
         winDirChooser = true
         winMenuGroup = "Xeres"
+        icon = "${parent.rootDir}/icon.ico"
     }
     linux {
         linuxShortcut = true
+        icon = "${parent.rootDir}/icon.png"
     }
 }
 

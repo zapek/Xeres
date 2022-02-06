@@ -1,0 +1,26 @@
+name: Installer build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-installer:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up JDK 17
+      uses: action/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    - name: Build
+      uses: gradle/gradle-build-action@v2.1.3
+      with:
+        arguments: jpackage
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        path: ./app/build/dist/Xeres-*.exe
+        name: windows-installer
+        retention-days: 1

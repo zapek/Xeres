@@ -2,50 +2,50 @@ name: Bug report
 description: Something doesn't work properly and you want it fixed.
 labels: [ bug ]
 body:
-    -   type: markdown
-        attributes:
-            value: |
-                Thanks for taking the time to fill out this bug report.
-    -   type: textarea
-        id: what-happened
-        attributes:
-            label: What happened?
-            description: Also tell us, what did you expect to happen.
-            placeholder: Tell us what you see!
-        validations:
-            required: true
-    -   type: textarea
-        id: how-to-reproduce
-        attributes:
-            label: How to reproduce
-            description: List all steps as precisely as possible
-            placeholder: |
-                1. Go to menu XYZ
-                2. Select option A
-                3. etc...
-        validations:
-            required: true
-    -   type: input
-        id: version
-        attributes:
-            label: Version
-            description: Which version of Xeres are you running? See Help/About menu.
-            placeholder: ex. 0.2.0
-        validations:
-            required: false
-    -   type: dropdown
-        id: os
-        attributes:
-            label: Which OS are you running?
-            options:
-                - Windows
-                - Linux
-                - MacOS
-        validations:
-            required: true
-    -   type: textarea
-        id: logs
-        attributes:
-            label: Relevant log output
-            description: Please paste any relevant log output here, if you have them.
-            render: shell
+- type: markdown
+  attributes:
+    value: |
+      Thanks for taking the time to fill out this bug report.
+- type: textarea
+  id: what-happened
+  attributes:
+    label: What happened?
+    description: Also tell us, what did you expect to happen.
+    placeholder: Tell us what you see!
+  validations:
+    required: true
+- type: textarea
+  id: how-to-reproduce
+  attributes:
+    label: How to reproduce
+    description: List all steps as precisely as possible
+    placeholder: |
+      1. Go to menu XYZ
+      2. Select option A
+      3. etc...
+  validations:
+    required: true
+- type: input
+  id: version
+  attributes:
+    label: Version
+    description: Which version of Xeres are you running? See Help/About menu.
+    placeholder: ex. 0.2.0
+  validations:
+    required: false
+- type: dropdown
+  id: os
+  attributes:
+    label: Which OS are you running?
+    options:
+    - Windows
+    - Linux
+    - MacOS
+  validations:
+    required: true
+- type: textarea
+  id: logs
+  attributes:
+    label: Relevant log output
+    description: Please paste any relevant log output here, if you have them.
+    render: shell

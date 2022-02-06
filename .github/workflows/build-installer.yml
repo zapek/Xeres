@@ -90,11 +90,14 @@ jobs:
       uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "Nightly"
         prerelease: true
         draft: true
         files: |
           *.exe
           *.deb
+
+# The automatic_release_tag can be removed if the build is triggered from a github tag event
 
 #    - name: Create Github release
 #      uses: actions/create-release@latest

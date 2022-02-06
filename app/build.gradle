@@ -102,7 +102,7 @@ jpackage {
         icon = "${parent.rootDir}/icon.png"
     }
     mac {
-        appVersion = "1.${project.version}"
+        appVersion = "6.6.6"
     }
 }
 

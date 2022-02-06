@@ -14,7 +14,7 @@ A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure applicati
 
 - Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 17)
 
-If you want to quickly try the current development version without installing anything, see the [command line](#Command-line) section below.
+If you want to quickly try the current development version without installing anything else, see the [command line](#Command-line) section below.
 
 ## Features
 
@@ -40,6 +40,10 @@ https://xeres.io
 | ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
 | DASH   | Xqa3APRoHKzrF1w8fWVHG3Ae5ZaaSZMgio                                                              |
 | BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |
+
+## Documentation
+
+[Here](https://xeres.io/docs/) and on the [wiki](https://github.com/zapek/Xeres/wiki).
 
 ## How to run
 

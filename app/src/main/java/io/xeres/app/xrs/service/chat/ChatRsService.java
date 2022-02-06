@@ -210,7 +210,10 @@ public class ChatRsService extends RsService
 	@Override
 	public void cleanup()
 	{
-		executorService.shutdownNow();
+		if (executorService != null) // Can happen when running tests
+		{
+			executorService.shutdownNow();
+		}
 	}
 
 	@Override

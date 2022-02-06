@@ -3,7 +3,6 @@ name: Installer build
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
     tags:
     - "v*"
 
@@ -74,14 +73,10 @@ jobs:
         name: macos-installer
         retention-days: 1
 
-  # Following is not ready yet. Basically find replacements for actions/upload-artifact and actions/upload-release-asset
-  # It needs wildcard support for the asset_path/name (or a way to find the name and pass it down). Maybe ask gradle to do that
-  # Or just release manually
-  # also use title: ? having the version in it would be nice. or juste use v0.3.0 etc... in the tag that will set the title
   create-release:
     name: Create release
     runs-on: ubuntu-latest
-    needs: [ build-windows-installer, build-linux-installer ]
+    needs: [ build-windows-installer, build-linux-installer, build-macos-installer ]
     steps:
     - name: Download Windows installer
       uses: actions/download-artifact@v2
@@ -103,31 +98,3 @@ jobs:
           *.deb
 
 # The automatic_release_tag can be removed if the build is triggered from a github tag event
-
-#    - name: Create Github release
-#      uses: actions/create-release@latest
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      with:
-#        tag_name: release-${{ github.sha }}
-#        release_name: release-${{ github.sha }}
-#        draft: true
-#        prerelease: true
-#    - name: Release Windows installer
-#      uses: actions/upload-release-asset@latest
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      with:
-#        upload_url: ${{ steps.create-release.outputs.upload_url }}
-#        asset_path: Xeres-0.2.0.exe
-#        asset_name: Xeres-foo
-#        asset_content_type: application/x-binary
-#    - name: Release Linux installer
-#      uses: actions/upload-release-asset@latest
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      with:
-#        upload_url: ${{ steps.create-release.outputs.upload_url }}
-#        asset_path: xeres_0.2.0.deb
-#        asset_name: Xeres-foo
-#        asset_content_type: application/x-binary

@@ -94,11 +94,15 @@ jpackage {
         winPerUserInstall = true
         winDirChooser = true
         winMenuGroup = "Xeres"
+        winUpgradeUuid = "97a4aaa5-0a3f-47f9-b0a2-f91876d9e7dd"
         icon = "${parent.rootDir}/icon.ico"
     }
     linux {
         linuxShortcut = true
         icon = "${parent.rootDir}/icon.png"
+    }
+    mac {
+        appVersion = "1.${project.version}"
     }
 }
 

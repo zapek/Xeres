@@ -95,7 +95,7 @@ public class RSIdBuilder
 	{
 		RSId rsId = switch (type)
 				{
-					case SHORT_INVITE -> {
+					case SHORT_INVITE, ANY -> {
 						var si = new ShortInvite();
 
 						Objects.requireNonNull(name);
@@ -149,13 +149,8 @@ public class RSIdBuilder
 
 						yield cert;
 					}
-					default -> null;
 				};
-
-		if (rsId != null)
-		{
-			rsId.checkRequiredFields();
-		}
+		rsId.checkRequiredFields();
 		return rsId;
 	}
 }

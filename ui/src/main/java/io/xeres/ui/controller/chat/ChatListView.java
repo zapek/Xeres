@@ -114,6 +114,11 @@ public class ChatListView
 		}
 		else
 		{
+			if (ChatParser.isActionMe(message))
+			{
+				message = ChatParser.parseActionMe(message, from);
+				chatAction.setType(ACTION);
+			}
 			var chatContents = ChatParser.parse(message);
 			var chatLine = new ChatLine(Instant.now(), chatAction, chatContents.toArray(ChatContent[]::new));
 			addMessageLine(chatLine);

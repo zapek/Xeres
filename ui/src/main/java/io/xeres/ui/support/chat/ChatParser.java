@@ -59,6 +59,16 @@ public final class ChatParser
 		return chatContents;
 	}
 
+	public static boolean isActionMe(String s)
+	{
+		return s.startsWith("/me ");
+	}
+
+	public static String parseActionMe(String s, String nickname)
+	{
+		return nickname + " " + s.substring(4);
+	}
+
 	private static String parseHrefs(String s, List<ChatContent> chatContents)
 	{
 		var document = Jsoup.parse(s);

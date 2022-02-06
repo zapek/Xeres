@@ -32,10 +32,11 @@ public class ChatAction
 	{
 		JOIN,
 		LEAVE,
-		SAY
+		SAY,
+		ACTION
 	}
 
-	private final Type type;
+	private Type type;
 	private final String nickname;
 	private final String gxsId;
 
@@ -56,12 +57,18 @@ public class ChatAction
 					case JOIN -> "-->";
 					case LEAVE -> "<--";
 					case SAY -> "<" + nickname + ">";
+					case ACTION -> "*";
 				};
 	}
 
 	public Type getType()
 	{
 		return type;
+	}
+
+	public void setType(Type type)
+	{
+		this.type = type;
 	}
 
 	public String getNickname()

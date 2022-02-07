@@ -173,7 +173,7 @@ public class PeerHandler extends ChannelDuplexHandler
 					location = SSL.checkPeerCertificate(locationService, ctx.pipeline().get(SslHandler.class).engine().getSession().getPeerCertificates());
 					var peerConnection = peerConnectionManager.addPeer(location, ctx);
 					locationService.setConnected(location, ctx.channel().remoteAddress());
-					ctx.executor().schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
+					peerConnection.schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
 				}
 
 				var message = "Established " + direction.toString().toLowerCase(Locale.ROOT) + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")";

@@ -26,7 +26,7 @@ import io.xeres.common.id.ProfileFingerprint;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 public final class ProfileMapper
 {
@@ -70,24 +70,14 @@ public final class ProfileMapper
 
 	public static List<ProfileDTO> toDTOs(List<Profile> profiles)
 	{
-		if (profiles == null)
-		{
-			return emptyList();
-		}
-
-		return profiles.stream()
+		return emptyIfNull(profiles).stream()
 				.map(ProfileMapper::toDTO)
 				.toList();
 	}
 
 	public static List<ProfileDTO> toDeepDTOs(List<Profile> profiles)
 	{
-		if (profiles == null)
-		{
-			return emptyList();
-		}
-
-		return profiles.stream()
+		return emptyIfNull(profiles).stream()
 				.map(ProfileMapper::toDeepDTO)
 				.toList();
 	}

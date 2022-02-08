@@ -25,7 +25,7 @@ import io.xeres.common.identity.Type;
 
 import java.util.List;
 
-import static java.util.Collections.emptyList;
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 public final class IdentityMapper
 {
@@ -51,12 +51,7 @@ public final class IdentityMapper
 
 	public static List<IdentityDTO> toDTOs(List<Identity> identities)
 	{
-		if (identities == null)
-		{
-			return emptyList();
-		}
-
-		return identities.stream()
+		return emptyIfNull(identities).stream()
 				.map(IdentityMapper::toDTO)
 				.toList();
 	}
@@ -79,12 +74,7 @@ public final class IdentityMapper
 
 	public static List<IdentityDTO> toGxsIdDTOs(List<GxsIdGroupItem> gxsIdGroupItems)
 	{
-		if (gxsIdGroupItems == null)
-		{
-			return emptyList();
-		}
-
-		return gxsIdGroupItems.stream()
+		return emptyIfNull(gxsIdGroupItems).stream()
 				.map(IdentityMapper::toDTO)
 				.toList();
 	}

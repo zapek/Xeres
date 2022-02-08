@@ -26,7 +26,7 @@ import io.xeres.common.message.chat.ChatRoomLists;
 
 import java.util.List;
 
-import static java.util.Collections.emptyList;
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 public final class ChatMapper
 {
@@ -46,11 +46,7 @@ public final class ChatMapper
 
 	public static List<ChatRoomDTO> toDTOs(List<ChatRoomInfo> chatRoomInfoList)
 	{
-		if (chatRoomInfoList == null)
-		{
-			return emptyList();
-		}
-		return chatRoomInfoList.stream()
+		return emptyIfNull(chatRoomInfoList).stream()
 				.map(ChatMapper::toDTO)
 				.toList();
 	}

@@ -37,6 +37,7 @@ import io.xeres.app.xrs.service.gxsid.GxsIdManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.util.NoSuppressedRunnable;
 import org.jsoup.Jsoup;
@@ -287,7 +288,7 @@ public class ChatRsService extends RsService
 		}
 	}
 
-	// XXX: not sure that thing works well enough... it has to be called early before packets start coming
+	// XXX: not sure that thing works well enough... it has to be called early before packets start coming. it doesn't... the UI is not up yet!
 	private void subscribeToAllSavedRooms()
 	{
 		log.debug("doing the subscribe thing");
@@ -447,26 +448,28 @@ public class ChatRsService extends RsService
 
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
-			var chatRoomUserEvent = new ChatRoomUserEvent(item.getSignature().getGxsId(), item.getSenderNickname());
-			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_LEAVE, item.getRoomId(), chatRoomUserEvent);
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_LEAVE, item.getSignature().getGxsId(), item.getSenderNickname());
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_JOINED.getCode())
 		{
-			// XXX: send a keep alive event to the participant so that he knows we are in the room (RS sends to everyone but that's lame)
-			var chatRoomUserEvent = new ChatRoomUserEvent(item.getSignature().getGxsId(), item.getSenderNickname());
-			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_JOIN, item.getRoomId(), chatRoomUserEvent);
-			//sendKeepAliveIfNeeded(chatRooms.get(item.getRoomId()));
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, item.getSignature().getGxsId(), item.getSenderNickname());
+			//sendKeepAliveIfNeeded(chatRooms.get(item.getRoomId())); // XXX: send a keep alive event to the participant so that he knows we are in the room (RS sends to everyone but that's lame)
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
-			var chatRoomUserEvent = new ChatRoomUserEvent(item.getSignature().getGxsId(), item.getSenderNickname());
-			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_KEEP_ALIVE, item.getRoomId(), chatRoomUserEvent);
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, item.getSignature().getGxsId(), item.getSenderNickname());
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
 		{
 			var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), null);
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_TYPING_NOTIFICATION, item.getRoomId(), chatRoomMessage);
 		}
+	}
+
+	private void sendUserEventToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname)
+	{
+		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname);
+		peerConnectionManager.sendToSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
 	}
 
 	private boolean validateAndBounceItem(PeerConnection peerConnection, ChatRoomBounce item)
@@ -817,8 +820,7 @@ public class ChatRsService extends RsService
 			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED);
 
 			// Send a keep alive event from ourselves so that we are added to the user list in the UI
-			var chatRoomUserEvent = new ChatRoomUserEvent(ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
-			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_USER_KEEP_ALIVE, chatRoom.getId(), chatRoomUserEvent);
+			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_KEEP_ALIVE, ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
 		}
 	}
 

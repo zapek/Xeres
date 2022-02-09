@@ -70,7 +70,8 @@ public class LocationService
 	public enum UpdateConnectionStatus
 	{
 		UPDATED,
-		ADDED
+		ADDED,
+		FAILED
 	}
 
 	private final PrefsService prefsService;
@@ -259,6 +260,11 @@ public class LocationService
 	@Transactional
 	public UpdateConnectionStatus updateConnection(Location location, PeerAddress peerAddress)
 	{
+		if (peerAddress.isInvalid())
+		{
+			return UpdateConnectionStatus.FAILED;
+		}
+
 		var updated = false;
 
 		if (location.isOwn())

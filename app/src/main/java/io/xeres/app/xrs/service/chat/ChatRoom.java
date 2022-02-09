@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.chat;
 
-import io.xeres.app.net.peer.PeerConnection;
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.service.chat.item.VisibleChatRoomInfo;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
@@ -38,7 +38,7 @@ public class ChatRoom
 	private final long id;
 	private final String name;
 	private final String topic;
-	private final Set<PeerConnection> participatingPeers = ConcurrentHashMap.newKeySet();
+	private final Set<Location> participatingLocations = ConcurrentHashMap.newKeySet();
 	private GxsId gxsId; // signing entity
 	private final Map<GxsId, Long> gxsIds = new ConcurrentHashMap<>(); // non-direct friends who are participating
 	private final int userCount;
@@ -112,19 +112,19 @@ public class ChatRoom
 		return topic;
 	}
 
-	public Set<PeerConnection> getParticipatingPeers()
+	public Set<Location> getParticipatingLocations()
 	{
-		return participatingPeers;
+		return participatingLocations;
 	}
 
-	public void addParticipatingPeer(PeerConnection peerConnection)
+	public void addParticipatingLocation(Location location)
 	{
-		participatingPeers.add(peerConnection);
+		participatingLocations.add(location);
 	}
 
-	public void removeParticipatingPeer(PeerConnection peerConnection)
+	public void removeParticipatingLocation(Location location)
 	{
-		participatingPeers.remove(peerConnection);
+		participatingLocations.remove(location);
 	}
 
 	public GxsId getGxsId()

@@ -107,6 +107,8 @@ public class PeerConnectionManager
 		return null; // XXX: use executor.newFailedFuture()? but where do I get the executor from?
 	}
 
+	// XXX: this method is dangerous when called from outside PeerConnectionManager because it has no "peers" check...
+	// XXX: prefer the writer using Location
 	public ChannelFuture writeItem(PeerConnection peerConnection, Item item, RsService rsService)
 	{
 		item.setOutgoing(peerConnection.getCtx().alloc(), 2, rsService.getServiceType(), rsService.getItemSubtype(item));

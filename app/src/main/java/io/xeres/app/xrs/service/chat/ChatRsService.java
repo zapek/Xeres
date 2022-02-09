@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.ChatRoomService;
@@ -384,7 +385,7 @@ public class ChatRsService extends RsService
 							visibleRoom.getCount(),
 							visibleRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
 					);
-					chatRoom.addParticipatingPeer(peerConnection);
+					chatRoom.addParticipatingLocation(peerConnection.getLocation());
 					availableChatRooms.put(chatRoom.getId(), chatRoom);
 				});
 
@@ -402,7 +403,7 @@ public class ChatRsService extends RsService
 		var chatRoomListItem = new ChatRoomListItem(chatRooms.values().stream()
 				.filter(chatRoom -> chatRoom.isPublic()
 						|| chatRoom.getPreviouslyKnownLocations().contains(peerConnection.getLocation().getLocationId())
-						|| chatRoom.getParticipatingPeers().contains(peerConnection))
+						|| chatRoom.getParticipatingLocations().contains(peerConnection.getLocation()))
 				.map(ChatRoom::getAsVisibleChatRoomInfo)
 				.toList());
 
@@ -512,7 +513,7 @@ public class ChatRsService extends RsService
 			return;
 		}
 
-		chatRoom.removeParticipatingPeer(peerConnection);
+		chatRoom.removeParticipatingLocation(peerConnection.getLocation());
 
 		// XXX: RS has some "previously_known_peers"... see if it's useful
 	}
@@ -532,7 +533,7 @@ public class ChatRsService extends RsService
 
 			log.debug("Adding peer {} to chat room {}", peerConnection, chatRoom);
 
-			chatRoom.addParticipatingPeer(peerConnection);
+			chatRoom.addParticipatingLocation(peerConnection.getLocation());
 		}
 		else
 		{
@@ -579,27 +580,27 @@ public class ChatRsService extends RsService
 			if (chatRoom.getMessageCache().hasConnectionChallenge(locationId, chatRoom.getId(), item.getChallengeCode()))
 			{
 				log.debug("Challenge accepted for chatroom {}, sending connection request to peer {}", chatRoom, peerConnection);
-				chatRoom.addParticipatingPeer(peerConnection);
-				invitePeerToChatRoom(peerConnection, chatRoom, Invitation.FROM_CHALLENGE);
+				chatRoom.addParticipatingLocation(peerConnection.getLocation());
+				inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.FROM_CHALLENGE);
 				return;
 			}
 		}
 	}
 
-	private void invitePeerToChatRoom(PeerConnection peerConnection, ChatRoom chatRoom, Invitation invitation)
+	private void inviteLocationToChatRoom(Location location, ChatRoom chatRoom, Invitation invitation)
 	{
 		var item = new ChatRoomInviteItem(
 				chatRoom.getId(),
 				chatRoom.getName(),
 				chatRoom.getTopic(),
 				invitation == Invitation.FROM_CHALLENGE ? EnumSet.of(RoomFlags.CHALLENGE) : chatRoom.getRoomFlags());
-		peerConnectionManager.writeItem(peerConnection, item, this);
+		peerConnectionManager.writeItem(location, item, this);
 	}
 
-	private void signalChatRoomLeave(PeerConnection peerConnection, ChatRoom chatRoom)
+	private void signalChatRoomLeave(Location location, ChatRoom chatRoom)
 	{
 		var item = new ChatRoomUnsubscribeItem(chatRoom.getId());
-		peerConnectionManager.writeItem(peerConnection, item, this);
+		peerConnectionManager.writeItem(location, item, this);
 	}
 
 	private void initializeBounce(ChatRoom chatRoom, ChatRoomBounce bounce)
@@ -634,7 +635,7 @@ public class ChatRsService extends RsService
 
 		if (peerConnection != null)
 		{
-			chatRoom.addParticipatingPeer(peerConnection); // If we didn't receive the list yet, it means he's participating still
+			chatRoom.addParticipatingLocation(peerConnection.getLocation()); // If we didn't receive the list yet, it means he's participating still
 		}
 
 		if (chatRoom.getMessageCache().exists(bounce.getMessageId()))
@@ -650,12 +651,18 @@ public class ChatRsService extends RsService
 		// XXX: check for antiflood
 
 		// Send to everyone except the originating peer
-		chatRoom.getParticipatingPeers().forEach(peer -> {
-			if (!Objects.equals(peer, peerConnection))
+		var iterator = chatRoom.getParticipatingLocations().iterator();
+		while (iterator.hasNext())
+		{
+			var location = iterator.next();
+			if (peerConnection == null || !Objects.equals(location, peerConnection.getLocation()))
 			{
-				writeItem(peer, bounce.clone()); // Netty frees sent items so we need to clone
+				if (writeItem(location, bounce.clone()) == null) // Netty frees sent items so we need to clone
+				{
+					iterator.remove(); // Failed to write, it means the location disconnected, so we need to remove it from our participating locations
+				}
 			}
-		});
+		}
 
 		chatRoom.incrementConnectionChallengeCount();
 
@@ -813,7 +820,7 @@ public class ChatRsService extends RsService
 			var ownIdentity = identityService.getOwnIdentity(); // XXX: allow multiple identities later on
 			chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
-			chatRoom.getParticipatingPeers().forEach(peer -> invitePeerToChatRoom(peer, chatRoom, Invitation.PLAIN));
+			chatRoom.getParticipatingLocations().forEach(location -> inviteLocationToChatRoom(location, chatRoom, Invitation.PLAIN));
 
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_JOIN, chatRoom.getId(), new ChatRoomMessage());
 
@@ -842,7 +849,7 @@ public class ChatRsService extends RsService
 		chatRooms.remove(chatRoomId);
 		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities
 
-		chatRoomToRemove.getParticipatingPeers().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));
+		chatRoomToRemove.getParticipatingLocations().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));
 		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LEAVE, chatRoomToRemove.getId(), new ChatRoomMessage());
 
 		// XXX: find a way to remove ourselves from the UI...

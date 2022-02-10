@@ -91,13 +91,18 @@ public class ChatListView
 
 	public void addOwnMessage(String message)
 	{
-		addUserMessage(nickname, message); // XXX: this will decode images twice but well...
+		var chatAction = new ChatAction(SAY_OWN, nickname, null);
+		addMessage(chatAction, message);
 	}
 
 	public void addUserMessage(String from, String message)
 	{
 		var chatAction = new ChatAction(SAY, from, null);
+		addMessage(chatAction, message);
+	}
 
+	private void addMessage(ChatAction chatAction, String message)
+	{
 		var img = Jsoup.parse(message).selectFirst("img");
 
 		if (img != null)
@@ -116,7 +121,7 @@ public class ChatListView
 		{
 			if (ChatParser.isActionMe(message))
 			{
-				message = ChatParser.parseActionMe(message, from);
+				message = ChatParser.parseActionMe(message, chatAction.getNickname());
 				chatAction.setType(ACTION);
 			}
 			var chatContents = ChatParser.parse(message);
@@ -216,12 +221,6 @@ public class ChatListView
 	private void addMessageLine(ChatAction action)
 	{
 		var chatLine = new ChatLine(Instant.now(), action);
-		addMessageLine(chatLine);
-	}
-
-	private void addMessageLine(ChatAction action, String message)
-	{
-		var chatLine = new ChatLine(Instant.now(), action, new ChatContentText(message));
 		addMessageLine(chatLine);
 	}
 

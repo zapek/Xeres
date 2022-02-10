@@ -33,6 +33,7 @@ public class ChatAction
 		JOIN,
 		LEAVE,
 		SAY,
+		SAY_OWN,
 		ACTION
 	}
 
@@ -56,7 +57,7 @@ public class ChatAction
 				{
 					case JOIN -> "-->";
 					case LEAVE -> "<--";
-					case SAY -> "<" + nickname + ">";
+					case SAY, SAY_OWN -> "<" + nickname + ">";
 					case ACTION -> "*";
 				};
 	}

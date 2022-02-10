@@ -67,7 +67,6 @@
 
 .chat-list .list-cell .action {
     -fx-padding: 0px 0.25em 0px 0px;
-    -fx-text-fill: -fx-dark-text-color;
 }
 
 .chat-list .list-cell .hyperlink {

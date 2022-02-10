@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.chat;
 
+import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,25 @@ public class ChatLine
 	public String getAction()
 	{
 		return action.getAction();
+	}
+
+	public Color getNicknameColor()
+	{
+		return switch (action.getType())
+				{
+					case JOIN, LEAVE -> Color.GRAY;
+					case ACTION, SAY_OWN -> Color.BLACK;
+					case SAY -> ColorGenerator.generateColor(action.getNickname());
+				};
+	}
+
+	public Color getContentColor()
+	{
+		return switch (action.getType())
+				{
+					case JOIN, LEAVE -> Color.GRAY;
+					case SAY, SAY_OWN, ACTION -> Color.BLACK;
+				};
 	}
 
 	public List<ChatContent> getChatContents()

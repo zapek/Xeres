@@ -43,12 +43,12 @@ public final class ItemFactory
 			}
 			catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 			{
-				throw new IllegalStateException("Couldn't create item in service " + service + " : " + e.getMessage());
+				throw new IllegalArgumentException("Couldn't create item in service " + service + " : " + e.getMessage());
 			}
 		}
 		else
 		{
-			throw new IllegalStateException("Couldn't create item for service " + type + ": no service found");
+			throw new IllegalArgumentException("Couldn't create item for service " + type + ": no service found");
 		}
 	}
 }

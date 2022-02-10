@@ -37,6 +37,8 @@ public final class SmileyUtils
 			entry(":-*", "\uD83D\uDE18"),
 			entry(";-)", "\uD83D\uDE09"),
 			entry(";)", "\uD83D\uDE09"),
+			entry(";-(", "\uD83D\uDE25"),
+			entry(";(", "\uD83D\uDE25"),
 			entry(":-P", "\uD83D\uDE1B"),
 			entry(":-/", "\uD83D\uDE15"),
 			entry("O:-)", "\uD83D\uDE07"),

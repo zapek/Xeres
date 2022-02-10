@@ -35,6 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import static javafx.scene.control.TableColumn.SortType.ASCENDING;
+import static javafx.scene.control.TableColumn.SortType.DESCENDING;
+
 @Component
 @FxmlView(value = "/view/profile/profiles.fxml")
 public class ProfilesWindowController implements WindowController
@@ -73,7 +76,18 @@ public class ProfilesWindowController implements WindowController
 		tableTrust.setCellValueFactory(new PropertyValueFactory<>("trust"));
 
 		profileClient.getProfiles().collectList()
-				.doOnSuccess(profiles -> Platform.runLater(() -> profilesTableView.getItems().addAll(profiles)))
+				.doOnSuccess(profiles -> Platform.runLater(() -> {
+					// Add all profiles
+					profilesTableView.getItems().addAll(profiles);
+
+					// Sort by accepted and name
+					profilesTableView.getSortOrder().add(tableAccepted);
+					tableAccepted.setSortType(DESCENDING);
+					tableAccepted.setSortable(true);
+					profilesTableView.getSortOrder().add(tableName);
+					tableName.setSortType(ASCENDING);
+					tableName.setSortable(true);
+				}))
 				.doOnError(throwable -> log.error("Error while getting the profiles: {}", throwable.getMessage(), throwable))
 				.subscribe();
 	}

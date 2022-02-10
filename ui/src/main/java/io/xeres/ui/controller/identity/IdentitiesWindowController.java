@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+import static javafx.scene.control.TableColumn.SortType.ASCENDING;
+
 @Component
 @FxmlView(value = "/view/identity/identities.fxml")
 public class IdentitiesWindowController implements WindowController
@@ -75,7 +77,15 @@ public class IdentitiesWindowController implements WindowController
 								.format(param.getValue().getUpdated())));
 
 		identityClient.getIdentities().collectList()
-				.doOnSuccess(identities -> Platform.runLater(() -> identitiesTableView.getItems().addAll(identities)))
+				.doOnSuccess(identities -> Platform.runLater(() -> {
+					// Add all identities
+					identitiesTableView.getItems().addAll(identities);
+
+					// Sort by name
+					identitiesTableView.getSortOrder().add(tableName);
+					tableName.setSortType(ASCENDING);
+					tableName.setSortable(true);
+				}))
 				.doOnError(throwable -> log.error("Error while getting the identities: {}", throwable.getMessage(), throwable))
 				.subscribe();
 	}

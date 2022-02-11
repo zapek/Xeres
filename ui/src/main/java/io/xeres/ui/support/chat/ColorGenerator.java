@@ -58,6 +58,6 @@ public final class ColorGenerator
 
 	public static Color generateColor(String s)
 	{
-		return ColorSpec.values()[s.hashCode() % ColorSpec.values().length].getColor();
+		return ColorSpec.values()[Math.floorMod(s.hashCode(), ColorSpec.values().length)].getColor();
 	}
 }

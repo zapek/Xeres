@@ -81,7 +81,7 @@ public class MessagingWindowController implements WindowController
 
 	public void initialize()
 	{
-		Mono<Profile> ownProfileResult = profileClient.getOwnProfile();
+		Mono<Profile> ownProfileResult = profileClient.getOwn();
 		ownProfileResult.doOnSuccess(profile -> setupChatListView(profile.getName(), profile.getId()))
 				.subscribe();
 

@@ -95,7 +95,7 @@ public class AddRsIdWindowController implements WindowController
 
 	private void addPeer()
 	{
-		Mono<Void> profile = profileClient.createProfile(rsIdTextArea.getText());
+		Mono<Void> profile = profileClient.create(rsIdTextArea.getText());
 
 		profile.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
 				.doOnError(throwable -> log.error("Error: {}", throwable.getMessage()))

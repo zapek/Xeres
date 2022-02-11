@@ -20,15 +20,17 @@
 package io.xeres.ui.controller.profile;
 
 import io.xeres.ui.model.profile.Profile;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 
 public class ProfileCell extends TableRow<Profile>
 {
+	private final TableView<Profile> listView;
+
 	public ProfileCell(TableView<Profile> listView)
 	{
 		super();
+		this.listView = listView;
+		setContextMenu(createContextMenu(this));
 	}
 
 	@Override
@@ -62,5 +64,16 @@ public class ProfileCell extends TableRow<Profile>
 	{
 		setStyle("");
 		setTooltip(null);
+	}
+
+	private ContextMenu createContextMenu(TableRow<Profile> cell)
+	{
+		var contextMenu = new ContextMenu();
+
+		var deleteItem = new MenuItem("Delete profile");
+		deleteItem.setOnAction(event -> listView.fireEvent(new ProfileContextMenu(ProfileContextMenu.DELETE, cell.getTableView())));
+
+		contextMenu.getItems().addAll(deleteItem);
+		return contextMenu;
 	}
 }

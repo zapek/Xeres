@@ -74,7 +74,7 @@ public class PeersWindowController implements WindowController
 			}
 		});
 
-		profileClient.getOwnProfile()
+		profileClient.getOwn()
 				.doOnSuccess(profile -> Platform.runLater(() -> nickname.setText(profile.getName())))
 				.subscribe();
 

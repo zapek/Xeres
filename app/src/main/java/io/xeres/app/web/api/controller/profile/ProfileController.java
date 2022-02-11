@@ -111,13 +111,10 @@ public class ProfileController
 	@ApiResponse(responseCode = "200", description = "RS ID is OK")
 	@ApiResponse(responseCode = "422", description = "RS ID cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<ProfileDTO> checkProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest)
+	public ProfileDTO checkProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
 		var rsId = RSId.parse(rsIdRequest.rsId(), ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid"));
-		var profileDTO = toDeepDTO(profileService.getProfileFromRSId(rsId));
-
-		return ResponseEntity.ok()
-				.body(profileDTO);
+		return toDeepDTO(profileService.getProfileFromRSId(rsId));
 	}
 
 	@DeleteMapping("/{id}")

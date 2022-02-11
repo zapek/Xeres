@@ -69,13 +69,19 @@ public class ProfilesWindowController implements WindowController
 	public void initialize()
 	{
 		profilesTableView.setRowFactory(ProfileCell::new);
+		profilesTableView.addEventHandler(ProfileContextMenu.DELETE, event -> {
+			var profile = event.getTableView().getSelectionModel().getSelectedItem();
+			profileClient.delete(profile.getId())
+					.doOnSuccess(unused -> event.getTableView().getItems().remove(profile))
+					.subscribe();
+		});
 
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableIdentifier.setCellValueFactory(param -> new SimpleStringProperty(Id.toString(param.getValue().getPgpIdentifier())));
 		tableAccepted.setCellValueFactory(new PropertyValueFactory<>("accepted"));
 		tableTrust.setCellValueFactory(new PropertyValueFactory<>("trust"));
 
-		profileClient.getProfiles().collectList()
+		profileClient.findAll().collectList()
 				.doOnSuccess(profiles -> Platform.runLater(() -> {
 					// Add all profiles
 					profilesTableView.getItems().addAll(profiles);

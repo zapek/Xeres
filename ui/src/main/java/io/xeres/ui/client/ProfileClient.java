@@ -55,7 +55,7 @@ public class ProfileClient
 				.build();
 	}
 
-	public Mono<Void> createProfile(String rsId)
+	public Mono<Void> create(String rsId)
 	{
 		var rsIdRequest = new RsIdRequest(rsId);
 
@@ -66,7 +66,7 @@ public class ProfileClient
 				.bodyToMono(Void.class);
 	}
 
-	public Flux<Profile> getProfiles()
+	public Flux<Profile> findAll()
 	{
 		return webClient.get()
 				.uri("/")
@@ -75,7 +75,7 @@ public class ProfileClient
 				.map(ProfileMapper::fromDTO);
 	}
 
-	public Mono<Profile> getOwnProfile()
+	public Mono<Profile> getOwn()
 	{
 		return findById(OWN_PROFILE_ID);
 	}
@@ -111,5 +111,13 @@ public class ProfileClient
 				.retrieve()
 				.bodyToFlux(ProfileDTO.class)
 				.map(ProfileMapper::fromDeepDTO);
+	}
+
+	public Mono<Void> delete(long id)
+	{
+		return webClient.delete()
+				.uri("/{id}", id)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

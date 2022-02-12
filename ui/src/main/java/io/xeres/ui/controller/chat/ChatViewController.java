@@ -38,7 +38,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
@@ -73,7 +72,6 @@ public class ChatViewController implements Controller
 
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
-	private static final int IMAGE_MAXIMUM_SIZE = 196000; // XXX: maximum size for normal messages?
 	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats
 
 	@FXML
@@ -462,7 +460,7 @@ public class ChatViewController implements Controller
 		}
 		else if (PASTE_KEY.match(event))
 		{
-			Image image = Clipboard.getSystemClipboard().getImage();
+			var image = Clipboard.getSystemClipboard().getImage();
 			if (image != null)
 			{
 				imagePreview.setImage(image);

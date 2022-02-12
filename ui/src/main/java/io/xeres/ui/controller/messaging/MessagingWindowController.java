@@ -26,13 +26,15 @@ import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.util.ImageUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -50,6 +52,10 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class MessagingWindowController implements WindowController
 {
 	private static final Logger log = LoggerFactory.getLogger(MessagingWindowController.class);
+
+	private static final int IMAGE_WIDTH_MAX = 640;
+	private static final int IMAGE_HEIGHT_MAX = 480;
+	private static final int MESSAGE_MAXIMUM_SIZE = 196000; // XXX: maximum size for normal messages? check if correct
 
 	@FXML
 	private TextField send;
@@ -89,10 +95,7 @@ public class MessagingWindowController implements WindowController
 		{
 			if (event.getCode().equals(KeyCode.ENTER) && isNotBlank(send.getText()))
 			{
-				var message = new ChatMessage(send.getText());
-				messageClient.sendToLocation(locationId, message);
-				receive.addOwnMessage(send.getText());
-				send.clear();
+				sendMessage(send.getText());
 			}
 			else
 			{
@@ -106,8 +109,18 @@ public class MessagingWindowController implements WindowController
 			}
 		});
 
+		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+
 		lastTypingTimeline = new Timeline(new KeyFrame(Duration.seconds(5),
 				ae -> notification.setText("")));
+	}
+
+	private void sendMessage(String message)
+	{
+		var chatMessage = new ChatMessage(message);
+		messageClient.sendToLocation(locationId, chatMessage);
+		receive.addOwnMessage(message);
+		send.clear();
 	}
 
 	private void setupChatListView(String nickname, long id)
@@ -153,6 +166,24 @@ public class MessagingWindowController implements WindowController
 			{
 				receive.addUserMessage(targetProfile.getName(), message.getContent());
 				notification.setText("");
+			}
+		}
+	}
+
+	private final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+
+	private void handleInputKeys(KeyEvent event)
+	{
+		if (PASTE_KEY.match(event))
+		{
+			var image = Clipboard.getSystemClipboard().getImage();
+			if (image != null)
+			{
+				var imageView = new ImageView(image);
+				ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX, IMAGE_HEIGHT_MAX);
+				sendMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+				imageView.setImage(null);
+				event.consume();
 			}
 		}
 	}

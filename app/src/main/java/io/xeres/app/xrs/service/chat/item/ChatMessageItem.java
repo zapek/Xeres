@@ -28,8 +28,7 @@ import java.time.Instant;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
-import static io.xeres.app.xrs.service.chat.ChatFlags.PRIVATE;
-import static io.xeres.app.xrs.service.chat.ChatFlags.REQUEST_AVATAR;
+import static io.xeres.app.xrs.service.chat.ChatFlags.*;
 
 public class ChatMessageItem extends Item
 {
@@ -79,6 +78,11 @@ public class ChatMessageItem extends Item
 	public boolean isPrivate()
 	{
 		return flags.contains(PRIVATE);
+	}
+
+	public boolean isPartial()
+	{
+		return flags.contains(PARTIAL_MESSAGE);
 	}
 
 	public boolean isAvatarRequest()

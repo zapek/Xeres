@@ -52,10 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 import static io.xeres.app.xrs.service.RsServiceType.CHAT;
@@ -125,6 +122,8 @@ public class ChatRsService extends RsService
 	 * the text directly.
 	 */
 	private static final String MESSAGE_TYPING_CONTENT = "is typing...";
+
+	private static final int KEY_PARTIAL_MESSAGE_LIST = 1;
 
 	private enum Invitation
 	{
@@ -416,6 +415,8 @@ public class ChatRsService extends RsService
 
 	private void handleChatRoomMessageItem(PeerConnection peerConnection, ChatRoomMessageItem item)
 	{
+		log.debug("Received message from peer {} with content {}", peerConnection, item.getMessage());
+
 		if (!validateExpiration(item.getSendTime()))
 		{
 			log.warn("Received message from peer {} failed time validation, dropping", peerConnection);
@@ -570,8 +571,38 @@ public class ChatRsService extends RsService
 	{
 		if (item.isPrivate() && !item.isAvatarRequest()) // XXX: handle avatars later
 		{
-			var privateChatMessage = new PrivateChatMessage(parseIncomingText(item.getMessage()));
-			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
+			if (item.isPartial())
+			{
+				log.debug("Received partial message from peer {}", peerConnection);
+				var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+				if (messageList.isEmpty())
+				{
+					List<String> newMessageList = new ArrayList<>();
+					newMessageList.add(item.getMessage());
+					peerConnection.putServiceData(this, KEY_PARTIAL_MESSAGE_LIST, newMessageList);
+				}
+				else
+				{
+					//noinspection unchecked
+					((List<String>) messageList.get()).add(item.getMessage());
+				}
+			}
+			else
+			{
+				var message = item.getMessage();
+				var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+				if (messageList.isPresent())
+				{
+					@SuppressWarnings("unchecked")
+					var existingList = (List<String>) messageList.get();
+					existingList.add(message);
+					message = String.join("", existingList);
+					peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+				}
+				log.debug("Received message from peer {} with content {}", peerConnection, message);
+				var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
+				peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
+			}
 		}
 	}
 

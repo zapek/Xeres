@@ -29,7 +29,7 @@ public enum ChatFlags
 	PUBLIC,
 	REQUEST_CUSTOM_STATE, // used for ChatStatusItem
 	CUSTOM_STATE_AVAILABLE, // used for ChatStatusItem
-	PARTIAL_MESSAGE,
+	PARTIAL_MESSAGE, // "large" messages are splitted
 	LOBBY, // XXX: might not be needed because we have a ChatRoomMessageItem
 	CLOSING_DISTANT_CONNECTION,
 	ACK_DISTANT_CONNECTION,

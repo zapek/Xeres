@@ -73,6 +73,7 @@ public class MessageClient
 		WebSocketClient client = new StandardWebSocketClient(container);
 		stompClient = new WebSocketStompClient(client);
 		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+		stompClient.setInboundMessageSizeLimit(1024 * 1024); // 1 MB
 
 		var sessionHandler = new SessionHandler(session ->
 		{

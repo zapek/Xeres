@@ -74,7 +74,7 @@ public final class ImageUtils
 				out = compressBufferedImageToJpegArray(bufferedImage, quality);
 				quality -= 0.1;
 			}
-			while (Math.ceil((double) out.length / 3) * 4 > maximumSize - 200 && quality > 0); // 200 bytes to be safe as the message might contain tags and so on
+			while (maximumSize != 0 && Math.ceil((double) out.length / 3) * 4 > maximumSize - 200 && quality > 0); // 200 bytes to be safe as the message might contain tags and so on
 
 			return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(out);
 		}

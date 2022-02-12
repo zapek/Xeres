@@ -19,12 +19,17 @@
 
 package io.xeres.ui.client.message;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 
 public class SessionHandler extends StompSessionHandlerAdapter
 {
+	private static final Logger log = LoggerFactory.getLogger(SessionHandler.class);
+
 	public interface OnConnected
 	{
 		void connect(StompSession session);
@@ -41,5 +46,17 @@ public class SessionHandler extends StompSessionHandlerAdapter
 	public void afterConnected(StompSession session, StompHeaders connectedHeaders)
 	{
 		onConnected.connect(session);
+	}
+
+	@Override
+	public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception)
+	{
+		log.error("Handle Exception: {}", exception.getMessage());
+	}
+
+	@Override
+	public void handleTransportError(StompSession session, Throwable exception)
+	{
+		log.error("Transport Exception: {}", exception.getMessage());
 	}
 }

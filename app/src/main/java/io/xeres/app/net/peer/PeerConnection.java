@@ -97,6 +97,15 @@ public class PeerConnection
 		return Optional.ofNullable(serviceMap.get(key));
 	}
 
+	public void removeServiceData(RsService service, int key)
+	{
+		var serviceMap = serviceData.get(service.getServiceType().getType());
+		if (serviceMap != null)
+		{
+			serviceMap.remove(key);
+		}
+	}
+
 	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)
 	{
 		ScheduledFuture<?> scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay, period, unit);

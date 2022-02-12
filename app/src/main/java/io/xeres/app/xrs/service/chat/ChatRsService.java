@@ -321,9 +321,13 @@ public class ChatRsService extends RsService
 		return chatRoomLists;
 	}
 
-	public ChatRoomLists getChatRoomLists()
+	public ChatRoomContext getChatRoomContext()
 	{
-		return buildChatRoomLists();
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			var ownIdentity = identityService.getOwnIdentity();
+			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getGxsIdGroupItem().getName(), ownIdentity.getGxsIdGroupItem().getGxsId()));
+		}
 	}
 
 	@Override
@@ -605,7 +609,7 @@ public class ChatRsService extends RsService
 
 	private void initializeBounce(ChatRoom chatRoom, ChatRoomBounce bounce)
 	{
-		try (var session = new DatabaseSession(databaseSessionManager))
+		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownIdentity = identityService.getOwnIdentity();
 

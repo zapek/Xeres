@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
-import io.xeres.common.dto.chat.ChatRoomListsDTO;
+import io.xeres.common.dto.chat.ChatRoomContextDTO;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -80,9 +80,9 @@ public class ChatController
 	}
 
 	@GetMapping("/rooms")
-	@Operation(summary = "Get the status of all rooms")
-	public ChatRoomListsDTO getChatRooms()
+	@Operation(summary = "Get a chat room context (all rooms, status, current nickname, etc...)")
+	public ChatRoomContextDTO getChatRoomContext()
 	{
-		return toDTO(chatRsService.getChatRoomLists());
+		return toDTO(chatRsService.getChatRoomContext());
 	}
 }

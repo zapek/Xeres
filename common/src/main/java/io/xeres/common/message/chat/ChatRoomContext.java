@@ -17,13 +17,26 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.chat;
+package io.xeres.common.message.chat;
 
-import java.util.List;
-
-public record ChatRoomListsDTO(
-		List<ChatRoomDTO> subscribed,
-		List<ChatRoomDTO> available
-)
+public class ChatRoomContext
 {
+	private final ChatRoomLists chatRoomLists;
+	private final ChatRoomUser ownUser;
+
+	public ChatRoomContext(ChatRoomLists chatRoomLists, ChatRoomUser ownUser)
+	{
+		this.chatRoomLists = chatRoomLists;
+		this.ownUser = ownUser;
+	}
+
+	public ChatRoomLists getChatRoomLists()
+	{
+		return chatRoomLists;
+	}
+
+	public ChatRoomUser getOwnUser()
+	{
+		return ownUser;
+	}
 }

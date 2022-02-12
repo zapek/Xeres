@@ -19,8 +19,8 @@
 
 package io.xeres.ui.client;
 
-import io.xeres.common.dto.chat.ChatRoomListsDTO;
-import io.xeres.common.message.chat.ChatRoomLists;
+import io.xeres.common.dto.chat.ChatRoomContextDTO;
+import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.chat.ChatMapper;
@@ -83,12 +83,12 @@ public class ChatClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<ChatRoomLists> getChatRooms()
+	public Mono<ChatRoomContext> getChatRoomContext()
 	{
 		return webClient.get()
 				.uri("/rooms")
 				.retrieve()
-				.bodyToMono(ChatRoomListsDTO.class)
+				.bodyToMono(ChatRoomContextDTO.class)
 				.map(ChatMapper::fromDTO);
 	}
 }

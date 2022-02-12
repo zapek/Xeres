@@ -19,10 +19,12 @@
 
 package io.xeres.app.database.model.chat;
 
+import io.xeres.common.dto.chat.ChatIdentityDTO;
+import io.xeres.common.dto.chat.ChatRoomContextDTO;
 import io.xeres.common.dto.chat.ChatRoomDTO;
-import io.xeres.common.dto.chat.ChatRoomListsDTO;
+import io.xeres.common.dto.chat.ChatRoomsDTO;
+import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.message.chat.ChatRoomInfo;
-import io.xeres.common.message.chat.ChatRoomLists;
 
 import java.util.List;
 
@@ -35,13 +37,16 @@ public final class ChatMapper
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static ChatRoomListsDTO toDTO(ChatRoomLists chatRoomLists)
+	public static ChatRoomContextDTO toDTO(ChatRoomContext chatRoomContext)
 	{
-		if (chatRoomLists == null)
+		if (chatRoomContext == null)
 		{
 			return null;
 		}
-		return new ChatRoomListsDTO(toDTOs(chatRoomLists.getSubscribed()), toDTOs(chatRoomLists.getAvailable()));
+		return new ChatRoomContextDTO(
+				new ChatRoomsDTO(toDTOs(chatRoomContext.getChatRoomLists().getSubscribed()), toDTOs(chatRoomContext.getChatRoomLists().getAvailable())),
+				new ChatIdentityDTO(chatRoomContext.getOwnUser().getNickname(), chatRoomContext.getOwnUser().getGxsId())
+		);
 	}
 
 	public static List<ChatRoomDTO> toDTOs(List<ChatRoomInfo> chatRoomInfoList)

@@ -19,10 +19,14 @@
 
 package io.xeres.ui.model.chat;
 
+import io.xeres.common.dto.chat.ChatIdentityDTO;
+import io.xeres.common.dto.chat.ChatRoomContextDTO;
 import io.xeres.common.dto.chat.ChatRoomDTO;
-import io.xeres.common.dto.chat.ChatRoomListsDTO;
+import io.xeres.common.dto.chat.ChatRoomsDTO;
+import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.ChatRoomLists;
+import io.xeres.common.message.chat.ChatRoomUser;
 
 public final class ChatMapper
 {
@@ -31,7 +35,17 @@ public final class ChatMapper
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static ChatRoomLists fromDTO(ChatRoomListsDTO dto)
+	public static ChatRoomContext fromDTO(ChatRoomContextDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		return new ChatRoomContext(fromDTO(dto.chatRooms()), fromDTO(dto.identity()));
+	}
+
+	private static ChatRoomLists fromDTO(ChatRoomsDTO dto)
 	{
 		if (dto == null)
 		{
@@ -42,6 +56,16 @@ public final class ChatMapper
 		dto.available().forEach(chatRoomDTO -> chatRoomLists.addAvailable(fromDTO(chatRoomDTO)));
 		dto.subscribed().forEach(chatRoomDTO -> chatRoomLists.addSubscribed(fromDTO(chatRoomDTO)));
 		return chatRoomLists;
+	}
+
+	private static ChatRoomUser fromDTO(ChatIdentityDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		return new ChatRoomUser(dto.nickname(), dto.gxsId());
 	}
 
 	public static ChatRoomInfo fromDTO(ChatRoomDTO dto)

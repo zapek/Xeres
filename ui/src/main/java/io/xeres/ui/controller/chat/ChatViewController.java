@@ -223,7 +223,7 @@ public class ChatViewController implements Controller
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		send.setContextMenu(createChatInputContextMenu(send));
 
-		refreshRooms();
+		getChatRoomContext();
 	}
 
 	private void joinChatRoom(ChatRoomInfo chatRoomInfo)
@@ -238,10 +238,13 @@ public class ChatViewController implements Controller
 		}
 	}
 
-	private void refreshRooms()
+	private void getChatRoomContext()
 	{
-		chatClient.getChatRooms()
-				.doOnSuccess(this::addRooms)
+		chatClient.getChatRoomContext()
+				.doOnSuccess(context -> {
+					addRooms(context.getChatRoomLists());
+					context.getChatRoomLists().getSubscribed().forEach(chatRoomInfo -> userJoined(chatRoomInfo.getId(), new ChatRoomUserEvent(context.getOwnUser().getGxsId(), context.getOwnUser().getNickname())));
+				})
 				.subscribe();
 	}
 

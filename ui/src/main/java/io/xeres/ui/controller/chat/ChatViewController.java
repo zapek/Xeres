@@ -28,19 +28,15 @@ import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.support.util.ImageUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -53,19 +49,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -479,7 +467,7 @@ public class ChatViewController implements Controller
 			{
 				imagePreview.setImage(image);
 
-				limitMaximumImageSize(imagePreview);
+				ImageUtils.limitMaximumImageSize(imagePreview, IMAGE_WIDTH_MAX, IMAGE_HEIGHT_MAX);
 
 				setPreviewGroupVisibility(true);
 				event.consume();
@@ -509,7 +497,7 @@ public class ChatViewController implements Controller
 
 	private void sendImage()
 	{
-		sendChatMessage("<img src=\"" + writeImageAsJpegData(imagePreview.getImage()) + "\"/>");
+		sendChatMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imagePreview.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 
 		imagePreview.setImage(null);
 		setPreviewGroupVisibility(false);
@@ -603,99 +591,4 @@ public class ChatViewController implements Controller
 		return List.of(undo, redo, cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
 	}
 
-	private static String writeImageAsPngData(Image image)
-	{
-		var out = new ByteArrayOutputStream();
-		try
-		{
-			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", out);
-			if (out.size() > IMAGE_MAXIMUM_SIZE) // XXX: this size might be exceeded frequently. also we don't check for the maximum size. do like the jpeg version
-			{
-				log.warn("PNG size too big: {}, expect problems", out.size());
-			}
-		}
-		catch (IOException e)
-		{
-			log.error("Couldn't save image as PNG: {}", e.getMessage());
-		}
-		return "data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray());
-	}
-
-	private static String writeImageAsJpegData(Image image)
-	{
-		try
-		{
-			byte[] out;
-			var quality = 0.7f;
-			BufferedImage bufferedImage = stripAlphaIfNeeded(SwingFXUtils.fromFXImage(image, null));
-			do
-			{
-				out = compressBufferedImageToJpegArray(bufferedImage, quality);
-				quality -= 0.1;
-			}
-			while (Math.ceil((double) out.length / 3) * 4 > MESSAGE_MAXIMUM_SIZE - 200 && quality > 0); // 200 bytes to be safe as the message might contain tags and so on
-
-			return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(out);
-		}
-		catch (IOException e)
-		{
-			log.error("Couldn't save image as JPEG: {}", e.getMessage());
-			return "";
-		}
-	}
-
-	private static byte[] compressBufferedImageToJpegArray(BufferedImage image, float quality) throws IOException
-	{
-		var jpegWriter = ImageIO.getImageWritersByFormatName("JPEG").next();
-		var jpegWriteParam = jpegWriter.getDefaultWriteParam();
-		jpegWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-		jpegWriteParam.setCompressionQuality(quality);
-
-		var out = new ByteArrayOutputStream();
-
-		ImageOutputStream ios = ImageIO.createImageOutputStream(out);
-		jpegWriter.setOutput(ios);
-		IIOImage outputImage = new IIOImage(image, null, null);
-		jpegWriter.write(null, outputImage, jpegWriteParam);
-		byte[] result = out.toByteArray();
-		jpegWriter.dispose();
-		return result;
-	}
-
-	private static BufferedImage stripAlphaIfNeeded(BufferedImage originalImage)
-	{
-		if (originalImage.getTransparency() == Transparency.OPAQUE)
-		{
-			return originalImage;
-		}
-
-		int w = originalImage.getWidth();
-		int h = originalImage.getHeight();
-		BufferedImage newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-		int[] rgb = originalImage.getRGB(0, 0, w, h, null, 0, w);
-		newImage.setRGB(0, 0, w, h, rgb, 0, w);
-		return newImage;
-	}
-
-	private static void limitMaximumImageSize(ImageView imageView)
-	{
-		var width = imageView.getImage().getWidth();
-		var height = imageView.getImage().getHeight();
-
-		if (width > IMAGE_WIDTH_MAX || height > IMAGE_HEIGHT_MAX)
-		{
-			ImageView scaleImageView = new ImageView(imageView.getImage());
-			if (width > height)
-			{
-				scaleImageView.setFitWidth(IMAGE_WIDTH_MAX);
-			}
-			else
-			{
-				scaleImageView.setFitHeight(IMAGE_HEIGHT_MAX);
-			}
-			scaleImageView.setPreserveRatio(true);
-			scaleImageView.setSmooth(true);
-			imageView.setImage(scaleImageView.snapshot(null, null));
-		}
-	}
 }

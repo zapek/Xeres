@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static javafx.scene.control.TableColumn.SortType.ASCENDING;
 import static javafx.scene.control.TableColumn.SortType.DESCENDING;
 
@@ -71,9 +72,12 @@ public class ProfilesWindowController implements WindowController
 		profilesTableView.setRowFactory(ProfileCell::new);
 		profilesTableView.addEventHandler(ProfileContextMenu.DELETE, event -> {
 			var profile = event.getTableView().getSelectionModel().getSelectedItem();
-			profileClient.delete(profile.getId())
-					.doOnSuccess(unused -> event.getTableView().getItems().remove(profile))
-					.subscribe();
+			if (profile.getId() != OWN_PROFILE_ID)
+			{
+				profileClient.delete(profile.getId())
+						.doOnSuccess(unused -> event.getTableView().getItems().remove(profile))
+						.subscribe();
+			}
 		});
 
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));

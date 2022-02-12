@@ -86,6 +86,10 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: linux-installer
+    - name: Download MacOS installer
+      uses: actions/download-artifact@v2
+      with:
+        name: macos-installer
     - name: Create Github release
       uses: marvinpinto/action-automatic-releases@v1.2.1
       with:

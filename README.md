@@ -4,6 +4,8 @@ This is an attempted reimplementation of [Retroshare](https://retroshare.cc) in 
 
 A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
 
+[![CodeQL](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml)
+
 ## Supported platforms
 
 - Windows (x86_64)
@@ -23,9 +25,9 @@ If you want to quickly try the current development version without installing an
 - Web UI
 - High concurrency
 
-## Download
+## Downloads
 
-https://xeres.io
+Installers available [here](https://github.com/zapek/Xeres/releases).
 
 ## Donations
 
@@ -44,6 +46,10 @@ https://xeres.io
 ## Documentation
 
 [Here](https://xeres.io/docs/) and on the [wiki](https://github.com/zapek/Xeres/wiki).
+
+## Official website
+
+https://xeres.io
 
 ## How to run
 

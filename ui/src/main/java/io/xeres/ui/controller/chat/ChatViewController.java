@@ -55,7 +55,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
@@ -142,7 +141,7 @@ public class ChatViewController implements Controller
 		profileClient.getOwn().doOnSuccess(profile -> nickname = profile.getName())
 				.subscribe();
 
-		TreeItem<RoomHolder> root = new TreeItem<>(new RoomHolder());
+		var root = new TreeItem<>(new RoomHolder());
 		//noinspection unchecked
 		root.getChildren().addAll(subscribedRooms, privateRooms, publicRooms);
 		root.setExpanded(true);
@@ -214,7 +213,7 @@ public class ChatViewController implements Controller
 
 	private void joinChatRoom(ChatRoomInfo chatRoomInfo)
 	{
-		boolean found = subscribedRooms.getChildren().stream()
+		var found = subscribedRooms.getChildren().stream()
 				.anyMatch(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(chatRoomInfo));
 
 		if (!found)
@@ -236,16 +235,16 @@ public class ChatViewController implements Controller
 
 	public void addRooms(ChatRoomLists chatRoomLists)
 	{
-		ObservableList<TreeItem<RoomHolder>> subscribedTree = subscribedRooms.getChildren();
-		ObservableList<TreeItem<RoomHolder>> publicTree = publicRooms.getChildren();
-		ObservableList<TreeItem<RoomHolder>> privateTree = privateRooms.getChildren();
+		var subscribedTree = subscribedRooms.getChildren();
+		var publicTree = publicRooms.getChildren();
+		var privateTree = privateRooms.getChildren();
 
 		chatRoomLists.getSubscribed().stream()
 				.sorted(Comparator.comparing(ChatRoomInfo::getName))
 				.forEach(roomInfo -> addOrUpdate(subscribedTree, roomInfo));
 
 		// Make sure we don't add rooms that we're already subscribed to
-		List<ChatRoomInfo> unsubscribedRooms = chatRoomLists.getAvailable().stream()
+		var unsubscribedRooms = chatRoomLists.getAvailable().stream()
 				.filter(roomInfo -> !isInside(subscribedTree, roomInfo))
 				.toList();
 
@@ -362,13 +361,13 @@ public class ChatViewController implements Controller
 	{
 		selectedRoom = chatRoomInfo;
 
-		Optional<TreeItem<RoomHolder>> roomTreeItem = subscribedRooms.getChildren().stream()
+		var roomTreeItem = subscribedRooms.getChildren().stream()
 				.filter(roomInfoTreeItem -> roomInfoTreeItem.getValue().getRoomInfo().equals(chatRoomInfo))
 				.findFirst();
 
 		if (roomTreeItem.isPresent())
 		{
-			TreeItem<RoomHolder> roomInfoTreeItem = roomTreeItem.get();
+			var roomInfoTreeItem = roomTreeItem.get();
 			var chatListView = getChatListViewOrCreate(roomInfoTreeItem);
 			selectedChatListView = chatListView;
 			switchChatContent(chatListView.getChatView(), chatListView.getUserListView());
@@ -442,7 +441,7 @@ public class ChatViewController implements Controller
 			{
 				if (send.getCaretPosition() <= IdentityConstants.NAME_LENGTH_MAX)
 				{
-					int separator = line.indexOf(":");
+					var separator = line.indexOf(":");
 					if (separator == -1)
 					{
 						separator = line.length();

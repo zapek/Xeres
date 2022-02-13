@@ -82,7 +82,7 @@ jpackage {
     appName = parent.project.name
     vendor = "David Gerber"
     copyright = "Copyright 2019-2021 All Rights Reserved"
-    appDescription = "Xeres"
+    appDescription = parent.project.name
     input = "${project.buildDir}/${project.libsDirName}"
     destination = "${project.buildDir}/dist"
     mainClass = "org.springframework.boot.loader.JarLauncher"
@@ -93,7 +93,7 @@ jpackage {
         winMenu = true
         winPerUserInstall = true
         winDirChooser = true
-        winMenuGroup = "Xeres"
+        winMenuGroup = parent.project.name
         winUpgradeUuid = "97a4aaa5-0a3f-47f9-b0a2-f91876d9e7dd"
         icon = "${parent.rootDir}/icon.ico"
     }

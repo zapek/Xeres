@@ -73,14 +73,14 @@ public record ProfileDTO(
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProfileDTO that = (ProfileDTO) o;
+		var that = (ProfileDTO) o;
 		return name.equals(that.name) && Objects.equals(pgpIdentifier, that.pgpIdentifier) && Arrays.equals(pgpFingerprint, that.pgpFingerprint) && Arrays.equals(pgpPublicKeyData, that.pgpPublicKeyData);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int result = Objects.hash(name, pgpIdentifier);
+		var result = Objects.hash(name, pgpIdentifier);
 		result = 31 * result + Arrays.hashCode(pgpFingerprint);
 		result = 31 * result + Arrays.hashCode(pgpPublicKeyData);
 		return result;

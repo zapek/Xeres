@@ -19,6 +19,8 @@
 
 package io.xeres.common.mui;
 
+import io.xeres.common.AppName;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -38,7 +40,7 @@ public final class MinimalUserInterface
 
 	public static void showInformation(String message)
 	{
-		JOptionPane.showMessageDialog(null, message, "Xeres Output", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, message, AppName.NAME + " Output", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	public static void showError(String message)
@@ -52,6 +54,6 @@ public final class MinimalUserInterface
 		textArea.setMargin(new Insets(8, 8, 8, 8));
 		scrollPane.getViewport().setView(textArea);
 
-		JOptionPane.showMessageDialog(null, scrollPane, "Xeres Runtime Error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, scrollPane, AppName.NAME + " Runtime Error", JOptionPane.ERROR_MESSAGE);
 	}
 }

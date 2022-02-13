@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.AppName;
 import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.rest.location.RSIdResponse;
@@ -547,7 +548,7 @@ public class ChatViewController implements Controller
 				"radix=" + URLEncoder.encode(rsIdResponse.rsId().replace("\n", ""), UTF_8) + // Removing the '\n' is in case this is a certificate which is sliced for presentation
 				"&amp;name=" + URLEncoder.encode(rsIdResponse.name(), UTF_8) +
 				"&amp;location=" + URLEncoder.encode(rsIdResponse.location(), UTF_8));
-		return "<a href=\"" + uri + "\">Xeres Certificate (" + rsIdResponse.name() + ", @" + rsIdResponse.location() + ")</a>";
+		return "<a href=\"" + uri + "\">" + AppName.NAME + " Certificate (" + rsIdResponse.name() + ", @" + rsIdResponse.location() + ")</a>";
 	}
 
 	private List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)

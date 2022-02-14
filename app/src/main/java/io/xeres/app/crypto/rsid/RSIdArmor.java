@@ -55,7 +55,7 @@ final class RSIdArmor
 			}
 			else if (data.length < 8384) // size is coded in 2 bytes
 			{
-				int octet2 = (data.length - 192) & 0xff;
+				var octet2 = (data.length - 192) & 0xff;
 				out.write(((data.length - 192 - octet2) >> 8) + 192);
 				out.write(octet2);
 			}
@@ -74,9 +74,9 @@ final class RSIdArmor
 
 	static void addCrcPacket(int pTag, ByteArrayOutputStream out)
 	{
-		byte[] data = out.toByteArray();
+		var data = out.toByteArray();
 
-		int crc = RSIdCrc.calculate24bitsCrc(data, data.length);
+		var crc = RSIdCrc.calculate24bitsCrc(data, data.length);
 
 		// Perform byte swapping
 		var le = new byte[3];
@@ -89,7 +89,7 @@ final class RSIdArmor
 
 	static String wrapWithBase64(byte[] data, WrapMode wrapMode)
 	{
-		byte[] base64 = Base64.getEncoder().encode(data);
+		var base64 = Base64.getEncoder().encode(data);
 
 		try (var out = new ByteArrayOutputStream())
 		{

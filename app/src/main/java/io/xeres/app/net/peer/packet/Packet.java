@@ -141,7 +141,7 @@ public abstract class Packet implements Comparable<Packet>
 	@Override
 	public int compareTo(Packet o)
 	{
-		int res = getPriority() - o.getPriority();
+		var res = getPriority() - o.getPriority();
 
 		if (res == 0 && o != this)
 		{

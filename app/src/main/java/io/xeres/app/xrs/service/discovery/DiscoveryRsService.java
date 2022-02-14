@@ -55,7 +55,10 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.security.InvalidKeyException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.GOSSIP_DISCOVERY;
@@ -196,7 +199,7 @@ public class DiscoveryRsService extends RsService
 			return;
 		}
 
-		Set<Long> pgpIds = profileService.getAllDiscoverableProfiles().stream()
+		var pgpIds = profileService.getAllDiscoverableProfiles().stream()
 				.map(Profile::getPgpIdentifier)
 				.collect(toSet());
 
@@ -230,7 +233,7 @@ public class DiscoveryRsService extends RsService
 	private void handleContact(PeerConnection peerConnection, DiscoveryContactItem discoveryContactItem)
 	{
 		var peerLocation = peerConnection.getLocation();
-		Optional<Location> existingContactLocation = locationService.findLocationById(discoveryContactItem.getLocationId());
+		var existingContactLocation = locationService.findLocationById(discoveryContactItem.getLocationId());
 
 		existingContactLocation.ifPresentOrElse(contactLocation -> {
 			if (contactLocation.equals(peerLocation))
@@ -354,7 +357,7 @@ public class DiscoveryRsService extends RsService
 
 		if (discoveryPgpListItem.getMode() == DiscoveryPgpListItem.Mode.GET_CERT)
 		{
-			List<Profile> friends = getMutualFriends(discoveryPgpListItem.getPgpIds());
+			var friends = getMutualFriends(discoveryPgpListItem.getPgpIds());
 
 			friends.forEach(profile -> writeItem(peerConnection, new DiscoveryPgpKeyItem(profile.getPgpIdentifier(), profile.getPgpPublicKeyData()))); // XXX: RS does that slowly it seems... about one key every few seconds
 		}
@@ -364,7 +367,7 @@ public class DiscoveryRsService extends RsService
 			log.debug("Received peer's list of friends: {}", discoveryPgpListItem);
 
 			// Only ask for the ones we don't already have, including partial profiles
-			Set<Long> pgpIds = discoveryPgpListItem.getPgpIds();
+			var pgpIds = discoveryPgpListItem.getPgpIds();
 			profileService.findAllCompleteProfilesByPgpIdentifiers(pgpIds).stream()
 					.map(Profile::getPgpIdentifier)
 					.forEach(pgpIds::remove);
@@ -376,8 +379,8 @@ public class DiscoveryRsService extends RsService
 
 			// Send contact info of all mutual friends with discovery enabled to peer,
 			// including the peer itself if it wants to and also our other locations.
-			List<Profile> mutualFriends = getMutualFriends(discoveryPgpListItem.getPgpIds());
-			List<Location> locationsToSend = mutualFriends.stream()
+			var mutualFriends = getMutualFriends(discoveryPgpListItem.getPgpIds());
+			var locationsToSend = mutualFriends.stream()
 					.map(Profile::getLocations)
 					.flatMap(List::stream)
 					.filter(location -> !location.equals(ownLocation)) // own location was sent at beginning

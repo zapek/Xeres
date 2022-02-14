@@ -134,7 +134,7 @@ public class IdentityService
 		gxsIdGroupItem = gxsIdRepository.save(gxsIdGroupItem);
 
 		var ownIdentity = Identity.createOwnIdentity(gxsIdGroupItem, type);
-		Identity saved = identityRepository.save(ownIdentity);
+		var saved = identityRepository.save(ownIdentity);
 
 		gxsExchangeService.setLastServiceUpdate(RsServiceType.GXSID, gxsIdGroupItem.getPublished());
 
@@ -195,7 +195,7 @@ public class IdentityService
 
 	private byte[] getAsOneComplement(BigInteger number)
 	{
-		byte[] array = number.toByteArray();
+		var array = number.toByteArray();
 		if (array[0] == 0)
 		{
 			array = Arrays.copyOfRange(array, 1, array.length);

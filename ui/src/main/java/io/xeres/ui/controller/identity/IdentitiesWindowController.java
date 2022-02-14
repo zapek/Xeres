@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
@@ -66,7 +65,7 @@ public class IdentitiesWindowController implements WindowController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableGxsId.setCellValueFactory(param -> new SimpleStringProperty(Id.toString(param.getValue().getGxsId())));

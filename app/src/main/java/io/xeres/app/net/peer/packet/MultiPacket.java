@@ -57,7 +57,7 @@ public class MultiPacket extends Packet
 	{
 		if (in.getUnsignedByte(HEADER_VERSION_INDEX) == SLICE_PROTOCOL_VERSION_ID_01)
 		{
-			int id = (int) in.getUnsignedInt(HEADER_PACKET_ID_INDEX);
+			var id = (int) in.getUnsignedInt(HEADER_PACKET_ID_INDEX);
 			if (id >= MAXIMUM_ID || id < 0)
 			{
 				throw new ProtocolException("Illegal packet id (" + id + ")");
@@ -75,7 +75,7 @@ public class MultiPacket extends Packet
 	public MultiPacket(ChannelHandlerContext ctx, List<Packet> packets)
 	{
 		priority = packets.stream().findFirst().orElseThrow().getPriority();
-		int size = packets.stream().mapToInt(Packet::getSize).sum();
+		var size = packets.stream().mapToInt(Packet::getSize).sum();
 
 		buf = ctx.alloc().buffer(); // XXX: maybe we could use a CompoundBuffer (but maybe not because of the header in each packet), see documentation
 		writeHeader(SLICE_PROTOCOL_VERSION_ID_01, (byte) (SLICE_FLAG_START | SLICE_FLAG_END), 0, size);

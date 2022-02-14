@@ -117,7 +117,7 @@ final class EnumSetSerializer
 	{
 		Objects.requireNonNull(annotation, "Annotation is needed for EnumSet");
 		@SuppressWarnings("unchecked")
-		Class<E> enumClass = (Class<E>) type.getActualTypeArguments()[0];
+		var enumClass = (Class<E>) type.getActualTypeArguments()[0];
 
 		var fieldSize = annotation.fieldSize();
 
@@ -139,7 +139,7 @@ final class EnumSetSerializer
 		var value = buf.readInt();
 		log.trace("Reading enumSet (int): {}", value);
 		var enumSet = EnumSet.noneOf(e);
-		for (E enumConstant : e.getEnumConstants())
+		for (var enumConstant : e.getEnumConstants())
 		{
 			if ((value & (1 << enumConstant.ordinal())) != 0)
 			{
@@ -154,7 +154,7 @@ final class EnumSetSerializer
 		var value = buf.readByte();
 		log.trace("Reading enumSet (byte): {}", value);
 		var enumSet = EnumSet.noneOf(e);
-		for (E enumConstant : e.getEnumConstants())
+		for (var enumConstant : e.getEnumConstants())
 		{
 			if ((value & 0xff & (1 << enumConstant.ordinal())) != 0)
 			{
@@ -169,7 +169,7 @@ final class EnumSetSerializer
 		var value = buf.readShort();
 		log.trace("Reading enumSet (long): {}", value);
 		var enumSet = EnumSet.noneOf(e);
-		for (E enumConstant : e.getEnumConstants())
+		for (var enumConstant : e.getEnumConstants())
 		{
 			if ((value & (1 << enumConstant.ordinal())) != 0)
 			{

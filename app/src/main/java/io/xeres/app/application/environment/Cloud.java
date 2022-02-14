@@ -38,10 +38,10 @@ public final class Cloud
 	 */
 	public static boolean isRunningOnCloud()
 	{
-		String profiles = System.getenv("SPRING_PROFILES_ACTIVE");
+		var profiles = System.getenv("SPRING_PROFILES_ACTIVE");
 		if (profiles != null)
 		{
-			String[] tokens = profiles.split(",");
+			var tokens = profiles.split(",");
 			return Arrays.asList(tokens).contains("cloud");
 		}
 		return false;

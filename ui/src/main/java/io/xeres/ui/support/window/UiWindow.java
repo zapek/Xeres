@@ -79,7 +79,7 @@ final class UiWindow
 			{
 				throw new IllegalArgumentException("LocalId used for unique window " + builder.root.getId());
 			}
-			String[] tokens = builder.root.getId().split(":");
+			var tokens = builder.root.getId().split(":");
 			builder.root.setId(tokens[0] + ":" + builder.localId);
 		}
 		else

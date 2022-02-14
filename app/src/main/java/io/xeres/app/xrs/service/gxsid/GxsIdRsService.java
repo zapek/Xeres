@@ -140,7 +140,7 @@ public class GxsIdRsService extends GxsRsService
 			// XXX: for now we just send back our own identity. we should ideally just send back the identities that we have that match the request (there can be more than 1 of course)
 			try (var session = new DatabaseSession(databaseSessionManager))
 			{
-				Identity ownIdentity = identityService.getOwnIdentity();
+				var ownIdentity = identityService.getOwnIdentity();
 				if (gxsIds.size() == 1 && gxsIds.get(0).equals(ownIdentity.getGxsIdGroupItem().getGxsId()))
 				{
 					sendGxsGroups(peerConnection, List.of(ownIdentity.getGxsIdGroupItem()));
@@ -172,7 +172,7 @@ public class GxsIdRsService extends GxsRsService
 	// XXX: maybe this should be in GxsService. also other methods I think (though there are gxsIds... hmm... what a mess)
 	public void requestGxsGroups(PeerConnection peerConnection, List<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
 	{
-		int transactionId = getTransactionId(peerConnection);
+		var transactionId = getTransactionId(peerConnection);
 		List<GxsSyncGroupItem> items = new ArrayList<>();
 
 		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(EnumSet.of(SyncFlags.REQUEST), gxsId, transactionId)));
@@ -182,7 +182,7 @@ public class GxsIdRsService extends GxsRsService
 
 	public void sendGxsGroups(PeerConnection peerConnection, List<GxsGroupItem> gxsGroupItems)
 	{
-		int transactionId = getTransactionId(peerConnection);
+		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();
 		gxsGroupItems.forEach(gxsGroupItem -> {
 			signGroup(gxsGroupItem);

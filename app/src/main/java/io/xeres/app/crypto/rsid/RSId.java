@@ -64,8 +64,8 @@ public abstract class RSId
 
 		for (var entry : engines.entrySet())
 		{
-			Class<? extends RSId> engineClass = entry.getKey();
-			Type engineType = entry.getValue();
+			var engineClass = entry.getKey();
+			var engineType = entry.getValue();
 
 			if (type != ANY && type != engineType)
 			{
@@ -74,7 +74,7 @@ public abstract class RSId
 
 			try
 			{
-				RSId rsId = engineClass.getDeclaredConstructor().newInstance();
+				var rsId = engineClass.getDeclaredConstructor().newInstance();
 				rsId.parseInternal(data);
 				rsId.checkRequiredFields();
 				return Optional.of(rsId);
@@ -188,7 +188,7 @@ public abstract class RSId
 	{
 		try (var out = new ByteArrayOutputStream())
 		{
-			for (byte b : data)
+			for (var b : data)
 			{
 				if (b == ' ' || b == '\n' || b == '\t' || b == '\r')
 				{
@@ -206,7 +206,7 @@ public abstract class RSId
 
 	protected static int getPacketSize(InputStream in) throws IOException
 	{
-		int octet1 = in.read();
+		var octet1 = in.read();
 
 		if (octet1 < 192) // size is coded in one byte
 		{
@@ -214,7 +214,7 @@ public abstract class RSId
 		}
 		else if (octet1 < 224) // size is coded in 2 bytes
 		{
-			int octet2 = in.read();
+			var octet2 = in.read();
 
 			return ((octet1 - 192) << 8) + octet2 + 192;
 		}

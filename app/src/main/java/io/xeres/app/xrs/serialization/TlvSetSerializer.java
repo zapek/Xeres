@@ -40,7 +40,7 @@ final class TlvSetSerializer
 
 	static int serializeLong(ByteBuf buf, TlvType type, Set<Long> set)
 	{
-		int len = getSize(set);
+		var len = getSize(set);
 		log.trace("Writing set of longs: {}", log.isTraceEnabled() ? Arrays.toString(set.toArray()) : "");
 		buf.ensureWritable(len);
 		buf.writeShort(type.getValue());
@@ -58,7 +58,7 @@ final class TlvSetSerializer
 	{
 		log.trace("Reading set of longs");
 		var len = TlvUtils.checkTypeAndLength(buf, type);
-		int count = len / 8;
+		var count = len / 8;
 		var set = new HashSet<Long>(count);
 
 		while (count-- > 0)

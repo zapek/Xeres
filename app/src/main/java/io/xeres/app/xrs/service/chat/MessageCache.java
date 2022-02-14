@@ -95,9 +95,9 @@ public class MessageCache
 	 */
 	public boolean hasConnectionChallenge(LocationId locationId, long chatRoomId, long challengeCode)
 	{
-		int now = (int) Instant.now().getEpochSecond();
+		var now = (int) Instant.now().getEpochSecond();
 
-		for (Map.Entry<Long, Integer> message : messages.entrySet())
+		for (var message : messages.entrySet())
 		{
 			if (message.getValue() + CONNECTION_CHALLENGE_MAX_TIME + 5 > now && challengeCode == ChatChallenge.code(locationId, chatRoomId, message.getKey()))
 			{
@@ -114,9 +114,9 @@ public class MessageCache
 	 */
 	public long getRecentMessage()
 	{
-		int now = (int) Instant.now().getEpochSecond();
+		var now = (int) Instant.now().getEpochSecond();
 
-		for (Map.Entry<Long, Integer> message : messages.entrySet())
+		for (var message : messages.entrySet())
 		{
 			if (message.getValue() + CONNECTION_CHALLENGE_MAX_TIME > now)
 			{
@@ -131,7 +131,7 @@ public class MessageCache
 	 */
 	public void purge()
 	{
-		int now = (int) Instant.now().getEpochSecond();
+		var now = (int) Instant.now().getEpochSecond();
 		messages.entrySet().removeIf(entry -> entry.getValue() + LIFETIME_MAX < now);
 	}
 }

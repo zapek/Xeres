@@ -124,7 +124,7 @@ public final class SSL
 
 		try
 		{
-			byte[] in = cert.getTBSCertificate();
+			var in = cert.getTBSCertificate();
 
 			if (version.ordinal() < RSSerialVersion.V07_0001.ordinal())
 			{

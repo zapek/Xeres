@@ -77,7 +77,7 @@ public class LocationId implements Identifier
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		LocationId that = (LocationId) o;
+		var that = (LocationId) o;
 		return Arrays.equals(identifier, that.identifier);
 	}
 

@@ -64,7 +64,7 @@ public class MessageClient
 
 	public MessageClient connect()
 	{
-		String url = "ws://" + JavaFxApplication.getHostnameAndPort() + "/ws";
+		var url = "ws://" + JavaFxApplication.getHostnameAndPort() + "/ws";
 
 		var container = ContainerProvider.getWebSocketContainer();
 		container.setDefaultMaxTextMessageBufferSize(1024 * 1024); // 1 MB XXX: adjust maybe!

@@ -20,7 +20,6 @@
 package io.xeres.app.job;
 
 import io.xeres.app.XeresApplication;
-import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.peer.bootstrap.PeerClient;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
@@ -30,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 
@@ -80,9 +77,9 @@ public class PeerConnectionJob
 
 	private void connectToPeers()
 	{
-		List<Connection> connections = locationService.getConnectionsToConnectTo();
+		var connections = locationService.getConnectionsToConnectTo();
 
-		for (Connection connection : connections)
+		for (var connection : connections)
 		{
 			log.debug("Attempting to connect to {} ...", connection.getAddress());
 			var peerAddress = PeerAddress.fromAddress(connection.getAddress());

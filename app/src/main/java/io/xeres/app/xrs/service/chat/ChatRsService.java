@@ -276,7 +276,7 @@ public class ChatRsService extends RsService
 		{
 			chatRoom.resetConnectionChallengeCount();
 
-			long recentMessage = chatRoom.getMessageCache().getRecentMessage();
+			var recentMessage = chatRoom.getMessageCache().getRecentMessage();
 			if (recentMessage == 0)
 			{
 				log.debug("No message in cache to send connection challenge. Not enough activity?");
@@ -610,7 +610,7 @@ public class ChatRsService extends RsService
 	{
 		var locationId = peerConnection.getLocation().getLocationId();
 
-		for (ChatRoom chatRoom : chatRooms.values())
+		for (var chatRoom : chatRooms.values())
 		{
 			if (chatRoom.getMessageCache().hasConnectionChallenge(locationId, chatRoom.getId(), item.getChallengeCode()))
 			{
@@ -648,7 +648,7 @@ public class ChatRsService extends RsService
 			bounce.setMessageId(chatRoom.getNewMessageId());
 			bounce.setSenderNickname(ownIdentity.getGxsIdGroupItem().getName()); // XXX: we should use the identity in chatRoom.getGxsId() once we have multiple identities support done properly
 
-			byte[] signature = identityService.signData(ownIdentity, getBounceData(bounce));
+			var signature = identityService.signData(ownIdentity, getBounceData(bounce));
 
 			bounce.setSignature(new Signature(ownIdentity.getGxsIdGroupItem().getGxsId(), signature));
 		}

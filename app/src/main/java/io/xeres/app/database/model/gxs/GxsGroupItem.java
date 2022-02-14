@@ -384,10 +384,10 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	@Override
 	public int writeObject(ByteBuf buf, Set<SerializationFlags> flags)
 	{
-		int size = 0;
+		var size = 0;
 
 		size += serialize(buf, API_VERSION_2); // current RS API
-		int sizeOffset = buf.writerIndex();
+		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end
 		size += serialize(buf, gxsId);
 		size += serialize(buf, originalGxsId, GxsId.class);
@@ -411,12 +411,12 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	@Override
 	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
-		int apiVersion = deserializeInt(buf);
+		var apiVersion = deserializeInt(buf);
 		if (apiVersion != API_VERSION_1 && apiVersion != API_VERSION_2)
 		{
 			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
 		}
-		int size = deserializeInt(buf); // XXX: check size (this size is only the meta data size, not the full buffer)
+		var size = deserializeInt(buf); // XXX: check size (this size is only the meta data size, not the full buffer)
 		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		originalGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		parentId = (GxsId) deserializeIdentifier(buf, GxsId.class);
@@ -444,8 +444,8 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	 */
 	private SecurityKeySet createSecurityKeySet()
 	{
-		int startTs = (int) getPublished().getEpochSecond();
-		int stopTs = startTs + 60 * 60 * 24 * 365 * 5; // 5 years
+		var startTs = (int) getPublished().getEpochSecond();
+		var stopTs = startTs + 60 * 60 * 24 * 365 * 5; // 5 years
 
 		var securityKeySet = new SecurityKeySet();
 		try

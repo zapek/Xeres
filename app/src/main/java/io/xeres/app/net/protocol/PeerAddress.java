@@ -177,7 +177,7 @@ public final class PeerAddress
 	public static PeerAddress fromIpAndPort(String ipAndPort)
 	{
 		int port;
-		String[] tokens = ipAndPort.split(":");
+		var tokens = ipAndPort.split(":");
 
 		if (tokens.length != 2)
 		{
@@ -215,7 +215,7 @@ public final class PeerAddress
 			return fromInvalid();
 		}
 
-		int port = Byte.toUnsignedInt(data[4]) << 8 | Byte.toUnsignedInt(data[5]);
+		var port = Byte.toUnsignedInt(data[4]) << 8 | Byte.toUnsignedInt(data[5]);
 		if (isInvalidPort(port))
 		{
 			return fromInvalid();
@@ -244,7 +244,7 @@ public final class PeerAddress
 	public static PeerAddress fromHostnameAndPort(String hostnameAndPort)
 	{
 		int port;
-		String[] tokens = hostnameAndPort.split(":");
+		var tokens = hostnameAndPort.split(":");
 
 		if (tokens.length != 2)
 		{
@@ -349,7 +349,7 @@ public final class PeerAddress
 	{
 		if (socketAddress instanceof InetSocketAddress inetSocketAddress)
 		{
-			int port = inetSocketAddress.getPort();
+			var port = inetSocketAddress.getPort();
 
 			if (type == HOSTNAME)
 			{
@@ -444,7 +444,7 @@ public final class PeerAddress
 
 	private static boolean isInvalidIpAddress(String address)
 	{
-		String[] octets = address.split("\\.");
+		var octets = address.split("\\.");
 
 		if (octets.length != 4)
 		{

@@ -129,7 +129,7 @@ public abstract class ChatRoomBounce extends Item implements Cloneable
 	{
 		try
 		{
-			ChatRoomBounce clone = (ChatRoomBounce) super.clone();
+			var clone = (ChatRoomBounce) super.clone();
 			clone.buf = null; // the cloning is done to write multiple buffers, we don't need to copy it
 			return clone;
 		}

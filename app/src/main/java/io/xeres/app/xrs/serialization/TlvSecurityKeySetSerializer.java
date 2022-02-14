@@ -41,7 +41,7 @@ final class TlvSecurityKeySetSerializer
 	{
 		log.trace("Writing TlvSecurityKeySet");
 
-		int len = getSize(securityKeySet);
+		var len = getSize(securityKeySet);
 		buf.ensureWritable(len);
 		buf.writeShort(SECURITY_KEY_SET.getValue());
 		buf.writeInt(len);

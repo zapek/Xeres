@@ -31,7 +31,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 
@@ -95,7 +94,7 @@ public class AddRsIdWindowController implements WindowController
 
 	private void addPeer()
 	{
-		Mono<Void> profile = profileClient.create(rsIdTextArea.getText());
+		var profile = profileClient.create(rsIdTextArea.getText());
 
 		profile.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
 				.doOnError(throwable -> log.error("Error: {}", throwable.getMessage()))

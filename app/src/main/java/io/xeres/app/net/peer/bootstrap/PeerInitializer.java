@@ -21,7 +21,6 @@ package io.xeres.app.net.peer.bootstrap;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -78,7 +77,7 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 	@Override
 	protected void initChannel(SocketChannel channel)
 	{
-		ChannelPipeline pipeline = channel.pipeline();
+		var pipeline = channel.pipeline();
 
 		// Build the pipeline in order.
 		// Inbound

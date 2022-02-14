@@ -50,7 +50,7 @@ public class DatabaseSessionManager
 
 	public void unbindSession()
 	{
-		EntityManagerHolder emHolder = (EntityManagerHolder) TransactionSynchronizationManager.unbindResource(entityManagerFactory);
+		var emHolder = (EntityManagerHolder) TransactionSynchronizationManager.unbindResource(entityManagerFactory);
 		EntityManagerFactoryUtils.closeEntityManager(emHolder.getEntityManager());
 	}
 }

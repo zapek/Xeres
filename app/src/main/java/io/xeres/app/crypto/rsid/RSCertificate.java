@@ -82,16 +82,16 @@ class RSCertificate extends RSId
 	{
 		try
 		{
-			byte[] certBytes = Base64.getDecoder().decode(cleanupInput(data.getBytes()));
-			int checksum = RSIdCrc.calculate24bitsCrc(certBytes, certBytes.length - 5); // ignore the checksum PTAG which is 5 bytes in total and at the end
+			var certBytes = Base64.getDecoder().decode(cleanupInput(data.getBytes()));
+			var checksum = RSIdCrc.calculate24bitsCrc(certBytes, certBytes.length - 5); // ignore the checksum PTAG which is 5 bytes in total and at the end
 			var in = new ByteArrayInputStream(certBytes);
 			var version = 0;
 			Boolean checksumPassed = null;
 
 			while (in.available() > 0)
 			{
-				int ptag = in.read();
-				int size = getPacketSize(in);
+				var ptag = in.read();
+				var size = getPacketSize(in);
 				if (size == 0)
 				{
 					continue; // seen in the wild, just skip them

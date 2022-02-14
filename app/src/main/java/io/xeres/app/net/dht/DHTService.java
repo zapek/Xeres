@@ -196,8 +196,8 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			while (reader.ready())
 			{
 				line = reader.readLine();
-				String[] tokens = line.split(" ");
-				String ip = tokens[0];
+				var tokens = line.split(" ");
+				var ip = tokens[0];
 				var port = Integer.parseInt(tokens[1]);
 
 				if (!IP.isRoutableIp(ip))

@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
@@ -256,17 +255,17 @@ public final class IP
 	 */
 	private static String findIpFromInterfaces() throws SocketException
 	{
-		Iterator<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces().asIterator();
+		var interfaces = NetworkInterface.getNetworkInterfaces().asIterator();
 		while (interfaces.hasNext())
 		{
 			var networkInterface = interfaces.next();
 			if (networkInterface.isUp())
 			{
-				Iterator<InetAddress> addresses = networkInterface.getInetAddresses().asIterator();
+				var addresses = networkInterface.getInetAddresses().asIterator();
 
 				while (addresses.hasNext())
 				{
-					InetAddress address = addresses.next();
+					var address = addresses.next();
 
 					if (isRoutableAddress(address))
 					{

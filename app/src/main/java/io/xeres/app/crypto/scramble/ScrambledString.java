@@ -229,8 +229,8 @@ public class ScrambledString
 
 	private char[] unscrambleChars()
 	{
-		byte[] unscrambledBytes = unscrambleBytes();
-		char[] unscrambledChars = bytesToChars(unscrambledBytes);
+		var unscrambledBytes = unscrambleBytes();
+		var unscrambledChars = bytesToChars(unscrambledBytes);
 		clear(unscrambledBytes);
 		return unscrambledChars;
 	}

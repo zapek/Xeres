@@ -40,7 +40,7 @@ final class RsSerializableSerializer
 	{
 		try
 		{
-			Object instanceObject = javaClass.getDeclaredConstructor().newInstance();
+			var instanceObject = javaClass.getDeclaredConstructor().newInstance();
 			((RsSerializable) instanceObject).readObject(buf, EnumSet.noneOf(SerializationFlags.class));
 			return instanceObject;
 		}

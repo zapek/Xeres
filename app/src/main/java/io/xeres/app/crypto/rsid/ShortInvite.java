@@ -70,15 +70,15 @@ class ShortInvite extends RSId
 	{
 		try
 		{
-			byte[] shortInviteBytes = Base64.getDecoder().decode(cleanupInput(data.getBytes()));
-			int checksum = RSIdCrc.calculate24bitsCrc(shortInviteBytes, shortInviteBytes.length - 5); // ignore the checksum PTAG which is 5 bytes in total and at the end
+			var shortInviteBytes = Base64.getDecoder().decode(cleanupInput(data.getBytes()));
+			var checksum = RSIdCrc.calculate24bitsCrc(shortInviteBytes, shortInviteBytes.length - 5); // ignore the checksum PTAG which is 5 bytes in total and at the end
 			var in = new ByteArrayInputStream(shortInviteBytes);
 			Boolean checksumPassed = null;
 
 			while (in.available() > 0)
 			{
-				int ptag = in.read();
-				int size = getPacketSize(in);
+				var ptag = in.read();
+				var size = getPacketSize(in);
 				if (size == 0)
 				{
 					continue; // not seen in the wild yet but just skip them in any case
@@ -239,7 +239,7 @@ class ShortInvite extends RSId
 			throw new IllegalArgumentException("DNS name format is wrong");
 		}
 
-		int port = Byte.toUnsignedInt(portAndDns[0]) << 8 | Byte.toUnsignedInt(portAndDns[1]);
+		var port = Byte.toUnsignedInt(portAndDns[0]) << 8 | Byte.toUnsignedInt(portAndDns[1]);
 		var hostname = new String(Arrays.copyOfRange(portAndDns, 2, portAndDns.length), StandardCharsets.US_ASCII);
 		hostnameLocator = PeerAddress.fromHostname(hostname, port);
 	}

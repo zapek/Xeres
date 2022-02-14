@@ -42,7 +42,7 @@ final class TlvSignatureSerializer
 	{
 		log.trace("Writing TlvKeySignature");
 
-		int len = getSize(signature);
+		var len = getSize(signature);
 		buf.ensureWritable(len);
 		buf.writeShort(SIGNATURE.getValue());
 		buf.writeInt(len);

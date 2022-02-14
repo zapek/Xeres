@@ -47,7 +47,7 @@ class PortMapping
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		PortMapping that = (PortMapping) o;
+		var that = (PortMapping) o;
 		return port == that.port &&
 				protocol == that.protocol;
 	}

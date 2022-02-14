@@ -143,7 +143,7 @@ public abstract class RsService implements Comparable<RsService>
 
 	public Item createItem(int subType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException
 	{
-		Class<? extends Item> itemClass = searchBySubType.get(subType);
+		var itemClass = searchBySubType.get(subType);
 		if (itemClass == null)
 		{
 			throw new InstantiationException("No such type " + subType);
@@ -153,7 +153,7 @@ public abstract class RsService implements Comparable<RsService>
 
 	private String getPropertyName()
 	{
-		String className = getClass().getSimpleName();
+		var className = getClass().getSimpleName();
 		assert className.endsWith(RS_SERVICE_CLASS_SUFFIX);
 		return "xrs.service." + className.substring(0, className.length() - RS_SERVICE_CLASS_SUFFIX.length()).toLowerCase(Locale.ROOT) + ".enabled";
 	}

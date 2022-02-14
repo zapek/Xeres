@@ -32,7 +32,7 @@ final class TlvUint32Serializer
 
 	static int serialize(ByteBuf buf, TlvType type, int value)
 	{
-		int len = getSize();
+		var len = getSize();
 		buf.ensureWritable(len);
 		buf.writeShort(type.getValue());
 		buf.writeInt(len);
@@ -47,7 +47,7 @@ final class TlvUint32Serializer
 
 	static int deserialize(ByteBuf buf, TlvType type)
 	{
-		int readType = buf.readUnsignedShort();
+		var readType = buf.readUnsignedShort();
 		if (readType != type.getValue())
 		{
 			throw new IllegalArgumentException("Type " + readType + " does not match " + type);

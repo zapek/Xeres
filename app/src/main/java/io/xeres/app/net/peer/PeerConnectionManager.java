@@ -98,7 +98,7 @@ public class PeerConnectionManager
 
 	public ChannelFuture writeItem(Location location, Item item, RsService rsService)
 	{
-		PeerConnection peer = peers.get(location.getId());
+		var peer = peers.get(location.getId());
 		if (peer != null)
 		{
 			return writeItem(peer, item, rsService);
@@ -149,19 +149,19 @@ public class PeerConnectionManager
 
 	public void sendToSubscriptions(String path, MessageType type, Object payload)
 	{
-		Map<String, Object> headers = buildMessageHeaders(type);
+		var headers = buildMessageHeaders(type);
 		sendToSubscriptions(path, headers, payload);
 	}
 
 	public void sendToSubscriptions(String path, MessageType type, long destination, Object payload)
 	{
-		Map<String, Object> headers = buildMessageHeaders(type, String.valueOf(destination));
+		var headers = buildMessageHeaders(type, String.valueOf(destination));
 		sendToSubscriptions(path, headers, payload);
 	}
 
 	public void sendToSubscriptions(String path, MessageType type, Identifier destination, Object payload)
 	{
-		Map<String, Object> headers = buildMessageHeaders(type, destination.toString());
+		var headers = buildMessageHeaders(type, destination.toString());
 		sendToSubscriptions(path, headers, payload);
 	}
 

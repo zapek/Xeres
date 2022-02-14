@@ -50,7 +50,7 @@ public abstract class EnumSetConverter<E extends Enum<E>> implements AttributeCo
 		var e = getEnumClass();
 
 		var enumSet = EnumSet.noneOf(e);
-		for (E enumConstant : e.getEnumConstants())
+		for (var enumConstant : e.getEnumConstants())
 		{
 			if ((value & (1 << enumConstant.ordinal())) != 0)
 			{

@@ -149,7 +149,7 @@ public class LocationService
 			throw new CertificateException("Location already exists");
 		}
 
-		String localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new CertificateException("Current host has no IP address. Please configure your network"));
+		var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new CertificateException("Current host has no IP address. Please configure your network"));
 
 		// Create an IPv4 location
 		int localPort = Optional.ofNullable(StartupProperties.getInteger(StartupProperties.Property.SERVER_PORT)).orElseGet(IP::getFreeLocalPort);
@@ -269,7 +269,7 @@ public class LocationService
 
 		if (location.isOwn())
 		{
-			for (Connection connection : location.getConnections())
+			for (var connection : location.getConnections())
 			{
 				updated = updateAddressIfSameType(peerAddress, connection);
 				if (updated)
@@ -294,7 +294,7 @@ public class LocationService
 
 	public String getUsername()
 	{
-		String username = System.getProperty("user.name");
+		var username = System.getProperty("user.name");
 		if (StringUtils.isEmpty(username))
 		{
 			throw new NoSuchElementException("No logged in username");

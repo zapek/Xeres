@@ -25,7 +25,6 @@ import io.xeres.ui.client.ConfigClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -38,7 +37,6 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.time.Duration;
-import java.util.Iterator;
 
 @Service
 public class UPNPService implements Runnable
@@ -167,7 +165,7 @@ public class UPNPService implements Runnable
 		receiveBuffer = ByteBuffer.allocate(MCAST_BUFFER_RECV_SIZE);
 
 		try (var selector = Selector.open();
-		     DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET)
+		     var channel = DatagramChannel.open(StandardProtocolFamily.INET)
 				     .bind(new InetSocketAddress(InetAddress.getByName(localIpAddress), 0))
 		)
 		{
@@ -190,7 +188,7 @@ public class UPNPService implements Runnable
 				}
 				if (state == State.CONNECTED)
 				{
-					boolean refreshed = refreshPorts();
+					var refreshed = refreshPorts();
 					if (!refreshed)
 					{
 						log.error("UPNP port refresh failed, starting again...");
@@ -218,7 +216,7 @@ public class UPNPService implements Runnable
 
 	private void handleSelection(Selector selector, SelectionKey registerSelectionKeys)
 	{
-		Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
+		var selectedKeys = selector.selectedKeys().iterator();
 		if (!selectedKeys.hasNext() && state != State.CONNECTED)
 		{
 			setState(State.BROADCASTING, registerSelectionKeys);
@@ -227,7 +225,7 @@ public class UPNPService implements Runnable
 		{
 			try
 			{
-				SelectionKey key = selectedKeys.next();
+				var key = selectedKeys.next();
 				selectedKeys.remove();
 
 				if (!key.isValid())
@@ -279,8 +277,8 @@ public class UPNPService implements Runnable
 	{
 		assert state == State.WAITING;
 
-		DatagramChannel channel = (DatagramChannel) key.channel();
-		SocketAddress routerAddress = channel.receive(receiveBuffer); // XXX: handle multiple responses if there's several routers. use 'rootdevice' to test
+		var channel = (DatagramChannel) key.channel();
+		var routerAddress = channel.receive(receiveBuffer); // XXX: handle multiple responses if there's several routers. use 'rootdevice' to test
 		device = Device.from(routerAddress, receiveBuffer);
 		if (device.isValid())
 		{
@@ -290,7 +288,7 @@ public class UPNPService implements Runnable
 			if (device.hasControlPoint())
 			{
 				setState(State.CONNECTED, key);
-				boolean added = refreshPorts(); // XXX: what to do if we failed? report to user? retry?
+				var added = refreshPorts(); // XXX: what to do if we failed? report to user? retry?
 				if (added)
 				{
 					log.info("UPNP ports added successfully.");
@@ -321,7 +319,7 @@ public class UPNPService implements Runnable
 	{
 		assert state == State.BROADCASTING;
 
-		DatagramChannel channel = (DatagramChannel) key.channel();
+		var channel = (DatagramChannel) key.channel();
 		channel.send(sendBuffer, multicastAddress);
 		setState(State.WAITING, key);
 		sendBuffer.clear();
@@ -330,17 +328,17 @@ public class UPNPService implements Runnable
 	private boolean refreshPorts()
 	{
 		// XXX: add a mechanism if the localport is already taken on the router?
-		boolean refreshed = device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.TCP);
+		var refreshed = device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.TCP);
 		refreshed &= device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.UDP);
 		return refreshed;
 	}
 
 	private void findExternalIpAddress()
 	{
-		String externalIpAddress = device.getExternalIpAddress();
+		var externalIpAddress = device.getExternalIpAddress();
 		if (IP.isPublicIp(externalIpAddress))
 		{
-			Mono<Void> result = configClient.updateExternalIpAddress(externalIpAddress, localPort);
+			var result = configClient.updateExternalIpAddress(externalIpAddress, localPort);
 			result.subscribe();
 		}
 	}

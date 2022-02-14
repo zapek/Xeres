@@ -50,7 +50,7 @@ public final class Id
 
 		var sb = new StringBuilder(id.length * 2);
 
-		for (byte b : id)
+		for (var b : id)
 		{
 			sb.append(hex[(b & 0xf0) >> 4])
 					.append(hex[b & 0x0f]);
@@ -76,7 +76,7 @@ public final class Id
 
 		for (var i = 0; i < out.length; i++)
 		{
-			int index = i * 2;
+			var index = i * 2;
 			out[i] = (byte) Integer.parseUnsignedInt(id.substring(index, index + 2), 16);
 		}
 		return out;

@@ -77,7 +77,7 @@ public final class X509
 		);
 
 		var pgpSigner = new PGPSigner(pgpSecretKey);
-		byte[] certificateBytes = certificateBuilder.build(pgpSigner).getEncoded();
+		var certificateBytes = certificateBuilder.build(pgpSigner).getEncoded();
 
 		return (X509Certificate) CertificateFactory.getInstance(CERTIFICATE_TYPE).generateCertificate(new ByteArrayInputStream(certificateBytes));
 	}
@@ -103,7 +103,7 @@ public final class X509
 	{
 		try
 		{
-			BigInteger serialNumber = Optional.ofNullable(certificate.getSerialNumber()).orElseThrow(() -> new CertificateException("Missing serial number"));
+			var serialNumber = Optional.ofNullable(certificate.getSerialNumber()).orElseThrow(() -> new CertificateException("Missing serial number"));
 
 			var out = new byte[LocationId.LENGTH];
 

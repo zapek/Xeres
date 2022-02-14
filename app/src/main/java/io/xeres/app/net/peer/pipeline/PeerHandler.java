@@ -36,7 +36,6 @@ import io.xeres.app.net.peer.ssl.SSL;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
-import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import io.xeres.ui.support.tray.TrayService;
@@ -95,7 +94,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		{
 			item = rawItem.deserialize();
 
-			RsService service = item.getService();
+			var service = item.getService();
 			if (service != null)
 			{
 				var handleItemMethod = service.getClass().getDeclaredMethod("handleItem", PeerConnection.class, Item.class);

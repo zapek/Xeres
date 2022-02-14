@@ -41,7 +41,7 @@ final class TlvSignatureSetSerializer
 	{
 		log.trace("Writing TlvSignatureSet");
 
-		int len = getSize(signatureSet);
+		var len = getSize(signatureSet);
 		buf.ensureWritable(len);
 		buf.writeShort(SIGNATURE_SET.getValue());
 		buf.writeInt(len);
@@ -67,7 +67,7 @@ final class TlvSignatureSetSerializer
 		var keySignatureSet = new SignatureSet();
 		while (len > 0)
 		{
-			SignatureSet.Type type = SignatureSet.Type.findByValue((int) TlvSerializer.deserialize(buf, SIGNATURE_TYPE));
+			var type = SignatureSet.Type.findByValue((int) TlvSerializer.deserialize(buf, SIGNATURE_TYPE));
 			var keySignature = (Signature) TlvSerializer.deserialize(buf, SIGNATURE);
 			keySignatureSet.put(type, keySignature);
 			len -= TlvSerializer.getSize(SIGNATURE_TYPE) + TlvSerializer.getSize(SIGNATURE, keySignature);

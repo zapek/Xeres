@@ -51,7 +51,7 @@ final class TlvBinarySerializer
 			data = new byte[0];
 		}
 
-		int len = getSize(data);
+		var len = getSize(data);
 		log.trace("Writing TLV binary data (size: {})", data.length);
 		buf.ensureWritable(len);
 		buf.writeShort(type);

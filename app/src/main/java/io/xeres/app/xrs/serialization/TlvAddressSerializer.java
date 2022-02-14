@@ -56,7 +56,7 @@ final class TlvAddressSerializer
 				buf.writeInt(TLV_HEADER_SIZE * 2 + 6);
 				buf.writeShort(IPV4.getValue());
 				buf.writeInt(TLV_HEADER_SIZE + 6);
-				byte[] address = peerAddress.getAddressAsBytes().orElseThrow();
+				var address = peerAddress.getAddressAsBytes().orElseThrow();
 				// RS expects little endian
 				buf.writeByte(address[3]);
 				buf.writeByte(address[2]);
@@ -72,7 +72,7 @@ final class TlvAddressSerializer
 
 	static PeerAddress deserialize(ByteBuf buf)
 	{
-		int type = buf.readUnsignedShort();
+		var type = buf.readUnsignedShort();
 		log.trace("Address type: {}", type);
 
 		if (type == ADDRESS.getValue())
@@ -81,7 +81,7 @@ final class TlvAddressSerializer
 
 			if (totalSize > TLV_HEADER_SIZE)
 			{
-				int addressType = buf.readUnsignedShort();
+				var addressType = buf.readUnsignedShort();
 				var addressSize = buf.readInt();
 
 				if (addressType == IPV4.getValue())
@@ -124,16 +124,16 @@ final class TlvAddressSerializer
 		buf.ensureWritable(TLV_HEADER_SIZE);
 		buf.writeShort(ADDRESS_SET.getValue());
 		var totalSize = TLV_HEADER_SIZE;
-		int totalSizeOffset = buf.writerIndex();
+		var totalSizeOffset = buf.writerIndex();
 		buf.writeInt(0);
 
 		if (addresses != null)
 		{
-			for (PeerAddress address : addresses)
+			for (var address : addresses)
 			{
 				var size = TLV_HEADER_SIZE + 12; // long + int below
 				buf.writeShort(ADDRESS_INFO.getValue());
-				int sizeOffset = buf.writerIndex();
+				var sizeOffset = buf.writerIndex();
 				buf.writeInt(0);
 				size += serialize(buf, address);
 				buf.writeLong(0); // XXX: seenTime (64-bits)... we don't have that in PeerAddress... where do we get it from?!
@@ -151,7 +151,7 @@ final class TlvAddressSerializer
 		var addresses = new ArrayList<PeerAddress>();
 
 		var totalSize = TlvUtils.checkTypeAndLength(buf, ADDRESS_SET);
-		int index = buf.readerIndex();
+		var index = buf.readerIndex();
 
 		while (buf.readerIndex() < index + totalSize)
 		{

@@ -215,7 +215,7 @@ public class GxsTransactionManager
 
 	private void addTransaction(PeerConnection peerConnection, Transaction<?> transaction, Map<LocationId, Map<Integer, Transaction<?>>> transactionList)
 	{
-		Map<Integer, Transaction<?>> transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationId(), key -> new HashMap<>());
+		var transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationId(), key -> new HashMap<>());
 		if (transactionMap.putIfAbsent(transaction.getId(), transaction) != null)
 		{
 			throw new IllegalStateException("Transaction " + transaction.getId() + " for peer " + peerConnection + " already exists. Should not happen (tm)");
@@ -226,12 +226,12 @@ public class GxsTransactionManager
 	{
 		var locationId = peerConnection.getLocation().getLocationId();
 
-		Map<Integer, Transaction<?>> transactionMap = type == Type.INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
+		var transactionMap = type == Type.INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
 		if (transactionMap == null)
 		{
 			throw new IllegalStateException("No existing transaction for peer " + peerConnection);
 		}
-		Transaction<?> transaction = transactionMap.get(id);
+		var transaction = transactionMap.get(id);
 		if (transaction == null)
 		{
 			throw new IllegalStateException("No existing transaction for peer " + peerConnection);
@@ -247,7 +247,7 @@ public class GxsTransactionManager
 	{
 		var locationId = peerConnection.getLocation().getLocationId();
 
-		Map<Integer, Transaction<?>> transactionMap = transaction.getType() == Type.INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
+		var transactionMap = transaction.getType() == Type.INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
 		if (transactionMap == null)
 		{
 			throw new IllegalStateException("No existing transaction for removal for peer " + peerConnection);

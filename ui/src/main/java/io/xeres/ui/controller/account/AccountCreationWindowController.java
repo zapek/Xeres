@@ -31,7 +31,6 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -79,8 +78,8 @@ public class AccountCreationWindowController implements WindowController
 
 		okButton.setOnAction(actionEvent ->
 		{
-			String profileNameText = profileName.getText();
-			String locationNameText = locationName.getText();
+			var profileNameText = profileName.getText();
+			var locationNameText = locationName.getText();
 			if (isNotBlank(profileNameText) && isNotBlank(locationNameText))
 			{
 				generateProfileAndLocation(profileNameText, locationNameText);
@@ -122,7 +121,7 @@ public class AccountCreationWindowController implements WindowController
 	{
 		setInProgress(true);
 
-		Mono<Void> result = configClient.createProfile(profileName);
+		var result = configClient.createProfile(profileName);
 
 		status.setText("Generating profile keys...");
 
@@ -138,7 +137,7 @@ public class AccountCreationWindowController implements WindowController
 	{
 		setInProgress(true);
 
-		Mono<Void> result = configClient.createLocation(locationName);
+		var result = configClient.createLocation(locationName);
 
 		status.setText("Generating location keys and certificate...");
 
@@ -155,7 +154,7 @@ public class AccountCreationWindowController implements WindowController
 	{
 		setInProgress(true);
 
-		Mono<Void> result = configClient.createIdentity(identityName, false);
+		var result = configClient.createIdentity(identityName, false);
 
 		status.setText("Generating identity...");
 

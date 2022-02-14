@@ -71,7 +71,7 @@ final class Device implements DeviceSpecs
 		try
 		{
 			Map<HttpuHeader, String> headers = new EnumMap<>(HttpuHeader.class);
-			String s = reader.readLine();
+			var s = reader.readLine();
 
 			if (!HTTP_OK_PATTERN.matcher(s).matches())
 			{
@@ -81,13 +81,13 @@ final class Device implements DeviceSpecs
 
 			while ((s = reader.readLine()) != null)
 			{
-				String[] tokens = s.split(":", 2);
+				var tokens = s.split(":", 2);
 				if (tokens.length != 2 || tokens[1].length() > MAX_HEADER_VALUE_LENGTH)
 				{
 					continue;
 				}
 
-				String header = tokens[0].toUpperCase(Locale.ROOT).strip();
+				var header = tokens[0].toUpperCase(Locale.ROOT).strip();
 				if (supportedHeaders.stream().anyMatch(h -> h.name().equals(header)))
 				{
 					headers.put(HttpuHeader.valueOf(header), tokens[1].strip());
@@ -318,7 +318,7 @@ final class Device implements DeviceSpecs
 
 	public boolean addPortMapping(String internalIp, int internalPort, int externalPort, int duration, Protocol protocol)
 	{
-		boolean added = ControlPoint.addPortMapping(getControlUrl(), getServiceType(), internalIp, internalPort, externalPort, duration, protocol);
+		var added = ControlPoint.addPortMapping(getControlUrl(), getServiceType(), internalIp, internalPort, externalPort, duration, protocol);
 		if (added)
 		{
 			ports.add(new PortMapping(externalPort, protocol));

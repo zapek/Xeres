@@ -34,7 +34,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.ThreadLocalRandom;
@@ -77,7 +76,7 @@ public class ServiceInfoRsService extends RsService
 	{
 		if (item instanceof ServiceListItem serviceListItem)
 		{
-			PriorityQueue<RsService> services = new PriorityQueue<>();
+			var services = new PriorityQueue<RsService>();
 
 			serviceListItem.getServices().forEach((integer, serviceInfo) ->
 			{
@@ -102,15 +101,15 @@ public class ServiceInfoRsService extends RsService
 	{
 		if (!peerConnection.hasSentServices())
 		{
-			HashMap<Integer, ServiceInfo> services = new HashMap<>();
+			var services = new HashMap<Integer, ServiceInfo>();
 
-			List<RsService> allServices = RsServiceRegistry.getServices();
+			var allServices = RsServiceRegistry.getServices();
 			allServices.stream()
 					.filter(Predicate.not(rsService -> rsService.getServiceType() == PACKET_SLICING_PROBE)) // we hide this as it's not strictly a service in RS' terms
 					.forEach(rsService ->
 					{
-						RsServiceType serviceType = rsService.getServiceType();
-						int type = 2 << 24 | rsService.getServiceType().getType() << 8;
+						var serviceType = rsService.getServiceType();
+						var type = 2 << 24 | rsService.getServiceType().getType() << 8;
 						services.put(type, new ServiceInfo(serviceType.getName(), type, rsService.getServiceType().getVersionMajor(), rsService.getServiceType().getVersionMinor()));
 					});
 

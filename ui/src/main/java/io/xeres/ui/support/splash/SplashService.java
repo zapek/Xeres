@@ -56,7 +56,7 @@ public final class SplashService
 	{
 		if (g2d != null)
 		{
-			double y = dimension.getHeight() - 20;
+			var y = dimension.getHeight() - 20;
 			g2d.setColor(Color.WHITE);
 			g2d.fillRect(0, (int) y, (int) dimension.getWidth(), 20);
 			g2d.setColor(Color.BLACK);
@@ -80,8 +80,8 @@ public final class SplashService
 
 	private void drawStringCentered(String s, int y)
 	{
-		FontMetrics metrics = g2d.getFontMetrics();
-		int x = ((int) dimension.getWidth() - metrics.stringWidth(s)) / 2;
+		var metrics = g2d.getFontMetrics();
+		var x = ((int) dimension.getWidth() - metrics.stringWidth(s)) / 2;
 
 		g2d.drawString(s, x, y + metrics.getAscent());
 	}

@@ -605,7 +605,6 @@ ij_javascript_ternary_operation_wrap = off
 ij_javascript_union_types_wrap = on_every_item
 ij_javascript_use_chained_calls_group_indents = false
 ij_javascript_use_double_quotes = true
-ij_javascript_use_explicit_js_extension = global
 ij_javascript_use_path_mapping = always
 ij_javascript_use_public_modifier = false
 ij_javascript_use_semicolon_after_statement = true

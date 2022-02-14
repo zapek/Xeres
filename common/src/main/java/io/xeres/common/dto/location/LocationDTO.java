@@ -69,14 +69,14 @@ public record LocationDTO(
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		LocationDTO that = (LocationDTO) o;
+		var that = (LocationDTO) o;
 		return name.equals(that.name) && Arrays.equals(locationIdentifier, that.locationIdentifier);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int result = Objects.hash(name);
+		var result = Objects.hash(name);
 		result = 31 * result + Arrays.hashCode(locationIdentifier);
 		return result;
 	}

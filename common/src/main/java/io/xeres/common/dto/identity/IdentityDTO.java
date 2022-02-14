@@ -39,7 +39,7 @@ public record IdentityDTO(
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		IdentityDTO that = (IdentityDTO) o;
+		var that = (IdentityDTO) o;
 		return name.equals(that.name) && gxsId.equals(that.gxsId);
 	}
 

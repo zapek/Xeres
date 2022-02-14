@@ -71,7 +71,7 @@ public class ChatListView
 
 	private VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> createChatView()
 	{
-		final VirtualFlow<ChatLine, ChatListCell> view = VirtualFlow.createVertical(messages, ChatListCell::new, VirtualFlow.Gravity.REAR);
+		final var view = VirtualFlow.createVertical(messages, ChatListCell::new, VirtualFlow.Gravity.REAR);
 		view.setFocusTraversable(false);
 		view.getStyleClass().add("chat-list");
 		return new VirtualizedScrollPane<>(view);

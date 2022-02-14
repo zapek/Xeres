@@ -103,7 +103,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	@Override
 	public ChatRoomMessageItem clone()
 	{
-		ChatRoomMessageItem clone = (ChatRoomMessageItem) super.clone();
+		var clone = (ChatRoomMessageItem) super.clone();
 		clone.flags = EnumSet.copyOf(flags);
 		return clone;
 	}

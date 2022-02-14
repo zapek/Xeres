@@ -26,9 +26,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.DefaultApplicationArguments;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
 
 /**
  * Utility class to handle user supplied command line arguments.
@@ -59,7 +57,7 @@ public final class CommandArgument
 	{
 		ApplicationArguments appArgs = new DefaultApplicationArguments(args);
 
-		for (String arg : appArgs.getNonOptionArgs())
+		for (var arg : appArgs.getNonOptionArgs())
 		{
 			switch (arg)
 			{
@@ -68,7 +66,7 @@ public final class CommandArgument
 			}
 		}
 
-		for (String arg : appArgs.getOptionNames())
+		for (var arg : appArgs.getOptionNames())
 		{
 			switch (arg)
 			{
@@ -81,7 +79,7 @@ public final class CommandArgument
 				}
 				case SERVER_PORT -> setPort(StartupProperties.Property.SERVER_PORT, appArgs, arg);
 				case REMOTE_CONNECT -> {
-					String ipAndPort = appArgs.getOptionValues(arg).stream()
+					var ipAndPort = appArgs.getOptionValues(arg).stream()
 							.findFirst()
 							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:1066'"));
 					StartupProperties.setUiRemoteConnect(ipAndPort);
@@ -138,7 +136,7 @@ public final class CommandArgument
 
 	private static String getValue(ApplicationArguments appArgs, String arg)
 	{
-		List<String> optionValues = appArgs.getOptionValues(arg);
+		var optionValues = appArgs.getOptionValues(arg);
 		if (optionValues.isEmpty())
 		{
 			throw new IllegalArgumentException("--" + arg + " expects a value");
@@ -173,7 +171,7 @@ public final class CommandArgument
 
 	private static void showVersion()
 	{
-		InputStream buildInfo = CommandArgument.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties");
+		var buildInfo = CommandArgument.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties");
 		if (buildInfo != null)
 		{
 			var reader = new BufferedReader(new InputStreamReader(buildInfo));

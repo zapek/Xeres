@@ -40,7 +40,7 @@ final class TlvStringSetRefSerializer
 	// XXX: warning! serialization has not been tested
 	static int serialize(ByteBuf buf, TlvType type, List<String> refIds)
 	{
-		int len = getSize(refIds);
+		var len = getSize(refIds);
 		log.trace("Writing refids: {}", log.isTraceEnabled() ? refIds : "");
 		buf.ensureWritable(len);
 		buf.writeShort(type.getValue());
@@ -58,7 +58,7 @@ final class TlvStringSetRefSerializer
 	{
 		log.trace("Reading refids");
 		var len = TlvUtils.checkTypeAndLength(buf, type);
-		int listIndex = buf.readerIndex();
+		var listIndex = buf.readerIndex();
 		List<String> refIds = new ArrayList<>();
 		while (buf.readerIndex() < listIndex + len)
 		{

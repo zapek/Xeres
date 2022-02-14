@@ -293,7 +293,7 @@ public class Location
 		{
 			return Stream.empty();
 		}
-		List<Connection> connectionsSortedByMostReliable = connections.stream()
+		var connectionsSortedByMostReliable = connections.stream()
 				.sorted(comparing(Connection::getLastConnected, nullsLast(naturalOrder())))
 				.toList();
 

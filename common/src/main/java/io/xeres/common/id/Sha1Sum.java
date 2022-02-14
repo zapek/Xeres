@@ -62,7 +62,7 @@ public class Sha1Sum implements Identifier
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		Sha1Sum that = (Sha1Sum) o;
+		var that = (Sha1Sum) o;
 		return Arrays.equals(identifier, that.identifier);
 	}
 

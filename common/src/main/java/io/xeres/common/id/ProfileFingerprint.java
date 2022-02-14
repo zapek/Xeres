@@ -62,7 +62,7 @@ public class ProfileFingerprint implements Identifier
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProfileFingerprint that = (ProfileFingerprint) o;
+		var that = (ProfileFingerprint) o;
 		return Arrays.equals(identifier, that.identifier);
 	}
 

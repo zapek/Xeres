@@ -131,7 +131,7 @@ public class Startup implements ApplicationRunner
 			try (var session = new DatabaseSession(databaseSessionManager))
 			{
 				var location = locationService.findOwnLocation().orElseThrow();
-				String localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new IllegalStateException("Current host has no IP address. Please configure your network"));
+				var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new IllegalStateException("Current host has no IP address. Please configure your network"));
 
 				// If there's no --server-port specified, get the previously saved port. If there isn't any because there was an
 				// error on initialization, simply try to get a new one.
@@ -231,7 +231,7 @@ public class Startup implements ApplicationRunner
 
 	private void showCapabilities()
 	{
-		long totalMemory = Runtime.getRuntime().totalMemory();
+		var totalMemory = Runtime.getRuntime().totalMemory();
 		log.info("OS: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
 		log.info("JRE: {} {} ({})", System.getProperty("java.vendor"), System.getProperty("java.version"), System.getProperty("java.home"));
 		log.info("Charset: {}", Charset.defaultCharset());

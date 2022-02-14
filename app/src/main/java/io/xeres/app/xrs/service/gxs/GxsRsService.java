@@ -166,8 +166,8 @@ public abstract class GxsRsService extends RsService
 	{
 		log.debug("Got sync request item: {} from peer {}", item, peerConnection);
 
-		int transactionId = getTransactionId(peerConnection);
-		Instant since = Instant.ofEpochSecond(item.getUpdateTimestamp());
+		var transactionId = getTransactionId(peerConnection);
+		var since = Instant.ofEpochSecond(item.getUpdateTimestamp());
 		if (areGxsUpdatesAvailableForPeer(since))
 		{
 			try (var session = new DatabaseSession(databaseSessionManager))
@@ -227,7 +227,7 @@ public abstract class GxsRsService extends RsService
 
 	protected int getTransactionId(PeerConnection peerConnection)
 	{
-		int transactionId = (int) peerConnection.getServiceData(this, KEY_TRANSACTION_ID).orElse(1);
+		var transactionId = (int) peerConnection.getServiceData(this, KEY_TRANSACTION_ID).orElse(1);
 		peerConnection.putServiceData(this, KEY_TRANSACTION_ID, ++transactionId);
 		return transactionId;
 	}

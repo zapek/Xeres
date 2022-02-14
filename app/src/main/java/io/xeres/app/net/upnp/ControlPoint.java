@@ -23,8 +23,6 @@ import io.xeres.common.AppName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -60,11 +58,11 @@ final class ControlPoint
 			var document = getDocumentBuilderFactory().newDocumentBuilder().parse(location.toString());
 			var xPath = XPathFactory.newInstance().newXPath();
 
-			XPathNodes devices = xPath.evaluateExpression("//device[deviceType[contains(text(), 'InternetGatewayDevice')]]", document, XPathNodes.class);
+			var devices = xPath.evaluateExpression("//device[deviceType[contains(text(), 'InternetGatewayDevice')]]", document, XPathNodes.class);
 
 			getDeviceInfo(upnpDevice, devices);
 
-			XPathNodes services = xPath.evaluateExpression("//service[serviceType[contains(text(), 'WANIPConnection') or contains(text(), 'WANPPPConnection')]]", document, XPathNodes.class);
+			var services = xPath.evaluateExpression("//service[serviceType[contains(text(), 'WANIPConnection') or contains(text(), 'WANPPPConnection')]]", document, XPathNodes.class);
 
 			controlPointFound = getServices(upnpDevice, services);
 		}
@@ -152,7 +150,7 @@ final class ControlPoint
 		args.put("NewPortMappingDescription", AppName.NAME + " " + protocol.name());
 		args.put("NewLeaseDuration", String.valueOf(duration));
 
-		ResponseEntity<String> response = Soap.sendRequest(controlUrl, serviceType, "AddPortMapping", args);
+		var response = Soap.sendRequest(controlUrl, serviceType, "AddPortMapping", args);
 		return response.getStatusCode() == HttpStatus.OK;
 	}
 
@@ -163,17 +161,17 @@ final class ControlPoint
 		args.put("NewExternalPort", String.valueOf(externalPort));
 		args.put("NewProtocol", protocol.name());
 
-		ResponseEntity<String> response = Soap.sendRequest(controlUrl, serviceType, "DeletePortMapping", args);
+		var response = Soap.sendRequest(controlUrl, serviceType, "DeletePortMapping", args);
 		return response.getStatusCode() == HttpStatus.OK;
 	}
 
 	static String getExternalIpAddress(URL controlUrl, String serviceType)
 	{
-		ResponseEntity<String> response = Soap.sendRequest(controlUrl, serviceType, "GetExternalIPAddress", null);
+		var response = Soap.sendRequest(controlUrl, serviceType, "GetExternalIPAddress", null);
 		var body = response.getBody();
 		if (response.getStatusCode() == HttpStatus.OK && body != null)
 		{
-			Map<String, String> reply = getTextNodes(body);
+			var reply = getTextNodes(body);
 			return reply.getOrDefault("NewExternalIPAddress", "");
 		}
 		return "";
@@ -188,7 +186,7 @@ final class ControlPoint
 			var xPath = XPathFactory.newInstance().newXPath();
 			var textNodes = xPath.evaluateExpression("//text()", document, XPathNodes.class);
 
-			for (Node textNode : textNodes)
+			for (var textNode : textNodes)
 			{
 				result.put(textNode.getParentNode().getNodeName(), textNode.getTextContent());
 			}

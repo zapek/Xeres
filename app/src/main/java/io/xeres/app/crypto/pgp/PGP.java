@@ -23,7 +23,6 @@ import io.xeres.app.crypto.rsa.RSA;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.openpgp.*;
-import org.bouncycastle.openpgp.operator.PGPDigestCalculator;
 import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
@@ -91,7 +90,7 @@ public final class PGP
 
 		if (object instanceof PGPPublicKeyRing pgpPublicKeyRing)
 		{
-			for (PGPPublicKey publicKey : pgpPublicKeyRing)
+			for (var publicKey : pgpPublicKeyRing)
 			{
 				publicKey.encode(aOut);
 				aOut.close();
@@ -187,7 +186,7 @@ public final class PGP
 	{
 		var keyPair = RSA.generateKeys(size);
 
-		PGPDigestCalculator sha1Calc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
+		var sha1Calc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
 
 		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(RSA_GENERAL, keyPair, new Date());
 

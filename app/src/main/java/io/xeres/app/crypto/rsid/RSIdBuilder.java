@@ -93,7 +93,7 @@ public class RSIdBuilder
 
 	public RSId build()
 	{
-		RSId rsId = switch (type)
+		var rsId = switch (type)
 				{
 					case SHORT_INVITE, ANY -> {
 						var si = new ShortInvite();

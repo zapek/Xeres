@@ -191,10 +191,10 @@ public class BroadcastDiscoveryService implements Runnable
 		setupOwnInfo();
 
 		try (var selector = Selector.open();
-		     DatagramChannel receiveChannel = DatagramChannel.open(StandardProtocolFamily.INET)
+		     var receiveChannel = DatagramChannel.open(StandardProtocolFamily.INET)
 				     .setOption(StandardSocketOptions.SO_REUSEADDR, true)
 				     .bind(new InetSocketAddress(localAddress.getHostString(), PORT));
-		     DatagramChannel sendChannel = DatagramChannel.open(StandardProtocolFamily.INET)
+		     var sendChannel = DatagramChannel.open(StandardProtocolFamily.INET)
 				     .setOption(StandardSocketOptions.SO_BROADCAST, true)
 				     .bind(new InetSocketAddress(localAddress.getHostString(), 0))
 		)
@@ -233,7 +233,7 @@ public class BroadcastDiscoveryService implements Runnable
 
 	private void handleSelection(Selector selector)
 	{
-		Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
+		var selectedKeys = selector.selectedKeys().iterator();
 
 		if (!selectedKeys.hasNext())
 		{
@@ -246,7 +246,7 @@ public class BroadcastDiscoveryService implements Runnable
 		{
 			try
 			{
-				SelectionKey key = selectedKeys.next();
+				var key = selectedKeys.next();
 				selectedKeys.remove();
 
 				if (!key.isValid())
@@ -290,15 +290,15 @@ public class BroadcastDiscoveryService implements Runnable
 	{
 		assert state == State.WAITING;
 
-		DatagramChannel channel = (DatagramChannel) key.channel();
-		InetSocketAddress peerAddress = (InetSocketAddress) channel.receive(receiveBuffer);
+		var channel = (DatagramChannel) key.channel();
+		var peerAddress = (InetSocketAddress) channel.receive(receiveBuffer);
 		receiveBuffer.flip();
 
 		if (!peerAddress.equals(sendAddress)) // ignore our own packets
 		{
 			try
 			{
-				UdpDiscoveryPeer peer = UdpDiscoveryProtocol.parsePacket(receiveBuffer, peerAddress);
+				var peer = UdpDiscoveryProtocol.parsePacket(receiveBuffer, peerAddress);
 				log.debug("Got peer: {}", peer);
 
 				if (isValidPeer(peer))

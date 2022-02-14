@@ -39,7 +39,7 @@ final class TlvUtils
 	 */
 	static int checkTypeAndLength(ByteBuf buf, TlvType tlvType)
 	{
-		int readType = buf.readUnsignedShort();
+		var readType = buf.readUnsignedShort();
 		if (readType != tlvType.getValue())
 		{
 			throw new IllegalArgumentException("Type " + readType + " does not match " + tlvType);
@@ -62,7 +62,7 @@ final class TlvUtils
 	 */
 	static int checkTypeAndLength(ByteBuf buf, int tlvType)
 	{
-		int readType = buf.readUnsignedShort();
+		var readType = buf.readUnsignedShort();
 		if (readType != tlvType)
 		{
 			throw new IllegalArgumentException("Type " + readType + " does not match " + tlvType);

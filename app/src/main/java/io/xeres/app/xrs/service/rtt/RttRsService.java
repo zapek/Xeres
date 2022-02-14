@@ -84,14 +84,14 @@ public class RttRsService extends RsService
 
 	private int getCounter(PeerConnection peerConnection)
 	{
-		int counter = (int) peerConnection.getServiceData(this, KEY_COUNTER).orElse(1);
+		var counter = (int) peerConnection.getServiceData(this, KEY_COUNTER).orElse(1);
 		peerConnection.putServiceData(this, KEY_COUNTER, ++counter);
 		return counter;
 	}
 
 	private static long get64bitsTimeStamp()
 	{
-		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		var now = Instant.now().truncatedTo(ChronoUnit.MICROS);
 
 		return (now.getEpochSecond() << 32) + now.getNano() / 1_000L;
 	}
@@ -117,7 +117,7 @@ public class RttRsService extends RsService
 
 			var rtt = Duration.between(ping, now);
 			var offset = Duration.between(pong, now.minus(rtt.dividedBy(2)));
-			Instant peerTime = now.plus(offset);
+			var peerTime = now.plus(offset);
 
 			log.debug("RTT: {}, offset: {}", rtt, offset);
 

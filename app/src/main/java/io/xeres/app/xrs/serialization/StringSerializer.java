@@ -41,7 +41,7 @@ final class StringSerializer
 			buf.writeInt(0);
 			return 4;
 		}
-		byte[] bytes = s.getBytes();
+		var bytes = s.getBytes();
 		buf.ensureWritable(4 + bytes.length);
 		buf.writeInt(bytes.length);
 		buf.writeBytes(bytes);

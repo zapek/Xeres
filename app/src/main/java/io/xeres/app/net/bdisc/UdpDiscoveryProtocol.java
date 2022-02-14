@@ -19,7 +19,6 @@
 
 package io.xeres.app.net.bdisc;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.LocationId;
@@ -77,7 +76,7 @@ public final class UdpDiscoveryProtocol
 			throw new IllegalArgumentException("Userdata size of " + userDataSize + " is too big (" + buffer.remaining() + " remaining)");
 		}
 
-		ByteBuf buf = Unpooled.wrappedBuffer(buffer);
+		var buf = Unpooled.wrappedBuffer(buffer);
 		peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifier(buf, ProfileFingerprint.class));
 		peer.setLocationId((LocationId) Serializer.deserializeIdentifier(buf, LocationId.class));
 		peer.setLocalPort(Serializer.deserializeShort(buf));
@@ -103,7 +102,7 @@ public final class UdpDiscoveryProtocol
 		buffer.putInt(counter);
 		buffer.put((byte) 0);
 
-		ByteBuf buf = Unpooled.buffer();
+		var buf = Unpooled.buffer();
 		Serializer.serialize(buf, fingerprint);
 		Serializer.serialize(buf, locationId);
 		Serializer.serialize(buf, (short) localPort);

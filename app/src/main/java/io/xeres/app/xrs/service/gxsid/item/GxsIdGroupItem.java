@@ -82,7 +82,7 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 	@Override
 	public int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
-		int size = 0;
+		var size = 0;
 
 		if (serializationFlags.contains(SerializationFlags.SUBCLASS_ONLY))
 		{
@@ -102,12 +102,12 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 
 	private int writeObject(ByteBuf buf, int parentSize)
 	{
-		int size = 0;
+		var size = 0;
 
 		size += serialize(buf, (byte) 2);
 		size += serialize(buf, (short) RsServiceType.GXSID.getType());
 		size += serialize(buf, (byte) 2);
-		int sizeOffset = buf.writerIndex();
+		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at end
 
 		size += serialize(buf, profileHash);

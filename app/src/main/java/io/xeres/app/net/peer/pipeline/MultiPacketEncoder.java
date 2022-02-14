@@ -54,7 +54,7 @@ public class MultiPacketEncoder extends ChannelOutboundHandlerAdapter // XXX: mu
 	@Override
 	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise)
 	{
-		Packet packet = (Packet) msg;
+		var packet = (Packet) msg;
 
 		if (USE_PACKET_SLICING && Boolean.TRUE.equals(ctx.channel().attr(PeerAttribute.MULTI_PACKET).get()))
 		{
@@ -111,16 +111,16 @@ public class MultiPacketEncoder extends ChannelOutboundHandlerAdapter // XXX: mu
 
 	private void enqueue(Packet packet)
 	{
-		int remainingSize = packet.getSize();
+		var remainingSize = packet.getSize();
 
 		if (remainingSize >= Packet.OPTIMAL_PACKET_SIZE)
 		{
-			int offset = 0;
-			int sequence = 0;
+			var offset = 0;
+			var sequence = 0;
 
 			while (remainingSize > 0)
 			{
-				int copySize = Math.min(remainingSize, Packet.OPTIMAL_PACKET_SIZE);
+				var copySize = Math.min(remainingSize, Packet.OPTIMAL_PACKET_SIZE);
 
 				//RsPacket slice = new RsPacket(packet.getPriority());
 				var newData = new byte[copySize];
@@ -152,7 +152,7 @@ public class MultiPacketEncoder extends ChannelOutboundHandlerAdapter // XXX: mu
 
 	private void writePacket(ChannelHandlerContext ctx, Packet packet, ByteBuf out)
 	{
-		int sizeWithHeader = getPacketSizeWithHeader(packet);
+		var sizeWithHeader = getPacketSizeWithHeader(packet);
 
 		out.ensureWritable(sizeWithHeader); // XXX: IndexOutOfBoundsException -> close the connection if it's the case. maybe it already does it
 

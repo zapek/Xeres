@@ -54,7 +54,7 @@ public enum RSSerialVersion
 
 	public static RSSerialVersion getFromSerialNumber(BigInteger serialNumber)
 	{
-		for (RSSerialVersion value : values())
+		for (var value : values())
 		{
 			if (value.serialNumber().equals(serialNumber))
 			{

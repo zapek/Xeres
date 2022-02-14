@@ -23,7 +23,6 @@ import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.support.util.SmileyUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -73,7 +72,7 @@ public final class ChatParser
 	{
 		var document = Jsoup.parse(s);
 		var links = document.getElementsByTag("a");
-		for (Element link : links)
+		for (var link : links)
 		{
 			var href = link.attr("href");
 			var text = link.text();

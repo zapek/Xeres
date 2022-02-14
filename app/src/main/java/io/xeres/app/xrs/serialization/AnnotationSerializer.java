@@ -44,7 +44,7 @@ final class AnnotationSerializer
 	{
 		var size = 0;
 
-		for (Field field : getAllFields(object.getClass()))
+		for (var field : getAllFields(object.getClass()))
 		{
 			log.trace("Serializing field {}, of type {}", field.getName(), field.getType().getSimpleName());
 			size += Serializer.serialize(buf, field, object, field.getAnnotation(RsSerialized.class));
@@ -72,9 +72,9 @@ final class AnnotationSerializer
 
 	static boolean deserialize(ByteBuf buf, Object object)
 	{
-		List<Field> allFields = getAllFields(object.getClass());
+		var allFields = getAllFields(object.getClass());
 
-		for (Field field : allFields)
+		for (var field : allFields)
 		{
 			log.trace("Deserializing field {}, of type {}", field.getName(), field.getType().getSimpleName());
 			Serializer.deserialize(buf, field, object, field.getAnnotation(RsSerialized.class));
@@ -97,7 +97,7 @@ final class AnnotationSerializer
 		}
 
 		List<Field> superFields = new ArrayList<>(getAllFields(javaClass.getSuperclass()));
-		List<Field> classFields = Arrays.stream(javaClass.getDeclaredFields())
+		var classFields = Arrays.stream(javaClass.getDeclaredFields())
 				.filter(field -> {
 					field.setAccessible(true); // NOSONAR
 					return field.isAnnotationPresent(RsSerialized.class);

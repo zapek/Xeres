@@ -59,7 +59,7 @@ public class PeersWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		TreeItem<PeerHolder> root = new TreeItem<>(new PeerHolder());
+		var root = new TreeItem<PeerHolder>(new PeerHolder());
 		root.setExpanded(true);
 		peersTree.setRoot(root);
 		peersTree.setShowRoot(false);

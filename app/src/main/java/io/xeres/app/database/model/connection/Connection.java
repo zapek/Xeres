@@ -150,7 +150,7 @@ public class Connection
 		{
 			throw new IllegalArgumentException("Trying to get port from a non ipv4 address");
 		}
-		String[] tokens = address.split(":");
+		var tokens = address.split(":");
 		return Integer.parseInt(tokens[1]);
 	}
 
@@ -160,7 +160,7 @@ public class Connection
 		{
 			throw new IllegalArgumentException("Trying to get ip from a non ipv4 address");
 		}
-		String[] tokens = address.split(":");
+		var tokens = address.split(":");
 		return tokens[0];
 	}
 
@@ -170,7 +170,7 @@ public class Connection
 		{
 			throw new IllegalArgumentException("Trying to get a hostname from a non hostname address");
 		}
-		String[] tokens = address.split(":");
+		var tokens = address.split(":");
 		return tokens[0];
 	}
 
@@ -179,7 +179,7 @@ public class Connection
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		Connection that = (Connection) o;
+		var that = (Connection) o;
 		return external == that.external && type == that.type && address.equals(that.address);
 	}
 

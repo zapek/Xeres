@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -68,7 +67,7 @@ public final class ImageUtils
 		{
 			byte[] out;
 			var quality = 0.7f;
-			BufferedImage bufferedImage = stripAlphaIfNeeded(SwingFXUtils.fromFXImage(image, null));
+			var bufferedImage = stripAlphaIfNeeded(SwingFXUtils.fromFXImage(image, null));
 			do
 			{
 				out = compressBufferedImageToJpegArray(bufferedImage, quality);
@@ -94,11 +93,11 @@ public final class ImageUtils
 
 		var out = new ByteArrayOutputStream();
 
-		ImageOutputStream ios = ImageIO.createImageOutputStream(out);
+		var ios = ImageIO.createImageOutputStream(out);
 		jpegWriter.setOutput(ios);
-		IIOImage outputImage = new IIOImage(image, null, null);
+		var outputImage = new IIOImage(image, null, null);
 		jpegWriter.write(null, outputImage, jpegWriteParam);
-		byte[] result = out.toByteArray();
+		var result = out.toByteArray();
 		jpegWriter.dispose();
 		return result;
 	}
@@ -110,10 +109,10 @@ public final class ImageUtils
 			return originalImage;
 		}
 
-		int w = originalImage.getWidth();
-		int h = originalImage.getHeight();
-		BufferedImage newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-		int[] rgb = originalImage.getRGB(0, 0, w, h, null, 0, w);
+		var w = originalImage.getWidth();
+		var h = originalImage.getHeight();
+		var newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+		var rgb = originalImage.getRGB(0, 0, w, h, null, 0, w);
 		newImage.setRGB(0, 0, w, h, rgb, 0, w);
 		return newImage;
 	}
@@ -125,7 +124,7 @@ public final class ImageUtils
 
 		if (width > maximumWidth || height > maximumHeight)
 		{
-			ImageView scaleImageView = new ImageView(imageView.getImage());
+			var scaleImageView = new ImageView(imageView.getImage());
 			if (width > height)
 			{
 				scaleImageView.setFitWidth(maximumWidth);

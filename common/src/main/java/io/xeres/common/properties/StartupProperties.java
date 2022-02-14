@@ -88,7 +88,7 @@ public final class StartupProperties
 	@SuppressWarnings("java:S2447")
 	public static Boolean getBoolean(Property property)
 	{
-		String value = System.getProperty(property.getKey());
+		var value = System.getProperty(property.getKey());
 		if (value == null)
 		{
 			return null;
@@ -96,10 +96,9 @@ public final class StartupProperties
 		return Boolean.parseBoolean(value);
 	}
 
-	@SuppressWarnings("BooleanParameter")
 	public static boolean getBoolean(Property property, boolean defaultValue)
 	{
-		String value = System.getProperty(property.getKey());
+		var value = System.getProperty(property.getKey());
 		if (value == null)
 		{
 			return defaultValue;
@@ -114,7 +113,7 @@ public final class StartupProperties
 			throw new IllegalArgumentException("Property class for " + property.getKey() + " must be a Boolean but it's a " + property.getJavaClass());
 		}
 
-		boolean val = value.equals("1") || value.equalsIgnoreCase("yes") || Boolean.parseBoolean(value);
+		var val = value.equals("1") || value.equalsIgnoreCase("yes") || Boolean.parseBoolean(value);
 		if (!val && !(value.equals("0") || value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")))
 		{
 			throw new IllegalArgumentException("Property " + property.name() + " (" + property.getKey() + ") does not contain a boolean value (" + value + ")");
@@ -124,7 +123,7 @@ public final class StartupProperties
 
 	public static Integer getInteger(Property property)
 	{
-		String value = System.getProperty(property.getKey());
+		var value = System.getProperty(property.getKey());
 		if (value == null)
 		{
 			return null;
@@ -156,7 +155,7 @@ public final class StartupProperties
 
 	public static void setUiRemoteConnect(String ipAndPort)
 	{
-		String[] tokens = ipAndPort.split(":");
+		var tokens = ipAndPort.split(":");
 
 		if (StringUtils.isBlank(tokens[0]))
 		{

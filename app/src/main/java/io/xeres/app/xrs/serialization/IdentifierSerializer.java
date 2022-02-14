@@ -66,7 +66,7 @@ final class IdentifierSerializer
 		try
 		{
 			//noinspection PrimitiveArrayArgumentToVarargsMethod
-			Identifier identifier = (Identifier) identifierClass.getDeclaredConstructor(byte[].class).newInstance(ByteArraySerializer.deserialize(buf, getIdentifierLength(identifierClass)));
+			var identifier = (Identifier) identifierClass.getDeclaredConstructor(byte[].class).newInstance(ByteArraySerializer.deserialize(buf, getIdentifierLength(identifierClass)));
 			if (Arrays.equals(identifier.getNullIdentifier(), identifier.getBytes()))
 			{
 				return null;

@@ -23,7 +23,6 @@ import io.xeres.common.AppName;
 import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -72,19 +71,19 @@ public final class UiUtils
 		var popup = new Popup();
 		popup.getContent().add(label);
 		var bounds = field.getBoundsInLocal();
-		Point2D location = field.localToScreen(bounds.getMinX(), bounds.getMaxY());
+		var location = field.localToScreen(bounds.getMinX(), bounds.getMaxY());
 		popup.show(field, location.getX(), location.getY());
 		popup.setAutoHide(true);
 		field.getProperties().put(KEY_POPUP, popup);
 
-		InvalidationListener listener = observable -> clearError(field);
+		var listener = (InvalidationListener) observable -> clearError(field);
 		field.getProperties().put(KEY_LISTENER, listener);
 		field.textProperty().addListener(listener);
 	}
 
 	public static void clearError(TextField field)
 	{
-		InvalidationListener listener = (InvalidationListener) field.getProperties().get(KEY_LISTENER);
+		var listener = (InvalidationListener) field.getProperties().get(KEY_LISTENER);
 		if (listener != null)
 		{
 			field.textProperty().removeListener(listener);

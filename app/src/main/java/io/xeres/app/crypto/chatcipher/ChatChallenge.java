@@ -36,7 +36,7 @@ public final class ChatChallenge
 	{
 		long code = 0;
 
-		byte[] id = identifier.getBytes();
+		var id = identifier.getBytes();
 
 		for (var i = 0; i < identifier.getBytes().length; i++)
 		{

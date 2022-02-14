@@ -46,10 +46,10 @@ final class MapSerializer
 		{
 			log.trace("Entries in Map: {}", map.size());
 			var mapSize = 0;
-			int mapSizeOffset = writeTlv(buf);
-			for (Map.Entry<Object, Object> entry : map.entrySet())
+			var mapSizeOffset = writeTlv(buf);
+			for (var entry : map.entrySet())
 			{
-				int entrySizeOffset = writeTlv(buf);
+				var entrySizeOffset = writeTlv(buf);
 				var entrySize = 0;
 				log.trace("Key class: {}", entry.getKey().getClass().getSimpleName());
 				entrySize += writeMapData(buf, entry.getKey());
@@ -75,19 +75,19 @@ final class MapSerializer
 			map = new HashMap<>();
 		}
 
-		int mapSize = readTlv(buf);
+		var mapSize = readTlv(buf);
 		log.trace("Map size: {}, readerIndex: {}", mapSize, buf.readerIndex());
-		int mapIndex = buf.readerIndex();
+		var mapIndex = buf.readerIndex();
 
 		while (buf.readerIndex() < mapIndex + mapSize - TLV_HEADER_SIZE)
 		{
 			log.trace("buf.readerIndex: {}, mapIndex + mapSize: {}", buf.readerIndex(), mapIndex + mapSize);
 			readTlv(buf);
 
-			Class<?> keyClass = (Class<?>) type.getActualTypeArguments()[0];
+			var keyClass = (Class<?>) type.getActualTypeArguments()[0];
 			log.trace("Key class: {}", keyClass.getSimpleName());
 			var keyObject = readMapData(buf, keyClass);
-			Class<?> dataClass = (Class<?>) type.getActualTypeArguments()[1];
+			var dataClass = (Class<?>) type.getActualTypeArguments()[1];
 			log.trace("Data class: {}", dataClass.getSimpleName());
 			var dataObject = readMapData(buf, dataClass);
 			log.trace("result: {}", dataObject);
@@ -102,7 +102,7 @@ final class MapSerializer
 	{
 		int size;
 
-		int sizeOffset = writeTlv(buf);
+		var sizeOffset = writeTlv(buf);
 		size = Serializer.serialize(buf, object.getClass(), object, null);
 		return writeTlvBack(buf, sizeOffset, size);
 	}
@@ -120,14 +120,14 @@ final class MapSerializer
 	{
 		buf.ensureWritable(TLV_HEADER_SIZE);
 		buf.writeShort(1);
-		int offset = buf.writerIndex();
+		var offset = buf.writerIndex();
 		buf.writerIndex(offset + 4);
 		return offset;
 	}
 
 	private static Object readMapData(ByteBuf buf, Class<?> javaClass)
 	{
-		int size = readTlv(buf); // XXX: check size
+		var size = readTlv(buf); // XXX: check size
 		log.trace("Reading map data of size: {}", size);
 
 		return Serializer.deserialize(buf, javaClass);

@@ -45,7 +45,7 @@ final class ListSerializer
 		{
 			log.trace("Entries in List: {}", list.size());
 			buf.writeInt(list.size());
-			for (Object data : list)
+			for (var data : list)
 			{
 				size += Serializer.serialize(buf, data.getClass(), data, null);
 			}
@@ -65,7 +65,7 @@ final class ListSerializer
 		}
 
 		var entries = buf.readInt();
-		Class<?> dataClass = (Class<?>) type.getActualTypeArguments()[0];
+		var dataClass = (Class<?>) type.getActualTypeArguments()[0];
 		log.trace("Data class: {}", dataClass.getSimpleName());
 
 		while (entries-- > 0)

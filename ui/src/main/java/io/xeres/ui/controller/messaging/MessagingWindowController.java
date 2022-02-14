@@ -41,7 +41,6 @@ import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 
@@ -87,7 +86,7 @@ public class MessagingWindowController implements WindowController
 
 	public void initialize()
 	{
-		Mono<Profile> ownProfileResult = profileClient.getOwn();
+		var ownProfileResult = profileClient.getOwn();
 		ownProfileResult.doOnSuccess(profile -> setupChatListView(profile.getName(), profile.getId()))
 				.subscribe();
 

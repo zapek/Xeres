@@ -36,9 +36,9 @@ final class TlvStringSerializer
 
 	static int serialize(ByteBuf buf, TlvType type, String s)
 	{
-		int len = getSize(s);
+		var len = getSize(s);
 
-		byte[] bytes = s != null ? s.getBytes() : new byte[0];
+		var bytes = s != null ? s.getBytes() : new byte[0];
 
 		log.trace("Writing string ({}): \"{}\"", type, s);
 		buf.ensureWritable(len);

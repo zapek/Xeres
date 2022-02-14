@@ -82,14 +82,14 @@ public class PeerConnection
 
 	public void putServiceData(RsService service, int key, Object data)
 	{
-		Map<Integer, Object> map = serviceData.getOrDefault(service.getServiceType().getType(), new HashMap<>());
+		var map = serviceData.getOrDefault(service.getServiceType().getType(), new HashMap<>());
 		map.put(key, data);
 		serviceData.put(service.getServiceType().getType(), map);
 	}
 
 	public Optional<Object> getServiceData(RsService service, int key)
 	{
-		Map<Integer, Object> serviceMap = serviceData.get(service.getServiceType().getType());
+		var serviceMap = serviceData.get(service.getServiceType().getType());
 		if (serviceMap == null)
 		{
 			return Optional.empty();
@@ -108,21 +108,21 @@ public class PeerConnection
 
 	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)
 	{
-		ScheduledFuture<?> scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay, period, unit);
+		var scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay, period, unit);
 		schedules.add(scheduledFuture);
 		return scheduledFuture;
 	}
 
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)
 	{
-		ScheduledFuture<?> scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay, delay, unit);
+		var scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay, delay, unit);
 		schedules.add(scheduledFuture);
 		return scheduledFuture;
 	}
 
 	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit)
 	{
-		ScheduledFuture<?> scheduledFuture = ctx.executor().schedule(command, delay, unit);
+		var scheduledFuture = ctx.executor().schedule(command, delay, unit);
 		schedules.add(scheduledFuture);
 		return scheduledFuture;
 	}

@@ -41,7 +41,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Class that tries to overcome the half-assed JavaFX window system.
@@ -70,7 +69,7 @@ public class WindowManager
 	{
 		Platform.runLater(() ->
 		{
-			List<Window> windows = UiWindow.getOpenedWindows();
+			var windows = UiWindow.getOpenedWindows();
 
 			// There's a strange side effect here when windows are hidden, apparently JavaFX changes the list, so
 			// we make a copy.
@@ -83,7 +82,7 @@ public class WindowManager
 	{
 		Platform.runLater(() ->
 		{
-			Window peers = UiWindow.getOpenedWindow(PeersWindowController.class).orElse(null);
+			var peers = UiWindow.getOpenedWindow(PeersWindowController.class).orElse(null);
 			if (peers != null)
 			{
 				peers.requestFocus();

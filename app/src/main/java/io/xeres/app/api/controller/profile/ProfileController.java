@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller.profile;
+package io.xeres.app.api.controller.profile;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,11 +26,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.api.error.Error;
+import io.xeres.app.api.error.exception.UnprocessableEntityException;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.web.api.error.Error;
-import io.xeres.app.web.api.error.exception.UnprocessableEntityException;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.rest.profile.RsIdRequest;
@@ -43,7 +43,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static io.xeres.app.database.model.profile.ProfileMapper.*;
 import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
@@ -80,12 +79,12 @@ public class ProfileController
 	{
 		if (isNotBlank(name))
 		{
-			Optional<Profile> profile = profileService.findProfileByName(name); // XXX: can't there be multiple profiles with the same name? what about the ones starting with?
+			var profile = profileService.findProfileByName(name); // XXX: can't there be multiple profiles with the same name? what about the ones starting with?
 			return profile.map(p -> List.of(toDTO(p))).orElse(Collections.emptyList());
 		}
 		else if (isNotBlank(locationId))
 		{
-			Optional<Profile> profile = profileService.findProfileByLocationId(new LocationId(locationId));
+			var profile = profileService.findProfileByLocationId(new LocationId(locationId));
 			return profile.map(p -> List.of(toDTO(p))).orElse(Collections.emptyList());
 		}
 		return toDTOs(profileService.getAllProfiles());

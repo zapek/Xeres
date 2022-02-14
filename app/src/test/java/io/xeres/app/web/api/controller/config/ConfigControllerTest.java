@@ -19,6 +19,7 @@
 
 package io.xeres.app.web.api.controller.config;
 
+import io.xeres.app.api.controller.config.ConfigController;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.Location;
@@ -150,8 +151,8 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_UpdateExternalIpAddress_Create_OK() throws Exception
 	{
-		String IP = "1.1.1.1";
-		int PORT = 6667;
+		var IP = "1.1.1.1";
+		var PORT = 6667;
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(Location.createLocation("foo")));
 		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenReturn(LocationService.UpdateConnectionStatus.ADDED);
@@ -168,8 +169,8 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_UpdateExternalIpAddress_Update_OK() throws Exception
 	{
-		String IP = "1.1.1.1";
-		int PORT = 6667;
+		var IP = "1.1.1.1";
+		var PORT = 6667;
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(Location.createLocation("foo")));
 		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenReturn(LocationService.UpdateConnectionStatus.UPDATED);
@@ -186,8 +187,8 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_UpdateExternalIpAddress_Update_NoConnection_Fail() throws Exception
 	{
-		String IP = "1.1.1.1";
-		int PORT = 6667;
+		var IP = "1.1.1.1";
+		var PORT = 6667;
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(Location.createLocation("foo")));
 		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenThrow(NoSuchElementException.class);
@@ -203,8 +204,8 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_UpdateExternalIpAddress_Update_WrongIp_Fail() throws Exception
 	{
-		String IP = "1.1.1.1.1";
-		int PORT = 6667;
+		var IP = "1.1.1.1.1";
+		var PORT = 6667;
 
 		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenThrow(NoSuchElementException.class);
 
@@ -217,11 +218,11 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_GetExternalIpAddress_OK() throws Exception
 	{
-		String IP = "1.1.1.1";
-		int PORT = 6667;
+		var IP = "1.1.1.1";
+		var PORT = 6667;
 
-		Location location = Location.createLocation("test");
-		Connection connection = Connection.from(PeerAddress.from(IP, PORT));
+		var location = Location.createLocation("test");
+		var connection = Connection.from(PeerAddress.from(IP, PORT));
 		location.addConnection(connection);
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(location));
@@ -244,7 +245,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_GetHostname_OK() throws Exception
 	{
-		String HOSTNAME = "foo.bar.com";
+		var HOSTNAME = "foo.bar.com";
 
 		when(locationService.getHostname()).thenReturn(HOSTNAME);
 
@@ -256,7 +257,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_GetUsername_OK() throws Exception
 	{
-		String USERNAME = "foobar";
+		var USERNAME = "foobar";
 		when(locationService.getUsername()).thenReturn(USERNAME);
 
 		mvc.perform(getJson(BASE_URL + "/username"))

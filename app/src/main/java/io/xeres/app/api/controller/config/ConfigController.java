@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller.config;
+package io.xeres.app.api.controller.config;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,13 +26,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.api.error.Error;
+import io.xeres.app.api.error.exception.InternalServerErrorException;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.web.api.error.Error;
-import io.xeres.app.web.api.error.exception.InternalServerErrorException;
 import io.xeres.common.rest.config.*;
 import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ public class ConfigController
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> createOwnProfile(@Valid @RequestBody OwnProfileRequest ownProfileRequest)
 	{
-		String name = ownProfileRequest.name();
+		var name = ownProfileRequest.name();
 		log.debug("Processing creation of Profile {}", name);
 
 		if (!profileService.generateProfileKeys(name))
@@ -95,7 +95,7 @@ public class ConfigController
 	@ResponseStatus(HttpStatus.CREATED)
 	public void createLocation(@Valid @RequestBody OwnLocationRequest ownLocationRequest)
 	{
-		String name = ownLocationRequest.name();
+		var name = ownLocationRequest.name();
 		log.debug("Processing creation of Location {}", name);
 
 		try
@@ -114,7 +114,7 @@ public class ConfigController
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> createOwnIdentity(@Valid @RequestBody OwnIdentityRequest ownIdentityRequest)
 	{
-		String name = ownIdentityRequest.name();
+		var name = ownIdentityRequest.name();
 		log.debug("Creating identity {}", name);
 		long id;
 

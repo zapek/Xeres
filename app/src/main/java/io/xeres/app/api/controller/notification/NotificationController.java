@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,46 +17,43 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller.connection;
+package io.xeres.app.api.controller.notification;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.database.model.location.Location;
-import io.xeres.app.service.LocationService;
-import io.xeres.common.dto.profile.ProfileDTO;
+import io.xeres.app.api.sse.SsePushNotificationService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.List;
+import static io.xeres.common.rest.PathConfig.NOTIFICATIONS_PATH;
 
-import static io.xeres.app.database.model.profile.ProfileMapper.toDeepDTOs;
-import static io.xeres.common.rest.PathConfig.CONNECTIONS_PATH;
-import static java.util.function.Predicate.not;
-
-@Tag(name = "Connection", description = "Connected peers", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/connection", description = "Connection documentation"))
+@Tag(name = "Notification", description = "Out of band notifications", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/notification", description = "Notification documentation"))
 @RestController
-@RequestMapping(value = CONNECTIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
-public class ConnectionController
+@RequestMapping(value = NOTIFICATIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+public class NotificationController
 {
-	private final LocationService locationService;
+	private final SsePushNotificationService ssePushNotificationService;
 
-	public ConnectionController(LocationService locationService)
+	public NotificationController(SsePushNotificationService ssePushNotificationService)
 	{
-		this.locationService = locationService;
+		this.ssePushNotificationService = ssePushNotificationService;
 	}
 
-	@GetMapping("/profiles")
-	@Operation(summary = "Get all connected profiles")
+	@GetMapping
+	@Operation(summary = "Subscribe to notifications")
 	@ApiResponse(responseCode = "200", description = "Request completed successfully")
-	public List<ProfileDTO> getConnectedProfiles()
+	public SseEmitter setupNotification()
 	{
-		return toDeepDTOs(locationService.getConnectedLocations().stream()
-				.filter(not(Location::isOwn))
-				.map(Location::getProfile)
-				.toList());
+		var emitter = new SseEmitter();
+		ssePushNotificationService.addEmitter(emitter);
+		emitter.onCompletion(() -> ssePushNotificationService.removeEmitter(emitter));
+		emitter.onTimeout(() -> ssePushNotificationService.removeEmitter(emitter));
+
+		return emitter;
 	}
 }

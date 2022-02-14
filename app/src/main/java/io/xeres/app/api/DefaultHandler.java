@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,15 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api;
+package io.xeres.app.api;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
-import io.xeres.app.web.api.error.Error;
-import io.xeres.app.web.api.error.ErrorResponseEntity;
-import io.xeres.app.web.api.error.exception.UnprocessableEntityException;
+import io.xeres.app.api.error.Error;
+import io.xeres.app.api.error.ErrorResponseEntity;
+import io.xeres.app.api.error.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller.identity;
+package io.xeres.app.api.controller.identity;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,10 +25,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.database.model.identity.Identity;
+import io.xeres.app.api.error.Error;
 import io.xeres.app.database.model.identity.IdentityMapper;
 import io.xeres.app.service.IdentityService;
-import io.xeres.app.web.api.error.Error;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
@@ -37,7 +36,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static io.xeres.app.database.model.identity.IdentityMapper.toDTO;
 import static io.xeres.app.database.model.identity.IdentityMapper.toGxsIdDTOs;
@@ -76,7 +74,7 @@ public class IdentityController
 		if (isNotBlank(name))
 		{
 			// XXX: fix to use gxsIdentities
-			List<Identity> identity = identityService.findAllIdentitiesByName(name);
+			var identity = identityService.findAllIdentitiesByName(name);
 			return identity.stream()
 					.map(IdentityMapper::toDTO)
 					.toList();
@@ -84,7 +82,7 @@ public class IdentityController
 		else if (isNotBlank(gxsId))
 		{
 			// XXX: fix to  use gxsIdentities
-			Optional<Identity> identity = identityService.findIdentityByGxsId(new GxsId(Id.toBytes(gxsId)));
+			var identity = identityService.findIdentityByGxsId(new GxsId(Id.toBytes(gxsId)));
 			return identity.map(iden -> List.of(toDTO(iden))).orElse(Collections.emptyList());
 		}
 		return toGxsIdDTOs(identityService.getAllGxsIdentities());

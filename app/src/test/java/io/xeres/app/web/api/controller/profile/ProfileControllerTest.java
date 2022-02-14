@@ -19,6 +19,7 @@
 
 package io.xeres.app.web.api.controller.profile;
 
+import io.xeres.app.api.controller.profile.ProfileController;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdFakes;
 import io.xeres.app.database.model.profile.Profile;
@@ -72,7 +73,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void ProfileController_FindProfileById_NotFound() throws Exception
 	{
-		long ID = 2L;
+		var ID = 2L;
 
 		when(profileService.findProfileById(ID)).thenReturn(Optional.empty());
 
@@ -100,7 +101,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void ProfileController_FindProfileByName_NotFound() throws Exception
 	{
-		String NAME = "inexistant";
+		var NAME = "inexistant";
 
 		when(profileService.findProfileByName(NAME)).thenReturn(Optional.empty());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller.chat;
+package io.xeres.app.api.controller.chat;
 
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.common.id.LocationId;
@@ -54,7 +54,7 @@ public class ChatMessageController
 	@MessageMapping(CHAT_PATH)
 	public void processMessageFromClient(SimpMessageHeaderAccessor accessor, @Payload @Valid ChatMessage message)
 	{
-		String destinationId = accessor.getFirstNativeHeader(DESTINATION_ID);
+		var destinationId = accessor.getFirstNativeHeader(DESTINATION_ID);
 		var messageType = MessageType.valueOf(accessor.getFirstNativeHeader(MESSAGE_TYPE));
 
 		switch (messageType)

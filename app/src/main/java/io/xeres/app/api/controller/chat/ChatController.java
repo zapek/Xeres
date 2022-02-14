@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller.chat;
+package io.xeres.app.api.controller.chat;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,7 +58,7 @@ public class ChatController
 	@ApiResponse(responseCode = "201", description = "Room created successfully", headers = @Header(name = "Room", description = "The location of the created room", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createChatRoom(@Valid @RequestBody CreateChatRoomRequest createChatRoomRequest)
 	{
-		long id = chatRsService.createChatRoom(createChatRoomRequest.name(), createChatRoomRequest.topic(), null, EnumSet.of(RoomFlags.PUBLIC)); // XXX: fix arguments
+		var id = chatRsService.createChatRoom(createChatRoomRequest.name(), createChatRoomRequest.topic(), null, EnumSet.of(RoomFlags.PUBLIC)); // XXX: fix arguments
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath("/rooms/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();

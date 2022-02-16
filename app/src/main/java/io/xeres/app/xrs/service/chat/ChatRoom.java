@@ -29,7 +29,6 @@ import io.xeres.common.message.chat.RoomType;
 
 import java.time.Instant;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,7 +39,7 @@ public class ChatRoom
 	private final String topic;
 	private final Set<Location> participatingLocations = ConcurrentHashMap.newKeySet();
 	private GxsId gxsId; // signing entity
-	private final Map<GxsId, Long> gxsIds = new ConcurrentHashMap<>(); // non-direct friends who are participating
+	private final Set<GxsId> users = ConcurrentHashMap.newKeySet();
 	private final int userCount;
 	private Instant lastActivity;
 	private final RoomType type;
@@ -132,9 +131,19 @@ public class ChatRoom
 		return gxsId;
 	}
 
-	public Map<GxsId, Long> getGxsIds()
+	public void addUser(GxsId user)
 	{
-		return gxsIds;
+		users.add(user);
+	}
+
+	public void removeUser(GxsId user)
+	{
+		users.remove(user);
+	}
+
+	public void clearUsers()
+	{
+		users.clear();
 	}
 
 	public Instant getLastActivity()

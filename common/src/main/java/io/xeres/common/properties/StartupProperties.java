@@ -141,7 +141,7 @@ public final class StartupProperties
 		try
 		{
 			var val = Integer.parseUnsignedInt(value);
-			if (!IP.isValidPort(val))
+			if (IP.isInvalidPort(val))
 			{
 				throw new NumberFormatException();
 			}
@@ -169,7 +169,7 @@ public final class StartupProperties
 
 		if (tokens.length == 2 && StringUtils.isNotBlank(tokens[1]))
 		{
-			if (!IP.isValidPort(Integer.parseUnsignedInt(tokens[1])))
+			if (IP.isInvalidPort(Integer.parseUnsignedInt(tokens[1])))
 			{
 				throw new IllegalArgumentException("Invalid port " + tokens[1]);
 			}

@@ -163,7 +163,7 @@ public class PeerHandler extends ChannelDuplexHandler
 				return;
 			}
 
-			try (var session = new DatabaseSession(databaseSessionManager))
+			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{
 				Location location;
 

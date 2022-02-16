@@ -204,7 +204,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 				{
 					throw new IllegalArgumentException("IP is invalid");
 				}
-				if (!IP.isValidPort(port))
+				if (IP.isInvalidPort(port))
 				{
 					throw new IllegalArgumentException("Port is invalid");
 				}

@@ -35,9 +35,11 @@ public final class IP
 {
 	private static final Logger log = LoggerFactory.getLogger(IP.class);
 
-	// List of port to avoid picking up as default because of their popularity in a NAT setup.
-	// Xeres uses a range from 1025 to 32767.
-	// Note that some ports aren't really popular, but they're scanned by default by some anti-virus.
+	/**
+	 * List of port to avoid picking up as default because of their popularity in a NAT setup.
+	 * Xeres uses a range from 1025 to 32767.
+	 * Note that some ports aren't really popular, but they're scanned by default by some anti-virus.
+	 */
 	private static final Set<Integer> reservedPorts = Set.of(
 			1080,  // Socks proxy
 			1194,  // Open VPN
@@ -88,6 +90,9 @@ public final class IP
 			8888,  // Many local tests
 			9001,  // Tor
 			9030,  // Tor
+			9050,  // Tor
+			9051,  // Tor
+			9080,  // Logitech's LGHUB
 			11523  // No idea why Kaspersky scans this
 	);
 
@@ -99,7 +104,7 @@ public final class IP
 	}
 
 	/**
-	 * Finds a free local port. There's a built-in blacklist of commonly used ports which are avoided.
+	 * Finds a free local port to bind to. There's a built-in blacklist of commonly used ports which are avoided.
 	 *
 	 * @return a free local port
 	 */
@@ -154,7 +159,7 @@ public final class IP
 				return ip;
 			}
 
-			// The above is reported to not work on OSX, if so, just scan all interfaces manually.
+			// The above is reported to not work on MacOS, if so, just scan all interfaces manually.
 			ip = findIpFromInterfaces();
 			if (isRoutableIp(ip))
 			{
@@ -338,8 +343,14 @@ public final class IP
 		return address.getAddress()[0] == 100 && Byte.toUnsignedInt(address.getAddress()[1]) >= 64 && Byte.toUnsignedInt(address.getAddress()[1]) < 128;
 	}
 
-	public static boolean isValidPort(int port)
+	/**
+	 * Checks if a port is invalid (that is, cannot be bound to or sent to).
+	 *
+	 * @param port the port to check
+	 * @return true if valid
+	 */
+	public static boolean isInvalidPort(int port)
 	{
-		return port > 0 && port < 65536;
+		return port <= 0 || port >= 65536;
 	}
 }

@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static io.xeres.app.net.protocol.PeerAddress.Type.*;
+import static io.xeres.common.protocol.ip.IP.isInvalidPort;
 import static java.util.function.Predicate.not;
 
 /**
@@ -463,11 +464,6 @@ public final class PeerAddress
 		{
 			return true;
 		}
-	}
-
-	private static boolean isInvalidPort(int port)
-	{
-		return !IP.isValidPort(port);
 	}
 
 	private static boolean isInvalidHostname(String hostname)

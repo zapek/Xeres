@@ -451,18 +451,23 @@ public class ChatRsService extends RsService
 		// XXX: addTimeShiftStatistics()... why isn't this done for messages as well? it just displays a warning anyway (and it's disabled in RS so it does nothing)
 
 		// XXX: add routing clue
+		var chatRoom = chatRooms.get(item.getRoomId());
+		var user = item.getSignature().getGxsId();
 
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_LEAVE, item.getSignature().getGxsId(), item.getSenderNickname());
+			chatRoom.removeUser(user);
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_LEAVE, user, item.getSenderNickname());
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_JOINED.getCode())
 		{
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, item.getSignature().getGxsId(), item.getSenderNickname());
+			chatRoom.addUser(user);
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname());
 			//sendKeepAliveIfNeeded(chatRooms.get(item.getRoomId())); // XXX: send a keep alive event to the participant so that he knows we are in the room (RS sends to everyone but that's lame)
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
+			chatRoom.addUser(user);
 			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, item.getSignature().getGxsId(), item.getSenderNickname());
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
@@ -858,6 +863,7 @@ public class ChatRsService extends RsService
 			chatRoom.getParticipatingLocations().forEach(location -> inviteLocationToChatRoom(location, chatRoom, Invitation.PLAIN));
 
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_JOIN, chatRoom.getId(), new ChatRoomMessage());
+			chatRoom.addUser(ownIdentity.getGxsIdGroupItem().getGxsId());
 
 			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED);
 
@@ -880,6 +886,7 @@ public class ChatRsService extends RsService
 			log.debug("Can't leave a chatroom we aren't into");
 			return;
 		}
+		chatRoomToRemove.clearUsers();
 		sendChatRoomEvent(chatRoomToRemove, ChatRoomEvent.PEER_LEFT); // XXX: produces an exception!
 		chatRooms.remove(chatRoomId);
 		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities

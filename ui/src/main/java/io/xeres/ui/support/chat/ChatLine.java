@@ -66,7 +66,7 @@ public class ChatLine
 	{
 		return switch (action.getType())
 				{
-					case JOIN, LEAVE -> Color.GRAY;
+					case JOIN, LEAVE, TIMEOUT -> Color.GRAY;
 					case ACTION, SAY_OWN -> Color.BLACK;
 					case SAY -> ColorGenerator.generateColor(action.getNickname());
 				};
@@ -76,7 +76,7 @@ public class ChatLine
 	{
 		return switch (action.getType())
 				{
-					case JOIN, LEAVE -> Color.GRAY;
+					case JOIN, LEAVE, TIMEOUT -> Color.GRAY;
 					case SAY, SAY_OWN, ACTION -> Color.BLACK;
 				};
 	}

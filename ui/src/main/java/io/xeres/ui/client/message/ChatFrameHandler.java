@@ -63,7 +63,7 @@ public class ChatFrameHandler implements StompFrameHandler
 					case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
 					case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> ChatRoomMessage.class;
 					case CHAT_ROOM_LIST -> ChatRoomLists.class;
-					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
+					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE, CHAT_ROOM_USER_TIMEOUT -> ChatRoomUserEvent.class;
 					default -> throw new IllegalArgumentException("Missing class for message type " + messageType);
 				};
 	}
@@ -83,6 +83,7 @@ public class ChatFrameHandler implements StompFrameHandler
 						case CHAT_ROOM_USER_JOIN -> chatViewController.userJoined(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_LEAVE -> chatViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
+						case CHAT_ROOM_USER_TIMEOUT -> chatViewController.userTimeout(getRoomId(headers), (ChatRoomUserEvent) payload);
 						default -> log.error("Missing handling of {}", messageType);
 					}
 				}

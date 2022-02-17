@@ -22,9 +22,9 @@ package io.xeres.ui.support.chat;
 import io.xeres.common.id.GxsId;
 
 import java.util.Objects;
+import java.util.stream.Stream;
 
-import static io.xeres.ui.support.chat.ChatAction.Type.JOIN;
-import static io.xeres.ui.support.chat.ChatAction.Type.LEAVE;
+import static io.xeres.ui.support.chat.ChatAction.Type.*;
 
 public class ChatAction
 {
@@ -34,7 +34,8 @@ public class ChatAction
 		LEAVE,
 		SAY,
 		SAY_OWN,
-		ACTION
+		ACTION,
+		TIMEOUT
 	}
 
 	private Type type;
@@ -56,7 +57,7 @@ public class ChatAction
 		return switch (type)
 				{
 					case JOIN -> "-->";
-					case LEAVE -> "<--";
+					case LEAVE, TIMEOUT -> "<--";
 					case SAY, SAY_OWN -> "<" + nickname + ">";
 					case ACTION -> "*";
 				};
@@ -84,7 +85,7 @@ public class ChatAction
 
 	public boolean hasMessageLine()
 	{
-		return type == JOIN || type == LEAVE;
+		return Stream.of(JOIN, LEAVE, TIMEOUT).anyMatch(v -> type == v);
 	}
 
 	public String getMessageLine()
@@ -93,6 +94,11 @@ public class ChatAction
 		{
 			throw new IllegalStateException("no message line available, type: " + type);
 		}
-		return nickname + " (" + gxsId + ")";
+		var reason = "";
+		if (type == TIMEOUT)
+		{
+			reason = " [Ping timeout]";
+		}
+		return nickname + " (" + gxsId + ")" + reason;
 	}
 }

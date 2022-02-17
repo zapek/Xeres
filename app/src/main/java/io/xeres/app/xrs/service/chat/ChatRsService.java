@@ -236,7 +236,10 @@ public class ChatRsService extends RsService
 			chatRoom.getMessageCache().purge();
 
 			// Remove inactive gxsIds
-			// XXX: implement...
+			chatRoom.getExpiredUsers().forEach(user -> {
+				chatRoom.removeUser(user);
+				sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_TIMEOUT, user, null);
+			});
 
 			// XXX: send joined_lobby if participating friend connected... maybe do it when he actually connects!
 
@@ -430,6 +433,7 @@ public class ChatRsService extends RsService
 		var chatRoom = chatRooms.get(item.getRoomId());
 
 		// And display the message for us
+		chatRoom.userActivity(item.getSignature().getGxsId());
 		var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), parseIncomingText(item.getMessage()));
 		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_MESSAGE, item.getRoomId(), chatRoomMessage);
 
@@ -467,11 +471,12 @@ public class ChatRsService extends RsService
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
-			chatRoom.addUser(user);
+			chatRoom.addUser(user); // KEEP_ALIVE is also used to add users
 			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, item.getSignature().getGxsId(), item.getSenderNickname());
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
 		{
+			chatRoom.userActivity(user);
 			var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), null);
 			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_TYPING_NOTIFICATION, item.getRoomId(), chatRoomMessage);
 		}
@@ -858,6 +863,7 @@ public class ChatRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: ugly, it's because we can be called from a lambda.. make it take the arguments later (needed for multi identity support)
 		{
 			var ownIdentity = identityService.getOwnIdentity(); // XXX: allow multiple identities later on
+			chatRoom.setOwnGxsId(ownIdentity.getGxsIdGroupItem().getGxsId());
 			chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
 			chatRoom.getParticipatingLocations().forEach(location -> inviteLocationToChatRoom(location, chatRoom, Invitation.PLAIN));

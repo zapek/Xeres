@@ -302,6 +302,11 @@ public class ChatViewController implements Controller
 		performOnChatListView(roomId, chatListView -> chatListView.addUser(event)); // XXX: use this to know if a user is "idle"
 	}
 
+	public void userTimeout(long roomId, ChatRoomUserEvent event)
+	{
+		performOnChatListView(roomId, chatListView -> chatListView.timeoutUser(event));
+	}
+
 	private void switchChatContent(Node contentNode, Node userListNode)
 	{
 		if (content.getChildren().size() > 1)

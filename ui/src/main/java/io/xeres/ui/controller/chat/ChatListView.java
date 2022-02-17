@@ -156,6 +156,17 @@ public class ChatListView
 		}
 	}
 
+	public void timeoutUser(ChatRoomUserEvent user)
+	{
+		var chatRoomUser = userMap.remove(user.getGxsId());
+
+		if (chatRoomUser != null)
+		{
+			users.remove(chatRoomUser);
+			addMessageLine(new ChatAction(TIMEOUT, chatRoomUser.nickname(), user.getGxsId()));
+		}
+	}
+
 	public String getUsername(String prefix, int index)
 	{
 		var prefixLower = prefix.toLowerCase(Locale.ENGLISH);

@@ -26,20 +26,29 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.RoomType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatRoom
 {
+	private static final Logger log = LoggerFactory.getLogger(ChatRoom.class);
+
+	private static final long USER_INACTIVITY_TIMEOUT = Duration.ofMinutes(3).toSeconds();
+
 	private final long id;
 	private final String name;
 	private final String topic;
 	private final Set<Location> participatingLocations = ConcurrentHashMap.newKeySet();
-	private GxsId gxsId; // signing entity
-	private final Set<GxsId> users = ConcurrentHashMap.newKeySet();
+	private GxsId ownGxsId;
+	private final Map<GxsId, Long> users = new ConcurrentHashMap<>();
 	private final int userCount;
 	private Instant lastActivity;
 	private final RoomType type;
@@ -126,19 +135,41 @@ public class ChatRoom
 		participatingLocations.remove(location);
 	}
 
-	public GxsId getGxsId()
+	public void setOwnGxsId(GxsId gxsId)
 	{
-		return gxsId;
+		this.ownGxsId = gxsId;
 	}
 
 	public void addUser(GxsId user)
 	{
-		users.add(user);
+		users.put(user, Instant.now().getEpochSecond());
+	}
+
+	public void userActivity(GxsId user)
+	{
+		users.replace(user, Instant.now().getEpochSecond());
 	}
 
 	public void removeUser(GxsId user)
 	{
 		users.remove(user);
+	}
+
+	public Set<GxsId> getExpiredUsers()
+	{
+		var now = Instant.now().getEpochSecond();
+
+		Set<GxsId> expiredUsers = new HashSet<>();
+		users.forEach((user, timestamp) -> {
+			if (timestamp + USER_INACTIVITY_TIMEOUT < now)
+			{
+				if (!user.equals(ownGxsId)) // We never expire ourself
+				{
+					expiredUsers.add(user);
+				}
+			}
+		});
+		return expiredUsers;
 	}
 
 	public void clearUsers()

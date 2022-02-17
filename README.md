@@ -1,16 +1,18 @@
-# Xeres
+[![GitHub release](https://img.shields.io/github/release/zapek/Xeres.svg?label=latest%20release)](https://github.com/zapek/Xeres/releases/latest)
+[![License](https://img.shields.io/github/license/zapek/Xeres.svg)](https://github.com/zapek/Xeres/blob/master/LICENSE)
+[![CodeQL](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml)
 
-This is an attempted reimplementation of [Retroshare](https://retroshare.cc) in Java.
+# Xeres
 
 A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
 
-[![CodeQL](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml)
+(basically, an attempted reimplementation of [Retroshare](https://retroshare.cc) in Java)
 
 ## Supported platforms
 
 - Windows (x86_64)
 - Linux (x86_64)
-- MacOS (x86_64) _untested_
+- MacOS (x86_64)
 
 ## Build requirements
 
@@ -27,7 +29,7 @@ If you want to quickly try the current development version without installing an
 
 ## Downloads
 
-Installers available [here](https://github.com/zapek/Xeres/releases).
+Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
 
 ## Donations
 

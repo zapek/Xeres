@@ -29,6 +29,7 @@ public class ChatRoomInfo
 	private String topic;
 	private int count;
 	private boolean isSigned;
+	private boolean newMessages;
 
 	public ChatRoomInfo()
 	{
@@ -108,6 +109,16 @@ public class ChatRoomInfo
 	public void setSigned(boolean signed)
 	{
 		isSigned = signed;
+	}
+
+	public boolean hasNewMessages()
+	{
+		return newMessages;
+	}
+
+	public void setNewMessages(boolean newMessages)
+	{
+		this.newMessages = newMessages;
 	}
 
 	@Override

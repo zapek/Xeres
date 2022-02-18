@@ -39,7 +39,23 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 	protected void updateItem(RoomHolder item, boolean empty)
 	{
 		super.updateItem(item, empty);
-		setText(empty ? null : item.getRoomInfo().getName());
+		if (empty)
+		{
+			setText(null);
+			setStyle("");
+		}
+		else
+		{
+			setText(item.getRoomInfo().getName());
+			if (item.getRoomInfo().hasNewMessages())
+			{
+				setStyle("-fx-font-weight: bold");
+			}
+			else
+			{
+				setStyle("");
+			}
+		}
 	}
 
 	private ContextMenu createContextMenu(TreeCell<RoomHolder> cell)

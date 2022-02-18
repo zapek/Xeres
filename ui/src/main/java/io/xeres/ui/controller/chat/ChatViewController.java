@@ -56,6 +56,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
@@ -367,27 +368,27 @@ public class ChatViewController implements Controller
 	{
 		selectedRoom = chatRoomInfo;
 
-		var roomTreeItem = subscribedRooms.getChildren().stream()
-				.filter(roomInfoTreeItem -> roomInfoTreeItem.getValue().getRoomInfo().equals(chatRoomInfo))
-				.findFirst();
-
-		if (roomTreeItem.isPresent())
-		{
-			var roomInfoTreeItem = roomTreeItem.get();
+		getSubscribedTreeItem(chatRoomInfo.getId()).ifPresentOrElse(roomInfoTreeItem -> {
 			var chatListView = getChatListViewOrCreate(roomInfoTreeItem);
 			selectedChatListView = chatListView;
 			switchChatContent(chatListView.getChatView(), chatListView.getUserListView());
 			sendGroup.setVisible(true);
 			send.requestFocus();
 			selectedChatListView.jumpToBottom(true);
-		}
-		else
-		{
+			setUnreadMessages(roomInfoTreeItem, false);
+		}, () -> {
 			chatRoomInfoController.setRoomInfo(chatRoomInfo);
 			switchChatContent(roomInfoView, null);
 			sendGroup.setVisible(false);
 			selectedChatListView = null;
-		}
+		});
+	}
+
+	private Optional<TreeItem<RoomHolder>> getSubscribedTreeItem(long roomId)
+	{
+		return subscribedRooms.getChildren().stream()
+				.filter(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().getId() == roomId)
+				.findFirst();
 	}
 
 	public void showMessage(ChatRoomMessage chatRoomMessage)
@@ -403,7 +404,19 @@ public class ChatViewController implements Controller
 		else
 		{
 			performOnChatListView(chatRoomMessage.getRoomId(), chatListView -> chatListView.addUserMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getContent()));
+			getSubscribedTreeItem(chatRoomMessage.getRoomId()).ifPresent(roomHolderTreeItem -> {
+				if (selectedRoom != null && selectedRoom.getId() != chatRoomMessage.getRoomId())
+				{
+					setUnreadMessages(roomHolderTreeItem, true);
+				}
+			});
 		}
+	}
+
+	private void setUnreadMessages(TreeItem<RoomHolder> roomHolderTreeItem, boolean unread)
+	{
+		roomHolderTreeItem.getValue().getRoomInfo().setNewMessages(unread);
+		roomTree.refresh();
 	}
 
 	private void performOnChatListView(long roomId, Consumer<ChatListView> action)

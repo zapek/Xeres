@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,10 +17,43 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * This package contains Spring application events.
- *
- * <b>Beware:</b> those events are <b>synchronous</b> which means they'll run in the thread sending them. If you need asynchronous events,
- * send them with CompletableFuture.runAsync((NoSuppressedRunnable) ...). But prefer the REST API if possible.
- */
-package io.xeres.app.application.events;
+package io.xeres.common.message.chat;
+
+import io.xeres.common.id.GxsId;
+
+public class ChatRoomTimeoutEvent
+{
+	private GxsId gxsId;
+	private boolean split;
+
+	public ChatRoomTimeoutEvent()
+	{
+		// Needed for JSON
+	}
+
+	public ChatRoomTimeoutEvent(GxsId gxsId, boolean split)
+	{
+		this.gxsId = gxsId;
+		this.split = split;
+	}
+
+	public GxsId getGxsId()
+	{
+		return gxsId;
+	}
+
+	public void setGxsId(GxsId gxsId)
+	{
+		this.gxsId = gxsId;
+	}
+
+	public boolean isSplit()
+	{
+		return split;
+	}
+
+	public void setSplit(boolean split)
+	{
+		this.split = split;
+	}
+}

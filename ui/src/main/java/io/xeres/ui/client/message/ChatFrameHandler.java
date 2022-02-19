@@ -20,10 +20,7 @@
 package io.xeres.ui.client.message;
 
 import io.xeres.common.message.MessageType;
-import io.xeres.common.message.chat.ChatMessage;
-import io.xeres.common.message.chat.ChatRoomLists;
-import io.xeres.common.message.chat.ChatRoomMessage;
-import io.xeres.common.message.chat.ChatRoomUserEvent;
+import io.xeres.common.message.chat.*;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -54,6 +51,13 @@ public class ChatFrameHandler implements StompFrameHandler
 		this.chatViewController = chatViewController;
 	}
 
+	/**
+	 * Gets the payload type. It's not possible to use null or new Object(). It has to be a class
+	 * that is serializable by jackson.
+	 *
+	 * @param headers the headers
+	 * @return a type
+	 */
 	@Override
 	public Type getPayloadType(StompHeaders headers)
 	{
@@ -63,7 +67,8 @@ public class ChatFrameHandler implements StompFrameHandler
 					case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
 					case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> ChatRoomMessage.class;
 					case CHAT_ROOM_LIST -> ChatRoomLists.class;
-					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE, CHAT_ROOM_USER_TIMEOUT -> ChatRoomUserEvent.class;
+					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
+					case CHAT_ROOM_USER_TIMEOUT -> ChatRoomTimeoutEvent.class;
 					default -> throw new IllegalArgumentException("Missing class for message type " + messageType);
 				};
 	}
@@ -83,7 +88,7 @@ public class ChatFrameHandler implements StompFrameHandler
 						case CHAT_ROOM_USER_JOIN -> chatViewController.userJoined(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_LEAVE -> chatViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
-						case CHAT_ROOM_USER_TIMEOUT -> chatViewController.userTimeout(getRoomId(headers), (ChatRoomUserEvent) payload);
+						case CHAT_ROOM_USER_TIMEOUT -> chatViewController.userTimeout(getRoomId(headers), (ChatRoomTimeoutEvent) payload);
 						default -> log.error("Missing handling of {}", messageType);
 					}
 				}

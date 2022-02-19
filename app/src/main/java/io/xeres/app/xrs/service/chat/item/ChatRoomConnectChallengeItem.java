@@ -55,7 +55,7 @@ public class ChatRoomConnectChallengeItem extends Item
 	public String toString()
 	{
 		return "ChatRoomConnectChallengeItem{" +
-				"challengeCode=" + challengeCode +
+				"challengeCode=" + Long.toUnsignedString(challengeCode) +
 				'}';
 	}
 }

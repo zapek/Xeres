@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.chat.item;
 
+import java.util.Arrays;
+
 public enum ChatRoomEvent
 {
 	PEER_LEFT(1),
@@ -37,5 +39,12 @@ public enum ChatRoomEvent
 	public byte getCode()
 	{
 		return (byte) code;
+	}
+
+	public static String getFromCode(int code)
+	{
+		return Arrays.stream(ChatRoomEvent.values())
+				.filter(chatRoomEvent -> chatRoomEvent.getCode() == code)
+				.findFirst().toString();
 	}
 }

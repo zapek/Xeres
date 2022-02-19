@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.chat.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.chat.RoomFlags;
+import io.xeres.common.id.Id;
 
 import java.util.Set;
 
@@ -86,7 +87,7 @@ public class VisibleChatRoomInfo
 	public String toString()
 	{
 		return "VisibleChatRoomInfo{" +
-				"id=" + id +
+				"id=" + Id.toStringLowerCase(id) +
 				", name='" + name + '\'' +
 				", topic='" + topic + '\'' +
 				", count=" + count +

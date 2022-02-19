@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.support.chat.*;
@@ -59,6 +60,12 @@ public class ChatListView
 
 	private final VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> chatView;
 	private final ListView<ChatRoomUser> userListView;
+
+	enum AddUserOrigin
+	{
+		JOIN,
+		KEEP_ALIVE
+	}
 
 	public ChatListView(String nickname, long id)
 	{
@@ -130,40 +137,43 @@ public class ChatListView
 		}
 	}
 
-	public void addUser(ChatRoomUserEvent user)
+	public void addUser(ChatRoomUserEvent event, AddUserOrigin addUserOrigin)
 	{
-		if (!userMap.containsKey(user.getGxsId()))
+		if (!userMap.containsKey(event.getGxsId()))
 		{
-			var chatRoomUser = new ChatRoomUser(user.getGxsId(), user.getNickname());
+			var chatRoomUser = new ChatRoomUser(event.getGxsId(), event.getNickname());
 			users.add(chatRoomUser);
-			userMap.put(user.getGxsId(), chatRoomUser);
+			userMap.put(event.getGxsId(), chatRoomUser);
 			users.sort((o1, o2) -> o1.nickname().compareToIgnoreCase(o2.nickname()));
-			if (!nickname.equals(user.getNickname()))
+			if (addUserOrigin == AddUserOrigin.JOIN && !nickname.equals(event.getNickname()))
 			{
-				addMessageLine(new ChatAction(JOIN, user.getNickname(), user.getGxsId()));
+				addMessageLine(new ChatAction(JOIN, event.getNickname(), event.getGxsId()));
 			}
 		}
 	}
 
-	public void removeUser(ChatRoomUserEvent user)
+	public void removeUser(ChatRoomUserEvent event)
 	{
-		var chatRoomUser = userMap.remove(user.getGxsId());
+		var chatRoomUser = userMap.remove(event.getGxsId());
 
 		if (chatRoomUser != null)
 		{
 			users.remove(chatRoomUser);
-			addMessageLine(new ChatAction(LEAVE, user.getNickname(), user.getGxsId()));
+			addMessageLine(new ChatAction(LEAVE, event.getNickname(), event.getGxsId()));
 		}
 	}
 
-	public void timeoutUser(ChatRoomUserEvent user)
+	public void timeoutUser(ChatRoomTimeoutEvent event)
 	{
-		var chatRoomUser = userMap.remove(user.getGxsId());
+		var chatRoomUser = userMap.remove(event.getGxsId());
 
 		if (chatRoomUser != null)
 		{
 			users.remove(chatRoomUser);
-			addMessageLine(new ChatAction(TIMEOUT, chatRoomUser.nickname(), user.getGxsId()));
+			if (!event.isSplit())
+			{
+				addMessageLine(new ChatAction(TIMEOUT, chatRoomUser.nickname(), event.getGxsId()));
+			}
 		}
 	}
 

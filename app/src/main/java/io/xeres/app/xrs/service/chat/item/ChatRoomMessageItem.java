@@ -107,4 +107,15 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 		clone.flags = EnumSet.copyOf(flags);
 		return clone;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "ChatRoomMessageItem{" +
+				"flags=" + flags +
+				", sendTime=" + sendTime +
+				", message='" + message + '\'' +
+				", parentMessageId=" + parentMessageId +
+				'}';
+	}
 }

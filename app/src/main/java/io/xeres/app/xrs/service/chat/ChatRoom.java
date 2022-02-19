@@ -125,9 +125,9 @@ public class ChatRoom
 		return participatingLocations;
 	}
 
-	public void addParticipatingLocation(Location location)
+	public boolean addParticipatingLocation(Location location)
 	{
-		participatingLocations.add(location);
+		return participatingLocations.add(location);
 	}
 
 	public void removeParticipatingLocation(Location location)
@@ -213,10 +213,14 @@ public class ChatRoom
 		return lastConnectionChallenge;
 	}
 
-	// XXX: what is that used for?
 	public boolean isJoinedRoomPacketSent()
 	{
 		return joinedRoomPacketSent;
+	}
+
+	public void setJoinedRoomPacketSent(boolean joinedRoomPacketSent)
+	{
+		this.joinedRoomPacketSent = joinedRoomPacketSent;
 	}
 
 	public void setLastKeepAlivePacket(Instant lastKeepAlivePacket)

@@ -59,6 +59,8 @@ import static io.xeres.app.xrs.service.RsServiceType.CHAT;
 import static io.xeres.common.message.MessageType.*;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 import static java.util.Map.entry;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 // XXX: check if everything is thread safe (the lists are but are the operations ok?)
 @Component
@@ -191,7 +193,7 @@ public class ChatRsService extends RsService
 		executorService = Executors.newSingleThreadScheduledExecutor();
 
 		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageChatRooms,
-				HOUSEKEEPING_DELAY.toSeconds(),
+				getInitPriority().getMaxTime() + HOUSEKEEPING_DELAY.toSeconds() / 2,
 				HOUSEKEEPING_DELAY.toSeconds(),
 				TimeUnit.SECONDS
 		);
@@ -238,7 +240,7 @@ public class ChatRsService extends RsService
 			// Remove inactive gxsIds
 			chatRoom.getExpiredUsers().forEach(user -> {
 				chatRoom.removeUser(user);
-				sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_TIMEOUT, user, null);
+				sendTimeoutEventToClient(chatRoom.getId(), CHAT_ROOM_USER_TIMEOUT, user, isEmpty(chatRoom.getParticipatingLocations()));
 			});
 
 			// XXX: send joined_lobby if participating friend connected... maybe do it when he actually connects!
@@ -246,6 +248,8 @@ public class ChatRsService extends RsService
 			sendKeepAliveIfNeeded(chatRoom);
 
 			sendConnectionChallengeIfNeeded(chatRoom);
+
+			sendJoinEventIfNeeded(chatRoom);
 		});
 
 		// XXX: remove outdated rooms visible lobbies
@@ -258,6 +262,7 @@ public class ChatRsService extends RsService
 
 	private void askForNearbyChatRooms(PeerConnection peerConnection)
 	{
+		log.debug("Asking for nearby chat rooms...");
 		writeItem(peerConnection, new ChatRoomListRequestItem());
 	}
 
@@ -267,6 +272,7 @@ public class ChatRsService extends RsService
 
 		if (Duration.between(chatRoom.getLastKeepAlivePacket(), now).compareTo(KEEPALIVE_DELAY) > 0)
 		{
+			log.debug("Sending keepalive event to chatroom {}", chatRoom);
 			sendChatRoomEvent(chatRoom, ChatRoomEvent.KEEP_ALIVE);
 			chatRoom.setLastKeepAlivePacket(now);
 		}
@@ -282,19 +288,31 @@ public class ChatRsService extends RsService
 			var recentMessage = chatRoom.getMessageCache().getRecentMessage();
 			if (recentMessage == 0)
 			{
-				log.debug("No message in cache to send connection challenge. Not enough activity?");
+				log.debug("No message in cache to send connection challenge to room {}. Not enough activity?", chatRoom);
 				return;
 			}
 
 			// Send connection challenge to all connected friends
+			log.debug("Sending connection challenge for room {}", chatRoom);
 			peerConnectionManager.doForAllPeers(peerConnection -> writeItem(peerConnection, new ChatRoomConnectChallengeItem(peerConnection.getLocation().getLocationId(), chatRoom.getId(), recentMessage)), this);
 		}
 	}
 
-	// XXX: not sure that thing works well enough... it has to be called early before packets start coming. it doesn't... the UI is not up yet!
+	private void sendJoinEventIfNeeded(ChatRoom chatRoom)
+	{
+		if (!chatRoom.isJoinedRoomPacketSent() && isNotEmpty(chatRoom.getParticipatingLocations()))
+		{
+			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED);
+			chatRoom.setJoinedRoomPacketSent(true);
+		}
+	}
+
+	/**
+	 * Subscribe to all rooms that are saved in the database.
+	 */
 	private void subscribeToAllSavedRooms()
 	{
-		log.debug("doing the subscribe thing");
+		log.debug("Subscribing to all saved rooms...");
 
 		chatRoomService.getAllChatRoomsPendingToSubscribe().forEach(savedRoom -> {
 			var chatRoom = new ChatRoom(
@@ -305,7 +323,6 @@ public class ChatRsService extends RsService
 					1,
 					savedRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
 			);
-			log.debug("adding room {}", chatRoom);
 			availableChatRooms.put(chatRoom.getId(), chatRoom);
 		});
 
@@ -375,7 +392,7 @@ public class ChatRsService extends RsService
 
 	private void handleChatRoomListItem(PeerConnection peerConnection, ChatRoomListItem item)
 	{
-		log.debug("Received chat room list from {}", peerConnection);
+		log.debug("Received chat room list from {}: {}", peerConnection, item);
 		if (item.getChatRooms().size() > CHATROOM_LIST_MAX)
 		{
 			log.warn("Location {} is sending a chat room list of {} items, which is bigger than the allowed {}", peerConnection, item.getChatRooms().size(), CHATROOM_LIST_MAX);
@@ -391,21 +408,22 @@ public class ChatRsService extends RsService
 							visibleRoom.getCount(),
 							visibleRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
 					);
-					chatRoom.addParticipatingLocation(peerConnection.getLocation());
 					availableChatRooms.put(chatRoom.getId(), chatRoom);
 				});
 
 		chatRoomService.getAllChatRoomsPendingToSubscribe().forEach(chatRoom -> joinChatRoom(chatRoom.getRoomId()));
+
 		refreshChatRoomsInClients();
 	}
 
 	private void refreshChatRoomsInClients()
 	{
-		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LIST, buildChatRoomLists());
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_ROOM_LIST, buildChatRoomLists());
 	}
 
 	private void handleChatRoomListRequestItem(PeerConnection peerConnection)
 	{
+		log.debug("Received chat room list request from {}", peerConnection);
 		var chatRoomListItem = new ChatRoomListItem(chatRooms.values().stream()
 				.filter(chatRoom -> chatRoom.isPublic()
 						|| chatRoom.getPreviouslyKnownLocations().contains(peerConnection.getLocation().getLocationId())
@@ -418,11 +436,11 @@ public class ChatRsService extends RsService
 
 	private void handleChatRoomMessageItem(PeerConnection peerConnection, ChatRoomMessageItem item)
 	{
-		log.debug("Received message from peer {} with content {}", peerConnection, item.getMessage());
+		log.debug("Received chat room message from peer {}: {}", peerConnection, item);
 
 		if (!validateExpiration(item.getSendTime()))
 		{
-			log.warn("Received message from peer {} failed time validation, dropping", peerConnection);
+			log.warn("Received chat room message from peer {} failed time validation, dropping", peerConnection);
 		}
 
 		if (!validateAndBounceItem(peerConnection, item))
@@ -433,18 +451,20 @@ public class ChatRsService extends RsService
 		var chatRoom = chatRooms.get(item.getRoomId());
 
 		// And display the message for us
-		chatRoom.userActivity(item.getSignature().getGxsId());
-		var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), parseIncomingText(item.getMessage()));
-		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_MESSAGE, item.getRoomId(), chatRoomMessage);
+		var user = item.getSignature().getGxsId();
+		chatRoom.userActivity(user);
+		sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_MESSAGE, user, item.getSenderNickname(), parseIncomingText(item.getMessage()));
 
 		chatRoom.incrementConnectionChallengeCount(); // XXX: this allows to find out when to send challenges. do that (where?)
 	}
 
 	private void handleChatRoomEventItem(PeerConnection peerConnection, ChatRoomEventItem item)
 	{
+		log.debug("Received chat room event item from peer {}: {}", peerConnection, item);
+
 		if (!validateExpiration(item.getSendTime()))
 		{
-			log.warn("Received message from peer {} failed time validation, dropping", peerConnection);
+			log.warn("Received chat room message from peer {} failed time validation, dropping", peerConnection);
 		}
 
 		if (!validateAndBounceItem(peerConnection, item))
@@ -467,25 +487,41 @@ public class ChatRsService extends RsService
 		{
 			chatRoom.addUser(user);
 			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname());
-			//sendKeepAliveIfNeeded(chatRooms.get(item.getRoomId())); // XXX: send a keep alive event to the participant so that he knows we are in the room (RS sends to everyone but that's lame)
+			sendKeepAliveIfNeeded(chatRooms.get(item.getRoomId())); // send a keep alive event to the participant so that he knows we are in the room
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
 			chatRoom.addUser(user); // KEEP_ALIVE is also used to add users
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, item.getSignature().getGxsId(), item.getSenderNickname());
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname());
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
 		{
 			chatRoom.userActivity(user);
-			var chatRoomMessage = new ChatRoomMessage(item.getSenderNickname(), null);
-			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_TYPING_NOTIFICATION, item.getRoomId(), chatRoomMessage);
+			sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_TYPING_NOTIFICATION, user, item.getSenderNickname(), null);
 		}
+	}
+
+	private void sendUserEventToClient(long roomId, MessageType messageType)
+	{
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, new ChatRoomMessage());
 	}
 
 	private void sendUserEventToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname)
 	{
 		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname);
-		peerConnectionManager.sendToSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
+	}
+
+	private void sendTimeoutEventToClient(long roomId, MessageType messageType, GxsId gxsId, boolean split)
+	{
+		var chatRoomTimeoutEvent = new ChatRoomTimeoutEvent(gxsId, split);
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomTimeoutEvent);
+	}
+
+	private void sendUserMessageToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, String content)
+	{
+		var chatRoomMessage = new ChatRoomMessage(nickname, content);
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomMessage);
 	}
 
 	private boolean validateAndBounceItem(PeerConnection peerConnection, ChatRoomBounce item)
@@ -521,6 +557,7 @@ public class ChatRsService extends RsService
 
 	private void handleChatRoomUnsubscribeItem(PeerConnection peerConnection, ChatRoomUnsubscribeItem item)
 	{
+		log.debug("Received unsubscribe item from {}: {}", peerConnection, item);
 		var chatRoom = chatRooms.get(item.getRoomId());
 		if (chatRoom == null)
 		{
@@ -535,7 +572,7 @@ public class ChatRsService extends RsService
 
 	private void handleChatRoomInviteItem(PeerConnection peerConnection, ChatRoomInviteItem item)
 	{
-		log.debug("Received invite from {} to room {}", peerConnection, item.getRoomName());
+		log.debug("Received invite from {}: {}", peerConnection, item);
 
 		var chatRoom = chatRooms.get(item.getRoomId());
 		if (chatRoom != null)
@@ -565,11 +602,11 @@ public class ChatRsService extends RsService
 		// There's a whole protocol with the flags (REQUEST_CUSTOM_STATE, CUSTOM_STATE and CUSTOM_STATE_AVAILABLE)
 		// to send and request states; but it seems all RS does is send the typing state every
 		// 5 seconds while the user is typing.
-		log.debug("Got status item from peer {} with status string: {}", peerConnection, item.getStatus());
+		log.debug("Got status item from peer {}: {}", peerConnection, item);
 		if (MESSAGE_TYPING_CONTENT.equals(item.getStatus()))
 		{
 			var privateChatMessage = new PrivateChatMessage();
-			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_TYPING_NOTIFICATION, peerConnection.getLocation().getLocationId(), privateChatMessage);
+			peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_TYPING_NOTIFICATION, peerConnection.getLocation().getLocationId(), privateChatMessage);
 		}
 		else
 		{
@@ -579,11 +616,11 @@ public class ChatRsService extends RsService
 
 	private void handleChatMessageItem(PeerConnection peerConnection, ChatMessageItem item)
 	{
+		log.debug("Received chat message item from {}: {}", peerConnection, item);
 		if (item.isPrivate() && !item.isAvatarRequest()) // XXX: handle avatars later
 		{
 			if (item.isPartial())
 			{
-				log.debug("Received partial message from peer {}", peerConnection);
 				var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
 				if (messageList.isEmpty())
 				{
@@ -609,27 +646,25 @@ public class ChatRsService extends RsService
 					message = String.join("", existingList);
 					peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
 				}
-				log.debug("Received message from peer {} with content {}", peerConnection, message);
 				var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
-				peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
+				peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
 			}
 		}
 	}
 
 	private void handleChatRoomConnectChallengeItem(PeerConnection peerConnection, ChatRoomConnectChallengeItem item)
 	{
+		log.debug("Received chat room connect challenge from {}: {}", peerConnection, item);
 		var locationId = peerConnection.getLocation().getLocationId();
 
-		for (var chatRoom : chatRooms.values())
-		{
-			if (chatRoom.getMessageCache().hasConnectionChallenge(locationId, chatRoom.getId(), item.getChallengeCode()))
-			{
-				log.debug("Challenge accepted for chatroom {}, sending connection request to peer {}", chatRoom, peerConnection);
-				chatRoom.addParticipatingLocation(peerConnection.getLocation());
-				inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.FROM_CHALLENGE);
-				return;
-			}
-		}
+		chatRooms.values().stream()
+				.filter(chatRoom -> chatRoom.getMessageCache().hasConnectionChallenge(locationId, chatRoom.getId(), item.getChallengeCode()))
+				.findFirst()
+				.ifPresent(chatRoom -> {
+					log.debug("Challenge accepted for chatroom {}, sending connection request to peer {}", chatRoom, peerConnection);
+					chatRoom.addParticipatingLocation(peerConnection.getLocation());
+					inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.FROM_CHALLENGE);
+				});
 	}
 
 	private void inviteLocationToChatRoom(Location location, ChatRoom chatRoom, Invitation invitation)
@@ -868,13 +903,13 @@ public class ChatRsService extends RsService
 
 			chatRoom.getParticipatingLocations().forEach(location -> inviteLocationToChatRoom(location, chatRoom, Invitation.PLAIN));
 
-			peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_JOIN, chatRoom.getId(), new ChatRoomMessage());
+			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_JOIN);
 			chatRoom.addUser(ownIdentity.getGxsIdGroupItem().getGxsId());
 
 			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED);
 
-			// Send a keep alive event from ourselves so that we are added to the user list in the UI
-			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_KEEP_ALIVE, ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
+			// Add ourselves in the UI so that we're shown as joining
+			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
 		}
 	}
 
@@ -893,14 +928,12 @@ public class ChatRsService extends RsService
 			return;
 		}
 		chatRoomToRemove.clearUsers();
-		sendChatRoomEvent(chatRoomToRemove, ChatRoomEvent.PEER_LEFT); // XXX: produces an exception!
+		sendChatRoomEvent(chatRoomToRemove, ChatRoomEvent.PEER_LEFT);
 		chatRooms.remove(chatRoomId);
 		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities
 
 		chatRoomToRemove.getParticipatingLocations().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));
-		peerConnectionManager.sendToSubscriptions(CHAT_PATH, CHAT_ROOM_LEAVE, chatRoomToRemove.getId(), new ChatRoomMessage());
-
-		// XXX: find a way to remove ourselves from the UI...
+		sendUserEventToClient(chatRoomToRemove.getId(), CHAT_ROOM_LEAVE);
 	}
 
 	public long createChatRoom(String roomName, String topic, GxsId identity, Set<RoomFlags> flags)
@@ -957,6 +990,7 @@ public class ChatRsService extends RsService
 	private void sendChatRoomEvent(ChatRoom chatRoom, ChatRoomEvent event, String status)
 	{
 		var chatRoomEvent = new ChatRoomEventItem(event, status);
+		log.debug("Sending chat room event {}", chatRoomEvent);
 
 		initializeBounce(chatRoom, chatRoomEvent);
 		bounce(chatRoomEvent);

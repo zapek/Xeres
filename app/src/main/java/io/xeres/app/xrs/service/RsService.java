@@ -25,9 +25,12 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -42,6 +45,8 @@ import java.util.Map;
  */
 public abstract class RsService implements Comparable<RsService>
 {
+	private static final Logger log = LoggerFactory.getLogger(RsService.class);
+
 	public static final String RS_SERVICE_CLASS_SUFFIX = "RsService";
 	private final Map<Integer, Class<? extends Item>> searchBySubType = new HashMap<>();
 	private Map<Class<? extends Item>, Integer> searchByClass = new HashMap<>();
@@ -111,8 +116,8 @@ public abstract class RsService implements Comparable<RsService>
 		throw new IllegalStateException("Implement initialize() method if you override getInitPriority() to be anything else than OFF");
 	}
 
-	@EventListener
-	public void init(NetworkReadyEvent event) // XXX: it has to be public but I don't like it :-/
+	@PostConstruct
+	private void init()
 	{
 		if (Boolean.TRUE.equals(environment.getProperty(getPropertyName(), Boolean.class, false)))
 		{
@@ -130,9 +135,13 @@ public abstract class RsService implements Comparable<RsService>
 				}
 				searchBySubType.put(itemSubType, itemClass);
 			});
-
-			initialize();
 		}
+	}
+
+	@EventListener
+	public void init(NetworkReadyEvent event)
+	{
+		initialize();
 	}
 
 	@PreDestroy

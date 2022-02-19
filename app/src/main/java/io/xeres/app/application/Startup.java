@@ -42,6 +42,7 @@ import io.xeres.app.xrs.service.gxsid.GxsIdManager;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +144,7 @@ public class Startup implements ApplicationRunner
 								.getPort());
 
 				// Send the event asynchronously so that our transaction can complete first
-				CompletableFuture.runAsync(() -> publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)));
+				CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)));
 			}
 		}
 		else
@@ -184,7 +185,7 @@ public class Startup implements ApplicationRunner
 				peerService.start(event.localPort());
 
 				// Send the event asynchronously so that our transaction can complete first
-				CompletableFuture.runAsync(() -> publisher.publishEvent(new NetworkReadyEvent()));
+				CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new NetworkReadyEvent()));
 			}
 			else
 			{

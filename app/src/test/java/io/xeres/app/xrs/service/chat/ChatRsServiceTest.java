@@ -58,6 +58,6 @@ class ChatRsServiceTest
 		var item = new ChatMessageItem(MESSAGE, EnumSet.of(ChatFlags.PRIVATE));
 		chatRsService.handleItem(peerConnection, item);
 
-		verify(peerConnectionManager).sendToSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), any(PrivateChatMessage.class));
+		verify(peerConnectionManager).sendToClientSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), any(PrivateChatMessage.class));
 	}
 }

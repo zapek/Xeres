@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -147,26 +148,27 @@ public class PeerConnectionManager
 		return ctx.writeAndFlush(rawItem);
 	}
 
-	public void sendToSubscriptions(String path, MessageType type, Object payload)
+	public void sendToClientSubscriptions(String path, MessageType type, Object payload)
 	{
 		var headers = buildMessageHeaders(type);
-		sendToSubscriptions(path, headers, payload);
+		sendToClientSubscriptions(path, headers, payload);
 	}
 
-	public void sendToSubscriptions(String path, MessageType type, long destination, Object payload)
+	public void sendToClientSubscriptions(String path, MessageType type, long destination, Object payload)
 	{
 		var headers = buildMessageHeaders(type, String.valueOf(destination));
-		sendToSubscriptions(path, headers, payload);
+		sendToClientSubscriptions(path, headers, payload);
 	}
 
-	public void sendToSubscriptions(String path, MessageType type, Identifier destination, Object payload)
+	public void sendToClientSubscriptions(String path, MessageType type, Identifier destination, Object payload)
 	{
 		var headers = buildMessageHeaders(type, destination.toString());
-		sendToSubscriptions(path, headers, payload);
+		sendToClientSubscriptions(path, headers, payload);
 	}
 
-	public void sendToSubscriptions(String path, Map<String, Object> headers, Object payload)
+	public void sendToClientSubscriptions(String path, Map<String, Object> headers, Object payload)
 	{
+		Objects.requireNonNull(payload, "Payload *must* be an object that can be serialized to JSON");
 		messagingTemplate.convertAndSend(path, payload, headers);
 	}
 }

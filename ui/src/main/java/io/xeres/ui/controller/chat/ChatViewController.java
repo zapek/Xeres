@@ -29,6 +29,7 @@ import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
 import io.xeres.ui.support.util.ImageUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -290,7 +291,7 @@ public class ChatViewController implements Controller
 
 	public void userJoined(long roomId, ChatRoomUserEvent event)
 	{
-		performOnChatListView(roomId, chatListView -> chatListView.addUser(event));
+		performOnChatListView(roomId, chatListView -> chatListView.addUser(event, AddUserOrigin.JOIN));
 	}
 
 	public void userLeft(long roomId, ChatRoomUserEvent event)
@@ -300,10 +301,10 @@ public class ChatViewController implements Controller
 
 	public void userKeepAlive(long roomId, ChatRoomUserEvent event)
 	{
-		performOnChatListView(roomId, chatListView -> chatListView.addUser(event)); // XXX: use this to know if a user is "idle"
+		performOnChatListView(roomId, chatListView -> chatListView.addUser(event, AddUserOrigin.KEEP_ALIVE)); // XXX: use this to know if a user is "idle"
 	}
 
-	public void userTimeout(long roomId, ChatRoomUserEvent event)
+	public void userTimeout(long roomId, ChatRoomTimeoutEvent event)
 	{
 		performOnChatListView(roomId, chatListView -> chatListView.timeoutUser(event));
 	}

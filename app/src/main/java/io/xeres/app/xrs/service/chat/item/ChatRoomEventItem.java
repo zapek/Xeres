@@ -90,7 +90,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable,
 	public String toString()
 	{
 		return "ChatRoomEventItem{" +
-				"eventType=" + eventType +
+				"eventType=" + ChatRoomEvent.getFromCode(eventType) +
 				", status='" + status + '\'' +
 				", sendTime=" + sendTime +
 				", super=" + super.toString() +

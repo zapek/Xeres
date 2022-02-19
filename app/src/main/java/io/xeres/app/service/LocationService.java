@@ -32,6 +32,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.util.NoSuppressedRunnable;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,7 +173,7 @@ public class LocationService
 		locationRepository.save(location);
 
 		// Send the event asynchronously so that our transaction can complete first
-		CompletableFuture.runAsync(() -> publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)));
+		CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)));
 	}
 
 	/**

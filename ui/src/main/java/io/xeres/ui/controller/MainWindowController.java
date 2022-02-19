@@ -22,6 +22,7 @@ package io.xeres.ui.controller;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.LocationClient;
+import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -90,13 +91,16 @@ public class MainWindowController implements WindowController
 	@FXML
 	public Button webHelpButton;
 
+	private final ChatViewController chatViewController;
+
 	private final LocationClient locationClient;
 	private final TrayService trayService;
 	private final WindowManager windowManager;
 	private final Environment environment;
 
-	public MainWindowController(LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment)
 	{
+		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
 		this.trayService = trayService;
 		this.windowManager = windowManager;
@@ -146,6 +150,7 @@ public class MainWindowController implements WindowController
 	public void onShown()
 	{
 		trayService.addSystemTray((Stage) titleLabel.getScene().getWindow());
+		chatViewController.jumpToBottom();
 	}
 
 	private void copyOwnId()

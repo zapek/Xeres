@@ -309,6 +309,14 @@ public class ChatViewController implements Controller
 		performOnChatListView(roomId, chatListView -> chatListView.timeoutUser(event));
 	}
 
+	public void jumpToBottom()
+	{
+		if (selectedChatListView != null)
+		{
+			selectedChatListView.jumpToBottom(true);
+		}
+	}
+
 	private void switchChatContent(Node contentNode, Node userListNode)
 	{
 		if (content.getChildren().size() > 1)
@@ -607,5 +615,4 @@ public class ChatViewController implements Controller
 
 		return List.of(undo, redo, cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
 	}
-
 }

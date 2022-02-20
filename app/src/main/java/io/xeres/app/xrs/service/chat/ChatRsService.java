@@ -233,6 +233,7 @@ public class ChatRsService extends RsService
 	private void manageChatRooms()
 	{
 		chatRooms.forEach((roomId, chatRoom) -> {
+			log.debug("Cleanup of room {}", chatRoom);
 
 			// Remove old messages
 			chatRoom.getMessageCache().purge();
@@ -240,10 +241,8 @@ public class ChatRsService extends RsService
 			// Remove inactive gxsIds
 			chatRoom.getExpiredUsers().forEach(user -> {
 				chatRoom.removeUser(user);
-				sendTimeoutEventToClient(chatRoom.getId(), CHAT_ROOM_USER_TIMEOUT, user, isEmpty(chatRoom.getParticipatingLocations()));
+				sendTimeoutEventToClient(chatRoom.getId(), user, isEmpty(chatRoom.getParticipatingLocations()));
 			});
-
-			// XXX: send joined_lobby if participating friend connected... maybe do it when he actually connects!
 
 			sendKeepAliveIfNeeded(chatRoom);
 
@@ -255,9 +254,6 @@ public class ChatRsService extends RsService
 		// XXX: remove outdated rooms visible lobbies
 
 		// XXX: add the rest of the handling...
-		// XXX: note that some events can be handled better by being sent directly do the peer upon action (eg. join is already on auto subscribe)
-		// XXX: also. maybe it's better to have several scheduledAtFixedRate() instead of doing each 10 seconds + checks and storage...  with a schelder, while it does do "pulses", the only case where it's more
-		// efficient to do it the RS way is when we join a channel in the middle of a session, which happens rarely
 	}
 
 	private void askForNearbyChatRooms(PeerConnection peerConnection)
@@ -324,9 +320,8 @@ public class ChatRsService extends RsService
 					savedRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
 			);
 			availableChatRooms.put(chatRoom.getId(), chatRoom);
+			joinChatRoom(chatRoom.getId());
 		});
-
-		availableChatRooms.forEach((chatRoomId, chatRoom) -> joinChatRoom(chatRoomId));
 		refreshChatRoomsInClients();
 	}
 
@@ -399,21 +394,36 @@ public class ChatRsService extends RsService
 		}
 		item.getChatRooms().stream()
 				.limit(CHATROOM_LIST_MAX)
-				.forEach(visibleRoom -> {
-					var chatRoom = new ChatRoom(
-							visibleRoom.getId(),
-							visibleRoom.getName(),
-							visibleRoom.getTopic(),
-							visibleRoom.getFlags().contains(RoomFlags.PUBLIC) ? RoomType.PUBLIC : RoomType.PRIVATE,
-							visibleRoom.getCount(),
-							visibleRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
-					);
-					availableChatRooms.put(chatRoom.getId(), chatRoom);
+				.forEach(itemRoom -> {
+					var chatRoom = availableChatRooms.getOrDefault(itemRoom.getId(), new ChatRoom(
+							itemRoom.getId(),
+							itemRoom.getName(),
+							itemRoom.getTopic(),
+							itemRoom.getFlags().contains(RoomFlags.PUBLIC) ? RoomType.PUBLIC : RoomType.PRIVATE,
+							itemRoom.getCount(), // XXX: we should update current chatroom with max(current_count, remote_count)
+							itemRoom.getFlags().contains(RoomFlags.PGP_SIGNED)));
+					if (chatRoom.addParticipatingLocation(peerConnection.getLocation()))
+					{
+						// If we're subscribed to the chat room but the friend is not participating, invite him
+						if (chatRooms.containsKey(chatRoom.getId()))
+						{
+							inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.PLAIN);
+						}
+					}
+					updateRooms(chatRoom);
+					chatRoomService.getAllChatRoomsPendingToSubscribe().stream()
+							.filter(pendingChatRoom -> pendingChatRoom.getRoomId() == chatRoom.getId())
+							.findFirst()
+							.ifPresent(pendingChatRoom -> joinChatRoom(pendingChatRoom.getRoomId()));
 				});
 
-		chatRoomService.getAllChatRoomsPendingToSubscribe().forEach(chatRoom -> joinChatRoom(chatRoom.getRoomId()));
-
 		refreshChatRoomsInClients();
+	}
+
+	private void updateRooms(ChatRoom chatRoom)
+	{
+		availableChatRooms.put(chatRoom.getId(), chatRoom);
+		chatRooms.replace(chatRoom.getId(), chatRoom);
 	}
 
 	private void refreshChatRoomsInClients()
@@ -487,7 +497,7 @@ public class ChatRsService extends RsService
 		{
 			chatRoom.addUser(user);
 			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname());
-			sendKeepAliveIfNeeded(chatRooms.get(item.getRoomId())); // send a keep alive event to the participant so that he knows we are in the room
+			chatRoom.setLastKeepAlivePacket(Instant.EPOCH); // send a keep alive event to the participant so that he knows we are in the room
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
@@ -512,10 +522,10 @@ public class ChatRsService extends RsService
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
 	}
 
-	private void sendTimeoutEventToClient(long roomId, MessageType messageType, GxsId gxsId, boolean split)
+	private void sendTimeoutEventToClient(long roomId, GxsId gxsId, boolean split)
 	{
 		var chatRoomTimeoutEvent = new ChatRoomTimeoutEvent(gxsId, split);
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomTimeoutEvent);
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_ROOM_USER_TIMEOUT, roomId, chatRoomTimeoutEvent);
 	}
 
 	private void sendUserMessageToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, String content)
@@ -548,11 +558,7 @@ public class ChatRsService extends RsService
 
 		// XXX: check if it's for signed lobby. need to get the key and check it
 
-		if (!bounce(peerConnection, item))
-		{
-			return false;
-		}
-		return true;
+		return bounce(peerConnection, item);
 	}
 
 	private void handleChatRoomUnsubscribeItem(PeerConnection peerConnection, ChatRoomUnsubscribeItem item)
@@ -659,7 +665,7 @@ public class ChatRsService extends RsService
 
 		chatRooms.values().stream()
 				.filter(chatRoom -> chatRoom.getMessageCache().hasConnectionChallenge(locationId, chatRoom.getId(), item.getChallengeCode()))
-				.findFirst()
+				.findAny()
 				.ifPresent(chatRoom -> {
 					log.debug("Challenge accepted for chatroom {}, sending connection request to peer {}", chatRoom, peerConnection);
 					chatRoom.addParticipatingLocation(peerConnection.getLocation());
@@ -720,8 +726,7 @@ public class ChatRsService extends RsService
 
 		if (chatRoom.getMessageCache().exists(bounce.getMessageId()))
 		{
-			log.warn("Message id {} already received, dropping", bounce.getMessageId());
-			chatRoom.getMessageCache().update(bounce.getMessageId()); // prevent echoes
+			log.debug("Message id {} already received, dropping", bounce.getMessageId());
 			return false;
 		}
 
@@ -906,7 +911,7 @@ public class ChatRsService extends RsService
 			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_JOIN);
 			chatRoom.addUser(ownIdentity.getGxsIdGroupItem().getGxsId());
 
-			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED);
+			sendJoinEventIfNeeded(chatRoom);
 
 			// Add ourselves in the UI so that we're shown as joining
 			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
@@ -930,6 +935,7 @@ public class ChatRsService extends RsService
 		chatRoomToRemove.clearUsers();
 		sendChatRoomEvent(chatRoomToRemove, ChatRoomEvent.PEER_LEFT);
 		chatRooms.remove(chatRoomId);
+		chatRoomToRemove.setJoinedRoomPacketSent(false); // in the case we rejoin immediately
 		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities
 
 		chatRoomToRemove.getParticipatingLocations().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));

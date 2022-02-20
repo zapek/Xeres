@@ -37,10 +37,32 @@ class ChatChallengeTest
 	@Test
 	void ChatChallenge_Code_OK()
 	{
-		GxsId gxsId = new GxsId(Id.toBytes("325e3801988a347347ef3e5ae24a63ba"));
+		var gxsId = new GxsId(Id.toBytes("01dc22f128d9495541f780a254b89630"));
+		var code = ChatChallenge.code(gxsId, Long.parseUnsignedLong("10949563242187165295"), Long.parseUnsignedLong("140257447151802099"));
+		assertEquals(Long.parseUnsignedLong("1540395435043678632"), code);
 
-		long code = ChatChallenge.code(gxsId, 1, 2);
+		gxsId = new GxsId(Id.toBytes("01dc22f128d9495541f780a254b89630"));
+		code = ChatChallenge.code(gxsId, Long.parseUnsignedLong("10949563242187165295"), Long.parseUnsignedLong("3128845210392038968"));
+		assertEquals(Long.parseUnsignedLong("9133905927926710723"), code);
 
-		assertEquals(749218228209201600L, code);
+		gxsId = new GxsId(Id.toBytes("01dc22f128d9495541f780a254b89630"));
+		code = ChatChallenge.code(gxsId, Long.parseUnsignedLong("10949563242187165295"), Long.parseUnsignedLong("15552989625937603562"));
+		assertEquals(Long.parseUnsignedLong("2213486716447545487"), code);
+
+		gxsId = new GxsId(Id.toBytes("01dc22f128d9495541f780a254b89630"));
+		code = ChatChallenge.code(gxsId, Long.parseUnsignedLong("10949563242187165295"), Long.parseUnsignedLong("140257447151802099"));
+		assertEquals(Long.parseUnsignedLong("1540395435043678632"), code);
+
+		gxsId = new GxsId(Id.toBytes("01dc22f128d9495541f780a254b89630"));
+		code = ChatChallenge.code(gxsId, Long.parseUnsignedLong("10949563242187165295"), Long.parseUnsignedLong("3128845210392038968"));
+		assertEquals(Long.parseUnsignedLong("9133905927926710723"), code);
+
+		gxsId = new GxsId(Id.toBytes("01dc22f128d9495541f780a254b89630"));
+		code = ChatChallenge.code(gxsId, Long.parseUnsignedLong("10949563242187165295"), Long.parseUnsignedLong("15552989625937603562"));
+		assertEquals(Long.parseUnsignedLong("2213486716447545487"), code);
+
+		gxsId = new GxsId(Id.toBytes("01dc22f128d9495541f780a254b89630"));
+		code = ChatChallenge.code(gxsId, Long.parseUnsignedLong("10949563242187165295"), Long.parseUnsignedLong("140257447151802099"));
+		assertEquals(Long.parseUnsignedLong("1540395435043678632"), code);
 	}
 }

@@ -20,6 +20,8 @@
 package io.xeres.app.crypto.chatcipher;
 
 import io.xeres.common.id.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class to handle challenge codes, which allows peers to know if they
@@ -27,6 +29,8 @@ import io.xeres.common.id.Identifier;
  */
 public final class ChatChallenge
 {
+	private static final Logger log = LoggerFactory.getLogger(ChatChallenge.class);
+
 	private ChatChallenge()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -38,12 +42,12 @@ public final class ChatChallenge
 
 		var id = identifier.getBytes();
 
-		for (var i = 0; i < identifier.getBytes().length; i++)
+		for (var i = 0; i < identifier.getLength(); i++)
 		{
 			code += messageId;
 			code ^= code >>> 35;
 			code += code << 6;
-			code ^= id[i] * chatRoomId;
+			code ^= Byte.toUnsignedLong(id[i]) * chatRoomId;
 			code += code << 26;
 			code ^= code >>> 13;
 		}

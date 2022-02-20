@@ -117,8 +117,8 @@ public abstract class ChatRoomBounce extends Item implements Cloneable
 	public String toString()
 	{
 		return "ChatRoomBounce{" +
-				"roomId=" + Id.toString(roomId) +
-				", messageId=" + Id.toString(messageId) +
+				"roomId=" + Id.toStringLowerCase(roomId) +
+				", messageId=" + Id.toStringLowerCase(messageId) +
 				", senderNickname='" + senderNickname + '\'' +
 				", signature=[something]" +
 				'}';

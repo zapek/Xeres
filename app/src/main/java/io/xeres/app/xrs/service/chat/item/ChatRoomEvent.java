@@ -45,6 +45,8 @@ public enum ChatRoomEvent
 	{
 		return Arrays.stream(ChatRoomEvent.values())
 				.filter(chatRoomEvent -> chatRoomEvent.getCode() == code)
-				.findFirst().toString();
+				.findAny()
+				.map(Enum::name)
+				.orElse("");
 	}
 }

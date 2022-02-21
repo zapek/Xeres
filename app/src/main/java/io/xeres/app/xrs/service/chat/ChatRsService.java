@@ -183,7 +183,7 @@ public class ChatRsService extends RsService
 	@Override
 	public RsServiceInitPriority getInitPriority()
 	{
-		return RsServiceInitPriority.LOW;
+		return RsServiceInitPriority.HIGH;
 	}
 
 	@Override
@@ -433,13 +433,14 @@ public class ChatRsService extends RsService
 
 	private void handleChatRoomListRequestItem(PeerConnection peerConnection)
 	{
-		log.debug("Received chat room list request from {}", peerConnection);
 		var chatRoomListItem = new ChatRoomListItem(chatRooms.values().stream()
 				.filter(chatRoom -> chatRoom.isPublic()
 						|| chatRoom.getPreviouslyKnownLocations().contains(peerConnection.getLocation().getLocationId())
 						|| chatRoom.getParticipatingLocations().contains(peerConnection.getLocation()))
 				.map(ChatRoom::getAsVisibleChatRoomInfo)
 				.toList());
+
+		log.debug("Received chat room list request from {}, sending back {}", peerConnection, chatRoomListItem);
 
 		writeItem(peerConnection, chatRoomListItem);
 	}
@@ -675,6 +676,7 @@ public class ChatRsService extends RsService
 
 	private void inviteLocationToChatRoom(Location location, ChatRoom chatRoom, Invitation invitation)
 	{
+		log.debug("Invite location {} to chatRoom {} with invitation {}", location, chatRoom, invitation);
 		var item = new ChatRoomInviteItem(
 				chatRoom.getId(),
 				chatRoom.getName(),

@@ -174,6 +174,7 @@ public class ChatRsService extends RsService
 				entry(ChatRoomMessageItem.class, 23),
 				entry(ChatRoomEventItem.class, 24),
 				entry(ChatRoomListItem.class, 25),
+				entry(ChatRoomInviteOldItem.class, 26),
 				entry(ChatRoomInviteItem.class, 27),
 				entry(PrivateOutgoingMapItem.class, 28),
 				entry(SubscribedChatRoomConfigItem.class, 29)
@@ -383,6 +384,10 @@ public class ChatRsService extends RsService
 		{
 			handleChatRoomUnsubscribeItem(sender, chatRoomUnsubscribeItem);
 		}
+		else if (item instanceof ChatRoomInviteOldItem chatRoomInviteOldItem)
+		{
+			handleChatRoomInviteOldItem(sender, chatRoomInviteOldItem);
+		}
 	}
 
 	private void handleChatRoomListItem(PeerConnection peerConnection, ChatRoomListItem item)
@@ -575,6 +580,15 @@ public class ChatRsService extends RsService
 		chatRoom.removeParticipatingLocation(peerConnection.getLocation());
 
 		// XXX: RS has some "previously_known_peers"... see if it's useful
+	}
+
+	private void handleChatRoomInviteOldItem(PeerConnection peerConnection, ChatRoomInviteOldItem item)
+	{
+		log.debug("Received deprecated invite from {}: {}", peerConnection, item);
+
+		var newItem = new ChatRoomInviteItem(item.getRoomId(), item.getRoomName(), "", item.getRoomFlags());
+
+		handleChatRoomInviteItem(peerConnection, newItem);
 	}
 
 	private void handleChatRoomInviteItem(PeerConnection peerConnection, ChatRoomInviteItem item)

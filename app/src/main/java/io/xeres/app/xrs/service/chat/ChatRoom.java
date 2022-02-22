@@ -51,6 +51,7 @@ public class ChatRoom
 	private final Map<GxsId, Long> users = new ConcurrentHashMap<>();
 	private final int userCount;
 	private Instant lastActivity;
+	private Instant lastSeen = Instant.now();
 	private final RoomType type;
 	private final boolean signed;
 
@@ -185,6 +186,16 @@ public class ChatRoom
 	public void updateActivity()
 	{
 		lastActivity = Instant.now();
+	}
+
+	public Instant getLastSeen()
+	{
+		return lastSeen;
+	}
+
+	public void updateLastSeen()
+	{
+		lastSeen = Instant.now();
 	}
 
 	public LocationId getVirtualPeerId()

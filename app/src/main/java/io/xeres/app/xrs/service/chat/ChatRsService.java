@@ -63,6 +63,7 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 // XXX: check if everything is thread safe (the lists are but are the operations ok?)
+// XXX: no they are not! remove the ConcurrentHashMap() and put synchronized, like in GxsIdManager
 @Component
 public class ChatRsService extends RsService
 {
@@ -91,6 +92,11 @@ public class ChatRsService extends RsService
 	 * When to refresh nearby chat rooms by asking peers.
 	 */
 	private static final Duration CHATROOM_NEARBY_REFRESH = Duration.ofMinutes(2);
+
+	/**
+	 * When to remove nearby chat rooms when no peers has them anymore.
+	 */
+	private static final Duration CHATROOM_NEARBY_TIMEOUT = Duration.ofMinutes(3);
 
 	/**
 	 * Time after which a keep alive packet is sent.
@@ -252,9 +258,23 @@ public class ChatRsService extends RsService
 			sendJoinEventIfNeeded(chatRoom);
 		});
 
-		// XXX: remove outdated rooms visible lobbies
+		removeUnseenRooms();
 
 		// XXX: add the rest of the handling...
+	}
+
+	/**
+	 * Removes rooms that haven't been seen for a while.
+	 */
+	private void removeUnseenRooms()
+	{
+		var now = Instant.now();
+		var sizeBeforeRemoval = availableChatRooms.size();
+		availableChatRooms.entrySet().removeIf(entry -> entry.getValue().getLastSeen().plus(CHATROOM_NEARBY_TIMEOUT).isBefore(now));
+		if (sizeBeforeRemoval != availableChatRooms.size())
+		{
+			refreshChatRoomsInClients();
+		}
 	}
 
 	private void askForNearbyChatRooms(PeerConnection peerConnection)
@@ -427,6 +447,7 @@ public class ChatRsService extends RsService
 
 	private void updateRooms(ChatRoom chatRoom)
 	{
+		chatRoom.updateLastSeen();
 		availableChatRooms.put(chatRoom.getId(), chatRoom);
 		chatRooms.replace(chatRoom.getId(), chatRoom);
 	}

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +51,7 @@ public class GxsIdManager
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsIdManager.class);
 
-	private final Map<Long, Set<GxsId>> pendingGxsIds = new ConcurrentHashMap<>();
+	private final Map<Long, Set<GxsId>> pendingGxsIds = new HashMap<>();
 
 	private static final Duration TIME_BETWEEN_REQUESTS = Duration.ofSeconds(5);
 
@@ -81,42 +82,46 @@ public class GxsIdManager
 		executorService.shutdownNow();
 	}
 
-	// XXX: not sure the synchronization will work... maybe needs synchronized...
 	public GxsIdGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)
 	{
-		return identityService.getGxsIdentity(gxsId).orElseGet(() -> {
-			var gxsIds = pendingGxsIds.get(peerConnection.getLocation().getId());
-			if (gxsIds != null)
-			{
-				gxsIds.add(gxsId);
-			}
-			else
-			{
-				Set<GxsId> set = ConcurrentHashMap.newKeySet();
-				set.add(gxsId);
-				pendingGxsIds.put(peerConnection.getLocation().getId(), set);
-			}
+		synchronized (pendingGxsIds)
+		{
+			return identityService.getGxsIdentity(gxsId).orElseGet(() -> {
+				var gxsIds = pendingGxsIds.get(peerConnection.getLocation().getId());
+				if (gxsIds != null)
+				{
+					gxsIds.add(gxsId);
+				}
+				else
+				{
+					Set<GxsId> set = ConcurrentHashMap.newKeySet();
+					set.add(gxsId);
+					pendingGxsIds.put(peerConnection.getLocation().getId(), set);
+				}
 
-			var set = pendingGxsIds.getOrDefault(peerConnection.getLocation().getId(), ConcurrentHashMap.newKeySet());
-			set.add(gxsId);
-			return null;
-		});
+				var set = pendingGxsIds.getOrDefault(peerConnection.getLocation().getId(), ConcurrentHashMap.newKeySet());
+				set.add(gxsId);
+				return null;
+			});
+		}
 	}
 
 	void requestGxsIds()
 	{
-		pendingGxsIds.forEach((locationId, gxsIds) -> {
-			var gxsIdsToGet = gxsIds.stream().limit(MAXIMUM_IDS_PER_LOCATION).toList();
-			var peerConnection = peerConnectionManager.getPeerByLocationId(locationId);
-			if (peerConnection != null)
-			{
-				gxsIdService.requestGxsGroups(peerConnection, gxsIdsToGet);
-				gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is  not there anymore, we should try to get it from other peers...
-				if (gxsIds.isEmpty())
+		synchronized (pendingGxsIds)
+		{
+			pendingGxsIds.forEach((locationId, gxsIds) -> {
+				var gxsIdsToGet = gxsIds.stream().limit(MAXIMUM_IDS_PER_LOCATION).toList();
+				var peerConnection = peerConnectionManager.getPeerByLocationId(locationId);
+				if (peerConnection != null)
 				{
-					pendingGxsIds.remove(locationId);
+					gxsIdService.requestGxsGroups(peerConnection, gxsIdsToGet);
+					gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is  not there anymore, we should try to get it from other peers...
 				}
-			}
-		});
+			});
+
+			// Remove all entries with empty sets
+			pendingGxsIds.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+		}
 	}
 }

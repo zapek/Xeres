@@ -72,7 +72,7 @@ public class JavaFxApplication extends Application
 		{
 			if (!isHeadless())
 			{
-				MinimalUserInterface.showError(e.getMessage());
+				MinimalUserInterface.showError(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			}
 			else
 			{

@@ -172,7 +172,8 @@ public class ChatListView
 			users.remove(chatRoomUser);
 			if (!event.isSplit())
 			{
-				addMessageLine(new ChatAction(TIMEOUT, chatRoomUser.nickname(), event.getGxsId()));
+				// XXX: only display this if the user said something 5-10 minutes ago, so that we know that the conversation is "dead". Displaying it all the time is too verbose
+				//addMessageLine(new ChatAction(TIMEOUT, chatRoomUser.nickname(), event.getGxsId()));
 			}
 		}
 	}

@@ -58,7 +58,9 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
@@ -251,15 +253,25 @@ public class ChatViewController implements Controller
 				.filter(roomInfo -> !isInside(subscribedTree, roomInfo))
 				.toList();
 
-		unsubscribedRooms.stream()
+		syncTreeWithChatRoomList(publicTree, unsubscribedRooms.stream()
 				.filter(roomInfo -> roomInfo.getRoomType() == RoomType.PUBLIC)
-				.sorted(Comparator.comparing(ChatRoomInfo::getName))
-				.forEach(roomInfo -> addOrUpdate(publicTree, roomInfo));
+				.toList());
 
-		unsubscribedRooms.stream()
+		syncTreeWithChatRoomList(privateTree, unsubscribedRooms.stream()
 				.filter(roomInfo -> roomInfo.getRoomType() == RoomType.PRIVATE)
+				.toList());
+	}
+
+	private void syncTreeWithChatRoomList(ObservableList<TreeItem<RoomHolder>> tree, List<ChatRoomInfo> list)
+	{
+		list.stream()
 				.sorted(Comparator.comparing(ChatRoomInfo::getName))
-				.forEach(roomInfo -> addOrUpdate(privateTree, roomInfo));
+				.forEach(chatRoomInfo -> addOrUpdate(tree, chatRoomInfo));
+
+		Set<Long> chatRoomIds = list.stream()
+				.map(ChatRoomInfo::getId)
+				.collect(Collectors.toSet());
+		tree.removeIf(roomHolderTreeItem -> !chatRoomIds.contains(roomHolderTreeItem.getValue().getRoomInfo().getId()));
 	}
 
 	public void roomJoined(long roomId)

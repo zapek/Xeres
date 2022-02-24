@@ -115,7 +115,7 @@ public class PeerClient
 
 	public ChannelFuture connect(PeerAddress peerAddress)
 	{
-		Objects.requireNonNull(group);
+		Objects.requireNonNull(group, "Event loop group is not setup");
 		return bootstrap.connect(peerAddress.getSocketAddress());
 	}
 }

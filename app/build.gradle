@@ -129,7 +129,7 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
     implementation "org.springdoc:springdoc-openapi-ui:$springOpenApiVersion"
-    implementation 'io.netty:netty-tcnative-boringssl-static:2.0.47.Final'
+    implementation 'io.netty:netty-tcnative-boringssl-static:2.0.48.Final'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

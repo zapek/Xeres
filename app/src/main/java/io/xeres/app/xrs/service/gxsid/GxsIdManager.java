@@ -87,20 +87,9 @@ public class GxsIdManager
 		synchronized (pendingGxsIds)
 		{
 			return identityService.getGxsIdentity(gxsId).orElseGet(() -> {
-				var gxsIds = pendingGxsIds.get(peerConnection.getLocation().getId());
-				if (gxsIds != null)
-				{
-					gxsIds.add(gxsId);
-				}
-				else
-				{
-					Set<GxsId> set = ConcurrentHashMap.newKeySet();
-					set.add(gxsId);
-					pendingGxsIds.put(peerConnection.getLocation().getId(), set);
-				}
-
-				var set = pendingGxsIds.getOrDefault(peerConnection.getLocation().getId(), ConcurrentHashMap.newKeySet());
-				set.add(gxsId);
+				var gxsIds = pendingGxsIds.getOrDefault(peerConnection.getLocation().getId(), ConcurrentHashMap.newKeySet());
+				gxsIds.add(gxsId);
+				pendingGxsIds.put(peerConnection.getLocation().getId(), gxsIds);
 				return null;
 			});
 		}

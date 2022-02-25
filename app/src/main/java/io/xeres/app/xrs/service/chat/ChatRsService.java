@@ -62,8 +62,6 @@ import static java.util.Map.entry;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
-// XXX: check if everything is thread safe (the lists are but are the operations ok?)
-// XXX: no they are not! remove the ConcurrentHashMap() and put synchronized, like in GxsIdManager
 @Component
 public class ChatRsService extends RsService
 {
@@ -269,9 +267,7 @@ public class ChatRsService extends RsService
 	private void removeUnseenRooms()
 	{
 		var now = Instant.now();
-		var sizeBeforeRemoval = availableChatRooms.size();
-		availableChatRooms.entrySet().removeIf(entry -> entry.getValue().getLastSeen().plus(CHATROOM_NEARBY_TIMEOUT).isBefore(now));
-		if (sizeBeforeRemoval != availableChatRooms.size())
+		if (availableChatRooms.entrySet().removeIf(entry -> entry.getValue().getLastSeen().plus(CHATROOM_NEARBY_TIMEOUT).isBefore(now)))
 		{
 			refreshChatRoomsInClients();
 		}

@@ -155,7 +155,7 @@ dependencies {
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation 'com.github.peter-gergely-horvath:windpapi4j:1.0'
     implementation 'net.harawata:appdirs:1.2.1'
-    implementation 'com.github.atomashpolskiy:bt-dht:1.9'
+    implementation 'com.github.atomashpolskiy:bt-dht:1.10'
     implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
     implementation "org.springdoc:springdoc-openapi-ui:$springOpenApiVersion"

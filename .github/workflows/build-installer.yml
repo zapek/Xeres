@@ -95,7 +95,7 @@ jobs:
     - name: Build
       uses: gradle/gradle-build-action@v2
       with:
-        arguments: bootJar
+        arguments: bootJar -Pall-arch
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:

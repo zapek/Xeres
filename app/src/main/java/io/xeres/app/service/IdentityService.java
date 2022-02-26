@@ -51,10 +51,7 @@ import java.math.BigInteger;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -181,6 +178,11 @@ public class IdentityService
 	public List<GxsIdGroupItem> getAllGxsIdentities()
 	{
 		return gxsIdRepository.findAll();
+	}
+
+	public List<GxsIdGroupItem> findAllGxsIdentities(Set<GxsId> gxsIds)
+	{
+		return gxsIdRepository.findAllByGxsIdIn(gxsIds);
 	}
 
 	public Optional<GxsIdGroupItem> getGxsIdentity(GxsId gxsId)

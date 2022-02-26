@@ -242,7 +242,14 @@ public final class Serializer
 		return IdentifierSerializer.serialize(buf, identifier.getClass(), identifier);
 	}
 
-	// XXX: ponder about removing the one above as this one handles null identifiers
+	/**
+	 * Serializes an identifier.
+	 *
+	 * @param buf             the buffer
+	 * @param identifier      the identifier, can be null
+	 * @param identifierClass the identifier class
+	 * @return the number of bytes taken
+	 */
 	public static int serialize(ByteBuf buf, Identifier identifier, Class<? extends Identifier> identifierClass)
 	{
 		return IdentifierSerializer.serialize(buf, identifierClass, identifier);

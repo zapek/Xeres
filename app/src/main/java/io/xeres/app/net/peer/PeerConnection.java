@@ -141,8 +141,8 @@ public class PeerConnection
 	public String toString()
 	{
 		return "PeerConnection{" +
-				"location=" + location +
-				", ip=" + (ctx != null ? ctx.channel().remoteAddress() : "<unknown>") +
+				location +
+				"@" + (ctx != null ? ctx.channel().remoteAddress() : "<unknown>") +
 				'}';
 	}
 }

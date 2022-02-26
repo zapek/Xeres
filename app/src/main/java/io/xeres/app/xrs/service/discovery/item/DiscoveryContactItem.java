@@ -103,7 +103,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		var size = 0;
 
 		size += serialize(buf, pgpIdentifier);
-		size += serialize(buf, locationId);
+		size += serialize(buf, locationId, LocationId.class);
 		size += serialize(buf, STR_LOCATION, locationName);
 		size += serialize(buf, STR_VERSION, version);
 		size += serialize(buf, netMode);

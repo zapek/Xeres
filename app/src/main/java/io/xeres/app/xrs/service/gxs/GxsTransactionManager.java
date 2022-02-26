@@ -125,11 +125,10 @@ public class GxsTransactionManager
 	 */
 	public void processIncomingTransaction(PeerConnection peerConnection, GxsTransactionItem item, GxsRsService gxsRsService)
 	{
-		log.debug("Processing transaction {}", item);
 		if (item.getFlags().contains(BEGIN_INCOMING))
 		{
 			//  This is an incoming connection
-			log.debug("Incoming transaction, sending back OUTGOING");
+			log.debug("Received INCOMING transaction {} from peer {}, sending back OUTGOING", item, peerConnection);
 			var transaction = new Transaction<>(item.getTransactionId(), new ArrayList<>(), item.getItemCount(), gxsRsService, Type.INCOMING);
 			addIncomingTransaction(peerConnection, transaction);
 
@@ -147,7 +146,7 @@ public class GxsTransactionManager
 		else if (item.getFlags().contains(BEGIN_OUTGOING))
 		{
 			// This is the confirmation by the peer of our outgoing connection
-			log.debug("Outgoing transaction, sending items...");
+			log.debug("Confirmation of OUTGOING transaction {} from peer {}, sending items...", item, peerConnection);
 			var transaction = getTransaction(peerConnection, item.getTransactionId(), Type.OUTGOING);
 			transaction.setState(State.SENDING);
 
@@ -160,7 +159,7 @@ public class GxsTransactionManager
 		else if (item.getFlags().contains(END_SUCCESS))
 		{
 			// The peer confirms success
-			log.debug("Got transaction success, removing the transaction");
+			log.debug("Got END_SUCCESS transaction {} from peer {}, removing the transaction", item, peerConnection);
 			var transaction = getTransaction(peerConnection, item.getTransactionId(), Type.OUTGOING);
 			transaction.setState(State.COMPLETED);
 			removeTransaction(peerConnection, transaction);
@@ -203,13 +202,11 @@ public class GxsTransactionManager
 
 	private void addOutgoingTransaction(PeerConnection peerConnection, Transaction<?> transaction)
 	{
-		log.debug("Adding outgoing transaction for {}", peerConnection);
 		addTransaction(peerConnection, transaction, outgoingTransactions);
 	}
 
 	private void addIncomingTransaction(PeerConnection peerConnection, Transaction<?> transaction)
 	{
-		log.debug("Adding incoming transaction for {}", peerConnection);
 		addTransaction(peerConnection, transaction, incomingTransactions);
 	}
 
@@ -261,7 +258,7 @@ public class GxsTransactionManager
 
 	private void startOutgoingTransaction(PeerConnection peerConnection, Transaction<? extends GxsExchange> transaction, Set<TransactionFlags> flags, Instant update)
 	{
-		log.debug("Sending transaction (id: {})", transaction.getId());
+		log.debug("Starting outgoing transaction {} with peer {}", transaction, peerConnection);
 		addOutgoingTransaction(peerConnection, transaction);
 
 		var startTransactionItem = new GxsTransactionItem(

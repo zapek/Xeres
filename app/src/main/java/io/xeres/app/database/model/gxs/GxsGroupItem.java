@@ -49,7 +49,6 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.EnumSet;
-import java.util.Objects;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.*;
@@ -389,7 +388,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		size += serialize(buf, API_VERSION_2); // current RS API
 		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end
-		size += serialize(buf, gxsId);
+		size += serialize(buf, gxsId, GxsId.class);
 		size += serialize(buf, originalGxsId, GxsId.class);
 		size += serialize(buf, parentId, GxsId.class);
 		size += serialize(buf, TlvType.STRING, name);
@@ -472,9 +471,11 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 
 	private SignatureSet createSignatureSet()
 	{
-		Objects.requireNonNull(getSignature());
 		var signatureSet = new SignatureSet();
-		signatureSet.put(SignatureSet.Type.ADMIN, new Signature(gxsId, getSignature()));
+		if (getSignature() != null)
+		{
+			signatureSet.put(SignatureSet.Type.ADMIN, new Signature(gxsId, getSignature()));
+		}
 		return signatureSet;
 	}
 
@@ -513,7 +514,11 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		var signatureSet = (SignatureSet) deserialize(buf, TlvType.SIGNATURE_SET);
 		if (signatureSet.getSignatures() != null)
 		{
-			signature = signatureSet.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).getData();
+			var sign = signatureSet.getSignatures().get(SignatureSet.Type.ADMIN.getValue());
+			if (sign != null)
+			{
+				signature = sign.getData();
+			}
 		}
 	}
 

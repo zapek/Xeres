@@ -135,7 +135,6 @@ public abstract class GxsRsService extends RsService
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		log.debug("Got item: {}", item);
 		if (item instanceof GxsExchange gxsExchangeItem)
 		{
 			if (gxsExchangeItem.getTransactionId() != 0)
@@ -164,7 +163,7 @@ public abstract class GxsRsService extends RsService
 
 	private void handleGxsSyncGroupRequestItem(PeerConnection peerConnection, GxsSyncGroupRequestItem item)
 	{
-		log.debug("Got sync request item: {} from peer {}", item, peerConnection);
+		log.debug("Got sync request item {} from peer {}", item, peerConnection);
 
 		var transactionId = getTransactionId(peerConnection);
 		var since = Instant.ofEpochSecond(item.getUpdateTimestamp());

@@ -110,7 +110,7 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at end
 
-		size += serialize(buf, profileHash);
+		size += serialize(buf, profileHash, Sha1Sum.class);
 		size += serialize(buf, TlvType.STR_SIGN, profileSignature);
 		size += serialize(buf, TlvType.SET_RECOGN, recognitionTags);
 

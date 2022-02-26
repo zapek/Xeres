@@ -128,4 +128,15 @@ public class Transaction<T extends GxsExchange>
 	{
 		return start.plus(timeout).isBefore(Instant.now());
 	}
+
+	@Override
+	public String toString()
+	{
+		return "Transaction{" +
+				"id=" + id +
+				", state=" + state +
+				", type=" + type +
+				", itemCount=" + itemCount +
+				'}';
+	}
 }

@@ -45,12 +45,12 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
 		assertEquals(4, size);
 		assertEquals(input, buf.getInt(0));
 
-		int result = Serializer.deserializeInt(buf);
+		var result = Serializer.deserializeInt(buf);
 		assertEquals(input, result);
 		buf.release();
 	}
@@ -70,12 +70,12 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
 		assertEquals(2, size);
 		assertEquals(input, buf.getShort(0));
 
-		short result = Serializer.deserializeShort(buf);
+		var result = Serializer.deserializeShort(buf);
 		assertEquals(input, result);
 		buf.release();
 	}
@@ -95,12 +95,12 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
 		assertEquals(1, size);
 		assertEquals(input, buf.getByte(0));
 
-		byte result = Serializer.deserializeByte(buf);
+		var result = Serializer.deserializeByte(buf);
 		assertEquals(input, result);
 		buf.release();
 	}
@@ -120,12 +120,12 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
 		assertEquals(8, size);
 		assertEquals(input, buf.getLong(0));
 
-		long result = Serializer.deserializeLong(buf);
+		var result = Serializer.deserializeLong(buf);
 		assertEquals(input, result);
 		buf.release();
 	}
@@ -145,12 +145,12 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
 		assertEquals(4, size);
 		assertEquals(input, buf.getFloat(0));
 
-		float result = Serializer.deserializeFloat(buf);
+		var result = Serializer.deserializeFloat(buf);
 		assertEquals(input, result);
 		buf.release();
 	}
@@ -170,12 +170,12 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
 		assertEquals(8, size);
 		assertEquals(input, buf.getDouble(0));
 
-		double result = Serializer.deserializeDouble(buf);
+		var result = Serializer.deserializeDouble(buf);
 		assertEquals(input, result);
 		buf.release();
 	}
@@ -195,12 +195,12 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
 		assertEquals(1, size);
 		assertEquals(input, buf.getBoolean(0));
 
-		boolean result = Serializer.deserializeBoolean(buf);
+		var result = Serializer.deserializeBoolean(buf);
 		assertEquals(input, result);
 		buf.release();
 	}
@@ -220,16 +220,16 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
-		byte[] stringBytes = input.getBytes();
+		var stringBytes = input.getBytes();
 
 		assertEquals(stringBytes.length + 4, size);
-		byte[] output = new byte[stringBytes.length];
+		var output = new byte[stringBytes.length];
 		buf.getBytes(4, output);
 		assertArrayEquals(stringBytes, output);
 
-		String result = Serializer.deserializeString(buf);
+		var result = Serializer.deserializeString(buf);
 		assertEquals(input, result);
 		buf.release();
 	}
@@ -239,7 +239,7 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, (String) null);
+		var size = Serializer.serialize(buf, (String) null);
 		assertEquals(4, size);
 		buf.release();
 	}
@@ -251,10 +251,10 @@ class SerializerTest
 
 		var input = new byte[]{1, 2, 3};
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 
 		assertEquals(4 + input.length, size);
-		byte[] output = new byte[input.length];
+		var output = new byte[input.length];
 		buf.getBytes(4, output);
 		assertArrayEquals(input, output);
 
@@ -268,7 +268,7 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, (byte[]) null);
+		var size = Serializer.serialize(buf, (byte[]) null);
 		assertEquals(4, size);
 		buf.release();
 	}
@@ -280,10 +280,10 @@ class SerializerTest
 
 		var input = LocationFakes.createLocation().getLocationId();
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input, LocationId.class);
 
 		assertEquals(input.getLength(), size);
-		byte[] output = new byte[input.getLength()];
+		var output = new byte[input.getLength()];
 		buf.getBytes(0, output);
 		assertArrayEquals(input.getBytes(), output);
 
@@ -298,7 +298,7 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = IdentifierSerializer.serialize(buf, GxsId.class, null);
+		var size = IdentifierSerializer.serialize(buf, GxsId.class, null);
 		assertEquals(GxsId.LENGTH, size);
 
 		var result = (GxsId) Serializer.deserialize(buf, GxsId.class);
@@ -313,7 +313,7 @@ class SerializerTest
 
 		var input = List.of("hello", "dude");
 
-		int size = Serializer.serialize(buf, input.getClass(), input, null);
+		var size = Serializer.serialize(buf, input.getClass(), input, null);
 
 		var listObject = new SerialList();
 		var result = Serializer.deserializeAnnotatedFields(buf, listObject);
@@ -332,7 +332,7 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, List.class, null, null);
+		var size = Serializer.serialize(buf, List.class, null, null);
 		assertEquals(4, size);
 
 		buf.release();
@@ -345,7 +345,7 @@ class SerializerTest
 
 		var input = Map.of(1, "foo", 2, "barbaz");
 
-		int size = Serializer.serialize(buf, input.getClass(), input, null);
+		var size = Serializer.serialize(buf, input.getClass(), input, null);
 
 		var mapObject = new SerialMap();
 		var result = Serializer.deserializeAnnotatedFields(buf, mapObject);
@@ -363,7 +363,7 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		int size = Serializer.serialize(buf, Map.class, null, null);
+		var size = Serializer.serialize(buf, Map.class, null, null);
 		assertEquals(6, size);
 
 		buf.release();
@@ -376,7 +376,7 @@ class SerializerTest
 
 		var input = SerialEnum.TWO;
 
-		int size = Serializer.serialize(buf, input);
+		var size = Serializer.serialize(buf, input);
 		assertEquals(4, size);
 		assertEquals(1, buf.getInt(0));
 
@@ -402,7 +402,7 @@ class SerializerTest
 
 		var input = EnumSet.of(SerialEnum.TWO, SerialEnum.FOUR);
 
-		int size = Serializer.serialize(buf, input, FieldSize.INTEGER);
+		var size = Serializer.serialize(buf, input, FieldSize.INTEGER);
 		assertEquals(4, size);
 		assertEquals(1 << 1 | 1 << 3, buf.getInt(0));
 
@@ -428,7 +428,7 @@ class SerializerTest
 
 		var input = "foobar";
 
-		int size = Serializer.serialize(buf, TlvType.STR_NAME, input);
+		var size = Serializer.serialize(buf, TlvType.STR_NAME, input);
 		assertEquals(6 + input.getBytes().length, size);
 
 		var result = Serializer.deserialize(buf, TlvType.STR_NAME);
@@ -445,7 +445,7 @@ class SerializerTest
 
 		var input = new Signature(new GxsId(RandomUtils.nextBytes(16)), key);
 
-		int size = Serializer.serialize(buf, TlvType.SIGNATURE, input);
+		var size = Serializer.serialize(buf, TlvType.SIGNATURE, input);
 		assertEquals(6 + 6 + 38 + key.length, size);
 
 		var result = (Signature) Serializer.deserialize(buf, TlvType.SIGNATURE);
@@ -465,7 +465,7 @@ class SerializerTest
 		var keySignature = new Signature(gxsId, signature);
 		input.put(SignatureSet.Type.ADMIN, new Signature(gxsId, signature));
 
-		int size = Serializer.serialize(buf, TlvType.SIGNATURE_SET, input);
+		var size = Serializer.serialize(buf, TlvType.SIGNATURE_SET, input);
 		assertEquals(TLV_HEADER_SIZE + TLV_HEADER_SIZE + 4 + TLV_HEADER_SIZE + TLV_HEADER_SIZE + GxsId.LENGTH * 2 + TLV_HEADER_SIZE + signature.length, size);
 
 		var result = (SignatureSet) Serializer.deserialize(buf, TlvType.SIGNATURE_SET);
@@ -521,10 +521,10 @@ class SerializerTest
 
 		input.setTlvName("foobar");
 
-		int size = Serializer.serialize(buf, input.getClass(), input, null);
+		var size = Serializer.serialize(buf, input.getClass(), input, null);
 		assertTrue(size > 0);
 
-		SerialAll result = (SerialAll) Serializer.deserialize(buf, SerialAll.class);
+		var result = (SerialAll) Serializer.deserialize(buf, SerialAll.class);
 
 		assertEquals(input.getIntPrimitiveField(), result.getIntPrimitiveField());
 		assertEquals(input.getIntegerField(), result.getIntegerField());

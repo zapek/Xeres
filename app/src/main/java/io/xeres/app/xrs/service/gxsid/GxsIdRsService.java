@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 @Component
@@ -135,20 +136,11 @@ public class GxsIdRsService extends GxsRsService
 		if (items.get(0) instanceof GxsSyncGroupItem)
 		{
 			@SuppressWarnings("unchecked")
-			var gxsIds = ((List<GxsSyncGroupItem>) items).stream().map(GxsSyncGroupItem::getGroupId).toList();
-			log.debug("Peer wants the following gxs ids: {} ...", gxsIds.stream().limit(10).toList());
-			// XXX: for now we just send back our own identity. we should ideally just send back the identities that we have that match the request (there can be more than 1 of course)
-			try (var session = new DatabaseSession(databaseSessionManager))
+			var gxsIds = ((List<GxsSyncGroupItem>) items).stream().map(GxsSyncGroupItem::getGroupId).collect(toSet());
+			log.debug("Peer wants the following gxs ids (total: {}): {} ...", gxsIds.size(), gxsIds.stream().limit(10).toList());
+			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{
-				var ownIdentity = identityService.getOwnIdentity();
-				if (gxsIds.size() == 1 && gxsIds.get(0).equals(ownIdentity.getGxsIdGroupItem().getGxsId()))
-				{
-					sendGxsGroups(peerConnection, List.of(ownIdentity.getGxsIdGroupItem()));
-				}
-				else
-				{
-					// Requested an ID that we don't have
-				}
+				sendGxsGroups(peerConnection, identityService.findAllGxsIdentities(gxsIds));
 			}
 		}
 		else if (items.get(0) instanceof GxsTransferGroupItem)
@@ -180,12 +172,12 @@ public class GxsIdRsService extends GxsRsService
 		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}
 
-	public void sendGxsGroups(PeerConnection peerConnection, List<GxsGroupItem> gxsGroupItems)
+	public void sendGxsGroups(PeerConnection peerConnection, List<? extends GxsGroupItem> gxsGroupItems)
 	{
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();
 		gxsGroupItems.forEach(gxsGroupItem -> {
-			signGroup(gxsGroupItem);
+			signGroupIfNeeded(gxsGroupItem);
 			var groupBuf = Unpooled.buffer(); // XXX: size... well, it autogrows
 			gxsGroupItem.writeObject(groupBuf, EnumSet.of(SerializationFlags.SUBCLASS_ONLY));
 			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
@@ -212,11 +204,14 @@ public class GxsIdRsService extends GxsRsService
 		return out;
 	}
 
-	private static void signGroup(GxsGroupItem gxsGroupItem)
+	private static void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
 	{
-		var data = serializeItemForSignature(gxsGroupItem);
-		var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
-		gxsGroupItem.setSignature(signature);
+		if (gxsGroupItem.getAdminPrivateKey() != null)
+		{
+			var data = serializeItemForSignature(gxsGroupItem);
+			var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
+			gxsGroupItem.setSignature(signature);
+		}
 	}
 
 	private static byte[] serializeItemForSignature(Item item)

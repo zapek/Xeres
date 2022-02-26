@@ -103,8 +103,8 @@ public final class UdpDiscoveryProtocol
 		buffer.put((byte) 0);
 
 		var buf = Unpooled.buffer();
-		Serializer.serialize(buf, fingerprint);
-		Serializer.serialize(buf, locationId);
+		Serializer.serialize(buf, fingerprint, ProfileFingerprint.class);
+		Serializer.serialize(buf, locationId, LocationId.class);
 		Serializer.serialize(buf, (short) localPort);
 		Serializer.serialize(buf, profileName);
 

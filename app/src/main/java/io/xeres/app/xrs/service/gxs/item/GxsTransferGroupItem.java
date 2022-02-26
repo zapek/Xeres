@@ -78,7 +78,7 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 	{
 		var size = Serializer.serialize(buf, getTransactionId());
 		size += Serializer.serialize(buf, position);
-		size += Serializer.serialize(buf, groupId);
+		size += Serializer.serialize(buf, groupId, GxsId.class);
 		size += Serializer.serializeTlvBinary(buf, getService().getServiceType().getType(), group);
 		size += Serializer.serializeTlvBinary(buf, getService().getServiceType().getType(), meta);
 		return size;

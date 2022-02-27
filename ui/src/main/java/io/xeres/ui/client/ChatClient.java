@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
+import io.xeres.common.dto.chat.ChatRoomVisibility;
 import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.ui.JavaFxApplication;
@@ -52,9 +53,9 @@ public class ChatClient
 				.build();
 	}
 
-	public Mono<Void> createChatRoom(String name, String topic)
+	public Mono<Void> createChatRoom(String name, String topic, ChatRoomVisibility visibility, boolean signedIdentities)
 	{
-		var request = new CreateChatRoomRequest(name, topic);
+		var request = new CreateChatRoomRequest(name, topic, visibility, signedIdentities);
 
 		return webClient.post()
 				.uri("/rooms")

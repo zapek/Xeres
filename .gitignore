@@ -1,6 +1,4 @@
-/data/
-/data-ui/
-/data2/
+/data*/
 /.idea/
 /.gradle/
 ./jpb/

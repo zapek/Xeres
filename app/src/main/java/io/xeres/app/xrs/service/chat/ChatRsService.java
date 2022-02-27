@@ -975,15 +975,15 @@ public class ChatRsService extends RsService
 		sendUserEventToClient(chatRoomToRemove.getId(), CHAT_ROOM_LEAVE);
 	}
 
-	public long createChatRoom(String roomName, String topic, GxsId identity, Set<RoomFlags> flags)
+	public long createChatRoom(String roomName, String topic, GxsId identity, Set<RoomFlags> flags, boolean signedIdentities)
 	{
 		var newChatRoom = new ChatRoom(
 				createUniqueRoomId(),
 				roomName,
 				topic,
-				RoomType.PUBLIC, // XXX: for now
+				flags.contains(RoomFlags.PUBLIC) ? RoomType.PUBLIC : RoomType.PRIVATE,
 				1,
-				false); // XXX: for now
+				signedIdentities);
 
 		availableChatRooms.put(newChatRoom.getId(), newChatRoom);
 

@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
+import io.xeres.common.dto.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,7 +59,11 @@ public class ChatController
 	@ApiResponse(responseCode = "201", description = "Room created successfully", headers = @Header(name = "Room", description = "The location of the created room", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createChatRoom(@Valid @RequestBody CreateChatRoomRequest createChatRoomRequest)
 	{
-		var id = chatRsService.createChatRoom(createChatRoomRequest.name(), createChatRoomRequest.topic(), null, EnumSet.of(RoomFlags.PUBLIC)); // XXX: fix arguments
+		var id = chatRsService.createChatRoom(createChatRoomRequest.name(),
+				createChatRoomRequest.topic(),
+				null,
+				createChatRoomRequest.visibility() == ChatRoomVisibility.PUBLIC ? EnumSet.of(RoomFlags.PUBLIC) : EnumSet.noneOf(RoomFlags.class),
+				createChatRoomRequest.signedIdentities());
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath("/rooms/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,23 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.chat;
+package io.xeres.common.dto.chat;
 
-import io.xeres.common.dto.chat.ChatRoomVisibility;
-
-import javax.validation.constraints.NotNull;
-
-public record CreateChatRoomRequest(
-		@NotNull
-		String name,
-
-		@NotNull
-		String topic,
-
-		@NotNull
-		ChatRoomVisibility visibility,
-
-		boolean signedIdentities
-)
+public enum ChatRoomVisibility
 {
+	PUBLIC,
+	PRIVATE;
+
+	public static ChatRoomVisibility fromSelection(int index)
+	{
+		return ChatRoomVisibility.values()[index];
+	}
 }

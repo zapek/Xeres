@@ -19,13 +19,14 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.dto.chat.ChatRoomVisibility;
 import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +46,12 @@ public class ChatRoomCreationWindowController implements WindowController
 	@FXML
 	private TextField topic;
 
+	@FXML
+	private ChoiceBox<String> visibility;
+
+	@FXML
+	private CheckBox security;
+
 	private final ChatClient chatClient;
 
 	public ChatRoomCreationWindowController(ChatClient chatClient)
@@ -58,7 +65,16 @@ public class ChatRoomCreationWindowController implements WindowController
 		roomName.textProperty().addListener(observable -> createButton.setDisable(roomName.getText().isBlank()));
 		topic.textProperty().addListener(observable -> createButton.setDisable(topic.getText().isBlank()));
 
-		createButton.setOnAction(event -> chatClient.createChatRoom(roomName.getText(), topic.getText())
+		visibility.setItems(FXCollections.observableArrayList("Public", "Private"));
+		visibility.getSelectionModel().select(0);
+		visibility.setTooltip(new Tooltip("Public rooms are visible by peers.\nPrivate rooms aren't and work on invitation only."));
+
+		security.setTooltip(new Tooltip("A room restricted to signed identities is more resistant to spam because anonymous identities cannot join."));
+
+		createButton.setOnAction(event -> chatClient.createChatRoom(roomName.getText(),
+						topic.getText(),
+						ChatRoomVisibility.fromSelection(visibility.getSelectionModel().getSelectedIndex()),
+						security.isSelected())
 				.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(roomName)))
 				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);

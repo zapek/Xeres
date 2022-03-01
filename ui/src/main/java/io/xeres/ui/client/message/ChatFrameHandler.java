@@ -69,7 +69,8 @@ public class ChatFrameHandler implements StompFrameHandler
 					case CHAT_ROOM_LIST -> ChatRoomLists.class;
 					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
 					case CHAT_ROOM_USER_TIMEOUT -> ChatRoomTimeoutEvent.class;
-					default -> throw new IllegalArgumentException("Missing class for message type " + messageType);
+					case CHAT_ROOM_INVITE -> ChatRoomInviteEvent.class;
+					default -> throw new IllegalArgumentException("Missing class for message type " + messageType); // XXX: add broadcast handling and remove 'default'
 				};
 	}
 
@@ -89,6 +90,7 @@ public class ChatFrameHandler implements StompFrameHandler
 						case CHAT_ROOM_USER_LEAVE -> chatViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_TIMEOUT -> chatViewController.userTimeout(getRoomId(headers), (ChatRoomTimeoutEvent) payload);
+						case CHAT_ROOM_INVITE -> chatViewController.openInvite(getRoomId(headers), (ChatRoomInviteEvent) payload);
 						default -> log.error("Missing handling of {}", messageType);
 					}
 				}

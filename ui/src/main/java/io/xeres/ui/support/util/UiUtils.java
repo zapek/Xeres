@@ -24,10 +24,7 @@ import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -139,6 +136,17 @@ public final class UiUtils
 		errorAlert.setHeaderText(header);
 		errorAlert.setContentText(message);
 		errorAlert.showAndWait();
+	}
+
+	public static void showAlertInfoConfirm(String title, String header, String message, Runnable runnable)
+	{
+		var alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle(title);
+		alert.setHeaderText(header);
+		alert.setContentText(message);
+		alert.showAndWait()
+				.filter(response -> response == ButtonType.OK)
+				.ifPresent(response -> runnable.run());
 	}
 
 	public static void setDefaultIcon(Stage stage)

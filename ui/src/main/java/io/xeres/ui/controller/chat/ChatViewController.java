@@ -31,6 +31,7 @@ import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
 import io.xeres.ui.support.util.ImageUtils;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -58,7 +59,6 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -268,7 +268,7 @@ public class ChatViewController implements Controller
 				.sorted(Comparator.comparing(ChatRoomInfo::getName))
 				.forEach(chatRoomInfo -> addOrUpdate(tree, chatRoomInfo));
 
-		Set<Long> chatRoomIds = list.stream()
+		var chatRoomIds = list.stream()
 				.map(ChatRoomInfo::getId)
 				.collect(Collectors.toSet());
 		tree.removeIf(roomHolderTreeItem -> !chatRoomIds.contains(roomHolderTreeItem.getValue().getRoomInfo().getId()));
@@ -626,5 +626,14 @@ public class ChatViewController implements Controller
 		redo.disableProperty().bind(canRedo);
 
 		return List.of(undo, redo, cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
+	}
+
+	public void openInvite(long chatRoomId, ChatRoomInviteEvent event)
+	{
+		Platform.runLater(() -> UiUtils.showAlertInfoConfirm("Chat Room Invitation",
+				"Chat Room Invitation",
+				event.getLocationId() + " wants to invite you to " + event.getRoomName() + "(" + event.getRoomTopic() + ")",
+				() -> chatClient.joinChatRoom(chatRoomId).subscribe())
+		);
 	}
 }

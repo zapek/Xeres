@@ -557,6 +557,13 @@ public class ChatRsService extends RsService
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomMessage);
 	}
 
+	private void sendInviteToClient(LocationId locationId, long roomId, String roomName, String roomTopic)
+	{
+		// XXX: use a private list to make sure we don't show 2 requesters...
+		var chatRoomInvite = new ChatRoomInviteEvent(locationId.toString(), roomName, roomTopic);
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_ROOM_INVITE, roomId, chatRoomInvite);
+	}
+
 	private boolean validateAndBounceItem(PeerConnection peerConnection, ChatRoomBounce item)
 	{
 		if (!chatRooms.containsKey(item.getRoomId()))
@@ -629,8 +636,8 @@ public class ChatRsService extends RsService
 		{
 			if (!item.isConnectionChallenge())
 			{
-				// XXX: prompt the user for a lobby invite, store it somewhere if it's accepted to be able to join
-				log.debug("Is a lobby invite to join a new room");
+				log.debug("Chat room invite, prompting user...");
+				sendInviteToClient(peerConnection.getLocation().getLocationId(), item.getRoomId(), item.getRoomName(), item.getRoomTopic());
 			}
 		}
 	}

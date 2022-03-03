@@ -609,10 +609,7 @@ public class ChatRsService extends RsService
 	private void handleChatRoomInviteOldItem(PeerConnection peerConnection, ChatRoomInviteOldItem item)
 	{
 		log.debug("Received deprecated invite from {}: {}", peerConnection, item);
-
-		var newItem = new ChatRoomInviteItem(item.getRoomId(), item.getRoomName(), "", item.getRoomFlags());
-
-		handleChatRoomInviteItem(peerConnection, newItem);
+		// We do nothing because current RS sends that event for compatibility
 	}
 
 	private void handleChatRoomInviteItem(PeerConnection peerConnection, ChatRoomInviteItem item)

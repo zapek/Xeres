@@ -277,14 +277,8 @@ public class ChatViewController implements Controller
 	public void roomJoined(long roomId)
 	{
 		// Must be idempotent
-		publicRooms.getChildren().stream()
-				.filter(roomInfoTreeItem -> roomInfoTreeItem.getValue().getRoomInfo().getId() == roomId)
-				.findFirst()
-				.ifPresent(roomHolderTreeItem -> {
-					publicRooms.getChildren().remove(roomHolderTreeItem);
-					subscribedRooms.getChildren().add(roomHolderTreeItem);
-				});
-		// XXX: also do it for private
+		moveRoom(roomId, publicRooms, subscribedRooms);
+		moveRoom(roomId, privateRooms, subscribedRooms);
 	}
 
 	public void roomLeft(long roomId)
@@ -295,10 +289,27 @@ public class ChatViewController implements Controller
 				.findFirst()
 				.ifPresent(roomHolderTreeItem -> {
 					subscribedRooms.getChildren().remove(roomHolderTreeItem);
-					publicRooms.getChildren().add(roomHolderTreeItem); // XXX: could be public too...
+					if (roomHolderTreeItem.getValue().getRoomInfo().getRoomType() == RoomType.PRIVATE)
+					{
+						privateRooms.getChildren().add(roomHolderTreeItem);
+					}
+					else
+					{
+						publicRooms.getChildren().add(roomHolderTreeItem);
+					}
 					roomHolderTreeItem.getValue().clearChatListView();
 				});
-		// XXX: remove ourselves from the room
+	}
+
+	private static void moveRoom(long roomId, TreeItem<RoomHolder> from, TreeItem<RoomHolder> to)
+	{
+		from.getChildren().stream()
+				.filter(roomInfoTreeItem -> roomInfoTreeItem.getValue().getRoomInfo().getId() == roomId)
+				.findFirst()
+				.ifPresent(roomHolderTreeItem -> {
+					from.getChildren().remove(roomHolderTreeItem);
+					to.getChildren().add(roomHolderTreeItem);
+				});
 	}
 
 	public void userJoined(long roomId, ChatRoomUserEvent event)
@@ -366,7 +377,6 @@ public class ChatViewController implements Controller
 		typingNotification.setText("");
 	}
 
-	// XXX: also we should merge/refresh... (ie. new rooms added, older rooms removed, etc...). merging properly is very difficult it seems
 	// right now I use a simple implementation. It also has a drawback that it doesn't sort new entries and doesn't update the counter
 	private void addOrUpdate(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
 	{

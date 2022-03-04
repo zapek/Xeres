@@ -69,6 +69,7 @@ public class ChatRsService extends RsService
 
 	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
+	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
 
 	/**
 	 * Time between housekeeping runs to clean up the message cache and so on.
@@ -624,7 +625,6 @@ public class ChatRsService extends RsService
 				log.debug("Not a matching item");
 				return;
 			}
-
 			log.debug("Adding peer {} to chat room {}", peerConnection, chatRoom);
 
 			chatRoom.addParticipatingLocation(peerConnection.getLocation());
@@ -634,6 +634,17 @@ public class ChatRsService extends RsService
 			if (!item.isConnectionChallenge())
 			{
 				log.debug("Chat room invite, prompting user...");
+
+				var invitedChatRoom = new ChatRoom(
+						item.getRoomId(),
+						item.getRoomName(),
+						item.getRoomTopic(),
+						item.isPublic() ? RoomType.PUBLIC : RoomType.PRIVATE,
+						1,
+						item.isSigned());
+
+				invitedChatRooms.put(invitedChatRoom.getId(), invitedChatRoom);
+
 				sendInviteToClient(peerConnection.getLocation().getLocationId(), item.getRoomId(), item.getRoomName(), item.getRoomTopic());
 			}
 		}
@@ -929,7 +940,7 @@ public class ChatRsService extends RsService
 			return;
 		}
 
-		var chatRoom = availableChatRooms.get(chatRoomId);
+		var chatRoom = getAvailableChatRoom(chatRoomId);
 		if (chatRoom == null)
 		{
 			log.warn("Chatroom {} doesn't exist, can't join.", log.isWarnEnabled() ? Id.toStringLowerCase(chatRoomId) : null);
@@ -953,6 +964,16 @@ public class ChatRsService extends RsService
 			// Add ourselves in the UI so that we're shown as joining
 			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
 		}
+	}
+
+	private ChatRoom getAvailableChatRoom(long chatRoomId)
+	{
+		var chatRoom = availableChatRooms.get(chatRoomId);
+		if (chatRoom == null)
+		{
+			chatRoom = invitedChatRooms.remove(chatRoomId);
+		}
+		return chatRoom;
 	}
 
 	/**

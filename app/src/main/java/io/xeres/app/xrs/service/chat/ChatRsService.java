@@ -258,8 +258,6 @@ public class ChatRsService extends RsService
 		});
 
 		removeUnseenRooms();
-
-		// XXX: add the rest of the handling...
 	}
 
 	/**
@@ -274,12 +272,22 @@ public class ChatRsService extends RsService
 		}
 	}
 
+	/**
+	 * Asks a peer for the list of chat rooms he's subscribed to.
+	 *
+	 * @param peerConnection the peer
+	 */
 	private void askForNearbyChatRooms(PeerConnection peerConnection)
 	{
 		log.debug("Asking for nearby chat rooms...");
 		writeItem(peerConnection, new ChatRoomListRequestItem());
 	}
 
+	/**
+	 * Sends a keep alive event to the room. Allows other users to know we're in it.
+	 *
+	 * @param chatRoom the chat room
+	 */
 	private void sendKeepAliveIfNeeded(ChatRoom chatRoom)
 	{
 		var now = Instant.now();
@@ -292,6 +300,11 @@ public class ChatRsService extends RsService
 		}
 	}
 
+	/**
+	 * Sends a connection challenge. Can be used to know if the peer is relaying a private room.
+	 *
+	 * @param chatRoom the chat room
+	 */
 	private void sendConnectionChallengeIfNeeded(ChatRoom chatRoom)
 	{
 		if (chatRoom.getConnectionChallengeCountAndIncrease() > CONNECTION_CHALLENGE_COUNT_MIN &&
@@ -312,6 +325,11 @@ public class ChatRsService extends RsService
 		}
 	}
 
+	/**
+	 * Sends a join event so others can know we joined the chat room.
+	 *
+	 * @param chatRoom the chat room
+	 */
 	private void sendJoinEventIfNeeded(ChatRoom chatRoom)
 	{
 		if (!chatRoom.isJoinedRoomPacketSent() && isNotEmpty(chatRoom.getParticipatingLocations()))
@@ -322,7 +340,7 @@ public class ChatRsService extends RsService
 	}
 
 	/**
-	 * Subscribe to all rooms that are saved in the database.
+	 * Subscribes to all rooms that are saved in the database.
 	 */
 	private void subscribeToAllSavedRooms()
 	{
@@ -349,7 +367,12 @@ public class ChatRsService extends RsService
 
 		chatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addSubscribed(chatRoom.getAsRoomInfo()));
 		availableChatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addAvailable(chatRoom.getAsRoomInfo()));
-		invitedChatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addAvailable(chatRoom.getAsRoomInfo()));
+		invitedChatRooms.forEach((aLong, chatRoom) -> {
+			if (chatRoom.isPrivate()) // Public rooms can be invited too
+			{
+				chatRoomLists.addAvailable(chatRoom.getAsRoomInfo());
+			}
+		});
 
 		return chatRoomLists;
 	}
@@ -408,6 +431,12 @@ public class ChatRsService extends RsService
 		}
 	}
 
+	/**
+	 * Handles the reception of the list of chat room the peer is subscribed to.
+	 *
+	 * @param peerConnection the peer
+	 * @param item           the ChatRoomListItem
+	 */
 	private void handleChatRoomListItem(PeerConnection peerConnection, ChatRoomListItem item)
 	{
 		log.debug("Received chat room list from {}: {}", peerConnection, item);
@@ -459,7 +488,7 @@ public class ChatRsService extends RsService
 	{
 		var chatRoomListItem = new ChatRoomListItem(chatRooms.values().stream()
 				.filter(chatRoom -> chatRoom.isPublic()
-						|| chatRoom.getPreviouslyKnownLocations().contains(peerConnection.getLocation().getLocationId())
+						|| chatRoom.isPreviouslyKnownLocation(peerConnection.getLocation())
 						|| chatRoom.getParticipatingLocations().contains(peerConnection.getLocation()))
 				.map(ChatRoom::getAsVisibleChatRoomInfo)
 				.toList());
@@ -490,7 +519,7 @@ public class ChatRsService extends RsService
 		chatRoom.userActivity(user);
 		sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_MESSAGE, user, item.getSenderNickname(), parseIncomingText(item.getMessage()));
 
-		chatRoom.incrementConnectionChallengeCount(); // XXX: this allows to find out when to send challenges. do that (where?)
+		chatRoom.incrementConnectionChallengeCount();
 	}
 
 	private void handleChatRoomEventItem(PeerConnection peerConnection, ChatRoomEventItem item)
@@ -506,8 +535,6 @@ public class ChatRsService extends RsService
 		{
 			return;
 		}
-
-		// XXX: addTimeShiftStatistics()... why isn't this done for messages as well? it just displays a warning anyway (and it's disabled in RS so it does nothing)
 
 		// XXX: add routing clue
 		var chatRoom = chatRooms.get(item.getRoomId());
@@ -561,7 +588,10 @@ public class ChatRsService extends RsService
 
 	private void sendInviteToClient(LocationId locationId, long roomId, String roomName, String roomTopic)
 	{
-		// XXX: use a private list to make sure we don't show 2 requesters...
+		if (invitedChatRooms.containsKey(roomId))
+		{
+			return; // Don't show multiple requesters
+		}
 		var chatRoomInvite = new ChatRoomInviteEvent(locationId.toString(), roomName, roomTopic);
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_ROOM_INVITE, roomId, chatRoomInvite);
 	}
@@ -588,8 +618,6 @@ public class ChatRsService extends RsService
 
 		// XXX: add routing clue (ie. best peer for channel)
 
-		// XXX: check if it's for signed lobby. need to get the key and check it
-
 		return bounce(peerConnection, item);
 	}
 
@@ -604,8 +632,7 @@ public class ChatRsService extends RsService
 		}
 
 		chatRoom.removeParticipatingLocation(peerConnection.getLocation());
-
-		// XXX: RS has some "previously_known_peers"... see if it's useful
+		chatRoom.recordPreviouslyKnownLocation(peerConnection.getLocation());
 	}
 
 	private void handleChatRoomInviteOldItem(PeerConnection peerConnection, ChatRoomInviteOldItem item)

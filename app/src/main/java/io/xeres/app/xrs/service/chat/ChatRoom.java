@@ -85,7 +85,7 @@ public class ChatRoom
 				name,
 				type,
 				topic,
-				userCount, // XXX: use a getUserCount() which choses what to get
+				getUserCount(),
 				signed
 		);
 	}
@@ -101,9 +101,14 @@ public class ChatRoom
 				id,
 				name,
 				topic,
-				userCount, // XXX: ditto
+				getUserCount(),
 				getRoomFlags()
 		);
+	}
+
+	private int getUserCount()
+	{
+		return users.isEmpty() ? userCount : users.size();
 	}
 
 	public long getId()
@@ -134,6 +139,16 @@ public class ChatRoom
 	public void removeParticipatingLocation(Location location)
 	{
 		participatingLocations.remove(location);
+	}
+
+	public void recordPreviouslyKnownLocation(Location location)
+	{
+		previouslyKnownLocations.add(location.getLocationId());
+	}
+
+	public boolean isPreviouslyKnownLocation(Location location)
+	{
+		return previouslyKnownLocations.contains(location.getLocationId());
 	}
 
 	public void setOwnGxsId(GxsId gxsId)
@@ -244,14 +259,14 @@ public class ChatRoom
 		return lastKeepAlivePacket;
 	}
 
-	public Set<LocationId> getPreviouslyKnownLocations()
-	{
-		return previouslyKnownLocations;
-	}
-
 	public boolean isPublic()
 	{
 		return type == RoomType.PUBLIC;
+	}
+
+	public boolean isPrivate()
+	{
+		return type == RoomType.PRIVATE;
 	}
 
 	public boolean isSigned()

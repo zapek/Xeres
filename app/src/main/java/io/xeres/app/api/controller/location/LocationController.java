@@ -32,10 +32,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static io.xeres.app.database.model.location.LocationMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.LOCATIONS_PATH;
@@ -65,10 +62,10 @@ public class LocationController
 	@Operation(summary = "Return a location's RSId")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
-	public RSIdResponse getRSIdOfLocationId(@PathVariable long id, Type type)
+	public RSIdResponse getRSIdOfLocationId(@PathVariable long id, @RequestParam(value = "type", required = false) Type type)
 	{
 		var location = locationService.findLocationById(id).orElseThrow();
 
-		return new RSIdResponse(location.getProfile().getName(), location.getName(), location.getRsId(type).getArmored());
+		return new RSIdResponse(location.getProfile().getName(), location.getName(), location.getRsId(type == null ? Type.ANY : type).getArmored());
 	}
 }

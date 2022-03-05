@@ -349,6 +349,7 @@ public class ChatRsService extends RsService
 
 		chatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addSubscribed(chatRoom.getAsRoomInfo()));
 		availableChatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addAvailable(chatRoom.getAsRoomInfo()));
+		invitedChatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addAvailable(chatRoom.getAsRoomInfo()));
 
 		return chatRoomLists;
 	}
@@ -643,9 +644,12 @@ public class ChatRsService extends RsService
 						1,
 						item.isSigned());
 
+				invitedChatRoom.addParticipatingLocation(peerConnection.getLocation());
 				invitedChatRooms.put(invitedChatRoom.getId(), invitedChatRoom);
 
 				sendInviteToClient(peerConnection.getLocation().getLocationId(), item.getRoomId(), item.getRoomName(), item.getRoomTopic());
+
+				refreshChatRoomsInClients();
 			}
 		}
 	}
@@ -1028,7 +1032,7 @@ public class ChatRsService extends RsService
 		{
 			newId = ThreadLocalRandom.current().nextLong();
 		}
-		while (availableChatRooms.containsKey(newId) || chatRooms.containsKey(newId));
+		while (availableChatRooms.containsKey(newId) || chatRooms.containsKey(newId) || invitedChatRooms.containsKey(newId));
 
 		return newId;
 	}

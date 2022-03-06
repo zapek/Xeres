@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,16 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.messaging;
+package io.xeres.ui.controller.chat;
 
 import io.xeres.ui.client.ConnectionClient;
-import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.controller.messaging.PeerCell;
+import io.xeres.ui.controller.messaging.PeerHolder;
 import io.xeres.ui.model.location.Location;
-import io.xeres.ui.support.window.WindowManager;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -34,50 +35,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Component
-@FxmlView(value = "/view/messaging/peers.fxml")
-public class PeersWindowController implements WindowController
-{
-	private static final Logger log = LoggerFactory.getLogger(PeersWindowController.class);
+import java.io.IOException;
 
-	@FXML
-	private Label nickname;
+@Component
+@FxmlView(value = "/view/chat/chatroom_invite.fxml")
+public class ChatRoomInvitationWindowController implements WindowController
+{
+	private static final Logger log = LoggerFactory.getLogger(ChatRoomInvitationWindowController.class);
 
 	@FXML
 	private TreeView<PeerHolder> peersTree;
 
-	private final ProfileClient profileClient;
-	private final ConnectionClient connectionClient;
-	private final WindowManager windowManager;
+	@FXML
+	private Button inviteButton;
 
-	public PeersWindowController(ProfileClient profileClient, ConnectionClient connectionClient, WindowManager windowManager)
+	@FXML
+	private Button cancelButton;
+
+	private final ConnectionClient connectionClient;
+
+	public ChatRoomInvitationWindowController(ConnectionClient connectionClient)
 	{
-		this.profileClient = profileClient;
 		this.connectionClient = connectionClient;
-		this.windowManager = windowManager;
 	}
 
 	@Override
-	public void initialize()
+	public void initialize() throws IOException
 	{
+		// XXX: needs to know to WHICH chatroom we're inviting to
+
 		var root = new TreeItem<>(new PeerHolder());
 		root.setExpanded(true);
 		peersTree.setRoot(root);
 		peersTree.setShowRoot(false);
 
-		peersTree.setCellFactory(PeerCell::new);
-		peersTree.addEventHandler(PeerContextMenu.DIRECT_MESSAGE, event -> directMessage(event.getTreeItem().getValue()));
-
-		peersTree.setOnMouseClicked(event -> {
-			if (event.getClickCount() == 2) // XXX: add another condition to make sure we're double clicking on a leaf
-			{
-				directMessage(peersTree.getSelectionModel().getSelectedItem().getValue());
-			}
-		});
-
-		profileClient.getOwn()
-				.doOnSuccess(profile -> Platform.runLater(() -> nickname.setText(profile.getName())))
-				.subscribe();
+		peersTree.setCellFactory(PeerCell::new); // XXX: needs a different one
 
 		connectionClient.getConnectedProfiles().collectList()
 				.doOnSuccess(profiles -> Platform.runLater(() -> profiles.forEach(profile -> {
@@ -88,6 +80,7 @@ public class PeersWindowController implements WindowController
 					else
 					{
 						var parent = new TreeItem<>(new PeerHolder(profile));
+						parent.setExpanded(true);
 						root.getChildren().add(parent);
 						profile.getLocations().stream()
 								.filter(Location::isConnected)
@@ -97,14 +90,7 @@ public class PeersWindowController implements WindowController
 				.doOnError(throwable -> log.error("Error while getting profiles: {}", throwable.getMessage(), throwable))
 				.subscribe();
 
-		// XXX: here lies a good example of a connection that should stay open to get refreshed... ponder how to do it
-	}
-
-	private void directMessage(PeerHolder peerHolder)
-	{
-		if (peerHolder.hasLocation())
-		{
-			windowManager.openMessaging(peerHolder.getLocation().getLocationId().toString(), null);
-		}
+		// XXX: send invitations on inviteButton
+		cancelButton.setOnAction(UiUtils::closeWindow);
 	}
 }

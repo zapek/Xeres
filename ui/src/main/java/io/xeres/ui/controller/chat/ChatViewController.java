@@ -32,6 +32,7 @@ import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -127,6 +128,7 @@ public class ChatViewController implements Controller
 	private final ChatClient chatClient;
 	private final ProfileClient profileClient;
 	private final LocationClient locationClient;
+	private final WindowManager windowManager;
 
 	private final TreeItem<RoomHolder> subscribedRooms = new TreeItem<>(new RoomHolder("Subscribed"));
 	private final TreeItem<RoomHolder> privateRooms = new TreeItem<>(new RoomHolder("Private"));
@@ -145,12 +147,13 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
 		this.profileClient = profileClient;
 		this.locationClient = locationClient;
+		this.windowManager = windowManager;
 	}
 
 	public void initialize() throws IOException
@@ -224,6 +227,8 @@ public class ChatViewController implements Controller
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		send.setContextMenu(createChatInputContextMenu(send));
+
+		invite.setOnAction(event -> windowManager.openInvite(send.getScene().getWindow(), selectedRoom.getId()));
 
 		getChatRoomContext();
 	}

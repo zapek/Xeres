@@ -27,6 +27,7 @@ import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
+import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.identity.IdentitiesWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
@@ -176,6 +177,18 @@ public class WindowManager
 						.setTitle("Add peer ID")
 						.setMinHeight(380)
 						.setUserData(rsId)
+						.build()
+						.open());
+	}
+
+	public void openInvite(Window parent, long chatRoom)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(ChatRoomInvitationWindowController.class)
+						.setParent(parent)
+						.setTitle("Invite peer")
+						.setMinHeight(380)
+						.setUserData(chatRoom)
 						.build()
 						.open());
 	}

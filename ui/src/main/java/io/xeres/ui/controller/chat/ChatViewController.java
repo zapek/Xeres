@@ -111,6 +111,18 @@ public class ChatViewController implements Controller
 	@FXML
 	private VBox userListContent;
 
+	@FXML
+	private Button invite;
+
+	@FXML
+	private HBox status;
+
+	@FXML
+	private Label roomName;
+
+	@FXML
+	private Label roomTopic;
+
 	private final MessageClient messageClient;
 	private final ChatClient chatClient;
 	private final ProfileClient profileClient;
@@ -403,6 +415,9 @@ public class ChatViewController implements Controller
 			var chatListView = getChatListViewOrCreate(roomInfoTreeItem);
 			selectedChatListView = chatListView;
 			switchChatContent(chatListView.getChatView(), chatListView.getUserListView());
+			roomName.setText(chatRoomInfo.getName());
+			roomTopic.setText(chatRoomInfo.getTopic());
+			status.setVisible(true);
 			sendGroup.setVisible(true);
 			send.requestFocus();
 			selectedChatListView.jumpToBottom(true);
@@ -410,6 +425,7 @@ public class ChatViewController implements Controller
 		}, () -> {
 			chatRoomInfoController.setRoomInfo(chatRoomInfo);
 			switchChatContent(roomInfoView, null);
+			status.setVisible(false);
 			sendGroup.setVisible(false);
 			selectedChatListView = null;
 		});

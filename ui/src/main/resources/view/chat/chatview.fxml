@@ -19,35 +19,51 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
     <SplitPane fx:id="splitPane" dividerPositions="0.1, 0.8" VBox.vgrow="ALWAYS">
         <TreeView fx:id="roomTree" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
-        <VBox fx:id="content">
-            <VBox fx:id="sendGroup">
-                <HBox fx:id="previewGroup">
-                    <VBox.margin>
-                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
-                    </VBox.margin>
-                    <ImageView fx:id="imagePreview" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true"/>
-                    <VBox>
-                        <Button fx:id="previewCancel" mnemonicParsing="false" text="Cancel"/>
-                        <Region VBox.vgrow="ALWAYS"/>
-                        <Button fx:id="previewSend" mnemonicParsing="false" text="Send"/>
-                        <HBox.margin>
-                            <Insets left="8.0"/>
-                        </HBox.margin>
-                    </VBox>
-                </HBox>
-                <Label fx:id="typingNotification">
-                    <VBox.margin>
-                        <Insets bottom="4.0" left="8.0" top="4.0"/>
-                    </VBox.margin>
+        <VBox VBox.vgrow="ALWAYS">
+            <HBox fx:id="status" alignment="BASELINE_LEFT" visible="false">
+                <Label fx:id="roomName">
+                    <HBox.margin>
+                        <Insets left="8.0" right="4.0"/>
+                    </HBox.margin>
                 </Label>
-                <TextField fx:id="send" styleClass="chat-send"/>
+                <Label fx:id="roomTopic" ellipsisString="">
+                    <HBox.margin>
+                        <Insets left="4.0" right="4.0"/>
+                    </HBox.margin>
+                </Label>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="invite" mnemonicParsing="false" text="Invite"/>
+            </HBox>
+            <VBox fx:id="content" VBox.vgrow="ALWAYS">
+                <VBox fx:id="sendGroup">
+                    <HBox fx:id="previewGroup">
+                        <VBox.margin>
+                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+                        </VBox.margin>
+                        <ImageView fx:id="imagePreview" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true"/>
+                        <VBox>
+                            <Button fx:id="previewCancel" mnemonicParsing="false" text="Cancel"/>
+                            <Region VBox.vgrow="ALWAYS"/>
+                            <Button fx:id="previewSend" mnemonicParsing="false" text="Send"/>
+                            <HBox.margin>
+                                <Insets left="8.0"/>
+                            </HBox.margin>
+                        </VBox>
+                    </HBox>
+                    <Label fx:id="typingNotification">
+                        <VBox.margin>
+                            <Insets bottom="4.0" left="8.0" top="4.0"/>
+                        </VBox.margin>
+                    </Label>
+                    <TextField fx:id="send" styleClass="chat-send"/>
+                </VBox>
             </VBox>
         </VBox>
         <VBox fx:id="userListContent" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false">

@@ -22,6 +22,7 @@ package io.xeres.ui.controller.messaging;
 import io.xeres.ui.client.ConnectionClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.model.location.Location;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -88,7 +89,9 @@ public class PeersWindowController implements WindowController
 					{
 						var parent = new TreeItem<>(new PeerHolder(profile));
 						root.getChildren().add(parent);
-						profile.getLocations().forEach(location -> parent.getChildren().add(new TreeItem<>(new PeerHolder(profile, location))));
+						profile.getLocations().stream()
+								.filter(Location::isConnected)
+								.forEach(location -> parent.getChildren().add(new TreeItem<>(new PeerHolder(profile, location))));
 					}
 				})))
 				.doOnError(throwable -> log.error("Error while getting profiles: {}", throwable.getMessage(), throwable))

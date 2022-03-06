@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.message.chat.RoomType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
@@ -49,11 +50,25 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 			setText(item.getRoomInfo().getName());
 			if (item.getRoomInfo().hasNewMessages())
 			{
-				setStyle("-fx-font-weight: bold");
+				if (item.getRoomInfo().getRoomType() == RoomType.PRIVATE)
+				{
+					setStyle("-fx-text-fill:red; -fx-font-weight: bold;");
+				}
+				else
+				{
+					setStyle("-fx-font-weight: bold;");
+				}
 			}
 			else
 			{
-				setStyle("");
+				if (item.getRoomInfo().getRoomType() == RoomType.PRIVATE)
+				{
+					setStyle("-fx-text-fill: red;");
+				}
+				else
+				{
+					setStyle("");
+				}
 			}
 		}
 	}

@@ -29,7 +29,9 @@ import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
 import io.xeres.common.dto.chat.ChatRoomVisibility;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
+import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.EnumSet;
+import java.util.stream.Collectors;
 
 import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
@@ -67,6 +70,16 @@ public class ChatController
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath("/rooms/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
+	}
+
+	@PostMapping("/rooms/invite")
+	@Operation(summary = "Invite locations to a chat room")
+	@ApiResponse(responseCode = "200", description = "Peers invited successfully")
+	public void inviteToChatRoom(@Valid @RequestBody InviteToChatRoomRequest inviteToChatRoomRequest)
+	{
+		chatRsService.inviteLocationsToChatRoom(inviteToChatRoomRequest.chatRoomId(), inviteToChatRoomRequest.locationIds().stream()
+				.map(LocationId::new)
+				.collect(Collectors.toSet()));
 	}
 
 	@PutMapping("/rooms/{id}/subscription")

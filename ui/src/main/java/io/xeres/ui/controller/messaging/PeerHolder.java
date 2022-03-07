@@ -62,4 +62,10 @@ public class PeerHolder
 	{
 		return location != null;
 	}
+
+	@Override
+	public String toString()
+	{
+		return hasLocation() ? getLocation().getName() : getProfile().getName();
+	}
 }

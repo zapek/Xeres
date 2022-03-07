@@ -21,15 +21,20 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
 import io.xeres.common.dto.chat.ChatRoomVisibility;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
+import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.chat.ChatMapper;
+import io.xeres.ui.model.location.Location;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
@@ -91,5 +96,19 @@ public class ChatClient
 				.retrieve()
 				.bodyToMono(ChatRoomContextDTO.class)
 				.map(ChatMapper::fromDTO);
+	}
+
+	public Mono<Void> inviteLocationsToChatRoom(long chatRoomId, Set<Location> locations)
+	{
+		var request = new InviteToChatRoomRequest(chatRoomId, locations.stream()
+				.map(Location::getLocationId)
+				.map(LocationId::toString)
+				.collect(Collectors.toSet()));
+
+		return webClient.post()
+				.uri("/rooms/invite")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

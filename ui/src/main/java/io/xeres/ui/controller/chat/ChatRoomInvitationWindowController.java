@@ -19,23 +19,29 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.client.ConnectionClient;
 import io.xeres.ui.controller.WindowController;
-import io.xeres.ui.controller.messaging.PeerCell;
 import io.xeres.ui.controller.messaging.PeerHolder;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TreeItem;
+import javafx.scene.control.CheckBoxTreeItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
+import javafx.scene.control.cell.CheckBoxTreeCell;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @FxmlView(value = "/view/chat/chatroom_invite.fxml")
@@ -53,44 +59,97 @@ public class ChatRoomInvitationWindowController implements WindowController
 	private Button cancelButton;
 
 	private final ConnectionClient connectionClient;
+	private final ChatClient chatClient;
 
-	public ChatRoomInvitationWindowController(ConnectionClient connectionClient)
+	private final Set<CheckBoxTreeItem<PeerHolder>> invitedItems = new HashSet<>();
+	private long chatRoomId;
+
+	public ChatRoomInvitationWindowController(ConnectionClient connectionClient, ChatClient chatClient)
 	{
 		this.connectionClient = connectionClient;
+		this.chatClient = chatClient;
 	}
 
 	@Override
 	public void initialize() throws IOException
 	{
-		// XXX: needs to know to WHICH chatroom we're inviting to
-
-		var root = new TreeItem<>(new PeerHolder());
+		var root = new CheckBoxTreeItem<>(new PeerHolder());
 		root.setExpanded(true);
+		root.addEventHandler(
+				CheckBoxTreeItem.checkBoxSelectionChangedEvent(),
+				(CheckBoxTreeItem.TreeModificationEvent<PeerHolder> e) -> {
+					var item = e.getTreeItem();
+					if (item.isLeaf())
+					{
+						checkInvite(item);
+					}
+				});
+
+		peersTree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE); // XXX: needed?
 		peersTree.setRoot(root);
 		peersTree.setShowRoot(false);
-
-		peersTree.setCellFactory(PeerCell::new); // XXX: needs a different one
+		peersTree.setCellFactory(CheckBoxTreeCell.forTreeView());
 
 		connectionClient.getConnectedProfiles().collectList()
 				.doOnSuccess(profiles -> Platform.runLater(() -> profiles.forEach(profile -> {
 					if (profile.getLocations().size() == 1)
 					{
-						root.getChildren().add(new TreeItem<>(new PeerHolder(profile, profile.getLocations().get(0))));
+						root.getChildren().add(new CheckBoxTreeItem<>(new PeerHolder(profile, profile.getLocations().get(0))));
 					}
 					else
 					{
-						var parent = new TreeItem<>(new PeerHolder(profile));
+						var parent = new CheckBoxTreeItem<>(new PeerHolder(profile));
 						parent.setExpanded(true);
 						root.getChildren().add(parent);
 						profile.getLocations().stream()
 								.filter(Location::isConnected)
-								.forEach(location -> parent.getChildren().add(new TreeItem<>(new PeerHolder(profile, location))));
+								.forEach(location -> parent.getChildren().add(new CheckBoxTreeItem<>(new PeerHolder(profile, location))));
 					}
 				})))
+				.doAfterTerminate(() -> root.setSelected(false))
 				.doOnError(throwable -> log.error("Error while getting profiles: {}", throwable.getMessage(), throwable))
 				.subscribe();
 
-		// XXX: send invitations on inviteButton
+		inviteButton.setOnAction(this::invitePeers);
 		cancelButton.setOnAction(UiUtils::closeWindow);
+
+		Platform.runLater(this::handleArgument);
+	}
+
+	private void handleArgument()
+	{
+		var userData = inviteButton.getScene().getRoot().getUserData();
+		if (userData != null)
+		{
+			chatRoomId = (long) userData;
+		}
+	}
+
+	private void checkInvite(CheckBoxTreeItem<PeerHolder> item)
+	{
+		if (item.isSelected())
+		{
+			invitedItems.add(item);
+		}
+		else
+		{
+			invitedItems.remove(item);
+		}
+		inviteButton.setDisable(invitedItems.isEmpty());
+	}
+
+	private void invitePeers(ActionEvent event)
+	{
+		var selectedLocations = invitedItems.stream()
+				.map(peerHolderTreeItem -> peerHolderTreeItem.getValue().getLocation())
+				.collect(Collectors.toSet());
+
+		invitedItems.clear();
+		peersTree.setRoot(null);
+
+		chatClient.inviteLocationsToChatRoom(chatRoomId, selectedLocations)
+				.subscribe();
+
+		UiUtils.closeWindow(event);
 	}
 }

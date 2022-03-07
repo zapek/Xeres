@@ -187,7 +187,6 @@ public class WindowManager
 				UiWindow.builder(ChatRoomInvitationWindowController.class)
 						.setParent(parent)
 						.setTitle("Invite peer")
-						.setMinHeight(380)
 						.setUserData(chatRoom)
 						.build()
 						.open());

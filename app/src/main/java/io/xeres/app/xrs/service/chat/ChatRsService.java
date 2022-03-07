@@ -1051,6 +1051,23 @@ public class ChatRsService extends RsService
 		return newChatRoom.getId();
 	}
 
+	public void inviteLocationsToChatRoom(long chatRoomId, Set<LocationId> ids)
+	{
+		var chatRoom = chatRooms.get(chatRoomId);
+		if (chatRoom == null)
+		{
+			log.error("Cannot invite to unsubscribed chatroom {}", chatRoomId);
+			return;
+		}
+
+		peerConnectionManager.doForAllPeers(peerConnection -> {
+			if (ids.contains(peerConnection.getLocation().getLocationId()))
+			{
+				inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.PLAIN);
+			}
+		}, this);
+	}
+
 	private long createUniqueRoomId()
 	{
 		long newId;

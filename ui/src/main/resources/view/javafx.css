@@ -45,6 +45,16 @@
     -fx-focus-color: #ff8b00;
 }
 
+/*noinspection CssInvalidPseudoSelector*/
+.label:error {
+    -fx-text-fill: red;
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.label:warning {
+    -fx-text-fill: #ff8b00;
+}
+
 .tooltip {
     -fx-background-color: #ff8b00;
     -fx-text-fill: black;

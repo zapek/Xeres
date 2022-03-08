@@ -23,7 +23,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox prefHeight="400.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController" styleClass="base-spacing">
+<VBox prefHeight="400.0" prefWidth="480.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
     <Label text="Paste below your peer's ID.">
         <VBox.margin>
             <Insets/>
@@ -37,6 +37,7 @@
             <Insets top="8.0"/>
         </VBox.margin>
     </TextArea>
+    <Label fx:id="status"/>
     <TitledPane fx:id="titledPane" expanded="false" text="Peer's details" VBox.vgrow="ALWAYS">
         <GridPane>
             <columnConstraints>

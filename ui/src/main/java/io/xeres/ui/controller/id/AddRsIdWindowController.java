@@ -23,10 +23,13 @@ import io.xeres.common.id.Id;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.connection.Connection;
+import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +70,12 @@ public class AddRsIdWindowController implements WindowController
 	@FXML
 	private TitledPane titledPane;
 
+	@FXML
+	private Label status;
+
 	private final ProfileClient profileClient;
+
+	private Profile ownProfile;
 
 	public AddRsIdWindowController(ProfileClient profileClient)
 	{
@@ -78,7 +86,16 @@ public class AddRsIdWindowController implements WindowController
 	{
 		addButton.setOnAction(event -> addPeer());
 		cancelButton.setOnAction(UiUtils::closeWindow);
-		rsIdTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkRsId(newValue)); // XXX: add a debouncer for this
+
+		var debouncer = new PauseTransition(Duration.millis(250.0));
+		rsIdTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+			debouncer.setOnFinished(event -> checkRsId(newValue));
+			debouncer.playFromStart();
+		});
+
+		profileClient.getOwn()
+				.doOnSuccess(profile -> ownProfile = profile)
+				.subscribe();
 
 		Platform.runLater(this::handleArgument);
 	}
@@ -106,9 +123,16 @@ public class AddRsIdWindowController implements WindowController
 		profileClient.checkRsId(rsId.replaceAll("([\r\n\t])", ""))
 				.doOnSuccess(profile -> Platform.runLater(() ->
 				{
-					rsIdTextArea.setTooltip(new Tooltip("ID is valid"));
+					if (profile.getId() == ownProfile.getId())
+					{
+						status.setText("You can't add your own ID");
+						addButton.setDisable(true);
+						UiUtils.showError(rsIdTextArea, status);
+						return;
+					}
+					status.setText("");
 					addButton.setDisable(false);
-					UiUtils.clearError(rsIdTextArea);
+					UiUtils.clearError(rsIdTextArea, status);
 
 					certName.setText(profile.getName());
 					certId.setText(Id.toString(profile.getPgpIdentifier()));
@@ -131,20 +155,21 @@ public class AddRsIdWindowController implements WindowController
 							});
 					titledPane.setExpanded(true);
 				}))
-				.doOnError(throwable ->
+				.doOnError(throwable -> Platform.runLater(() ->
 				{
-					rsIdTextArea.setTooltip(new Tooltip(throwable.getMessage()));
 					addButton.setDisable(true);
 					if (rsIdTextArea.getText().isBlank())
 					{
-						UiUtils.clearError(rsIdTextArea);
+						status.setText("");
+						UiUtils.clearError(rsIdTextArea, status);
 					}
 					else
 					{
-						UiUtils.showError(rsIdTextArea);
+						status.setText("Invalid certificate");
+						UiUtils.showError(rsIdTextArea, status);
 					}
 					titledPane.setExpanded(false);
-				})
+				}))
 				.subscribe();
 	}
 }

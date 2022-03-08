@@ -24,7 +24,10 @@ import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -43,8 +46,8 @@ public final class UiUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	private static final PseudoClass errorTextField = PseudoClass.getPseudoClass("error");
-	private static final PseudoClass warningTextField = PseudoClass.getPseudoClass("warning");
+	private static final PseudoClass errorPseudoClass = PseudoClass.getPseudoClass("error");
+	private static final PseudoClass warningPseudoClass = PseudoClass.getPseudoClass("warning");
 
 	private static final String KEY_LISTENER = "listener";
 	private static final String KEY_POPUP = "popup";
@@ -60,7 +63,7 @@ public final class UiUtils
 
 	public static void showError(TextField field, String error)
 	{
-		field.pseudoClassStateChanged(errorTextField, true);
+		field.pseudoClassStateChanged(errorPseudoClass, true);
 
 		var label = new Label();
 		label.setText(error);
@@ -91,22 +94,31 @@ public final class UiUtils
 		{
 			popup.hide();
 		}
-		field.pseudoClassStateChanged(errorTextField, false);
+		field.pseudoClassStateChanged(errorPseudoClass, false);
 	}
 
-	public static void showError(TextArea textArea)
+	public static void showError(Node... nodes)
 	{
-		textArea.pseudoClassStateChanged(errorTextField, true);
+		for (var node : nodes)
+		{
+			node.pseudoClassStateChanged(errorPseudoClass, true);
+		}
 	}
 
-	public static void showWarning(TextArea textArea)
+	public static void showWarning(Node... nodes)
 	{
-		textArea.pseudoClassStateChanged(warningTextField, true);
+		for (var node : nodes)
+		{
+			node.pseudoClassStateChanged(warningPseudoClass, true);
+		}
 	}
 
-	public static void clearError(TextArea textArea)
+	public static void clearError(Node... nodes)
 	{
-		textArea.pseudoClassStateChanged(errorTextField, false);
+		for (var node : nodes)
+		{
+			node.pseudoClassStateChanged(errorPseudoClass, false);
+		}
 	}
 
 	public static void showAlertError(String title, String header, String message)

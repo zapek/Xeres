@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.security.cert.CertificateParsingException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -44,9 +45,13 @@ import static io.xeres.common.rsid.Type.*;
  */
 public abstract class RSId
 {
-	private static final Map<Class<? extends RSId>, Type> engines = Map.of(
-			ShortInvite.class, SHORT_INVITE,
-			RSCertificate.class, CERTIFICATE);
+	private static final Map<Class<? extends RSId>, Type> engines = new HashMap<>();
+
+	static
+	{
+		engines.put(ShortInvite.class, SHORT_INVITE);
+		engines.put(RSCertificate.class, CERTIFICATE);
+	}
 
 	/**
 	 * Parses an ID.

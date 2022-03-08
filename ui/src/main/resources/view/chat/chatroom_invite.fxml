@@ -8,7 +8,7 @@
       fx:controller="io.xeres.ui.controller.chat.ChatRoomInvitationWindowController">
     <TreeView fx:id="peersTree" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="inviteButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Create">
+        <Button fx:id="inviteButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Invite">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>

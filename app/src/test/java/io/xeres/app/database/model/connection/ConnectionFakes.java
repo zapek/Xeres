@@ -21,6 +21,8 @@ package io.xeres.app.database.model.connection;
 
 import io.xeres.app.net.protocol.PeerAddress;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public final class ConnectionFakes
 {
 	private ConnectionFakes()
@@ -30,7 +32,13 @@ public final class ConnectionFakes
 
 	public static Connection createConnection()
 	{
-		return createConnection(PeerAddress.Type.IPV4, "85.12.32.11:2022");
+		var r = ThreadLocalRandom.current();
+		return createConnection(PeerAddress.Type.IPV4, "" +
+				r.nextInt(11, 110) + "." +
+				r.nextInt(1, 254) + "." +
+				r.nextInt(1, 254) + "." +
+				r.nextInt(1, 254) + ":" +
+				r.nextInt(1025, 65534));
 	}
 
 	public static Connection createConnection(PeerAddress.Type type, String address)

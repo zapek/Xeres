@@ -294,7 +294,7 @@ public class Location
 			return Stream.empty();
 		}
 		var connectionsSortedByMostReliable = connections.stream()
-				.sorted(comparing(Connection::getLastConnected, nullsLast(naturalOrder())))
+				.sorted(comparing(Connection::getLastConnected, nullsLast(reverseOrder())))
 				.toList();
 
 		return Stream.of(connectionsSortedByMostReliable.get(index % connectionsSortedByMostReliable.size()));

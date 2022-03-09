@@ -21,14 +21,12 @@ package io.xeres.app.service;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
-import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.connection.ConnectionFakes;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.LocationRepository;
-import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
@@ -50,8 +48,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -167,40 +166,62 @@ class LocationServiceTest
 	@Test
 	void LocationService_GetConnectionsToConnectTo_OK()
 	{
-		Location location1 = LocationFakes.createLocation("test1", ownProfile);
-		location1.addConnection(ConnectionFakes.createConnection());
-		Location location2 = LocationFakes.createLocation("test2", ownProfile);
-		location2.addConnection(ConnectionFakes.createConnection());
-		location2.addConnection(ConnectionFakes.createConnection(PeerAddress.Type.IPV4, "1.2.3.4:1234"));
+		var now = Instant.now();
 
-		List<Location> locations = List.of(location1, location2);
+		// First location with 1 connection
+		var location1 = LocationFakes.createLocation("test1", ownProfile);
+		location1.addConnection(ConnectionFakes.createConnection());
+
+		// Second location with 3 connections
+		var location2 = LocationFakes.createLocation("test2", ownProfile);
+		var oldConnection = ConnectionFakes.createConnection();
+		var recentConnection = ConnectionFakes.createConnection();
+		var nullConnection = ConnectionFakes.createConnection();
+		oldConnection.setLastConnected(now.minus(Duration.ofDays(1)));
+		location2.addConnection(oldConnection);
+		recentConnection.setLastConnected(now);
+		location2.addConnection(recentConnection);
+		location2.addConnection(nullConnection);
+
+		var locations = List.of(location1, location2);
 		Slice<Location> slice = new SliceImpl<>(locations);
 		when(locationRepository.findAllByConnectedFalse(any(Pageable.class))).thenReturn(slice);
 
-		List<Connection> connections = locationService.getConnectionsToConnectTo();
-
+		// First run
+		var connections = locationService.getConnectionsToConnectTo();
 		assertEquals(2, connections.size());
+		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(recentConnection, connections.get(1));
+
+		// Second run
+		connections = locationService.getConnectionsToConnectTo();
+		assertEquals(2, connections.size());
+		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(oldConnection, connections.get(1));
+
+		// Third run
+		connections = locationService.getConnectionsToConnectTo();
+		assertEquals(2, connections.size());
+		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(nullConnection, connections.get(1));
 	}
 
 	@Test
 	void LocationService_SetConnected_OK()
 	{
-		Location location = LocationFakes.createLocation("foo", ProfileFakes.createProfile("foo", 1));
+		var location = LocationFakes.createLocation("foo", ProfileFakes.createProfile("foo", 1));
 
 		locationService.setConnected(location, new InetSocketAddress("127.0.0.1", 666));
 
 		assertTrue(location.isConnected());
-		verify(locationRepository).save(any(Location.class));
+		verify(locationRepository).save(location);
 	}
 
 	@Test
 	void LocationService_SetDisconnected_OK()
 	{
-		long LOCATION_ID = 1;
-		Location location = LocationFakes.createLocation("foo", ProfileFakes.createProfile("foo", 1));
+		var location = LocationFakes.createLocation("foo", ProfileFakes.createProfile("foo", 1));
 		location.setConnected(true);
-
-		when(locationRepository.findById(LOCATION_ID)).thenReturn(Optional.of(location));
 
 		locationService.setDisconnected(location);
 

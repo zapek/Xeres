@@ -54,9 +54,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Predicate;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
+import static java.util.function.Predicate.not;
 
 @Service
 @Transactional(readOnly = true)
@@ -247,7 +247,7 @@ public class LocationService
 		locations = locationRepository.findAllByConnectedFalse(PageRequest.of(getPageIndex(), getPageSize(), Sort.by("lastConnected").descending())); // XXX: check if the sorting works
 
 		return locations.stream()
-				.filter(Predicate.not(Location::isOwn))
+				.filter(not(Location::isOwn))
 				.flatMap(location -> location.getBestConnection(getConnectionIndex()))
 				.limit(CONNECTION_POOL_SIZE)
 				.toList();

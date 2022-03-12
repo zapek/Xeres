@@ -36,7 +36,6 @@ import java.security.KeyPair;
 import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -67,12 +66,10 @@ class X509Test
 	 * Generates an X509 certificate.
 	 */
 	@Test
-	// tag::X509_GenerateCertificate_OK[]
 	void X509_GenerateCertificate_OK() throws PGPException, IOException, CertificateException, SignatureException
 	{
 		generateCertificate(RSSerialVersion.V07_0001.serialNumber());
 	}
-	// end::X509_GenerateCertificate_OK[]
 
 	@Test
 	void X509_GenerateCertificate_OldRS_0_6_5_OK() throws PGPException, IOException, CertificateException, SignatureException
@@ -88,12 +85,12 @@ class X509Test
 
 	private void generateCertificate(BigInteger serialNumber) throws IOException, CertificateException, PGPException, SignatureException
 	{
-		String issuer = "CN=1234";
-		String subject = "CN=-";
+		var issuer = "CN=1234";
+		var subject = "CN=-";
 		var from = new Date(0);
 		var to = new Date(0);
 
-		X509Certificate cert = X509.generateCertificate(pgpSecretKey, keyPair.getPublic(), issuer, subject, from, to, serialNumber);
+		var cert = X509.generateCertificate(pgpSecretKey, keyPair.getPublic(), issuer, subject, from, to, serialNumber);
 		assertNotNull(cert);
 		assertEquals(issuer, cert.getIssuerX500Principal().getName());
 		assertEquals(subject, cert.getSubjectX500Principal().getName());

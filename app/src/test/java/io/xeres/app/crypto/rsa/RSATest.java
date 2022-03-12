@@ -52,14 +52,12 @@ class RSATest
 	 * Generates an RSA secret key.
 	 */
 	@Test
-	// tag::RSA_GenerateKeys_OK[]
 	void RSA_GenerateKeys_OK()
 	{
 		assertNotNull(keyPair);
 		assertEquals("RSA", keyPair.getPrivate().getAlgorithm());
 		assertEquals("RSA", keyPair.getPublic().getAlgorithm());
 	}
-	// end::RSA_GenerateKeys_OK[]
 
 	@Test
 	void RSA_GetPrivateKey_OK() throws InvalidKeySpecException, NoSuchAlgorithmException
@@ -78,11 +76,11 @@ class RSATest
 	{
 		byte[] data = {1, 2, 3};
 
-		byte[] signature = RSA.sign(data, keyPair.getPrivate());
+		var signature = RSA.sign(data, keyPair.getPrivate());
 
 		assertNotNull(signature);
 
-		boolean result = RSA.verify(keyPair.getPublic(), signature, data);
+		var result = RSA.verify(keyPair.getPublic(), signature, data);
 
 		assertTrue(result);
 	}
@@ -92,13 +90,13 @@ class RSATest
 	{
 		byte[] data = {1, 2, 3};
 
-		byte[] signature = RSA.sign(data, keyPair.getPrivate());
+		var signature = RSA.sign(data, keyPair.getPrivate());
 
 		assertNotNull(signature);
 
 		data[0] = 0;
 
-		boolean result = RSA.verify(keyPair.getPublic(), signature, data);
+		var result = RSA.verify(keyPair.getPublic(), signature, data);
 
 		assertFalse(result);
 	}

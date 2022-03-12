@@ -124,6 +124,7 @@ public class WindowManager
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(parent)
 						.setTitle("About " + AppName.NAME)
+						.setMinHeight(260)
 						.build()
 						.open());
 	}

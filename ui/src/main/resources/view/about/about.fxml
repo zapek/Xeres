@@ -19,34 +19,136 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController" styleClass="base-spacing">
-    <Label text="Xeres">
-        <font>
-            <Font size="24.0"/>
-        </font>
-    </Label>
-    <HBox alignment="CENTER">
-        <Label text="Version: "/>
-        <Label fx:id="version"/>
+<?import javafx.scene.text.*?>
+<VBox alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
+    <HBox VBox.vgrow="NEVER">
+        <opaqueInsets>
+            <Insets/>
+        </opaqueInsets>
+        <ImageView fitHeight="78.0" fitWidth="71.0" pickOnBounds="true" preserveRatio="true">
+            <HBox.margin>
+                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+            </HBox.margin>
+            <Image url="@../../image/icon.png"/>
+        </ImageView>
+        <VBox>
+            <Label text="Xeres">
+                <font>
+                    <Font size="24.0"/>
+                </font>
+            </Label>
+            <HBox>
+                <Label text="Version: "/>
+                <Label fx:id="version"/>
+            </HBox>
+        </VBox>
     </HBox>
-    <Hyperlink fx:id="website" text="https://xeres.io"/>
-    <Label text="Copyright by David Gerber"/>
-    <TextArea fx:id="licenseTextArea" editable="false" prefHeight="260.0" prefWidth="550.0" VBox.vgrow="ALWAYS">
-        <font>
-            <Font name="Consolas" size="12.0"/>
-        </font>
+    <TabPane fx:id="infoPane" prefHeight="256.0" prefWidth="560.0" style="-fx-background-color: -fx-outer-border, -fx-text-box-border, white; -fx-border-color: lightgrey;" styleClass="tab-pane-borderless" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <opaqueInsets>
+            <Insets/>
+        </opaqueInsets>
         <VBox.margin>
-            <Insets bottom="4.0" top="4.0"/>
+            <Insets/>
         </VBox.margin>
-    </TextArea>
+        <Tab text="About">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <TextFlow maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="freeflow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    </padding>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing&#10;&#10;">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Text>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="©2019-2022 by David Gerber, All Rights Reserved&#10;"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;Use "/>
+                    <Hyperlink text="https://github.com/zapek/Xeres/issues/new/choose"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" to report bugs or suggest improvements."/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;Website: "/>
+                    <Hyperlink text="https://xeres.io"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Wiki: "/>
+                    <Hyperlink text="https://github.com/zapek/Xeres/wiki"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Forum: "/>
+                    <Hyperlink text="https://github.com/zapek/Xeres/discussions"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Source code: "/>
+                    <Hyperlink text="https://github.com/zapek/Xeres"/>
+                </TextFlow>
+            </AnchorPane>
+        </Tab>
+        <Tab text="Authors">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <TextFlow styleClass="freeflow" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    </padding>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="David Gerber (Zapek)&#10;">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Text>
+                    <Hyperlink text="dg@zapek.com"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Benevolent dictator, lead developer">
+                        <font>
+                            <Font name="System Italic" size="12.0"/>
+                        </font>
+                    </Text>
+                </TextFlow>
+            </AnchorPane>
+        </Tab>
+        <Tab text="Contributors">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <TextFlow styleClass="freeflow" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    </padding>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="(None yet)"/>
+                </TextFlow>
+            </AnchorPane>
+        </Tab>
+        <Tab text="Supporters">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <TextFlow styleClass="freeflow" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    </padding>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Please visit "/>
+                    <Hyperlink text="https://xeres.io/"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" to make a donation.&#10;"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="All sponsors will be listed here (opt-in)."/>
+                </TextFlow>
+            </AnchorPane>
+        </Tab>
+        <Tab text="Thanks To">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <TextFlow styleClass="freeflow" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    </padding>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0"
+                          text="Olivier Piras&#10;for coming up with the name&#10;&#10;Nicolas Dirand&#10;for raising a statue in my image in his village&#10;&#10;Cyril Soler&#10;for answering my silly questions&#10;&#10;The Retroshare developers&#10;for coming up with the most interesting P2P concepts"/>
+                </TextFlow>
+            </AnchorPane>
+        </Tab>
+        <Tab text="License">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <TextArea fx:id="licenseTextArea" editable="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <font>
+                        <Font name="Consolas" size="12.0"/>
+                    </font>
+                </TextArea>
+            </AnchorPane>
+        </Tab>
+    </TabPane>
     <HBox alignment="TOP_RIGHT">
         <VBox.margin>
-            <Insets top="4.0"/>
+            <Insets top="8.0"/>
         </VBox.margin>
-        <Button fx:id="closeWindow" minWidth="72.0" mnemonicParsing="false" text="OK"/>
+        <Button fx:id="closeWindow" minWidth="72.0" mnemonicParsing="false" text="Close"/>
     </HBox>
 </VBox>

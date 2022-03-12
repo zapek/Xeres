@@ -102,3 +102,12 @@
 .chat-user-list .list-cell {
     -fx-control-inner-background-alt: -fx-control-inner-background;
 }
+
+.tab-pane-borderless > *.tab-header-area > *.tab-header-background {
+    -fx-background-color: -fx-outer-border, -fx-text-box-border, #ececec;
+    -fx-effect: null;
+}
+
+.freeflow .hyperlink {
+    -fx-padding: 0px 0px 0px 0px;
+}

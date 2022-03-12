@@ -19,14 +19,13 @@
 
 package io.xeres.ui.controller.about;
 
-import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.boot.info.BuildProperties;
@@ -42,7 +41,7 @@ public class AboutWindowController implements WindowController
 	private Button closeWindow;
 
 	@FXML
-	private Hyperlink website;
+	private TabPane infoPane;
 
 	@FXML
 	private TextArea licenseTextArea;
@@ -63,7 +62,8 @@ public class AboutWindowController implements WindowController
 		licenseTextArea.setText(UiUtils.getResourceFileAsString(getClass().getResourceAsStream("/LICENSE")));
 
 		closeWindow.setOnAction(UiUtils::closeWindow);
-		website.setOnAction(event -> JavaFxApplication.openUrl("https://xeres.io/"));
+		UiUtils.linkify(infoPane);
+
 		Platform.runLater(() -> closeWindow.requestFocus());
 	}
 }

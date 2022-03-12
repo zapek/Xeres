@@ -20,14 +20,13 @@
 package io.xeres.ui.support.util;
 
 import io.xeres.common.AppName;
+import io.xeres.ui.JavaFxApplication;
 import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -205,5 +204,27 @@ public final class UiUtils
 	{
 		var stage = (Stage) node.getScene().getWindow();
 		stage.close();
+	}
+
+	/**
+	 * Makes Hyperlinks actually do something. Slightly recursive.
+	 *
+	 * @param rootNode the parent node where the hyperlinks are
+	 */
+	public static void linkify(Node rootNode)
+	{
+		if (rootNode instanceof TabPane tabPane)
+		{
+			tabPane.getTabs().forEach(tab -> linkify(tab.getContent()));
+		}
+		else if (rootNode instanceof Parent parent)
+		{
+			parent.getChildrenUnmodifiable().forEach(UiUtils::linkify);
+
+			if (parent instanceof Hyperlink hyperlink)
+			{
+				hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
+			}
+		}
 	}
 }

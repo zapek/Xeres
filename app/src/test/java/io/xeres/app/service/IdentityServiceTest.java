@@ -95,7 +95,7 @@ class IdentityServiceTest
 
 		assertEquals(identity.getId(), id);
 
-		ArgumentCaptor<GxsIdGroupItem> gxsIdGroupItem = ArgumentCaptor.forClass(GxsIdGroupItem.class);
+		var gxsIdGroupItem = ArgumentCaptor.forClass(GxsIdGroupItem.class);
 		verify(gxsIdRepository).save(gxsIdGroupItem.capture());
 		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
 		verify(identityRepository).save(any(Identity.class));
@@ -143,7 +143,7 @@ class IdentityServiceTest
 
 		assertEquals(identity.getId(), id);
 
-		ArgumentCaptor<GxsIdGroupItem> gxsIdGroupItem = ArgumentCaptor.forClass(GxsIdGroupItem.class);
+		var gxsIdGroupItem = ArgumentCaptor.forClass(GxsIdGroupItem.class);
 		verify(gxsIdRepository).save(gxsIdGroupItem.capture());
 		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileHash());

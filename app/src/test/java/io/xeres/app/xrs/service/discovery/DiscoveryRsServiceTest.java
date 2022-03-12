@@ -85,7 +85,6 @@ class DiscoveryRsServiceTest
 	void DiscoveryService_handleDiscoveryContactItem_NewLocation_FriendOfFriend_Unknown_Ignore()
 	{
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
-		var profile = ProfileFakes.createProfile();
 
 		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
 		when(profileService.findProfileByPgpIdentifier(anyLong())).thenReturn(Optional.of(ProfileFakes.createProfile()));
@@ -179,7 +178,7 @@ class DiscoveryRsServiceTest
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
 		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
-		ArgumentCaptor<DiscoveryPgpListItem> discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
+		var discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
 		verify(peerConnectionManager).writeItem(eq(peerConnection), discoveryPgpListItem.capture(), any(RsService.class));
 
 		assertEquals(DiscoveryPgpListItem.Mode.FRIENDS, discoveryPgpListItem.getValue().getMode());
@@ -228,7 +227,7 @@ class DiscoveryRsServiceTest
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
 		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
-		ArgumentCaptor<DiscoveryPgpListItem> discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
+		var discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
 		verify(peerConnectionManager).writeItem(eq(peerConnection), discoveryPgpListItem.capture(), any(RsService.class));
 
 		assertEquals(DiscoveryPgpListItem.Mode.GET_CERT, discoveryPgpListItem.getValue().getMode());
@@ -237,7 +236,7 @@ class DiscoveryRsServiceTest
 
 	private DiscoveryContactItem createDiscoveryContact(Location location)
 	{
-		DiscoveryContactItem.Builder builder = DiscoveryContactItem.builder();
+		var builder = DiscoveryContactItem.builder();
 
 		builder.setPgpIdentifier(location.getProfile().getPgpIdentifier());
 		builder.setLocationId(location.getLocationId());

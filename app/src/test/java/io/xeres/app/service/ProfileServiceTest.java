@@ -62,7 +62,7 @@ class ProfileServiceTest
 	@Test
 	void ProfileService_GenerateProfileKeys_OK()
 	{
-		String NAME = "test";
+		var NAME = "test";
 
 		when(prefsService.getSecretProfileKey()).thenReturn(null);
 
@@ -70,7 +70,7 @@ class ProfileServiceTest
 
 		verify(prefsService).getSecretProfileKey();
 
-		ArgumentCaptor<Profile> profile = ArgumentCaptor.forClass(Profile.class);
+		var profile = ArgumentCaptor.forClass(Profile.class);
 		verify(profileRepository).save(profile.capture());
 		assertTrue(profile.getValue().getName().startsWith(NAME));
 		verify(prefsService).saveSecretProfileKey(any(byte[].class));
@@ -79,7 +79,7 @@ class ProfileServiceTest
 	@Test
 	void ProfileService_GenerateProfileKeys_AlreadyExists_Fail()
 	{
-		String NAME = "test";
+		var NAME = "test";
 
 		when(prefsService.getSecretProfileKey()).thenReturn(new byte[]{1});
 
@@ -95,7 +95,7 @@ class ProfileServiceTest
 	@Test
 	void ProfileService_GenerateProfileKeys_KeyIdTooShort_Fail()
 	{
-		String NAME = "";
+		var NAME = "";
 
 		when(prefsService.getSecretProfileKey()).thenReturn(null);
 
@@ -111,7 +111,7 @@ class ProfileServiceTest
 	@Test
 	void ProfileService_GenerateProfileKeys_KeyIdTooLong_Fail()
 	{
-		String NAME = "12345678900987654321123456789098765432120987676543432123456798765";
+		var NAME = "12345678900987654321123456789098765432120987676543432123456798765";
 
 		when(prefsService.getSecretProfileKey()).thenReturn(null);
 
@@ -127,16 +127,16 @@ class ProfileServiceTest
 	@Test
 	void ProfileService_CreateOrUpdateProfile_Update_OK()
 	{
-		Profile first = ProfileFakes.createProfile("first", 1);
+		var first = ProfileFakes.createProfile("first", 1);
 		first.addLocation(LocationFakes.createLocation("first location", first));
 
-		Profile second = ProfileFakes.createProfile("first", 1);
+		var second = ProfileFakes.createProfile("first", 1);
 		second.addLocation(LocationFakes.createLocation("second location", second));
 
 		when(profileRepository.findByProfileFingerprint(any(ProfileFingerprint.class))).thenReturn(Optional.of(first));
 		when(profileRepository.save(any(Profile.class))).thenAnswer(mock -> mock.getArguments()[0]);
 
-		Profile updated = profileService.createOrUpdateProfile(second).orElseThrow();
+		var updated = profileService.createOrUpdateProfile(second).orElseThrow();
 
 		assertEquals(2, updated.getLocations().size());
 

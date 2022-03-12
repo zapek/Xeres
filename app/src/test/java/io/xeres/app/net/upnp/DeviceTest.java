@@ -35,11 +35,11 @@ class DeviceTest
 	@Test
 	void Device_From_OK() throws IOException
 	{
-		byte[] routerReply = Files.readAllBytes(ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "upnp/routers/RT-AC87U.xml").toPath());
+		var routerReply = Files.readAllBytes(ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "upnp/routers/RT-AC87U.xml").toPath());
 		var fakeHTTPServer = new FakeHttpServer("/rootDesc.xml", 200, routerReply);
 
 		var inetSocketAddress = new InetSocketAddress(fakeHTTPServer.getPort());
-		String httpuReply = "HTTP/1.1 200 OK\n" +
+		var httpuReply = "HTTP/1.1 200 OK\n" +
 				"CACHE-CONTROL: max-age=120\n" +
 				"ST: urn:schemas-upnp-org:device:InternetGatewayDevice:1\n" +
 				"USN: uuid:3ddcd1d3-2380-45f5-b069-88d7f644f8d8::urn:schemas-upnp-org:device:InternetGatewayDevice:1\n" +
@@ -52,7 +52,7 @@ class DeviceTest
 				"CONFIGID.UPNP.ORG: 1337\n" +
 				"\n";
 
-		Device device = Device.from(
+		var device = Device.from(
 				inetSocketAddress,
 				ByteBuffer.wrap(httpuReply.getBytes())
 		);

@@ -19,13 +19,10 @@
 
 package io.xeres.app.database.repository;
 
-import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,7 +43,7 @@ class ProfileRepositoryTest
 		profileRepository.save(profile2);
 		profileRepository.save(profile3);
 
-		List<Profile> profiles = profileRepository.findAll();
+		var profiles = profileRepository.findAll();
 		assertNotNull(profiles);
 		assertEquals(3, profiles.size());
 

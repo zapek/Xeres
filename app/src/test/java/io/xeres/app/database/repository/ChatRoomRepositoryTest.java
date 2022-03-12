@@ -19,16 +19,12 @@
 
 package io.xeres.app.database.repository;
 
-import io.xeres.app.database.model.chat.ChatRoom;
 import io.xeres.app.database.model.chat.ChatRoomFakes;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.common.identity.Type;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,15 +47,15 @@ class ChatRoomRepositoryTest
 		chatRoom2.setSubscribed(true);
 		chatRoom3.setSubscribed(false);
 
-		ChatRoom savedChatRoom1 = chatRoomRepository.save(chatRoom1);
+		var savedChatRoom1 = chatRoomRepository.save(chatRoom1);
 		chatRoomRepository.save(chatRoom2);
 		chatRoomRepository.save(chatRoom3);
 
-		List<ChatRoom> chatRooms = chatRoomRepository.findAllBySubscribedTrueAndJoinedFalse();
+		var chatRooms = chatRoomRepository.findAllBySubscribedTrueAndJoinedFalse();
 		assertNotNull(chatRooms);
 		assertEquals(2, chatRooms.size());
 
-		ChatRoom first = chatRoomRepository.findByRoomIdAndIdentity(chatRoom1.getRoomId(), identity).orElse(null);
+		var first = chatRoomRepository.findByRoomIdAndIdentity(chatRoom1.getRoomId(), identity).orElse(null);
 
 		assertNotNull(first);
 		assertEquals(savedChatRoom1.getId(), first.getId());
@@ -67,7 +63,7 @@ class ChatRoomRepositoryTest
 
 		first.setJoined(true);
 
-		ChatRoom updatedChatRoom = chatRoomRepository.save(first);
+		var updatedChatRoom = chatRoomRepository.save(first);
 
 		assertNotNull(updatedChatRoom);
 		assertEquals(first.getId(), updatedChatRoom.getId());
@@ -75,7 +71,7 @@ class ChatRoomRepositoryTest
 
 		chatRoomRepository.deleteById(first.getId());
 
-		Optional<ChatRoom> deleted = chatRoomRepository.findById(first.getId());
+		var deleted = chatRoomRepository.findById(first.getId());
 		assertTrue(deleted.isEmpty());
 	}
 }

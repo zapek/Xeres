@@ -19,7 +19,6 @@
 
 package io.xeres.app.net.peer.packet;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.xrs.item.RawItem;
 
@@ -83,7 +82,7 @@ public final class SimplePacketBuilder
 
 		public SimplePacket buildPacket()
 		{
-			ByteBuf buf = Unpooled.buffer();
+			var buf = Unpooled.buffer();
 
 			if (rawItem != null)
 			{
@@ -102,7 +101,7 @@ public final class SimplePacketBuilder
 
 		public byte[] build()
 		{
-			ByteBuf buf = buildPacket().getBuffer();
+			var buf = buildPacket().getBuffer();
 			var bytes = new byte[buf.writerIndex()];
 			buf.readBytes(bytes);
 			return bytes;

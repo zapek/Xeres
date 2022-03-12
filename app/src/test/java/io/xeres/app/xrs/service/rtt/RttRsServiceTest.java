@@ -50,14 +50,14 @@ class RttRsServiceTest
 	@Test
 	void RttService_handlePing_OK()
 	{
-		int SEQUENCE = 1;
-		long TIMESTAMP = 2;
+		var SEQUENCE = 1;
+		var TIMESTAMP = 2L;
 
 		var peerConnection = new PeerConnection(Location.createLocation("foo"), null);
 
 		rttRsService.handleItem(peerConnection, new RttPingItem(SEQUENCE, TIMESTAMP));
 
-		ArgumentCaptor<RttPongItem> rttPongItem = ArgumentCaptor.forClass(RttPongItem.class);
+		var rttPongItem = ArgumentCaptor.forClass(RttPongItem.class);
 		verify(peerConnectionManager).writeItem(eq(peerConnection), rttPongItem.capture(), any(RsService.class));
 
 		assertEquals(TIMESTAMP, rttPongItem.getValue().getPingTimestamp());

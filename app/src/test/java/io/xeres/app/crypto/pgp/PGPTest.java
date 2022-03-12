@@ -79,7 +79,7 @@ class PGPTest
 	@Test
 	void PGP_Sign_OK() throws PGPException, IOException, SignatureException
 	{
-		byte[] in = "The lazy dog jumps over the drunk fox".getBytes();
+		var in = "The lazy dog jumps over the drunk fox".getBytes();
 
 		var out = new ByteArrayOutputStream();
 
@@ -94,9 +94,9 @@ class PGPTest
 	@Test
 	void PGP_Sign_Fail() throws PGPException, IOException
 	{
-		byte[] in = "The lazy dog jumps over the drunk fox".getBytes();
+		var in = "The lazy dog jumps over the drunk fox".getBytes();
 
-		PGPSecretKey pgpSecretKey2 = generateSecretKey("test2", null, KEY_SIZE);
+		var pgpSecretKey2 = generateSecretKey("test2", null, KEY_SIZE);
 
 		var out = new ByteArrayOutputStream();
 
@@ -140,7 +140,7 @@ class PGPTest
 		var out = new ByteArrayOutputStream();
 		getPublicKeyArmored(pgpSecretKey.getPublicKey(), out);
 
-		String output = out.toString();
+		var output = out.toString();
 
 		assertTrue(output.contains("BEGIN PGP"));
 		assertTrue(output.contains("END PGP"));

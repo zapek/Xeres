@@ -19,12 +19,10 @@
 
 package io.xeres.app.net.peer.ssl;
 
-import io.netty.handler.ssl.SslContext;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
 import io.xeres.app.crypto.x509.X509;
-import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.service.LocationService;
@@ -85,7 +83,7 @@ class SSLTest
 	@Test
 	void SSL_CreateClientContext_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
-		SslContext sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, OUTGOING);
+		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, OUTGOING);
 
 		assertNotNull(sslContext);
 		assertTrue(sslContext.isClient());
@@ -94,7 +92,7 @@ class SSLTest
 	@Test
 	void SSL_CreateServerContext_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
-		SslContext sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, INCOMING);
+		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, INCOMING);
 
 		assertNotNull(sslContext);
 		assertTrue(sslContext.isServer());
@@ -108,7 +106,7 @@ class SSLTest
 
 		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.of(location));
 
-		Location result = SSL.checkPeerCertificate(locationService, new X509Certificate[]{certificate});
+		var result = SSL.checkPeerCertificate(locationService, new X509Certificate[]{certificate});
 
 		assertEquals(result, location);
 		verify(locationService).findLocationById(any(LocationId.class));
@@ -143,8 +141,8 @@ class SSLTest
 	@Test
 	void SSL_CheckPeerCertificate_WrongCertificate_Fail() throws CertificateException, IOException, PGPException
 	{
-		PGPSecretKey wrongPgpKey = PGP.generateSecretKey("notFoo", "", 512);
-		X509Certificate wrongCertificate = X509.generateCertificate(wrongPgpKey, rsaKey.getPublic(), "CN=me", "CN=foobar", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
+		var wrongPgpKey = PGP.generateSecretKey("notFoo", "", 512);
+		var wrongCertificate = X509.generateCertificate(wrongPgpKey, rsaKey.getPublic(), "CN=me", "CN=foobar", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
 		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
 

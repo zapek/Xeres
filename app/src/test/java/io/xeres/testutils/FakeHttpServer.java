@@ -36,7 +36,7 @@ public class FakeHttpServer
 	{
 		httpServer = createHttpServer();
 
-		HttpHandler handler = exchange -> {
+		var handler = (HttpHandler) exchange -> {
 			requestBody = exchange.getRequestBody().readAllBytes();
 			exchange.sendResponseHeaders(responseCode, responseBody != null ? responseBody.length : -1);
 			if (responseBody != null)

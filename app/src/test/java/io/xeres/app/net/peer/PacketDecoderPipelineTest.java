@@ -50,7 +50,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder());
 
-		byte[] inPacket = MultiPacketBuilder.builder()
+		var inPacket = MultiPacketBuilder.builder()
 				.build();
 
 		channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
@@ -65,7 +65,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket = MultiPacketBuilder.builder()
+		var inPacket = MultiPacketBuilder.builder()
 				.build();
 
 		channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
@@ -80,7 +80,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder());
 
-		byte[] inPacket = SimplePacketBuilder.builder()
+		var inPacket = SimplePacketBuilder.builder()
 				.build();
 
 		channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
@@ -95,7 +95,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket = SimplePacketBuilder.builder()
+		var inPacket = SimplePacketBuilder.builder()
 				.setHeaderSize(6)
 				.build();
 
@@ -115,7 +115,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket = SimplePacketBuilder.builder()
+		var inPacket = SimplePacketBuilder.builder()
 				.setHeaderSize(Integer.MAX_VALUE - 8)
 				.build();
 
@@ -131,7 +131,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket = SimplePacketBuilder.builder()
+		var inPacket = SimplePacketBuilder.builder()
 				.build();
 
 		channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
@@ -146,7 +146,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket = MultiPacketBuilder.builder()
+		var inPacket = MultiPacketBuilder.builder()
 				.setFlags(SLICE_FLAG_START)
 				.build();
 
@@ -164,7 +164,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket = MultiPacketBuilder.builder()
+		var inPacket = MultiPacketBuilder.builder()
 				.setFlags(0)
 				.build();
 
@@ -181,7 +181,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket = MultiPacketBuilder.builder()
+		var inPacket = MultiPacketBuilder.builder()
 				.setFlags(SLICE_FLAG_END)
 				.build();
 
@@ -198,7 +198,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket = MultiPacketBuilder.builder()
+		var inPacket = MultiPacketBuilder.builder()
 				.build();
 
 		channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
@@ -215,19 +215,19 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
-		byte[] inPacket1 = MultiPacketBuilder.builder()
+		var inPacket1 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(SLICE_FLAG_START)
 				.setData(new byte[OPTIMAL_PACKET_SIZE])
 				.build();
 
-		byte[] inPacket2 = MultiPacketBuilder.builder()
+		var inPacket2 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(0)
 				.setData(new byte[200])
 				.build();
 
-		byte[] inPacket3 = MultiPacketBuilder.builder()
+		var inPacket3 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(SLICE_FLAG_END)
 				.setData(new byte[100])
@@ -261,21 +261,21 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 		ThreadLocalRandom.current().nextBytes(data2);
 		ThreadLocalRandom.current().nextBytes(data3);
 
-		byte[] hashIn = computeHash(data1, data2, data3);
+		var hashIn = computeHash(data1, data2, data3);
 
-		byte[] inPacket1 = MultiPacketBuilder.builder()
+		var inPacket1 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(SLICE_FLAG_START)
 				.setData(data1)
 				.build();
 
-		byte[] inPacket2 = MultiPacketBuilder.builder()
+		var inPacket2 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(0)
 				.setData(data2)
 				.build();
 
-		byte[] inPacket3 = MultiPacketBuilder.builder()
+		var inPacket3 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(SLICE_FLAG_END)
 				.setData(data3)
@@ -315,40 +315,40 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 		ThreadLocalRandom.current().nextBytes(dataB2);
 		ThreadLocalRandom.current().nextBytes(dataB3);
 
-		byte[] hashInA = computeHash(dataA1, dataA2, dataA3);
-		byte[] hashInB = computeHash(dataB1, dataB2, dataB3);
+		var hashInA = computeHash(dataA1, dataA2, dataA3);
+		var hashInB = computeHash(dataB1, dataB2, dataB3);
 
-		byte[] inPacketA1 = MultiPacketBuilder.builder()
+		var inPacketA1 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(SLICE_FLAG_START)
 				.setData(dataA1)
 				.build();
 
-		byte[] inPacketA2 = MultiPacketBuilder.builder()
+		var inPacketA2 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(0)
 				.setData(dataA2)
 				.build();
 
-		byte[] inPacketA3 = MultiPacketBuilder.builder()
+		var inPacketA3 = MultiPacketBuilder.builder()
 				.setPacketId(1)
 				.setFlags(SLICE_FLAG_END)
 				.setData(dataA3)
 				.build();
 
-		byte[] inPacketB1 = MultiPacketBuilder.builder()
+		var inPacketB1 = MultiPacketBuilder.builder()
 				.setPacketId(2)
 				.setFlags(SLICE_FLAG_START)
 				.setData(dataB1)
 				.build();
 
-		byte[] inPacketB2 = MultiPacketBuilder.builder()
+		var inPacketB2 = MultiPacketBuilder.builder()
 				.setPacketId(2)
 				.setFlags(0)
 				.setData(dataB2)
 				.build();
 
-		byte[] inPacketB3 = MultiPacketBuilder.builder()
+		var inPacketB3 = MultiPacketBuilder.builder()
 				.setPacketId(2)
 				.setFlags(SLICE_FLAG_END)
 				.setData(dataB3)
@@ -380,7 +380,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 		var hash = new byte[32];
 
 		Digest digest = new SHA256Digest();
-		for (byte[] buf : buffers)
+		for (var buf : buffers)
 		{
 			digest.update(buf, 0, buf.length);
 		}

@@ -46,7 +46,7 @@ public abstract class AbstractControllerTest
 	{
 		try
 		{
-			String json = objectMapper.writeValueAsString(body);
+			var json = objectMapper.writeValueAsString(body);
 			return post(uri)
 					.contentType(APPLICATION_JSON)
 					.accept(APPLICATION_JSON)
@@ -62,7 +62,7 @@ public abstract class AbstractControllerTest
 	{
 		try
 		{
-			String json = objectMapper.writeValueAsString(body);
+			var json = objectMapper.writeValueAsString(body);
 			return put(uri)
 					.contentType(APPLICATION_JSON)
 					.accept(APPLICATION_JSON)

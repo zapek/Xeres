@@ -19,16 +19,11 @@
 
 package io.xeres.app.database.repository;
 
-import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.location.LocationFakes;
-import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,21 +36,21 @@ class LocationRepositoryTest
 	@Test
 	void LocationRepository_CRUD_OK()
 	{
-		Profile profile = ProfileFakes.createProfile("test", 1);
+		var profile = ProfileFakes.createProfile("test", 1);
 
-		Location location1 = LocationFakes.createLocation("test1", profile);
-		Location location2 = LocationFakes.createLocation("test2", profile);
-		Location location3 = LocationFakes.createLocation("test3", profile);
+		var location1 = LocationFakes.createLocation("test1", profile);
+		var location2 = LocationFakes.createLocation("test2", profile);
+		var location3 = LocationFakes.createLocation("test3", profile);
 
-		Location savedLocation1 = locationRepository.save(location1);
+		var savedLocation1 = locationRepository.save(location1);
 		locationRepository.save(location2);
 		locationRepository.save(location3);
 
-		List<Location> locations = locationRepository.findAll();
+		var locations = locationRepository.findAll();
 		assertNotNull(locations);
 		assertEquals(3, locations.size());
 
-		Location first = locationRepository.findById(locations.get(0).getId()).orElse(null);
+		var first = locationRepository.findById(locations.get(0).getId()).orElse(null);
 
 		assertNotNull(first);
 		assertEquals(savedLocation1.getId(), first.getId());
@@ -63,7 +58,7 @@ class LocationRepositoryTest
 
 		first.setConnected(true);
 
-		Location updatedLocation = locationRepository.save(first);
+		var updatedLocation = locationRepository.save(first);
 
 		assertNotNull(updatedLocation);
 		assertEquals(first.getId(), updatedLocation.getId());
@@ -71,7 +66,7 @@ class LocationRepositoryTest
 
 		locationRepository.deleteById(first.getId());
 
-		Optional<Location> deleted = locationRepository.findById(first.getId());
+		var deleted = locationRepository.findById(first.getId());
 		assertTrue(deleted.isEmpty());
 	}
 }

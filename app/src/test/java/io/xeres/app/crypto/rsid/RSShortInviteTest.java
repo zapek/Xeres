@@ -86,8 +86,6 @@ class RSShortInviteTest
 		assertEquals("ABBzjqGSBk4/IOdmQ4zJMFvVAQdOZW1lc2lzAxQG1LRG0gnnUvpxGjl5KyDKZX4nBpENBNJmb28uYmFyLmNvbZIGAwIBVQTSkwYyAajABNICFGlwdjQ6Ly84NS4xLjIuNDoxMjM0BAOiD+U=", armored);
 	}
 
-	// XXX: write a test to parse null input or empty input... should return an empty optional
-
 	@Test
 	void ShortInvite_Parse_OK()
 	{
@@ -121,5 +119,15 @@ class RSShortInviteTest
 		assertFalse(rsId.get().getLocators().isEmpty());
 		assertTrue(rsId.get().getLocators().stream().findFirst().isPresent());
 		assertEquals("85.1.2.4:1234", rsId.get().getLocators().stream().findFirst().get().getAddress().orElseThrow());
+	}
+
+	@Test
+	void ShortInvite_Parse_Empty()
+	{
+		var string = "";
+
+		var rsId = RSId.parse(string, SHORT_INVITE);
+
+		assertFalse(rsId.isPresent());
 	}
 }

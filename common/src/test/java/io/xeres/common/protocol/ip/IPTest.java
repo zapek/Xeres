@@ -28,7 +28,7 @@ class IPTest
 	@Test
 	void IP_GetFreeLocalPort_OK()
 	{
-		int port = IP.getFreeLocalPort();
+		var port = IP.getFreeLocalPort();
 
 		assertTrue(port >= 1025 && port <= 32766);
 	}
@@ -36,7 +36,7 @@ class IPTest
 	@Test
 	void IP_GetLocalIPAddress_OK()
 	{
-		String ip = IP.getLocalIpAddress();
+		var ip = IP.getLocalIpAddress();
 
 		assertNotNull(ip);
 	}

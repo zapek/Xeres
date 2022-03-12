@@ -42,7 +42,7 @@ class ControlPointTest
 	{
 		var fakeHTTPServer = new FakeHttpServer("/control", 200, null);
 
-		boolean added = ControlPoint.addPortMapping(
+		var added = ControlPoint.addPortMapping(
 				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
 				"urn:schemas-upnp-org:service:WANIPConnection:1",
 				"192.168.1.78",
@@ -61,7 +61,7 @@ class ControlPointTest
 	{
 		var fakeHTTPServer = new FakeHttpServer("/control", 200, null);
 
-		boolean removed = ControlPoint.removePortMapping(
+		var removed = ControlPoint.removePortMapping(
 				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
 				"urn:schemas-upnp-org:service:WANIPConnection:1",
 				2000,
@@ -75,7 +75,7 @@ class ControlPointTest
 	@Test
 	void ControlPoint_GetExternalIPAddress_OK() throws IOException
 	{
-		String responseBody = "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
+		var responseBody = "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
 				"<s:Body>" +
 				"<u:GetExternalIPAddressResponse xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\">" +
 				"<NewExternalIPAddress>1.1.1.1</NewExternalIPAddress>" +
@@ -85,7 +85,7 @@ class ControlPointTest
 
 		var fakeHTTPServer = new FakeHttpServer("/control", 200, responseBody.getBytes());
 
-		String response = ControlPoint.getExternalIpAddress(
+		var response = ControlPoint.getExternalIpAddress(
 				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
 				"urn:schemas-upnp-org:service:WANIPConnection:1"
 		);

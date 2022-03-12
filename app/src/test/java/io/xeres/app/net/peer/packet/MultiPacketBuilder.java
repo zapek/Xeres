@@ -19,7 +19,6 @@
 
 package io.xeres.app.net.peer.packet;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.xrs.item.RawItem;
 
@@ -71,7 +70,7 @@ public final class MultiPacketBuilder
 
 		public MultiPacket buildPacket()
 		{
-			ByteBuf buf = Unpooled.buffer();
+			var buf = Unpooled.buffer();
 
 			buf.writeByte(SLICE_PROTOCOL_VERSION_ID_01);
 			buf.writeByte(flags);
@@ -79,7 +78,7 @@ public final class MultiPacketBuilder
 
 			if (rawItem != null)
 			{
-				ByteBuf itemBuf = rawItem.getBuffer();
+				var itemBuf = rawItem.getBuffer();
 				buf.writeShort(itemBuf.writerIndex());
 				buf.writeBytes(rawItem.getBuffer());
 			}
@@ -93,7 +92,7 @@ public final class MultiPacketBuilder
 
 		public byte[] build() // XXX: is it what we want or do we just need the content?
 		{
-			ByteBuf buf = buildPacket().getBuffer();
+			var buf = buildPacket().getBuffer();
 			var bytes = new byte[buf.writerIndex()];
 			buf.readBytes(bytes);
 			return bytes;

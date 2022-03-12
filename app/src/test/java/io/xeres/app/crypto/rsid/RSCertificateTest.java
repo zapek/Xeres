@@ -62,7 +62,7 @@ class RSCertificateTest
 	@Test
 	void RSCertificate_Parse_OK()
 	{
-		String string = """
+		var string = """
 				CQEGAcGWxsBNBFpq3M0BCADEQWXjoNmUNDo/RSfYwlSavOQoTllnlLv7bmRHXRP2
 				gRxBlCjp185VyI+mW9uWbNnv8TpMsScjKvS+x0uE3QoqjW9seSxq1hIu5ba3cDbU
 				9CzhKfAyycreIWtjZn18IqfvQ3qg3yJ+JLYptA10AGO0ErCmMyhtXAeDthCD3JBa
@@ -86,5 +86,15 @@ class RSCertificateTest
 		assertFalse(rsId.get().getInternalIp().isPresent()); // RS put 169.254.67.38 in my certificate...
 		assertTrue(rsId.get().getExternalIp().isPresent());
 		assertNotNull(rsId.get().getLocationId());
+	}
+
+	@Test
+	void RSCertificate_Parse_Empty()
+	{
+		var string = "";
+
+		var rsId = RSId.parse(string, CERTIFICATE);
+
+		assertFalse(rsId.isPresent());
 	}
 }

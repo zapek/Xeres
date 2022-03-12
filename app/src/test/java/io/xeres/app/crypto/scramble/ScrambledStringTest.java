@@ -36,8 +36,8 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_Constructor_OK()
 	{
-		String TEST = "1234";
-		String HASH = "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ=";
+		var TEST = "1234";
+		var HASH = "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ=";
 		var ss = new ScrambledString(TEST.toCharArray());
 
 		assertEquals("[SCRAMBLED]", ss.toString());
@@ -49,12 +49,12 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_Append_OK()
 	{
-		String TEST = "1234";
-		String HASH = "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ=";
+		var TEST = "1234";
+		var HASH = "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ=";
 
 		var ss = new ScrambledString();
 
-		for (char c : TEST.toCharArray())
+		for (var c : TEST.toCharArray())
 		{
 			ss.appendChar(c);
 		}
@@ -64,7 +64,7 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_Dispose_OK()
 	{
-		String TEST = "1234";
+		var TEST = "1234";
 
 		var ss = new ScrambledString(TEST.toCharArray());
 
@@ -80,7 +80,7 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_Equality_OK()
 	{
-		String TEST = "1234";
+		var TEST = "1234";
 
 		var ss1 = new ScrambledString(TEST.toCharArray());
 		var ss2 = new ScrambledString(TEST.toCharArray());
@@ -91,8 +91,8 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_Equality_Fail()
 	{
-		String TEST1 = "1234";
-		String TEST2 = "5678";
+		var TEST1 = "1234";
+		var TEST2 = "5678";
 
 		var ss1 = new ScrambledString(TEST1.toCharArray());
 		var ss2 = new ScrambledString(TEST2.toCharArray());

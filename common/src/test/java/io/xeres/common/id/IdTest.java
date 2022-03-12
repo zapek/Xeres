@@ -33,7 +33,7 @@ class IdTest
 	{
 		var id = new BigInteger("13352839ab34093f", 16);
 
-		String result = Id.toString(id.toByteArray());
+		var result = Id.toString(id.toByteArray());
 
 		assertEquals("13352839ab34093f", result);
 	}
@@ -41,7 +41,7 @@ class IdTest
 	@Test
 	void Id_ToString_FromBytes_Null()
 	{
-		String result = Id.toString((byte[]) null);
+		var result = Id.toString((byte[]) null);
 
 		assertEquals("", result);
 	}
@@ -49,7 +49,7 @@ class IdTest
 	@Test
 	void Id_ToString_FromBytes_Empty()
 	{
-		String result = Id.toString(new byte[0]);
+		var result = Id.toString(new byte[0]);
 
 		assertEquals("", result);
 	}
@@ -59,7 +59,7 @@ class IdTest
 	{
 		var id = "e40f238ecb395023";
 
-		byte[] result = Id.toBytes(id);
+		var result = Id.toBytes(id);
 
 		assertArrayEquals(new byte[]{(byte) 0xe4, 0xf, 0x23, (byte) 0x8e, (byte) 0xcb, 0x39, 0x50, 0x23}, result);
 	}
@@ -67,7 +67,7 @@ class IdTest
 	@Test
 	void Id_ToBytes_FromString_Null()
 	{
-		byte[] result = Id.toBytes(null);
+		var result = Id.toBytes(null);
 
 		assertArrayEquals(new byte[0], result);
 	}
@@ -75,7 +75,7 @@ class IdTest
 	@Test
 	void Id_ToBytes_FromString_Empty()
 	{
-		byte[] result = Id.toBytes("");
+		var result = Id.toBytes("");
 
 		assertArrayEquals(new byte[0], result);
 	}
@@ -83,9 +83,9 @@ class IdTest
 	@Test
 	void Id_ToString_FromLong_OK()
 	{
-		long id = 0x2344ab38L;
+		var id = 0x2344ab38L;
 
-		String result = Id.toString(id);
+		var result = Id.toString(id);
 
 		assertEquals("2344AB38", result);
 	}
@@ -93,9 +93,9 @@ class IdTest
 	@Test
 	void Id_ToString_FromIdentifier_OK()
 	{
-		GxsId gxsId = new GxsId(new byte[]{0x32, 0x5e, 0x38, 0x1, (byte) 0x98, (byte) 0x8a, 0x34, 0x73, 0x47, (byte) 0xef, 0x3e, 0x5a, (byte) 0xe2, 0x4a, 0x63, (byte) 0xba});
+		var gxsId = new GxsId(new byte[]{0x32, 0x5e, 0x38, 0x1, (byte) 0x98, (byte) 0x8a, 0x34, 0x73, 0x47, (byte) 0xef, 0x3e, 0x5a, (byte) 0xe2, 0x4a, 0x63, (byte) 0xba});
 
-		String result = Id.toString(gxsId);
+		var result = Id.toString(gxsId);
 
 		assertEquals("325e3801988a347347ef3e5ae24a63ba", result);
 	}
@@ -105,7 +105,7 @@ class IdTest
 	{
 		byte[] id = {0x30, 0x30, 0x35, 0x36, 0x33, 0x65, 0x38, 0x36, 0x61, 0x31, 0x64, 0x62, 0x36, 0x61, 0x61, 0x30, 0x32, 0x64, 0x36, 0x62, 0x36, 0x65, 0x38, 0x66, 0x37, 0x64, 0x61, 0x32, 0x62, 0x36, 0x39, 0x35};
 
-		byte[] result = Id.asciiToBytes(id);
+		var result = Id.asciiToBytes(id);
 
 		assertArrayEquals(new byte[]{0x0, 0x56, 0x3e, (byte) 0x86, (byte) 0xa1, (byte) 0xdb, 0x6a, (byte) 0xa0, 0x2d, 0x6b, 0x6e, (byte) 0x8f, 0x7d, (byte) 0xa2, (byte) 0xb6, (byte) 0x95}, result);
 	}
@@ -113,9 +113,9 @@ class IdTest
 	@Test
 	void Id_IdentifierToAscii_OK()
 	{
-		GxsId gxsId = new GxsId(new byte[]{0x32, 0x5e, 0x38, 0x1, (byte) 0x98, (byte) 0x8a, 0x34, 0x73, 0x47, (byte) 0xef, 0x3e, 0x5a, (byte) 0xe2, 0x4a, 0x63, (byte) 0xba});
+		var gxsId = new GxsId(new byte[]{0x32, 0x5e, 0x38, 0x1, (byte) 0x98, (byte) 0x8a, 0x34, 0x73, 0x47, (byte) 0xef, 0x3e, 0x5a, (byte) 0xe2, 0x4a, 0x63, (byte) 0xba});
 
-		byte[] result = Id.toAsciiBytes(gxsId);
+		var result = Id.toAsciiBytes(gxsId);
 
 		assertArrayEquals(new byte[]{0x33, 0x32, 0x35, 0x65, 0x33, 0x38, 0x30, 0x31, 0x39, 0x38, 0x38, 0x61, 0x33, 0x34, 0x37, 0x33, 0x34, 0x37, 0x65, 0x66, 0x33, 0x65, 0x35, 0x61, 0x65, 0x32, 0x34, 0x61, 0x36, 0x33, 0x62, 0x61}, result);
 	}

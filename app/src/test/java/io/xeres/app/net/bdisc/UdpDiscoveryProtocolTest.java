@@ -55,7 +55,7 @@ class UdpDiscoveryProtocolTest
 	@Test
 	void UdpDiscoveryProtocol_ParsePacket_OK()
 	{
-		UdpDiscoveryPeer peer = UdpDiscoveryProtocol.parsePacket(ByteBuffer.wrap(Id.toBytes(DATA)), new InetSocketAddress(LOCAL_IP, 6666));
+		var peer = UdpDiscoveryProtocol.parsePacket(ByteBuffer.wrap(Id.toBytes(DATA)), new InetSocketAddress(LOCAL_IP, 6666));
 
 		assertEquals(APP_ID, peer.getAppId());
 		assertEquals(PEER_ID, peer.getPeerId());
@@ -71,7 +71,7 @@ class UdpDiscoveryProtocolTest
 	@Test
 	void UdpDiscoveryProtocol_CreatePacket_OK()
 	{
-		ByteBuffer data = UdpDiscoveryProtocol.createPacket(
+		var data = UdpDiscoveryProtocol.createPacket(
 				512,
 				STATUS_PRESENT,
 				APP_ID,

@@ -36,8 +36,8 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_OK()
 	{
-		String IP_AND_PORT = "85.123.33.21:21232";
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort(IP_AND_PORT);
+		var IP_AND_PORT = "85.123.33.21:21232";
+		var peerAddress = PeerAddress.fromIpAndPort(IP_AND_PORT);
 
 		assertEquals(Optional.of(IP_AND_PORT), peerAddress.getAddress());
 	}
@@ -45,7 +45,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_IllegalIpOctetsOverflow_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("500.500.500.500:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("500.500.500.500:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -53,7 +53,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_IllegalIpOctetMissing_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.123.33:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("85.123.33:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -61,7 +61,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_IllegalIpZeroPrefix_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.123.33.01:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.01:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -69,7 +69,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_IllegalIpNotANumber_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.123.33.a:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.a:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -77,7 +77,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_IllegalPortNotANumber_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.123.33.1:a");
+		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.1:a");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -85,7 +85,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_SeparatorButMissingPort_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.123.33.1:");
+		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.1:");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -93,7 +93,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_SeparatorButMissingIp_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort(":2323");
+		var peerAddress = PeerAddress.fromIpAndPort(":2323");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -104,7 +104,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_LegalIpButNotWanted_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.1:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("85.1:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -115,7 +115,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_LegalIpButNotWanted2_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.65530:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("85.65530:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -123,7 +123,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_LowPort_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.123.33.21:0");
+		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.21:0");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -131,7 +131,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_IllegalPort_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("85.123.33.21:65537");
+		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.21:65537");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -139,7 +139,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_Bullshit_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("2384902378237892");
+		var peerAddress = PeerAddress.fromIpAndPort("2384902378237892");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -147,7 +147,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromUrl_OK()
 	{
-		PeerAddress peerAddress = PeerAddress.fromUrl("ipv4://194.28.22.1:2233");
+		var peerAddress = PeerAddress.fromUrl("ipv4://194.28.22.1:2233");
 
 		assertTrue(peerAddress.isValid());
 	}
@@ -155,7 +155,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromUrl_MissingPort_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromUrl("ipv4://194.28.22.1");
+		var peerAddress = PeerAddress.fromUrl("ipv4://194.28.22.1");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -163,7 +163,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromUrl_Invalid_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromUrl("ipv666://23sd.2343.2487.asdk");
+		var peerAddress = PeerAddress.fromUrl("ipv666://23sd.2343.2487.asdk");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -171,7 +171,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromAddress_OK()
 	{
-		PeerAddress peerAddress = PeerAddress.fromAddress("194.28.22.1:1026");
+		var peerAddress = PeerAddress.fromAddress("194.28.22.1:1026");
 
 		assertTrue(peerAddress.isValid());
 	}
@@ -179,7 +179,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromAddress2_OK()
 	{
-		PeerAddress peerAddress = PeerAddress.fromAddress("1.0.0.1:1026");
+		var peerAddress = PeerAddress.fromAddress("1.0.0.1:1026");
 
 		assertTrue(peerAddress.isValid());
 	}
@@ -187,7 +187,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromAddress_MissingPort_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromAddress("194.28.22.1");
+		var peerAddress = PeerAddress.fromAddress("194.28.22.1");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -195,7 +195,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_NonRoutableButLocalhost_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("127.0.0.1:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("127.0.0.1:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -203,7 +203,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_NotPublicButPrivateLan_OK()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("192.168.1.5:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("192.168.1.5:21232");
 
 		assertTrue(peerAddress.isValid());
 	}
@@ -211,7 +211,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_NonRoutableButNetwork_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("0.0.0.0:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("0.0.0.0:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -219,7 +219,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_NonRoutable3_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("255.255.255.255:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("255.255.255.255:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -227,7 +227,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_BroadcastConventionButRoutable_OK()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("1.1.1.255:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("1.1.1.255:21232");
 
 		assertTrue(peerAddress.isValid());
 	}
@@ -235,7 +235,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_NonRoutable5_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("0.1.1.1:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("0.1.1.1:21232");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -243,7 +243,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_NetworkConventionButRoutable_OK()
 	{
-		PeerAddress peerAddress = PeerAddress.fromIpAndPort("1.1.1.0:21232");
+		var peerAddress = PeerAddress.fromIpAndPort("1.1.1.0:21232");
 
 		assertTrue(peerAddress.isValid());
 	}
@@ -254,7 +254,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromTor_v2_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromOnion("expyuzz4wqqyqhjn.onion");
+		var peerAddress = PeerAddress.fromOnion("expyuzz4wqqyqhjn.onion");
 
 		assertFalse(peerAddress.isValid());
 	}
@@ -262,7 +262,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromTor_v3_OK()
 	{
-		PeerAddress peerAddress = PeerAddress.fromOnion("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion");
+		var peerAddress = PeerAddress.fromOnion("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion");
 
 		assertTrue(peerAddress.isValid());
 		assertEquals(Type.TOR, peerAddress.getType());
@@ -271,7 +271,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromTor_WrongAddress_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromOnion("192.168.1.2:8080");
+		var peerAddress = PeerAddress.fromOnion("192.168.1.2:8080");
 
 		assertFalse(peerAddress.isValid());
 		assertFalse(peerAddress.isHidden());
@@ -280,7 +280,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromHidden_OK()
 	{
-		PeerAddress peerAddress = PeerAddress.fromHidden("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion");
+		var peerAddress = PeerAddress.fromHidden("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion");
 
 		assertTrue(peerAddress.isValid());
 		assertTrue(peerAddress.isHidden());
@@ -289,7 +289,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromHidden_WrongAddress_Fail()
 	{
-		PeerAddress peerAddress = PeerAddress.fromHidden("192.168.1.2:8080");
+		var peerAddress = PeerAddress.fromHidden("192.168.1.2:8080");
 
 		assertFalse(peerAddress.isValid());
 		assertFalse(peerAddress.isHidden());

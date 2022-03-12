@@ -49,7 +49,7 @@ class RawItemDecoderPipelineTest extends AbstractPipelineTest
 		item.setOutgoing(ByteBufAllocator.DEFAULT, 2, RsServiceType.PACKET_SLICING_PROBE, 0xaa);
 		var itemIn = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 
-		byte[] inPacket = MultiPacketBuilder.builder()
+		var inPacket = MultiPacketBuilder.builder()
 				.setRawItem(itemIn)
 				.build();
 
@@ -71,7 +71,7 @@ class RawItemDecoderPipelineTest extends AbstractPipelineTest
 		item.setOutgoing(ByteBufAllocator.DEFAULT, 2, RsServiceType.PACKET_SLICING_PROBE, 0xaa);
 		var itemIn = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 
-		byte[] inPacket = SimplePacketBuilder.builder()
+		var inPacket = SimplePacketBuilder.builder()
 				.setRawItem(itemIn)
 				.build();
 

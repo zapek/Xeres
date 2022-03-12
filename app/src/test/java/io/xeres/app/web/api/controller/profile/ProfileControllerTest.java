@@ -193,7 +193,6 @@ class ProfileControllerTest extends AbstractControllerTest
 	void ProfileController_DeleteProfile_NotFound() throws Exception
 	{
 		long ID = 2;
-		var profile = ProfileFakes.createProfile("test", ID);
 
 		doThrow(NoSuchElementException.class).when(profileService).deleteProfile(ID);
 

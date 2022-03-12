@@ -22,15 +22,11 @@ package io.xeres.app.net.upnp;
 import io.xeres.testutils.FakeHttpServer;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathNodes;
@@ -62,27 +58,27 @@ class SoapTest
 		String VALUE1 = "1234", VALUE2 = "TCP";
 		var fakeHTTPServer = new FakeHttpServer("/soaptest.xml", HttpURLConnection.HTTP_OK, "OK".getBytes());
 
-		LinkedHashMap<String, String> args = new LinkedHashMap<>(2);
+		var args = new LinkedHashMap<String, String>(2);
 		args.put(KEY1, VALUE1);
 		args.put(KEY2, VALUE2);
 
-		ResponseEntity<String> responseEntity = Soap.sendRequest(URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/soaptest.xml").toURL(), SERVICE_TYPE, ACTION, args);
+		var responseEntity = Soap.sendRequest(URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/soaptest.xml").toURL(), SERVICE_TYPE, ACTION, args);
 		assertEquals("OK", responseEntity.getBody());
 
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		var documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
-		Document document = documentBuilderFactory.newDocumentBuilder().parse(new ByteArrayInputStream(fakeHTTPServer.getRequestBody()));
+		var document = documentBuilderFactory.newDocumentBuilder().parse(new ByteArrayInputStream(fakeHTTPServer.getRequestBody()));
 		assertEquals("1.0", document.getXmlVersion());
 
-		XPath xPath = XPathFactory.newInstance().newXPath();
+		var xPath = XPathFactory.newInstance().newXPath();
 		xPath.setNamespaceContext(createNameSpaceContext(Map.of(
 				"s", "http://schemas.xmlsoap.org/soap/envelope/",
 				"u", SERVICE_TYPE)));
-		XPathNodes nodes = xPath.evaluateExpression("//s:Envelope//s:Body//u:" + ACTION, document, XPathNodes.class);
+		var nodes = xPath.evaluateExpression("//s:Envelope//s:Body//u:" + ACTION, document, XPathNodes.class);
 		assertEquals(1, nodes.size());
 
 		assertEquals("u:" + ACTION, nodes.get(0).getNodeName());
-		NodeList childNodes = nodes.get(0).getChildNodes();
+		var childNodes = nodes.get(0).getChildNodes();
 		assertEquals(KEY1, childNodes.item(0).getNodeName());
 		assertEquals(VALUE1, childNodes.item(0).getTextContent());
 		assertEquals(KEY2, childNodes.item(1).getNodeName());

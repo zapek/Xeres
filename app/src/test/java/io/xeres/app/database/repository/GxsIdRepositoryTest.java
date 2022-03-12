@@ -20,12 +20,9 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.gxs.GxsIdGroupItemFakes;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,7 +43,7 @@ class GxsIdRepositoryTest
 		var savedGxsIdGroupItem2 = gxsIdRepository.save(gxsIdGroupItem2);
 		gxsIdRepository.save(gxsIdGroupItem3);
 
-		List<GxsIdGroupItem> gxsIdGroupItems = gxsIdRepository.findAll();
+		var gxsIdGroupItems = gxsIdRepository.findAll();
 		assertNotNull(gxsIdGroupItems);
 		assertEquals(3, gxsIdGroupItems.size());
 

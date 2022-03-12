@@ -19,7 +19,6 @@
 
 package io.xeres.testutils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,7 +33,7 @@ public final class TestUtils
 
 	public static <T> void assertUtilityClass(Class<T> javaClass) throws NoSuchMethodException
 	{
-		Constructor<T> declaredConstructor = javaClass.getDeclaredConstructor();
+		var declaredConstructor = javaClass.getDeclaredConstructor();
 		assertFalse(declaredConstructor.canAccess(null));
 		declaredConstructor.setAccessible(true);
 

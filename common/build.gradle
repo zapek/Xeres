@@ -30,6 +30,14 @@ test {
     test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
 }
 
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-json'

@@ -28,7 +28,15 @@ editorconfig {
 
 javafx {
     version = "17.0.2"
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
 }
 
 dependencies {

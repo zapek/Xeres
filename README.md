@@ -1,10 +1,11 @@
 [![GitHub release](https://img.shields.io/github/release/zapek/Xeres.svg?label=latest%20release)](https://github.com/zapek/Xeres/releases/latest)
+[![Gitter](https://badges.gitter.im/zapek/Xeres.svg)](https://gitter.im/zapek/Xeres?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![License](https://img.shields.io/github/license/zapek/Xeres.svg)](https://github.com/zapek/Xeres/blob/master/LICENSE)
 [![CodeQL](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml)
 
-# Xeres
+<img src="https://github.com/zapek/Xeres/docs/logo.png" align="left" width="320" height=160">
 
-A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
+## A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
 
 (basically, an attempted reimplementation of [Retroshare](https://retroshare.cc) in Java)
 
@@ -14,24 +15,26 @@ A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure applicati
 - Linux (x86_64)
 - MacOS (x86_64)
 
+## Downloads
+
+Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
+
+## Features
+
+- Fully compatible with Retroshare 0.6.6 or higher
+- Hardware accelerated encryption ([AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)) support
+- [JavaFX](https://openjfx.io/) UI
+- High concurrency
+
 ## Build requirements
 
 - Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 17)
 
 If you want to quickly try the current development version without installing anything else, see the [command line](#Command-line) section below.
 
-## Features
-
-- [AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set) support
-- [JavaFX](https://openjfx.io/) UI
-- Web UI
-- High concurrency
-
-## Downloads
-
-Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
-
 ## Donations
+
+Please consider a donation to help with the project's development. Contact me to get listed in the about window.
 
 | Method | Address                                                                                         |
 |--------|-------------------------------------------------------------------------------------------------|

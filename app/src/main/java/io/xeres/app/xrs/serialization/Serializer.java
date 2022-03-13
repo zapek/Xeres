@@ -423,7 +423,7 @@ public final class Serializer
 	 */
 	public static int serializeTlvBinary(ByteBuf buf, int type, byte[] data)
 	{
-		return TlvBinarySerializer.serializer(buf, type, data);
+		return TlvBinarySerializer.serialize(buf, type, data);
 	}
 
 	/**

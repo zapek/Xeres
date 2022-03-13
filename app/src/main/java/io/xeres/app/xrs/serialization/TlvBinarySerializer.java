@@ -34,17 +34,17 @@ final class TlvBinarySerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serializer(ByteBuf buf, byte[] data)
+	static int serialize(ByteBuf buf, byte[] data)
 	{
-		return serializer(buf, TlvType.NONE, data);
+		return serialize(buf, TlvType.NONE, data);
 	}
 
-	static int serializer(ByteBuf buf, TlvType type, byte[] data)
+	static int serialize(ByteBuf buf, TlvType type, byte[] data)
 	{
-		return serializer(buf, type.getValue(), data);
+		return serialize(buf, type.getValue(), data);
 	}
 
-	static int serializer(ByteBuf buf, int type, byte[] data)
+	static int serialize(ByteBuf buf, int type, byte[] data)
 	{
 		if (data == null)
 		{

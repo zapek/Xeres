@@ -21,10 +21,7 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.app.xrs.common.SecurityKey;
-import io.xeres.app.xrs.common.SecurityKeySet;
-import io.xeres.app.xrs.common.Signature;
-import io.xeres.app.xrs.common.SignatureSet;
+import io.xeres.app.xrs.common.*;
 import io.xeres.common.id.GxsId;
 
 import java.util.List;
@@ -56,7 +53,8 @@ final class TlvSerializer
 					case SIGNATURE_TYPE -> TlvUint32Serializer.serialize(buf, SIGNATURE_TYPE, (Integer) value);
 					case SECURITY_KEY -> TlvSecurityKeySerializer.serialize(buf, (SecurityKey) value);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.serialize(buf, (SecurityKeySet) value);
-					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN -> TlvBinarySerializer.serializer(buf, type, (byte[]) value);
+					case IMAGE -> TlvImageSerializer.serialize(buf, (Image) value);
+					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN -> TlvBinarySerializer.serialize(buf, type, (byte[]) value);
 					case IPV4, IPV6, ADDRESS_INFO, NONE -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV serialization");
 				};
 	}
@@ -97,6 +95,7 @@ final class TlvSerializer
 					case SIGNATURE_TYPE -> TlvUint32Serializer.deserialize(buf, SIGNATURE_TYPE);
 					case SECURITY_KEY -> TlvSecurityKeySerializer.deserialize(buf);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.deserialize(buf);
+					case IMAGE -> TlvImageSerializer.deserialize(buf);
 					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN -> TlvBinarySerializer.deserialize(buf, type);
 					case IPV4, IPV6, ADDRESS_INFO, NONE -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV deserialization");
 				};

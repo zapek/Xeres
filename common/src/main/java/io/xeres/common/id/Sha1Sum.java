@@ -32,7 +32,7 @@ public class Sha1Sum implements Identifier
 
 	public Sha1Sum()
 	{
-
+		// Needed for JPA
 	}
 
 	public Sha1Sum(byte[] sum)

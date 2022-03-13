@@ -54,7 +54,7 @@ final class TlvSerializer
 					case SECURITY_KEY -> TlvSecurityKeySerializer.serialize(buf, (SecurityKey) value);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.serialize(buf, (SecurityKeySet) value);
 					case IMAGE -> TlvImageSerializer.serialize(buf, (Image) value);
-					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN -> TlvBinarySerializer.serialize(buf, type, (byte[]) value);
+					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE -> TlvBinarySerializer.serialize(buf, type, (byte[]) value);
 					case IPV4, IPV6, ADDRESS_INFO, NONE -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV serialization");
 				};
 	}
@@ -96,7 +96,7 @@ final class TlvSerializer
 					case SECURITY_KEY -> TlvSecurityKeySerializer.deserialize(buf);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.deserialize(buf);
 					case IMAGE -> TlvImageSerializer.deserialize(buf);
-					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN -> TlvBinarySerializer.deserialize(buf, type);
+					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE -> TlvBinarySerializer.deserialize(buf, type);
 					case IPV4, IPV6, ADDRESS_INFO, NONE -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV deserialization");
 				};
 	}

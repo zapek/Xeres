@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+import static io.xeres.app.xrs.serialization.TlvType.BIN_IMAGE;
 import static io.xeres.app.xrs.serialization.TlvType.IMAGE;
 
 final class TlvImageSerializer
@@ -44,8 +45,8 @@ final class TlvImageSerializer
 		buf.ensureWritable(len);
 		buf.writeShort(IMAGE.getValue());
 		buf.writeInt(len);
-		buf.writeInt(image.getType().getValue());
-		TlvBinarySerializer.serialize(buf, IMAGE, image.getData());
+		Serializer.serialize(buf, image.getType());
+		TlvSerializer.serialize(buf, BIN_IMAGE, image.getData());
 
 		return len;
 	}
@@ -60,8 +61,8 @@ final class TlvImageSerializer
 		log.trace("Reading image");
 
 		TlvUtils.checkTypeAndLength(buf, IMAGE);
-		var type = Image.Type.fromValue(buf.readInt());
-		var data = TlvBinarySerializer.deserialize(buf, IMAGE);
+		var type = Serializer.deserializeEnum(buf, Image.Type.class);
+		var data = (byte[]) TlvSerializer.deserialize(buf, BIN_IMAGE);
 		return new Image(type, data);
 	}
 }

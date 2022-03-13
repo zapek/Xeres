@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.gxsid.item;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.xrs.common.Image;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
@@ -46,8 +47,12 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 	@Transient
 	private List<String> recognitionTags = new ArrayList<>(); // not used (but serialized)
 
-	// XXX: add avatar image (TlvImage)... the avatar image is optional so we can just ignore it for now
-	// and it checks if an image is here by checking the size... sigh! will have to use custom serialization
+	@Embedded
+	@AttributeOverrides({
+			@AttributeOverride(name = "type", column = @Column(name = "image_type")),
+			@AttributeOverride(name = "data", column = @Column(name = "image_data"))
+	})
+	private Image image; // optional
 
 	public GxsIdGroupItem()
 	{
@@ -77,6 +82,16 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 	public void setProfileSignature(byte[] profileSignature)
 	{
 		this.profileSignature = profileSignature;
+	}
+
+	public Image getImage()
+	{
+		return image;
+	}
+
+	public void setImage(Image image)
+	{
+		this.image = image;
 	}
 
 	@Override
@@ -113,8 +128,10 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 		size += serialize(buf, profileHash, Sha1Sum.class);
 		size += serialize(buf, TlvType.STR_SIGN, profileSignature);
 		size += serialize(buf, TlvType.SET_RECOGN, recognitionTags);
-
-		// XXX: missing avatar image here
+		if (image != null)
+		{
+			size += serialize(buf, TlvType.IMAGE, image);
+		}
 
 		buf.setInt(sizeOffset, size); // write total size
 
@@ -152,10 +169,9 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 		profileSignature = (byte[]) deserialize(buf, TlvType.STR_SIGN);
 		recognitionTags = (List<String>) deserialize(buf, TlvType.SET_RECOGN);
 
-		if (buf.isReadable()) // XXX: I think this works if there's more data to read
+		if (buf.isReadable())
 		{
-			// XXX: read the avatar image, which is a RsTlvImage (type: 0x1060), like: 1060 00000010 00000000013000000006
-			buf.discardReadBytes(); // XXX!
+			image = (Image) deserialize(buf, TlvType.IMAGE);
 		}
 	}
 }

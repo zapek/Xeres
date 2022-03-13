@@ -86,7 +86,7 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 
 		if (serializationFlags.contains(SerializationFlags.SUBCLASS_ONLY))
 		{
-			size += writeObject(buf, 0);
+			size += writeObject(buf);
 		}
 		else if (serializationFlags.contains(SerializationFlags.SUPERCLASS_ONLY))
 		{
@@ -95,12 +95,12 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 		else
 		{
 			size += super.writeObject(buf, serializationFlags);
-			size += writeObject(buf, size);
+			size += writeObject(buf);
 		}
 		return size;
 	}
 
-	private int writeObject(ByteBuf buf, int parentSize)
+	private int writeObject(ByteBuf buf)
 	{
 		var size = 0;
 

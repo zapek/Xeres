@@ -1,13 +1,13 @@
+<img src="https://github.com/zapek/Xeres/blob/master/docs/logo.png" align="left" width="320" height="160" alt="Xeres">
+
+## A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
+
+&nbsp;
+
 [![GitHub release](https://img.shields.io/github/release/zapek/Xeres.svg?label=latest%20release)](https://github.com/zapek/Xeres/releases/latest)
 [![Gitter](https://badges.gitter.im/zapek/Xeres.svg)](https://gitter.im/zapek/Xeres?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![License](https://img.shields.io/github/license/zapek/Xeres.svg)](https://github.com/zapek/Xeres/blob/master/LICENSE)
 [![CodeQL](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml)
-
-<img src="https://github.com/zapek/Xeres/docs/logo.png" align="left" width="320" height=160">
-
-## A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
-
-(basically, an attempted reimplementation of [Retroshare](https://retroshare.cc) in Java)
 
 ## Supported platforms
 
@@ -21,7 +21,7 @@ Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
 
 ## Features
 
-- Fully compatible with Retroshare 0.6.6 or higher
+- Fully compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
 - Hardware accelerated encryption ([AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)) support
 - [JavaFX](https://openjfx.io/) UI
 - High concurrency

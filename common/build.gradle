@@ -17,6 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+plugins {
+    id 'org.springframework.boot'
+}
+
 editorconfig {
     includes = ['src/**']
 }
@@ -33,5 +37,4 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.springdoc:springdoc-openapi-ui:$springOpenApiVersion"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
 }

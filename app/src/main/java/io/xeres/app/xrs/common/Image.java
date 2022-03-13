@@ -36,6 +36,11 @@ public class Image
 	private Type type;
 	private byte[] data;
 
+	public static Image empty()
+	{
+		return new Image(Type.UNKNOWN, null);
+	}
+
 	public Image()
 	{
 		// Needed for JPA

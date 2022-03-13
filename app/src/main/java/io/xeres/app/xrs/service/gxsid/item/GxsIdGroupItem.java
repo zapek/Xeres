@@ -52,7 +52,7 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 			@AttributeOverride(name = "type", column = @Column(name = "image_type")),
 			@AttributeOverride(name = "data", column = @Column(name = "image_data"))
 	})
-	private Image image; // optional
+	private Image image = Image.empty(); // optional
 
 	public GxsIdGroupItem()
 	{

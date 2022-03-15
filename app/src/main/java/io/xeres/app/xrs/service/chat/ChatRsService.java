@@ -35,6 +35,7 @@ import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
 import io.xeres.app.xrs.service.gxsid.GxsIdManager;
+import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
@@ -543,18 +544,18 @@ public class ChatRsService extends RsService
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
 			chatRoom.removeUser(user);
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_LEAVE, user, item.getSenderNickname());
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_LEAVE, user, item.getSenderNickname(), null);
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_JOINED.getCode())
 		{
 			chatRoom.addUser(user);
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname());
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname(), gxsIdManager.getGxsGroup(peerConnection, user));
 			chatRoom.setLastKeepAlivePacket(Instant.EPOCH); // send a keep alive event to the participant so that he knows we are in the room
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
 			chatRoom.addUser(user); // KEEP_ALIVE is also used to add users
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname());
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname(), gxsIdManager.getGxsGroup(peerConnection, user));
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
 		{
@@ -568,10 +569,19 @@ public class ChatRsService extends RsService
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, new ChatRoomMessage());
 	}
 
-	private void sendUserEventToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname)
+	private void sendUserEventToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, GxsIdGroupItem gxsIdGroupItem)
 	{
-		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname);
+		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname, getImageData(gxsIdGroupItem));
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
+	}
+
+	private byte[] getImageData(GxsIdGroupItem gxsIdGroupItem)
+	{
+		if (gxsIdGroupItem != null && gxsIdGroupItem.getImage() != null)
+		{
+			return gxsIdGroupItem.getImage().getData();
+		}
+		return null;
 	}
 
 	private void sendTimeoutEventToClient(long roomId, GxsId gxsId, boolean split)
@@ -993,7 +1003,7 @@ public class ChatRsService extends RsService
 			sendJoinEventIfNeeded(chatRoom);
 
 			// Add ourselves in the UI so that we're shown as joining
-			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName());
+			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName(), null);
 		}
 	}
 

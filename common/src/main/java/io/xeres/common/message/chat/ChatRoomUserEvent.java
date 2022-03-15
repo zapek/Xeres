@@ -25,16 +25,18 @@ public class ChatRoomUserEvent
 {
 	private GxsId gxsId;
 	private String nickname;
+	private byte[] image;
 
 	public ChatRoomUserEvent()
 	{
 		// Needed for JSON
 	}
 
-	public ChatRoomUserEvent(GxsId gxsId, String nickname)
+	public ChatRoomUserEvent(GxsId gxsId, String nickname, byte[] image)
 	{
 		this.gxsId = gxsId;
 		this.nickname = nickname;
+		this.image = image;
 	}
 
 	public GxsId getGxsId()
@@ -55,5 +57,15 @@ public class ChatRoomUserEvent
 	public void setNickname(String nickname)
 	{
 		this.nickname = nickname;
+	}
+
+	public byte[] getImage()
+	{
+		return image;
+	}
+
+	public void setImage(byte[] image)
+	{
+		this.image = image;
 	}
 }

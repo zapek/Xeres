@@ -29,6 +29,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -38,6 +39,7 @@ import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Locale;
@@ -141,7 +143,7 @@ public class ChatListView
 	{
 		if (!userMap.containsKey(event.getGxsId()))
 		{
-			var chatRoomUser = new ChatRoomUser(event.getGxsId(), event.getNickname(), null);
+			var chatRoomUser = new ChatRoomUser(event.getGxsId(), event.getNickname(), buildImageView(event.getImage()));
 			users.add(chatRoomUser);
 			userMap.put(event.getGxsId(), chatRoomUser);
 			users.sort((o1, o2) -> o1.nickname().compareToIgnoreCase(o2.nickname()));
@@ -150,6 +152,15 @@ public class ChatListView
 				addMessageLine(new ChatAction(JOIN, event.getNickname(), event.getGxsId()));
 			}
 		}
+	}
+
+	private ImageView buildImageView(byte[] imageData)
+	{
+		if (imageData != null)
+		{
+			return new ImageView(new Image(new ByteArrayInputStream(imageData)));
+		}
+		return null;
 	}
 
 	public void removeUser(ChatRoomUserEvent event)

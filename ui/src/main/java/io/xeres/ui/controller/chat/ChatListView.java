@@ -141,7 +141,7 @@ public class ChatListView
 	{
 		if (!userMap.containsKey(event.getGxsId()))
 		{
-			var chatRoomUser = new ChatRoomUser(event.getGxsId(), event.getNickname());
+			var chatRoomUser = new ChatRoomUser(event.getGxsId(), event.getNickname(), null);
 			users.add(chatRoomUser);
 			userMap.put(event.getGxsId(), chatRoomUser);
 			users.sort((o1, o2) -> o1.nickname().compareToIgnoreCase(o2.nickname()));

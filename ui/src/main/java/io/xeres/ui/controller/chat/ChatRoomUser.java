@@ -20,7 +20,8 @@
 package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.GxsId;
+import javafx.scene.image.ImageView;
 
-record ChatRoomUser(GxsId gxsId, String nickname)
+record ChatRoomUser(GxsId gxsId, String nickname, ImageView image)
 {
 }

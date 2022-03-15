@@ -21,9 +21,12 @@ package io.xeres.ui.controller.chat;
 
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.image.ImageView;
 
 public class ChatUserCell extends ListCell<ChatRoomUser>
 {
+	private static final ImageView defaultImage = new ImageView("/image/avatar_16.png");
+
 	public ChatUserCell(ListView<ChatRoomUser> listView)
 	{
 		super();
@@ -34,5 +37,23 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.nickname());
+		setGraphic(empty ? null : getAvatarImage(item));
+	}
+
+	private ImageView getAvatarImage(ChatRoomUser item)
+	{
+		ImageView image;
+
+		if (item.image() != null)
+		{
+			image = new ImageView(item.image().getImage());
+			image.setFitWidth(16.0);
+			image.setFitHeight(16.0);
+		}
+		else
+		{
+			image = new ImageView(defaultImage.getImage());
+		}
+		return image;
 	}
 }

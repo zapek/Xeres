@@ -27,7 +27,7 @@ public class Image
 {
 	public enum Type
 	{
-		UNKNOWN,
+		UNKNOWN, // Retroshare always sends this (supposedly PNG)
 		PNG,
 		JPEG
 	}

@@ -57,6 +57,7 @@ import java.util.Map;
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @Component
 public class GxsIdRsService extends GxsRsService
@@ -188,13 +189,16 @@ public class GxsIdRsService extends GxsRsService
 			items.add(gxsTransferGroupItem);
 		});
 
-		gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
-				peerConnection,
-				items,
-				Instant.now(), // XXX: not sure about that one... recheck. I think it has to be when our group last changed
-				transactionId,
-				this
-		);
+		if (isNotEmpty(items))
+		{
+			gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
+					peerConnection,
+					items,
+					Instant.now(), // XXX: not sure about that one... recheck. I think it has to be when our group last changed
+					transactionId,
+					this
+			);
+		}
 	}
 
 	private static byte[] getArray(ByteBuf buf)

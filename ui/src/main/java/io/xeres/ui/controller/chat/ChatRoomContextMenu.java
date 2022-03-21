@@ -29,7 +29,7 @@ public class ChatRoomContextMenu extends Event
 	public static final EventType<ChatRoomContextMenu> JOIN = new EventType<>(ALL, "CHAT_ROOM_CONTEXT_MENU_JOIN");
 	public static final EventType<ChatRoomContextMenu> LEAVE = new EventType<>(ALL, "CHAT_ROOM_CONTEXT_MENU_LEAVE");
 
-	private final TreeItem<RoomHolder> treeItem;
+	private final transient TreeItem<RoomHolder> treeItem;
 
 	public ChatRoomContextMenu(EventType<ChatRoomContextMenu> eventType, TreeItem<RoomHolder> treeItem)
 	{

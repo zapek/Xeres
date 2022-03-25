@@ -74,10 +74,7 @@ public class JavaFxApplication extends Application
 			{
 				MinimalUserInterface.showError(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			}
-			else
-			{
-				throw e;
-			}
+			throw e;
 		}
 	}
 
@@ -93,9 +90,11 @@ public class JavaFxApplication extends Application
 	{
 		hostServices = getHostServices();
 
-		springContext.publishEvent(new StageReadyEvent(primaryStage));
-
-		mainWindowController = springContext.getBean(MainWindowController.class);
+		if (springContext != null)
+		{
+			mainWindowController = springContext.getBean(MainWindowController.class);
+			springContext.publishEvent(new StageReadyEvent(primaryStage));
+		}
 	}
 
 	public static void openUrl(String url)

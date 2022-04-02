@@ -34,4 +34,6 @@ public interface GxsIdRepository extends JpaRepository<GxsIdGroupItem, Long>
 	Optional<GxsIdGroupItem> findByGxsId(GxsId gxsId);
 
 	List<GxsIdGroupItem> findAllByGxsIdIn(Set<GxsId> gxsIds);
+
+	List<GxsIdGroupItem> findAllByName(String name);
 }

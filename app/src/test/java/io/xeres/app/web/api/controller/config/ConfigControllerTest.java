@@ -21,14 +21,13 @@ package io.xeres.app.web.api.controller.config;
 
 import io.xeres.app.api.controller.config.ConfigController;
 import io.xeres.app.database.model.connection.Connection;
-import io.xeres.app.database.model.identity.IdentityFakes;
+import io.xeres.app.database.model.gxsid.GxsIdFakes;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.web.api.controller.AbstractControllerTest;
-import io.xeres.common.identity.Type;
 import io.xeres.common.rest.config.IpAddressRequest;
 import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
@@ -268,15 +267,15 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_CreateIdentity_Anonymous_OK() throws Exception
 	{
-		var identity = IdentityFakes.createOwnIdentity("test", Type.ANONYMOUS);
-		var identityRequest = new OwnIdentityRequest(identity.getGxsIdGroupItem().getName(), true);
+		var identity = GxsIdFakes.createOwnIdentity("test");
+		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
-		when(identityService.createOwnIdentity(identityRequest.name(), Type.ANONYMOUS)).thenReturn(identity.getId());
+		when(identityService.createOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITY_PATH + "/" + identity.getId()));
 
-		verify(identityService).createOwnIdentity(identityRequest.name(), Type.ANONYMOUS);
+		verify(identityService).createOwnIdentity(identityRequest.name(), false);
 	}
 }

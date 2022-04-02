@@ -19,8 +19,8 @@
 
 package io.xeres.app.database.model.chat;
 
-import io.xeres.app.database.model.identity.Identity;
 import io.xeres.app.xrs.service.chat.RoomFlags;
+import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
 import org.apache.commons.lang3.EnumUtils;
 
 import javax.persistence.*;
@@ -37,8 +37,8 @@ public class ChatRoom
 	private long roomId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "identity_id")
-	private Identity identity;
+	@JoinColumn(name = "gxs_id_group_id")
+	private GxsIdGroupItem gxsIdGroupItem;
 
 	private String name;
 	private String topic;
@@ -51,19 +51,19 @@ public class ChatRoom
 
 	}
 
-	protected ChatRoom(long roomId, Identity identity, String name, String topic, int flags)
+	protected ChatRoom(long roomId, GxsIdGroupItem gxsIdGroupItem, String name, String topic, int flags)
 	{
 		this.roomId = roomId;
-		this.identity = identity;
+		this.gxsIdGroupItem = gxsIdGroupItem;
 		this.name = name;
 		this.topic = topic;
 		this.flags = flags;
 	}
 
-	public static ChatRoom createChatRoom(io.xeres.app.xrs.service.chat.ChatRoom serviceChatRoom, Identity identity)
+	public static ChatRoom createChatRoom(io.xeres.app.xrs.service.chat.ChatRoom serviceChatRoom, GxsIdGroupItem gxsIdGroupItem)
 	{
 		return new ChatRoom(serviceChatRoom.getId(),
-				identity,
+				gxsIdGroupItem,
 				serviceChatRoom.getName(),
 				serviceChatRoom.getTopic(),
 				(int) EnumUtils.generateBitVector(RoomFlags.class, serviceChatRoom.getRoomFlags()));
@@ -89,14 +89,14 @@ public class ChatRoom
 		this.roomId = roomId;
 	}
 
-	public Identity getIdentity()
+	public GxsIdGroupItem getGxsIdGroupItem()
 	{
-		return identity;
+		return gxsIdGroupItem;
 	}
 
-	public void setIdentity(Identity identity)
+	public void setGxsIdGroupItem(GxsIdGroupItem gxsIdGroupItem)
 	{
-		this.identity = identity;
+		this.gxsIdGroupItem = gxsIdGroupItem;
 	}
 
 	public String getName()

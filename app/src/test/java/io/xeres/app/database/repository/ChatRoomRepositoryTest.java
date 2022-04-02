@@ -20,8 +20,7 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.chat.ChatRoomFakes;
-import io.xeres.app.database.model.identity.IdentityFakes;
-import io.xeres.common.identity.Type;
+import io.xeres.app.database.model.gxsid.GxsIdFakes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -37,7 +36,7 @@ class ChatRoomRepositoryTest
 	@Test
 	void ChatRoomRepository_CRUD_OK()
 	{
-		var identity = IdentityFakes.createOwnIdentity("test", Type.SIGNED);
+		var identity = GxsIdFakes.createOwnIdentity("test");
 
 		var chatRoom1 = ChatRoomFakes.createChatRoom(identity);
 		var chatRoom2 = ChatRoomFakes.createChatRoom(identity);
@@ -55,7 +54,7 @@ class ChatRoomRepositoryTest
 		assertNotNull(chatRooms);
 		assertEquals(2, chatRooms.size());
 
-		var first = chatRoomRepository.findByRoomIdAndIdentity(chatRoom1.getRoomId(), identity).orElse(null);
+		var first = chatRoomRepository.findByRoomIdAndGxsIdGroupItem(chatRoom1.getRoomId(), identity).orElse(null);
 
 		assertNotNull(first);
 		assertEquals(savedChatRoom1.getId(), first.getId());

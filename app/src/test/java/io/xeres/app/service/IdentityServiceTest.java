@@ -20,14 +20,10 @@
 package io.xeres.app.service;
 
 import io.xeres.app.crypto.pgp.PGP;
-import io.xeres.app.database.model.identity.Identity;
-import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.GxsIdRepository;
-import io.xeres.app.database.repository.IdentityRepository;
 import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
 import io.xeres.common.id.ProfileFingerprint;
-import io.xeres.common.identity.Type;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
 import org.junit.jupiter.api.BeforeAll;
@@ -62,9 +58,6 @@ class IdentityServiceTest
 	private GxsIdRepository gxsIdRepository;
 
 	@Mock
-	private IdentityRepository identityRepository;
-
-	@Mock
 	private GxsExchangeService gxsExchangeService;
 
 	@InjectMocks
@@ -80,32 +73,26 @@ class IdentityServiceTest
 	void IdentityService_CreateOwnIdentity_Anonymous_OK() throws PGPException, CertificateException, IOException
 	{
 		var NAME = "test";
-		var identity = IdentityFakes.createOwnIdentity(NAME, Type.ANONYMOUS);
 
 		when(prefsService.isOwnProfilePresent()).thenReturn(true);
 		when(prefsService.hasOwnLocation()).thenReturn(true);
-		when(identityRepository.save(any(Identity.class))).thenReturn(identity);
 		when(gxsIdRepository.save(any(GxsIdGroupItem.class))).thenAnswer(invocation -> {
 			var gxsIdGroupItem = (GxsIdGroupItem) invocation.getArguments()[0];
 			gxsIdGroupItem.setPublished(Instant.now());
 			return gxsIdGroupItem;
 		});
 
-		var id = identityService.createOwnIdentity(NAME, Type.ANONYMOUS);
-
-		assertEquals(identity.getId(), id);
+		var id = identityService.createOwnIdentity(NAME, false);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(GxsIdGroupItem.class);
 		verify(gxsIdRepository).save(gxsIdGroupItem.capture());
 		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
-		verify(identityRepository).save(any(Identity.class));
 	}
 
 	@Test
 	void IdentityService_CreateOwnIdentity_Signed_OK() throws PGPException, CertificateException, IOException
 	{
 		var NAME = "test";
-		var identity = IdentityFakes.createOwnIdentity(NAME, Type.SIGNED);
 
 		var encodedKey = new byte[]{-107, 1, 30, 4, 96, -83, 89, -119, 1, 2, 0, -124, 36, -16, 89, 77, 70, 111, 82, 42, 104, 115, 27, 52, -67, 56, -116, 80, 71, 109, -9,
 				78, -113, 115, -22, -35, 97, 121, 34, -118, 90, -6, -68, 113, 78, -58, -120, -4, -123, -1, 46, 10, -19, 122, -84, 21, -24, 118, 82, 12, -1, 45, -56, -94, -21, -25, -3, -68, 17, 45,
@@ -132,22 +119,18 @@ class IdentityServiceTest
 		when(prefsService.hasOwnLocation()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 		when(prefsService.getSecretProfileKey()).thenReturn(encodedKey);
-		when(identityRepository.save(any(Identity.class))).thenReturn(identity);
 		when(gxsIdRepository.save(any(GxsIdGroupItem.class))).thenAnswer(invocation -> {
 			var gxsIdGroupItem = (GxsIdGroupItem) invocation.getArguments()[0];
 			gxsIdGroupItem.setPublished(Instant.now());
 			return gxsIdGroupItem;
 		});
 
-		var id = identityService.createOwnIdentity(NAME, Type.SIGNED);
-
-		assertEquals(identity.getId(), id);
+		var id = identityService.createOwnIdentity(NAME, true);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(GxsIdGroupItem.class);
 		verify(gxsIdRepository).save(gxsIdGroupItem.capture());
 		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileHash());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileSignature());
-		verify(identityRepository).save(any(Identity.class));
 	}
 }

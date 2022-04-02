@@ -17,43 +17,20 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.identity;
+package io.xeres.app.database.model.gxsid;
 
 import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
 import io.xeres.common.dto.identity.IdentityDTO;
-import io.xeres.common.identity.Type;
 
 import java.util.List;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
-public final class IdentityMapper
+public final class GxsIdMapper
 {
-	private IdentityMapper()
+	private GxsIdMapper()
 	{
 		throw new UnsupportedOperationException("Utility class");
-	}
-
-	public static IdentityDTO toDTO(Identity identity)
-	{
-		if (identity == null)
-		{
-			return null;
-		}
-
-		return new IdentityDTO(
-				identity.getId(),
-				identity.getGxsIdGroupItem().getName(),
-				identity.getGxsIdGroupItem().getGxsId(),
-				identity.getGxsIdGroupItem().getPublished(),
-				identity.getType());
-	}
-
-	public static List<IdentityDTO> toDTOs(List<Identity> identities)
-	{
-		return emptyIfNull(identities).stream()
-				.map(IdentityMapper::toDTO)
-				.toList();
 	}
 
 	public static IdentityDTO toDTO(GxsIdGroupItem gxsIdGroupItem)
@@ -68,14 +45,14 @@ public final class IdentityMapper
 				gxsIdGroupItem.getName(),
 				gxsIdGroupItem.getGxsId(),
 				gxsIdGroupItem.getPublished(),
-				gxsIdGroupItem.getAdminPrivateKey() != null ? Type.SIGNED : Type.OTHER // XXX: the type computation is wrong... find a better way
+				gxsIdGroupItem.getType()
 		);
 	}
 
 	public static List<IdentityDTO> toGxsIdDTOs(List<GxsIdGroupItem> gxsIdGroupItems)
 	{
 		return emptyIfNull(gxsIdGroupItems).stream()
-				.map(IdentityMapper::toDTO)
+				.map(GxsIdMapper::toDTO)
 				.toList();
 	}
 }

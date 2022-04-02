@@ -17,48 +17,22 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.common;
+package io.xeres.app.xrs.serialization;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Enumerated;
+import org.junit.jupiter.api.Test;
 
-@Embeddable
-public class Image
+import static io.xeres.app.xrs.serialization.TlvImageSerializer.ImageType.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TlvImageSerializerTest
 {
-	public enum Type
+	@Test
+	void ImageType_Enum_order()
 	{
-		UNKNOWN, // Retroshare always sends this (supposedly PNG)
-		PNG,
-		JPEG
-	}
+		assertEquals(0, AUTO_DETECT.ordinal());
+		assertEquals(1, PNG.ordinal());
+		assertEquals(2, JPEG.ordinal());
 
-	@Enumerated
-	private Type type;
-	private byte[] data;
-
-	public static Image empty()
-	{
-		return new Image(Type.UNKNOWN, null);
-	}
-
-	public Image()
-	{
-		// Needed for JPA
-	}
-
-	public Image(Type type, byte[] data)
-	{
-		this.type = type;
-		this.data = data;
-	}
-
-	public Type getType()
-	{
-		return type;
-	}
-
-	public byte[] getData()
-	{
-		return data;
+		assertEquals(3, values().length);
 	}
 }

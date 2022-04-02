@@ -48,7 +48,7 @@ class GxsIdManagerTest
 	private IdentityService identityService;
 
 	@Mock
-	private GxsIdRsService gxsIdService;
+	private GxsIdRsService gxsIdRsService;
 
 	@Mock
 	private PeerConnectionManager peerConnectionManager;
@@ -62,14 +62,14 @@ class GxsIdManagerTest
 		var GXSID = GxsIdGroupItemFakes.createGxsIdGroupItem();
 		var PEER_CONNECTION = PeerConnectionFakes.createPeerConnection();
 
-		when(identityService.getGxsIdentity(GXSID.getGxsId())).thenReturn(Optional.empty());
+		when(identityService.findByGxsId(GXSID.getGxsId())).thenReturn(Optional.empty());
 		when(peerConnectionManager.getPeerByLocationId(PEER_CONNECTION.getLocation().getId())).thenReturn(PEER_CONNECTION);
 
 		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID.getGxsId());
 
 		gxsIdManager.requestGxsIds();
 
-		verify(gxsIdService).requestGxsGroups(PEER_CONNECTION, List.of(GXSID.getGxsId()));
+		verify(gxsIdRsService).requestGxsGroups(PEER_CONNECTION, List.of(GXSID.getGxsId()));
 	}
 
 	@Test
@@ -84,7 +84,7 @@ class GxsIdManagerTest
 		var GXSID6 = GxsIdGroupItemFakes.createGxsIdGroupItem();
 		var PEER_CONNECTION = PeerConnectionFakes.createPeerConnection();
 
-		when(identityService.getGxsIdentity(any(GxsId.class))).thenReturn(Optional.empty());
+		when(identityService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
 		when(peerConnectionManager.getPeerByLocationId(anyLong())).thenReturn(PEER_CONNECTION);
 
 		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID1.getGxsId());
@@ -97,7 +97,7 @@ class GxsIdManagerTest
 		gxsIdManager.requestGxsIds();
 
 		ArgumentCaptor<List<GxsId>> ids = ArgumentCaptor.forClass(List.class);
-		verify(gxsIdService).requestGxsGroups(eq(PEER_CONNECTION), ids.capture());
+		verify(gxsIdRsService).requestGxsGroups(eq(PEER_CONNECTION), ids.capture());
 
 		assertEquals(5, ids.getValue().size());
 

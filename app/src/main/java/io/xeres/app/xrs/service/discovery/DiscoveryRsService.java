@@ -23,7 +23,6 @@ import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.connection.Connection;
-import io.xeres.app.database.model.identity.Identity;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.peer.PeerConnection;
@@ -41,6 +40,7 @@ import io.xeres.app.xrs.service.discovery.item.DiscoveryIdentityListItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpKeyItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem;
 import io.xeres.app.xrs.service.gxsid.GxsIdRsService;
+import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -73,17 +73,17 @@ public class DiscoveryRsService extends RsService
 	private final ProfileService profileService;
 	private final LocationService locationService;
 	private final IdentityService identityService;
-	private final GxsIdRsService gxsIdService;
+	private final GxsIdRsService gxsIdRsService;
 	private final BuildProperties buildProperties;
 	private final DatabaseSessionManager databaseSessionManager;
 
-	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, GxsIdRsService gxsIdService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
+	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, GxsIdRsService gxsIdRsService, GxsIdRsService gxsIdRsService1, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
 	{
 		super(environment, peerConnectionManager);
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityService = identityService;
-		this.gxsIdService = gxsIdService;
+		this.gxsIdRsService = gxsIdRsService1;
 		this.buildProperties = buildProperties;
 		this.databaseSessionManager = databaseSessionManager;
 	}
@@ -123,7 +123,7 @@ public class DiscoveryRsService extends RsService
 
 	private void sendOwnContactAndIdentities(PeerConnection peerConnection)
 	{
-		try (var session = new DatabaseSession(databaseSessionManager))
+		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownLocation = locationService.findOwnLocation().orElseThrow();
 			sendContact(peerConnection, ownLocation);
@@ -179,11 +179,11 @@ public class DiscoveryRsService extends RsService
 		writeItem(toLocation, builder.build());
 	}
 
-	private void sendIdentity(PeerConnection peerConnection, Identity identity)
+	private void sendIdentity(PeerConnection peerConnection, GxsIdGroupItem gxsIdGroupItem)
 	{
-		log.debug("Sending our own identity {} to {}", identity, peerConnection);
+		log.debug("Sending our own identity {} to {}", gxsIdGroupItem, peerConnection);
 
-		writeItem(peerConnection, new DiscoveryIdentityListItem(List.of(identity.getGxsIdGroupItem().getGxsId())));
+		writeItem(peerConnection, new DiscoveryIdentityListItem(List.of(gxsIdGroupItem.getGxsId())));
 	}
 
 	private void askForPgpKeys(PeerConnection peerConnection, Set<Long> pgpIds)
@@ -463,6 +463,6 @@ public class DiscoveryRsService extends RsService
 	private void handleIdentityList(PeerConnection peerConnection, DiscoveryIdentityListItem discoveryIdentityListItem)
 	{
 		log.debug("Got identities from friend: {}, requesting...", discoveryIdentityListItem);
-		gxsIdService.requestGxsGroups(peerConnection, discoveryIdentityListItem.getIdentities());
+		gxsIdRsService.requestGxsGroups(peerConnection, discoveryIdentityListItem.getIdentities());
 	}
 }

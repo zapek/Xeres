@@ -21,11 +21,11 @@ package io.xeres.app.xrs.service.gxsid.item;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.xrs.common.Image;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.common.gxsid.Type;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 
@@ -47,12 +47,9 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 	@Transient
 	private List<String> recognitionTags = new ArrayList<>(); // not used (but serialized)
 
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "type", column = @Column(name = "image_type")),
-			@AttributeOverride(name = "data", column = @Column(name = "image_data"))
-	})
-	private Image image = Image.empty(); // optional
+	private byte[] image;
+
+	private Type type;
 
 	public GxsIdGroupItem()
 	{
@@ -84,14 +81,24 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 		this.profileSignature = profileSignature;
 	}
 
-	public Image getImage()
+	public byte[] getImage()
 	{
 		return image;
 	}
 
-	public void setImage(Image image)
+	public void setImage(byte[] image)
 	{
 		this.image = image;
+	}
+
+	public Type getType()
+	{
+		return type;
+	}
+
+	public void setType(Type type)
+	{
+		this.type = type;
 	}
 
 	@Override
@@ -171,7 +178,7 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 
 		if (buf.isReadable())
 		{
-			image = (Image) deserialize(buf, TlvType.IMAGE);
+			image = (byte[]) deserialize(buf, TlvType.IMAGE);
 		}
 	}
 }

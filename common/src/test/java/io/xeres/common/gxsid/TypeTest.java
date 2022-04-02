@@ -17,24 +17,23 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.identity;
+package io.xeres.common.gxsid;
 
-public enum Type
+import org.junit.jupiter.api.Test;
+
+import static io.xeres.common.gxsid.Type.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TypeTest
 {
-	/**
-	 * Own identity signed by own profile.
-	 */
-	SIGNED,
-	/**
-	 * Own identity, unsigned.
-	 */
-	ANONYMOUS,
-	/**
-	 * Identity owned by a friend.
-	 */
-	FRIEND,
-	/**
-	 * Other identity. Not saved to the identities table.
-	 */
-	OTHER
+	@Test
+	void Type_Enum_Order()
+	{
+		assertEquals(0, OTHER.ordinal());
+		assertEquals(1, OWN.ordinal());
+		assertEquals(2, FRIEND.ordinal());
+		assertEquals(3, BANNED.ordinal());
+
+		assertEquals(4, values().length);
+	}
 }

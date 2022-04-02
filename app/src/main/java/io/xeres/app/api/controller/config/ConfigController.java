@@ -48,8 +48,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 
-import static io.xeres.common.identity.Type.ANONYMOUS;
-import static io.xeres.common.identity.Type.SIGNED;
 import static io.xeres.common.rest.PathConfig.*;
 
 @Tag(name = "Configuration", description = "Runtime general configuration", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/config", description = "Configuration documentation"))
@@ -120,7 +118,7 @@ public class ConfigController
 
 		try
 		{
-			id = identityService.createOwnIdentity(name, ownIdentityRequest.anonymous() ? ANONYMOUS : SIGNED);
+			id = identityService.createOwnIdentity(name, !ownIdentityRequest.anonymous());
 		}
 		catch (CertificateException | PGPException | IOException e)
 		{

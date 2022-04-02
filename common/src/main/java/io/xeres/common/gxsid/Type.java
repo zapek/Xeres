@@ -17,20 +17,27 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.identity;
+package io.xeres.common.gxsid;
 
-import org.junit.jupiter.api.Test;
-
-import static io.xeres.common.identity.Type.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class TypeTest
+public enum Type
 {
-	@Test
-	void Type_Enum_Order()
-	{
-		assertEquals(0, SIGNED.ordinal());
-		assertEquals(1, ANONYMOUS.ordinal());
-		assertEquals(2, FRIEND.ordinal());
-	}
+	/**
+	 * Anything else then the below options.
+	 */
+	OTHER,
+
+	/**
+	 * Own identity-
+	 */
+	OWN,
+
+	/**
+	 * Identity owned by a friend.
+	 */
+	FRIEND,
+
+	/**
+	 * Banned identity.
+	 */
+	BANNED
 }

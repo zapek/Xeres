@@ -20,7 +20,6 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.xrs.common.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,37 +31,48 @@ final class TlvImageSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(TlvImageSerializer.class);
 
+	public enum ImageType
+	{
+		AUTO_DETECT, // Retroshare always sends this (supposedly PNG). We assume we have to look into the data to know what it is.
+		PNG,
+		JPEG
+	}
+
 	private TlvImageSerializer()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, Image image)
+	static int serialize(ByteBuf buf, byte[] image)
 	{
-		log.trace("Writing image {}", image.getType());
+		log.trace("Writing image");
 
 		var len = getSize(image);
 		buf.ensureWritable(len);
 		buf.writeShort(IMAGE.getValue());
 		buf.writeInt(len);
-		Serializer.serialize(buf, image.getType());
-		TlvSerializer.serialize(buf, BIN_IMAGE, image.getData());
+		Serializer.serialize(buf, ImageType.AUTO_DETECT);
+		TlvSerializer.serialize(buf, BIN_IMAGE, image);
 
 		return len;
 	}
 
-	static int getSize(Image image)
+	static int getSize(byte[] data)
 	{
-		return TLV_HEADER_SIZE + 4 + TlvBinarySerializer.getSize(image.getData());
+		return TLV_HEADER_SIZE + 4 + TlvBinarySerializer.getSize(data);
 	}
 
-	static Image deserialize(ByteBuf buf)
+	static byte[] deserialize(ByteBuf buf)
 	{
 		log.trace("Reading image");
 
 		TlvUtils.checkTypeAndLength(buf, IMAGE);
-		var type = Serializer.deserializeEnum(buf, Image.Type.class);
+		var type = Serializer.deserializeEnum(buf, ImageType.class); // Not really used
 		var data = (byte[]) TlvSerializer.deserialize(buf, BIN_IMAGE);
-		return new Image(type, data);
+		if (data != null && data.length == 1)
+		{
+			data = null; // RS sends a zero byte for empty images
+		}
+		return data;
 	}
 }

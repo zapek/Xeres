@@ -17,23 +17,34 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.repository;
+package io.xeres.app.database.model.gxsid;
 
-import io.xeres.app.database.model.identity.Identity;
+import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.common.gxsid.Type;
 import io.xeres.common.id.GxsId;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import io.xeres.common.id.Id;
 
-import java.util.List;
-import java.util.Optional;
+import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 
-@Repository
-public interface IdentityRepository extends JpaRepository<Identity, Long>
+public final class GxsIdFakes
 {
-	@Query("SELECT i FROM Identity i, IN(i.gxsIdGroupItem) g WHERE g.name = :name")
-	List<Identity> findAllByName(String name);
+	private GxsIdFakes()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
 
-	@Query("SELECT i FROM Identity i, IN(i.gxsIdGroupItem) g WHERE g.gxsId = :gxsId")
-	Optional<Identity> findByGxsId(GxsId gxsId);
+	private static long id = OWN_IDENTITY_ID + 1;
+
+	private static long getUniqueId()
+	{
+		return id++;
+	}
+
+	public static GxsIdGroupItem createOwnIdentity(String name)
+	{
+		var identity = new GxsIdGroupItem(new GxsId(Id.toBytes("325e3801988a347347ef3e5ae24a63ba")), name);
+		identity.setId(getUniqueId());
+		identity.setType(Type.OWN);
+		return identity;
+	}
 }

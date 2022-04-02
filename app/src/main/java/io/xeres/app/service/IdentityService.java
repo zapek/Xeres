@@ -24,17 +24,15 @@ import io.xeres.app.crypto.pgp.PGP.Armor;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
-import io.xeres.app.database.model.identity.Identity;
 import io.xeres.app.database.repository.GxsIdRepository;
-import io.xeres.app.database.repository.IdentityRepository;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
 import io.xeres.common.dto.identity.IdentityConstants;
+import io.xeres.common.gxsid.Type;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.id.Sha1Sum;
-import io.xeres.common.identity.Type;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.openpgp.PGPException;
@@ -59,15 +57,13 @@ public class IdentityService
 {
 	private static final Logger log = LoggerFactory.getLogger(IdentityService.class);
 
-	private final IdentityRepository identityRepository;
 	private final GxsIdRepository gxsIdRepository;
 	private final PrefsService prefsService;
 	private final ProfileService profileService;
 	private final GxsExchangeService gxsExchangeService;
 
-	public IdentityService(IdentityRepository identityRepository, GxsIdRepository gxsIdRepository, PrefsService prefsService, ProfileService profileService, GxsExchangeService gxsExchangeService)
+	public IdentityService(GxsIdRepository gxsIdRepository, PrefsService prefsService, ProfileService profileService, GxsExchangeService gxsExchangeService)
 	{
-		this.identityRepository = identityRepository;
 		this.gxsIdRepository = gxsIdRepository;
 		this.prefsService = prefsService;
 		this.profileService = profileService;
@@ -75,7 +71,7 @@ public class IdentityService
 	}
 
 	@Transactional
-	public long createOwnIdentity(String name, Type type) throws CertificateException, PGPException, IOException
+	public long createOwnIdentity(String name, boolean signed) throws CertificateException, PGPException, IOException
 	{
 		if (!prefsService.isOwnProfilePresent())
 		{
@@ -101,16 +97,17 @@ public class IdentityService
 				getAsOneComplement(publishingPublicKey.getPublicExponent()));
 
 		var gxsIdGroupItem = new GxsIdGroupItem(gxsId, name);
+		gxsIdGroupItem.setType(Type.OWN);
 		gxsIdGroupItem.setAdminPrivateKey(adminPrivateKey);
 		gxsIdGroupItem.setAdminPublicKey(adminPublicKey);
 
-		// XXX: might not be needed for Type.ANONYMOUS
+		// XXX: might not be needed for anonymous identities
 		gxsIdGroupItem.setPublishingPrivateKey(publishingPrivateKey);
 		gxsIdGroupItem.setPublishingPublicKey(publishingPublicKey);
 
 		gxsIdGroupItem.setCircleType(GxsCircleType.PUBLIC);
 
-		if (type == Type.SIGNED)
+		if (signed)
 		{
 			var ownProfile = profileService.getOwnProfile();
 			var hash = makeProfileHash(gxsId, ownProfile.getProfileFingerprint());
@@ -130,69 +127,51 @@ public class IdentityService
 
 		gxsIdGroupItem = gxsIdRepository.save(gxsIdGroupItem);
 
-		var ownIdentity = Identity.createOwnIdentity(gxsIdGroupItem, type);
-		var saved = identityRepository.save(ownIdentity);
-
 		gxsExchangeService.setLastServiceUpdate(RsServiceType.GXSID, gxsIdGroupItem.getPublished());
 
-		return saved.getId();
+		return gxsIdGroupItem.getId();
 	}
 
-	public Identity getOwnIdentity() // XXX: temporary, we'll have several identities later
+	public GxsIdGroupItem getOwnIdentity() // XXX: temporary, we'll have several identities later
 	{
-		return identityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own identity"));
+		return gxsIdRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own gxsId"));
 	}
 
-	public Optional<Identity> findIdentityById(long id)
+	public Optional<GxsIdGroupItem> findById(long id)
 	{
-		return identityRepository.findById(id);
+		return gxsIdRepository.findById(id);
 	}
 
-	public void saveIdentity(Identity identity)
+	public void saveIdentity(GxsIdGroupItem gxsIdGroupItem)
 	{
 		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
-		var gxsIdGroup = gxsIdRepository.findByGxsId(identity.getGxsIdGroupItem().getGxsId()).orElse(identity.getGxsIdGroupItem());
+		var gxsIdGroup = gxsIdRepository.findByGxsId(gxsIdGroupItem.getGxsId()).orElse(gxsIdGroupItem);
 		gxsIdRepository.save(gxsIdGroup);
-
-		if (identity.isNotable())
-		{
-			identityRepository.save(identity);
-		}
 	}
 
-	public List<Identity> findAllIdentitiesByName(String name)
+	public Collection<GxsIdGroupItem> findAllByName(String name)
 	{
-		return identityRepository.findAllByName(name);
+		return gxsIdRepository.findAllByName(name);
 	}
 
-	public Optional<Identity> findIdentityByGxsId(GxsId gxsId)
-	{
-		return identityRepository.findByGxsId(gxsId);
-	}
-
-	public List<Identity> getAllIdentities()
-	{
-		return identityRepository.findAll();
-	}
-
-	public List<GxsIdGroupItem> getAllGxsIdentities()
-	{
-		return gxsIdRepository.findAll();
-	}
-
-	public List<GxsIdGroupItem> findAllGxsIdentities(Set<GxsId> gxsIds)
-	{
-		return gxsIdRepository.findAllByGxsIdIn(gxsIds);
-	}
-
-	public Optional<GxsIdGroupItem> getGxsIdentity(GxsId gxsId)
+	public Optional<GxsIdGroupItem> findByGxsId(GxsId gxsId)
 	{
 		return gxsIdRepository.findByGxsId(gxsId);
 	}
 
-	public byte[] signData(Identity identity, byte[] data)
+	public List<GxsIdGroupItem> getAll()
 	{
-		return RSA.sign(data, identity.getGxsIdGroupItem().getPublishingPrivateKey());
+		return gxsIdRepository.findAll();
+	}
+
+	public List<GxsIdGroupItem> findAll(Set<GxsId> gxsIds)
+	{
+		return gxsIdRepository.findAllByGxsIdIn(gxsIds);
+	}
+
+	public byte[] signData(GxsIdGroupItem gxsIdGroupItem, byte[] data)
+	{
+		return RSA.sign(data, gxsIdGroupItem.getPublishingPrivateKey());
 	}
 
 	private byte[] getAsOneComplement(BigInteger number)

@@ -383,7 +383,7 @@ public class ChatRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownIdentity = identityService.getOwnIdentity();
-			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getGxsIdGroupItem().getName(), ownIdentity.getGxsIdGroupItem().getGxsId()));
+			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId()));
 		}
 	}
 
@@ -577,9 +577,9 @@ public class ChatRsService extends RsService
 
 	private byte[] getImageData(GxsIdGroupItem gxsIdGroupItem)
 	{
-		if (gxsIdGroupItem != null && gxsIdGroupItem.getImage() != null)
+		if (gxsIdGroupItem != null)
 		{
-			return gxsIdGroupItem.getImage().getData();
+			return gxsIdGroupItem.getImage();
 		}
 		return null;
 	}
@@ -786,11 +786,11 @@ public class ChatRsService extends RsService
 
 			bounce.setRoomId(chatRoom.getId());
 			bounce.setMessageId(chatRoom.getNewMessageId());
-			bounce.setSenderNickname(ownIdentity.getGxsIdGroupItem().getName()); // XXX: we should use the identity in chatRoom.getGxsId() once we have multiple identities support done properly
+			bounce.setSenderNickname(ownIdentity.getName()); // XXX: we should use the identity in chatRoom.getGxsId() once we have multiple identities support done properly
 
 			var signature = identityService.signData(ownIdentity, getBounceData(bounce));
 
-			bounce.setSignature(new Signature(ownIdentity.getGxsIdGroupItem().getGxsId(), signature));
+			bounce.setSignature(new Signature(ownIdentity.getGxsId(), signature));
 		}
 	}
 
@@ -992,18 +992,18 @@ public class ChatRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: ugly, it's because we can be called from a lambda.. make it take the arguments later (needed for multi identity support)
 		{
 			var ownIdentity = identityService.getOwnIdentity(); // XXX: allow multiple identities later on
-			chatRoom.setOwnGxsId(ownIdentity.getGxsIdGroupItem().getGxsId());
+			chatRoom.setOwnGxsId(ownIdentity.getGxsId());
 			chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
 			chatRoom.getParticipatingLocations().forEach(location -> inviteLocationToChatRoom(location, chatRoom, Invitation.PLAIN));
 
 			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_JOIN);
-			chatRoom.addUser(ownIdentity.getGxsIdGroupItem().getGxsId());
+			chatRoom.addUser(ownIdentity.getGxsId());
 
 			sendJoinEventIfNeeded(chatRoom);
 
 			// Add ourselves in the UI so that we're shown as joining
-			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsIdGroupItem().getGxsId(), ownIdentity.getGxsIdGroupItem().getName(), null);
+			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsId(), ownIdentity.getName(), null);
 		}
 	}
 

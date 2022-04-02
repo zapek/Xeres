@@ -20,7 +20,7 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.chat.ChatRoom;
-import io.xeres.app.database.model.identity.Identity;
+import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,7 +32,7 @@ import java.util.Optional;
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
 {
-	Optional<ChatRoom> findByRoomIdAndIdentity(long roomId, Identity identity);
+	Optional<ChatRoom> findByRoomIdAndGxsIdGroupItem(long roomId, GxsIdGroupItem gxsIdGroupItem);
 
 	List<ChatRoom> findAllBySubscribedTrueAndJoinedFalse();
 

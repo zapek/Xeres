@@ -21,7 +21,6 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.Unpooled;
 import io.xeres.app.database.model.location.LocationFakes;
-import io.xeres.app.xrs.common.Image;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.common.id.GxsId;
@@ -480,17 +479,28 @@ class SerializerTest
 	void Serializer_Serialize_TlvImage()
 	{
 		var buf = Unpooled.buffer();
-		var type = Image.Type.PNG;
-		var data = new byte[1];
-
-		var input = new Image(type, data);
+		var input = new byte[2];
 
 		var size = Serializer.serialize(buf, TlvType.IMAGE, input);
-		assertEquals(6 + 6 + 4 + data.length, size);
+		assertEquals(6 + 6 + 4 + input.length, size);
 
-		var result = (Image) Serializer.deserialize(buf, TlvType.IMAGE);
-		assertEquals(input.getType(), result.getType());
-		assertArrayEquals(input.getData(), result.getData());
+		var result = (byte[]) Serializer.deserialize(buf, TlvType.IMAGE);
+		assertArrayEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Serializer_Serialize_TlvImage_Null_Array()
+	{
+		var buf = Unpooled.buffer();
+		var input = new byte[1];
+
+		var size = Serializer.serialize(buf, TlvType.IMAGE, input);
+		assertEquals(6 + 6 + 4 + input.length, size);
+
+		var result = (byte[]) Serializer.deserialize(buf, TlvType.IMAGE);
+		assertNull(result);
 
 		buf.release();
 	}

@@ -57,15 +57,15 @@ public class GxsIdManager
 
 	private static final int MAXIMUM_IDS_PER_LOCATION = 5;
 
-	private final GxsIdRsService gxsIdService;
+	private final GxsIdRsService gxsIdRsService;
 	private final IdentityService identityService;
 	private final PeerConnectionManager peerConnectionManager;
 
 	private final ScheduledExecutorService executorService;
 
-	public GxsIdManager(GxsIdRsService gxsIdService, IdentityService identityService, PeerConnectionManager peerConnectionManager)
+	public GxsIdManager(GxsIdRsService gxsIdRsService, IdentityService identityService, PeerConnectionManager peerConnectionManager)
 	{
-		this.gxsIdService = gxsIdService;
+		this.gxsIdRsService = gxsIdRsService;
 		this.identityService = identityService;
 		this.peerConnectionManager = peerConnectionManager;
 
@@ -86,7 +86,7 @@ public class GxsIdManager
 	{
 		synchronized (pendingGxsIds)
 		{
-			return identityService.getGxsIdentity(gxsId).orElseGet(() -> {
+			return identityService.findByGxsId(gxsId).orElseGet(() -> {
 				var gxsIds = pendingGxsIds.getOrDefault(peerConnection.getLocation().getId(), ConcurrentHashMap.newKeySet());
 				gxsIds.add(gxsId);
 				pendingGxsIds.put(peerConnection.getLocation().getId(), gxsIds);
@@ -104,7 +104,7 @@ public class GxsIdManager
 				var peerConnection = peerConnectionManager.getPeerByLocationId(locationId);
 				if (peerConnection != null)
 				{
-					gxsIdService.requestGxsGroups(peerConnection, gxsIdsToGet);
+					gxsIdRsService.requestGxsGroups(peerConnection, gxsIdsToGet);
 					gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is  not there anymore, we should try to get it from other peers...
 				}
 			});

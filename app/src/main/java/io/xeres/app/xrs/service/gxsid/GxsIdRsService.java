@@ -26,7 +26,6 @@ import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
-import io.xeres.app.database.model.identity.Identity;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
@@ -107,7 +106,7 @@ public class GxsIdRsService extends GxsRsService
 	public List<GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
 	{
 		// XXX: use identityService to return the identities we need. for now we just return ours
-		return List.of(identityService.getOwnIdentity().getGxsIdGroupItem());
+		return List.of(identityService.getOwnIdentity());
 	}
 
 	@Override
@@ -141,7 +140,7 @@ public class GxsIdRsService extends GxsRsService
 			log.debug("Peer wants the following gxs ids (total: {}): {} ...", gxsIds.size(), gxsIds.stream().limit(10).toList());
 			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{
-				sendGxsGroups(peerConnection, identityService.findAllGxsIdentities(gxsIds));
+				sendGxsGroups(peerConnection, identityService.findAll(gxsIds));
 			}
 		}
 		else if (items.get(0) instanceof GxsTransferGroupItem)
@@ -156,8 +155,7 @@ public class GxsIdRsService extends GxsRsService
 				((RsSerializable) gxsIdGroupItem).readObject(buf, EnumSet.noneOf(SerializationFlags.class)); // XXX: should we add some helper method into Serializer()?
 				buf.release();
 
-				var identity = Identity.createIdentity(gxsIdGroupItem); // XXX: find out if it's a friend. how?
-				identityService.saveIdentity(identity);
+				identityService.saveIdentity(gxsIdGroupItem);
 			});
 		}
 	}

@@ -24,7 +24,7 @@ public final class IdentityConstants
 	public static final int NAME_LENGTH_MIN = 2;
 	public static final int NAME_LENGTH_MAX = 30;
 
-	public static final long OWN_IDENTITY_ID = 1L; // XXX: temporary
+	public static final long OWN_IDENTITY_ID = 1L; // XXX: temporary. we can use the "type"
 
 	private IdentityConstants()
 	{

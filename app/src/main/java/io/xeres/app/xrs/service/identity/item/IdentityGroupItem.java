@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.gxsid.item;
+package io.xeres.app.xrs.service.identity.item;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
@@ -25,9 +25,9 @@ import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.common.gxsid.Type;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.identity.Type;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
-@Entity(name = "gxs_id_groups")
-public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XXX: beware because we need to be able to serialize just the group data (here) and the group metadata (superclass)
+@Entity(name = "identity_groups")
+public class IdentityGroupItem extends GxsGroupItem implements RsSerializable // XXX: beware because we need to be able to serialize just the group data (here) and the group metadata (superclass)
 {
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "profile_hash"))
@@ -51,11 +51,11 @@ public class GxsIdGroupItem extends GxsGroupItem implements RsSerializable // XX
 
 	private Type type;
 
-	public GxsIdGroupItem()
+	public IdentityGroupItem()
 	{
 	}
 
-	public GxsIdGroupItem(GxsId gxsId, String name)
+	public IdentityGroupItem(GxsId gxsId, String name)
 	{
 		setGxsId(gxsId);
 		setName(name);

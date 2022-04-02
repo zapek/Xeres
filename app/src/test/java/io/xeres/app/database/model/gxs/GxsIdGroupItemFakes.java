@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.model.gxs;
 
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -35,14 +35,14 @@ public final class GxsIdGroupItemFakes
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static GxsIdGroupItem createGxsIdGroupItem()
+	public static IdentityGroupItem createGxsIdGroupItem()
 	{
 		return createGxsIdGroupItem(new GxsId(RandomUtils.nextBytes(16)), RandomStringUtils.randomAlphabetic(8));
 	}
 
-	public static GxsIdGroupItem createGxsIdGroupItem(GxsId gxsId, String name)
+	public static IdentityGroupItem createGxsIdGroupItem(GxsId gxsId, String name)
 	{
-		var item = new GxsIdGroupItem(gxsId, name);
+		var item = new IdentityGroupItem(gxsId, name);
 		item.setDiffusionFlags(EnumSet.noneOf(GxsPrivacyFlags.class));
 		item.setSignatureFlags(EnumSet.noneOf(GxsSignatureFlags.class));
 		item.setPublished(Instant.now());

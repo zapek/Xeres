@@ -36,9 +36,9 @@
             "description": "Enable the status service, used to tell about status (away, busy, online, etc...)."
         },
         {
-            "name": "xrs.service.gxsid.enabled",
+            "name": "xrs.service.identity.enabled",
             "type": "java.lang.Boolean",
-            "description": "Enable the GxsId service, used to exchange GXS IDs."
+            "description": "Enable the identity service, used to exchange GXS identities."
         }
     ]
 }

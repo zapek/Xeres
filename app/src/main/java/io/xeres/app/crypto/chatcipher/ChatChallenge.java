@@ -20,8 +20,6 @@
 package io.xeres.app.crypto.chatcipher;
 
 import io.xeres.common.id.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility class to handle challenge codes, which allows peers to know if they
@@ -29,8 +27,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class ChatChallenge
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatChallenge.class);
-
 	private ChatChallenge()
 	{
 		throw new UnsupportedOperationException("Utility class");

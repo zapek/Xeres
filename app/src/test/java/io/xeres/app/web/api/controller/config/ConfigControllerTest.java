@@ -21,7 +21,7 @@ package io.xeres.app.web.api.controller.config;
 
 import io.xeres.app.api.controller.config.ConfigController;
 import io.xeres.app.database.model.connection.Connection;
-import io.xeres.app.database.model.gxsid.GxsIdFakes;
+import io.xeres.app.database.model.identity.GxsIdFakes;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.IdentityService;

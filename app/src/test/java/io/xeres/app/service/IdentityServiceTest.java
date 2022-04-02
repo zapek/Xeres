@@ -21,8 +21,8 @@ package io.xeres.app.service;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.database.model.profile.ProfileFakes;
-import io.xeres.app.database.repository.GxsIdRepository;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.database.repository.GxsIdentityRepository;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
@@ -55,7 +55,7 @@ class IdentityServiceTest
 	private ProfileService profileService;
 
 	@Mock
-	private GxsIdRepository gxsIdRepository;
+	private GxsIdentityRepository gxsIdentityRepository;
 
 	@Mock
 	private GxsExchangeService gxsExchangeService;
@@ -76,16 +76,16 @@ class IdentityServiceTest
 
 		when(prefsService.isOwnProfilePresent()).thenReturn(true);
 		when(prefsService.hasOwnLocation()).thenReturn(true);
-		when(gxsIdRepository.save(any(GxsIdGroupItem.class))).thenAnswer(invocation -> {
-			var gxsIdGroupItem = (GxsIdGroupItem) invocation.getArguments()[0];
+		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> {
+			var gxsIdGroupItem = (IdentityGroupItem) invocation.getArguments()[0];
 			gxsIdGroupItem.setPublished(Instant.now());
 			return gxsIdGroupItem;
 		});
 
 		var id = identityService.createOwnIdentity(NAME, false);
 
-		var gxsIdGroupItem = ArgumentCaptor.forClass(GxsIdGroupItem.class);
-		verify(gxsIdRepository).save(gxsIdGroupItem.capture());
+		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
+		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
 		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
 	}
 
@@ -119,16 +119,16 @@ class IdentityServiceTest
 		when(prefsService.hasOwnLocation()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 		when(prefsService.getSecretProfileKey()).thenReturn(encodedKey);
-		when(gxsIdRepository.save(any(GxsIdGroupItem.class))).thenAnswer(invocation -> {
-			var gxsIdGroupItem = (GxsIdGroupItem) invocation.getArguments()[0];
+		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> {
+			var gxsIdGroupItem = (IdentityGroupItem) invocation.getArguments()[0];
 			gxsIdGroupItem.setPublished(Instant.now());
 			return gxsIdGroupItem;
 		});
 
 		var id = identityService.createOwnIdentity(NAME, true);
 
-		var gxsIdGroupItem = ArgumentCaptor.forClass(GxsIdGroupItem.class);
-		verify(gxsIdRepository).save(gxsIdGroupItem.capture());
+		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
+		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
 		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileHash());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileSignature());

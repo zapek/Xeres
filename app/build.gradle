@@ -169,5 +169,7 @@ dependencies {
         implementation "io.netty:netty-tcnative-boringssl-static::$tcnative_classifier"
     }
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: "com.vaadin.external.google", module: "android-json"
+    }
 }

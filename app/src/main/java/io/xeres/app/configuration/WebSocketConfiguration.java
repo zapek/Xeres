@@ -19,66 +19,29 @@
 
 package io.xeres.app.configuration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
-import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import org.springframework.web.socket.messaging.SessionSubscribeEvent;
-import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
-
-/**
- * Configuration of the WebSocket. This is used for anything that requires a persistent connection from
- * the UI client to the server because of a bidirectional data stream (for example, chat windows).
- */
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer
+@EnableWebSocket
+public class WebSocketConfiguration implements WebSocketConfigurer
 {
-	private static final Logger log = LoggerFactory.getLogger(WebSocketConfiguration.class);
-
-	@Override
-	public void registerStompEndpoints(StompEndpointRegistry registry)
+	@Bean
+	public ServletServerContainerFactoryBean createWebSocketContainer()
 	{
-		registry.addEndpoint("/ws");
+		var container = new ServletServerContainerFactoryBean();
+		container.setMaxTextMessageBufferSize(1024 * 1024);
+		container.setMaxBinaryMessageBufferSize(1024 * 1024);
+		return container;
 	}
 
 	@Override
-	public void configureMessageBroker(MessageBrokerRegistry registry)
+	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry)
 	{
-		registry.setApplicationDestinationPrefixes("/app"); // this is for @Controller annotated endpoints
-		registry.enableSimpleBroker(CHAT_PATH); // this is for the broker (subscriptions, ...)
-	}
 
-	@EventListener
-	public void handleSessionSubscribeEvent(SessionSubscribeEvent event)
-	{
-		log.debug("Subscription from {}", event);
-	}
-
-	@EventListener
-	public void handleSessionUnsubscribeEvent(SessionUnsubscribeEvent event)
-	{
-		log.debug("Unsubscription from {}", event);
-	}
-
-	@EventListener
-	public void handleSessionDisconnectEvent(SessionDisconnectEvent event)
-	{
-		log.debug("Disconnection from {}", event);
-	}
-
-	@Override
-	public void configureWebSocketTransport(WebSocketTransportRegistration registry)
-	{
-		registry.setMessageSizeLimit(1024 * 1024); // 1 MB XXX: adjust maybe, see also the client
-		registry.setSendBufferSizeLimit(1024 * 1024);
 	}
 }

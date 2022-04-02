@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.gxsid;
+package io.xeres.common.identity;
 
 public enum Type
 {

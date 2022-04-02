@@ -17,26 +17,42 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.repository;
+package io.xeres.app.database.model.identity;
 
-import io.xeres.app.database.model.chat.ChatRoom;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import io.xeres.common.dto.identity.IdentityDTO;
 
 import java.util.List;
-import java.util.Optional;
 
-@Repository
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
+
+public final class IdentityMapper
 {
-	Optional<ChatRoom> findByRoomIdAndIdentityGroupItem(long roomId, IdentityGroupItem identityGroupItem);
+	private IdentityMapper()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
 
-	List<ChatRoom> findAllBySubscribedTrueAndJoinedFalse();
+	public static IdentityDTO toDTO(IdentityGroupItem identityGroupItem)
+	{
+		if (identityGroupItem == null)
+		{
+			return null;
+		}
 
-	@Modifying
-	@Query("UPDATE ChatRoom c SET c.joined = false WHERE c.joined = true")
-	void putAllJoinedToFalse();
+		return new IdentityDTO(
+				identityGroupItem.getId(),
+				identityGroupItem.getName(),
+				identityGroupItem.getGxsId(),
+				identityGroupItem.getPublished(),
+				identityGroupItem.getType()
+		);
+	}
+
+	public static List<IdentityDTO> toGxsIdDTOs(List<IdentityGroupItem> identityGroupItems)
+	{
+		return emptyIfNull(identityGroupItems).stream()
+				.map(IdentityMapper::toDTO)
+				.toList();
+	}
 }

@@ -17,42 +17,34 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.gxsid;
+package io.xeres.app.database.model.identity;
 
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
-import io.xeres.common.dto.identity.IdentityDTO;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.Id;
+import io.xeres.common.identity.Type;
 
-import java.util.List;
+import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 
-import static org.apache.commons.collections4.ListUtils.emptyIfNull;
-
-public final class GxsIdMapper
+public final class GxsIdFakes
 {
-	private GxsIdMapper()
+	private GxsIdFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static IdentityDTO toDTO(GxsIdGroupItem gxsIdGroupItem)
-	{
-		if (gxsIdGroupItem == null)
-		{
-			return null;
-		}
+	private static long id = OWN_IDENTITY_ID + 1;
 
-		return new IdentityDTO(
-				gxsIdGroupItem.getId(),
-				gxsIdGroupItem.getName(),
-				gxsIdGroupItem.getGxsId(),
-				gxsIdGroupItem.getPublished(),
-				gxsIdGroupItem.getType()
-		);
+	private static long getUniqueId()
+	{
+		return id++;
 	}
 
-	public static List<IdentityDTO> toGxsIdDTOs(List<GxsIdGroupItem> gxsIdGroupItems)
+	public static IdentityGroupItem createOwnIdentity(String name)
 	{
-		return emptyIfNull(gxsIdGroupItems).stream()
-				.map(GxsIdMapper::toDTO)
-				.toList();
+		var identity = new IdentityGroupItem(new GxsId(Id.toBytes("325e3801988a347347ef3e5ae24a63ba")), name);
+		identity.setId(getUniqueId());
+		identity.setType(Type.OWN);
+		return identity;
 	}
 }

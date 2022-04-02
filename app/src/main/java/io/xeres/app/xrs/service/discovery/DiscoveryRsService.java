@@ -39,8 +39,8 @@ import io.xeres.app.xrs.service.discovery.item.DiscoveryContactItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryIdentityListItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpKeyItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem;
-import io.xeres.app.xrs.service.gxsid.GxsIdRsService;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -73,17 +73,17 @@ public class DiscoveryRsService extends RsService
 	private final ProfileService profileService;
 	private final LocationService locationService;
 	private final IdentityService identityService;
-	private final GxsIdRsService gxsIdRsService;
+	private final IdentityRsService identityRsService;
 	private final BuildProperties buildProperties;
 	private final DatabaseSessionManager databaseSessionManager;
 
-	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, GxsIdRsService gxsIdRsService, GxsIdRsService gxsIdRsService1, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
+	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, IdentityRsService identityRsService, IdentityRsService identityRsService1, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
 	{
 		super(environment, peerConnectionManager);
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityService = identityService;
-		this.gxsIdRsService = gxsIdRsService1;
+		this.identityRsService = identityRsService1;
 		this.buildProperties = buildProperties;
 		this.databaseSessionManager = databaseSessionManager;
 	}
@@ -179,11 +179,11 @@ public class DiscoveryRsService extends RsService
 		writeItem(toLocation, builder.build());
 	}
 
-	private void sendIdentity(PeerConnection peerConnection, GxsIdGroupItem gxsIdGroupItem)
+	private void sendIdentity(PeerConnection peerConnection, IdentityGroupItem identityGroupItem)
 	{
-		log.debug("Sending our own identity {} to {}", gxsIdGroupItem, peerConnection);
+		log.debug("Sending our own identity {} to {}", identityGroupItem, peerConnection);
 
-		writeItem(peerConnection, new DiscoveryIdentityListItem(List.of(gxsIdGroupItem.getGxsId())));
+		writeItem(peerConnection, new DiscoveryIdentityListItem(List.of(identityGroupItem.getGxsId())));
 	}
 
 	private void askForPgpKeys(PeerConnection peerConnection, Set<Long> pgpIds)
@@ -463,6 +463,6 @@ public class DiscoveryRsService extends RsService
 	private void handleIdentityList(PeerConnection peerConnection, DiscoveryIdentityListItem discoveryIdentityListItem)
 	{
 		log.debug("Got identities from friend: {}, requesting...", discoveryIdentityListItem);
-		gxsIdRsService.requestGxsGroups(peerConnection, discoveryIdentityListItem.getIdentities());
+		identityRsService.requestGxsGroups(peerConnection, discoveryIdentityListItem.getIdentities()); // XXX: they should be set as type = FRIEND in the database
 	}
 }

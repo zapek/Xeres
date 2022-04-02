@@ -17,12 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.gxsid;
+package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.IdentityService;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.util.NoSuppressedRunnable;
 import org.slf4j.Logger;
@@ -47,9 +47,9 @@ import java.util.concurrent.TimeUnit;
  * </ul>
  */
 @Component
-public class GxsIdManager
+public class IdentityManager
 {
-	private static final Logger log = LoggerFactory.getLogger(GxsIdManager.class);
+	private static final Logger log = LoggerFactory.getLogger(IdentityManager.class);
 
 	private final Map<Long, Set<GxsId>> pendingGxsIds = new HashMap<>();
 
@@ -57,15 +57,15 @@ public class GxsIdManager
 
 	private static final int MAXIMUM_IDS_PER_LOCATION = 5;
 
-	private final GxsIdRsService gxsIdRsService;
+	private final IdentityRsService identityRsService;
 	private final IdentityService identityService;
 	private final PeerConnectionManager peerConnectionManager;
 
 	private final ScheduledExecutorService executorService;
 
-	public GxsIdManager(GxsIdRsService gxsIdRsService, IdentityService identityService, PeerConnectionManager peerConnectionManager)
+	public IdentityManager(IdentityRsService identityRsService, IdentityService identityService, PeerConnectionManager peerConnectionManager)
 	{
-		this.gxsIdRsService = gxsIdRsService;
+		this.identityRsService = identityRsService;
 		this.identityService = identityService;
 		this.peerConnectionManager = peerConnectionManager;
 
@@ -82,7 +82,7 @@ public class GxsIdManager
 		executorService.shutdownNow();
 	}
 
-	public GxsIdGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)
+	public IdentityGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)
 	{
 		synchronized (pendingGxsIds)
 		{
@@ -104,7 +104,7 @@ public class GxsIdManager
 				var peerConnection = peerConnectionManager.getPeerByLocationId(locationId);
 				if (peerConnection != null)
 				{
-					gxsIdRsService.requestGxsGroups(peerConnection, gxsIdsToGet);
+					identityRsService.requestGxsGroups(peerConnection, gxsIdsToGet);
 					gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is  not there anymore, we should try to get it from other peers...
 				}
 			});

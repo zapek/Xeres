@@ -34,8 +34,8 @@ import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
-import io.xeres.app.xrs.service.gxsid.GxsIdManager;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
@@ -144,11 +144,11 @@ public class ChatRsService extends RsService
 	private final IdentityService identityService;
 	private final ChatRoomService chatRoomService;
 	private final DatabaseSessionManager databaseSessionManager;
-	private final GxsIdManager gxsIdManager;
+	private final IdentityManager identityManager;
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, GxsIdManager gxsIdManager)
+	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager)
 	{
 		super(environment, peerConnectionManager);
 		this.locationService = locationService;
@@ -156,7 +156,7 @@ public class ChatRsService extends RsService
 		this.identityService = identityService;
 		this.chatRoomService = chatRoomService;
 		this.databaseSessionManager = databaseSessionManager;
-		this.gxsIdManager = gxsIdManager;
+		this.identityManager = identityManager;
 	}
 
 	@Override
@@ -549,13 +549,13 @@ public class ChatRsService extends RsService
 		else if (item.getEventType() == ChatRoomEvent.PEER_JOINED.getCode())
 		{
 			chatRoom.addUser(user);
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname(), gxsIdManager.getGxsGroup(peerConnection, user));
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
 			chatRoom.setLastKeepAlivePacket(Instant.EPOCH); // send a keep alive event to the participant so that he knows we are in the room
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
 			chatRoom.addUser(user); // KEEP_ALIVE is also used to add users
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname(), gxsIdManager.getGxsGroup(peerConnection, user));
+			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
 		{
@@ -569,17 +569,17 @@ public class ChatRsService extends RsService
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, new ChatRoomMessage());
 	}
 
-	private void sendUserEventToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, GxsIdGroupItem gxsIdGroupItem)
+	private void sendUserEventToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, IdentityGroupItem identityGroupItem)
 	{
-		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname, getImageData(gxsIdGroupItem));
+		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname, getImageData(identityGroupItem));
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
 	}
 
-	private byte[] getImageData(GxsIdGroupItem gxsIdGroupItem)
+	private byte[] getImageData(IdentityGroupItem identityGroupItem)
 	{
-		if (gxsIdGroupItem != null)
+		if (identityGroupItem != null)
 		{
-			return gxsIdGroupItem.getImage();
+			return identityGroupItem.getImage();
 		}
 		return null;
 	}
@@ -845,7 +845,7 @@ public class ChatRsService extends RsService
 
 	private boolean validateBounceSignature(PeerConnection peerConnection, ChatRoomBounce bounce)
 	{
-		var gxsGroup = gxsIdManager.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
+		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
 		if (gxsGroup != null)
 		{
 			return RSA.verify(gxsGroup.getPublishingPublicKey(), bounce.getSignature().getData(), getBounceData(bounce));

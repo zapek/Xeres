@@ -20,7 +20,7 @@
 package io.xeres.app.database.model.chat;
 
 import io.xeres.app.xrs.service.chat.RoomFlags;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import org.apache.commons.lang3.EnumUtils;
 
 import javax.persistence.*;
@@ -37,8 +37,8 @@ public class ChatRoom
 	private long roomId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "gxs_id_group_id")
-	private GxsIdGroupItem gxsIdGroupItem;
+	@JoinColumn(name = "identity_group_id")
+	private IdentityGroupItem identityGroupItem;
 
 	private String name;
 	private String topic;
@@ -51,19 +51,19 @@ public class ChatRoom
 
 	}
 
-	protected ChatRoom(long roomId, GxsIdGroupItem gxsIdGroupItem, String name, String topic, int flags)
+	protected ChatRoom(long roomId, IdentityGroupItem identityGroupItem, String name, String topic, int flags)
 	{
 		this.roomId = roomId;
-		this.gxsIdGroupItem = gxsIdGroupItem;
+		this.identityGroupItem = identityGroupItem;
 		this.name = name;
 		this.topic = topic;
 		this.flags = flags;
 	}
 
-	public static ChatRoom createChatRoom(io.xeres.app.xrs.service.chat.ChatRoom serviceChatRoom, GxsIdGroupItem gxsIdGroupItem)
+	public static ChatRoom createChatRoom(io.xeres.app.xrs.service.chat.ChatRoom serviceChatRoom, IdentityGroupItem identityGroupItem)
 	{
 		return new ChatRoom(serviceChatRoom.getId(),
-				gxsIdGroupItem,
+				identityGroupItem,
 				serviceChatRoom.getName(),
 				serviceChatRoom.getTopic(),
 				(int) EnumUtils.generateBitVector(RoomFlags.class, serviceChatRoom.getRoomFlags()));
@@ -89,14 +89,14 @@ public class ChatRoom
 		this.roomId = roomId;
 	}
 
-	public GxsIdGroupItem getGxsIdGroupItem()
+	public IdentityGroupItem getGxsIdGroupItem()
 	{
-		return gxsIdGroupItem;
+		return identityGroupItem;
 	}
 
-	public void setGxsIdGroupItem(GxsIdGroupItem gxsIdGroupItem)
+	public void setGxsIdGroupItem(IdentityGroupItem identityGroupItem)
 	{
-		this.gxsIdGroupItem = gxsIdGroupItem;
+		this.identityGroupItem = identityGroupItem;
 	}
 
 	public String getName()

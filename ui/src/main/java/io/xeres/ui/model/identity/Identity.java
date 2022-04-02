@@ -19,8 +19,8 @@
 
 package io.xeres.ui.model.identity;
 
-import io.xeres.common.gxsid.Type;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.identity.Type;
 
 import java.time.Instant;
 

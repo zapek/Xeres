@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.gxsid;
+package io.xeres.app.xrs.service.identity;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -40,7 +40,7 @@ import io.xeres.app.xrs.service.gxs.item.GxsExchange;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem;
 import io.xeres.app.xrs.service.gxs.item.GxsTransferGroupItem;
 import io.xeres.app.xrs.service.gxs.item.SyncFlags;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,14 +59,14 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @Component
-public class GxsIdRsService extends GxsRsService
+public class IdentityRsService extends GxsRsService
 {
-	private static final Logger log = LoggerFactory.getLogger(GxsIdRsService.class);
+	private static final Logger log = LoggerFactory.getLogger(IdentityRsService.class);
 
 	private final IdentityService identityService;
 	private final DatabaseSessionManager databaseSessionManager;
 
-	public GxsIdRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService)
+	public IdentityRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService)
 	{
 		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager, databaseSessionManager);
 		this.identityService = identityService;
@@ -76,7 +76,7 @@ public class GxsIdRsService extends GxsRsService
 	@Override
 	public Class<? extends GxsGroupItem> getGroupClass()
 	{
-		return GxsIdGroupItem.class;
+		return IdentityGroupItem.class;
 	}
 
 	@Override
@@ -119,7 +119,7 @@ public class GxsIdRsService extends GxsRsService
 		super.handleItem(sender, item);
 	}
 
-	private void handleGxsIdGroupItem(PeerConnection peerConnection, GxsIdGroupItem item)
+	private void handleGxsIdGroupItem(PeerConnection peerConnection, IdentityGroupItem item)
 	{
 		log.debug("got item: {}", item);
 		// XXX: I think those only exist when doing a transfer between distant peers
@@ -151,7 +151,7 @@ public class GxsIdRsService extends GxsRsService
 				log.debug("Saving id {}", item.getGroupId());
 
 				var buf = Unpooled.copiedBuffer(item.getMeta(), item.getGroup()); //XXX: use ctx().alloc()?
-				var gxsIdGroupItem = new GxsIdGroupItem();
+				var gxsIdGroupItem = new IdentityGroupItem();
 				((RsSerializable) gxsIdGroupItem).readObject(buf, EnumSet.noneOf(SerializationFlags.class)); // XXX: should we add some helper method into Serializer()?
 				buf.release();
 

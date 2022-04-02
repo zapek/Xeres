@@ -26,19 +26,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.error.Error;
-import io.xeres.app.database.model.gxsid.GxsIdMapper;
 import io.xeres.app.service.IdentityService;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
+import io.xeres.common.identity.Type;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
 
-import static io.xeres.app.database.model.gxsid.GxsIdMapper.toDTO;
-import static io.xeres.app.database.model.gxsid.GxsIdMapper.toGxsIdDTOs;
+import static io.xeres.app.database.model.identity.IdentityMapper.toDTO;
+import static io.xeres.app.database.model.identity.IdentityMapper.toGxsIdDTOs;
 import static io.xeres.common.rest.PathConfig.IDENTITY_PATH;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -64,23 +64,25 @@ public class IdentityController
 	}
 
 	@GetMapping
-	@Operation(summary = "Search all gxs identities", description = "If no search parameters are provided, return all gxs identities")
-	@ApiResponse(responseCode = "200", description = "All matched gxs identities")
+	@Operation(summary = "Search all identities", description = "If no search parameters are provided, return all identities")
+	@ApiResponse(responseCode = "200", description = "All matched identities")
 	public List<IdentityDTO> findIdentities(
 			@RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "gxsId", required = false) String gxsId)
+			@RequestParam(value = "gxsId", required = false) String gxsId,
+			@RequestParam(value = "type", required = false) Type type)
 	{
 		if (isNotBlank(name))
 		{
-			var gxsIdentity = identityService.findAllByName(name);
-			return gxsIdentity.stream()
-					.map(GxsIdMapper::toDTO)
-					.toList();
+			return toGxsIdDTOs(identityService.findAllByName(name));
 		}
 		else if (isNotBlank(gxsId))
 		{
-			var gxsIdentity = identityService.findByGxsId(new GxsId(Id.toBytes(gxsId)));
-			return gxsIdentity.map(id -> List.of(toDTO(id))).orElse(Collections.emptyList());
+			var identity = identityService.findByGxsId(new GxsId(Id.toBytes(gxsId)));
+			return identity.map(id -> List.of(toDTO(id))).orElse(Collections.emptyList());
+		}
+		else if (type != null)
+		{
+			return toGxsIdDTOs(identityService.findAllByType(type));
 		}
 		return toGxsIdDTOs(identityService.getAll());
 	}

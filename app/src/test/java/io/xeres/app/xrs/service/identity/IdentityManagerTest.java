@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.gxsid;
+package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.database.model.gxs.GxsIdGroupItemFakes;
 import io.xeres.app.net.peer.PeerConnectionFakes;
@@ -42,19 +42,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class GxsIdManagerTest
+class IdentityManagerTest
 {
 	@Mock
 	private IdentityService identityService;
 
 	@Mock
-	private GxsIdRsService gxsIdRsService;
+	private IdentityRsService identityRsService;
 
 	@Mock
 	private PeerConnectionManager peerConnectionManager;
 
 	@InjectMocks
-	private GxsIdManager gxsIdManager;
+	private IdentityManager identityManager;
 
 	@Test
 	void GxsIdManager_AddOneAndRequest_OK()
@@ -65,11 +65,11 @@ class GxsIdManagerTest
 		when(identityService.findByGxsId(GXSID.getGxsId())).thenReturn(Optional.empty());
 		when(peerConnectionManager.getPeerByLocationId(PEER_CONNECTION.getLocation().getId())).thenReturn(PEER_CONNECTION);
 
-		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID.getGxsId());
+		identityManager.getGxsGroup(PEER_CONNECTION, GXSID.getGxsId());
 
-		gxsIdManager.requestGxsIds();
+		identityManager.requestGxsIds();
 
-		verify(gxsIdRsService).requestGxsGroups(PEER_CONNECTION, List.of(GXSID.getGxsId()));
+		verify(identityRsService).requestGxsGroups(PEER_CONNECTION, List.of(GXSID.getGxsId()));
 	}
 
 	@Test
@@ -87,17 +87,17 @@ class GxsIdManagerTest
 		when(identityService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
 		when(peerConnectionManager.getPeerByLocationId(anyLong())).thenReturn(PEER_CONNECTION);
 
-		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID1.getGxsId());
-		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID2.getGxsId());
-		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID3.getGxsId());
-		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID4.getGxsId());
-		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID5.getGxsId());
-		gxsIdManager.getGxsGroup(PEER_CONNECTION, GXSID6.getGxsId());
+		identityManager.getGxsGroup(PEER_CONNECTION, GXSID1.getGxsId());
+		identityManager.getGxsGroup(PEER_CONNECTION, GXSID2.getGxsId());
+		identityManager.getGxsGroup(PEER_CONNECTION, GXSID3.getGxsId());
+		identityManager.getGxsGroup(PEER_CONNECTION, GXSID4.getGxsId());
+		identityManager.getGxsGroup(PEER_CONNECTION, GXSID5.getGxsId());
+		identityManager.getGxsGroup(PEER_CONNECTION, GXSID6.getGxsId());
 
-		gxsIdManager.requestGxsIds();
+		identityManager.requestGxsIds();
 
 		ArgumentCaptor<List<GxsId>> ids = ArgumentCaptor.forClass(List.class);
-		verify(gxsIdRsService).requestGxsGroups(eq(PEER_CONNECTION), ids.capture());
+		verify(identityRsService).requestGxsGroups(eq(PEER_CONNECTION), ids.capture());
 
 		assertEquals(5, ids.getValue().size());
 

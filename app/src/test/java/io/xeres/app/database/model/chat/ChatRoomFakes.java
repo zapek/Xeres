@@ -19,8 +19,8 @@
 
 package io.xeres.app.database.model.chat;
 
-import io.xeres.app.database.model.gxsid.GxsIdFakes;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.database.model.identity.GxsIdFakes;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -37,13 +37,13 @@ public final class ChatRoomFakes
 		return createChatRoom(ThreadLocalRandom.current().nextLong(), GxsIdFakes.createOwnIdentity("test"), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
 	}
 
-	public static ChatRoom createChatRoom(GxsIdGroupItem gxsIdGroupItem)
+	public static ChatRoom createChatRoom(IdentityGroupItem identityGroupItem)
 	{
-		return createChatRoom(ThreadLocalRandom.current().nextLong(), gxsIdGroupItem, RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoom(ThreadLocalRandom.current().nextLong(), identityGroupItem, RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
 	}
 
-	public static ChatRoom createChatRoom(long roomId, GxsIdGroupItem gxsIdGroupItem, String name, String topic, int flags)
+	public static ChatRoom createChatRoom(long roomId, IdentityGroupItem identityGroupItem, String name, String topic, int flags)
 	{
-		return new ChatRoom(roomId, gxsIdGroupItem, name, topic, flags);
+		return new ChatRoom(roomId, identityGroupItem, name, topic, flags);
 	}
 }

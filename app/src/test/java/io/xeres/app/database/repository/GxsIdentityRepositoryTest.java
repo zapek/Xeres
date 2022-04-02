@@ -27,10 +27,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-class GxsIdRepositoryTest
+class GxsIdentityRepositoryTest
 {
 	@Autowired
-	private GxsIdRepository gxsIdRepository;
+	private GxsIdentityRepository gxsIdentityRepository;
 
 	@Test
 	void GxsIdRepository_CRUD_OK()
@@ -39,35 +39,35 @@ class GxsIdRepositoryTest
 		var gxsIdGroupItem2 = GxsIdGroupItemFakes.createGxsIdGroupItem();
 		var gxsIdGroupItem3 = GxsIdGroupItemFakes.createGxsIdGroupItem();
 
-		var savedGxsIdGroupItem1 = gxsIdRepository.save(gxsIdGroupItem1);
-		var savedGxsIdGroupItem2 = gxsIdRepository.save(gxsIdGroupItem2);
-		gxsIdRepository.save(gxsIdGroupItem3);
+		var savedGxsIdGroupItem1 = gxsIdentityRepository.save(gxsIdGroupItem1);
+		var savedGxsIdGroupItem2 = gxsIdentityRepository.save(gxsIdGroupItem2);
+		gxsIdentityRepository.save(gxsIdGroupItem3);
 
-		var gxsIdGroupItems = gxsIdRepository.findAll();
+		var gxsIdGroupItems = gxsIdentityRepository.findAll();
 		assertNotNull(gxsIdGroupItems);
 		assertEquals(3, gxsIdGroupItems.size());
 
-		var first = gxsIdRepository.findById(gxsIdGroupItems.get(0).getId()).orElse(null);
+		var first = gxsIdentityRepository.findById(gxsIdGroupItems.get(0).getId()).orElse(null);
 		assertNotNull(first);
 		assertEquals(savedGxsIdGroupItem1.getId(), first.getId());
 		assertEquals(savedGxsIdGroupItem1.getName(), first.getName());
 
-		var second = gxsIdRepository.findByGxsId(gxsIdGroupItem2.getGxsId()).orElse(null);
+		var second = gxsIdentityRepository.findByGxsId(gxsIdGroupItem2.getGxsId()).orElse(null);
 		assertNotNull(second);
 		assertEquals(savedGxsIdGroupItem2.getId(), second.getId());
 		assertEquals(savedGxsIdGroupItem2.getName(), second.getName());
 
 		first.setStatus(1);
 
-		var updateGxsIdGroupItem = gxsIdRepository.save(first);
+		var updateGxsIdGroupItem = gxsIdentityRepository.save(first);
 
 		assertNotNull(updateGxsIdGroupItem);
 		assertEquals(first.getId(), updateGxsIdGroupItem.getId());
 		assertEquals(1, updateGxsIdGroupItem.getStatus());
 
-		gxsIdRepository.deleteById(first.getId());
+		gxsIdentityRepository.deleteById(first.getId());
 
-		var deleted = gxsIdRepository.findById(first.getId());
+		var deleted = gxsIdentityRepository.findById(first.getId());
 		assertTrue(deleted.isEmpty());
 	}
 }

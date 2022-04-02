@@ -17,23 +17,23 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.repository;
+package io.xeres.common.identity;
 
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
-import io.xeres.common.id.GxsId;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import static io.xeres.common.identity.Type.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Repository
-public interface GxsIdRepository extends JpaRepository<GxsIdGroupItem, Long>
+class TypeTest
 {
-	Optional<GxsIdGroupItem> findByGxsId(GxsId gxsId);
+	@Test
+	void Type_Enum_Order()
+	{
+		assertEquals(0, OTHER.ordinal());
+		assertEquals(1, OWN.ordinal());
+		assertEquals(2, FRIEND.ordinal());
+		assertEquals(3, BANNED.ordinal());
 
-	List<GxsIdGroupItem> findAllByGxsIdIn(Set<GxsId> gxsIds);
-
-	List<GxsIdGroupItem> findAllByName(String name);
+		assertEquals(4, values().length);
+	}
 }

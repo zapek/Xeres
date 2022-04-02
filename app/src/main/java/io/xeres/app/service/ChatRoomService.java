@@ -21,7 +21,7 @@ package io.xeres.app.service;
 
 import io.xeres.app.database.model.chat.ChatRoom;
 import io.xeres.app.database.repository.ChatRoomRepository;
-import io.xeres.app.xrs.service.gxsid.item.GxsIdGroupItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,24 +39,24 @@ public class ChatRoomService
 	}
 
 	@Transactional
-	public ChatRoom createChatRoom(io.xeres.app.xrs.service.chat.ChatRoom chatRoom, GxsIdGroupItem gxsIdGroupItem)
+	public ChatRoom createChatRoom(io.xeres.app.xrs.service.chat.ChatRoom chatRoom, IdentityGroupItem identityGroupItem)
 	{
-		return chatRoomRepository.save(ChatRoom.createChatRoom(chatRoom, gxsIdGroupItem));
+		return chatRoomRepository.save(ChatRoom.createChatRoom(chatRoom, identityGroupItem));
 	}
 
 	@Transactional
-	public ChatRoom subscribeToChatRoomAndJoin(io.xeres.app.xrs.service.chat.ChatRoom chatRoom, GxsIdGroupItem gxsIdGroupItem)
+	public ChatRoom subscribeToChatRoomAndJoin(io.xeres.app.xrs.service.chat.ChatRoom chatRoom, IdentityGroupItem identityGroupItem)
 	{
-		var entity = chatRoomRepository.findByRoomIdAndGxsIdGroupItem(chatRoom.getId(), gxsIdGroupItem).orElseGet(() -> createChatRoom(chatRoom, gxsIdGroupItem));
+		var entity = chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getId(), identityGroupItem).orElseGet(() -> createChatRoom(chatRoom, identityGroupItem));
 		entity.setSubscribed(true);
 		entity.setJoined(true);
 		return chatRoomRepository.save(entity);
 	}
 
 	@Transactional
-	public ChatRoom unsubscribeFromChatRoomAndLeave(long chatRoomId, GxsIdGroupItem gxsIdGroupItem)
+	public ChatRoom unsubscribeFromChatRoomAndLeave(long chatRoomId, IdentityGroupItem identityGroupItem)
 	{
-		var foundRoom = chatRoomRepository.findByRoomIdAndGxsIdGroupItem(chatRoomId, gxsIdGroupItem);
+		var foundRoom = chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem);
 
 		foundRoom.ifPresent(subscribedRoom -> {
 			subscribedRoom.setSubscribed(false);
@@ -67,9 +67,9 @@ public class ChatRoomService
 	}
 
 	@Transactional
-	public void deleteChatRoom(long chatRoomId, GxsIdGroupItem gxsIdGroupItem)
+	public void deleteChatRoom(long chatRoomId, IdentityGroupItem identityGroupItem)
 	{
-		chatRoomRepository.findByRoomIdAndGxsIdGroupItem(chatRoomId, gxsIdGroupItem).ifPresent(chatRoomRepository::delete);
+		chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem).ifPresent(chatRoomRepository::delete);
 	}
 
 	public List<ChatRoom> getAllChatRoomsPendingToSubscribe()

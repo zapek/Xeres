@@ -23,6 +23,7 @@ public enum TlvType
 {
 	NONE(0x0),
 	STR_NAME(0x51),
+	STR_VALUE(0x54),
 	STR_MSG(0x57),
 	STR_GENID(0x5a),
 	STR_LOCATION(0x5c),

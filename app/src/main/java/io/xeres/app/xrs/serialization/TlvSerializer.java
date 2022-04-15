@@ -45,7 +45,7 @@ final class TlvSerializer
 	{
 		return switch (type)
 				{
-					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID -> TlvStringSerializer.serialize(buf, type, (String) value);
+					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE -> TlvStringSerializer.serialize(buf, type, (String) value);
 					case ADDRESS -> TlvAddressSerializer.serialize(buf, (PeerAddress) value);
 					case ADDRESS_SET -> TlvAddressSerializer.serializeList(buf, (List<PeerAddress>) value);
 					case SIGNATURE -> TlvSignatureSerializer.serialize(buf, (Signature) value);
@@ -87,7 +87,7 @@ final class TlvSerializer
 	{
 		return switch (type)
 				{
-					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID -> TlvStringSerializer.deserialize(buf, type);
+					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE -> TlvStringSerializer.deserialize(buf, type);
 					case ADDRESS -> TlvAddressSerializer.deserialize(buf);
 					case ADDRESS_SET -> TlvAddressSerializer.deserializeList(buf);
 					case SIGNATURE -> TlvSignatureSerializer.deserialize(buf);

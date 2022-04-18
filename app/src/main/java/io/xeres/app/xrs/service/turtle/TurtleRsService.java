@@ -24,9 +24,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericSearchRequestItem;
-import io.xeres.app.xrs.service.turtle.item.TurtleRegExpSearchRequestItem;
-import io.xeres.app.xrs.service.turtle.item.TurtleStringSearchRequestItem;
+import io.xeres.app.xrs.service.turtle.item.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -57,18 +55,41 @@ public class TurtleRsService extends RsService
 	{
 		return Map.of(
 				TurtleStringSearchRequestItem.class, 1,
+				TurtleTunnelOpenItem.class, 3,
+				TurtleTunnelOkItem.class, 4,
 				TurtleRegExpSearchRequestItem.class, 9,
-				TurtleGenericSearchRequestItem.class, 11
+				TurtleGenericSearchRequestItem.class, 11,
+				TurtleGenericSearchResultItem.class, 12
 		);
 	}
 
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		if (item instanceof TurtleStringSearchRequestItem turtleStringSearchRequestItem)
+		if (item instanceof TurtleTunnelOpenItem turtleTunnelOpenItem)
+		{
+			log.debug("Got tunnel open item {} from peer {}", turtleTunnelOpenItem, sender);
+		}
+		else if (item instanceof TurtleTunnelOkItem turtleTunnelOkItem)
+		{
+			log.debug("Got tunnel OK item {} from peer {}", turtleTunnelOkItem, sender);
+		}
+		else if (item instanceof TurtleStringSearchRequestItem turtleStringSearchRequestItem)
 		{
 			log.debug("Got search request item {} from peer {}", turtleStringSearchRequestItem, sender);
 			// XXX
+		}
+		else if (item instanceof TurtleRegExpSearchRequestItem turtleRegExpSearchRequestItem)
+		{
+			log.debug("Got regexp search request item {} from peer {}", turtleRegExpSearchRequestItem, sender);
+		}
+		else if (item instanceof TurtleGenericSearchRequestItem turtleGenericSearchRequestItem)
+		{
+			log.debug("Got generic search request item {} from peer {}", turtleGenericSearchRequestItem, sender);
+		}
+		else if (item instanceof TurtleGenericSearchResultItem turtleGenericSearchResultItem)
+		{
+			log.debug("Got generic search result item {} from peer {}", turtleGenericSearchResultItem, sender);
 		}
 	}
 }

@@ -39,6 +39,11 @@
             "name": "xrs.service.identity.enabled",
             "type": "java.lang.Boolean",
             "description": "Enable the identity service, used to exchange GXS identities."
+        },
+        {
+            "name": "xrs.service.turtle.enabled",
+            "type": "java.lang.String",
+            "description": "Enable the turtle service, used for file searching, tunnel building and file transfers."
         }
     ]
 }

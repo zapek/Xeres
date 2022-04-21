@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class MessageCache
+class MessageCache
 {
 	private static final int CONNECTION_CHALLENGE_MAX_TIME = 30; // maximum age in seconds a message can be used in a connection challenge
 	private static final int LIFETIME_MAX = 1200; // maximum age of a message in seconds

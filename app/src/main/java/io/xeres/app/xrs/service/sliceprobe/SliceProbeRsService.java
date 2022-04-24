@@ -21,7 +21,6 @@ package io.xeres.app.xrs.service.sliceprobe;
 
 import io.xeres.app.net.peer.PeerAttribute;
 import io.xeres.app.net.peer.PeerConnection;
-import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -40,9 +39,9 @@ public class SliceProbeRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(SliceProbeRsService.class);
 
-	public SliceProbeRsService(Environment environment, PeerConnectionManager peerConnectionManager)
+	public SliceProbeRsService(Environment environment)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
 	}
 
 	@Override

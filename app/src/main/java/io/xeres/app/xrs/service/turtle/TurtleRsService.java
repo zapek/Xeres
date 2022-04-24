@@ -25,6 +25,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.item.*;
+import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -39,9 +40,14 @@ public class TurtleRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(TurtleRsService.class);
 
+	private final TunnelRequestCache tunnelRequestCache = new TunnelRequestCache();
+
+	private final PeerConnectionManager peerConnectionManager;
+
 	protected TurtleRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
+		this.peerConnectionManager = peerConnectionManager;
 	}
 
 	@Override
@@ -55,8 +61,8 @@ public class TurtleRsService extends RsService
 	{
 		return Map.of(
 				TurtleStringSearchRequestItem.class, 1,
-				TurtleTunnelOpenItem.class, 3,
-				TurtleTunnelOkItem.class, 4,
+				TurtleTunnelRequestItem.class, 3,
+				TurtleTunnelResultItem.class, 4,
 				TurtleRegExpSearchRequestItem.class, 9,
 				TurtleGenericSearchRequestItem.class, 11,
 				TurtleGenericSearchResultItem.class, 12
@@ -66,11 +72,11 @@ public class TurtleRsService extends RsService
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		if (item instanceof TurtleTunnelOpenItem turtleTunnelOpenItem)
+		if (item instanceof TurtleTunnelRequestItem turtleTunnelRequestItem)
 		{
-			log.debug("Got tunnel open item {} from peer {}", turtleTunnelOpenItem, sender);
+			handleTunnelRequest(sender, turtleTunnelRequestItem);
 		}
-		else if (item instanceof TurtleTunnelOkItem turtleTunnelOkItem)
+		else if (item instanceof TurtleTunnelResultItem turtleTunnelOkItem)
 		{
 			log.debug("Got tunnel OK item {} from peer {}", turtleTunnelOkItem, sender);
 		}
@@ -91,5 +97,37 @@ public class TurtleRsService extends RsService
 		{
 			log.debug("Got generic search result item {} from peer {}", turtleGenericSearchResultItem, sender);
 		}
+	}
+
+	private void handleTunnelRequest(PeerConnection sender, TurtleTunnelRequestItem item)
+	{
+		log.debug("Received tunnel request from peer {}: {}", sender, item);
+
+		if (isBanned(item.getFileHash()))
+		{
+			log.debug("Rejecting banned file hash {}", item.getFileHash());
+			return;
+		}
+
+		// XXX: calculate forwarding probability
+
+		if (tunnelRequestCache.exists(item.getRequestId(), () -> new TunnelRequest(sender.getLocation().getLocationId(), item.getDepth())))
+		{
+			log.debug("Requests {} already exists", item.getRequestId());
+			return;
+		}
+
+		// XXX: if it's not for us, perform a local search and send result back if found
+
+		// XXX: otherwise, forward to all peers (take probability into account), except the sender of course
+
+		peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, item.clone(), this),
+				sender,
+				this);
+	}
+
+	private boolean isBanned(Sha1Sum fileHash)
+	{
+		return false; // TODO: implement
 	}
 }

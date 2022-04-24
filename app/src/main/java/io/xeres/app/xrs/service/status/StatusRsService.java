@@ -42,9 +42,12 @@ public class StatusRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(StatusRsService.class);
 
+	private final PeerConnectionManager peerConnectionManager;
+
 	public StatusRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
+		this.peerConnectionManager = peerConnectionManager;
 	}
 
 	@Override
@@ -69,7 +72,7 @@ public class StatusRsService extends RsService
 	public void initialize(PeerConnection peerConnection)
 	{
 		peerConnection.schedule(
-				() -> writeItem(peerConnection, new StatusItem(ONLINE)),
+				() -> peerConnectionManager.writeItem(peerConnection, new StatusItem(ONLINE), this),
 				0,
 				TimeUnit.SECONDS);
 	}

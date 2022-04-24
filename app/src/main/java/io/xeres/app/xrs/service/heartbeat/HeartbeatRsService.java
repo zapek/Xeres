@@ -37,9 +37,11 @@ import static io.xeres.app.xrs.service.RsServiceType.HEARTBEAT;
 @Component
 public class HeartbeatRsService extends RsService
 {
+	private final PeerConnectionManager peerConnectionManager;
 	public HeartbeatRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
+		this.peerConnectionManager = peerConnectionManager;
 	}
 
 	@Override
@@ -63,7 +65,7 @@ public class HeartbeatRsService extends RsService
 	@Override
 	public void initialize(PeerConnection peerConnection)
 	{
-		peerConnection.scheduleAtFixedRate(() -> writeItem(peerConnection, new HeartbeatItem()),
+		peerConnection.scheduleAtFixedRate(() -> peerConnectionManager.writeItem(peerConnection, new HeartbeatItem(), this),
 				5,
 				5,
 				TimeUnit.SECONDS);

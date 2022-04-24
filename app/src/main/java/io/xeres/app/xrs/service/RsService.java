@@ -19,14 +19,9 @@
 
 package io.xeres.app.xrs.service;
 
-import io.netty.channel.ChannelFuture;
 import io.xeres.app.application.events.NetworkReadyEvent;
-import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
-import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
@@ -45,8 +40,6 @@ import java.util.Map;
  */
 public abstract class RsService implements Comparable<RsService>
 {
-	private static final Logger log = LoggerFactory.getLogger(RsService.class);
-
 	public static final String RS_SERVICE_CLASS_SUFFIX = "RsService";
 	private final Map<Integer, Class<? extends Item>> searchBySubType = new HashMap<>();
 	private Map<Class<? extends Item>, Integer> searchByClass = new HashMap<>();
@@ -64,12 +57,10 @@ public abstract class RsService implements Comparable<RsService>
 	public abstract void handleItem(PeerConnection sender, Item item);
 
 	private final Environment environment;
-	private final PeerConnectionManager peerConnectionManager;
 
-	protected RsService(Environment environment, PeerConnectionManager peerConnectionManager)
+	protected RsService(Environment environment)
 	{
 		this.environment = environment;
-		this.peerConnectionManager = peerConnectionManager;
 	}
 
 	public RsServiceInitPriority getInitPriority()
@@ -165,16 +156,6 @@ public abstract class RsService implements Comparable<RsService>
 		var className = getClass().getSimpleName();
 		assert className.endsWith(RS_SERVICE_CLASS_SUFFIX);
 		return "xrs.service." + className.substring(0, className.length() - RS_SERVICE_CLASS_SUFFIX.length()).toLowerCase(Locale.ROOT) + ".enabled";
-	}
-
-	protected ChannelFuture writeItem(PeerConnection peerConnection, Item item)
-	{
-		return peerConnectionManager.writeItem(peerConnection, item, this);
-	}
-
-	protected ChannelFuture writeItem(Location location, Item item)
-	{
-		return peerConnectionManager.writeItem(location, item, this);
 	}
 
 	@Override

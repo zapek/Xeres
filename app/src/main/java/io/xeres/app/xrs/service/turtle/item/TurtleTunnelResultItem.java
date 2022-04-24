@@ -21,30 +21,18 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.common.id.Sha1Sum;
 
-public class TurtleTunnelOpenItem extends Item
+public class TurtleTunnelResultItem extends Item
 {
 	@RsSerialized
-	private Sha1Sum fileHash;
+	private int tunnelId;
 
 	@RsSerialized
 	private int requestId;
 
-	@RsSerialized
-	private int partialTunnelId;
-
-	@RsSerialized
-	private short depth;
-
-	public TurtleTunnelOpenItem()
+	public int getTunnelId()
 	{
-		// Required
-	}
-
-	public Sha1Sum getFileHash()
-	{
-		return fileHash;
+		return tunnelId;
 	}
 
 	public int getRequestId()
@@ -52,24 +40,12 @@ public class TurtleTunnelOpenItem extends Item
 		return requestId;
 	}
 
-	public int getPartialTunnelId()
-	{
-		return partialTunnelId;
-	}
-
-	public short getDepth()
-	{
-		return depth;
-	}
-
 	@Override
 	public String toString()
 	{
-		return "TurtleTunnelOpenItem{" +
-				"fileHash=" + fileHash +
+		return "TurtleTunnelOkItem{" +
+				"tunnelId=" + tunnelId +
 				", requestId=" + requestId +
-				", partialTunnelId=" + partialTunnelId +
-				", depth=" + depth +
 				'}';
 	}
 }

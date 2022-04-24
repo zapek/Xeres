@@ -76,16 +76,18 @@ public class DiscoveryRsService extends RsService
 	private final IdentityRsService identityRsService;
 	private final BuildProperties buildProperties;
 	private final DatabaseSessionManager databaseSessionManager;
+	private final PeerConnectionManager peerConnectionManager;
 
 	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, IdentityRsService identityRsService, IdentityRsService identityRsService1, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityService = identityService;
 		this.identityRsService = identityRsService1;
 		this.buildProperties = buildProperties;
 		this.databaseSessionManager = databaseSessionManager;
+		this.peerConnectionManager = peerConnectionManager;
 	}
 
 	@Override
@@ -176,20 +178,20 @@ public class DiscoveryRsService extends RsService
 				.filter(connection -> connection.getType() == PeerAddress.Type.HOSTNAME)
 				.findFirst()
 				.ifPresent(connection -> builder.setHostname(connection.getHostname()));
-		writeItem(toLocation, builder.build());
+		peerConnectionManager.writeItem(toLocation, builder.build(), this);
 	}
 
 	private void sendIdentity(PeerConnection peerConnection, IdentityGroupItem identityGroupItem)
 	{
 		log.debug("Sending our own identity {} to {}", identityGroupItem, peerConnection);
 
-		writeItem(peerConnection, new DiscoveryIdentityListItem(List.of(identityGroupItem.getGxsId())));
+		peerConnectionManager.writeItem(peerConnection, new DiscoveryIdentityListItem(List.of(identityGroupItem.getGxsId())), this);
 	}
 
 	private void askForPgpKeys(PeerConnection peerConnection, Set<Long> pgpIds)
 	{
 		var pgpListItem = new DiscoveryPgpListItem(DiscoveryPgpListItem.Mode.GET_CERT, pgpIds);
-		writeItem(peerConnection, pgpListItem);
+		peerConnectionManager.writeItem(peerConnection, pgpListItem, this);
 	}
 
 	private void sendOwnContacts(PeerConnection peerConnection)
@@ -205,7 +207,7 @@ public class DiscoveryRsService extends RsService
 
 		log.debug("Sending list of friends...");
 		assert !pgpIds.isEmpty();
-		writeItem(peerConnection, new DiscoveryPgpListItem(DiscoveryPgpListItem.Mode.FRIENDS, pgpIds));
+		peerConnectionManager.writeItem(peerConnection, new DiscoveryPgpListItem(DiscoveryPgpListItem.Mode.FRIENDS, pgpIds), this);
 	}
 
 	@Transactional
@@ -359,7 +361,7 @@ public class DiscoveryRsService extends RsService
 		{
 			var friends = getMutualFriends(discoveryPgpListItem.getPgpIds());
 
-			friends.forEach(profile -> writeItem(peerConnection, new DiscoveryPgpKeyItem(profile.getPgpIdentifier(), profile.getPgpPublicKeyData()))); // XXX: RS does that slowly it seems... about one key every few seconds
+			friends.forEach(profile -> peerConnectionManager.writeItem(peerConnection, new DiscoveryPgpKeyItem(profile.getPgpIdentifier(), profile.getPgpPublicKeyData()), this)); // XXX: RS does that slowly it seems... about one key every few seconds
 		}
 		else if (discoveryPgpListItem.getMode() == DiscoveryPgpListItem.Mode.FRIENDS)
 		{

@@ -45,11 +45,14 @@ public class RttRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(RttRsService.class);
 
+	private final PeerConnectionManager peerConnectionManager;
+
 	private static final int KEY_COUNTER = 1;
 
 	public RttRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
+		this.peerConnectionManager = peerConnectionManager;
 	}
 
 	@Override
@@ -76,7 +79,7 @@ public class RttRsService extends RsService
 	public void initialize(PeerConnection peerConnection)
 	{
 		peerConnection.scheduleAtFixedRate(
-				() -> writeItem(peerConnection, new RttPingItem(getCounter(peerConnection), get64bitsTimeStamp())),
+				() -> peerConnectionManager.writeItem(peerConnection, new RttPingItem(getCounter(peerConnection), get64bitsTimeStamp()), this),
 				0,
 				10,
 				TimeUnit.SECONDS);
@@ -107,7 +110,7 @@ public class RttRsService extends RsService
 		if (item instanceof RttPingItem pingItem)
 		{
 			var pong = new RttPongItem(pingItem, get64bitsTimeStamp());
-			writeItem(sender, pong);
+			peerConnectionManager.writeItem(sender, pong, this);
 		}
 		else if (item instanceof RttPongItem pongItem)
 		{

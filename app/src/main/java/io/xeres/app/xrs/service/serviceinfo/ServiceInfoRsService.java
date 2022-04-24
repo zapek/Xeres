@@ -49,9 +49,12 @@ public class ServiceInfoRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(ServiceInfoRsService.class);
 
+	private final PeerConnectionManager peerConnectionManager;
+
 	public ServiceInfoRsService(Environment environment, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
+		this.peerConnectionManager = peerConnectionManager;
 	}
 
 	public void init(PeerConnection peerConnection)
@@ -113,7 +116,7 @@ public class ServiceInfoRsService extends RsService
 						services.put(type, new ServiceInfo(serviceType.getName(), type, rsService.getServiceType().getVersionMajor(), rsService.getServiceType().getVersionMinor()));
 					});
 
-			writeItem(peerConnection, new ServiceListItem(services));
+			peerConnectionManager.writeItem(peerConnection, new ServiceListItem(services), this);
 			peerConnection.setServicesSent();
 		}
 	}

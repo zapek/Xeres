@@ -57,13 +57,15 @@ public abstract class GxsRsService extends RsService
 	private final GxsExchangeService gxsExchangeService;
 	protected final GxsTransactionManager gxsTransactionManager;
 	private final DatabaseSessionManager databaseSessionManager;
+	private final PeerConnectionManager peerConnectionManager;
 
 	protected GxsRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
 		this.gxsExchangeService = gxsExchangeService;
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.databaseSessionManager = databaseSessionManager;
+		this.peerConnectionManager = peerConnectionManager;
 	}
 
 	/**
@@ -156,7 +158,7 @@ public abstract class GxsRsService extends RsService
 	{
 		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsExchangeService.getLastPeerUpdate(peerConnection.getLocation(), getServiceType()));
 		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsExchangeService.getLastPeerUpdate(peerConnection.getLocation(), getServiceType()), getServiceType());
-		writeItem(peerConnection, gxsSyncGroupRequestItem);
+		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 	}
 
 	// XXX: maybe have some Gxs dedicated methods...

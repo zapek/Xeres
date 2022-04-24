@@ -150,7 +150,7 @@ public class ChatRsService extends RsService
 
 	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager)
 	{
-		super(environment, peerConnectionManager);
+		super(environment);
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager1;
 		this.identityService = identityService;
@@ -281,7 +281,7 @@ public class ChatRsService extends RsService
 	private void askForNearbyChatRooms(PeerConnection peerConnection)
 	{
 		log.debug("Asking for nearby chat rooms...");
-		writeItem(peerConnection, new ChatRoomListRequestItem());
+		peerConnectionManager.writeItem(peerConnection, new ChatRoomListRequestItem(), this);
 	}
 
 	/**
@@ -322,7 +322,8 @@ public class ChatRsService extends RsService
 
 			// Send connection challenge to all connected friends
 			log.debug("Sending connection challenge for room {}", chatRoom);
-			peerConnectionManager.doForAllPeers(peerConnection -> writeItem(peerConnection, new ChatRoomConnectChallengeItem(peerConnection.getLocation().getLocationId(), chatRoom.getId(), recentMessage)), this);
+			peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new ChatRoomConnectChallengeItem(peerConnection.getLocation().getLocationId(), chatRoom.getId(), recentMessage), this),
+					this);
 		}
 	}
 
@@ -496,7 +497,7 @@ public class ChatRsService extends RsService
 
 		log.debug("Received chat room list request from {}, sending back {}", peerConnection, chatRoomListItem);
 
-		writeItem(peerConnection, chatRoomListItem);
+		peerConnectionManager.writeItem(peerConnection, chatRoomListItem, this);
 	}
 
 	private void handleChatRoomMessageItem(PeerConnection peerConnection, ChatRoomMessageItem item)
@@ -831,7 +832,7 @@ public class ChatRsService extends RsService
 			var location = iterator.next();
 			if (peerConnection == null || !Objects.equals(location, peerConnection.getLocation()))
 			{
-				if (writeItem(location, bounce.clone()) == null) // Netty frees sent items so we need to clone
+				if (peerConnectionManager.writeItem(location, bounce.clone(), this) == null) // Netty frees sent items so we need to clone
 				{
 					iterator.remove(); // Failed to write, it means the location disconnected, so we need to remove it from our participating locations
 				}
@@ -897,7 +898,8 @@ public class ChatRsService extends RsService
 	public void sendBroadcastMessage(String message)
 	{
 		var chatMessageItem = new ChatMessageItem(message, EnumSet.of(ChatFlags.PUBLIC));
-		peerConnectionManager.doForAllPeers(peerConnection -> writeItem(peerConnection, chatMessageItem), this);
+		peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, chatMessageItem, this),
+				this);
 	}
 
 	/**
@@ -910,7 +912,7 @@ public class ChatRsService extends RsService
 	public void sendPrivateMessage(LocationId locationId, String message)
 	{
 		var location = locationService.findLocationById(locationId).orElseThrow();
-		writeItem(location, new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)));
+		peerConnectionManager.writeItem(location, new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 
 	/**
@@ -922,7 +924,7 @@ public class ChatRsService extends RsService
 	public void sendPrivateTypingNotification(LocationId locationId)
 	{
 		var location = locationService.findLocationById(locationId).orElseThrow();
-		writeItem(location, new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)));
+		peerConnectionManager.writeItem(location, new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 
 	/**
@@ -932,7 +934,8 @@ public class ChatRsService extends RsService
 	 */
 	public void setStatusMessage(String message)
 	{
-		peerConnectionManager.doForAllPeers(peerConnection -> writeItem(peerConnection, new ChatStatusItem(message, EnumSet.of(ChatFlags.CUSTOM_STATE))), this);
+		peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new ChatStatusItem(message, EnumSet.of(ChatFlags.CUSTOM_STATE)), this),
+				this);
 	}
 
 	/**

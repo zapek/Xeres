@@ -17,35 +17,26 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle.item;
+package io.xeres.app.xrs.service.turtle;
 
-import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.common.id.LocationId;
 
-public class TurtleTunnelOkItem extends Item
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
+class TunnelRequest
 {
-	@RsSerialized
-	private int tunnelId;
+	private LocationId source;
+	private Instant lastUsed;
+	private int depth;
+	private Set<Integer> responses;
 
-	@RsSerialized
-	private int requestId;
-
-	public int getTunnelId()
+	public TunnelRequest(LocationId source, int depth)
 	{
-		return tunnelId;
-	}
-
-	public int getRequestId()
-	{
-		return requestId;
-	}
-
-	@Override
-	public String toString()
-	{
-		return "TurtleTunnelOkItem{" +
-				"tunnelId=" + tunnelId +
-				", requestId=" + requestId +
-				'}';
+		this.source = source;
+		this.depth = depth;
+		this.lastUsed = Instant.now();
+		this.responses = new HashSet<>();
 	}
 }

@@ -19,13 +19,16 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
-class TunnelCache // XXX: not sure it's the right class... it's not really a "cache"
+class TunnelRequestCache
 {
-	private static final Duration MAXIMUM_IDLE_TIME = Duration.ofMinutes(1); // maximum time a tunnel can stay without traffic
+	private final Map<Integer, TunnelRequest> tunnelRequests = new ConcurrentHashMap<>();
 
-	private final Map<Integer, Tunnel> tunnels = new ConcurrentHashMap<>();
+	public boolean exists(int id, Supplier<TunnelRequest> tunnelRequest)
+	{
+		return tunnelRequests.replace(id, tunnelRequest.get()) != null;
+	}
 }

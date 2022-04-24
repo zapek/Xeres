@@ -140,6 +140,14 @@ public class PeerConnectionManager
 		});
 	}
 
+	public void doForAllPeers(Consumer<PeerConnection> action, PeerConnection sender, RsService rsService)
+	{
+		peers.values().stream()
+				.filter(peerConnection -> !peerConnection.equals(sender))
+				.filter(peerConnection -> peerConnection.isServiceSupported(rsService))
+				.forEach(action);
+	}
+
 	public static ChannelFuture writeItem(ChannelHandlerContext ctx, Item item)
 	{
 		var rawItem = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));

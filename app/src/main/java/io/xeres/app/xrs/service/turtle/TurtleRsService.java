@@ -40,6 +40,8 @@ public class TurtleRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(TurtleRsService.class);
 
+	public static final int MAX_TUNNEL_DEPTH = 6;
+
 	private final TunnelRequestCache tunnelRequestCache = new TunnelRequestCache();
 
 	private final PeerConnectionManager peerConnectionManager;
@@ -121,6 +123,7 @@ public class TurtleRsService extends RsService
 
 		// XXX: otherwise, forward to all peers (take probability into account), except the sender of course
 
+		// XXX: the depth has to be changed (with a random probability)
 		peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, item.clone(), this),
 				sender,
 				this);

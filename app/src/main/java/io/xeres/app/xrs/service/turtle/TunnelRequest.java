@@ -27,10 +27,10 @@ import java.util.Set;
 
 class TunnelRequest
 {
-	private LocationId source;
-	private Instant lastUsed;
-	private int depth;
-	private Set<Integer> responses;
+	private final LocationId source;
+	private final Instant lastUsed;
+	private final int depth;
+	private final Set<Integer> responses;
 
 	public TunnelRequest(LocationId source, int depth)
 	{
@@ -38,5 +38,25 @@ class TunnelRequest
 		this.depth = depth;
 		this.lastUsed = Instant.now();
 		this.responses = new HashSet<>();
+	}
+
+	public LocationId getSource()
+	{
+		return source;
+	}
+
+	public Instant getLastUsed()
+	{
+		return lastUsed;
+	}
+
+	public int getDepth()
+	{
+		return depth;
+	}
+
+	public Set<Integer> getResponses()
+	{
+		return responses;
 	}
 }

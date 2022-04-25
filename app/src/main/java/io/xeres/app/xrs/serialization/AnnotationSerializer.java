@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 final class AnnotationSerializer
 {
@@ -44,7 +45,7 @@ final class AnnotationSerializer
 	{
 		var size = 0;
 
-		for (var field : getAllFields(object.getClass()))
+		for (var field : getAllFields(object.getClass(), isClassOrderReversed(object)))
 		{
 			log.trace("Serializing field {}, of type {}", field.getName(), field.getType().getSimpleName());
 			size += Serializer.serialize(buf, field, object, field.getAnnotation(RsSerialized.class));
@@ -72,7 +73,7 @@ final class AnnotationSerializer
 
 	static boolean deserialize(ByteBuf buf, Object object)
 	{
-		var allFields = getAllFields(object.getClass());
+		var allFields = getAllFields(object.getClass(), isClassOrderReversed(object));
 
 		for (var field : allFields)
 		{
@@ -89,21 +90,32 @@ final class AnnotationSerializer
 	 * @param javaClass the class
 	 * @return all fields ordered from superclass to subclass
 	 */
-	private static List<Field> getAllFields(Class<?> javaClass)
+	private static List<Field> getAllFields(Class<?> javaClass, boolean reversed)
 	{
 		if (javaClass == null || javaClass == Item.class)
 		{
 			return Collections.emptyList();
 		}
 
-		List<Field> superFields = new ArrayList<>(getAllFields(javaClass.getSuperclass()));
+		List<Field> superFields = new ArrayList<>(getAllFields(javaClass.getSuperclass(), reversed));
 		var classFields = Arrays.stream(javaClass.getDeclaredFields())
 				.filter(field -> {
 					field.setAccessible(true); // NOSONAR
 					return field.isAnnotationPresent(RsSerialized.class);
 				})
-				.toList();
+				.collect(Collectors.toList());
+
+		if (reversed)
+		{
+			classFields.addAll(superFields);
+			return classFields;
+		}
 		superFields.addAll(classFields);
 		return superFields;
+	}
+
+	private static boolean isClassOrderReversed(Object object)
+	{
+		return object.getClass().getDeclaredAnnotation(RsClassSerializedReversed.class) != null;
 	}
 }

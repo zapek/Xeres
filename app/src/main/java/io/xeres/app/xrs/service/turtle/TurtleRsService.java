@@ -44,6 +44,8 @@ public class TurtleRsService extends RsService
 
 	private final TunnelRequestCache tunnelRequestCache = new TunnelRequestCache();
 
+	private final TunnelProbability tunnelProbability = new TunnelProbability();
+
 	private final PeerConnectionManager peerConnectionManager;
 
 	protected TurtleRsService(Environment environment, PeerConnectionManager peerConnectionManager)
@@ -78,26 +80,17 @@ public class TurtleRsService extends RsService
 		{
 			handleTunnelRequest(sender, turtleTunnelRequestItem);
 		}
-		else if (item instanceof TurtleTunnelResultItem turtleTunnelOkItem)
+		else if (item instanceof TurtleTunnelResultItem turtleTunnelResultItem)
 		{
-			log.debug("Got tunnel OK item {} from peer {}", turtleTunnelOkItem, sender);
+			log.debug("Got tunnel OK item {} from peer {}", turtleTunnelResultItem, sender);
 		}
-		else if (item instanceof TurtleStringSearchRequestItem turtleStringSearchRequestItem)
+		else if (item instanceof TurtleSearchRequestItem turtleSearchRequestItem)
 		{
-			log.debug("Got search request item {} from peer {}", turtleStringSearchRequestItem, sender);
-			// XXX
+			handleSearchRequest(sender, turtleSearchRequestItem);
 		}
-		else if (item instanceof TurtleRegExpSearchRequestItem turtleRegExpSearchRequestItem)
+		else if (item instanceof TurtleSearchResultItem turtleSearchResultItem)
 		{
-			log.debug("Got regexp search request item {} from peer {}", turtleRegExpSearchRequestItem, sender);
-		}
-		else if (item instanceof TurtleGenericSearchRequestItem turtleGenericSearchRequestItem)
-		{
-			log.debug("Got generic search request item {} from peer {}", turtleGenericSearchRequestItem, sender);
-		}
-		else if (item instanceof TurtleGenericSearchResultItem turtleGenericSearchResultItem)
-		{
-			log.debug("Got generic search result item {} from peer {}", turtleGenericSearchResultItem, sender);
+			log.debug("Got turtle search result item {} from peer {}", turtleSearchResultItem, sender);
 		}
 	}
 
@@ -119,14 +112,42 @@ public class TurtleRsService extends RsService
 			return;
 		}
 
-		// XXX: if it's not for us, perform a local search and send result back if found
+		// XXX: if it's not for us, perform a local search and send result back if found (otherwise forward)
 
-		// XXX: otherwise, forward to all peers (take probability into account), except the sender of course
+		if (tunnelProbability.isForwardable(item)) // XXX: this is different there! needs the number of peers and speed...
+		{
+			peerConnectionManager.doForAllPeers(peerConnection -> {
+						var itemToSend = item.clone();
+						tunnelProbability.incrementDepth(itemToSend);
+						peerConnectionManager.writeItem(peerConnection, itemToSend, this);
+					},
+					sender,
+					this);
+		}
+	}
 
-		// XXX: the depth has to be changed (with a random probability)
-		peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, item.clone(), this),
-				sender,
-				this);
+	private void handleSearchRequest(PeerConnection sender, TurtleSearchRequestItem item)
+	{
+		log.debug("Received search request from peer {}: {}", sender, item);
+
+		// XXX: check maximum size
+
+		// XXX: check maximum search request in cache
+
+		// XXX: check if search request already in cache
+
+		// XXX: forward if not for us, etc...
+
+		if (tunnelProbability.isForwardable(item))
+		{
+			peerConnectionManager.doForAllPeers(peerConnection -> {
+						var itemToSend = item.clone();
+						tunnelProbability.incrementDepth(itemToSend);
+						peerConnectionManager.writeItem(peerConnection, itemToSend, this);
+					},
+					sender,
+					this);
+		}
 	}
 
 	private boolean isBanned(Sha1Sum fileHash)

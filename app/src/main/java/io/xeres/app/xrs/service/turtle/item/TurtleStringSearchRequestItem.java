@@ -19,21 +19,16 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
-import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.serialization.RsClassSerializedReversed;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_VALUE;
 
-public class TurtleStringSearchRequestItem extends Item
+@RsClassSerializedReversed
+public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem implements Cloneable
 {
 	@RsSerialized(tlvType = STR_VALUE)
 	private String search;
-
-	@RsSerialized
-	private int requestId;
-
-	@RsSerialized
-	private short depth;
 
 	public TurtleStringSearchRequestItem()
 	{
@@ -45,14 +40,10 @@ public class TurtleStringSearchRequestItem extends Item
 		return search;
 	}
 
-	public int getRequestId()
+	@Override
+	public String getKeywords()
 	{
-		return requestId;
-	}
-
-	public short getDepth()
-	{
-		return depth;
+		return search;
 	}
 
 	@Override
@@ -60,8 +51,16 @@ public class TurtleStringSearchRequestItem extends Item
 	{
 		return "TurtleStringSearchRequestItem{" +
 				"search='" + search + '\'' +
-				", requestId=" + requestId +
-				", depth=" + depth +
+				", requestId=" + getRequestId() +
+				", depth=" + getDepth() +
 				'}';
+	}
+
+	@Override
+	public TurtleStringSearchRequestItem clone()
+	{
+		TurtleStringSearchRequestItem clone = (TurtleStringSearchRequestItem) super.clone();
+		// TODO: copy mutable state here, so the clone can't change the internals of the original
+		return clone;
 	}
 }

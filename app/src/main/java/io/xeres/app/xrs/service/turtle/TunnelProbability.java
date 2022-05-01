@@ -19,6 +19,9 @@
 
 package io.xeres.app.xrs.service.turtle;
 
+import io.xeres.app.xrs.service.turtle.item.TurtleSearchRequestItem;
+import io.xeres.app.xrs.service.turtle.item.TurtleTunnelRequestItem;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import static io.xeres.app.xrs.service.turtle.TurtleRsService.MAX_TUNNEL_DEPTH;
@@ -33,21 +36,47 @@ class TunnelProbability
 	}
 
 	/**
-	 * Finds out if a packet is forwardable. Its depth has to be lower than MAX_TUNNEL_DEPTH. There's a random
+	 * Finds out if a search request subclass is forwardable. Its depth has to be lower than MAX_TUNNEL_DEPTH. There's a random
 	 * bias to let some packets pass to avoid a successful search by depth attack.
 	 *
-	 * @param id    the tunnel id (search requests) or partial tunnel id (tunnel requests)
-	 * @param depth the depth
+	 * @param item a TurtleSearchRequestItem
 	 * @return true if forwardable
 	 */
-	public boolean isForwardable(int id, int depth)
+	public boolean isForwardable(TurtleSearchRequestItem item)
+	{
+		return isForwardable(item.getRequestId(), item.getDepth());
+	}
+
+	/**
+	 * Finds out if a tunnel request is forwardable. Its depth has to be lower than MAX_TUNNEL_DEPTH. There's a random
+	 * bias to let some packets pass to avoid a successful search by depth attack.
+	 *
+	 * @param item a TurtleTunnelRequestItem
+	 * @return true if forwardable
+	 */
+	public boolean isForwardable(TurtleTunnelRequestItem item)
+	{
+		return isForwardable(item.getPartialTunnelId(), item.getDepth());
+	}
+
+	private boolean isForwardable(int id, int depth)
 	{
 		var randomBypass = depth >= MAX_TUNNEL_DEPTH && (((bias ^ id) & 0x7) == 2);
 
 		return depth < MAX_TUNNEL_DEPTH || randomBypass;
 	}
 
-	public int incrementDepth(int id, int depth)
+	public void incrementDepth(TurtleSearchRequestItem item)
+	{
+		item.setDepth(incrementDepth(item.getRequestId(), item.getDepth()));
+	}
+
+	public void incrementDepth(TurtleTunnelRequestItem item)
+	{
+		item.setDepth(incrementDepth(item.getPartialTunnelId(), item.getDepth()));
+	}
+
+	private short incrementDepth(int id, short depth)
 	{
 		var randomDepthSkipShift = depth == 1 && (((bias ^ id) & 0x7) == 6);
 

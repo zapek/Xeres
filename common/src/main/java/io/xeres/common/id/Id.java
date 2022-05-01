@@ -25,9 +25,12 @@ import java.util.Locale;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+/**
+ * Contains ID conversion and representation methods. Used for locations, PGP identifiers, identities and so on.
+ */
 public final class Id
 {
-	private static final char[] hex = "0123456789abcdef".toCharArray();
+	private static final char[] HEX = "0123456789abcdef".toCharArray();
 
 	private Id()
 	{
@@ -52,8 +55,8 @@ public final class Id
 
 		for (var b : id)
 		{
-			sb.append(hex[(b & 0xf0) >> 4])
-					.append(hex[b & 0x0f]);
+			sb.append(HEX[(b & 0xf0) >> 4])
+					.append(HEX[b & 0x0f]);
 		}
 		return sb.toString();
 	}
@@ -115,6 +118,14 @@ public final class Id
 		return toString(identifier.getBytes());
 	}
 
+	/**
+	 * Converts a string containing a hexadecimal ASCII representation of bytes into an array of
+	 * the corresponding byte values. For example, if the string contains "3133" (0x31 ('1') and 0x33 ('3'))
+	 * which represents 0x13, the result is an array of bytes which is { 0x13 }.
+	 *
+	 * @param id a string of hexadecimal ASCII values
+	 * @return an array of corresponding values
+	 */
 	public static byte[] asciiStringToBytes(String id)
 	{
 		return asciiToBytes(id.getBytes());

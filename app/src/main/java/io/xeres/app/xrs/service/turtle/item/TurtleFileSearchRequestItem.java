@@ -19,47 +19,17 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
-import io.xeres.app.xrs.serialization.RsSerialized;
-
-public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem implements Cloneable
+public class TurtleFileSearchRequestItem extends TurtleSearchRequestItem implements Cloneable
 {
-	@RsSerialized
-	private String expression;
-
-	public TurtleRegExpSearchRequestItem()
-	{
-		// Required
-	}
-
-	public String getExpression()
-	{
-		return expression;
-	}
-
-	// XXX: implements regexp system, see rsexpr.cc
-
-
 	@Override
 	public String getKeywords()
 	{
-		return expression;
+		return "";
 	}
 
 	@Override
-	public String toString()
+	public TurtleFileSearchRequestItem clone()
 	{
-		return "TurtleRegExpSearchRequestItem{" +
-				"requestId=" + getRequestId() +
-				", depth=" + getDepth() +
-				", expression='" + expression + '\'' +
-				'}';
-	}
-
-	@Override
-	public TurtleRegExpSearchRequestItem clone()
-	{
-		TurtleRegExpSearchRequestItem clone = (TurtleRegExpSearchRequestItem) super.clone();
-		// TODO: copy mutable state here, so the clone can't change the internals of the original
-		return clone;
+		return (TurtleFileSearchRequestItem) super.clone();
 	}
 }

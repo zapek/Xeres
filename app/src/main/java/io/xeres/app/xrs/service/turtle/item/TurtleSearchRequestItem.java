@@ -20,41 +20,35 @@
 package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.common.id.Sha1Sum;
 
-public class TurtleTunnelRequestItem extends Item implements Cloneable
+public abstract class TurtleSearchRequestItem extends Item implements Cloneable
 {
-	@RsSerialized
-	private Sha1Sum fileHash;
-
 	@RsSerialized
 	private int requestId;
 
 	@RsSerialized
-	private int partialTunnelId;
-
-	@RsSerialized
 	private short depth;
 
-	public TurtleTunnelRequestItem()
+	public abstract String getKeywords();
+
+	// XXX: Item has getService()... how do we implement that? (ie. how can another service use turtle itself?)
+
+	protected TurtleSearchRequestItem()
 	{
-		// Required
+		// Needed
 	}
 
-	public Sha1Sum getFileHash()
+	@Override
+	public int getPriority()
 	{
-		return fileHash;
+		return ItemPriority.HIGH.getPriority();
 	}
 
 	public int getRequestId()
 	{
 		return requestId;
-	}
-
-	public int getPartialTunnelId()
-	{
-		return partialTunnelId;
 	}
 
 	public short getDepth()
@@ -68,24 +62,12 @@ public class TurtleTunnelRequestItem extends Item implements Cloneable
 	}
 
 	@Override
-	public String toString()
-	{
-		return "TurtleTunnelOpenItem{" +
-				"fileHash=" + fileHash +
-				", requestId=" + requestId +
-				", partialTunnelId=" + partialTunnelId +
-				", depth=" + depth +
-				'}';
-	}
-
-	@Override
-	public TurtleTunnelRequestItem clone()
+	public TurtleSearchRequestItem clone()
 	{
 		try
 		{
-			var clone = (TurtleTunnelRequestItem) super.clone();
+			var clone = (TurtleSearchRequestItem) super.clone();
 			clone.buf = null; // the cloning is done to write multiple buffers, we don't need to copy it
-			// XXX: is fileHash cloned properly? check...
 			return clone;
 		}
 		catch (CloneNotSupportedException e)

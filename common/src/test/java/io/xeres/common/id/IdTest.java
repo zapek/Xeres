@@ -31,11 +31,12 @@ class IdTest
 	@Test
 	void Id_ToString_FromBytes_OK()
 	{
-		var id = new BigInteger("13352839ab34093f", 16);
+		var value = "13352839ab34093f";
+		var id = new BigInteger(value, 16);
 
 		var result = Id.toString(id.toByteArray());
 
-		assertEquals("13352839ab34093f", result);
+		assertEquals(value, result);
 	}
 
 	@Test

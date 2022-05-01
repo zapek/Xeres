@@ -19,20 +19,13 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
-import io.xeres.app.xrs.serialization.RsSerialized;
-
-public class TurtleGenericSearchResultItem extends TurtleSearchResultItem
+public class TurtleFileSearchResultItem extends TurtleSearchResultItem
 {
-	@RsSerialized
-	private byte[] searchData; // XXX: not sure it's the right data type
+	// XXX: some "TurtleFileInfo" List here...
 
-	public TurtleGenericSearchResultItem()
-	{
-		// Required
-	}
 
-	public byte[] getSearchData()
+	public TurtleFileSearchResultItem()
 	{
-		return searchData;
+		// Needed
 	}
 }

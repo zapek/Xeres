@@ -66,8 +66,6 @@ public class TurtleGenericSearchRequestItem extends TurtleFileSearchRequestItem 
 	@Override
 	public TurtleGenericSearchRequestItem clone()
 	{
-		var clone = (TurtleGenericSearchRequestItem) super.clone();
-		// TODO: copy mutable state here, so the clone can't change the internals of the original
-		return clone;
+		return (TurtleGenericSearchRequestItem) super.clone();
 	}
 }

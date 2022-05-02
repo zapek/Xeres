@@ -85,7 +85,6 @@ public class TurtleTunnelRequestItem extends Item implements Cloneable
 		{
 			var clone = (TurtleTunnelRequestItem) super.clone();
 			clone.buf = null; // the cloning is done to write multiple buffers, we don't need to copy it
-			// XXX: is fileHash cloned properly? check...
 			return clone;
 		}
 		catch (CloneNotSupportedException e)

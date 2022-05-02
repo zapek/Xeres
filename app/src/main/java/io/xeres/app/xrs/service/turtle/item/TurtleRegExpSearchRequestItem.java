@@ -58,8 +58,6 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 	@Override
 	public TurtleRegExpSearchRequestItem clone()
 	{
-		TurtleRegExpSearchRequestItem clone = (TurtleRegExpSearchRequestItem) super.clone();
-		// TODO: copy mutable state here, so the clone can't change the internals of the original
-		return clone;
+		return (TurtleRegExpSearchRequestItem) super.clone();
 	}
 }

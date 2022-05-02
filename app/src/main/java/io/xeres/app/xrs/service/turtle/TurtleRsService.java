@@ -42,6 +42,8 @@ public class TurtleRsService extends RsService
 
 	public static final int MAX_TUNNEL_DEPTH = 6;
 
+	private final SearchRequestCache searchRequestCache = new SearchRequestCache();
+
 	private final TunnelRequestCache tunnelRequestCache = new TunnelRequestCache();
 
 	private final TunnelProbability tunnelProbability = new TunnelProbability();
@@ -134,7 +136,11 @@ public class TurtleRsService extends RsService
 
 		// XXX: check maximum search request in cache
 
-		// XXX: check if search request already in cache
+		if (searchRequestCache.exists(item.getRequestId()))
+		{
+			log.debug("Request {} already in cache", item.getRequestId());
+			return;
+		}
 
 		// XXX: forward if not for us, etc...
 

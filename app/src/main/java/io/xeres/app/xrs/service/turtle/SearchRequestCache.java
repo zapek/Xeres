@@ -43,4 +43,9 @@ class SearchRequestCache
 	{
 		return searchRequests.replace(id, searchRequestSupplier.get()) != null;
 	}
+
+	public SearchRequest get(int requestId)
+	{
+		return searchRequests.get(requestId);
+	}
 }

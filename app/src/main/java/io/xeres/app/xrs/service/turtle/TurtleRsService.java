@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
@@ -45,6 +47,8 @@ public class TurtleRsService extends RsService
 	private static final int MAX_SEARCH_REQUEST_IN_CACHE = 120;
 
 	private static final int MAX_SEARCH_HITS = 100;
+
+	private static final Duration SEARCH_REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
 	private final SearchRequestCache searchRequestCache = new SearchRequestCache(MAX_SEARCH_REQUEST_IN_CACHE);
 
@@ -96,7 +100,7 @@ public class TurtleRsService extends RsService
 		}
 		else if (item instanceof TurtleSearchResultItem turtleSearchResultItem)
 		{
-			log.debug("Got turtle search result item {} from peer {}", turtleSearchResultItem, sender);
+			handleSearchResult(sender, turtleSearchResultItem);
 		}
 	}
 
@@ -147,7 +151,7 @@ public class TurtleRsService extends RsService
 		// XXX: perform local search
 
 		if (searchRequestCache.exists(item.getRequestId(),
-				() -> new SearchRequest(sender.getLocation().getLocationId(),
+				() -> new SearchRequest(sender.getLocation(),
 						item.getDepth(),
 						item.getKeywords(),
 						0,
@@ -167,6 +171,44 @@ public class TurtleRsService extends RsService
 					sender,
 					this);
 		}
+	}
+
+	private void handleSearchResult(PeerConnection sender, TurtleSearchResultItem item)
+	{
+		log.debug("Received search result from peer {}: {}", sender, item);
+
+		if (item instanceof TurtleFileSearchResultItem turtleFileSearchResultItem)
+		{
+			// XXX: check isBanned() on the fileInfo hashes
+		}
+
+		var searchRequest = searchRequestCache.get(item.getRequestId());
+		if (searchRequest == null)
+		{
+			log.error("Search result for request {} doesn't exist in the cache", item);
+			return;
+		}
+
+		if (Duration.between(searchRequest.getLastUsed(), Instant.now()).compareTo(SEARCH_REQUEST_TIMEOUT) > 0)
+		{
+			log.debug("Search result arrived too late, dropping...");
+			return;
+		}
+
+		//if (searchRequest.getSource() == ) maybe we should avoid using the database for checking our OWN id because that is done a lot...
+		var total = item.getCount();
+
+		if (searchRequest.getResultCount() + total > searchRequest.getHitLimit())
+		{
+			// XXX: trim the results and set result count
+		}
+		else
+		{
+			// XXX: increment result count with total
+		}
+
+		// Forward the item to origin
+		peerConnectionManager.writeItem(searchRequest.getSource(), item.clone(), this);
 	}
 
 	private boolean isBanned(Sha1Sum fileHash)

@@ -19,13 +19,44 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
-public class TurtleFileSearchResultItem extends TurtleSearchResultItem
-{
-	// XXX: some "TurtleFileInfo" List here...
+import io.xeres.app.xrs.serialization.RsSerialized;
 
+import java.util.List;
+
+public class TurtleFileSearchResultItem extends TurtleSearchResultItem implements Cloneable
+{
+	@RsSerialized
+	private List<TurtleFileInfo> results;
 
 	public TurtleFileSearchResultItem()
 	{
 		// Needed
+	}
+
+	@Override
+	public int getCount()
+	{
+		return results.size();
+	}
+
+	public List<TurtleFileInfo> getResults()
+	{
+		return results;
+	}
+
+	@Override
+	public TurtleFileSearchResultItem clone()
+	{
+		var clone = (TurtleFileSearchResultItem) super.clone();
+		// XXX: copy results I think... since it's no deep copy...
+		return clone;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TurtleFileSearchResultItem{" +
+				"results=" + results +
+				'}';
 	}
 }

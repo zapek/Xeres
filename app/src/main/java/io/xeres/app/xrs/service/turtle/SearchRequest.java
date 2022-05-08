@@ -19,30 +19,30 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.app.database.model.location.Location;
 
 import java.time.Instant;
 
 class SearchRequest
 {
-	private final LocationId source;
+	private final Location source;
 	private final Instant lastUsed;
 	private final int depth;
 	private final String keywords;
-	private final int results;
+	private final int resultCount;
 	private final int hitLimit;
 
-	public SearchRequest(LocationId source, int depth, String keywords, int results, int hitLimit)
+	public SearchRequest(Location source, int depth, String keywords, int resultCount, int hitLimit)
 	{
 		this.source = source;
 		this.lastUsed = Instant.now();
 		this.depth = depth;
 		this.keywords = keywords;
-		this.results = results;
+		this.resultCount = resultCount;
 		this.hitLimit = hitLimit;
 	}
 
-	public LocationId getSource()
+	public Location getSource()
 	{
 		return source;
 	}
@@ -62,9 +62,9 @@ class SearchRequest
 		return keywords;
 	}
 
-	public int getResults()
+	public int getResultCount()
 	{
-		return results;
+		return resultCount;
 	}
 
 	public int getHitLimit()

@@ -42,7 +42,11 @@ public class TurtleRsService extends RsService
 
 	public static final int MAX_TUNNEL_DEPTH = 6;
 
-	private final SearchRequestCache searchRequestCache = new SearchRequestCache();
+	private static final int MAX_SEARCH_REQUEST_IN_CACHE = 120;
+
+	private static final int MAX_SEARCH_HITS = 100;
+
+	private final SearchRequestCache searchRequestCache = new SearchRequestCache(MAX_SEARCH_REQUEST_IN_CACHE);
 
 	private final TunnelRequestCache tunnelRequestCache = new TunnelRequestCache();
 
@@ -134,15 +138,24 @@ public class TurtleRsService extends RsService
 
 		// XXX: check maximum size
 
-		// XXX: check maximum search request in cache
+		if (searchRequestCache.isFull())
+		{
+			log.debug("Request cache is full. Check if a peer is flooding.");
+			return;
+		}
 
-		if (searchRequestCache.exists(item.getRequestId()))
+		// XXX: perform local search
+
+		if (searchRequestCache.exists(item.getRequestId(),
+				() -> new SearchRequest(sender.getLocation().getLocationId(),
+						item.getDepth(),
+						item.getKeywords(),
+						0,
+						MAX_SEARCH_HITS)))
 		{
 			log.debug("Request {} already in cache", item.getRequestId());
 			return;
 		}
-
-		// XXX: forward if not for us, etc...
 
 		if (tunnelProbability.isForwardable(item))
 		{

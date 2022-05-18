@@ -27,8 +27,8 @@ class TunnelRequestCache
 {
 	private final Map<Integer, TunnelRequest> tunnelRequests = new ConcurrentHashMap<>();
 
-	public boolean exists(int id, Supplier<TunnelRequest> tunnelRequest)
+	public boolean exists(int id, Supplier<TunnelRequest> tunnelRequestSupplier)
 	{
-		return tunnelRequests.replace(id, tunnelRequest.get()) != null;
+		return tunnelRequests.replace(id, tunnelRequestSupplier.get()) != null;
 	}
 }

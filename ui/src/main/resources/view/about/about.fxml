@@ -118,7 +118,7 @@
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Please visit "/>
-                    <Hyperlink text="https://xeres.io/"/>
+                    <Hyperlink text="https://xeres.io"/>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" to make a donation.&#10;"/>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="All sponsors will be listed here (opt-in)."/>
                 </TextFlow>

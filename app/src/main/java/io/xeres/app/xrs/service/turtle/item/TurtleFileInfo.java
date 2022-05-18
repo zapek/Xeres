@@ -20,43 +20,54 @@
 package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.serialization.TlvType;
+import io.xeres.common.id.Sha1Sum;
 
-import java.util.Arrays;
-
-public class TurtleGenericSearchResultItem extends TurtleSearchResultItem implements Cloneable
+public class TurtleFileInfo
 {
 	@RsSerialized
-	private byte[] searchData; // XXX: not sure it's the right data type
+	private long fileSize;
 
-	public TurtleGenericSearchResultItem()
+	@RsSerialized
+	private Sha1Sum fileHash;
+
+	@RsSerialized(tlvType = TlvType.STR_NAME)
+	private String fileName;
+
+	public TurtleFileInfo()
 	{
-		// Required
+		// Needed
 	}
 
-	public byte[] getSearchData()
+	public TurtleFileInfo(long fileSize, Sha1Sum fileHash, String fileName)
 	{
-		return searchData;
+		this.fileSize = fileSize;
+		this.fileHash = fileHash;
+		this.fileName = fileName;
 	}
 
-	@Override
-	public int getCount()
+	public long getFileSize()
 	{
-		return searchData.length / 50; // XXX: this is an estimate... probably wrong
+		return fileSize;
 	}
 
-	@Override
-	public TurtleGenericSearchResultItem clone()
+	public Sha1Sum getFileHash()
 	{
-		var clone = (TurtleGenericSearchResultItem) super.clone();
-		// XXXX: not sure if I have to copy...
-		return clone;
+		return fileHash;
+	}
+
+	public String getFileName()
+	{
+		return fileName;
 	}
 
 	@Override
 	public String toString()
 	{
-		return "TurtleGenericSearchResultItem{" +
-				"searchData=" + Arrays.toString(searchData) +
+		return "TurtleFileInfo{" +
+				"fileSize=" + fileSize +
+				", fileHash=" + fileHash +
+				", fileName='" + fileName + '\'' +
 				'}';
 	}
 }

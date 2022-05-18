@@ -19,28 +19,30 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.app.database.model.location.Location;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
-class TunnelRequest
+class SearchRequest
 {
-	private final LocationId source;
+	private final Location source;
 	private final Instant lastUsed;
 	private final int depth;
-	private final Set<Integer> responses;
+	private final String keywords;
+	private final int resultCount;
+	private final int hitLimit;
 
-	public TunnelRequest(LocationId source, int depth)
+	public SearchRequest(Location source, int depth, String keywords, int resultCount, int hitLimit)
 	{
 		this.source = source;
 		this.lastUsed = Instant.now();
 		this.depth = depth;
-		this.responses = new HashSet<>();
+		this.keywords = keywords;
+		this.resultCount = resultCount;
+		this.hitLimit = hitLimit;
 	}
 
-	public LocationId getSource()
+	public Location getSource()
 	{
 		return source;
 	}
@@ -55,8 +57,18 @@ class TunnelRequest
 		return depth;
 	}
 
-	public Set<Integer> getResponses()
+	public String getKeywords()
 	{
-		return responses;
+		return keywords;
+	}
+
+	public int getResultCount()
+	{
+		return resultCount;
+	}
+
+	public int getHitLimit()
+	{
+		return hitLimit;
 	}
 }

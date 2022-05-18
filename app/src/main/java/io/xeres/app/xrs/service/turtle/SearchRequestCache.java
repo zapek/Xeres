@@ -19,15 +19,33 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 class SearchRequestCache
 {
-	private final Set<Integer> searchRequests = ConcurrentHashMap.newKeySet();
+	private final Map<Integer, SearchRequest> searchRequests = new ConcurrentHashMap<>();
 
-	public boolean exists(int id)
+	private final int maximumSize;
+
+	public SearchRequestCache(int maximumSize)
 	{
-		return !searchRequests.add(id);
+		this.maximumSize = maximumSize;
+	}
+
+	public boolean isFull()
+	{
+		return searchRequests.size() >= maximumSize;
+	}
+
+	public boolean exists(int id, Supplier<SearchRequest> searchRequestSupplier)
+	{
+		return searchRequests.replace(id, searchRequestSupplier.get()) != null;
+	}
+
+	public SearchRequest get(int requestId)
+	{
+		return searchRequests.get(requestId);
 	}
 }

@@ -103,7 +103,7 @@ final class AnnotationSerializer
 					field.setAccessible(true); // NOSONAR
 					return field.isAnnotationPresent(RsSerialized.class);
 				})
-				.collect(Collectors.toList());
+				.collect(Collectors.toCollection(ArrayList::new));
 
 		if (reversed)
 		{

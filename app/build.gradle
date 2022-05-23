@@ -149,14 +149,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-webflux' // to bring in netty
-    implementation "org.flywaydb:flyway-core:$flywayVersion"
-    implementation "org.bouncycastle:bcpg-jdk15on:$bouncycastleVersion"
-    implementation "org.bouncycastle:bcpkix-jdk15on:$bouncycastleVersion"
+    implementation "org.flywaydb:flyway-core"
+    implementation "org.bouncycastle:bcpg-jdk18on:$bouncycastleVersion"
+    implementation "org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion"
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation 'com.github.peter-gergely-horvath:windpapi4j:1.0'
     implementation 'net.harawata:appdirs:1.2.1'
     implementation 'com.github.atomashpolskiy:bt-dht:1.10'
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
+    implementation 'org.apache.commons:commons-lang3'
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
     implementation "org.springdoc:springdoc-openapi-ui:$springOpenApiVersion"
     if (project.hasProperty('all-arch')) {

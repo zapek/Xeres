@@ -91,6 +91,7 @@
             </VBox>
         </Tab>
         <Tab text="Chat">
+            <!--suppress Annotator -->
             <fx:include fx:id="chatViewController" source="chat/chatview.fxml"/>
         </Tab>
     </TabPane>

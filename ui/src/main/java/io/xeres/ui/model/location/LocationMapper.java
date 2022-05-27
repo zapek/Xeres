@@ -23,6 +23,7 @@ import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.ui.model.connection.ConnectionMapper;
 
+@SuppressWarnings("DuplicatedCode")
 public final class LocationMapper
 {
 	private LocationMapper()

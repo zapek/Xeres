@@ -6,7 +6,8 @@ Only the latest version is supported. If a security bug is found, a new version 
 
 ## Reporting a Vulnerability
 
-Either [fill an issue on Github](https://github.com/zapek/Xeres/issues/new?assignees=zapek&labels=bug,security&template=bug_report.yaml) if you believe the issue can be public. If you prefer to keep it quiet, use the contact form [here](https://zapek.com/contact/). You should get a reply quickly (from a few hours for up to 48 hours).
+Either [fill an issue on GitHub](https://github.com/zapek/Xeres/issues/new?assignees=zapek&labels=bug,security&template=bug_report.yaml) if you believe the issue can be public. If you prefer to keep it quiet, use the contact form [here](https://zapek.com/contact/). You should get a reply quickly (from a few hours for
+up to 48 hours).
 
 If the vulnerability is accepted, it will be patched as soon as possible and a new release will be made if it is present in the latest release. You will be credited in the changelog.
 

@@ -449,8 +449,8 @@ class SerializerTest
 		assertEquals(6 + 6 + 38 + key.length, size);
 
 		var result = (Signature) Serializer.deserialize(buf, TlvType.SIGNATURE);
-		assertEquals(input.getGxsId(), result.getGxsId());
-		assertArrayEquals(input.getData(), result.getData());
+		assertEquals(input.gxsId(), result.gxsId());
+		assertArrayEquals(input.data(), result.data());
 
 		buf.release();
 	}
@@ -469,8 +469,8 @@ class SerializerTest
 		assertEquals(TLV_HEADER_SIZE + TLV_HEADER_SIZE + 4 + TLV_HEADER_SIZE + TLV_HEADER_SIZE + GxsId.LENGTH * 2 + TLV_HEADER_SIZE + signature.length, size);
 
 		var result = (SignatureSet) Serializer.deserialize(buf, TlvType.SIGNATURE_SET);
-		assertEquals(input.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).getGxsId(), result.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).getGxsId());
-		assertArrayEquals(input.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).getData(), result.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).getData());
+		assertEquals(input.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).gxsId(), result.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).gxsId());
+		assertArrayEquals(input.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).data(), result.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).data());
 
 		buf.release();
 	}

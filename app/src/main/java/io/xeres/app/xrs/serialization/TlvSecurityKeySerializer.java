@@ -46,13 +46,13 @@ final class TlvSecurityKeySerializer
 		buf.ensureWritable(len);
 		buf.writeShort(SECURITY_KEY.getValue());
 		buf.writeInt(len);
-		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.getGxsId()));
+		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.gxsId()));
 
-		Serializer.serialize(buf, securityKey.getFlags(), FieldSize.INTEGER);
-		Serializer.serialize(buf, securityKey.getStartTs());
-		Serializer.serialize(buf, securityKey.getEndTs());
+		Serializer.serialize(buf, securityKey.flags(), FieldSize.INTEGER);
+		Serializer.serialize(buf, securityKey.startTs());
+		Serializer.serialize(buf, securityKey.endTs());
 
-		TlvSerializer.serialize(buf, KEY_EVP_PKEY, securityKey.getData());
+		TlvSerializer.serialize(buf, KEY_EVP_PKEY, securityKey.data());
 		return len;
 	}
 
@@ -63,7 +63,7 @@ final class TlvSecurityKeySerializer
 				+ 4
 				+ 4
 				+ 4
-				+ TLV_HEADER_SIZE + securityKey.getData().length; // XXX: add a getSize() accessor
+				+ TLV_HEADER_SIZE + securityKey.data().length; // XXX: add a getSize() accessor
 	}
 
 	static SecurityKey deserialize(ByteBuf buf)

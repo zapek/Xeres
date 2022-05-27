@@ -34,6 +34,7 @@ final class EnumSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	static int serialize(ByteBuf buf, Enum<? extends Enum<?>> e)
 	{
 		Objects.requireNonNull(e, "Null enum not supported");

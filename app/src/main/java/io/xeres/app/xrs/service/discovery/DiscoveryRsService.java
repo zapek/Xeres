@@ -61,6 +61,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static io.xeres.app.net.util.NetworkMode.getNetworkMode;
 import static io.xeres.app.xrs.service.RsServiceType.GOSSIP_DISCOVERY;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
@@ -343,8 +344,7 @@ public class DiscoveryRsService extends RsService
 				discoveryContactItem.getLocationName(),
 				discoveryContactItem.getNetMode(),
 				discoveryContactItem.getVersion(),
-				discoveryContactItem.getVsDisc() == 2,
-				discoveryContactItem.getVsDht() == 2,
+				getNetworkMode(discoveryContactItem.getVsDisc(), discoveryContactItem.getVsDht()),
 				addresses,
 				discoveryContactItem.getHostname());
 	}

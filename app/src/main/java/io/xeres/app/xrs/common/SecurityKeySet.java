@@ -44,13 +44,13 @@ public class SecurityKeySet
 
 	public void put(SecurityKey securityKey)
 	{
-		if (securityKey.getFlags().contains(TYPE_PUBLIC_ONLY))
+		if (securityKey.flags().contains(TYPE_PUBLIC_ONLY))
 		{
-			publicKeys.put(securityKey.getGxsId(), securityKey);
+			publicKeys.put(securityKey.gxsId(), securityKey);
 		}
-		else if (securityKey.getFlags().contains(TYPE_FULL))
+		else if (securityKey.flags().contains(TYPE_FULL))
 		{
-			privateKeys.put(securityKey.getGxsId(), securityKey);
+			privateKeys.put(securityKey.gxsId(), securityKey);
 		}
 	}
 

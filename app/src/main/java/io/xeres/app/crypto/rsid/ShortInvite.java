@@ -65,6 +65,7 @@ class ShortInvite extends RSId
 	{
 	}
 
+	@SuppressWarnings("DuplicatedCode")
 	@Override
 	void parseInternal(String data) throws CertificateParsingException
 	{

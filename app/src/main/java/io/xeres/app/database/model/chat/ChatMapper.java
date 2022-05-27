@@ -44,8 +44,8 @@ public final class ChatMapper
 			return null;
 		}
 		return new ChatRoomContextDTO(
-				new ChatRoomsDTO(toDTOs(chatRoomContext.getChatRoomLists().getSubscribed()), toDTOs(chatRoomContext.getChatRoomLists().getAvailable())),
-				new ChatIdentityDTO(chatRoomContext.getOwnUser().getNickname(), chatRoomContext.getOwnUser().getGxsId())
+				new ChatRoomsDTO(toDTOs(chatRoomContext.chatRoomLists().getSubscribed()), toDTOs(chatRoomContext.chatRoomLists().getAvailable())),
+				new ChatIdentityDTO(chatRoomContext.ownUser().nickname(), chatRoomContext.ownUser().gxsId())
 		);
 	}
 

@@ -43,6 +43,7 @@ public class XeresApplication
 		if (isRunningOnCloud() || !StartupProperties.getBoolean(StartupProperties.Property.UI, true))
 		{
 			log.info("no gui mode");
+			//noinspection resource
 			SpringApplication.run(XeresApplication.class, args);
 		}
 		else

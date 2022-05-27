@@ -25,6 +25,7 @@ import io.xeres.common.id.LocationId;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("DuplicatedCode")
 public final class LocationMapper
 {
 	private LocationMapper()

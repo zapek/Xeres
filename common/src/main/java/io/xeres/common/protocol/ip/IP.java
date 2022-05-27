@@ -38,7 +38,7 @@ public final class IP
 	/**
 	 * List of port to avoid picking up as default because of their popularity in a NAT setup.
 	 * Xeres uses a range from 1025 to 32767.
-	 * Note that some ports aren't really popular, but they're scanned by default by some anti-virus.
+	 * Note that some ports aren't really popular, but they're scanned by default by some anti-viruses.
 	 */
 	private static final Set<Integer> reservedPorts = Set.of(
 			1080,  // Socks proxy

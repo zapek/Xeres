@@ -83,6 +83,7 @@ public class ChatRoomInviteItem extends Item
 		return roomFlags;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isConnectionChallenge()
 	{
 		return roomFlags.contains(CHALLENGE);

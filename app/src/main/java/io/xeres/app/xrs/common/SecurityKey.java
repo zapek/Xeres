@@ -24,7 +24,7 @@ import io.xeres.common.id.GxsId;
 import java.util.EnumSet;
 import java.util.Set;
 
-public class SecurityKey
+public record SecurityKey(GxsId gxsId, Set<Flags> flags, int startTs, int endTs, byte[] data)
 {
 	public enum Flags
 	{
@@ -45,45 +45,5 @@ public class SecurityKey
 		{
 			return EnumSet.of(DISTRIBUTION_PUBLISHING, DISTRIBUTION_ADMIN, DISTRIBUTION_IDENTITY);
 		}
-	}
-
-	private final GxsId gxsId;
-	private final Set<Flags> flags;
-	private final int startTs;
-	private final int endTs;
-	private final byte[] data;
-
-	public SecurityKey(GxsId gxsId, Set<Flags> flags, int startTs, int endTs, byte[] data)
-	{
-		this.gxsId = gxsId;
-		this.flags = flags;
-		this.startTs = startTs;
-		this.endTs = endTs;
-		this.data = data;
-	}
-
-	public GxsId getGxsId()
-	{
-		return gxsId;
-	}
-
-	public Set<Flags> getFlags()
-	{
-		return flags;
-	}
-
-	public int getStartTs()
-	{
-		return startTs;
-	}
-
-	public int getEndTs()
-	{
-		return endTs;
-	}
-
-	public byte[] getData()
-	{
-		return data;
 	}
 }

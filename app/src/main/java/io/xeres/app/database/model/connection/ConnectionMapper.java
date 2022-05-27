@@ -21,6 +21,7 @@ package io.xeres.app.database.model.connection;
 
 import io.xeres.common.dto.connection.ConnectionDTO;
 
+@SuppressWarnings("DuplicatedCode")
 public final class ConnectionMapper
 {
 	private ConnectionMapper()

@@ -19,24 +19,6 @@
 
 package io.xeres.common.message.chat;
 
-public class ChatRoomContext
+public record ChatRoomContext(ChatRoomLists chatRoomLists, ChatRoomUser ownUser)
 {
-	private final ChatRoomLists chatRoomLists;
-	private final ChatRoomUser ownUser;
-
-	public ChatRoomContext(ChatRoomLists chatRoomLists, ChatRoomUser ownUser)
-	{
-		this.chatRoomLists = chatRoomLists;
-		this.ownUser = ownUser;
-	}
-
-	public ChatRoomLists getChatRoomLists()
-	{
-		return chatRoomLists;
-	}
-
-	public ChatRoomUser getOwnUser()
-	{
-		return ownUser;
-	}
 }

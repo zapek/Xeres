@@ -34,6 +34,7 @@ final class ByteSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	static int serialize(ByteBuf buf, Byte b)
 	{
 		Objects.requireNonNull(b, "Null byte not supported");

@@ -21,24 +21,6 @@ package io.xeres.common.message.chat;
 
 import io.xeres.common.id.GxsId;
 
-public class ChatRoomUser
+public record ChatRoomUser(String nickname, GxsId gxsId)
 {
-	private final String nickname;
-	private final GxsId gxsId;
-
-	public ChatRoomUser(String nickname, GxsId gxsId)
-	{
-		this.nickname = nickname;
-		this.gxsId = gxsId;
-	}
-
-	public String getNickname()
-	{
-		return nickname;
-	}
-
-	public GxsId getGxsId()
-	{
-		return gxsId;
-	}
 }

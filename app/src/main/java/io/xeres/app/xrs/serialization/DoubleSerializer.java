@@ -34,6 +34,7 @@ final class DoubleSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	static int serialize(ByteBuf buf, Double d)
 	{
 		Objects.requireNonNull(d, "Null double not supported");

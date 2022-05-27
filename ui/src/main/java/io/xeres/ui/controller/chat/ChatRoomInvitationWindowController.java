@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,7 +70,7 @@ public class ChatRoomInvitationWindowController implements WindowController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		var root = new CheckBoxTreeItem<>(new PeerHolder());
 		root.setExpanded(true);

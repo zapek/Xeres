@@ -34,6 +34,7 @@ final class BooleanSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	static int serialize(ByteBuf buf, Boolean bool)
 	{
 		Objects.requireNonNull(bool, "Null boolean not supported");

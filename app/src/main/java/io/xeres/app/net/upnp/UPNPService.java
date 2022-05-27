@@ -277,7 +277,7 @@ public class UPNPService implements Runnable
 	{
 		assert state == State.WAITING;
 
-		var channel = (DatagramChannel) key.channel();
+		@SuppressWarnings("resource") var channel = (DatagramChannel) key.channel();
 		var routerAddress = channel.receive(receiveBuffer); // XXX: handle multiple responses if there's several routers. use 'rootdevice' to test
 		device = Device.from(routerAddress, receiveBuffer);
 		if (device.isValid())
@@ -319,7 +319,7 @@ public class UPNPService implements Runnable
 	{
 		assert state == State.BROADCASTING;
 
-		var channel = (DatagramChannel) key.channel();
+		@SuppressWarnings("resource") var channel = (DatagramChannel) key.channel();
 		channel.send(sendBuffer, multicastAddress);
 		setState(State.WAITING, key);
 		sendBuffer.clear();

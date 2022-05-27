@@ -62,7 +62,7 @@ public class RawItem
 		item.setIncoming(buf);
 
 		buf.skipBytes(HEADER_SIZE);
-		// XXX: oh, also also see if the size matches the total size
+		// XXX: oh, also see if the size matches the total size
 		if (RsSerializable.class.isAssignableFrom(item.getClass()))
 		{
 			// If the object implements RsSerializable which is more flexible, use it

@@ -34,6 +34,7 @@ final class ShortSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	static int serialize(ByteBuf buf, Short sh)
 	{
 		Objects.requireNonNull(sh, "Null short not supported");

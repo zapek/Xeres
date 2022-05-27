@@ -25,6 +25,8 @@ import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+
+@SuppressWarnings("JpaAttributeMemberSignatureInspection")
 @Embeddable
 public class LocationId implements Identifier
 {

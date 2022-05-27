@@ -23,6 +23,7 @@ import javax.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.Objects;
 
+@SuppressWarnings("JpaAttributeMemberSignatureInspection")
 @Embeddable
 public class Sha1Sum implements Identifier
 {

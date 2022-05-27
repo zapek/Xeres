@@ -124,6 +124,7 @@ public class JavaFxApplication extends Application
 
 	public static String getControlUrl() // XXX: get rid of that thing, just use a properties
 	{
+		//noinspection HttpUrlsUsage
 		return "http://" + getHostnameAndPort();
 	}
 }

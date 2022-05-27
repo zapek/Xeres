@@ -165,6 +165,7 @@ public final class RSA
 	 */
 	public static PrivateKey getPrivateKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{
+		//noinspection resource
 		var asn1InputStream = new ASN1InputStream(data);
 		var asn1Primitive = asn1InputStream.readObject();
 		var algorithmIdentifier = new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);

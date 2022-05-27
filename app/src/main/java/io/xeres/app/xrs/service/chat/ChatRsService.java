@@ -94,7 +94,7 @@ public class ChatRsService extends RsService
 	private static final Duration CHATROOM_NEARBY_REFRESH = Duration.ofMinutes(2);
 
 	/**
-	 * When to remove nearby chat rooms when no peers has them anymore.
+	 * When to remove nearby chat rooms when no peers have them anymore.
 	 */
 	private static final Duration CHATROOM_NEARBY_TIMEOUT = Duration.ofMinutes(3);
 
@@ -168,6 +168,7 @@ public class ChatRsService extends RsService
 	@Override
 	public Map<Class<? extends Item>, Integer> getSupportedItems()
 	{
+		//noinspection deprecation
 		return Map.ofEntries(
 				entry(ChatMessageItem.class, 1),
 				entry(ChatAvatarItem.class, 3),
@@ -427,9 +428,10 @@ public class ChatRsService extends RsService
 		{
 			handleChatRoomUnsubscribeItem(sender, chatRoomUnsubscribeItem);
 		}
-		else if (item instanceof ChatRoomInviteOldItem chatRoomInviteOldItem)
-		{
-			handleChatRoomInviteOldItem(sender, chatRoomInviteOldItem);
+		else //noinspection deprecation
+			if (item instanceof ChatRoomInviteOldItem chatRoomInviteOldItem)
+			{
+				handleChatRoomInviteOldItem(sender, chatRoomInviteOldItem);
 		}
 	}
 
@@ -517,7 +519,7 @@ public class ChatRsService extends RsService
 		var chatRoom = chatRooms.get(item.getRoomId());
 
 		// And display the message for us
-		var user = item.getSignature().getGxsId();
+		var user = item.getSignature().gxsId();
 		chatRoom.userActivity(user);
 		sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_MESSAGE, user, item.getSenderNickname(), parseIncomingText(item.getMessage()));
 
@@ -540,7 +542,7 @@ public class ChatRsService extends RsService
 
 		// XXX: add routing clue
 		var chatRoom = chatRooms.get(item.getRoomId());
-		var user = item.getSignature().getGxsId();
+		var user = item.getSignature().gxsId();
 
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
@@ -607,6 +609,7 @@ public class ChatRsService extends RsService
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_ROOM_INVITE, roomId, chatRoomInvite);
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean validateAndBounceItem(PeerConnection peerConnection, ChatRoomBounce item)
 	{
 		if (!chatRooms.containsKey(item.getRoomId()))
@@ -615,9 +618,9 @@ public class ChatRsService extends RsService
 			return false;
 		}
 
-		if (isBanned(item.getSignature().getGxsId()))
+		if (isBanned(item.getSignature().gxsId()))
 		{
-			log.debug("Dropping item from banned entity {}", item.getSignature().getGxsId());
+			log.debug("Dropping item from banned entity {}", item.getSignature().gxsId());
 			return false;
 		}
 
@@ -646,6 +649,7 @@ public class ChatRsService extends RsService
 		chatRoom.recordPreviouslyKnownLocation(peerConnection.getLocation());
 	}
 
+	@SuppressWarnings("deprecation")
 	private void handleChatRoomInviteOldItem(PeerConnection peerConnection, ChatRoomInviteOldItem item)
 	{
 		log.debug("Received deprecated invite from {}: {}", peerConnection, item);
@@ -846,10 +850,10 @@ public class ChatRsService extends RsService
 
 	private boolean validateBounceSignature(PeerConnection peerConnection, ChatRoomBounce bounce)
 	{
-		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
+		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().gxsId());
 		if (gxsGroup != null)
 		{
-			return RSA.verify(gxsGroup.getPublishingPublicKey(), bounce.getSignature().getData(), getBounceData(bounce));
+			return RSA.verify(gxsGroup.getPublishingPublicKey(), bounce.getSignature().data(), getBounceData(bounce));
 		}
 		return true; // if we don't have the identity yet, we let the item pass because it could be valid, and it's impossible to impersonate an identity this way
 	}
@@ -875,6 +879,7 @@ public class ChatRsService extends RsService
 	 * @param sendTime the time the message was sent at, in seconds from 1970-01-01 UTC
 	 * @return true if within bounds
 	 */
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean validateExpiration(int sendTime)
 	{
 		var now = Instant.now();
@@ -883,6 +888,7 @@ public class ChatRsService extends RsService
 			return false;
 		}
 
+		//noinspection RedundantIfStatement
 		if (sendTime > now.getEpochSecond() + TIME_DRIFT_FUTURE_MAX.toSeconds())
 		{
 			return false;

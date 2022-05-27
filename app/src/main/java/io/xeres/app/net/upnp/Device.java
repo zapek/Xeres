@@ -330,13 +330,13 @@ final class Device implements DeviceSpecs
 	{
 		if (ControlPoint.removePortMapping(getControlUrl(), getServiceType(), externalPort, protocol))
 		{
-			ports.removeIf(portMapping -> portMapping.getPort() == externalPort && portMapping.getProtocol() == protocol);
+			ports.removeIf(portMapping -> portMapping.port() == externalPort && portMapping.protocol() == protocol);
 		}
 	}
 
 	public void removeAllPortMapping()
 	{
-		new HashSet<>(this.ports).forEach(portMapping -> deletePortMapping(portMapping.getPort(), portMapping.getProtocol()));
+		new HashSet<>(this.ports).forEach(portMapping -> deletePortMapping(portMapping.port(), portMapping.protocol()));
 	}
 
 	public String getExternalIpAddress()

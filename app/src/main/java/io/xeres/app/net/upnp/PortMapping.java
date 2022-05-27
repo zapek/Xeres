@@ -19,29 +19,8 @@
 
 package io.xeres.app.net.upnp;
 
-import java.util.Objects;
-
-class PortMapping
+record PortMapping(int port, Protocol protocol)
 {
-	final int port;
-	final Protocol protocol;
-
-	PortMapping(int port, Protocol protocol)
-	{
-		this.port = port;
-		this.protocol = protocol;
-	}
-
-	public int getPort()
-	{
-		return port;
-	}
-
-	public Protocol getProtocol()
-	{
-		return protocol;
-	}
-
 	@Override
 	public boolean equals(Object o)
 	{
@@ -50,11 +29,5 @@ class PortMapping
 		var that = (PortMapping) o;
 		return port == that.port &&
 				protocol == that.protocol;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(port, protocol);
 	}
 }

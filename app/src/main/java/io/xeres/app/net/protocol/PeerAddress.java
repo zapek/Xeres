@@ -175,6 +175,7 @@ public final class PeerAddress
 	 * @param ipAndPort a string in the form "ip:port"; for example, "192.168.1.2:8002"
 	 * @return a PeerAddress
 	 */
+	@SuppressWarnings("DuplicatedCode")
 	public static PeerAddress fromIpAndPort(String ipAndPort)
 	{
 		int port;
@@ -242,6 +243,7 @@ public final class PeerAddress
 		return new PeerAddress(InetSocketAddress.createUnresolved(hostname, port), HOSTNAME);
 	}
 
+	@SuppressWarnings("DuplicatedCode")
 	public static PeerAddress fromHostnameAndPort(String hostnameAndPort)
 	{
 		int port;

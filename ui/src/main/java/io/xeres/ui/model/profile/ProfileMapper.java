@@ -23,6 +23,7 @@ import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.ui.model.location.LocationMapper;
 
+@SuppressWarnings("DuplicatedCode")
 public final class ProfileMapper
 {
 	private ProfileMapper()

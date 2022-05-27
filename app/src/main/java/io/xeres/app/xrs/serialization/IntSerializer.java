@@ -34,6 +34,7 @@ final class IntSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	static int serialize(ByteBuf buf, Integer i)
 	{
 		Objects.requireNonNull(i, "Null integer not supported");

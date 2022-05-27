@@ -28,6 +28,7 @@ import java.util.List;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
+@SuppressWarnings("DuplicatedCode")
 public final class ProfileMapper
 {
 	private ProfileMapper()

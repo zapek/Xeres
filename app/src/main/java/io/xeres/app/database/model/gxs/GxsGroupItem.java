@@ -483,23 +483,23 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	{
 		var securityKeySet = (SecurityKeySet) deserialize(buf, TlvType.SECURITY_KEY_SET);
 		securityKeySet.getPublicKeys().forEach((keyId, securityKey) -> {
-			if (securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
+			if (securityKey.flags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
 			{
 				try
 				{
-					adminPublicKey = RSA.getPublicKeyFromPkcs1(securityKey.getData());
+					adminPublicKey = RSA.getPublicKeyFromPkcs1(securityKey.data());
 				}
 				catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
 				{
 					log.error("Identity {} has wrong admin public key: {}", gxsId, e.getMessage());
 				}
 			}
-			else if (securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_IDENTITY, SecurityKey.Flags.TYPE_PUBLIC_ONLY)) ||
-					securityKey.getFlags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
+			else if (securityKey.flags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_IDENTITY, SecurityKey.Flags.TYPE_PUBLIC_ONLY)) ||
+					securityKey.flags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
 			{
 				try
 				{
-					publishingPublicKey = RSA.getPublicKeyFromPkcs1(securityKey.getData());
+					publishingPublicKey = RSA.getPublicKeyFromPkcs1(securityKey.data());
 				}
 				catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
 				{
@@ -517,7 +517,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 			var sign = signatureSet.getSignatures().get(SignatureSet.Type.ADMIN.getValue());
 			if (sign != null)
 			{
-				signature = sign.getData();
+				signature = sign.data();
 			}
 		}
 	}

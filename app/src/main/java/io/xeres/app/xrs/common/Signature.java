@@ -22,24 +22,6 @@ package io.xeres.app.xrs.common;
 import io.xeres.common.id.GxsId;
 
 // XXX: maybe should be in crypto? not sure... It's related to identities but I don't like the structure
-public class Signature
+public record Signature(GxsId gxsId, byte[] data)
 {
-	private final GxsId gxsId;
-	private final byte[] data;
-
-	public Signature(GxsId gxsId, byte[] data)
-	{
-		this.gxsId = gxsId;
-		this.data = data;
-	}
-
-	public GxsId getGxsId()
-	{
-		return gxsId;
-	}
-
-	public byte[] getData()
-	{
-		return data;
-	}
 }

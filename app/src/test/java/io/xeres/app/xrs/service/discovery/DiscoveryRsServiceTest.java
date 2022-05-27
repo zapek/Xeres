@@ -112,7 +112,7 @@ class DiscoveryRsServiceTest
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(newLocation));
 
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
-		verify(locationService).update(eq(newLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+		verify(locationService).update(eq(newLocation), anyString(), any(NetMode.class), anyString(), any(), anyList(), anyString());
 	}
 
 	/**
@@ -134,7 +134,7 @@ class DiscoveryRsServiceTest
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
 
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
-		verify(locationService).update(eq(friendLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+		verify(locationService).update(eq(friendLocation), anyString(), any(NetMode.class), anyString(), any(), anyList(), anyString());
 	}
 
 	/**
@@ -177,7 +177,7 @@ class DiscoveryRsServiceTest
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
-		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), any(), anyList(), anyString());
 		var discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
 		verify(peerConnectionManager).writeItem(eq(peerConnection), discoveryPgpListItem.capture(), any(RsService.class));
 
@@ -204,7 +204,7 @@ class DiscoveryRsServiceTest
 
 		verify(locationService).findLocationById(peerLocation.getLocationId());
 		verify(locationService).findOwnLocation();
-		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), any(), anyList(), anyString());
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 	}
 
@@ -226,7 +226,7 @@ class DiscoveryRsServiceTest
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
-		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), anyBoolean(), anyBoolean(), anyList(), anyString());
+		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), any(), anyList(), anyString());
 		var discoveryPgpListItem = ArgumentCaptor.forClass(DiscoveryPgpListItem.class);
 		verify(peerConnectionManager).writeItem(eq(peerConnection), discoveryPgpListItem.capture(), any(RsService.class));
 

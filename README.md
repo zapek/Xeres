@@ -1,4 +1,4 @@
-<img src="https://github.com/zapek/Xeres/blob/master/docs/logo.png" align="left" width="320" height="160" alt="Xeres">
+<img src="https://github.com/zapek/Xeres/blob/master/docs/logo.png" style="float: left" width="320" height="160" alt="Xeres">
 
 ## A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
 

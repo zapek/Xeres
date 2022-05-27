@@ -43,7 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * This service periodically sends a UDP broadcast packet to find out
  * if other Retroshare clients are on the LAN. It implements more or
- * less the same protocol as found in https://github.com/truvorskameikin/udp-discovery-cpp
+ * less the same protocol as found in the project <a href="https://github.com/truvorskameikin/udp-discovery-cpp">udp-discovery-cpp</a>
  * (which is what Retroshare uses).
  */
 @Service
@@ -290,7 +290,7 @@ public class BroadcastDiscoveryService implements Runnable
 	{
 		assert state == State.WAITING;
 
-		var channel = (DatagramChannel) key.channel();
+		@SuppressWarnings("resource") var channel = (DatagramChannel) key.channel();
 		var peerAddress = (InetSocketAddress) channel.receive(receiveBuffer);
 		receiveBuffer.flip();
 

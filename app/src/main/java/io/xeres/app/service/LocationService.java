@@ -28,6 +28,7 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.app.net.protocol.PeerAddress;
+import io.xeres.app.net.util.NetworkMode;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.NetMode;
@@ -55,6 +56,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import static io.xeres.app.net.util.NetworkMode.hasDht;
+import static io.xeres.app.net.util.NetworkMode.isDiscoverable;
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static java.util.function.Predicate.not;
 
@@ -230,13 +233,13 @@ public class LocationService
 	}
 
 	@Transactional
-	public Location update(Location location, String locationName, NetMode netMode, String version, boolean discoverable, boolean dht, List<PeerAddress> peerAddresses, String hostname)
+	public Location update(Location location, String locationName, NetMode netMode, String version, NetworkMode networkMode, List<PeerAddress> peerAddresses, String hostname)
 	{
 		location.setName(locationName);
 		location.setNetMode(netMode);
 		location.setVersion(version);
-		location.setDiscoverable(discoverable);
-		location.setDht(dht);
+		location.setDiscoverable(isDiscoverable(networkMode));
+		location.setDht(hasDht(networkMode));
 		peerAddresses.forEach(peerAddress -> updateConnection(location, peerAddress));
 		// XXX: missing hostname. where's the hostname support?! is it in the connection? I don't think that's the right place for it... should be the location
 		return locationRepository.save(location);

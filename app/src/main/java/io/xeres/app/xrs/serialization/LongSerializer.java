@@ -34,6 +34,7 @@ final class LongSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	static int serialize(ByteBuf buf, Long l)
 	{
 		Objects.requireNonNull(l, "Null long not supported");

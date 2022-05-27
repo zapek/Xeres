@@ -34,6 +34,7 @@ final class FloatSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	static int serialize(ByteBuf buf, Float f)
 	{
 		Objects.requireNonNull(f, "Null float not supported");

@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -88,14 +89,14 @@ class ProfileControllerTest extends AbstractControllerTest
 	{
 		var expected = ProfileFakes.createProfile("test", 1);
 
-		when(profileService.findProfileByName(expected.getName())).thenReturn(Optional.of(expected));
+		when(profileService.findProfilesByName(expected.getName())).thenReturn(List.of(expected));
 
 		mvc.perform(getJson(BASE_URL + "?name=" + expected.getName()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(is(expected.getId()), Long.class))
 				.andExpect(jsonPath("$.[0].name", is(expected.getName())));
 
-		verify(profileService).findProfileByName(expected.getName());
+		verify(profileService).findProfilesByName(expected.getName());
 	}
 
 	@Test
@@ -103,13 +104,13 @@ class ProfileControllerTest extends AbstractControllerTest
 	{
 		var NAME = "inexistant";
 
-		when(profileService.findProfileByName(NAME)).thenReturn(Optional.empty());
+		when(profileService.findProfilesByName(NAME)).thenReturn(Collections.emptyList());
 
 		mvc.perform(getJson(BASE_URL + "?name=" + NAME))
 				.andExpect(status().isOk())
 				.andExpect(content().string("[]"));
 
-		verify(profileService).findProfileByName(NAME);
+		verify(profileService).findProfilesByName(NAME);
 	}
 
 	@Test

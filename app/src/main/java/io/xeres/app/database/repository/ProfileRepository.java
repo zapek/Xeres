@@ -35,6 +35,8 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>
 {
 	Optional<Profile> findByName(String name);
 
+	List<Profile> findAllByNameContaining(String name);
+
 	Optional<Profile> findByProfileFingerprint(ProfileFingerprint profileFingerprint);
 
 	Optional<Profile> findByPgpIdentifier(long pgpIdentifier);

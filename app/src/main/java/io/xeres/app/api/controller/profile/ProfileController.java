@@ -79,8 +79,7 @@ public class ProfileController
 	{
 		if (isNotBlank(name))
 		{
-			var profile = profileService.findProfileByName(name); // XXX: can't there be multiple profiles with the same name? what about the ones starting with?
-			return profile.map(p -> List.of(toDTO(p))).orElse(Collections.emptyList());
+			return toDTOs(profileService.findProfilesByName(name));
 		}
 		else if (isNotBlank(locationId))
 		{

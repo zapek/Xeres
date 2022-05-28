@@ -114,9 +114,9 @@ public class ProfileService
 		return profileRepository.findById(id);
 	}
 
-	public Optional<Profile> findProfileByName(String name)
+	public List<Profile> findProfilesByName(String name)
 	{
-		return profileRepository.findByName(name);
+		return profileRepository.findAllByNameContaining(name);
 	}
 
 	public Optional<Profile> findProfileByPgpFingerprint(ProfileFingerprint profileFingerprint)

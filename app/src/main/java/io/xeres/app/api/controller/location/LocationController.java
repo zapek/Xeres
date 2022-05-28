@@ -49,7 +49,7 @@ public class LocationController
 		this.locationService = locationService;
 	}
 
-	@GetMapping("/{id}") // XXX: justify the use of this endpoint
+	@GetMapping("/{id}")
 	@Operation(summary = "Return a location")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Location not found", content = @Content(schema = @Schema(implementation = Error.class)))

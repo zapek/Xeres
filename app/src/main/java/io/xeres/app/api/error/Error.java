@@ -24,9 +24,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 public class Error
 {
-	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonInclude(NON_NULL)
 	private String contextId;
 	private String message;
 	private List<String> details;

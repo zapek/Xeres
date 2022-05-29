@@ -45,11 +45,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -88,9 +90,7 @@ public class IdentityService
 		var adminPublicKey = (RSAPublicKey) adminKeyPair.getPublic();
 
 		// The GxsId is from the private admin key
-		var gxsId = makeGxsId(
-				getAsOneComplement(adminPrivateKey.getModulus()),
-				getAsOneComplement(adminPrivateKey.getPrivateExponent()));
+		var gxsId = RSA.getGxsId(adminPrivateKey);
 
 		var gxsIdGroupItem = new IdentityGroupItem(gxsId, name);
 		gxsIdGroupItem.setType(Type.OWN);
@@ -169,29 +169,6 @@ public class IdentityService
 	public byte[] signData(IdentityGroupItem identityGroupItem, byte[] data)
 	{
 		return RSA.sign(data, identityGroupItem.getAdminPrivateKey());
-	}
-
-	private byte[] getAsOneComplement(BigInteger number)
-	{
-		var array = number.toByteArray();
-		if (array[0] == 0)
-		{
-			array = Arrays.copyOfRange(array, 1, array.length);
-		}
-		return array;
-	}
-
-	private GxsId makeGxsId(byte[] modulus, byte[] exponent)
-	{
-		var sha1sum = new byte[Sha1Sum.LENGTH];
-
-		Digest digest = new SHA1Digest();
-		digest.update(modulus, 0, modulus.length);
-		digest.update(exponent, 0, exponent.length);
-		digest.doFinal(sha1sum, 0);
-
-		// Copy the first 16 bytes of the sha1 sum to get the GxsId
-		return new GxsId(Arrays.copyOfRange(sha1sum, 0, GxsId.LENGTH));
 	}
 
 	private Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)

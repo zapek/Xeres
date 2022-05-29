@@ -19,18 +19,26 @@
 
 package io.xeres.app.crypto.rsa;
 
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.Sha1Sum;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.SHA1Digest;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 /**
  * Implements all RSA related functions. Used for creating the private and public SSL keys
@@ -201,5 +209,49 @@ public final class RSA
 		var algorithmIdentifier = new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
 		var subjectPublicKeyInfo = new SubjectPublicKeyInfo(algorithmIdentifier, data);
 		return getPublicKey(subjectPublicKeyInfo.getEncoded());
+	}
+
+	public static GxsId getGxsId(Key key)
+	{
+		if (key instanceof PrivateKey privateKey)
+		{
+			var rsaPrivateKey = (RSAPrivateKey) privateKey;
+			return makeGxsId(
+					getAsOneComplement(rsaPrivateKey.getModulus()),
+					getAsOneComplement(rsaPrivateKey.getPrivateExponent())
+			);
+		}
+		else if (key instanceof PublicKey publicKey)
+		{
+			var rsaPublicKey = (RSAPublicKey) publicKey;
+			return makeGxsId(
+					getAsOneComplement(rsaPublicKey.getModulus()),
+					getAsOneComplement(rsaPublicKey.getPublicExponent())
+			);
+		}
+		throw new IllegalArgumentException("Cannot extract GxsId from key " + key);
+	}
+
+	private static byte[] getAsOneComplement(BigInteger number)
+	{
+		var array = number.toByteArray();
+		if (array[0] == 0)
+		{
+			array = Arrays.copyOfRange(array, 1, array.length);
+		}
+		return array;
+	}
+
+	private static GxsId makeGxsId(byte[] modulus, byte[] exponent)
+	{
+		var sha1sum = new byte[Sha1Sum.LENGTH];
+
+		Digest digest = new SHA1Digest();
+		digest.update(modulus, 0, modulus.length);
+		digest.update(exponent, 0, exponent.length);
+		digest.doFinal(sha1sum, 0);
+
+		// Copy the first 16 bytes of the sha1 sum to get the GxsId
+		return new GxsId(Arrays.copyOfRange(sha1sum, 0, GxsId.LENGTH));
 	}
 }

@@ -19,13 +19,97 @@
 
 package io.xeres.app.xrs.common;
 
+import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.common.id.GxsId;
 
+import java.io.IOException;
+import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
-public record SecurityKey(GxsId gxsId, Set<Flags> flags, int startTs, int endTs, byte[] data)
+public final class SecurityKey
 {
+	private final GxsId gxsId;
+	private final Set<Flags> flags;
+	private final int startTs;
+	private final int endTs;
+	private final byte[] data;
+
+	public SecurityKey(PublicKey key, Set<Flags> flags, int startTs, int endTs) throws IOException
+	{
+		this.gxsId = RSA.getGxsId(key);
+		this.flags = flags;
+		this.startTs = startTs;
+		this.endTs = endTs;
+		this.data = RSA.getPublicKeyAsPkcs1(key);
+	}
+
+	public SecurityKey(GxsId gxsId, Set<Flags> flags, int startTs, int endTs, byte[] data)
+	{
+		this.gxsId = gxsId;
+		this.flags = flags;
+		this.startTs = startTs;
+		this.endTs = endTs;
+		this.data = data;
+	}
+
+	public GxsId gxsId()
+	{
+		return gxsId;
+	}
+
+	public Set<Flags> flags()
+	{
+		return flags;
+	}
+
+	public int startTs()
+	{
+		return startTs;
+	}
+
+	public int endTs()
+	{
+		return endTs;
+	}
+
+	public byte[] data()
+	{
+		return data;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj == this) return true;
+		if (obj == null || obj.getClass() != this.getClass()) return false;
+		var that = (SecurityKey) obj;
+		return Objects.equals(this.gxsId, that.gxsId) &&
+				Objects.equals(this.flags, that.flags) &&
+				this.startTs == that.startTs &&
+				this.endTs == that.endTs &&
+				Arrays.equals(this.data, that.data);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(gxsId, flags, startTs, endTs, Arrays.hashCode(data));
+	}
+
+	@Override
+	public String toString()
+	{
+		return "SecurityKey[" +
+				"gxsId=" + gxsId + ", " +
+				"flags=" + flags + ", " +
+				"startTs=" + startTs + ", " +
+				"endTs=" + endTs + ", " +
+				"data=" + Arrays.toString(data) + ']';
+	}
+
 	public enum Flags
 	{
 		TYPE_PUBLIC_ONLY,

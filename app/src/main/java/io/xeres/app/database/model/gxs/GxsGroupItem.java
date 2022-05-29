@@ -451,11 +451,11 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		{
 			if (adminPublicKey != null)
 			{
-				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, RSA.getPublicKeyAsPkcs1(adminPublicKey)));
+				securityKeySet.put(new SecurityKey(adminPublicKey, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs));
 			}
 			if (publishingPublicKey != null)
 			{
-				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, RSA.getPublicKeyAsPkcs1(publishingPublicKey)));
+				securityKeySet.put(new SecurityKey(publishingPublicKey, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs));
 			}
 		}
 		catch (IOException e)

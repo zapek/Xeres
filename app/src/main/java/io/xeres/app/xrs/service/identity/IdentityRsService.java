@@ -206,6 +206,7 @@ public class IdentityRsService extends GxsRsService
 		return out;
 	}
 
+	// XXX: GXS messages will need publish/identity support here, not just admin
 	private static void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
 	{
 		if (gxsGroupItem.getAdminPrivateKey() != null)

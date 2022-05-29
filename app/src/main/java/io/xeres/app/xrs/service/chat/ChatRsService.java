@@ -853,7 +853,7 @@ public class ChatRsService extends RsService
 		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().gxsId());
 		if (gxsGroup != null)
 		{
-			return RSA.verify(gxsGroup.getPublishingPublicKey(), bounce.getSignature().data(), getBounceData(bounce));
+			return RSA.verify(gxsGroup.getAdminPublicKey(), bounce.getSignature().data(), getBounceData(bounce));
 		}
 		return true; // if we don't have the identity yet, we let the item pass because it could be valid, and it's impossible to impersonate an identity this way
 	}

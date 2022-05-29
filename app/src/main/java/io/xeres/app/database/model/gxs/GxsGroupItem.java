@@ -455,11 +455,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 			}
 			if (publishingPublicKey != null)
 			{
-				// Identities use a publishing key of type DISTRIBUTION_IDENTITY
-				var securityKeyFlag = diffusionFlags.contains(GxsPrivacyFlags.SIGNED_ID) ? SecurityKey.Flags.DISTRIBUTION_IDENTITY : SecurityKey.Flags.DISTRIBUTION_PUBLISHING;
-
-				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(securityKeyFlag, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, RSA.getPublicKeyAsPkcs1(publishingPublicKey)));
-
+				securityKeySet.put(new SecurityKey(gxsId, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs, RSA.getPublicKeyAsPkcs1(publishingPublicKey)));
 			}
 		}
 		catch (IOException e)
@@ -494,8 +490,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 					log.error("Identity {} has wrong admin public key: {}", gxsId, e.getMessage());
 				}
 			}
-			else if (securityKey.flags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_IDENTITY, SecurityKey.Flags.TYPE_PUBLIC_ONLY)) ||
-					securityKey.flags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
+			else if (securityKey.flags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
 			{
 				try
 				{

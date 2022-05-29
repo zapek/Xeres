@@ -83,27 +83,19 @@ public class IdentityService
 		}
 
 		var adminKeyPair = RSA.generateKeys(2048);
-		var publishingKeyPair = RSA.generateKeys(2048);
 
 		var adminPrivateKey = (RSAPrivateKey) adminKeyPair.getPrivate();
 		var adminPublicKey = (RSAPublicKey) adminKeyPair.getPublic();
 
-		var publishingPrivateKey = (RSAPrivateKey) publishingKeyPair.getPrivate();
-		var publishingPublicKey = (RSAPublicKey) publishingKeyPair.getPublic();
-
-		// The GxsId is from the publishing (identity) key
+		// The GxsId is from the private admin key
 		var gxsId = makeGxsId(
-				getAsOneComplement(publishingPublicKey.getModulus()),
-				getAsOneComplement(publishingPublicKey.getPublicExponent()));
+				getAsOneComplement(adminPrivateKey.getModulus()),
+				getAsOneComplement(adminPrivateKey.getPrivateExponent()));
 
 		var gxsIdGroupItem = new IdentityGroupItem(gxsId, name);
 		gxsIdGroupItem.setType(Type.OWN);
 		gxsIdGroupItem.setAdminPrivateKey(adminPrivateKey);
 		gxsIdGroupItem.setAdminPublicKey(adminPublicKey);
-
-		// XXX: might not be needed for anonymous identities
-		gxsIdGroupItem.setPublishingPrivateKey(publishingPrivateKey);
-		gxsIdGroupItem.setPublishingPublicKey(publishingPublicKey);
 
 		gxsIdGroupItem.setCircleType(GxsCircleType.PUBLIC);
 
@@ -176,7 +168,7 @@ public class IdentityService
 
 	public byte[] signData(IdentityGroupItem identityGroupItem, byte[] data)
 	{
-		return RSA.sign(data, identityGroupItem.getPublishingPrivateKey());
+		return RSA.sign(data, identityGroupItem.getAdminPrivateKey());
 	}
 
 	private byte[] getAsOneComplement(BigInteger number)

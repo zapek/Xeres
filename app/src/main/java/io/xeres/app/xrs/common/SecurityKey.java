@@ -32,9 +32,9 @@ public record SecurityKey(GxsId gxsId, Set<Flags> flags, int startTs, int endTs,
 		TYPE_FULL,
 		UNUSED_3,
 		UNUSED_4,
-		DISTRIBUTION_PUBLISHING,
-		DISTRIBUTION_ADMIN,
-		DISTRIBUTION_IDENTITY;
+		DISTRIBUTION_PUBLISHING, // 0x20
+		DISTRIBUTION_ADMIN, // 0x40
+		UNUSED_5;
 
 		public static Set<Flags> ofTypes()
 		{
@@ -43,7 +43,7 @@ public record SecurityKey(GxsId gxsId, Set<Flags> flags, int startTs, int endTs,
 
 		public static Set<Flags> ofDistributions()
 		{
-			return EnumSet.of(DISTRIBUTION_PUBLISHING, DISTRIBUTION_ADMIN, DISTRIBUTION_IDENTITY);
+			return EnumSet.of(DISTRIBUTION_PUBLISHING, DISTRIBUTION_ADMIN);
 		}
 	}
 }

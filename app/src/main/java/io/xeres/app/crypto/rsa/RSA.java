@@ -33,7 +33,6 @@ import org.bouncycastle.crypto.digests.SHA1Digest;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.*;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -211,25 +210,20 @@ public final class RSA
 		return getPublicKey(subjectPublicKeyInfo.getEncoded());
 	}
 
-	public static GxsId getGxsId(Key key)
+	/**
+	 * Computes the GxsId from the key. This is done by sha1 hashing the n and e numbers
+	 * and getting the first 16 bytes from it.
+	 *
+	 * @param publicKey the RSA public key
+	 * @return the GxsId
+	 */
+	public static GxsId getGxsId(PublicKey publicKey)
 	{
-		if (key instanceof PrivateKey privateKey)
-		{
-			var rsaPrivateKey = (RSAPrivateKey) privateKey;
-			return makeGxsId(
-					getAsOneComplement(rsaPrivateKey.getModulus()),
-					getAsOneComplement(rsaPrivateKey.getPrivateExponent())
-			);
-		}
-		else if (key instanceof PublicKey publicKey)
-		{
-			var rsaPublicKey = (RSAPublicKey) publicKey;
-			return makeGxsId(
-					getAsOneComplement(rsaPublicKey.getModulus()),
-					getAsOneComplement(rsaPublicKey.getPublicExponent())
-			);
-		}
-		throw new IllegalArgumentException("Cannot extract GxsId from key " + key);
+		var rsaPublicKey = (RSAPublicKey) publicKey;
+		return makeGxsId(
+				getAsOneComplement(rsaPublicKey.getModulus()),
+				getAsOneComplement(rsaPublicKey.getPublicExponent())
+		);
 	}
 
 	private static byte[] getAsOneComplement(BigInteger number)

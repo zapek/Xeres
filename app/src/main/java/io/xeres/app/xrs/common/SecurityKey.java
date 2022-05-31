@@ -112,13 +112,14 @@ public final class SecurityKey
 
 	public enum Flags
 	{
-		TYPE_PUBLIC_ONLY,
-		TYPE_FULL,
-		UNUSED_3,
-		UNUSED_4,
+		TYPE_PUBLIC_ONLY, // 0x1
+		TYPE_FULL, // 0x2
+		UNUSED_3, // 0x4
+		UNUSED_4, // 0x8
+		UNUSED_5, // 0x10
 		DISTRIBUTION_PUBLISHING, // 0x20
 		DISTRIBUTION_ADMIN, // 0x40
-		UNUSED_5;
+		UNUSED_8; // 0x80
 
 		public static Set<Flags> ofTypes()
 		{

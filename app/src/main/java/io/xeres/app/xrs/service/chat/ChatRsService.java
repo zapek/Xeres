@@ -626,7 +626,7 @@ public class ChatRsService extends RsService
 
 		if (!validateBounceSignature(peerConnection, item))
 		{
-			log.error("Invalid signature for item {} from peer {}, dropping", item, peerConnection);
+			log.error("Invalid signature for item {} from peer {}, gxsId: {}, dropping", item, peerConnection, item.getSignature().gxsId());
 			return false;
 		}
 

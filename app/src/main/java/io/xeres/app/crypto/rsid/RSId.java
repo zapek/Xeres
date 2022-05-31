@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.security.cert.CertificateParsingException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -45,7 +45,7 @@ import static io.xeres.common.rsid.Type.*;
  */
 public abstract class RSId
 {
-	private static final Map<Class<? extends RSId>, Type> engines = new HashMap<>();
+	private static final Map<Class<? extends RSId>, Type> engines = new LinkedHashMap<>();
 
 	static
 	{

@@ -111,7 +111,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		}
 		catch (IllegalArgumentException | NoSuchMethodException e)
 		{
-			log.error("Failed to deserialize: {}, {}", e.getClass().getSimpleName(), e.getMessage());
+			log.error("Failed to deserialize: {}, {}", e.getClass().getSimpleName(), e.getMessage(), e);
 			rawItem.dispose();
 			item = null; // Don't dispose twice
 		}

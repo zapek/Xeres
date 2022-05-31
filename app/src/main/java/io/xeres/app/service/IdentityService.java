@@ -89,8 +89,8 @@ public class IdentityService
 		var adminPrivateKey = (RSAPrivateKey) adminKeyPair.getPrivate();
 		var adminPublicKey = (RSAPublicKey) adminKeyPair.getPublic();
 
-		// The GxsId is from the private admin key
-		var gxsId = RSA.getGxsId(adminPrivateKey);
+		// The GxsId is from the public admin key (n and e)
+		var gxsId = RSA.getGxsId(adminPublicKey);
 
 		var gxsIdGroupItem = new IdentityGroupItem(gxsId, name);
 		gxsIdGroupItem.setType(Type.OWN);
@@ -98,6 +98,8 @@ public class IdentityService
 		gxsIdGroupItem.setAdminPublicKey(adminPublicKey);
 
 		gxsIdGroupItem.setCircleType(GxsCircleType.PUBLIC);
+
+		log.debug("Own identity's GxsId: {}", gxsId);
 
 		if (signed)
 		{

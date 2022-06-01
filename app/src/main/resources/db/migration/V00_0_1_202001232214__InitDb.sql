@@ -29,7 +29,7 @@ CREATE TABLE locations
 	dht                 BOOLEAN     NOT NULL                                            DEFAULT true,
 	net_mode            ENUM ('unknown', 'udp', 'upnp', 'ext', 'hidden', 'unreachable') DEFAULT 'unknown',
 	last_connected      TIMESTAMP,
-	CONSTRAINT fk_location_profile FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
+	CONSTRAINT fk_location_profile FOREIGN KEY (profile_id) REFERENCES profiles (id)
 );
 
 CREATE TABLE connections
@@ -40,7 +40,7 @@ CREATE TABLE connections
 	address        VARCHAR(128) NOT NULL,
 	last_connected TIMESTAMP,
 	external       BOOLEAN      NOT NULL,
-	CONSTRAINT fk_connection_location FOREIGN KEY (location_id) REFERENCES locations (id) ON DELETE CASCADE
+	CONSTRAINT fk_connection_location FOREIGN KEY (location_id) REFERENCES locations (id)
 );
 
 CREATE TABLE prefs
@@ -65,7 +65,7 @@ CREATE TABLE gxs_client_updates
 	location_id  BIGINT NOT NULL,
 	service_type INT    NOT NULL,
 	last_synced  TIMESTAMP,
-	CONSTRAINT fk_gxs_client_update_location FOREIGN KEY (location_id) REFERENCES locations (id) ON DELETE CASCADE
+	CONSTRAINT fk_gxs_client_update_location FOREIGN KEY (location_id) REFERENCES locations (id)
 );
 CREATE INDEX idx_location_service ON gxs_client_updates (location_id, service_type);
 

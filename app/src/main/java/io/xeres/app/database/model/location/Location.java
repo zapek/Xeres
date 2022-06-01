@@ -21,6 +21,7 @@ package io.xeres.app.database.model.location;
 
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdBuilder;
+import io.xeres.app.database.converter.NetModeConverter;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.common.id.LocationId;
@@ -48,7 +49,7 @@ public class Location
 	private long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "profile_id")
+	@JoinColumn(name = "profile_id", nullable = false)
 	private Profile profile;
 
 	@NotNull
@@ -73,6 +74,7 @@ public class Location
 	@Transient
 	private String version;
 
+	@Convert(converter = NetModeConverter.class)
 	private NetMode netMode = NetMode.UNKNOWN;
 
 	protected Location()

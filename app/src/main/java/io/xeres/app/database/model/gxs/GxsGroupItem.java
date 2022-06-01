@@ -21,10 +21,7 @@ package io.xeres.app.database.model.gxs;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.crypto.rsa.RSA;
-import io.xeres.app.database.converter.GxsPrivacyFlagsConverter;
-import io.xeres.app.database.converter.GxsSignatureFlagsConverter;
-import io.xeres.app.database.converter.PrivateKeyConverter;
-import io.xeres.app.database.converter.PublicKeyConverter;
+import io.xeres.app.database.converter.*;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.SecurityKeySet;
 import io.xeres.app.xrs.common.Signature;
@@ -90,7 +87,8 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "circle_id"))
 	private GxsId circleId; // id of the circle to which the group is restricted
-	@Enumerated
+
+	@Convert(converter = GxsCircleTypeConverter.class)
 	private GxsCircleType circleType = GxsCircleType.UNKNOWN;
 
 	private int authenticationFlags; // not used yet?

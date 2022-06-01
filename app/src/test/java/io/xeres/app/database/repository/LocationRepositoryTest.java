@@ -30,6 +30,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class LocationRepositoryTest
 {
+
+	@Autowired
+	private ProfileRepository profileRepository;
 	@Autowired
 	private LocationRepository locationRepository;
 
@@ -38,13 +41,17 @@ class LocationRepositoryTest
 	{
 		var profile = ProfileFakes.createProfile("test", 1);
 
+		profile = profileRepository.save(profile);
+
 		var location1 = LocationFakes.createLocation("test1", profile);
 		var location2 = LocationFakes.createLocation("test2", profile);
 		var location3 = LocationFakes.createLocation("test3", profile);
 
-		var savedLocation1 = locationRepository.save(location1);
-		locationRepository.save(location2);
-		locationRepository.save(location3);
+		profile.addLocation(location1);
+		profile.addLocation(location2);
+		profile.addLocation(location3);
+
+		profileRepository.save(profile);
 
 		var locations = locationRepository.findAll();
 		assertNotNull(locations);
@@ -53,8 +60,8 @@ class LocationRepositoryTest
 		var first = locationRepository.findById(locations.get(0).getId()).orElse(null);
 
 		assertNotNull(first);
-		assertEquals(savedLocation1.getId(), first.getId());
-		assertEquals(savedLocation1.getName(), first.getName());
+		assertEquals(locations.get(0).getId(), first.getId());
+		assertEquals(locations.get(0).getName(), first.getName());
 
 		first.setConnected(true);
 
@@ -67,6 +74,10 @@ class LocationRepositoryTest
 		locationRepository.deleteById(first.getId());
 
 		var deleted = locationRepository.findById(first.getId());
+		assertTrue(deleted.isEmpty());
+
+		profileRepository.deleteById(profile.getId());
+		deleted = locationRepository.findById(location2.getId());
 		assertTrue(deleted.isEmpty());
 	}
 }

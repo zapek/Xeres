@@ -19,6 +19,7 @@
 
 package io.xeres.app.database.model.connection;
 
+import io.xeres.app.database.converter.PeerAddressTypeConverter;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.protocol.ip.IP;
@@ -41,9 +42,10 @@ public class Connection
 	private long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "location_id")
+	@JoinColumn(name = "location_id", nullable = false)
 	private Location location;
 
+	@Convert(converter = PeerAddressTypeConverter.class)
 	private PeerAddress.Type type;
 
 	private String address;

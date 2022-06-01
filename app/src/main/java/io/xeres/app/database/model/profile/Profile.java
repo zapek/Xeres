@@ -19,6 +19,7 @@
 
 package io.xeres.app.database.model.profile;
 
+import io.xeres.app.database.converter.TrustConverter;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
@@ -58,6 +59,7 @@ public class Profile
 
 	private boolean accepted;
 
+	@Convert(converter = TrustConverter.class)
 	private Trust trust = Trust.UNKNOWN;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "profile", orphanRemoval = true)

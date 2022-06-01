@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.identity.item;
 
 import io.netty.buffer.ByteBuf;
+import io.xeres.app.database.converter.IdentityTypeConverter;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
@@ -49,6 +50,7 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 
 	private byte[] image;
 
+	@Convert(converter = IdentityTypeConverter.class)
 	private Type type;
 
 	public IdentityGroupItem()

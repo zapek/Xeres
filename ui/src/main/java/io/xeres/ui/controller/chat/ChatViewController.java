@@ -57,7 +57,6 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -261,8 +260,7 @@ public class ChatViewController implements Controller
 		var publicTree = publicRooms.getChildren();
 		var privateTree = privateRooms.getChildren();
 
-		chatRoomLists.getSubscribed().stream()
-				.sorted(Comparator.comparing(ChatRoomInfo::getName))
+		chatRoomLists.getSubscribed()
 				.forEach(roomInfo -> addOrUpdate(subscribedTree, roomInfo));
 
 		// Make sure we don't add rooms that we're already subscribed to
@@ -281,9 +279,7 @@ public class ChatViewController implements Controller
 
 	private void syncTreeWithChatRoomList(ObservableList<TreeItem<RoomHolder>> tree, List<ChatRoomInfo> list)
 	{
-		list.stream()
-				.sorted(Comparator.comparing(ChatRoomInfo::getName))
-				.forEach(chatRoomInfo -> addOrUpdate(tree, chatRoomInfo));
+		list.forEach(chatRoomInfo -> addOrUpdate(tree, chatRoomInfo));
 
 		var chatRoomIds = list.stream()
 				.map(ChatRoomInfo::getId)
@@ -309,10 +305,12 @@ public class ChatViewController implements Controller
 					if (roomHolderTreeItem.getValue().getRoomInfo().getRoomType() == RoomType.PRIVATE)
 					{
 						privateRooms.getChildren().add(roomHolderTreeItem);
+						sortByName(privateRooms.getChildren());
 					}
 					else
 					{
 						publicRooms.getChildren().add(roomHolderTreeItem);
+						sortByName(publicRooms.getChildren());
 					}
 					roomHolderTreeItem.getValue().clearChatListView();
 				});
@@ -326,7 +324,13 @@ public class ChatViewController implements Controller
 				.ifPresent(roomHolderTreeItem -> {
 					from.getChildren().remove(roomHolderTreeItem);
 					to.getChildren().add(roomHolderTreeItem);
+					sortByName(to.getChildren());
 				});
+	}
+
+	private static void sortByName(ObservableList<TreeItem<RoomHolder>> children)
+	{
+		children.sort((o1, o2) -> o1.getValue().getRoomInfo().getName().compareToIgnoreCase(o2.getValue().getRoomInfo().getName()));
 	}
 
 	public void userJoined(long roomId, ChatRoomUserEvent event)
@@ -394,7 +398,7 @@ public class ChatViewController implements Controller
 		typingNotification.setText("");
 	}
 
-	// right now I use a simple implementation. It also has a drawback that it doesn't sort new entries and doesn't update the counter
+	// right now I use a simple implementation. It also has a drawback that it doesn't update the counter
 	private void addOrUpdate(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
 	{
 		if (tree.stream()
@@ -402,6 +406,7 @@ public class ChatViewController implements Controller
 				.noneMatch(existingRoom -> existingRoom.getRoomInfo().equals(chatRoomInfo)))
 		{
 			tree.add(new TreeItem<>(new RoomHolder(chatRoomInfo)));
+			sortByName(tree);
 		}
 	}
 

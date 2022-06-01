@@ -3,6 +3,10 @@ package io.xeres.app.database.converter;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
+/**
+ * This class is needed because Hibernate uses the ordinal value of enums to save them in the database and
+ * some smartass changed enums in H2 to start from 1 instead of 0. Of course this breaks everything.
+ */
 @Converter
 public abstract class EnumConverter<E extends Enum<E>> implements AttributeConverter<E, Integer>
 {

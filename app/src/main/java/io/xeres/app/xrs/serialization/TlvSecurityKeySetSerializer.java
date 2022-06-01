@@ -66,13 +66,16 @@ final class TlvSecurityKeySetSerializer
 
 		var len = TlvUtils.checkTypeAndLength(buf, SECURITY_KEY_SET);
 
-		TlvSerializer.deserialize(buf, STR_GROUP_ID);
-		len -= TLV_HEADER_SIZE; // XXX: this is correct, but we'd better just read the STR_GROUP_ID and check it's size just in case (even though it's empty)
+		// STR_GROUP_ID must be empty
+		if (!TlvSerializer.deserialize(buf, STR_GROUP_ID).equals(""))
+		{
+			throw new IllegalArgumentException("STR_GROUP_ID is not empty");
+		}
+		len -= TlvStringSerializer.getSize("");
 
 		var securityKeySet = new SecurityKeySet();
 		while (len > 0)
 		{
-			// XXX: here we should check for SECURITY_KEY and skip if the TLV type is unknown in case keys are upgraded in the future
 			var securityKey = (SecurityKey) TlvSerializer.deserialize(buf, SECURITY_KEY);
 			securityKeySet.put(securityKey);
 			len -= TlvSerializer.getSize(SECURITY_KEY, securityKey);

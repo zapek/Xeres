@@ -129,7 +129,7 @@ public class Startup implements ApplicationRunner
 		if (prefsService.isOwnProfilePresent())
 		{
 			splashService.status("Starting network");
-			try (var session = new DatabaseSession(databaseSessionManager))
+			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{
 				var location = locationService.findOwnLocation().orElseThrow();
 				var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new IllegalStateException("Current host has no IP address. Please configure your network"));

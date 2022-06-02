@@ -156,7 +156,7 @@ public class BroadcastDiscoveryService implements Runnable
 
 	private void setupOwnInfo()
 	{
-		try (var session = new DatabaseSession(databaseSessionManager))
+		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownLocation = locationService.findOwnLocation().orElseThrow();
 
@@ -307,17 +307,17 @@ public class BroadcastDiscoveryService implements Runnable
 					{
 						// Add or update
 						peers.put(peer.getPeerId(), peer);
-						try (var session = new DatabaseSession(databaseSessionManager))
+						try (var ignored = new DatabaseSession(databaseSessionManager))
 						{
 							log.debug("Trying to update friend's IP");
 
 							locationService.findLocationById(peer.getLocationId()).ifPresent(location -> {
-										if (!location.isConnected())
-										{
-											var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
+								if (!location.isConnected())
+								{
+									var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
 
-											log.debug("Updating friend {} with ip {}", location, lanConnection);
-											location.addConnection(lanConnection);
+									log.debug("Updating friend {} with ip {}", location, lanConnection);
+									location.addConnection(lanConnection);
 										}
 									}
 							);

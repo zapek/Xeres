@@ -171,7 +171,7 @@ public abstract class GxsRsService extends RsService
 		var since = Instant.ofEpochSecond(item.getUpdateTimestamp());
 		if (areGxsUpdatesAvailableForPeer(since))
 		{
-			try (var session = new DatabaseSession(databaseSessionManager))
+			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{
 				log.debug("Updates available for peer, sending...");
 				List<GxsSyncGroupItem> items = new ArrayList<>();

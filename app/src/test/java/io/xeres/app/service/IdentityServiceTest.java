@@ -42,8 +42,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class IdentityServiceTest
@@ -81,6 +80,7 @@ class IdentityServiceTest
 			gxsIdGroupItem.setPublished(Instant.now());
 			return gxsIdGroupItem;
 		});
+		doNothing().when(gxsExchangeService).setLastServiceUpdate(any(), any());
 
 		var id = identityService.createOwnIdentity(NAME, false);
 
@@ -124,6 +124,7 @@ class IdentityServiceTest
 			gxsIdGroupItem.setPublished(Instant.now());
 			return gxsIdGroupItem;
 		});
+		doNothing().when(gxsExchangeService).setLastServiceUpdate(any(), any());
 
 		var id = identityService.createOwnIdentity(NAME, true);
 

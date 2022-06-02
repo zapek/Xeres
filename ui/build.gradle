@@ -48,4 +48,5 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation 'com.vdurmont:emoji-java:5.1.1'
+    implementation 'org.json:json:20220320' // fix dependency vulnerability in emoji-java
 }

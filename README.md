@@ -9,6 +9,10 @@
 [![License](https://img.shields.io/github/license/zapek/Xeres.svg)](https://github.com/zapek/Xeres/blob/master/LICENSE)
 [![CodeQL](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml)
 
+&nbsp;
+
+https://xeres.io
+
 ## Supported platforms
 
 - Windows (x86_64)
@@ -51,10 +55,6 @@ Please consider a donation to help with the project's development. Contact me to
 ## Documentation
 
 [Here](https://xeres.io/docs/) and on the [wiki](https://github.com/zapek/Xeres/wiki).
-
-## Official website
-
-https://xeres.io
 
 ## How to run
 

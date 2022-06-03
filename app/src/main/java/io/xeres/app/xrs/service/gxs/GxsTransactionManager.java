@@ -41,16 +41,16 @@ import static io.xeres.app.xrs.service.gxs.item.TransactionFlags.*;
  * <p>
  * <b>Incoming transactions:</b>
  * <ul>
- *     <li>we receive a GxsTransactionItem with flag BEGIN_INCOMING which contains the expected number of items</li>
- *     <li>we send back a GxsTransactionItem with flag BEGIN_OUTGOING</li>
+ *     <li>we receive a GxsTransactionItem with flag START which contains the expected number of items</li>
+ *     <li>we send back a GxsTransactionItem with flag START_ACKNOWLEDGE</li>
  *     <li>the peer sends GxsExchange items</li>
  *     <li>once we have received all items, we send a GxsTransactionItem with flag END_SUCCESS</li>
  * </ul>
  * <p>
  * <b>Outgoing transactions:</b>
  * <ul>
- *     <li>we send a GxsTransactionItem with flag BEGIN_INCOMING which contains the expected number of items</li>
- *     <li>the peer sends back a GxsTransactionItem with flag BEGIN_OUTGOING</li>
+ *     <li>we send a GxsTransactionItem with flag START which contains the expected number of items</li>
+ *     <li>the peer sends back a GxsTransactionItem with flag START_ACKNOWLEDGE</li>
  *     <li>we send GxsExchange items to the peer</li>
  *     <li>once the peer has received all the items, it sends back a GxsTransactionItem with flag END_SUCCESS</li>
  * </ul>
@@ -83,7 +83,7 @@ public class GxsTransactionManager
 	public void startOutgoingTransactionForGroupIdRequest(PeerConnection peerConnection, List<GxsSyncGroupItem> items, int transactionId, GxsRsService gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, items, items.size(), gxsRsService, Type.OUTGOING);
-		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(BEGIN_INCOMING, TYPE_GROUP_LIST_REQUEST), Instant.EPOCH);
+		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(START, TYPE_GROUP_LIST_REQUEST), Instant.EPOCH);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class GxsTransactionManager
 	public void startOutgoingTransactionForGroupIdResponse(PeerConnection peerConnection, List<GxsSyncGroupItem> items, Instant update, int transactionId, GxsRsService gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, items, items.size(), gxsRsService, Type.OUTGOING);
-		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(BEGIN_INCOMING, TYPE_GROUP_LIST_RESPONSE), update);
+		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(START, TYPE_GROUP_LIST_RESPONSE), update);
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class GxsTransactionManager
 	public void startOutgoingTransactionForGroupTransfer(PeerConnection peerConnection, List<GxsTransferGroupItem> items, Instant update, int transactionId, GxsRsService gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, items, items.size(), gxsRsService, Type.OUTGOING);
-		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(BEGIN_INCOMING, TYPE_GROUPS), update);
+		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(START, TYPE_GROUPS), update);
 	}
 
 	/**
@@ -125,16 +125,16 @@ public class GxsTransactionManager
 	 */
 	public void processIncomingTransaction(PeerConnection peerConnection, GxsTransactionItem item, GxsRsService gxsRsService)
 	{
-		if (item.getFlags().contains(BEGIN_INCOMING))
+		if (item.getFlags().contains(START))
 		{
 			//  This is an incoming connection
-			log.debug("Received INCOMING transaction {} from peer {}, sending back OUTGOING", item, peerConnection);
+			log.debug("Received INCOMING transaction {} from peer {}, sending back ACK", item, peerConnection);
 			var transaction = new Transaction<>(item.getTransactionId(), new ArrayList<>(), item.getItemCount(), gxsRsService, Type.INCOMING);
 			addIncomingTransaction(peerConnection, transaction);
 
 			Set<TransactionFlags> transactionFlags = EnumSet.copyOf(item.getFlags());
 			transactionFlags.retainAll(TransactionFlags.ofTypes());
-			transactionFlags.add(BEGIN_OUTGOING);
+			transactionFlags.add(START_ACKNOWLEDGE);
 
 			var readyTransactionItem = new GxsTransactionItem(
 					transactionFlags,
@@ -143,7 +143,7 @@ public class GxsTransactionManager
 			peerConnectionManager.writeItem(peerConnection, readyTransactionItem, transaction.getService());
 			transaction.setState(State.RECEIVING);
 		}
-		else if (item.getFlags().contains(BEGIN_OUTGOING))
+		else if (item.getFlags().contains(START_ACKNOWLEDGE))
 		{
 			// This is the confirmation by the peer of our outgoing connection
 			log.debug("Confirmation of OUTGOING transaction {} from peer {}, sending items...", item, peerConnection);

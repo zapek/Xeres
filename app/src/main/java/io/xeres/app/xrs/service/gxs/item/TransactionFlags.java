@@ -25,8 +25,8 @@ import java.util.Set;
 public enum TransactionFlags
 {
 	// States
-	BEGIN_INCOMING, // FLAG_BEGIN_P1
-	BEGIN_OUTGOING, // FLAG_BEGIN_P2
+	START, // FLAG_BEGIN_P1
+	START_ACKNOWLEDGE, // FLAG_BEGIN_P2
 	END_SUCCESS, // FLAG_END_SUCCESS
 	CANCEL, // FLAG_CANCEL (not used it seems)
 	END_FAIL_NUM, // FLAG_END_FAIL_NUM (not used it seems)
@@ -45,8 +45,8 @@ public enum TransactionFlags
 	public static Set<TransactionFlags> ofStates()
 	{
 		return EnumSet.of(
-				BEGIN_INCOMING,
-				BEGIN_OUTGOING,
+				START,
+				START_ACKNOWLEDGE,
 				END_SUCCESS,
 				CANCEL,
 				END_FAIL_NUM,

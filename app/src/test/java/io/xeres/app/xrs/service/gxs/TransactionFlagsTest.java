@@ -29,8 +29,8 @@ class TransactionFlagsTest
 	@Test
 	void TransactionFlags_Enum_Order()
 	{
-		assertEquals(0, BEGIN_INCOMING.ordinal());
-		assertEquals(1, BEGIN_OUTGOING.ordinal());
+		assertEquals(0, START.ordinal());
+		assertEquals(1, START_ACKNOWLEDGE.ordinal());
 		assertEquals(2, END_SUCCESS.ordinal());
 		assertEquals(3, CANCEL.ordinal());
 		assertEquals(4, END_FAIL_NUM.ordinal());

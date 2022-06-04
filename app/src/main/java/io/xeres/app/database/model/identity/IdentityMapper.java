@@ -45,7 +45,8 @@ public final class IdentityMapper
 				identityGroupItem.getName(),
 				identityGroupItem.getGxsId(),
 				identityGroupItem.getPublished(),
-				identityGroupItem.getType()
+				identityGroupItem.getType(),
+				identityGroupItem.hasImage()
 		);
 	}
 

@@ -19,6 +19,8 @@
 
 package io.xeres.common.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.Objects;
@@ -58,6 +60,7 @@ public class GxsId implements Identifier
 		this.identifier = identifier;
 	}
 
+	@JsonIgnore
 	@Override
 	public int getLength()
 	{

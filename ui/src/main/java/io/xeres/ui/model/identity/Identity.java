@@ -31,6 +31,7 @@ public class Identity
 	private GxsId gxsId;
 	private Instant updated;
 	private Type type;
+	private boolean hasImage;
 
 	public long getId()
 	{
@@ -80,5 +81,15 @@ public class Identity
 	public void setType(Type type)
 	{
 		this.type = type;
+	}
+
+	public boolean hasImage()
+	{
+		return hasImage;
+	}
+
+	public void setHasImage(boolean hasImage)
+	{
+		this.hasImage = hasImage;
 	}
 }

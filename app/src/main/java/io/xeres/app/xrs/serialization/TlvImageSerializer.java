@@ -68,11 +68,6 @@ final class TlvImageSerializer
 
 		TlvUtils.checkTypeAndLength(buf, IMAGE);
 		var type = Serializer.deserializeEnum(buf, ImageType.class); // Not really used
-		var data = (byte[]) TlvSerializer.deserialize(buf, BIN_IMAGE);
-		if (data != null && data.length == 1)
-		{
-			data = null; // RS sends a zero byte for empty images
-		}
-		return data;
+		return (byte[]) TlvSerializer.deserialize(buf, BIN_IMAGE);
 	}
 }

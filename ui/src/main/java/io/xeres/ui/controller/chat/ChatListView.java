@@ -156,7 +156,7 @@ public class ChatListView
 
 	private ImageView buildImageView(byte[] imageData)
 	{
-		if (imageData != null && imageData.length > 1)
+		if (imageData != null)
 		{
 			return new ImageView(new Image(new ByteArrayInputStream(imageData)));
 		}

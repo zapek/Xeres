@@ -41,6 +41,7 @@ public final class IdentityMapper
 		identity.setGxsId(dto.gxsId());
 		identity.setUpdated(dto.updated());
 		identity.setType(dto.type());
+		identity.setHasImage(dto.hasImage());
 		return identity;
 	}
 }

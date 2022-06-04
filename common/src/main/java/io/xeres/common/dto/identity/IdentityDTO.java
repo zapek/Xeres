@@ -30,7 +30,8 @@ public record IdentityDTO(
 		String name,
 		GxsId gxsId,
 		Instant updated,
-		Type type
+		Type type,
+		boolean hasImage
 )
 {
 

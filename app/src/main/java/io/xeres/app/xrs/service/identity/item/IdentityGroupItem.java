@@ -29,6 +29,7 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.identity.Type;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -49,6 +50,8 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 	private List<String> recognitionTags = new ArrayList<>(); // not used (but serialized)
 
 	private byte[] image;
+	@Transient
+	private Boolean hasImage;
 
 	@Convert(converter = IdentityTypeConverter.class)
 	private Type type;
@@ -80,7 +83,17 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 
 	public void setProfileSignature(byte[] profileSignature)
 	{
-		this.profileSignature = profileSignature;
+		this.profileSignature = ArrayUtils.isNotEmpty(profileSignature) ? profileSignature : null;
+	}
+
+	public boolean hasImage()
+	{
+		return hasImage != null ? hasImage : image != null;
+	}
+
+	public void setHasImage(boolean value)
+	{
+		this.hasImage = value;
 	}
 
 	public byte[] getImage()
@@ -90,7 +103,14 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 
 	public void setImage(byte[] image)
 	{
-		this.image = image;
+		if (ArrayUtils.isNotEmpty(image))
+		{
+			this.image = image;
+		}
+		else
+		{
+			this.image = null;
+		}
 	}
 
 	public Type getType()
@@ -175,12 +195,12 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 		buf.readInt(); // size
 
 		profileHash = (Sha1Sum) deserializeIdentifier(buf, Sha1Sum.class);
-		profileSignature = (byte[]) deserialize(buf, TlvType.STR_SIGN);
+		setProfileSignature((byte[]) deserialize(buf, TlvType.STR_SIGN));
 		recognitionTags = (List<String>) deserialize(buf, TlvType.SET_RECOGN);
 
 		if (buf.isReadable())
 		{
-			image = (byte[]) deserialize(buf, TlvType.IMAGE);
+			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
 		}
 	}
 }

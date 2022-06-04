@@ -31,9 +31,13 @@ import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.identity.Type;
+import io.xeres.common.util.ImageDetectionUtils;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,6 +65,26 @@ public class IdentityController
 	public IdentityDTO findIdentityById(@PathVariable long id)
 	{
 		return toDTO(identityService.findById(id).orElseThrow());
+	}
+
+	@GetMapping("/{id}/image")
+	@Operation(summary = "Return an identity's avatar image")
+	@ApiResponse(responseCode = "200", description = "Identity's avatar image found")
+	@ApiResponse(responseCode = "204", description = "Identity's avatar image is empty")
+	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	public ResponseEntity<InputStreamResource> downloadIdentityImage(@PathVariable long id)
+	{
+		var identity = identityService.findById(id).orElseThrow();
+		var imageType = ImageDetectionUtils.getImageMimeType(identity.getImage());
+		if (imageType == null)
+		{
+			return ResponseEntity.noContent()
+					.build();
+		}
+		return ResponseEntity.ok()
+				.contentLength(identity.getImage().length)
+				.contentType(imageType)
+				.body(new InputStreamResource(new ByteArrayInputStream(identity.getImage())));
 	}
 
 	@GetMapping

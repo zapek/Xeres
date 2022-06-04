@@ -1,0 +1,15 @@
+@startuml
+rnote over Juergen: STARTING
+Juergen -> Heike : START
+rnote over Heike : RECEIVING
+Juergen <- Heike : START_ACKNOWLEDGE
+rnote over Juergen: SENDING
+Juergen -> Heike: Sending data
+Juergen -> Heike: Sending data
+Juergen -> Heike: ...
+Juergen -> Heike: Sending data
+rnote over Juergen: WAITING_CONFIRMATION
+rnote over Heike: COMPLETED
+Heike -> Juergen: END_SUCCESS
+rnote over Juergen: COMPLETED
+@enduml

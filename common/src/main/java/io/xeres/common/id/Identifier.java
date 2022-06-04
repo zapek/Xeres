@@ -19,6 +19,8 @@
 
 package io.xeres.common.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Arrays;
 
 /**
@@ -49,6 +51,7 @@ public interface Identifier
 	 */
 	String toString();
 
+	@JsonIgnore
 	default byte[] getNullIdentifier()
 	{
 		var identifier = new byte[getLength()];

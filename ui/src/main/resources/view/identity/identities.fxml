@@ -20,13 +20,13 @@
   -->
 
 
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<VBox prefHeight="400.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.identity.IdentitiesWindowController" styleClass="base-spacing">
-    <TableView fx:id="identitiesTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+<VBox prefHeight="480.0" prefWidth="620.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.identity.IdentitiesWindowController" styleClass="base-spacing">
+    <TableView fx:id="identitiesTableView" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="tableName" editable="false" prefWidth="117.0" text="Name"/>
+            <TableColumn fx:id="tableImage" prefWidth="132.0" text="Avatar"/>
             <TableColumn fx:id="tableGxsId" prefWidth="210.0" text="GxsId"/>
             <TableColumn fx:id="tableUpdated" minWidth="0.0" prefWidth="120.0" text="Updated"/>
         </columns>

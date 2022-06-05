@@ -35,6 +35,11 @@ public final class ImageDetectionUtils
 
 	public static MediaType getImageMimeType(byte[] image)
 	{
+		if (image == null)
+		{
+			return null;
+		}
+
 		if (isStartingWith(PNG_HEADER, image))
 		{
 			return MediaType.IMAGE_PNG;

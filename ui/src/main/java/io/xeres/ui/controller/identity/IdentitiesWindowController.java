@@ -59,6 +59,9 @@ public class IdentitiesWindowController implements WindowController
 	@FXML
 	private TableColumn<Identity, String> tableUpdated;
 
+	@FXML
+	private TableColumn<Identity, Long> tableImage;
+
 	public IdentitiesWindowController(IdentityClient identityClient)
 	{
 		this.identityClient = identityClient;
@@ -74,6 +77,8 @@ public class IdentitiesWindowController implements WindowController
 						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 								.withZone(ZoneId.systemDefault())
 								.format(param.getValue().getUpdated())));
+		tableImage.setCellFactory(ImageCell::new);
+		tableImage.setCellValueFactory(new PropertyValueFactory<>("id"));
 
 		identityClient.getIdentities().collectList()
 				.doOnSuccess(identities -> Platform.runLater(() -> {

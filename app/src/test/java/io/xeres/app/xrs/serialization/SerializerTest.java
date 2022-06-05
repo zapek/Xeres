@@ -491,16 +491,16 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvImage_Null_Array()
+	void Serializer_Serialize_TlvImage_Empty_Array()
 	{
 		var buf = Unpooled.buffer();
-		var input = new byte[1];
+		var input = new byte[0];
 
 		var size = Serializer.serialize(buf, TlvType.IMAGE, input);
 		assertEquals(6 + 6 + 4 + input.length, size);
 
 		var result = (byte[]) Serializer.deserialize(buf, TlvType.IMAGE);
-		assertNull(result);
+		assertArrayEquals(input, result);
 
 		buf.release();
 	}

@@ -19,11 +19,14 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.RoomType;
+import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
+import org.apache.commons.lang3.StringUtils;
 
 public class ChatRoomCell extends TreeCell<RoomHolder>
 {
@@ -34,6 +37,19 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 		super();
 		this.treeView = treeView;
 		setContextMenu(createContextMenu(this));
+		TooltipUtils.installTooltip(this,
+				() -> {
+					var roomInfo = this.getItem().getRoomInfo();
+					if (roomInfo.getId() == 0)
+					{
+						return null;
+					}
+					return "Topic: " + (StringUtils.isNotBlank(roomInfo.getTopic()) ? roomInfo.getTopic() : "[none]") + "\n" +
+							"Users: " + roomInfo.getCount() + "\n" +
+							"Security: " + String.join(", ", roomInfo.getRoomType() == RoomType.PRIVATE ? "private" : "public", roomInfo.isSigned() ? "signed IDs only" : "anonymous IDs allowed") + "\n" +
+							"ID: " + Id.toString(this.getItem().getRoomInfo().getId());
+				}
+				, null);
 	}
 
 	@Override

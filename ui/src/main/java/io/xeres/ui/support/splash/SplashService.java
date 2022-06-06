@@ -30,6 +30,9 @@ public final class SplashService
 	private Graphics2D g2d;
 	private Dimension dimension;
 
+	private static final int LOADING_TEXT_DISTANCE = 20;
+	private static final int MARGINS = 2;
+
 	public SplashService()
 	{
 		if (!isHeadless())
@@ -56,9 +59,9 @@ public final class SplashService
 	{
 		if (g2d != null)
 		{
-			var y = dimension.getHeight() - 20;
+			var y = dimension.getHeight() - LOADING_TEXT_DISTANCE;
 			g2d.setColor(Color.WHITE);
-			g2d.fillRect(0, (int) y, (int) dimension.getWidth(), 20);
+			g2d.fillRect(MARGINS, (int) y, (int) dimension.getWidth() - MARGINS * 2, LOADING_TEXT_DISTANCE - MARGINS);
 			g2d.setColor(Color.BLACK);
 			drawStringCentered(description + "\u2026", (int) y);
 

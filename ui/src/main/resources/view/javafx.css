@@ -57,9 +57,12 @@
 
 /*noinspection CssUnusedSymbol*/
 .tooltip {
-    -fx-background-color: #ff8b00;
+    -fx-background: rgba(255, 255, 225);
     -fx-text-fill: black;
+    -fx-background-color: rgba(255, 255, 225);
+    -fx-background-radius: 0px;
     -fx-wrap-text: true;
+    -fx-font-size: 1em;
 }
 
 .chat-list {

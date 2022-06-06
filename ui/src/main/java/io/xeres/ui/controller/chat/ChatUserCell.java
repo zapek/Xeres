@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
@@ -30,6 +31,9 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 	public ChatUserCell(ListView<ChatRoomUser> listView)
 	{
 		super();
+		TooltipUtils.installTooltip(this,
+				() -> "Name: " + super.getItem().nickname() + "\nGxsId: " + super.getItem().gxsId(),
+				() -> super.getItem().image());
 	}
 
 	@Override

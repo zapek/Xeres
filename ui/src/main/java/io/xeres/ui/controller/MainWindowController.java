@@ -33,8 +33,11 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
@@ -45,6 +48,8 @@ import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 @FxmlView(value = "/view/main.fxml")
 public class MainWindowController implements WindowController
 {
+	private static final Logger log = LoggerFactory.getLogger(MainWindowController.class);
+
 	public static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	@FXML
 	private Label titleLabel;
@@ -78,6 +83,9 @@ public class MainWindowController implements WindowController
 
 	@FXML
 	private MenuItem showIdentitiesWindow;
+
+	@FXML
+	private MenuItem changeOwnIdentityPicture;
 
 	@FXML
 	private MenuItem showBroadcastWindow;
@@ -126,6 +134,12 @@ public class MainWindowController implements WindowController
 		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(titleLabel.getScene().getWindow()));
 
 		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(titleLabel.getScene().getWindow()));
+
+		changeOwnIdentityPicture.setOnAction(event -> {
+			var fileChooser = new FileChooser();
+			var file = fileChooser.showOpenDialog(titleLabel.getScene().getWindow());
+			log.debug("file: {}", file);
+		});
 
 		showPeersWindow.setOnAction(event -> windowManager.openPeers());
 

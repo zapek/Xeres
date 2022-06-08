@@ -21,12 +21,18 @@ package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.ChatRoomInfo;
+import io.xeres.common.message.chat.RoomType;
 import io.xeres.ui.controller.Controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import org.apache.commons.lang3.StringUtils;
 
 public class ChatRoomInfoController implements Controller
 {
+	@FXML
+	private GridPane roomGroup;
+
 	@FXML
 	private Label roomName;
 
@@ -35,9 +41,6 @@ public class ChatRoomInfoController implements Controller
 
 	@FXML
 	private Label roomTopic;
-
-	@FXML
-	private Label roomType;
 
 	@FXML
 	private Label roomSecurity;
@@ -53,14 +56,18 @@ public class ChatRoomInfoController implements Controller
 
 	public void setRoomInfo(ChatRoomInfo chatRoomInfo)
 	{
-		this.roomName.setText(chatRoomInfo.getName());
-
-		this.roomId.setText(chatRoomInfo.getId() != 0L ? Id.toString(chatRoomInfo.getId()) : "");
-
-		this.roomTopic.setText(chatRoomInfo.getTopic() != null ? chatRoomInfo.getTopic() : "");
-
-		this.roomType.setText(chatRoomInfo.getRoomType() != null ? chatRoomInfo.getRoomType().toString() : "");
-		this.roomSecurity.setText(chatRoomInfo.isSigned() ? "Signed IDs" : "All IDs");
-		this.roomCount.setText(String.valueOf(chatRoomInfo.getCount()));
+		if (chatRoomInfo.isARealRoom())
+		{
+			roomGroup.setVisible(true);
+			roomName.setText(chatRoomInfo.getName());
+			roomId.setText(Id.toString(chatRoomInfo.getId()));
+			roomTopic.setText(StringUtils.isNotBlank(chatRoomInfo.getTopic()) ? chatRoomInfo.getTopic() : "[none]");
+			roomSecurity.setText(String.join(", ", chatRoomInfo.getRoomType() == RoomType.PRIVATE ? "private" : "public", chatRoomInfo.isSigned() ? "signed IDs only" : "anonymous IDs allowed"));
+			roomCount.setText(String.valueOf(chatRoomInfo.getCount()));
+		}
+		else
+		{
+			roomGroup.setVisible(false);
+		}
 	}
 }

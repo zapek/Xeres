@@ -34,6 +34,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
@@ -137,8 +138,10 @@ public class MainWindowController implements WindowController
 
 		changeOwnIdentityPicture.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			var file = fileChooser.showOpenDialog(titleLabel.getScene().getWindow());
-			log.debug("file: {}", file);
+			fileChooser.setTitle("Select Avatar Picture");
+			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.jfif"));
+			var selectedFile = fileChooser.showOpenDialog(titleLabel.getScene().getWindow());
+			log.debug("selectedFile: {}", selectedFile);
 		});
 
 		showPeersWindow.setOnAction(event -> windowManager.openPeers());

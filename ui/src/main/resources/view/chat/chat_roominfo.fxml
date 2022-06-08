@@ -26,7 +26,7 @@
     <padding>
         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
     </padding>
-    <GridPane>
+    <GridPane fx:id="roomGroup">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
@@ -37,19 +37,16 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
         </rowConstraints>
         <Label text="Name"/>
         <Label fx:id="roomName" GridPane.columnIndex="1"/>
-        <Label text="Topic" GridPane.rowIndex="2"/>
-        <Label fx:id="roomTopic" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <Label text="Type" GridPane.rowIndex="3"/>
-        <Label fx:id="roomType" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        <Label text="Security" GridPane.rowIndex="4"/>
-        <Label fx:id="roomSecurity" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
         <Label text="ID" GridPane.rowIndex="1"/>
         <Label fx:id="roomId" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Label text="Users" GridPane.rowIndex="5"/>
-        <Label fx:id="roomCount" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+        <Label text="Topic" GridPane.rowIndex="2"/>
+        <Label fx:id="roomTopic" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="Security" GridPane.rowIndex="3"/>
+        <Label fx:id="roomSecurity" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <Label text="Users" GridPane.rowIndex="4"/>
+        <Label fx:id="roomCount" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
     </GridPane>
 </VBox>

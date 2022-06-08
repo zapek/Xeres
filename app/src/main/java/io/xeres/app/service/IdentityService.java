@@ -136,6 +136,7 @@ public class IdentityService
 		return gxsIdentityRepository.findById(id);
 	}
 
+	@Transactional
 	public void saveIdentity(IdentityGroupItem identityGroupItem)
 	{
 		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)

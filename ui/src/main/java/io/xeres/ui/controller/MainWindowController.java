@@ -19,8 +19,10 @@
 
 package io.xeres.ui.controller;
 
+import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.tray.TrayService;
@@ -106,14 +108,16 @@ public class MainWindowController implements WindowController
 	private final TrayService trayService;
 	private final WindowManager windowManager;
 	private final Environment environment;
+	private final IdentityClient identityClient;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
 		this.trayService = trayService;
 		this.windowManager = windowManager;
 		this.environment = environment;
+		this.identityClient = identityClient;
 	}
 
 	public void initialize()
@@ -141,7 +145,11 @@ public class MainWindowController implements WindowController
 			fileChooser.setTitle("Select Avatar Picture");
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.jfif"));
 			var selectedFile = fileChooser.showOpenDialog(titleLabel.getScene().getWindow());
-			log.debug("selectedFile: {}", selectedFile);
+			if (selectedFile != null && selectedFile.canRead())
+			{
+				identityClient.uploadIdentityImage(IdentityConstants.OWN_IDENTITY_ID, selectedFile)
+						.subscribe();
+			}
 		});
 
 		showPeersWindow.setOnAction(event -> windowManager.openPeers());

@@ -36,7 +36,7 @@ class ChatRoomRepositoryTest
 	@Test
 	void ChatRoomRepository_CRUD_OK()
 	{
-		var identity = GxsIdFakes.createOwnIdentity("test");
+		var identity = GxsIdFakes.createOwnIdentity();
 
 		var chatRoom1 = ChatRoomFakes.createChatRoom(identity);
 		var chatRoom2 = ChatRoomFakes.createChatRoom(identity);

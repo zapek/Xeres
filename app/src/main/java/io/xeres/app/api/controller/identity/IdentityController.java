@@ -27,13 +27,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.error.Error;
 import io.xeres.app.service.IdentityService;
-import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.identity.Type;
 import io.xeres.common.util.ImageDetectionUtils;
-import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,9 +40,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -60,8 +56,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class IdentityController
 {
 	private final IdentityService identityService;
-
-	private static final long IMAGE_MAX_SIZE = 1024 * 1024 * 10; // 10 MB
 
 	public IdentityController(IdentityService identityService)
 	{
@@ -105,31 +99,7 @@ public class IdentityController
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> uploadIdentityImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
 	{
-		if (id != IdentityConstants.OWN_IDENTITY_ID)
-		{
-			throw new EntityNotFoundException("Identity " + id + " is not our own");
-		}
-
-		if (file == null)
-		{
-			throw new IllegalArgumentException("Avatar image is empty");
-		}
-
-		if (file.getSize() >= IMAGE_MAX_SIZE)
-		{
-			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
-		}
-
-		var identity = identityService.findById(id).orElseThrow();
-
-		var out = new ByteArrayOutputStream();
-		Thumbnails.of(file.getInputStream())
-				.size(128, 128) // XXX: constants...
-				.outputFormat("JPEG")
-				.toOutputStream(out);
-
-		identity.setImage(out.toByteArray());
-		identityService.saveIdentity(identity);
+		identityService.saveIdentityImage(id, file);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITY_PATH + "/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -139,14 +109,7 @@ public class IdentityController
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteIdentityImage(@PathVariable long id)
 	{
-		if (id != IdentityConstants.OWN_IDENTITY_ID)
-		{
-			throw new EntityNotFoundException("Identity " + id + " is not our own");
-		}
-
-		var identity = identityService.findById(id).orElseThrow();
-		identity.setImage(null);
-		identityService.saveIdentity(identity);
+		identityService.deleteIdentityImage(id);
 	}
 
 	@GetMapping

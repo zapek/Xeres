@@ -267,7 +267,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_CreateIdentity_Anonymous_OK() throws Exception
 	{
-		var identity = GxsIdFakes.createOwnIdentity("test");
+		var identity = GxsIdFakes.createOwnIdentity();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
 		when(identityService.createOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());

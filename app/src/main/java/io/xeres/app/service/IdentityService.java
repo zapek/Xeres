@@ -33,6 +33,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.identity.Type;
+import net.coobird.thumbnailator.Thumbnails;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.openpgp.PGPException;
@@ -41,7 +42,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,6 +61,10 @@ import java.util.Set;
 public class IdentityService
 {
 	private static final Logger log = LoggerFactory.getLogger(IdentityService.class);
+
+	private static final long IMAGE_MAX_SIZE = 1024 * 1024 * 10; // 10 MB
+	private static final int IMAGE_WIDTH = 128;
+	private static final int IMAGE_HEIGHT = 128;
 
 	private final GxsIdentityRepository gxsIdentityRepository;
 	private final PrefsService prefsService;
@@ -172,6 +179,47 @@ public class IdentityService
 	public byte[] signData(IdentityGroupItem identityGroupItem, byte[] data)
 	{
 		return RSA.sign(data, identityGroupItem.getAdminPrivateKey());
+	}
+
+	public void saveIdentityImage(long id, MultipartFile file) throws IOException
+	{
+		if (id != IdentityConstants.OWN_IDENTITY_ID)
+		{
+			throw new EntityNotFoundException("Identity " + id + " is not our own");
+		}
+
+		if (file == null)
+		{
+			throw new IllegalArgumentException("Avatar image is empty");
+		}
+
+		if (file.getSize() >= IMAGE_MAX_SIZE)
+		{
+			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+		}
+
+		var identity = findById(id).orElseThrow();
+
+		var out = new ByteArrayOutputStream();
+		Thumbnails.of(file.getInputStream())
+				.size(IMAGE_WIDTH, IMAGE_HEIGHT)
+				.outputFormat("JPEG")
+				.toOutputStream(out);
+
+		identity.setImage(out.toByteArray());
+		saveIdentity(identity);
+	}
+
+	public void deleteIdentityImage(long id)
+	{
+		if (id != IdentityConstants.OWN_IDENTITY_ID)
+		{
+			throw new EntityNotFoundException("Identity " + id + " is not our own");
+		}
+
+		var identity = findById(id).orElseThrow();
+		identity.setImage(null);
+		saveIdentity(identity);
 	}
 
 	private Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)

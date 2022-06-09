@@ -34,7 +34,7 @@ public final class ChatRoomFakes
 
 	public static ChatRoom createChatRoom()
 	{
-		return createChatRoom(ThreadLocalRandom.current().nextLong(), GxsIdFakes.createOwnIdentity("test"), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoom(ThreadLocalRandom.current().nextLong(), GxsIdFakes.createOwnIdentity(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
 	}
 
 	public static ChatRoom createChatRoom(IdentityGroupItem identityGroupItem)

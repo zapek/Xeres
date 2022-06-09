@@ -23,6 +23,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.identity.Type;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 
@@ -38,6 +39,11 @@ public final class GxsIdFakes
 	private static long getUniqueId()
 	{
 		return id++;
+	}
+
+	public static IdentityGroupItem createOwnIdentity()
+	{
+		return createOwnIdentity(RandomStringUtils.randomAlphabetic(4, 8));
 	}
 
 	public static IdentityGroupItem createOwnIdentity(String name)

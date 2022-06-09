@@ -20,6 +20,7 @@
 package io.xeres.app.service;
 
 import io.xeres.app.crypto.pgp.PGP;
+import io.xeres.app.database.model.identity.GxsIdFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.GxsIdentityRepository;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
@@ -32,15 +33,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.time.Instant;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -133,5 +137,76 @@ class IdentityServiceTest
 		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileHash());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileSignature());
+	}
+
+	@Test
+	void IdentityService_SaveIdentityImage_OK() throws IOException
+	{
+		var id = 1L;
+		var identity = GxsIdFakes.createOwnIdentity();
+		var file = new MockMultipartFile("file", getClass().getResourceAsStream("/image/leguman.jpg"));
+
+		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
+		when(gxsIdentityRepository.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
+
+		identityService.saveIdentityImage(id, file);
+
+		assertNotNull(identity.getImage());
+
+		verify(gxsIdentityRepository).findById(id);
+		verify(gxsIdentityRepository).findByGxsId(identity.getGxsId());
+		verify(gxsIdentityRepository).save(identity);
+	}
+
+	@Test
+	void IdentityService_SaveIdentityImage_NotOwn_Error()
+	{
+		var id = 2L;
+		var file = mock(MultipartFile.class);
+
+		assertThrows(EntityNotFoundException.class, () -> identityService.saveIdentityImage(id, file));
+	}
+
+	@Test
+	void IdentityService_SaveIdentityImage_EmptyImage_Error()
+	{
+		var id = 1L;
+
+		assertThrows(IllegalArgumentException.class, () -> identityService.saveIdentityImage(id, null));
+	}
+
+	@Test
+	void IdentityService_SaveIdentityImage_ImageTooBig_Error()
+	{
+		var id = 1L;
+		var file = mock(MultipartFile.class);
+		when(file.getSize()).thenReturn(1024 * 1024 * 11L);
+
+		assertThrows(IllegalArgumentException.class, () -> identityService.saveIdentityImage(id, file), "Avatar image size is bigger than " + (1024 * 1024 * 10) + " bytes");
+	}
+
+	@Test
+	void IdentityService_DeleteIdentityImage_OK()
+	{
+		var id = 1L;
+		var identity = GxsIdFakes.createOwnIdentity();
+		identity.setImage(new byte[1]);
+
+		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
+
+		identityService.deleteIdentityImage(id);
+
+		assertNull(identity.getImage());
+
+		verify(gxsIdentityRepository).findById(id);
+		verify(gxsIdentityRepository).save(identity);
+	}
+
+	@Test
+	void IdentityService_DeleteIdentityImage_NotOwn_Error()
+	{
+		var id = 2L;
+
+		assertThrows(EntityNotFoundException.class, () -> identityService.deleteIdentityImage(id));
 	}
 }

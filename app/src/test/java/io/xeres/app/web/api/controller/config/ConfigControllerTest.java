@@ -63,6 +63,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@MockBean
 	private IdentityService identityService;
 
+	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 	@Autowired
 	public MockMvc mvc;
 

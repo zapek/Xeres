@@ -64,7 +64,6 @@ public class ChatController
 	{
 		var id = chatRsService.createChatRoom(createChatRoomRequest.name(),
 				createChatRoomRequest.topic(),
-				null,
 				createChatRoomRequest.visibility() == ChatRoomVisibility.PUBLIC ? EnumSet.of(RoomFlags.PUBLIC) : EnumSet.noneOf(RoomFlags.class),
 				createChatRoomRequest.signedIdentities());
 

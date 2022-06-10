@@ -48,8 +48,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -72,8 +70,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @FxmlView(value = "/view/chat/chatview.fxml")
 public class ChatViewController implements Controller
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
-
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
 	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats

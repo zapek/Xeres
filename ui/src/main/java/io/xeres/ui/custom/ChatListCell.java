@@ -25,8 +25,6 @@ import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -35,8 +33,6 @@ import java.util.Locale;
 
 public class ChatListCell implements Cell<ChatLine, TextFlow>
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatListCell.class);
-
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 			.withLocale(Locale.ROOT)
 			.withZone(ZoneId.systemDefault());

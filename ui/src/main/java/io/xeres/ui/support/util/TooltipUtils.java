@@ -59,13 +59,10 @@ public final class TooltipUtils
 			}
 		});
 		cell.addEventFilter(MouseEvent.MOUSE_EXITED, event -> {
-			if (cell.getItem() != null)
+			if (cell.getItem() != null && cell.getTooltip() != null)
 			{
-				if (cell.getTooltip() != null)
-				{
-					cell.getTooltip().hide();
-					Tooltip.uninstall(cell, cell.getTooltip());
-				}
+				cell.getTooltip().hide();
+				Tooltip.uninstall(cell, cell.getTooltip());
 			}
 		});
 	}

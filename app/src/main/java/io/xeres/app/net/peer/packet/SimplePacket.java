@@ -27,9 +27,6 @@ import io.netty.buffer.ByteBuf;
  */
 public class SimplePacket extends Packet
 {
-	private static final int HEADER_VERSION_INDEX = 0;
-	private static final int HEADER_SERVICE_INDEX = 1;
-	private static final int HEADER_SUBPACKET_INDEX = 3;
 	public static final int HEADER_SIZE_INDEX = 4;
 
 	protected SimplePacket(ByteBuf in)

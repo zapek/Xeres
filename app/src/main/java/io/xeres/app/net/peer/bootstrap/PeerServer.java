@@ -33,7 +33,6 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PrefsService;
-import io.xeres.app.service.ProfileService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
 import org.slf4j.Logger;
@@ -54,7 +53,6 @@ public class PeerServer
 	private static final Logger log = LoggerFactory.getLogger(PeerServer.class);
 
 	private final PrefsService prefsService;
-	private final ProfileService profileService;
 	private final NetworkProperties networkProperties;
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
@@ -65,10 +63,9 @@ public class PeerServer
 	private EventLoopGroup workerGroup;
 	private ChannelFuture channel;
 
-	public PeerServer(PrefsService prefsService, ProfileService profileService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService)
+	public PeerServer(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService)
 	{
 		this.prefsService = prefsService;
-		this.profileService = profileService;
 		this.networkProperties = networkProperties;
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;

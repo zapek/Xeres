@@ -26,8 +26,6 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.RoomType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -39,8 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatRoom
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatRoom.class);
-
 	private static final long USER_INACTIVITY_TIMEOUT = Duration.ofMinutes(3).toSeconds();
 
 	private final long id;
@@ -177,12 +173,9 @@ public class ChatRoom
 
 		Set<GxsId> expiredUsers = new HashSet<>();
 		users.forEach((user, timestamp) -> {
-			if (timestamp + USER_INACTIVITY_TIMEOUT < now)
+			if (timestamp + USER_INACTIVITY_TIMEOUT < now && !user.equals(ownGxsId))
 			{
-				if (!user.equals(ownGxsId)) // We never expire ourself
-				{
-					expiredUsers.add(user);
-				}
+				expiredUsers.add(user);
 			}
 		});
 		return expiredUsers;

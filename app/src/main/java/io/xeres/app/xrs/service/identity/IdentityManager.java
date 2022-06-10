@@ -25,8 +25,6 @@ import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.util.NoSuppressedRunnable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -49,8 +47,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class IdentityManager
 {
-	private static final Logger log = LoggerFactory.getLogger(IdentityManager.class);
-
 	private final Map<Long, Set<GxsId>> pendingGxsIds = new HashMap<>();
 
 	private static final Duration TIME_BETWEEN_REQUESTS = Duration.ofSeconds(5);

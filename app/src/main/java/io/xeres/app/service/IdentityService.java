@@ -62,7 +62,7 @@ public class IdentityService
 {
 	private static final Logger log = LoggerFactory.getLogger(IdentityService.class);
 
-	private static final long IMAGE_MAX_SIZE = 1024 * 1024 * 10; // 10 MB
+	private static final long IMAGE_MAX_SIZE = 1024 * 1024 * 10L; // 10 MB
 	private static final int IMAGE_WIDTH = 128;
 	private static final int IMAGE_HEIGHT = 128;
 

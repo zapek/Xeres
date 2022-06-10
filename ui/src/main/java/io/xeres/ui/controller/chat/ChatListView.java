@@ -36,8 +36,6 @@ import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.jsoup.Jsoup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
@@ -51,8 +49,6 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ChatListView
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatListView.class);
-
 	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
 	private final ObservableList<ChatRoomUser> users = FXCollections.observableArrayList();

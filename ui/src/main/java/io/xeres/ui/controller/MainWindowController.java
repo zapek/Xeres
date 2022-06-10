@@ -39,8 +39,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
@@ -51,8 +49,6 @@ import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 @FxmlView(value = "/view/main.fxml")
 public class MainWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(MainWindowController.class);
-
 	public static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	@FXML
 	private Label titleLabel;

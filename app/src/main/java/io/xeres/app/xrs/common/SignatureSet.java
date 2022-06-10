@@ -53,7 +53,7 @@ public class SignatureSet
 
 	public SignatureSet()
 	{
-
+		// Needed
 	}
 
 	public void put(Type type, Signature signature)

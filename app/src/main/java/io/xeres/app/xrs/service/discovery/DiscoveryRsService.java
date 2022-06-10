@@ -79,13 +79,13 @@ public class DiscoveryRsService extends RsService
 	private final DatabaseSessionManager databaseSessionManager;
 	private final PeerConnectionManager peerConnectionManager;
 
-	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, IdentityRsService identityRsService, IdentityRsService identityRsService1, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
+	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, IdentityRsService identityRsService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
 	{
 		super(environment);
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityService = identityService;
-		this.identityRsService = identityRsService1;
+		this.identityRsService = identityRsService;
 		this.buildProperties = buildProperties;
 		this.databaseSessionManager = databaseSessionManager;
 		this.peerConnectionManager = peerConnectionManager;

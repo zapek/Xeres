@@ -22,16 +22,12 @@ package io.xeres.ui.support.chat;
 import io.xeres.ui.JavaFxApplication;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.function.Consumer;
 
 public class ChatContentURI implements ChatContent
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatContentURI.class);
-
 	private final Hyperlink node;
 
 	public ChatContentURI(URI uri)

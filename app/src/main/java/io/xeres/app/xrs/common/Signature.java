@@ -43,4 +43,12 @@ public record Signature(GxsId gxsId, byte[] data)
 		result = 31 * result + Arrays.hashCode(data);
 		return result;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "Signature{" +
+				"gxsId=" + gxsId +
+				'}';
+	}
 }

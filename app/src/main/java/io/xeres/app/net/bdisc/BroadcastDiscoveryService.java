@@ -38,7 +38,6 @@ import java.nio.channels.Selector;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This service periodically sends a UDP broadcast packet to find out
@@ -160,7 +159,7 @@ public class BroadcastDiscoveryService implements Runnable
 		{
 			var ownLocation = locationService.findOwnLocation().orElseThrow();
 
-			ownPeerId = ThreadLocalRandom.current().nextInt();
+			ownPeerId = ownLocation.getLocationId().hashCode();
 			sendBuffer = UdpDiscoveryProtocol.createPacket(
 					BROADCAST_BUFFER_SEND_SIZE_MAX,
 					UdpDiscoveryPeer.Status.PRESENT,
@@ -346,6 +345,6 @@ public class BroadcastDiscoveryService implements Runnable
 
 	private boolean isValidPeer(UdpDiscoveryPeer peer)
 	{
-		return peer.getAppId() == APP_ID && peer.getStatus() == UdpDiscoveryPeer.Status.PRESENT;
+		return peer.getAppId() == APP_ID && peer.getStatus() == UdpDiscoveryPeer.Status.PRESENT && peer.getPeerId() != ownPeerId;
 	}
 }

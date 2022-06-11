@@ -77,21 +77,21 @@ public class MultiPacketEncoder extends ChannelOutboundHandlerAdapter // XXX: mu
 			}
 			else
 			{
-				if (false)
-				{
-					// XXX: this doesn't work because MessageToByteEncoder does send an empty buffer if we didn't write anything. do we have to subclass ChannelOutboundHandlerAdapter then? this seems complicated... there must be an easier way
-					// XXX: actually! maybe the "easier" way would be to queue before sending...
+				//if (false)
+				//{
+				// XXX: this doesn't work because MessageToByteEncoder does send an empty buffer if we didn't write anything. do we have to subclass ChannelOutboundHandlerAdapter then? this seems complicated... there must be an easier way
+				// XXX: actually! maybe the "easier" way would be to queue before sending...
 
-					// XXX: otherwise! just issue write() calls here and only flush() with the executor. it's the flush() which executes the send() syscall
-					// so just fill with write() until we reach 512? and either flush directly or with the executor?
-					// XXX: !!! there's a FlushConsolidationHandler! Check it! -> well, no. this is not what we want
-					//ByteBuf slice = out.retainedSlice();
-					//flusher = ctx.executor().schedule(() -> writePacket(ctx, slice), 250, TimeUnit.MILLISECONDS); // XXX: will have to tweak the delays... also depends on the packet priority I guess. MAKE SURE THIS RUNS ON THE SAME THREAD as encode()!!!
-				}
-				else
-				{
-					//writePacket(ctx, out);
-				}
+				// XXX: otherwise! just issue write() calls here and only flush() with the executor. it's the flush() which executes the send() syscall
+				// so just fill with write() until we reach 512? and either flush directly or with the executor?
+				// XXX: !!! there's a FlushConsolidationHandler! Check it! -> well, no. this is not what we want
+				//ByteBuf slice = out.retainedSlice();
+				//flusher = ctx.executor().schedule(() -> writePacket(ctx, slice), 250, TimeUnit.MILLISECONDS); // XXX: will have to tweak the delays... also depends on the packet priority I guess. MAKE SURE THIS RUNS ON THE SAME THREAD as encode()!!!
+				//}
+				//else
+				//{
+				//writePacket(ctx, out);
+				//}
 			}
 		}
 		else

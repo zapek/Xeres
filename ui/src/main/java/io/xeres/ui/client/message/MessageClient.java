@@ -38,7 +38,6 @@ import javax.websocket.ContainerProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
@@ -141,18 +140,4 @@ public class MessageClient
 	}
 
 	// XXX: add unsubscribe()? how?
-
-	// XXX: is the following needed still?
-	public void disconnect()
-	{
-		try
-		{
-			future.get().disconnect();
-		}
-		catch (InterruptedException | ExecutionException e)
-		{
-			log.error("Error: {}", e.getMessage());
-		}
-		stompClient.stop(); // XXX: not sure this is needed actually...
-	}
 }

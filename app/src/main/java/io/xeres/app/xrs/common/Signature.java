@@ -21,7 +21,26 @@ package io.xeres.app.xrs.common;
 
 import io.xeres.common.id.GxsId;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 // XXX: maybe should be in crypto? not sure... It's related to identities but I don't like the structure
 public record Signature(GxsId gxsId, byte[] data)
 {
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		var signature = (Signature) o;
+		return gxsId.equals(signature.gxsId) && Arrays.equals(data, signature.data);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		var result = Objects.hash(gxsId);
+		result = 31 * result + Arrays.hashCode(data);
+		return result;
+	}
 }

@@ -33,7 +33,6 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.upnp.UPNPService;
 import io.xeres.app.properties.NetworkProperties;
-import io.xeres.app.service.ChatRoomService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PeerService;
 import io.xeres.app.service.PrefsService;
@@ -81,12 +80,11 @@ public class Startup implements ApplicationRunner
 	private final NetworkProperties networkProperties;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final DataDirConfiguration dataDirConfiguration;
-	private final ChatRoomService chatRoomService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final SplashService splashService;
 	private final IdentityManager identityManager;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, PrefsService prefsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, ChatRoomService chatRoomService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, PrefsService prefsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
@@ -100,7 +98,6 @@ public class Startup implements ApplicationRunner
 		this.networkProperties = networkProperties;
 		this.databaseSessionManager = databaseSessionManager;
 		this.dataDirConfiguration = dataDirConfiguration;
-		this.chatRoomService = chatRoomService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.splashService = splashService;
 		this.identityManager = identityManager;
@@ -165,7 +162,6 @@ public class Startup implements ApplicationRunner
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			locationService.markAllConnectionsAsDisconnected();
-			chatRoomService.markAllChatRoomsAsLeft(); // XXX: move that in chatRsService!
 
 			log.info("Starting network services...");
 			var ownAddress = PeerAddress.from(event.localIpAddress(), event.localPort());

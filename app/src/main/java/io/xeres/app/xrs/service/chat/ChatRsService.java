@@ -208,6 +208,7 @@ public class ChatRsService extends RsService
 
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
+			chatRoomService.markAllChatRoomsAsLeft();
 			subscribeToAllSavedRooms();
 		}
 	}

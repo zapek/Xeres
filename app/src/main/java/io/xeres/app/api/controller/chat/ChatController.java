@@ -85,7 +85,7 @@ public class ChatController
 	@ResponseStatus(HttpStatus.OK)
 	public long subscribeToChatRoom(@PathVariable long id)
 	{
-		chatRsService.joinChatRoom(id); // XXX: error if we're already subscribed
+		chatRsService.joinChatRoom(id);
 		return id;
 	}
 
@@ -93,7 +93,7 @@ public class ChatController
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void unsubscribeFromChatRoom(@PathVariable long id)
 	{
-		chatRsService.leaveChatRoom(id); // XXX: error if we're not subscribed
+		chatRsService.leaveChatRoom(id);
 	}
 
 	@GetMapping("/rooms")

@@ -36,7 +36,7 @@ public class PeerService
 	private static final Logger log = LoggerFactory.getLogger(PeerService.class);
 
 	private static final int SSL_THREADS = 4; // XXX: is this ok? we probably don't need many since it's only for the first SSL handshake
-	private static final int HANDLER_THREADS = 8; // XXX: ponder how much we should have for the most common setup
+	private static final int HANDLER_THREADS = 8; // XXX: ponder how much we should have for the most common setup. both are going away in Netty 5...
 
 	private final PeerClient peerClient;
 	private final PeerServer peerServer;

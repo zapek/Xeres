@@ -413,7 +413,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		{
 			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
 		}
-		var size = deserializeInt(buf); // XXX: check size (this size is only the meta data size, not the full buffer)
+		deserializeInt(buf); // the size
 		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		originalGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		parentId = (GxsId) deserializeIdentifier(buf, GxsId.class);

@@ -42,6 +42,6 @@ public class WebSocketConfiguration implements WebSocketConfigurer
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry)
 	{
-
+		// No custom handlers
 	}
 }

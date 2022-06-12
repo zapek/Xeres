@@ -56,6 +56,8 @@ public class MessagingWindowController implements WindowController
 	private static final int IMAGE_HEIGHT_MAX = 480;
 	private static final int MESSAGE_MAXIMUM_SIZE = 196000; // XXX: maximum size for normal messages? check if correct
 
+	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+
 	@FXML
 	private TextField send;
 
@@ -168,8 +170,6 @@ public class MessagingWindowController implements WindowController
 			}
 		}
 	}
-
-	private final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 
 	private void handleInputKeys(KeyEvent event)
 	{

@@ -195,17 +195,10 @@ public class TurtleRsService extends RsService
 			return;
 		}
 
-		//if (searchRequest.getSource() == ) maybe we should avoid using the database for checking our OWN id because that is done a lot...
-//		var total = item.getCount();
+		// XXX: make sure we don't forward when source is our own ID (and add some caching because that is done a lot)
 
-//		if (searchRequest.getResultCount() + total > searchRequest.getHitLimit())
-//		{
-//			// XXX: trim the results and set result count
-//		}
-//		else
-//		{
-//			// XXX: increment result count with total
-//		}
+		// XXX: if the searchRequest.getResultCount() + total is bigger than searchRequest.getHitLimit(), then trim the result
+		// XXX: otherwise just increment the result count with the total. See what RS does there.
 
 		// Forward the item to origin
 		peerConnectionManager.writeItem(searchRequest.getSource(), item.clone(), this);

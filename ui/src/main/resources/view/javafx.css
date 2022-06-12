@@ -101,10 +101,6 @@
 /*noinspection CssUnusedSymbol*/
 .oldchatlist .list-cell {
     -fx-control-inner-background-alt: -fx-control-inner-background;
-}
-
-/*noinspection CssUnusedSymbol*/
-.oldchatlist .list-cell {
     -fx-padding: 0px 0.25em 0px 0.25em
 }
 

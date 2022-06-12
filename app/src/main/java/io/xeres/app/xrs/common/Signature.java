@@ -24,7 +24,6 @@ import io.xeres.common.id.GxsId;
 import java.util.Arrays;
 import java.util.Objects;
 
-// XXX: maybe should be in crypto? not sure... It's related to identities but I don't like the structure
 public record Signature(GxsId gxsId, byte[] data)
 {
 	@Override

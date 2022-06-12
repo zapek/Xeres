@@ -148,11 +148,11 @@ public class ChatRsService extends RsService
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, PeerConnectionManager peerConnectionManager1, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager)
+	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager)
 	{
 		super(environment);
 		this.locationService = locationService;
-		this.peerConnectionManager = peerConnectionManager1;
+		this.peerConnectionManager = peerConnectionManager;
 		this.identityService = identityService;
 		this.chatRoomService = chatRoomService;
 		this.databaseSessionManager = databaseSessionManager;

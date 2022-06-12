@@ -173,4 +173,5 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
+    testImplementation 'org.awaitility:awaitility:4.2.0'
 }

@@ -459,13 +459,11 @@ public class ChatRsService extends RsService
 							itemRoom.getFlags().contains(RoomFlags.PUBLIC) ? RoomType.PUBLIC : RoomType.PRIVATE,
 							itemRoom.getCount(), // XXX: we should update current chatroom with max(current_count, remote_count)
 							itemRoom.getFlags().contains(RoomFlags.PGP_SIGNED)));
-					if (chatRoom.addParticipatingLocation(peerConnection.getLocation()))
+
+					// If we're subscribed to the chat room but the friend is not participating, invite him
+					if (chatRoom.addParticipatingLocation(peerConnection.getLocation()) && chatRooms.containsKey(chatRoom.getId()))
 					{
-						// If we're subscribed to the chat room but the friend is not participating, invite him
-						if (chatRooms.containsKey(chatRoom.getId()))
-						{
-							inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.PLAIN);
-						}
+						inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.PLAIN);
 					}
 					updateRooms(chatRoom);
 					chatRoomService.getAllChatRoomsPendingToSubscribe().stream()

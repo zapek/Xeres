@@ -73,6 +73,12 @@ public class ChatViewController implements Controller
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
 	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats
+	private static final KeyCodeCombination TAB_KEY = new KeyCodeCombination(KeyCode.TAB);
+	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination ENTER_KEY = new KeyCodeCombination(KeyCode.ENTER);
+	private static final KeyCodeCombination BACKSPACE_KEY = new KeyCodeCombination(KeyCode.BACK_SPACE);
+
+	private int completionIndex;
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -491,12 +497,6 @@ public class ChatViewController implements Controller
 		}
 		return chatListView;
 	}
-
-	private final KeyCodeCombination TAB_KEY = new KeyCodeCombination(KeyCode.TAB);
-	private final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
-	private final KeyCodeCombination ENTER_KEY = new KeyCodeCombination(KeyCode.ENTER);
-	private final KeyCodeCombination BACKSPACE_KEY = new KeyCodeCombination(KeyCode.BACK_SPACE);
-	private int completionIndex;
 
 	private void handleInputKeys(KeyEvent event)
 	{

@@ -30,11 +30,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,15 +52,14 @@ class BroadcastDiscoveryServiceTest
 	private BroadcastDiscoveryService broadcastDiscoveryService;
 
 	@Test
-	void BroadcastDiscoveryService_StartStop_OK() throws InterruptedException
+	void BroadcastDiscoveryService_StartStop_OK()
 	{
 		var ownLocation = LocationFakes.createOwnLocation();
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
 		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
 
 		broadcastDiscoveryService.start(IP.getLocalIpAddress(), 36406); // nothing should reply in there, hopefully. We can't use localhost because linux has no broadcast in it
-		TimeUnit.SECONDS.sleep(10);
-		assertTrue(broadcastDiscoveryService.isRunning());
+		await().atMost(Duration.ofSeconds(10)).until(() -> broadcastDiscoveryService.isRunning());
 
 		broadcastDiscoveryService.stop();
 		broadcastDiscoveryService.waitForTermination();

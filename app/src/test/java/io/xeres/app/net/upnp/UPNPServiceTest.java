@@ -24,10 +24,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 class UPNPServiceTest
@@ -36,12 +36,10 @@ class UPNPServiceTest
 	private UPNPService upnpService;
 
 	@Test
-	void UPNPService_StartStop_OK() throws InterruptedException
+	void UPNPService_StartStop_OK()
 	{
 		upnpService.start("127.0.0.1", 1901); // nothing should reply in there
-
-		TimeUnit.SECONDS.sleep(2);
-		assertTrue(upnpService.isRunning());
+		await().atMost(Duration.ofSeconds(2)).until(() -> upnpService.isRunning());
 
 		upnpService.stop();
 		upnpService.waitForTermination();

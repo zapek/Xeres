@@ -20,6 +20,8 @@
 package io.xeres.app.job;
 
 import io.xeres.app.XeresApplication;
+import io.xeres.app.database.model.connection.Connection;
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.bootstrap.PeerClient;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
@@ -29,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 
@@ -77,20 +81,40 @@ public class PeerConnectionJob
 
 	private void connectToPeers()
 	{
-		var connections = locationService.getConnectionsToConnectTo();
-
-		for (var connection : connections)
+		synchronized (PeerConnectionJob.class)
 		{
-			log.debug("Attempting to connect to {} ...", connection.getAddress());
-			var peerAddress = PeerAddress.fromAddress(connection.getAddress());
-			if (peerAddress.isValid())
+			var connections = locationService.getConnectionsToConnectTo();
+
+			for (var connection : connections)
 			{
-				peerClient.connect(peerAddress);
+				connect(connection);
 			}
-			else
-			{
-				log.error("Automatic connection: invalid address for {}", connection.getAddress());
-			}
+		}
+	}
+
+	public void connectImmediately(Location location, int connectionIndex)
+	{
+		synchronized (PeerConnectionJob.class)
+		{
+			var connections = location.getConnections().stream()
+					.sorted(Comparator.comparing(Connection::isExternal).reversed())
+					.toList();
+
+			connect(connections.get(connectionIndex));
+		}
+	}
+
+	private void connect(Connection connection)
+	{
+		log.debug("Attempting to connect to {} ...", connection.getAddress());
+		var peerAddress = PeerAddress.fromAddress(connection.getAddress());
+		if (peerAddress.isValid())
+		{
+			peerClient.connect(peerAddress);
+		}
+		else
+		{
+			log.error("Automatic connection: invalid address for {}", connection.getAddress());
 		}
 	}
 }

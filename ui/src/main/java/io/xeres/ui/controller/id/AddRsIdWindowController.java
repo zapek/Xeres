@@ -111,7 +111,7 @@ public class AddRsIdWindowController implements WindowController
 
 	private void addPeer()
 	{
-		var profile = profileClient.create(rsIdTextArea.getText());
+		var profile = profileClient.create(rsIdTextArea.getText(), certIps.getSelectionModel().getSelectedIndex());
 
 		profile.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
 				.doOnError(throwable -> log.error("Error: {}", throwable.getMessage()))
@@ -144,6 +144,7 @@ public class AddRsIdWindowController implements WindowController
 								// XXX: display the hostname if available!
 								certLocId.setText(location.getLocationId().toString());
 
+								// The same sorting is used in PeerConnectionJob/connectImmediately()
 								var allIps = location.getConnections().stream()
 										.sorted(Comparator.comparing(Connection::isExternal).reversed())
 										.map(Connection::getAddress)

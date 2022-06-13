@@ -55,12 +55,15 @@ public class ProfileClient
 				.build();
 	}
 
-	public Mono<Void> create(String rsId)
+	public Mono<Void> create(String rsId, int connectionIndex)
 	{
 		var rsIdRequest = new RsIdRequest(rsId);
 
 		return webClient.post()
-				.uri("/")
+				.uri(uriBuilder -> uriBuilder
+						.path("/")
+						.queryParam("connectionIndex", connectionIndex)
+						.build())
 				.bodyValue(rsIdRequest)
 				.retrieve()
 				.bodyToMono(Void.class);

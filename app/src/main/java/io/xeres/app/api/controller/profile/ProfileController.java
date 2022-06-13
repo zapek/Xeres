@@ -30,6 +30,7 @@ import io.xeres.app.api.error.Error;
 import io.xeres.app.api.error.exception.UnprocessableEntityException;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.profile.Profile;
+import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
@@ -56,9 +57,12 @@ public class ProfileController
 {
 	private final ProfileService profileService;
 
-	public ProfileController(ProfileService profileService)
+	private final PeerConnectionJob peerConnectionJob;
+
+	public ProfileController(ProfileService profileService, PeerConnectionJob peerConnectionJob)
 	{
 		this.profileService = profileService;
+		this.peerConnectionJob = peerConnectionJob;
 	}
 
 	@GetMapping("/{id}")
@@ -73,9 +77,7 @@ public class ProfileController
 	@GetMapping
 	@Operation(summary = "Search all profiles", description = "If no search parameters are provided, return all profiles")
 	@ApiResponse(responseCode = "200", description = "All matched profiles")
-	public List<ProfileDTO> findProfiles(
-			@RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "locationId", required = false) String locationId)
+	public List<ProfileDTO> findProfiles(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "locationId", required = false) String locationId)
 	{
 		if (isNotBlank(name))
 		{
@@ -94,14 +96,23 @@ public class ProfileController
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "location", description = "the location of the profile"))
 	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<Void> createProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest)
+	public ResponseEntity<Void> createProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest, @RequestParam(value = "connectionIndex", required = false) Integer connectionIndex)
 	{
 		var profile = profileService.getProfileFromRSId(RSId.parse(rsIdRequest.rsId(), ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid")));
+		var locationToConnectTo = profile.getLocations().stream().findFirst();
 
 		var savedProfile = profileService.createOrUpdateProfile(profile).orElseThrow(() -> new UnprocessableEntityException("Failed to save profile"));
 
-		var location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedProfile.getId()).toUri();
-		return ResponseEntity.created(location).build();
+		locationToConnectTo.ifPresent(location ->
+		{
+			if (connectionIndex != null)
+			{
+				peerConnectionJob.connectImmediately(location, connectionIndex);
+			}
+		});
+
+		var profileLocation = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedProfile.getId()).toUri();
+		return ResponseEntity.created(profileLocation).build();
 	}
 
 	@PostMapping("/check")

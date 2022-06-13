@@ -24,6 +24,7 @@ import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
+import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.web.api.controller.AbstractControllerTest;
 import io.xeres.common.id.Id;
@@ -48,6 +49,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProfileControllerTest extends AbstractControllerTest
 {
 	private static final String BASE_URL = PROFILES_PATH;
+
+	@MockBean
+	private PeerConnectionJob peerConnectionJob;
 
 	@MockBean
 	private ProfileService profileService;

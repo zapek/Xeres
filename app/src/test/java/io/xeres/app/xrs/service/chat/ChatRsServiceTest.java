@@ -19,10 +19,17 @@
 
 package io.xeres.app.xrs.service.chat;
 
+import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.identity.GxsIdFakes;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.ChatRoomService;
+import io.xeres.app.service.IdentityService;
+import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.chat.item.ChatMessageItem;
+import io.xeres.app.xrs.service.chat.item.ChatRoomListItem;
+import io.xeres.app.xrs.service.chat.item.ChatRoomListRequestItem;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.PrivateChatMessage;
 import org.junit.jupiter.api.Test;
@@ -34,9 +41,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.EnumSet;
 
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class ChatRsServiceTest
@@ -44,10 +52,17 @@ class ChatRsServiceTest
 	@Mock
 	private PeerConnectionManager peerConnectionManager;
 
+	@Mock
+	private DatabaseSessionManager databaseSessionManager;
+
+	@Mock
+	private IdentityService identityService;
+
+	@Mock
+	private ChatRoomService chatRoomService;
+
 	@InjectMocks
 	private ChatRsService chatRsService;
-
-	// Unfortunately, only simple stuff can be tested. The rest requires mocking a lot of stuff (identities, keys, etc...)
 
 	@Test
 	void ChatService_HandleChatMessageItem_OK()
@@ -56,8 +71,69 @@ class ChatRsServiceTest
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
 		var item = new ChatMessageItem(MESSAGE, EnumSet.of(ChatFlags.PRIVATE));
+
 		chatRsService.handleItem(peerConnection, item);
 
-		verify(peerConnectionManager).sendToClientSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), any(PrivateChatMessage.class));
+		verify(peerConnectionManager).sendToClientSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(privateChatMessage -> {
+			assertNotNull(privateChatMessage);
+			assertEquals(MESSAGE, ((PrivateChatMessage) (privateChatMessage)).getContent());
+			return true;
+		}));
+	}
+
+	@Test
+	void ChatService_HandleChatMessageItem_Partial_OK()
+	{
+		var MESSAGE1 = "hello, ";
+		var MESSAGE2 = "world";
+		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
+
+		var item1 = new ChatMessageItem(MESSAGE1, EnumSet.of(ChatFlags.PRIVATE, ChatFlags.PARTIAL_MESSAGE));
+		var item2 = new ChatMessageItem(MESSAGE2, EnumSet.of(ChatFlags.PRIVATE));
+
+		chatRsService.handleItem(peerConnection, item1);
+		chatRsService.handleItem(peerConnection, item2);
+
+		verify(peerConnectionManager).sendToClientSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(privateChatMessage -> {
+			assertNotNull(privateChatMessage);
+			assertEquals(MESSAGE1 + MESSAGE2, ((PrivateChatMessage) (privateChatMessage)).getContent());
+			return true;
+		}));
+	}
+
+	@Test
+	void ChatService_HandleChatRoomListRequestItem_Empty_OK()
+	{
+		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
+
+		var item = new ChatRoomListRequestItem();
+
+		chatRsService.handleItem(peerConnection, item);
+
+		verify(peerConnectionManager).writeItem(eq(peerConnection), argThat(chatRoomListItem -> {
+			assertNotNull(chatRoomListItem);
+			assertTrue(((ChatRoomListItem) chatRoomListItem).getChatRooms().isEmpty());
+			return true;
+		}), any(RsService.class));
+	}
+
+	@Test
+	void ChatService_HandleChatRoomListRequestItem_OK()
+	{
+		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
+
+		var item = new ChatRoomListRequestItem();
+
+		when(identityService.getOwnIdentity()).thenReturn(GxsIdFakes.createOwnIdentity());
+
+		var roomId = chatRsService.createChatRoom("test", "test topic", EnumSet.of(RoomFlags.PUBLIC), false);
+		chatRsService.handleItem(peerConnection, item);
+
+		verify(peerConnectionManager).writeItem(eq(peerConnection), argThat(chatRoomListItem -> {
+			assertNotNull(chatRoomListItem);
+			assertFalse(((ChatRoomListItem) chatRoomListItem).getChatRooms().isEmpty());
+			assertEquals(roomId, ((ChatRoomListItem) chatRoomListItem).getChatRooms().get(0).getId());
+			return true;
+		}), any(RsService.class));
 	}
 }

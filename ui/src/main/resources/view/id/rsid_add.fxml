@@ -50,6 +50,7 @@
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints/>
             </rowConstraints>
             <Label text="Name"/>
@@ -78,6 +79,8 @@
             </TextField>
             <Label text="Address" GridPane.rowIndex="4"/>
             <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            <Label text="Trust" GridPane.rowIndex="5"/>
+            <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
         </GridPane>
     </TitledPane>
     <HBox alignment="TOP_RIGHT">

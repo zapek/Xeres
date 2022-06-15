@@ -214,7 +214,7 @@ public class Profile
 		return trust;
 	}
 
-	void setTrust(Trust trust)
+	public void setTrust(Trust trust)
 	{
 		this.trust = trust;
 	}

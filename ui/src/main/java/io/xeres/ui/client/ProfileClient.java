@@ -21,6 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.profile.RsIdRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.profile.Profile;
@@ -55,7 +56,7 @@ public class ProfileClient
 				.build();
 	}
 
-	public Mono<Void> create(String rsId, int connectionIndex)
+	public Mono<Void> create(String rsId, int connectionIndex, Trust trust)
 	{
 		var rsIdRequest = new RsIdRequest(rsId);
 
@@ -63,6 +64,7 @@ public class ProfileClient
 				.uri(uriBuilder -> uriBuilder
 						.path("/")
 						.queryParam("connectionIndex", connectionIndex)
+						.queryParam("trust", trust)
 						.build())
 				.bodyValue(rsIdRequest)
 				.retrieve()

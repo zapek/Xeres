@@ -34,6 +34,7 @@ import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -96,10 +97,21 @@ public class ProfileController
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "location", description = "the location of the profile"))
 	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<Void> createProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest, @RequestParam(value = "connectionIndex", required = false) Integer connectionIndex)
+	public ResponseEntity<Void> createProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest,
+	                                                  @RequestParam(value = "connectionIndex", required = false) Integer connectionIndex,
+	                                                  @RequestParam(value = "trust", required = false) Trust trust)
 	{
 		var profile = profileService.getProfileFromRSId(RSId.parse(rsIdRequest.rsId(), ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid")));
 		var locationToConnectTo = profile.getLocations().stream().findFirst();
+
+		if (trust != null)
+		{
+			if (trust == Trust.ULTIMATE)
+			{
+				throw new IllegalArgumentException("ULTIMATE trust cannot be set");
+			}
+			profile.setTrust(trust);
+		}
 
 		var savedProfile = profileService.createOrUpdateProfile(profile).orElseThrow(() -> new UnprocessableEntityException("Failed to save profile"));
 

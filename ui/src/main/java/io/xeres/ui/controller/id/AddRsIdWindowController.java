@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.id;
 
 import io.xeres.common.id.Id;
+import io.xeres.common.pgp.Trust;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.connection.Connection;
@@ -35,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 @Component
@@ -66,6 +68,9 @@ public class AddRsIdWindowController implements WindowController
 
 	@FXML
 	private ChoiceBox<String> certIps;
+
+	@FXML
+	private ChoiceBox<Trust> trust;
 
 	@FXML
 	private TitledPane titledPane;
@@ -111,7 +116,7 @@ public class AddRsIdWindowController implements WindowController
 
 	private void addPeer()
 	{
-		var profile = profileClient.create(rsIdTextArea.getText(), certIps.getSelectionModel().getSelectedIndex());
+		var profile = profileClient.create(rsIdTextArea.getText(), certIps.getSelectionModel().getSelectedIndex(), trust.getSelectionModel().getSelectedItem());
 
 		profile.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
 				.doOnError(throwable -> log.error("Error: {}", throwable.getMessage()))
@@ -154,6 +159,7 @@ public class AddRsIdWindowController implements WindowController
 								certIps.getSelectionModel().select(0);
 								certIps.setTooltip(new Tooltip("All addresses will be tried. You can preselect one as a hint."));
 							});
+					setDefaultTrust(trust);
 					titledPane.setExpanded(true);
 				}))
 				.doOnError(throwable -> Platform.runLater(() ->
@@ -172,5 +178,11 @@ public class AddRsIdWindowController implements WindowController
 					titledPane.setExpanded(false);
 				}))
 				.subscribe();
+	}
+
+	private void setDefaultTrust(ChoiceBox<Trust> trust)
+	{
+		trust.getItems().addAll(Arrays.stream(Trust.values()).filter(t -> t != Trust.ULTIMATE).toList());
+		trust.getSelectionModel().select(Trust.UNKNOWN);
 	}
 }

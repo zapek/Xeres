@@ -27,16 +27,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.StandardProtocolFamily;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UPNPService implements Runnable
@@ -54,6 +52,8 @@ public class UPNPService implements Runnable
 
 	private static final int PORT_DURATION = (int) Duration.ofHours(1).toMillis(); // how long does a port mapping lasts
 	private static final int PORT_DURATION_ANTICIPATION = (int) Duration.ofMinutes(1).toMillis(); // when to kick in the refresh before it expires
+
+	private static final int SERVICE_RETRY_MINUTES = 5; // time to retry the service when getting an error, in minutes
 
 	private static final String[] DEVICES = {
 			// IGD 1
@@ -161,6 +161,30 @@ public class UPNPService implements Runnable
 	@Override
 	public void run()
 	{
+		while (true)
+		{
+			try
+			{
+				upnpLoop();
+				break;
+			}
+			catch (BindException e)
+			{
+				log.warn("Binding failed: {}, trying again in 5 minutes", e.getMessage());
+				try
+				{
+					TimeUnit.MINUTES.sleep(SERVICE_RETRY_MINUTES);
+				}
+				catch (InterruptedException ignore)
+				{
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
+	}
+
+	private void upnpLoop() throws BindException
+	{
 		multicastAddress = new InetSocketAddress(MCAST_IP, MCAST_PORT);
 		receiveBuffer = ByteBuffer.allocate(MCAST_BUFFER_RECV_SIZE);
 
@@ -208,13 +232,17 @@ public class UPNPService implements Runnable
 		{
 			log.debug("Interrupted, bailing out...");
 		}
+		catch (BindException e)
+		{
+			throw e;
+		}
 		catch (IOException e)
 		{
 			log.error("Error: ", e);
 		}
 	}
 
-	private void handleSelection(Selector selector, SelectionKey registerSelectionKeys)
+	private void handleSelection(Selector selector, SelectionKey registerSelectionKeys) throws BindException
 	{
 		var selectedKeys = selector.selectedKeys().iterator();
 		if (!selectedKeys.hasNext() && state != State.CONNECTED)
@@ -241,6 +269,10 @@ public class UPNPService implements Runnable
 				{
 					write(key);
 				}
+			}
+			catch (BindException e)
+			{
+				throw e;
 			}
 			catch (IOException e)
 			{

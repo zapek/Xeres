@@ -19,6 +19,8 @@
 
 package io.xeres.common.pgp;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Locale;
 
 /**
@@ -61,6 +63,6 @@ public enum Trust
 	@Override
 	public String toString()
 	{
-		return super.toString().toLowerCase(Locale.ENGLISH);
+		return StringUtils.capitalize(super.toString().toLowerCase(Locale.ENGLISH));
 	}
 }

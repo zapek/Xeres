@@ -64,7 +64,7 @@ public class ProfileClient
 				.uri(uriBuilder -> uriBuilder
 						.path("/")
 						.queryParam("connectionIndex", connectionIndex)
-						.queryParam("trust", trust)
+						.queryParam("trust", trust.name())
 						.build())
 				.bodyValue(rsIdRequest)
 				.retrieve()

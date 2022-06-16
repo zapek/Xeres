@@ -147,14 +147,12 @@ class IdentityServiceTest
 		var file = new MockMultipartFile("file", getClass().getResourceAsStream("/image/leguman.jpg"));
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
-		when(gxsIdentityRepository.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
 
 		identityService.saveIdentityImage(id, file);
 
 		assertNotNull(identity.getImage());
 
 		verify(gxsIdentityRepository).findById(id);
-		verify(gxsIdentityRepository).findByGxsId(identity.getGxsId());
 		verify(gxsIdentityRepository).save(identity);
 	}
 

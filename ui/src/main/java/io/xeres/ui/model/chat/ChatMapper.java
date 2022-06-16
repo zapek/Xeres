@@ -65,7 +65,7 @@ public final class ChatMapper
 			return null;
 		}
 
-		return new ChatRoomUser(dto.nickname(), dto.gxsId());
+		return new ChatRoomUser(dto.nickname(), dto.gxsId(), dto.image());
 	}
 
 	public static ChatRoomInfo fromDTO(ChatRoomDTO dto)

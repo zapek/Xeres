@@ -386,7 +386,7 @@ public class ChatRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownIdentity = identityService.getOwnIdentity();
-			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId()));
+			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage()));
 		}
 	}
 

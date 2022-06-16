@@ -251,7 +251,7 @@ public class ChatViewController implements Controller
 		chatClient.getChatRoomContext()
 				.doOnSuccess(context -> {
 					addRooms(context.chatRoomLists());
-					context.chatRoomLists().getSubscribed().forEach(chatRoomInfo -> userJoined(chatRoomInfo.getId(), new ChatRoomUserEvent(context.ownUser().gxsId(), context.ownUser().nickname(), null)));
+					context.chatRoomLists().getSubscribed().forEach(chatRoomInfo -> userJoined(chatRoomInfo.getId(), new ChatRoomUserEvent(context.ownUser().gxsId(), context.ownUser().nickname(), context.ownUser().image())));
 				})
 				.subscribe();
 	}

@@ -64,6 +64,7 @@ public class IdentityRsService extends GxsRsService
 	private static final Logger log = LoggerFactory.getLogger(IdentityRsService.class);
 
 	private final IdentityService identityService;
+	private final GxsExchangeService gxsExchangeService;
 	private final DatabaseSessionManager databaseSessionManager;
 
 	public IdentityRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService)
@@ -71,6 +72,7 @@ public class IdentityRsService extends GxsRsService
 		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager, databaseSessionManager);
 		this.identityService = identityService;
 		this.databaseSessionManager = databaseSessionManager;
+		this.gxsExchangeService = gxsExchangeService;
 	}
 
 	@Override
@@ -155,8 +157,9 @@ public class IdentityRsService extends GxsRsService
 				((RsSerializable) gxsIdGroupItem).readObject(buf, EnumSet.noneOf(SerializationFlags.class)); // XXX: should we add some helper method into Serializer()?
 				buf.release();
 
-				identityService.saveIdentity(gxsIdGroupItem);
+				identityService.transferIdentity(gxsIdGroupItem);
 			});
+			gxsExchangeService.setLastServiceUpdate(RsServiceType.GXSID, Instant.now());
 		}
 	}
 

@@ -51,6 +51,7 @@ public class GxsExchangeService
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
+	@Transactional
 	public void setLastPeerUpdate(Location location, RsServiceType serviceType, Instant now)
 	{
 		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
@@ -67,6 +68,7 @@ public class GxsExchangeService
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
+	@Transactional
 	public void setLastServiceUpdate(RsServiceType serviceType, Instant now)
 	{
 		gxsServiceSettingRepository.findById(serviceType.getType())

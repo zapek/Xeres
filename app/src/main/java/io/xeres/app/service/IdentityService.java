@@ -41,6 +41,7 @@ import org.bouncycastle.openpgp.PGPSecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +52,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -125,12 +127,7 @@ public class IdentityService
 			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
 			// XXX: what should the serviceString have?
 		}
-
-		gxsIdGroupItem = gxsIdentityRepository.save(gxsIdGroupItem);
-
-		gxsExchangeService.setLastServiceUpdate(RsServiceType.GXSID, gxsIdGroupItem.getPublished());
-
-		return gxsIdGroupItem.getId();
+		return saveIdentity(gxsIdGroupItem).getId();
 	}
 
 	public IdentityGroupItem getOwnIdentity() // XXX: temporary, we'll have several identities later
@@ -144,11 +141,18 @@ public class IdentityService
 	}
 
 	@Transactional
-	public void saveIdentity(IdentityGroupItem identityGroupItem)
+	public void transferIdentity(IdentityGroupItem identityGroupItem)
 	{
 		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
-		var gxsIdGroup = gxsIdentityRepository.findByGxsId(identityGroupItem.getGxsId()).orElse(identityGroupItem);
-		gxsIdentityRepository.save(gxsIdGroup);
+		identityGroupItem.setId(gxsIdentityRepository.findByGxsId(identityGroupItem.getGxsId()).orElse(identityGroupItem).getId());
+		gxsIdentityRepository.save(identityGroupItem);
+	}
+
+	private IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
+	{
+		var savedIdentity = gxsIdentityRepository.save(identityGroupItem);
+		gxsExchangeService.setLastServiceUpdate(RsServiceType.GXSID, Instant.now()); // savedEntity.getPublished() is updated *after* the transaction so not usable here
+		return savedIdentity;
 	}
 
 	public List<IdentityGroupItem> findAllByName(String name)
@@ -176,11 +180,13 @@ public class IdentityService
 		return gxsIdentityRepository.findAllByGxsIdIn(gxsIds);
 	}
 
+	@Transactional(propagation = Propagation.NEVER)
 	public byte[] signData(IdentityGroupItem identityGroupItem, byte[] data)
 	{
 		return RSA.sign(data, identityGroupItem.getAdminPrivateKey());
 	}
 
+	@Transactional
 	public void saveIdentityImage(long id, MultipartFile file) throws IOException
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)
@@ -210,6 +216,7 @@ public class IdentityService
 		saveIdentity(identity);
 	}
 
+	@Transactional
 	public void deleteIdentityImage(long id)
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)

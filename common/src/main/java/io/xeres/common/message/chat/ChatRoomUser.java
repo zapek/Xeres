@@ -21,6 +21,6 @@ package io.xeres.common.message.chat;
 
 import io.xeres.common.id.GxsId;
 
-public record ChatRoomUser(String nickname, GxsId gxsId)
+public record ChatRoomUser(String nickname, GxsId gxsId, byte[] image)
 {
 }

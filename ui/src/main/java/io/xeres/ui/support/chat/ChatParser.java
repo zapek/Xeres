@@ -39,8 +39,8 @@ public final class ChatParser
 {
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b((?:https?|ftps?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
 	private static final String RS_PROTOCOL = "retroshare";
-	private static final String RS_HOST = "certificate";
-	private static final String RS_QUERY_PARAM = "radix";
+	private static final String RS_HOST_CERTIFICATE = "certificate";
+	private static final String RS_QUERY_PARAM_RADIX = "radix";
 
 	private ChatParser()
 	{
@@ -76,7 +76,7 @@ public final class ChatParser
 		{
 			var href = link.attr("href");
 			var text = link.text();
-			chatContents.add(new ChatContentURI(URI.create(getCertificateFromHref(href)), text, JavaFxApplication::addPeer));
+			chatContents.add(new ChatContentURI(getCertificateFromHref(href), text, JavaFxApplication::addPeer));
 			links.remove();
 		}
 		return document.text();
@@ -96,7 +96,7 @@ public final class ChatParser
 			{
 				return "";
 			}
-			if (!RS_HOST.equals(uri.getHost()))
+			if (!RS_HOST_CERTIFICATE.equals(uri.getHost()))
 			{
 				return "";
 			}
@@ -104,7 +104,7 @@ public final class ChatParser
 					.query(uri.getQuery())
 					.build();
 
-			var parameter = uriComponents.getQueryParams().getFirst(RS_QUERY_PARAM);
+			var parameter = uriComponents.getQueryParams().getFirst(RS_QUERY_PARAM_RADIX);
 			return defaultString(parameter);
 		}
 		catch (URISyntaxException e)

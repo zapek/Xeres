@@ -157,7 +157,6 @@ public class AddRsIdWindowController implements WindowController
 
 								certIps.getItems().addAll(allIps);
 								certIps.getSelectionModel().select(0);
-								certIps.setTooltip(new Tooltip("All addresses will be tried. You can preselect one as a hint."));
 							});
 					setDefaultTrust(trust);
 					titledPane.setExpanded(true);

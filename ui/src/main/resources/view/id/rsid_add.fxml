@@ -36,6 +36,9 @@
         <VBox.margin>
             <Insets top="8.0"/>
         </VBox.margin>
+        <tooltip>
+            <Tooltip showDuration="30s" text="The peer ID is a string of about a hundred of weird looking cryptic characters. It encodes all information needed to connect to a peer."/>
+        </tooltip>
     </TextArea>
     <Label fx:id="status"/>
     <TitledPane fx:id="titledPane" expanded="false" text="Peer's details" VBox.vgrow="ALWAYS">
@@ -56,7 +59,7 @@
             <Label text="Name"/>
             <TextField fx:id="certName" editable="false" GridPane.columnIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Make sure it matches your peer's name or nickname"/>
+                    <Tooltip showDuration="30s" text="Make sure it matches your peer's name or nickname."/>
                 </tooltip>
             </TextField>
             <Label text="Profile ID" GridPane.rowIndex="1"/>
@@ -78,9 +81,17 @@
                 </tooltip>
             </TextField>
             <Label text="Address" GridPane.rowIndex="4"/>
-            <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="Addresses to connect to. They will all be tried in turn but you can preselect the best one for a faster connection."/>
+                </tooltip>
+            </ChoiceBox>
             <Label text="Trust" GridPane.rowIndex="5"/>
-            <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+            <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="The trust level you put on the peer.&#10;Unknown: no opinion.&#10;Never: none or minimal, met online recently.&#10;Marginal: more or less trustable, acquaintance.&#10;Full: very trustable, good friend."/>
+                </tooltip>
+            </ChoiceBox>
         </GridPane>
     </TitledPane>
     <HBox alignment="TOP_RIGHT">

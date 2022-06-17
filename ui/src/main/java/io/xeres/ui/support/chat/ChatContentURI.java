@@ -36,10 +36,10 @@ public class ChatContentURI implements ChatContent
 		node.setOnAction(event -> JavaFxApplication.openUrl(node.getText()));
 	}
 
-	public ChatContentURI(URI uri, String description, Consumer<String> action)
+	public ChatContentURI(String uri, String description, Consumer<String> action)
 	{
 		node = new Hyperlink(description);
-		node.setOnAction(event -> action.accept(uri.toString()));
+		node.setOnAction(event -> action.accept(uri));
 	}
 
 	@Override

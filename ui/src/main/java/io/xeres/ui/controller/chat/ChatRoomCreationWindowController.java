@@ -67,9 +67,6 @@ public class ChatRoomCreationWindowController implements WindowController
 
 		visibility.setItems(FXCollections.observableArrayList("Public", "Private"));
 		visibility.getSelectionModel().select(0);
-		visibility.setTooltip(new Tooltip("Public rooms are visible by peers.\nPrivate rooms aren't and work on invitation only."));
-
-		security.setTooltip(new Tooltip("A room restricted to signed identities is more resistant to spam because anonymous identities cannot join."));
 
 		createButton.setOnAction(event -> chatClient.createChatRoom(roomName.getText(),
 						topic.getText(),

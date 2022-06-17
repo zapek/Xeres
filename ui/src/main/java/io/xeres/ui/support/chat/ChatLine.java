@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.chat;
 
+import io.xeres.ui.support.contentline.Content;
+import io.xeres.ui.support.contentline.ContentText;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,23 +34,23 @@ public class ChatLine
 
 	private final Instant instant;
 	private final ChatAction action;
-	private final List<ChatContent> chatContents;
+	private final List<Content> contents;
 
-	public ChatLine(Instant instant, ChatAction action, ChatContent... chatContents)
+	public ChatLine(Instant instant, ChatAction action, Content... contents)
 	{
 		this.instant = instant;
 		this.action = action;
 		if (action.hasMessageLine())
 		{
-			if (log.isDebugEnabled() && chatContents.length > 0)
+			if (log.isDebugEnabled() && contents.length > 0)
 			{
 				log.debug("Chat content for action {} is not needed", action);
 			}
-			this.chatContents = List.of(new ChatContentText(action.getMessageLine()));
+			this.contents = List.of(new ContentText(action.getMessageLine()));
 		}
 		else
 		{
-			this.chatContents = List.of(chatContents); // XXX: maybe turn chatContents into a list... see how the parsing goes
+			this.contents = List.of(contents); // XXX: maybe turn chatContents into a list... see how the parsing goes
 		}
 	}
 
@@ -81,9 +83,9 @@ public class ChatLine
 				};
 	}
 
-	public List<ChatContent> getChatContents()
+	public List<Content> getChatContents()
 	{
-		return chatContents;
+		return contents;
 	}
 
 	/**
@@ -93,6 +95,6 @@ public class ChatLine
 	 */
 	public boolean isRich()
 	{
-		return chatContents.size() > 1 || !(chatContents.get(0) instanceof ChatContentText);
+		return contents.size() > 1 || !(contents.get(0) instanceof ContentText);
 	}
 }

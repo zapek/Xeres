@@ -23,7 +23,11 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.custom.ChatListCell;
-import io.xeres.ui.support.chat.*;
+import io.xeres.ui.support.chat.ChatAction;
+import io.xeres.ui.support.chat.ChatLine;
+import io.xeres.ui.support.chat.ChatParser;
+import io.xeres.ui.support.contentline.Content;
+import io.xeres.ui.support.contentline.ContentImage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -130,7 +134,7 @@ public class ChatListView
 				chatAction.setType(ACTION);
 			}
 			var chatContents = ChatParser.parse(message);
-			var chatLine = new ChatLine(Instant.now(), chatAction, chatContents.toArray(ChatContent[]::new));
+			var chatLine = new ChatLine(Instant.now(), chatAction, chatContents.toArray(Content[]::new));
 			addMessageLine(chatLine);
 		}
 	}
@@ -243,7 +247,7 @@ public class ChatListView
 
 	private void addMessageLine(ChatAction action, Image image)
 	{
-		var chatLine = new ChatLine(Instant.now(), action, new ChatContentImage(image));
+		var chatLine = new ChatLine(Instant.now(), action, new ContentImage(image));
 		addMessageLine(chatLine);
 	}
 

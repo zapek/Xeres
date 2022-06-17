@@ -20,20 +20,17 @@
 package io.xeres.ui.support.chat;
 
 import com.vdurmont.emoji.EmojiParser;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.support.contentline.Content;
+import io.xeres.ui.support.contentline.ContentText;
+import io.xeres.ui.support.contentline.ContentUri;
+import io.xeres.ui.support.uri.UriParser;
 import io.xeres.ui.support.util.SmileyUtils;
 import org.jsoup.Jsoup;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.apache.commons.lang3.StringUtils.defaultString;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public final class ChatParser
 {
@@ -47,15 +44,15 @@ public final class ChatParser
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static List<ChatContent> parse(String s)
+	public static List<Content> parse(String s)
 	{
 		s = SmileyUtils.smileysToUnicode(s); // ;-)
 		s = EmojiParser.parseToUnicode(s); // :wink:
 
-		List<ChatContent> chatContents = new ArrayList<>();
-		s = parseHrefs(s, chatContents);
-		parseInlineUrls(s, chatContents);
-		return chatContents;
+		List<Content> contents = new ArrayList<>();
+		s = parseHrefs(s, contents);
+		parseInlineUrls(s, contents);
+		return contents;
 	}
 
 	public static boolean isActionMe(String s)
@@ -68,7 +65,7 @@ public final class ChatParser
 		return nickname + " " + s.substring(4);
 	}
 
-	private static String parseHrefs(String s, List<ChatContent> chatContents)
+	private static String parseHrefs(String s, List<Content> contents)
 	{
 		var document = Jsoup.parse(s);
 		var links = document.getElementsByTag("a");
@@ -76,44 +73,13 @@ public final class ChatParser
 		{
 			var href = link.attr("href");
 			var text = link.text();
-			chatContents.add(new ChatContentURI(getCertificateFromHref(href), text, JavaFxApplication::addPeer));
+			contents.add(UriParser.parse(href, text));
 			links.remove();
 		}
 		return document.text();
 	}
 
-	private static String getCertificateFromHref(String href)
-	{
-		if (isBlank(href))
-		{
-			return "";
-		}
-
-		try
-		{
-			var uri = new URI(href);
-			if (!RS_PROTOCOL.equals(uri.getScheme()))
-			{
-				return "";
-			}
-			if (!RS_HOST_CERTIFICATE.equals(uri.getHost()))
-			{
-				return "";
-			}
-			var uriComponents = UriComponentsBuilder.fromPath(uri.getPath())
-					.query(uri.getQuery())
-					.build();
-
-			var parameter = uriComponents.getQueryParams().getFirst(RS_QUERY_PARAM_RADIX);
-			return defaultString(parameter);
-		}
-		catch (URISyntaxException e)
-		{
-			return "";
-		}
-	}
-
-	private static void parseInlineUrls(String s, List<ChatContent> chatContents)
+	private static void parseInlineUrls(String s, List<Content> contents)
 	{
 		var matcher = URL_PATTERN.matcher(s);
 		var previousRange = new Range(0, 0);
@@ -127,11 +93,11 @@ public final class ChatParser
 			var betweenRange = currentRange.textRange(previousRange);
 			if (betweenRange.hasRange())
 			{
-				chatContents.add(new ChatContentText(s.substring(betweenRange.start, betweenRange.end)));
+				contents.add(new ContentText(s.substring(betweenRange.start, betweenRange.end)));
 			}
 
 			// URL
-			chatContents.add(new ChatContentURI(URI.create(s.substring(currentRange.start, currentRange.end))));
+			contents.add(new ContentUri(s.substring(currentRange.start, currentRange.end)));
 
 			previousRange = currentRange;
 		}
@@ -139,12 +105,12 @@ public final class ChatParser
 		if (!previousRange.hasRange())
 		{
 			// Text if no URL at all
-			chatContents.add(new ChatContentText(s));
+			contents.add(new ContentText(s));
 		}
 		else if (previousRange.end < s.length())
 		{
 			// Text after the last URL
-			chatContents.add(new ChatContentText(s.substring(previousRange.end)));
+			contents.add(new ContentText(s.substring(previousRange.end)));
 		}
 	}
 

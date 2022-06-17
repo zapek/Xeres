@@ -17,23 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.chat;
+package io.xeres.ui.support.contentline;
 
 import javafx.scene.Node;
-import javafx.scene.text.Text;
 
-public class ChatContentText implements ChatContent
+public interface Content
 {
-	private final Text node;
-
-	public ChatContentText(String text)
-	{
-		node = new Text(text);
-	}
-
-	@Override
-	public Node getNode()
-	{
-		return node;
-	}
+	Node getNode();
 }

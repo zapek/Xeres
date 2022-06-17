@@ -17,26 +17,25 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.chat;
+package io.xeres.ui.support.contentline;
 
 import io.xeres.ui.JavaFxApplication;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 
-import java.net.URI;
 import java.util.function.Consumer;
 
-public class ChatContentURI implements ChatContent
+public class ContentUri implements Content
 {
 	private final Hyperlink node;
 
-	public ChatContentURI(URI uri)
+	public ContentUri(String uri)
 	{
-		node = new Hyperlink(uri.toString());
+		node = new Hyperlink(uri);
 		node.setOnAction(event -> JavaFxApplication.openUrl(node.getText()));
 	}
 
-	public ChatContentURI(String uri, String description, Consumer<String> action)
+	public ContentUri(String uri, String description, Consumer<String> action)
 	{
 		node = new Hyperlink(description);
 		node.setOnAction(event -> action.accept(uri));

@@ -19,8 +19,8 @@
 
 package io.xeres.ui.custom;
 
-import io.xeres.ui.support.chat.ChatContent;
 import io.xeres.ui.support.chat.ChatLine;
+import io.xeres.ui.support.contentline.Content;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -89,7 +89,7 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 		action.setTextFill(line.getNicknameColor());
 
 		var nodes = line.getChatContents().stream()
-				.map(ChatContent::getNode)
+				.map(Content::getNode)
 				.toList();
 
 		if (nodes.size() == 1 && nodes.get(0) instanceof Text text) // XXX: check if that works for single URLs..

@@ -17,25 +17,19 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.chat;
+package io.xeres.ui.support.uri;
 
-import javafx.scene.Node;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import io.xeres.ui.support.contentline.Content;
 
-public class ChatContentImage implements ChatContent
+import java.net.URI;
+
+public interface ContentParser
 {
-	private final ImageView node;
+	String PROTOCOL_RETROSHARE = "retroshare";
 
-	public ChatContentImage(Image image)
-	{
-		node = new ImageView();
-		node.setImage(image);
-	}
+	String getProtocol();
 
-	@Override
-	public Node getNode()
-	{
-		return node;
-	}
+	String getAuthority();
+
+	Content parse(URI uri, String text);
 }

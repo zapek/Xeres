@@ -40,7 +40,10 @@ jobs:
         java-version: 17
 
     - run: |
-        ./gradlew build
+        ./gradlew build test jacocoTestReport sonarqube
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+
+    - name: Perform Sonarqube Analysis
+      run: ./gradlew sonarqube --info

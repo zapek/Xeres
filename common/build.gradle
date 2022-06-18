@@ -19,6 +19,8 @@
 
 plugins {
     id 'org.springframework.boot'
+    id 'jacoco'
+    id 'org.sonarqube'
 }
 
 editorconfig {
@@ -36,6 +38,21 @@ bootJar {
 
 jar {
     enabled = true
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "zapek_Xeres"
+        property "sonar.organization", "zapek"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
 }
 
 dependencies {

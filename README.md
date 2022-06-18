@@ -7,7 +7,7 @@
 [![GitHub release](https://img.shields.io/github/release/zapek/Xeres.svg?label=latest%20release)](https://github.com/zapek/Xeres/releases/latest)
 [![Gitter](https://badges.gitter.im/zapek/Xeres.svg)](https://gitter.im/zapek/Xeres?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![License](https://img.shields.io/github/license/zapek/Xeres.svg)](https://github.com/zapek/Xeres/blob/master/LICENSE)
-[![CodeQL](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/codeql-analysis.yml)
+[![CodeQL](https://github.com/zapek/Xeres/actions/workflows/analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/analysis.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zapek_Xeres&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zapek_Xeres)
 
 &nbsp;

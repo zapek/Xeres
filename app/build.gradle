@@ -51,7 +51,6 @@ plugins {
     id 'org.flywaydb.flyway'
     id 'jacoco'
     id 'org.panteleyev.jpackageplugin'
-    id 'org.sonarqube'
 }
 
 
@@ -141,14 +140,6 @@ jacocoTestReport {
     reports {
         xml.enabled true
         html.enabled false
-    }
-}
-
-sonarqube {
-    properties {
-        property "sonar.projectKey", "zapek_Xeres"
-        property "sonar.organization", "zapek"
-        property "sonar.host.url", "https://sonarcloud.io"
     }
 }
 

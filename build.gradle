@@ -31,7 +31,7 @@ plugins {
     id 'org.flywaydb.flyway' version '8.5.11' apply false // Keep the version in sync with spring-boot from time to time
     id 'org.ec4j.editorconfig' version '0.0.3' apply false
     id 'org.panteleyev.jpackageplugin' version '1.3.1' apply false
-    id "org.sonarqube" version "3.4.0.2513" apply false
+    id "org.sonarqube" version "3.4.0.2513"
 }
 
 // To upgrade Gradle, change the version here, refresh, then run the 'wrapper' task
@@ -66,7 +66,19 @@ subprojects {
     check.dependsOn editorconfigCheck
 }
 
-task cleanProfile(type:Delete) {
+sonarqube {
+    properties {
+        property "sonar.projectKey", "zapek_Xeres"
+        property "sonar.organization", "zapek"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.java.source", "17"
+        property "sonar.sources", "app/src/main,common/src/main,ui/src/main"
+        property "sonar.tests", "app/src/test,common/src/test,ui/src/test"
+        property "sonar.jacoco.reportPaths", "app/build/reports/jacoco/test/jacocoTestReport.xml,common/build/reports/jacoco/test/jacocoTestReport.xml"
+    }
+}
+
+task cleanProfile(type: Delete) {
     group = 'build'
     description = 'Deletes the user profile.'
     // when run with IDEA Ultimate

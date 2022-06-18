@@ -190,7 +190,10 @@ class RSCertificate extends RSId
 		{
 			throw new IllegalArgumentException("Missing name");
 		}
-		getPgpPublicKey().orElseThrow(() -> new IllegalArgumentException("Missing PGP public key"));
+		if (getPgpPublicKey().isEmpty())
+		{
+			throw new IllegalArgumentException("Missing PGP public key");
+		}
 
 		addPortToDnsName();
 	}

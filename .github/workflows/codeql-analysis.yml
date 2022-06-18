@@ -40,10 +40,13 @@ jobs:
         java-version: 17
 
     - run: |
-        ./gradlew build test jacocoTestReport sonarqube
+        ./gradlew build test jacocoTestReport
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
 
     - name: Perform Sonarqube Analysis
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: ./gradlew sonarqube --info

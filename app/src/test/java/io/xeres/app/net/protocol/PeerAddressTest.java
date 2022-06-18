@@ -21,8 +21,11 @@ package io.xeres.app.net.protocol;
 
 import io.xeres.app.net.protocol.PeerAddress.Type;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.InetSocketAddress;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static io.xeres.app.net.protocol.PeerAddress.Type.*;
@@ -40,148 +43,87 @@ class PeerAddressTest
 		var peerAddress = PeerAddress.fromIpAndPort(IP_AND_PORT);
 
 		assertEquals(Optional.of(IP_AND_PORT), peerAddress.getAddress());
+		assertTrue(peerAddress.isValid());
+		assertTrue(peerAddress.isExternal());
+		assertFalse(peerAddress.isHidden());
+		assertFalse(peerAddress.isHostname());
+		assertFalse(peerAddress.isLAN());
 	}
 
-	@Test
-	void PeerAddress_FromIpAndPort_IllegalIpOctetsOverflow_Fail()
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"500.500.500.500:21232", // overflow
+			"85.123.33:21232", // octet missing
+			"85.123.33.01:21232", // octet zero prefix
+			"85.123.33.a:21232", // octet not a number
+			"85.123.33.1:a", // port not a number
+			"85.123.33.1:", // separator but missing port
+			":2323", // separator but missing IP
+			"85.1:21232", // valid IP but confusing
+			"85.123.33.0xa", // valid IP but confusing
+			"85.65530:21232", // valid IP but confusing
+			"283943283", // valid IP but confusing
+			"2384902378237892", // invalid IP (and confusing)
+			"85.123.33.21:0", // low port
+			"85.123.33.21:65537", // illegal port
+			"127.0.0.1:21232", // localhost
+			"0.0.0.0:21232", // "network" address
+			"255.255.255.255:21232", // "broadcast" address
+			"0.1.1.1:21232", // non routable
+	})
+	void PeerAddress_FromIpAndPort_Fail(String source)
 	{
-		var peerAddress = PeerAddress.fromIpAndPort("500.500.500.500:21232");
+		var peerAddress = PeerAddress.fromIpAndPort(source);
 
 		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_IllegalIpOctetMissing_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.123.33:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_IllegalIpZeroPrefix_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.01:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_IllegalIpNotANumber_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.a:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_IllegalPortNotANumber_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.1:a");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_SeparatorButMissingPort_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.1:");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_SeparatorButMissingIp_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort(":2323");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	/**
-	 * This kind of IP is legal (ie. "ping 127.1" will work) but we don't want it as it's confusing.
-	 */
-	@Test
-	void PeerAddress_FromIpAndPort_LegalIpButNotWanted_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.1:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	/**
-	 * That one too. Even more messed up.
-	 */
-	@Test
-	void PeerAddress_FromIpAndPort_LegalIpButNotWanted2_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.65530:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_LowPort_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.21:0");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_IllegalPort_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("85.123.33.21:65537");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_Bullshit_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("2384902378237892");
-
-		assertFalse(peerAddress.isValid());
+		assertTrue(peerAddress.isInvalid());
+		assertTrue(peerAddress.getAddress().isEmpty());
+		assertTrue(peerAddress.getAddressAsBytes().isEmpty());
+		assertFalse(peerAddress.isHostname());
+		assertFalse(peerAddress.isHidden());
+		assertNull(peerAddress.getSocketAddress());
+		assertEquals(INVALID, peerAddress.getType());
+		assertThrows(NoSuchElementException.class, peerAddress::getUrl);
 	}
 
 	@Test
 	void PeerAddress_FromUrl_OK()
 	{
-		var peerAddress = PeerAddress.fromUrl("ipv4://194.28.22.1:2233");
+		var URL = "ipv4://194.28.22.1:2233";
+		var peerAddress = PeerAddress.fromUrl(URL);
 
+		assertEquals(URL, peerAddress.getUrl());
 		assertTrue(peerAddress.isValid());
+		assertFalse(peerAddress.isHidden());
+		assertFalse(peerAddress.isHostname());
 	}
 
-	@Test
-	void PeerAddress_FromUrl_MissingPort_Fail()
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"ipv4://194.28.22.1", // missing port
+			"ipv5://194.28.22.1:1234", // bad protocol
+			"ipv666://23sd.2343.2487.asdk" // nonsense
+	})
+	void PeerAddress_FromUrl_Fail(String url)
 	{
-		var peerAddress = PeerAddress.fromUrl("ipv4://194.28.22.1");
+		var peerAddress = PeerAddress.fromUrl(url);
 
 		assertFalse(peerAddress.isValid());
+		assertThrows(NoSuchElementException.class, peerAddress::getUrl);
 	}
 
-	@Test
-	void PeerAddress_FromUrl_Invalid_Fail()
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"194.28.22.1:1026",
+			"1.0.0.1:1026"
+	})
+	void PeerAddress_FromAddress_OK(String source)
 	{
-		var peerAddress = PeerAddress.fromUrl("ipv666://23sd.2343.2487.asdk");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromAddress_OK()
-	{
-		var peerAddress = PeerAddress.fromAddress("194.28.22.1:1026");
+		var peerAddress = PeerAddress.fromAddress(source);
 
 		assertTrue(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromAddress2_OK()
-	{
-		var peerAddress = PeerAddress.fromAddress("1.0.0.1:1026");
-
-		assertTrue(peerAddress.isValid());
+		assertTrue(peerAddress.isExternal());
+		assertFalse(peerAddress.isLAN());
 	}
 
 	@Test
@@ -193,59 +135,26 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromIpAndPort_NonRoutableButLocalhost_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("127.0.0.1:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
 	void PeerAddress_FromIpAndPort_NotPublicButPrivateLan_OK()
 	{
 		var peerAddress = PeerAddress.fromIpAndPort("192.168.1.5:21232");
 
 		assertTrue(peerAddress.isValid());
+		assertTrue(peerAddress.isLAN());
 	}
 
-	@Test
-	void PeerAddress_FromIpAndPort_NonRoutableButNetwork_Fail()
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"1.1.1.255:21232", // broadcast convention
+			"1.1.1.0:21232" // network convention
+	})
+	void PeerAddress_FromIpAndPort_ConventionButRoutable_OK(String source)
 	{
-		var peerAddress = PeerAddress.fromIpAndPort("0.0.0.0:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_NonRoutable3_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("255.255.255.255:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_BroadcastConventionButRoutable_OK()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("1.1.1.255:21232");
+		var peerAddress = PeerAddress.fromIpAndPort(source);
 
 		assertTrue(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_NonRoutable5_Fail()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("0.1.1.1:21232");
-
-		assertFalse(peerAddress.isValid());
-	}
-
-	@Test
-	void PeerAddress_FromIpAndPort_NetworkConventionButRoutable_OK()
-	{
-		var peerAddress = PeerAddress.fromIpAndPort("1.1.1.0:21232");
-
-		assertTrue(peerAddress.isValid());
+		assertTrue(peerAddress.isExternal());
+		assertFalse(peerAddress.isLAN());
 	}
 
 	/**

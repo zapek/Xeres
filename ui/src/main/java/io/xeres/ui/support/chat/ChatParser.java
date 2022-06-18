@@ -35,9 +35,6 @@ import java.util.regex.Pattern;
 public final class ChatParser
 {
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b((?:https?|ftps?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
-	private static final String RS_PROTOCOL = "retroshare";
-	private static final String RS_HOST_CERTIFICATE = "certificate";
-	private static final String RS_QUERY_PARAM_RADIX = "radix";
 
 	private ChatParser()
 	{

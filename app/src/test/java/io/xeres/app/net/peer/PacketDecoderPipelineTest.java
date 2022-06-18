@@ -99,10 +99,10 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 				.setHeaderSize(6)
 				.build();
 
-		assertThatThrownBy(() -> {
-			channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
-			channel.checkException();
-		}).isInstanceOf(DecoderException.class)
+		var message = Unpooled.wrappedBuffer(inPacket);
+
+		assertThatThrownBy(() -> channel.writeInbound(message))
+				.isInstanceOf(DecoderException.class)
 				.hasCauseInstanceOf(ProtocolException.class)
 				.hasMessageContaining("Packet size too small");
 	}
@@ -119,10 +119,10 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 				.setHeaderSize(Integer.MAX_VALUE - 8)
 				.build();
 
-		assertThatThrownBy(() -> {
-			channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
-			channel.checkException();
-		}).isInstanceOf(TooLongFrameException.class)
+		var message = Unpooled.wrappedBuffer(inPacket);
+
+		assertThatThrownBy(() -> channel.writeInbound(message))
+				.isInstanceOf(TooLongFrameException.class)
 				.hasMessageStartingWith("Frame is too long");
 	}
 
@@ -151,10 +151,10 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 				.build();
 
 		channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
-		assertThatThrownBy(() -> {
-			channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
-			channel.checkException();
-		}).isInstanceOf(DecoderException.class)
+
+		var message = Unpooled.wrappedBuffer(inPacket);
+
+		assertThatThrownBy(() -> channel.writeInbound(message)).isInstanceOf(DecoderException.class)
 				.hasCauseInstanceOf(ProtocolException.class)
 				.hasMessageFindingMatch("Start packet [0-9]* already received");
 	}
@@ -168,10 +168,9 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 				.setFlags(0)
 				.build();
 
-		assertThatThrownBy(() -> {
-			channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
-			channel.checkException();
-		}).isInstanceOf(DecoderException.class)
+		var message = Unpooled.wrappedBuffer(inPacket);
+
+		assertThatThrownBy(() -> channel.writeInbound(message)).isInstanceOf(DecoderException.class)
 				.hasCauseInstanceOf(ProtocolException.class)
 				.hasMessageFindingMatch("Middle packet [0-9]* received without corresponding start packet");
 	}
@@ -185,10 +184,9 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 				.setFlags(SLICE_FLAG_END)
 				.build();
 
-		assertThatThrownBy(() -> {
-			channel.writeInbound(Unpooled.wrappedBuffer(inPacket));
-			channel.checkException();
-		}).isInstanceOf(DecoderException.class)
+		var message = Unpooled.wrappedBuffer(inPacket);
+
+		assertThatThrownBy(() -> channel.writeInbound(message)).isInstanceOf(DecoderException.class)
 				.hasCauseInstanceOf(ProtocolException.class)
 				.hasMessageFindingMatch("End packet [0-9]* received without corresponding start packet");
 	}

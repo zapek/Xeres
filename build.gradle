@@ -72,9 +72,6 @@ sonarqube {
         property "sonar.organization", "zapek"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.java.source", "17"
-        property "sonar.sources", "app/src/main,common/src/main,ui/src/main"
-        property "sonar.tests", "app/src/test,common/src/test,ui/src/test"
-        property "sonar.jacoco.reportPaths", "app/build/reports/jacoco/test/jacocoTestReport.xml,common/build/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
 

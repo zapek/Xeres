@@ -26,6 +26,8 @@ import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.rsid.Type;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPPublicKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,6 +47,8 @@ import static io.xeres.common.rsid.Type.*;
  */
 public abstract class RSId
 {
+	private static final Logger log = LoggerFactory.getLogger(RSId.class);
+
 	private static final Map<Class<? extends RSId>, Type> engines = new LinkedHashMap<>();
 
 	static
@@ -67,6 +71,8 @@ public abstract class RSId
 			return Optional.empty();
 		}
 
+		String error = null;
+
 		for (var entry : engines.entrySet())
 		{
 			var engineClass = entry.getKey();
@@ -81,7 +87,14 @@ public abstract class RSId
 			{
 				var rsId = engineClass.getDeclaredConstructor().newInstance();
 				rsId.parseInternal(data);
-				rsId.checkRequiredFields();
+				try
+				{
+					rsId.checkRequiredFields();
+				}
+				catch (IllegalArgumentException e)
+				{
+					throw new CertificateParsingException("Required field error: " + e.getMessage(), e);
+				}
 				return Optional.of(rsId);
 			}
 			catch (NoSuchMethodException e)
@@ -92,11 +105,13 @@ public abstract class RSId
 			{
 				throw new RuntimeException(e);
 			}
-			catch (CertificateParsingException ignored)
+			catch (CertificateParsingException e)
 			{
 				// Parsing failed, try the next one
+				error = e.getMessage();
 			}
 		}
+		log.debug("RSId parsing error: {}", error);
 		return Optional.empty();
 	}
 

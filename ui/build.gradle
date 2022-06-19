@@ -40,6 +40,11 @@ jar {
     enabled = true
 }
 
+test {
+    useJUnitPlatform()
+    test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
+}
+
 jacocoTestReport {
     reports {
         xml.enabled true
@@ -58,4 +63,7 @@ dependencies {
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation 'com.vdurmont:emoji-java:5.1.1'
     implementation 'org.json:json:20220320' // fix dependency vulnerability in emoji-java
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: "com.vaadin.external.google", module: "android-json"
+    }
 }

@@ -43,7 +43,7 @@ public final class ImageUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	private static String writeImageAsPngData(Image image, int maximumSize)
+	public static String writeImageAsPngData(Image image, int maximumSize)
 	{
 		var out = new ByteArrayOutputStream();
 		try

@@ -33,6 +33,9 @@ import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
 import io.xeres.common.rest.config.OwnProfileRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -94,32 +97,14 @@ class ConfigControllerTest extends AbstractControllerTest
 		verify(profileService).generateProfileKeys(ownProfileRequest.name());
 	}
 
-	@Test
-	void ConfigController_CreateProfile_NameTooLong() throws Exception
+	@ParameterizedTest
+	@NullAndEmptySource
+	@ValueSource(strings = {
+			"This name is way too long and there's no chance it ever gets created as a node"
+	})
+	void ConfigController_CreateProfile_BadName(String name) throws Exception
 	{
-		var ownProfileRequest = new OwnProfileRequest("This name is way too long and there's no chance it ever gets created as a node");
-
-		mvc.perform(postJson(BASE_URL + "/profile", ownProfileRequest))
-				.andExpect(status().isBadRequest());
-
-		verifyNoInteractions(profileService);
-	}
-
-	@Test
-	void ConfigController_CreateProfile_NameTooShort() throws Exception
-	{
-		var ownProfileRequest = new OwnProfileRequest("");
-
-		mvc.perform(postJson(BASE_URL + "/profile", ownProfileRequest))
-				.andExpect(status().isBadRequest());
-
-		verifyNoInteractions(profileService);
-	}
-
-	@Test
-	void ConfigController_CreateProfile_MissingName() throws Exception
-	{
-		var ownProfileRequest = new OwnProfileRequest(null);
+		var ownProfileRequest = new OwnProfileRequest(name);
 
 		mvc.perform(postJson(BASE_URL + "/profile", ownProfileRequest))
 				.andExpect(status().isBadRequest());

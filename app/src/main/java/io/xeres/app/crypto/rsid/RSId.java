@@ -87,14 +87,7 @@ public abstract class RSId
 			{
 				var rsId = engineClass.getDeclaredConstructor().newInstance();
 				rsId.parseInternal(data);
-				try
-				{
-					rsId.checkRequiredFields();
-				}
-				catch (IllegalArgumentException e)
-				{
-					throw new CertificateParsingException("Required field error: " + e.getMessage(), e);
-				}
+				rsId.checkRequiredFieldsAndThrow();
 				return Optional.of(rsId);
 			}
 			catch (NoSuchMethodException e)
@@ -241,6 +234,18 @@ public abstract class RSId
 		else
 		{
 			throw new IllegalArgumentException("Unsupported packet data size");
+		}
+	}
+
+	private void checkRequiredFieldsAndThrow() throws CertificateParsingException
+	{
+		try
+		{
+			checkRequiredFields();
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new CertificateParsingException("Required field error: " + e.getMessage(), e);
 		}
 	}
 }

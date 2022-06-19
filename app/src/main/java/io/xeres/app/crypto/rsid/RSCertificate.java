@@ -330,7 +330,7 @@ class RSCertificate extends RSId
 	@Override
 	public Optional<PGPPublicKey> getPgpPublicKey()
 	{
-		return Optional.of(pgpPublicKey);
+		return Optional.ofNullable(pgpPublicKey);
 	}
 
 	@Override

@@ -26,6 +26,8 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static io.xeres.app.crypto.rsid.ShortInvite.*;
 import static io.xeres.common.rsid.Type.SHORT_INVITE;
@@ -126,6 +128,32 @@ class RSShortInviteTest
 	{
 		var string = "";
 
+		var rsId = RSId.parse(string, SHORT_INVITE);
+
+		assertFalse(rsId.isPresent());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+			// Empty
+			"",
+			// Wrong checksum
+			"ABCE1fl2NmWv3Ri9EjwzgIHAAQpaYXBla1hlcmVzAxRBmhvGfPlWxi+DfVZv7SmEFhoE0pIG/tnDVUGzkwZOAajAQbMEA6cUSw==",
+			// Wrong checksum length
+			"ABCE1fl2NmWv3Ri9EjwzgIHAAQpaYXBla1hlcmVzAxRBmhvGfPlWxi+DfVZv7SmEFhoE0pIG/tnDVUGzkwZOAajAQbMEAqcUSg==",
+			// Missing checksum
+			"ABCE1fl2NmWv3Ri9EjwzgIHAAQpaYXBla1hlcmVzAxRBmhvGfPlWxi+DfVZv7SmEFhoE0pIG/tnDVUGzkwZOAajAQbM=",
+			// Packet shorter than advertised length
+			"ABCE1fl2NmWv3Ri9EjwzgIHAAQpaYXBla1hlcmVzAxRBmhvGfPlWxi+DfVZv7SmEFhoE0pIG/tnDVUGzkwZOAajAQbMEBKcUSg==",
+			// Missing location id
+			"AQpaYXBla1hlcmVzAxRBmhvGfPlWxi+DfVZv7SmEFhoE0pIG/tnDVUGzkwZOAajAQbMEA4YtNA==",
+			// Missing name
+			"ABCE1fl2NmWv3Ri9EjwzgIHAAxRBmhvGfPlWxi+DfVZv7SmEFhoE0pIG/tnDVUGzkwZOAajAQbMEAzEjTQ==",
+			// Missing PGP fingerprint
+			"ABCE1fl2NmWv3Ri9EjwzgIHAAQpaYXBla1hlcmVzkgb+2cNVQbOTBk4BqMBBswQDXfgj"
+	})
+	void ShortInvite_Parse_Error(String string)
+	{
 		var rsId = RSId.parse(string, SHORT_INVITE);
 
 		assertFalse(rsId.isPresent());

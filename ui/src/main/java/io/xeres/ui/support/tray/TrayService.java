@@ -39,9 +39,12 @@ public class TrayService
 {
 	private static final Logger log = LoggerFactory.getLogger(TrayService.class);
 
-	private static SystemTray systemTray;
-	private static TrayIcon trayIcon;
-	private static boolean hasSystemTray;
+	private SystemTray systemTray;
+	private TrayIcon trayIcon;
+	private boolean hasSystemTray;
+
+	private Image image;
+	private Image eventImage;
 
 	private final WindowManager windowManager;
 
@@ -81,7 +84,8 @@ public class TrayService
 		popupMenu.add(peersItem);
 		popupMenu.add(exitItem);
 
-		var image = Toolkit.getDefaultToolkit().getImage(stage.getClass().getResource("/image/trayicon.png"));
+		image = Toolkit.getDefaultToolkit().getImage(stage.getClass().getResource("/image/trayicon.png"));
+		eventImage = Toolkit.getDefaultToolkit().getImage(stage.getClass().getResource("/image/trayicon_event.png"));
 
 		trayIcon = new TrayIcon(image, AppName.NAME, popupMenu);
 		trayIcon.setImageAutoSize(true);
@@ -102,6 +106,7 @@ public class TrayService
 						if (stage.isIconified())
 						{
 							stage.setIconified(false);
+							setEvent(false);
 						}
 						else
 						{
@@ -112,6 +117,7 @@ public class TrayService
 							else
 							{
 								stage.show();
+								setEvent(false);
 							}
 						}
 					});
@@ -139,7 +145,7 @@ public class TrayService
 		return hasSystemTray;
 	}
 
-	public static void showNotification(String message)
+	public void showNotification(String message)
 	{
 		if (hasSystemTray)
 		{
@@ -147,12 +153,22 @@ public class TrayService
 		}
 	}
 
-	public static void setTooltip(String message)
+	public void setTooltip(String message)
 	{
 		if (hasSystemTray)
 		{
 			trayIcon.setToolTip(isNotBlank(message) ? (AppName.NAME + " - " + message) : AppName.NAME);
 		}
+	}
+
+	public void setEvent(boolean pending)
+	{
+		trayIcon.setImage(pending ? eventImage : image);
+	}
+
+	public void setEventIfIconified()
+	{
+		trayIcon.setImage(eventImage);
 	}
 
 	@PreDestroy

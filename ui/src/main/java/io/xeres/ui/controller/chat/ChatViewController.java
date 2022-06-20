@@ -30,6 +30,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
+import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -130,6 +131,7 @@ public class ChatViewController implements Controller
 	private final ProfileClient profileClient;
 	private final LocationClient locationClient;
 	private final WindowManager windowManager;
+	private final TrayService trayService;
 
 	private final TreeItem<RoomHolder> subscribedRooms = new TreeItem<>(new RoomHolder("Subscribed"));
 	private final TreeItem<RoomHolder> privateRooms = new TreeItem<>(new RoomHolder("Private"));
@@ -148,13 +150,14 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
 		this.profileClient = profileClient;
 		this.locationClient = locationClient;
 		this.windowManager = windowManager;
+		this.trayService = trayService;
 	}
 
 	public void initialize() throws IOException
@@ -462,7 +465,10 @@ public class ChatViewController implements Controller
 		}
 		else
 		{
-			performOnChatListView(chatRoomMessage.getRoomId(), chatListView -> chatListView.addUserMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getContent()));
+			performOnChatListView(chatRoomMessage.getRoomId(), chatListView -> {
+				chatListView.addUserMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getContent());
+				setHighlighted(chatRoomMessage.getContent());
+			});
 			getSubscribedTreeItem(chatRoomMessage.getRoomId()).ifPresent(roomHolderTreeItem -> {
 				if (selectedRoom != null && selectedRoom.getId() != chatRoomMessage.getRoomId())
 				{
@@ -476,6 +482,14 @@ public class ChatViewController implements Controller
 	{
 		roomHolderTreeItem.getValue().getRoomInfo().setNewMessages(unread);
 		roomTree.refresh();
+	}
+
+	private void setHighlighted(String message)
+	{
+		if (message.startsWith(nickname) || message.startsWith("@" + nickname) || message.contains(" " + nickname))
+		{
+			trayService.setEventIfIconified();
+		}
 	}
 
 	private void performOnChatListView(long roomId, Consumer<ChatListView> action)

@@ -35,6 +35,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PrefsService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -58,12 +59,13 @@ public class PeerServer
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
+	private final TrayService trayService;
 
 	private EventLoopGroup bossGroup;
 	private EventLoopGroup workerGroup;
 	private ChannelFuture channel;
 
-	public PeerServer(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService)
+	public PeerServer(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
 	{
 		this.prefsService = prefsService;
 		this.networkProperties = networkProperties;
@@ -71,6 +73,7 @@ public class PeerServer
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
 		this.serviceInfoRsService = serviceInfoRsService;
+		this.trayService = trayService;
 	}
 
 	@Transactional(readOnly = true) // needed for getPort() to work
@@ -87,7 +90,7 @@ public class PeerServer
 					.option(ChannelOption.SO_BACKLOG, 128) // should be more
 					.option(ChannelOption.SO_REUSEADDR, true)
 					.handler(new LoggingHandler(LogLevel.DEBUG))
-					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoRsService, INCOMING));
+					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoRsService, INCOMING, trayService));
 
 			channel = serverBootstrap.bind(localPort).sync();
 			log.info("Listening on {}, port {}", channel.channel().localAddress(), localPort);

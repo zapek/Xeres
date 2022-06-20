@@ -61,8 +61,9 @@ public class PeerHandler extends ChannelDuplexHandler
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
+	private final TrayService trayService;
 
-	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionDirection direction)
+	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionDirection direction, TrayService trayService)
 	{
 		super();
 		this.serviceInfoRsService = serviceInfoRsService;
@@ -70,6 +71,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
 		this.locationService = locationService;
+		this.trayService = trayService;
 	}
 
 	@Override
@@ -178,7 +180,7 @@ public class PeerHandler extends ChannelDuplexHandler
 				var message = "Established " + direction.toString().toLowerCase(Locale.ROOT) + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")";
 
 				log.info(message);
-				TrayService.showNotification(message);
+				trayService.showNotification(message);
 
 				sendSliceProbe(ctx);
 			}

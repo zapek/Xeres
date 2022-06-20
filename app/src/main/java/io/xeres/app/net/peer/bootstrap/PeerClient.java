@@ -33,6 +33,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PrefsService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -55,11 +56,12 @@ public class PeerClient
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
+	private final TrayService trayService;
 
 	private Bootstrap bootstrap;
 	private EventLoopGroup group;
 
-	public PeerClient(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService)
+	public PeerClient(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
 	{
 		this.prefsService = prefsService;
 		this.networkProperties = networkProperties;
@@ -67,6 +69,7 @@ public class PeerClient
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
 		this.serviceInfoRsService = serviceInfoRsService;
+		this.trayService = trayService;
 	}
 
 	public void start(EventExecutorGroup sslExecutorGroup, EventExecutorGroup eventExecutorGroup)
@@ -78,7 +81,7 @@ public class PeerClient
 			bootstrap = new Bootstrap();
 			bootstrap.group(group)
 					.channel(NioSocketChannel.class)
-					.handler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoRsService, OUTGOING));
+					.handler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoRsService, OUTGOING, trayService));
 		}
 		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException e)
 		{

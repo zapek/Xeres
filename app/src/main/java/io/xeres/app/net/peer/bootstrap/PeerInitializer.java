@@ -34,6 +34,7 @@ import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PrefsService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
+import io.xeres.ui.support.tray.TrayService;
 
 import javax.net.ssl.SSLException;
 import java.security.NoSuchAlgorithmException;
@@ -56,14 +57,16 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
+	private final TrayService trayService;
 
 	private static final ChannelHandler SIMPLE_PACKET_ENCODER = new SimplePacketEncoder();
 	private static final ChannelHandler ITEM_ENCODER = new ItemEncoder();
 	private static final ChannelHandler IDLE_EVENT_HANDLER = new IdleEventHandler(PEER_IDLE_TIMEOUT);
 
-	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, PrefsService prefsService, EventExecutorGroup sslExecutorGroup, EventExecutorGroup eventExecutorGroup, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionDirection direction) throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
+	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, PrefsService prefsService, EventExecutorGroup sslExecutorGroup, EventExecutorGroup eventExecutorGroup, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionDirection direction, TrayService trayService) throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
 		this.serviceInfoRsService = serviceInfoRsService;
+		this.trayService = trayService;
 		this.sslContext = SSL.createSslContext(prefsService.getLocationPrivateKeyData(), prefsService.getLocationCertificate(), direction);
 		this.sslExecutorGroup = sslExecutorGroup;
 		this.eventExecutorGroup = eventExecutorGroup;
@@ -101,6 +104,6 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		// ^^^^^^^^
 		// Outbound
 
-		pipeline.addLast(eventExecutorGroup, new PeerHandler(locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, direction));
+		pipeline.addLast(eventExecutorGroup, new PeerHandler(locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, direction, trayService));
 	}
 }

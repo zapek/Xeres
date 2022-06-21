@@ -20,7 +20,6 @@
 package io.xeres.ui.controller.chat;
 
 import io.xeres.common.AppName;
-import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
@@ -30,6 +29,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
+import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -78,8 +78,6 @@ public class ChatViewController implements Controller
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination ENTER_KEY = new KeyCodeCombination(KeyCode.ENTER);
 	private static final KeyCodeCombination BACKSPACE_KEY = new KeyCodeCombination(KeyCode.BACK_SPACE);
-
-	private int completionIndex;
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -139,6 +137,7 @@ public class ChatViewController implements Controller
 
 	private String nickname;
 
+	private final NicknameCompleter nicknameCompleter = new NicknameCompleter();
 	private ChatRoomInfo selectedRoom;
 	private ChatListView selectedChatListView;
 	private Node roomInfoView;
@@ -444,6 +443,7 @@ public class ChatViewController implements Controller
 			sendGroup.setVisible(false);
 			selectedChatListView = null;
 		});
+		nicknameCompleter.setUsernameFinder(selectedChatListView);
 	}
 
 	private Optional<TreeItem<RoomHolder>> getSubscribedTreeItem(long roomId)
@@ -516,31 +516,10 @@ public class ChatViewController implements Controller
 	{
 		if (TAB_KEY.match(event))
 		{
-			var line = send.getText();
-			String suggestedNickname = null;
-			if (line.length() == 0)
-			{
-				// empty line, insert the first nickname
-				suggestedNickname = selectedChatListView.getUsername("", completionIndex);
-			}
-			else
-			{
-				if (send.getCaretPosition() <= IdentityConstants.NAME_LENGTH_MAX)
-				{
-					var separator = line.indexOf(":");
-					if (separator == -1)
-					{
-						separator = line.length();
-					}
-					suggestedNickname = selectedChatListView.getUsername(line.substring(0, separator), completionIndex);
-				}
-			}
-			if (suggestedNickname != null)
-			{
-				send.setText(suggestedNickname + ": ");
-				send.positionCaret(suggestedNickname.length() + 2);
-			}
-			completionIndex++;
+			nicknameCompleter.complete(send.getText(), send.getCaretPosition(), s -> {
+				send.setText(s);
+				send.positionCaret(s.length());
+			});
 			event.consume(); // XXX: find a way to tab into another field (shift + tab currently does)
 		}
 		else if (PASTE_KEY.match(event))
@@ -574,7 +553,7 @@ public class ChatViewController implements Controller
 		}
 		else
 		{
-			completionIndex = 0;
+			nicknameCompleter.reset();
 		}
 	}
 

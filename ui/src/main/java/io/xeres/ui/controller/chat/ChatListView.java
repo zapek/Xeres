@@ -26,6 +26,7 @@ import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.support.chat.ChatAction;
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.chat.ChatParser;
+import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentImage;
 import javafx.collections.FXCollections;
@@ -51,7 +52,7 @@ import static io.xeres.ui.support.chat.ChatAction.Type.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-public class ChatListView
+public class ChatListView implements NicknameCompleter.UsernameFinder
 {
 	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
@@ -189,12 +190,13 @@ public class ChatListView
 		}
 	}
 
+	@Override
 	public String getUsername(String prefix, int index)
 	{
 		var prefixLower = prefix.toLowerCase(Locale.ENGLISH);
 		if (isEmpty(prefix))
 		{
-			return users.get(index % users.size()).nickname();
+			return users.get(index % users.size()).nickname(); // XXX: don't return ourselves...
 		}
 		else
 		{

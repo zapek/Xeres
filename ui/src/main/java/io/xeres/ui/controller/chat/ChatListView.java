@@ -196,7 +196,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		var prefixLower = prefix.toLowerCase(Locale.ENGLISH);
 		if (isEmpty(prefix))
 		{
-			return users.get(index % users.size()).nickname(); // XXX: don't return ourselves...
+			var user = users.get(index % users.size()).nickname();
+			return user.equals(nickname) ? null : user;
 		}
 		else
 		{

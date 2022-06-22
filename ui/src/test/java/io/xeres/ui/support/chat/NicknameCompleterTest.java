@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class NicknameCompleterTest
 {
@@ -43,31 +44,112 @@ class NicknameCompleterTest
 	private NicknameCompleter nicknameCompleter;
 
 	@Test
-	public void NicknameCompleter_Complete_Empty()
+	public void NicknameCompleter_Complete_Empty_Start()
 	{
-		@SuppressWarnings("unchecked")
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(anyString(), anyInt())).thenReturn(null);
+		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn(null);
 
 		nicknameCompleter.complete("", 0, action);
 		verify(action, times(0)).accept("");
 	}
 
 	@Test
+	public void NicknameCompleter_Complete_Empty()
+	{
+		Consumer<String> action = Mockito.mock(Consumer.class);
+
+		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn(null);
+
+		nicknameCompleter.complete("Hello ", 6, action);
+		verify(action, times(0)).accept("");
+	}
+
+	@Test
+	public void NicknameCompleter_Complete_Single_Start()
+	{
+		Consumer<String> action = Mockito.mock(Consumer.class);
+
+		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn("Nicolas");
+
+		nicknameCompleter.complete("", 0, action);
+
+		verify(action).accept("Nicolas: ");
+	}
+
+	@Test
+	public void NicknameCompleter_Complete_Multiple_Start()
+	{
+		Consumer<String> action1 = Mockito.mock(Consumer.class);
+		Consumer<String> action2 = Mockito.mock(Consumer.class);
+
+		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn("Alceste");
+		when(usernameFinder.getUsername(eq(""), eq(1))).thenReturn("Nicolas");
+
+		nicknameCompleter.complete("", 0, action1);
+		nicknameCompleter.complete("Alceste: ", 9, action2);
+
+		verify(action1).accept("Alceste: ");
+		verify(action2).accept("Nicolas: ");
+	}
+
+	@Test
+	public void NicknameCompleter_Complete_MultipleWithPrefix_Start()
+	{
+		Consumer<String> action1 = Mockito.mock(Consumer.class);
+		Consumer<String> action2 = Mockito.mock(Consumer.class);
+
+		when(usernameFinder.getUsername(eq("A"), eq(0))).thenReturn("Agnan");
+		when(usernameFinder.getUsername(eq("A"), eq(1))).thenReturn("Alceste");
+
+		nicknameCompleter.complete("A", 1, action1);
+		nicknameCompleter.complete("Agnan: ", 7, action2);
+
+		verify(action1).accept("Agnan: ");
+		verify(action2).accept("Alceste: ");
+	}
+
+	@Test
 	public void NicknameCompleter_Complete_Single()
 	{
-		when(usernameFinder.getUsername(anyString(), anyInt())).thenReturn("Nicolas");
+		Consumer<String> action = Mockito.mock(Consumer.class);
 
-		nicknameCompleter.complete("", 0, s -> assertEquals("Nicolas: ", s));
+		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn("Nicolas");
+
+		nicknameCompleter.complete("This is some text for ", 22, action);
+
+		verify(action).accept("This is some text for Nicolas");
 	}
 
 	@Test
 	public void NicknameCompleter_Complete_Multiple()
 	{
-		when(usernameFinder.getUsername(anyString(), anyInt())).thenReturn("Nicolas", "Alceste");
+		Consumer<String> action1 = Mockito.mock(Consumer.class);
+		Consumer<String> action2 = Mockito.mock(Consumer.class);
 
-		nicknameCompleter.complete("", 0, s -> assertEquals("Nicolas: ", s));
-		nicknameCompleter.complete("Nicolas: ", 0, s -> assertEquals("Alceste: ", s));
+		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn("Alceste");
+		when(usernameFinder.getUsername(eq(""), eq(1))).thenReturn("Nicolas");
+
+		nicknameCompleter.complete("This is some text for ", 22, action1);
+		nicknameCompleter.complete("This is some text for Alceste", 29, action2);
+
+		verify(action1).accept("This is some text for Alceste");
+		verify(action2).accept("This is some text for Nicolas");
+	}
+
+	@Test
+	public void NicknameCompleter_Complete_MultipleWithPrefix()
+	{
+		Consumer<String> action1 = Mockito.mock(Consumer.class);
+		Consumer<String> action2 = Mockito.mock(Consumer.class);
+
+		when(usernameFinder.getUsername(eq("A"), eq(0))).thenReturn("Agnan");
+		when(usernameFinder.getUsername(eq("A"), eq(1))).thenReturn("Alceste");
+
+		nicknameCompleter.complete("This is some text for A", 23, action1);
+		nicknameCompleter.complete("This is some text for Agnan", 27, action2);
+
+		verify(action1).accept("This is some text for Agnan");
+		verify(action2).accept("This is some text for Alceste");
 	}
 }

@@ -19,8 +19,6 @@
 
 package io.xeres.ui.support.chat;
 
-import io.xeres.common.dto.identity.IdentityConstants;
-
 import java.util.function.Consumer;
 
 public class NicknameCompleter
@@ -32,6 +30,10 @@ public class NicknameCompleter
 
 	private UsernameFinder usernameFinder;
 	private int completionIndex;
+	private boolean atStart;
+	private String prefix;
+	private boolean hasContext;
+	private String lastSuggestedNickname;
 
 	public void setUsernameFinder(UsernameFinder usernameFinder)
 	{
@@ -45,28 +47,27 @@ public class NicknameCompleter
 			return;
 		}
 
-		String suggestedNickname = null;
-		if (line.length() == 0)
+		if (!hasContext)
 		{
-			// empty line, insert the first nickname
-			suggestedNickname = usernameFinder.getUsername("", completionIndex);
-		}
-		else
-		{
-			if (caretPosition <= IdentityConstants.NAME_LENGTH_MAX) // XXX: remove this and have <tab> completer anywhere
+			if (!line.contains(" "))
 			{
-				var separator = line.indexOf(":");
-				if (separator == -1)
-				{
-					separator = line.length();
-				}
-				suggestedNickname = usernameFinder.getUsername(line.substring(0, separator), completionIndex);
+				atStart = true;
 			}
+			prefix = findPrefix(line, caretPosition, atStart);
+			hasContext = true;
 		}
-
+		var suggestedNickname = usernameFinder.getUsername(prefix, completionIndex);
 		if (suggestedNickname != null)
 		{
-			action.accept(suggestedNickname + ": "); // XXX: if this is not at the beginning, complete later
+			if (atStart)
+			{
+				action.accept(suggestedNickname + ": ");
+			}
+			else
+			{
+				action.accept((lastSuggestedNickname != null ? line.substring(0, line.length() - lastSuggestedNickname.length()) : line.substring(0, line.length() - prefix.length())) + suggestedNickname);
+			}
+			lastSuggestedNickname = suggestedNickname;
 		}
 		completionIndex++;
 	}
@@ -74,5 +75,13 @@ public class NicknameCompleter
 	public void reset()
 	{
 		completionIndex = 0;
+		hasContext = false;
+		lastSuggestedNickname = null;
+	}
+
+	private static String findPrefix(String line, int caretPosition, boolean atStart)
+	{
+		var start = atStart ? 0 : (line.lastIndexOf(" ", caretPosition) + 1);
+		return line.substring(start, caretPosition);
 	}
 }

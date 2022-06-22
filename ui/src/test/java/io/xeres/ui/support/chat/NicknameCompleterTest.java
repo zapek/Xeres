@@ -28,9 +28,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Consumer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
@@ -44,33 +41,33 @@ class NicknameCompleterTest
 	private NicknameCompleter nicknameCompleter;
 
 	@Test
-	public void NicknameCompleter_Complete_Empty_Start()
+	void NicknameCompleter_Complete_Empty_Start()
 	{
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn(null);
+		when(usernameFinder.getUsername("", 0)).thenReturn(null);
 
 		nicknameCompleter.complete("", 0, action);
 		verify(action, times(0)).accept("");
 	}
 
 	@Test
-	public void NicknameCompleter_Complete_Empty()
+	void NicknameCompleter_Complete_Empty()
 	{
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn(null);
+		when(usernameFinder.getUsername("", 0)).thenReturn(null);
 
 		nicknameCompleter.complete("Hello ", 6, action);
 		verify(action, times(0)).accept("");
 	}
 
 	@Test
-	public void NicknameCompleter_Complete_Single_Start()
+	void NicknameCompleter_Complete_Single_Start()
 	{
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn("Nicolas");
+		when(usernameFinder.getUsername("", 0)).thenReturn("Nicolas");
 
 		nicknameCompleter.complete("", 0, action);
 
@@ -78,13 +75,13 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	public void NicknameCompleter_Complete_Multiple_Start()
+	void NicknameCompleter_Complete_Multiple_Start()
 	{
 		Consumer<String> action1 = Mockito.mock(Consumer.class);
 		Consumer<String> action2 = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn("Alceste");
-		when(usernameFinder.getUsername(eq(""), eq(1))).thenReturn("Nicolas");
+		when(usernameFinder.getUsername("", 0)).thenReturn("Alceste");
+		when(usernameFinder.getUsername("", 1)).thenReturn("Nicolas");
 
 		nicknameCompleter.complete("", 0, action1);
 		nicknameCompleter.complete("Alceste: ", 9, action2);
@@ -94,13 +91,13 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	public void NicknameCompleter_Complete_MultipleWithPrefix_Start()
+	void NicknameCompleter_Complete_MultipleWithPrefix_Start()
 	{
 		Consumer<String> action1 = Mockito.mock(Consumer.class);
 		Consumer<String> action2 = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(eq("A"), eq(0))).thenReturn("Agnan");
-		when(usernameFinder.getUsername(eq("A"), eq(1))).thenReturn("Alceste");
+		when(usernameFinder.getUsername("A", 0)).thenReturn("Agnan");
+		when(usernameFinder.getUsername("A", 1)).thenReturn("Alceste");
 
 		nicknameCompleter.complete("A", 1, action1);
 		nicknameCompleter.complete("Agnan: ", 7, action2);
@@ -110,11 +107,11 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	public void NicknameCompleter_Complete_Single()
+	void NicknameCompleter_Complete_Single()
 	{
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn("Nicolas");
+		when(usernameFinder.getUsername("", 0)).thenReturn("Nicolas");
 
 		nicknameCompleter.complete("This is some text for ", 22, action);
 
@@ -122,13 +119,13 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	public void NicknameCompleter_Complete_Multiple()
+	void NicknameCompleter_Complete_Multiple()
 	{
 		Consumer<String> action1 = Mockito.mock(Consumer.class);
 		Consumer<String> action2 = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(eq(""), eq(0))).thenReturn("Alceste");
-		when(usernameFinder.getUsername(eq(""), eq(1))).thenReturn("Nicolas");
+		when(usernameFinder.getUsername("", 0)).thenReturn("Alceste");
+		when(usernameFinder.getUsername("", 1)).thenReturn("Nicolas");
 
 		nicknameCompleter.complete("This is some text for ", 22, action1);
 		nicknameCompleter.complete("This is some text for Alceste", 29, action2);
@@ -138,13 +135,13 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	public void NicknameCompleter_Complete_MultipleWithPrefix()
+	void NicknameCompleter_Complete_MultipleWithPrefix()
 	{
 		Consumer<String> action1 = Mockito.mock(Consumer.class);
 		Consumer<String> action2 = Mockito.mock(Consumer.class);
 
-		when(usernameFinder.getUsername(eq("A"), eq(0))).thenReturn("Agnan");
-		when(usernameFinder.getUsername(eq("A"), eq(1))).thenReturn("Alceste");
+		when(usernameFinder.getUsername("A", 0)).thenReturn("Agnan");
+		when(usernameFinder.getUsername("A", 1)).thenReturn("Alceste");
 
 		nicknameCompleter.complete("This is some text for A", 23, action1);
 		nicknameCompleter.complete("This is some text for Agnan", 27, action2);

@@ -75,6 +75,7 @@ public class NicknameCompleter
 	public void reset()
 	{
 		completionIndex = 0;
+		atStart = false;
 		hasContext = false;
 		lastSuggestedNickname = null;
 	}

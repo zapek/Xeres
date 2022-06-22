@@ -521,8 +521,12 @@ public class ChatViewController implements Controller
 				send.positionCaret(s.length());
 			});
 			event.consume(); // XXX: find a way to tab into another field (shift + tab currently does)
+			return;
 		}
-		else if (PASTE_KEY.match(event))
+
+		nicknameCompleter.reset();
+
+		if (PASTE_KEY.match(event))
 		{
 			var image = Clipboard.getSystemClipboard().getImage();
 			if (image != null)
@@ -535,25 +539,15 @@ public class ChatViewController implements Controller
 				event.consume();
 			}
 		}
-		else if (ENTER_KEY.match(event))
+		else if (ENTER_KEY.match(event) && imagePreview.getImage() != null)
 		{
-			if (imagePreview.getImage() != null)
-			{
-				sendImage();
-				event.consume();
-			}
+			sendImage();
+			event.consume();
 		}
-		else if (BACKSPACE_KEY.match(event))
+		else if (BACKSPACE_KEY.match(event) && imagePreview.getImage() != null)
 		{
-			if (imagePreview.getImage() != null)
-			{
-				cancelImage();
-				event.consume();
-			}
-		}
-		else
-		{
-			nicknameCompleter.reset();
+			cancelImage();
+			event.consume();
 		}
 	}
 

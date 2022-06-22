@@ -194,23 +194,15 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	public String getUsername(String prefix, int index)
 	{
 		var prefixLower = prefix.toLowerCase(Locale.ENGLISH);
-		if (isEmpty(prefix))
-		{
-			var user = users.get(index % users.size()).nickname();
-			return user.equals(nickname) ? null : user;
-		}
-		else
-		{
-			var matchingUsers = users.stream()
-					.filter(chatRoomUser -> !chatRoomUser.nickname().equals(nickname) && chatRoomUser.nickname().toLowerCase(Locale.ENGLISH).startsWith(prefixLower))
-					.toList();
+		var matchingUsers = users.stream()
+				.filter(chatRoomUser -> !chatRoomUser.nickname().equals(nickname) && (isEmpty(prefix) || chatRoomUser.nickname().toLowerCase(Locale.ENGLISH).startsWith(prefixLower)))
+				.toList();
 
-			if (matchingUsers.isEmpty())
-			{
-				return null;
-			}
-			return matchingUsers.get(index % matchingUsers.size()).nickname();
+		if (matchingUsers.isEmpty())
+		{
+			return null;
 		}
+		return matchingUsers.get(index % matchingUsers.size()).nickname();
 	}
 
 	public void setNickname(String nickname)

@@ -164,7 +164,7 @@ public class IdentityRsService extends GxsRsService
 	}
 
 	// XXX: maybe this should be in GxsService. also other methods I think (though there are gxsIds... hmm... what a mess)
-	public void requestGxsGroups(PeerConnection peerConnection, List<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
+	void requestGxsGroups(PeerConnection peerConnection, List<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
 	{
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsSyncGroupItem> items = new ArrayList<>();

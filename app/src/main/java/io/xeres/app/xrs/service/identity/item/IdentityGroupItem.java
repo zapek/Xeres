@@ -54,7 +54,7 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 	private Boolean hasImage;
 
 	@Convert(converter = IdentityTypeConverter.class)
-	private Type type;
+	private Type type = Type.OTHER;
 
 	public IdentityGroupItem()
 	{

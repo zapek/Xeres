@@ -19,22 +19,26 @@
 
 package io.xeres.app.xrs.service.identity;
 
+import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.identity.Type;
 import io.xeres.common.util.NoSuppressedRunnable;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Manages GxsId requests, caching and storage in an intelligent way, like:
@@ -48,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 public class IdentityManager
 {
 	private final Map<Long, Set<GxsId>> pendingGxsIds = new HashMap<>();
+	private final Set<GxsId> friendGxsIds = new HashSet<>();
 
 	private static final Duration TIME_BETWEEN_REQUESTS = Duration.ofSeconds(5);
 
@@ -91,6 +96,34 @@ public class IdentityManager
 		}
 	}
 
+	public void fetchGxsGroups(PeerConnection peerConnection, Set<GxsId> gxsIds)
+	{
+		synchronized (pendingGxsIds)
+		{
+			var existing = identityService.findAll(gxsIds).stream()
+					.map(GxsGroupItem::getGxsId)
+					.collect(Collectors.toSet());
+			var remaining = gxsIds.stream()
+					.filter(gxsId -> !existing.contains(gxsId))
+					.collect(Collectors.toSet());
+			if (!remaining.isEmpty())
+			{
+				var pendingMap = pendingGxsIds.getOrDefault(peerConnection.getLocation().getId(), ConcurrentHashMap.newKeySet());
+				pendingMap.addAll(gxsIds);
+				pendingGxsIds.put(peerConnection.getLocation().getId(), pendingMap);
+			}
+		}
+	}
+
+	public void setAsFriend(Set<GxsId> gxsIds)
+	{
+		synchronized (pendingGxsIds)
+		{
+			var remaining = setExistingAsFriend(gxsIds);
+			friendGxsIds.addAll(remaining);
+		}
+	}
+
 	void requestGxsIds()
 	{
 		synchronized (pendingGxsIds)
@@ -107,6 +140,30 @@ public class IdentityManager
 
 			// Remove all entries with empty sets
 			pendingGxsIds.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+
+			// Set peer identities as friends
+			friendGxsIds.clear();
+			friendGxsIds.addAll(setExistingAsFriend(friendGxsIds));
 		}
+	}
+
+	private Set<GxsId> setExistingAsFriend(Set<GxsId> gxsIds)
+	{
+		var existing = identityService.findAll(gxsIds);
+		var convertible = existing.stream()
+				.filter(identityGroupItem -> identityGroupItem.getType() == Type.OTHER)
+				.collect(Collectors.toSet());
+
+		convertible.forEach(identityGroupItem -> {
+			identityGroupItem.setType(Type.FRIEND);
+			identityService.saveIdentity(identityGroupItem);
+		});
+
+		var existingGxsIds = existing.stream()
+				.map(GxsGroupItem::getGxsId)
+				.collect(Collectors.toSet());
+		return gxsIds.stream()
+				.filter(gxsId -> !existingGxsIds.contains(gxsId))
+				.collect(Collectors.toSet());
 	}
 }

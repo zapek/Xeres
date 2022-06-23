@@ -91,6 +91,8 @@ public class ChatRsService extends RsService
 	/**
 	 * When to refresh nearby chat rooms by asking peers.
 	 */
+	private static final Duration CHATROOM_NEARBY_REFRESH_INITIAL_MIN = Duration.ofSeconds(0);
+	private static final Duration CHATROOM_NEARBY_REFRESH_INITIAL_MAX = Duration.ofSeconds(5);
 	private static final Duration CHATROOM_NEARBY_REFRESH = Duration.ofMinutes(2);
 
 	/**
@@ -232,8 +234,8 @@ public class ChatRsService extends RsService
 	public void initialize(PeerConnection peerConnection)
 	{
 		peerConnection.scheduleAtFixedRate(
-				() -> askForNearbyChatRooms(peerConnection)
-				, 0,
+				() -> askForNearbyChatRooms(peerConnection),
+				ThreadLocalRandom.current().nextLong(CHATROOM_NEARBY_REFRESH_INITIAL_MIN.toSeconds(), CHATROOM_NEARBY_REFRESH_INITIAL_MAX.toSeconds() + 1),
 				CHATROOM_NEARBY_REFRESH.toSeconds(),
 				TimeUnit.SECONDS
 		);

@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public abstract class GxsRsService extends RsService
@@ -52,6 +53,8 @@ public abstract class GxsRsService extends RsService
 	/**
 	 * When to perform synchronization run with a peer.
 	 */
+	private static final Duration SYNCHRONIZATION_DELAY_INITIAL_MIN = Duration.ofSeconds(10);
+	private static final Duration SYNCHRONIZATION_DELAY_INITIAL_MAX = Duration.ofSeconds(15);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
 	private final GxsExchangeService gxsExchangeService;
@@ -128,7 +131,7 @@ public abstract class GxsRsService extends RsService
 	{
 		peerConnection.scheduleWithFixedDelay(
 				() -> sync(peerConnection),
-				SYNCHRONIZATION_DELAY.toSeconds(), // XXX: add some randomness to avoid global peer sync? maybe also for chatservice
+				ThreadLocalRandom.current().nextLong(SYNCHRONIZATION_DELAY_INITIAL_MIN.toSeconds(), SYNCHRONIZATION_DELAY_INITIAL_MAX.toSeconds() + 1),
 				SYNCHRONIZATION_DELAY.toSeconds(),
 				TimeUnit.SECONDS
 		);
@@ -157,7 +160,7 @@ public abstract class GxsRsService extends RsService
 	private void sync(PeerConnection peerConnection)
 	{
 		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsExchangeService.getLastPeerUpdate(peerConnection.getLocation(), getServiceType()));
-		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsExchangeService.getLastPeerUpdate(peerConnection.getLocation(), getServiceType()), getServiceType());
+		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsSyncGroupRequestItem.getUpdateTimestamp(), getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 	}
 
@@ -235,7 +238,7 @@ public abstract class GxsRsService extends RsService
 
 	private boolean areGxsUpdatesAvailableForPeer(Instant lastPeerUpdate)
 	{
-		log.debug("Comparing our last update: {} to peer's last update: {}", gxsExchangeService.getLastServiceUpdate(getServiceType()), lastPeerUpdate);
+		log.debug("Comparing stored peer's last update: {} to peer's advertised last update: {}", gxsExchangeService.getLastServiceUpdate(getServiceType()), lastPeerUpdate);
 		// XXX: there should be a way to detect if the peer is sending a lastPeerUpdate several times (means the transaction isn't complete yet)
 		return lastPeerUpdate.isBefore(gxsExchangeService.getLastServiceUpdate(getServiceType()));
 	}

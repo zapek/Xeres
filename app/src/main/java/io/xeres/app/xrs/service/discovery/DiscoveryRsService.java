@@ -39,7 +39,7 @@ import io.xeres.app.xrs.service.discovery.item.DiscoveryContactItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryIdentityListItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpKeyItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
@@ -55,10 +55,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.security.InvalidKeyException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.net.util.NetworkMode.getNetworkMode;
@@ -74,18 +71,18 @@ public class DiscoveryRsService extends RsService
 	private final ProfileService profileService;
 	private final LocationService locationService;
 	private final IdentityService identityService;
-	private final IdentityRsService identityRsService;
 	private final BuildProperties buildProperties;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final PeerConnectionManager peerConnectionManager;
+	private final IdentityManager identityManager;
 
-	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, IdentityRsService identityRsService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager)
+	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager)
 	{
 		super(environment);
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityService = identityService;
-		this.identityRsService = identityRsService;
+		this.identityManager = identityManager;
 		this.buildProperties = buildProperties;
 		this.databaseSessionManager = databaseSessionManager;
 		this.peerConnectionManager = peerConnectionManager;
@@ -465,6 +462,9 @@ public class DiscoveryRsService extends RsService
 	private void handleIdentityList(PeerConnection peerConnection, DiscoveryIdentityListItem discoveryIdentityListItem)
 	{
 		log.debug("Got identities from friend: {}, requesting...", discoveryIdentityListItem);
-		identityRsService.requestGxsGroups(peerConnection, discoveryIdentityListItem.getIdentities()); // XXX: they should be set as type = FRIEND in the database
+		var friends = new HashSet<>(discoveryIdentityListItem.getIdentities());
+
+		identityManager.setAsFriend(friends);
+		identityManager.fetchGxsGroups(peerConnection, friends);
 	}
 }

@@ -148,7 +148,8 @@ public class IdentityService
 		gxsIdentityRepository.save(identityGroupItem);
 	}
 
-	private IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
+	@Transactional
+	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
 	{
 		var savedIdentity = gxsIdentityRepository.save(identityGroupItem);
 		gxsExchangeService.setLastServiceUpdate(RsServiceType.GXSID, Instant.now()); // savedEntity.getPublished() is updated *after* the transaction so not usable here

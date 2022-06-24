@@ -80,6 +80,11 @@ public class ChatMessageItem extends Item
 		return flags.contains(PRIVATE);
 	}
 
+	public boolean isBroadcast()
+	{
+		return flags.contains(PUBLIC);
+	}
+
 	public boolean isPartial()
 	{
 		return flags.contains(PARTIAL_MESSAGE);

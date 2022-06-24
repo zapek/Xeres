@@ -108,13 +108,16 @@ public class WindowManager
 						},
 						() ->
 						{
-							var messaging = new MessagingWindowController(profileClient, messageClient, locationId);
+							if (!chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic
+							{
+								var messaging = new MessagingWindowController(profileClient, messageClient, locationId);
 
-							UiWindow.builder("/view/messaging/messaging.fxml", messaging)
-									.setLocalId(locationId)
-									.setUserData(chatMessage)
-									.build()
-									.open();
+								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
+										.setLocalId(locationId)
+										.setUserData(chatMessage)
+										.build()
+										.open();
+							}
 						}));
 	}
 

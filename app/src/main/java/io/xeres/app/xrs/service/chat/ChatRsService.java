@@ -42,6 +42,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.util.NoSuppressedRunnable;
+import io.xeres.ui.support.tray.TrayService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Entities;
 import org.jsoup.safety.Safelist;
@@ -147,10 +148,11 @@ public class ChatRsService extends RsService
 	private final ChatRoomService chatRoomService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final IdentityManager identityManager;
+	private final TrayService trayService;
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager)
+	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService)
 	{
 		super(environment);
 		this.locationService = locationService;
@@ -159,6 +161,7 @@ public class ChatRsService extends RsService
 		this.chatRoomService = chatRoomService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
+		this.trayService = trayService;
 	}
 
 	@Override
@@ -749,6 +752,10 @@ public class ChatRsService extends RsService
 				var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
 				peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
 			}
+		}
+		else if (item.isBroadcast())
+		{
+			trayService.showNotification("Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName() + ": " + parseIncomingText(item.getMessage()));
 		}
 	}
 

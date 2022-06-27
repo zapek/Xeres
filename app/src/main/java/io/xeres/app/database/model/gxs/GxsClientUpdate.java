@@ -35,7 +35,7 @@ public class GxsClientUpdate
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "location_id")
+	@JoinColumn(name = "location_id", nullable = false)
 	private Location location;
 
 	@NotNull

@@ -24,6 +24,7 @@ import io.xeres.app.crypto.pgp.PGP.Armor;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.repository.GxsIdentityRepository;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
@@ -143,8 +144,12 @@ public class IdentityService
 	@Transactional
 	public void transferIdentity(IdentityGroupItem identityGroupItem)
 	{
-		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
 		identityGroupItem.setId(gxsIdentityRepository.findByGxsId(identityGroupItem.getGxsId()).orElse(identityGroupItem).getId());
+		if (Profile.isOwn(identityGroupItem.getId()))
+		{
+			return; // Don't overwrite our own identity
+		}
+		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
 		gxsIdentityRepository.save(identityGroupItem);
 	}
 

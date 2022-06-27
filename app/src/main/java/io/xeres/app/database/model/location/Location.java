@@ -23,6 +23,7 @@ import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdBuilder;
 import io.xeres.app.database.converter.NetModeConverter;
 import io.xeres.app.database.model.connection.Connection;
+import io.xeres.app.database.model.gxs.GxsClientUpdate;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.NetMode;
@@ -62,6 +63,9 @@ public class Location
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "location", orphanRemoval = true)
 	private final List<Connection> connections = new ArrayList<>();
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "location", orphanRemoval = true)
+	private final List<GxsClientUpdate> clientUpdates = new ArrayList<>();
 
 	private boolean connected;
 
@@ -266,6 +270,11 @@ public class Location
 	public List<Connection> getConnections()
 	{
 		return connections;
+	}
+
+	public List<GxsClientUpdate> getClientUpdates()
+	{
+		return clientUpdates;
 	}
 
 	public Instant getLastConnected()

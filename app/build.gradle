@@ -111,7 +111,7 @@ jpackage {
     dependsOn "copyInstaller"
     appName = parent.project.name
     vendor = "David Gerber"
-    copyright = "Copyright 2019-2021 All Rights Reserved"
+    copyright = "Copyright 2019-2022 All Rights Reserved"
     appDescription = parent.project.name
     input = "${project.buildDir}/${project.libsDirName}"
     destination = "${project.buildDir}/dist"

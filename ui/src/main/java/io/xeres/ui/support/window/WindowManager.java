@@ -108,7 +108,7 @@ public class WindowManager
 						},
 						() ->
 						{
-							if (!chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic
+							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double click)
 							{
 								var messaging = new MessagingWindowController(profileClient, messageClient, locationId);
 

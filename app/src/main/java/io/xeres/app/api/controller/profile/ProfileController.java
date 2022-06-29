@@ -72,7 +72,7 @@ public class ProfileController
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ProfileDTO findProfileById(@PathVariable long id)
 	{
-		return toDTO(profileService.findProfileById(id).orElseThrow());
+		return toDeepDTO(profileService.findProfileById(id).orElseThrow());
 	}
 
 	@GetMapping

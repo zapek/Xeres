@@ -58,7 +58,7 @@ public class PrimaryStageInitializer implements ApplicationListener<StageReadyEv
 		Hooks.onErrorDropped(throwable -> log.debug("WebClient warning: {}", throwable.getMessage())); // Suppress Reactor's error messages
 
 		profileClient.getOwn()
-				.doOnSuccess(profile -> windowManager.openMain(event.getStage()))
+				.doOnSuccess(profile -> windowManager.openMain(event.getStage(), profile))
 				.doOnError(WebClientResponseException.class, e -> {
 					if (e.getStatusCode() == HttpStatus.NOT_FOUND)
 					{

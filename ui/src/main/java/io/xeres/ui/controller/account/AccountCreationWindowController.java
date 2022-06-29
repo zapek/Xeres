@@ -169,7 +169,7 @@ public class AccountCreationWindowController implements WindowController
 
 	public void openDashboard()
 	{
-		windowManager.openMain(null);
+		windowManager.openMain(null, null); // XXX: we should pass the profile...
 
 		profileName.getScene().getWindow().hide();
 	}

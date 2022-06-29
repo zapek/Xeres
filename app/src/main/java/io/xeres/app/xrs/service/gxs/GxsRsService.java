@@ -98,9 +98,9 @@ public abstract class GxsRsService extends RsService
 	 * Processes the items of the transaction.
 	 *
 	 * @param peerConnection the peer connection who sent the items
-	 * @param items the items to process
+	 * @param items          the items to process
 	 */
-	public abstract void processItems(PeerConnection peerConnection, List<? extends GxsExchange> items);
+	public abstract void processItems(PeerConnection peerConnection, Transaction<?> transaction);
 
 	@Override
 	public RsServiceType getServiceType()

@@ -36,10 +36,11 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
-import io.xeres.app.xrs.service.gxs.item.GxsExchange;
+import io.xeres.app.xrs.service.gxs.Transaction;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem;
 import io.xeres.app.xrs.service.gxs.item.GxsTransferGroupItem;
 import io.xeres.app.xrs.service.gxs.item.SyncFlags;
+import io.xeres.app.xrs.service.gxs.item.TransactionFlags;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import org.slf4j.Logger;
@@ -48,12 +49,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -128,27 +129,48 @@ public class IdentityRsService extends GxsRsService
 	}
 
 	@Override
-	public void processItems(PeerConnection peerConnection, List<? extends GxsExchange> items)
+	public void processItems(PeerConnection peerConnection, Transaction<?> transaction)
 	{
-		if (isEmpty(items))
+		if (isEmpty(transaction.getItems()))
 		{
 			throw new IllegalArgumentException("Empty transaction items");
 		}
 
-		if (items.get(0) instanceof GxsSyncGroupItem)
+		if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_REQUEST))
 		{
 			@SuppressWarnings("unchecked")
-			var gxsIds = ((List<GxsSyncGroupItem>) items).stream().map(GxsSyncGroupItem::getGroupId).collect(toSet());
+			var gxsIds = ((List<GxsSyncGroupItem>) transaction.getItems()).stream().map(GxsSyncGroupItem::getGroupId).collect(toSet());
 			log.debug("Peer wants the following gxs ids (total: {}): {} ...", gxsIds.size(), gxsIds.stream().limit(10).toList());
 			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{
 				sendGxsGroups(peerConnection, identityService.findAll(gxsIds));
 			}
 		}
-		else if (items.get(0) instanceof GxsTransferGroupItem)
+		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_RESPONSE))
 		{
 			@SuppressWarnings("unchecked")
-			var transferItems = (List<GxsTransferGroupItem>) items;
+			var gxsIdsMap = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
+					.collect(toMap(GxsSyncGroupItem::getGroupId, gxsSyncGroupItem -> Instant.ofEpochSecond(gxsSyncGroupItem.getPublishTimestamp())));
+			log.debug("Peer has the following gxsIds (new or updates) for us (total: {}): {} ...", gxsIdsMap.keySet().size(), gxsIdsMap.keySet().stream().limit(10).toList());
+			try (var ignored = new DatabaseSession(databaseSessionManager))
+			{
+				// From the received list, we keep:
+				// 1) all identities that we don't already have
+				// 2) all identities that have a more recent publishing date than what we have
+				var existingMap = identityService.findAll(gxsIdsMap.keySet()).stream()
+						.collect(Collectors.toMap(GxsGroupItem::getGxsId, identityGroupItem -> identityGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
+
+				gxsIdsMap.entrySet().removeIf(gxsIdInstantEntry -> {
+					var existing = existingMap.get(gxsIdInstantEntry.getKey());
+					return existing != null && !gxsIdInstantEntry.getValue().isAfter(existing);
+				});
+			}
+			requestGxsGroups(peerConnection, gxsIdsMap.keySet());
+		}
+		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUPS))
+		{
+			@SuppressWarnings("unchecked")
+			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
 			transferItems.forEach(item -> {
 				log.debug("Saving id {}", item.getGroupId());
 
@@ -164,8 +186,12 @@ public class IdentityRsService extends GxsRsService
 	}
 
 	// XXX: maybe this should be in GxsService. also other methods I think (though there are gxsIds... hmm... what a mess)
-	void requestGxsGroups(PeerConnection peerConnection, List<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
+	void requestGxsGroups(PeerConnection peerConnection, Collection<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
 	{
+		if (isEmpty(ids))
+		{
+			return;
+		}
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsSyncGroupItem> items = new ArrayList<>();
 

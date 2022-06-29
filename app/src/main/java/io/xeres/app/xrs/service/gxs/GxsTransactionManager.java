@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.gxs;
 
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.xrs.service.gxs.Transaction.Type;
+import io.xeres.app.xrs.service.gxs.Transaction.Direction;
 import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.common.id.LocationId;
 import org.slf4j.Logger;
@@ -82,8 +82,8 @@ public class GxsTransactionManager
 	 */
 	public void startOutgoingTransactionForGroupIdRequest(PeerConnection peerConnection, List<GxsSyncGroupItem> items, int transactionId, GxsRsService gxsRsService)
 	{
-		var transaction = new Transaction<>(transactionId, items, items.size(), gxsRsService, Type.OUTGOING);
-		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(START, TYPE_GROUP_LIST_REQUEST), Instant.EPOCH);
+		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUP_LIST_REQUEST), items, items.size(), gxsRsService, Direction.OUTGOING);
+		startOutgoingTransaction(peerConnection, transaction, Instant.EPOCH);
 	}
 
 	/**
@@ -97,8 +97,8 @@ public class GxsTransactionManager
 	 */
 	public void startOutgoingTransactionForGroupIdResponse(PeerConnection peerConnection, List<GxsSyncGroupItem> items, Instant update, int transactionId, GxsRsService gxsRsService)
 	{
-		var transaction = new Transaction<>(transactionId, items, items.size(), gxsRsService, Type.OUTGOING);
-		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(START, TYPE_GROUP_LIST_RESPONSE), update);
+		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUP_LIST_RESPONSE), items, items.size(), gxsRsService, Direction.OUTGOING);
+		startOutgoingTransaction(peerConnection, transaction, update);
 	}
 
 	/**
@@ -112,8 +112,8 @@ public class GxsTransactionManager
 	 */
 	public void startOutgoingTransactionForGroupTransfer(PeerConnection peerConnection, List<GxsTransferGroupItem> items, Instant update, int transactionId, GxsRsService gxsRsService)
 	{
-		var transaction = new Transaction<>(transactionId, items, items.size(), gxsRsService, Type.OUTGOING);
-		startOutgoingTransaction(peerConnection, transaction, EnumSet.of(START, TYPE_GROUPS), update);
+		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUPS), items, items.size(), gxsRsService, Direction.OUTGOING);
+		startOutgoingTransaction(peerConnection, transaction, update);
 	}
 
 	/**
@@ -129,12 +129,12 @@ public class GxsTransactionManager
 		{
 			//  This is an incoming connection
 			log.debug("Received INCOMING transaction {} from peer {}, sending back ACK", item, peerConnection);
-			var transaction = new Transaction<>(item.getTransactionId(), new ArrayList<>(), item.getItemCount(), gxsRsService, Type.INCOMING);
-			addIncomingTransaction(peerConnection, transaction);
-
 			Set<TransactionFlags> transactionFlags = EnumSet.copyOf(item.getFlags());
 			transactionFlags.retainAll(TransactionFlags.ofTypes());
 			transactionFlags.add(START_ACKNOWLEDGE);
+
+			var transaction = new Transaction<>(item.getTransactionId(), transactionFlags, new ArrayList<>(), item.getItemCount(), gxsRsService, Transaction.Direction.INCOMING);
+			addIncomingTransaction(peerConnection, transaction);
 
 			var readyTransactionItem = new GxsTransactionItem(
 					transactionFlags,
@@ -147,7 +147,7 @@ public class GxsTransactionManager
 		{
 			// This is the confirmation by the peer of our outgoing connection
 			log.debug("Confirmation of OUTGOING transaction {} from peer {}, sending items...", item, peerConnection);
-			var transaction = getTransaction(peerConnection, item.getTransactionId(), Type.OUTGOING);
+			var transaction = getTransaction(peerConnection, item.getTransactionId(), Direction.OUTGOING);
 			transaction.setState(State.SENDING);
 
 			log.debug("{} items to go", transaction.getItems().size());
@@ -160,7 +160,7 @@ public class GxsTransactionManager
 		{
 			// The peer confirms success
 			log.debug("Got END_SUCCESS transaction {} from peer {}, removing the transaction", item, peerConnection);
-			var transaction = getTransaction(peerConnection, item.getTransactionId(), Type.OUTGOING);
+			var transaction = getTransaction(peerConnection, item.getTransactionId(), Direction.OUTGOING);
 			transaction.setState(State.COMPLETED);
 			removeTransaction(peerConnection, transaction);
 		}
@@ -177,7 +177,7 @@ public class GxsTransactionManager
 	public boolean addIncomingItemToTransaction(PeerConnection peerConnection, GxsExchange item, GxsRsService gxsRsService)
 	{
 		log.debug("Adding transaction item: {}", item);
-		var transaction = getTransaction(peerConnection, item.getTransactionId(), Type.INCOMING);
+		var transaction = getTransaction(peerConnection, item.getTransactionId(), Transaction.Direction.INCOMING);
 		transaction.addItem(item);
 
 		if (transaction.hasAllItems())
@@ -190,7 +190,7 @@ public class GxsTransactionManager
 			);
 			peerConnectionManager.writeItem(peerConnection, successTransactionItem, transaction.getService());
 
-			gxsRsService.processItems(peerConnection, transaction.getItems()); // XXX: how will processItems() know what the items are? should the transaction have something to know that?
+			gxsRsService.processItems(peerConnection, transaction); // XXX: how will processItems() know what the items are? should the transaction have something to know that? yes, the flag...
 
 			removeTransaction(peerConnection, transaction);
 			// XXX: in the case that interest us, GxsIdService would call requestGxsGroups()
@@ -219,11 +219,11 @@ public class GxsTransactionManager
 		}
 	}
 
-	private Transaction<?> getTransaction(PeerConnection peerConnection, int id, Type type)
+	private Transaction<?> getTransaction(PeerConnection peerConnection, int id, Direction direction)
 	{
 		var locationId = peerConnection.getLocation().getLocationId();
 
-		var transactionMap = type == Type.INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
+		var transactionMap = direction == Transaction.Direction.INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
 		if (transactionMap == null)
 		{
 			throw new IllegalStateException("No existing transaction for peer " + peerConnection);
@@ -244,7 +244,7 @@ public class GxsTransactionManager
 	{
 		var locationId = peerConnection.getLocation().getLocationId();
 
-		var transactionMap = transaction.getType() == Type.INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
+		var transactionMap = transaction.getDirection() == Transaction.Direction.INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
 		if (transactionMap == null)
 		{
 			throw new IllegalStateException("No existing transaction for removal for peer " + peerConnection);
@@ -256,13 +256,13 @@ public class GxsTransactionManager
 		// XXX: remove, and possible check if the state is right before doing so (ie. COMPLETED, etc...)
 	}
 
-	private void startOutgoingTransaction(PeerConnection peerConnection, Transaction<? extends GxsExchange> transaction, Set<TransactionFlags> flags, Instant update)
+	private void startOutgoingTransaction(PeerConnection peerConnection, Transaction<? extends GxsExchange> transaction, Instant update)
 	{
 		log.debug("Starting outgoing transaction {} with peer {}", transaction, peerConnection);
 		addOutgoingTransaction(peerConnection, transaction);
 
 		var startTransactionItem = new GxsTransactionItem(
-				flags,
+				transaction.getTransactionFlags(),
 				transaction.getItems().size(),
 				(int) update.getEpochSecond(),
 				transaction.getId());

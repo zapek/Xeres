@@ -69,6 +69,11 @@ public class GxsSyncGroupItem extends GxsExchange
 		return groupId;
 	}
 
+	public int getPublishTimestamp()
+	{
+		return publishTimestamp;
+	}
+
 	@Override
 	public String toString()
 	{

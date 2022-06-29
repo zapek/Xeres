@@ -21,12 +21,14 @@ package io.xeres.app.xrs.service.gxs;
 
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.gxs.item.GxsExchange;
+import io.xeres.app.xrs.service.gxs.item.TransactionFlags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A Transaction is a way to group multiple items of the same type that have the same transaction id. Transactions can be outgoing or incoming and have
@@ -49,7 +51,7 @@ public class Transaction<T extends GxsExchange>
 		WAITING_CONFIRMATION
 	}
 
-	public enum Type
+	public enum Direction
 	{
 		INCOMING,
 		OUTGOING
@@ -59,26 +61,28 @@ public class Transaction<T extends GxsExchange>
 
 	private final int id;
 	private State state;
-	private final Type type;
+	private final Direction direction;
+	private final Set<TransactionFlags> transactionFlags;
 	private final Instant start;
 	private final Duration timeout;
 	private final List<T> items;
 	private final int itemCount;
 	private final GxsRsService service;
 
-	Transaction(int id, List<T> items, int itemCount, GxsRsService service, Type type)
+	Transaction(int id, Set<TransactionFlags> transactionFlags, List<T> items, int itemCount, GxsRsService service, Direction direction)
 	{
 		if (itemCount == 0)
 		{
 			throw new IllegalArgumentException("Can't create an empty transaction");
 		}
 		this.id = id;
+		this.transactionFlags = transactionFlags;
 		this.items = items;
 		this.itemCount = itemCount;
 		this.timeout = TRANSACTION_TIMEOUT;
 		this.service = service;
-		this.state = type == Type.OUTGOING ? State.WAITING_CONFIRMATION : State.STARTING;
-		this.type = type;
+		this.state = direction == Direction.OUTGOING ? State.WAITING_CONFIRMATION : State.STARTING;
+		this.direction = direction;
 		this.start = Instant.now();
 	}
 
@@ -92,9 +96,9 @@ public class Transaction<T extends GxsExchange>
 		return state;
 	}
 
-	public Type getType()
+	public Direction getDirection()
 	{
-		return type;
+		return direction;
 	}
 
 	public void setState(State state)
@@ -129,13 +133,18 @@ public class Transaction<T extends GxsExchange>
 		return start.plus(timeout).isBefore(Instant.now());
 	}
 
+	public Set<TransactionFlags> getTransactionFlags()
+	{
+		return transactionFlags;
+	}
+
 	@Override
 	public String toString()
 	{
 		return "Transaction{" +
 				"id=" + id +
 				", state=" + state +
-				", type=" + type +
+				", type=" + direction +
 				", itemCount=" + itemCount +
 				'}';
 	}

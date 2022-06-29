@@ -51,6 +51,7 @@ plugins {
     id 'org.flywaydb.flyway'
     id 'jacoco'
     id 'org.panteleyev.jpackageplugin'
+    id 'com.jaredsburrows.license'
 }
 
 

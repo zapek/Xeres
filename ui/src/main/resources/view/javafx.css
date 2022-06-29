@@ -95,7 +95,7 @@
 }
 
 .chat-send {
-    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji";
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
 }
 
 /*noinspection CssUnusedSymbol*/

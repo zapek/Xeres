@@ -1076,9 +1076,10 @@ public class ChatRsService extends RsService
 
 		availableChatRooms.put(newChatRoom.getId(), newChatRoom);
 
+		refreshChatRoomsInClients();
+
 		joinChatRoom(newChatRoom.getId());
 
-		refreshChatRoomsInClients();
 		// XXX: we could invite friends in there... supply a list of friends as parameter
 
 		return newChatRoom.getId();

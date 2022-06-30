@@ -178,6 +178,7 @@ public class UPNPService implements Runnable
 				catch (InterruptedException ignore)
 				{
 					Thread.currentThread().interrupt();
+					break;
 				}
 			}
 		}

@@ -69,10 +69,6 @@ public class ChatRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatRsService.class);
 
-	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
-	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
-	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
-
 	/**
 	 * Time between housekeeping runs to clean up the message cache and so on.
 	 */
@@ -136,6 +132,10 @@ public class ChatRsService extends RsService
 
 	private static final int KEY_PARTIAL_MESSAGE_LIST = 1;
 
+	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
+	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
+	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
+
 	private enum Invitation
 	{
 		PLAIN,
@@ -191,6 +191,52 @@ public class ChatRsService extends RsService
 				entry(PrivateOutgoingMapItem.class, 28),
 				entry(SubscribedChatRoomConfigItem.class, 29)
 		);
+	}
+
+	@Override
+	public void handleItem(PeerConnection sender, Item item)
+	{
+		if (item instanceof ChatRoomListRequestItem)
+		{
+			handleChatRoomListRequestItem(sender);
+		}
+		else if (item instanceof ChatRoomListItem chatRoomListItem)
+		{
+			handleChatRoomListItem(sender, chatRoomListItem);
+		}
+		else if (item instanceof ChatMessageItem chatMessageItem)
+		{
+			handleChatMessageItem(sender, chatMessageItem);
+		}
+		else if (item instanceof ChatRoomMessageItem chatRoomMessageItem)
+		{
+			handleChatRoomMessageItem(sender, chatRoomMessageItem);
+		}
+		else if (item instanceof ChatStatusItem chatStatusItem)
+		{
+			handleChatStatusItem(sender, chatStatusItem);
+		}
+		else if (item instanceof ChatRoomInviteItem chatRoomInviteItem)
+		{
+			handleChatRoomInviteItem(sender, chatRoomInviteItem);
+		}
+		else if (item instanceof ChatRoomEventItem chatRoomEventItem)
+		{
+			handleChatRoomEventItem(sender, chatRoomEventItem);
+		}
+		else if (item instanceof ChatRoomConnectChallengeItem chatRoomConnectChallengeItem)
+		{
+			handleChatRoomConnectChallengeItem(sender, chatRoomConnectChallengeItem);
+		}
+		else if (item instanceof ChatRoomUnsubscribeItem chatRoomUnsubscribeItem)
+		{
+			handleChatRoomUnsubscribeItem(sender, chatRoomUnsubscribeItem);
+		}
+		else //noinspection deprecation
+			if (item instanceof ChatRoomInviteOldItem chatRoomInviteOldItem)
+			{
+				handleChatRoomInviteOldItem(sender, chatRoomInviteOldItem);
+			}
 	}
 
 	@Override
@@ -309,7 +355,7 @@ public class ChatRsService extends RsService
 	}
 
 	/**
-	 * Sends a connection challenge. Can be used to know if the peer is relaying a private room.
+	 * Sends a connection challenge. Can be used to know if the peer is relaying a private room that we're also subscribed to.
 	 *
 	 * @param chatRoom the chat room
 	 */
@@ -377,7 +423,7 @@ public class ChatRsService extends RsService
 		chatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addSubscribed(chatRoom.getAsRoomInfo()));
 		availableChatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addAvailable(chatRoom.getAsRoomInfo()));
 		invitedChatRooms.forEach((aLong, chatRoom) -> {
-			if (chatRoom.isPrivate()) // Public rooms can be invited too
+			if (chatRoom.isPrivate()) // Public rooms can be invited to too, so skip them here
 			{
 				chatRoomLists.addAvailable(chatRoom.getAsRoomInfo());
 			}
@@ -392,52 +438,6 @@ public class ChatRsService extends RsService
 		{
 			var ownIdentity = identityService.getOwnIdentity();
 			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage()));
-		}
-	}
-
-	@Override
-	public void handleItem(PeerConnection sender, Item item)
-	{
-		if (item instanceof ChatRoomListRequestItem)
-		{
-			handleChatRoomListRequestItem(sender);
-		}
-		else if (item instanceof ChatRoomListItem chatRoomListItem)
-		{
-			handleChatRoomListItem(sender, chatRoomListItem);
-		}
-		else if (item instanceof ChatMessageItem chatMessageItem)
-		{
-			handleChatMessageItem(sender, chatMessageItem);
-		}
-		else if (item instanceof ChatRoomMessageItem chatRoomMessageItem)
-		{
-			handleChatRoomMessageItem(sender, chatRoomMessageItem);
-		}
-		else if (item instanceof ChatStatusItem chatStatusItem)
-		{
-			handleChatStatusItem(sender, chatStatusItem);
-		}
-		else if (item instanceof ChatRoomInviteItem chatRoomInviteItem)
-		{
-			handleChatRoomInviteItem(sender, chatRoomInviteItem);
-		}
-		else if (item instanceof ChatRoomEventItem chatRoomEventItem)
-		{
-			handleChatRoomEventItem(sender, chatRoomEventItem);
-		}
-		else if (item instanceof ChatRoomConnectChallengeItem chatRoomConnectChallengeItem)
-		{
-			handleChatRoomConnectChallengeItem(sender, chatRoomConnectChallengeItem);
-		}
-		else if (item instanceof ChatRoomUnsubscribeItem chatRoomUnsubscribeItem)
-		{
-			handleChatRoomUnsubscribeItem(sender, chatRoomUnsubscribeItem);
-		}
-		else //noinspection deprecation
-			if (item instanceof ChatRoomInviteOldItem chatRoomInviteOldItem)
-			{
-				handleChatRoomInviteOldItem(sender, chatRoomInviteOldItem);
 		}
 	}
 
@@ -691,9 +691,9 @@ public class ChatRsService extends RsService
 						item.isSigned());
 
 				invitedChatRoom.addParticipatingLocation(peerConnection.getLocation());
-				invitedChatRooms.put(invitedChatRoom.getId(), invitedChatRoom);
-
 				sendInviteToClient(peerConnection.getLocation().getLocationId(), item.getRoomId(), item.getRoomName(), item.getRoomTopic());
+
+				invitedChatRooms.put(invitedChatRoom.getId(), invitedChatRoom);
 
 				refreshChatRoomsInClients();
 			}
@@ -759,6 +759,14 @@ public class ChatRsService extends RsService
 		}
 	}
 
+	/**
+	 * Allows to know if a peer is participating in a private chat room and if it is, add it as participating in the room.
+	 * For example A, B and C are connected together. If B sends a challenge to A, and it matches (because B is connected through C), A will know that B is on that private
+	 * channel and can forward directly to it.
+	 *
+	 * @param peerConnection the peer connection
+	 * @param item           the challenge item
+	 */
 	private void handleChatRoomConnectChallengeItem(PeerConnection peerConnection, ChatRoomConnectChallengeItem item)
 	{
 		log.debug("Received chat room connect challenge from {}: {}", peerConnection, item);

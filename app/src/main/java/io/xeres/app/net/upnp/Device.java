@@ -109,7 +109,7 @@ final class Device implements DeviceSpecs
 
 	private Device(SocketAddress socketAddress, Map<HttpuHeader, String> headers)
 	{
-		this.inetSocketAddress = (InetSocketAddress) socketAddress;
+		inetSocketAddress = (InetSocketAddress) socketAddress;
 		this.headers = headers;
 	}
 
@@ -336,7 +336,7 @@ final class Device implements DeviceSpecs
 
 	public void removeAllPortMapping()
 	{
-		new HashSet<>(this.ports).forEach(portMapping -> deletePortMapping(portMapping.port(), portMapping.protocol()));
+		new HashSet<>(ports).forEach(portMapping -> deletePortMapping(portMapping.port(), portMapping.protocol()));
 	}
 
 	public String getExternalIpAddress()
@@ -357,13 +357,28 @@ final class Device implements DeviceSpecs
 			{
 				return new URL(baseUrl, url);
 			}
-			return new URL(url);
+			return new URL(addProtocolIfMissing(url));
 		}
 		catch (MalformedURLException e)
 		{
 			log.error("Wrong URL {}, {}", url, e.getMessage());
 			return null;
 		}
+	}
+
+	/**
+	 * Fixes the URL returned by some routers that miss a protocol, for
+	 * example www.Nucom.com
+	 * @param url the url
+	 * @return an url with the protocol prepended
+	 */
+	private String addProtocolIfMissing(String url)
+	{
+		if (url != null && url.toLowerCase(Locale.ROOT).startsWith("www."))
+		{
+			return "https://" + url;
+		}
+		return url;
 	}
 
 	@Override

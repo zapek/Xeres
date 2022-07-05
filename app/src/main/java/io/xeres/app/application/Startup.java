@@ -129,7 +129,7 @@ public class Startup implements ApplicationRunner
 			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{
 				var location = locationService.findOwnLocation().orElseThrow();
-				var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new IllegalStateException("Current host has no IP address. Please configure your network"));
+				var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new IllegalStateException("Current host has no IP address. Please configure your network."));
 
 				// If there's no --server-port specified, get the previously saved port. If there isn't any because there was an
 				// error on initialization, simply try to get a new one.

@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.testutils.TestUtils;
 import javafx.scene.image.Image;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,12 @@ class ImageUtilsTest
 	static void setup()
 	{
 		image = new Image(Objects.requireNonNull(ImageUtilsTest.class.getResourceAsStream("/image/avatar_16.png")));
+	}
+
+	@Test
+	void ImageUtils_NoInstance_OK() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(ImageUtils.class);
 	}
 
 	@Test

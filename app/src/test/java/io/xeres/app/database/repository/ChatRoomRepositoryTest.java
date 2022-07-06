@@ -38,9 +38,9 @@ class ChatRoomRepositoryTest
 	{
 		var identity = GxsIdFakes.createOwnIdentity();
 
-		var chatRoom1 = ChatRoomFakes.createChatRoom(identity);
-		var chatRoom2 = ChatRoomFakes.createChatRoom(identity);
-		var chatRoom3 = ChatRoomFakes.createChatRoom(identity);
+		var chatRoom1 = ChatRoomFakes.createChatRoomEntity(identity);
+		var chatRoom2 = ChatRoomFakes.createChatRoomEntity(identity);
+		var chatRoom3 = ChatRoomFakes.createChatRoomEntity(identity);
 
 		chatRoom1.setSubscribed(true);
 		chatRoom2.setSubscribed(true);

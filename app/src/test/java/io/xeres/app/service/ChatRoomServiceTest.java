@@ -58,7 +58,7 @@ class ChatRoomServiceTest
 	{
 		var serviceChatRoom = createSignedChatRoom();
 		var identity = GxsIdFakes.createOwnIdentity();
-		var chatRoom = ChatRoomFakes.createChatRoom(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
+		var chatRoom = ChatRoomFakes.createChatRoomEntity(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
 
 		when(chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity)).thenReturn(Optional.of(chatRoom));
 		when(chatRoomRepository.save(chatRoom)).thenReturn(chatRoom);

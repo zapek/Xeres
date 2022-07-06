@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -36,6 +37,12 @@ class SmileyUtilsTest
 	{
 		var actualValue = SmileyUtils.smileysToUnicode(input);
 		assertEquals(expected, actualValue);
+	}
+
+	@Test
+	void SmileyUtils_NoInstance_OK() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(SmileyUtils.class);
 	}
 
 	@Test

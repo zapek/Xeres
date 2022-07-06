@@ -19,6 +19,7 @@
 
 package io.xeres.common.id;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -28,6 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IdTest
 {
+	@Test
+	void Id_NoInstance_OK() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(Id.class);
+	}
+
 	@Test
 	void Id_ToString_FromBytes_OK()
 	{

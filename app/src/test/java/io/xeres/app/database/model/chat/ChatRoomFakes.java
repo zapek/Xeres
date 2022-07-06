@@ -21,6 +21,7 @@ package io.xeres.app.database.model.chat;
 
 import io.xeres.app.database.model.identity.GxsIdFakes;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.message.chat.RoomType;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,18 +33,28 @@ public final class ChatRoomFakes
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static ChatRoom createChatRoom()
+	public static ChatRoom createChatRoomEntity()
 	{
-		return createChatRoom(ThreadLocalRandom.current().nextLong(), GxsIdFakes.createOwnIdentity(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoomEntity(ThreadLocalRandom.current().nextLong(), GxsIdFakes.createOwnIdentity(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
 	}
 
-	public static ChatRoom createChatRoom(IdentityGroupItem identityGroupItem)
+	public static ChatRoom createChatRoomEntity(IdentityGroupItem identityGroupItem)
 	{
-		return createChatRoom(ThreadLocalRandom.current().nextLong(), identityGroupItem, RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoomEntity(ThreadLocalRandom.current().nextLong(), identityGroupItem, RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
 	}
 
-	public static ChatRoom createChatRoom(long roomId, IdentityGroupItem identityGroupItem, String name, String topic, int flags)
+	public static ChatRoom createChatRoomEntity(long roomId, IdentityGroupItem identityGroupItem, String name, String topic, int flags)
 	{
 		return new ChatRoom(roomId, identityGroupItem, name, topic, flags);
+	}
+
+	public static io.xeres.app.xrs.service.chat.ChatRoom createChatRoom()
+	{
+		return createChatRoom(ThreadLocalRandom.current().nextLong(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), RoomType.PUBLIC, 5, false);
+	}
+
+	public static io.xeres.app.xrs.service.chat.ChatRoom createChatRoom(long id, String name, String topic, RoomType roomType, int userCount, boolean isSigned)
+	{
+		return new io.xeres.app.xrs.service.chat.ChatRoom(id, name, topic, roomType, userCount, isSigned);
 	}
 }

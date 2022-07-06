@@ -19,12 +19,19 @@
 
 package io.xeres.common.protocol.ip;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class IPTest
 {
+	@Test
+	void IP_NoInstance_OK() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(IP.class);
+	}
+
 	@Test
 	void IP_GetFreeLocalPort_OK()
 	{

@@ -67,7 +67,7 @@ public class ChatController
 				createChatRoomRequest.visibility() == ChatRoomVisibility.PUBLIC ? EnumSet.of(RoomFlags.PUBLIC) : EnumSet.noneOf(RoomFlags.class),
 				createChatRoomRequest.signedIdentities());
 
-		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath("/rooms/{id}").buildAndExpand(id).toUri();
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(CHAT_PATH + "/rooms/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
 	}
 
@@ -98,6 +98,7 @@ public class ChatController
 
 	@GetMapping("/rooms")
 	@Operation(summary = "Get a chat room context (all rooms, status, current nickname, etc...)")
+	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ChatRoomContextDTO getChatRoomContext()
 	{
 		return toDTO(chatRsService.getChatRoomContext());

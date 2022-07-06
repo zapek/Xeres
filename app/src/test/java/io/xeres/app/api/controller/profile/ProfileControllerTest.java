@@ -17,16 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller.profile;
+package io.xeres.app.api.controller.profile;
 
-import io.xeres.app.api.controller.profile.ProfileController;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.web.api.controller.AbstractControllerTest;
+import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.common.id.Id;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;

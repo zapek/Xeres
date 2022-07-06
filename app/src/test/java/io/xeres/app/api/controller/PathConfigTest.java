@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller;
+package io.xeres.app.api.controller;
 
 import io.xeres.common.rest.PathConfig;
 import io.xeres.testutils.TestUtils;

@@ -119,6 +119,13 @@ With IntelliJ Ultimate, create the following Database connection with the built-
 - User: ``sa``
 - There's no password
 
+## Run tests locally
+
+With IntelliJ IDEA Ultimate, setup the following JUnit Configuration:
+- add VM options: -ea -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8
+- All in packages: io.xeres
+- Working directory: put a **real** working directory (the default won't work if you want code coverage)
+
 ## Misc
 
 The project was started on 2019-10-30.

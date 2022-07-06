@@ -17,9 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.web.api.controller.config;
+package io.xeres.app.api.controller.config;
 
-import io.xeres.app.api.controller.config.ConfigController;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.identity.GxsIdFakes;
 import io.xeres.app.database.model.location.Location;
@@ -27,7 +26,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.web.api.controller.AbstractControllerTest;
+import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.common.rest.config.IpAddressRequest;
 import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
@@ -66,7 +65,6 @@ class ConfigControllerTest extends AbstractControllerTest
 	@MockBean
 	private IdentityService identityService;
 
-	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 	@Autowired
 	public MockMvc mvc;
 

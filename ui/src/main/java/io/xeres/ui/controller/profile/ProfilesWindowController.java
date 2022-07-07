@@ -67,6 +67,7 @@ public class ProfilesWindowController implements WindowController
 		this.profileClient = profileClient;
 	}
 
+	@Override
 	public void initialize()
 	{
 		profilesTableView.setRowFactory(ProfileCell::new);

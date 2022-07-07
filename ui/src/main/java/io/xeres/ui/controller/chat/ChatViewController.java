@@ -159,6 +159,7 @@ public class ChatViewController implements Controller
 		this.trayService = trayService;
 	}
 
+	@Override
 	public void initialize() throws IOException
 	{
 		profileClient.getOwn().doOnSuccess(profile -> nickname = profile.getName())

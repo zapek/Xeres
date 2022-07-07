@@ -87,6 +87,7 @@ public class AddRsIdWindowController implements WindowController
 		this.profileClient = profileClient;
 	}
 
+	@Override
 	public void initialize()
 	{
 		addButton.setOnAction(event -> addPeer());

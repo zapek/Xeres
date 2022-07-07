@@ -86,6 +86,7 @@ public class MessagingWindowController implements WindowController
 		this.locationId = new LocationId(locationId);
 	}
 
+	@Override
 	public void initialize()
 	{
 		var ownProfileResult = profileClient.getOwn();

@@ -56,6 +56,7 @@ public class AboutWindowController implements WindowController
 		this.buildProperties = buildProperties;
 	}
 
+	@Override
 	public void initialize() throws IOException
 	{
 		version.setText(buildProperties.getVersion());

@@ -116,6 +116,7 @@ public class MainWindowController implements WindowController
 		this.identityClient = identityClient;
 	}
 
+	@Override
 	public void initialize()
 	{
 		addPeer.setOnAction(event -> addPeer(null));

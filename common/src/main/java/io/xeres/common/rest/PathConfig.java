@@ -32,5 +32,5 @@ public final class PathConfig
 	public static final String CONNECTIONS_PATH = "/api/v1/connections";
 	public static final String NOTIFICATIONS_PATH = "/api/v1/notifications";
 	public static final String CHAT_PATH = "/api/v1/chat";
-	public static final String IDENTITY_PATH = "/api/v1/identity";
+	public static final String IDENTITIES_PATH = "/api/v1/identities";
 }

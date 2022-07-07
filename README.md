@@ -125,6 +125,7 @@ With IntelliJ IDEA Ultimate, setup the following JUnit Configuration:
 - add VM options: -ea -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8
 - All in packages: io.xeres
 - Working directory: put a **real** working directory (the default won't work if you want code coverage)
+- Search for tests: in whole project
 
 ## Misc
 

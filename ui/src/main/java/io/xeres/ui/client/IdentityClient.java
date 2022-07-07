@@ -37,7 +37,7 @@ import reactor.core.publisher.Mono;
 import javax.annotation.PostConstruct;
 import java.io.File;
 
-import static io.xeres.common.rest.PathConfig.IDENTITY_PATH;
+import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
 @Component
 public class IdentityClient
@@ -55,7 +55,7 @@ public class IdentityClient
 	private void init()
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + IDENTITY_PATH)
+				.baseUrl(JavaFxApplication.getControlUrl() + IDENTITIES_PATH)
 				.build();
 	}
 

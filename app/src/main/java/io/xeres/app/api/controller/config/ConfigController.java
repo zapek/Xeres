@@ -124,7 +124,7 @@ public class ConfigController
 		{
 			throw new InternalServerErrorException("Failed to generate identity: " + e.getMessage());
 		}
-		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITY_PATH + "/{id}").buildAndExpand(id).toUri();
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
 	}
 

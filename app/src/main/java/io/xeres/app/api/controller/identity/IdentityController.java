@@ -47,12 +47,12 @@ import java.util.List;
 
 import static io.xeres.app.database.model.identity.IdentityMapper.toDTO;
 import static io.xeres.app.database.model.identity.IdentityMapper.toGxsIdDTOs;
-import static io.xeres.common.rest.PathConfig.IDENTITY_PATH;
+import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@Tag(name = "Identity", description = "Identities", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/identity", description = "Identity documentation"))
+@Tag(name = "Identities", description = "Identities", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/identities", description = "Identities documentation"))
 @RestController
-@RequestMapping(value = IDENTITY_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = IDENTITIES_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class IdentityController
 {
 	private final IdentityService identityService;
@@ -101,7 +101,7 @@ public class IdentityController
 	{
 		identityService.saveIdentityImage(id, file);
 
-		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITY_PATH + "/{id}/image").buildAndExpand(id).toUri();
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
 	}
 

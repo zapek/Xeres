@@ -98,7 +98,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@ParameterizedTest
 	@NullAndEmptySource
 	@ValueSource(strings = {
-			"This name is way too long and there's no chance it ever gets created as a node"
+			"This name is way too long and there's no chance it ever gets created as a profile"
 	})
 	void ConfigController_CreateProfile_BadName(String name) throws Exception
 	{
@@ -129,6 +129,21 @@ class ConfigControllerTest extends AbstractControllerTest
 		mvc.perform(post(BASE_URL + "/location")
 				.accept(APPLICATION_JSON))
 				.andExpect(status().isInternalServerError());
+	}
+
+	@ParameterizedTest
+	@NullAndEmptySource
+	@ValueSource(strings = {
+			"This name is way too long and there's no chance it ever gets created as a location"
+	})
+	void ConfigController_CreateLocation_BadName(String name) throws Exception
+	{
+		var ownLocationRequest = new OwnLocationRequest(name);
+
+		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
+				.andExpect(status().isBadRequest());
+
+		verifyNoInteractions(locationService);
 	}
 
 	@Test
@@ -249,6 +264,21 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
+	void ConfigController_CreateIdentity_Signed_OK() throws Exception
+	{
+		var identity = GxsIdFakes.createOwnIdentity();
+		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
+
+		when(identityService.createOwnIdentity(identityRequest.name(), true)).thenReturn(identity.getId());
+
+		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
+				.andExpect(status().isCreated())
+				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
+
+		verify(identityService).createOwnIdentity(identityRequest.name(), true);
+	}
+
+	@Test
 	void ConfigController_CreateIdentity_Anonymous_OK() throws Exception
 	{
 		var identity = GxsIdFakes.createOwnIdentity();
@@ -258,7 +288,7 @@ class ConfigControllerTest extends AbstractControllerTest
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
-				.andExpect(header().string("Location", "http://localhost" + IDENTITY_PATH + "/" + identity.getId()));
+				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
 		verify(identityService).createOwnIdentity(identityRequest.name(), false);
 	}

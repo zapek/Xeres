@@ -185,7 +185,7 @@ public class LocationService
 	 * @param locationId the SSL identifier
 	 * @return the location
 	 */
-	public Optional<Location> findLocationById(LocationId locationId)
+	public Optional<Location> findLocationByLocationId(LocationId locationId)
 	{
 		return locationRepository.findByLocationId(locationId);
 	}

@@ -8,10 +8,12 @@ import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.dto.chat.ChatRoomVisibility;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatRoomContext;
+import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.ChatRoomLists;
 import io.xeres.common.message.chat.ChatRoomUser;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
+import org.bouncycastle.util.encoders.Base64;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -96,13 +99,21 @@ class ChatControllerTest extends AbstractControllerTest
 	@Test
 	void ChatController_GetChatRoomContext_OK() throws Exception
 	{
+		var subscribedChatRoom = new ChatRoomInfo("SubscribedRoom");
+		var availableChatRoom = new ChatRoomInfo("AvailableRoom");
 		var chatRoomLists = new ChatRoomLists();
+		chatRoomLists.addSubscribed(subscribedChatRoom);
+		chatRoomLists.addAvailable(availableChatRoom);
 		var ownIdentity = GxsIdFakes.createOwnIdentity();
 		var chatRoomUser = new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage());
 		when(chatRsService.getChatRoomContext()).thenReturn(new ChatRoomContext(chatRoomLists, chatRoomUser));
 
 		mvc.perform(getJson(BASE_URL + "/rooms"))
-				.andExpect(status().isOk());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.chatRooms.subscribed[0].name", is(subscribedChatRoom.getName())))
+				.andExpect(jsonPath("$.chatRooms.available[0].name", is(availableChatRoom.getName())))
+				.andExpect(jsonPath("$.identity.nickname", is(ownIdentity.getName())))
+				.andExpect(jsonPath("$.identity.gxsId.bytes", is(Base64.toBase64String(ownIdentity.getGxsId().getBytes()))));
 
 		verify(chatRsService).getChatRoomContext();
 	}

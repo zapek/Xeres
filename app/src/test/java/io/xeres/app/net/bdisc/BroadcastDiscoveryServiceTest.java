@@ -56,7 +56,7 @@ class BroadcastDiscoveryServiceTest
 	{
 		var ownLocation = LocationFakes.createOwnLocation();
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
-		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
+		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.empty());
 
 		broadcastDiscoveryService.start(IP.getLocalIpAddress(), 36406); // nothing should reply in there, hopefully. We can't use localhost because linux has no broadcast in it
 		await().atMost(Duration.ofSeconds(10)).until(() -> broadcastDiscoveryService.isRunning());

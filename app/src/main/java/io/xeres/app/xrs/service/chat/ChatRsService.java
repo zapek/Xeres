@@ -939,7 +939,7 @@ public class ChatRsService extends RsService
 	@Transactional(readOnly = true)
 	public void sendPrivateMessage(LocationId locationId, String message)
 	{
-		var location = locationService.findLocationById(locationId).orElseThrow();
+		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
 		peerConnectionManager.writeItem(location, new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 
@@ -951,7 +951,7 @@ public class ChatRsService extends RsService
 	@Transactional(readOnly = true)
 	public void sendPrivateTypingNotification(LocationId locationId)
 	{
-		var location = locationService.findLocationById(locationId).orElseThrow();
+		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
 		peerConnectionManager.writeItem(location, new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 

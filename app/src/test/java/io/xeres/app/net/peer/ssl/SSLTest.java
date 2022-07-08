@@ -104,12 +104,12 @@ class SSLTest
 		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
 
-		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.of(location));
+		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.of(location));
 
 		var result = SSL.checkPeerCertificate(locationService, new X509Certificate[]{certificate});
 
 		assertEquals(result, location);
-		verify(locationService).findLocationById(any(LocationId.class));
+		verify(locationService).findLocationByLocationId(any(LocationId.class));
 	}
 
 	@Test
@@ -119,7 +119,7 @@ class SSLTest
 				.isInstanceOf(CertificateException.class)
 				.hasMessage("Empty certificate");
 
-		verify(locationService, times(0)).findLocationById(any(LocationId.class));
+		verify(locationService, times(0)).findLocationByLocationId(any(LocationId.class));
 	}
 
 	@Test
@@ -129,13 +129,13 @@ class SSLTest
 		var location = LocationFakes.createLocation("bar", profile);
 		location.setConnected(true);
 
-		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.of(location));
+		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.of(location));
 
 		assertThatThrownBy(() -> SSL.checkPeerCertificate(locationService, new X509Certificate[]{certificate}))
 				.isInstanceOf(CertificateException.class)
 				.hasMessage("Already connected");
 
-		verify(locationService).findLocationById(any(LocationId.class));
+		verify(locationService).findLocationByLocationId(any(LocationId.class));
 	}
 
 	@Test
@@ -146,12 +146,12 @@ class SSLTest
 		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
 
-		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.of(location));
+		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.of(location));
 
 		assertThatThrownBy(() -> SSL.checkPeerCertificate(locationService, new X509Certificate[]{wrongCertificate}))
 				.isInstanceOf(CertificateException.class)
 				.hasMessageContaining("Wrong signature");
 
-		verify(locationService).findLocationById(any(LocationId.class));
+		verify(locationService).findLocationByLocationId(any(LocationId.class));
 	}
 }

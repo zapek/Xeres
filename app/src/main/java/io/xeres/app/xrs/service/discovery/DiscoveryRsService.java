@@ -233,7 +233,7 @@ public class DiscoveryRsService extends RsService
 	private void handleContact(PeerConnection peerConnection, DiscoveryContactItem discoveryContactItem)
 	{
 		var peerLocation = peerConnection.getLocation();
-		var existingContactLocation = locationService.findLocationById(discoveryContactItem.getLocationId());
+		var existingContactLocation = locationService.findLocationByLocationId(discoveryContactItem.getLocationId());
 
 		existingContactLocation.ifPresentOrElse(contactLocation -> {
 			if (contactLocation.equals(peerLocation))

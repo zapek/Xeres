@@ -70,7 +70,7 @@ class DiscoveryRsServiceTest
 	{
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
-		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
+		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.empty());
 		when(profileService.findProfileByPgpIdentifier(anyLong())).thenReturn(Optional.empty());
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
@@ -86,7 +86,7 @@ class DiscoveryRsServiceTest
 	{
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
-		when(locationService.findLocationById(any(LocationId.class))).thenReturn(Optional.empty());
+		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.empty());
 		when(profileService.findProfileByPgpIdentifier(anyLong())).thenReturn(Optional.of(ProfileFakes.createProfile()));
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
@@ -106,7 +106,7 @@ class DiscoveryRsServiceTest
 		profile.setAccepted(true);
 		var newLocation = LocationFakes.createLocation("foo", profile);
 
-		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.empty());
+		when(locationService.findLocationByLocationId(peerLocation.getLocationId())).thenReturn(Optional.empty());
 		when(profileService.findProfileByPgpIdentifier(profile.getPgpIdentifier())).thenReturn(Optional.of(profile));
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(newLocation));
@@ -128,7 +128,7 @@ class DiscoveryRsServiceTest
 		profile.setAccepted(true);
 		var friendLocation = LocationFakes.createLocation("foo", profile);
 
-		when(locationService.findLocationById(friendLocation.getLocationId())).thenReturn(Optional.of(friendLocation));
+		when(locationService.findLocationByLocationId(friendLocation.getLocationId())).thenReturn(Optional.of(friendLocation));
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(LocationFakes.createOwnLocation()));
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
@@ -150,7 +150,7 @@ class DiscoveryRsServiceTest
 		profile.setAccepted(true);
 		var friendLocation = LocationFakes.createLocation("foo", profile);
 
-		when(locationService.findLocationById(friendLocation.getLocationId())).thenReturn(Optional.of(friendLocation));
+		when(locationService.findLocationByLocationId(friendLocation.getLocationId())).thenReturn(Optional.of(friendLocation));
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(friendLocation));
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
@@ -171,7 +171,7 @@ class DiscoveryRsServiceTest
 		var profile = ProfileFakes.createProfile();
 		profile.setAccepted(true);
 
-		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
+		when(locationService.findLocationByLocationId(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
 		when(profileService.getAllDiscoverableProfiles()).thenReturn(List.of(profile));
 
@@ -197,12 +197,12 @@ class DiscoveryRsServiceTest
 		var ownLocation = LocationFakes.createLocation();
 		ownLocation.setDiscoverable(false);
 
-		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
+		when(locationService.findLocationByLocationId(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 
-		verify(locationService).findLocationById(peerLocation.getLocationId());
+		verify(locationService).findLocationByLocationId(peerLocation.getLocationId());
 		verify(locationService).findOwnLocation();
 		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), any(), anyList(), anyString());
 		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
@@ -222,7 +222,7 @@ class DiscoveryRsServiceTest
 		peerProfile.setPgpPublicKeyData(null); // partial profile
 		peerLocation.setProfile(peerProfile);
 
-		when(locationService.findLocationById(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
+		when(locationService.findLocationByLocationId(peerLocation.getLocationId())).thenReturn(Optional.of(peerLocation));
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(peerLocation));
 

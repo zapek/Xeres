@@ -20,7 +20,6 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.location.LocationDTO;
-import io.xeres.common.id.LocationId;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
@@ -54,10 +53,10 @@ public class LocationClient
 				.build();
 	}
 
-	public Mono<Location> findById(LocationId locationId)
+	public Mono<Location> findById(long id)
 	{
 		return webClient.get()
-				.uri("/{id}", locationId.toString())
+				.uri("/{id}", id)
 				.retrieve()
 				.bodyToMono(LocationDTO.class)
 				.map(LocationMapper::fromDTO);
@@ -67,7 +66,7 @@ public class LocationClient
 	{
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
-						.path("/{id}/rsid")
+						.path("/{id}/rsId")
 						.queryParam("type", type)
 						.build(id))
 				.retrieve()

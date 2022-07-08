@@ -89,7 +89,7 @@ public class BroadcastDiscoveryService implements Runnable
 	public void start(String localIpAddress, int localPort)
 	{
 		log.info("Starting Broadcast Discovery...");
-		this.localAddress = new InetSocketAddress(localIpAddress, localPort);
+		localAddress = new InetSocketAddress(localIpAddress, localPort);
 		thread = new Thread(this, "Broadcast Discovery Service");
 		thread.start();
 	}
@@ -310,13 +310,13 @@ public class BroadcastDiscoveryService implements Runnable
 						{
 							log.debug("Trying to update friend's IP");
 
-							locationService.findLocationById(peer.getLocationId()).ifPresent(location -> {
-								if (!location.isConnected())
-								{
-									var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
+							locationService.findLocationByLocationId(peer.getLocationId()).ifPresent(location -> {
+										if (!location.isConnected())
+										{
+											var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
 
-									log.debug("Updating friend {} with ip {}", location, lanConnection);
-									location.addConnection(lanConnection);
+											log.debug("Updating friend {} with ip {}", location, lanConnection);
+											location.addConnection(lanConnection);
 										}
 									}
 							);

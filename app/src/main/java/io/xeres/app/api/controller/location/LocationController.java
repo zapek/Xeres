@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.error.Error;
 import io.xeres.app.service.LocationService;
 import io.xeres.common.dto.location.LocationDTO;
-import io.xeres.common.id.LocationId;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
 import org.springframework.http.MediaType;
@@ -53,16 +52,16 @@ public class LocationController
 	@Operation(summary = "Return a location")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Location not found", content = @Content(schema = @Schema(implementation = Error.class)))
-	public LocationDTO findLocationById(@PathVariable String id)
+	public LocationDTO findLocationById(@PathVariable long id)
 	{
-		return toDTO(locationService.findLocationById(new LocationId(id)).orElseThrow());
+		return toDTO(locationService.findLocationById(id).orElseThrow());
 	}
 
-	@GetMapping("/{id}/rsid")
+	@GetMapping("/{id}/rsId")
 	@Operation(summary = "Return a location's RSId")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
-	public RSIdResponse getRSIdOfLocationId(@PathVariable long id, @RequestParam(value = "type", required = false) Type type)
+	public RSIdResponse getRSIdOfLocation(@PathVariable long id, @RequestParam(value = "type", required = false) Type type)
 	{
 		var location = locationService.findLocationById(id).orElseThrow();
 

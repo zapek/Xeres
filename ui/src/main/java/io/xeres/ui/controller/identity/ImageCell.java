@@ -26,6 +26,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
+
 public class ImageCell extends TableCell<Identity, Long>
 {
 	public ImageCell(TableColumn<Identity, Long> identityLongTableColumn)
@@ -45,7 +47,7 @@ public class ImageCell extends TableCell<Identity, Long>
 		var imageView = new ImageView();
 		imageView.setFitWidth(128);
 		imageView.setFitHeight(128);
-		var image = new Image(JavaFxApplication.getControlUrl() + "/api/v1/identity/" + id + "/image", true);
+		var image = new Image(JavaFxApplication.getControlUrl() + IDENTITIES_PATH + "/" + id + "/image", true);
 		imageView.setImage(image);
 		return imageView;
 	}

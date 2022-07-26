@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 /*
  * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
  *
@@ -21,13 +23,13 @@ buildscript {
     ext {
         bouncycastleVersion = "1.71"
         apacheCommonsCollectionsVersion = "4.4"
-        springOpenApiVersion = "1.6.8"
+        springOpenApiVersion = "1.6.9"
         jsoupVersion = "1.15.1"
     }
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.7.1' apply false
+    id 'org.springframework.boot' version '2.7.2' apply false
     id 'org.flywaydb.flyway' version '8.5.11' apply false // Keep the version in sync with spring-boot from time to time
     id 'org.ec4j.editorconfig' version '0.0.3' apply false
     id 'org.panteleyev.jpackageplugin' version '1.3.1' apply false
@@ -60,7 +62,7 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+            mavenBom SpringBootPlugin.BOM_COORDINATES
         }
     }
 

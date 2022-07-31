@@ -44,7 +44,7 @@ wrapper {
 
 subprojects {
     group = 'io.xeres'
-    version = '0.3.2'
+    version = '0.4.0'
 
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'java-library'

@@ -262,9 +262,10 @@ class ShortInvite extends RSId
 
 	private void setHiddenNodeAddress(byte[] hiddenNodeAddress)
 	{
-		if (hiddenNodeAddress != null && hiddenNodeAddress.length >= 5 && hiddenNodeAddress.length <= 255)
+		if (hiddenNodeAddress != null && hiddenNodeAddress.length >= 11 && hiddenNodeAddress.length <= 255)
 		{
-			setHiddenNodeAddress(new String(hiddenNodeAddress, StandardCharsets.US_ASCII));
+			var port = Byte.toUnsignedInt(hiddenNodeAddress[4]) << 8 | Byte.toUnsignedInt(hiddenNodeAddress[5]);
+			setHiddenNodeAddress(new String(Arrays.copyOfRange(hiddenNodeAddress, 6, hiddenNodeAddress.length), StandardCharsets.US_ASCII) + ":" + port);
 		}
 		else
 		{

@@ -19,7 +19,9 @@
 
 package io.xeres.app.net.protocol;
 
+import io.xeres.app.net.protocol.i2p.I2pAddress;
 import io.xeres.app.net.protocol.tor.OnionAddress;
+import io.xeres.common.protocol.HostPort;
 import io.xeres.common.protocol.ip.IP;
 
 import java.net.InetAddress;
@@ -109,7 +111,7 @@ public final class PeerAddress
 	}
 
 	/**
-	 * Creates a PeerAddress from a hidden address (Tor)
+	 * Creates a PeerAddress from a hidden address (Tor/I2P)
 	 *
 	 * @param address the address
 	 * @return a PeerAddress
@@ -125,11 +127,12 @@ public final class PeerAddress
 
 	private static Optional<PeerAddress> tryFromHidden(String address)
 	{
-		if (address.endsWith(".onion"))
+		var peerAddress = tryFromOnion(address);
+		if (peerAddress.isEmpty())
 		{
-			return tryFromOnion(address);
+			peerAddress = tryFromI2p(address);
 		}
-		return Optional.empty();
+		return peerAddress;
 	}
 
 	private static Optional<PeerAddress> tryFromIpAndPort(String address)
@@ -178,23 +181,15 @@ public final class PeerAddress
 	@SuppressWarnings("DuplicatedCode")
 	public static PeerAddress fromIpAndPort(String ipAndPort)
 	{
-		int port;
-		var tokens = ipAndPort.split(":");
-
-		if (tokens.length != 2)
-		{
-			return fromInvalid();
-		}
-
 		try
 		{
-			port = Integer.parseInt(tokens[1]);
+			var hostPort = HostPort.parse(ipAndPort);
+			return from(hostPort.host(), hostPort.port());
 		}
-		catch (NumberFormatException e)
+		catch (IllegalArgumentException e)
 		{
 			return fromInvalid();
 		}
-		return from(tokens[0], port);
 	}
 
 	/**
@@ -246,27 +241,19 @@ public final class PeerAddress
 	@SuppressWarnings("DuplicatedCode")
 	public static PeerAddress fromHostnameAndPort(String hostnameAndPort)
 	{
-		int port;
-		var tokens = hostnameAndPort.split(":");
-
-		if (tokens.length != 2)
-		{
-			return fromInvalid();
-		}
-
 		try
 		{
-			port = Integer.parseInt(tokens[1]);
+			var hostPort = HostPort.parse(hostnameAndPort);
+			if (isInvalidHostname(hostPort.host()))
+			{
+				return fromInvalid();
+			}
+			return fromHostname(hostPort.host(), hostPort.port());
 		}
-		catch (NumberFormatException e)
+		catch (IllegalArgumentException e)
 		{
 			return fromInvalid();
 		}
-		if (isInvalidHostname(tokens[0]))
-		{
-			return fromInvalid();
-		}
-		return fromHostname(tokens[0], port);
 	}
 
 	public static PeerAddress fromSocketAddress(SocketAddress socketAddress)
@@ -289,7 +276,23 @@ public final class PeerAddress
 	{
 		if (OnionAddress.isValidAddress(onion))
 		{
-			return Optional.of(new PeerAddress(TOR));
+			var hostPort = HostPort.parse(onion);
+			return Optional.of(new PeerAddress(InetSocketAddress.createUnresolved(hostPort.host(), hostPort.port()), TOR));
+		}
+		return Optional.empty();
+	}
+
+	public static PeerAddress fromI2p(String i2p)
+	{
+		return tryFromI2p(i2p).orElse(fromInvalid());
+	}
+
+	private static Optional<PeerAddress> tryFromI2p(String i2p)
+	{
+		if (I2pAddress.isValidAddress(i2p))
+		{
+			var hostPort = HostPort.parse(i2p);
+			return Optional.of(new PeerAddress(InetSocketAddress.createUnresolved(hostPort.host(), hostPort.port()), I2P));
 		}
 		return Optional.empty();
 	}
@@ -415,13 +418,13 @@ public final class PeerAddress
 	}
 
 	/**
-	 * Checks if the PeerAddress is a hidden address (Tor)
+	 * Checks if the PeerAddress is a hidden address (Tor/I2P)
 	 *
 	 * @return true if the address is a hidden address
 	 */
 	public boolean isHidden()
 	{
-		return type == TOR;
+		return type == TOR || type == I2P;
 	}
 
 	/**
@@ -431,7 +434,7 @@ public final class PeerAddress
 	 */
 	public boolean isExternal()
 	{
-		return type == TOR ||
+		return type == TOR || type == I2P ||
 				(type == IPV4 && IP.isPublicIp(((InetSocketAddress) socketAddress).getHostString()));
 	}
 

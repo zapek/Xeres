@@ -19,13 +19,12 @@
 
 package io.xeres.app.service;
 
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import io.netty.util.concurrent.EventExecutorGroup;
-import io.xeres.app.net.peer.bootstrap.PeerClient;
-import io.xeres.app.net.peer.bootstrap.PeerServer;
+import io.xeres.app.net.peer.bootstrap.PeerI2pClient;
+import io.xeres.app.net.peer.bootstrap.PeerTcpClient;
+import io.xeres.app.net.peer.bootstrap.PeerTcpServer;
+import io.xeres.app.net.peer.bootstrap.PeerTorClient;
+import io.xeres.app.properties.NetworkProperties;
 import io.xeres.common.properties.StartupProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,60 +32,50 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Service
 public class PeerService
 {
-	private static final Logger log = LoggerFactory.getLogger(PeerService.class);
+	private final PeerTcpClient peerTcpClient;
+	private final PeerTorClient peerTorClient;
+	private final PeerI2pClient peerI2pClient;
+	private final PeerTcpServer peerTcpServer;
 
-	private static final int SSL_THREADS = 4; // XXX: is this ok? we probably don't need many since it's only for the first SSL handshake
-	private static final int HANDLER_THREADS = 8; // XXX: ponder how much we should have for the most common setup. both are going away in Netty 5...
-
-	private final PeerClient peerClient;
-	private final PeerServer peerServer;
-
-	private EventExecutorGroup sslExecutorGroup;
-	private EventExecutorGroup handlerExecutorGroup;
+	private final NetworkProperties networkProperties;
 
 	private final AtomicBoolean running = new AtomicBoolean();
 
-	public PeerService(PeerClient peerClient, PeerServer peerServer)
+	public PeerService(PeerTcpClient peerTcpClient, PeerTorClient peerTorClient, PeerI2pClient peerI2pClient, PeerTcpServer peerTcpServer, NetworkProperties networkProperties)
 	{
-		this.peerClient = peerClient;
-		this.peerServer = peerServer;
+		this.peerTcpClient = peerTcpClient;
+		this.peerTorClient = peerTorClient;
+		this.peerI2pClient = peerI2pClient;
+		this.peerTcpServer = peerTcpServer;
+		this.networkProperties = networkProperties;
 	}
 
 	public void start(int localPort)
 	{
 		running.lazySet(true);
-		sslExecutorGroup = new DefaultEventExecutorGroup(SSL_THREADS);
-		handlerExecutorGroup = new DefaultEventExecutorGroup(HANDLER_THREADS);
 
-		peerServer.start(sslExecutorGroup, handlerExecutorGroup, localPort);
-		if (!StartupProperties.getBoolean(StartupProperties.Property.SERVER_ONLY, false))
+		peerTcpServer.start(localPort);
+		if (!StartupProperties.getBoolean(StartupProperties.Property.SERVER_ONLY, false)) // XXX: do like NetworkProperties?
 		{
-			peerClient.start(sslExecutorGroup, handlerExecutorGroup);
+			peerTcpClient.start();
+		}
+		if (networkProperties.hasTorSocksConfigured())
+		{
+			peerTorClient.start();
+		}
+		if (networkProperties.hasI2pSocksConfigured())
+		{
+			peerI2pClient.start();
 		}
 	}
 
 	public void stop()
 	{
 		running.set(false);
-		peerServer.stop();
-		peerClient.stop();
-		try
-		{
-			if (sslExecutorGroup != null)
-			{
-				sslExecutorGroup.shutdownGracefully().sync();
-			}
-
-			if (handlerExecutorGroup != null)
-			{
-				handlerExecutorGroup.shutdownGracefully().sync();
-			}
-		}
-		catch (InterruptedException e)
-		{
-			log.error("Error while shutting down executor group: {}", e.getMessage());
-			Thread.currentThread().interrupt();
-		}
+		peerTcpServer.stop();
+		peerTcpClient.stop();
+		peerTorClient.stop();
+		peerI2pClient.stop();
 	}
 
 	public boolean isRunning()

@@ -21,7 +21,7 @@
  * The pipeline process works in the following way.
  * <p>For incoming packets
  * <pre>incoming bytes -> Packet -> Item -> deserialization -> service data</pre>
- * <p>For outoing packets
+ * <p>For outgoing packets
  * <pre>service data -> serialization -> Item -> Packet -> outgoing bytes</pre>
  * <p>Right now, the packet encoder sends simple packets. It'll be upgraded to send multi packets later.
  * Both multi packets and simple packets are accepted as input.

@@ -171,10 +171,19 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromTor_v3_OK()
 	{
-		var peerAddress = PeerAddress.fromOnion("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion");
+		var peerAddress = PeerAddress.fromOnion("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion:1234");
 
 		assertTrue(peerAddress.isValid());
 		assertEquals(Type.TOR, peerAddress.getType());
+	}
+
+	@Test
+	void PeerAddress_FromI2p_OK()
+	{
+		var peerAddress = PeerAddress.fromI2p("g6u4vqiuy6bdc3dbu6a7gmi3ip45sqwgtbgrr6uupqaaqfyztrka.b32.i2p:1234");
+
+		assertTrue(peerAddress.isValid());
+		assertEquals(Type.I2P, peerAddress.getType());
 	}
 
 	@Test
@@ -189,7 +198,7 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromHidden_OK()
 	{
-		var peerAddress = PeerAddress.fromHidden("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion");
+		var peerAddress = PeerAddress.fromHidden("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion:1234");
 
 		assertTrue(peerAddress.isValid());
 		assertTrue(peerAddress.isHidden());

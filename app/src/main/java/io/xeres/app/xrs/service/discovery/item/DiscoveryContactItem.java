@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
+import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.common.id.Id;
@@ -30,6 +31,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.NetMode;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +44,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	private LocationId locationId;
 	private String locationName;
 	private String version;
-	private NetMode netMode; // 1: UDP, 2: UPNP, 3: EXT, 4: HIDDEN, 5: UNREACHABLE
+	private Set<NetMode> netMode; // 1: UDP, 2: UPNP, 3: EXT, 4: HIDDEN, 5: UNREACHABLE
 	private short vsDisc; // 0: off, 1: minimal (never implemented I think), 2: full
 	private short vsDht; // 0: off, 1: passive (never implemented too?!), 2: full
 	private int lastContact;
@@ -70,7 +72,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		locationId = builder.locationId;
 		locationName = builder.location;
 		version = builder.version;
-		netMode = builder.netMode;
+		netMode = EnumSet.of(builder.netMode);
 		vsDisc = builder.vsDisc;
 		vsDht = builder.vsDht;
 		lastContact = builder.lastContact;
@@ -106,7 +108,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		size += serialize(buf, locationId, LocationId.class);
 		size += serialize(buf, STR_LOCATION, locationName);
 		size += serialize(buf, STR_VERSION, version);
-		size += serialize(buf, netMode);
+		size += serialize(buf, netMode, FieldSize.INTEGER);
 		size += serialize(buf, vsDisc);
 		size += serialize(buf, vsDht);
 		size += serialize(buf, lastContact);
@@ -139,7 +141,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		locationId = (LocationId) deserializeIdentifier(buf, LocationId.class);
 		locationName = (String) deserialize(buf, STR_LOCATION);
 		version = (String) deserialize(buf, STR_VERSION);
-		netMode = deserializeEnum(buf, NetMode.class);
+		netMode = deserializeEnumSet(buf, NetMode.class, FieldSize.INTEGER);
 		vsDisc = deserializeShort(buf);
 		vsDht = deserializeShort(buf);
 		lastContact = deserializeInt(buf);
@@ -187,7 +189,31 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 
 	public NetMode getNetMode()
 	{
-		return netMode;
+		// TODO: find if there's a better way to handle that netmode... RS used a flag even though it really should be a value...
+		if (netMode.contains(NetMode.HIDDEN))
+		{
+			return NetMode.HIDDEN;
+		}
+		else if (netMode.contains(NetMode.EXT))
+		{
+			return NetMode.EXT;
+		}
+		else if (netMode.contains(NetMode.UPNP))
+		{
+			return NetMode.UPNP;
+		}
+		else if (netMode.contains(NetMode.UDP))
+		{
+			return NetMode.UDP;
+		}
+		else if (netMode.contains(NetMode.UNREACHABLE))
+		{
+			return NetMode.UNREACHABLE;
+		}
+		else
+		{
+			return NetMode.UNKNOWN;
+		}
 	}
 
 	public short getVsDisc()

@@ -48,8 +48,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.Optional;
 
-import static io.xeres.app.net.peer.ConnectionDirection.INCOMING;
-import static io.xeres.app.net.peer.ConnectionDirection.OUTGOING;
+import static io.xeres.app.net.peer.ConnectionType.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -83,7 +82,7 @@ class SSLTest
 	@Test
 	void SSL_CreateClientContext_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
-		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, OUTGOING);
+		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, TCP_OUTGOING);
 
 		assertNotNull(sslContext);
 		assertTrue(sslContext.isClient());
@@ -92,10 +91,28 @@ class SSLTest
 	@Test
 	void SSL_CreateServerContext_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
-		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, INCOMING);
+		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, TCP_INCOMING);
 
 		assertNotNull(sslContext);
 		assertTrue(sslContext.isServer());
+	}
+
+	@Test
+	void SSL_CreateServerContext_Tor_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
+	{
+		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, TOR_OUTGOING);
+
+		assertNotNull(sslContext);
+		assertTrue(sslContext.isClient());
+	}
+
+	@Test
+	void SSL_CreateServerContext_I2P_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
+	{
+		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, I2P_OUTGOING);
+
+		assertNotNull(sslContext);
+		assertTrue(sslContext.isClient());
 	}
 
 	@Test

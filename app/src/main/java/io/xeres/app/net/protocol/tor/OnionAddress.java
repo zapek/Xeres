@@ -23,15 +23,15 @@ import java.util.regex.Pattern;
 
 public final class OnionAddress
 {
-	private static final Pattern ONION_PATTERN = Pattern.compile("[a-z2-7]{56}\\.onion");
+	private static final Pattern ONION_PATTERN = Pattern.compile("[a-z2-7]{56}\\.onion:[0-9]{1,5}");
 
 	private OnionAddress()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static boolean isValidAddress(String host)
+	public static boolean isValidAddress(String address)
 	{
-		return ONION_PATTERN.matcher(host).matches();
+		return ONION_PATTERN.matcher(address).matches();
 	}
 }

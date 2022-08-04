@@ -28,7 +28,7 @@ import io.netty.util.ReferenceCountUtil;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.net.peer.ConnectionDirection;
+import io.xeres.app.net.peer.ConnectionType;
 import io.xeres.app.net.peer.PeerAttribute;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
@@ -46,28 +46,27 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import java.net.ProtocolException;
 import java.security.cert.CertificateException;
-import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import static io.xeres.app.net.peer.ConnectionDirection.INCOMING;
+import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
 
 public class PeerHandler extends ChannelDuplexHandler
 {
 	private static final Logger log = LoggerFactory.getLogger(PeerHandler.class);
 
-	private final ConnectionDirection direction;
+	private final ConnectionType connectionType;
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
 	private final TrayService trayService;
 
-	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionDirection direction, TrayService trayService)
+	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService)
 	{
 		super();
 		this.serviceInfoRsService = serviceInfoRsService;
-		this.direction = direction;
+		this.connectionType = connectionType;
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
 		this.locationService = locationService;
@@ -149,7 +148,7 @@ public class PeerHandler extends ChannelDuplexHandler
 	@Override
 	public void channelActive(ChannelHandlerContext ctx)
 	{
-		log.info("{} connection with {}", direction == INCOMING ? "Incoming" : "Outgoing", ctx.channel().remoteAddress());
+		log.info("{} connection with {}", connectionType == TCP_INCOMING ? "Incoming" : "Outgoing", ctx.channel().remoteAddress());
 		ctx.channel().attr(PeerAttribute.MULTI_PACKET).set(false);
 	}
 
@@ -177,7 +176,7 @@ public class PeerHandler extends ChannelDuplexHandler
 					peerConnection.schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
 				}
 
-				var message = "Established " + direction.toString().toLowerCase(Locale.ROOT) + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")";
+				var message = "Established " + connectionType.getDescription() + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")";
 
 				log.info(message);
 				trayService.showNotification(message);

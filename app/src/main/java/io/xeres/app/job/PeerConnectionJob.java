@@ -22,7 +22,9 @@ package io.xeres.app.job;
 import io.xeres.app.XeresApplication;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.net.peer.bootstrap.PeerClient;
+import io.xeres.app.net.peer.bootstrap.PeerI2pClient;
+import io.xeres.app.net.peer.bootstrap.PeerTcpClient;
+import io.xeres.app.net.peer.bootstrap.PeerTorClient;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PeerService;
@@ -42,13 +44,17 @@ public class PeerConnectionJob
 	private static final Logger log = LoggerFactory.getLogger(PeerConnectionJob.class);
 
 	private final LocationService locationService;
-	private final PeerClient peerClient;
+	private final PeerTcpClient peerTcpClient;
+	private final PeerTorClient peerTorClient;
+	private final PeerI2pClient peerI2pClient;
 	private final PeerService peerService;
 
-	public PeerConnectionJob(LocationService locationService, PeerClient peerClient, PeerService peerService)
+	public PeerConnectionJob(LocationService locationService, PeerTcpClient peerTcpClient, PeerTorClient peerTorClient, PeerI2pClient peerI2pClient, PeerService peerService)
 	{
 		this.locationService = locationService;
-		this.peerClient = peerClient;
+		this.peerTcpClient = peerTcpClient;
+		this.peerTorClient = peerTorClient;
+		this.peerI2pClient = peerI2pClient;
 		this.peerService = peerService;
 	}
 
@@ -110,7 +116,18 @@ public class PeerConnectionJob
 		var peerAddress = PeerAddress.fromAddress(connection.getAddress());
 		if (peerAddress.isValid())
 		{
-			peerClient.connect(peerAddress);
+			if (peerAddress.isHidden())
+			{
+				switch (peerAddress.getType())
+				{
+					case TOR -> peerTorClient.connect(peerAddress);
+					case I2P -> peerI2pClient.connect(peerAddress);
+				}
+			}
+			else
+			{
+				peerTcpClient.connect(peerAddress);
+			}
 		}
 		else
 		{

@@ -27,7 +27,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.EventExecutorGroup;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
@@ -38,20 +37,15 @@ import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.net.ssl.SSLException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
-import static io.xeres.app.net.peer.ConnectionDirection.INCOMING;
+import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
 
 
-@Component
-public class PeerServer
+abstract class PeerServer
 {
-	private static final Logger log = LoggerFactory.getLogger(PeerServer.class);
+	@SuppressWarnings("NonConstantLogger")
+	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private final PrefsService prefsService;
 	private final NetworkProperties networkProperties;
@@ -65,7 +59,7 @@ public class PeerServer
 	private EventLoopGroup workerGroup;
 	private ChannelFuture channel;
 
-	public PeerServer(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
+	protected PeerServer(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
 	{
 		this.prefsService = prefsService;
 		this.networkProperties = networkProperties;
@@ -77,7 +71,7 @@ public class PeerServer
 	}
 
 	@Transactional(readOnly = true) // needed for getPort() to work
-	public void start(EventExecutorGroup sslExecutorGroup, EventExecutorGroup eventExecutorGroup, int localPort)
+	public void start(int localPort)
 	{
 		bossGroup = new NioEventLoopGroup(1);
 		workerGroup = new NioEventLoopGroup();
@@ -90,19 +84,14 @@ public class PeerServer
 					.option(ChannelOption.SO_BACKLOG, 128) // should be more
 					.option(ChannelOption.SO_REUSEADDR, true)
 					.handler(new LoggingHandler(LogLevel.DEBUG))
-					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoRsService, INCOMING, trayService));
+					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, networkProperties, serviceInfoRsService, TCP_INCOMING, trayService));
 
 			channel = serverBootstrap.bind(localPort).sync();
 			log.info("Listening on {}, port {}", channel.channel().localAddress(), localPort);
 		}
-		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException e)
-		{
-			log.error("Error setting up PeerServer: {}", e.getMessage());
-		}
 		catch (InterruptedException e)
 		{
-			log.error("Interrupted: {}", e.getMessage());
-			Thread.currentThread().interrupt();
+			throw new IllegalStateException("Interrupted: " + e.getMessage(), e);
 		}
 	}
 

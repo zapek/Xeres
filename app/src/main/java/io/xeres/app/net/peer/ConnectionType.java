@@ -17,32 +17,24 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.net.protocol.tor;
+package io.xeres.app.net.peer;
 
-import io.xeres.testutils.TestUtils;
-import org.junit.jupiter.api.Test;
-
-import static io.xeres.app.net.protocol.tor.OnionAddress.isValidAddress;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-class OnionAddressTest
+public enum ConnectionType
 {
-	@Test
-	void OnionAddress_NoInstance_OK() throws NoSuchMethodException
+	TCP_INCOMING("incoming"),
+	TCP_OUTGOING("outgoing"),
+	TOR_OUTGOING("Tor"),
+	I2P_OUTGOING("I2P");
+
+	private final String description;
+
+	ConnectionType(String description)
 	{
-		TestUtils.assertUtilityClass(OnionAddress.class);
+		this.description = description;
 	}
 
-	@Test
-	void OnionAddress_IsValidAddress_OK()
+	public String getDescription()
 	{
-		assertTrue(isValidAddress("answerszuvs3gg2l64e6hmnryudl5zgrmwm3vh65hzszdghblddvfiqd.onion:1234"));
-	}
-
-	@Test
-	void OnionAddress_IsValidAddress_Fail()
-	{
-		assertFalse(isValidAddress("3g2upl4pq6kufc4m.onion:1234"));
+		return description;
 	}
 }

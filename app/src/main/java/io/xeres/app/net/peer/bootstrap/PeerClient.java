@@ -24,7 +24,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.resolver.AddressResolverGroup;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.protocol.PeerAddress;
@@ -36,32 +36,31 @@ import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-import javax.net.ssl.SSLException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+import java.net.SocketAddress;
 import java.util.Objects;
 
-import static io.xeres.app.net.peer.ConnectionDirection.OUTGOING;
-
-@Component
-public class PeerClient
+abstract class PeerClient
 {
-	private static final Logger log = LoggerFactory.getLogger(PeerClient.class);
+	@SuppressWarnings("NonConstantLogger")
+	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private final PrefsService prefsService;
-	private final NetworkProperties networkProperties;
-	private final LocationService locationService;
-	private final PeerConnectionManager peerConnectionManager;
-	private final DatabaseSessionManager databaseSessionManager;
-	private final ServiceInfoRsService serviceInfoRsService;
-	private final TrayService trayService;
+	protected final PrefsService prefsService;
+	protected final NetworkProperties networkProperties;
+	protected final LocationService locationService;
+	protected final PeerConnectionManager peerConnectionManager;
+	protected final DatabaseSessionManager databaseSessionManager;
+	protected final ServiceInfoRsService serviceInfoRsService;
+	protected final TrayService trayService;
 
 	private Bootstrap bootstrap;
 	private EventLoopGroup group;
 
-	public PeerClient(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
+	public abstract PeerInitializer getPeerInitializer();
+
+	public abstract AddressResolverGroup<? extends SocketAddress> getAddressResolverGroup();
+
+	protected PeerClient(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
 	{
 		this.prefsService = prefsService;
 		this.networkProperties = networkProperties;
@@ -72,20 +71,23 @@ public class PeerClient
 		this.trayService = trayService;
 	}
 
-	public void start(EventExecutorGroup sslExecutorGroup, EventExecutorGroup eventExecutorGroup)
+	public void start()
 	{
 		group = new NioEventLoopGroup();
 
-		try
+		bootstrap = new Bootstrap();
+		setAddressResolver();
+		bootstrap.group(group)
+				.channel(NioSocketChannel.class)
+				.handler(getPeerInitializer());
+	}
+
+	private void setAddressResolver()
+	{
+		var addressResolverGroup = getAddressResolverGroup();
+		if (addressResolverGroup != null)
 		{
-			bootstrap = new Bootstrap();
-			bootstrap.group(group)
-					.channel(NioSocketChannel.class)
-					.handler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, sslExecutorGroup, eventExecutorGroup, networkProperties, serviceInfoRsService, OUTGOING, trayService));
-		}
-		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException e)
-		{
-			log.error("Error setting up PeerClient: {}", e.getMessage());
+			bootstrap.resolver(addressResolverGroup);
 		}
 	}
 

@@ -134,6 +134,7 @@ public class Location
 		rsId.getDnsName().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
 		rsId.getInternalIp().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
 		rsId.getExternalIp().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
+		rsId.getHiddenNodeAddress().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
 
 		rsId.getLocators().forEach(peerAddress -> addConnection(Connection.from(peerAddress)));
 	}

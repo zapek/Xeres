@@ -17,33 +17,40 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.net.protocol;
+package io.xeres.common.protocol;
 
-import java.net.SocketAddress;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public final class DomainNameSocketAddress extends SocketAddress
+public record HostPort(String host, int port)
 {
-	private final String name;
-
-	private DomainNameSocketAddress(String name)
+	public static HostPort parse(String hostPort)
 	{
-		if (name.contains(":"))
+		var tokens = hostPort.split(":");
+		int port;
+		if (tokens.length != 2)
 		{
-			throw new IllegalArgumentException("DomainNameSocketAddress is only usable for domains alone, not domain/ports");
+			throw new IllegalArgumentException("Input is not in \"host:port\" format: " + hostPort);
 		}
-		else
+
+		try
 		{
-			this.name = name;
+			port = Integer.parseInt(tokens[1]);
 		}
-	}
+		catch (NumberFormatException e)
+		{
+			throw new IllegalArgumentException("Port is not a number: " + tokens[1]);
+		}
 
-	public static DomainNameSocketAddress of(String name)
-	{
-		return new DomainNameSocketAddress(name);
-	}
+		if (port < 0 || port > 65535)
+		{
+			throw new IllegalArgumentException("Port is out of range: " + port);
+		}
 
-	public String getName()
-	{
-		return name;
+		if (isBlank(tokens[0]))
+		{
+			throw new IllegalArgumentException("Host is missing");
+		}
+
+		return new HostPort(tokens[0], port);
 	}
 }

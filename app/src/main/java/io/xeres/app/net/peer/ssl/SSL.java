@@ -29,7 +29,7 @@ import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
 import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.net.peer.ConnectionDirection;
+import io.xeres.app.net.peer.ConnectionType;
 import io.xeres.app.service.LocationService;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -50,7 +50,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 
-import static io.xeres.app.net.peer.ConnectionDirection.INCOMING;
+import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
 
 public final class SSL
 {
@@ -61,10 +61,10 @@ public final class SSL
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static SslContext createSslContext(byte[] privateKeyData, X509Certificate certificate, ConnectionDirection direction) throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
+	public static SslContext createSslContext(byte[] privateKeyData, X509Certificate certificate, ConnectionType connectionType) throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
 		SslContextBuilder builder;
-		if (direction == INCOMING)
+		if (connectionType == TCP_INCOMING)
 		{
 			builder = SslContextBuilder.forServer(RSA.getPrivateKey(privateKeyData), certificate);
 		}

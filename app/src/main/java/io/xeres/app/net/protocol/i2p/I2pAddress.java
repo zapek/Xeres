@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,10 +17,21 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.net.peer;
+package io.xeres.app.net.protocol.i2p;
 
-public enum ConnectionDirection
+import java.util.regex.Pattern;
+
+public final class I2pAddress
 {
-	INCOMING,
-	OUTGOING
+	private static final Pattern I2P_B32_PATTERN = Pattern.compile("[a-z2-7]{52}\\.b32.i2p:[0-9]{1,5}");
+
+	private I2pAddress()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static boolean isValidAddress(String address)
+	{
+		return I2P_B32_PATTERN.matcher(address).matches();
+	}
 }

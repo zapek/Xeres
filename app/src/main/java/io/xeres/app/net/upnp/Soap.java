@@ -66,7 +66,7 @@ final class Soap
 	{
 		var webClient = WebClient.builder()
 				.baseUrl(controlUrl.toString())
-				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_XML_VALUE)
 				.build();
 
 		try

@@ -38,10 +38,15 @@ import java.util.Comparator;
 
 import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 
+/**
+ * Handles automatic outgoing connections to peers.
+ */
 @Component
 public class PeerConnectionJob
 {
 	private static final Logger log = LoggerFactory.getLogger(PeerConnectionJob.class);
+
+	private static final int SIMULTANEOUS_CONNECTIONS = 10; // number of locations to connect at once
 
 	private final LocationService locationService;
 	private final PeerTcpClient peerTcpClient;
@@ -79,17 +84,14 @@ public class PeerConnectionJob
 			return;
 		}
 
-		if (!StartupProperties.getBoolean(SERVER_ONLY, false) && !XeresApplication.isRemoteUiClient())
-		{
-			connectToPeers();
-		}
+		connectToPeers();
 	}
 
 	private void connectToPeers()
 	{
 		synchronized (PeerConnectionJob.class)
 		{
-			var connections = locationService.getConnectionsToConnectTo();
+			var connections = locationService.getConnectionsToConnectTo(SIMULTANEOUS_CONNECTIONS);
 
 			for (var connection : connections)
 			{
@@ -122,6 +124,7 @@ public class PeerConnectionJob
 				{
 					case TOR -> peerTorClient.connect(peerAddress);
 					case I2P -> peerI2pClient.connect(peerAddress);
+					default -> throw new IllegalArgumentException("Wrong type " + peerAddress.getType() + " for hidden address");
 				}
 			}
 			else

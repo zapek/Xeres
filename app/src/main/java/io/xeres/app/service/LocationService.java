@@ -69,8 +69,6 @@ public class LocationService
 
 	private static final int KEY_SIZE = 3072;
 
-	private static final int CONNECTION_POOL_SIZE = 10; // number of locations to connect at once
-
 	public enum UpdateConnectionStatus
 	{
 		UPDATED,
@@ -233,7 +231,7 @@ public class LocationService
 	}
 
 	@Transactional
-	public Location update(Location location, String locationName, NetMode netMode, String version, NetworkMode networkMode, List<PeerAddress> peerAddresses, String hostname)
+	public Location update(Location location, String locationName, NetMode netMode, String version, NetworkMode networkMode, List<PeerAddress> peerAddresses)
 	{
 		location.setName(locationName);
 		location.setNetMode(netMode);
@@ -241,18 +239,17 @@ public class LocationService
 		location.setDiscoverable(isDiscoverable(networkMode));
 		location.setDht(hasDht(networkMode));
 		peerAddresses.forEach(peerAddress -> updateConnection(location, peerAddress));
-		// XXX: missing hostname. where's the hostname support?! is it in the connection? I don't think that's the right place for it... should be the location
 		return locationRepository.save(location);
 	}
 
-	public List<Connection> getConnectionsToConnectTo()
+	public List<Connection> getConnectionsToConnectTo(int simultaneousLocations)
 	{
-		locations = locationRepository.findAllByConnectedFalse(PageRequest.of(getPageIndex(), getPageSize(), Sort.by("lastConnected").descending())); // XXX: check if the sorting works
+		locations = locationRepository.findAllByConnectedFalse(PageRequest.of(getPageIndex(), simultaneousLocations, Sort.by("lastConnected").descending()));
 
 		return locations.stream()
 				.filter(not(Location::isOwn))
 				.flatMap(location -> location.getBestConnection(getConnectionIndex()))
-				.limit(CONNECTION_POOL_SIZE)
+				.limit(simultaneousLocations)
 				.toList();
 	}
 
@@ -329,11 +326,6 @@ public class LocationService
 			pageIndex++;
 		}
 		return pageIndex;
-	}
-
-	private int getPageSize()
-	{
-		return CONNECTION_POOL_SIZE; // XXX: make it dynamic depending on the connection speed and reliability
 	}
 
 	private int getConnectionIndex()

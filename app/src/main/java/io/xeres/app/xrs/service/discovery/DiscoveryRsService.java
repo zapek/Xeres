@@ -52,6 +52,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.InvalidKeyException;
 import java.time.Instant;
@@ -62,6 +63,7 @@ import static io.xeres.app.net.util.NetworkMode.getNetworkMode;
 import static io.xeres.app.xrs.service.RsServiceType.GOSSIP_DISCOVERY;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
 public class DiscoveryRsService extends RsService
@@ -329,6 +331,12 @@ public class DiscoveryRsService extends RsService
 		if (discoveryContactItem.getExternalAddressV4() != null)
 		{
 			addresses.add(discoveryContactItem.getExternalAddressV4());
+
+			// If we have a hostname, use the port from the external address
+			if (isNotBlank(discoveryContactItem.getHostname()))
+			{
+				addresses.add(PeerAddress.fromHostname(discoveryContactItem.getHostname(), ((InetSocketAddress) discoveryContactItem.getExternalAddressV4().getSocketAddress()).getPort()));
+			}
 		}
 		if (discoveryContactItem.getLocalAddressV4() != null)
 		{
@@ -342,8 +350,7 @@ public class DiscoveryRsService extends RsService
 				discoveryContactItem.getNetMode(),
 				discoveryContactItem.getVersion(),
 				getNetworkMode(discoveryContactItem.getVsDisc(), discoveryContactItem.getVsDht()),
-				addresses,
-				discoveryContactItem.getHostname());
+				addresses);
 	}
 
 	private void handlePgpList(PeerConnection peerConnection, DiscoveryPgpListItem discoveryPgpListItem)

@@ -59,11 +59,11 @@ class GxsIdentityRepositoryTest
 
 		first.setStatus(1);
 
-		var updateGxsIdGroupItem = gxsIdentityRepository.save(first);
+		var updatedGxsIdGroupItem = gxsIdentityRepository.save(first);
 
-		assertNotNull(updateGxsIdGroupItem);
-		assertEquals(first.getId(), updateGxsIdGroupItem.getId());
-		assertEquals(1, updateGxsIdGroupItem.getStatus());
+		assertNotNull(updatedGxsIdGroupItem);
+		assertEquals(first.getId(), updatedGxsIdGroupItem.getId());
+		assertEquals(1, updatedGxsIdGroupItem.getStatus());
 
 		gxsIdentityRepository.deleteById(first.getId());
 

@@ -52,11 +52,11 @@ class GxsClientUpdateRepositoryTest
 
 		first.setServiceType(300);
 
-		var updateGxsClientUpdate = gxsClientUpdateRepository.save(first);
+		var updatedGxsClientUpdate = gxsClientUpdateRepository.save(first);
 
-		assertNotNull(updateGxsClientUpdate);
-		assertEquals(first.getId(), updateGxsClientUpdate.getId());
-		assertEquals(300, updateGxsClientUpdate.getServiceType());
+		assertNotNull(updatedGxsClientUpdate);
+		assertEquals(first.getId(), updatedGxsClientUpdate.getId());
+		assertEquals(300, updatedGxsClientUpdate.getServiceType());
 
 		gxsClientUpdateRepository.deleteById(first.getId());
 

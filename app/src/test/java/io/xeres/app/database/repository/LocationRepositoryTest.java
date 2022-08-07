@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class LocationRepositoryTest
 {
-
 	@Autowired
 	private ProfileRepository profileRepository;
 	@Autowired

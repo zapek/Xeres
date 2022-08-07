@@ -22,6 +22,7 @@ package io.xeres.app.net.protocol;
 import io.xeres.app.net.protocol.PeerAddress.Type;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.InetSocketAddress;
@@ -99,6 +100,7 @@ class PeerAddressTest
 	}
 
 	@ParameterizedTest
+	@NullAndEmptySource
 	@ValueSource(strings = {
 			"ipv4://194.28.22.1", // missing port
 			"ipv5://194.28.22.1:1234", // bad protocol
@@ -233,6 +235,18 @@ class PeerAddressTest
 		assertTrue(peerAddress.getSocketAddress() instanceof InetSocketAddress);
 		assertEquals("foo.bar.com", ((InetSocketAddress) peerAddress.getSocketAddress()).getHostString());
 		assertEquals(8080, ((InetSocketAddress) peerAddress.getSocketAddress()).getPort());
+	}
+
+	@Test
+	void PeerAddress_FromSocketAddress_OK()
+	{
+		var peerAddress = PeerAddress.fromSocketAddress(InetSocketAddress.createUnresolved("foobar.com", 1234));
+
+		assertTrue(peerAddress.isValid());
+		assertFalse(peerAddress.isHostname());
+		assertTrue(peerAddress.getSocketAddress() instanceof InetSocketAddress);
+		assertEquals("foobar.com", ((InetSocketAddress) peerAddress.getSocketAddress()).getHostString());
+		assertEquals(1234, ((InetSocketAddress) peerAddress.getSocketAddress()).getPort());
 	}
 
 	@Test

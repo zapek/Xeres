@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -99,6 +100,33 @@ class RSATest
 		var result = RSA.verify(keyPair.getPublic(), signature, data);
 
 		assertFalse(result);
+	}
+
+	@Test
+	void RSA_Sign_InvalidKeyException()
+	{
+		byte[] data = {1, 2, 3};
+
+		assertThrows(IllegalArgumentException.class, () -> RSA.sign(data, new PrivateKey()
+		{
+			@Override
+			public String getAlgorithm()
+			{
+				return "RSA";
+			}
+
+			@Override
+			public String getFormat()
+			{
+				return "PKCS#8";
+			}
+
+			@Override
+			public byte[] getEncoded()
+			{
+				return new byte[0]; // Invalid key
+			}
+		}));
 	}
 
 	@Test

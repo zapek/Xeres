@@ -22,11 +22,8 @@ package io.xeres.app.database.model.connection;
 import io.xeres.app.database.converter.PeerAddressTypeConverter;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.common.protocol.ip.IP;
 
 import javax.persistence.*;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -68,22 +65,6 @@ public class Connection
 		type = peerAddress.getType();
 		address = peerAddress.getAddress().orElseThrow();
 		external = peerAddress.isExternal();
-	}
-
-	public static Connection from(SocketAddress socketAddress)
-	{
-		if (socketAddress instanceof InetSocketAddress inetSocketAddress)
-		{
-			return new Connection(inetSocketAddress.getHostString() + ":" + inetSocketAddress.getPort());
-		}
-		throw new IllegalArgumentException("Trying to get a connection from a non-ipv4 address");
-	}
-
-	private Connection(String address)
-	{
-		type = IPV4;
-		this.address = address;
-		external = IP.isPublicIp(address);
 	}
 
 	long getId()

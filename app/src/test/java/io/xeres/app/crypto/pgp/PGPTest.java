@@ -20,6 +20,7 @@
 package io.xeres.app.crypto.pgp;
 
 import io.xeres.testutils.TestUtils;
+import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
@@ -86,6 +87,18 @@ class PGPTest
 		sign(pgpSecretKey, new ByteArrayInputStream(in), out, Armor.NONE);
 
 		verify(pgpSecretKey.getPublicKey(), out.toByteArray(), new ByteArrayInputStream(in));
+	}
+
+	@Test
+	void PGP_Sign_Armored_OK() throws PGPException, IOException, SignatureException
+	{
+		var in = "The lazy dog jumps over the drunk fox".getBytes();
+
+		var out = new ByteArrayOutputStream();
+
+		sign(pgpSecretKey, new ByteArrayInputStream(in), out, Armor.BASE64);
+
+		verify(pgpSecretKey.getPublicKey(), new ArmoredInputStream(new ByteArrayInputStream(out.toByteArray())).readAllBytes(), new ByteArrayInputStream(in));
 	}
 
 	/**

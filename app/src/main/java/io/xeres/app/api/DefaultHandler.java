@@ -77,6 +77,16 @@ public class DefaultHandler
 				.build();
 	}
 
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<Error> handleIllegalArgumentException(IllegalArgumentException e)
+	{
+		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
+		return new ErrorResponseEntity.Builder(HttpStatus.BAD_REQUEST)
+				.setError(e.getMessage())
+				.setException(e)
+				.build();
+	}
+
 	@ExceptionHandler(RuntimeException.class)
 	public ResponseEntity<Error> handleRuntimeException(RuntimeException e)
 	{

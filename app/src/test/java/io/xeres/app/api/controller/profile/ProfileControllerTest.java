@@ -19,13 +19,13 @@
 
 package io.xeres.app.api.controller.profile;
 
+import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.common.id.Id;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;
@@ -49,6 +49,7 @@ class ProfileControllerTest extends AbstractControllerTest
 {
 	private static final String BASE_URL = PROFILES_PATH;
 
+	@SuppressWarnings("unused")
 	@MockBean
 	private PeerConnectionJob peerConnectionJob;
 
@@ -179,6 +180,18 @@ class ProfileControllerTest extends AbstractControllerTest
 		var profileRequest = new RsIdRequest("foo");
 
 		mvc.perform(postJson(BASE_URL, profileRequest))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void ProfileController_CreateProfile_IllegalTrust() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 1);
+		var profileRequest = new RsIdRequest(RSIdFakes.createShortInvite().getArmored());
+
+		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
+
+		mvc.perform(postJson(BASE_URL + "?trust=ULTIMATE", profileRequest))
 				.andExpect(status().isBadRequest());
 	}
 

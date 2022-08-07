@@ -19,6 +19,7 @@
 
 package io.xeres.app.api.controller.config;
 
+import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.identity.GxsIdFakes;
 import io.xeres.app.database.model.location.Location;
@@ -26,7 +27,6 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.common.rest.config.IpAddressRequest;
 import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
@@ -210,7 +210,21 @@ class ConfigControllerTest extends AbstractControllerTest
 		var request = new IpAddressRequest(IP, PORT);
 
 		mvc.perform(putJson(BASE_URL + "/externalIp", request))
-				.andExpect(status().isInternalServerError());
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void ConfigController_UpdateExternalIpAddress_Update_InternalIp_Fail() throws Exception
+	{
+		var IP = "192.168.1.38";
+		var PORT = 6667;
+
+		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenThrow(NoSuchElementException.class);
+
+		var request = new IpAddressRequest(IP, PORT);
+
+		mvc.perform(putJson(BASE_URL + "/externalIp", request))
+				.andExpect(status().isBadRequest());
 	}
 
 	@Test

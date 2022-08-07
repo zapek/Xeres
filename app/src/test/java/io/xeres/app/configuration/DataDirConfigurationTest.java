@@ -24,14 +24,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -53,52 +48,5 @@ class DataDirConfigurationTest
 		assertNull(dataDir);
 	}
 
-	@Test
-	void DataDirConfiguration_PortableFileLocation_OK() throws IOException
-	{
-		var created = false;
-		var portable = Path.of("portable");
-
-		when(environment.acceptsProfiles(Profiles.of("dev"))).thenReturn(false);
-
-
-		if (Files.notExists(portable))
-		{
-			Files.createFile(portable);
-			created = true;
-		}
-
-		var dataDir = dataDirConfiguration.getDataDir();
-
-		if (created)
-		{
-			Files.delete(portable);
-		}
-
-		assertEquals(portable.resolveSibling("data").toAbsolutePath().toString(), dataDir);
-	}
-
-	@Test
-	void DataDirConfiguration_NativeFileLocation_OK() throws IOException
-	{
-		var deleted = false;
-		var portable = Path.of("portable");
-
-		when(environment.acceptsProfiles(Profiles.of("dev"))).thenReturn(false);
-
-		if (Files.exists(portable))
-		{
-			Files.delete(portable);
-			deleted = true;
-		}
-
-		var dataDir = dataDirConfiguration.getDataDir();
-
-		if (deleted)
-		{
-			Files.createFile(portable);
-		}
-
-		assertNotEquals(portable.resolveSibling("data").toAbsolutePath().toString(), dataDir);
-	}
+	// Any tests that creates data dirs and so on don't work well with CI
 }

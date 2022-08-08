@@ -140,7 +140,7 @@ public class PeerConnectionManager
 		});
 	}
 
-	public void doForAllPeers(Consumer<PeerConnection> action, PeerConnection sender, RsService rsService)
+	public void doForAllPeersExceptSender(Consumer<PeerConnection> action, PeerConnection sender, RsService rsService)
 	{
 		peers.values().stream()
 				.filter(peerConnection -> !peerConnection.equals(sender))

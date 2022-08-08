@@ -126,7 +126,7 @@ public class TurtleRsService extends RsService
 
 		if (tunnelProbability.isForwardable(item)) // XXX: this is different there! needs the number of peers and speed...
 		{
-			peerConnectionManager.doForAllPeers(peerConnection -> {
+			peerConnectionManager.doForAllPeersExceptSender(peerConnection -> {
 						var itemToSend = item.clone();
 						tunnelProbability.incrementDepth(itemToSend);
 						peerConnectionManager.writeItem(peerConnection, itemToSend, this);
@@ -163,7 +163,7 @@ public class TurtleRsService extends RsService
 
 		if (tunnelProbability.isForwardable(item))
 		{
-			peerConnectionManager.doForAllPeers(peerConnection -> {
+			peerConnectionManager.doForAllPeersExceptSender(peerConnection -> {
 						var itemToSend = item.clone();
 						tunnelProbability.incrementDepth(itemToSend);
 						peerConnectionManager.writeItem(peerConnection, itemToSend, this);

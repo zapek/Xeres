@@ -35,6 +35,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
+import java.util.concurrent.TimeUnit;
 
 import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 
@@ -63,7 +64,7 @@ public class PeerConnectionJob
 		this.peerService = peerService;
 	}
 
-	@Scheduled(initialDelay = 5 * 1000, fixedDelay = 60 * 1000)
+	@Scheduled(initialDelay = 5, fixedDelay = 60, timeUnit = TimeUnit.SECONDS)
 	protected void checkConnections()
 	{
 		// Do not connect if we're in server mode (i.e. only accepting connections)

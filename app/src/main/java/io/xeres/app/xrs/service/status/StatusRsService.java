@@ -42,6 +42,8 @@ public class StatusRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(StatusRsService.class);
 
+	private StatusItem.Status status = ONLINE;
+
 	private final PeerConnectionManager peerConnectionManager;
 
 	public StatusRsService(Environment environment, PeerConnectionManager peerConnectionManager)
@@ -72,7 +74,7 @@ public class StatusRsService extends RsService
 	public void initialize(PeerConnection peerConnection)
 	{
 		peerConnection.schedule(
-				() -> peerConnectionManager.writeItem(peerConnection, new StatusItem(ONLINE), this),
+				() -> peerConnectionManager.writeItem(peerConnection, new StatusItem(status), this),
 				0,
 				TimeUnit.SECONDS);
 	}
@@ -84,6 +86,15 @@ public class StatusRsService extends RsService
 		if (item instanceof StatusItem statusItem)
 		{
 			log.debug("Got status {} from peer {}", statusItem.getStatus(), sender);
+		}
+	}
+
+	public void changeStatus(StatusItem.Status status)
+	{
+		if (status != this.status)
+		{
+			this.status = status;
+			peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new StatusItem(status), this), this);
 		}
 	}
 }

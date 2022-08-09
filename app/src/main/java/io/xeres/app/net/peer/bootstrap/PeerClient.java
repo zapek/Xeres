@@ -20,7 +20,6 @@
 package io.xeres.app.net.peer.bootstrap;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -38,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.Objects;
 
 abstract class PeerClient
 {
@@ -118,9 +116,11 @@ abstract class PeerClient
 		}
 	}
 
-	public ChannelFuture connect(PeerAddress peerAddress)
+	public void connect(PeerAddress peerAddress) // TODO: return a Future with Netty 5?
 	{
-		Objects.requireNonNull(group, "Event loop group is not setup");
-		return bootstrap.connect(peerAddress.getSocketAddress());
+		if (group != null)
+		{
+			bootstrap.connect(peerAddress.getSocketAddress());
+		}
 	}
 }

@@ -57,6 +57,7 @@ public abstract class RsService implements Comparable<RsService>
 	public abstract void handleItem(PeerConnection sender, Item item);
 
 	private final Environment environment;
+	private boolean initialized;
 
 	protected RsService(Environment environment)
 	{
@@ -132,7 +133,11 @@ public abstract class RsService implements Comparable<RsService>
 	@EventListener
 	public void init(NetworkReadyEvent event)
 	{
-		initialize();
+		if (!initialized)
+		{
+			initialized = true;
+			initialize();
+		}
 	}
 
 	@PreDestroy

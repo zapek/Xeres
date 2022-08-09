@@ -161,32 +161,7 @@ public class Startup implements ApplicationRunner
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			locationService.markAllConnectionsAsDisconnected();
-
-			log.info("Starting network services...");
-			var ownAddress = PeerAddress.from(event.localIpAddress(), event.localPort());
-			if (ownAddress.isValid())
-			{
-				locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), ownAddress);
-				if (ownAddress.isLAN())
-				{
-					log.info("We are on a LAN. Launching UPNP and Broadcast discovery...");
-					upnpService.start(event.localIpAddress(), event.localPort());
-					broadcastDiscoveryService.start(event.localIpAddress(), event.localPort());
-				}
-				if (networkProperties.isDht())
-				{
-					dhtService.start(event.localPort());
-				}
-				peerService.start(event.localPort());
-
-				// Send the event asynchronously so that our transaction can complete first
-				CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new NetworkReadyEvent()));
-			}
-			else
-			{
-				log.error("Local address is invalid: {}, can't start network services", event.localIpAddress());
-			}
+			startNetworkServices(event.localIpAddress(), event.localPort());
 		}
 		splashService.close();
 	}
@@ -199,6 +174,42 @@ public class Startup implements ApplicationRunner
 		log.info("Shutting down...");
 		identityManager.shutdown();
 		peerConnectionManager.shutdown();
+
+		stopNetworkServices();
+	}
+
+	void startNetworkServices(String localIpAddress, int localPort)
+	{
+		locationService.markAllConnectionsAsDisconnected();
+
+		log.info("Starting network services...");
+		var ownAddress = PeerAddress.from(localIpAddress, localPort);
+		if (ownAddress.isValid())
+		{
+			locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), ownAddress);
+			if (ownAddress.isLAN())
+			{
+				log.info("We are on a LAN. Launching UPNP and Broadcast discovery...");
+				upnpService.start(localIpAddress, localPort);
+				broadcastDiscoveryService.start(localIpAddress, localPort);
+			}
+			if (networkProperties.isDht())
+			{
+				dhtService.start(localPort);
+			}
+			peerService.start(localPort);
+
+			// Send the event asynchronously so that our transaction can complete first
+			CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new NetworkReadyEvent()));
+		}
+		else
+		{
+			log.error("Local address is invalid: {}, can't start network services", localIpAddress);
+		}
+	}
+
+	void stopNetworkServices()
+	{
 		dhtService.stop();
 		upnpService.stop();
 		broadcastDiscoveryService.stop();

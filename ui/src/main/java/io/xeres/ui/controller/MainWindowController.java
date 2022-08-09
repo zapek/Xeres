@@ -90,6 +90,9 @@ public class MainWindowController implements WindowController
 	private MenuItem showBroadcastWindow;
 
 	@FXML
+	private MenuItem showSettingsWindow;
+
+	@FXML
 	private Menu debug;
 
 	@FXML
@@ -136,6 +139,8 @@ public class MainWindowController implements WindowController
 		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(titleLabel.getScene().getWindow()));
 
 		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(titleLabel.getScene().getWindow()));
+
+		showSettingsWindow.setOnAction(even -> windowManager.openSettings(titleLabel.getScene().getWindow()));
 
 		changeOwnIdentityPicture.setOnAction(event -> {
 			var fileChooser = new FileChooser();

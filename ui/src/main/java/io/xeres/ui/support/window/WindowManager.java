@@ -34,6 +34,7 @@ import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.messaging.PeersWindowController;
 import io.xeres.ui.controller.profile.ProfilesWindowController;
+import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.model.profile.Profile;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -170,6 +171,18 @@ public class WindowManager
 				UiWindow.builder(IdentitiesWindowController.class)
 						.setParent(parent)
 						.setTitle("Identities")
+						.build()
+						.open());
+	}
+
+	public void openSettings(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(SettingsWindowController.class)
+						.setParent(parent)
+						.setTitle("Settings")
+						.setMinWidth(600)
+						.setMinHeight(200)
 						.build()
 						.open());
 	}

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2019-2022 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNetworksController">
+    <GridPane hgap="4.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="40.0" prefWidth="50.0"/>
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="60.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+        </rowConstraints>
+        <Label text="Tor Socks Proxy"/>
+        <TextField fx:id="torSocksHost" promptText="Tor server" GridPane.columnIndex="1">
+            <tooltip>
+                <Tooltip showDuration="30s" text="Enter your Tor SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
+            </tooltip>
+        </TextField>
+        <TextField fx:id="torSocksPort" promptText="Port" GridPane.columnIndex="2">
+            <tooltip>
+                <Tooltip showDuration="30s" text="Enter your Tor SOCKS v5 port, usually 9050."/>
+            </tooltip>
+        </TextField>
+
+        <Label text="I2P Socks Proxy" GridPane.rowIndex="1"/>
+        <TextField fx:id="i2pSocksHost" promptText="I2P server" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <tooltip>
+                <Tooltip showDuration="30s" text="Enter your I2P SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
+            </tooltip>
+        </TextField>
+        <TextField fx:id="i2pSocksPort" promptText="Port" GridPane.columnIndex="2" GridPane.rowIndex="1">
+            <tooltip>
+                <Tooltip showDuration="30s" text="Enter your I2P SOCKS v5 port, usually 4447."/>
+            </tooltip>
+        </TextField>
+    </GridPane>
+</VBox>

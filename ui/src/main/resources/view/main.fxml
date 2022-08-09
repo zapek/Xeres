@@ -47,7 +47,7 @@
         <Menu text="_Tools">
             <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="Web Interface..."/>
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem disable="true" text="Se_ttings...">
+            <MenuItem fx:id="showSettingsWindow" text="Se_ttings...">
                 <accelerator>
                     <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
                 </accelerator>

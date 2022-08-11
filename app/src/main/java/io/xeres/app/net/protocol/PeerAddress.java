@@ -366,13 +366,17 @@ public final class PeerAddress
 				bytes[bytes.length - 1] = (byte) (port & 0xff);
 				return Optional.of(bytes);
 			}
-			else
+			else if (type == IPV4)
 			{
 				var bytes = new byte[6];
 				System.arraycopy(inetSocketAddress.getAddress().getAddress(), 0, bytes, 0, 4);
 				bytes[4] = (byte) (port >> 8);
 				bytes[5] = (byte) (port & 0xff);
 				return Optional.of(bytes);
+			}
+			else
+			{
+				throw new UnsupportedOperationException("Can't get address for type " + type);
 			}
 		}
 		else if (socketAddress instanceof DomainNameSocketAddress)

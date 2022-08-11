@@ -29,7 +29,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
-import io.xeres.app.service.PrefsService;
+import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.tray.TrayService;
@@ -43,7 +43,7 @@ abstract class PeerClient
 	@SuppressWarnings("NonConstantLogger")
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	protected final PrefsService prefsService;
+	protected final SettingsService settingsService;
 	protected final NetworkProperties networkProperties;
 	protected final LocationService locationService;
 	protected final PeerConnectionManager peerConnectionManager;
@@ -58,9 +58,9 @@ abstract class PeerClient
 
 	public abstract AddressResolverGroup<? extends SocketAddress> getAddressResolverGroup();
 
-	protected PeerClient(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
+	protected PeerClient(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
 	{
-		this.prefsService = prefsService;
+		this.settingsService = settingsService;
 		this.networkProperties = networkProperties;
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;

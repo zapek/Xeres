@@ -31,7 +31,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
-import io.xeres.app.service.PrefsService;
+import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.tray.TrayService;
@@ -47,7 +47,7 @@ abstract class PeerServer
 	@SuppressWarnings("NonConstantLogger")
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private final PrefsService prefsService;
+	private final SettingsService settingsService;
 	private final NetworkProperties networkProperties;
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
@@ -59,9 +59,9 @@ abstract class PeerServer
 	private EventLoopGroup workerGroup;
 	private ChannelFuture channel;
 
-	protected PeerServer(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
+	protected PeerServer(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
 	{
-		this.prefsService = prefsService;
+		this.settingsService = settingsService;
 		this.networkProperties = networkProperties;
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
@@ -84,7 +84,7 @@ abstract class PeerServer
 					.option(ChannelOption.SO_BACKLOG, 128) // should be more
 					.option(ChannelOption.SO_REUSEADDR, true)
 					.handler(new LoggingHandler(LogLevel.DEBUG))
-					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, networkProperties, serviceInfoRsService, TCP_INCOMING, trayService));
+					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, TCP_INCOMING, trayService));
 
 			channel = serverBootstrap.bind(localPort).sync();
 			log.info("Listening on {}, port {}", channel.channel().localAddress(), localPort);

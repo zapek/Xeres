@@ -32,7 +32,7 @@ import io.xeres.app.net.peer.pipeline.*;
 import io.xeres.app.net.peer.ssl.SSL;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
-import io.xeres.app.service.PrefsService;
+import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.ui.support.tray.TrayService;
 
@@ -63,11 +63,11 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 	private static final ChannelHandler ITEM_ENCODER = new ItemEncoder();
 	private static final ChannelHandler IDLE_EVENT_HANDLER = new IdleEventHandler(PEER_IDLE_TIMEOUT);
 
-	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, PrefsService prefsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService)
+	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService)
 	{
 		try
 		{
-			this.sslContext = SSL.createSslContext(prefsService.getLocationPrivateKeyData(), prefsService.getLocationCertificate(), connectionType);
+			this.sslContext = SSL.createSslContext(settingsService.getLocationPrivateKeyData(), settingsService.getLocationCertificate(), connectionType);
 		}
 		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException e)
 		{

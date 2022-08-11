@@ -24,7 +24,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
-import io.xeres.app.service.PrefsService;
+import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Component;
@@ -36,15 +36,15 @@ import static io.xeres.app.net.peer.ConnectionType.I2P_OUTGOING;
 @Component
 public class PeerI2pClient extends PeerClient
 {
-	public PeerI2pClient(PrefsService prefsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
+	public PeerI2pClient(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
 	{
-		super(prefsService, networkProperties, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, trayService);
+		super(settingsService, networkProperties, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, trayService);
 	}
 
 	@Override
 	public PeerInitializer getPeerInitializer()
 	{
-		return new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, prefsService, networkProperties, serviceInfoRsService, I2P_OUTGOING, trayService);
+		return new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, I2P_OUTGOING, trayService);
 	}
 
 	@Override

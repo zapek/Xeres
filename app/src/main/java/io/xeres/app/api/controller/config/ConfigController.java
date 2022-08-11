@@ -181,7 +181,7 @@ public class ConfigController
 
 	@GetMapping("/username")
 	@Operation(summary = "Get the OS session's  username.")
-	@ApiResponse(responseCode = "200", description = "Reqeust successful")
+	@ApiResponse(responseCode = "200", description = "Request successful")
 	@ApiResponse(responseCode = "404", description = "No username (no user session)", content = @Content(schema = @Schema(implementation = Error.class)))
 	public UsernameResponse getUsername()
 	{

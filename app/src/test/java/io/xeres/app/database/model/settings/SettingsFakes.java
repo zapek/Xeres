@@ -17,25 +17,25 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.prefs;
+package io.xeres.app.database.model.settings;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public final class PrefsFakes
+public final class SettingsFakes
 {
-	private PrefsFakes()
+	private SettingsFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static Prefs createPrefs()
+	public static Settings createSettings()
 	{
-		var prefs = new Prefs();
-		prefs.setPgpPrivateKeyData(getRandomArray(2000));
-		prefs.setLocationPrivateKeyData(getRandomArray(2000));
-		prefs.setLocationPublicKeyData(getRandomArray(500));
-		prefs.setLocationCertificate(getRandomArray(200));
-		return prefs;
+		var settings = new Settings();
+		settings.setPgpPrivateKeyData(getRandomArray(2000));
+		settings.setLocationPrivateKeyData(getRandomArray(2000));
+		settings.setLocationPublicKeyData(getRandomArray(500));
+		settings.setLocationCertificate(getRandomArray(200));
+		return settings;
 	}
 
 	private static byte[] getRandomArray(int size)

@@ -26,5 +26,5 @@ import java.io.IOException;
  */
 public interface Controller
 {
-	void initialize() throws IOException;
+	void initialize() throws IOException; // IOException is often thrown in initialize() because of FXML loading, just remove it from the implementation if you don't use it
 }

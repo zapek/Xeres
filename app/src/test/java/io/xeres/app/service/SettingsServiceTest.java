@@ -19,8 +19,8 @@
 
 package io.xeres.app.service;
 
-import io.xeres.app.database.model.prefs.Prefs;
-import io.xeres.app.database.repository.PrefsRepository;
+import io.xeres.app.database.model.settings.Settings;
+import io.xeres.app.database.repository.SettingsRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,26 +34,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class PrefsServiceTest
+class SettingsServiceTest
 {
 	@Mock
-	private PrefsRepository prefsRepository;
+	private SettingsRepository settingsRepository;
 
 	@Mock
-	private Prefs prefs;
+	private Settings settings;
 
 	@InjectMocks
-	private PrefsService prefsService;
+	private SettingsService settingsService;
 
 	@Test
 	void PrefsService_SaveSecretProfileKey_OK()
 	{
-		when(prefsRepository.findById((byte) 1)).thenReturn(Optional.of(prefs));
-		prefsService.init();
+		when(settingsRepository.findById((byte) 1)).thenReturn(Optional.of(settings));
+		settingsService.init();
 
-		prefsService.saveSecretProfileKey(new byte[]{1});
+		settingsService.saveSecretProfileKey(new byte[]{1});
 
-		verify(prefs).setPgpPrivateKeyData(any(byte[].class));
-		verify(prefsRepository).save(any(Prefs.class));
+		verify(settings).setPgpPrivateKeyData(any(byte[].class));
+		verify(settingsRepository).save(any(Settings.class));
 	}
 }

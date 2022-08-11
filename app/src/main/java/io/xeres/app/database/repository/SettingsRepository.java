@@ -17,22 +17,19 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest;
+package io.xeres.app.database.repository;
 
-public final class PathConfig
+import io.xeres.app.database.model.settings.Settings;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface SettingsRepository extends JpaRepository<Settings, Byte>
 {
-	private PathConfig()
-	{
-		throw new UnsupportedOperationException("Utility class");
-	}
-
-	public static final String CONFIG_PATH = "/api/v1/config";
-	public static final String PROFILES_PATH = "/api/v1/profiles";
-	public static final String LOCATIONS_PATH = "/api/v1/locations";
-	public static final String CONNECTIONS_PATH = "/api/v1/connections";
-	public static final String NOTIFICATIONS_PATH = "/api/v1/notifications";
-	public static final String CHAT_PATH = "/api/v1/chat";
-	public static final String IDENTITIES_PATH = "/api/v1/identities";
-
-	public static final String SETTINGS_PATH = "/api/v1/settings";
+	@Modifying
+	@Query(value = "BACKUP TO :file", nativeQuery = true)
+	void backupDatabase(@Param("file") String file);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,19 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.repository;
+package io.xeres.common.rest.chat;
 
-import io.xeres.app.database.model.prefs.Prefs;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public interface PrefsRepository extends JpaRepository<Prefs, Byte>
+public enum ChatRoomVisibility
 {
-	@Modifying
-	@Query(value = "BACKUP TO :file", nativeQuery = true)
-	void backupDatabase(@Param("file") String file);
+	PUBLIC,
+	PRIVATE;
+
+	public static ChatRoomVisibility fromSelection(int index)
+	{
+		return ChatRoomVisibility.values()[index];
+	}
 }

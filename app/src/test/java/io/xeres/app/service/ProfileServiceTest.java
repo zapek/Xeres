@@ -45,7 +45,7 @@ import static org.mockito.Mockito.*;
 class ProfileServiceTest
 {
 	@Mock
-	private PrefsService prefsService;
+	private SettingsService settingsService;
 
 	@Mock
 	private ProfileRepository profileRepository;
@@ -64,16 +64,16 @@ class ProfileServiceTest
 	{
 		var NAME = "test";
 
-		when(prefsService.getSecretProfileKey()).thenReturn(null);
+		when(settingsService.getSecretProfileKey()).thenReturn(null);
 
 		assertTrue(profileService.generateProfileKeys(NAME));
 
-		verify(prefsService).getSecretProfileKey();
+		verify(settingsService).getSecretProfileKey();
 
 		var profile = ArgumentCaptor.forClass(Profile.class);
 		verify(profileRepository).save(profile.capture());
 		assertTrue(profile.getValue().getName().startsWith(NAME));
-		verify(prefsService).saveSecretProfileKey(any(byte[].class));
+		verify(settingsService).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
@@ -81,15 +81,15 @@ class ProfileServiceTest
 	{
 		var NAME = "test";
 
-		when(prefsService.getSecretProfileKey()).thenReturn(new byte[]{1});
+		when(settingsService.getSecretProfileKey()).thenReturn(new byte[]{1});
 
 		assertThatThrownBy(() -> profileService.generateProfileKeys(NAME))
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessageContaining("already exists");
 
-		verify(prefsService).getSecretProfileKey();
+		verify(settingsService).getSecretProfileKey();
 		verify(profileRepository, times(0)).save(any(Profile.class));
-		verify(prefsService, times(0)).saveSecretProfileKey(any(byte[].class));
+		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
@@ -97,15 +97,15 @@ class ProfileServiceTest
 	{
 		var NAME = "";
 
-		when(prefsService.getSecretProfileKey()).thenReturn(null);
+		when(settingsService.getSecretProfileKey()).thenReturn(null);
 
 		assertThatThrownBy(() -> profileService.generateProfileKeys(NAME))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("too short");
 
-		verify(prefsService).getSecretProfileKey();
+		verify(settingsService).getSecretProfileKey();
 		verify(profileRepository, times(0)).save(any(Profile.class));
-		verify(prefsService, times(0)).saveSecretProfileKey(any(byte[].class));
+		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
@@ -113,15 +113,15 @@ class ProfileServiceTest
 	{
 		var NAME = "12345678900987654321123456789098765432120987676543432123456798765";
 
-		when(prefsService.getSecretProfileKey()).thenReturn(null);
+		when(settingsService.getSecretProfileKey()).thenReturn(null);
 
 		assertThatThrownBy(() -> profileService.generateProfileKeys(NAME))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("too long");
 
-		verify(prefsService).getSecretProfileKey();
+		verify(settingsService).getSecretProfileKey();
 		verify(profileRepository, times(0)).save(any(Profile.class));
-		verify(prefsService, times(0)).saveSecretProfileKey(any(byte[].class));
+		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test

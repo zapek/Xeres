@@ -19,12 +19,12 @@
 
 package io.xeres.ui.controller.settings;
 
-import io.xeres.ui.controller.Controller;
+import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.util.TextFieldUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
-public class SettingsNetworksController implements Controller
+public class SettingsNetworksController implements SettingsController
 {
 	@FXML
 	private TextField torSocksHost;
@@ -38,6 +38,8 @@ public class SettingsNetworksController implements Controller
 	@FXML
 	private TextField i2pSocksPort;
 
+	private Settings settings;
+
 	@Override
 	public void initialize()
 	{
@@ -46,5 +48,35 @@ public class SettingsNetworksController implements Controller
 
 		TextFieldUtils.setHost(i2pSocksHost);
 		TextFieldUtils.setNumeric(i2pSocksPort, 0, 65535);
+	}
+
+	@Override
+	public void onLoad(Settings settings)
+	{
+		this.settings = settings;
+
+		torSocksHost.setText(settings.getTorSocksHost());
+		if (settings.getTorSocksPort() != 0)
+		{
+			torSocksPort.setText(String.valueOf(settings.getTorSocksPort()));
+		}
+
+		i2pSocksHost.setText(settings.getI2pSocksHost());
+		if (settings.getI2pSocksPort() != 0)
+		{
+			i2pSocksPort.setText(String.valueOf(settings.getI2pSocksPort()));
+		}
+	}
+
+	@Override
+	public Settings onSave()
+	{
+		settings.setTorSocksHost(TextFieldUtils.getString(torSocksHost));
+		settings.setTorSocksPort(TextFieldUtils.getAsNumber(torSocksPort));
+
+		settings.setI2pSocksHost(TextFieldUtils.getString(i2pSocksHost));
+		settings.setI2pSocksPort(TextFieldUtils.getAsNumber(i2pSocksPort));
+
+		return settings;
 	}
 }

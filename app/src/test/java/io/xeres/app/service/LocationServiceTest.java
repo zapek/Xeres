@@ -60,7 +60,7 @@ import static org.mockito.Mockito.*;
 class LocationServiceTest
 {
 	@Mock
-	private PrefsService prefsService;
+	private SettingsService settingsService;
 
 	@Mock
 	private ProfileService profileService;
@@ -88,77 +88,77 @@ class LocationServiceTest
 	@Test
 	void LocationService_GenerateLocationKeys_OK()
 	{
-		when(prefsService.getLocationPrivateKeyData()).thenReturn(null);
+		when(settingsService.getLocationPrivateKeyData()).thenReturn(null);
 
 		locationService.generateLocationKeys();
 
-		verify(prefsService).getLocationPrivateKeyData();
-		verify(prefsService).saveLocationKeys(any(KeyPair.class));
+		verify(settingsService).getLocationPrivateKeyData();
+		verify(settingsService).saveLocationKeys(any(KeyPair.class));
 	}
 
 	@Test
 	void LocationService_GenerateLocationKeys_LocationAlreadyExists_OK()
 	{
-		when(prefsService.getLocationPrivateKeyData()).thenReturn(new byte[]{1});
+		when(settingsService.getLocationPrivateKeyData()).thenReturn(new byte[]{1});
 
-		verify(prefsService, times(0)).saveLocationKeys(any(KeyPair.class));
+		verify(settingsService, times(0)).saveLocationKeys(any(KeyPair.class));
 	}
 
 	@Test
 	void LocationService_GenerateLocationCertificate_OK() throws NoSuchAlgorithmException, CertificateException, InvalidKeySpecException, IOException
 	{
-		when(prefsService.hasOwnLocation()).thenReturn(false);
-		when(prefsService.isOwnProfilePresent()).thenReturn(true);
-		when(prefsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
-		when(prefsService.getLocationPublicKeyData()).thenReturn(keyPair.getPublic().getEncoded());
+		when(settingsService.hasOwnLocation()).thenReturn(false);
+		when(settingsService.isOwnProfilePresent()).thenReturn(true);
+		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
+		when(settingsService.getLocationPublicKeyData()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 
 		locationService.generateLocationCertificate();
 
-		verify(prefsService).hasOwnLocation();
-		verify(prefsService).isOwnProfilePresent();
-		verify(prefsService).saveLocationCertificate(any(byte[].class));
+		verify(settingsService).hasOwnLocation();
+		verify(settingsService).isOwnProfilePresent();
+		verify(settingsService).saveLocationCertificate(any(byte[].class));
 	}
 
 	@Test
 	void LocationService_GenerateLocationCertificate_LocationAlreadyExists_OK() throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
 	{
-		when(prefsService.hasOwnLocation()).thenReturn(true);
+		when(settingsService.hasOwnLocation()).thenReturn(true);
 
 		locationService.generateLocationCertificate();
 
-		verify(prefsService, times(0)).saveLocationCertificate(any(byte[].class));
+		verify(settingsService, times(0)).saveLocationCertificate(any(byte[].class));
 	}
 
 	@Test
 	void LocationService_GenerateLocationCertificate_MissingProfile_Fail()
 	{
-		when(prefsService.hasOwnLocation()).thenReturn(false);
-		when(prefsService.isOwnProfilePresent()).thenReturn(false);
+		when(settingsService.hasOwnLocation()).thenReturn(false);
+		when(settingsService.isOwnProfilePresent()).thenReturn(false);
 
 		assertThatThrownBy(() -> locationService.generateLocationCertificate())
 				.isInstanceOf(CertificateException.class)
 				.hasMessageContaining("without a profile");
 
-		verify(prefsService).hasOwnLocation();
-		verify(prefsService).isOwnProfilePresent();
+		verify(settingsService).hasOwnLocation();
+		verify(settingsService).isOwnProfilePresent();
 	}
 
 	@Test
 	void LocationService_CreateLocation_OK() throws CertificateException, IOException
 	{
-		when(prefsService.isOwnProfilePresent()).thenReturn(true);
+		when(settingsService.isOwnProfilePresent()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(prefsService.getLocationId()).thenReturn(new LocationId());
-		when(prefsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
-		when(prefsService.getLocationPublicKeyData()).thenReturn(keyPair.getPublic().getEncoded());
+		when(settingsService.getLocationId()).thenReturn(new LocationId());
+		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
+		when(settingsService.getLocationPublicKeyData()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 
 		locationService.createOwnLocation("test");
 
-		verify(prefsService, times(2)).isOwnProfilePresent();
+		verify(settingsService, times(2)).isOwnProfilePresent();
 		verify(profileService, times(2)).getOwnProfile();
-		verify(prefsService).getLocationId();
+		verify(settingsService).getLocationId();
 		verify(locationRepository).save(any(Location.class));
 		// There's no way to reliably wait for the publisher's event since it's asynchronous
 	}

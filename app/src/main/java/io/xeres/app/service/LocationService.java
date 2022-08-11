@@ -76,7 +76,7 @@ public class LocationService
 		FAILED
 	}
 
-	private final PrefsService prefsService;
+	private final SettingsService settingsService;
 	private final ProfileService profileService;
 	private final LocationRepository locationRepository;
 	private final ApplicationEventPublisher publisher;
@@ -85,9 +85,9 @@ public class LocationService
 	private int pageIndex;
 	private int connectionIndex = -1;
 
-	public LocationService(PrefsService prefsService, ProfileService profileService, LocationRepository locationRepository, ApplicationEventPublisher publisher)
+	public LocationService(SettingsService settingsService, ProfileService profileService, LocationRepository locationRepository, ApplicationEventPublisher publisher)
 	{
-		this.prefsService = prefsService;
+		this.settingsService = settingsService;
 		this.profileService = profileService;
 		this.locationRepository = locationRepository;
 		this.publisher = publisher;
@@ -95,7 +95,7 @@ public class LocationService
 
 	void generateLocationKeys()
 	{
-		if (prefsService.getLocationPrivateKeyData() != null)
+		if (settingsService.getLocationPrivateKeyData() != null)
 		{
 			return;
 		}
@@ -106,16 +106,16 @@ public class LocationService
 
 		log.info("Successfully generated key pair");
 
-		prefsService.saveLocationKeys(keyPair);
+		settingsService.saveLocationKeys(keyPair);
 	}
 
 	void generateLocationCertificate() throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
 	{
-		if (prefsService.hasOwnLocation())
+		if (settingsService.hasOwnLocation())
 		{
 			return;
 		}
-		if (!prefsService.isOwnProfilePresent())
+		if (!settingsService.isOwnProfilePresent())
 		{
 			throw new CertificateException("Cannot generate certificate without a profile; Create a profile first");
 		}
@@ -123,8 +123,8 @@ public class LocationService
 		log.info("Generating certificate...");
 
 		var x509Certificate = X509.generateCertificate(
-				PGP.getPGPSecretKey(prefsService.getSecretProfileKey()),
-				RSA.getPublicKey(prefsService.getLocationPublicKeyData()),
+				PGP.getPGPSecretKey(settingsService.getSecretProfileKey()),
+				RSA.getPublicKey(settingsService.getLocationPublicKeyData()),
 				"CN=" + Long.toHexString(profileService.getOwnProfile().getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23
 				"CN=-",
 				new Date(0),
@@ -134,13 +134,13 @@ public class LocationService
 
 		log.info("Successfully generated certificate");
 
-		prefsService.saveLocationCertificate(x509Certificate.getEncoded());
+		settingsService.saveLocationCertificate(x509Certificate.getEncoded());
 	}
 
 	@Transactional
 	public void createOwnLocation(String name) throws CertificateException
 	{
-		if (!prefsService.isOwnProfilePresent())
+		if (!settingsService.isOwnProfilePresent())
 		{
 			throw new CertificateException("Cannot create a location without a profile; Create a profile first");
 		}
@@ -169,7 +169,7 @@ public class LocationService
 		}
 
 		var location = Location.createLocation(name);
-		location.setLocationId(prefsService.getLocationId());
+		location.setLocationId(settingsService.getLocationId());
 		ownProfile.addLocation(location);
 		locationRepository.save(location);
 

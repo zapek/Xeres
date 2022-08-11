@@ -52,7 +52,7 @@ import static org.mockito.Mockito.*;
 class IdentityServiceTest
 {
 	@Mock
-	private PrefsService prefsService;
+	private SettingsService settingsService;
 
 	@Mock
 	private ProfileService profileService;
@@ -77,8 +77,8 @@ class IdentityServiceTest
 	{
 		var NAME = "test";
 
-		when(prefsService.isOwnProfilePresent()).thenReturn(true);
-		when(prefsService.hasOwnLocation()).thenReturn(true);
+		when(settingsService.isOwnProfilePresent()).thenReturn(true);
+		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> {
 			var gxsIdGroupItem = (IdentityGroupItem) invocation.getArguments()[0];
 			gxsIdGroupItem.setPublished(Instant.now());
@@ -119,10 +119,10 @@ class IdentityServiceTest
 		ownProfile.setProfileFingerprint(new ProfileFingerprint(secretKey.getPublicKey().getFingerprint()));
 		ownProfile.setPgpPublicKeyData(secretKey.getPublicKey().getEncoded());
 
-		when(prefsService.isOwnProfilePresent()).thenReturn(true);
-		when(prefsService.hasOwnLocation()).thenReturn(true);
+		when(settingsService.isOwnProfilePresent()).thenReturn(true);
+		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(prefsService.getSecretProfileKey()).thenReturn(encodedKey);
+		when(settingsService.getSecretProfileKey()).thenReturn(encodedKey);
 		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> {
 			var gxsIdGroupItem = (IdentityGroupItem) invocation.getArguments()[0];
 			gxsIdGroupItem.setPublished(Instant.now());

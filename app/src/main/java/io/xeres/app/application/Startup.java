@@ -35,7 +35,7 @@ import io.xeres.app.net.upnp.UPNPService;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PeerService;
-import io.xeres.app.service.PrefsService;
+import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
@@ -73,7 +73,7 @@ public class Startup implements ApplicationRunner
 	private final BroadcastDiscoveryService broadcastDiscoveryService;
 	private final DHTService dhtService;
 	private final LocationService locationService;
-	private final PrefsService prefsService;
+	private final SettingsService settingsService;
 	private final BuildProperties buildProperties;
 	private final Environment environment;
 	private final ApplicationEventPublisher publisher;
@@ -84,14 +84,14 @@ public class Startup implements ApplicationRunner
 	private final SplashService splashService;
 	private final IdentityManager identityManager;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, PrefsService prefsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
 		this.broadcastDiscoveryService = broadcastDiscoveryService;
 		this.dhtService = dhtService;
 		this.locationService = locationService;
-		this.prefsService = prefsService;
+		this.settingsService = settingsService;
 		this.buildProperties = buildProperties;
 		this.environment = environment;
 		this.publisher = publisher;
@@ -123,7 +123,7 @@ public class Startup implements ApplicationRunner
 			return;
 		}
 
-		if (prefsService.isOwnProfilePresent())
+		if (settingsService.isOwnProfilePresent())
 		{
 			splashService.status("Starting network");
 			try (var ignored = new DatabaseSession(databaseSessionManager))
@@ -225,7 +225,7 @@ public class Startup implements ApplicationRunner
 		{
 			var backupFile = Path.of(dataDirConfiguration.getDataDir(), "backup.zip").toString();
 			log.info("Doing backup of database to {}", backupFile);
-			prefsService.backup(backupFile);
+			settingsService.backup(backupFile);
 		}
 	}
 

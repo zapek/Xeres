@@ -19,14 +19,17 @@
 
 package io.xeres.ui.controller.chat;
 
-import io.xeres.common.dto.chat.ChatRoomVisibility;
+import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 

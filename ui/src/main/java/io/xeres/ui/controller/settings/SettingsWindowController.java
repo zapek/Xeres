@@ -19,7 +19,10 @@
 
 package io.xeres.ui.controller.settings;
 
+import io.xeres.ui.client.SettingsClient;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.model.settings.Settings;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -27,8 +30,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -37,13 +38,21 @@ import java.io.IOException;
 @FxmlView(value = "/view/settings/settings.fxml")
 public class SettingsWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(SettingsWindowController.class);
+	private final SettingsClient settingsClient;
 
 	@FXML
 	private ListView<SettingsGroup> listView;
 
+	private Settings originalSettings;
+	private Settings newSettings;
+
 	@FXML
 	private AnchorPane content;
+
+	public SettingsWindowController(SettingsClient settingsClient)
+	{
+		this.settingsClient = settingsClient;
+	}
 
 	@Override
 	public void initialize()
@@ -56,10 +65,11 @@ public class SettingsWindowController implements WindowController
 				new SettingsGroup("Transfers", new ImageView("/image/settings_transfer.png"), null));
 
 		listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			saveContent();
+
 			content.getChildren().clear();
 			if (newValue.fxmlView() != null)
 			{
-
 				var loader = new FXMLLoader(getClass().getResource(newValue.fxmlView()));
 				Node view;
 				try
@@ -70,15 +80,48 @@ public class SettingsWindowController implements WindowController
 				{
 					throw new IllegalArgumentException("Cannot load the view " + newValue.fxmlView(), e);
 				}
-				// XXX: do we need the controller? loader.getController()
+				var controller = (SettingsController) loader.getController();
+				controller.onLoad(newSettings);
+
 				content.getChildren().add(view);
 				AnchorPane.setTopAnchor(view, 0.0);
 				AnchorPane.setBottomAnchor(view, 0.0);
 				AnchorPane.setLeftAnchor(view, 0.0);
 				AnchorPane.setRightAnchor(view, 0.0);
+
+				view.setUserData(controller);
 			}
 		});
 
-		listView.getSelectionModel().selectFirst();
+		listView.setDisable(true);
+
+		settingsClient.getSettings().doOnSuccess(settings -> Platform.runLater(() -> {
+					this.originalSettings = settings;
+					this.newSettings = this.originalSettings.clone();
+					listView.setDisable(false);
+					listView.getSelectionModel().selectFirst();
+				}))
+				.subscribe();
+	}
+
+	@Override
+	public void onHidden()
+	{
+		saveContent();
+
+		if (newSettings != null)
+		{
+			settingsClient.patchSettings(originalSettings, newSettings)
+					.subscribe();
+		}
+	}
+
+	private void saveContent()
+	{
+		if (!content.getChildren().isEmpty())
+		{
+			var controller = (SettingsController) content.getChildren().get(0).getUserData();
+			newSettings = controller.onSave();
+		}
 	}
 }

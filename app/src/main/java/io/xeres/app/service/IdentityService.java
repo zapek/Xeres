@@ -70,14 +70,14 @@ public class IdentityService
 	private static final int IMAGE_HEIGHT = 128;
 
 	private final GxsIdentityRepository gxsIdentityRepository;
-	private final PrefsService prefsService;
+	private final SettingsService settingsService;
 	private final ProfileService profileService;
 	private final GxsExchangeService gxsExchangeService;
 
-	public IdentityService(GxsIdentityRepository gxsIdentityRepository, PrefsService prefsService, ProfileService profileService, GxsExchangeService gxsExchangeService)
+	public IdentityService(GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, GxsExchangeService gxsExchangeService)
 	{
 		this.gxsIdentityRepository = gxsIdentityRepository;
-		this.prefsService = prefsService;
+		this.settingsService = settingsService;
 		this.profileService = profileService;
 		this.gxsExchangeService = gxsExchangeService;
 	}
@@ -85,11 +85,11 @@ public class IdentityService
 	@Transactional
 	public long createOwnIdentity(String name, boolean signed) throws CertificateException, PGPException, IOException
 	{
-		if (!prefsService.isOwnProfilePresent())
+		if (!settingsService.isOwnProfilePresent())
 		{
 			throw new CertificateException("Cannot create an identity without a profile; Create a profile first");
 		}
-		if (!prefsService.hasOwnLocation())
+		if (!settingsService.hasOwnLocation())
 		{
 			throw new IllegalArgumentException("Cannot create an identity without a location; Create a location first");
 		}
@@ -116,7 +116,7 @@ public class IdentityService
 			var ownProfile = profileService.getOwnProfile();
 			var hash = makeProfileHash(gxsId, ownProfile.getProfileFingerprint());
 			gxsIdGroupItem.setProfileHash(hash);
-			gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(prefsService.getSecretProfileKey()), hash));
+			gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(settingsService.getSecretProfileKey()), hash));
 
 			// This is because of some backward compatibility, ideally it should be PUBLIC | REAL_ID
 			// PRIVATE is equal to REAL_ID_deprecated

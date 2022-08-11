@@ -22,38 +22,42 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNetworksController">
-    <GridPane hgap="4.0">
-        <columnConstraints>
-            <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="40.0" prefWidth="50.0"/>
-            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="60.0"/>
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-        </rowConstraints>
-        <Label text="Tor Socks Proxy"/>
-        <TextField fx:id="torSocksHost" promptText="Tor server" GridPane.columnIndex="1">
-            <tooltip>
-                <Tooltip showDuration="30s" text="Enter your Tor SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
-            </tooltip>
-        </TextField>
-        <TextField fx:id="torSocksPort" promptText="Port" GridPane.columnIndex="2">
-            <tooltip>
-                <Tooltip showDuration="30s" text="Enter your Tor SOCKS v5 port, usually 9050."/>
-            </tooltip>
-        </TextField>
+    <TitledPane animated="false" collapsible="false" text="Hidden Services">
+        <content>
+            <GridPane hgap="4.0">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="40.0" prefWidth="50.0"/>
+                    <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="60.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                </rowConstraints>
+                <Label text="Tor Socks Proxy"/>
+                <TextField fx:id="torSocksHost" promptText="Tor server" GridPane.columnIndex="1">
+                    <tooltip>
+                        <Tooltip showDuration="30s" text="Enter your Tor SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
+                    </tooltip>
+                </TextField>
+                <TextField fx:id="torSocksPort" promptText="Port" GridPane.columnIndex="2">
+                    <tooltip>
+                        <Tooltip showDuration="30s" text="Enter your Tor SOCKS v5 port, usually 9050."/>
+                    </tooltip>
+                </TextField>
 
-        <Label text="I2P Socks Proxy" GridPane.rowIndex="1"/>
-        <TextField fx:id="i2pSocksHost" promptText="I2P server" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <tooltip>
-                <Tooltip showDuration="30s" text="Enter your I2P SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
-            </tooltip>
-        </TextField>
-        <TextField fx:id="i2pSocksPort" promptText="Port" GridPane.columnIndex="2" GridPane.rowIndex="1">
-            <tooltip>
-                <Tooltip showDuration="30s" text="Enter your I2P SOCKS v5 port, usually 4447."/>
-            </tooltip>
-        </TextField>
-    </GridPane>
+                <Label text="I2P Socks Proxy" GridPane.rowIndex="1"/>
+                <TextField fx:id="i2pSocksHost" promptText="I2P server" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <tooltip>
+                        <Tooltip showDuration="30s" text="Enter your I2P SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
+                    </tooltip>
+                </TextField>
+                <TextField fx:id="i2pSocksPort" promptText="Port" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                    <tooltip>
+                        <Tooltip showDuration="30s" text="Enter your I2P SOCKS v5 port, usually 4447."/>
+                    </tooltip>
+                </TextField>
+            </GridPane>
+        </content>
+    </TitledPane>
 </VBox>

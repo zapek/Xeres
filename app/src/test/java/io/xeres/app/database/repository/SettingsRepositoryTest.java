@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.repository;
 
-import io.xeres.app.database.model.prefs.PrefsFakes;
+import io.xeres.app.database.model.settings.SettingsFakes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -27,45 +27,45 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-class PrefsRepositoryTest
+class SettingsRepositoryTest
 {
 	@Autowired
-	private PrefsRepository prefsRepository;
+	private SettingsRepository settingsRepository;
 
 	@Test
 	void PrefsRepository_CRUD_OK()
 	{
-		var prefs = PrefsFakes.createPrefs();
-		var unwantedPrefs = PrefsFakes.createPrefs();
+		var prefs = SettingsFakes.createSettings();
+		var unwantedPrefs = SettingsFakes.createSettings();
 
-		var savedPrefs = prefsRepository.save(prefs);
-		prefsRepository.save(unwantedPrefs);
+		var savedPrefs = settingsRepository.save(prefs);
+		settingsRepository.save(unwantedPrefs);
 
-		var prefsList = prefsRepository.findAll();
+		var prefsList = settingsRepository.findAll();
 		assertNotNull(prefsList);
 		assertEquals(1, prefsList.size());
 
-		var first = prefsRepository.findById((byte) 1).orElse(null);
+		var first = settingsRepository.findById((byte) 1).orElse(null);
 
 		assertNotNull(first);
 		assertArrayEquals(savedPrefs.getPgpPrivateKeyData(), first.getPgpPrivateKeyData());
 
 		first.setPgpPrivateKeyData(new byte[]{1});
 
-		var updatedPrefs = prefsRepository.save(first);
+		var updatedPrefs = settingsRepository.save(first);
 
 		assertNotNull(updatedPrefs);
 		assertArrayEquals(first.getPgpPrivateKeyData(), updatedPrefs.getPgpPrivateKeyData());
 
-		prefsRepository.deleteById((byte) 1);
+		settingsRepository.deleteById((byte) 1);
 
-		var deleted = prefsRepository.findById((byte) 1);
+		var deleted = settingsRepository.findById((byte) 1);
 		assertTrue(deleted.isEmpty());
 
 		// And then save again to make sure the ID stays at 1
-		prefsRepository.save(prefs);
+		settingsRepository.save(prefs);
 
-		prefsList = prefsRepository.findAll();
+		prefsList = settingsRepository.findAll();
 		assertNotNull(prefsList);
 		assertEquals(1, prefsList.size());
 	}

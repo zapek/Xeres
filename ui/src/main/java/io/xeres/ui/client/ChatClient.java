@@ -20,9 +20,9 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
-import io.xeres.common.dto.chat.ChatRoomVisibility;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatRoomContext;
+import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import io.xeres.ui.JavaFxApplication;

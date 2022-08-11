@@ -17,15 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.chat;
+package io.xeres.ui.controller.settings;
 
-public enum ChatRoomVisibility
+import io.xeres.ui.controller.Controller;
+import io.xeres.ui.model.settings.Settings;
+
+public interface SettingsController extends Controller
 {
-	PUBLIC,
-	PRIVATE;
+	void onLoad(Settings settings);
 
-	public static ChatRoomVisibility fromSelection(int index)
-	{
-		return ChatRoomVisibility.values()[index];
-	}
+	Settings onSave();
 }

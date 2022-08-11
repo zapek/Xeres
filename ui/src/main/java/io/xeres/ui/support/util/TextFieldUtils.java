@@ -24,6 +24,7 @@ import javafx.scene.control.TextFormatter;
 
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class TextFieldUtils
@@ -63,6 +64,7 @@ public final class TextFieldUtils
 			}
 			catch (NumberFormatException ignored)
 			{
+				// nothing to do
 			}
 			return null;
 		});
@@ -73,5 +75,22 @@ public final class TextFieldUtils
 	{
 		var textFormatter = new TextFormatter<String>(change -> HOST_PATTERN.matcher(change.getControlNewText()).matches() ? change : null);
 		textField.setTextFormatter(textFormatter);
+	}
+
+	public static String getString(TextField textField)
+	{
+		return isBlank(textField.getText()) ? null : textField.getText();
+	}
+
+	public static int getAsNumber(TextField textField)
+	{
+		try
+		{
+			return Integer.parseInt(textField.getText());
+		}
+		catch (NumberFormatException e)
+		{
+			return 0;
+		}
 	}
 }

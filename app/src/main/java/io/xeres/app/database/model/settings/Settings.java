@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,15 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.prefs;
+package io.xeres.app.database.model.settings;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Table(name = "prefs")
+@Table(name = "settings")
 @Entity
-public class Prefs
+public class Settings
 {
 	@SuppressWarnings("unused")
 	@Id
@@ -37,7 +37,13 @@ public class Prefs
 	private byte[] locationPublicKeyData;
 	private byte[] locationCertificate;
 
-	protected Prefs()
+	private String torSocksHost;
+	private int torSocksPort;
+
+	private String i2pSocksHost;
+	private int i2pSocksPort;
+
+	protected Settings()
 	{
 	}
 
@@ -84,5 +90,45 @@ public class Prefs
 	public boolean hasLocationCertificate()
 	{
 		return locationCertificate != null;
+	}
+
+	public String getTorSocksHost()
+	{
+		return torSocksHost;
+	}
+
+	public void setTorSocksHost(String torSocksHost)
+	{
+		this.torSocksHost = torSocksHost;
+	}
+
+	public int getTorSocksPort()
+	{
+		return torSocksPort;
+	}
+
+	public void setTorSocksPort(int torSocksPort)
+	{
+		this.torSocksPort = torSocksPort;
+	}
+
+	public String getI2pSocksHost()
+	{
+		return i2pSocksHost;
+	}
+
+	public void setI2pSocksHost(String i2pSocksHost)
+	{
+		this.i2pSocksHost = i2pSocksHost;
+	}
+
+	public int getI2pSocksPort()
+	{
+		return i2pSocksPort;
+	}
+
+	public void setI2pSocksPort(int i2pSocksPort)
+	{
+		this.i2pSocksPort = i2pSocksPort;
 	}
 }

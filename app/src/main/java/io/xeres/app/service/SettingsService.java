@@ -20,8 +20,8 @@
 package io.xeres.app.service;
 
 import io.xeres.app.crypto.x509.X509;
-import io.xeres.app.database.model.prefs.Prefs;
-import io.xeres.app.database.repository.PrefsRepository;
+import io.xeres.app.database.model.settings.Settings;
+import io.xeres.app.database.repository.SettingsRepository;
 import io.xeres.common.id.LocationId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,74 +33,83 @@ import java.security.cert.X509Certificate;
 
 @Service
 @Transactional(readOnly = true)
-public class PrefsService
+public class SettingsService
 {
-	private final PrefsRepository prefsRepository;
+	private final SettingsRepository settingsRepository;
 
-	private Prefs prefs;
+	private Settings settings;
 
-	public PrefsService(PrefsRepository prefsRepository)
+	public SettingsService(SettingsRepository settingsRepository)
 	{
-		this.prefsRepository = prefsRepository;
+		this.settingsRepository = settingsRepository;
 	}
 
 	@PostConstruct
 	void init()
 	{
-		prefs = prefsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));
-	}
-
-	@Transactional
-	public void save()
-	{
-		prefsRepository.save(prefs);
+		settings = settingsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));
 	}
 
 	public void backup(String file)
 	{
-		prefsRepository.backupDatabase(file);
+		settingsRepository.backupDatabase(file);
+	}
+
+	public Settings getSettings() // XXX: dangerous?
+	{
+		return settings;
+	}
+
+	@Transactional
+	public void updateSettings(Settings settings)
+	{
+		this.settings = settings;
+		settingsRepository.save(settings);
 	}
 
 	// XXX: I think those need 'synchronized' or so... depends how we use them
+	@Transactional
 	public void saveSecretProfileKey(byte[] privateKeyData)
 	{
-		prefs.setPgpPrivateKeyData(privateKeyData);
-		save();
+		settings.setPgpPrivateKeyData(privateKeyData);
+		settingsRepository.save(settings);
 	}
 
 	public byte[] getSecretProfileKey()
 	{
-		return prefs.getPgpPrivateKeyData();
+		return settings.getPgpPrivateKeyData();
 	}
 
+	@Transactional
 	public void saveLocationKeys(KeyPair keyPair)
 	{
-		prefs.setLocationPrivateKeyData(keyPair.getPrivate().getEncoded());
-		prefs.setLocationPublicKeyData(keyPair.getPublic().getEncoded());
-		save();
+		settings.setLocationPrivateKeyData(keyPair.getPrivate().getEncoded());
+		settings.setLocationPublicKeyData(keyPair.getPublic().getEncoded());
+		settingsRepository.save(settings);
 	}
 
 	public byte[] getLocationPublicKeyData()
 	{
-		return prefs.getLocationPublicKeyData();
+		return settings.getLocationPublicKeyData();
 	}
 
 	public byte[] getLocationPrivateKeyData()
 	{
-		return prefs.getLocationPrivateKeyData();
+		return settings.getLocationPrivateKeyData();
 	}
 
+	@Transactional
 	public void saveLocationCertificate(byte[] data)
 	{
-		prefs.setLocationCertificate(data);
-		save();
+		settings.setLocationCertificate(data);
+		settingsRepository.save(settings);
 	}
 
 	public X509Certificate getLocationCertificate()
 	{
 		try
 		{
-			return X509.getCertificate(prefs.getLocationCertificate());
+			return X509.getCertificate(settings.getLocationCertificate());
 		}
 		catch (CertificateException e)
 		{
@@ -115,11 +124,11 @@ public class PrefsService
 
 	public boolean hasOwnLocation()
 	{
-		return prefs.hasLocationCertificate();
+		return settings.hasLocationCertificate();
 	}
 
 	public boolean isOwnProfilePresent()
 	{
-		return prefs.getPgpPrivateKeyData() != null;
+		return settings.getPgpPrivateKeyData() != null;
 	}
 }

@@ -176,6 +176,7 @@ dependencies {
     implementation "org.springdoc:springdoc-openapi-ui:$springOpenApiVersion"
     implementation 'net.coobird:thumbnailator:0.4.17'
     implementation 'net.java.dev.jna:jna-platform:5.12.1'
+    implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"
     if (project.hasProperty('all-arch')) {
         implementation 'io.netty:netty-tcnative-boringssl-static::windows-x86_64'
         implementation 'io.netty:netty-tcnative-boringssl-static::linux-x86_64'

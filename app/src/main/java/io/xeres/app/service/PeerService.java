@@ -23,7 +23,6 @@ import io.xeres.app.net.peer.bootstrap.PeerI2pClient;
 import io.xeres.app.net.peer.bootstrap.PeerTcpClient;
 import io.xeres.app.net.peer.bootstrap.PeerTcpServer;
 import io.xeres.app.net.peer.bootstrap.PeerTorClient;
-import io.xeres.app.properties.NetworkProperties;
 import io.xeres.common.properties.StartupProperties;
 import org.springframework.stereotype.Service;
 
@@ -36,18 +35,17 @@ public class PeerService
 	private final PeerTorClient peerTorClient;
 	private final PeerI2pClient peerI2pClient;
 	private final PeerTcpServer peerTcpServer;
-
-	private final NetworkProperties networkProperties;
+	private final SettingsService settingsService;
 
 	private final AtomicBoolean running = new AtomicBoolean();
 
-	public PeerService(PeerTcpClient peerTcpClient, PeerTorClient peerTorClient, PeerI2pClient peerI2pClient, PeerTcpServer peerTcpServer, NetworkProperties networkProperties)
+	public PeerService(PeerTcpClient peerTcpClient, PeerTorClient peerTorClient, PeerI2pClient peerI2pClient, PeerTcpServer peerTcpServer, SettingsService settingsService)
 	{
 		this.peerTcpClient = peerTcpClient;
 		this.peerTorClient = peerTorClient;
 		this.peerI2pClient = peerI2pClient;
 		this.peerTcpServer = peerTcpServer;
-		this.networkProperties = networkProperties;
+		this.settingsService = settingsService;
 	}
 
 	public void start(int localPort)
@@ -59,11 +57,11 @@ public class PeerService
 		{
 			peerTcpClient.start();
 		}
-		if (networkProperties.hasTorSocksConfigured())
+		if (settingsService.hasTorSocksConfigured())
 		{
 			peerTorClient.start();
 		}
-		if (networkProperties.hasI2pSocksConfigured())
+		if (settingsService.hasI2pSocksConfigured())
 		{
 			peerI2pClient.start();
 		}

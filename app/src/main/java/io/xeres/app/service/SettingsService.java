@@ -31,6 +31,8 @@ import java.security.KeyPair;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 @Service
 @Transactional(readOnly = true)
 public class SettingsService
@@ -130,5 +132,15 @@ public class SettingsService
 	public boolean isOwnProfilePresent()
 	{
 		return settings.getPgpPrivateKeyData() != null;
+	}
+
+	public boolean hasTorSocksConfigured()
+	{
+		return isNotBlank(settings.getTorSocksHost()) && settings.getTorSocksPort() != 0;
+	}
+
+	public boolean hasI2pSocksConfigured()
+	{
+		return isNotBlank(settings.getI2pSocksHost()) && settings.getI2pSocksPort() != 0;
 	}
 }

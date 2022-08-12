@@ -24,8 +24,6 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 @Configuration
 @ConfigurationProperties(prefix = "xrs.network")
 public class NetworkProperties
@@ -45,26 +43,6 @@ public class NetworkProperties
 	 * Enables the DHT (Mainline DHT).
 	 */
 	private boolean dht = false;
-
-	/**
-	 * Enables Tor by setting the SOCKS 5 server address
-	 */
-	private String torSocksAddress;
-
-	/**
-	 * Sets the Tor SOCKS 5 port (default: 9050)
-	 */
-	private int torSocksPort = 9050;
-
-	/**
-	 * Enables I2P by setting the SOCKS 5 server address
-	 */
-	private String i2pSocksAddress;
-
-	/**
-	 * Sets the I2P SOCKS 5 port (default: 4447)
-	 */
-	private int i2pSocksPort = 4447;
 
 	@PostConstruct
 	private void checkConsistency()
@@ -109,55 +87,5 @@ public class NetworkProperties
 	public void setDht(boolean dht)
 	{
 		this.dht = dht;
-	}
-
-	public boolean hasTorSocksConfigured()
-	{
-		return isNotBlank(torSocksAddress) && torSocksPort != 0;
-	}
-
-	public String getTorSocksAddress()
-	{
-		return torSocksAddress;
-	}
-
-	public void setTorSocksAddress(String torSocksAddress)
-	{
-		this.torSocksAddress = torSocksAddress;
-	}
-
-	public int getTorSocksPort()
-	{
-		return torSocksPort;
-	}
-
-	public void setTorSocksPort(int torSocksPort)
-	{
-		this.torSocksPort = torSocksPort;
-	}
-
-	public boolean hasI2pSocksConfigured()
-	{
-		return isNotBlank(i2pSocksAddress) && i2pSocksPort != 0;
-	}
-
-	public String getI2pSocksAddress()
-	{
-		return i2pSocksAddress;
-	}
-
-	public void setI2pSocksAddress(String i2pSocksAddress)
-	{
-		this.i2pSocksAddress = i2pSocksAddress;
-	}
-
-	public int getI2pSocksPort()
-	{
-		return i2pSocksPort;
-	}
-
-	public void setI2pSocksPort(int i2pSocksPort)
-	{
-		this.i2pSocksPort = i2pSocksPort;
 	}
 }

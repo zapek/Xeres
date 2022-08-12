@@ -52,6 +52,7 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 
 	private final SslContext sslContext;
 	private final ConnectionType connectionType;
+	private final SettingsService settingsService;
 	private final NetworkProperties networkProperties;
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
@@ -65,6 +66,7 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 
 	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService)
 	{
+		this.settingsService = settingsService;
 		try
 		{
 			this.sslContext = SSL.createSslContext(settingsService.getLocationPrivateKeyData(), settingsService.getLocationCertificate(), connectionType);
@@ -73,9 +75,9 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		{
 			throw new IllegalStateException("Error setting up PeerClient: " + e.getMessage(), e);
 		}
+		this.networkProperties = networkProperties;
 		this.serviceInfoRsService = serviceInfoRsService;
 		this.trayService = trayService;
-		this.networkProperties = networkProperties;
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
@@ -92,13 +94,13 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		// vvvvvvv
 
 		// add SOCKS5 connection if Tor or I2P
-		if (connectionType == TOR_OUTGOING && networkProperties.hasTorSocksConfigured())
+		if (connectionType == TOR_OUTGOING && settingsService.hasTorSocksConfigured())
 		{
-			pipeline.addLast(new Socks5ProxyHandler(new InetSocketAddress(networkProperties.getTorSocksAddress(), networkProperties.getTorSocksPort())));
+			pipeline.addLast(new Socks5ProxyHandler(new InetSocketAddress(settingsService.getSettings().getTorSocksHost(), settingsService.getSettings().getTorSocksPort())));
 		}
-		else if (connectionType == I2P_OUTGOING && networkProperties.hasI2pSocksConfigured())
+		else if (connectionType == I2P_OUTGOING && settingsService.hasI2pSocksConfigured())
 		{
-			pipeline.addLast(new Socks5ProxyHandler(new InetSocketAddress(networkProperties.getI2pSocksAddress(), networkProperties.getI2pSocksPort())));
+			pipeline.addLast(new Socks5ProxyHandler(new InetSocketAddress(settingsService.getSettings().getI2pSocksHost(), settingsService.getSettings().getI2pSocksPort())));
 		}
 
 		// add SSL to encrypt and decrypt everything

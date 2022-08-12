@@ -24,7 +24,7 @@ import org.springframework.context.ApplicationEvent;
 
 public class StageReadyEvent extends ApplicationEvent
 {
-	private final Stage stage;
+	private final transient Stage stage;
 
 	public StageReadyEvent(Stage primaryStage)
 	{

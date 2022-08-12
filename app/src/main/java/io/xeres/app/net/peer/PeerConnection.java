@@ -106,25 +106,22 @@ public class PeerConnection
 		}
 	}
 
-	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)
+	public void scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)
 	{
 		var scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay, period, unit);
 		schedules.add(scheduledFuture);
-		return scheduledFuture;
 	}
 
-	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)
+	public void scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)
 	{
 		var scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay, delay, unit);
 		schedules.add(scheduledFuture);
-		return scheduledFuture;
 	}
 
-	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit)
+	public void schedule(Runnable command, long delay, TimeUnit unit)
 	{
 		var scheduledFuture = ctx.executor().schedule(command, delay, unit);
 		schedules.add(scheduledFuture);
-		return scheduledFuture;
 	}
 
 	public void shutdown()

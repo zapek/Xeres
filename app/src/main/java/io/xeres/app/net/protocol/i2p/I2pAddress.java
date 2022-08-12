@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 public final class I2pAddress
 {
-	private static final Pattern I2P_B32_PATTERN = Pattern.compile("[a-z2-7]{52}\\.b32.i2p:[0-9]{1,5}");
+	private static final Pattern I2P_B32_PATTERN = Pattern.compile("[a-z2-7]{52}\\.b32.i2p:\\d{1,5}");
 
 	private I2pAddress()
 	{

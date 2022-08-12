@@ -116,7 +116,7 @@ abstract class PeerClient
 		}
 	}
 
-	public void connect(PeerAddress peerAddress) // TODO: return a Future with Netty 5?
+	public void connect(PeerAddress peerAddress)
 	{
 		if (group != null)
 		{

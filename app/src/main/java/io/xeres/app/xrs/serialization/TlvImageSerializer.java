@@ -67,7 +67,7 @@ final class TlvImageSerializer
 		log.trace("Reading image");
 
 		TlvUtils.checkTypeAndLength(buf, IMAGE);
-		var type = Serializer.deserializeEnum(buf, ImageType.class); // Not really used
+		Serializer.deserializeEnum(buf, ImageType.class); // Not really used
 		return (byte[]) TlvSerializer.deserialize(buf, BIN_IMAGE);
 	}
 }

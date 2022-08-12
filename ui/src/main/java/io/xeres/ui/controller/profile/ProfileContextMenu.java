@@ -29,7 +29,7 @@ public class ProfileContextMenu extends Event
 	public static final EventType<ProfileContextMenu> ALL = new EventType<>("PROFILE_CONTEXT_MENU_ALL");
 	public static final EventType<ProfileContextMenu> DELETE = new EventType<>("PROFILE_CONTEXT_MENU_DELETE");
 
-	private final TableView<Profile> tableView;
+	private final transient TableView<Profile> tableView;
 
 	public ProfileContextMenu(EventType<ProfileContextMenu> eventType, TableView<Profile> tableView)
 	{

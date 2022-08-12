@@ -28,14 +28,14 @@ import com.sun.jna.platform.unix.X11;
 class GetIdleTimeLinux implements GetIdleTime
 {
 	@SuppressWarnings("unused")
-	private class XScreenSaverInfo extends Structure
+	private static class XScreenSaverInfo extends Structure
 	{
-		public X11.Window window;
-		public int state;
-		public int kind;
-		public NativeLong til_or_since;
-		public NativeLong idle;
-		public NativeLong event_mask;
+		private X11.Window window;
+		private int state;
+		private int kind;
+		private NativeLong tilOrSince;
+		private NativeLong idle;
+		private NativeLong eventMask;
 	}
 
 	private interface Xss extends Library

@@ -122,7 +122,7 @@ public class RttRsService extends RsService
 			var offset = Duration.between(pong, now.minus(rtt.dividedBy(2)));
 			var peerTime = now.plus(offset);
 
-			log.debug("RTT: {}, offset: {}", rtt, offset);
+			log.debug("RTT: {}, offset: {}, peerTime: {}", rtt, offset, peerTime);
 
 			// To calculate a mean time offset, keep ~20 of them and compute the average between them. XXX: see how RS does it and store it in the peerConnection has an extra value
 		}

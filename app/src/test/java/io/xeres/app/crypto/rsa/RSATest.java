@@ -106,8 +106,7 @@ class RSATest
 	void RSA_Sign_InvalidKeyException()
 	{
 		byte[] data = {1, 2, 3};
-
-		assertThrows(IllegalArgumentException.class, () -> RSA.sign(data, new PrivateKey()
+		var privateKey = new PrivateKey()
 		{
 			@Override
 			public String getAlgorithm()
@@ -126,7 +125,9 @@ class RSATest
 			{
 				return new byte[0]; // Invalid key
 			}
-		}));
+		};
+
+		assertThrows(IllegalArgumentException.class, () -> RSA.sign(data, privateKey));
 	}
 
 	@Test

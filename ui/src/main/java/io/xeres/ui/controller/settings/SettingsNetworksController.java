@@ -19,12 +19,18 @@
 
 package io.xeres.ui.controller.settings;
 
+import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.util.TextFieldUtils;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import net.rgielen.fxweaver.core.FxmlView;
+import org.springframework.stereotype.Component;
 
+@Component
+@FxmlView(value = "/view/settings/settings_networks.fxml")
 public class SettingsNetworksController implements SettingsController
 {
 	@FXML
@@ -43,15 +49,22 @@ public class SettingsNetworksController implements SettingsController
 	private CheckBox upnpEnabled;
 
 	@FXML
-	private TextField externalPort;
+	private TextField externalIpAndPort;
 
 	@FXML
 	private CheckBox broadcastDiscoveryEnabled;
 
 	@FXML
-	private TextField internalPort;
+	private TextField internalIpAndPort;
 
 	private Settings settings;
+
+	private final ConfigClient configClient;
+
+	public SettingsNetworksController(ConfigClient configClient)
+	{
+		this.configClient = configClient;
+	}
 
 	@Override
 	public void initialize()
@@ -61,6 +74,14 @@ public class SettingsNetworksController implements SettingsController
 
 		TextFieldUtils.setHost(i2pSocksHost);
 		TextFieldUtils.setNumeric(i2pSocksPort, 0, 65535);
+
+		configClient.getExternalIpAddress()
+				.doOnSuccess(ipAddressResponse -> Platform.runLater(() -> externalIpAndPort.setText(ipAddressResponse.ip() + ":" + ipAddressResponse.port())))
+				.subscribe();
+
+		configClient.getInternalIpAddress()
+				.doOnSuccess(ipAddressResponse -> Platform.runLater(() -> internalIpAndPort.setText(ipAddressResponse.ip() + ":" + ipAddressResponse.port())))
+				.subscribe();
 	}
 
 	@Override

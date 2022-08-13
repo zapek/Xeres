@@ -182,7 +182,7 @@ public class WindowManager
 						.setParent(parent)
 						.setTitle("Settings")
 						.setMinWidth(600)
-						.setMinHeight(200)
+						.setMinHeight(400)
 						.build()
 						.open());
 	}

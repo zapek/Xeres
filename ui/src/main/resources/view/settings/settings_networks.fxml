@@ -19,11 +19,11 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNetworksController">
-    <TitledPane animated="false" collapsible="false" text="Hidden Services">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="300.0" prefWidth="400.0" spacing="12.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNetworksController">
+    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="Hidden Services">
         <GridPane hgap="4.0">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -41,12 +41,12 @@
             </Label>
             <TextField fx:id="torSocksHost" promptText="Tor server" GridPane.columnIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Enter your Tor SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
+                    <Tooltip showDuration="30s" text="The Tor SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
                 </tooltip>
             </TextField>
             <TextField fx:id="torSocksPort" promptText="Port" GridPane.columnIndex="2">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Enter your Tor SOCKS v5 port, usually 9050."/>
+                    <Tooltip showDuration="30s" text="The Tor SOCKS v5 port, usually 9050."/>
                 </tooltip>
             </TextField>
 
@@ -57,17 +57,17 @@
             </Label>
             <TextField fx:id="i2pSocksHost" promptText="I2P server" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Enter your I2P SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
+                    <Tooltip showDuration="30s" text="The I2P SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
                 </tooltip>
             </TextField>
             <TextField fx:id="i2pSocksPort" promptText="Port" GridPane.columnIndex="2" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Enter your I2P SOCKS v5 port, usually 4447."/>
+                    <Tooltip showDuration="30s" text="The I2P SOCKS v5 port, usually 4447."/>
                 </tooltip>
             </TextField>
         </GridPane>
     </TitledPane>
-    <TitledPane animated="false" collapsible="false" text="NAT">
+    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="NAT">
         <GridPane hgap="4.0">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -77,21 +77,24 @@
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
             </rowConstraints>
-            <Label text="UPNP">
+            <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="Use UPNP" GridPane.columnSpan="2147483647">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="UPNP (Universal Plug and Play) allows to automatically set the correct incoming ports in your router. This improves the connection reliability from your peers."/>
+                </tooltip>
+            </CheckBox>
+            <Label text="External IP and Port" GridPane.rowIndex="1">
                 <GridPane.margin>
                     <Insets right="4.0"/>
                 </GridPane.margin>
             </Label>
-            <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="Enable" GridPane.columnIndex="1"/>
-            <Label text="External Port" GridPane.rowIndex="1">
-                <GridPane.margin>
-                    <Insets right="4.0"/>
-                </GridPane.margin>
-            </Label>
-            <TextField fx:id="externalPort" disable="true" maxWidth="60.0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <TextField fx:id="externalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="The external IP and port of your location. This is how your connection appears on the Internet."/>
+                </tooltip>
+            </TextField>
         </GridPane>
     </TitledPane>
-    <TitledPane animated="false" collapsible="false" text="LAN">
+    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="LAN">
         <GridPane hgap="4.0">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -101,18 +104,21 @@
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
             </rowConstraints>
-            <Label text="Broadcast Discovery">
+            <CheckBox fx:id="broadcastDiscoveryEnabled" mnemonicParsing="false" text="Enable Broadcast Discovery" GridPane.columnSpan="2147483647">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="Broadcast Discovery allows to tell your IP and port to other locations on your LAN. This improves the connection reliability from eventual peers on your LAN."/>
+                </tooltip>
+            </CheckBox>
+            <Label text="Internal IP and Port" GridPane.rowIndex="1">
                 <GridPane.margin>
                     <Insets right="4.0"/>
                 </GridPane.margin>
             </Label>
-            <CheckBox fx:id="broadcastDiscoveryEnabled" mnemonicParsing="false" text="Enable" GridPane.columnIndex="1"/>
-            <Label text="External Port" GridPane.rowIndex="1">
-                <GridPane.margin>
-                    <Insets right="4.0"/>
-                </GridPane.margin>
-            </Label>
-            <TextField fx:id="internalPort" disable="true" maxWidth="60.0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <TextField fx:id="internalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="The internal IP and port of your location. This is how your connection appears on your LAN (Local Area Network)."/>
+                </tooltip>
+            </TextField>
         </GridPane>
     </TitledPane>
 </VBox>

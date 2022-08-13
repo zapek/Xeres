@@ -170,6 +170,21 @@ public class ConfigController
 		return new IpAddressResponse(connection.getIp(), connection.getPort());
 	}
 
+	@GetMapping("/internalIp")
+	@Operation(summary = "Get the internal IP address and port.")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	@ApiResponse(responseCode = "404", description = "No location or no internal IP address", content = @Content(schema = @Schema(implementation = Error.class)))
+	public IpAddressResponse getInternalIpAddress()
+	{
+		var connection = locationService.findOwnLocation().orElseThrow()
+				.getConnections()
+				.stream()
+				.filter(Connection::isLan)
+				.findFirst().orElseThrow();
+
+		return new IpAddressResponse(connection.getIp(), connection.getPort());
+	}
+
 	@GetMapping("/hostname")
 	@Operation(summary = "Get the machine's hostname.")
 	@ApiResponse(responseCode = "200", description = "Request successful")

@@ -24,15 +24,12 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.settings.Settings;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import net.rgielen.fxweaver.core.FxWeaver;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Component
 @FxmlView(value = "/view/settings/settings.fxml")
@@ -49,16 +46,19 @@ public class SettingsWindowController implements WindowController
 	@FXML
 	private AnchorPane content;
 
-	public SettingsWindowController(SettingsClient settingsClient)
+	private final FxWeaver fxWeaver;
+
+	public SettingsWindowController(SettingsClient settingsClient, FxWeaver fxWeaver)
 	{
 		this.settingsClient = settingsClient;
+		this.fxWeaver = fxWeaver;
 	}
 
 	@Override
 	public void initialize()
 	{
 		listView.setCellFactory(SettingsCell::new);
-		listView.getItems().addAll(new SettingsGroup("Networks", new ImageView("/image/settings_networks.png"), "/view/settings/settings_networks.fxml"),
+		listView.getItems().addAll(new SettingsGroup("Networks", new ImageView("/image/settings_networks.png"), SettingsNetworksController.class),
 				new SettingsGroup("Chat", new ImageView("/image/settings_chat.png"), null),
 				new SettingsGroup("Identities", new ImageView("/image/settings_identities.png"), null),
 				new SettingsGroup("Mail", new ImageView("/image/settings_mail.png"), null),
@@ -68,20 +68,12 @@ public class SettingsWindowController implements WindowController
 			saveContent();
 
 			content.getChildren().clear();
-			if (newValue.fxmlView() != null)
+			if (newValue.controllerClass() != null)
 			{
-				var loader = new FXMLLoader(getClass().getResource(newValue.fxmlView()));
-				Node view;
-				try
-				{
-					view = loader.load();
-				}
-				catch (IOException e)
-				{
-					throw new IllegalArgumentException("Cannot load the view " + newValue.fxmlView(), e);
-				}
-				var controller = (SettingsController) loader.getController();
-				controller.onLoad(newSettings);
+				var controllerAndView = fxWeaver.load(newValue.controllerClass());
+				controllerAndView.getController().onLoad(newSettings);
+
+				var view = controllerAndView.getView().orElseThrow();
 
 				content.getChildren().add(view);
 				AnchorPane.setTopAnchor(view, 0.0);
@@ -89,7 +81,7 @@ public class SettingsWindowController implements WindowController
 				AnchorPane.setLeftAnchor(view, 0.0);
 				AnchorPane.setRightAnchor(view, 0.0);
 
-				view.setUserData(controller);
+				view.setUserData(controllerAndView.getController());
 			}
 		});
 

@@ -19,9 +19,11 @@
 
 package io.xeres.app.database.model.connection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.xeres.app.database.converter.PeerAddressTypeConverter;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
+import io.xeres.common.protocol.ip.IP;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -125,6 +127,12 @@ public class Connection
 	public void setExternal(boolean external)
 	{
 		this.external = external;
+	}
+
+	@JsonIgnore
+	public boolean isLan()
+	{
+		return type == IPV4 && !isExternal() && IP.isLanIp(address.split(":")[0]);
 	}
 
 	public int getPort()

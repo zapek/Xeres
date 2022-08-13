@@ -93,6 +93,22 @@ public class ConfigClient
 				.bodyToMono(Void.class);
 	}
 
+	public Mono<IpAddressResponse> getExternalIpAddress()
+	{
+		return webClient.get()
+				.uri("/externalIp")
+				.retrieve()
+				.bodyToMono(IpAddressResponse.class);
+	}
+
+	public Mono<IpAddressResponse> getInternalIpAddress()
+	{
+		return webClient.get()
+				.uri("/internalIp")
+				.retrieve()
+				.bodyToMono(IpAddressResponse.class);
+	}
+
 	public Mono<HostnameResponse> getHostname()
 	{
 		return webClient.get()

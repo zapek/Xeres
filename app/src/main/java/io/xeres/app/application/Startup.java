@@ -189,9 +189,16 @@ public class Startup implements ApplicationRunner
 			locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), ownAddress);
 			if (ownAddress.isLAN())
 			{
-				log.info("We are on a LAN. Launching UPNP and Broadcast discovery...");
-				upnpService.start(localIpAddress, localPort);
-				broadcastDiscoveryService.start(localIpAddress, localPort);
+				if (settingsService.isUpnpEnabled())
+				{
+					log.info("Starting UPNP service...");
+					upnpService.start(localIpAddress, localPort);
+				}
+				if (settingsService.isBroadcastDiscoveryEnabled())
+				{
+					log.info("Starting Broadcast Discovery service...");
+					broadcastDiscoveryService.start(localIpAddress, localPort);
+				}
 			}
 			if (networkProperties.isDht())
 			{

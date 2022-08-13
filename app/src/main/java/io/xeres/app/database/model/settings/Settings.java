@@ -43,6 +43,10 @@ public class Settings
 	private String i2pSocksHost;
 	private int i2pSocksPort;
 
+	private boolean upnpEnabled;
+
+	private boolean broadcastDiscoveryEnabled;
+
 	protected Settings()
 	{
 	}
@@ -130,5 +134,25 @@ public class Settings
 	public void setI2pSocksPort(int i2pSocksPort)
 	{
 		this.i2pSocksPort = i2pSocksPort;
+	}
+
+	public boolean isUpnpEnabled()
+	{
+		return upnpEnabled;
+	}
+
+	public void setUpnpEnabled(boolean enabled)
+	{
+		upnpEnabled = enabled;
+	}
+
+	public boolean isBroadcastDiscoveryEnabled()
+	{
+		return broadcastDiscoveryEnabled;
+	}
+
+	public void setBroadcastDiscoveryEnabled(boolean enabled)
+	{
+		broadcastDiscoveryEnabled = enabled;
 	}
 }

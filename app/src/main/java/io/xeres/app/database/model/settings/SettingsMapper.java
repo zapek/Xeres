@@ -39,7 +39,9 @@ public final class SettingsMapper
 				settings.getTorSocksHost(),
 				settings.getTorSocksPort(),
 				settings.getI2pSocksHost(),
-				settings.getI2pSocksPort()
+				settings.getI2pSocksPort(),
+				settings.isUpnpEnabled(),
+				settings.isBroadcastDiscoveryEnabled()
 		);
 	}
 
@@ -55,6 +57,8 @@ public final class SettingsMapper
 		settings.setTorSocksPort(dto.torSocksPort());
 		settings.setI2pSocksHost(dto.i2pSocksHost());
 		settings.setI2pSocksPort(dto.i2pSocksPort());
+		settings.setUpnpEnabled(dto.upnpEnabled());
+		settings.setBroadcastDiscoveryEnabled(dto.broadcastDiscoveryEnabled());
 		return settings;
 	}
 }

@@ -27,6 +27,10 @@ public class Settings implements Cloneable
 	private String i2pSocksHost;
 	private int i2pSocksPort;
 
+	private boolean upnpEnabled;
+
+	private boolean isBroadcastDiscoveryEnabled;
+
 	public String getTorSocksHost()
 	{
 		return torSocksHost;
@@ -65,6 +69,26 @@ public class Settings implements Cloneable
 	public void setI2pSocksPort(int i2pSocksPort)
 	{
 		this.i2pSocksPort = i2pSocksPort;
+	}
+
+	public boolean isUpnpEnabled()
+	{
+		return upnpEnabled;
+	}
+
+	public void setUpnpEnabled(boolean upnpEnabled)
+	{
+		this.upnpEnabled = upnpEnabled;
+	}
+
+	public boolean isBroadcastDiscoveryEnabled()
+	{
+		return isBroadcastDiscoveryEnabled;
+	}
+
+	public void setBroadcastDiscoveryEnabled(boolean broadcastDiscoveryEnabled)
+	{
+		isBroadcastDiscoveryEnabled = broadcastDiscoveryEnabled;
 	}
 
 	@Override

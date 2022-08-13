@@ -23,7 +23,9 @@ public record SettingsDTO(
 		String torSocksHost,
 		int torSocksPort,
 		String i2pSocksHost,
-		int i2pSocksPort
+		int i2pSocksPort,
+		boolean upnpEnabled,
+		boolean broadcastDiscoveryEnabled
 )
 {
 }

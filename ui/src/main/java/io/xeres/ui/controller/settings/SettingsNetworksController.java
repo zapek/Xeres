@@ -22,6 +22,7 @@ package io.xeres.ui.controller.settings;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.util.TextFieldUtils;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 
 public class SettingsNetworksController implements SettingsController
@@ -37,6 +38,18 @@ public class SettingsNetworksController implements SettingsController
 
 	@FXML
 	private TextField i2pSocksPort;
+
+	@FXML
+	private CheckBox upnpEnabled;
+
+	@FXML
+	private TextField externalPort;
+
+	@FXML
+	private CheckBox broadcastDiscoveryEnabled;
+
+	@FXML
+	private TextField internalPort;
 
 	private Settings settings;
 
@@ -66,6 +79,10 @@ public class SettingsNetworksController implements SettingsController
 		{
 			i2pSocksPort.setText(String.valueOf(settings.getI2pSocksPort()));
 		}
+
+		upnpEnabled.setSelected(settings.isUpnpEnabled());
+
+		broadcastDiscoveryEnabled.setSelected(settings.isBroadcastDiscoveryEnabled());
 	}
 
 	@Override
@@ -76,6 +93,10 @@ public class SettingsNetworksController implements SettingsController
 
 		settings.setI2pSocksHost(TextFieldUtils.getString(i2pSocksHost));
 		settings.setI2pSocksPort(TextFieldUtils.getAsNumber(i2pSocksPort));
+
+		settings.setUpnpEnabled(upnpEnabled.isSelected());
+
+		settings.setBroadcastDiscoveryEnabled(broadcastDiscoveryEnabled.isSelected());
 
 		return settings;
 	}

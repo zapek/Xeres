@@ -143,4 +143,14 @@ public class SettingsService
 	{
 		return isNotBlank(settings.getI2pSocksHost()) && settings.getI2pSocksPort() != 0;
 	}
+
+	public boolean isUpnpEnabled()
+	{
+		return settings.isUpnpEnabled();
+	}
+
+	public boolean isBroadcastDiscoveryEnabled()
+	{
+		return settings.isBroadcastDiscoveryEnabled();
+	}
 }

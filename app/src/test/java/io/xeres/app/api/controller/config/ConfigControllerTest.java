@@ -255,6 +255,33 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
+	void ConfigController_GetInternalIpAddress_OK() throws Exception
+	{
+		var IP = "192.168.1.25";
+		var PORT = 1234;
+
+		var location = Location.createLocation("test");
+		var connection = Connection.from(PeerAddress.from(IP, PORT));
+		location.addConnection(connection);
+
+		when(locationService.findOwnLocation()).thenReturn(Optional.of(location));
+
+		mvc.perform(getJson(BASE_URL + "/internalIp"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.ip", is(IP)))
+				.andExpect(jsonPath("$.port", is(PORT)));
+	}
+
+	@Test
+	void ConfigController_GetInternalIpAddress_NoLocationOrIpAddress_OK() throws Exception
+	{
+		when(locationService.findOwnLocation()).thenReturn(Optional.empty());
+
+		mvc.perform(getJson(BASE_URL + "/internalIp"))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
 	void ConfigController_GetHostname_OK() throws Exception
 	{
 		var HOSTNAME = "foo.bar.com";

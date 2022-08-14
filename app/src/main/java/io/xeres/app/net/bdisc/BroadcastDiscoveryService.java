@@ -184,6 +184,7 @@ public class BroadcastDiscoveryService implements Runnable
 		// For now, we do nothing; but we could implement something better if for
 		// example there's a change of IP or port. Don't forget to increase the
 		// counter for each update otherwise it won't be taken into account.
+		// but see https://github.com/truvorskameikin/udp-discovery-cpp/issues/18
 	}
 
 	@Override

@@ -244,11 +244,17 @@ public class LocationService
 
 	public List<Connection> getConnectionsToConnectTo(int simultaneousLocations)
 	{
+		var ownConnection = findOwnLocation().orElseThrow()
+				.getConnections()
+				.stream()
+				.filter(Connection::isExternal)
+				.findFirst().orElseThrow();
+
 		locations = locationRepository.findAllByConnectedFalse(PageRequest.of(getPageIndex(), simultaneousLocations, Sort.by("lastConnected").descending()));
 
 		return locations.stream()
 				.filter(not(Location::isOwn))
-				.flatMap(location -> location.getBestConnection(getConnectionIndex()))
+				.flatMap(location -> location.getBestConnection(getConnectionIndex(), ownConnection.getIp()))
 				.limit(simultaneousLocations)
 				.toList();
 	}

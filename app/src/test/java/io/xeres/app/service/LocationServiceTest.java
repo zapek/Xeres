@@ -51,7 +51,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
+import static io.xeres.app.net.protocol.PeerAddress.Type.IPV4;
+import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -168,6 +171,10 @@ class LocationServiceTest
 	{
 		var now = Instant.now();
 
+		// Own location
+		var ownLocation = LocationFakes.createOwnLocation();
+		ownLocation.addConnection(ConnectionFakes.createConnection(IPV4, "2.3.4.5:1234", true));
+
 		// First location with 1 connection
 		var location1 = LocationFakes.createLocation("test1", ownProfile);
 		location1.addConnection(ConnectionFakes.createConnection());
@@ -187,6 +194,8 @@ class LocationServiceTest
 		Slice<Location> slice = new SliceImpl<>(locations);
 		when(locationRepository.findAllByConnectedFalse(any(Pageable.class))).thenReturn(slice);
 
+		when(locationRepository.findById(OWN_LOCATION_ID)).thenReturn(Optional.of(ownLocation));
+
 		// First run
 		var connections = locationService.getConnectionsToConnectTo(10);
 		assertEquals(2, connections.size());
@@ -204,6 +213,47 @@ class LocationServiceTest
 		assertEquals(2, connections.size());
 		assertEquals(location1.getConnections().get(0), connections.get(0));
 		assertEquals(nullConnection, connections.get(1));
+	}
+
+	@Test
+	void LocationService_GetConnectionsToConnectTo_PreferLAN()
+	{
+		var now = Instant.now();
+
+		// Own location
+		var ownLocation = LocationFakes.createOwnLocation();
+		ownLocation.addConnection(ConnectionFakes.createConnection(IPV4, "2.3.4.5:1234", true));
+
+		// First location with 1 connection, same address
+		var location1 = LocationFakes.createLocation("test1", ownProfile);
+		location1.addConnection(ConnectionFakes.createConnection(IPV4, "2.3.4.5:1234", true));
+
+		// Second location with 2 connections, one same, one LAN
+		var location2 = LocationFakes.createLocation("test2", ownProfile);
+		var wanConnection = ConnectionFakes.createConnection(IPV4, "2.3.4.5:1234", true);
+		var lanConnection = ConnectionFakes.createConnection(IPV4, "192.168.1.25:1234", false);
+		wanConnection.setLastConnected(now);
+		location2.addConnection(wanConnection);
+		lanConnection.setLastConnected(now);
+		location2.addConnection(lanConnection);
+
+		var locations = List.of(location1, location2);
+		Slice<Location> slice = new SliceImpl<>(locations);
+		when(locationRepository.findAllByConnectedFalse(any(Pageable.class))).thenReturn(slice);
+
+		when(locationRepository.findById(OWN_LOCATION_ID)).thenReturn(Optional.of(ownLocation));
+
+		// First run
+		var connections = locationService.getConnectionsToConnectTo(10);
+		assertEquals(2, connections.size());
+		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(lanConnection, connections.get(1));
+
+		// Second run
+		connections = locationService.getConnectionsToConnectTo(10);
+		assertEquals(2, connections.size());
+		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(wanConnection, connections.get(1));
 	}
 
 	@Test

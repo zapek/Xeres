@@ -294,19 +294,22 @@ public class Location
 	}
 
 	/**
-	 * Returns the best connection. Prefers connections most recently connected to.
+	 * Returns the best connection. Prefers connections most recently connected to and prefers the LAN
+	 * address if the external address is the same as the host.
 	 *
-	 * @param index index of the connection, is supposed to always increment so that a different connection is returned
+	 * @param index     index of the connection, is supposed to always increment so that a different connection is returned
+	 * @param ipToAvoid the IP to put last
 	 * @return a connection or empty if none
 	 */
-	public Stream<Connection> getBestConnection(int index)
+	public Stream<Connection> getBestConnection(int index, String ipToAvoid)
 	{
 		if (connections.isEmpty())
 		{
 			return Stream.empty();
 		}
 		var connectionsSortedByMostReliable = connections.stream()
-				.sorted(comparing(Connection::getLastConnected, nullsLast(reverseOrder())))
+				.sorted(comparing(Connection::getIp, new OwnIpComparator<>(ipToAvoid))
+						.thenComparing(Connection::getLastConnected, nullsLast(reverseOrder())))
 				.toList();
 
 		return Stream.of(connectionsSortedByMostReliable.get(index % connectionsSortedByMostReliable.size()));
@@ -331,5 +334,44 @@ public class Location
 	public String toString()
 	{
 		return locationId.toString();
+	}
+
+	/**
+	 * Comparator that puts connections with our own IP as last.
+	 *
+	 * @param <T>
+	 */
+	static final class OwnIpComparator<T> implements Comparator<T>
+	{
+		private final String ipToAvoid;
+
+		OwnIpComparator(String ipToAvoid)
+		{
+			this.ipToAvoid = ipToAvoid;
+		}
+
+		@Override
+		public int compare(T o1, T o2)
+		{
+			if (o1.equals(ipToAvoid))
+			{
+				if (o2.equals(ipToAvoid))
+				{
+					return 0;
+				}
+				else
+				{
+					return 1;
+				}
+			}
+			else if (o2.equals(ipToAvoid))
+			{
+				return -1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
 	}
 }

@@ -34,18 +34,20 @@ public final class ConnectionFakes
 	{
 		var r = ThreadLocalRandom.current();
 		return createConnection(PeerAddress.Type.IPV4, "" +
-				r.nextInt(11, 110) + "." +
-				r.nextInt(1, 254) + "." +
-				r.nextInt(1, 254) + "." +
-				r.nextInt(1, 254) + ":" +
-				r.nextInt(1025, 65534));
+						r.nextInt(11, 110) + "." +
+						r.nextInt(1, 254) + "." +
+						r.nextInt(1, 254) + "." +
+						r.nextInt(1, 254) + ":" +
+						r.nextInt(1025, 65534),
+				false);
 	}
 
-	public static Connection createConnection(PeerAddress.Type type, String address)
+	public static Connection createConnection(PeerAddress.Type type, String address, boolean isExternal)
 	{
 		var connection = new Connection();
 		connection.setType(type);
 		connection.setAddress(address);
+		connection.setExternal(isExternal);
 		return connection;
 	}
 }

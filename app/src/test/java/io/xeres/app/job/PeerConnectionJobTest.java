@@ -72,7 +72,7 @@ class PeerConnectionJobTest
 	void PeerConnectionJob_ConnectToPeers_TCP()
 	{
 		when(peerService.isRunning()).thenReturn(true);
-		when(locationService.getConnectionsToConnectTo(anyInt())).thenReturn(List.of(ConnectionFakes.createConnection(PeerAddress.Type.IPV4, "1.1.1.1:1234")));
+		when(locationService.getConnectionsToConnectTo(anyInt())).thenReturn(List.of(ConnectionFakes.createConnection(PeerAddress.Type.IPV4, "1.1.1.1:1234", true)));
 
 		peerConnectionJob.checkConnections();
 
@@ -85,7 +85,7 @@ class PeerConnectionJobTest
 	void PeerConnectionJob_ConnectToPeers_Tor()
 	{
 		when(peerService.isRunning()).thenReturn(true);
-		when(locationService.getConnectionsToConnectTo(anyInt())).thenReturn(List.of(ConnectionFakes.createConnection(PeerAddress.Type.TOR, "2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion:80")));
+		when(locationService.getConnectionsToConnectTo(anyInt())).thenReturn(List.of(ConnectionFakes.createConnection(PeerAddress.Type.TOR, "2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion:80", true)));
 
 		peerConnectionJob.checkConnections();
 
@@ -98,7 +98,7 @@ class PeerConnectionJobTest
 	void PeerConnectionJob_ConnectToPeers_I2p()
 	{
 		when(peerService.isRunning()).thenReturn(true);
-		when(locationService.getConnectionsToConnectTo(anyInt())).thenReturn(List.of(ConnectionFakes.createConnection(PeerAddress.Type.TOR, "udhdrtrcetjm5sxzskjyr5ztpeszydbh4dpl3pl4utgqqw2v4jna.b32.i2p:80")));
+		when(locationService.getConnectionsToConnectTo(anyInt())).thenReturn(List.of(ConnectionFakes.createConnection(PeerAddress.Type.TOR, "udhdrtrcetjm5sxzskjyr5ztpeszydbh4dpl3pl4utgqqw2v4jna.b32.i2p:80", true)));
 
 		peerConnectionJob.checkConnections();
 

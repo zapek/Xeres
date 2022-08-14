@@ -22,6 +22,8 @@ package io.xeres.app.net.bdisc;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.ProfileFingerprint;
 
+import java.time.Instant;
+
 public class UdpDiscoveryPeer
 {
 	public enum Status
@@ -40,6 +42,8 @@ public class UdpDiscoveryPeer
 	private LocationId locationId;
 	private int localPort;
 	private String profileName;
+
+	private Instant lastSeen;
 
 	public Status getStatus()
 	{
@@ -129,6 +133,16 @@ public class UdpDiscoveryPeer
 	public void setProfileName(String profileName)
 	{
 		this.profileName = profileName;
+	}
+
+	public Instant getLastSeen()
+	{
+		return lastSeen;
+	}
+
+	public void setLastSeen(Instant lastSeen)
+	{
+		this.lastSeen = lastSeen;
 	}
 
 	@Override

@@ -28,8 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UdpDiscoveryProtocolTest
 {
@@ -43,8 +42,9 @@ class UdpDiscoveryProtocolTest
 	private static final int LOCAL_PORT = 8600;
 	private static final String PROFILE_NAME = "retroshare.ch";
 
-	private static final String DATA = "524e36550000000000000dcd7b6729a83d00008099000037000054b7c121b73e434539dc" +
-			"3e0ba87461b115390f34ec65a805a3faa6d4b88e7a2ee5a45f3321980000000d726574726f73686172652e6368";
+	private static final String DATA = "524e36550000000000000dcd7b6729a83d00008099000037000054b7c121b73e434539dc3e0ba87461b115390f34ec65a805a3faa6d4b88e7a2ee5a45f3321980000000d726574726f73686172652e6368";
+
+	private static final String DATA_NEW = "534f37560100000000000dcd7b6729a83d0000000000008099003754b7c121b73e434539dc3e0ba87461b115390f34ec65a805a3faa6d4b88e7a2ee5a45f3321980000000d726574726f73686172652e6368";
 
 	@Test
 	void UdpDiscoveryProtocol_NoInstance_OK() throws NoSuchMethodException
@@ -57,6 +57,7 @@ class UdpDiscoveryProtocolTest
 	{
 		var peer = UdpDiscoveryProtocol.parsePacket(ByteBuffer.wrap(Id.toBytes(DATA)), new InetSocketAddress(LOCAL_IP, 6666));
 
+		assertNotNull(peer);
 		assertEquals(APP_ID, peer.getAppId());
 		assertEquals(PEER_ID, peer.getPeerId());
 		assertEquals(PACKET_INDEX, peer.getPacketIndex());
@@ -85,6 +86,6 @@ class UdpDiscoveryProtocolTest
 		var a = new byte[data.position()];
 		data.flip();
 		data.get(a);
-		assertArrayEquals(Id.toBytes(DATA), a);
+		assertArrayEquals(Id.toBytes(DATA_NEW), a);
 	}
 }

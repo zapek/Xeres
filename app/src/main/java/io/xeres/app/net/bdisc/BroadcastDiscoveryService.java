@@ -55,6 +55,8 @@ public class BroadcastDiscoveryService implements Runnable
 	private static final int BROADCAST_BUFFER_SEND_SIZE_MAX = 512;
 	private static final int BROADCAST_BUFFER_RECV_SIZE = 512;
 
+	private static final Duration LAST_SEEN_TIMEOUT = Duration.ofMinutes(1);
+
 	private static final Duration BROADCAST_MAX_WAIT_TIME = Duration.ofSeconds(5);
 
 	private enum State
@@ -299,30 +301,45 @@ public class BroadcastDiscoveryService implements Runnable
 			{
 				var peer = UdpDiscoveryProtocol.parsePacket(receiveBuffer, peerAddress);
 				log.debug("Got peer: {}", peer);
+				var now = Instant.now();
 
 				if (isValidPeer(peer))
 				{
-					if (!peers.containsKey(peer.getPeerId())) // XXX: removed this because the original version always increments the packetIndex()... || peers.get(peer.getPeerId()).getPacketIndex() != peer.getPacketIndex()) // We use != so that it works with the 32-bit version
+					var lastSeenPeer = peers.get(peer.getPeerId());
+					if (lastSeenPeer != null)
 					{
-						// Add or update
+						// If a client is missing for a minute, remove it
+						if (lastSeenPeer.getLastSeen().plus(LAST_SEEN_TIMEOUT).isBefore(now))
+						{
+							log.debug("Removing peer {} because it hasn't been seen for more than a minute", peer);
+							peers.remove(peer.getPeerId());
+						}
+						else
+						{
+							lastSeenPeer.setLastSeen(now);
+						}
+					}
+					else
+					{
+						// Add. Currently, the protocol's packet index is always incremented so there can't be an optimization to see if there's new data, so we can't update.
 						peers.put(peer.getPeerId(), peer);
+						peer.setLastSeen(now);
 						try (var ignored = new DatabaseSession(databaseSessionManager))
 						{
 							log.debug("Trying to update friend's IP");
 
 							locationService.findLocationByLocationId(peer.getLocationId()).ifPresent(location -> {
-										if (!location.isConnected())
-										{
-											var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
+								if (!location.isConnected())
+								{
+									var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
 
-											log.debug("Updating friend {} with ip {}", location, lanConnection);
-											location.addConnection(lanConnection);
-										}
+									log.debug("Updating friend {} with ip {}", location, lanConnection);
+									location.addConnection(lanConnection);
+								}
 									}
 							);
 						}
 					}
-					// XXX: and if a client is missing for 10 broadcasts or so, remove it
 				}
 			}
 			catch (RuntimeException e)
@@ -345,6 +362,6 @@ public class BroadcastDiscoveryService implements Runnable
 
 	private boolean isValidPeer(UdpDiscoveryPeer peer)
 	{
-		return peer.getAppId() == APP_ID && peer.getStatus() == UdpDiscoveryPeer.Status.PRESENT && peer.getPeerId() != ownPeerId;
+		return peer != null && peer.getAppId() == APP_ID && peer.getStatus() == UdpDiscoveryPeer.Status.PRESENT && peer.getPeerId() != ownPeerId;
 	}
 }

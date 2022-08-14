@@ -20,16 +20,25 @@
 package io.xeres.app.net.bdisc;
 
 import io.netty.buffer.Unpooled;
+import io.xeres.app.net.bdisc.UdpDiscoveryPeer.Status;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.ProfileFingerprint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
+import static io.xeres.app.net.bdisc.ProtocolVersion.VERSION_0;
+import static io.xeres.app.net.bdisc.ProtocolVersion.VERSION_1;
+
 public final class UdpDiscoveryProtocol
 {
-	private static final int MAGIC = 0x524e3655; // RN6U
+	private static final Logger log = LoggerFactory.getLogger(UdpDiscoveryProtocol.class);
+
+	private static final int MAGIC_HEADER_OLD = 0x524e3655; // RN6U
+	private static final int MAGIC_HEADER_VERSIONED = 0x534f3756; // SO7V
 
 	private UdpDiscoveryProtocol()
 	{
@@ -43,26 +52,49 @@ public final class UdpDiscoveryProtocol
 			throw new IllegalArgumentException("Buffer is too small: " + buffer.limit());
 		}
 
-		if (buffer.getInt() != MAGIC)
+		var magicHeader = buffer.getInt();
+		ProtocolVersion protocolVersion;
+
+		if (magicHeader == MAGIC_HEADER_OLD)
 		{
-			throw new IllegalArgumentException("Wrong magic number in header");
+			buffer.get(); // reserved
+			protocolVersion = VERSION_0;
 		}
+		else if (magicHeader == MAGIC_HEADER_VERSIONED)
+		{
+			var versionNum = buffer.get();
+			if (versionNum > VERSION_1.ordinal())
+			{
+				log.warn("Unsupported protocol version: {}", versionNum);
+				return null;
+			}
+			protocolVersion = ProtocolVersion.values()[versionNum];
+		}
+		else
+		{
+			log.warn("Unsupported magic header: {}", magicHeader);
+			return null;
+		}
+		buffer.get(); // reserved
+		buffer.get(); // reserved
+		buffer.get(); // reserved
 
 		var peer = new UdpDiscoveryPeer();
 		peer.setIpAddress(peerAddress.getAddress().getHostAddress());
-
-		buffer.getInt(); // reserved
-		peer.setStatus(UdpDiscoveryPeer.Status.values()[buffer.get()]);
+		var packetStatusNum = buffer.get();
+		if (packetStatusNum > Status.LEAVING.ordinal())
+		{
+			log.warn("Unknown packet status: {}", packetStatusNum);
+			return null;
+		}
+		peer.setStatus(Status.values()[packetStatusNum]);
 		peer.setAppId(buffer.getInt());
 		peer.setPeerId(buffer.getInt());
 
-		// Because of https://github.com/truvorskameikin/udp-discovery-cpp/commit/d37a19f2326d2a44dff65c2ce26c7d19380ef699 the following
-		// either uses a 64-bit packetIndex or a 32-bit one + overflow byte. We read the padding ahead to figure out
-		// which version it is.
-		if (buffer.getShort(7) == 0)
+		if (protocolVersion == VERSION_0)
 		{
-			peer.setPacketIndex(buffer.getInt()); // XXX: this one just increments all the time
-			buffer.get(); // padding
+			peer.setPacketIndex(buffer.getInt());
+			buffer.get(); // packet index reset "overflow" flag
 		}
 		else
 		{
@@ -70,7 +102,10 @@ public final class UdpDiscoveryProtocol
 		}
 
 		int userDataSize = buffer.getShort();
-		int paddingSize = buffer.getShort();
+		if (protocolVersion == VERSION_0)
+		{
+			buffer.getShort(); // padding size
+		}
 		if (userDataSize > buffer.remaining())
 		{
 			throw new IllegalArgumentException("Userdata size of " + userDataSize + " is too big (" + buffer.remaining() + " remaining)");
@@ -85,22 +120,21 @@ public final class UdpDiscoveryProtocol
 		return peer;
 	}
 
-	public static ByteBuffer createPacket(int maxSize, UdpDiscoveryPeer.Status status, int appId, int peerId, int counter, ProfileFingerprint fingerprint, LocationId locationId, int localPort, String profileName)
+	public static ByteBuffer createPacket(int maxSize, Status status, int appId, int peerId, int counter, ProfileFingerprint fingerprint, LocationId locationId, int localPort, String profileName)
 	{
 		var buffer = ByteBuffer.allocate(maxSize);
 
-		buffer.putInt(MAGIC);
-		buffer.putInt(0); // reserved
+		buffer.putInt(MAGIC_HEADER_VERSIONED);
+		buffer.put((byte) VERSION_1.ordinal()); // protocol version
+		buffer.put((byte) 0);
+		buffer.put((byte) 0);
+		buffer.put((byte) 0);
 
 		buffer.put((byte) status.ordinal());
 		buffer.putInt(appId);
 		buffer.putInt(peerId);
 
-		// XXX: now this sucks... what to put here? 32-bit or 64-bit?! For now we'll put the 32-bit
-		// version but ideally we should monitor what happens and use one or the other depending on
-		// what is seen.
-		buffer.putInt(counter);
-		buffer.put((byte) 0);
+		buffer.putLong(counter);
 
 		var buf = Unpooled.buffer();
 		Serializer.serialize(buf, fingerprint, ProfileFingerprint.class);
@@ -109,7 +143,6 @@ public final class UdpDiscoveryProtocol
 		Serializer.serialize(buf, profileName);
 
 		buffer.putShort((short) buf.writerIndex());
-		buffer.putShort((short) 0);
 		buffer.put(buf.nioBuffer());
 		buf.release();
 

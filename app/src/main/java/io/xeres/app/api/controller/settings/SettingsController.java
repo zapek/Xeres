@@ -19,19 +19,13 @@
 
 package io.xeres.app.api.controller.settings;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.service.SettingsService;
 import io.xeres.common.dto.settings.SettingsDTO;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,12 +39,10 @@ import static io.xeres.common.rest.PathConfig.SETTINGS_PATH;
 public class SettingsController
 {
 	private final SettingsService settingsService;
-	private final ObjectMapper objectMapper;
 
-	public SettingsController(SettingsService settingsService, ObjectMapper objectMapper)
+	public SettingsController(SettingsService settingsService)
 	{
 		this.settingsService = settingsService;
-		this.objectMapper = objectMapper;
 	}
 
 	@GetMapping("/")
@@ -58,27 +50,13 @@ public class SettingsController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public SettingsDTO getSettings()
 	{
-		return toDTO(settingsService.getSettings());
+		return settingsService.getSettings();
 	}
 
 	@PatchMapping(path = "/", consumes = "application/json-patch+json")
 	public ResponseEntity<SettingsDTO> updateSettings(@RequestBody JsonPatch jsonPatch)
 	{
-		try
-		{
-			var newSettings = applyPatchToSettings(jsonPatch, settingsService.getSettings());
-			settingsService.updateSettings(newSettings);
-			return ResponseEntity.ok(toDTO(newSettings));
-		}
-		catch (JsonPatchException | JsonProcessingException e)
-		{
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
-	}
-
-	private Settings applyPatchToSettings(JsonPatch patch, Settings targetSettings) throws JsonPatchException, JsonProcessingException
-	{
-		var patched = patch.apply(objectMapper.convertValue(targetSettings, JsonNode.class));
-		return objectMapper.treeToValue(patched, Settings.class);
+		var newSettings = settingsService.applyPatchToSettings(jsonPatch);
+		return ResponseEntity.ok(toDTO(newSettings));
 	}
 }

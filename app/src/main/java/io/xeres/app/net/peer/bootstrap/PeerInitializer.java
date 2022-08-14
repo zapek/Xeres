@@ -96,11 +96,13 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		// add SOCKS5 connection if Tor or I2P
 		if (connectionType == TOR_OUTGOING && settingsService.hasTorSocksConfigured())
 		{
-			pipeline.addLast(new Socks5ProxyHandler(new InetSocketAddress(settingsService.getSettings().getTorSocksHost(), settingsService.getSettings().getTorSocksPort())));
+			var hostPort = settingsService.getTorSocksHostPort();
+			pipeline.addLast(new Socks5ProxyHandler(new InetSocketAddress(hostPort.host(), hostPort.port())));
 		}
 		else if (connectionType == I2P_OUTGOING && settingsService.hasI2pSocksConfigured())
 		{
-			pipeline.addLast(new Socks5ProxyHandler(new InetSocketAddress(settingsService.getSettings().getI2pSocksHost(), settingsService.getSettings().getI2pSocksPort())));
+			var hostPort = settingsService.getI2pSocksHostPort();
+			pipeline.addLast(new Socks5ProxyHandler(new InetSocketAddress(hostPort.host(), hostPort.port())));
 		}
 
 		// add SSL to encrypt and decrypt everything

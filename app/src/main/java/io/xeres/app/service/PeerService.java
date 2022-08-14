@@ -57,14 +57,8 @@ public class PeerService
 		{
 			peerTcpClient.start();
 		}
-		if (settingsService.hasTorSocksConfigured())
-		{
-			peerTorClient.start();
-		}
-		if (settingsService.hasI2pSocksConfigured())
-		{
-			peerI2pClient.start();
-		}
+		startTor();
+		startI2p();
 	}
 
 	public void stop()
@@ -73,6 +67,32 @@ public class PeerService
 		peerTcpServer.stop();
 		peerTcpClient.stop();
 		peerTorClient.stop();
+		peerI2pClient.stop();
+	}
+
+	public void startTor()
+	{
+		if (settingsService.hasTorSocksConfigured())
+		{
+			peerTorClient.start();
+		}
+	}
+
+	public void stopTor()
+	{
+		peerTorClient.stop();
+	}
+
+	public void startI2p()
+	{
+		if (settingsService.hasI2pSocksConfigured())
+		{
+			peerI2pClient.start();
+		}
+	}
+
+	public void stopI2p()
+	{
 		peerI2pClient.stop();
 	}
 

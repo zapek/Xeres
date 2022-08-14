@@ -23,10 +23,12 @@ import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.NetworkReadyEvent;
+import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.connection.Connection;
+import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
 import io.xeres.app.net.dht.DHTService;
 import io.xeres.app.net.peer.PeerConnectionManager;
@@ -43,6 +45,7 @@ import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.splash.SplashService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -161,10 +164,19 @@ public class Startup implements ApplicationRunner
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			startNetworkServices(event.localIpAddress(), event.localPort());
+			settingsService.setLocalIpAddressAndPort(event.localIpAddress(), event.localPort());
+			startNetworkServices();
 		}
 		splashService.close();
 	}
+
+	@EventListener
+	public void onSettingsChangedEvent(SettingsChangedEvent event)
+	{
+		compareSettingsAndApplyActions(event.oldSettings(), event.newSettings());
+	}
+
+	// TODO: add a LocalIpAddressChanged. it has to restart UPNP (maybe Broadcast Service too), and update the IPs where needed
 
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
 	public void onApplicationEvent(ContextClosedEvent event)
@@ -178,8 +190,11 @@ public class Startup implements ApplicationRunner
 		stopNetworkServices();
 	}
 
-	void startNetworkServices(String localIpAddress, int localPort)
+	void startNetworkServices()
 	{
+		var localIpAddress = settingsService.getLocalIpAddress();
+		var localPort = settingsService.getLocalPort();
+
 		locationService.markAllConnectionsAsDisconnected();
 
 		log.info("Starting network services...");
@@ -290,6 +305,59 @@ public class Startup implements ApplicationRunner
 		if (!SingleInstanceRun.enforceSingleInstance(dataDirConfiguration.getDataDir()))
 		{
 			throw new IllegalStateException("An instance of " + AppName.NAME + " is already running.");
+		}
+	}
+
+	private void compareSettingsAndApplyActions(Settings oldSettings, Settings newSettings)
+	{
+		if (newSettings.isBroadcastDiscoveryEnabled() != oldSettings.isBroadcastDiscoveryEnabled())
+		{
+			if (newSettings.isBroadcastDiscoveryEnabled())
+			{
+				broadcastDiscoveryService.start(newSettings.getLocalIpAddress(), newSettings.getLocalPort());
+			}
+			else
+			{
+				broadcastDiscoveryService.stop();
+			}
+		}
+
+		if (newSettings.isUpnpEnabled() != oldSettings.isUpnpEnabled())
+		{
+			if (newSettings.isUpnpEnabled())
+			{
+				upnpService.start(newSettings.getLocalIpAddress(), newSettings.getLocalPort());
+			}
+			else
+			{
+				upnpService.stop();
+			}
+		}
+
+		if (!StringUtils.equals(newSettings.getTorSocksHost(), oldSettings.getTorSocksHost()) || newSettings.getTorSocksPort() != oldSettings.getTorSocksPort())
+		{
+			if (SettingsService.hasTorSocksConfigured(newSettings))
+			{
+				peerService.stopTor();
+				peerService.startTor();
+			}
+			else
+			{
+				peerService.stopTor();
+			}
+		}
+
+		if (!StringUtils.equals(newSettings.getI2pSocksHost(), oldSettings.getI2pSocksHost()) || newSettings.getI2pSocksPort() != oldSettings.getI2pSocksPort())
+		{
+			if (SettingsService.hasI2pSocksConfigured(newSettings))
+			{
+				peerService.stopI2p();
+				peerService.startI2p();
+			}
+			else
+			{
+				peerService.stopI2p();
+			}
 		}
 	}
 }

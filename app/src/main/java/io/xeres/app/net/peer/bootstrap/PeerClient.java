@@ -71,6 +71,7 @@ abstract class PeerClient
 
 	public void start()
 	{
+		log.info("Starting peer client...");
 		group = new NioEventLoopGroup();
 
 		bootstrap = new Bootstrap();
@@ -98,19 +99,19 @@ abstract class PeerClient
 
 		if (StartupProperties.getBoolean(StartupProperties.Property.FAST_SHUTDOWN, false))
 		{
-			log.debug("Shutting down netty client (fast)...");
+			log.debug("Shutting down peer client (fast)...");
 			group.shutdownGracefully();
 		}
 		else
 		{
-			log.info("Shutting down netty client...");
+			log.info("Shutting down peer client...");
 			try
 			{
 				group.shutdownGracefully().sync();
 			}
 			catch (InterruptedException e)
 			{
-				log.error("Error while shutting down netty client: {}", e.getMessage());
+				log.error("Error while shutting down peer client: {}", e.getMessage());
 				Thread.currentThread().interrupt();
 			}
 		}

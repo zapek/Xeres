@@ -19,10 +19,20 @@
 
 package io.xeres.app.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.settings.Settings;
+import io.xeres.app.database.model.settings.SettingsMapper;
 import io.xeres.app.database.repository.SettingsRepository;
+import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.protocol.HostPort;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,11 +49,18 @@ public class SettingsService
 {
 	private final SettingsRepository settingsRepository;
 
+	private final ApplicationEventPublisher publisher;
+
+	private final ObjectMapper objectMapper;
+
 	private Settings settings;
 
-	public SettingsService(SettingsRepository settingsRepository)
+
+	public SettingsService(SettingsRepository settingsRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper)
 	{
 		this.settingsRepository = settingsRepository;
+		this.publisher = publisher;
+		this.objectMapper = objectMapper;
 	}
 
 	@PostConstruct
@@ -57,15 +74,37 @@ public class SettingsService
 		settingsRepository.backupDatabase(file);
 	}
 
-	public Settings getSettings() // XXX: dangerous?
+	/**
+	 * Retrieve the settings. For DTO use only.
+	 *
+	 * @return the settings as a DTO
+	 */
+	public SettingsDTO getSettings()
 	{
-		return settings;
+		return SettingsMapper.toDTO(settings);
 	}
 
 	@Transactional
-	public void updateSettings(Settings settings)
+	public Settings applyPatchToSettings(JsonPatch jsonPatch)
 	{
+		try
+		{
+			var patched = jsonPatch.apply(objectMapper.convertValue(settings, JsonNode.class));
+			updateSettings(objectMapper.treeToValue(patched, Settings.class));
+		}
+		catch (JsonPatchException | JsonProcessingException e)
+		{
+			throw new IllegalStateException("Failed to patch settings", e);
+		}
+		return settings;
+	}
+
+
+	private void updateSettings(Settings settings)
+	{
+		var oldSettings = this.settings;
 		this.settings = settings;
+		publisher.publishEvent(new SettingsChangedEvent(oldSettings, settings));
 		settingsRepository.save(settings);
 	}
 
@@ -136,12 +175,32 @@ public class SettingsService
 
 	public boolean hasTorSocksConfigured()
 	{
+		return hasTorSocksConfigured(settings);
+	}
+
+	public static boolean hasTorSocksConfigured(Settings settings)
+	{
 		return isNotBlank(settings.getTorSocksHost()) && settings.getTorSocksPort() != 0;
+	}
+
+	public HostPort getTorSocksHostPort()
+	{
+		return new HostPort(settings.getTorSocksHost(), settings.getTorSocksPort());
 	}
 
 	public boolean hasI2pSocksConfigured()
 	{
+		return hasI2pSocksConfigured(settings);
+	}
+
+	public static boolean hasI2pSocksConfigured(Settings settings)
+	{
 		return isNotBlank(settings.getI2pSocksHost()) && settings.getI2pSocksPort() != 0;
+	}
+
+	public HostPort getI2pSocksHostPort()
+	{
+		return new HostPort(settings.getI2pSocksHost(), settings.getI2pSocksPort());
 	}
 
 	public boolean isUpnpEnabled()
@@ -152,5 +211,21 @@ public class SettingsService
 	public boolean isBroadcastDiscoveryEnabled()
 	{
 		return settings.isBroadcastDiscoveryEnabled();
+	}
+
+	public void setLocalIpAddressAndPort(String localIpAddress, int localPort)
+	{
+		settings.setLocalIpAddress(localIpAddress);
+		settings.setLocalPort(localPort);
+	}
+
+	public String getLocalIpAddress()
+	{
+		return settings.getLocalIpAddress();
+	}
+
+	public int getLocalPort()
+	{
+		return settings.getLocalPort();
 	}
 }

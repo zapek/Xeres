@@ -22,6 +22,7 @@ package io.xeres.app.database.model.settings;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Table(name = "settings")
 @Entity
@@ -31,11 +32,18 @@ public class Settings
 	@Id
 	private final byte lock = 1;
 
+	// The following 4 should not be exposed by JSON. The mapper must ignore them.
 	private byte[] pgpPrivateKeyData;
 
 	private byte[] locationPrivateKeyData;
 	private byte[] locationPublicKeyData;
 	private byte[] locationCertificate;
+
+	// The following should not be stored in any database
+	@Transient
+	private String localIpAddress;
+	@Transient
+	private int localPort;
 
 	private String torSocksHost;
 	private int torSocksPort;
@@ -154,5 +162,25 @@ public class Settings
 	public void setBroadcastDiscoveryEnabled(boolean enabled)
 	{
 		broadcastDiscoveryEnabled = enabled;
+	}
+
+	public String getLocalIpAddress()
+	{
+		return localIpAddress;
+	}
+
+	public void setLocalIpAddress(String localIpAddress)
+	{
+		this.localIpAddress = localIpAddress;
+	}
+
+	public int getLocalPort()
+	{
+		return localPort;
+	}
+
+	public void setLocalPort(int localPort)
+	{
+		this.localPort = localPort;
 	}
 }

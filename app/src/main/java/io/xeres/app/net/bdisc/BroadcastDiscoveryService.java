@@ -24,6 +24,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
+import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,7 @@ public class BroadcastDiscoveryService implements Runnable
 
 	private final DatabaseSessionManager databaseSessionManager;
 	private final LocationService locationService;
+	private final TrayService trayService;
 
 	private InetSocketAddress localAddress;
 	private InetSocketAddress sendAddress;
@@ -82,10 +84,11 @@ public class BroadcastDiscoveryService implements Runnable
 	private final int counter = 1;
 	private final Map<Integer, UdpDiscoveryPeer> peers = new HashMap<>();
 
-	public BroadcastDiscoveryService(DatabaseSessionManager databaseSessionManager, LocationService locationService)
+	public BroadcastDiscoveryService(DatabaseSessionManager databaseSessionManager, LocationService locationService, TrayService trayService)
 	{
 		this.databaseSessionManager = databaseSessionManager;
 		this.locationService = locationService;
+		this.trayService = trayService;
 	}
 
 	public void start(String localIpAddress, int localPort)
@@ -328,7 +331,7 @@ public class BroadcastDiscoveryService implements Runnable
 						{
 							log.debug("Trying to update friend's IP");
 
-							locationService.findLocationByLocationId(peer.getLocationId()).ifPresent(location -> {
+							locationService.findLocationByLocationId(peer.getLocationId()).ifPresentOrElse(location -> {
 								if (!location.isConnected())
 								{
 									var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));
@@ -336,8 +339,7 @@ public class BroadcastDiscoveryService implements Runnable
 									log.debug("Updating friend {} with ip {}", location, lanConnection);
 									location.addConnection(lanConnection);
 								}
-									}
-							);
+							}, () -> trayService.showNotification("Detected client on LAN: " + peer.getProfileName() + " at " + peer.getIpAddress()));
 						}
 					}
 				}

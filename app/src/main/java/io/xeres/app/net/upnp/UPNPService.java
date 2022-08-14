@@ -101,7 +101,7 @@ public class UPNPService implements Runnable
 
 	public void start(String localIpAddress, int localPort)
 	{
-		log.info("Starting UPNP...");
+		log.info("Starting UPNP service...");
 		this.localIpAddress = localIpAddress;
 		this.localPort = localPort;
 		thread = new Thread(this, "UPNP Service");

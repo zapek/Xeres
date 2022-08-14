@@ -58,11 +58,11 @@ public class SettingsWindowController implements WindowController
 	public void initialize()
 	{
 		listView.setCellFactory(SettingsCell::new);
-		listView.getItems().addAll(new SettingsGroup("Networks", new ImageView("/image/settings_networks.png"), SettingsNetworksController.class),
-				new SettingsGroup("Chat", new ImageView("/image/settings_chat.png"), null),
-				new SettingsGroup("Identities", new ImageView("/image/settings_identities.png"), null),
-				new SettingsGroup("Mail", new ImageView("/image/settings_mail.png"), null),
-				new SettingsGroup("Transfers", new ImageView("/image/settings_transfer.png"), null));
+		listView.getItems().addAll(new SettingsGroup("Network", new ImageView("/image/settings_networks.png"), SettingsNetworksController.class));
+		//new SettingsGroup("Chat", new ImageView("/image/settings_chat.png"), null),
+		//new SettingsGroup("Identities", new ImageView("/image/settings_identities.png"), null),
+		//new SettingsGroup("Mail", new ImageView("/image/settings_mail.png"), null),
+		//new SettingsGroup("Transfers", new ImageView("/image/settings_transfer.png"), null));
 
 		listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			saveContent();

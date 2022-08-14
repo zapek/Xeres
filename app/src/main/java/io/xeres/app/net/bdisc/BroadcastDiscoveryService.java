@@ -93,7 +93,7 @@ public class BroadcastDiscoveryService implements Runnable
 
 	public void start(String localIpAddress, int localPort)
 	{
-		log.info("Starting Broadcast Discovery...");
+		log.info("Starting Broadcast Discovery service...");
 		localAddress = new InetSocketAddress(localIpAddress, localPort);
 		thread = new Thread(this, "Broadcast Discovery Service");
 		thread.start();

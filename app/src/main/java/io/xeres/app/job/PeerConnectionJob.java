@@ -65,7 +65,7 @@ public class PeerConnectionJob
 	}
 
 	@Scheduled(initialDelay = 5, fixedDelay = 60, timeUnit = TimeUnit.SECONDS)
-	protected void checkConnections()
+	void checkConnections()
 	{
 		// Do not connect if we're in server mode (i.e. only accepting connections)
 		if (StartupProperties.getBoolean(SERVER_ONLY, false))

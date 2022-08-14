@@ -42,7 +42,7 @@ public class IdleDetectionJob
 	}
 
 	@Scheduled(initialDelay = 5 * 60, fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
-	protected void checkIdle()
+	void checkIdle()
 	{
 		var idleTime = idleChecker.getIdleTime();
 		if (idleTime < TimeUnit.MINUTES.toSeconds(5))

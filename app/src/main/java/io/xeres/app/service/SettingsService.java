@@ -219,6 +219,11 @@ public class SettingsService
 		settings.setLocalPort(localPort);
 	}
 
+	public void setLocalIpAddress(String localIpAddress)
+	{
+		settings.setLocalIpAddress(localIpAddress);
+	}
+
 	public String getLocalIpAddress()
 	{
 		return settings.getLocalIpAddress();

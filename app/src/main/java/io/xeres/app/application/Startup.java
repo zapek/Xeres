@@ -21,6 +21,7 @@ package io.xeres.app.application;
 
 import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
+import io.xeres.app.application.events.IpChangedEvent;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.application.events.SettingsChangedEvent;
@@ -176,7 +177,24 @@ public class Startup implements ApplicationRunner
 		compareSettingsAndApplyActions(event.oldSettings(), event.newSettings());
 	}
 
-	// TODO: add a LocalIpAddressChanged. it has to restart UPNP (maybe Broadcast Service too), and update the IPs where needed
+	@EventListener
+	public void onIpChangedEvent(IpChangedEvent event)
+	{
+		log.warn("IP change event received, possibly restarting some services...");
+		settingsService.setLocalIpAddress(event.localIpAddress());
+
+		if (settingsService.isUpnpEnabled())
+		{
+			upnpService.stop();
+			upnpService.start(settingsService.getLocalIpAddress(), settingsService.getLocalPort());
+		}
+
+		if (settingsService.isBroadcastDiscoveryEnabled())
+		{
+			broadcastDiscoveryService.stop();
+			broadcastDiscoveryService.start(settingsService.getLocalIpAddress(), settingsService.getLocalPort());
+		}
+	}
 
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
 	public void onApplicationEvent(ContextClosedEvent event)
@@ -206,12 +224,10 @@ public class Startup implements ApplicationRunner
 			{
 				if (settingsService.isUpnpEnabled())
 				{
-					log.info("Starting UPNP service...");
 					upnpService.start(localIpAddress, localPort);
 				}
 				if (settingsService.isBroadcastDiscoveryEnabled())
 				{
-					log.info("Starting Broadcast Discovery service...");
 					broadcastDiscoveryService.start(localIpAddress, localPort);
 				}
 			}

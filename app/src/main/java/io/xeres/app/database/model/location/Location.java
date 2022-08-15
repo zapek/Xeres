@@ -25,6 +25,7 @@ import io.xeres.app.database.converter.NetModeConverter;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.gxs.GxsClientUpdate;
 import io.xeres.app.database.model.profile.Profile;
+import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.common.rsid.Type;
@@ -308,7 +309,7 @@ public class Location
 			return Stream.empty();
 		}
 		var connectionsSortedByMostReliable = connections.stream()
-				.sorted(comparing(Connection::getIp, new OwnIpComparator<>(ipToAvoid))
+				.sorted(comparing(Location::getConnectionAsIpv4, new OwnIpComparator<>(ipToAvoid))
 						.thenComparing(Connection::getLastConnected, nullsLast(reverseOrder())))
 				.toList();
 
@@ -334,6 +335,15 @@ public class Location
 	public String toString()
 	{
 		return locationId.toString();
+	}
+
+	private static String getConnectionAsIpv4(Connection connection)
+	{
+		if (connection.getType() == PeerAddress.Type.IPV4)
+		{
+			return connection.getIp();
+		}
+		return "";
 	}
 
 	/**

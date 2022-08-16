@@ -87,7 +87,7 @@
                     <Insets right="4.0"/>
                 </GridPane.margin>
             </Label>
-            <TextField fx:id="externalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <TextField fx:id="externalIpAndPort" editable="false" styleClass="text-field-readonly" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
                     <Tooltip showDuration="30s" text="The external IP and port of your location. This is how your connection appears on the Internet."/>
                 </tooltip>
@@ -114,7 +114,7 @@
                     <Insets right="4.0"/>
                 </GridPane.margin>
             </Label>
-            <TextField fx:id="internalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <TextField fx:id="internalIpAndPort" editable="false" styleClass="text-field-readonly" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
                     <Tooltip showDuration="30s" text="The internal IP and port of your location. This is how your connection appears on your LAN (Local Area Network)."/>
                 </tooltip>

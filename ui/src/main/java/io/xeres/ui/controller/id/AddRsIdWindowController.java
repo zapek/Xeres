@@ -143,6 +143,8 @@ public class AddRsIdWindowController implements WindowController
 					certName.setText(profile.getName());
 					certId.setText(Id.toString(profile.getPgpIdentifier()));
 					certFingerprint.setText(profile.getProfileFingerprint().toString());
+
+					certIps.getItems().clear();
 					profile.getLocations().stream()
 							.findFirst()
 							.ifPresent(location ->
@@ -182,6 +184,7 @@ public class AddRsIdWindowController implements WindowController
 
 	private void setDefaultTrust(ChoiceBox<Trust> trust)
 	{
+		trust.getItems().clear();
 		trust.getItems().addAll(Arrays.stream(Trust.values()).filter(t -> t != Trust.ULTIMATE).toList());
 		trust.getSelectionModel().select(Trust.UNKNOWN);
 	}

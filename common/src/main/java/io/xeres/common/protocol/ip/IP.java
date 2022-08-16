@@ -156,7 +156,6 @@ public final class IP
 			ip = socket.getLocalAddress().getHostAddress();
 			if (isRoutableIp(ip))
 			{
-				log.debug("Own IP found using routing system: {}", ip);
 				return ip;
 			}
 
@@ -164,7 +163,6 @@ public final class IP
 			ip = findIpFromInterfaces();
 			if (isRoutableIp(ip))
 			{
-				log.debug("Own IP found by walking down interfaces: {}", ip);
 				return ip;
 			}
 		}

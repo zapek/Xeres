@@ -104,13 +104,13 @@ abstract class PeerServer
 
 		if (StartupProperties.getBoolean(StartupProperties.Property.FAST_SHUTDOWN, false))
 		{
-			log.debug("Shutting down netty server (fast)...");
+			log.debug("Shutting down peer server (fast)...");
 			workerGroup.shutdownGracefully();
 			bossGroup.shutdownGracefully();
 		}
 		else
 		{
-			log.info("Shutting down netty server...");
+			log.info("Shutting down peer server...");
 			try
 			{
 				workerGroup.shutdownGracefully().sync();
@@ -118,7 +118,7 @@ abstract class PeerServer
 			}
 			catch (InterruptedException e)
 			{
-				log.error("Error while shutting down netty server: {}", e.getMessage());
+				log.error("Error while shutting down peer server: {}", e.getMessage());
 				Thread.currentThread().interrupt();
 			}
 		}

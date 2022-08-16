@@ -57,25 +57,25 @@
                 <RowConstraints/>
             </rowConstraints>
             <Label text="Name"/>
-            <TextField fx:id="certName" editable="false" GridPane.columnIndex="1">
+            <TextField fx:id="certName" editable="false" styleClass="text-field-readonly" GridPane.columnIndex="1">
                 <tooltip>
                     <Tooltip showDuration="30s" text="Make sure it matches your peer's name or nickname."/>
                 </tooltip>
             </TextField>
             <Label text="Profile ID" GridPane.rowIndex="1"/>
-            <TextField fx:id="certId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <TextField fx:id="certId" editable="false" styleClass="text-field-readonly" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
                     <Tooltip showDuration="30s" text="Unique ID to give a quick and easy way to check if your peer's profile is the right one. If you need absolute certainty, use the fingerprint instead."/>
                 </tooltip>
             </TextField>
             <Label text="Fingerprint" GridPane.rowIndex="2"/>
-            <TextField fx:id="certFingerprint" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <TextField fx:id="certFingerprint" editable="false" styleClass="text-field-readonly" GridPane.columnIndex="1" GridPane.rowIndex="2">
                 <tooltip>
                     <Tooltip showDuration="30s" text="Cryptographic checksum to certify the authenticity of your peer's profile."/>
                 </tooltip>
             </TextField>
             <Label text="Location ID" GridPane.rowIndex="3"/>
-            <TextField fx:id="certLocId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <TextField fx:id="certLocId" editable="false" styleClass="text-field-readonly" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <tooltip>
                     <Tooltip showDuration="30s" text="Location identifier. A profile can have several locations but each has a unique ID."/>
                 </tooltip>

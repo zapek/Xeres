@@ -20,6 +20,7 @@
 package io.xeres.app.net.dht;
 
 import io.xeres.app.configuration.DataDirConfiguration;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.ip.IP;
 import lbms.plugins.mldht.DHTConfiguration;
 import lbms.plugins.mldht.kad.*;
@@ -84,8 +85,11 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			log.error("Error while setting up DHT: {}", e.getMessage(), e);
 		}
 
+		dht.bootstrap();
+
 		dht.getServerManager().awaitActiveServer(); // XXX: catch the completable future to get a RPCServer to work with
 		// see https://github.com/the8472/mldht/blob/master/docs/use-as-library.md
+		// and p3bitdht_peers.cc
 	}
 
 	public void stop()
@@ -96,12 +100,37 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		}
 	}
 
+	public void addLocation(LocationId locationId)
+	{
+		var peerLookup = dht.createPeerLookup(HashInfo.makeHashInfo(locationId));
+		peerLookup.start();
+		// XXX: we should probably store those PeerLookupTasks somewhere...
+
+		// XXX: do we need to announce()?
+
+		//var key = new Key(HashInfo.makeHashInfo(locationId));
+//		var request = new GetPeersRequest(key);
+//		request.setOrigin();
+//		request.setWant4(true);
+//		request.setWant6(false);
+//		dht.getPeers(new GetPeersRequest());
+	}
+
+	private void announce()
+	{
+		//dht.announce()
+	}
+
 	@Override
 	public void statusChanged(DHTStatus newStatus, DHTStatus oldStatus)
 	{
 		switch (newStatus)
 		{
-			case Running -> log.info("DHT status -> running");
+			case Running ->
+			{
+				log.info("DHT status -> running");
+				//addLocation(new LocationId(""));
+			}
 
 			// XXX: wait for that event before making us as usable
 			case Stopped -> log.info("DHT status -> stopped");
@@ -184,6 +213,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	public void received(DHT dht, MessageBase messageBase)
 	{
 		// XXX: handle messages here. called from message processing thread so must be non blocking and thread safe
+		log.debug("Received message, id: {}, address: {}", messageBase.getID(), messageBase.getDestination().getAddress());
 	}
 
 	private void addBootstrappingNodes()

@@ -24,7 +24,7 @@ buildscript {
         bouncycastleVersion = "1.71"
         apacheCommonsCollectionsVersion = "4.4"
         springOpenApiVersion = "1.6.9"
-        jsoupVersion = "1.15.1"
+        jsoupVersion = "1.15.2"
         jsonPatchVersion = "1.13"
     }
 }
@@ -40,7 +40,7 @@ plugins {
 
 // To upgrade Gradle, change the version here, refresh, then run the 'wrapper' task
 wrapper {
-    gradleVersion = '7.5'
+    gradleVersion = '7.5.1'
 }
 
 subprojects {

@@ -19,6 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.custom.ReadOnlyTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -87,11 +88,11 @@
                     <Insets right="4.0"/>
                 </GridPane.margin>
             </Label>
-            <TextField fx:id="externalIpAndPort" editable="false" styleClass="text-field-readonly" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <ReadOnlyTextField fx:id="externalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
                     <Tooltip showDuration="30s" text="The external IP and port of your location. This is how your connection appears on the Internet."/>
                 </tooltip>
-            </TextField>
+            </ReadOnlyTextField>
         </GridPane>
     </TitledPane>
     <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="LAN">
@@ -114,11 +115,11 @@
                     <Insets right="4.0"/>
                 </GridPane.margin>
             </Label>
-            <TextField fx:id="internalIpAndPort" editable="false" styleClass="text-field-readonly" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <ReadOnlyTextField fx:id="internalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
                     <Tooltip showDuration="30s" text="The internal IP and port of your location. This is how your connection appears on your LAN (Local Area Network)."/>
                 </tooltip>
-            </TextField>
+            </ReadOnlyTextField>
         </GridPane>
     </TitledPane>
 </VBox>

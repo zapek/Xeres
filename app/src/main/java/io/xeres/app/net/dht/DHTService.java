@@ -41,7 +41,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 import static lbms.plugins.mldht.kad.DHT.DHTtype.IPV4_DHT;
-import static lbms.plugins.mldht.kad.DHT.LogLevel.Fatal;
+import static lbms.plugins.mldht.kad.DHT.LogLevel.Info;
 
 @Service
 public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStatsListener, DHT.IncomingMessageListener
@@ -68,7 +68,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		this.localPort = localPort;
 
 		DHT.setLogger(new DHTSpringLog());
-		DHT.setLogLevel(Fatal);
+		DHT.setLogLevel(Info);
 		dht = new DHT(IPV4_DHT);
 		dht.addStatusListener(this);
 		dht.addStatsListener(this);
@@ -78,14 +78,12 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		try
 		{
 			dht.start(this);
-			addBootstrappingNodes();
+			//addBootstrappingNodes(); // XXX: disabled because the bootstrapping internal method does the same. 67.215.246.10 DOES answer!
 		}
 		catch (IOException e)
 		{
 			log.error("Error while setting up DHT: {}", e.getMessage(), e);
 		}
-
-		dht.bootstrap();
 
 		dht.getServerManager().awaitActiveServer(); // XXX: catch the completable future to get a RPCServer to work with
 		// see https://github.com/the8472/mldht/blob/master/docs/use-as-library.md
@@ -103,17 +101,10 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	public void addLocation(LocationId locationId)
 	{
 		var peerLookup = dht.createPeerLookup(HashInfo.makeHashInfo(locationId));
-		peerLookup.start();
-		// XXX: we should probably store those PeerLookupTasks somewhere...
+		dht.getTaskManager().addTask(peerLookup);
+		// XXX: we should probably store those PeerLookupTasks somewhere... well, here they are
 
-		// XXX: do we need to announce()?
-
-		//var key = new Key(HashInfo.makeHashInfo(locationId));
-//		var request = new GetPeersRequest(key);
-//		request.setOrigin();
-//		request.setWant4(true);
-//		request.setWant6(false);
-//		dht.getPeers(new GetPeersRequest());
+		// XXX: do we need to announce()? I don't think so...
 	}
 
 	private void announce()
@@ -143,7 +134,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	@Override
 	public boolean isPersistingID()
 	{
-		return false;
+		return true;
 	}
 
 	@Override
@@ -174,7 +165,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	@Override
 	public boolean noRouterBootstrap()
 	{
-		return true;
+		return false; // XXX: I think it "might" not be required if we add nodes manually but check...
 	}
 
 	@Override

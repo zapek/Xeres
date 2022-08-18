@@ -19,11 +19,14 @@
 
 package io.xeres.app.net.upnp;
 
+import io.xeres.app.application.events.PortsForwardedEvent;
 import io.xeres.common.AppName;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.client.ConfigClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,6 +37,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -81,6 +85,7 @@ public class UPNPService implements Runnable
 	}
 
 	private final ConfigClient configClient;
+	private final ApplicationEventPublisher publisher;
 
 	private int deviceIndex;
 
@@ -94,9 +99,10 @@ public class UPNPService implements Runnable
 	private State state;
 	private Device device;
 
-	public UPNPService(ConfigClient configClient)
+	public UPNPService(ConfigClient configClient, ApplicationEventPublisher publisher)
 	{
 		this.configClient = configClient;
+		this.publisher = publisher;
 	}
 
 	public void start(String localIpAddress, int localPort)
@@ -325,6 +331,7 @@ public class UPNPService implements Runnable
 				if (added)
 				{
 					log.info("UPNP ports added successfully.");
+					CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new PortsForwardedEvent(localPort)));
 				}
 				else
 				{

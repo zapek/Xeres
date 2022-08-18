@@ -38,10 +38,11 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 
 import static lbms.plugins.mldht.kad.DHT.DHTtype.IPV4_DHT;
-import static lbms.plugins.mldht.kad.DHT.LogLevel.Info;
+import static lbms.plugins.mldht.kad.DHT.LogLevel.Debug;
 
 @Service
 public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStatsListener, DHT.IncomingMessageListener
@@ -65,10 +66,15 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 	public void start(int localPort)
 	{
+		if (dht != null && dht.isRunning())
+		{
+			return;
+		}
+
 		this.localPort = localPort;
 
 		DHT.setLogger(new DHTSpringLog());
-		DHT.setLogLevel(Info);
+		DHT.setLogLevel(Debug);
 		dht = new DHT(IPV4_DHT);
 		dht.addStatusListener(this);
 		dht.addStatsListener(this);
@@ -78,14 +84,21 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		try
 		{
 			dht.start(this);
-			//addBootstrappingNodes(); // XXX: disabled because the bootstrapping internal method does the same. 67.215.246.10 DOES answer!
+			addBootstrappingNodes();
 		}
 		catch (IOException e)
 		{
 			log.error("Error while setting up DHT: {}", e.getMessage(), e);
 		}
 
-		dht.getServerManager().awaitActiveServer(); // XXX: catch the completable future to get a RPCServer to work with
+		try
+		{
+			dht.getServerManager().awaitActiveServer().get(); // XXX: catch the completable future to get a RPCServer to work with
+		}
+		catch (InterruptedException | ExecutionException e)
+		{
+			throw new IllegalStateException(e);
+		}
 		// see https://github.com/the8472/mldht/blob/master/docs/use-as-library.md
 		// and p3bitdht_peers.cc
 	}
@@ -165,7 +178,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	@Override
 	public boolean noRouterBootstrap()
 	{
-		return false; // XXX: I think it "might" not be required if we add nodes manually but check...
+		return true; // we do the bootstrapping ourselves
 	}
 
 	@Override

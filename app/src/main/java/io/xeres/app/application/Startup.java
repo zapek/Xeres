@@ -21,10 +21,7 @@ package io.xeres.app.application;
 
 import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
-import io.xeres.app.application.events.IpChangedEvent;
-import io.xeres.app.application.events.LocationReadyEvent;
-import io.xeres.app.application.events.NetworkReadyEvent;
-import io.xeres.app.application.events.SettingsChangedEvent;
+import io.xeres.app.application.events.*;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -196,6 +193,17 @@ public class Startup implements ApplicationRunner
 		}
 	}
 
+	@EventListener
+	public void onPortsForwarded(PortsForwardedEvent event)
+	{
+		log.info("Ports forwarded on the router");
+
+		if (networkProperties.isDht())
+		{
+			dhtService.start(event.localPort());
+		}
+	}
+
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
 	public void onApplicationEvent(ContextClosedEvent event)
 	{
@@ -230,10 +238,6 @@ public class Startup implements ApplicationRunner
 				{
 					broadcastDiscoveryService.start(localIpAddress, localPort);
 				}
-			}
-			if (networkProperties.isDht())
-			{
-				dhtService.start(localPort);
 			}
 			peerService.start(localPort);
 

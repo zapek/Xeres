@@ -204,6 +204,12 @@ public class Startup implements ApplicationRunner
 		}
 	}
 
+	@EventListener
+	public void onDhtReady(DhtReadyEvent event)
+	{
+		// XXX: search for peers to update their IP and advertise our IP
+	}
+
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
 	public void onApplicationEvent(ContextClosedEvent event)
 	{

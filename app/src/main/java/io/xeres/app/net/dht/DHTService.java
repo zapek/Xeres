@@ -19,14 +19,17 @@
 
 package io.xeres.app.net.dht;
 
+import io.xeres.app.application.events.DhtReadyEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.util.NoSuppressedRunnable;
 import lbms.plugins.mldht.DHTConfiguration;
 import lbms.plugins.mldht.kad.*;
-import lbms.plugins.mldht.kad.messages.MessageBase;
+import lbms.plugins.mldht.kad.tasks.PeerLookupTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -38,19 +41,20 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 
 import static lbms.plugins.mldht.kad.DHT.DHTtype.IPV4_DHT;
-import static lbms.plugins.mldht.kad.DHT.LogLevel.Debug;
+import static lbms.plugins.mldht.kad.DHT.LogLevel.Fatal;
 
 @Service
-public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStatsListener, DHT.IncomingMessageListener
+public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStatsListener
 {
 	private static final Logger log = LoggerFactory.getLogger(DHTService.class);
 
 	private static final String DHT_DATA_DIR = "dht";
-	private static final Duration STATS_DELAY = Duration.ofMinutes(1);
+	private static final Duration STATS_DELAY = Duration.ofMinutes(5);
 
 	private DHT dht;
 	private int localPort;
@@ -58,10 +62,12 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	private Instant lastStats;
 
 	private final DataDirConfiguration dataDirConfiguration;
+	private final ApplicationEventPublisher publisher;
 
-	public DHTService(DataDirConfiguration dataDirConfiguration)
+	public DHTService(DataDirConfiguration dataDirConfiguration, ApplicationEventPublisher publisher)
 	{
 		this.dataDirConfiguration = dataDirConfiguration;
+		this.publisher = publisher;
 	}
 
 	public void start(int localPort)
@@ -74,17 +80,17 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		this.localPort = localPort;
 
 		DHT.setLogger(new DHTSpringLog());
-		DHT.setLogLevel(Debug);
+		DHT.setLogLevel(Fatal);
 		dht = new DHT(IPV4_DHT);
 		dht.addStatusListener(this);
 		dht.addStatsListener(this);
-		dht.addIncomingMessageListener(this);
 		lastStats = Instant.now();
 
 		try
 		{
 			dht.start(this);
-			addBootstrappingNodes();
+			dht.bootstrap();
+			//addBootstrappingNodes(); // disabled for now... would need a more flexible bootstrapping process, although I *think* you can add more nodes
 		}
 		catch (IOException e)
 		{
@@ -93,14 +99,12 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 		try
 		{
-			dht.getServerManager().awaitActiveServer().get(); // XXX: catch the completable future to get a RPCServer to work with
+			dht.getServerManager().awaitActiveServer().get();
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
 			throw new IllegalStateException(e);
 		}
-		// see https://github.com/the8472/mldht/blob/master/docs/use-as-library.md
-		// and p3bitdht_peers.cc
 	}
 
 	public void stop()
@@ -111,18 +115,30 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		}
 	}
 
-	public void addLocation(LocationId locationId)
+	public void search(LocationId locationId)
 	{
-		var peerLookup = dht.createPeerLookup(HashInfo.makeHashInfo(locationId));
-		dht.getTaskManager().addTask(peerLookup);
-		// XXX: we should probably store those PeerLookupTasks somewhere... well, here they are
-
-		// XXX: do we need to announce()? I don't think so...
+		var peerLookupTask = dht.createPeerLookup(HashInfo.makeHashInfo(locationId));
+		if (peerLookupTask != null)
+		{
+			peerLookupTask.setNoAnnounce(true);
+			peerLookupTask.setInfo(locationId.toString());
+			peerLookupTask.setNoSeeds(false); // XXX: not sure...
+			peerLookupTask.addListener(task -> log.debug("Task finished: {}, items: {}", task.getInfo(), ((PeerLookupTask) task).getReturnedItems().size()));
+			dht.getTaskManager().addTask(peerLookupTask);
+			log.debug("Added PeerLookupTask {} for locationId {}", peerLookupTask, peerLookupTask.getInfo());
+		}
 	}
 
-	private void announce()
+	private void announce(LocationId locationId)
 	{
-		//dht.announce()
+		var peerLookupTask = dht.createPeerLookup(HashInfo.makeHashInfo(locationId));
+		if (peerLookupTask != null)
+		{
+			peerLookupTask.setInfo(locationId.toString());
+			peerLookupTask.addListener(task -> dht.announce((PeerLookupTask) task, true, localPort));
+			dht.getTaskManager().addTask(peerLookupTask);
+			log.debug("Added PeerLookupTask + announce {} for locationId {}", peerLookupTask, peerLookupTask.getInfo());
+		}
 	}
 
 	@Override
@@ -133,13 +149,11 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			case Running ->
 			{
 				log.info("DHT status -> running");
-				//addLocation(new LocationId(""));
+				CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new DhtReadyEvent()));
 			}
 
-			// XXX: wait for that event before making us as usable
 			case Stopped -> log.info("DHT status -> stopped");
 
-			// XXX: allow to wait on that while shutting down
 			case Initializing -> log.info("DHT status -> initializing");
 		}
 	}
@@ -178,7 +192,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	@Override
 	public boolean noRouterBootstrap()
 	{
-		return true; // we do the bootstrapping ourselves
+		return false;
 	}
 
 	@Override
@@ -200,7 +214,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 		if (Duration.between(lastStats, now).compareTo(STATS_DELAY) > 0)
 		{
-			log.debug("Num peers: {}, recv pkt: {} ({} KB), sent pkt: {} ({} KB), keys: {}, items: {}",
+			log.debug("Peers: {}, recv pkt: {} ({} KB), sent pkt: {} ({} KB), keys: {}, items: {}",
 					dhtStats.getNumPeers(),
 					dhtStats.getNumReceivedPackets(),
 					dhtStats.getRpcStats().getReceivedBytes() / 1024,
@@ -211,13 +225,6 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 			lastStats = now;
 		}
-	}
-
-	@Override
-	public void received(DHT dht, MessageBase messageBase)
-	{
-		// XXX: handle messages here. called from message processing thread so must be non blocking and thread safe
-		log.debug("Received message, id: {}, address: {}", messageBase.getID(), messageBase.getDestination().getAddress());
 	}
 
 	private void addBootstrappingNodes()

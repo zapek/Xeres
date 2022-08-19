@@ -60,13 +60,13 @@
             <Label text="Name"/>
             <ReadOnlyTextField fx:id="certName" editable="false" GridPane.columnIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Make sure it matches your peer's name or nickname."/>
+                    <Tooltip showDuration="30s" text="Name of the peer, make sure you know who it is."/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="Profile ID" GridPane.rowIndex="1"/>
             <ReadOnlyTextField fx:id="certId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Unique ID to give a quick and easy way to check if your peer's profile is the right one. If you need absolute certainty, use the fingerprint instead."/>
+                    <Tooltip showDuration="30s" text="Unique ID to check if your peer's profile is the right one."/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="Fingerprint" GridPane.rowIndex="2"/>
@@ -78,19 +78,19 @@
             <Label text="Location ID" GridPane.rowIndex="3"/>
             <ReadOnlyTextField fx:id="certLocId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Location identifier. A profile can have several locations but each has a unique ID."/>
+                    <Tooltip showDuration="30s" text="Location identifier. A profile can have several locations and each has a unique ID."/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="Address" GridPane.rowIndex="4"/>
             <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Addresses to connect to. They will all be tried in turn but you can preselect the best one for a faster connection."/>
+                    <Tooltip showDuration="30s" text="Addresses to connect to. They will all be tried in turn but you can preselect the best one for a faster connection.&#10;Addresses ending in .onion require using a Tor proxy.&#10;Addresses ending in .i2p require using an I2P proxy."/>
                 </tooltip>
             </ChoiceBox>
             <Label text="Trust" GridPane.rowIndex="5"/>
             <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="The trust level you put on the peer.&#10;Unknown: no opinion.&#10;Never: none or minimal, met online recently.&#10;Marginal: more or less trustable, acquaintance.&#10;Full: very trustable, good friend."/>
+                    <Tooltip showDuration="30s" text="The trust level you have on the peer.&#10;Unknown: no opinion.&#10;Never: none or minimal, met online recently.&#10;Marginal: more or less trustable, acquaintance.&#10;Full: very trustable, good friend."/>
                 </tooltip>
             </ChoiceBox>
         </GridPane>

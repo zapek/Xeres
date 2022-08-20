@@ -89,8 +89,12 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		try
 		{
 			dht.start(this);
+			dht.getNode().getNumEntriesInRoutingTable();
 			dht.bootstrap();
-			//addBootstrappingNodes(); // disabled for now... would need a more flexible bootstrapping process, although I *think* you can add more nodes
+			if (dht.getNode().getNumEntriesInRoutingTable() < 10)
+			{
+				addBootstrappingNodes(); // help the bootstrapping process, in case nothing resolves
+			}
 		}
 		catch (IOException e)
 		{

@@ -39,11 +39,6 @@ public class NetworkProperties
 	 */
 	private boolean packetGrouping = false;
 
-	/**
-	 * Enables the DHT (Mainline DHT).
-	 */
-	private boolean dht = false;
-
 	@PostConstruct
 	private void checkConsistency()
 	{
@@ -77,15 +72,5 @@ public class NetworkProperties
 	public void setPacketGrouping(boolean packetGrouping)
 	{
 		this.packetGrouping = packetGrouping;
-	}
-
-	public boolean isDht()
-	{
-		return dht;
-	}
-
-	public void setDht(boolean dht)
-	{
-		this.dht = dht;
 	}
 }

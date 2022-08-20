@@ -55,6 +55,8 @@ public class Settings
 
 	private boolean broadcastDiscoveryEnabled;
 
+	private boolean dhtEnabled;
+
 	protected Settings()
 	{
 	}
@@ -162,6 +164,16 @@ public class Settings
 	public void setBroadcastDiscoveryEnabled(boolean enabled)
 	{
 		broadcastDiscoveryEnabled = enabled;
+	}
+
+	public boolean isDhtEnabled()
+	{
+		return dhtEnabled;
+	}
+
+	public void setDhtEnabled(boolean dhtEnabled)
+	{
+		this.dhtEnabled = dhtEnabled;
 	}
 
 	public String getLocalIpAddress()

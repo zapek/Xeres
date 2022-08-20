@@ -57,6 +57,9 @@ public class SettingsNetworksController implements SettingsController
 	@FXML
 	private TextField internalIpAndPort;
 
+	@FXML
+	private CheckBox dhtEnabled;
+
 	private Settings settings;
 
 	private final ConfigClient configClient;
@@ -104,6 +107,8 @@ public class SettingsNetworksController implements SettingsController
 		upnpEnabled.setSelected(settings.isUpnpEnabled());
 
 		broadcastDiscoveryEnabled.setSelected(settings.isBroadcastDiscoveryEnabled());
+
+		dhtEnabled.setSelected(settings.isDhtEnabled());
 	}
 
 	@Override
@@ -118,6 +123,8 @@ public class SettingsNetworksController implements SettingsController
 		settings.setUpnpEnabled(upnpEnabled.isSelected());
 
 		settings.setBroadcastDiscoveryEnabled(broadcastDiscoveryEnabled.isSelected());
+
+		settings.setDhtEnabled(dhtEnabled.isSelected());
 
 		return settings;
 	}

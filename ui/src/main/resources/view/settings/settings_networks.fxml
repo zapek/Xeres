@@ -122,4 +122,20 @@
             </ReadOnlyTextField>
         </GridPane>
     </TitledPane>
+    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="DHT">
+        <GridPane hgap="4.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <CheckBox fx:id="dhtEnabled" mnemonicParsing="false" text="Enable DHT" GridPane.columnSpan="2147483647">
+                <tooltip>
+                    <Tooltip showDuration="30s" text="The DHT (Distributed Hash Table) allows peers to find each other's IP address when it changes. This improves the connectivity when roaming."/>
+                </tooltip>
+            </CheckBox>
+        </GridPane>
+    </TitledPane>
 </VBox>

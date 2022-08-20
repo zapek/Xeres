@@ -17,16 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.settings;
+package io.xeres.common.rest.notification;
 
-public record SettingsDTO(
-		String torSocksHost,
-		int torSocksPort,
-		String i2pSocksHost,
-		int i2pSocksPort,
-		boolean upnpEnabled,
-		boolean broadcastDiscoveryEnabled,
-		boolean dhtEnabled
-)
+public enum NatStatus
 {
+	UNKNOWN,
+	FIREWALLED,
+	UPNP
 }

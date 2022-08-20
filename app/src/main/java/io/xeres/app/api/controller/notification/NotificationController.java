@@ -44,12 +44,12 @@ public class NotificationController
 		this.ssePushNotificationService = ssePushNotificationService;
 	}
 
-	@GetMapping
+	@GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	@Operation(summary = "Subscribe to notifications")
 	@ApiResponse(responseCode = "200", description = "Request completed successfully")
 	public SseEmitter setupNotification()
 	{
-		var emitter = new SseEmitter();
+		var emitter = new SseEmitter(-1L);
 		ssePushNotificationService.addEmitter(emitter);
 		emitter.onCompletion(() -> ssePushNotificationService.removeEmitter(emitter));
 		emitter.onTimeout(() -> ssePushNotificationService.removeEmitter(emitter));

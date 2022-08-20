@@ -19,14 +19,14 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
+<VBox xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
     <MenuBar>
         <Menu text="Peers">
             <MenuItem fx:id="addPeer" text="_Add Peer..."/>
@@ -98,4 +98,17 @@
             <fx:include fx:id="chatViewController" source="chat/chatview.fxml"/>
         </Tab>
     </TabPane>
+    <HBox alignment="BOTTOM_LEFT">
+        <children>
+            <Label text="Connections: "/>
+            <Label fx:id="numberOfConnections" prefWidth="40.0"/>
+            <Label text="NAT: "/>
+            <Label fx:id="natStatus" minWidth="30.0"/>
+            <Label text="DHT: "/>
+            <Label fx:id="dhtStatus" minWidth="30.0"/>
+        </children>
+        <VBox.margin>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+        </VBox.margin>
+    </HBox>
 </VBox>

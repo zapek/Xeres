@@ -133,15 +133,20 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		}
 	}
 
-	private void announce(LocationId locationId)
+	public void announce(LocationId locationId)
 	{
+		if (dht == null || !dht.isRunning())
+		{
+			return;
+		}
+
 		var peerLookupTask = dht.createPeerLookup(HashInfo.makeHashInfo(locationId));
 		if (peerLookupTask != null)
 		{
 			peerLookupTask.setInfo(locationId.toString());
 			peerLookupTask.addListener(task -> dht.announce((PeerLookupTask) task, true, localPort));
 			dht.getTaskManager().addTask(peerLookupTask);
-			log.debug("Added PeerLookupTask + announce {} for locationId {}", peerLookupTask, peerLookupTask.getInfo());
+			log.debug("Added PeerLookupTask + announce {} for locationId {} -> infohash: {}", peerLookupTask, peerLookupTask.getInfo(), peerLookupTask.getInfoHash().toString(false));
 		}
 	}
 

@@ -23,12 +23,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.xeres.app.api.sse.SsePushNotificationService;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.message.MessageType;
+import io.xeres.common.rest.notification.NotificationResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -50,11 +52,14 @@ public class PeerConnectionManager
 
 	private final SimpMessageSendingOperations messagingTemplate;
 
+	private final SsePushNotificationService ssePushNotificationService;
+
 	private final Map<Long, PeerConnection> peers = new ConcurrentHashMap<>();
 
-	public PeerConnectionManager(SimpMessageSendingOperations messagingTemplate)
+	public PeerConnectionManager(SimpMessageSendingOperations messagingTemplate, SsePushNotificationService ssePushNotificationService)
 	{
 		this.messagingTemplate = messagingTemplate;
+		this.ssePushNotificationService = ssePushNotificationService;
 	}
 
 	public PeerConnection addPeer(Location location, ChannelHandlerContext ctx)
@@ -66,6 +71,7 @@ public class PeerConnectionManager
 		var peerConnection = new PeerConnection(location, ctx);
 		peers.put(location.getId(), peerConnection);
 		ctx.channel().attr(PEER_CONNECTION).set(peerConnection);
+		ssePushNotificationService.sendNotification(new NotificationResponse(peers.size(), null, null, null));
 		return peerConnection;
 	}
 
@@ -90,6 +96,7 @@ public class PeerConnectionManager
 			throw new IllegalStateException("Location " + location + " is not in the list of peers");
 		}
 		peers.remove(location.getId());
+		ssePushNotificationService.sendNotification(new NotificationResponse(peers.size(), null, null, null));
 	}
 
 	public void shutdown()

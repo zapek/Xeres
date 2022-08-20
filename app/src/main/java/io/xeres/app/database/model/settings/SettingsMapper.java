@@ -41,7 +41,8 @@ public final class SettingsMapper
 				settings.getI2pSocksHost(),
 				settings.getI2pSocksPort(),
 				settings.isUpnpEnabled(),
-				settings.isBroadcastDiscoveryEnabled()
+				settings.isBroadcastDiscoveryEnabled(),
+				settings.isDhtEnabled()
 		);
 	}
 
@@ -59,6 +60,7 @@ public final class SettingsMapper
 		settings.setI2pSocksPort(dto.i2pSocksPort());
 		settings.setUpnpEnabled(dto.upnpEnabled());
 		settings.setBroadcastDiscoveryEnabled(dto.broadcastDiscoveryEnabled());
+		settings.setDhtEnabled(dto.dhtEnabled());
 		return settings;
 	}
 }

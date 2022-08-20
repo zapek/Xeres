@@ -21,6 +21,7 @@ package io.xeres.app.application;
 
 import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
+import io.xeres.app.api.sse.SsePushNotificationService;
 import io.xeres.app.application.events.*;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
@@ -41,6 +42,9 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.rest.notification.DhtStatus;
+import io.xeres.common.rest.notification.NatStatus;
+import io.xeres.common.rest.notification.NotificationResponse;
 import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.splash.SplashService;
 import org.apache.commons.lang3.StringUtils;
@@ -84,8 +88,9 @@ public class Startup implements ApplicationRunner
 	private final PeerConnectionManager peerConnectionManager;
 	private final SplashService splashService;
 	private final IdentityManager identityManager;
+	private final SsePushNotificationService ssePushNotificationService;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, SsePushNotificationService ssePushNotificationService)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
@@ -102,6 +107,7 @@ public class Startup implements ApplicationRunner
 		this.peerConnectionManager = peerConnectionManager;
 		this.splashService = splashService;
 		this.identityManager = identityManager;
+		this.ssePushNotificationService = ssePushNotificationService;
 	}
 
 	@Override
@@ -163,8 +169,10 @@ public class Startup implements ApplicationRunner
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			settingsService.setLocalIpAddressAndPort(event.localIpAddress(), event.localPort());
+			setInitialConnectionTotalStatus();
 			startNetworkServices();
 		}
+		setInitialConnectionStatus();
 		splashService.close();
 	}
 
@@ -180,10 +188,24 @@ public class Startup implements ApplicationRunner
 		log.warn("IP change event received, possibly restarting some services...");
 		settingsService.setLocalIpAddress(event.localIpAddress());
 
+		setInitialConnectionStatus();
+
 		if (settingsService.isUpnpEnabled())
 		{
+			if (settingsService.isDhtEnabled())
+			{
+				dhtService.stop();
+			}
 			upnpService.stop();
 			upnpService.start(settingsService.getLocalIpAddress(), settingsService.getLocalPort());
+		}
+		else
+		{
+			if (settingsService.isDhtEnabled())
+			{
+				dhtService.stop();
+				dhtService.start(settingsService.getLocalPort());
+			}
 		}
 
 		if (settingsService.isBroadcastDiscoveryEnabled())
@@ -198,7 +220,9 @@ public class Startup implements ApplicationRunner
 	{
 		log.info("Ports forwarded on the router");
 
-		if (networkProperties.isDht())
+		ssePushNotificationService.sendNotification(new NotificationResponse(null, null, NatStatus.UPNP, null));
+
+		if (settingsService.isDhtEnabled())
 		{
 			dhtService.start(event.localPort());
 		}
@@ -207,7 +231,11 @@ public class Startup implements ApplicationRunner
 	@EventListener
 	public void onDhtReady(DhtReadyEvent event)
 	{
-		// XXX: search for peers to update their IP and advertise our IP
+		var ownLocation = locationService.findOwnLocation().orElseThrow();
+		dhtService.announce(ownLocation.getLocationId());
+
+		ssePushNotificationService.sendNotification(new NotificationResponse(null, null, null, DhtStatus.RUNNING));
+		// XXX: run a continuous process to search for IP of friendly locations
 	}
 
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
@@ -220,6 +248,16 @@ public class Startup implements ApplicationRunner
 		peerConnectionManager.shutdown();
 
 		stopNetworkServices();
+	}
+
+	private void setInitialConnectionTotalStatus()
+	{
+		ssePushNotificationService.sendNotification(new NotificationResponse(null, (int) locationService.getAllLocations().stream().filter(location -> !location.isOwn()).count(), null, null));
+	}
+
+	private void setInitialConnectionStatus()
+	{
+		ssePushNotificationService.sendNotification(new NotificationResponse(null, null, NatStatus.UNKNOWN, settingsService.isDhtEnabled() ? DhtStatus.INITIALIZING : DhtStatus.OFF));
 	}
 
 	void startNetworkServices()
@@ -239,6 +277,13 @@ public class Startup implements ApplicationRunner
 				if (settingsService.isUpnpEnabled())
 				{
 					upnpService.start(localIpAddress, localPort);
+				}
+				else
+				{
+					if (settingsService.isDhtEnabled())
+					{
+						dhtService.start(localPort);
+					}
 				}
 				if (settingsService.isBroadcastDiscoveryEnabled())
 				{
@@ -345,6 +390,18 @@ public class Startup implements ApplicationRunner
 			else
 			{
 				broadcastDiscoveryService.stop();
+			}
+		}
+
+		if (newSettings.isDhtEnabled() != oldSettings.isDhtEnabled())
+		{
+			if (newSettings.isDhtEnabled())
+			{
+				dhtService.start(newSettings.getLocalPort());
+			}
+			else
+			{
+				dhtService.stop();
 			}
 		}
 

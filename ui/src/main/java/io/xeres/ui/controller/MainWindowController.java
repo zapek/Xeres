@@ -20,25 +20,27 @@
 package io.xeres.ui.controller;
 
 import io.xeres.common.dto.identity.IdentityConstants;
+import io.xeres.common.rest.notification.DhtStatus;
+import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
+import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
@@ -49,6 +51,8 @@ import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 @FxmlView(value = "/view/main.fxml")
 public class MainWindowController implements WindowController
 {
+	private static final Logger log = LoggerFactory.getLogger(MainWindowController.class);
+
 	public static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	@FXML
 	private Label titleLabel;
@@ -101,6 +105,15 @@ public class MainWindowController implements WindowController
 	@FXML
 	public Button webHelpButton;
 
+	@FXML
+	public Label numberOfConnections;
+
+	@FXML
+	public Label natStatus;
+
+	@FXML
+	public Label dhtStatus;
+
 	private final ChatViewController chatViewController;
 
 	private final LocationClient locationClient;
@@ -108,8 +121,12 @@ public class MainWindowController implements WindowController
 	private final WindowManager windowManager;
 	private final Environment environment;
 	private final IdentityClient identityClient;
+	private final NotificationClient notificationClient;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient)
+	private int currentUsers;
+	private int totalUsers;
+
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, NotificationClient notificationClient)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -117,6 +134,7 @@ public class MainWindowController implements WindowController
 		this.windowManager = windowManager;
 		this.environment = environment;
 		this.identityClient = identityClient;
+		this.notificationClient = notificationClient;
 	}
 
 	@Override
@@ -171,6 +189,53 @@ public class MainWindowController implements WindowController
 				Platform.exit();
 			}
 		});
+
+		notificationClient.getNotifications()
+				.doOnComplete(() -> log.debug("Notification connection closed"))
+				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
+				.doOnNext(sse -> Platform.runLater(() -> {
+					if (sse.data() != null)
+					{
+						var currentUsers = sse.data().currentUsers();
+						var totalUsers = sse.data().totalUsers();
+						var nat = sse.data().natStatus();
+						var dht = sse.data().dhtStatus();
+
+						if (currentUsers != null)
+						{
+							this.currentUsers = currentUsers;
+						}
+						if (totalUsers != null)
+						{
+							this.totalUsers = totalUsers;
+						}
+
+						numberOfConnections.setText(this.currentUsers + "/" + this.totalUsers);
+
+						if (nat != null)
+						{
+							natStatus.setText(nat == NatStatus.UPNP ? "OK" : "ERR");
+							switch (nat)
+							{
+								case UNKNOWN -> natStatus.setTooltip(new Tooltip("Status is still unknown."));
+								case FIREWALLED -> natStatus.setTooltip(new Tooltip("The client is not reachable from connections initiated from the Internet."));
+								case UPNP -> natStatus.setTooltip(new Tooltip("UPNP is active and the client is fully reachable from the Internet."));
+							}
+						}
+
+						if (dht != null)
+						{
+							dhtStatus.setText(dht == DhtStatus.RUNNING ? "OK" : "OFF");
+							switch (dht)
+							{
+								case OFF -> dhtStatus.setTooltip(new Tooltip("DHT is disabled."));
+								case INITIALIZING -> dhtStatus.setTooltip(new Tooltip("DHT is currently initializing."));
+								case RUNNING -> dhtStatus.setTooltip(new Tooltip("DHT is working properly, the client's IP is advertised to its peers."));
+							}
+						}
+					}
+				}))
+				.subscribe();
 	}
 
 	@Override

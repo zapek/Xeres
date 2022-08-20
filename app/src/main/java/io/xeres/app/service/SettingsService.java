@@ -55,7 +55,6 @@ public class SettingsService
 
 	private Settings settings;
 
-
 	public SettingsService(SettingsRepository settingsRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper)
 	{
 		this.settingsRepository = settingsRepository;
@@ -211,6 +210,11 @@ public class SettingsService
 	public boolean isBroadcastDiscoveryEnabled()
 	{
 		return settings.isBroadcastDiscoveryEnabled();
+	}
+
+	public boolean isDhtEnabled()
+	{
+		return settings.isDhtEnabled();
 	}
 
 	public void setLocalIpAddressAndPort(String localIpAddress, int localPort)

@@ -264,6 +264,11 @@ public class LocationService
 		return locationRepository.findAllByConnectedTrue();
 	}
 
+	public List<Location> getAllLocations()
+	{
+		return locationRepository.findAll();
+	}
+
 	@Transactional
 	public UpdateConnectionStatus updateConnection(Location location, PeerAddress peerAddress)
 	{

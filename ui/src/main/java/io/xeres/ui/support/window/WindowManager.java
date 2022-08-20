@@ -181,8 +181,8 @@ public class WindowManager
 				UiWindow.builder(SettingsWindowController.class)
 						.setParent(parent)
 						.setTitle("Settings")
-						.setMinWidth(600)
-						.setMinHeight(400)
+						.setMinWidth(640)
+						.setMinHeight(480)
 						.build()
 						.open());
 	}

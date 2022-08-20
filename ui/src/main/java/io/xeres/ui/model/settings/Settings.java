@@ -29,7 +29,9 @@ public class Settings implements Cloneable
 
 	private boolean upnpEnabled;
 
-	private boolean isBroadcastDiscoveryEnabled;
+	private boolean broadcastDiscoverEnabled;
+
+	private boolean dhtEnabled;
 
 	public String getTorSocksHost()
 	{
@@ -83,12 +85,22 @@ public class Settings implements Cloneable
 
 	public boolean isBroadcastDiscoveryEnabled()
 	{
-		return isBroadcastDiscoveryEnabled;
+		return broadcastDiscoverEnabled;
 	}
 
 	public void setBroadcastDiscoveryEnabled(boolean broadcastDiscoveryEnabled)
 	{
-		isBroadcastDiscoveryEnabled = broadcastDiscoveryEnabled;
+		this.broadcastDiscoverEnabled = broadcastDiscoveryEnabled;
+	}
+
+	public boolean isDhtEnabled()
+	{
+		return dhtEnabled;
+	}
+
+	public void setDhtEnabled(boolean dhtEnabled)
+	{
+		this.dhtEnabled = dhtEnabled;
 	}
 
 	@Override

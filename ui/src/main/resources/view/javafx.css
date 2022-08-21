@@ -148,9 +148,10 @@
 }
 
 /* led */
-.led-control {
+/* XXX: enabling this makes the LED use that color on startup and upon iconify (seems it overwrites the current value), but then the CSS complains that -color is a string upon parsing */
+/*.led-control {
     -color: blue;
-}
+}*/
 
 .led-control .frame {
     -fx-background-color: linear-gradient(from 14% 14% to 84% 84%,

@@ -41,13 +41,13 @@
         <Label text="Profile"/>
         <TextField fx:id="profileName" promptText="Profile name" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="30s" text="Use a nickname or real name. A profile can have several locations."/>
+                <Tooltip showDuration="1m" text="Use a nickname or real name. A profile can have several locations."/>
             </tooltip>
         </TextField>
         <Label text="Location" GridPane.rowIndex="1"/>
         <TextField fx:id="locationName" promptText="Location name" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="30s" text="This is your Xeres' instance on this device. Use your device's nickname or model."/>
+                <Tooltip showDuration="1m" text="This is your Xeres' instance on this device. Use your device's nickname or model."/>
             </tooltip>
         </TextField>
     </GridPane>

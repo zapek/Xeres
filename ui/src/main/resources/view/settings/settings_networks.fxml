@@ -42,12 +42,12 @@
             </Label>
             <TextField fx:id="torSocksHost" promptText="Tor server" GridPane.columnIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="The Tor SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
+                    <Tooltip showDuration="1m" text="The Tor SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
                 </tooltip>
             </TextField>
             <TextField fx:id="torSocksPort" promptText="Port" GridPane.columnIndex="2">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="The Tor SOCKS v5 port, usually 9050."/>
+                    <Tooltip showDuration="1m" text="The Tor SOCKS v5 port, usually 9050."/>
                 </tooltip>
             </TextField>
 
@@ -58,12 +58,12 @@
             </Label>
             <TextField fx:id="i2pSocksHost" promptText="I2P server" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="The I2P SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
+                    <Tooltip showDuration="1m" text="The I2P SOCKS v5 IP or hostname, usually 127.0.0.1 if running on the same host."/>
                 </tooltip>
             </TextField>
             <TextField fx:id="i2pSocksPort" promptText="Port" GridPane.columnIndex="2" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="The I2P SOCKS v5 port, usually 4447."/>
+                    <Tooltip showDuration="1m" text="The I2P SOCKS v5 port, usually 4447."/>
                 </tooltip>
             </TextField>
         </GridPane>
@@ -80,7 +80,7 @@
             </rowConstraints>
             <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="Use UPNP" GridPane.columnSpan="2147483647">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="UPNP (Universal Plug and Play) allows to automatically set the correct incoming ports in your router. This improves the connection reliability from your peers."/>
+                    <Tooltip showDuration="1m" text="UPNP (Universal Plug and Play) allows to automatically set the correct incoming ports in your router. This improves the connection reliability from your peers."/>
                 </tooltip>
             </CheckBox>
             <Label text="External IP and Port" GridPane.rowIndex="1">
@@ -90,7 +90,7 @@
             </Label>
             <ReadOnlyTextField fx:id="externalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="The external IP and port of your location. This is how your connection appears on the Internet."/>
+                    <Tooltip showDuration="1m" text="The external IP and port of your location. This is how your connection appears on the Internet."/>
                 </tooltip>
             </ReadOnlyTextField>
         </GridPane>
@@ -107,7 +107,7 @@
             </rowConstraints>
             <CheckBox fx:id="broadcastDiscoveryEnabled" mnemonicParsing="false" text="Enable Broadcast Discovery" GridPane.columnSpan="2147483647">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="Broadcast Discovery allows to tell your IP and port to other locations on your LAN. This improves the connection reliability from eventual peers on your LAN."/>
+                    <Tooltip showDuration="1m" text="Broadcast Discovery allows to tell your IP and port to other locations on your LAN. This improves the connection reliability from eventual peers on your LAN."/>
                 </tooltip>
             </CheckBox>
             <Label text="Internal IP and Port" GridPane.rowIndex="1">
@@ -117,7 +117,7 @@
             </Label>
             <ReadOnlyTextField fx:id="internalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="The internal IP and port of your location. This is how your connection appears on your LAN (Local Area Network)."/>
+                    <Tooltip showDuration="1m" text="The internal IP and port of your location. This is how your connection appears on your LAN (Local Area Network)."/>
                 </tooltip>
             </ReadOnlyTextField>
         </GridPane>
@@ -133,7 +133,7 @@
             </rowConstraints>
             <CheckBox fx:id="dhtEnabled" mnemonicParsing="false" text="Enable DHT" GridPane.columnSpan="2147483647">
                 <tooltip>
-                    <Tooltip showDuration="30s" text="The DHT (Distributed Hash Table) allows peers to find each other's IP address when it changes. This improves the connectivity when roaming."/>
+                    <Tooltip showDuration="1m" text="The DHT (Distributed Hash Table) allows peers to find each other's IP address when it changes. This improves the connectivity when roaming."/>
                 </tooltip>
             </CheckBox>
         </GridPane>

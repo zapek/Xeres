@@ -19,25 +19,25 @@
         <Label text="Name"/>
         <TextField fx:id="roomName" promptText="Short and descriptive name of the room" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="30s" text="Name of the room. Use proper capitalization and spaces."/>
+                <Tooltip showDuration="1m" text="Name of the room. Use proper capitalization and spaces."/>
             </tooltip>
         </TextField>
         <Label text="Topic" GridPane.rowIndex="1"/>
         <TextField fx:id="topic" promptText="What the room is about" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="30s" text="The description of the room, what is it about."/>
+                <Tooltip showDuration="1m" text="The description of the room, what is it about."/>
             </tooltip>
         </TextField>
         <Label text="Visibility" GridPane.rowIndex="2"/>
         <ChoiceBox fx:id="visibility" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
             <tooltip>
-                <Tooltip showDuration="30s" text="Public rooms are visible by peers.&#10;Private rooms aren't and work on invitation only."/>
+                <Tooltip showDuration="1m" text="Public rooms are visible by peers.&#10;Private rooms aren't and work on invitation only."/>
             </tooltip>
         </ChoiceBox>
         <Label text="Security" GridPane.rowIndex="3"/>
         <CheckBox fx:id="security" mnemonicParsing="false" text="Signed identities only" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <tooltip>
-                <Tooltip showDuration="30s" text="A room restricted to signed identities is more resistant to spam because anonymous identities cannot join."/>
+                <Tooltip showDuration="1m" text="A room restricted to signed identities is more resistant to spam because anonymous identities cannot join."/>
             </tooltip>
         </CheckBox>
     </GridPane>

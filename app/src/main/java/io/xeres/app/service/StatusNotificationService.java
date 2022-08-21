@@ -20,6 +20,7 @@
 package io.xeres.app.service;
 
 import io.xeres.app.api.sse.SsePushNotificationService;
+import io.xeres.common.rest.notification.DhtInfo;
 import io.xeres.common.rest.notification.DhtStatus;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.rest.notification.StatusNotificationResponse;
@@ -44,8 +45,8 @@ public class StatusNotificationService
 	private NatStatus natStatus = NatStatus.UNKNOWN;
 	private boolean natStatusChanged;
 
-	private DhtStatus dhtStatus = DhtStatus.OFF;
-	private boolean dhtStatusChanged;
+	private DhtInfo dhtInfo = DhtInfo.fromStatus(DhtStatus.OFF);
+	private boolean dhtInfoChanged;
 
 	private final SsePushNotificationService ssePushNotificationService;
 
@@ -87,10 +88,10 @@ public class StatusNotificationService
 		sendNotification(null);
 	}
 
-	public void setDhtStatus(DhtStatus dhtStatus)
+	public void setDhtInfo(DhtInfo dhtInfo)
 	{
-		this.dhtStatus = dhtStatus;
-		dhtStatusChanged = true;
+		this.dhtInfo = dhtInfo;
+		dhtInfoChanged = true;
 		sendNotification(null);
 	}
 
@@ -126,17 +127,17 @@ public class StatusNotificationService
 			}
 		}
 
-		DhtStatus newDhtStatus = null;
-		if (dhtStatusChanged || specificEmitter != null)
+		DhtInfo newDhtInfo = null;
+		if (dhtInfoChanged || specificEmitter != null)
 		{
-			newDhtStatus = dhtStatus;
+			newDhtInfo = dhtInfo;
 			if (specificEmitter == null)
 			{
-				dhtStatusChanged = false;
+				dhtInfoChanged = false;
 			}
 		}
 
-		var notification = new StatusNotificationResponse(newCurrentUsersCount, newTotalUsers, newNatStatus, newDhtStatus);
+		var notification = new StatusNotificationResponse(newCurrentUsersCount, newTotalUsers, newNatStatus, newDhtInfo);
 
 		if (specificEmitter != null)
 		{

@@ -20,7 +20,11 @@
 package io.xeres.ui.controller.profile;
 
 import io.xeres.ui.model.profile.Profile;
-import javafx.scene.control.*;
+import io.xeres.ui.support.util.TooltipUtils;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
 
 public class ProfileCell extends TableRow<Profile>
 {
@@ -56,7 +60,7 @@ public class ProfileCell extends TableRow<Profile>
 		else
 		{
 			setStyle("-fx-font-style: italic");
-			setTooltip(new Tooltip("Partial profile not fully validated yet"));
+			TooltipUtils.install(this, "Partial profile not fully validated yet");
 		}
 	}
 

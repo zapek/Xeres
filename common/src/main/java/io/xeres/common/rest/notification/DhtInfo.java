@@ -19,6 +19,15 @@
 
 package io.xeres.common.rest.notification;
 
-public record StatusNotificationResponse(Integer currentUsers, Integer totalUsers, NatStatus natStatus, DhtInfo dhtInfo)
+public record DhtInfo(DhtStatus dhtStatus, int numPeers, long receivedPackets, long receivedBytes, long sentPackets, long sentBytes, int keyCount, int itemCount)
 {
+	public static DhtInfo fromStatus(DhtStatus dhtStatus)
+	{
+		return new DhtInfo(dhtStatus, 0, 0, 0, 0, 0, 0, 0);
+	}
+
+	public static DhtInfo fromStats(int numPeers, long receivedPackets, long receivedBytes, long sentPackets, long sentBytes, int keyCount, int itemCount)
+	{
+		return new DhtInfo(DhtStatus.RUNNING, numPeers, receivedPackets, receivedBytes, sentPackets, sentBytes, keyCount, itemCount);
+	}
 }

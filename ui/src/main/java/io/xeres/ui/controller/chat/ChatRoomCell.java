@@ -37,7 +37,7 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 		super();
 		this.treeView = treeView;
 		setContextMenu(createContextMenu(this));
-		TooltipUtils.installTooltip(this,
+		TooltipUtils.install(this,
 				() -> {
 					var roomInfo = this.getItem().getRoomInfo();
 					if (roomInfo.getId() == 0)

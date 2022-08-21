@@ -21,8 +21,11 @@ package io.xeres.app.net.dht;
 
 import io.xeres.app.application.events.DhtReadyEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
+import io.xeres.app.service.StatusNotificationService;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.rest.notification.DhtInfo;
+import io.xeres.common.rest.notification.DhtStatus;
 import io.xeres.common.util.NoSuppressedRunnable;
 import lbms.plugins.mldht.DHTConfiguration;
 import lbms.plugins.mldht.kad.*;
@@ -54,7 +57,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	private static final Logger log = LoggerFactory.getLogger(DHTService.class);
 
 	private static final String DHT_DATA_DIR = "dht";
-	private static final Duration STATS_DELAY = Duration.ofMinutes(5);
+	private static final Duration STATS_DELAY = Duration.ofMinutes(1);
 
 	private DHT dht;
 	private int localPort;
@@ -64,10 +67,13 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	private final DataDirConfiguration dataDirConfiguration;
 	private final ApplicationEventPublisher publisher;
 
-	public DHTService(DataDirConfiguration dataDirConfiguration, ApplicationEventPublisher publisher)
+	private final StatusNotificationService statusNotificationService;
+
+	public DHTService(DataDirConfiguration dataDirConfiguration, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
 	{
 		this.dataDirConfiguration = dataDirConfiguration;
 		this.publisher = publisher;
+		this.statusNotificationService = statusNotificationService;
 	}
 
 	public void start(int localPort)
@@ -158,6 +164,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			case Running ->
 			{
 				log.info("DHT status -> running");
+				statusNotificationService.setDhtInfo(DhtInfo.fromStatus(DhtStatus.RUNNING));
 				CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new DhtReadyEvent()));
 			}
 
@@ -232,6 +239,17 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 					dhtStats.getDbStats().getKeyCount(),
 					dhtStats.getDbStats().getItemCount());
 
+			if (dht.getStatus() == DHTStatus.Running)
+			{
+				statusNotificationService.setDhtInfo(DhtInfo.fromStats(
+						dhtStats.getNumPeers(),
+						dhtStats.getNumReceivedPackets(),
+						dhtStats.getRpcStats().getReceivedBytes(),
+						dhtStats.getNumSentPackets(),
+						dhtStats.getRpcStats().getSentBytes(),
+						dhtStats.getDbStats().getKeyCount(),
+						dhtStats.getDbStats().getItemCount()));
+			}
 			lastStats = now;
 		}
 	}

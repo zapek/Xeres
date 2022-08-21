@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
@@ -35,7 +36,9 @@ public final class TooltipUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static void installTooltip(@SuppressWarnings("rawtypes") Cell cell, Supplier<String> textSupplier, Supplier<ImageView> graphicSupplier)
+	private static final Duration DURATION = Duration.minutes(1.0);
+
+	public static void install(@SuppressWarnings("rawtypes") Cell cell, Supplier<String> textSupplier, Supplier<ImageView> graphicSupplier)
 	{
 		cell.addEventFilter(MouseEvent.MOUSE_ENTERED, event -> {
 			if (cell.getItem() != null)
@@ -54,7 +57,7 @@ public final class TooltipUtils
 				{
 					tooltip.setGraphic(graphicSupplier.get());
 				}
-				tooltip.setShowDuration(Duration.minutes(1.0));
+				tooltip.setShowDuration(DURATION);
 				Tooltip.install(cell, tooltip);
 			}
 		});
@@ -65,5 +68,12 @@ public final class TooltipUtils
 				Tooltip.uninstall(cell, cell.getTooltip());
 			}
 		});
+	}
+
+	public static void install(Node node, String text)
+	{
+		var tooltip = new Tooltip(text);
+		tooltip.setShowDuration(DURATION);
+		Tooltip.install(node, tooltip);
 	}
 }

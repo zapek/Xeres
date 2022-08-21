@@ -42,6 +42,7 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.rest.notification.DhtInfo;
 import io.xeres.common.rest.notification.DhtStatus;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.util.NoSuppressedRunnable;
@@ -233,8 +234,6 @@ public class Startup implements ApplicationRunner
 		var ownLocation = locationService.findOwnLocation().orElseThrow();
 		dhtService.announce(ownLocation.getLocationId());
 
-		statusNotificationService.setDhtStatus(DhtStatus.RUNNING);
-
 		// XXX: run a continuous process to search for IP of friendly locations
 	}
 
@@ -253,7 +252,7 @@ public class Startup implements ApplicationRunner
 	private void setInitialConnectionStatus()
 	{
 		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
-		statusNotificationService.setDhtStatus(settingsService.isDhtEnabled() ? DhtStatus.INITIALIZING : DhtStatus.OFF);
+		statusNotificationService.setDhtInfo(DhtInfo.fromStatus(settingsService.isDhtEnabled() ? DhtStatus.INITIALIZING : DhtStatus.OFF));
 	}
 
 	void startNetworkServices()

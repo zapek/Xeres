@@ -29,10 +29,14 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.paint.Color;
@@ -237,7 +241,7 @@ public class MainWindowController implements WindowController
 						var newCurrentUsers = sse.data().currentUsers();
 						var newTotalUsers = sse.data().totalUsers();
 						var newNatStatus = sse.data().natStatus();
-						var newDhtStatus = sse.data().dhtStatus();
+						var newDhtInfo = sse.data().dhtInfo();
 
 						if (newCurrentUsers != null)
 						{
@@ -252,36 +256,47 @@ public class MainWindowController implements WindowController
 
 						if (newNatStatus != null)
 						{
-							natStatus.setColor(newNatStatus == NatStatus.UPNP ? Color.GREEN : Color.ORANGE);
+							natStatus.setColor(newNatStatus == NatStatus.UPNP ? Color.GREENYELLOW : Color.ORANGE);
 							switch (newNatStatus)
 							{
-								case UNKNOWN -> natStatus.setTooltip(new Tooltip("Status is still unknown."));
-								case FIREWALLED -> natStatus.setTooltip(new Tooltip("The client is not reachable from connections initiated from the Internet."));
-								case UPNP -> natStatus.setTooltip(new Tooltip("UPNP is active and the client is fully reachable from the Internet."));
+								case UNKNOWN -> TooltipUtils.install(natStatus, "Status is still unknown.");
+								case FIREWALLED -> TooltipUtils.install(natStatus, "The client is not reachable from connections initiated from the Internet.");
+								case UPNP -> TooltipUtils.install(natStatus, "UPNP is active and the client is fully reachable from the Internet.");
 							}
 						}
 
-						if (newDhtStatus != null)
+						if (newDhtInfo != null)
 						{
-							switch (newDhtStatus)
+							switch (newDhtInfo.dhtStatus())
 							{
-								case OFF -> dhtStatus.setState(false);
+								case OFF ->
+								{
+									dhtStatus.setState(false);
+									TooltipUtils.install(dhtStatus, "DHT is disabled.");
+								}
 								case INITIALIZING ->
 								{
 									dhtStatus.setState(true);
 									dhtStatus.setColor(Color.ORANGE);
+									TooltipUtils.install(dhtStatus, "DHT is currently initializing. This can take a while.");
 								}
 								case RUNNING ->
 								{
 									dhtStatus.setState(true);
-									dhtStatus.setColor(Color.GREEN);
+									dhtStatus.setColor(Color.GREENYELLOW);
+									if (newDhtInfo.numPeers() == 0)
+									{
+										TooltipUtils.install(dhtStatus, "DHT is working properly, the client's IP is advertised to its peers.");
+									}
+									else
+									{
+										TooltipUtils.install(dhtStatus, "Number of peers: " + newDhtInfo.numPeers() + "\n" +
+												"Received packets: " + newDhtInfo.receivedPackets() + " (" + newDhtInfo.receivedBytes() / 1024 + " KB)\n" +
+												"Sent packets: " + newDhtInfo.sentPackets() + " (" + newDhtInfo.sentBytes() / 1024 + " KB)\n" +
+												"Key count: " + newDhtInfo.keyCount() + "\n" +
+												"Item count: " + newDhtInfo.itemCount());
+									}
 								}
-							}
-							switch (newDhtStatus)
-							{
-								case OFF -> dhtStatus.setTooltip(new Tooltip("DHT is disabled."));
-								case INITIALIZING -> dhtStatus.setTooltip(new Tooltip("DHT is currently initializing."));
-								case RUNNING -> dhtStatus.setTooltip(new Tooltip("DHT is working properly, the client's IP is advertised to its peers."));
 							}
 						}
 					}

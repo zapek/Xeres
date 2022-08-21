@@ -31,7 +31,7 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 	public ChatUserCell(ListView<ChatRoomUser> listView)
 	{
 		super();
-		TooltipUtils.installTooltip(this,
+		TooltipUtils.install(this,
 				() -> "Name: " + super.getItem().nickname() + "\nID: " + super.getItem().gxsId(),
 				() -> super.getItem().image());
 	}

@@ -21,7 +21,6 @@ package io.xeres.app.application;
 
 import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
-import io.xeres.app.api.sse.SsePushNotificationService;
 import io.xeres.app.application.events.*;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
@@ -37,6 +36,7 @@ import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PeerService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.StatusNotificationService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
@@ -44,7 +44,6 @@ import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.DhtStatus;
 import io.xeres.common.rest.notification.NatStatus;
-import io.xeres.common.rest.notification.NotificationResponse;
 import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.splash.SplashService;
 import org.apache.commons.lang3.StringUtils;
@@ -88,9 +87,9 @@ public class Startup implements ApplicationRunner
 	private final PeerConnectionManager peerConnectionManager;
 	private final SplashService splashService;
 	private final IdentityManager identityManager;
-	private final SsePushNotificationService ssePushNotificationService;
+	private final StatusNotificationService statusNotificationService;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, SsePushNotificationService ssePushNotificationService)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
@@ -107,7 +106,7 @@ public class Startup implements ApplicationRunner
 		this.peerConnectionManager = peerConnectionManager;
 		this.splashService = splashService;
 		this.identityManager = identityManager;
-		this.ssePushNotificationService = ssePushNotificationService;
+		this.statusNotificationService = statusNotificationService;
 	}
 
 	@Override
@@ -169,7 +168,7 @@ public class Startup implements ApplicationRunner
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			settingsService.setLocalIpAddressAndPort(event.localIpAddress(), event.localPort());
-			setInitialConnectionTotalStatus();
+			statusNotificationService.setTotalUsers((int) locationService.getAllLocations().stream().filter(location -> !location.isOwn()).count());
 			startNetworkServices();
 		}
 		setInitialConnectionStatus();
@@ -220,7 +219,7 @@ public class Startup implements ApplicationRunner
 	{
 		log.info("Ports forwarded on the router");
 
-		ssePushNotificationService.sendNotification(new NotificationResponse(null, null, NatStatus.UPNP, null));
+		statusNotificationService.setNatStatus(NatStatus.UPNP);
 
 		if (settingsService.isDhtEnabled())
 		{
@@ -234,7 +233,8 @@ public class Startup implements ApplicationRunner
 		var ownLocation = locationService.findOwnLocation().orElseThrow();
 		dhtService.announce(ownLocation.getLocationId());
 
-		ssePushNotificationService.sendNotification(new NotificationResponse(null, null, null, DhtStatus.RUNNING));
+		statusNotificationService.setDhtStatus(DhtStatus.RUNNING);
+
 		// XXX: run a continuous process to search for IP of friendly locations
 	}
 
@@ -250,14 +250,10 @@ public class Startup implements ApplicationRunner
 		stopNetworkServices();
 	}
 
-	private void setInitialConnectionTotalStatus()
-	{
-		ssePushNotificationService.sendNotification(new NotificationResponse(null, (int) locationService.getAllLocations().stream().filter(location -> !location.isOwn()).count(), null, null));
-	}
-
 	private void setInitialConnectionStatus()
 	{
-		ssePushNotificationService.sendNotification(new NotificationResponse(null, null, NatStatus.UNKNOWN, settingsService.isDhtEnabled() ? DhtStatus.INITIALIZING : DhtStatus.OFF));
+		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
+		statusNotificationService.setDhtStatus(settingsService.isDhtEnabled() ? DhtStatus.INITIALIZING : DhtStatus.OFF);
 	}
 
 	void startNetworkServices()

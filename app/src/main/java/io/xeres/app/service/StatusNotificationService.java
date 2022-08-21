@@ -1,0 +1,150 @@
+/*
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.app.service;
+
+import io.xeres.app.api.sse.SsePushNotificationService;
+import io.xeres.common.rest.notification.DhtStatus;
+import io.xeres.common.rest.notification.NatStatus;
+import io.xeres.common.rest.notification.StatusNotificationResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+@Service
+public class StatusNotificationService
+{
+	private static final Logger log = LoggerFactory.getLogger(StatusNotificationService.class);
+
+	private int currentUsersCount;
+	private boolean currentUsersCountChanged;
+	private int totalUsers;
+	private boolean totalUsersChanged;
+
+	private NatStatus natStatus = NatStatus.UNKNOWN;
+	private boolean natStatusChanged;
+
+	private DhtStatus dhtStatus = DhtStatus.OFF;
+	private boolean dhtStatusChanged;
+
+	private final SsePushNotificationService ssePushNotificationService;
+
+	public StatusNotificationService(SsePushNotificationService ssePushNotificationService)
+	{
+		this.ssePushNotificationService = ssePushNotificationService;
+	}
+
+	public SseEmitter addClient()
+	{
+		var emitter = new SseEmitter(-1L); // no timeout
+		ssePushNotificationService.addEmitter(emitter);
+		emitter.onCompletion(() -> ssePushNotificationService.removeEmitter(emitter));
+		emitter.onTimeout(() -> ssePushNotificationService.removeEmitter(emitter));
+
+		CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(() -> sendNotification(emitter)); // send a notification to the client that just connected to "sync" it
+
+		return emitter;
+	}
+
+	public void setCurrentUsersCount(int currentUsersCount)
+	{
+		this.currentUsersCount = currentUsersCount;
+		currentUsersCountChanged = true;
+		sendNotification(null);
+	}
+
+	public void setTotalUsers(int totalUsers)
+	{
+		this.totalUsers = totalUsers;
+		totalUsersChanged = true;
+		sendNotification(null);
+	}
+
+	public void setNatStatus(NatStatus natStatus)
+	{
+		this.natStatus = natStatus;
+		natStatusChanged = true;
+		sendNotification(null);
+	}
+
+	public void setDhtStatus(DhtStatus dhtStatus)
+	{
+		this.dhtStatus = dhtStatus;
+		dhtStatusChanged = true;
+		sendNotification(null);
+	}
+
+	private void sendNotification(SseEmitter specificEmitter)
+	{
+		Integer newCurrentUsersCount = null;
+		if (currentUsersCountChanged || specificEmitter != null)
+		{
+			newCurrentUsersCount = currentUsersCount;
+			if (specificEmitter == null)
+			{
+				currentUsersCountChanged = false;
+			}
+		}
+
+		Integer newTotalUsers = null;
+		if (totalUsersChanged || specificEmitter != null)
+		{
+			newTotalUsers = totalUsers;
+			if (specificEmitter == null)
+			{
+				totalUsersChanged = false;
+			}
+		}
+
+		NatStatus newNatStatus = null;
+		if (natStatusChanged || specificEmitter != null)
+		{
+			newNatStatus = natStatus;
+			if (specificEmitter == null)
+			{
+				natStatusChanged = false;
+			}
+		}
+
+		DhtStatus newDhtStatus = null;
+		if (dhtStatusChanged || specificEmitter != null)
+		{
+			newDhtStatus = dhtStatus;
+			if (specificEmitter == null)
+			{
+				dhtStatusChanged = false;
+			}
+		}
+
+		var notification = new StatusNotificationResponse(newCurrentUsersCount, newTotalUsers, newNatStatus, newDhtStatus);
+
+		if (specificEmitter != null)
+		{
+			ssePushNotificationService.sendNotification(specificEmitter, notification);
+		}
+		else
+		{
+			ssePushNotificationService.sendNotification(notification);
+		}
+	}
+}

@@ -19,6 +19,6 @@
 
 package io.xeres.common.rest.notification;
 
-public record NotificationResponse(Integer currentUsers, Integer totalUsers, NatStatus natStatus, DhtStatus dhtStatus)
+public record StatusNotificationResponse(Integer currentUsers, Integer totalUsers, NatStatus natStatus, DhtStatus dhtStatus)
 {
 }

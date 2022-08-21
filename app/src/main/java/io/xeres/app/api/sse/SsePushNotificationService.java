@@ -19,7 +19,6 @@
 
 package io.xeres.app.api.sse;
 
-import io.xeres.common.rest.notification.NotificationResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -43,7 +42,7 @@ public class SsePushNotificationService
 		emitters.remove(emitter);
 	}
 
-	public void sendNotification(NotificationResponse notificationResponse)
+	public void sendNotification(Object notification)
 	{
 		List<SseEmitter> deadEmitters = new ArrayList<>();
 
@@ -51,7 +50,7 @@ public class SsePushNotificationService
 		{
 			try
 			{
-				emitter.send(SseEmitter.event().data(notificationResponse)); // XXX: there are other options... see send()<tab>
+				emitter.send(SseEmitter.event().data(notification));
 			}
 			catch (IOException e)
 			{
@@ -59,5 +58,17 @@ public class SsePushNotificationService
 			}
 		});
 		emitters.removeAll(deadEmitters);
+	}
+
+	public void sendNotification(SseEmitter emitter, Object notification)
+	{
+		try
+		{
+			emitter.send(SseEmitter.event().data(notification));
+		}
+		catch (IOException e)
+		{
+			emitters.remove(emitter);
+		}
 	}
 }

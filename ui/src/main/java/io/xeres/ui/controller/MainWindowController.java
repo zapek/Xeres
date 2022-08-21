@@ -196,26 +196,26 @@ public class MainWindowController implements WindowController
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{
-						var currentUsers = sse.data().currentUsers();
-						var totalUsers = sse.data().totalUsers();
-						var nat = sse.data().natStatus();
-						var dht = sse.data().dhtStatus();
+						var newCurrentUsers = sse.data().currentUsers();
+						var newTotalUsers = sse.data().totalUsers();
+						var newNatStatus = sse.data().natStatus();
+						var newDhtStatus = sse.data().dhtStatus();
 
-						if (currentUsers != null)
+						if (newCurrentUsers != null)
 						{
-							this.currentUsers = currentUsers;
+							currentUsers = newCurrentUsers;
 						}
-						if (totalUsers != null)
+						if (newTotalUsers != null)
 						{
-							this.totalUsers = totalUsers;
+							totalUsers = newTotalUsers;
 						}
 
 						numberOfConnections.setText(this.currentUsers + "/" + this.totalUsers);
 
-						if (nat != null)
+						if (newNatStatus != null)
 						{
-							natStatus.setText(nat == NatStatus.UPNP ? "OK" : "ERR");
-							switch (nat)
+							natStatus.setText(newNatStatus == NatStatus.UPNP ? "OK" : "ERR");
+							switch (newNatStatus)
 							{
 								case UNKNOWN -> natStatus.setTooltip(new Tooltip("Status is still unknown."));
 								case FIREWALLED -> natStatus.setTooltip(new Tooltip("The client is not reachable from connections initiated from the Internet."));
@@ -223,10 +223,10 @@ public class MainWindowController implements WindowController
 							}
 						}
 
-						if (dht != null)
+						if (newDhtStatus != null)
 						{
-							dhtStatus.setText(dht == DhtStatus.RUNNING ? "OK" : "OFF");
-							switch (dht)
+							dhtStatus.setText(newDhtStatus == DhtStatus.RUNNING ? "OK" : "OFF");
+							switch (newDhtStatus)
 							{
 								case OFF -> dhtStatus.setTooltip(new Tooltip("DHT is disabled."));
 								case INITIALIZING -> dhtStatus.setTooltip(new Tooltip("DHT is currently initializing."));

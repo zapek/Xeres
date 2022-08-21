@@ -19,7 +19,7 @@
 
 package io.xeres.ui.client;
 
-import io.xeres.common.rest.notification.NotificationResponse;
+import io.xeres.common.rest.notification.StatusNotificationResponse;
 import io.xeres.ui.JavaFxApplication;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.codec.ServerSentEvent;
@@ -51,9 +51,10 @@ public class NotificationClient
 				.build();
 	}
 
-	public Flux<ServerSentEvent<NotificationResponse>> getNotifications()
+	public Flux<ServerSentEvent<StatusNotificationResponse>> getNotifications()
 	{
 		return webClient.get()
+				.uri("/status")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

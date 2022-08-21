@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.api.sse.SsePushNotificationService;
+import io.xeres.app.service.StatusNotificationService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,26 +34,22 @@ import static io.xeres.common.rest.PathConfig.NOTIFICATIONS_PATH;
 
 @Tag(name = "Notification", description = "Out of band notifications", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/notification", description = "Notification documentation"))
 @RestController
-@RequestMapping(value = NOTIFICATIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = NOTIFICATIONS_PATH, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public class NotificationController
 {
-	private final SsePushNotificationService ssePushNotificationService;
 
-	public NotificationController(SsePushNotificationService ssePushNotificationService)
+	private final StatusNotificationService statusNotificationService;
+
+	public NotificationController(StatusNotificationService statusNotificationService)
 	{
-		this.ssePushNotificationService = ssePushNotificationService;
+		this.statusNotificationService = statusNotificationService;
 	}
 
-	@GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	@Operation(summary = "Subscribe to notifications")
+	@GetMapping("/status")
+	@Operation(summary = "Subscribe to status notifications")
 	@ApiResponse(responseCode = "200", description = "Request completed successfully")
 	public SseEmitter setupNotification()
 	{
-		var emitter = new SseEmitter(-1L);
-		ssePushNotificationService.addEmitter(emitter);
-		emitter.onCompletion(() -> ssePushNotificationService.removeEmitter(emitter));
-		emitter.onTimeout(() -> ssePushNotificationService.removeEmitter(emitter));
-
-		return emitter;
+		return statusNotificationService.addClient();
 	}
 }

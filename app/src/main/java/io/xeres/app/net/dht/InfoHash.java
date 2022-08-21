@@ -26,16 +26,16 @@ import org.bouncycastle.crypto.digests.SHA1Digest;
 
 import java.nio.charset.StandardCharsets;
 
-final class HashInfo
+final class InfoHash
 {
 	private static final String VERSION = "RS_VERSION_0.5.1";
 
-	private HashInfo()
+	private InfoHash()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static byte[] makeHashInfo(LocationId locationId)
+	static byte[] makeInfoHash(LocationId locationId)
 	{
 		var sha1sum = new byte[Sha1Sum.LENGTH];
 

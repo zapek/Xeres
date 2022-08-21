@@ -127,7 +127,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 	public void search(LocationId locationId)
 	{
-		var peerLookupTask = dht.createPeerLookup(HashInfo.makeHashInfo(locationId));
+		var peerLookupTask = dht.createPeerLookup(InfoHash.makeInfoHash(locationId));
 		if (peerLookupTask != null)
 		{
 			peerLookupTask.setNoAnnounce(true);
@@ -146,7 +146,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			return;
 		}
 
-		var peerLookupTask = dht.createPeerLookup(HashInfo.makeHashInfo(locationId));
+		var peerLookupTask = dht.createPeerLookup(InfoHash.makeInfoHash(locationId));
 		if (peerLookupTask != null)
 		{
 			peerLookupTask.setInfo(locationId.toString());

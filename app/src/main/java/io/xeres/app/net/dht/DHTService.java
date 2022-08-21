@@ -107,7 +107,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
-			throw new IllegalStateException(e);
+			log.error("Error while setting up DHT: {}", e.getMessage());
 		}
 	}
 

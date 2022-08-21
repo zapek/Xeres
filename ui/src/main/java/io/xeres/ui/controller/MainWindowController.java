@@ -20,7 +20,6 @@
 package io.xeres.ui.controller;
 
 import io.xeres.common.dto.identity.IdentityConstants;
-import io.xeres.common.rest.notification.DhtStatus;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
@@ -28,6 +27,7 @@ import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -35,6 +35,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -109,10 +110,10 @@ public class MainWindowController implements WindowController
 	public Label numberOfConnections;
 
 	@FXML
-	public Label natStatus;
+	public LedControl natStatus;
 
 	@FXML
-	public Label dhtStatus;
+	public LedControl dhtStatus;
 
 	private final ChatViewController chatViewController;
 
@@ -190,52 +191,7 @@ public class MainWindowController implements WindowController
 			}
 		});
 
-		notificationClient.getNotifications()
-				.doOnComplete(() -> log.debug("Notification connection closed"))
-				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
-				.doOnNext(sse -> Platform.runLater(() -> {
-					if (sse.data() != null)
-					{
-						var newCurrentUsers = sse.data().currentUsers();
-						var newTotalUsers = sse.data().totalUsers();
-						var newNatStatus = sse.data().natStatus();
-						var newDhtStatus = sse.data().dhtStatus();
-
-						if (newCurrentUsers != null)
-						{
-							currentUsers = newCurrentUsers;
-						}
-						if (newTotalUsers != null)
-						{
-							totalUsers = newTotalUsers;
-						}
-
-						numberOfConnections.setText(this.currentUsers + "/" + this.totalUsers);
-
-						if (newNatStatus != null)
-						{
-							natStatus.setText(newNatStatus == NatStatus.UPNP ? "OK" : "ERR");
-							switch (newNatStatus)
-							{
-								case UNKNOWN -> natStatus.setTooltip(new Tooltip("Status is still unknown."));
-								case FIREWALLED -> natStatus.setTooltip(new Tooltip("The client is not reachable from connections initiated from the Internet."));
-								case UPNP -> natStatus.setTooltip(new Tooltip("UPNP is active and the client is fully reachable from the Internet."));
-							}
-						}
-
-						if (newDhtStatus != null)
-						{
-							dhtStatus.setText(newDhtStatus == DhtStatus.RUNNING ? "OK" : "OFF");
-							switch (newDhtStatus)
-							{
-								case OFF -> dhtStatus.setTooltip(new Tooltip("DHT is disabled."));
-								case INITIALIZING -> dhtStatus.setTooltip(new Tooltip("DHT is currently initializing."));
-								case RUNNING -> dhtStatus.setTooltip(new Tooltip("DHT is working properly, the client's IP is advertised to its peers."));
-							}
-						}
-					}
-				}))
-				.subscribe();
+		setupStatusNotifications();
 	}
 
 	@Override
@@ -264,5 +220,72 @@ public class MainWindowController implements WindowController
 	private void openUrl(String url)
 	{
 		JavaFxApplication.openUrl(url);
+	}
+
+	private void setupStatusNotifications()
+	{
+		// Apparently the LED is not happy if we don't turn it on first here.
+		natStatus.setState(true);
+		dhtStatus.setState(true);
+
+		notificationClient.getNotifications()
+				.doOnComplete(() -> log.debug("Notification connection closed"))
+				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
+				.doOnNext(sse -> Platform.runLater(() -> {
+					if (sse.data() != null)
+					{
+						var newCurrentUsers = sse.data().currentUsers();
+						var newTotalUsers = sse.data().totalUsers();
+						var newNatStatus = sse.data().natStatus();
+						var newDhtStatus = sse.data().dhtStatus();
+
+						if (newCurrentUsers != null)
+						{
+							currentUsers = newCurrentUsers;
+						}
+						if (newTotalUsers != null)
+						{
+							totalUsers = newTotalUsers;
+						}
+
+						numberOfConnections.setText(this.currentUsers + "/" + this.totalUsers);
+
+						if (newNatStatus != null)
+						{
+							natStatus.setColor(newNatStatus == NatStatus.UPNP ? Color.GREEN : Color.ORANGE);
+							switch (newNatStatus)
+							{
+								case UNKNOWN -> natStatus.setTooltip(new Tooltip("Status is still unknown."));
+								case FIREWALLED -> natStatus.setTooltip(new Tooltip("The client is not reachable from connections initiated from the Internet."));
+								case UPNP -> natStatus.setTooltip(new Tooltip("UPNP is active and the client is fully reachable from the Internet."));
+							}
+						}
+
+						if (newDhtStatus != null)
+						{
+							switch (newDhtStatus)
+							{
+								case OFF -> dhtStatus.setState(false);
+								case INITIALIZING ->
+								{
+									dhtStatus.setState(true);
+									dhtStatus.setColor(Color.ORANGE);
+								}
+								case RUNNING ->
+								{
+									dhtStatus.setState(true);
+									dhtStatus.setColor(Color.GREEN);
+								}
+							}
+							switch (newDhtStatus)
+							{
+								case OFF -> dhtStatus.setTooltip(new Tooltip("DHT is disabled."));
+								case INITIALIZING -> dhtStatus.setTooltip(new Tooltip("DHT is currently initializing."));
+								case RUNNING -> dhtStatus.setTooltip(new Tooltip("DHT is working properly, the client's IP is advertised to its peers."));
+							}
+						}
+					}
+				}))
+				.subscribe();
 	}
 }

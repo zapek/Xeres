@@ -139,10 +139,45 @@
     -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
     linear-gradient(from 0px 0px to 0px 5px, derive(-fx-background, -9%), -fx-background);
 }
+
 .text-field-readonly:focused {
-    -fx-background-color:
-            -fx-focus-color,
-            -fx-control-inner-background,
-            -fx-faint-focus-color,
-            linear-gradient(from 0px 0px to 0px 5px, derive(-fx-background, -9%), -fx-background);
+    -fx-background-color: -fx-focus-color,
+    -fx-control-inner-background,
+    -fx-faint-focus-color,
+    linear-gradient(from 0px 0px to 0px 5px, derive(-fx-background, -9%), -fx-background);
+}
+
+/* led */
+.led-control {
+    -color: blue;
+}
+
+.led-control .frame {
+    -fx-background-color: linear-gradient(from 14% 14% to 84% 84%,
+    rgba(20, 20, 20, 0.64706) 0%,
+    rgba(20, 20, 20, 0.64706) 15%,
+    rgba(41, 41, 41, 0.64706) 26%,
+    rgba(200, 200, 200, 0.40631) 85%,
+    rgba(200, 200, 200, 0.3451) 100%);
+    -fx-background-radius: 1024px;
+}
+
+.led-control .main {
+    -fx-background-color: linear-gradient(from 15% 15% to 83% 83%,
+    derive(-color, -80%) 0%,
+    derive(-color, -87%) 49%,
+    derive(-color, -80%) 100%);
+    -fx-background-radius: 1024px;
+}
+
+.led-control:on .main {
+    -fx-background-color: linear-gradient(from 15% 15% to 83% 83%,
+    derive(-color, -23%) 0%,
+    derive(-color, -50%) 49%,
+    -color 100%);
+}
+
+.led-control .highlight {
+    -fx-background-color: radial-gradient(center 15% 15%, radius 50%, white 0%, transparent 100%);
+    -fx-background-radius: 1024;
 }

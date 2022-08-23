@@ -29,6 +29,8 @@ import io.xeres.common.rest.notification.DhtStatus;
 import io.xeres.common.util.NoSuppressedRunnable;
 import lbms.plugins.mldht.DHTConfiguration;
 import lbms.plugins.mldht.kad.*;
+import lbms.plugins.mldht.kad.messages.MessageBase;
+import lbms.plugins.mldht.kad.tasks.NodeLookup;
 import lbms.plugins.mldht.kad.tasks.PeerLookupTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +56,7 @@ import static lbms.plugins.mldht.kad.DHT.DHTtype.IPV4_DHT;
 import static lbms.plugins.mldht.kad.DHT.LogLevel.Fatal;
 
 @Service
-public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStatsListener
+public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStatsListener, DHT.IncomingMessageListener
 {
 	private static final Logger log = LoggerFactory.getLogger(DHTService.class);
 
@@ -63,6 +67,8 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	private int localPort;
 
 	private Instant lastStats;
+
+	private final Map<Key, LocationId> searchedKeys = new HashMap<>();
 
 	private final DataDirConfiguration dataDirConfiguration;
 	private final ApplicationEventPublisher publisher;
@@ -90,12 +96,12 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		dht = new DHT(IPV4_DHT);
 		dht.addStatusListener(this);
 		dht.addStatsListener(this);
+		dht.addIncomingMessageListener(this);
 		lastStats = Instant.now();
 
 		try
 		{
 			dht.start(this);
-			dht.getNode().getNumEntriesInRoutingTable();
 			dht.bootstrap();
 			if (dht.getNode().getNumEntriesInRoutingTable() < 10)
 			{
@@ -127,15 +133,38 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 	public void search(LocationId locationId)
 	{
-		var peerLookupTask = dht.createPeerLookup(InfoHash.makeInfoHash(locationId));
-		if (peerLookupTask != null)
+		if (dht == null || !dht.isRunning())
 		{
-			peerLookupTask.setNoAnnounce(true);
-			peerLookupTask.setInfo(locationId.toString());
-			peerLookupTask.setNoSeeds(false); // XXX: not sure...
-			peerLookupTask.addListener(task -> log.debug("Task finished: {}, items: {}", task.getInfo(), ((PeerLookupTask) task).getReturnedItems().size()));
-			dht.getTaskManager().addTask(peerLookupTask);
-			log.debug("Added PeerLookupTask {} for locationId {}", peerLookupTask, peerLookupTask.getInfo());
+			log.warn("Search is not available yet, DHT is not ready");
+			return;
+		}
+
+		if (true) // XXX: this is what we have to do
+		{
+			var key = new Key(NodeId.create(locationId));
+			log.debug("Searching LocationId {} -> node id: {}", locationId, key);
+			searchedKeys.put(key, locationId);
+
+			var nodeLookupTask = new NodeLookup(key, dht.getServerManager().getRandomActiveServer(false), dht.getNode(), false);
+			nodeLookupTask.setInfo(locationId.toString());
+			nodeLookupTask.addListener(task -> log.debug("Task finished: {}", task.getInfo()));
+			dht.getTaskManager().addTask(nodeLookupTask);
+			// XXX: there's no useful data in there... I think I need to iterate the whole routing table.. sigh. maybe the following works just like the above
+			//dht.findNode(new FindNodeRequest(new Key(InfoHash.makeInfoHash(locationId))));
+		}
+
+		if (false) // XXX: this is to search a infohash
+		{
+			var peerLookupTask = dht.createPeerLookup(NodeId.create(locationId));
+			if (peerLookupTask != null)
+			{
+				peerLookupTask.setNoAnnounce(true);
+				peerLookupTask.setInfo(locationId.toString());
+				peerLookupTask.setNoSeeds(false); // XXX: not sure...
+				peerLookupTask.addListener(task -> log.debug("Task finished: {}, items: {}", task.getInfo(), ((PeerLookupTask) task).getReturnedItems().size()));
+				dht.getTaskManager().addTask(peerLookupTask);
+				log.debug("Added PeerLookupTask {} for locationId {}", peerLookupTask, peerLookupTask.getInfo());
+			}
 		}
 	}
 
@@ -146,13 +175,16 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			return;
 		}
 
-		var peerLookupTask = dht.createPeerLookup(InfoHash.makeInfoHash(locationId));
-		if (peerLookupTask != null)
+		if (false) // XXX: this is to advertise with a infohash
 		{
-			peerLookupTask.setInfo(locationId.toString());
-			peerLookupTask.addListener(task -> dht.announce((PeerLookupTask) task, true, localPort));
-			dht.getTaskManager().addTask(peerLookupTask);
-			log.debug("Added PeerLookupTask + announce {} for locationId {} -> infohash: {}", peerLookupTask, peerLookupTask.getInfo(), peerLookupTask.getInfoHash().toString(false));
+			var peerLookupTask = dht.createPeerLookup(NodeId.create(locationId));
+			if (peerLookupTask != null)
+			{
+				peerLookupTask.setInfo(locationId.toString());
+				peerLookupTask.addListener(task -> dht.announce((PeerLookupTask) task, true, localPort));
+				dht.getTaskManager().addTask(peerLookupTask);
+				log.debug("Added PeerLookupTask + announce {} for locationId {} -> infohash: {}", peerLookupTask, peerLookupTask.getInfo(), peerLookupTask.getInfoHash().toString(false));
+			}
 		}
 	}
 
@@ -189,6 +221,8 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			try
 			{
 				Files.createDirectory(path);
+
+				// XXX: add nodeId creation. DHTService() needs the own location ID as start parameter or so
 			}
 			catch (IOException e)
 			{
@@ -251,6 +285,25 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 						dhtStats.getDbStats().getItemCount()));
 			}
 			lastStats = now;
+		}
+	}
+
+	@Override
+	public void received(DHT dht, MessageBase messageBase)
+	{
+		//log.debug("Got message: {}", messageBase);
+		if (messageBase.getType() == MessageBase.Type.RSP_MSG || messageBase.getType() == MessageBase.Type.REQ_MSG)
+		{
+			log.debug("Got message: Node ID: {}, IP: {}, {}", messageBase.getID(), messageBase.getOrigin(), messageBase);
+		}
+
+		if (messageBase.getType() == MessageBase.Type.RSP_MSG && messageBase.getMethod() == MessageBase.Method.FIND_NODE)
+		{
+			var location = searchedKeys.get(messageBase.getID());
+			if (location != null)
+			{
+				log.debug("Found node for id {}, IP: {}", location, messageBase.getOrigin());
+			}
 		}
 	}
 

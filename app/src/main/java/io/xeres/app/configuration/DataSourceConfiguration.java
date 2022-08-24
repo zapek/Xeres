@@ -73,7 +73,7 @@ public class DataSourceConfiguration
 
 		log.debug("Using database file: {}", dataDir);
 
-		var dbOpts = "";
+		var dbOpts = ";DB_CLOSE_ON_EXIT=FALSE";
 
 		if (databaseProperties.getCacheSize() != null)
 		{

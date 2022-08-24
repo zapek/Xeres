@@ -38,6 +38,8 @@ public interface LocationRepository extends JpaRepository<Location, Long>
 
 	Slice<Location> findAllByConnectedFalse(Pageable pageable);
 
+	Slice<Location> findAllByConnectedFalseAndDhtTrue(Pageable pageable);
+
 	List<Location> findAllByConnectedTrue();
 
 	@Modifying

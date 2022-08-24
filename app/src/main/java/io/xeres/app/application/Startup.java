@@ -42,8 +42,6 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
-import io.xeres.common.rest.notification.DhtInfo;
-import io.xeres.common.rest.notification.DhtStatus;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.splash.SplashService;
@@ -204,7 +202,7 @@ public class Startup implements ApplicationRunner
 			if (settingsService.isDhtEnabled())
 			{
 				dhtService.stop();
-				dhtService.start(settingsService.getLocalPort());
+				dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), settingsService.getLocalPort());
 			}
 		}
 
@@ -224,17 +222,14 @@ public class Startup implements ApplicationRunner
 
 		if (settingsService.isDhtEnabled())
 		{
-			dhtService.start(event.localPort());
+			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), event.localPort());
 		}
 	}
 
 	@EventListener
 	public void onDhtReady(DhtReadyEvent event)
 	{
-		var ownLocation = locationService.findOwnLocation().orElseThrow();
-		dhtService.announce(ownLocation.getLocationId());
-
-		// XXX: run a continuous process to search for IP of friendly locations
+		// Unused for now
 	}
 
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
@@ -249,10 +244,9 @@ public class Startup implements ApplicationRunner
 		stopNetworkServices();
 	}
 
-	private void setInitialConnectionStatus()
+	private void setInitialConnectionStatus() // XXX: remove this... shouldn't be needed. the services handle the led
 	{
 		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
-		statusNotificationService.setDhtInfo(DhtInfo.fromStatus(settingsService.isDhtEnabled() ? DhtStatus.INITIALIZING : DhtStatus.OFF));
 	}
 
 	void startNetworkServices()
@@ -277,7 +271,7 @@ public class Startup implements ApplicationRunner
 				{
 					if (settingsService.isDhtEnabled())
 					{
-						dhtService.start(localPort);
+						dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), localPort);
 					}
 				}
 				if (settingsService.isBroadcastDiscoveryEnabled())
@@ -392,7 +386,7 @@ public class Startup implements ApplicationRunner
 		{
 			if (newSettings.isDhtEnabled())
 			{
-				dhtService.start(newSettings.getLocalPort());
+				dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), newSettings.getLocalPort());
 			}
 			else
 			{

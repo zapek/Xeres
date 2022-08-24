@@ -22,6 +22,7 @@ package io.xeres.app.net.dht;
 import io.xeres.app.application.events.DhtReadyEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.service.StatusNotificationService;
+import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.DhtInfo;
@@ -31,7 +32,6 @@ import lbms.plugins.mldht.DHTConfiguration;
 import lbms.plugins.mldht.kad.*;
 import lbms.plugins.mldht.kad.messages.MessageBase;
 import lbms.plugins.mldht.kad.tasks.NodeLookup;
-import lbms.plugins.mldht.kad.tasks.PeerLookupTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -41,15 +41,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 import static lbms.plugins.mldht.kad.DHT.DHTtype.IPV4_DHT;
@@ -61,18 +65,24 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	private static final Logger log = LoggerFactory.getLogger(DHTService.class);
 
 	private static final String DHT_DATA_DIR = "dht";
+
+	// That file name must not be changed as it's what mldht uses internally
+	private static final String DHT_FILE_NAME = "baseID.config";
 	private static final Duration STATS_DELAY = Duration.ofMinutes(1);
 
 	private DHT dht;
+
+	private LocationId locationId;
 	private int localPort;
 
 	private Instant lastStats;
 
-	private final Map<Key, LocationId> searchedKeys = new HashMap<>();
+	private final Map<Key, LocationId> searchedKeys = new ConcurrentHashMap<>();
+
+	private final AtomicBoolean isReady = new AtomicBoolean();
 
 	private final DataDirConfiguration dataDirConfiguration;
 	private final ApplicationEventPublisher publisher;
-
 	private final StatusNotificationService statusNotificationService;
 
 	public DHTService(DataDirConfiguration dataDirConfiguration, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
@@ -82,13 +92,14 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		this.statusNotificationService = statusNotificationService;
 	}
 
-	public void start(int localPort)
+	public void start(LocationId locationId, int localPort)
 	{
 		if (dht != null && dht.isRunning())
 		{
 			return;
 		}
 
+		this.locationId = locationId;
 		this.localPort = localPort;
 
 		DHT.setLogger(new DHTSpringLog());
@@ -107,19 +118,19 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			{
 				addBootstrappingNodes(); // help the bootstrapping process, in case nothing resolves
 			}
-		}
-		catch (IOException e)
-		{
-			log.error("Error while setting up DHT: {}", e.getMessage(), e);
-		}
-
-		try
-		{
 			dht.getServerManager().awaitActiveServer().get();
 		}
-		catch (InterruptedException | ExecutionException e)
+		catch (IOException | ExecutionException | InterruptedException | IllegalStateException e)
 		{
-			log.error("Error while setting up DHT: {}", e.getMessage());
+			log.error("Error while setting up DHT: {}", e.getMessage(), e);
+			if (dht != null && dht.isRunning())
+			{
+				dht.stop();
+			}
+			if (e instanceof InterruptedException)
+			{
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 
@@ -139,53 +150,14 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			return;
 		}
 
-		if (true) // XXX: this is what we have to do
-		{
-			var key = new Key(NodeId.create(locationId));
-			log.debug("Searching LocationId {} -> node id: {}", locationId, key);
-			searchedKeys.put(key, locationId);
+		var key = new Key(NodeId.create(locationId));
+		log.debug("Searching LocationId {} -> node id: {}", locationId, key);
+		searchedKeys.put(key, locationId);
 
-			var nodeLookupTask = new NodeLookup(key, dht.getServerManager().getRandomActiveServer(false), dht.getNode(), false);
-			nodeLookupTask.setInfo(locationId.toString());
-			nodeLookupTask.addListener(task -> log.debug("Task finished: {}", task.getInfo()));
-			dht.getTaskManager().addTask(nodeLookupTask);
-			// XXX: there's no useful data in there... I think I need to iterate the whole routing table.. sigh. maybe the following works just like the above
-			//dht.findNode(new FindNodeRequest(new Key(InfoHash.makeInfoHash(locationId))));
-		}
-
-		if (false) // XXX: this is to search a infohash
-		{
-			var peerLookupTask = dht.createPeerLookup(NodeId.create(locationId));
-			if (peerLookupTask != null)
-			{
-				peerLookupTask.setNoAnnounce(true);
-				peerLookupTask.setInfo(locationId.toString());
-				peerLookupTask.setNoSeeds(false); // XXX: not sure...
-				peerLookupTask.addListener(task -> log.debug("Task finished: {}, items: {}", task.getInfo(), ((PeerLookupTask) task).getReturnedItems().size()));
-				dht.getTaskManager().addTask(peerLookupTask);
-				log.debug("Added PeerLookupTask {} for locationId {}", peerLookupTask, peerLookupTask.getInfo());
-			}
-		}
-	}
-
-	public void announce(LocationId locationId)
-	{
-		if (dht == null || !dht.isRunning())
-		{
-			return;
-		}
-
-		if (false) // XXX: this is to advertise with a infohash
-		{
-			var peerLookupTask = dht.createPeerLookup(NodeId.create(locationId));
-			if (peerLookupTask != null)
-			{
-				peerLookupTask.setInfo(locationId.toString());
-				peerLookupTask.addListener(task -> dht.announce((PeerLookupTask) task, true, localPort));
-				dht.getTaskManager().addTask(peerLookupTask);
-				log.debug("Added PeerLookupTask + announce {} for locationId {} -> infohash: {}", peerLookupTask, peerLookupTask.getInfo(), peerLookupTask.getInfoHash().toString(false));
-			}
-		}
+		var nodeLookupTask = new NodeLookup(key, dht.getServerManager().getRandomActiveServer(false), dht.getNode(), false);
+		nodeLookupTask.setInfo(locationId.toString());
+		nodeLookupTask.addListener(task -> log.debug("Task finished: {}", task.getInfo()));
+		dht.getTaskManager().addTask(nodeLookupTask);
 	}
 
 	@Override
@@ -196,13 +168,24 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 			case Running ->
 			{
 				log.info("DHT status -> running");
+				isReady.set(true);
 				statusNotificationService.setDhtInfo(DhtInfo.fromStatus(DhtStatus.RUNNING));
 				CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new DhtReadyEvent()));
 			}
 
-			case Stopped -> log.info("DHT status -> stopped");
+			case Stopped ->
+			{
+				log.info("DHT status -> stopped");
+				isReady.set(false);
+				statusNotificationService.setDhtInfo(DhtInfo.fromStatus(DhtStatus.OFF));
+			}
 
-			case Initializing -> log.info("DHT status -> initializing");
+			case Initializing ->
+			{
+				log.info("DHT status -> initializing");
+				isReady.set(false);
+				statusNotificationService.setDhtInfo(DhtInfo.fromStatus(DhtStatus.INITIALIZING));
+			}
 		}
 	}
 
@@ -215,22 +198,27 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	@Override
 	public Path getStoragePath()
 	{
-		var path = Path.of(dataDirConfiguration.getDataDir(), DHT_DATA_DIR);
-		if (Files.notExists(path))
+		var directoryPath = Path.of(dataDirConfiguration.getDataDir(), DHT_DATA_DIR);
+		var filePath = directoryPath.resolve(DHT_FILE_NAME);
+
+		if (Files.notExists(directoryPath) || Files.notExists(filePath))
 		{
 			try
 			{
-				Files.createDirectory(path);
+				Files.createDirectory(directoryPath);
 
-				// XXX: add nodeId creation. DHTService() needs the own location ID as start parameter or so
+				var nodeId = Id.toString(NodeId.create(locationId)).toUpperCase(Locale.ROOT);
+				log.debug("Storing own NodeID: {}", nodeId);
+
+				Files.createFile(filePath);
+				Files.write(filePath, Collections.singleton(nodeId), StandardCharsets.ISO_8859_1);
 			}
 			catch (IOException e)
 			{
-				log.error("Failed to create DHT storage directory: {}, storage disabled", e.getMessage());
-				return null;
+				throw new IllegalStateException("Failed to create DHT data storage: " + e.getMessage(), e);
 			}
 		}
-		return path;
+		return directoryPath;
 	}
 
 	@Override
@@ -264,14 +252,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 		if (Duration.between(lastStats, now).compareTo(STATS_DELAY) > 0)
 		{
-			log.debug("Peers: {}, recv pkt: {} ({} KB), sent pkt: {} ({} KB), keys: {}, items: {}",
-					dhtStats.getNumPeers(),
-					dhtStats.getNumReceivedPackets(),
-					dhtStats.getRpcStats().getReceivedBytes() / 1024,
-					dhtStats.getNumSentPackets(),
-					dhtStats.getRpcStats().getSentBytes() / 1024,
-					dhtStats.getDbStats().getKeyCount(),
-					dhtStats.getDbStats().getItemCount());
+			traceDhtStats(dhtStats);
 
 			if (dht.getStatus() == DHTStatus.Running)
 			{
@@ -291,25 +272,25 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	@Override
 	public void received(DHT dht, MessageBase messageBase)
 	{
-		//log.debug("Got message: {}", messageBase);
-		if (messageBase.getType() == MessageBase.Type.RSP_MSG || messageBase.getType() == MessageBase.Type.REQ_MSG)
-		{
-			log.debug("Got message: Node ID: {}, IP: {}, {}", messageBase.getID(), messageBase.getOrigin(), messageBase);
-		}
-
 		if (messageBase.getType() == MessageBase.Type.RSP_MSG && messageBase.getMethod() == MessageBase.Method.FIND_NODE)
 		{
 			var location = searchedKeys.get(messageBase.getID());
 			if (location != null)
 			{
 				log.debug("Found node for id {}, IP: {}", location, messageBase.getOrigin());
+				// XXX: do something
 			}
 		}
 	}
 
+	public boolean isReady()
+	{
+		return isReady.get();
+	}
+
 	private void addBootstrappingNodes()
 	{
-		var reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream("/bdboot.txt"))));
+		var reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/bdboot.txt"))));
 		var line = "";
 
 		try
@@ -336,6 +317,21 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 		catch (IOException | IllegalArgumentException e)
 		{
 			log.warn("Couldn't parse ip<space>port of line: {} ({})", line, e.getMessage());
+		}
+	}
+
+	private void traceDhtStats(DHTStats dhtStats)
+	{
+		if (log.isTraceEnabled())
+		{
+			log.debug("Peers: {}, recv pkt: {} ({} KB), sent pkt: {} ({} KB), keys: {}, items: {}",
+					dhtStats.getNumPeers(),
+					dhtStats.getNumReceivedPackets(),
+					dhtStats.getRpcStats().getReceivedBytes() / 1024,
+					dhtStats.getNumSentPackets(),
+					dhtStats.getRpcStats().getSentBytes() / 1024,
+					dhtStats.getDbStats().getKeyCount(),
+					dhtStats.getDbStats().getItemCount());
 		}
 	}
 }

@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -259,6 +260,11 @@ public class LocationService
 				.toList();
 	}
 
+	public Slice<Location> getUnconnectedLocationsWithDht(Pageable pageable)
+	{
+		return locationRepository.findAllByConnectedFalseAndDhtTrue(pageable);
+	}
+
 	public List<Location> getConnectedLocations()
 	{
 		return locationRepository.findAllByConnectedTrue();
@@ -325,7 +331,7 @@ public class LocationService
 		return false;
 	}
 
-	private int getPageIndex()
+	private int getPageIndex() // XXX: that stuff should be moved out
 	{
 		if (locations == null || locations.isLast())
 		{

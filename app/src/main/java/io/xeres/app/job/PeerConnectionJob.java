@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.job;
 
-import io.xeres.app.XeresApplication;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.bootstrap.PeerI2pClient;
@@ -28,7 +27,6 @@ import io.xeres.app.net.peer.bootstrap.PeerTorClient;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PeerService;
-import io.xeres.common.properties.StartupProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,8 +34,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
-
-import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 
 /**
  * Handles automatic outgoing connections to peers.
@@ -67,25 +63,10 @@ public class PeerConnectionJob
 	@Scheduled(initialDelay = 5, fixedDelay = 60, timeUnit = TimeUnit.SECONDS)
 	void checkConnections()
 	{
-		// Do not connect if we're in server mode (i.e. only accepting connections)
-		if (StartupProperties.getBoolean(SERVER_ONLY, false))
+		if (JobUtils.canRun(peerService))
 		{
-			return;
+			connectToPeers();
 		}
-
-		// Do not connect if we're only a remote UI client
-		if (XeresApplication.isRemoteUiClient())
-		{
-			return;
-		}
-
-		// Do not connect if there's no network or if we're shutting down
-		if (!peerService.isRunning())
-		{
-			return;
-		}
-
-		connectToPeers();
 	}
 
 	private void connectToPeers()

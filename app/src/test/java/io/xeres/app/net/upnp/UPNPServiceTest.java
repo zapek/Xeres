@@ -19,9 +19,11 @@
 
 package io.xeres.app.net.upnp;
 
+import io.xeres.app.service.StatusNotificationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Duration;
@@ -32,6 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @ExtendWith(SpringExtension.class)
 class UPNPServiceTest
 {
+	@Mock
+	private StatusNotificationService statusNotificationService;
+
 	@InjectMocks
 	private UPNPService upnpService;
 

@@ -42,7 +42,6 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
-import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.splash.SplashService;
 import org.apache.commons.lang3.StringUtils;
@@ -170,7 +169,6 @@ public class Startup implements ApplicationRunner
 			statusNotificationService.setTotalUsers((int) locationService.getAllLocations().stream().filter(location -> !location.isOwn()).count());
 			startNetworkServices();
 		}
-		setInitialConnectionStatus();
 		splashService.close();
 	}
 
@@ -185,8 +183,6 @@ public class Startup implements ApplicationRunner
 	{
 		log.warn("IP change event received, possibly restarting some services...");
 		settingsService.setLocalIpAddress(event.localIpAddress());
-
-		setInitialConnectionStatus();
 
 		if (settingsService.isUpnpEnabled())
 		{
@@ -218,8 +214,6 @@ public class Startup implements ApplicationRunner
 	{
 		log.info("Ports forwarded on the router");
 
-		statusNotificationService.setNatStatus(NatStatus.UPNP);
-
 		if (settingsService.isDhtEnabled())
 		{
 			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), event.localPort());
@@ -242,11 +236,6 @@ public class Startup implements ApplicationRunner
 		peerConnectionManager.shutdown();
 
 		stopNetworkServices();
-	}
-
-	private void setInitialConnectionStatus() // XXX: remove this... shouldn't be needed. the services handle the led
-	{
-		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
 	}
 
 	void startNetworkServices()

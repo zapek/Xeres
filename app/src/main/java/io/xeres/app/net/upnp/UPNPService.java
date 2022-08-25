@@ -20,8 +20,10 @@
 package io.xeres.app.net.upnp;
 
 import io.xeres.app.application.events.PortsForwardedEvent;
+import io.xeres.app.service.StatusNotificationService;
 import io.xeres.common.AppName;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.client.ConfigClient;
 import org.slf4j.Logger;
@@ -87,6 +89,8 @@ public class UPNPService implements Runnable
 	private final ConfigClient configClient;
 	private final ApplicationEventPublisher publisher;
 
+	private final StatusNotificationService statusNotificationService;
+
 	private int deviceIndex;
 
 	private String localIpAddress;
@@ -99,10 +103,11 @@ public class UPNPService implements Runnable
 	private State state;
 	private Device device;
 
-	public UPNPService(ConfigClient configClient, ApplicationEventPublisher publisher)
+	public UPNPService(ConfigClient configClient, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
 	{
 		this.configClient = configClient;
 		this.publisher = publisher;
+		this.statusNotificationService = statusNotificationService;
 	}
 
 	public void start(String localIpAddress, int localPort)
@@ -110,6 +115,9 @@ public class UPNPService implements Runnable
 		log.info("Starting UPNP service...");
 		this.localIpAddress = localIpAddress;
 		this.localPort = localPort;
+
+		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
+
 		thread = new Thread(this, "UPNP Service");
 		thread.start();
 	}
@@ -121,6 +129,8 @@ public class UPNPService implements Runnable
 			log.info("Stopping UPNP...");
 			thread.interrupt();
 		}
+
+		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
 	}
 
 	public boolean isRunning()
@@ -370,6 +380,9 @@ public class UPNPService implements Runnable
 		// XXX: add a mechanism if the localport is already taken on the router?
 		var refreshed = device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.TCP);
 		refreshed &= device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.UDP);
+
+		statusNotificationService.setNatStatus(refreshed ? NatStatus.UPNP : NatStatus.FIREWALLED);
+
 		return refreshed;
 	}
 

@@ -70,6 +70,10 @@ public class DhtFinderJob
 				.forEach(location -> dhtService.search(location.getLocationId()));
 	}
 
+	// XXX: have a more frequent job iterate the found locations (or check for a signal) and update the connections
+	// and possibly connect directly!
+	//
+
 	private int getPageIndex()
 	{
 		if (locations == null || locations.isLast())

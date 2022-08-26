@@ -24,6 +24,7 @@ import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.service.StatusNotificationService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.protocol.HostPort;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.DhtInfo;
 import io.xeres.common.rest.notification.DhtStatus;
@@ -32,6 +33,7 @@ import lbms.plugins.mldht.DHTConfiguration;
 import lbms.plugins.mldht.kad.*;
 import lbms.plugins.mldht.kad.messages.MessageBase;
 import lbms.plugins.mldht.kad.tasks.NodeLookup;
+import org.apache.logging.log4j.spi.CopyOnWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -46,10 +48,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -78,6 +77,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	private Instant lastStats;
 
 	private final Map<Key, LocationId> searchedKeys = new ConcurrentHashMap<>();
+	private final Map<LocationId, HostPort> foundLocations = new ConcurrentHashMap<>();
 
 	private final AtomicBoolean isReady = new AtomicBoolean();
 
@@ -274,13 +274,19 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	{
 		if (messageBase.getType() == MessageBase.Type.RSP_MSG && messageBase.getMethod() == MessageBase.Method.FIND_NODE)
 		{
-			var location = searchedKeys.get(messageBase.getID());
-			if (location != null)
+			var locationId = searchedKeys.get(messageBase.getID());
+			if (locationId != null)
 			{
-				log.debug("Found node for id {}, IP: {}", location, messageBase.getOrigin());
-				// XXX: do something
+				log.debug("Found node for id {}, IP: {}", locationId, messageBase.getOrigin());
+				searchedKeys.remove(messageBase.getID());
+				foundLocations.put(locationId, new HostPort(messageBase.getOrigin().getAddress().getHostAddress(), messageBase.getOrigin().getPort()));
 			}
 		}
+	}
+
+	public Optional<HostPort> getLocation(LocationId locationId)
+	{
+		return Optional.ofNullable(foundLocations.remove(locationId));
 	}
 
 	public boolean isReady()

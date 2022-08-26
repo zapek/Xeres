@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -70,6 +71,9 @@ class LocationServiceTest
 
 	@Mock
 	private LocationRepository locationRepository;
+
+	@Mock
+	private ApplicationEventPublisher publisher;
 
 	@InjectMocks
 	private LocationService locationService;
@@ -156,6 +160,7 @@ class LocationServiceTest
 		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 		when(settingsService.getLocationPublicKeyData()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
+		doNothing().when(publisher).publishEvent(any());
 
 		locationService.createOwnLocation("test");
 

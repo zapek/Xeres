@@ -23,14 +23,12 @@ import io.xeres.app.application.events.IpChangedEvent;
 import io.xeres.app.service.PeerService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.common.protocol.ip.IP;
-import io.xeres.common.util.NoSuppressedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -69,7 +67,7 @@ public class IpChangeDetectionJob
 		if (!localIpAddress.equals(settingsService.getLocalIpAddress()))
 		{
 			log.warn("Local IP address changed: {} -> {}", settingsService.getLocalIpAddress(), localIpAddress);
-			CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new IpChangedEvent(localIpAddress)));
+			publisher.publishEvent(new IpChangedEvent(localIpAddress));
 		}
 	}
 }

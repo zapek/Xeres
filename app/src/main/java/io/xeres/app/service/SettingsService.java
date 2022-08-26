@@ -103,8 +103,8 @@ public class SettingsService
 	{
 		var oldSettings = this.settings;
 		this.settings = settings;
-		publisher.publishEvent(new SettingsChangedEvent(oldSettings, settings));
 		settingsRepository.save(settings);
+		publisher.publishEvent(new SettingsChangedEvent(oldSettings, settings));
 	}
 
 	// XXX: I think those need 'synchronized' or so... depends how we use them
@@ -174,11 +174,6 @@ public class SettingsService
 
 	public boolean hasTorSocksConfigured()
 	{
-		return hasTorSocksConfigured(settings);
-	}
-
-	public static boolean hasTorSocksConfigured(Settings settings)
-	{
 		return isNotBlank(settings.getTorSocksHost()) && settings.getTorSocksPort() != 0;
 	}
 
@@ -188,11 +183,6 @@ public class SettingsService
 	}
 
 	public boolean hasI2pSocksConfigured()
-	{
-		return hasI2pSocksConfigured(settings);
-	}
-
-	public static boolean hasI2pSocksConfigured(Settings settings)
 	{
 		return isNotBlank(settings.getI2pSocksHost()) && settings.getI2pSocksPort() != 0;
 	}

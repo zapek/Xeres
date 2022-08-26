@@ -83,6 +83,12 @@ public class PeerService
 		peerTorClient.stop();
 	}
 
+	public void restartTor()
+	{
+		stopTor();
+		startTor();
+	}
+
 	public void startI2p()
 	{
 		if (settingsService.hasI2pSocksConfigured())
@@ -94,6 +100,12 @@ public class PeerService
 	public void stopI2p()
 	{
 		peerI2pClient.stop();
+	}
+
+	public void restartI2p()
+	{
+		stopI2p();
+		startI2p();
 	}
 
 	public boolean isRunning()

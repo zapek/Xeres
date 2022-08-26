@@ -184,12 +184,17 @@ public final class PeerAddress
 		try
 		{
 			var hostPort = HostPort.parse(ipAndPort);
-			return from(hostPort.host(), hostPort.port());
+			return from(hostPort);
 		}
 		catch (IllegalArgumentException e)
 		{
 			return fromInvalid();
 		}
+	}
+
+	public static PeerAddress from(HostPort hostPort)
+	{
+		return from(hostPort.host(), hostPort.port());
 	}
 
 	/**

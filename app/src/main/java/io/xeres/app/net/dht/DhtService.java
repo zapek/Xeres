@@ -19,6 +19,7 @@
 
 package io.xeres.app.net.dht;
 
+import io.xeres.app.application.events.DhtNodeFoundEvent;
 import io.xeres.app.application.events.DhtReadyEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.service.StatusNotificationService;
@@ -28,12 +29,10 @@ import io.xeres.common.protocol.HostPort;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.DhtInfo;
 import io.xeres.common.rest.notification.DhtStatus;
-import io.xeres.common.util.NoSuppressedRunnable;
 import lbms.plugins.mldht.DHTConfiguration;
 import lbms.plugins.mldht.kad.*;
 import lbms.plugins.mldht.kad.messages.MessageBase;
 import lbms.plugins.mldht.kad.tasks.NodeLookup;
-import org.apache.logging.log4j.spi.CopyOnWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -48,8 +47,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,9 +60,9 @@ import static lbms.plugins.mldht.kad.DHT.DHTtype.IPV4_DHT;
 import static lbms.plugins.mldht.kad.DHT.LogLevel.Fatal;
 
 @Service
-public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStatsListener, DHT.IncomingMessageListener
+public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStatsListener, DHT.IncomingMessageListener
 {
-	private static final Logger log = LoggerFactory.getLogger(DHTService.class);
+	private static final Logger log = LoggerFactory.getLogger(DhtService.class);
 
 	private static final String DHT_DATA_DIR = "dht";
 
@@ -77,7 +78,6 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	private Instant lastStats;
 
 	private final Map<Key, LocationId> searchedKeys = new ConcurrentHashMap<>();
-	private final Map<LocationId, HostPort> foundLocations = new ConcurrentHashMap<>();
 
 	private final AtomicBoolean isReady = new AtomicBoolean();
 
@@ -85,7 +85,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	private final ApplicationEventPublisher publisher;
 	private final StatusNotificationService statusNotificationService;
 
-	public DHTService(DataDirConfiguration dataDirConfiguration, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
+	public DhtService(DataDirConfiguration dataDirConfiguration, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
 	{
 		this.dataDirConfiguration = dataDirConfiguration;
 		this.publisher = publisher;
@@ -170,7 +170,7 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 				log.info("DHT status -> running");
 				isReady.set(true);
 				statusNotificationService.setDhtInfo(DhtInfo.fromStatus(DhtStatus.RUNNING));
-				CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new DhtReadyEvent()));
+				publisher.publishEvent(new DhtReadyEvent());
 			}
 
 			case Stopped ->
@@ -274,19 +274,14 @@ public class DHTService implements DHTStatusListener, DHTConfiguration, DHTStats
 	{
 		if (messageBase.getType() == MessageBase.Type.RSP_MSG && messageBase.getMethod() == MessageBase.Method.FIND_NODE)
 		{
-			var locationId = searchedKeys.get(messageBase.getID());
-			if (locationId != null)
+			var foundLocationId = searchedKeys.get(messageBase.getID());
+			if (foundLocationId != null)
 			{
-				log.debug("Found node for id {}, IP: {}", locationId, messageBase.getOrigin());
+				log.debug("Found node for id {}, IP: {}", foundLocationId, messageBase.getOrigin());
 				searchedKeys.remove(messageBase.getID());
-				foundLocations.put(locationId, new HostPort(messageBase.getOrigin().getAddress().getHostAddress(), messageBase.getOrigin().getPort()));
+				publisher.publishEvent(new DhtNodeFoundEvent(foundLocationId, new HostPort(messageBase.getOrigin().getAddress().getHostAddress(), messageBase.getOrigin().getPort())));
 			}
 		}
-	}
-
-	public Optional<HostPort> getLocation(LocationId locationId)
-	{
-		return Optional.ofNullable(foundLocations.remove(locationId));
 	}
 
 	public boolean isReady()

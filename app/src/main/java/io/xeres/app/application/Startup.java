@@ -28,7 +28,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
-import io.xeres.app.net.dht.DHTService;
+import io.xeres.app.net.dht.DhtService;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.upnp.UPNPService;
@@ -42,7 +42,6 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
-import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.splash.SplashService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -60,7 +59,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
@@ -73,7 +71,7 @@ public class Startup implements ApplicationRunner
 	private final PeerService peerService;
 	private final UPNPService upnpService;
 	private final BroadcastDiscoveryService broadcastDiscoveryService;
-	private final DHTService dhtService;
+	private final DhtService dhtService;
 	private final LocationService locationService;
 	private final SettingsService settingsService;
 	private final BuildProperties buildProperties;
@@ -87,7 +85,7 @@ public class Startup implements ApplicationRunner
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DHTService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
@@ -145,7 +143,7 @@ public class Startup implements ApplicationRunner
 								.getPort());
 
 				// Send the event asynchronously so that our transaction can complete first
-				CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)));
+				publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort));
 			}
 		}
 		else
@@ -271,7 +269,7 @@ public class Startup implements ApplicationRunner
 			peerService.start(localPort);
 
 			// Send the event asynchronously so that our transaction can complete first
-			CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new NetworkReadyEvent()));
+			publisher.publishEvent(new NetworkReadyEvent());
 		}
 		else
 		{
@@ -397,28 +395,12 @@ public class Startup implements ApplicationRunner
 
 		if (!StringUtils.equals(newSettings.getTorSocksHost(), oldSettings.getTorSocksHost()) || newSettings.getTorSocksPort() != oldSettings.getTorSocksPort())
 		{
-			if (SettingsService.hasTorSocksConfigured(newSettings))
-			{
-				peerService.stopTor();
-				peerService.startTor();
-			}
-			else
-			{
-				peerService.stopTor();
-			}
+			peerService.restartTor();
 		}
 
 		if (!StringUtils.equals(newSettings.getI2pSocksHost(), oldSettings.getI2pSocksHost()) || newSettings.getI2pSocksPort() != oldSettings.getI2pSocksPort())
 		{
-			if (SettingsService.hasI2pSocksConfigured(newSettings))
-			{
-				peerService.stopI2p();
-				peerService.startI2p();
-			}
-			else
-			{
-				peerService.stopI2p();
-			}
+			peerService.restartI2p();
 		}
 	}
 }

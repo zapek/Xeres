@@ -33,7 +33,6 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.common.protocol.ip.IP;
-import io.xeres.common.util.NoSuppressedRunnable;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +54,6 @@ import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import static io.xeres.app.net.util.NetworkMode.hasDht;
 import static io.xeres.app.net.util.NetworkMode.isDiscoverable;
@@ -175,7 +173,7 @@ public class LocationService
 		locationRepository.save(location);
 
 		// Send the event asynchronously so that our transaction can complete first
-		CompletableFuture.runAsync((NoSuppressedRunnable) () -> publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)));
+		publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort));
 	}
 
 	/**
@@ -283,17 +281,26 @@ public class LocationService
 			return UpdateConnectionStatus.FAILED;
 		}
 
-		var updated = false;
-
 		if (location.isOwn())
 		{
-			for (var connection : location.getConnections())
+			return updateOwnConnection(location, peerAddress);
+		}
+		else
+		{
+			return updateOtherConnection(location, peerAddress);
+		}
+	}
+
+	private UpdateConnectionStatus updateOwnConnection(Location location, PeerAddress peerAddress)
+	{
+		var updated = false;
+
+		for (var connection : location.getConnections())
+		{
+			updated = updateAddressIfSameType(peerAddress, connection);
+			if (updated)
 			{
-				updated = updateAddressIfSameType(peerAddress, connection);
-				if (updated)
-				{
-					break;
-				}
+				break;
 			}
 		}
 
@@ -303,6 +310,13 @@ public class LocationService
 		}
 		locationRepository.save(location);
 		return updated ? UpdateConnectionStatus.UPDATED : UpdateConnectionStatus.ADDED;
+	}
+
+	private UpdateConnectionStatus updateOtherConnection(Location location, PeerAddress peerAddress)
+	{
+		var updated = location.addConnection(Connection.from(peerAddress));
+		locationRepository.save(location);
+		return updated ? UpdateConnectionStatus.UPDATED : UpdateConnectionStatus.FAILED;
 	}
 
 	public String getHostname() throws UnknownHostException

@@ -17,6 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 .base-spacing {
     -fx-padding: 12px;
 }
@@ -135,11 +136,13 @@
     -fx-background-color: -fx-background;
 }
 
+/*noinspection CssInvalidFunction*/
 .text-field-readonly {
     -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
     linear-gradient(from 0px 0px to 0px 5px, derive(-fx-background, -9%), -fx-background);
 }
 
+/*noinspection CssInvalidFunction*/
 .text-field-readonly:focused {
     -fx-background-color: -fx-focus-color,
     -fx-control-inner-background,
@@ -148,10 +151,21 @@
 }
 
 /* led */
-/* XXX: enabling this makes the LED use that color on startup and upon iconify (seems it overwrites the current value), but then the CSS complains that -color is a string upon parsing */
-/*.led-control {
+.led-control {
     -color: blue;
-}*/
+}
+
+.led-status-ok {
+    -color: #adff2f;
+}
+
+.led-status-warning {
+    -color: #ffa500;
+}
+
+.led-status-error {
+    -color: #ff3333;
+}
 
 .led-control .frame {
     -fx-background-color: linear-gradient(from 14% 14% to 84% 84%,
@@ -163,6 +177,7 @@
     -fx-background-radius: 1024px;
 }
 
+/*noinspection CssInvalidFunction*/
 .led-control .main {
     -fx-background-color: linear-gradient(from 15% 15% to 83% 83%,
     derive(-color, -80%) 0%,
@@ -171,6 +186,7 @@
     -fx-background-radius: 1024px;
 }
 
+/*noinspection CssInvalidFunction,CssInvalidPseudoSelector*/
 .led-control:on .main {
     -fx-background-color: linear-gradient(from 15% 15% to 83% 83%,
     derive(-color, -23%) 0%,

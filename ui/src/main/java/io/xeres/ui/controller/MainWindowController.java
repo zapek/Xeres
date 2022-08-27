@@ -28,6 +28,7 @@ import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.custom.led.LedControl;
+import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -39,7 +40,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -256,7 +256,7 @@ public class MainWindowController implements WindowController
 
 						if (newNatStatus != null)
 						{
-							natStatus.setColor(newNatStatus == NatStatus.UPNP ? Color.GREENYELLOW : Color.ORANGE);
+							natStatus.setStatus(newNatStatus == NatStatus.UPNP ? LedStatus.OK : LedStatus.WARNING);
 							switch (newNatStatus)
 							{
 								case UNKNOWN -> TooltipUtils.install(natStatus, "Status is still unknown.");
@@ -277,13 +277,13 @@ public class MainWindowController implements WindowController
 								case INITIALIZING ->
 								{
 									dhtStatus.setState(true);
-									dhtStatus.setColor(Color.ORANGE);
+									dhtStatus.setStatus(LedStatus.WARNING);
 									TooltipUtils.install(dhtStatus, "DHT is currently initializing. This can take a while.");
 								}
 								case RUNNING ->
 								{
 									dhtStatus.setState(true);
-									dhtStatus.setColor(Color.GREENYELLOW);
+									dhtStatus.setStatus(LedStatus.OK);
 									if (newDhtInfo.numPeers() == 0)
 									{
 										TooltipUtils.install(dhtStatus, "DHT is working properly, the client's IP is advertised to its peers.");

@@ -27,16 +27,12 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A led class. Strongly inspired from Gerrit Grunwald's JavaFXCustomControls <a href="https://github.com/HanSolo/JavaFXCustomControls">JavaFXCustomControls</a>.
  */
 public class LedSkin extends SkinBase<LedControl> implements Skin<LedControl>
 {
-	private static final Logger log = LoggerFactory.getLogger(LedSkin.class);
-
 	private static final double PREFERRED_WIDTH = 16;
 	private static final double PREFERRED_HEIGHT = 16;
 
@@ -94,7 +90,6 @@ public class LedSkin extends SkinBase<LedControl> implements Skin<LedControl>
 
 		main = new Region();
 		main.getStyleClass().setAll("main");
-		main.setStyle(getControlStyle());
 
 		innerShadow = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 8, 0, 0, 0);
 
@@ -147,23 +142,12 @@ public class LedSkin extends SkinBase<LedControl> implements Skin<LedControl>
 		}
 		else if (COLOR_PROPERTY.equals(property))
 		{
-			main.setStyle(getControlStyle());
 			resize();
 		}
 		else if (STATE_PROPERTY.equals(property))
 		{
 			main.setEffect(control.getState() ? glow : innerShadow);
 		}
-	}
-
-	private String getControlStyle()
-	{
-		var color = control.getColor();
-		if (color == null)
-		{
-			return "";
-		}
-		return String.join("", "-color: ", color.toString().replace("0x", "#"), ";");
 	}
 
 	@Override

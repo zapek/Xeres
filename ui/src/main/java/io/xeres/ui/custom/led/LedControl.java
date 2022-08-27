@@ -26,8 +26,6 @@ import javafx.css.*;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.paint.Color;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -36,13 +34,11 @@ import java.util.List;
  */
 public class LedControl extends Control
 {
-	private static final Logger log = LoggerFactory.getLogger(LedControl.class);
-
 	private static final StyleablePropertyFactory<LedControl> FACTORY = new StyleablePropertyFactory<>(Control.getClassCssMetaData());
 
 	// CSS pseudo class
 	private static final PseudoClass ON_PSEUDO_CLASS = PseudoClass.getPseudoClass("on");
-	private BooleanProperty state;
+	private final BooleanProperty state;
 
 	// CSS styleable property
 	private static final CssMetaData<LedControl, Color> COLOR = FACTORY.createColorCssMetaData("-color", ledControl -> ledControl.color, Color.GREEN, false);
@@ -96,9 +92,20 @@ public class LedControl extends Control
 		return color.getValue();
 	}
 
-	public void setColor(Color color)
+	public void setStatus(LedStatus ledStatus)
 	{
-		this.color.setValue(color);
+		switch (ledStatus)
+		{
+			case OK -> setStatusClass("led-status-ok");
+			case WARNING -> setStatusClass("led-status-warning");
+			case ERROR -> setStatusClass("led-status-error");
+		}
+	}
+
+	private void setStatusClass(String className)
+	{
+		getStyleClass().removeAll("led-status-ok", "led-status-warning", "led-status-error");
+		getStyleClass().add(className);
 	}
 
 	@SuppressWarnings("unchecked")

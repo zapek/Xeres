@@ -44,7 +44,7 @@ public class DhtFinderJob
 {
 	private static final Logger log = LoggerFactory.getLogger(DhtFinderJob.class);
 
-	private static final int SIMULTANEOUS_DHT_LOOKUPS = 4;
+	private static final int SIMULTANEOUS_DHT_LOOKUPS = 1;
 
 	private final LocationService locationService;
 	private final PeerService peerService;
@@ -62,7 +62,11 @@ public class DhtFinderJob
 		this.peerTcpClient = peerTcpClient;
 	}
 
-	@Scheduled(initialDelay = 2, fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
+	/**
+	 * After 2 minutes of runtime (which should be enough to get the DHT going), try finding
+	 * unconnected hosts in the DHT, each after 15 seconds.
+	 */
+	@Scheduled(initialDelay = 120, fixedDelay = 15, timeUnit = TimeUnit.SECONDS)
 	void checkDht()
 	{
 		if (JobUtils.canRun(peerService) && dhtService.isReady())

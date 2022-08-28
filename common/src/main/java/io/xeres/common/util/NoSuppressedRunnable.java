@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
  * exception is printed. If it's a scheduled executor, it will also keep running.
  * <br>
  * Example:
- * <pre>
- *     executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageChatRooms, 10, 10, TimeUnit.SECONDS);
- * </pre>
+ * {@snippet :
+ * executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageChatRooms, 10, 10, TimeUnit.SECONDS);
+ *}
  */
 @FunctionalInterface
 public interface NoSuppressedRunnable extends Runnable

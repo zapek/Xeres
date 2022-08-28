@@ -22,17 +22,14 @@ package io.xeres.app.database;
 /**
  * Allows using transactions from outside spring controllers, while still allowing the controller
  * to call such methods directly. For example:
- * <pre>
- *     &#64;Autowired
+ * {@snippet :
+ *     @Autowired
  *     private DatabaseSessionManager databaseSessionManager;
- *
- *     ...
- *
  *     try (var session = new DatabaseSession(databaseSessionManager))
  *     {
- *         ... use your JPA entities here ...
+ *         // use your JPA entity here
  *     }
- * </pre>
+ *}
  */
 public class DatabaseSession implements AutoCloseable
 {

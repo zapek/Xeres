@@ -183,9 +183,9 @@ public final class UiUtils
 
 	/**
 	 * Sets a close window actions easily, for example:
-	 * <pre>
+	 * {@snippet :
 	 *     closeButton.setOnAction(UiUtils::closeWindow);
-	 * </pre>
+	 *}
 	 * Beware because not all events contain a node (for example, events from MenuItems).
 	 *
 	 * @param event the event which needs a node in its source

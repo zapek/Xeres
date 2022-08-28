@@ -224,8 +224,8 @@ public class WindowManager
 			{
 				mainWindow = UiWindow.builder(MainWindowController.class)
 						.setStage(stage)
-						.setMinWidth(600)
-						.setMinHeight(400)
+						.setMinWidth(640)
+						.setMinHeight(460)
 						.setRememberEnvironment(true)
 						.setTitle(profile != null ? (AppName.NAME + " - " + profile.getName() + " @ " + profile.getLocations().stream().findFirst().orElseThrow().getName()) : null)
 						.build();

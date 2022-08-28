@@ -19,7 +19,9 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import de.jensd.fx.glyphs.fontawesome.*?>
 <?import io.xeres.ui.custom.led.LedControl?>
+<?import io.xeres.ui.custom.ReadOnlyTextField?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
@@ -27,43 +29,108 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
+<VBox xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
     <MenuBar>
         <Menu text="Peers">
-            <MenuItem fx:id="addPeer" text="_Add Peer..."/>
-            <MenuItem fx:id="showProfilesWindow" text="_Profiles..."/>
-            <MenuItem fx:id="showPeersWindow" text="P_eers..."/>
-            <MenuItem fx:id="showBroadcastWindow" text="_Broadcast..."/>
-            <MenuItem fx:id="copyOwnId" text="_Copy own ID to Clipboard"/>
+            <MenuItem fx:id="addPeer" text="_Add Peer...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="USER" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="showProfilesWindow" text="_Profiles...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="GROUP" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="showPeersWindow" text="P_eers...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="WECHAT" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="showBroadcastWindow" text="_Broadcast...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="BULLSEYE" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="copyOwnId" text="_Copy own ID to Clipboard">
+                <graphic>
+                    <FontAwesomeIconView glyphName="CLIPBOARD" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem fx:id="exitApplication" text="E_xit"/>
+            <MenuItem fx:id="exitApplication" text="E_xit">
+                <graphic>
+                    <FontAwesomeIconView glyphName="CLOSE" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
         </Menu>
         <Menu text="Identities">
-            <MenuItem fx:id="showIdentitiesWindow" text="_Identities..."/>
-            <MenuItem fx:id="changeOwnIdentityPicture" text="_Change own identity picture..."/>
+            <MenuItem fx:id="showIdentitiesWindow" text="_Identities...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="USERS" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="changeOwnIdentityPicture" text="_Change own identity picture...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="PHOTO" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
         </Menu>
         <Menu text="Chat">
-            <MenuItem fx:id="createChatRoom" text="_Create Chat Room..."/>
+            <MenuItem fx:id="createChatRoom" text="_Create Chat Room...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="PLUS" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
         </Menu>
         <Menu text="_Tools">
-            <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="Web Interface..."/>
+            <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="Web Interface...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="GLOBE" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem fx:id="showSettingsWindow" text="Se_ttings...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="GEARS" glyphSize="14"/>
+                </graphic>
                 <accelerator>
                     <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
                 </accelerator>
             </MenuItem>
         </Menu>
         <Menu text="_Help">
-            <MenuItem fx:id="showHelp" text="_Help (Website)"/>
-            <MenuItem fx:id="showAboutWindow" text="_About"/>
+            <MenuItem fx:id="showHelp" text="Online _Help">
+                <graphic>
+                    <FontAwesomeIconView glyphName="SUPPORT" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="reportBug" mnemonicParsing="false" text="Report bug or request feature...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="BUG" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="forums" mnemonicParsing="false" text="Forums...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="BULLHORN" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="showAboutWindow" text="_About..."/>
         </Menu>
         <Menu fx:id="debug" text="_Debug" visible="false">
-            <MenuItem fx:id="runGc" text="_Run GC"/>
+            <MenuItem fx:id="runGc" text="_Run GC">
+                <graphic>
+                    <FontAwesomeIconView glyphName="TRASH" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
         </Menu>
     </MenuBar>
     <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <Tab text="Home">
+            <graphic>
+                <FontAwesomeIconView glyphName="HOME" glyphSize="14"/>
+            </graphic>
             <VBox alignment="CENTER">
                 <HBox alignment="CENTER">
                     <opaqueInsets>
@@ -85,16 +152,50 @@
                     <VBox.margin>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
                     </VBox.margin>
+                    <font>
+                        <Font name="System Bold" size="12.0"/>
+                    </font>
+                </Label>
+                <Label text="This is your Xeres ID. Share it with other people.">
+                    <VBox.margin>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
+                    </VBox.margin>
+                </Label>
+                <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
+                    <ReadOnlyTextField fx:id="shortId" editable="false" prefWidth="540.0"/>
+                    <Button fx:id="copyShortIdButton">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="CLIPBOARD" glyphSize="18" size="16" text=""/>
+                        </graphic>
+                    </Button>
+                </HBox>
+                <Label text="Did you receive a Xeres ID from a peer?">
+                    <VBox.margin>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
+                    </VBox.margin>
+                </Label>
+                <Button fx:id="addFriendButton" mnemonicParsing="false" text="Add Peer">
+                    <graphic>
+                        <FontAwesomeIconView glyphName="USER" glyphSize="24" styleClass="icon-friend"/>
+                    </graphic>
+                </Button>
+                <Label text="Need help?">
+                    <VBox.margin>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
+                    </VBox.margin>
                 </Label>
                 <Button fx:id="webHelpButton" mnemonicParsing="false" text="Open Web Help">
-                    <VBox.margin>
-                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
-                    </VBox.margin>
+                    <graphic>
+                        <FontAwesomeIconView glyphName="GLOBE" glyphSize="24" styleClass="icon-web"/>
+                    </graphic>
                 </Button>
                 <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
             </VBox>
         </Tab>
-        <Tab text="Chat">
+        <Tab text="Chats">
+            <graphic>
+                <FontAwesomeIconView glyphName="WECHAT" glyphSize="14"/>
+            </graphic>
             <!--suppress Annotator -->
             <fx:include fx:id="chatViewController" source="chat/chatview.fxml"/>
         </Tab>

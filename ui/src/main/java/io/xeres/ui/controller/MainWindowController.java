@@ -27,6 +27,7 @@ import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
@@ -57,7 +58,9 @@ public class MainWindowController implements WindowController
 {
 	private static final Logger log = LoggerFactory.getLogger(MainWindowController.class);
 
-	public static final String XERES_DOCS_URL = "https://xeres.io/docs";
+	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
+	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
+	private static final String XERES_FORUMS_URL = "https://github.com/zapek/Xeres/discussions";
 	@FXML
 	private Label titleLabel;
 
@@ -78,6 +81,12 @@ public class MainWindowController implements WindowController
 
 	@FXML
 	private MenuItem showHelp;
+
+	@FXML
+	private MenuItem reportBug;
+
+	@FXML
+	private MenuItem forums;
 
 	@FXML
 	private MenuItem showAboutWindow;
@@ -105,6 +114,15 @@ public class MainWindowController implements WindowController
 
 	@FXML
 	private MenuItem runGc;
+
+	@FXML
+	private ReadOnlyTextField shortId;
+
+	@FXML
+	private Button copyShortIdButton;
+
+	@FXML
+	public Button addFriendButton;
 
 	@FXML
 	public Button webHelpButton;
@@ -145,7 +163,10 @@ public class MainWindowController implements WindowController
 	public void initialize()
 	{
 		addPeer.setOnAction(event -> addPeer(null));
+		addFriendButton.setOnAction(event -> addPeer(null));
+
 		copyOwnId.setOnAction(event -> copyOwnId());
+		copyShortIdButton.setOnAction(event -> copyOwnId());
 
 		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
 
@@ -153,6 +174,10 @@ public class MainWindowController implements WindowController
 
 		showHelp.setOnAction(event -> openUrl(XERES_DOCS_URL));
 		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));
+
+		reportBug.setOnAction(event -> openUrl(XERES_BUGS_URL));
+
+		forums.setOnAction(event -> openUrl(XERES_FORUMS_URL));
 
 		showAboutWindow.setOnAction(event -> windowManager.openAbout(titleLabel.getScene().getWindow()));
 
@@ -197,6 +222,10 @@ public class MainWindowController implements WindowController
 		setupStatusNotifications();
 
 		trayService.addSystemTray();
+
+		locationClient.getRSId(OWN_LOCATION_ID, Type.SHORT_INVITE)
+				.doOnSuccess(rsIdResponse -> Platform.runLater(() -> shortId.setText(rsIdResponse.rsId())))
+				.subscribe();
 	}
 
 	@Override

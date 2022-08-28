@@ -58,6 +58,7 @@ import java.util.*;
 import static io.xeres.app.net.util.NetworkMode.hasDht;
 import static io.xeres.app.net.util.NetworkMode.isDiscoverable;
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
+import static io.xeres.common.properties.StartupProperties.Property.SERVER_PORT;
 import static java.util.function.Predicate.not;
 
 @Service
@@ -153,7 +154,7 @@ public class LocationService
 		var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new CertificateException("Current host has no IP address. Please configure your network"));
 
 		// Create an IPv4 location
-		int localPort = Optional.ofNullable(StartupProperties.getInteger(StartupProperties.Property.SERVER_PORT)).orElseGet(IP::getFreeLocalPort);
+		int localPort = Optional.ofNullable(StartupProperties.getInteger(SERVER_PORT)).orElseGet(IP::getFreeLocalPort);
 		log.info("Using local ip address {} and port {}", localIpAddress, localPort);
 
 		generateLocationKeys();

@@ -55,6 +55,8 @@ public class WindowManager
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
 
+	private UiWindow mainWindow;
+
 	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient)
 	{
 		this.fxWeaver = fxWeaver;
@@ -210,16 +212,35 @@ public class WindowManager
 						.open());
 	}
 
-	public void openMain(Stage stage, Profile profile)
+	public void openMain(Stage stage, Profile profile, boolean iconified)
 	{
-		Platform.runLater(() -> UiWindow.builder(MainWindowController.class)
-				.setStage(stage)
-				.setMinWidth(600)
-				.setMinHeight(400)
-				.setRememberEnvironment(true)
-				.setTitle(profile != null ? (AppName.NAME + " - " + profile.getName() + " @ " + profile.getLocations().stream().findFirst().orElseThrow().getName()) : null)
-				.build()
-				.open());
+		Platform.runLater(() -> {
+
+			if (mainWindow != null && !iconified)
+			{
+				mainWindow.open();
+			}
+			else
+			{
+				mainWindow = UiWindow.builder(MainWindowController.class)
+						.setStage(stage)
+						.setMinWidth(600)
+						.setMinHeight(400)
+						.setRememberEnvironment(true)
+						.setTitle(profile != null ? (AppName.NAME + " - " + profile.getName() + " @ " + profile.getLocations().stream().findFirst().orElseThrow().getName()) : null)
+						.build();
+
+				if (!iconified)
+				{
+					mainWindow.open();
+				}
+			}
+		});
+	}
+
+	public Stage getMainStage()
+	{
+		return mainWindow.stage;
 	}
 
 	public void openAccountCreation(Stage stage)

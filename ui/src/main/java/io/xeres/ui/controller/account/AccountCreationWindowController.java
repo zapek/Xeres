@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.account;
 
 import io.xeres.ui.client.ConfigClient;
+import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -54,11 +55,13 @@ public class AccountCreationWindowController implements WindowController
 	private Label status;
 
 	private final ConfigClient configClient;
+	private final ProfileClient profileClient;
 	private final WindowManager windowManager;
 
-	public AccountCreationWindowController(ConfigClient configClient, WindowManager windowManager)
+	public AccountCreationWindowController(ConfigClient configClient, ProfileClient profileClient, WindowManager windowManager)
 	{
 		this.configClient = configClient;
+		this.profileClient = profileClient;
 		this.windowManager = windowManager;
 	}
 
@@ -167,10 +170,13 @@ public class AccountCreationWindowController implements WindowController
 				.subscribe();
 	}
 
-	public void openDashboard()
+	private void openDashboard()
 	{
-		windowManager.openMain(null, null); // XXX: we should pass the profile...
+		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> {
+					windowManager.openMain(null, profile, false);
+					profileName.getScene().getWindow().hide();
+				}))
+				.subscribe();
 
-		profileName.getScene().getWindow().hide();
 	}
 }

@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
+
 @Service
 public class PeerService
 {
@@ -53,7 +55,7 @@ public class PeerService
 		running.lazySet(true);
 
 		peerTcpServer.start(localPort);
-		if (!StartupProperties.getBoolean(StartupProperties.Property.SERVER_ONLY, false)) // XXX: do like NetworkProperties?
+		if (!StartupProperties.getBoolean(SERVER_ONLY, false)) // XXX: do like NetworkProperties?
 		{
 			peerTcpClient.start();
 		}

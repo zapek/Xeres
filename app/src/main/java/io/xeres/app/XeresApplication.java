@@ -29,6 +29,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static io.xeres.app.application.environment.Cloud.isRunningOnCloud;
+import static io.xeres.common.properties.StartupProperties.Property.UI;
 
 @SpringBootApplication(scanBasePackageClasses = {io.xeres.app.XeresApplication.class, io.xeres.ui.UiStarter.class})
 public class XeresApplication
@@ -40,7 +41,7 @@ public class XeresApplication
 		HostVariable.parse();
 		CommandArgument.parse(args);
 
-		if (isRunningOnCloud() || !StartupProperties.getBoolean(StartupProperties.Property.UI, true))
+		if (isRunningOnCloud() || !StartupProperties.getBoolean(UI, true))
 		{
 			log.info("no gui mode");
 			SpringApplication.run(XeresApplication.class, args);

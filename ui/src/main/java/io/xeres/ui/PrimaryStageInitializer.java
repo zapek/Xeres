@@ -19,6 +19,7 @@
 
 package io.xeres.ui;
 
+import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.ChatFrameHandler;
 import io.xeres.ui.client.message.MessageClient;
@@ -26,16 +27,17 @@ import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.window.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Hooks;
 
+import static io.xeres.common.properties.StartupProperties.Property.ICONIFIED;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Component
-public class PrimaryStageInitializer implements ApplicationListener<StageReadyEvent>
+public class PrimaryStageInitializer
 {
 	private static final Logger log = LoggerFactory.getLogger(PrimaryStageInitializer.class);
 
@@ -52,13 +54,13 @@ public class PrimaryStageInitializer implements ApplicationListener<StageReadyEv
 		this.messageClient = messageClient;
 	}
 
-	@Override
+	@EventListener
 	public void onApplicationEvent(StageReadyEvent event)
 	{
 		Hooks.onErrorDropped(throwable -> log.debug("WebClient warning: {}", throwable.getMessage())); // Suppress Reactor's error messages
 
 		profileClient.getOwn()
-				.doOnSuccess(profile -> windowManager.openMain(event.getStage(), profile))
+				.doOnSuccess(profile -> windowManager.openMain(event.getStage(), profile, StartupProperties.getBoolean(ICONIFIED, false)))
 				.doOnError(WebClientResponseException.class, e -> {
 					if (e.getStatusCode() == HttpStatus.NOT_FOUND)
 					{

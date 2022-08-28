@@ -33,6 +33,7 @@ public final class StartupProperties
 		UI("xrs.ui.enabled", Boolean.class),
 		UI_ADDRESS("xrs.ui.address", String.class),
 		UI_PORT("xrs.ui.port", Integer.class),
+		ICONIFIED("xrs.ui.iconified", Boolean.class),
 		FAST_SHUTDOWN("xrs.network.fast-shutdown", Boolean.class);
 
 		Property(String propertyName, Class<?> javaClass)

@@ -61,6 +61,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.xeres.common.properties.StartupProperties.Property.SERVER_PORT;
 import static java.util.function.Predicate.not;
 
 @Component
@@ -135,7 +136,7 @@ public class Startup implements ApplicationRunner
 
 				// If there's no --server-port specified, get the previously saved port. If there isn't any because there was an
 				// error on initialization, simply try to get a new one.
-				int localPort = Optional.ofNullable(StartupProperties.getInteger(StartupProperties.Property.SERVER_PORT))
+				int localPort = Optional.ofNullable(StartupProperties.getInteger(SERVER_PORT))
 						.orElseGet(() -> location.getConnections().stream()
 								.filter(not(Connection::isExternal))
 								.findFirst()

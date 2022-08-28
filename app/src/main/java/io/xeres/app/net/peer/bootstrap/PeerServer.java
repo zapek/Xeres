@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
+import static io.xeres.common.properties.StartupProperties.Property.FAST_SHUTDOWN;
 
 
 abstract class PeerServer
@@ -102,7 +103,7 @@ abstract class PeerServer
 			return;
 		}
 
-		if (StartupProperties.getBoolean(StartupProperties.Property.FAST_SHUTDOWN, false))
+		if (StartupProperties.getBoolean(FAST_SHUTDOWN, false))
 		{
 			log.debug("Shutting down peer server (fast)...");
 			workerGroup.shutdownGracefully();

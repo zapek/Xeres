@@ -22,7 +22,6 @@ package io.xeres.ui.support.tray;
 import io.xeres.common.AppName;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,7 +52,7 @@ public class TrayService
 		this.windowManager = windowManager;
 	}
 
-	public void addSystemTray(Stage stage)
+	public void addSystemTray()
 	{
 		if (hasSystemTray)
 		{
@@ -84,8 +83,8 @@ public class TrayService
 		popupMenu.add(peersItem);
 		popupMenu.add(exitItem);
 
-		image = Toolkit.getDefaultToolkit().getImage(stage.getClass().getResource("/image/trayicon.png"));
-		eventImage = Toolkit.getDefaultToolkit().getImage(stage.getClass().getResource("/image/trayicon_event.png"));
+		image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon.png"));
+		eventImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon_event.png"));
 
 		trayIcon = new TrayIcon(image, AppName.NAME, popupMenu);
 		trayIcon.setImageAutoSize(true);
@@ -101,6 +100,8 @@ public class TrayService
 				{
 					Platform.runLater(() ->
 					{
+						var stage = windowManager.getMainStage();
+
 						// Do not hide an iconified stage otherwise
 						// it's not trivial to recover
 						if (stage.isIconified())

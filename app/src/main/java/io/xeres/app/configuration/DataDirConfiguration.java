@@ -33,6 +33,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import static io.xeres.common.properties.StartupProperties.Property.DATA_DIR;
+
 /**
  * Configuration for everything related to the user data directory (database, keys, user data, ...).
  */
@@ -103,7 +105,7 @@ public class DataDirConfiguration
 
 	private String getDataDirFromArgs()
 	{
-		return StartupProperties.getString(StartupProperties.Property.DATA_DIR);
+		return StartupProperties.getString(DATA_DIR);
 	}
 
 	private String getDataDirFromPortableFileLocation()

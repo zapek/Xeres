@@ -42,7 +42,6 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,12 +195,13 @@ public class MainWindowController implements WindowController
 		});
 
 		setupStatusNotifications();
+
+		trayService.addSystemTray();
 	}
 
 	@Override
 	public void onShown()
 	{
-		trayService.addSystemTray((Stage) titleLabel.getScene().getWindow());
 		chatViewController.jumpToBottom();
 	}
 

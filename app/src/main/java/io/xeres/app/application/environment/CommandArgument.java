@@ -47,6 +47,7 @@ public final class CommandArgument
 	private static final String FAST_SHUTDOWN = "fast-shutdown";
 	public static final String SERVER_ONLY = "server-only";
 	public static final String REMOTE_CONNECT = "remote-connect";
+	public static final String ICONIFIED = "iconified";
 
 	/**
 	 * Parses command line arguments. Should be called before Spring Boot is initialized.
@@ -87,6 +88,7 @@ public final class CommandArgument
 				case NO_GUI -> setBooleanInverted(StartupProperties.Property.UI, appArgs, arg);
 				case FAST_SHUTDOWN -> setBoolean(StartupProperties.Property.FAST_SHUTDOWN, appArgs, arg);
 				case SERVER_ONLY -> setBoolean(StartupProperties.Property.SERVER_ONLY, appArgs, arg);
+				case ICONIFIED -> setBoolean(StartupProperties.Property.ICONIFIED, appArgs, arg);
 				default -> throw new IllegalArgumentException("Unknown argument " + arg);
 			}
 		}
@@ -154,6 +156,7 @@ public final class CommandArgument
 				Usage: %s [--options]
 				where options include:
 				   --no-gui                            start without an UI
+				   --iconified                         start iconified into the tray
 				   --data-dir=<path>                   specify the data directory
 				   --control-port=<port>               specify the control port for remote access
 				   --server-port=<port>                specify the local port to bind to for incoming peer connections

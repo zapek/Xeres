@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 
+import static io.xeres.common.properties.StartupProperties.Property.FAST_SHUTDOWN;
+
 abstract class PeerClient
 {
 	@SuppressWarnings("NonConstantLogger")
@@ -97,7 +99,7 @@ abstract class PeerClient
 			return;
 		}
 
-		if (StartupProperties.getBoolean(StartupProperties.Property.FAST_SHUTDOWN, false))
+		if (StartupProperties.getBoolean(FAST_SHUTDOWN, false))
 		{
 			log.debug("Shutting down peer client (fast)...");
 			group.shutdownGracefully();

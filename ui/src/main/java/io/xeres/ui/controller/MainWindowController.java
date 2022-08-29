@@ -20,6 +20,7 @@
 package io.xeres.ui.controller;
 
 import io.xeres.common.dto.identity.IdentityConstants;
+import io.xeres.common.rest.notification.DhtInfo;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
@@ -49,6 +50,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
+import reactor.core.Disposable;
+
+import javax.annotation.PreDestroy;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 
@@ -147,6 +151,7 @@ public class MainWindowController implements WindowController
 
 	private int currentUsers;
 	private int totalUsers;
+	private Disposable notificationDisposable;
 
 	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, NotificationClient notificationClient)
 	{
@@ -261,75 +266,92 @@ public class MainWindowController implements WindowController
 		natStatus.setState(true);
 		dhtStatus.setState(true);
 
-		notificationClient.getNotifications()
+		notificationDisposable = notificationClient.getNotifications()
 				.doOnComplete(() -> log.debug("Notification connection closed"))
 				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{
-						var newCurrentUsers = sse.data().currentUsers();
-						var newTotalUsers = sse.data().totalUsers();
-						var newNatStatus = sse.data().natStatus();
-						var newDhtInfo = sse.data().dhtInfo();
-
-						if (newCurrentUsers != null)
-						{
-							currentUsers = newCurrentUsers;
-						}
-						if (newTotalUsers != null)
-						{
-							totalUsers = newTotalUsers;
-						}
-
-						numberOfConnections.setText(this.currentUsers + "/" + this.totalUsers);
-
-						if (newNatStatus != null)
-						{
-							natStatus.setStatus(newNatStatus == NatStatus.UPNP ? LedStatus.OK : LedStatus.WARNING);
-							switch (newNatStatus)
-							{
-								case UNKNOWN -> TooltipUtils.install(natStatus, "Status is still unknown.");
-								case FIREWALLED -> TooltipUtils.install(natStatus, "The client is not reachable from connections initiated from the Internet.");
-								case UPNP -> TooltipUtils.install(natStatus, "UPNP is active and the client is fully reachable from the Internet.");
-							}
-						}
-
-						if (newDhtInfo != null)
-						{
-							switch (newDhtInfo.dhtStatus())
-							{
-								case OFF ->
-								{
-									dhtStatus.setState(false);
-									TooltipUtils.install(dhtStatus, "DHT is disabled.");
-								}
-								case INITIALIZING ->
-								{
-									dhtStatus.setState(true);
-									dhtStatus.setStatus(LedStatus.WARNING);
-									TooltipUtils.install(dhtStatus, "DHT is currently initializing. This can take a while.");
-								}
-								case RUNNING ->
-								{
-									dhtStatus.setState(true);
-									dhtStatus.setStatus(LedStatus.OK);
-									if (newDhtInfo.numPeers() == 0)
-									{
-										TooltipUtils.install(dhtStatus, "DHT is working properly, the client's IP is advertised to its peers.");
-									}
-									else
-									{
-										TooltipUtils.install(dhtStatus, "Number of peers: " + newDhtInfo.numPeers() + "\n" +
-												"Received packets: " + newDhtInfo.receivedPackets() + " (" + newDhtInfo.receivedBytes() / 1024 + " KB)\n" +
-												"Sent packets: " + newDhtInfo.sentPackets() + " (" + newDhtInfo.sentBytes() / 1024 + " KB)\n" +
-												"Key count: " + newDhtInfo.keyCount() + "\n" +
-												"Item count: " + newDhtInfo.itemCount());
-									}
-								}
-							}
-						}
+						setUserCount(sse.data().currentUsers(), sse.data().totalUsers());
+						setNatStatus(sse.data().natStatus());
+						setDhtInfo(sse.data().dhtInfo());
 					}
 				}))
 				.subscribe();
+	}
+
+	private void setUserCount(Integer newCurrentUsers, Integer newTotalUsers)
+	{
+		if (newCurrentUsers != null)
+		{
+			currentUsers = newCurrentUsers;
+		}
+		if (newTotalUsers != null)
+		{
+			totalUsers = newTotalUsers;
+		}
+
+		numberOfConnections.setText(this.currentUsers + "/" + this.totalUsers);
+	}
+
+	private void setNatStatus(NatStatus newNatStatus)
+	{
+		if (newNatStatus != null)
+		{
+			natStatus.setStatus(newNatStatus == NatStatus.UPNP ? LedStatus.OK : LedStatus.WARNING);
+			switch (newNatStatus)
+			{
+				case UNKNOWN -> TooltipUtils.install(natStatus, "Status is still unknown.");
+				case FIREWALLED -> TooltipUtils.install(natStatus, "The client is not reachable from connections initiated from the Internet.");
+				case UPNP -> TooltipUtils.install(natStatus, "UPNP is active and the client is fully reachable from the Internet.");
+			}
+		}
+	}
+
+	private void setDhtInfo(DhtInfo newDhtInfo)
+	{
+		if (newDhtInfo != null)
+		{
+			switch (newDhtInfo.dhtStatus())
+			{
+				case OFF ->
+				{
+					dhtStatus.setState(false);
+					TooltipUtils.install(dhtStatus, "DHT is disabled.");
+				}
+				case INITIALIZING ->
+				{
+					dhtStatus.setState(true);
+					dhtStatus.setStatus(LedStatus.WARNING);
+					TooltipUtils.install(dhtStatus, "DHT is currently initializing. This can take a while.");
+				}
+				case RUNNING ->
+				{
+					dhtStatus.setState(true);
+					dhtStatus.setStatus(LedStatus.OK);
+					if (newDhtInfo.numPeers() == 0)
+					{
+						TooltipUtils.install(dhtStatus, "DHT is working properly, the client's IP is advertised to its peers.");
+					}
+					else
+					{
+						TooltipUtils.install(dhtStatus, "Number of peers: " + newDhtInfo.numPeers() + "\n" +
+								"Received packets: " + newDhtInfo.receivedPackets() + " (" + newDhtInfo.receivedBytes() / 1024 + " KB)\n" +
+								"Sent packets: " + newDhtInfo.sentPackets() + " (" + newDhtInfo.sentBytes() / 1024 + " KB)\n" +
+								"Key count: " + newDhtInfo.keyCount() + "\n" +
+								"Item count: " + newDhtInfo.itemCount());
+					}
+				}
+			}
+		}
+	}
+
+	@PreDestroy
+	private void cleanupNotification()
+	{
+		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		{
+			notificationDisposable.dispose();
+		}
 	}
 }

@@ -25,12 +25,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <VBox prefHeight="400.0" prefWidth="480.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
-    <Label text="Paste below your peer's RSID.">
+    <Label text="Paste below your peer's ID.">
         <VBox.margin>
             <Insets/>
         </VBox.margin>
     </Label>
-    <TextArea fx:id="rsIdTextArea" promptText="Paste peer's RSID" VBox.vgrow="SOMETIMES">
+    <TextArea fx:id="rsIdTextArea" promptText="Paste peer's ID" VBox.vgrow="SOMETIMES">
         <font>
             <Font name="Consolas" size="12.0"/>
         </font>
@@ -38,7 +38,7 @@
             <Insets top="8.0"/>
         </VBox.margin>
         <tooltip>
-            <Tooltip showDuration="1m" text="The RSID is a string of about a hundred of weird looking cryptic characters. It encodes all information needed to connect to a peer."/>
+            <Tooltip showDuration="1m" text="The ID is a string of about a hundred of weird looking cryptic characters. It encodes all information needed to connect to a peer."/>
         </tooltip>
     </TextArea>
     <Label fx:id="status"/>

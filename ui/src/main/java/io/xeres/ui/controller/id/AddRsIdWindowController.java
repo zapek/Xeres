@@ -174,7 +174,7 @@ public class AddRsIdWindowController implements WindowController
 					}
 					else
 					{
-						status.setText("Invalid RSID");
+						status.setText("Invalid ID");
 						UiUtils.showError(rsIdTextArea, status);
 					}
 					titledPane.setExpanded(false);

@@ -358,6 +358,15 @@ public class Startup implements ApplicationRunner
 
 	private void compareSettingsAndApplyActions(Settings oldSettings, Settings newSettings)
 	{
+		applyBroadcastDiscovery(oldSettings, newSettings);
+		applyDht(oldSettings, newSettings);
+		applyUpnp(oldSettings, newSettings);
+		applyTor(oldSettings, newSettings);
+		applyI2p(oldSettings, newSettings);
+	}
+
+	private void applyBroadcastDiscovery(Settings oldSettings, Settings newSettings)
+	{
 		if (newSettings.isBroadcastDiscoveryEnabled() != oldSettings.isBroadcastDiscoveryEnabled())
 		{
 			if (newSettings.isBroadcastDiscoveryEnabled())
@@ -369,7 +378,10 @@ public class Startup implements ApplicationRunner
 				broadcastDiscoveryService.stop();
 			}
 		}
+	}
 
+	private void applyDht(Settings oldSettings, Settings newSettings)
+	{
 		if (newSettings.isDhtEnabled() != oldSettings.isDhtEnabled())
 		{
 			if (newSettings.isDhtEnabled())
@@ -381,7 +393,10 @@ public class Startup implements ApplicationRunner
 				dhtService.stop();
 			}
 		}
+	}
 
+	private void applyUpnp(Settings oldSettings, Settings newSettings)
+	{
 		if (newSettings.isUpnpEnabled() != oldSettings.isUpnpEnabled())
 		{
 			if (newSettings.isUpnpEnabled())
@@ -393,12 +408,18 @@ public class Startup implements ApplicationRunner
 				upnpService.stop();
 			}
 		}
+	}
 
+	private void applyTor(Settings oldSettings, Settings newSettings)
+	{
 		if (!StringUtils.equals(newSettings.getTorSocksHost(), oldSettings.getTorSocksHost()) || newSettings.getTorSocksPort() != oldSettings.getTorSocksPort())
 		{
 			peerService.restartTor();
 		}
+	}
 
+	private void applyI2p(Settings oldSettings, Settings newSettings)
+	{
 		if (!StringUtils.equals(newSettings.getI2pSocksHost(), oldSettings.getI2pSocksHost()) || newSettings.getI2pSocksPort() != oldSettings.getI2pSocksPort())
 		{
 			peerService.restartI2p();

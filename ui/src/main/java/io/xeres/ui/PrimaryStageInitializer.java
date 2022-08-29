@@ -66,7 +66,7 @@ public class PrimaryStageInitializer
 					{
 						windowManager.openAccountCreation(event.getStage());
 					}
-				}) // XXX: try finding out what happens if ie. the host is unreachable (connecting to unknown host or so). we probably need some other doOnError()
+				})
 				.subscribe();
 
 		messageClient.subscribe(CHAT_PATH, new ChatFrameHandler(windowManager, chatViewController));

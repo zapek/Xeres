@@ -52,7 +52,7 @@
                     <FontAwesomeIconView glyphName="BULLSEYE" glyphSize="14"/>
                 </graphic>
             </MenuItem>
-            <MenuItem fx:id="copyOwnId" text="_Copy own RSID to Clipboard">
+            <MenuItem fx:id="copyOwnId" text="_Copy own ID to Clipboard">
                 <graphic>
                     <FontAwesomeIconView glyphName="CLIPBOARD" glyphSize="14"/>
                 </graphic>
@@ -156,7 +156,7 @@
                         <Font name="System Bold" size="12.0"/>
                     </font>
                 </Label>
-                <Label text="This is your RSID. Share it with other people.">
+                <Label text="This is your Xeres ID. Share it with other people.">
                     <VBox.margin>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
                     </VBox.margin>
@@ -169,7 +169,7 @@
                         </graphic>
                     </Button>
                 </HBox>
-                <Label text="Did you receive a RSID from a peer?">
+                <Label text="Did you receive an ID from a peer?">
                     <VBox.margin>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
                     </VBox.margin>

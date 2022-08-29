@@ -194,7 +194,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(AddRsIdWindowController.class)
 						.setParent(parent)
-						.setTitle("Add peer ID")
+						.setTitle("Add Peer")
 						.setMinHeight(380)
 						.setUserData(rsId)
 						.build()
@@ -206,7 +206,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ChatRoomInvitationWindowController.class)
 						.setParent(parent)
-						.setTitle("Invite peer")
+						.setTitle("Invite Peer")
 						.setUserData(chatRoom)
 						.build()
 						.open());

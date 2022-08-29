@@ -152,7 +152,7 @@
 
 /* led */
 .led-control {
-    -color: blue;
+    -color: black;
 }
 
 .led-status-ok {

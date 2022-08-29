@@ -68,7 +68,7 @@ bootJar {
 }
 
 bootRun {
-    bootRun.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true"
+    bootRun.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
     bootRun.systemProperty 'spring.profiles.active', 'dev'
 }
 
@@ -88,7 +88,7 @@ editorconfig {
 
 test {
     useJUnitPlatform()
-    test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true"
+    test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
 }
 
 // XXX: hack to make IntelliJ actually build properly. Maybe report to JetBrains
@@ -120,6 +120,7 @@ jpackage {
     mainJar = "app-${project.version}.jar"
     licenseFile = "${parent.rootDir}/LICENSE"
     javaOptions = ['-Djava.net.preferIPv4Stack=true',
+                   '-Dfile.encoding=UTF-8',
                    '-splash:$APPDIR/startup.jpg',
                    '-Dlogging.file.path=.',
                    '-Dlogging.file.name=xeres.log',

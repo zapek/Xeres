@@ -29,7 +29,7 @@ editorconfig {
 
 test {
     useJUnitPlatform()
-    test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true"
+    test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
 }
 
 bootJar {

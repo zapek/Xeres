@@ -19,6 +19,8 @@
 
 package io.xeres.ui.controller.about;
 
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
@@ -29,9 +31,12 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Component
 @FxmlView(value = "/view/about/about.fxml")
@@ -49,17 +54,30 @@ public class AboutWindowController implements WindowController
 	@FXML
 	private Label version;
 
-	private final BuildProperties buildProperties;
+	@FXML
+	private Label profile;
 
-	public AboutWindowController(BuildProperties buildProperties)
+	private final BuildProperties buildProperties;
+	private final Environment environment;
+
+	public AboutWindowController(BuildProperties buildProperties, Environment environment)
 	{
 		this.buildProperties = buildProperties;
+		this.environment = environment;
 	}
 
 	@Override
 	public void initialize() throws IOException
 	{
 		version.setText(buildProperties.getVersion());
+		if (isEmpty(environment.getActiveProfiles()))
+		{
+			profile.setText("Release");
+		}
+		else
+		{
+			profile.setText("Profiles: " + String.join(", ", environment.getActiveProfiles()));
+		}
 		licenseTextArea.setText(UiUtils.getResourceFileAsString(getClass().getResourceAsStream("/LICENSE")));
 
 		closeWindow.setOnAction(UiUtils::closeWindow);

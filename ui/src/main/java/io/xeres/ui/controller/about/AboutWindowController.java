@@ -19,8 +19,6 @@
 
 package io.xeres.ui.controller.about;
 
-import static org.apache.commons.lang3.ArrayUtils.isEmpty;
-
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
@@ -35,8 +33,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 @Component
 @FxmlView(value = "/view/about/about.fxml")

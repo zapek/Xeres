@@ -79,27 +79,10 @@ jobs:
         name: macos-installer
         retention-days: 1
 
-  calculate-hashes:
-    name: Calculate hashes
-    runs-on: ubuntu-latest
-    needs: [ build-windows-installer, build-linux-installer, build-macos-installer ]
-    steps:
-    - name: Calculate
-      uses: MCJack123/ghaction-generate-release-hashes@v3
-      with:
-        file-name: SHA256SUMS.txt
-        get-assets: true
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        path: ./SHA256SUMS.txt
-        name: sha256sums
-        retention-days: 1
-
   create-release:
     name: Create release
     runs-on: ubuntu-latest
-    needs: [ build-windows-installer, build-linux-installer, build-macos-installer, calculate-hashes ]
+    needs: [ build-windows-installer, build-linux-installer, build-macos-installer ]
     steps:
     - name: Download Windows installer
       uses: actions/download-artifact@v2
@@ -113,10 +96,6 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: macos-installer
-    - name: Download SHA256SUMS
-      uses: actions/download-artifact@v2
-      with:
-        name: calculate-hashes
     - name: Create Github release
       uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
@@ -127,6 +106,5 @@ jobs:
           *.exe
           *.deb
           *.dmg
-          SHA256SUMS.txt
 
 # For manual builds, add automatic_release_tag: "Nightly" above

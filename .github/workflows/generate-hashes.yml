@@ -1,0 +1,23 @@
+name: Generate hashes
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    name: Generate hashes
+    runs-on: ubuntu-latest
+    steps:
+    - name: Generate hashes
+      uses: MCJack123/ghaction-generate-release-hashes@v3
+      with:
+        file-name: hashes.txt
+    - name: Upload hashes to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        file: hashes.txt
+        overwrite: true
+        asset_name: SHA256SUMS.txt
+        tag: ${{ github.ref }}

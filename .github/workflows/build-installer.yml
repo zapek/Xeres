@@ -90,7 +90,7 @@ jobs:
         file-name: SHA256SUMS.txt
         get-assets: true
     - name: Upload artifact
-      uses: action/upload-artifact@v2
+      uses: actions/upload-artifact@v2
       with:
         path: ./SHA256SUMS.txt
         name: sha256sums

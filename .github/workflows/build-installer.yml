@@ -102,6 +102,7 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
         draft: true
+        automatic_release_tag: "v0.5.0"
         files: |
           *.exe
           *.deb

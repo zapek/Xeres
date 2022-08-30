@@ -68,6 +68,16 @@ public class TrayService
 		// Do not exit the platform when all windows are closed.
 		Platform.setImplicitExit(false);
 
+		var launchItem = new MenuItem("Open " + AppName.NAME);
+		launchItem.addActionListener(e ->
+				windowManager.openMain(null, null, false));
+
+		var peersItem = new MenuItem("Peers");
+		peersItem.addActionListener(e ->
+				windowManager.openPeers());
+
+		var separator = new MenuItem("-");
+
 		var exitItem = new MenuItem("Exit");
 		exitItem.addActionListener(e ->
 		{
@@ -75,12 +85,10 @@ public class TrayService
 			Platform.exit();
 		});
 
-		var peersItem = new MenuItem("Peers");
-		peersItem.addActionListener(e ->
-				windowManager.openPeers());
-
 		var popupMenu = new PopupMenu();
+		popupMenu.add(launchItem);
 		popupMenu.add(peersItem);
+		popupMenu.add(separator);
 		popupMenu.add(exitItem);
 
 		image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon.png"));
@@ -91,7 +99,22 @@ public class TrayService
 
 		systemTray = SystemTray.getSystemTray();
 
-		trayIcon.addMouseListener(new MouseAdapter()
+		trayIcon.addMouseListener(createContextMenuMouseAdapter());
+
+		try
+		{
+			systemTray.add(trayIcon);
+			hasSystemTray = true;
+		}
+		catch (AWTException e)
+		{
+			log.error("Failed to put system tray: {}", e.getMessage(), e);
+		}
+	}
+
+	private MouseAdapter createContextMenuMouseAdapter()
+	{
+		return new MouseAdapter()
 		{
 			@Override
 			public void mouseReleased(MouseEvent e)
@@ -103,7 +126,8 @@ public class TrayService
 						var stage = windowManager.getMainStage();
 
 						// Do not hide an iconified stage otherwise
-						// it's not trivial to recover
+						// it's not trivial to recover. We don't actually really
+						// iconify in the app so this is defensive code.
 						if (stage.isIconified())
 						{
 							stage.setIconified(false);
@@ -128,17 +152,7 @@ public class TrayService
 					super.mouseClicked(e);
 				}
 			}
-		});
-
-		try
-		{
-			systemTray.add(trayIcon);
-			hasSystemTray = true;
-		}
-		catch (AWTException e)
-		{
-			log.error("Failed to put system tray: {}", e.getMessage(), e);
-		}
+		};
 	}
 
 	public boolean hasSystemTray()

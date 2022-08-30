@@ -24,8 +24,7 @@ import io.xeres.common.rest.notification.DhtInfo;
 import io.xeres.common.rest.notification.DhtStatus;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.rest.notification.StatusNotificationResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -35,8 +34,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class StatusNotificationService
 {
-	private static final Logger log = LoggerFactory.getLogger(StatusNotificationService.class);
-
 	private int currentUsersCount;
 	private boolean currentUsersCountChanged;
 	private int totalUsers;
@@ -49,10 +46,12 @@ public class StatusNotificationService
 	private boolean dhtInfoChanged;
 
 	private final SsePushNotificationService ssePushNotificationService;
+	private final TrayService trayService;
 
-	public StatusNotificationService(SsePushNotificationService ssePushNotificationService)
+	public StatusNotificationService(SsePushNotificationService ssePushNotificationService, TrayService trayService)
 	{
 		this.ssePushNotificationService = ssePushNotificationService;
+		this.trayService = trayService;
 	}
 
 	public SseEmitter addClient()
@@ -72,6 +71,7 @@ public class StatusNotificationService
 		this.currentUsersCount = currentUsersCount;
 		currentUsersCountChanged = true;
 		sendNotification(null);
+		trayService.setTooltip(currentUsersCount + " peers connected");
 	}
 
 	public void setTotalUsers(int totalUsers)

@@ -96,6 +96,10 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: macos-installer
+    - name: Calculate SHA256SUMS
+      uses: MCJack123/ghaction-generate-release-hashes@v3
+      with:
+        file-name: SHA256SUMS.txt
     - name: Create Github release
       uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
@@ -106,5 +110,6 @@ jobs:
           *.exe
           *.deb
           *.dmg
+          SHA256SUMS.txt
 
 # For manual builds, add automatic_release_tag: "Nightly" above

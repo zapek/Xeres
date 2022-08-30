@@ -15,10 +15,10 @@ jobs:
       uses: actions/checkout@v2
     - name: Validate Gradle
       uses: gradle/wrapper-validation-action@v1
-    - name: Set up JDK 17
+    - name: Set up JDK 18
       uses: actions/setup-java@v2
       with:
-        java-version: '17'
+        java-version: '18'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2
@@ -39,10 +39,10 @@ jobs:
       uses: actions/checkout@v2
     - name: Validate Gradle
       uses: gradle/wrapper-validation-action@v1
-    - name: Set up JDK 17
+    - name: Set up JDK 18
       uses: actions/setup-java@v2
       with:
-        java-version: '17'
+        java-version: '18'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2
@@ -63,15 +63,15 @@ jobs:
       uses: actions/checkout@v2
     - name: Validate Gradle
       uses: gradle/wrapper-validation-action@v1
-    - name: Set up JDK 17
+    - name: Set up JDK 18
       uses: actions/setup-java@v2
       with:
-        java-version: '17'
+        java-version: '18'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2
       with:
-        arguments: jpackage --debug --info --stacktrace
+        arguments: jpackage
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
@@ -79,34 +79,10 @@ jobs:
         name: macos-installer
         retention-days: 1
 
-  build-jar:
-    name: Build Jar
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Validate Gradle
-      uses: gradle/wrapper-validation-action@v1
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    - name: Build
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: bootJar -Pall-arch
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        path: ./app/build/libs/app-*.jar
-        name: jar
-        retention-days: 1
-
   create-release:
     name: Create release
     runs-on: ubuntu-latest
-    needs: [ build-windows-installer, build-linux-installer, build-macos-installer, build-jar ]
+    needs: [ build-windows-installer, build-linux-installer, build-macos-installer ]
     steps:
     - name: Download Windows installer
       uses: actions/download-artifact@v2
@@ -120,12 +96,6 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: macos-installer
-    - name: Download Jar
-      uses: actions/download-artifact@v2
-      with:
-        name: jar
-    - name: Rename Jar
-      run: ls *.jar | while read a; do n=xeres-$(echo $a | sed -e 's/^app-//'); mv $a $n; done
     - name: Create Github release
       uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
@@ -136,6 +106,5 @@ jobs:
           *.exe
           *.deb
           *.dmg
-          *.jar
 
 # For manual builds, add automatic_release_tag: "Nightly" above

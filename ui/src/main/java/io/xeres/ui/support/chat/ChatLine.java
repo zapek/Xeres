@@ -70,7 +70,7 @@ public class ChatLine
 				{
 					case JOIN, LEAVE, TIMEOUT -> Color.GRAY;
 					case ACTION, SAY_OWN -> Color.BLACK;
-					case SAY -> ColorGenerator.generateColor(action.getNickname());
+					case SAY -> ColorGenerator.generateColor(action.getGxsId());
 				};
 	}
 

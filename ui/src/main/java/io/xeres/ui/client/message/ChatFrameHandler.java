@@ -24,8 +24,6 @@ import io.xeres.common.message.chat.*;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 
@@ -40,8 +38,6 @@ import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
  */
 public class ChatFrameHandler implements StompFrameHandler
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatFrameHandler.class);
-
 	private final WindowManager windowManager;
 	private final ChatViewController chatViewController;
 
@@ -70,7 +66,7 @@ public class ChatFrameHandler implements StompFrameHandler
 					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
 					case CHAT_ROOM_USER_TIMEOUT -> ChatRoomTimeoutEvent.class;
 					case CHAT_ROOM_INVITE -> ChatRoomInviteEvent.class;
-					default -> throw new IllegalArgumentException("Missing class for message type " + messageType); // XXX: add broadcast handling and remove 'default'
+					case CHAT_BROADCAST_MESSAGE -> Void.class;
 				};
 	}
 
@@ -91,7 +87,8 @@ public class ChatFrameHandler implements StompFrameHandler
 						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_TIMEOUT -> chatViewController.userTimeout(getRoomId(headers), (ChatRoomTimeoutEvent) payload);
 						case CHAT_ROOM_INVITE -> chatViewController.openInvite(getRoomId(headers), (ChatRoomInviteEvent) payload);
-						default -> log.error("Missing handling of {}", messageType);
+						case CHAT_BROADCAST_MESSAGE ->
+						{ /* handled as a notification */ }
 					}
 				}
 		);

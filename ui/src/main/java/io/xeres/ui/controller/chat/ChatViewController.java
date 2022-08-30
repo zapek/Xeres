@@ -562,6 +562,7 @@ public class ChatViewController implements Controller
 		// Reset the size so that smaller images aren't magnified
 		imagePreview.setFitWidth(0);
 		imagePreview.setFitHeight(0);
+		jumpToBottom();
 	}
 
 	private void cancelImage()

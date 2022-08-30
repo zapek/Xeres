@@ -82,6 +82,7 @@ jobs:
   calculate-hashes:
     name: Calculate hashes
     runs-on: ubuntu-latest
+    needs: [ build-windows-installer, build-linux-installer, build-macos-installer ]
     steps:
     - name: Calculate
       uses: MCJack123/ghaction-generate-release-hashes@v3

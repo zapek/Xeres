@@ -30,12 +30,12 @@ class GetIdleTimeLinux implements GetIdleTime
 	@SuppressWarnings("unused")
 	private static class XScreenSaverInfo extends Structure
 	{
-		private X11.Window window;
-		private int state;
-		private int kind;
-		private NativeLong tilOrSince;
-		private NativeLong idle;
-		private NativeLong eventMask;
+		public X11.Window window;
+		public int state;
+		public int kind;
+		public NativeLong tilOrSince;
+		public NativeLong idle;
+		public NativeLong eventMask;
 	}
 
 	private interface Xss extends Library

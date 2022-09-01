@@ -26,13 +26,13 @@ import static java.util.Map.entry;
 public final class SmileyUtils
 {
 	private static final Map<String, String> smileys = Map.ofEntries(
-			entry(":-)", "\uD83D\uDE42"),
-			entry(":)", "\uD83D\uDE42"),
-			entry(":o)", "\uD83E\uDD21"),
+			entry(":-)", "\u263A\uFE0F"),
+			entry(":)", "\u263A\uFE0F"),
+			entry(":o)", "\uD83E\uDD21"), // not working on linux
 			entry(":-D", "\uD83D\uDE03"),
 			entry(":D", "\uD83D\uDE03"),
-			entry(":-(", "\uD83D\uDE41"),
-			entry(":(", "\uD83D\uDE41"),
+			entry(":-(", "\u2639\uFE0F"),
+			entry(":(", "\u2639\uFE0F"),
 			entry(":-O", "\uD83D\uDE2E"),
 			entry(":-*", "\uD83D\uDE18"),
 			entry(";-)", "\uD83D\uDE09"),

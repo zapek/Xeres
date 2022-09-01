@@ -73,7 +73,7 @@
 /*noinspection CssUnusedSymbol*/
 .chat-list .list-cell {
     -fx-padding: 0px 0.25em 0px 0.25em;
-    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji";
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
 }
 
 .chat-list .list-cell .time {

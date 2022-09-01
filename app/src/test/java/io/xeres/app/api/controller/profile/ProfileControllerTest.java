@@ -26,6 +26,7 @@ import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.StatusNotificationService;
 import io.xeres.common.id.Id;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;
@@ -55,6 +56,10 @@ class ProfileControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private ProfileService profileService;
+
+	@SuppressWarnings("unused")
+	@MockBean
+	private StatusNotificationService statusNotificationService;
 
 	@Test
 	void ProfileController_FindProfileById_OK() throws Exception

@@ -26,6 +26,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryContactItem;
@@ -57,6 +58,10 @@ class DiscoveryRsServiceTest
 
 	@Mock
 	private LocationService locationService;
+
+	@SuppressWarnings("unused")
+	@Mock
+	private StatusNotificationService statusNotificationService;
 
 	@InjectMocks
 	private DiscoveryRsService discoveryRsService;

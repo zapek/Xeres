@@ -25,6 +25,7 @@ plugins {
 
 editorconfig {
     includes = ['src/**']
+    excludes = ['src/main/resources/i18n/**']
 }
 
 javafx {

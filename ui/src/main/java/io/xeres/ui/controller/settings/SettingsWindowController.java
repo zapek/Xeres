@@ -31,6 +31,8 @@ import net.rgielen.fxweaver.core.FxWeaver;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
+import java.util.ResourceBundle;
+
 @Component
 @FxmlView(value = "/view/settings/settings.fxml")
 public class SettingsWindowController implements WindowController
@@ -47,11 +49,13 @@ public class SettingsWindowController implements WindowController
 	private AnchorPane content;
 
 	private final FxWeaver fxWeaver;
+	private final ResourceBundle bundle;
 
-	public SettingsWindowController(SettingsClient settingsClient, FxWeaver fxWeaver)
+	public SettingsWindowController(SettingsClient settingsClient, FxWeaver fxWeaver, ResourceBundle bundle)
 	{
 		this.settingsClient = settingsClient;
 		this.fxWeaver = fxWeaver;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -70,7 +74,7 @@ public class SettingsWindowController implements WindowController
 			content.getChildren().clear();
 			if (newValue.controllerClass() != null)
 			{
-				var controllerAndView = fxWeaver.load(newValue.controllerClass());
+				var controllerAndView = fxWeaver.load(newValue.controllerClass(), bundle);
 				controllerAndView.getController().onLoad(newSettings);
 
 				var view = controllerAndView.getView().orElseThrow();

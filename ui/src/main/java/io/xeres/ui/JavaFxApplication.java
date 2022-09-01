@@ -25,11 +25,8 @@ import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import net.rgielen.fxweaver.core.FxWeaver;
-import net.rgielen.fxweaver.spring.SpringFxWeaver;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
 
 public class JavaFxApplication extends Application
 {
@@ -45,12 +42,6 @@ public class JavaFxApplication extends Application
 	{
 		JavaFxApplication.springApplicationClass = springApplicationClass;
 		Application.launch(JavaFxApplication.class, args);
-	}
-
-	@Bean
-	public FxWeaver fxWeaver(ConfigurableApplicationContext applicationContext)
-	{
-		return new SpringFxWeaver(applicationContext);
 	}
 
 	private boolean isHeadless()

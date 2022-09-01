@@ -33,10 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -52,13 +49,15 @@ final class UiWindow
 	private static final String WINDOW_HEIGHT = "Height";
 
 	private static FxWeaver fxWeaver;
+	private static ResourceBundle bundle;
 
 	final Scene scene;
 	final Stage stage;
 
-	static void setFxWeaver(FxWeaver fxWeaver)
+	static void setFxWeaver(FxWeaver fxWeaver, ResourceBundle bundle)
 	{
 		UiWindow.fxWeaver = fxWeaver;
+		UiWindow.bundle = bundle;
 	}
 
 	private UiWindow(Builder builder)
@@ -184,7 +183,7 @@ final class UiWindow
 
 	static Builder builder(Class<? extends WindowController> controllerClass)
 	{
-		var parent = (Parent) fxWeaver.loadView(controllerClass);
+		var parent = (Parent) fxWeaver.loadView(controllerClass, bundle);
 		parent.setId(controllerClass.getName());
 		return new Builder(parent, fxWeaver.getBean(controllerClass));
 	}

@@ -44,6 +44,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 /**
  * Class that tries to overcome the half-assed JavaFX window system.
@@ -54,20 +55,22 @@ public class WindowManager
 	private final FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
+	private final ResourceBundle bundle;
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ResourceBundle bundle)
 	{
 		this.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
+		this.bundle = bundle;
 	}
 
 	@PostConstruct
 	private void initializeUiWindow()
 	{
-		UiWindow.setFxWeaver(fxWeaver);
+		UiWindow.setFxWeaver(fxWeaver, bundle);
 	}
 
 	public void closeAllWindows()

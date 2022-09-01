@@ -31,6 +31,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
@@ -77,8 +78,9 @@ public class DiscoveryRsService extends RsService
 	private final DatabaseSessionManager databaseSessionManager;
 	private final PeerConnectionManager peerConnectionManager;
 	private final IdentityManager identityManager;
+	private final StatusNotificationService statusNotificationService;
 
-	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager)
+	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, StatusNotificationService statusNotificationService)
 	{
 		super(environment);
 		this.profileService = profileService;
@@ -88,6 +90,7 @@ public class DiscoveryRsService extends RsService
 		this.buildProperties = buildProperties;
 		this.databaseSessionManager = databaseSessionManager;
 		this.peerConnectionManager = peerConnectionManager;
+		this.statusNotificationService = statusNotificationService;
 	}
 
 	@Override
@@ -311,6 +314,7 @@ public class DiscoveryRsService extends RsService
 						var newLocation = Location.createLocation(discoveryContactItem.getLocationName(), profile, discoveryContactItem.getLocationId());
 						newLocation = updateLocation(newLocation, discoveryContactItem);
 						log.debug("New location of a friend, added: {}", newLocation);
+						statusNotificationService.incrementTotalUsers();
 					}
 					else
 					{

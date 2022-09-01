@@ -81,6 +81,22 @@ public class StatusNotificationService
 		sendNotification(null);
 	}
 
+	public void incrementTotalUsers()
+	{
+		totalUsers++;
+		totalUsersChanged = true;
+		sendNotification(null);
+	}
+
+	public void decrementTotalUsers()
+	{
+		if (totalUsers > 0)
+		{
+			totalUsers--;
+			sendNotification(null);
+		}
+	}
+
 	public void setNatStatus(NatStatus natStatus)
 	{
 		this.natStatus = natStatus;

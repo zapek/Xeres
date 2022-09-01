@@ -153,3 +153,13 @@ run the ``cleanAngular`` task
 
 - change the version in _build.gradle_ in the _wrapper_ section
 - run the ``wrapper`` task
+
+## Manual testing
+
+##### Using multiple configs
+
+Node A:
+	--data-dir=./data2 --control-port=1068
+
+Node B:
+	--data-dir=./data3 --control-port=1069

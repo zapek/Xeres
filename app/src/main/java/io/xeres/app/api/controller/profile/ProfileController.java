@@ -32,6 +32,7 @@ import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.StatusNotificationService;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.pgp.Trust;
@@ -59,11 +60,13 @@ public class ProfileController
 	private final ProfileService profileService;
 
 	private final PeerConnectionJob peerConnectionJob;
+	private final StatusNotificationService statusNotificationService;
 
-	public ProfileController(ProfileService profileService, PeerConnectionJob peerConnectionJob)
+	public ProfileController(ProfileService profileService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService)
 	{
 		this.profileService = profileService;
 		this.peerConnectionJob = peerConnectionJob;
+		this.statusNotificationService = statusNotificationService;
 	}
 
 	@GetMapping("/{id}")
@@ -115,6 +118,8 @@ public class ProfileController
 
 		var savedProfile = profileService.createOrUpdateProfile(profile).orElseThrow(() -> new UnprocessableEntityException("Failed to save profile"));
 
+		statusNotificationService.incrementTotalUsers(); // not correct if a certificate is used to update an existing profile (XXX: put a created date? or age? that would detect it)
+
 		locationToConnectTo.ifPresent(location ->
 		{
 			if (connectionIndex != null)
@@ -150,5 +155,7 @@ public class ProfileController
 			throw new UnprocessableEntityException("The main profile cannot be deleted");
 		}
 		profileService.deleteProfile(id);
+
+		statusNotificationService.decrementTotalUsers();
 	}
 }

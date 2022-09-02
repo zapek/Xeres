@@ -33,6 +33,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
@@ -57,11 +58,13 @@ public class AboutWindowController implements WindowController
 
 	private final BuildProperties buildProperties;
 	private final Environment environment;
+	private final ResourceBundle bundle;
 
-	public AboutWindowController(BuildProperties buildProperties, Environment environment)
+	public AboutWindowController(BuildProperties buildProperties, Environment environment, ResourceBundle bundle)
 	{
 		this.buildProperties = buildProperties;
 		this.environment = environment;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -70,7 +73,7 @@ public class AboutWindowController implements WindowController
 		version.setText(buildProperties.getVersion());
 		if (isEmpty(environment.getActiveProfiles()))
 		{
-			profile.setText("Release");
+			profile.setText(bundle.getString("about.release"));
 		}
 		else
 		{

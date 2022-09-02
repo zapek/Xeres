@@ -54,10 +54,12 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -130,6 +132,7 @@ public class ChatViewController implements Controller
 	private final LocationClient locationClient;
 	private final WindowManager windowManager;
 	private final TrayService trayService;
+	private final ResourceBundle bundle;
 
 	private final TreeItem<RoomHolder> subscribedRooms = new TreeItem<>(new RoomHolder("Subscribed"));
 	private final TreeItem<RoomHolder> privateRooms = new TreeItem<>(new RoomHolder("Private"));
@@ -149,7 +152,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -157,6 +160,7 @@ public class ChatViewController implements Controller
 		this.locationClient = locationClient;
 		this.windowManager = windowManager;
 		this.trayService = trayService;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -214,7 +218,7 @@ public class ChatViewController implements Controller
 			}
 		});
 
-		var loader = new FXMLLoader(getClass().getResource("/view/chat/chat_roominfo.fxml"));
+		var loader = new FXMLLoader(getClass().getResource("/view/chat/chat_roominfo.fxml"), bundle);
 		roomInfoView = loader.load();
 		chatRoomInfoController = loader.getController();
 
@@ -460,7 +464,7 @@ public class ChatViewController implements Controller
 		{
 			if (selectedRoom != null && chatRoomMessage.getRoomId() == selectedRoom.getId())
 			{
-				typingNotification.setText(chatRoomMessage.getSenderNickname() + " is typing...");
+				typingNotification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), chatRoomMessage.getSenderNickname()));
 				lastTypingTimeline.playFromStart();
 			}
 		}

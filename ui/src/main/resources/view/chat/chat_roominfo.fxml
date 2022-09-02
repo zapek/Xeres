@@ -20,8 +20,11 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatRoomInfoController">
     <padding>
         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
@@ -38,15 +41,15 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
         </rowConstraints>
-        <Label text="Name"/>
+        <Label text="%chat.room.name"/>
         <Label fx:id="roomName" GridPane.columnIndex="1"/>
-        <Label text="ID" GridPane.rowIndex="1"/>
+        <Label text="%chat.room.id" GridPane.rowIndex="1"/>
         <Label fx:id="roomId" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Label text="Topic" GridPane.rowIndex="2"/>
+        <Label text="%chat.room.topic" GridPane.rowIndex="2"/>
         <Label fx:id="roomTopic" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <Label text="Security" GridPane.rowIndex="3"/>
+        <Label text="%chat.room.security" GridPane.rowIndex="3"/>
         <Label fx:id="roomSecurity" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        <Label text="Users" GridPane.rowIndex="4"/>
+        <Label text="%chat.room.users" GridPane.rowIndex="4"/>
         <Label fx:id="roomCount" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
     </GridPane>
 </VBox>

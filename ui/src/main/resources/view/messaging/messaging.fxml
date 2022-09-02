@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.VBox?>
 <VBox fx:id="content" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" styleClass="base-spacing">
     <Label fx:id="notification" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER"/>
-    <TextField fx:id="send" promptText="Type a message" VBox.vgrow="NEVER">
+    <TextField fx:id="send" promptText="%messaging.prompt" VBox.vgrow="NEVER">
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>

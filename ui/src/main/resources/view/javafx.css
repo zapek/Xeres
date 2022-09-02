@@ -66,6 +66,11 @@
     -fx-font-size: 1em;
 }
 
+.chat-list-pane {
+    -fx-background-color: -fx-box-border;
+    -fx-padding: 1;
+}
+
 .chat-list {
     -fx-background-color: white;
 }

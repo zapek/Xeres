@@ -20,15 +20,16 @@
   -->
 
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 <VBox prefHeight="400.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.profile.ProfilesWindowController" styleClass="base-spacing">
     <TableView fx:id="profilesTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableName" editable="false" prefWidth="117.0" text="Name"/>
-            <TableColumn fx:id="tableIdentifier" prefWidth="190.0" text="Identifier"/>
-            <TableColumn fx:id="tableAccepted" minWidth="0.0" prefWidth="61.0" text="Accepted"/>
-            <TableColumn fx:id="tableTrust" prefWidth="106.0" text="Trust"/>
+            <TableColumn fx:id="tableName" editable="false" prefWidth="117.0" text="%profiles.name"/>
+            <TableColumn fx:id="tableIdentifier" prefWidth="190.0" text="%profiles.identifier"/>
+            <TableColumn fx:id="tableAccepted" minWidth="0.0" prefWidth="61.0" text="%profiles.accepted"/>
+            <TableColumn fx:id="tableTrust" prefWidth="106.0" text="%profiles.trust"/>
         </columns>
     </TableView>
 </VBox>

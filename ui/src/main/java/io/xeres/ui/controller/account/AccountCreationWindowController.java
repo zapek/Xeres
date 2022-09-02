@@ -33,6 +33,8 @@ import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
+import java.util.ResourceBundle;
+
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
@@ -57,12 +59,14 @@ public class AccountCreationWindowController implements WindowController
 	private final ConfigClient configClient;
 	private final ProfileClient profileClient;
 	private final WindowManager windowManager;
+	private final ResourceBundle bundle;
 
-	public AccountCreationWindowController(ConfigClient configClient, ProfileClient profileClient, WindowManager windowManager)
+	public AccountCreationWindowController(ConfigClient configClient, ProfileClient profileClient, WindowManager windowManager, ResourceBundle bundle)
 	{
 		this.configClient = configClient;
 		this.profileClient = profileClient;
 		this.windowManager = windowManager;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -126,11 +130,11 @@ public class AccountCreationWindowController implements WindowController
 
 		var result = configClient.createProfile(profileName);
 
-		status.setText("Generating profile keys...");
+		status.setText(bundle.getString("account.generation.profile-keys"));
 
 		result.doOnSuccess(aVoid -> Platform.runLater(() -> generateLocation(profileName, locationName)))
 				.doOnError(throwable -> Platform.runLater(() -> {
-					UiUtils.showError(this.profileName, "Error while creating profile");
+					UiUtils.showError(this.profileName, bundle.getString("account.generation.profile.error"));
 					setInProgress(false);
 				}))
 				.subscribe();
@@ -142,12 +146,12 @@ public class AccountCreationWindowController implements WindowController
 
 		var result = configClient.createLocation(locationName);
 
-		status.setText("Generating location keys and certificate...");
+		status.setText(bundle.getString("account.generation.location-keys-and-certificate"));
 
 		result.doOnSuccess(aVoid -> Platform.runLater(() -> generateIdentity(profileName)))
 				.doOnError(throwable -> Platform.runLater(() ->
 				{
-					UiUtils.showAlertError("Location creation", "Unexpected error", "...");
+					UiUtils.showAlertError(bundle.getString("account.generation.location.error.title"), bundle.getString("account.generation.location.error.header"), "...");
 					setInProgress(false);
 				}))
 				.subscribe();
@@ -159,12 +163,12 @@ public class AccountCreationWindowController implements WindowController
 
 		var result = configClient.createIdentity(identityName, false);
 
-		status.setText("Generating identity...");
+		status.setText(bundle.getString("account.generation.identity"));
 
 		result.doOnSuccess(identityResponse -> Platform.runLater(this::openDashboard))
 				.doOnError(throwable -> Platform.runLater(() ->
 				{
-					UiUtils.showAlertError("Identity creation", "Unexpected error", "...");
+					UiUtils.showAlertError(bundle.getString("account.generation.identity.error.title"), bundle.getString("account.generation.identity.error.header"), "...");
 					setInProgress(false);
 				}))
 				.subscribe();

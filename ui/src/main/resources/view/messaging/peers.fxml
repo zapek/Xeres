@@ -24,7 +24,8 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <VBox prefHeight="400.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.messaging.PeersWindowController">
     <HBox alignment="CENTER_LEFT">
         <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
@@ -33,7 +34,7 @@
             </HBox.margin>
             <Image url="@/image/icon.png"/>
         </ImageView>
-        <Label fx:id="nickname" text="Nickname">
+        <Label fx:id="nickname" text="%peers.nickname">
             <HBox.margin>
                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
             </HBox.margin>

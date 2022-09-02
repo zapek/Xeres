@@ -19,15 +19,24 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import de.jensd.fx.glyphs.fontawesome.*?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import io.xeres.ui.custom.led.LedControl?>
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <VBox xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
     <MenuBar>
@@ -192,7 +201,7 @@
                 <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
             </VBox>
         </Tab>
-        <Tab text="Chats">
+        <Tab text="%main.chat">
             <graphic>
                 <FontAwesomeIconView glyphName="WECHAT" glyphSize="14"/>
             </graphic>

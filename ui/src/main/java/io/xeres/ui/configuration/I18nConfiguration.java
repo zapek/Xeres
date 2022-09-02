@@ -31,8 +31,7 @@ public class I18nConfiguration
 	@Bean
 	public ResourceBundle bundle()
 	{
-		//var locale = Locale.FRANCE;
-		var locale = Locale.getDefault();
-		return ResourceBundle.getBundle("i18n.messages", locale);
+		Locale.setDefault(Locale.FRANCE);
+		return ResourceBundle.getBundle("i18n.messages", Locale.getDefault());
 	}
 }

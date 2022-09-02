@@ -19,8 +19,17 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="244.0" prefWidth="333.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.account.AccountCreationWindowController"
       styleClass="base-spacing">
@@ -38,16 +47,16 @@
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="Profile"/>
-        <TextField fx:id="profileName" promptText="Profile name" GridPane.columnIndex="1">
+        <Label text="%account.profile"/>
+        <TextField fx:id="profileName" promptText="%account.profile.prompt" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" text="Use a nickname or real name. A profile can have several locations."/>
+                <Tooltip showDuration="1m" text="%account.profile.tip"/>
             </tooltip>
         </TextField>
-        <Label text="Location" GridPane.rowIndex="1"/>
-        <TextField fx:id="locationName" promptText="Location name" GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <Label text="%account.location" GridPane.rowIndex="1"/>
+        <TextField fx:id="locationName" promptText="%account.location.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" text="This is your Xeres' instance on this device. Use your device's nickname or model."/>
+                <Tooltip showDuration="1m" text="%account.location.tip"/>
             </tooltip>
         </TextField>
     </GridPane>
@@ -55,6 +64,6 @@
     <Label fx:id="status"/>
     <Region VBox.vgrow="ALWAYS"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="okButton" disable="true" minWidth="72.0" mnemonicParsing="false" text="OK"/>
+        <Button fx:id="okButton" disable="true" minWidth="72.0" mnemonicParsing="false" text="%button.ok"/>
     </HBox>
 </VBox>

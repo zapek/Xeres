@@ -42,7 +42,9 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.ResourceBundle;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -70,6 +72,7 @@ public class MessagingWindowController implements WindowController
 	private ChatListView receive;
 
 	private final ProfileClient profileClient;
+	private final ResourceBundle bundle;
 	private final LocationId locationId;
 	private Profile targetProfile;
 
@@ -79,10 +82,11 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, MessageClient messageClient, String locationId)
+	public MessagingWindowController(ProfileClient profileClient, MessageClient messageClient, String locationId, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
+		this.bundle = bundle;
 		this.locationId = new LocationId(locationId);
 	}
 
@@ -161,7 +165,7 @@ public class MessagingWindowController implements WindowController
 		{
 			if (message.isEmpty())
 			{
-				notification.setText(targetProfile.getName() + " is typing...");
+				notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), targetProfile.getName()));
 				lastTypingTimeline.playFromStart();
 			}
 			else

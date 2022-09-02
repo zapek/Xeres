@@ -190,7 +190,7 @@ final class UiWindow
 
 	static Builder builder(String resource, WindowController controller)
 	{
-		var fxmlLoader = new FXMLLoader(UiWindow.class.getResource(resource));
+		var fxmlLoader = new FXMLLoader(UiWindow.class.getResource(resource), bundle);
 		fxmlLoader.setController(controller);
 		Parent parent;
 		try

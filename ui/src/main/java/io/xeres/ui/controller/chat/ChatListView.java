@@ -216,6 +216,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		// than its default size of 100 x 100. It doesn't behave
 		// well in a VBox only.
 		var anchor = new AnchorPane(chatView);
+		anchor.getStyleClass().add("chat-list-pane");
 		AnchorPane.setTopAnchor(chatView, 0.0);
 		AnchorPane.setLeftAnchor(chatView, 0.0);
 		AnchorPane.setRightAnchor(chatView, 0.0);

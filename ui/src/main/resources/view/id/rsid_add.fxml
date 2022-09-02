@@ -20,17 +20,26 @@
   -->
 
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <VBox prefHeight="400.0" prefWidth="480.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
-    <Label text="Paste below your peer's ID.">
+    <Label text="%rsid.add.textarea.instruction">
         <VBox.margin>
             <Insets/>
         </VBox.margin>
     </Label>
-    <TextArea fx:id="rsIdTextArea" promptText="Paste peer's ID" VBox.vgrow="SOMETIMES">
+    <TextArea fx:id="rsIdTextArea" promptText="%rsid.add.textarea.prompt" VBox.vgrow="SOMETIMES">
         <font>
             <Font name="Consolas" size="12.0"/>
         </font>
@@ -38,11 +47,11 @@
             <Insets top="8.0"/>
         </VBox.margin>
         <tooltip>
-            <Tooltip showDuration="1m" text="The ID is a string of about a hundred of weird looking cryptic characters. It encodes all information needed to connect to a peer."/>
+            <Tooltip showDuration="1m" text="%rsid.add.textarea.tip"/>
         </tooltip>
     </TextArea>
     <Label fx:id="status"/>
-    <TitledPane fx:id="titledPane" expanded="false" text="Peer's details" VBox.vgrow="ALWAYS">
+    <TitledPane fx:id="titledPane" expanded="false" text="%rsid.add.details" VBox.vgrow="ALWAYS">
         <GridPane>
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
@@ -57,40 +66,40 @@
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints/>
             </rowConstraints>
-            <Label text="Name"/>
+            <Label text="%rsid.add.name"/>
             <ReadOnlyTextField fx:id="certName" editable="false" GridPane.columnIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="Name of the peer, make sure you know who it is."/>
+                    <Tooltip showDuration="1m" text="%rsid.add.name.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
-            <Label text="Profile ID" GridPane.rowIndex="1"/>
+            <Label text="%rsid.add.profile" GridPane.rowIndex="1"/>
             <ReadOnlyTextField fx:id="certId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="Unique ID to check if your peer's profile is the right one."/>
+                    <Tooltip showDuration="1m" text="%rsid.add.profile.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
-            <Label text="Fingerprint" GridPane.rowIndex="2"/>
+            <Label text="%rsid.add.fingerprint" GridPane.rowIndex="2"/>
             <ReadOnlyTextField fx:id="certFingerprint" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="Cryptographic checksum to certify the authenticity of your peer's profile."/>
+                    <Tooltip showDuration="1m" text="%rsid.add.fingerprint.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
-            <Label text="Location ID" GridPane.rowIndex="3"/>
+            <Label text="%rsid.add.location" GridPane.rowIndex="3"/>
             <ReadOnlyTextField fx:id="certLocId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="Location identifier. A profile can have several locations and each has a unique ID."/>
+                    <Tooltip showDuration="1m" text="%rsid.add.location.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
-            <Label text="Address" GridPane.rowIndex="4"/>
+            <Label text="%rsid.add.addresses" GridPane.rowIndex="4"/>
             <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="Addresses to connect to. They will all be tried in turn but you can preselect the best one for a faster connection.&#10;Addresses ending in .onion require using a Tor proxy.&#10;Addresses ending in .i2p require using an I2P proxy."/>
+                    <Tooltip showDuration="1m" text="%rsid.add.addresses.tip"/>
                 </tooltip>
             </ChoiceBox>
-            <Label text="Trust" GridPane.rowIndex="5"/>
+            <Label text="%rsid.add.trust" GridPane.rowIndex="5"/>
             <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="The trust level you have on the peer.&#10;Unknown: no opinion.&#10;Never: none or minimal, met online recently.&#10;Marginal: more or less trustable, acquaintance.&#10;Full: very trustable, good friend."/>
+                    <Tooltip showDuration="1m" text="%rsid.add.trust.tip"/>
                 </tooltip>
             </ChoiceBox>
         </GridPane>
@@ -99,12 +108,12 @@
         <VBox.margin>
             <Insets top="8.0"/>
         </VBox.margin>
-        <Button fx:id="addButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Add">
+        <Button fx:id="addButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%rsid.add.add">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>
         </Button>
-        <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="Cancel">
+        <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%button.cancel">
             <HBox.margin>
                 <Insets left="4.0"/>
             </HBox.margin>

@@ -53,6 +53,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
 import javax.annotation.PreDestroy;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 
@@ -148,12 +150,13 @@ public class MainWindowController implements WindowController
 	private final Environment environment;
 	private final IdentityClient identityClient;
 	private final NotificationClient notificationClient;
+	private final ResourceBundle bundle;
 
 	private int currentUsers;
 	private int totalUsers;
 	private Disposable notificationDisposable;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, NotificationClient notificationClient)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -162,6 +165,7 @@ public class MainWindowController implements WindowController
 		this.environment = environment;
 		this.identityClient = identityClient;
 		this.notificationClient = notificationClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -196,7 +200,7 @@ public class MainWindowController implements WindowController
 
 		changeOwnIdentityPicture.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle("Select Avatar Picture");
+			fileChooser.setTitle(bundle.getString("main.select-avatar"));
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.jfif"));
 			var selectedFile = fileChooser.showOpenDialog(titleLabel.getScene().getWindow());
 			if (selectedFile != null && selectedFile.canRead())
@@ -301,9 +305,9 @@ public class MainWindowController implements WindowController
 			natStatus.setStatus(newNatStatus == NatStatus.UPNP ? LedStatus.OK : LedStatus.WARNING);
 			switch (newNatStatus)
 			{
-				case UNKNOWN -> TooltipUtils.install(natStatus, "Status is still unknown.");
-				case FIREWALLED -> TooltipUtils.install(natStatus, "The client is not reachable from connections initiated from the Internet.");
-				case UPNP -> TooltipUtils.install(natStatus, "UPNP is active and the client is fully reachable from the Internet.");
+				case UNKNOWN -> TooltipUtils.install(natStatus, bundle.getString("main.status.nat.unknown"));
+				case FIREWALLED -> TooltipUtils.install(natStatus, bundle.getString("main.status.nat.firewalled"));
+				case UPNP -> TooltipUtils.install(natStatus, bundle.getString("main.status.nat.upnp"));
 			}
 		}
 	}
@@ -317,13 +321,13 @@ public class MainWindowController implements WindowController
 				case OFF ->
 				{
 					dhtStatus.setState(false);
-					TooltipUtils.install(dhtStatus, "DHT is disabled.");
+					TooltipUtils.install(dhtStatus, bundle.getString("main.status.dht.disabled"));
 				}
 				case INITIALIZING ->
 				{
 					dhtStatus.setState(true);
 					dhtStatus.setStatus(LedStatus.WARNING);
-					TooltipUtils.install(dhtStatus, "DHT is currently initializing. This can take a while.");
+					TooltipUtils.install(dhtStatus, bundle.getString("main.status.dht.initializing"));
 				}
 				case RUNNING ->
 				{
@@ -331,15 +335,19 @@ public class MainWindowController implements WindowController
 					dhtStatus.setStatus(LedStatus.OK);
 					if (newDhtInfo.numPeers() == 0)
 					{
-						TooltipUtils.install(dhtStatus, "DHT is working properly, the client's IP is advertised to its peers.");
+						TooltipUtils.install(dhtStatus, bundle.getString("main.status.dht.running"));
 					}
 					else
 					{
-						TooltipUtils.install(dhtStatus, "Number of peers: " + newDhtInfo.numPeers() + "\n" +
-								"Received packets: " + newDhtInfo.receivedPackets() + " (" + newDhtInfo.receivedBytes() / 1024 + " KB)\n" +
-								"Sent packets: " + newDhtInfo.sentPackets() + " (" + newDhtInfo.sentBytes() / 1024 + " KB)\n" +
-								"Key count: " + newDhtInfo.keyCount() + "\n" +
-								"Item count: " + newDhtInfo.itemCount());
+						TooltipUtils.install(dhtStatus,
+								MessageFormat.format(bundle.getString("main.status.dht.stats"),
+										newDhtInfo.numPeers(),
+										newDhtInfo.receivedPackets(),
+										newDhtInfo.receivedBytes() / 1024,
+										newDhtInfo.sentPackets(),
+										newDhtInfo.sentBytes() / 1024,
+										newDhtInfo.keyCount(),
+										newDhtInfo.itemCount()));
 					}
 				}
 			}

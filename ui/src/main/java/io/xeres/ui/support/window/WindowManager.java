@@ -43,6 +43,7 @@ import net.rgielen.fxweaver.core.FxWeaver;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -117,7 +118,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double click)
 							{
-								var messaging = new MessagingWindowController(profileClient, messageClient, locationId);
+								var messaging = new MessagingWindowController(profileClient, messageClient, locationId, bundle);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
@@ -133,7 +134,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(parent)
-						.setTitle("About " + AppName.NAME)
+						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
 						.setMinHeight(260)
 						.build()
 						.open());
@@ -144,7 +145,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ChatRoomCreationWindowController.class)
 						.setParent(parent)
-						.setTitle("Create Chat Room")
+						.setTitle(bundle.getString("chat.room.create.window-title"))
 						.build()
 						.open());
 	}
@@ -165,7 +166,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ProfilesWindowController.class)
 						.setParent(parent)
-						.setTitle("Profiles")
+						.setTitle(bundle.getString("profiles.window-title"))
 						.build()
 						.open());
 	}
@@ -175,7 +176,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(IdentitiesWindowController.class)
 						.setParent(parent)
-						.setTitle("Identities")
+						.setTitle(bundle.getString("identities.window-title"))
 						.build()
 						.open());
 	}
@@ -185,7 +186,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(SettingsWindowController.class)
 						.setParent(parent)
-						.setTitle("Settings")
+						.setTitle(bundle.getString("settings.window-title"))
 						.setMinWidth(640)
 						.setMinHeight(480)
 						.build()
@@ -197,7 +198,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(AddRsIdWindowController.class)
 						.setParent(parent)
-						.setTitle("Add Peer")
+						.setTitle(bundle.getString("rsid.add.window-title"))
 						.setMinHeight(380)
 						.setUserData(rsId)
 						.build()
@@ -209,7 +210,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ChatRoomInvitationWindowController.class)
 						.setParent(parent)
-						.setTitle("Invite Peer")
+						.setTitle(bundle.getString("chat.room.invite.window-title"))
 						.setUserData(chatRoom)
 						.build()
 						.open());

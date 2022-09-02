@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,19 +17,21 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.message.chat;
+package io.xeres.common.i18n;
 
-import io.xeres.common.i18n.I18nEnum;
-import io.xeres.common.i18n.I18nUtils;
+import java.util.ResourceBundle;
 
-public enum RoomType implements I18nEnum
+public final class I18nUtils
 {
-	PRIVATE,
-	PUBLIC;
+	public static final String BUNDLE = "i18n.messages";
 
-	@Override
-	public String toString()
+	private I18nUtils()
 	{
-		return I18nUtils.getEnumString(getMessageKey(this));
+		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static String getEnumString(String messageKey)
+	{
+		return ResourceBundle.getBundle(BUNDLE).getString(messageKey);
 	}
 }

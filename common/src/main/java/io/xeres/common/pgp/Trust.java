@@ -19,9 +19,8 @@
 
 package io.xeres.common.pgp;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Locale;
+import io.xeres.common.i18n.I18nEnum;
+import io.xeres.common.i18n.I18nUtils;
 
 /**
  * This is the trust level for a PGP-like "web of trust" feature. Note that
@@ -29,7 +28,7 @@ import java.util.Locale;
  * <p>
  * Note: this is stored in the database in ordinal. Do not modify the order.
  */
-public enum Trust
+public enum Trust implements I18nEnum
 {
 	/**
 	 * No opinion about the trustworthiness of the owner.
@@ -63,6 +62,6 @@ public enum Trust
 	@Override
 	public String toString()
 	{
-		return StringUtils.capitalize(super.toString().toLowerCase(Locale.ENGLISH));
+		return I18nUtils.getEnumString(getMessageKey(this));
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,19 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.message.chat;
+package io.xeres.common.i18n;
 
-import io.xeres.common.i18n.I18nEnum;
-import io.xeres.common.i18n.I18nUtils;
+import java.util.Locale;
 
-public enum RoomType implements I18nEnum
+public interface I18nEnum
 {
-	PRIVATE,
-	PUBLIC;
-
-	@Override
-	public String toString()
+	default String getMessageKey(Enum<?> e)
 	{
-		return I18nUtils.getEnumString(getMessageKey(this));
+		return "enum." + e.getClass().getSimpleName().toLowerCase(Locale.ENGLISH) + "." + e.name().toLowerCase(Locale.ENGLISH);
 	}
 }

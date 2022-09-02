@@ -25,13 +25,15 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import static io.xeres.common.i18n.I18nUtils.BUNDLE;
+
 @Configuration
 public class I18nConfiguration
 {
 	@Bean
 	public ResourceBundle bundle()
 	{
-		Locale.setDefault(Locale.FRANCE);
-		return ResourceBundle.getBundle("i18n.messages", Locale.getDefault());
+		//Locale.setDefault(Locale.FRANCE); // for testing
+		return ResourceBundle.getBundle(BUNDLE, Locale.getDefault());
 	}
 }

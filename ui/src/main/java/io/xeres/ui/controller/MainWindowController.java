@@ -23,6 +23,7 @@ import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.rest.notification.DhtInfo;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.common.rsid.Type;
+import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
@@ -343,9 +344,9 @@ public class MainWindowController implements WindowController
 								MessageFormat.format(bundle.getString("main.status.dht.stats"),
 										newDhtInfo.numPeers(),
 										newDhtInfo.receivedPackets(),
-										newDhtInfo.receivedBytes() / 1024,
+										ByteUnitUtils.fromBytes(newDhtInfo.receivedBytes()),
 										newDhtInfo.sentPackets(),
-										newDhtInfo.sentBytes() / 1024,
+										ByteUnitUtils.fromBytes(newDhtInfo.sentBytes()),
 										newDhtInfo.keyCount(),
 										newDhtInfo.itemCount()));
 					}

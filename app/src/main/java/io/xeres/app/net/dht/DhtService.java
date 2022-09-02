@@ -29,6 +29,7 @@ import io.xeres.common.protocol.HostPort;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.DhtInfo;
 import io.xeres.common.rest.notification.DhtStatus;
+import io.xeres.common.util.ByteUnitUtils;
 import lbms.plugins.mldht.DHTConfiguration;
 import lbms.plugins.mldht.kad.*;
 import lbms.plugins.mldht.kad.messages.MessageBase;
@@ -325,12 +326,12 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 	{
 		if (log.isTraceEnabled())
 		{
-			log.debug("Peers: {}, recv pkt: {} ({} KB), sent pkt: {} ({} KB), keys: {}, items: {}",
+			log.debug("Peers: {}, recv pkt: {} ({}), sent pkt: {} ({}), keys: {}, items: {}",
 					dhtStats.getNumPeers(),
 					dhtStats.getNumReceivedPackets(),
-					dhtStats.getRpcStats().getReceivedBytes() / 1024,
+					ByteUnitUtils.fromBytes(dhtStats.getRpcStats().getReceivedBytes()),
 					dhtStats.getNumSentPackets(),
-					dhtStats.getRpcStats().getSentBytes() / 1024,
+					ByteUnitUtils.fromBytes(dhtStats.getRpcStats().getSentBytes()),
 					dhtStats.getDbStats().getKeyCount(),
 					dhtStats.getDbStats().getItemCount());
 		}

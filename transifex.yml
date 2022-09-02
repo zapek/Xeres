@@ -1,9 +1,8 @@
-git:
-  filters:
-  - filter_type: file
-    file_format: UNICODEPROPERTIES
-    source_language: en
-    source_file: ui/src/main/resources/i18n/messages.properties
-    translation_files_expression: 'ui/src/main/resources/i18n/messages_<lang>.properties'
-  settings:
-    pr_branch_name: feature/translation-update-<br_unique_id>
+filters:
+- filter_type: file
+  file_format: UNICODEPROPERTIES
+  source_language: en
+  source_file: ui/src/main/resources/i18n/messages.properties
+  translation_files_expression: 'ui/src/main/resources/i18n/messages_<lang>.properties'
+settings:
+  pr_branch_name: feature/translation-update-<br_unique_id>

@@ -19,10 +19,13 @@
 
 package io.xeres.common.message.chat;
 
+import io.xeres.common.id.GxsId;
+
 public class ChatRoomMessage
 {
 	private long roomId;
 	private String senderNickname;
+	private GxsId gxsId;
 	private String content;
 
 	public ChatRoomMessage()
@@ -30,9 +33,10 @@ public class ChatRoomMessage
 		// Needed for JSON
 	}
 
-	public ChatRoomMessage(String senderNickname, String content)
+	public ChatRoomMessage(String senderNickname, GxsId gxsId, String content)
 	{
 		this.senderNickname = senderNickname;
+		this.gxsId = gxsId;
 		this.content = content;
 	}
 
@@ -56,6 +60,16 @@ public class ChatRoomMessage
 		this.senderNickname = senderNickname;
 	}
 
+	public GxsId getGxsId()
+	{
+		return gxsId;
+	}
+
+	public void setGxsId(GxsId gxsId)
+	{
+		this.gxsId = gxsId;
+	}
+
 	public String getContent()
 	{
 		return content;
@@ -77,6 +91,7 @@ public class ChatRoomMessage
 		return "ChatRoomMessage{" +
 				"roomId=" + roomId +
 				", senderNickname='" + senderNickname + '\'' +
+				", gxsId'" + gxsId + '\'' +
 				", content='" + content + '\'' +
 				'}';
 	}

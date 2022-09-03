@@ -111,6 +111,12 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		addMessage(chatAction, message);
 	}
 
+	public void addUserMessage(String from, GxsId gxsId, String message)
+	{
+		var chatAction = new ChatAction(SAY, from, gxsId);
+		addMessage(chatAction, message);
+	}
+
 	private void addMessage(ChatAction chatAction, String message)
 	{
 		var img = Jsoup.parse(message).selectFirst("img");

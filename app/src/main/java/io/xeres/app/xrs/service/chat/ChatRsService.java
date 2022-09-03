@@ -599,7 +599,7 @@ public class ChatRsService extends RsService
 
 	private void sendUserMessageToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, String content)
 	{
-		var chatRoomMessage = new ChatRoomMessage(nickname, content);
+		var chatRoomMessage = new ChatRoomMessage(nickname, gxsId, content);
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomMessage);
 	}
 

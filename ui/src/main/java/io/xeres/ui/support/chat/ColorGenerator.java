@@ -21,6 +21,8 @@ package io.xeres.ui.support.chat;
 
 import javafx.scene.paint.Color;
 
+import java.util.Objects;
+
 public final class ColorGenerator
 {
 	private ColorGenerator()
@@ -58,6 +60,7 @@ public final class ColorGenerator
 
 	public static Color generateColor(String s)
 	{
-		return ColorSpec.values()[Math.floorMod(s != null ? s.hashCode() : 0, ColorSpec.values().length)].getColor();
+		Objects.requireNonNull(s);
+		return ColorSpec.values()[Math.floorMod(s.hashCode(), ColorSpec.values().length)].getColor();
 	}
 }

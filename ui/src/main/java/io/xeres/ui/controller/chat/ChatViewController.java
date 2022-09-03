@@ -471,7 +471,7 @@ public class ChatViewController implements Controller
 		else
 		{
 			performOnChatListView(chatRoomMessage.getRoomId(), chatListView -> {
-				chatListView.addUserMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getContent());
+				chatListView.addUserMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getGxsId(), chatRoomMessage.getContent());
 				setHighlighted(chatRoomMessage.getContent());
 			});
 			getSubscribedTreeItem(chatRoomMessage.getRoomId()).ifPresent(roomHolderTreeItem -> {

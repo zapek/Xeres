@@ -720,37 +720,49 @@ public class ChatRsService extends RsService
 	private void handleChatMessageItem(PeerConnection peerConnection, ChatMessageItem item)
 	{
 		log.debug("Received chat message item from {}: {}", peerConnection, item);
-		if (item.isPrivate() && !item.isAvatarRequest()) // XXX: handle avatars later
+		if (item.isPrivate())
 		{
-			if (item.isPartial())
+			if (item.isAvatarRequest())
 			{
-				var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
-				if (messageList.isEmpty())
+				// XXX: there's a check for images > 32767.. they're ignored
+				var ownImage = identityService.getOwnIdentity().getImage();
+				if (ownImage != null)
 				{
-					List<String> newMessageList = new ArrayList<>();
-					newMessageList.add(item.getMessage());
-					peerConnection.putServiceData(this, KEY_PARTIAL_MESSAGE_LIST, newMessageList);
-				}
-				else
-				{
-					//noinspection unchecked
-					((List<String>) messageList.get()).add(item.getMessage());
+					peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
 				}
 			}
 			else
 			{
-				var message = item.getMessage();
-				var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
-				if (messageList.isPresent())
+				if (item.isPartial())
 				{
-					@SuppressWarnings("unchecked")
-					var existingList = (List<String>) messageList.get();
-					existingList.add(message);
-					message = String.join("", existingList);
-					peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+					var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+					if (messageList.isEmpty())
+					{
+						List<String> newMessageList = new ArrayList<>();
+						newMessageList.add(item.getMessage());
+						peerConnection.putServiceData(this, KEY_PARTIAL_MESSAGE_LIST, newMessageList);
+					}
+					else
+					{
+						//noinspection unchecked
+						((List<String>) messageList.get()).add(item.getMessage());
+					}
 				}
-				var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
-				peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
+				else
+				{
+					var message = item.getMessage();
+					var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+					if (messageList.isPresent())
+					{
+						@SuppressWarnings("unchecked")
+						var existingList = (List<String>) messageList.get();
+						existingList.add(message);
+						message = String.join("", existingList);
+						peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+					}
+					var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
+					peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
+				}
 			}
 		}
 		else if (item.isBroadcast())

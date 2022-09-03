@@ -35,6 +35,11 @@ public class ChatAvatarItem extends Item
 		// Required
 	}
 
+	public ChatAvatarItem(byte[] imageData)
+	{
+		this.imageData = imageData;
+	}
+
 	@Override
 	public int getPriority()
 	{

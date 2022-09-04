@@ -107,6 +107,17 @@ public class MessageClient
 		stompSession.send(headers, message);
 	}
 
+	public void requestAvatar(LocationId locationId)
+	{
+		Objects.requireNonNull(stompSession);
+
+		var headers = new StompHeaders();
+		headers.setDestination("/app" + CHAT_PATH);
+		headers.set(MESSAGE_TYPE, CHAT_AVATAR.name());
+		headers.set(DESTINATION_ID, locationId.toString());
+		stompSession.send(headers, new ChatMessage());
+	}
+
 	public void sendToChatRoom(long chatRoomId, ChatMessage message)
 	{
 		Objects.requireNonNull(stompSession);

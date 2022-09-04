@@ -212,3 +212,8 @@
 .icon-friend {
     -fx-fill: blue;
 }
+
+.imageview-avatar {
+    -fx-background-color: -fx-box-border;
+    -fx-padding: 1;
+}

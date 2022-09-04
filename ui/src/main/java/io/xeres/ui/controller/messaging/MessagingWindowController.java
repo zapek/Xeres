@@ -20,7 +20,9 @@
 package io.xeres.ui.controller.messaging;
 
 import io.xeres.common.id.LocationId;
+import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
@@ -33,6 +35,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
@@ -42,11 +45,13 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @FxmlView(value = "/view/messaging/messaging.fxml")
@@ -68,6 +73,12 @@ public class MessagingWindowController implements WindowController
 
 	@FXML
 	private VBox content;
+
+	@FXML
+	private ImageView ownAvatar;
+
+	@FXML
+	private ImageView targetAvatar;
 
 	private ChatListView receive;
 
@@ -157,6 +168,9 @@ public class MessagingWindowController implements WindowController
 				})
 				.doOnError(throwable -> log.error("Error while getting the profiles: {}", throwable.getMessage(), throwable))
 				.subscribe();
+
+		ownAvatar.setImage(new Image(JavaFxApplication.getControlUrl() + IDENTITIES_PATH + "/" + 1L + "/image", true));
+		messageClient.requestAvatar(locationId);
 	}
 
 	public void showMessage(ChatMessage message)
@@ -173,6 +187,14 @@ public class MessagingWindowController implements WindowController
 				receive.addUserMessage(targetProfile.getName(), message.getContent());
 				notification.setText("");
 			}
+		}
+	}
+
+	public void showAvatar(ChatAvatar chatAvatar)
+	{
+		if (chatAvatar.getImage() != null)
+		{
+			targetAvatar.setImage(new Image(new ByteArrayInputStream(chatAvatar.getImage())));
 		}
 	}
 

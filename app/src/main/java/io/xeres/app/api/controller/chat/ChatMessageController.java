@@ -63,24 +63,34 @@ public class ChatMessageController
 				log.debug("Received websocket message, sending to peer location: {}, content {}", destinationId, message);
 				chatRsService.sendPrivateMessage(new LocationId(destinationId), message.getContent());
 			}
-			case CHAT_ROOM_MESSAGE -> {
+			case CHAT_ROOM_MESSAGE ->
+			{
 				log.debug("Sending to room: {}, content {}", destinationId, message);
 				Objects.requireNonNull(destinationId);
 				chatRsService.sendChatRoomMessage(Long.parseLong(destinationId), message.getContent());
 			}
-			case CHAT_BROADCAST_MESSAGE -> {
+			case CHAT_BROADCAST_MESSAGE ->
+			{
 				log.debug("Sending broadcast message");
 				chatRsService.sendBroadcastMessage(message.getContent());
 			}
-			case CHAT_TYPING_NOTIFICATION -> {
+			case CHAT_TYPING_NOTIFICATION ->
+			{
 				log.debug("Sending typing notification...");
 				Objects.requireNonNull(destinationId);
 				chatRsService.sendPrivateTypingNotification(new LocationId(destinationId));
 			}
-			case CHAT_ROOM_TYPING_NOTIFICATION -> {
+			case CHAT_ROOM_TYPING_NOTIFICATION ->
+			{
 				log.debug("Sending typing notification...");
 				Objects.requireNonNull(destinationId);
 				chatRsService.sendChatRoomTypingNotification(Long.parseLong(destinationId));
+			}
+			case CHAT_AVATAR ->
+			{
+				log.debug("Requesting avatar...");
+				Objects.requireNonNull(destinationId);
+				chatRsService.sendAvatarRequest(new LocationId(destinationId));
 			}
 			default -> log.error("Couldn't figure out which message to send");
 		}

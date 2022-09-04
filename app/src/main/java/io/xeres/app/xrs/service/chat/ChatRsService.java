@@ -132,6 +132,11 @@ public class ChatRsService extends RsService
 
 	private static final int KEY_PARTIAL_MESSAGE_LIST = 1;
 
+	/**
+	 * Retroshare puts some limit here.
+	 */
+	private static final int AVATAR_SIZE_MAX = 32767;
+
 	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
@@ -231,6 +236,10 @@ public class ChatRsService extends RsService
 		else if (item instanceof ChatRoomUnsubscribeItem chatRoomUnsubscribeItem)
 		{
 			handleChatRoomUnsubscribeItem(sender, chatRoomUnsubscribeItem);
+		}
+		else if (item instanceof ChatAvatarItem chatAvatarItem)
+		{
+			handleChatAvatarItem(sender, chatAvatarItem);
 		}
 		else //noinspection deprecation
 			if (item instanceof ChatRoomInviteOldItem chatRoomInviteOldItem)
@@ -724,9 +733,8 @@ public class ChatRsService extends RsService
 		{
 			if (item.isAvatarRequest())
 			{
-				// XXX: there's a check for images > 32767.. they're ignored
 				var ownImage = identityService.getOwnIdentity().getImage();
-				if (ownImage != null)
+				if (ownImage != null && ownImage.length <= AVATAR_SIZE_MAX)
 				{
 					peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
 				}
@@ -769,6 +777,18 @@ public class ChatRsService extends RsService
 		{
 			trayService.showNotification("Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName() + ": " + parseIncomingText(item.getMessage()));
 		}
+	}
+
+	private void handleChatAvatarItem(PeerConnection peerConnection, ChatAvatarItem item)
+	{
+		if (item.getImageData() == null || item.getImageData().length > AVATAR_SIZE_MAX)
+		{
+			log.debug("Avatar from {} is null or too big", peerConnection);
+			return;
+		}
+
+		var chatAvatar = new ChatAvatar(item.getImageData());
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVATAR, peerConnection.getLocation().getLocationId(), chatAvatar);
 	}
 
 	/**
@@ -965,6 +985,13 @@ public class ChatRsService extends RsService
 	{
 		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
 		peerConnectionManager.writeItem(location, new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
+	}
+
+	@Transactional(readOnly = true)
+	public void sendAvatarRequest(LocationId locationId)
+	{
+		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
+		peerConnectionManager.writeItem(location, new ChatMessageItem("", EnumSet.of(ChatFlags.PRIVATE, ChatFlags.REQUEST_AVATAR)), this);
 	}
 
 	/**

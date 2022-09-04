@@ -20,6 +20,7 @@
 package io.xeres.ui.support.window;
 
 import io.xeres.common.AppName;
+import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
@@ -123,10 +124,21 @@ public class WindowManager
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
 										.setUserData(chatMessage)
+										.setMinWidth(300)
+										.setMinHeight(300)
 										.build()
 										.open();
 							}
 						}));
+	}
+
+	public void sendMessaging(String locationId, ChatAvatar chatAvatar)
+	{
+		Platform.runLater(() ->
+				UiWindow.getOpenedWindow(MessagingWindowController.class, locationId).ifPresent(window ->
+						((MessagingWindowController) window.getUserData()).showAvatar(chatAvatar)
+				)
+		);
 	}
 
 	public void openAbout(Window parent)

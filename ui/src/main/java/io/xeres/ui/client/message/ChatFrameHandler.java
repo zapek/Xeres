@@ -61,6 +61,7 @@ public class ChatFrameHandler implements StompFrameHandler
 		return switch (messageType)
 				{
 					case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
+					case CHAT_AVATAR -> ChatAvatar.class;
 					case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> ChatRoomMessage.class;
 					case CHAT_ROOM_LIST -> ChatRoomLists.class;
 					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
@@ -78,6 +79,7 @@ public class ChatFrameHandler implements StompFrameHandler
 					switch (messageType)
 					{
 						case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(headers.getFirst(DESTINATION_ID), (ChatMessage) payload);
+						case CHAT_AVATAR -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (ChatAvatar) payload);
 						case CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
 						case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
 						case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));

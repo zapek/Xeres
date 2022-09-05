@@ -177,6 +177,7 @@ dependencies {
     implementation 'net.coobird:thumbnailator:0.4.17'
     implementation 'net.java.dev.jna:jna-platform:5.12.1'
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"
+    implementation 'com.maxmind.geoip2:geoip2:3.0.1'
     if (project.hasProperty('all-arch')) {
         implementation 'io.netty:netty-tcnative-boringssl-static::windows-x86_64'
         implementation 'io.netty:netty-tcnative-boringssl-static::linux-x86_64'

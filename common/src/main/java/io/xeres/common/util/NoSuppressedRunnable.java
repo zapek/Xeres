@@ -42,7 +42,7 @@ public interface NoSuppressedRunnable extends Runnable
 		}
 		catch (Exception e)
 		{
-			LoggerFactory.getLogger(NoSuppressedRunnable.class).error("Exception in executor: ", e);
+			LoggerFactory.getLogger(NoSuppressedRunnable.class).error("Exception in executor {}: ", getClass().getSimpleName(), e);
 		}
 	}
 

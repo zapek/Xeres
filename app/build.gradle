@@ -83,7 +83,7 @@ springBoot {
 
 editorconfig {
     includes = ['src/**']
-    excludes = ['src/test/resources/upnp/**', 'src/main/webapp/dist/**', 'src/main/webapp/node_modules/**']
+    excludes = ['src/test/resources/upnp/**', 'src/main/webapp/dist/**', 'src/main/webapp/node_modules/**', 'src/main/resources/GeoLite2-Country.mmdb']
 }
 
 test {

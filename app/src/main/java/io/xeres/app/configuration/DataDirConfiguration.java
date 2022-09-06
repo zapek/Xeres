@@ -54,7 +54,7 @@ public class DataDirConfiguration
 
 	/**
 	 * Gets the data directory where all user data is stored.
-	 *
+	 * Note: this is not really used as a proper bean. DataSourceConfiguration depends on it, but it's accessed by the method.
 	 * @return the path to the data directory
 	 */
 	@Bean

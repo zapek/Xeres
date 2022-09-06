@@ -67,7 +67,7 @@ public class AddRsIdWindowController implements WindowController
 	private TextField certLocId;
 
 	@FXML
-	private ChoiceBox<String> certIps;
+	private ComboBox<AddressCountry> certIps;
 
 	@FXML
 	private ChoiceBox<Trust> trust;
@@ -102,6 +102,9 @@ public class AddRsIdWindowController implements WindowController
 		profileClient.getOwn()
 				.doOnSuccess(profile -> ownProfile = profile)
 				.subscribe();
+
+		certIps.setCellFactory(AddressCell::new);
+		certIps.setConverter(new AddressConverter());
 
 		Platform.runLater(this::handleArgument);
 	}
@@ -158,7 +161,9 @@ public class AddRsIdWindowController implements WindowController
 										.map(Connection::getAddress)
 										.toList();
 
-								certIps.getItems().addAll(allIps);
+								certIps.getItems().addAll(allIps.stream()
+										.map(s -> new AddressCountry(s, null)) // XXX: fetch the countries
+										.toList());
 								certIps.getSelectionModel().select(0);
 							});
 					setDefaultTrust(trust);

@@ -23,6 +23,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TitledPane?>
@@ -91,11 +92,11 @@
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.addresses" GridPane.rowIndex="4"/>
-            <ChoiceBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <ComboBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.addresses.tip"/>
                 </tooltip>
-            </ChoiceBox>
+            </ComboBox>
             <Label text="%rsid.add.trust" GridPane.rowIndex="5"/>
             <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5">
                 <tooltip>

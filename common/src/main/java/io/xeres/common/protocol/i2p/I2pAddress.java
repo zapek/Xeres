@@ -17,33 +17,21 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.net.protocol.i2p;
+package io.xeres.common.protocol.i2p;
 
-import io.xeres.common.protocol.i2p.I2pAddress;
-import io.xeres.testutils.TestUtils;
-import org.junit.jupiter.api.Test;
+import java.util.regex.Pattern;
 
-import static io.xeres.common.protocol.i2p.I2pAddress.isValidAddress;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-class I2pAddressTest
+public final class I2pAddress
 {
-	@Test
-	void I2pAddress_NoInstance_OK() throws NoSuchMethodException
+	private static final Pattern I2P_B32_PATTERN = Pattern.compile("[a-z2-7]{52}\\.b32.i2p:\\d{1,5}");
+
+	private I2pAddress()
 	{
-		TestUtils.assertUtilityClass(I2pAddress.class);
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	@Test
-	void I2pAddress_isValidAddress_OK()
+	public static boolean isValidAddress(String address)
 	{
-		assertTrue(isValidAddress("g6u4vqiuy6bdc3dbu6a7gmi3ip45sqwgtbgrr6uupqaaqfyztrka.b32.i2p:1234"));
-	}
-
-	@Test
-	void I2PAddress_IsValidAddress_Fail()
-	{
-		assertFalse(isValidAddress("foobar.b32.i2p:1234"));
+		return I2P_B32_PATTERN.matcher(address).matches();
 	}
 }

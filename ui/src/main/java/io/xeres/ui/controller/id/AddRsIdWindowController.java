@@ -19,8 +19,13 @@
 
 package io.xeres.ui.controller.id;
 
+import io.xeres.common.geoip.Country;
 import io.xeres.common.id.Id;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.protocol.HostPort;
+import io.xeres.common.protocol.i2p.I2pAddress;
+import io.xeres.common.protocol.tor.OnionAddress;
+import io.xeres.ui.client.GeoIpClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.connection.Connection;
@@ -38,6 +43,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @FxmlView(value = "/view/id/rsid_add.fxml")
@@ -79,12 +86,14 @@ public class AddRsIdWindowController implements WindowController
 	private Label status;
 
 	private final ProfileClient profileClient;
+	private final GeoIpClient geoIpClient;
 
 	private Profile ownProfile;
 
-	public AddRsIdWindowController(ProfileClient profileClient)
+	public AddRsIdWindowController(ProfileClient profileClient, GeoIpClient geoIpClient)
 	{
 		this.profileClient = profileClient;
+		this.geoIpClient = geoIpClient;
 	}
 
 	@Override
@@ -152,7 +161,6 @@ public class AddRsIdWindowController implements WindowController
 							.findFirst()
 							.ifPresent(location ->
 							{
-								// XXX: display the hostname if available!
 								certLocId.setText(location.getLocationId().toString());
 
 								// The same sorting is used in PeerConnectionJob/connectImmediately()
@@ -164,7 +172,11 @@ public class AddRsIdWindowController implements WindowController
 								certIps.getItems().addAll(allIps.stream()
 										.map(s -> new AddressCountry(s, null)) // XXX: fetch the countries
 										.toList());
+
 								certIps.getSelectionModel().select(0);
+
+								CompletableFuture.runAsync(() -> findFlags(certIps));
+
 							});
 					setDefaultTrust(trust);
 					titledPane.setExpanded(true);
@@ -192,5 +204,42 @@ public class AddRsIdWindowController implements WindowController
 		trust.getItems().clear();
 		trust.getItems().addAll(Arrays.stream(Trust.values()).filter(t -> t != Trust.ULTIMATE).toList());
 		trust.getSelectionModel().select(Trust.UNKNOWN);
+	}
+
+	private void findFlags(ComboBox<AddressCountry> certIps)
+	{
+		for (var i = 0; i < certIps.getItems().size(); i++)
+		{
+			var item = certIps.getItems().get(i);
+			if (OnionAddress.isValidAddress(item.address()))
+			{
+				// XXX: set a Tor logo! (put it in flags with some special define)
+			}
+			else if (I2pAddress.isValidAddress(item.address()))
+			{
+				// XXX: same!
+			}
+			else
+			{
+				var hostPort = HostPort.parse(item.address());
+
+				// XXX: use IP.ispublic or so... otherwise put another icon for LAN
+
+				var countryResponse = geoIpClient.getIsoCountry(hostPort.host()).block();
+				if (countryResponse != null)
+				{
+					Country country;
+					try
+					{
+						country = Country.valueOf(countryResponse.isoCountry().toUpperCase(Locale.ROOT));
+					}
+					catch (IllegalArgumentException e)
+					{
+						country = null;
+					}
+					certIps.getItems().set(i, new AddressCountry(item.address(), country));
+				}
+			}
+		}
 	}
 }

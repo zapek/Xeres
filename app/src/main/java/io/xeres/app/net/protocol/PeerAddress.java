@@ -19,10 +19,10 @@
 
 package io.xeres.app.net.protocol;
 
-import io.xeres.app.net.protocol.i2p.I2pAddress;
-import io.xeres.app.net.protocol.tor.OnionAddress;
 import io.xeres.common.protocol.HostPort;
+import io.xeres.common.protocol.i2p.I2pAddress;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.protocol.tor.OnionAddress;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;

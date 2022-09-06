@@ -1,6 +1,7 @@
 package io.xeres.ui.controller.id;
 
 import io.xeres.common.geoip.Country;
+import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
@@ -27,12 +28,13 @@ public class AddressCell extends ListCell<AddressCountry>
 	{
 		if (country != null)
 		{
-			var flagPath = getClass().getResourceAsStream("/image/flags/" + country.name().toLowerCase(Locale.ENGLISH) + ".png");
+			var flagPath = getClass().getResourceAsStream("/image/flags/" + country.name().toLowerCase(Locale.ROOT) + ".png");
 			if (flagPath != null)
 			{
+				TooltipUtils.install(this, country::toString, null);
 				return new ImageView(new Image(flagPath));
 			}
 		}
-		return null; // XXX: fix! return some default.. also if flagpath is null
+		return new ImageView(new Image(getClass().getResourceAsStream("/image/flags/_unknown.png")));
 	}
 }

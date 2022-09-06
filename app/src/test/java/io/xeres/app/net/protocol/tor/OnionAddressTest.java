@@ -19,10 +19,11 @@
 
 package io.xeres.app.net.protocol.tor;
 
+import io.xeres.common.protocol.tor.OnionAddress;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.net.protocol.tor.OnionAddress.isValidAddress;
+import static io.xeres.common.protocol.tor.OnionAddress.isValidAddress;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

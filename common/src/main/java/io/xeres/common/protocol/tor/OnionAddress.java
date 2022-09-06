@@ -17,21 +17,21 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.net.protocol.i2p;
+package io.xeres.common.protocol.tor;
 
 import java.util.regex.Pattern;
 
-public final class I2pAddress
+public final class OnionAddress
 {
-	private static final Pattern I2P_B32_PATTERN = Pattern.compile("[a-z2-7]{52}\\.b32.i2p:\\d{1,5}");
+	private static final Pattern ONION_PATTERN = Pattern.compile("[a-z2-7]{56}\\.onion:\\d{1,5}");
 
-	private I2pAddress()
+	private OnionAddress()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
 	public static boolean isValidAddress(String address)
 	{
-		return I2P_B32_PATTERN.matcher(address).matches();
+		return ONION_PATTERN.matcher(address).matches();
 	}
 }

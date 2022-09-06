@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Tor protocol support.
- */
-package io.xeres.app.net.protocol.tor;
+package io.xeres.common.rest.geoip;
+
+public record CountryResponse(String isoCountry)
+{
+}

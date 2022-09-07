@@ -44,6 +44,7 @@ import org.jsoup.Jsoup;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -188,12 +189,32 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		if (chatRoomUser != null)
 		{
 			users.remove(chatRoomUser);
-			if (!event.isSplit())
+			if (!event.isSplit() && userSaidSomethingRecently(event.getGxsId()))
 			{
-				// XXX: only display this if the user said something 5-10 minutes ago, so that we know that the conversation is "dead". Displaying it all the time is too verbose
-				//addMessageLine(new ChatAction(TIMEOUT, chatRoomUser.nickname(), event.getGxsId()));
+				// Only display this if the user said something 5-10 minutes ago, so that we know that the conversation is "dead". Displaying it all the time is too verbose
+				addMessageLine(new ChatAction(TIMEOUT, chatRoomUser.nickname(), event.getGxsId()));
 			}
 		}
+	}
+
+	private boolean userSaidSomethingRecently(GxsId gxsId)
+	{
+		var now = Instant.now();
+
+		for (var i = messages.size() - 1; i >= 0; i--)
+		{
+			var message = messages.get(i);
+			if (message.getInstant().isBefore(now.minus(10, ChronoUnit.MINUTES)))
+			{
+				break;
+			}
+
+			if (message.hasSaid(gxsId))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

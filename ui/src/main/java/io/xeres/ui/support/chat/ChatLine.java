@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.chat;
 
+import io.xeres.common.id.GxsId;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import javafx.scene.paint.Color;
@@ -62,6 +63,11 @@ public class ChatLine
 	public String getAction()
 	{
 		return action.getAction();
+	}
+
+	public boolean hasSaid(GxsId gxsId)
+	{
+		return action.getType() == ChatAction.Type.SAY && gxsId.toString().equals(action.getGxsId());
 	}
 
 	public Color getNicknameColor()

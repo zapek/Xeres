@@ -251,7 +251,10 @@ public enum Country implements I18nEnum
 	EH,
 	YE,
 	ZM,
-	ZW;
+	ZW,
+	TOR,
+	I2P,
+	LAN;
 
 	@Override
 	public String toString()

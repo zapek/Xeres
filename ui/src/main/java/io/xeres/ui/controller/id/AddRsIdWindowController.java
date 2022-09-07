@@ -24,6 +24,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.protocol.i2p.I2pAddress;
+import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.protocol.tor.OnionAddress;
 import io.xeres.ui.client.GeoIpClient;
 import io.xeres.ui.client.ProfileClient;
@@ -170,13 +171,10 @@ public class AddRsIdWindowController implements WindowController
 										.toList();
 
 								certIps.getItems().addAll(allIps.stream()
-										.map(s -> new AddressCountry(s, null)) // XXX: fetch the countries
+										.map(s -> new AddressCountry(s, null))
 										.toList());
 
-								certIps.getSelectionModel().select(0);
-
-								CompletableFuture.runAsync(() -> findFlags(certIps));
-
+								CompletableFuture.runAsync(() -> Platform.runLater(() -> findFlags(certIps)));
 							});
 					setDefaultTrust(trust);
 					titledPane.setExpanded(true);
@@ -211,35 +209,47 @@ public class AddRsIdWindowController implements WindowController
 		for (var i = 0; i < certIps.getItems().size(); i++)
 		{
 			var item = certIps.getItems().get(i);
+			Country country = null;
+
 			if (OnionAddress.isValidAddress(item.address()))
 			{
-				// XXX: set a Tor logo! (put it in flags with some special define)
+				country = Country.TOR;
 			}
 			else if (I2pAddress.isValidAddress(item.address()))
 			{
-				// XXX: same!
+				country = Country.I2P;
 			}
 			else
 			{
 				var hostPort = HostPort.parse(item.address());
 
-				// XXX: use IP.ispublic or so... otherwise put another icon for LAN
-
-				var countryResponse = geoIpClient.getIsoCountry(hostPort.host()).block();
-				if (countryResponse != null)
+				if (IP.isLanIp(hostPort.host()))
 				{
-					Country country;
-					try
+					country = Country.LAN;
+				}
+				else
+				{
+					var countryResponse = geoIpClient.getIsoCountry(hostPort.host()).block();
+					if (countryResponse != null)
 					{
-						country = Country.valueOf(countryResponse.isoCountry().toUpperCase(Locale.ROOT));
+						try
+						{
+							country = Country.valueOf(countryResponse.isoCountry().toUpperCase(Locale.ROOT));
+						}
+						catch (IllegalArgumentException e)
+						{
+							log.warn("Country not found for iso {}", countryResponse.isoCountry());
+						}
+
 					}
-					catch (IllegalArgumentException e)
-					{
-						country = null;
-					}
-					certIps.getItems().set(i, new AddressCountry(item.address(), country));
 				}
 			}
+
+			if (country != null)
+			{
+				certIps.getItems().set(i, new AddressCountry(item.address(), country));
+			}
 		}
+		certIps.getSelectionModel().select(0);
 	}
 }

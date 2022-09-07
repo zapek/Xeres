@@ -37,6 +37,6 @@ public enum NetMode
 	@Override
 	public String toString()
 	{
-		return super.toString().toLowerCase(Locale.ENGLISH);
+		return super.toString().toLowerCase(Locale.ROOT);
 	}
 }

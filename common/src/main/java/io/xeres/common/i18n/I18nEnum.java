@@ -25,6 +25,6 @@ public interface I18nEnum
 {
 	default String getMessageKey(Enum<?> e)
 	{
-		return "enum." + e.getClass().getSimpleName().toLowerCase(Locale.ENGLISH) + "." + e.name().toLowerCase(Locale.ENGLISH);
+		return "enum." + e.getClass().getSimpleName().toLowerCase(Locale.ROOT) + "." + e.name().toLowerCase(Locale.ROOT);
 	}
 }

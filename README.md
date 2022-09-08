@@ -50,7 +50,6 @@ Please consider a donation to help with the project's development. Contact me to
 | GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |
 | ETH    | 0x7d9EfEe706c81227c73DA7814319301C6Bd63D05                                                      |
 | ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
-| DASH   | Xqa3APRoHKzrF1w8fWVHG3Ae5ZaaSZMgio                                                              |
 | BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |
 
 ## Documentation

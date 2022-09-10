@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0 # Disable shallow clone for sonarqube analysis
 
@@ -30,19 +30,19 @@ jobs:
         languages: java
 
     - name: Set up JDK 18
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v3
       with:
         java-version: 18
 
     - name: Cache SonarCloud packages
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
     - name: Cache Gradle packages
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ~/.gradle/caches
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}

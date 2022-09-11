@@ -41,12 +41,12 @@
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>
-        <Button fx:id="send" disable="true" minWidth="72.0" mnemonicParsing="false" text="Send">
+        <Button fx:id="send" disable="true" minWidth="72.0" mnemonicParsing="false" text="%button.send">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>
         </Button>
-        <Button fx:id="cancel" minWidth="72.0" mnemonicParsing="false" text="Cancel">
+        <Button fx:id="cancel" minWidth="72.0" mnemonicParsing="false" text="%button.cancel">
             <HBox.margin>
                 <Insets left="4.0"/>
             </HBox.margin>

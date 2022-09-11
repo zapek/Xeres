@@ -57,6 +57,8 @@ public class Settings
 
 	private boolean dhtEnabled;
 
+	private boolean autoStartEnabled;
+
 	protected Settings()
 	{
 	}
@@ -194,5 +196,15 @@ public class Settings
 	public void setLocalPort(int localPort)
 	{
 		this.localPort = localPort;
+	}
+
+	public boolean isAutoStartEnabled()
+	{
+		return autoStartEnabled;
+	}
+
+	public void setAutoStartEnabled(boolean autoStartEnabled)
+	{
+		this.autoStartEnabled = autoStartEnabled;
 	}
 }

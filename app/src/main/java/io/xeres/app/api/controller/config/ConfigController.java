@@ -30,6 +30,7 @@ import io.xeres.app.api.error.Error;
 import io.xeres.app.api.error.exception.InternalServerErrorException;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
+import io.xeres.app.service.CapabilityService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
@@ -47,6 +48,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
+import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.*;
 
@@ -60,12 +62,14 @@ public class ConfigController
 	private final ProfileService profileService;
 	private final LocationService locationService;
 	private final IdentityService identityService;
+	private final CapabilityService capabilityService;
 
-	public ConfigController(ProfileService profileService, LocationService locationService, IdentityService identityService)
+	public ConfigController(ProfileService profileService, LocationService locationService, IdentityService identityService, CapabilityService capabilityService)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityService = identityService;
+		this.capabilityService = capabilityService;
 	}
 
 	@PostMapping("/profile")
@@ -201,5 +205,13 @@ public class ConfigController
 	public UsernameResponse getUsername()
 	{
 		return new UsernameResponse(locationService.getUsername());
+	}
+
+	@GetMapping("/capabilities")
+	@Operation(summary = "Get the system's capabilities.")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public Set<String> getCapabilities()
+	{
+		return capabilityService.getCapabilities();
 	}
 }

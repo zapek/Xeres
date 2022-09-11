@@ -29,9 +29,11 @@ public class Settings implements Cloneable
 
 	private boolean upnpEnabled;
 
-	private boolean broadcastDiscoverEnabled;
+	private boolean broadcastDiscoveryEnabled;
 
 	private boolean dhtEnabled;
+
+	private boolean autoStartEnabled;
 
 	public String getTorSocksHost()
 	{
@@ -85,12 +87,12 @@ public class Settings implements Cloneable
 
 	public boolean isBroadcastDiscoveryEnabled()
 	{
-		return broadcastDiscoverEnabled;
+		return broadcastDiscoveryEnabled;
 	}
 
 	public void setBroadcastDiscoveryEnabled(boolean broadcastDiscoveryEnabled)
 	{
-		this.broadcastDiscoverEnabled = broadcastDiscoveryEnabled;
+		this.broadcastDiscoveryEnabled = broadcastDiscoveryEnabled;
 	}
 
 	public boolean isDhtEnabled()
@@ -101,6 +103,16 @@ public class Settings implements Cloneable
 	public void setDhtEnabled(boolean dhtEnabled)
 	{
 		this.dhtEnabled = dhtEnabled;
+	}
+
+	public boolean isAutoStartEnabled()
+	{
+		return autoStartEnabled;
+	}
+
+	public void setAutoStartEnabled(boolean autoStartEnabled)
+	{
+		this.autoStartEnabled = autoStartEnabled;
 	}
 
 	@Override

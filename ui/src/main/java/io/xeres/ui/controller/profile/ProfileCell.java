@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.profile;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.ContextMenu;
@@ -60,7 +61,7 @@ public class ProfileCell extends TableRow<Profile>
 		else
 		{
 			setStyle("-fx-font-style: italic");
-			TooltipUtils.install(this, "Partial profile not fully validated yet");
+			TooltipUtils.install(this, I18nUtils.getString("profiles.partial.unvalidated"));
 		}
 	}
 
@@ -74,7 +75,7 @@ public class ProfileCell extends TableRow<Profile>
 	{
 		var contextMenu = new ContextMenu();
 
-		var deleteItem = new MenuItem("Delete profile");
+		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
 		deleteItem.setOnAction(event -> listView.fireEvent(new ProfileContextMenu(ProfileContextMenu.DELETE, cell.getTableView())));
 
 		contextMenu.getItems().addAll(deleteItem);

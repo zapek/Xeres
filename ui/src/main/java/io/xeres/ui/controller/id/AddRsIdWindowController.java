@@ -45,6 +45,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -88,13 +89,15 @@ public class AddRsIdWindowController implements WindowController
 
 	private final ProfileClient profileClient;
 	private final GeoIpClient geoIpClient;
+	private final ResourceBundle bundle;
 
 	private Profile ownProfile;
 
-	public AddRsIdWindowController(ProfileClient profileClient, GeoIpClient geoIpClient)
+	public AddRsIdWindowController(ProfileClient profileClient, GeoIpClient geoIpClient, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
 		this.geoIpClient = geoIpClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -144,7 +147,7 @@ public class AddRsIdWindowController implements WindowController
 				{
 					if (profile.getId() == ownProfile.getId())
 					{
-						status.setText("You can't add your own ID");
+						status.setText(bundle.getString("rsid.add.no-own"));
 						addButton.setDisable(true);
 						UiUtils.showError(rsIdTextArea, status);
 						return;
@@ -189,7 +192,7 @@ public class AddRsIdWindowController implements WindowController
 					}
 					else
 					{
-						status.setText("Invalid ID");
+						status.setText(bundle.getString("rsid.add.invalid"));
 						UiUtils.showError(rsIdTextArea, status);
 					}
 					titledPane.setExpanded(false);

@@ -30,7 +30,13 @@ public final class I18nUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static String getEnumString(String messageKey)
+	/**
+	 * Gets a translated string. Prefer using the ResourceBundle bean instead as it's faster.
+	 *
+	 * @param messageKey the message key
+	 * @return the translated string
+	 */
+	public static String getString(String messageKey)
 	{
 		return ResourceBundle.getBundle(BUNDLE).getString(messageKey);
 	}

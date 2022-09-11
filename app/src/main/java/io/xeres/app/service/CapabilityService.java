@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,19 +17,33 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.message.chat;
+package io.xeres.app.service;
 
-import io.xeres.common.i18n.I18nEnum;
-import io.xeres.common.i18n.I18nUtils;
+import io.xeres.app.application.autostart.AutoStart;
+import io.xeres.common.rest.config.Capabilities;
+import org.springframework.stereotype.Service;
 
-public enum RoomType implements I18nEnum
+import java.util.HashSet;
+import java.util.Set;
+
+@Service
+public class CapabilityService
 {
-	PRIVATE,
-	PUBLIC;
+	private final AutoStart autoStart;
 
-	@Override
-	public String toString()
+	public CapabilityService(AutoStart autoStart)
 	{
-		return I18nUtils.getString(getMessageKey(this));
+		this.autoStart = autoStart;
+	}
+
+	public Set<String> getCapabilities()
+	{
+		Set<String> capabilities = new HashSet<>();
+
+		if (autoStart.isSupported())
+		{
+			capabilities.add(Capabilities.AUTOSTART);
+		}
+		return capabilities;
 	}
 }

@@ -134,9 +134,9 @@ public class ChatViewController implements Controller
 	private final TrayService trayService;
 	private final ResourceBundle bundle;
 
-	private final TreeItem<RoomHolder> subscribedRooms = new TreeItem<>(new RoomHolder("Subscribed"));
-	private final TreeItem<RoomHolder> privateRooms = new TreeItem<>(new RoomHolder("Private"));
-	private final TreeItem<RoomHolder> publicRooms = new TreeItem<>(new RoomHolder("Public"));
+	private final TreeItem<RoomHolder> subscribedRooms;
+	private final TreeItem<RoomHolder> privateRooms;
+	private final TreeItem<RoomHolder> publicRooms;
 
 	private String nickname;
 
@@ -161,6 +161,10 @@ public class ChatViewController implements Controller
 		this.windowManager = windowManager;
 		this.trayService = trayService;
 		this.bundle = bundle;
+
+		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
+		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
+		publicRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.public")));
 	}
 
 	@Override
@@ -594,7 +598,7 @@ public class ChatViewController implements Controller
 		var contextMenu = new ContextMenu();
 
 		contextMenu.getItems().addAll(createDefaultChatInputMenuItems(textInputControl));
-		var pasteId = new MenuItem("Paste own ID");
+		var pasteId = new MenuItem(bundle.getString("chat.room.input.paste-id"));
 		pasteId.setOnAction(event -> appendOwnId(textInputControl));
 		contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
 		return contextMenu;
@@ -617,25 +621,25 @@ public class ChatViewController implements Controller
 
 	private List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
 	{
-		var undo = new MenuItem("Undo");
+		var undo = new MenuItem(bundle.getString("chat.room.input.undo"));
 		undo.setOnAction(event -> textInputControl.undo());
 
-		var redo = new MenuItem("Redo");
+		var redo = new MenuItem(bundle.getString("chat.room.input.redo"));
 		redo.setOnAction(event -> textInputControl.redo());
 
-		var cut = new MenuItem("Cut");
+		var cut = new MenuItem(bundle.getString("chat.room.input.cut"));
 		cut.setOnAction(event -> textInputControl.cut());
 
-		var copy = new MenuItem("Copy");
+		var copy = new MenuItem(bundle.getString("chat.room.input.copy"));
 		copy.setOnAction(event -> textInputControl.copy());
 
-		var paste = new MenuItem("Paste");
+		var paste = new MenuItem(bundle.getString("chat.room.input.paste"));
 		paste.setOnAction(event -> textInputControl.paste());
 
-		var delete = new MenuItem("Delete");
+		var delete = new MenuItem(bundle.getString("chat.room.input.delete"));
 		delete.setOnAction(event -> textInputControl.deleteText(textInputControl.getSelection()));
 
-		var selectAll = new MenuItem("Select All");
+		var selectAll = new MenuItem(bundle.getString("chat.room.input.select-all"));
 		selectAll.setOnAction(event -> textInputControl.selectAll());
 
 		var emptySelection = Bindings.createBooleanBinding(() -> textInputControl.getSelection().getLength() == 0, textInputControl.selectionProperty());

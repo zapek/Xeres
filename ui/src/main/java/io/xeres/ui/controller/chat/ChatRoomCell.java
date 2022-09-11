@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.RoomType;
 import io.xeres.ui.support.util.TooltipUtils;
@@ -93,10 +94,10 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 	{
 		var contextMenu = new ContextMenu();
 
-		var subscribeItem = new MenuItem("Join");
+		var subscribeItem = new MenuItem(I18nUtils.getString("chat.room.join"));
 		subscribeItem.setOnAction(event -> treeView.fireEvent(new ChatRoomContextMenu(ChatRoomContextMenu.JOIN, cell.getTreeItem())));
 
-		var unsubscribeItem = new MenuItem("Leave");
+		var unsubscribeItem = new MenuItem(I18nUtils.getString("chat.room.leave"));
 		unsubscribeItem.setOnAction(event -> treeView.fireEvent(new ChatRoomContextMenu(ChatRoomContextMenu.LEAVE, cell.getTreeItem())));
 
 		contextMenu.getItems().addAll(subscribeItem, unsubscribeItem);

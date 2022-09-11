@@ -33,6 +33,8 @@ import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
+import java.util.ResourceBundle;
+
 @Component
 @FxmlView(value = "/view/chat/chatroom_create.fxml")
 public class ChatRoomCreationWindowController implements WindowController
@@ -56,10 +58,12 @@ public class ChatRoomCreationWindowController implements WindowController
 	private CheckBox security;
 
 	private final ChatClient chatClient;
+	private final ResourceBundle bundle;
 
-	public ChatRoomCreationWindowController(ChatClient chatClient)
+	public ChatRoomCreationWindowController(ChatClient chatClient, ResourceBundle bundle)
 	{
 		this.chatClient = chatClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -68,7 +72,7 @@ public class ChatRoomCreationWindowController implements WindowController
 		roomName.textProperty().addListener(observable -> createButton.setDisable(roomName.getText().isBlank()));
 		topic.textProperty().addListener(observable -> createButton.setDisable(topic.getText().isBlank()));
 
-		visibility.setItems(FXCollections.observableArrayList("Public", "Private"));
+		visibility.setItems(FXCollections.observableArrayList(bundle.getString("enum.roomtype.public"), bundle.getString("enum.roomtype.private")));
 		visibility.getSelectionModel().select(0);
 
 		createButton.setOnAction(event -> chatClient.createChatRoom(roomName.getText(),

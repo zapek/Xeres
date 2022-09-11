@@ -24,6 +24,7 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.identity.GxsIdFakes;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
+import io.xeres.app.service.CapabilityService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
@@ -64,6 +65,9 @@ class ConfigControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private IdentityService identityService;
+
+	@MockBean
+	private CapabilityService capabilityService;
 
 	@Autowired
 	public MockMvc mvc;

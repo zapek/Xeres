@@ -26,7 +26,8 @@ public record SettingsDTO(
 		int i2pSocksPort,
 		boolean upnpEnabled,
 		boolean broadcastDiscoveryEnabled,
-		boolean dhtEnabled
+		boolean dhtEnabled,
+		boolean autoStartEnabled
 )
 {
 }

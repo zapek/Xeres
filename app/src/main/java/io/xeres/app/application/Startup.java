@@ -21,6 +21,7 @@ package io.xeres.app.application;
 
 import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
+import io.xeres.app.application.autostart.AutoStart;
 import io.xeres.app.application.events.*;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
@@ -85,8 +86,9 @@ public class Startup implements ApplicationRunner
 	private final SplashService splashService;
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
+	private final AutoStart autoStart;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
@@ -104,6 +106,7 @@ public class Startup implements ApplicationRunner
 		this.splashService = splashService;
 		this.identityManager = identityManager;
 		this.statusNotificationService = statusNotificationService;
+		this.autoStart = autoStart;
 	}
 
 	@Override
@@ -363,6 +366,7 @@ public class Startup implements ApplicationRunner
 		applyUpnp(oldSettings, newSettings);
 		applyTor(oldSettings, newSettings);
 		applyI2p(oldSettings, newSettings);
+		applyAutoStart(oldSettings, newSettings);
 	}
 
 	private void applyBroadcastDiscovery(Settings oldSettings, Settings newSettings)
@@ -423,6 +427,21 @@ public class Startup implements ApplicationRunner
 		if (!StringUtils.equals(newSettings.getI2pSocksHost(), oldSettings.getI2pSocksHost()) || newSettings.getI2pSocksPort() != oldSettings.getI2pSocksPort())
 		{
 			peerService.restartI2p();
+		}
+	}
+
+	private void applyAutoStart(Settings oldSettings, Settings newSettings)
+	{
+		if (newSettings.isAutoStartEnabled() != oldSettings.isAutoStartEnabled())
+		{
+			if (newSettings.isAutoStartEnabled())
+			{
+				autoStart.enable();
+			}
+			else
+			{
+				autoStart.disable();
+			}
 		}
 	}
 }

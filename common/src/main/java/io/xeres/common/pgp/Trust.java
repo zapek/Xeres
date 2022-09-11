@@ -62,6 +62,6 @@ public enum Trust implements I18nEnum
 	@Override
 	public String toString()
 	{
-		return I18nUtils.getEnumString(getMessageKey(this));
+		return I18nUtils.getString(getMessageKey(this));
 	}
 }

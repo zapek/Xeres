@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,19 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.message.chat;
+package io.xeres.common.rest.config;
 
-import io.xeres.common.i18n.I18nEnum;
-import io.xeres.common.i18n.I18nUtils;
-
-public enum RoomType implements I18nEnum
+public final class Capabilities
 {
-	PRIVATE,
-	PUBLIC;
+	public static final String AUTOSTART = "autostart";
 
-	@Override
-	public String toString()
+	private Capabilities()
 	{
-		return I18nUtils.getString(getMessageKey(this));
+		throw new UnsupportedOperationException("Utility class");
 	}
 }

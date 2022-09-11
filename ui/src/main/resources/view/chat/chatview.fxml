@@ -19,16 +19,10 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TreeView?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
     <SplitPane fx:id="splitPane" dividerPositions="0.1, 0.8" VBox.vgrow="ALWAYS">
         <TreeView fx:id="roomTree" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
@@ -45,7 +39,7 @@
                     </HBox.margin>
                 </Label>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="invite" mnemonicParsing="false" text="Invite"/>
+                <Button fx:id="invite" mnemonicParsing="false" text="%chat.room.invite.button"/>
             </HBox>
             <VBox fx:id="content" VBox.vgrow="ALWAYS">
                 <VBox fx:id="sendGroup">
@@ -57,7 +51,7 @@
                         <VBox>
                             <Button fx:id="previewCancel" mnemonicParsing="false" text="%button.cancel"/>
                             <Region VBox.vgrow="ALWAYS"/>
-                            <Button fx:id="previewSend" mnemonicParsing="false" text="%chat.room.preview.send"/>
+                            <Button fx:id="previewSend" mnemonicParsing="false" text="%button.send"/>
                             <HBox.margin>
                                 <Insets left="8.0"/>
                             </HBox.margin>

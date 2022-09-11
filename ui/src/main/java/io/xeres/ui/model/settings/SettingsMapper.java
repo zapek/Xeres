@@ -44,6 +44,7 @@ public final class SettingsMapper
 		settings.setUpnpEnabled(dto.upnpEnabled());
 		settings.setBroadcastDiscoveryEnabled(dto.broadcastDiscoveryEnabled());
 		settings.setDhtEnabled(dto.dhtEnabled());
+		settings.setAutoStartEnabled(dto.autoStartEnabled());
 		return settings;
 	}
 
@@ -61,7 +62,8 @@ public final class SettingsMapper
 				settings.getI2pSocksPort(),
 				settings.isUpnpEnabled(),
 				settings.isBroadcastDiscoveryEnabled(),
-				settings.isDhtEnabled()
+				settings.isDhtEnabled(),
+				settings.isAutoStartEnabled()
 		);
 	}
 }

@@ -168,6 +168,7 @@ public class Startup implements ApplicationRunner
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			settingsService.setLocalIpAddressAndPort(event.localIpAddress(), event.localPort());
+			syncAutoStart();
 			statusNotificationService.setTotalUsers((int) locationService.getAllLocations().stream().filter(location -> !location.isOwn()).count());
 			startNetworkServices();
 		}
@@ -435,6 +436,21 @@ public class Startup implements ApplicationRunner
 		if (newSettings.isAutoStartEnabled() != oldSettings.isAutoStartEnabled())
 		{
 			if (newSettings.isAutoStartEnabled())
+			{
+				autoStart.enable();
+			}
+			else
+			{
+				autoStart.disable();
+			}
+		}
+	}
+
+	private void syncAutoStart()
+	{
+		if (settingsService.isAutoStartEnabled() != autoStart.isEnabled())
+		{
+			if (settingsService.isAutoStartEnabled())
 			{
 				autoStart.enable();
 			}

@@ -46,16 +46,26 @@ public class AutoStart
 
 	public boolean isEnabled()
 	{
+		if (!isSupported())
+		{
+			return false;
+		}
 		return autoStarter.isEnabled();
 	}
 
 	public void enable()
 	{
-		autoStarter.enable();
+		if (isSupported())
+		{
+			autoStarter.enable();
+		}
 	}
 
 	public void disable()
 	{
-		autoStarter.disable();
+		if (isSupported())
+		{
+			autoStarter.disable();
+		}
 	}
 }

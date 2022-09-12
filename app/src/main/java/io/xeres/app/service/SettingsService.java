@@ -227,4 +227,9 @@ public class SettingsService
 	{
 		return settings.getLocalPort();
 	}
+
+	public boolean isAutoStartEnabled()
+	{
+		return settings.isAutoStartEnabled();
+	}
 }

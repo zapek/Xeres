@@ -103,11 +103,17 @@ task copyInstaller(type: Copy) {
     into "${project.buildDir}/${project.libsDirName}"
 }
 
+task deleteLibs(type: Delete) {
+    delete "${project.buildDir}/${project.libsDirName}/"
+}
+
 bootBuildImage {
     imageName = "zapek/${rootProject.name.toLowerCase(Locale.ROOT)}:${project.version}"
 }
 
 jpackage {
+    dependsOn "deleteLibs" // needed to avoid duplicate jars in 'libs' when changing versions
+    mustRunAfter "deleteLibs"
     dependsOn "bootJar"
     dependsOn "copyInstaller"
     appName = parent.project.name

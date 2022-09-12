@@ -23,9 +23,10 @@ import io.xeres.common.AppName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -65,33 +66,21 @@ public class AutoStarterWindows implements AutoStarter
 	@Override
 	public boolean isEnabled()
 	{
-		if (!isSupported())
-		{
-			return false;
-		}
-		return isNotBlank(registryGetStringValue(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME));
+		return registryValueExists(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
 	}
 
 	@Override
 	public void enable()
 	{
-		if (isSupported())
-		{
-			registryCreateKey(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
-			registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME, "\"" + getApplicationPath() + "\"" + " --iconified");
-			updateSplashScreen(false);
-		}
+		registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME, "\"" + getApplicationPath() + "\"" + " --iconified");
+		updateSplashScreen(false);
 	}
 
 	@Override
 	public void disable()
 	{
-		if (isSupported())
-		{
-			registryDeleteValue(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
-			registryDeleteKey(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
-			updateSplashScreen(true);
-		}
+		registryDeleteValue(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
+		updateSplashScreen(true);
 	}
 
 	private String getApplicationPath()
@@ -101,13 +90,29 @@ public class AutoStarterWindows implements AutoStarter
 			return applicationPath.toString();
 		}
 
-		var basePath = System.getProperty("user.dir");
-		if (basePath == null)
+		Path basePath;
+		File file;
+		try
 		{
+			var uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+			file = uriToFile(uri.toString());
+		}
+		catch (URISyntaxException | MalformedURLException e)
+		{
+			log.error("Invalid application path", e);
 			return null;
 		}
 
-		var appPath = Path.of(basePath, AppName.NAME + EXECUTABLE_EXTENSION);
+		basePath = file.toPath();
+
+		// We are located in 'app/something.jar', get the parent directory of 'app'
+		if (basePath.getParent() == null || basePath.getParent().getParent() == null)
+		{
+			log.error("Couldn't get parent directory");
+			return null;
+		}
+
+		var appPath = basePath.getParent().getParent().resolve(AppName.NAME + EXECUTABLE_EXTENSION);
 		if (Files.notExists(appPath))
 		{
 			return null;
@@ -115,7 +120,48 @@ public class AutoStarterWindows implements AutoStarter
 
 		applicationPath = appPath.toAbsolutePath();
 
+		log.info("Application path: {}", appPath);
+
 		return applicationPath.toString();
+	}
+
+	/**
+	 * Converts the given URL string to its corresponding {@link File}.
+	 * Source: <a href="https://stackoverflow.com/questions/320542/how-to-get-the-path-of-a-running-jar-file">stack overflow</a>
+	 *
+	 * @param url The URL to convert.
+	 * @return A file path suitable for use with e.g. {@link FileInputStream}
+	 * @throws IllegalArgumentException if the URL does not correspond to a file.
+	 */
+	private static File uriToFile(String url) throws MalformedURLException, URISyntaxException
+	{
+		var path = url;
+		if (path.startsWith("jar:"))
+		{
+			// remove "jar:" prefix and "!/" suffix
+			final int index = path.indexOf("!/");
+			path = path.substring(4, index);
+		}
+		try
+		{
+			// For Windows only
+			if (path.matches("file:[A-Za-z]:.*"))
+			{
+				path = "file:/" + path.substring(5);
+			}
+			return new File(new URL(path).toURI());
+		}
+		catch (final MalformedURLException | URISyntaxException e)
+		{
+			// NB: URL is not completely well-formed.
+			if (path.startsWith("file:"))
+			{
+				// pass through the URL as-is, minus "file:" prefix
+				path = path.substring(5);
+				return new File(path);
+			}
+			throw e;
+		}
 	}
 
 	private void updateSplashScreen(boolean enable)

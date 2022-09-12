@@ -19,12 +19,22 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 <VBox alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
     <HBox VBox.vgrow="NEVER">
         <opaqueInsets>
@@ -61,8 +71,8 @@
             <Insets />
         </VBox.margin>
         <Tab text="%about.title">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <TextFlow maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="freeflow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
+                <TextFlow styleClass="freeflow">
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
@@ -84,11 +94,11 @@
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Source code: " />
                     <Hyperlink text="https://github.com/zapek/Xeres" />
                 </TextFlow>
-            </AnchorPane>
+            </ScrollPane>
         </Tab>
         <Tab text="%about.authors">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <TextFlow prefHeight="200.0" prefWidth="200.0" styleClass="freeflow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
+                <TextFlow styleClass="freeflow">
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
@@ -104,21 +114,21 @@
                         </font>
                     </Text>
                 </TextFlow>
-            </AnchorPane>
+            </ScrollPane>
         </Tab>
         <Tab text="%about.contributors">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <TextFlow prefHeight="200.0" prefWidth="200.0" styleClass="freeflow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
+                <TextFlow styleClass="freeflow">
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="(None yet)"/>
                 </TextFlow>
-            </AnchorPane>
+            </ScrollPane>
         </Tab>
         <Tab text="%about.supporters">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <TextFlow prefHeight="200.0" prefWidth="200.0" styleClass="freeflow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
+                <TextFlow styleClass="freeflow">
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
@@ -127,18 +137,18 @@
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" to make a donation.&#10;"/>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="All sponsors will be listed here (opt-in)."/>
                 </TextFlow>
-            </AnchorPane>
+            </ScrollPane>
         </Tab>
         <Tab text="%about.thanks">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <TextFlow prefHeight="200.0" prefWidth="200.0" styleClass="freeflow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
+                <TextFlow styleClass="freeflow">
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0"
                           text="Olivier Piras&#10;for coming up with the name&#10;&#10;Nicolas Dirand&#10;for raising a statue in my image in his village&#10;&#10;Cyril Soler&#10;for answering my silly questions&#10;&#10;The Retroshare developers&#10;for coming up with the most interesting P2P concepts"/>
                 </TextFlow>
-            </AnchorPane>
+            </ScrollPane>
         </Tab>
         <Tab text="%about.license">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

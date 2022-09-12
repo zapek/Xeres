@@ -30,7 +30,7 @@ public class AutoStarterGeneric implements AutoStarter
 	@Override
 	public boolean isEnabled()
 	{
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

@@ -121,6 +121,10 @@
     -fx-effect: null;
 }
 
+.scroll-pane-freeflow {
+    -fx-background: white;
+}
+
 /*noinspection CssUnusedSymbol*/
 .freeflow .hyperlink {
     -fx-padding: 0px 0px 0px 0px;

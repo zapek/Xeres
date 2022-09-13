@@ -17,22 +17,30 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.status;
+package io.xeres.app.xrs.service.status.idletimer;
 
-import org.springframework.stereotype.Component;
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import io.xeres.app.xrs.service.status.GetIdleTime;
 
-@Component
-public class IdleChecker
+public class GetIdleTimeMac implements GetIdleTime
 {
-	private final GetIdleTime getIdleTime;
-
-	public IdleChecker(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") GetIdleTime getIdleTime)
+	private interface ApplicationServices extends Library
 	{
-		this.getIdleTime = getIdleTime;
+		ApplicationServices INSTANCE = Native.load("ApplicationServices", ApplicationServices.class);
+
+		int kCGAnyInputEventType = ~0;
+		int kCGEventSourceStateCombinedSessionState = 0;
+
+		double CGEventSourceSecondsSinceLastEventType(int sourceStateId, int eventType);
 	}
 
+	@Override
 	public int getIdleTime()
 	{
-		return getIdleTime.getIdleTime();
+		var idleTimeSeconds = ApplicationServices.INSTANCE.CGEventSourceSecondsSinceLastEventType(
+				ApplicationServices.kCGEventSourceStateCombinedSessionState,
+				ApplicationServices.kCGAnyInputEventType);
+		return (int) idleTimeSeconds;
 	}
 }

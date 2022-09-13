@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.status;
 
-interface GetIdleTime
+public interface GetIdleTime
 {
 	int getIdleTime();
 }

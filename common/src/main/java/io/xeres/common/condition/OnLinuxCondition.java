@@ -17,47 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.application.autostart;
+package io.xeres.common.condition;
 
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.SystemUtils;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
-@Component
-public class AutoStart
+public class OnLinuxCondition implements Condition
 {
-	private final AutoStarter autoStarter;
-
-	public AutoStart(AutoStarter autoStarter)
+	@Override
+	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata)
 	{
-		this.autoStarter = autoStarter;
-	}
-
-	public boolean isSupported()
-	{
-		return autoStarter.isSupported();
-	}
-
-	public boolean isEnabled()
-	{
-		if (!isSupported())
-		{
-			return false;
-		}
-		return autoStarter.isEnabled();
-	}
-
-	public void enable()
-	{
-		if (isSupported())
-		{
-			autoStarter.enable();
-		}
-	}
-
-	public void disable()
-	{
-		if (isSupported())
-		{
-			autoStarter.disable();
-		}
+		return SystemUtils.IS_OS_LINUX;
 	}
 }

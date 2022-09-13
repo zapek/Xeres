@@ -19,7 +19,7 @@
 
 package io.xeres.app.application.autostart;
 
-interface AutoStarter
+public interface AutoStarter
 {
 	boolean isSupported();
 

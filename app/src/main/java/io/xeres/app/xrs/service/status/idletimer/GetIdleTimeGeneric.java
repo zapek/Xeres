@@ -17,31 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.application.autostart;
+package io.xeres.app.xrs.service.status.idletimer;
 
-public class AutoStarterGeneric implements AutoStarter
+import io.xeres.app.xrs.service.status.GetIdleTime;
+
+public class GetIdleTimeGeneric implements GetIdleTime
 {
 	@Override
-	public boolean isSupported()
+	public int getIdleTime()
 	{
-		return false;
-	}
-
-	@Override
-	public boolean isEnabled()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void enable()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void disable()
-	{
-		throw new UnsupportedOperationException();
+		return 0;
 	}
 }

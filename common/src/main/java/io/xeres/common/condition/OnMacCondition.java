@@ -17,13 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.status;
+package io.xeres.common.condition;
 
-class GetIdleTimeGeneric implements GetIdleTime
+import org.apache.commons.lang3.SystemUtils;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+
+public class OnMacCondition implements Condition
 {
 	@Override
-	public int getIdleTime()
+	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata)
 	{
-		return 0;
+		return SystemUtils.IS_OS_MAC;
 	}
 }

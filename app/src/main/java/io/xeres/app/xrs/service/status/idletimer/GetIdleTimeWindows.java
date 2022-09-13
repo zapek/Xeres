@@ -17,13 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.status;
+package io.xeres.app.xrs.service.status.idletimer;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinUser;
+import io.xeres.app.xrs.service.status.GetIdleTime;
 
-class GetIdleTimeWindows implements GetIdleTime
+public class GetIdleTimeWindows implements GetIdleTime
 {
 	@Override
 	public int getIdleTime()

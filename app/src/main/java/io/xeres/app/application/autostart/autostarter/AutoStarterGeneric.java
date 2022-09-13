@@ -17,47 +17,33 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.application.autostart;
+package io.xeres.app.application.autostart.autostarter;
 
-import org.springframework.stereotype.Component;
+import io.xeres.app.application.autostart.AutoStarter;
 
-@Component
-public class AutoStart
+public class AutoStarterGeneric implements AutoStarter
 {
-	private final AutoStarter autoStarter;
-
-	public AutoStart(AutoStarter autoStarter)
-	{
-		this.autoStarter = autoStarter;
-	}
-
+	@Override
 	public boolean isSupported()
 	{
-		return autoStarter.isSupported();
+		return false;
 	}
 
+	@Override
 	public boolean isEnabled()
 	{
-		if (!isSupported())
-		{
-			return false;
-		}
-		return autoStarter.isEnabled();
+		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void enable()
 	{
-		if (isSupported())
-		{
-			autoStarter.enable();
-		}
+		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void disable()
 	{
-		if (isSupported())
-		{
-			autoStarter.disable();
-		}
+		throw new UnsupportedOperationException();
 	}
 }

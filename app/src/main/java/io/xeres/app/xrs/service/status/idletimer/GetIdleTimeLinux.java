@@ -17,15 +17,16 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.status;
+package io.xeres.app.xrs.service.status.idletimer;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.unix.X11;
+import io.xeres.app.xrs.service.status.GetIdleTime;
 
-class GetIdleTimeLinux implements GetIdleTime
+public class GetIdleTimeLinux implements GetIdleTime
 {
 	@SuppressWarnings("unused")
 	private static class XScreenSaverInfo extends Structure

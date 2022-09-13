@@ -17,8 +17,9 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.application.autostart;
+package io.xeres.app.application.autostart.autostarter;
 
+import io.xeres.app.application.autostart.AutoStarter;
 import io.xeres.common.AppName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

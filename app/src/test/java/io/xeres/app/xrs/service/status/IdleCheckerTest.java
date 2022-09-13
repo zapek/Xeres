@@ -19,27 +19,36 @@
 
 package io.xeres.app.xrs.service.status;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-class GetIdleTimeMac implements GetIdleTime
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(SpringExtension.class)
+class IdleCheckerTest
 {
-	private interface ApplicationServices extends Library
+	@Mock
+	private GetIdleTime getIdleTime;
+
+	@InjectMocks
+	IdleChecker idleChecker;
+
+	@Test
+	void IdleChecker_GetIdleTime()
 	{
-		ApplicationServices INSTANCE = Native.load("ApplicationServices", ApplicationServices.class);
+		var idleTime = 1;
 
-		int kCGAnyInputEventType = ~0;
-		int kCGEventSourceStateCombinedSessionState = 0;
+		when(getIdleTime.getIdleTime()).thenReturn(idleTime);
 
-		double CGEventSourceSecondsSinceLastEventType(int sourceStateId, int eventType);
-	}
+		var result = idleChecker.getIdleTime();
 
-	@Override
-	public int getIdleTime()
-	{
-		var idleTimeSeconds = ApplicationServices.INSTANCE.CGEventSourceSecondsSinceLastEventType(
-				ApplicationServices.kCGEventSourceStateCombinedSessionState,
-				ApplicationServices.kCGAnyInputEventType);
-		return (int) idleTimeSeconds;
+		assertEquals(idleTime, result);
+
+		verify(getIdleTime).getIdleTime();
 	}
 }

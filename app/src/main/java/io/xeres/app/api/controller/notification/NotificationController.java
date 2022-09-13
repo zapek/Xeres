@@ -37,7 +37,6 @@ import static io.xeres.common.rest.PathConfig.NOTIFICATIONS_PATH;
 @RequestMapping(value = NOTIFICATIONS_PATH, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public class NotificationController
 {
-
 	private final StatusNotificationService statusNotificationService;
 
 	public NotificationController(StatusNotificationService statusNotificationService)

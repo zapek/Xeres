@@ -226,6 +226,14 @@ class PeerAddressTest
 	}
 
 	@Test
+	void PeerAddress_FromHostName_Invalid()
+	{
+		var peerAddress = PeerAddress.fromHostname("verylonghostnamethatismorethan63charsandislikelyinvalidandwillfailspectacularly.com");
+
+		assertFalse(peerAddress.isValid());
+	}
+
+	@Test
 	void PeerAddress_FromHostNameAndPort_OK()
 	{
 		var peerAddress = PeerAddress.fromHostname("foo.bar.com", 8080);

@@ -44,6 +44,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.security.cert.CertificateException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.*;
 import static org.hamcrest.Matchers.is;
@@ -336,5 +337,18 @@ class ConfigControllerTest extends AbstractControllerTest
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
 		verify(identityService).createOwnIdentity(identityRequest.name(), false);
+	}
+
+	@Test
+	void ConfigController_GetCapabilities_OK() throws Exception
+	{
+		var capability = "autostart";
+		when(capabilityService.getCapabilities()).thenReturn(Set.of(capability));
+
+		mvc.perform(getJson(BASE_URL + "/capabilities"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0]", is(capability)));
+
+		verify(capabilityService).getCapabilities();
 	}
 }

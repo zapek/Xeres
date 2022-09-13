@@ -31,6 +31,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static io.xeres.app.net.protocol.PeerAddress.Type.*;
 import static io.xeres.common.protocol.ip.IP.isInvalidPort;
@@ -71,6 +72,8 @@ public final class PeerAddress
 			return scheme;
 		}
 	}
+
+	private static final Pattern HOSTNAME_OK_PATTERN = Pattern.compile("^(?:\\p{Alnum}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?\\.)+(\\p{Alpha}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?)\\.?$");
 
 	private SocketAddress socketAddress;
 	private final Type type;
@@ -482,7 +485,7 @@ public final class PeerAddress
 
 	private static boolean isInvalidHostname(String hostname)
 	{
-		return !(hostname != null && hostname.length() <= 253); // XXX: add better hostname validation here
+		return !(hostname != null && hostname.length() <= 253 && HOSTNAME_OK_PATTERN.matcher(hostname).matches());
 	}
 
 	@Override

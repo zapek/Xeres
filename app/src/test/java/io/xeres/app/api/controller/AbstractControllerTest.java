@@ -22,6 +22,7 @@ package io.xeres.app.api.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -38,8 +39,13 @@ public abstract class AbstractControllerTest
 
 	protected MockHttpServletRequestBuilder getJson(String uri)
 	{
+		return getJson(uri, APPLICATION_JSON);
+	}
+
+	protected MockHttpServletRequestBuilder getJson(String uri, MediaType mediaType)
+	{
 		return get(uri)
-				.accept(APPLICATION_JSON);
+				.accept(mediaType);
 	}
 
 	protected MockHttpServletRequestBuilder postJson(String uri, Object body)
@@ -65,6 +71,22 @@ public abstract class AbstractControllerTest
 			var json = objectMapper.writeValueAsString(body);
 			return put(uri)
 					.contentType(APPLICATION_JSON)
+					.accept(APPLICATION_JSON)
+					.content(json);
+		}
+		catch (JsonProcessingException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected MockHttpServletRequestBuilder patchJson(String uri, Object body)
+	{
+		try
+		{
+			var json = objectMapper.writeValueAsString(body);
+			return patch(uri)
+					.contentType("application/json-patch+json")
 					.accept(APPLICATION_JSON)
 					.content(json);
 		}

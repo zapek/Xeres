@@ -31,19 +31,27 @@ public final class ColorGenerator
 	}
 
 	/**
-	 * Those colors are color-blind proof (protanopia, deuteranopia and tritanopia).
-	 *
-	 * @see <a href="https://www.nature.com/articles/nmeth.1618">Bang Wong's paper</a>
+	 * Colors nicked from <a href="https://github.com/quassel">Quassel</a>
+	 * because they are great against a white background.
 	 */
 	private enum ColorSpec
 	{
-		ORANGE(Color.rgb(230, 159, 0)),
-		SKY_BLUE(Color.rgb(86, 180, 233)),
-		BLUISH_GREEN(Color.rgb(0, 158, 115)),
-		YELLOW(Color.rgb(240, 228, 66)),
-		BLUE(Color.rgb(0, 114, 178)),
-		VERMILLION(Color.rgb(213, 94, 0)),
-		REDDISH_PURPLE(Color.rgb(204, 121, 167));
+		COLOR_00(Color.rgb(204, 0, 0)),
+		COLOR_01(Color.rgb(0, 108, 173)),
+		COLOR_02(Color.rgb(77, 153, 0)),
+		COLOR_03(Color.rgb(102, 0, 204)),
+		COLOR_04(Color.rgb(166, 125, 0)),
+		COLOR_05(Color.rgb(0, 153, 39)),
+		COLOR_06(Color.rgb(0, 48, 192)),
+		COLOR_07(Color.rgb(204, 0, 154)),
+		COLOR_08(Color.rgb(185, 70, 0)),
+		COLOR_09(Color.rgb(134, 153, 0)),
+		COLOR_10(Color.rgb(20, 153, 0)),
+		COLOR_11(Color.rgb(0, 153, 96)),
+		COLOR_12(Color.rgb(0, 108, 173)),
+		COLOR_13(Color.rgb(0, 153, 204)),
+		COLOR_14(Color.rgb(179, 0, 204)),
+		COLOR_15(Color.rgb(204, 0, 77));
 
 		private final Color color;
 

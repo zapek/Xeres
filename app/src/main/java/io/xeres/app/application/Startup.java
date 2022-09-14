@@ -450,6 +450,7 @@ public class Startup implements ApplicationRunner
 	{
 		if (settingsService.isAutoStartEnabled() != autoStart.isEnabled())
 		{
+			log.info("Autostart is desynced, forcing to {}", settingsService.isAutoStartEnabled());
 			if (settingsService.isAutoStartEnabled())
 			{
 				autoStart.enable();

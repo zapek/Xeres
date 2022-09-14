@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.sun.jna.platform.win32.Advapi32Util.*;
 import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
@@ -67,7 +68,7 @@ public class AutoStarterWindows implements AutoStarter
 	@Override
 	public boolean isEnabled()
 	{
-		return registryValueExists(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
+		return registryValueExists(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME) && isSplashScreenHidden();
 	}
 
 	@Override
@@ -165,16 +166,51 @@ public class AutoStarterWindows implements AutoStarter
 		}
 	}
 
-	private void updateSplashScreen(boolean enable)
+	private boolean isSplashScreenHidden()
 	{
-		if (applicationPath == null)
+		var configFile = getStartupConfigFile();
+		if (configFile == null)
 		{
-			return;
+			return false;
 		}
+
+		try (var bufferedReader = new BufferedReader(new FileReader(configFile.toFile())))
+		{
+			String line;
+			while ((line = bufferedReader.readLine()) != null)
+			{
+				if (line.startsWith(JAVA_OPTIONS_SPLASH_DETECTION))
+				{
+					return false;
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to check the config file's content", e);
+			return false; // we don't know the status, but let's settle for false
+		}
+		return true;
+	}
+
+	private Path getStartupConfigFile()
+	{
+		Objects.requireNonNull(applicationPath);
 
 		var configFile = applicationPath.resolveSibling(APP_DIRECTORY + AppName.NAME + CONFIG_EXTENSION);
 		if (Files.notExists(configFile))
 		{
+			return null;
+		}
+		return configFile;
+	}
+
+	private void updateSplashScreen(boolean enable)
+	{
+		var configFile = getStartupConfigFile();
+		if (configFile == null)
+		{
+			log.error("Failed to update splash screen: startup config file not found");
 			return;
 		}
 

@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.RoomType;
@@ -27,8 +28,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.ResourceBundle;
 
 public class ChatRoomInfoController implements Controller
 {
@@ -50,13 +49,6 @@ public class ChatRoomInfoController implements Controller
 	@FXML
 	private Label roomCount;
 
-	private final ResourceBundle bundle;
-
-	public ChatRoomInfoController(ResourceBundle bundle)
-	{
-		this.bundle = bundle;
-	}
-
 	@Override
 	public void initialize()
 	{
@@ -70,8 +62,8 @@ public class ChatRoomInfoController implements Controller
 			roomGroup.setVisible(true);
 			roomName.setText(chatRoomInfo.getName());
 			roomId.setText(Id.toString(chatRoomInfo.getId()));
-			roomTopic.setText(StringUtils.isNotBlank(chatRoomInfo.getTopic()) ? chatRoomInfo.getTopic() : bundle.getString("chat.room.none"));
-			roomSecurity.setText(String.join(", ", chatRoomInfo.getRoomType() == RoomType.PRIVATE ? bundle.getString("chat.room.private") : bundle.getString("chat.room.public"), chatRoomInfo.isSigned() ? bundle.getString("chat.room.signed-only") : bundle.getString("chat.room.anonymous-allowed")));
+			roomTopic.setText(StringUtils.isNotBlank(chatRoomInfo.getTopic()) ? chatRoomInfo.getTopic() : I18nUtils.getString("chat.room.none"));
+			roomSecurity.setText(String.join(", ", chatRoomInfo.getRoomType() == RoomType.PRIVATE ? I18nUtils.getString("chat.room.private") : I18nUtils.getString("chat.room.public"), chatRoomInfo.isSigned() ? I18nUtils.getString("chat.room.signed-only") : I18nUtils.getString("chat.room.anonymous-allowed")));
 			roomCount.setText(String.valueOf(chatRoomInfo.getCount()));
 		}
 		else

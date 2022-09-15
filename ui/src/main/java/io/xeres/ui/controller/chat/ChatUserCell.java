@@ -19,10 +19,13 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
+
+import java.text.MessageFormat;
 
 public class ChatUserCell extends ListCell<ChatRoomUser>
 {
@@ -32,7 +35,7 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 	{
 		super();
 		TooltipUtils.install(this,
-				() -> "Name: " + super.getItem().nickname() + "\nID: " + super.getItem().gxsId(),
+				() -> MessageFormat.format(I18nUtils.getString("chat.room.user-info"), super.getItem().nickname(), super.getItem().gxsId()),
 				() -> super.getItem().image());
 	}
 

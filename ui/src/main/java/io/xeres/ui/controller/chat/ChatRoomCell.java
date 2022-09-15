@@ -29,6 +29,8 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.MessageFormat;
+
 public class ChatRoomCell extends TreeCell<RoomHolder>
 {
 	private final TreeView<RoomHolder> treeView;
@@ -45,10 +47,11 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 					{
 						return null;
 					}
-					return "Topic: " + (StringUtils.isNotBlank(roomInfo.getTopic()) ? roomInfo.getTopic() : "[none]") + "\n" +
-							"Users: " + roomInfo.getCount() + "\n" +
-							"Security: " + String.join(", ", roomInfo.getRoomType() == RoomType.PRIVATE ? "private" : "public", roomInfo.isSigned() ? "signed IDs only" : "anonymous IDs allowed") + "\n" +
-							"ID: " + Id.toString(this.getItem().getRoomInfo().getId());
+					return MessageFormat.format(I18nUtils.getString("chat.room.info"),
+							(StringUtils.isNotBlank(roomInfo.getTopic()) ? roomInfo.getTopic() : I18nUtils.getString("chat.room.none")),
+							roomInfo.getCount(),
+							String.join(", ", roomInfo.getRoomType() == RoomType.PRIVATE ? I18nUtils.getString("chat.room.private") : I18nUtils.getString("chat.room.public"), roomInfo.isSigned() ? I18nUtils.getString("chat.room.signed-only") : I18nUtils.getString("chat.room.anonymous-allowed")),
+							Id.toString(this.getItem().getRoomInfo().getId()));
 				}
 				, null);
 	}

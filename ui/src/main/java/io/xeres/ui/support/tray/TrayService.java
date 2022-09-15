@@ -30,6 +30,8 @@ import javax.annotation.PreDestroy;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -46,10 +48,12 @@ public class TrayService
 	private Image eventImage;
 
 	private final WindowManager windowManager;
+	private final ResourceBundle bundle;
 
-	public TrayService(WindowManager windowManager)
+	public TrayService(WindowManager windowManager, ResourceBundle bundle)
 	{
 		this.windowManager = windowManager;
+		this.bundle = bundle;
 	}
 
 	public void addSystemTray()
@@ -68,17 +72,17 @@ public class TrayService
 		// Do not exit the platform when all windows are closed.
 		Platform.setImplicitExit(false);
 
-		var launchItem = new MenuItem("Open " + AppName.NAME);
+		var launchItem = new MenuItem(MessageFormat.format(bundle.getString("tray.open"), AppName.NAME));
 		launchItem.addActionListener(e ->
 				windowManager.openMain(null, null, false));
 
-		var peersItem = new MenuItem("Peers");
+		var peersItem = new MenuItem(bundle.getString("tray.peers"));
 		peersItem.addActionListener(e ->
 				windowManager.openPeers());
 
 		var separator = new MenuItem("-");
 
-		var exitItem = new MenuItem("Exit");
+		var exitItem = new MenuItem(bundle.getString("tray.exit"));
 		exitItem.addActionListener(e ->
 		{
 			windowManager.closeAllWindows();

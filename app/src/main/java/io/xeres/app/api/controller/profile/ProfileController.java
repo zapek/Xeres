@@ -128,7 +128,10 @@ public class ProfileController
 			}
 		});
 
-		var profileLocation = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedProfile.getId()).toUri();
+		var profileLocation = ServletUriComponentsBuilder.fromCurrentRequest()
+				.path("/{id}")
+				.replaceQuery(null)
+				.buildAndExpand(savedProfile.getId()).toUri();
 		return ResponseEntity.created(profileLocation).build();
 	}
 

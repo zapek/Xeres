@@ -32,6 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -70,6 +71,25 @@ class ChatRoomServiceTest
 
 		verify(chatRoomRepository).findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity);
 		verify(chatRoomRepository).save(subscribedChatRoom);
+	}
+
+	@Test
+	void ChatRoomService_UnsubscribeFromChatRoomAndLeave_OK()
+	{
+		var serviceChatRoom = createSignedChatRoom();
+		var identity = GxsIdFakes.createOwnIdentity();
+		var chatRoom = ChatRoomFakes.createChatRoomEntity(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
+
+		when(chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity)).thenReturn(Optional.of(chatRoom));
+		when(chatRoomRepository.save(chatRoom)).thenReturn(chatRoom);
+
+		var unsubscribedChatRoom = chatRoomService.unsubscribeFromChatRoomAndLeave(serviceChatRoom.getId(), identity);
+
+		assertFalse(unsubscribedChatRoom.isSubscribed());
+		assertFalse(unsubscribedChatRoom.isJoined());
+
+		verify(chatRoomRepository).findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity);
+		verify(chatRoomRepository).save(unsubscribedChatRoom);
 	}
 
 	private io.xeres.app.xrs.service.chat.ChatRoom createSignedChatRoom()

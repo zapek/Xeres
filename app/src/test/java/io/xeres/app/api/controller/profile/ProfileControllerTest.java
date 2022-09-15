@@ -22,6 +22,7 @@ package io.xeres.app.api.controller.profile;
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdFakes;
+import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.job.PeerConnectionJob;
@@ -123,6 +124,23 @@ class ProfileControllerTest extends AbstractControllerTest
 	}
 
 	@Test
+	void ProfileController_FindProfileByLocationId_OK() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 1);
+		expected.addLocation(LocationFakes.createLocation("test", expected));
+		var locationId = expected.getLocations().get(0).getLocationId();
+
+		when(profileService.findProfileByLocationId(locationId)).thenReturn(Optional.of(expected));
+
+		mvc.perform(getJson(BASE_URL + "?locationId=" + locationId))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.[0].id").value(is(expected.getId()), Long.class))
+				.andExpect(jsonPath("$.[0].name", is(expected.getName())));
+
+		verify(profileService).findProfileByLocationId(locationId);
+	}
+
+	@Test
 	void ProfileController_FindProfiles_OK() throws Exception
 	{
 		var profile1 = ProfileFakes.createProfile("test1", 1);
@@ -136,6 +154,24 @@ class ProfileControllerTest extends AbstractControllerTest
 				.andExpect(jsonPath("$.[0].id").value(is(profiles.get(0).getId()), Long.class));
 
 		verify(profileService).getAllProfiles();
+	}
+
+	@Test
+	void ProfileController_CreateProfile_ShortInvite_WithTrustAndConnectionIndex_OK() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 1);
+		expected.addLocation(LocationFakes.createLocation("test", expected));
+		var profileRequest = new RsIdRequest(RSIdFakes.createShortInvite().getArmored());
+
+		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
+		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));
+
+		mvc.perform(postJson(BASE_URL + "?trust=FULL&connectionIndex=1", profileRequest))
+				.andExpect(status().isCreated())
+				.andExpect(header().string("Location", "http://localhost" + PROFILES_PATH + "/" + expected.getId()));
+
+		verify(profileService).createOrUpdateProfile(any(Profile.class));
+		verify(peerConnectionJob).connectImmediately(expected.getLocations().get(0), 1);
 	}
 
 	@Test

@@ -72,6 +72,10 @@ public final class UriParser
 		{
 			var uri = new URI(href);
 			var contentParserMap = contentParsers.get(uri.getScheme());
+			if (contentParserMap == null)
+			{
+				return ContentText.EMPTY;
+			}
 			var contentParser = contentParserMap.get(uri.getAuthority());
 
 			if (contentParser != null)

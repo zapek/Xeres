@@ -23,7 +23,7 @@ buildscript {
     ext {
         bouncycastleVersion = "1.71"
         apacheCommonsCollectionsVersion = "4.4"
-        springOpenApiVersion = "1.6.10"
+        springOpenApiVersion = "1.6.11"
         jsoupVersion = "1.15.3"
         jsonPatchVersion = "1.13"
     }

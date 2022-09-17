@@ -6,6 +6,8 @@ on:
     tags:
     - "v*"
 
+# When setting the java version, always use x.y.z even if there's more numbers, otherwise @setup-java will fail.
+
 jobs:
   build-windows-installer:
     name: Build Windows installer
@@ -18,7 +20,7 @@ jobs:
     - name: Set up JDK 18
       uses: actions/setup-java@v3
       with:
-        java-version: '18.0.2.1'
+        java-version: '18.0.2'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2
@@ -42,7 +44,7 @@ jobs:
     - name: Set up JDK 18
       uses: actions/setup-java@v3
       with:
-        java-version: '18.0.2.1'
+        java-version: '18.0.2'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2
@@ -66,7 +68,7 @@ jobs:
     - name: Set up JDK 18
       uses: actions/setup-java@v3
       with:
-        java-version: '18.0.2.1'
+        java-version: '18.0.2'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2

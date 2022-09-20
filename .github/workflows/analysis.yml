@@ -2,21 +2,23 @@ name: "Analysis"
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ master ]
-  schedule:
-  - cron: '35 4 * * 4'
+    types:
+    - opened
+    - synchronize
+    - reopened
 
 jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
-      actions: read
-      contents: read
-      security-events: write
+      actions: read # CodeQL
+      contents: read # CodeQL
+      security-events: write # CodeQL
+      pull-requests: read # Sonarqube
 
     steps:
     - name: Checkout repository

@@ -23,10 +23,11 @@ import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.ui.controller.MainWindowController;
 import javafx.application.Application;
 import javafx.application.HostServices;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.Objects;
 
 public class JavaFxApplication extends Application
 {
@@ -70,22 +71,19 @@ public class JavaFxApplication extends Application
 	}
 
 	@Override
-	public void stop()
-	{
-		springContext.close();
-		Platform.exit();
-	}
-
-	@Override
 	public void start(Stage primaryStage)
 	{
 		hostServices = getHostServices();
 
-		if (springContext != null)
-		{
-			mainWindowController = springContext.getBean(MainWindowController.class);
-			springContext.publishEvent(new StageReadyEvent(primaryStage));
-		}
+		Objects.requireNonNull(springContext);
+		mainWindowController = springContext.getBean(MainWindowController.class);
+		springContext.publishEvent(new StageReadyEvent(primaryStage));
+	}
+
+	@Override
+	public void stop()
+	{
+		springContext.close();
 	}
 
 	public static void openUrl(String url)

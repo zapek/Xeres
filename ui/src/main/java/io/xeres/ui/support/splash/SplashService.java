@@ -35,24 +35,23 @@ public final class SplashService
 
 	public SplashService()
 	{
-		if (!isHeadless())
+		try
 		{
-			this.splashScreen = SplashScreen.getSplashScreen();
-
-			if (splashScreen != null && splashScreen.isVisible())
-			{
-				g2d = splashScreen.createGraphics();
-				dimension = splashScreen.getSize();
-
-				g2d.setFont(g2d.getFont().deriveFont(Font.BOLD));
-				g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			}
+			splashScreen = SplashScreen.getSplashScreen();
 		}
-	}
+		catch (UnsupportedOperationException ignored)
+		{
+			// No splash screen supported
+		}
 
-	private boolean isHeadless()
-	{
-		return "true".equals(System.getProperty("java.awt.headless"));
+		if (splashScreen != null && splashScreen.isVisible())
+		{
+			g2d = splashScreen.createGraphics();
+			dimension = splashScreen.getSize();
+
+			g2d.setFont(g2d.getFont().deriveFont(Font.BOLD));
+			g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		}
 	}
 
 	public void status(String description)

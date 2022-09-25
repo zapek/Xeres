@@ -69,7 +69,7 @@ public class PrimaryStageInitializer
 				})
 				.subscribe();
 
-		messageClient.subscribe(CHAT_PATH, new ChatFrameHandler(windowManager, chatViewController));
-		messageClient.connect(); // XXX: not so nice here. what about future subscription systems?
+		messageClient.subscribe(CHAT_PATH, new ChatFrameHandler(windowManager, chatViewController))
+				.connect();
 	}
 }

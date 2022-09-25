@@ -116,4 +116,9 @@ public class JavaFxApplication extends Application
 		//noinspection HttpUrlsUsage
 		return "http://" + getHostnameAndPort();
 	}
+
+	public static boolean isRemoteUiClient()
+	{
+		return "none".equals(System.getProperty("spring.main.web-application-type"));
+	}
 }

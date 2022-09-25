@@ -48,12 +48,13 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
-import javax.annotation.PreDestroy;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
@@ -355,8 +356,8 @@ public class MainWindowController implements WindowController
 		}
 	}
 
-	@PreDestroy
-	private void cleanupNotification()
+	@EventListener
+	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
 		if (notificationDisposable != null && !notificationDisposable.isDisposed())
 		{

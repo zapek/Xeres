@@ -81,6 +81,14 @@ public class IdentityManager
 	public void shutdown()
 	{
 		executorService.shutdownNow();
+		try
+		{
+			executorService.awaitTermination(2, TimeUnit.SECONDS);
+		}
+		catch (InterruptedException ignored)
+		{
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	public IdentityGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)

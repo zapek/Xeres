@@ -63,7 +63,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation 'com.vdurmont:emoji-java:5.1.1'
-    implementation 'org.json:json:20220320' // fix dependency vulnerability in emoji-java
+    implementation 'org.json:json:20220924' // fix dependency vulnerability in emoji-java
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"
     implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

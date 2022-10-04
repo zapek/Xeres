@@ -19,30 +19,35 @@
 
 package io.xeres.app.xrs.service.gxs;
 
-import io.xeres.app.database.DatabaseSession;
-import io.xeres.app.database.DatabaseSessionManager;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.item.*;
+import io.xeres.common.id.GxsId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 public abstract class GxsRsService extends RsService
 {
@@ -59,15 +64,13 @@ public abstract class GxsRsService extends RsService
 
 	private final GxsExchangeService gxsExchangeService;
 	protected final GxsTransactionManager gxsTransactionManager;
-	private final DatabaseSessionManager databaseSessionManager;
 	private final PeerConnectionManager peerConnectionManager;
 
-	protected GxsRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager)
+	protected GxsRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
 	{
 		super(environment);
 		this.gxsExchangeService = gxsExchangeService;
 		this.gxsTransactionManager = gxsTransactionManager;
-		this.databaseSessionManager = databaseSessionManager;
 		this.peerConnectionManager = peerConnectionManager;
 	}
 
@@ -94,13 +97,11 @@ public abstract class GxsRsService extends RsService
 	 */
 	public abstract List<GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since);
 
-	/**
-	 * Processes the items of the transaction.
-	 *
-	 * @param peerConnection the peer connection who sent the items
-	 * @param items          the items to process
-	 */
-	public abstract void processItems(PeerConnection peerConnection, Transaction<?> transaction);
+	protected abstract List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids);
+
+	protected abstract Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids);
+
+	protected abstract void onGroupReceived(GxsTransferGroupItem item);
 
 	@Override
 	public RsServiceType getServiceType()
@@ -174,35 +175,32 @@ public abstract class GxsRsService extends RsService
 		var since = Instant.ofEpochSecond(item.getUpdateTimestamp());
 		if (areGxsUpdatesAvailableForPeer(since))
 		{
-			try (var ignored = new DatabaseSession(databaseSessionManager))
-			{
-				log.debug("Updates available for peer, sending...");
-				List<GxsSyncGroupItem> items = new ArrayList<>();
+			log.debug("Updates available for peer, sending...");
+			List<GxsSyncGroupItem> items = new ArrayList<>();
 
-				// XXX: check if the group is subscribed (subscribeFlags & SUBSCRIBED)... what to do with gxsid? seems subscribe to all groups?
-				getPendingGroups(peerConnection, since).forEach(gxsGroupItem -> {
-					log.debug("Adding groupId of item: {}", gxsGroupItem);
-					if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
-					{
-						var gxsSyncGroupItem = new GxsSyncGroupItem(
-								EnumSet.of(SyncFlags.RESPONSE),
-								gxsGroupItem,
-								transactionId);
+			// XXX: check if the group is subscribed (subscribeFlags & SUBSCRIBED)... what to do with gxsid? seems subscribe to all groups?
+			getPendingGroups(peerConnection, since).forEach(gxsGroupItem -> {
+				log.debug("Adding groupId of item: {}", gxsGroupItem);
+				if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
+				{
+					var gxsSyncGroupItem = new GxsSyncGroupItem(
+							EnumSet.of(SyncFlags.RESPONSE),
+							gxsGroupItem,
+							transactionId);
 
-						items.add(gxsSyncGroupItem);
-					}
-				});
-				// the items are included in a transaction (they all have the same transaction number)
+					items.add(gxsSyncGroupItem);
+				}
+			});
+			// the items are included in a transaction (they all have the same transaction number)
 
-				log.debug("Calling transaction, number of items: {}", items.size());
-				gxsTransactionManager.startOutgoingTransactionForGroupIdResponse(
-						peerConnection,
-						items,
-						gxsExchangeService.getLastServiceUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
-						transactionId,
-						this
-				);
-			}
+			log.debug("Calling transaction, number of items: {}", items.size());
+			gxsTransactionManager.startOutgoingTransactionForGroupIdResponse(
+					peerConnection,
+					items,
+					gxsExchangeService.getLastServiceUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
+					transactionId,
+					this
+			);
 		}
 		else
 		{
@@ -246,5 +244,112 @@ public abstract class GxsRsService extends RsService
 	private boolean isGxsAllowedForPeer(PeerConnection peerConnection, GxsGroupItem item)
 	{
 		return true; // XXX: later one we should compare with the circles (though that can be done on the SQL request too)
+	}
+
+	/**
+	 * Processes the transaction.
+	 *
+	 * @param peerConnection the peer connection who sent the items
+	 * @param transaction    the transaction to process
+	 */
+	public void processItems(PeerConnection peerConnection, Transaction<?> transaction)
+	{
+		if (isEmpty(transaction.getItems()))
+		{
+			throw new IllegalArgumentException("Empty transaction items");
+		}
+
+		if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_REQUEST))
+		{
+			@SuppressWarnings("unchecked")
+			var gxsIds = ((List<GxsSyncGroupItem>) transaction.getItems()).stream().map(GxsSyncGroupItem::getGroupId).collect(toSet());
+			log.debug("Peer wants the following gxs ids (total: {}): {} ...", gxsIds.size(), gxsIds.stream().limit(10).toList());
+			sendGxsGroups(peerConnection, onGroupListRequest(gxsIds));
+		}
+		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_RESPONSE))
+		{
+			@SuppressWarnings("unchecked")
+			var gxsIdsMap = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
+					.collect(toMap(GxsSyncGroupItem::getGroupId, gxsSyncGroupItem -> Instant.ofEpochSecond(gxsSyncGroupItem.getPublishTimestamp())));
+			log.debug("Peer has the following gxsIds (new or updates) for us (total: {}): {} ...", gxsIdsMap.keySet().size(), gxsIdsMap.keySet().stream().limit(10).toList());
+			requestGxsGroups(peerConnection, onGroupListResponse(gxsIdsMap));
+		}
+		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUPS))
+		{
+			@SuppressWarnings("unchecked")
+			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
+			transferItems.forEach(this::onGroupReceived);
+			gxsExchangeService.setLastServiceUpdate(getServiceType(), Instant.now());
+		}
+	}
+
+	private void sendGxsGroups(PeerConnection peerConnection, List<? extends GxsGroupItem> gxsGroupItems)
+	{
+		var transactionId = getTransactionId(peerConnection);
+		List<GxsTransferGroupItem> items = new ArrayList<>();
+		gxsGroupItems.forEach(gxsGroupItem -> {
+			signGroupIfNeeded(gxsGroupItem);
+			var groupBuf = Unpooled.buffer(); // XXX: size... well, it autogrows
+			gxsGroupItem.writeGroupObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
+			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
+			gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
+			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, this);
+			groupBuf.release();
+			metaBuf.release();
+			items.add(gxsTransferGroupItem);
+		});
+
+		if (isNotEmpty(items))
+		{
+			gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
+					peerConnection,
+					items,
+					Instant.now(), // XXX: not sure about that one... recheck. I think it has to be when our group last changed
+					transactionId,
+					this
+			);
+		}
+	}
+
+	public void requestGxsGroups(PeerConnection peerConnection, Collection<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
+	{
+		if (isEmpty(ids))
+		{
+			return;
+		}
+		var transactionId = getTransactionId(peerConnection);
+		List<GxsSyncGroupItem> items = new ArrayList<>();
+
+		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(EnumSet.of(SyncFlags.REQUEST), gxsId, transactionId)));
+
+		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
+	}
+
+	private static byte[] getArray(ByteBuf buf)
+	{
+		var out = new byte[buf.writerIndex()];
+		buf.readBytes(out);
+		return out;
+	}
+
+	// XXX: GXS messages will need publish/identity support here, not just admin
+	private static void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
+	{
+		if (gxsGroupItem.getAdminPrivateKey() != null)
+		{
+			var data = serializeItemForSignature(gxsGroupItem);
+			var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
+			gxsGroupItem.setSignature(signature);
+		}
+	}
+
+	private static byte[] serializeItemForSignature(Item item)
+	{
+		item.setSerialization(Unpooled.buffer().alloc(), 2, RsServiceType.GXSID, 1); // XXX: not very nice to have those arguments hardcoded here
+		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
+		var data = new byte[buf.writerIndex()];
+		buf.getBytes(0, data);
+		buf.release();
+		return data;
 	}
 }

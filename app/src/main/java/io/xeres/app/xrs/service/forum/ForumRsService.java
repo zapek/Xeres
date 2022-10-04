@@ -19,24 +19,29 @@
 
 package io.xeres.app.xrs.service.forum;
 
-import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
+import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.Transaction;
+import io.xeres.app.xrs.service.gxs.item.GxsTransferGroupItem;
+import io.xeres.common.id.GxsId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static io.xeres.app.xrs.service.RsServiceType.FORUMS;
 
@@ -45,9 +50,9 @@ public class ForumRsService extends GxsRsService
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumRsService.class);
 
-	public ForumRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager)
+	public ForumRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
 	{
-		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager, databaseSessionManager);
+		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
 	}
 
 	@Override
@@ -75,8 +80,33 @@ public class ForumRsService extends GxsRsService
 	}
 
 	@Override
+	protected List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids)
+	{
+		return null;
+	}
+
+	@Override
+	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
+	{
+		return null;
+	}
+
+	@Override
+	protected void onGroupReceived(GxsTransferGroupItem item)
+	{
+
+	}
+
+	@Override
 	public void processItems(PeerConnection peerConnection, Transaction<?> transaction)
 	{
 
+	}
+
+	@Transactional
+	@Override
+	public void handleItem(PeerConnection sender, Item item)
+	{
+		super.handleItem(sender, item); // This is required for the @Transactional to work
 	}
 }

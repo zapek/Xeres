@@ -31,7 +31,6 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
@@ -176,7 +175,7 @@ public class IdentityRsService extends GxsRsService
 
 				var buf = Unpooled.copiedBuffer(item.getMeta(), item.getGroup()); //XXX: use ctx().alloc()?
 				var gxsIdGroupItem = new IdentityGroupItem();
-				((RsSerializable) gxsIdGroupItem).readObject(buf, EnumSet.noneOf(SerializationFlags.class)); // XXX: should we add some helper method into Serializer()?
+				gxsIdGroupItem.readObject(buf, EnumSet.noneOf(SerializationFlags.class));
 				buf.release();
 
 				identityService.transferIdentity(gxsIdGroupItem);
@@ -207,9 +206,9 @@ public class IdentityRsService extends GxsRsService
 		gxsGroupItems.forEach(gxsGroupItem -> {
 			signGroupIfNeeded(gxsGroupItem);
 			var groupBuf = Unpooled.buffer(); // XXX: size... well, it autogrows
-			gxsGroupItem.writeObject(groupBuf, EnumSet.of(SerializationFlags.SUBCLASS_ONLY));
+			gxsGroupItem.writeGroupObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
 			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
-			gxsGroupItem.writeObject(metaBuf, EnumSet.of(SerializationFlags.SUPERCLASS_ONLY));
+			gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
 			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, this);
 			groupBuf.release();
 			metaBuf.release();

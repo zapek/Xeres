@@ -22,7 +22,6 @@ package io.xeres.app.xrs.service.identity.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.converter.IdentityTypeConverter;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -39,7 +38,7 @@ import java.util.Set;
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "identity_groups")
-public class IdentityGroupItem extends GxsGroupItem implements RsSerializable // XXX: beware because we need to be able to serialize just the group data (here) and the group metadata (superclass)
+public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we need to be able to serialize just the group data (here) and the group metadata (superclass)
 {
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "profile_hash"))
@@ -123,28 +122,27 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 		this.type = type;
 	}
 
-	@Override
-	public int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	@SuppressWarnings("unchecked")
+	private void readObject(ByteBuf buf)
 	{
-		var size = 0;
+		// XXX: we have to read the following but... shouldn't there be something else to do it?
+		buf.readByte(); // 0x2 (packet version)
+		buf.readShort(); // 0x0211 (service: gxsId)
+		buf.readByte(); // 0x2 (packet subtype?)
+		buf.readInt(); // size
 
-		if (serializationFlags.contains(SerializationFlags.SUBCLASS_ONLY))
+		profileHash = (Sha1Sum) deserializeIdentifier(buf, Sha1Sum.class);
+		setProfileSignature((byte[]) deserialize(buf, TlvType.STR_SIGN));
+		recognitionTags = (List<String>) deserialize(buf, TlvType.SET_RECOGN);
+
+		if (buf.isReadable())
 		{
-			size += writeObject(buf);
+			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
 		}
-		else if (serializationFlags.contains(SerializationFlags.SUPERCLASS_ONLY))
-		{
-			return super.writeObject(buf, serializationFlags);
-		}
-		else
-		{
-			size += super.writeObject(buf, serializationFlags);
-			size += writeObject(buf);
-		}
-		return size;
 	}
 
-	private int writeObject(ByteBuf buf)
+	@Override
+	public int writeGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
 		var size = 0;
 
@@ -168,25 +166,7 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 	}
 
 	@Override
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
-	{
-		if (serializationFlags.contains(SerializationFlags.SUBCLASS_ONLY))
-		{
-			readObject(buf);
-		}
-		else if (serializationFlags.contains(SerializationFlags.SUPERCLASS_ONLY))
-		{
-			super.readObject(buf, serializationFlags);
-		}
-		else
-		{
-			super.readObject(buf, serializationFlags);
-			readObject(buf);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void readObject(ByteBuf buf)
+	public void readGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
 		// XXX: we have to read the following but... shouldn't there be something else to do it?
 		buf.readByte(); // 0x2 (packet version)
@@ -196,11 +176,28 @@ public class IdentityGroupItem extends GxsGroupItem implements RsSerializable //
 
 		profileHash = (Sha1Sum) deserializeIdentifier(buf, Sha1Sum.class);
 		setProfileSignature((byte[]) deserialize(buf, TlvType.STR_SIGN));
+		//noinspection unchecked
 		recognitionTags = (List<String>) deserialize(buf, TlvType.SET_RECOGN);
 
 		if (buf.isReadable())
 		{
 			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
 		}
+	}
+
+	@Override
+	public int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		var size = 0;
+		size += writeMetaObject(buf, serializationFlags);
+		size += writeGroupObject(buf, serializationFlags);
+		return size;
+	}
+
+	@Override
+	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		readMetaObject(buf, serializationFlags);
+		readGroupObject(buf, serializationFlags);
 	}
 }

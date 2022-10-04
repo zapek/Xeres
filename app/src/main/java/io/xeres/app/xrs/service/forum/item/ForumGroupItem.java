@@ -19,15 +19,45 @@
 
 package io.xeres.app.xrs.service.forum.item;
 
+import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.xrs.serialization.RsSerializable;
+import io.xeres.app.xrs.serialization.SerializationFlags;
 
 import javax.persistence.Entity;
+import java.util.Set;
 
 @Entity(name = "forum_groups")
-public class ForumGroupItem extends GxsGroupItem implements RsSerializable
+public class ForumGroupItem extends GxsGroupItem
 {
 	public ForumGroupItem()
 	{
+	}
+
+	@Override
+	public int writeGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		return 0; // XXX
+	}
+
+	@Override
+	public void readGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		// XXX
+	}
+
+	@Override
+	public int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		var size = 0;
+		size += writeMetaObject(buf, serializationFlags);
+		size += writeGroupObject(buf, serializationFlags);
+		return size;
+	}
+
+	@Override
+	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		readMetaObject(buf, serializationFlags);
+		readGroupObject(buf, serializationFlags);
 	}
 }

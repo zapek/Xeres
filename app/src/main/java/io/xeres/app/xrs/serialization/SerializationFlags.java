@@ -21,7 +21,5 @@ package io.xeres.app.xrs.serialization;
 
 public enum SerializationFlags
 {
-	SIGNATURE,
-	SUPERCLASS_ONLY,
-	SUBCLASS_ONLY
+	SIGNATURE
 }

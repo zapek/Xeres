@@ -128,6 +128,10 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 	@Transient
 	private byte[] signature;
 
+	public abstract int writeGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);
+
+	public abstract void readGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);
+
 	public long getId()
 	{
 		return id;
@@ -378,8 +382,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		this.signature = signature;
 	}
 
-	@Override
-	public int writeObject(ByteBuf buf, Set<SerializationFlags> flags)
+	public int writeMetaObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
 		var size = 0;
 
@@ -397,7 +400,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		size += serialize(buf, author, GxsId.class);
 		size += serialize(buf, TlvType.STRING, serviceString);
 		size += serialize(buf, circleId, GxsId.class);
-		size += serialize(buf, TlvType.SIGNATURE_SET, flags.contains(SerializationFlags.SIGNATURE) ? new SignatureSet() : createSignatureSet());
+		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new SignatureSet() : createSignatureSet());
 		size += serialize(buf, TlvType.SECURITY_KEY_SET, createSecurityKeySet());
 		size += serialize(buf, signatureFlags, FieldSize.INTEGER);
 		buf.setInt(sizeOffset, size); // write total size
@@ -405,8 +408,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		return size;
 	}
 
-	@Override
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readMetaObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
 		var apiVersion = deserializeInt(buf);
 		if (apiVersion != API_VERSION_1 && apiVersion != API_VERSION_2)

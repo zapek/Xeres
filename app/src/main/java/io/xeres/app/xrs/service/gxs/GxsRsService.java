@@ -95,7 +95,7 @@ public abstract class GxsRsService extends RsService
 	 * @param since     the time after which the groups are relevant
 	 * @return the pending groups
 	 */
-	public abstract List<GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since);
+	public abstract List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since);
 
 	protected abstract List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids);
 

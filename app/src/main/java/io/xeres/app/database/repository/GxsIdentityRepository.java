@@ -25,6 +25,7 @@ import io.xeres.common.identity.Type;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,4 +40,6 @@ public interface GxsIdentityRepository extends JpaRepository<IdentityGroupItem, 
 	List<IdentityGroupItem> findAllByName(String name);
 
 	List<IdentityGroupItem> findAllByType(Type type);
+
+	List<IdentityGroupItem> findAllByPublishedAfter(Instant since);
 }

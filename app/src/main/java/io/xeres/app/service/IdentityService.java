@@ -186,6 +186,11 @@ public class IdentityService
 		return gxsIdentityRepository.findAllByGxsIdIn(gxsIds);
 	}
 
+	public List<IdentityGroupItem> findAllPublishedSince(Instant since)
+	{
+		return gxsIdentityRepository.findAllByPublishedAfter(since);
+	}
+
 	@Transactional(propagation = Propagation.NEVER)
 	public byte[] signData(IdentityGroupItem identityGroupItem, byte[] data)
 	{

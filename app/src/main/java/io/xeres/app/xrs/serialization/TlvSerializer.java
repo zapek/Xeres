@@ -50,6 +50,7 @@ final class TlvSerializer
 					case ADDRESS_SET -> TlvAddressSerializer.serializeList(buf, (List<PeerAddress>) value);
 					case SIGNATURE -> TlvSignatureSerializer.serialize(buf, (Signature) value);
 					case SET_PGP_ID -> TlvSetSerializer.serializeLong(buf, type, (Set<Long>) value);
+					case SET_GXS_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<GxsId>) value);
 					case SET_RECOGN -> TlvStringSetRefSerializer.serialize(buf, type, (List<String>) value);
 					case STRING -> TlvStringSerializer.serialize(buf, TlvType.NONE, (String) value);
 					case SIGNATURE_SET -> TlvSignatureSetSerializer.serialize(buf, (SignatureSet) value);
@@ -92,6 +93,7 @@ final class TlvSerializer
 					case ADDRESS_SET -> TlvAddressSerializer.deserializeList(buf);
 					case SIGNATURE -> TlvSignatureSerializer.deserialize(buf);
 					case SET_PGP_ID -> TlvSetSerializer.deserializeLong(buf, type);
+					case SET_GXS_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, GxsId.class);
 					case SET_RECOGN -> TlvStringSetRefSerializer.deserialize(buf, type);
 					case STRING -> TlvStringSerializer.deserialize(buf, TlvType.NONE);
 					case SIGNATURE_SET -> TlvSignatureSetSerializer.deserialize(buf);

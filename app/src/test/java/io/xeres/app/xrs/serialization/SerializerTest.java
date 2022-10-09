@@ -30,9 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -501,6 +499,27 @@ class SerializerTest
 
 		var result = (byte[]) Serializer.deserialize(buf, TlvType.IMAGE);
 		assertArrayEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Serializer_Serialize_TlvSet()
+	{
+		var buf = Unpooled.buffer();
+		var gxsId1 = new GxsId(RandomUtils.nextBytes(16));
+		var gxsId2 = new GxsId(RandomUtils.nextBytes(16));
+		Set<GxsId> input = new HashSet<>();
+		input.add(gxsId1);
+		input.add(gxsId2);
+
+		var size = Serializer.serialize(buf, TlvType.SET_GXS_ID, input);
+		assertEquals(TLV_HEADER_SIZE + GxsId.LENGTH * input.size(), size);
+
+		@SuppressWarnings("unchecked") var result = (Set<GxsId>) Serializer.deserialize(buf, TlvType.SET_GXS_ID);
+		assertEquals(2, input.size());
+		assertTrue(input.contains(gxsId1));
+		assertTrue(input.contains(gxsId2));
 
 		buf.release();
 	}

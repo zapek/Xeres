@@ -79,7 +79,7 @@ final class IdentifierSerializer
 		}
 	}
 
-	private static int getIdentifierLength(Class<?> identifierClass)
+	static int getIdentifierLength(Class<?> identifierClass)
 	{
 		try
 		{

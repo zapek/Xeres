@@ -45,6 +45,7 @@ class TlvTypeTest
 		assertEquals(0x120, SIGN_RSA_SHA1.getValue());
 		assertEquals(0x1023, SET_PGP_ID.getValue());
 		assertEquals(0x1024, SET_RECOGN.getValue());
+		assertEquals(0x1025, SET_GXS_ID.getValue());
 		assertEquals(0x1050, SIGNATURE.getValue());
 		assertEquals(0x1070, ADDRESS_INFO.getValue());
 		assertEquals(0x1071, ADDRESS_SET.getValue());

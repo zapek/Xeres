@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
+import io.xeres.common.id.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ final class TlvSetSerializer
 
 	static int serializeLong(ByteBuf buf, TlvType type, Set<Long> set)
 	{
-		var len = getSize(set);
+		var len = getLongSize(set);
 		log.trace("Writing set of longs: {}", log.isTraceEnabled() ? Arrays.toString(set.toArray()) : "");
 		buf.ensureWritable(len);
 		buf.writeShort(type.getValue());
@@ -49,9 +50,25 @@ final class TlvSetSerializer
 		return len;
 	}
 
-	static int getSize(Set<Long> set)
+	static int serializeIdentifier(ByteBuf buf, TlvType type, Set<? extends Identifier> set)
+	{
+		var len = getIdentifierSize(set);
+		log.trace("Writing set of identifiers: {}", log.isTraceEnabled() ? Arrays.toString(set.toArray()) : "");
+		buf.ensureWritable(len);
+		buf.writeShort(type.getValue());
+		buf.writeInt(len);
+		set.forEach(identifier -> buf.writeBytes(identifier.getBytes()));
+		return len;
+	}
+
+	private static int getLongSize(Set<Long> set)
 	{
 		return TLV_HEADER_SIZE + 8 * set.size();
+	}
+
+	private static int getIdentifierSize(Set<? extends Identifier> set)
+	{
+		return TLV_HEADER_SIZE + set.stream().findFirst().orElseThrow().getLength() * set.size();
 	}
 
 	static Set<Long> deserializeLong(ByteBuf buf, TlvType type)
@@ -64,6 +81,20 @@ final class TlvSetSerializer
 		while (count-- > 0)
 		{
 			set.add(buf.readLong());
+		}
+		return set;
+	}
+
+	static Set<? extends Identifier> deserializeIdentifier(ByteBuf buf, TlvType type, Class<?> identifierClass)
+	{
+		log.trace("Reading set of identifiers");
+		var len = TlvUtils.checkTypeAndLength(buf, type);
+		var count = len / IdentifierSerializer.getIdentifierLength(identifierClass);
+		var set = new HashSet<Identifier>(count);
+
+		while (count-- > 0)
+		{
+			set.add(IdentifierSerializer.deserialize(buf, identifierClass));
 		}
 		return set;
 	}

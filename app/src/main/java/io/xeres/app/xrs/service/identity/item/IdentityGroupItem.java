@@ -122,25 +122,6 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 		this.type = type;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void readObject(ByteBuf buf)
-	{
-		// XXX: we have to read the following but... shouldn't there be something else to do it?
-		buf.readByte(); // 0x2 (packet version)
-		buf.readShort(); // 0x0211 (service: gxsId)
-		buf.readByte(); // 0x2 (packet subtype?)
-		buf.readInt(); // size
-
-		profileHash = (Sha1Sum) deserializeIdentifier(buf, Sha1Sum.class);
-		setProfileSignature((byte[]) deserialize(buf, TlvType.STR_SIGN));
-		recognitionTags = (List<String>) deserialize(buf, TlvType.SET_RECOGN);
-
-		if (buf.isReadable())
-		{
-			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
-		}
-	}
-
 	@Override
 	public int writeGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{

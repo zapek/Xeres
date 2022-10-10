@@ -25,6 +25,7 @@ import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.id.MessageId;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -461,7 +462,7 @@ class SerializerTest
 		var gxsId = new GxsId(RandomUtils.nextBytes(16));
 		var signature = RandomUtils.nextBytes(20);
 		var keySignature = new Signature(gxsId, signature);
-		input.put(SignatureSet.Type.ADMIN, new Signature(gxsId, signature));
+		input.put(SignatureSet.Type.ADMIN, keySignature);
 
 		var size = Serializer.serialize(buf, TlvType.SIGNATURE_SET, input);
 		assertEquals(TLV_HEADER_SIZE + TLV_HEADER_SIZE + 4 + TLV_HEADER_SIZE + TLV_HEADER_SIZE + GxsId.LENGTH * 2 + TLV_HEADER_SIZE + signature.length, size);
@@ -504,11 +505,11 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvSet()
+	void Serializer_Serialize_TlvSet_GxsId()
 	{
 		var buf = Unpooled.buffer();
-		var gxsId1 = new GxsId(RandomUtils.nextBytes(16));
-		var gxsId2 = new GxsId(RandomUtils.nextBytes(16));
+		var gxsId1 = new GxsId(RandomUtils.nextBytes(GxsId.LENGTH));
+		var gxsId2 = new GxsId(RandomUtils.nextBytes(GxsId.LENGTH));
 		Set<GxsId> input = new HashSet<>();
 		input.add(gxsId1);
 		input.add(gxsId2);
@@ -517,9 +518,30 @@ class SerializerTest
 		assertEquals(TLV_HEADER_SIZE + GxsId.LENGTH * input.size(), size);
 
 		@SuppressWarnings("unchecked") var result = (Set<GxsId>) Serializer.deserialize(buf, TlvType.SET_GXS_ID);
-		assertEquals(2, input.size());
-		assertTrue(input.contains(gxsId1));
-		assertTrue(input.contains(gxsId2));
+		assertEquals(2, result.size());
+		assertTrue(result.contains(gxsId1));
+		assertTrue(result.contains(gxsId2));
+
+		buf.release();
+	}
+
+	@Test
+	void Serializer_Serialize_TlvSet_MessageId()
+	{
+		var buf = Unpooled.buffer();
+		var messageId1 = new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));
+		var messageId2 = new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));
+		Set<MessageId> input = new HashSet<>();
+		input.add(messageId1);
+		input.add(messageId2);
+
+		var size = Serializer.serialize(buf, TlvType.SET_GXS_MSG_ID, input);
+		assertEquals(TLV_HEADER_SIZE + MessageId.LENGTH * input.size(), size);
+
+		@SuppressWarnings("unchecked") var result = (Set<MessageId>) Serializer.deserialize(buf, TlvType.SET_GXS_MSG_ID);
+		assertEquals(2, result.size());
+		assertTrue(result.contains(messageId1));
+		assertTrue(result.contains(messageId2));
 
 		buf.release();
 	}

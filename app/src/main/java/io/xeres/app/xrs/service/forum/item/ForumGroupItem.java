@@ -25,6 +25,7 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -32,6 +33,7 @@ import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.SET_GXS_ID;
+import static io.xeres.app.xrs.serialization.TlvType.SET_GXS_MSG_ID;
 
 @Entity(name = "forum_groups")
 public class ForumGroupItem extends GxsGroupItem
@@ -41,10 +43,12 @@ public class ForumGroupItem extends GxsGroupItem
 	@ElementCollection
 	private Set<GxsId> adminList;
 
-	// XXX: RsTlvGxsMsgIdSet pinnedPosts;
+	@ElementCollection
+	private Set<MessageId> pinnedPosts;
 
 	public ForumGroupItem()
 	{
+		// Needed for JPA
 	}
 
 	@Override
@@ -60,7 +64,7 @@ public class ForumGroupItem extends GxsGroupItem
 
 		size += serialize(buf, description);
 		size += serialize(buf, SET_GXS_ID, adminList);
-		// XXX: pinnedPosts
+		size += serialize(buf, SET_GXS_MSG_ID, pinnedPosts);
 
 		buf.setInt(sizeOffset, size); // write total size
 
@@ -79,7 +83,8 @@ public class ForumGroupItem extends GxsGroupItem
 		description = Serializer.deserializeString(buf);
 		//noinspection unchecked
 		adminList = (Set<GxsId>) Serializer.deserialize(buf, SET_GXS_ID);
-		// XXX: pinnedPosts
+		//noinspection unchecked
+		pinnedPosts = (Set<MessageId>) Serializer.deserialize(buf, SET_GXS_MSG_ID);
 	}
 
 	@Override

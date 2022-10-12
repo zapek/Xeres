@@ -48,7 +48,7 @@ final class AnnotationSerializer
 		for (var field : getAllFields(object.getClass(), isClassOrderReversed(object)))
 		{
 			log.trace("Serializing field {}, of type {}", field.getName(), field.getType().getSimpleName());
-			size += Serializer.serialize(buf, field, object, field.getAnnotation(RsSerialized.class));
+			size += Serializer.serialize(buf, field, object);
 		}
 		return size;
 	}

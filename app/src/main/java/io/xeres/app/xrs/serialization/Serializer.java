@@ -462,9 +462,9 @@ public final class Serializer
 		return AnnotationSerializer.deserialize(buf, object);
 	}
 
-	static int serialize(ByteBuf buf, Field field, Object object, RsSerialized annotation)
+	static int serialize(ByteBuf buf, Field field, Object object)
 	{
-		return serialize(buf, field.getType(), getField(field, object), annotation);
+		return serialize(buf, field.getType(), getField(field, object), field.getAnnotation(RsSerialized.class));
 	}
 
 	@SuppressWarnings("unchecked")

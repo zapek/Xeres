@@ -135,7 +135,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readObject(ByteBuf buf)
 	{
 		pgpIdentifier = deserializeLong(buf);
 		locationId = (LocationId) deserializeIdentifier(buf, LocationId.class);

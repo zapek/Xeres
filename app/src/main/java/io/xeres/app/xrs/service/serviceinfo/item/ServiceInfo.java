@@ -65,7 +65,7 @@ public class ServiceInfo implements RsSerializable
 	}
 
 	@Override
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readObject(ByteBuf buf)
 	{
 		name = deserializeString(buf);
 		serviceType = deserializeInt(buf);

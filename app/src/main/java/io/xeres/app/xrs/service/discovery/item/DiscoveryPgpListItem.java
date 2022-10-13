@@ -78,7 +78,7 @@ public class DiscoveryPgpListItem extends Item implements RsSerializable
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readObject(ByteBuf buf)
 	{
 		mode = deserializeEnum(buf, Mode.class);
 		pgpIds = (Set<Long>) deserialize(buf, SET_PGP_ID);

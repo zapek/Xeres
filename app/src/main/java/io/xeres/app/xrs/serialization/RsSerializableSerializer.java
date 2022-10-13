@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
+import java.util.Set;
 
 final class RsSerializableSerializer
 {
@@ -31,9 +32,14 @@ final class RsSerializableSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, RsSerializable serializable)
+	static int serialize(ByteBuf buf, RsSerializable rsSerializable)
 	{
-		return serializable.writeObject(buf, EnumSet.noneOf(SerializationFlags.class));
+		return rsSerializable.writeObject(buf, EnumSet.noneOf(SerializationFlags.class));
+	}
+
+	static int serialize(ByteBuf buf, RsSerializable rsSerializable, Set<SerializationFlags> flags)
+	{
+		return rsSerializable.writeObject(buf, flags);
 	}
 
 	static Object deserialize(ByteBuf buf, Class<?> javaClass)
@@ -41,12 +47,17 @@ final class RsSerializableSerializer
 		try
 		{
 			var instanceObject = javaClass.getDeclaredConstructor().newInstance();
-			((RsSerializable) instanceObject).readObject(buf, EnumSet.noneOf(SerializationFlags.class));
+			((RsSerializable) instanceObject).readObject(buf);
 			return instanceObject;
 		}
 		catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
 		{
 			throw new IllegalStateException("Unhandled class " + javaClass.getSimpleName());
 		}
+	}
+
+	static void deserialize(ByteBuf buf, RsSerializable rsSerializable)
+	{
+		rsSerializable.readObject(buf);
 	}
 }

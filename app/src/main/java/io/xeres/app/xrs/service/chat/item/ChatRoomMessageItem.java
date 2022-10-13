@@ -90,7 +90,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	}
 
 	@Override
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readObject(ByteBuf buf)
 	{
 		flags = deserializeEnumSet(buf, ChatFlags.class, FieldSize.INTEGER);
 		sendTime = deserializeInt(buf);

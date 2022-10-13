@@ -21,15 +21,13 @@ package io.xeres.app.xrs.item;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.ReferenceCountUtil;
+import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.net.peer.packet.Packet;
 import io.xeres.app.xrs.serialization.RsSerializable;
-import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.EnumSet;
 
 import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 
@@ -63,11 +61,16 @@ public class RawItem
 
 		buf.skipBytes(HEADER_SIZE);
 		// XXX: oh, also see if the size matches the total size
-		if (RsSerializable.class.isAssignableFrom(item.getClass()))
+		if (GxsGroupItem.class.isAssignableFrom(item.getClass()))
+		{
+			log.trace("Deserializing class {} using GxsGroup system", item.getClass().getSimpleName());
+			Serializer.deserializeGxsGroupItem(buf, (GxsGroupItem) item);
+		}
+		else if (RsSerializable.class.isAssignableFrom(item.getClass()))
 		{
 			// If the object implements RsSerializable which is more flexible, use it
 			log.trace("Deserializing class {} using readObject()", item.getClass().getSimpleName());
-			((RsSerializable) item).readObject(buf, EnumSet.noneOf(SerializationFlags.class));
+			Serializer.deserializeRsSerializable(buf, (RsSerializable) item);
 		}
 		else
 		{

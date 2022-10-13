@@ -27,5 +27,5 @@ public interface RsSerializable
 {
 	int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);
 
-	void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);
+	void readObject(ByteBuf buf);
 }

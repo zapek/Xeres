@@ -56,30 +56,16 @@ public class ForumGroupItem extends GxsGroupItem
 	{
 		var size = 0;
 
-		size += serialize(buf, (byte) 2);
-		size += serialize(buf, (short) RsServiceType.FORUMS.getType());
-		size += serialize(buf, (byte) 2);
-		var sizeOffset = buf.writerIndex();
-		size += serialize(buf, 0); // write size at end
-
 		size += serialize(buf, description);
 		size += serialize(buf, SET_GXS_ID, adminList);
 		size += serialize(buf, SET_GXS_MSG_ID, pinnedPosts);
-
-		buf.setInt(sizeOffset, size); // write total size
 
 		return size;
 	}
 
 	@Override
-	public void readGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readGroupObject(ByteBuf buf)
 	{
-		// XXX: we have to read the following but... shouldn't there be something else to do it?
-		buf.readByte(); // 0x2 (packet version)
-		buf.readShort(); // 0x0211 (service)
-		buf.readByte(); // 0x2 (packet subtype?)
-		buf.readInt(); // size
-
 		description = Serializer.deserializeString(buf);
 		//noinspection unchecked
 		adminList = (Set<GxsId>) Serializer.deserialize(buf, SET_GXS_ID);
@@ -88,18 +74,8 @@ public class ForumGroupItem extends GxsGroupItem
 	}
 
 	@Override
-	public int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public RsServiceType getServiceType()
 	{
-		var size = 0;
-		size += writeMetaObject(buf, serializationFlags);
-		size += writeGroupObject(buf, serializationFlags);
-		return size;
-	}
-
-	@Override
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
-	{
-		readMetaObject(buf, serializationFlags);
-		readGroupObject(buf, serializationFlags);
+		return RsServiceType.FORUMS;
 	}
 }

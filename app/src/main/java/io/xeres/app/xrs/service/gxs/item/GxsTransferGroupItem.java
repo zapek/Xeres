@@ -85,7 +85,7 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 	}
 
 	@Override
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readObject(ByteBuf buf)
 	{
 		setTransactionId(Serializer.deserializeInt(buf));
 		position = Serializer.deserializeByte(buf);

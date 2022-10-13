@@ -27,7 +27,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,7 +106,7 @@ public class IdentityRsService extends GxsRsService
 
 		var buf = Unpooled.copiedBuffer(item.getMeta(), item.getGroup()); //XXX: use ctx().alloc()?
 		var gxsIdGroupItem = new IdentityGroupItem();
-		gxsIdGroupItem.readObject(buf, EnumSet.noneOf(SerializationFlags.class));
+		Serializer.deserializeGxsGroupItem(buf, gxsIdGroupItem);
 		buf.release();
 
 		identityService.transferIdentity(gxsIdGroupItem);

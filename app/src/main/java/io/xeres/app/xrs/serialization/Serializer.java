@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
+import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.common.id.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -460,6 +461,26 @@ public final class Serializer
 	public static boolean deserializeAnnotatedFields(ByteBuf buf, Object object)
 	{
 		return AnnotationSerializer.deserialize(buf, object);
+	}
+
+	public static int serializeRsSerializable(ByteBuf buf, RsSerializable rsSerializable, Set<SerializationFlags> flags)
+	{
+		return RsSerializableSerializer.serialize(buf, rsSerializable, flags);
+	}
+
+	public static void deserializeRsSerializable(ByteBuf buf, RsSerializable rsSerializable)
+	{
+		RsSerializableSerializer.deserialize(buf, rsSerializable);
+	}
+
+	public static int serializeGxsGroupItem(ByteBuf buf, GxsGroupItem gxsGroupItem, Set<SerializationFlags> flags)
+	{
+		return GxsGroupSerializer.serialize(buf, gxsGroupItem, flags);
+	}
+
+	public static void deserializeGxsGroupItem(ByteBuf buf, GxsGroupItem gxsGroupItem)
+	{
+		GxsGroupSerializer.deserialize(buf, gxsGroupItem);
 	}
 
 	static int serialize(ByteBuf buf, Field field, Object object)

@@ -77,7 +77,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable,
 	}
 
 	@Override
-	public void readObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readObject(ByteBuf buf)
 	{
 		eventType = deserializeByte(buf);
 		status = (String) deserialize(buf, STR_NAME);

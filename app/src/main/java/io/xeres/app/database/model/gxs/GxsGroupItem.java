@@ -28,9 +28,9 @@ import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.FieldSize;
-import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -52,7 +52,7 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_groups")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class GxsGroupItem extends Item implements RsSerializable
+public abstract class GxsGroupItem extends Item
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsGroupItem.class);
 
@@ -130,7 +130,9 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 
 	public abstract int writeGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);
 
-	public abstract void readGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);
+	public abstract void readGroupObject(ByteBuf buf);
+
+	public abstract RsServiceType getServiceType();
 
 	public long getId()
 	{
@@ -408,7 +410,7 @@ public abstract class GxsGroupItem extends Item implements RsSerializable
 		return size;
 	}
 
-	public void readMetaObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public void readMetaObject(ByteBuf buf)
 	{
 		var apiVersion = deserializeInt(buf);
 		if (apiVersion != API_VERSION_1 && apiVersion != API_VERSION_2)

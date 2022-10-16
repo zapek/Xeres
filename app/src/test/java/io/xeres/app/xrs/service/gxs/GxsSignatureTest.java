@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.gxs;
 
 import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.rsa.RSA;
-import io.xeres.app.database.model.gxs.GxsIdGroupItemFakes;
+import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
@@ -37,7 +37,7 @@ class GxsSignatureTest
 	@Test
 	void GxsSignature_Create_And_Verify_OK()
 	{
-		var gxsIdGroupItem = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var gxsIdGroupItem = IdentityGroupItemFakes.createIdentityGroupItem();
 
 		var keyPair = RSA.generateKeys(512);
 

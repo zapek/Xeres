@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2022 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,34 +19,33 @@
 
 package io.xeres.app.database.model.gxs;
 
-import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.Sha1Sum;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.time.Instant;
 import java.util.EnumSet;
 
-public final class GxsIdGroupItemFakes
+public final class ForumGroupItemFakes
 {
-	private GxsIdGroupItemFakes()
+	private ForumGroupItemFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static IdentityGroupItem createGxsIdGroupItem()
+	public static ForumGroupItem createForumGroupItem()
 	{
-		return createGxsIdGroupItem(new GxsId(RandomUtils.nextBytes(16)), RandomStringUtils.randomAlphabetic(8));
+		return createForumGroupItem(new GxsId(RandomUtils.nextBytes(16)), RandomStringUtils.randomAlphabetic(8));
 	}
 
-	public static IdentityGroupItem createGxsIdGroupItem(GxsId gxsId, String name)
+	public static ForumGroupItem createForumGroupItem(GxsId gxsId, String name)
 	{
-		var item = new IdentityGroupItem(gxsId, name);
+		var item = new ForumGroupItem(gxsId, name);
 		item.setDiffusionFlags(EnumSet.noneOf(GxsPrivacyFlags.class));
 		item.setSignatureFlags(EnumSet.noneOf(GxsSignatureFlags.class));
 		item.setPublished(Instant.now());
-		item.setProfileHash(new Sha1Sum(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
+		item.setDescription("blabla");
 		return item;
 	}
 }

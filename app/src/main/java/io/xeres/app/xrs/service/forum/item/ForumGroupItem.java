@@ -29,6 +29,7 @@ import io.xeres.common.id.MessageId;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import java.util.HashSet;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.serialize;
@@ -41,14 +42,30 @@ public class ForumGroupItem extends GxsGroupItem
 	private String description;
 
 	@ElementCollection
-	private Set<GxsId> adminList;
+	private Set<GxsId> adminList = new HashSet<>();
 
 	@ElementCollection
-	private Set<MessageId> pinnedPosts;
+	private Set<MessageId> pinnedPosts = new HashSet<>();
 
 	public ForumGroupItem()
 	{
 		// Needed for JPA
+	}
+
+	public ForumGroupItem(GxsId gxsId, String name)
+	{
+		setGxsId(gxsId);
+		setName(name);
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
 	}
 
 	@Override

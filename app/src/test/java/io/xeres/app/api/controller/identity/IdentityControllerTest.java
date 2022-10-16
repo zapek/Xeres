@@ -1,7 +1,7 @@
 package io.xeres.app.api.controller.identity;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
-import io.xeres.app.database.model.gxs.GxsIdGroupItemFakes;
+import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.service.IdentityService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	@Test
 	void IdentityController_FindIdentityById_OK() throws Exception
 	{
-		var identity = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
 		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
@@ -67,7 +67,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	void IdentityController_DownloadIdentityImage_Empty() throws Exception
 	{
 		var id = 1L;
-		var identity = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
 
@@ -81,7 +81,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	void IdentityController_DownloadIdentityImage_OK() throws Exception
 	{
 		var id = 1L;
-		var identity = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setImage(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
@@ -119,7 +119,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	@Test
 	void IdentityController_FindIdentities_ByName() throws Exception
 	{
-		var identity = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
 		when(identityService.findAllByName(identity.getName())).thenReturn(List.of(identity));
@@ -134,7 +134,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	@Test
 	void IdentityController_FindIdentities_ByGxsId() throws Exception
 	{
-		var identity = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
 		when(identityService.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
@@ -149,7 +149,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	@Test
 	void IdentityController_FindIdentities_ByType() throws Exception
 	{
-		var identity = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
 		when(identityService.findAllByType(identity.getType())).thenReturn(List.of(identity));
@@ -164,7 +164,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	@Test
 	void IdentityController_FindIdentities_All() throws Exception
 	{
-		var identity = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
 		when(identityService.getAll()).thenReturn(List.of(identity));

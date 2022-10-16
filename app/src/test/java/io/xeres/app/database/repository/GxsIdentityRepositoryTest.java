@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.repository;
 
-import io.xeres.app.database.model.gxs.GxsIdGroupItemFakes;
+import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -35,9 +35,9 @@ class GxsIdentityRepositoryTest
 	@Test
 	void GxsIdentityRepository_CRUD_OK()
 	{
-		var gxsIdGroupItem1 = GxsIdGroupItemFakes.createGxsIdGroupItem();
-		var gxsIdGroupItem2 = GxsIdGroupItemFakes.createGxsIdGroupItem();
-		var gxsIdGroupItem3 = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var gxsIdGroupItem1 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var gxsIdGroupItem2 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var gxsIdGroupItem3 = IdentityGroupItemFakes.createIdentityGroupItem();
 
 		var savedGxsIdGroupItem1 = gxsIdentityRepository.save(gxsIdGroupItem1);
 		var savedGxsIdGroupItem2 = gxsIdentityRepository.save(gxsIdGroupItem2);

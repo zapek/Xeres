@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.identity;
 
-import io.xeres.app.database.model.gxs.GxsIdGroupItemFakes;
+import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.net.peer.PeerConnectionFakes;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.IdentityService;
@@ -59,7 +59,7 @@ class IdentityManagerTest
 	@Test
 	void GxsIdManager_AddOneAndRequest_OK()
 	{
-		var GXSID = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var GXSID = IdentityGroupItemFakes.createIdentityGroupItem();
 		var PEER_CONNECTION = PeerConnectionFakes.createPeerConnection();
 
 		when(identityService.findByGxsId(GXSID.getGxsId())).thenReturn(Optional.empty());
@@ -76,12 +76,12 @@ class IdentityManagerTest
 	@SuppressWarnings("unchecked")
 	void GxsIdManager_AddSixAndRequest_OK()
 	{
-		var GXSID1 = GxsIdGroupItemFakes.createGxsIdGroupItem();
-		var GXSID2 = GxsIdGroupItemFakes.createGxsIdGroupItem();
-		var GXSID3 = GxsIdGroupItemFakes.createGxsIdGroupItem();
-		var GXSID4 = GxsIdGroupItemFakes.createGxsIdGroupItem();
-		var GXSID5 = GxsIdGroupItemFakes.createGxsIdGroupItem();
-		var GXSID6 = GxsIdGroupItemFakes.createGxsIdGroupItem();
+		var GXSID1 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var GXSID2 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var GXSID3 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var GXSID4 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var GXSID5 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var GXSID6 = IdentityGroupItemFakes.createIdentityGroupItem();
 		var PEER_CONNECTION = PeerConnectionFakes.createPeerConnection();
 
 		when(identityService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());

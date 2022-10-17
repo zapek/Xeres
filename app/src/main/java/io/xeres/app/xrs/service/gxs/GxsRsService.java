@@ -29,6 +29,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -290,7 +291,17 @@ public abstract class GxsRsService extends RsService
 		gxsGroupItems.forEach(gxsGroupItem -> {
 			signGroupIfNeeded(gxsGroupItem);
 			var groupBuf = Unpooled.buffer(); // XXX: size... well, it autogrows
-			gxsGroupItem.writeGroupObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
+			// Write that damn header
+			var groupSize = 0;
+			groupSize += Serializer.serialize(groupBuf, (byte) 2);
+			groupSize += Serializer.serialize(groupBuf, (short) gxsGroupItem.getServiceType().getType());
+			groupSize += Serializer.serialize(groupBuf, (byte) 2);
+			var sizeOffset = groupBuf.writerIndex();
+			groupSize += Serializer.serialize(groupBuf, 0); // write size at end
+
+			groupSize += gxsGroupItem.writeGroupObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
+			groupBuf.setInt(sizeOffset, groupSize); // wriet group size
+
 			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
 			gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
 			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, this);

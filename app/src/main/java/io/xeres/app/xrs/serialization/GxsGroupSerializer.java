@@ -33,34 +33,44 @@ final class GxsGroupSerializer
 
 	static int serialize(ByteBuf buf, GxsGroupItem gxsGroupItem, Set<SerializationFlags> flags)
 	{
-		var size = 0;
-		size += gxsGroupItem.writeMetaObject(buf, flags);
+		var metaSize = 0;
+		metaSize += gxsGroupItem.writeMetaObject(buf, flags);
 
-		size += Serializer.serialize(buf, (byte) 2);
-		size += Serializer.serialize(buf, (short) gxsGroupItem.getServiceType().getType());
-		size += Serializer.serialize(buf, (byte) 2);
+		var groupSize = 0;
+		groupSize += Serializer.serialize(buf, (byte) 2);
+		groupSize += Serializer.serialize(buf, (short) gxsGroupItem.getServiceType().getType());
+		groupSize += Serializer.serialize(buf, (byte) 2);
 		var sizeOffset = buf.writerIndex();
-		size += Serializer.serialize(buf, 0); // write size at end
+		groupSize += Serializer.serialize(buf, 0); // write size at end
 
-		size += gxsGroupItem.writeGroupObject(buf, flags);
+		groupSize += gxsGroupItem.writeGroupObject(buf, flags);
 
-		buf.setInt(sizeOffset, size); // write total size
+		buf.setInt(sizeOffset, groupSize); // write group size
 
-		return size;
+		return metaSize + groupSize;
 	}
 
 	static void deserialize(ByteBuf buf, GxsGroupItem gxsGroupItem)
 	{
 		gxsGroupItem.readMetaObject(buf);
-		readFakeHeader(buf);
+		readFakeHeader(buf, gxsGroupItem);
 		gxsGroupItem.readGroupObject(buf);
 	}
 
-	private static void readFakeHeader(ByteBuf buf)
+	private static void readFakeHeader(ByteBuf buf, GxsGroupItem gxsGroupItem)
 	{
-		buf.readByte(); // 0x2 (packet version)
-		buf.readShort(); // 0x0211 (service)
-		buf.readByte(); // 0x2 (packet subtype?)
+		if (buf.readByte() != 2)
+		{
+			throw new IllegalArgumentException("Packet version is not 0x2");
+		}
+		if (buf.readShort() != gxsGroupItem.getServiceType().getType())
+		{
+			throw new IllegalArgumentException("Packet type is not " + gxsGroupItem.getServiceType().getType());
+		}
+		if (buf.readByte() != 0x2)
+		{
+			throw new IllegalArgumentException("Packet subtype is not " + 0x2);
+		}
 		buf.readInt(); // size
 	}
 }

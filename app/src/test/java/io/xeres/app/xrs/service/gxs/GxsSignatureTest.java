@@ -23,14 +23,20 @@ import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemFactory;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 
 class GxsSignatureTest
 {
@@ -52,12 +58,17 @@ class GxsSignatureTest
 		var rawItem = serializeItem(gxsIdGroupItem);
 		assertNotNull(rawItem);
 
-//		var item = (GxsIdGroupItem) rawItem.deserialize(); // XXX: can't work like that... sigh. also GxsIdGroupItem is not in GxsId's item list :-/
-//		assertNotNull(item);
-//
-//		var verifyData = serializeItemForSignature(item);
-//
-//		assertTrue(RSA.verify(RSA.getPublicKey(item.getAdminPublicKeyData()), item.getSignature(), verifyData));
+		try (MockedStatic<ItemFactory> itemFactory = Mockito.mockStatic(ItemFactory.class))
+		{
+			itemFactory.when(() -> ItemFactory.create(anyInt(), anyInt())).thenReturn(new IdentityGroupItem());
+
+			var item = (IdentityGroupItem) new RawItem(rawItem.getBuffer().copy(), 0).deserialize();
+			assertNotNull(item);
+
+			var verifyData = serializeItemForSignature(item);
+
+			assertTrue(RSA.verify(item.getAdminPublicKey(), item.getSignature(), verifyData));
+		}
 	}
 
 	private RawItem serializeItem(Item item)

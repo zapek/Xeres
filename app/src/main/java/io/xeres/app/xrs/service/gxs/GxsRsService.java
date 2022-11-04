@@ -300,7 +300,7 @@ public abstract class GxsRsService extends RsService
 			groupSize += Serializer.serialize(groupBuf, 0); // write size at end
 
 			groupSize += gxsGroupItem.writeGroupObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
-			groupBuf.setInt(sizeOffset, groupSize); // wriet group size
+			groupBuf.setInt(sizeOffset, groupSize); // write group size
 
 			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
 			gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));

@@ -197,6 +197,7 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
+    testImplementation 'org.mockito:mockito-inline' // to mock static methods, like in GxsSignatureTest
     testImplementation(testFixtures(project(":common")))
     testImplementation 'org.awaitility:awaitility:4.2.0'
 }

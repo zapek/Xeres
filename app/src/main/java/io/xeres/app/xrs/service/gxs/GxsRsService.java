@@ -354,10 +354,10 @@ public abstract class GxsRsService extends RsService
 		}
 	}
 
-	private static byte[] serializeItemForSignature(Item item)
+	private static byte[] serializeItemForSignature(GxsGroupItem gxsGroupItem)
 	{
-		item.setSerialization(Unpooled.buffer().alloc(), 2, RsServiceType.GXSID, 1); // XXX: not very nice to have those arguments hardcoded here
-		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
+		gxsGroupItem.setSerialization(Unpooled.buffer().alloc(), 2, gxsGroupItem.getServiceType(), 1); // XXX: not very nice to have those arguments hardcoded here
+		var buf = gxsGroupItem.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);
 		buf.release();

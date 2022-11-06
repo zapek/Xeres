@@ -29,7 +29,6 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.EnumSet;
@@ -58,7 +57,7 @@ class GxsSignatureTest
 		var rawItem = serializeItem(gxsIdGroupItem);
 		assertNotNull(rawItem);
 
-		try (MockedStatic<ItemFactory> itemFactory = Mockito.mockStatic(ItemFactory.class))
+		try (var itemFactory = Mockito.mockStatic(ItemFactory.class))
 		{
 			itemFactory.when(() -> ItemFactory.create(anyInt(), anyInt())).thenReturn(new IdentityGroupItem());
 

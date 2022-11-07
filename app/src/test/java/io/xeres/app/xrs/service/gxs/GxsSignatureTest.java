@@ -61,12 +61,16 @@ class GxsSignatureTest
 		{
 			itemFactory.when(() -> ItemFactory.create(anyInt(), anyInt())).thenReturn(new IdentityGroupItem());
 
-			var item = (IdentityGroupItem) new RawItem(rawItem.getBuffer().copy(), 0).deserialize();
+			var tmpRawItem = new RawItem(rawItem.getBuffer().copy(), 0);
+			var item = (IdentityGroupItem) tmpRawItem.deserialize();
 			assertNotNull(item);
 
 			var verifyData = serializeItemForSignature(item);
 
 			assertTrue(RSA.verify(item.getAdminPublicKey(), item.getSignature(), verifyData));
+
+			rawItem.getBuffer().release();
+			tmpRawItem.getBuffer().release();
 		}
 	}
 

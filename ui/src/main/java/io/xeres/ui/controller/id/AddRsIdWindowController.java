@@ -212,7 +212,7 @@ public class AddRsIdWindowController implements WindowController
 		for (var i = 0; i < certIps.getItems().size(); i++)
 		{
 			var item = certIps.getItems().get(i);
-			Country country = null;
+			Country country;
 
 			if (OnionAddress.isValidAddress(item.address()))
 			{
@@ -232,19 +232,7 @@ public class AddRsIdWindowController implements WindowController
 				}
 				else
 				{
-					var countryResponse = geoIpClient.getIsoCountry(hostPort.host()).block();
-					if (countryResponse != null)
-					{
-						try
-						{
-							country = Country.valueOf(countryResponse.isoCountry().toUpperCase(Locale.ROOT));
-						}
-						catch (IllegalArgumentException e)
-						{
-							log.warn("Country not found for iso {}", countryResponse.isoCountry());
-						}
-
-					}
+					country = findByGeoIp(hostPort.host());
 				}
 			}
 
@@ -254,5 +242,22 @@ public class AddRsIdWindowController implements WindowController
 			}
 		}
 		certIps.getSelectionModel().select(0);
+	}
+
+	private Country findByGeoIp(String ip)
+	{
+		var countryResponse = geoIpClient.getIsoCountry(ip).block();
+		if (countryResponse != null)
+		{
+			try
+			{
+				return Country.valueOf(countryResponse.isoCountry().toUpperCase(Locale.ROOT));
+			}
+			catch (IllegalArgumentException e)
+			{
+				log.warn("Country not found for iso {}", countryResponse.isoCountry());
+			}
+		}
+		return null;
 	}
 }

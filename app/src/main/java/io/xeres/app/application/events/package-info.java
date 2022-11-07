@@ -19,7 +19,6 @@
 
 /**
  * This package contains Spring application events.
- *
  * <b>Beware:</b> those events are <b>asynchronous</b> which means they'll run in a new thread.
  */
 package io.xeres.app.application.events;

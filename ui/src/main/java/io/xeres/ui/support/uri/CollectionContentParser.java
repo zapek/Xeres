@@ -61,6 +61,7 @@ public class CollectionContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
+		//noinspection ConstantConditions
 		return new ContentUri(radix, name + " (" + count + "files, " + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", s -> UiUtils.showAlertInfo("Browsing collections is not supported yet."));
 	}
 }

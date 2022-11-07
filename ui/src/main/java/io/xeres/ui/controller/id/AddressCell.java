@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public class AddressCell extends ListCell<AddressCountry>
 {
@@ -35,6 +36,6 @@ public class AddressCell extends ListCell<AddressCountry>
 				return new ImageView(new Image(flagPath));
 			}
 		}
-		return new ImageView(new Image(getClass().getResourceAsStream("/image/flags/_unknown.png")));
+		return new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/flags/_unknown.png"))));
 	}
 }

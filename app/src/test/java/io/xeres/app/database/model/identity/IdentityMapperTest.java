@@ -1,6 +1,5 @@
 package io.xeres.app.database.model.identity;
 
-import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 

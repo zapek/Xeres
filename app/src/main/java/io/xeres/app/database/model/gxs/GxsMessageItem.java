@@ -19,6 +19,48 @@
 
 package io.xeres.app.database.model.gxs;
 
-public class GxsMessageItem
+import io.xeres.app.xrs.item.Item;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.persistence.*;
+
+@Entity(name = "gxs_messages")
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class GxsMessageItem extends Item
 {
+	private static final Logger log = LoggerFactory.getLogger(GxsMessageItem.class);
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+
+	@Embedded
+	@AttributeOverride(name = "identifier", column = @Column(name = "gxs_id"))
+	private GxsId gxsId;
+	@Embedded
+	@AttributeOverride(name = "identifier", column = @Column(name = "message_id"))
+	private MessageId messageId;
+	@Embedded
+	@AttributeOverride(name = "identifier", column = @Column(name = "thread_id"))
+	private MessageId threadId;
+	@Embedded
+	@AttributeOverride(name = "identifier", column = @Column(name = "parent_id"))
+	private MessageId parentId;
+	@Embedded
+	@AttributeOverride(name = "identifier", column = @Column(name = "original_message_id"))
+	private MessageId originalMessageId;
+	@Embedded
+	@AttributeOverride(name = "identifier", column = @Column(name = "author_id"))
+	private GxsId authorId;
+
+	// signSet (RsTlvKeySignatureSet)
+
+	// tlv string message name
+
+	// publishts (32-bits)
+	// msgflags (32-bits)
+
 }

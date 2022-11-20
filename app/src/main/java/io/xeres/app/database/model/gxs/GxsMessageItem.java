@@ -22,10 +22,12 @@ package io.xeres.app.database.model.gxs;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
+import java.time.Instant;
 
 @Entity(name = "gxs_messages")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -56,11 +58,20 @@ public abstract class GxsMessageItem extends Item
 	@AttributeOverride(name = "identifier", column = @Column(name = "author_id"))
 	private GxsId authorId;
 
-	// signSet (RsTlvKeySignatureSet)
+	// signSet (RsTlvKeySignatureSet). same as GxsGroupItem signatures... not sure which types we need
 
-	// tlv string message name
+	private String name; // tlv string message name (use serialize(buf, TlvType.STRING, name);
 
-	// publishts (32-bits)
-	// msgflags (32-bits)
+	@UpdateTimestamp
+	private Instant published; // publishts (32-bits)
 
+	//private Set<GxsMessageFlags> messageFlags; .. use a converter, etc... right now it seems there's only RS_GXS_FORUM_MSG_FLAGS_MODERATED
+	// msgflags (32-bits). use serialize(buf, msgFlags, FieldSize.INTEGER) ... or maybe just serialize the integer as the bits are user defined...
+	private int flags;
+
+	private int status;
+
+	private Instant child;
+
+	private String serviceString;
 }

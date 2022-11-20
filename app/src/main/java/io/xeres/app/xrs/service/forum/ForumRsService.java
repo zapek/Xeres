@@ -20,13 +20,11 @@
 package io.xeres.app.xrs.service.forum;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.Transaction;
@@ -53,18 +51,6 @@ public class ForumRsService extends GxsRsService
 	public ForumRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
 	{
 		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
-	}
-
-	@Override
-	public Class<? extends GxsGroupItem> getGroupClass()
-	{
-		return ForumGroupItem.class;
-	}
-
-	@Override
-	public Class<? extends GxsMessageItem> getMessageClass()
-	{
-		return null; // XXX: we DO use messages
 	}
 
 	@Override

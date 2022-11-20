@@ -21,7 +21,6 @@ package io.xeres.app.xrs.service.identity;
 
 import io.netty.buffer.Unpooled;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
@@ -60,18 +59,6 @@ public class IdentityRsService extends GxsRsService
 	{
 		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
 		this.identityService = identityService;
-	}
-
-	@Override
-	public Class<? extends GxsGroupItem> getGroupClass()
-	{
-		return IdentityGroupItem.class;
-	}
-
-	@Override
-	public Class<? extends GxsMessageItem> getMessageClass()
-	{
-		return null; // We don't use messages
 	}
 
 	@Override

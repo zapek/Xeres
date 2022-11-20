@@ -23,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
@@ -74,20 +73,6 @@ public abstract class GxsRsService extends RsService
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
 	}
-
-	/**
-	 * Gets the Gxs implementation of the group.
-	 *
-	 * @return the subclass of the GxsGroupItem
-	 */
-	public abstract Class<? extends GxsGroupItem> getGroupClass();
-
-	/**
-	 * Gets the Gxs implementation of the message.
-	 *
-	 * @return the subclass of the GxsMessageItem
-	 */
-	public abstract Class<? extends GxsMessageItem> getMessageClass();
 
 	/**
 	 * Gets the list of Gxs groups to transfer.

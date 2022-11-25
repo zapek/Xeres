@@ -19,7 +19,8 @@
 
 package io.xeres.common.id;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
+
 import java.util.Arrays;
 import java.util.Objects;
 

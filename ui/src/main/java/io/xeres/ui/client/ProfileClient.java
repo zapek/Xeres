@@ -26,12 +26,11 @@ import io.xeres.common.rest.profile.RsIdRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.model.profile.ProfileMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import javax.annotation.PostConstruct;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
@@ -74,7 +73,7 @@ public class ProfileClient
 	public Flux<Profile> findAll()
 	{
 		return webClient.get()
-				.uri("/")
+				.uri("")
 				.retrieve()
 				.bodyToFlux(ProfileDTO.class)
 				.map(ProfileMapper::fromDTO);

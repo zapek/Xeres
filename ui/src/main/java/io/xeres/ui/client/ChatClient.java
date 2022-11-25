@@ -28,11 +28,11 @@ import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.chat.ChatMapper;
 import io.xeres.ui.model.location.Location;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.util.Set;
 import java.util.stream.Collectors;
 

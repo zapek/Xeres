@@ -37,13 +37,13 @@ import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.profile.RsIdRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 

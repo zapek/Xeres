@@ -33,12 +33,12 @@ import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;

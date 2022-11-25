@@ -23,6 +23,7 @@ import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -32,7 +33,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
-import javax.validation.Valid;
 import java.util.Objects;
 
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;

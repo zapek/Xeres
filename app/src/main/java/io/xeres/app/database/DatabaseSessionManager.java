@@ -19,13 +19,12 @@
 
 package io.xeres.app.database;
 
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceUnit;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.EntityManagerHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
 
 /**
  * Allows using @Transaction from outside Spring Boot threads. Prefer using {@link DatabaseSession} which implements

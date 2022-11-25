@@ -32,11 +32,11 @@ import io.xeres.app.database.repository.SettingsRepository;
 import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.HostPort;
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.security.KeyPair;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;

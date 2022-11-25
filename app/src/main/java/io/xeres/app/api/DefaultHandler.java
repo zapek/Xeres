@@ -27,6 +27,7 @@ import io.xeres.app.api.error.Error;
 import io.xeres.app.api.error.ErrorResponseEntity;
 import io.xeres.app.api.error.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.persistence.EntityNotFoundException;
 import java.net.UnknownHostException;
 import java.util.NoSuchElementException;
 

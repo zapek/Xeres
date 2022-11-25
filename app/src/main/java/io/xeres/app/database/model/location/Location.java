@@ -29,9 +29,9 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.common.rsid.Type;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;

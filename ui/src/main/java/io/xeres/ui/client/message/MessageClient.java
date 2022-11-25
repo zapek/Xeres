@@ -22,6 +22,7 @@ package io.xeres.ui.client.message;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.JavaFxApplication;
+import jakarta.websocket.ContainerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -37,7 +38,6 @@ import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
-import javax.websocket.ContainerProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

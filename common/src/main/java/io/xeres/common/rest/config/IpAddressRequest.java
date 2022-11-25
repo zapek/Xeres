@@ -19,9 +19,8 @@
 
 package io.xeres.common.rest.config;
 
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Range;
-
-import javax.validation.constraints.NotNull;
 
 public record IpAddressRequest(
 		@NotNull

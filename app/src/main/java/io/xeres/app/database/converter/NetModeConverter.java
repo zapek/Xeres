@@ -1,8 +1,7 @@
 package io.xeres.app.database.converter;
 
 import io.xeres.common.protocol.NetMode;
-
-import javax.persistence.Converter;
+import jakarta.persistence.Converter;
 
 @Converter
 public class NetModeConverter extends EnumConverter<NetMode>

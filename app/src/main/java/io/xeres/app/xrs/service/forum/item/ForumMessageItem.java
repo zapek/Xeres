@@ -20,8 +20,7 @@
 package io.xeres.app.xrs.service.forum.item;
 
 import io.xeres.app.database.model.gxs.GxsMessageItem;
-
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @Entity(name = "forum_messages")
 public class ForumMessageItem extends GxsMessageItem

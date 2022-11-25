@@ -19,7 +19,7 @@
 
 package io.xeres.common.rest.chat;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public record CreateChatRoomRequest(
 		@NotNull

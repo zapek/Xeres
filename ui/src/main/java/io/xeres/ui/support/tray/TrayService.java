@@ -21,12 +21,12 @@ package io.xeres.ui.support.tray;
 
 import io.xeres.common.AppName;
 import io.xeres.ui.support.window.WindowManager;
+import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PreDestroy;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

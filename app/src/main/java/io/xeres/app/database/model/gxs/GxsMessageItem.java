@@ -22,11 +22,11 @@ package io.xeres.app.database.model.gxs;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import jakarta.persistence.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
 import java.time.Instant;
 
 @Entity(name = "gxs_messages")

@@ -24,8 +24,8 @@ import io.xeres.app.database.converter.PeerAddressTypeConverter;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.protocol.ip.IP;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.time.Instant;
 import java.util.Objects;
 

@@ -24,9 +24,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

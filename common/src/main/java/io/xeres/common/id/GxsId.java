@@ -20,8 +20,8 @@
 package io.xeres.common.id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Embeddable;
 
-import javax.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.Objects;
 

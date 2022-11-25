@@ -26,12 +26,11 @@ import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.model.settings.SettingsMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import javax.annotation.PostConstruct;
 
 import static io.xeres.common.rest.PathConfig.SETTINGS_PATH;
 
@@ -60,7 +59,7 @@ public class SettingsClient
 	public Mono<Settings> getSettings()
 	{
 		return webClient.get()
-				.uri("/")
+				.uri("")
 				.retrieve()
 				.bodyToMono(SettingsDTO.class)
 				.map(SettingsMapper::fromDTO);
@@ -73,7 +72,7 @@ public class SettingsClient
 		var patch = JsonDiff.asJsonPatch(source, target);
 
 		return webClient.patch()
-				.uri("/")
+				.uri("")
 				.contentType(MediaType.valueOf("application/json-patch+json"))
 				.bodyValue(patch)
 				.retrieve()

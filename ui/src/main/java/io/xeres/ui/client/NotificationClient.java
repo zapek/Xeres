@@ -21,13 +21,12 @@ package io.xeres.ui.client;
 
 import io.xeres.common.rest.notification.StatusNotificationResponse;
 import io.xeres.ui.JavaFxApplication;
+import jakarta.annotation.PostConstruct;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
-
-import javax.annotation.PostConstruct;
 
 import static io.xeres.common.rest.PathConfig.NOTIFICATIONS_PATH;
 

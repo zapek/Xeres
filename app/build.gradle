@@ -74,8 +74,8 @@ bootRun {
 
 springBoot {
     buildInfo {
+        excludes = ['time'] // make the build repeatable
         properties {
-            time = null // make the build repeatable
             name = rootProject.name
         }
     }

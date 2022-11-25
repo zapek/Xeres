@@ -25,11 +25,10 @@ import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.location.LocationMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import javax.annotation.PostConstruct;
 
 import static io.xeres.common.rest.PathConfig.LOCATIONS_PATH;
 

@@ -179,7 +179,7 @@ dependencies {
     implementation 'com.github.atomashpolskiy:bt-dht:1.10'
     implementation 'org.apache.commons:commons-lang3'
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
-    implementation "org.springdoc:springdoc-openapi-ui:$springOpenApiVersion"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
     implementation 'net.coobird:thumbnailator:0.4.18'
     implementation 'net.java.dev.jna:jna-platform:5.12.1'
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"

@@ -57,7 +57,7 @@ class SettingsControllerTest extends AbstractControllerTest
 
 		when(settingsService.getSettings()).thenReturn(SettingsMapper.toDTO(settings));
 
-		mvc.perform(getJson(BASE_URL + "/"))
+		mvc.perform(getJson(BASE_URL))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.dhtEnabled", is(settings.isDhtEnabled())));
 	}
@@ -69,7 +69,7 @@ class SettingsControllerTest extends AbstractControllerTest
 
 		when(settingsService.applyPatchToSettings(any())).thenReturn(settings);
 
-		mvc.perform(patchJson(BASE_URL + "/", new JsonPatch(List.of())))
+		mvc.perform(patchJson(BASE_URL, new JsonPatch(List.of())))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.dhtEnabled", is(settings.isDhtEnabled())));
 	}

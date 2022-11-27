@@ -28,13 +28,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.error.Error;
 import io.xeres.app.service.GeoIpService;
 import io.xeres.common.rest.geoip.CountryResponse;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.Locale;
 
 import static io.xeres.common.rest.PathConfig.GEOIP_PATH;

@@ -45,7 +45,7 @@ public class SettingsController
 		this.settingsService = settingsService;
 	}
 
-	@GetMapping("/")
+	@GetMapping
 	@Operation(summary = "Get the current settings.")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public SettingsDTO getSettings()
@@ -53,7 +53,7 @@ public class SettingsController
 		return settingsService.getSettings();
 	}
 
-	@PatchMapping(path = "/", consumes = "application/json-patch+json")
+	@PatchMapping(consumes = "application/json-patch+json")
 	public ResponseEntity<SettingsDTO> updateSettings(@RequestBody JsonPatch jsonPatch)
 	{
 		var newSettings = settingsService.applyPatchToSettings(jsonPatch);

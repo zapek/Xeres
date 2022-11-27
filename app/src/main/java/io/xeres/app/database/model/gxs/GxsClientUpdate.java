@@ -20,9 +20,9 @@
 package io.xeres.app.database.model.gxs;
 
 import io.xeres.app.database.model.location.Location;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Table(name = "gxs_client_updates")

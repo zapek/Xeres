@@ -37,13 +37,13 @@ import io.xeres.ui.controller.messaging.PeersWindowController;
 import io.xeres.ui.controller.profile.ProfilesWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.model.profile.Profile;
+import jakarta.annotation.PostConstruct;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxWeaver;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.ResourceBundle;

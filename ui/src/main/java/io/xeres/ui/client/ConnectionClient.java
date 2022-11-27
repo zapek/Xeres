@@ -23,11 +23,10 @@ import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.model.profile.ProfileMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
-
-import javax.annotation.PostConstruct;
 
 import static io.xeres.common.rest.PathConfig.CONNECTIONS_PATH;
 

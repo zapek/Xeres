@@ -26,9 +26,9 @@ import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
 import java.util.HashSet;
 import java.util.Set;
 

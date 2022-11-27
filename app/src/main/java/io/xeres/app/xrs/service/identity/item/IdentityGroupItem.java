@@ -28,9 +28,9 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.identity.Type;
+import jakarta.persistence.*;
 import org.apache.commons.lang3.ArrayUtils;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

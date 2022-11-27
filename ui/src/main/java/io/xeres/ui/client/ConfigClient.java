@@ -21,12 +21,12 @@ package io.xeres.ui.client;
 
 import io.xeres.common.rest.config.*;
 import io.xeres.ui.JavaFxApplication;
+import jakarta.annotation.PostConstruct;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.CONFIG_PATH;

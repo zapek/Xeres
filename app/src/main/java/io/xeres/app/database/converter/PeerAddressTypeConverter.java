@@ -1,8 +1,7 @@
 package io.xeres.app.database.converter;
 
 import io.xeres.app.net.protocol.PeerAddress;
-
-import javax.persistence.Converter;
+import jakarta.persistence.Converter;
 
 @Converter
 public class PeerAddressTypeConverter extends EnumConverter<PeerAddress.Type>

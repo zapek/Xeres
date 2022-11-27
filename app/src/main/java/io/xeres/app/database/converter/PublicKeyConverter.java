@@ -20,9 +20,9 @@
 package io.xeres.app.database.converter;
 
 import io.xeres.app.crypto.rsa.RSA;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;

@@ -22,11 +22,11 @@ package io.xeres.app.xrs.service;
 import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.item.Item;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Locale;

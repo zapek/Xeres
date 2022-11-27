@@ -1,7 +1,7 @@
 package io.xeres.app.database.converter;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 /**
  * This class is needed because Hibernate uses the ordinal value of enums to save them in the database and

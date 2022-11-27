@@ -1,8 +1,7 @@
 package io.xeres.app.database.converter;
 
 import io.xeres.app.database.model.gxs.GxsCircleType;
-
-import javax.persistence.Converter;
+import jakarta.persistence.Converter;
 
 @Converter
 public class GxsCircleTypeConverter extends EnumConverter<GxsCircleType>

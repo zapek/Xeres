@@ -23,6 +23,7 @@ import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.identity.Identity;
 import io.xeres.ui.model.identity.IdentityMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
@@ -34,7 +35,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
@@ -62,7 +62,7 @@ public class IdentityClient
 	public Flux<Identity> getIdentities()
 	{
 		return webClient.get()
-				.uri("/")
+				.uri("")
 				.retrieve()
 				.bodyToFlux(IdentityDTO.class)
 				.map(IdentityMapper::fromDTO);

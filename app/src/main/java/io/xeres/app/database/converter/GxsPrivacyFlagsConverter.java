@@ -20,8 +20,7 @@
 package io.xeres.app.database.converter;
 
 import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
-
-import javax.persistence.Converter;
+import jakarta.persistence.Converter;
 
 @Converter
 public class GxsPrivacyFlagsConverter extends EnumSetConverter<GxsPrivacyFlags>

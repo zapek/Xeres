@@ -21,9 +21,9 @@ package io.xeres.app.database.model.chat;
 
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import jakarta.persistence.*;
 import org.apache.commons.lang3.EnumUtils;
 
-import javax.persistence.*;
 import java.util.Set;
 
 @Table(name = "chatrooms")

@@ -34,6 +34,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.identity.Type;
+import jakarta.persistence.EntityNotFoundException;
 import net.coobird.thumbnailator.Thumbnails;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -46,7 +47,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

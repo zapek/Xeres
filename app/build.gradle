@@ -125,6 +125,7 @@ jpackage {
     mainClass = "org.springframework.boot.loader.JarLauncher"
     mainJar = "app-${project.version}.jar"
     licenseFile = "${parent.rootDir}/LICENSE"
+    aboutUrl = "https://xeres.io"
     javaOptions = ['-Djava.net.preferIPv4Stack=true',
                    '-Dfile.encoding=UTF-8',
                    '-splash:$APPDIR/startup.jpg',

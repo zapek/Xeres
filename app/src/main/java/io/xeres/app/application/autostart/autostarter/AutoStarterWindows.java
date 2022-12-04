@@ -141,7 +141,7 @@ public class AutoStarterWindows implements AutoStarter
 		if (path.startsWith("jar:"))
 		{
 			// remove "jar:" prefix and "!/" suffix
-			final int index = path.indexOf("!/");
+			var index = path.indexOf("!/");
 			path = path.substring(4, index);
 		}
 		try
@@ -153,7 +153,7 @@ public class AutoStarterWindows implements AutoStarter
 			}
 			return new File(new URL(path).toURI());
 		}
-		catch (final MalformedURLException | URISyntaxException e)
+		catch (MalformedURLException | URISyntaxException e)
 		{
 			// NB: URL is not completely well-formed.
 			if (path.startsWith("file:"))

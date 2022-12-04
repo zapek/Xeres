@@ -147,15 +147,16 @@ public class ConfigController
 
 		switch (locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress))
 		{
-			case ADDED:
+			case ADDED ->
+			{
 				var location = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
 				return ResponseEntity.created(location).build();
-
-			case UPDATED:
+			}
+			case UPDATED ->
+			{
 				return ResponseEntity.noContent().build();
-
-			default:
-				throw new IllegalStateException();
+			}
+			default -> throw new IllegalStateException();
 		}
 	}
 

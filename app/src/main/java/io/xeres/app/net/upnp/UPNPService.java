@@ -21,7 +21,6 @@ package io.xeres.app.net.upnp;
 
 import io.xeres.app.application.events.PortsForwardedEvent;
 import io.xeres.app.service.StatusNotificationService;
-import io.xeres.common.AppName;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.ui.client.ConfigClient;
@@ -228,9 +227,14 @@ public class UPNPService implements Runnable
 				if (state == State.CONNECTED)
 				{
 					var refreshed = refreshPorts();
-					if (!refreshed)
+					if (refreshed)
+					{
+						statusNotificationService.setNatStatus(NatStatus.UPNP);
+					}
+					else
 					{
 						log.error("UPNP port refresh failed, starting again...");
+						statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
 						setState(State.BROADCASTING, registerSelectionKeys);
 						continue;
 					}
@@ -335,17 +339,18 @@ public class UPNPService implements Runnable
 			if (device.hasControlPoint())
 			{
 				setState(State.CONNECTED, key);
-				var added = refreshPorts(); // XXX: what to do if we failed? report to user? retry?
-				if (added)
+				var portsAdded = refreshPorts();
+				var externalAddressFound = findExternalIpAddress();
+
+				if (portsAdded && externalAddressFound)
 				{
-					log.info("UPNP ports added successfully.");
 					publisher.publishEvent(new PortsForwardedEvent(localPort));
+					statusNotificationService.setNatStatus(NatStatus.UPNP);
 				}
 				else
 				{
-					log.warn("Failed to add UPNP ports. {} might not accept incoming connections.", AppName.NAME);
+					statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
 				}
-				findExternalIpAddress();
 			}
 			else
 			{
@@ -379,18 +384,31 @@ public class UPNPService implements Runnable
 		var refreshed = device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.TCP);
 		refreshed &= device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.UDP);
 
-		statusNotificationService.setNatStatus(refreshed ? NatStatus.UPNP : NatStatus.FIREWALLED);
+		if (refreshed)
+		{
+			log.info("UPNP ports added/refreshed successfully.");
+		}
+		else
+		{
+			log.warn("Failed to add/refresh UPNP ports. Incoming connections won't be accepted.");
+		}
 
 		return refreshed;
 	}
 
-	private void findExternalIpAddress()
+	private boolean findExternalIpAddress()
 	{
 		var externalIpAddress = device.getExternalIpAddress();
 		if (IP.isPublicIp(externalIpAddress))
 		{
 			var result = configClient.updateExternalIpAddress(externalIpAddress, localPort);
 			result.subscribe();
+			return true;
+		}
+		else
+		{
+			log.info("External IP address {} is not public, ignoring", externalIpAddress);
+			return false;
 		}
 	}
 }

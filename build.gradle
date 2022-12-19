@@ -75,12 +75,11 @@ sonarqube {
         property "sonar.projectKey", "zapek_Xeres"
         property "sonar.organization", "zapek"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.java.source", "17"
         property "sonar.cpd.exclusion", "**/*Mapper.java"
     }
 }
 
-task cleanProfile(type: Delete) {
+tasks.register('cleanProfile', Delete) {
     group = 'build'
     description = 'Deletes the user profile.'
     // when run with IDEA Ultimate

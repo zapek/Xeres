@@ -2,7 +2,7 @@
 
 https://xeres.io
 
-## A Peer-to-Peer (Friend-to-Friend), decentralized, encrypted and secure application designed for communication and sharing.
+## A decentralized and secure application designed for communication and sharing.
 
 [![GitHub release](https://img.shields.io/github/release/zapek/Xeres.svg?label=latest%20release)](https://github.com/zapek/Xeres/releases/latest)
 [![CodeQL](https://github.com/zapek/Xeres/actions/workflows/analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/analysis.yml)
@@ -22,6 +22,7 @@ Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
 
 ## Features
 
+- Peer-to-peer (Friend-to-Friend), decentralized
 - Fully compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
 - Hardware accelerated encryption ([AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)) support
 - [JavaFX](https://openjfx.io/) UI
@@ -29,7 +30,7 @@ Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
 
 ## Build requirements
 
-- Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 18)
+- Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 19)
 
 If you want to quickly try the current development version without installing anything else, see the [command line](#Command-line) section below.
 
@@ -128,7 +129,7 @@ The project was started on 2019-10-30.
 
 ##### Git branching model
 
-The current plan is to use *master* for everything. Use a feature branch to work on a feature (for example, feature/165 if there's a ticket). Once it's ready, have someone review it then merge to master.
+The current plan is to use *master* for everything. Use a feature branch to work on a feature (for example, feature/165-the-feature (165 would be the ticket number, if any)). Once it's ready, have someone review it then merge to master.
 
 Releases will use tags and release branches if further fixes are needed.
 

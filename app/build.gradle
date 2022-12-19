@@ -97,13 +97,13 @@ processResources {
     dependsOn ":webui:processResources"
 }
 
-task copyInstaller(type: Copy) {
+tasks.register('copyInstaller', Copy) {
     from "${parent.rootDir}/installer"
     include "*"
     into "${project.buildDir}/${project.libsDirName}"
 }
 
-task deleteLibs(type: Delete) {
+tasks.register('deleteLibs', Delete) {
     delete "${project.buildDir}/${project.libsDirName}/"
 }
 

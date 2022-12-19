@@ -42,7 +42,7 @@ editorconfig {
 //    dependsOn "buildAngular"
 //}
 
-task buildAngular(type:Exec) {
+tasks.register('buildAngular', Exec) {
     // installAngular should be run prior to this task
     //dependsOn "installAngular" XXX: this is slow too, so disabled
     description = 'Builds the Angular web UI.'
@@ -51,26 +51,26 @@ task buildAngular(type:Exec) {
     // Add task to the standard build group
     group = BasePlugin.BUILD_GROUP
     // ng doesn't exist as a file in windows -> ng.cmd
-    if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")){
+    if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")) {
         commandLine "ng.cmd", "build"
     } else {
         commandLine "ng", "build"
     }
 }
 
-task installAngular(type:Exec) {
+tasks.register('installAngular', Exec) {
     description = 'Installs everything needed for Angular development.'
     workingDir "$webappDir"
     inputs.dir "$webappDir"
     group = BasePlugin.BUILD_GROUP
-    if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")){
+    if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")) {
         commandLine "npm.cmd", "install"
     } else {
         commandLine "npm", "install"
     }
 }
 
-task cleanAngular(type:Delete) {
+tasks.register('cleanAngular', Delete) {
     group = 'build'
     description = 'Deletes the Angular build directory.'
     delete "$webappDir/dist"

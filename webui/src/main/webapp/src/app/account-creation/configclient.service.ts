@@ -17,33 +17,33 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {Injectable} from "@angular/core";
-import {HttpClient, HttpErrorResponse} from "@angular/common/http";
-import {Observable, throwError} from "rxjs";
-import {catchError} from "rxjs/operators";
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError} from 'rxjs/operators';
 
 @Injectable({
-	providedIn: "root"
+	providedIn: 'root'
 })
 export class ConfigClient {
-	private url = "http://localhost:1066/api/v1/config";
+	private url = 'http://localhost:1066/api/v1/config';
 
 	constructor(private http: HttpClient) {
 	}
 
 	public createProfile(name: string): Observable<string> {
-		return this.http.post<string>(this.url + "/profile", {name: name}).pipe(catchError(this.handleError));
+		return this.http.post<string>(this.url + '/profile', {name}).pipe(catchError(this.handleError));
 	}
 
 	// XXX: this is boring... any global way to do that?
-	private handleError(err: HttpErrorResponse) {
-		let errorMessage = "";
+	private handleError = (err: HttpErrorResponse) => {
+		let errorMessage = '';
 		if (err.error instanceof ErrorEvent) {
 			errorMessage = `An error occured: ${err.error.message}`;
 		} else {
 			errorMessage = `Server returned code: ${err.status}, error message is: ${err.message}`;
 		}
 		console.error(errorMessage);
-		return throwError(errorMessage);
+		return throwError(() => new Error(errorMessage));
 	}
 }

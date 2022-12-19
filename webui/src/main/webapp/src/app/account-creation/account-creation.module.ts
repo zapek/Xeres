@@ -18,8 +18,8 @@
  */
 
 import {NgModule} from '@angular/core';
-import {SharedModule} from "../shared/shared.module";
-import {RouterModule} from "@angular/router";
+import {SharedModule} from '../shared/shared.module';
+import {RouterModule} from '@angular/router';
 import {AccountCreationComponent} from './account-creation.component';
 
 
@@ -27,7 +27,7 @@ import {AccountCreationComponent} from './account-creation.component';
 	declarations: [AccountCreationComponent],
 	imports: [
 		RouterModule.forChild([
-			{path: "create", component: AccountCreationComponent}
+			{path: 'create', component: AccountCreationComponent}
 		]),
 		SharedModule
 	]

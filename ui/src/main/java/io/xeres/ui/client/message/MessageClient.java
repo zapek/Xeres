@@ -33,7 +33,6 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.stereotype.Component;
-import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -41,6 +40,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
@@ -56,7 +56,7 @@ public class MessageClient
 {
 	private static final Logger log = LoggerFactory.getLogger(MessageClient.class);
 
-	private ListenableFuture<StompSession> future;
+	private CompletableFuture<StompSession> future;
 
 	private StompSession stompSession;
 
@@ -83,7 +83,7 @@ public class MessageClient
 		});
 
 		log.debug("Connecting to {}", url);
-		future = stompClient.connect(url, sessionHandler);
+		future = stompClient.connectAsync(url, sessionHandler);
 
 		return this;
 	}

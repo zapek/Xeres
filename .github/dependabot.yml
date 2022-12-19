@@ -4,6 +4,8 @@ updates:
   directory: "/"
   schedule:
     interval: "daily"
+  ignore:
+    - dependency-name: "org.flywaydb.flyway"
 
 - package-ecosystem: "github-actions"
   directory: "/"

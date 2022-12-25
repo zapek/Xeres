@@ -23,9 +23,7 @@ import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
+import org.springframework.web.util.UriComponents;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -45,12 +43,8 @@ public class CertificateContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(URI uri, String text)
+	public Content parse(UriComponents uriComponents, String text)
 	{
-		var uriComponents = UriComponentsBuilder.fromPath(uri.getPath())
-				.query(uri.getQuery())
-				.build();
-
 		var radix = uriComponents.getQueryParams().getFirst("radix");
 
 		if (isBlank(radix))

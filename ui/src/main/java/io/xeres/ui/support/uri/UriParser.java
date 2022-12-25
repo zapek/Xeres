@@ -22,6 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -80,7 +81,11 @@ public final class UriParser
 
 			if (contentParser != null)
 			{
-				return contentParser.parse(uri, text);
+				var uriComponents = UriComponentsBuilder.fromPath(uri.getPath())
+						.query(uri.getQuery())
+						.build();
+
+				return contentParser.parse(uriComponents, text);
 			}
 			return new ContentUri(uri.toString());
 		}

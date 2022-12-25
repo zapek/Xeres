@@ -25,9 +25,8 @@ import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.util.UiUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriComponents;
 
-import java.net.URI;
 import java.util.stream.Stream;
 
 public class CollectionContentParser implements ContentParser
@@ -45,12 +44,8 @@ public class CollectionContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(URI uri, String text)
+	public Content parse(UriComponents uriComponents, String text)
 	{
-		var uriComponents = UriComponentsBuilder.fromPath(uri.getPath())
-				.query(uri.getQuery())
-				.build();
-
 		var name = uriComponents.getQueryParams().getFirst("name");
 		var size = uriComponents.getQueryParams().getFirst("size");
 		var radix = uriComponents.getQueryParams().getFirst("radix");

@@ -20,8 +20,7 @@
 package io.xeres.ui.support.uri;
 
 import io.xeres.ui.support.contentline.Content;
-
-import java.net.URI;
+import org.springframework.web.util.UriComponents;
 
 public interface ContentParser
 {
@@ -31,5 +30,5 @@ public interface ContentParser
 
 	String getAuthority();
 
-	Content parse(URI uri, String text);
+	Content parse(UriComponents uriComponents, String text);
 }

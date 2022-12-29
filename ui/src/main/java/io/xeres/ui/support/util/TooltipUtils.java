@@ -41,25 +41,26 @@ public final class TooltipUtils
 	public static void install(@SuppressWarnings("rawtypes") Cell cell, Supplier<String> textSupplier, Supplier<ImageView> graphicSupplier)
 	{
 		cell.addEventFilter(MouseEvent.MOUSE_ENTERED, event -> {
-			if (cell.getItem() != null)
+			if (cell.getItem() == null)
 			{
-				if (textSupplier == null && graphicSupplier == null)
-				{
-					return;
-				}
-				var text = textSupplier != null ? textSupplier.get() : null;
-				if (StringUtils.isBlank(text))
-				{
-					return;
-				}
-				var tooltip = new Tooltip(text);
-				if (graphicSupplier != null)
-				{
-					tooltip.setGraphic(graphicSupplier.get());
-				}
-				tooltip.setShowDuration(DURATION);
-				Tooltip.install(cell, tooltip);
+				return;
 			}
+			if (textSupplier == null && graphicSupplier == null)
+			{
+				return;
+			}
+			var text = textSupplier != null ? textSupplier.get() : null;
+			if (StringUtils.isBlank(text))
+			{
+				return;
+			}
+			var tooltip = new Tooltip(text);
+			if (graphicSupplier != null)
+			{
+				tooltip.setGraphic(graphicSupplier.get());
+			}
+			tooltip.setShowDuration(DURATION);
+			Tooltip.install(cell, tooltip);
 		});
 		cell.addEventFilter(MouseEvent.MOUSE_EXITED, event -> {
 			if (cell.getItem() != null && cell.getTooltip() != null)

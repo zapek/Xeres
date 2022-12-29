@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service;
+package io.xeres.app.service.status_notification;
 
 import io.xeres.app.api.sse.SsePushNotificationService;
 import io.xeres.common.rest.notification.DhtInfo;
@@ -34,16 +34,13 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class StatusNotificationService
 {
-	private int currentUsersCount;
-	private boolean currentUsersCountChanged;
-	private int totalUsers;
-	private boolean totalUsersChanged;
+	private final StatusNotification<Integer> currentUserCount = new StatusNotification<>(0);
 
-	private NatStatus natStatus = NatStatus.UNKNOWN;
-	private boolean natStatusChanged;
+	private final StatusNotification<Integer> totalUsers = new StatusNotification<>(0);
 
-	private DhtInfo dhtInfo = DhtInfo.fromStatus(DhtStatus.OFF);
-	private boolean dhtInfoChanged;
+	private final StatusNotification<NatStatus> natStatus = new StatusNotification<>(NatStatus.UNKNOWN);
+
+	private final StatusNotification<DhtInfo> dhtInfo = new StatusNotification<>(DhtInfo.fromStatus(DhtStatus.OFF));
 
 	private final SsePushNotificationService ssePushNotificationService;
 	private final TrayService trayService;
@@ -66,94 +63,59 @@ public class StatusNotificationService
 		return emitter;
 	}
 
-	public void setCurrentUsersCount(int currentUsersCount)
+	public void setCurrentUsersCount(int value)
 	{
-		this.currentUsersCount = currentUsersCount;
-		currentUsersCountChanged = true;
+		currentUserCount.setValue(value);
 		sendNotification(null);
-		trayService.setTooltip(currentUsersCount + " peers connected");
+		trayService.setTooltip(value + " peers connected");
 	}
 
-	public void setTotalUsers(int totalUsers)
+	public void setTotalUsers(int value)
 	{
-		this.totalUsers = totalUsers;
-		totalUsersChanged = true;
+		totalUsers.setValue(value);
 		sendNotification(null);
 	}
 
 	public void incrementTotalUsers()
 	{
-		totalUsers++;
-		totalUsersChanged = true;
+		totalUsers.setValue(totalUsers.getValue() + 1);
 		sendNotification(null);
 	}
 
 	public void decrementTotalUsers()
 	{
-		if (totalUsers > 0)
+		if (totalUsers.getValue() > 0)
 		{
-			totalUsers--;
+			totalUsers.setValue(totalUsers.getValue() - 1);
 			sendNotification(null);
 		}
 	}
 
-	public void setNatStatus(NatStatus natStatus)
+	public void setNatStatus(NatStatus value)
 	{
-		this.natStatus = natStatus;
-		natStatusChanged = true;
+		natStatus.setValue(value);
 		sendNotification(null);
 	}
 
-	public void setDhtInfo(DhtInfo dhtInfo)
+	public void setDhtInfo(DhtInfo value)
 	{
-		this.dhtInfo = dhtInfo;
-		dhtInfoChanged = true;
+		dhtInfo.setValue(value);
 		sendNotification(null);
 	}
 
 	private void sendNotification(SseEmitter specificEmitter)
 	{
-		Integer newCurrentUsersCount = null;
-		if (currentUsersCountChanged || specificEmitter != null)
-		{
-			newCurrentUsersCount = currentUsersCount;
-			if (specificEmitter == null)
-			{
-				currentUsersCountChanged = false;
-			}
-		}
-
-		Integer newTotalUsers = null;
-		if (totalUsersChanged || specificEmitter != null)
-		{
-			newTotalUsers = totalUsers;
-			if (specificEmitter == null)
-			{
-				totalUsersChanged = false;
-			}
-		}
-
-		NatStatus newNatStatus = null;
-		if (natStatusChanged || specificEmitter != null)
-		{
-			newNatStatus = natStatus;
-			if (specificEmitter == null)
-			{
-				natStatusChanged = false;
-			}
-		}
-
-		DhtInfo newDhtInfo = null;
-		if (dhtInfoChanged || specificEmitter != null)
-		{
-			newDhtInfo = dhtInfo;
-			if (specificEmitter == null)
-			{
-				dhtInfoChanged = false;
-			}
-		}
+		var newCurrentUsersCount = currentUserCount.getNewStatusIfChanged(specificEmitter);
+		var newTotalUsers = totalUsers.getNewStatusIfChanged(specificEmitter);
+		var newNatStatus = natStatus.getNewStatusIfChanged(specificEmitter);
+		var newDhtInfo = dhtInfo.getNewStatusIfChanged(specificEmitter);
 
 		var notification = new StatusNotificationResponse(newCurrentUsersCount, newTotalUsers, newNatStatus, newDhtInfo);
+
+		if (notification.isEmpty())
+		{
+			return;
+		}
 
 		if (specificEmitter != null)
 		{
@@ -164,4 +126,5 @@ public class StatusNotificationService
 			ssePushNotificationService.sendNotification(notification);
 		}
 	}
+
 }

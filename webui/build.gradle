@@ -32,11 +32,6 @@ sourceSets {
     }
 }
 
-editorconfig {
-    includes = ['src/**']
-    excludes = ['src/main/webapp/dist/**', 'src/main/webapp/node_modules/**']
-}
-
 // XXX: enable once mature enough (it's slow)
 //processResources {
 //    dependsOn "buildAngular"

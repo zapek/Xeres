@@ -214,7 +214,7 @@ public class AutoStarterWindows implements AutoStarter
 			return;
 		}
 
-		List<String> newLines = new ArrayList<>();
+		List<String> lines = new ArrayList<>();
 		var alreadyEnabled = false;
 
 		try (var bufferedReader = new BufferedReader(new FileReader(configFile.toFile())))
@@ -230,7 +230,7 @@ public class AutoStarterWindows implements AutoStarter
 						continue;
 					}
 				}
-				newLines.add(line);
+				lines.add(line);
 			}
 		}
 		catch (IOException e)
@@ -246,16 +246,20 @@ public class AutoStarterWindows implements AutoStarter
 
 		if (enable)
 		{
-			for (var i = 0; i < newLines.size(); i++)
+			for (var i = 0; i < lines.size(); i++)
 			{
-				if (newLines.get(i).equals(JAVA_OPTIONS))
+				if (lines.get(i).equals(JAVA_OPTIONS))
 				{
-					newLines.add(i + 1, JAVA_OPTIONS_SPLASH);
+					lines.add(i + 1, JAVA_OPTIONS_SPLASH);
 					break;
 				}
 			}
 		}
+		writeStartupConfigFile(configFile, lines);
+	}
 
+	private static void writeStartupConfigFile(Path configFile, List<String> newLines)
+	{
 		try
 		{
 			var tmpFile = Files.createTempFile(configFile.getParent(), AppName.NAME, CONFIG_EXTENSION);

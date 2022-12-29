@@ -23,10 +23,6 @@ plugins {
     id 'java-test-fixtures'
 }
 
-editorconfig {
-    includes = ['src/**']
-}
-
 test {
     useJUnitPlatform()
     test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"

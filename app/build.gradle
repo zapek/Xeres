@@ -51,7 +51,6 @@ plugins {
     id 'org.flywaydb.flyway'
     id 'jacoco'
     id 'org.panteleyev.jpackageplugin'
-    id 'com.jaredsburrows.license'
 }
 
 
@@ -81,20 +80,9 @@ springBoot {
     }
 }
 
-editorconfig {
-    includes = ['src/**']
-    excludes = ['src/test/resources/upnp/**', 'src/main/webapp/dist/**', 'src/main/webapp/node_modules/**', 'src/main/resources/GeoLite2-Country.mmdb']
-}
-
 test {
     useJUnitPlatform()
     test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
-}
-
-// XXX: hack to make IntelliJ actually build properly. Maybe report to JetBrains
-processResources {
-    dependsOn ":ui:processResources"
-    dependsOn ":webui:processResources"
 }
 
 tasks.register('copyInstaller', Copy) {

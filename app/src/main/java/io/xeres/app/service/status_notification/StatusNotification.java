@@ -17,13 +17,51 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification;
+package io.xeres.app.service.status_notification;
 
-public record StatusNotificationResponse(Integer currentUsers, Integer totalUsers, NatStatus natStatus, DhtInfo dhtInfo)
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.Objects;
+
+class StatusNotification<T>
 {
+	private T value;
+	private boolean changed;
 
-	public boolean isEmpty()
+	public StatusNotification(T value)
 	{
-		return currentUsers == null && totalUsers == null && natStatus == null && dhtInfo == null;
+		this.value = value;
+	}
+
+	public T getValue()
+	{
+		return value;
+	}
+
+	public void setValue(T value)
+	{
+		if (!Objects.equals(this.value, value))
+		{
+			changed = true;
+			this.value = value;
+		}
+	}
+
+	public boolean isChanged()
+	{
+		return changed;
+	}
+
+	public T getNewStatusIfChanged(SseEmitter sseEmitter)
+	{
+		if (isChanged() || sseEmitter != null)
+		{
+			if (sseEmitter == null)
+			{
+				changed = false;
+			}
+			return value;
+		}
+		return null;
 	}
 }

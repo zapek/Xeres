@@ -20,7 +20,7 @@
 package io.xeres.app.net.upnp;
 
 import io.xeres.app.application.events.PortsForwardedEvent;
-import io.xeres.app.service.StatusNotificationService;
+import io.xeres.app.service.status_notification.StatusNotificationService;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.NatStatus;
 import io.xeres.ui.client.ConfigClient;

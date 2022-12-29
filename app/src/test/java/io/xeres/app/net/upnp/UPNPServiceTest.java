@@ -19,7 +19,7 @@
 
 package io.xeres.app.net.upnp;
 
-import io.xeres.app.service.StatusNotificationService;
+import io.xeres.app.service.status_notification.StatusNotificationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

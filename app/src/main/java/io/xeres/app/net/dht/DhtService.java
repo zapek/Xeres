@@ -22,7 +22,7 @@ package io.xeres.app.net.dht;
 import io.xeres.app.application.events.DhtNodeFoundEvent;
 import io.xeres.app.application.events.DhtReadyEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
-import io.xeres.app.service.StatusNotificationService;
+import io.xeres.app.service.status_notification.StatusNotificationService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.HostPort;

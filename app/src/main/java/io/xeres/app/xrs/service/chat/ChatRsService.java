@@ -733,49 +733,64 @@ public class ChatRsService extends RsService
 		{
 			if (item.isAvatarRequest())
 			{
-				var ownImage = identityService.getOwnIdentity().getImage();
-				if (ownImage != null && ownImage.length <= AVATAR_SIZE_MAX)
-				{
-					peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
-				}
+				handleAvatarRequest(peerConnection);
 			}
 			else
 			{
 				if (item.isPartial())
 				{
-					var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
-					if (messageList.isEmpty())
-					{
-						List<String> newMessageList = new ArrayList<>();
-						newMessageList.add(item.getMessage());
-						peerConnection.putServiceData(this, KEY_PARTIAL_MESSAGE_LIST, newMessageList);
-					}
-					else
-					{
-						//noinspection unchecked
-						((List<String>) messageList.get()).add(item.getMessage());
-					}
+					handlePartialMessage(peerConnection, item);
 				}
 				else
 				{
-					var message = item.getMessage();
-					var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
-					if (messageList.isPresent())
-					{
-						@SuppressWarnings("unchecked")
-						var existingList = (List<String>) messageList.get();
-						existingList.add(message);
-						message = String.join("", existingList);
-						peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
-					}
-					var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
-					peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
+					handleMessage(peerConnection, item);
 				}
 			}
 		}
 		else if (item.isBroadcast())
 		{
 			trayService.showNotification("Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName() + ": " + parseIncomingText(item.getMessage()));
+		}
+	}
+
+	private void handleAvatarRequest(PeerConnection peerConnection)
+	{
+		var ownImage = identityService.getOwnIdentity().getImage();
+		if (ownImage != null && ownImage.length <= AVATAR_SIZE_MAX)
+		{
+			peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
+		}
+	}
+
+	private void handleMessage(PeerConnection peerConnection, ChatMessageItem item)
+	{
+		var message = item.getMessage();
+		var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+		if (messageList.isPresent())
+		{
+			@SuppressWarnings("unchecked")
+			var existingList = (List<String>) messageList.get();
+			existingList.add(message);
+			message = String.join("", existingList);
+			peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+		}
+		var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
+	}
+
+	private void handlePartialMessage(PeerConnection peerConnection, ChatMessageItem item)
+	{
+		var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+		if (messageList.isEmpty())
+		{
+			List<String> newMessageList = new ArrayList<>();
+			newMessageList.add(item.getMessage());
+			peerConnection.putServiceData(this, KEY_PARTIAL_MESSAGE_LIST, newMessageList);
+		}
+		else
+		{
+			//noinspection unchecked
+			((List<String>) messageList.get()).add(item.getMessage());
 		}
 	}
 

@@ -20,7 +20,7 @@
 package io.xeres.app.api.controller.notification;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
-import io.xeres.app.service.StatusNotificationService;
+import io.xeres.app.service.status_notification.StatusNotificationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

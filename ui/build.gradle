@@ -23,11 +23,6 @@ plugins {
     id 'jacoco'
 }
 
-editorconfig {
-    includes = ['src/**']
-    excludes = ['src/main/resources/i18n/**']
-}
-
 javafx {
     version = "19"
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']

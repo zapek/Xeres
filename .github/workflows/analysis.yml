@@ -44,15 +44,11 @@ jobs:
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
-    - name: Cache Gradle packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-        restore-keys: ${{ runner.os }}-gradle
-
     - name: Build, test and generate reports
-      run: ./gradlew clean build test jacocoTestReport # 'clean' is needed because CodeQL needs to analyze the output
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: build test jacocoTestReport
+        gradle-home-cache-cleanup: true
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2

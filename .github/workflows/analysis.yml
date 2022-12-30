@@ -52,7 +52,7 @@ jobs:
         restore-keys: ${{ runner.os }}-gradle
 
     - name: Build, test and generate reports
-      run: ./gradlew build test jacocoTestReport
+      run: ./gradlew clean build test jacocoTestReport # 'clean' is needed because CodeQL needs to analyze the output
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2

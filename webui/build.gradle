@@ -32,6 +32,11 @@ sourceSets {
     }
 }
 
+// Everything has been disabled for now to avoid:
+// - warnings from GitHub's dependabot about "security holes"
+// - Angular updates that break
+
+
 // XXX: enable once mature enough (it's slow)
 //processResources {
 //    dependsOn "buildAngular"
@@ -40,29 +45,29 @@ sourceSets {
 tasks.register('buildAngular', Exec) {
     // installAngular should be run prior to this task
     //dependsOn "installAngular" XXX: this is slow too, so disabled
-    description = 'Builds the Angular web UI.'
-    workingDir "$webappDir"
-    inputs.dir "$webappDir"
-    // Add task to the standard build group
-    group = BasePlugin.BUILD_GROUP
-    // ng doesn't exist as a file in windows -> ng.cmd
-    if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")) {
-        commandLine "ng.cmd", "build"
-    } else {
-        commandLine "ng", "build"
-    }
+//    description = 'Builds the Angular web UI.'
+//    workingDir "$webappDir"
+//    inputs.dir "$webappDir"
+//    // Add task to the standard build group
+//    group = BasePlugin.BUILD_GROUP
+//    // ng doesn't exist as a file in windows -> ng.cmd
+//    if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")) {
+//        commandLine "ng.cmd", "build"
+//    } else {
+//        commandLine "ng", "build"
+//    }
 }
 
 tasks.register('installAngular', Exec) {
-    description = 'Installs everything needed for Angular development.'
-    workingDir "$webappDir"
-    inputs.dir "$webappDir"
-    group = BasePlugin.BUILD_GROUP
-    if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")) {
-        commandLine "npm.cmd", "install"
-    } else {
-        commandLine "npm", "install"
-    }
+//    description = 'Installs everything needed for Angular development.'
+//    workingDir "$webappDir"
+//    inputs.dir "$webappDir"
+//    group = BasePlugin.BUILD_GROUP
+//    if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")) {
+//        commandLine "npm.cmd", "install"
+//    } else {
+//        commandLine "npm", "install"
+//    }
 }
 
 tasks.register('cleanAngular', Delete) {

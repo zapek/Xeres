@@ -5,10 +5,12 @@ on:
     branches:
     - master
   pull_request:
+    branches:
+      - master
     types:
-    - opened
-    - synchronize
-    - reopened
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   analyze:

@@ -22,7 +22,7 @@ Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
 
 ## Features
 
-- Peer-to-peer (Friend-to-Friend), decentralized
+- Peer-to-Peer (Friend-to-Friend), decentralized
 - Fully compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
 - Hardware accelerated encryption ([AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)) support
 - [JavaFX](https://openjfx.io/) UI
@@ -117,11 +117,15 @@ With IntelliJ Ultimate, create the following Database connection with the built-
 
 ## Run tests locally
 
+Note: because of https://github.com/JetBrains/gradle-intellij-plugin/issues/1039 and https://youtrack.jetbrains.com/issue/IDEA-305759/Gradle-cannot-handle-classpath.index-duplicates it is no longer recommended to use the method below, instead simply use the gradle `test` task.
+
 With IntelliJ IDEA Ultimate, setup the following JUnit Configuration:
+
 - add VM options: -ea -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8
 - All in packages: io.xeres
 - Working directory: put a **real** working directory (the default won't work if you want code coverage)
 - Search for tests: in whole project
+- If it breaks the build, see the note above and run the `clean` task to fix it
 
 ## Misc
 

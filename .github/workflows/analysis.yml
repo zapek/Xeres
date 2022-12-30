@@ -49,7 +49,7 @@ jobs:
     - name: Build, test and generate reports
       uses: gradle/gradle-build-action@v2
       with:
-        arguments: build test jacocoTestReport --no-build-cache --no-configuration-cache --info --stacktrace
+        arguments: build test jacocoTestReport --no-build-cache --info --stacktrace
         gradle-home-cache-cleanup: true
 
     - name: Perform CodeQL Analysis

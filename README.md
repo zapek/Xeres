@@ -15,8 +15,6 @@ https://xeres.io
 - Linux (x86_64)
 - MacOS (x86_64)
 
-Test
-
 ## Downloads
 
 Latest release available [here](https://github.com/zapek/Xeres/releases/latest).

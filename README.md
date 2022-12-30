@@ -99,7 +99,7 @@ To pass Xeres arguments, just use the args feature, for example:
 
 ## How to set up the WebUI
 
-_Note: the webui is currently nonfunctional._
+_Note: the webui is currently disabled and the following tasks won't work at all._
 
 Run the gradle tasks ``installAngular`` (if you don't already have Angular installed) then ``buildAngular``. The later will create the needed files that will be served by Xeres on ``localhost:1066``.
 

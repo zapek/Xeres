@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -20,11 +20,8 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <VBox xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatRoomInfoController">
     <padding>
         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>

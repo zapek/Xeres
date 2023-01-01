@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -20,8 +20,7 @@
   -->
 
 
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <VBox prefHeight="400.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.profile.ProfilesWindowController" styleClass="base-spacing">
     <TableView fx:id="profilesTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">

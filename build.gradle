@@ -1,7 +1,7 @@
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 /*
- * Copyright (c) 2019-2021 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *

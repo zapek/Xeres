@@ -167,6 +167,17 @@
                         <graphic>
                             <FontAwesomeIconView glyphName="CLIPBOARD" glyphSize="18" size="16" text=""/>
                         </graphic>
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%main.home.copy-id.tip"/>
+                        </tooltip>
+                    </Button>
+                    <Button fx:id="showQrCodeButton">
+                        <HBox.margin>
+                            <Insets left="8.0"/>
+                        </HBox.margin>
+                        <graphic>
+                            <FontAwesomeIconView glyphName="QRCODE" glyphSize="18" size="16"/>
+                        </graphic>
                     </Button>
                 </HBox>
                 <Label text="%main.home.received-id">

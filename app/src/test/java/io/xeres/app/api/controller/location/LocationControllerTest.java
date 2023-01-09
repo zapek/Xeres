@@ -20,31 +20,42 @@
 package io.xeres.app.api.controller.location;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
+import io.xeres.app.api.converter.BufferedImageConverter;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.QrCodeService;
 import io.xeres.common.rsid.Type;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.xeres.common.rest.PathConfig.LOCATIONS_PATH;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LocationController.class)
+@Import(BufferedImageConverter.class) // @Components aren't imported by default by @WebMvcTest
 class LocationControllerTest extends AbstractControllerTest
 {
 	private static final String BASE_URL = LOCATIONS_PATH;
 
 	@MockBean
 	private LocationService locationService;
+
+	@MockBean
+	private QrCodeService qrCodeService;
 
 	@Autowired
 	public MockMvc mvc;
@@ -77,5 +88,22 @@ class LocationControllerTest extends AbstractControllerTest
 				.andExpect(jsonPath("$.rsId", is(location.getRsId(Type.ANY).getArmored())));
 
 		verify(locationService).findLocationById(location.getId());
+	}
+
+	@Test
+	void LocationController_getRSIdOfLocation_QrCode_OK() throws Exception
+	{
+		var location = LocationFakes.createLocation();
+		var rsId = location.getRsId(Type.SHORT_INVITE).getArmored();
+
+		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
+		when(qrCodeService.generateQrCode(rsId)).thenReturn(ImageIO.read(new ByteArrayInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/image/abitbol.png")).readAllBytes())));
+
+		mvc.perform(getJson(BASE_URL + "/" + location.getId() + "/rsId/qrCode", MediaType.IMAGE_PNG))
+				.andExpect(status().isOk())
+				.andExpect(header().string(CONTENT_TYPE, "image/png"));
+
+		verify(locationService).findLocationById(location.getId());
+		verify(qrCodeService).generateQrCode(rsId);
 	}
 }

@@ -27,11 +27,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.error.Error;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.QrCodeService;
 import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.awt.image.BufferedImage;
 
 import static io.xeres.app.database.model.location.LocationMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.LOCATIONS_PATH;
@@ -43,9 +47,12 @@ public class LocationController
 {
 	private final LocationService locationService;
 
-	public LocationController(LocationService locationService)
+	private final QrCodeService qrCodeService;
+
+	public LocationController(LocationService locationService, QrCodeService qrCodeService)
 	{
 		this.locationService = locationService;
+		this.qrCodeService = qrCodeService;
 	}
 
 	@GetMapping("/{id}")
@@ -66,5 +73,16 @@ public class LocationController
 		var location = locationService.findLocationById(id).orElseThrow();
 
 		return new RSIdResponse(location.getProfile().getName(), location.getName(), location.getRsId(type == null ? Type.ANY : type).getArmored());
+	}
+
+	@GetMapping(value = "/{id}/rsId/qrCode", produces = MediaType.IMAGE_PNG_VALUE)
+	@Operation(summary = "Return a location's RSId as a QR code")
+	@ApiResponse(responseCode = "200", description = "Location found")
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	public ResponseEntity<BufferedImage> getRSIdOfLocationAsQrCode(@PathVariable long id)
+	{
+		var location = locationService.findLocationById(id).orElseThrow();
+
+		return ResponseEntity.ok(qrCodeService.generateQrCode(location.getRsId(Type.SHORT_INVITE).getArmored()));
 	}
 }

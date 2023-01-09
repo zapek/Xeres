@@ -102,6 +102,11 @@ final class UiWindow
 			setWindowPreferences(stage, builder.root.getId());
 		}
 
+		if (!builder.resizeable)
+		{
+			stage.setResizable(false);
+		}
+
 		stage.setOnShowing(event -> builder.controller.onShowing());
 		stage.setOnShown(event -> builder.controller.onShown());
 		stage.setOnHiding(event -> builder.controller.onHiding());
@@ -217,6 +222,7 @@ final class UiWindow
 		private String localId;
 		private Object userData;
 		private boolean rememberEnvironment;
+		private boolean resizeable = true;
 
 		private Builder(Parent root, WindowController controller)
 		{
@@ -263,6 +269,12 @@ final class UiWindow
 		Builder setRememberEnvironment(boolean remember)
 		{
 			this.rememberEnvironment = remember;
+			return this;
+		}
+
+		Builder setResizeable(boolean resizeable)
+		{
+			this.resizeable = resizeable;
 			return this;
 		}
 

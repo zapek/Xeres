@@ -35,6 +35,7 @@ import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.messaging.PeersWindowController;
 import io.xeres.ui.controller.profile.ProfilesWindowController;
+import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.model.profile.Profile;
 import jakarta.annotation.PostConstruct;
@@ -148,6 +149,19 @@ public class WindowManager
 						.setParent(parent)
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
 						.setMinHeight(260)
+						.build()
+						.open());
+	}
+
+	public void openQrCode(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(QrCodeWindowController.class)
+						.setParent(parent)
+						.setTitle(bundle.getString("qrcode.window-title"))
+						.setMinWidth(256)
+						.setMinHeight(256)
+						.setResizeable(false)
 						.build()
 						.open());
 	}

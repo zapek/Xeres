@@ -130,6 +130,9 @@ public class MainWindowController implements WindowController
 	private Button copyShortIdButton;
 
 	@FXML
+	private Button showQrCodeButton;
+
+	@FXML
 	public Button addFriendButton;
 
 	@FXML
@@ -178,6 +181,8 @@ public class MainWindowController implements WindowController
 
 		copyOwnId.setOnAction(event -> copyOwnId());
 		copyShortIdButton.setOnAction(event -> copyOwnId());
+
+		showQrCodeButton.setOnAction(event -> windowManager.openQrCode(titleLabel.getScene().getWindow()));
 
 		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
 

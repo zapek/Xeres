@@ -37,7 +37,6 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class UPNPService implements Runnable
@@ -56,7 +55,7 @@ public class UPNPService implements Runnable
 	private static final int PORT_DURATION = (int) Duration.ofHours(1).toMillis(); // how long does a port mapping lasts
 	private static final int PORT_DURATION_ANTICIPATION = (int) Duration.ofMinutes(1).toMillis(); // when to kick in the refresh before it expires
 
-	private static final int SERVICE_RETRY_MINUTES = 5; // time to retry the service when getting an error, in minutes
+	private static final Duration SERVICE_RETRY_DURATION = Duration.ofMinutes(5); // time to retry the service when getting an error
 
 	private static final String[] DEVICES = {
 			// IGD 1
@@ -186,7 +185,7 @@ public class UPNPService implements Runnable
 				log.warn("Binding failed: {}, trying again in 5 minutes", e.getMessage());
 				try
 				{
-					TimeUnit.MINUTES.sleep(SERVICE_RETRY_MINUTES);
+					Thread.sleep(SERVICE_RETRY_DURATION);
 				}
 				catch (InterruptedException ignore)
 				{

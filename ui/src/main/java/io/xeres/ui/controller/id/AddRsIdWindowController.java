@@ -32,6 +32,7 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.connection.Connection;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -87,22 +88,28 @@ public class AddRsIdWindowController implements WindowController
 	@FXML
 	private Label status;
 
+	@FXML
+	private Hyperlink scanQrCode;
+
 	private final ProfileClient profileClient;
 	private final GeoIpClient geoIpClient;
 	private final ResourceBundle bundle;
+	private final WindowManager windowManager;
 
 	private Profile ownProfile;
 
-	public AddRsIdWindowController(ProfileClient profileClient, GeoIpClient geoIpClient, ResourceBundle bundle)
+	public AddRsIdWindowController(ProfileClient profileClient, GeoIpClient geoIpClient, ResourceBundle bundle, WindowManager windowManager)
 	{
 		this.profileClient = profileClient;
 		this.geoIpClient = geoIpClient;
 		this.bundle = bundle;
+		this.windowManager = windowManager;
 	}
 
 	@Override
 	public void initialize()
 	{
+		scanQrCode.setOnAction(event -> windowManager.openCamera(scanQrCode.getScene().getWindow(), this));
 		addButton.setOnAction(event -> addPeer());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 
@@ -127,8 +134,19 @@ public class AddRsIdWindowController implements WindowController
 		var userData = rsIdTextArea.getScene().getRoot().getUserData();
 		if (userData != null)
 		{
-			rsIdTextArea.setText((String) userData);
+			setRsId((String) userData);
 		}
+		else
+		{
+			rsIdTextArea.requestFocus();
+			;
+		}
+	}
+
+	public void setRsId(String rsId)
+	{
+		rsIdTextArea.setText(rsId);
+		addButton.requestFocus();
 	}
 
 	private void addPeer()

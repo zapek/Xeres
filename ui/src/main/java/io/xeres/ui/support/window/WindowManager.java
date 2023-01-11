@@ -35,6 +35,7 @@ import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.messaging.PeersWindowController;
 import io.xeres.ui.controller.profile.ProfilesWindowController;
+import io.xeres.ui.controller.qrcode.CameraWindowController;
 import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.model.profile.Profile;
@@ -162,6 +163,20 @@ public class WindowManager
 						.setMinWidth(256)
 						.setMinHeight(256)
 						.setResizeable(false)
+						.build()
+						.open());
+	}
+
+	public void openCamera(Window parent, AddRsIdWindowController parentController)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(CameraWindowController.class)
+						.setParent(parent)
+						.setTitle(bundle.getString("camera.window-title"))
+						.setMinWidth(640)
+						.setMinHeight(480)
+						.setResizeable(false)
+						.setUserData(parentController)
 						.build()
 						.open());
 	}

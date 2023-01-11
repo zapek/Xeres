@@ -61,6 +61,8 @@ dependencies {
     implementation 'org.json:json:20220924' // fix dependency vulnerability in emoji-java
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"
     implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
+    implementation 'com.github.sarxos:webcam-capture:0.3.12'
+    implementation "com.google.zxing:javase:$zxingVersion"
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }

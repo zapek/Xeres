@@ -139,7 +139,6 @@ public class AddRsIdWindowController implements WindowController
 		else
 		{
 			rsIdTextArea.requestFocus();
-			;
 		}
 	}
 

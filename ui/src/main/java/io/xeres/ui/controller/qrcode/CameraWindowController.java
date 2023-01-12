@@ -40,12 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.awt.Dimension;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 @FxmlView(value = "/view/qrcode/camera.fxml")
@@ -98,11 +95,9 @@ public class CameraWindowController implements WindowController
 				multiFormatReader.setHints(Map.of(
 						DecodeHintType.POSSIBLE_FORMATS, List.of(BarcodeFormat.QR_CODE)));
 
-				log.debug("Supported camera resolutions: {}", Arrays.stream(camera.getViewSizes())
-						.map(Dimension::toString)
-						.collect(Collectors.joining(",")));
-
-				camera.setViewSize(WebcamResolution.VGA.getSize()); // XXX: we should only set a supported resolution. 640x480 seems to be the maximum on my 720p (which is a lie, but drivers...)
+				// Built-in driver only supports 640x480 as maximum, but
+				// this is usually enough for QR code scanning.
+				camera.setViewSize(WebcamResolution.VGA.getSize());
 				camera.open();
 				while (!stopCamera)
 				{
@@ -120,12 +115,9 @@ public class CameraWindowController implements WindowController
 
 							var result = multiFormatReader.decodeWithState(bitmap);
 
-							if (result != null)
-							{
-								rsId = result.getText();
-								log.debug("Found qr code: {}", rsId);
-								stopCamera();
-							}
+							rsId = result.getText();
+							log.debug("Found qr code: {}", rsId);
+							stopCamera();
 						}
 						else
 						{
@@ -141,7 +133,6 @@ public class CameraWindowController implements WindowController
 						log.error("Exception: {}", e.getMessage(), e);
 					}
 				}
-				log.debug("Stopping camera...");
 				camera.close();
 
 				if (rsId != null)

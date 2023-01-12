@@ -134,6 +134,7 @@ public class CameraWindowController implements WindowController
 					}
 				}
 				camera.close();
+				imageProperty.set(null);
 
 				if (rsId != null)
 				{

@@ -206,6 +206,11 @@ public final class UiUtils
 		stage.close();
 	}
 
+	public static Object getUserData(Node node)
+	{
+		return node.getScene().getRoot().getUserData();
+	}
+
 	/**
 	 * Makes Hyperlinks actually do something. Slightly recursive.
 	 *

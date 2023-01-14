@@ -117,7 +117,7 @@ public class ChatRoomInvitationWindowController implements WindowController
 
 	private void handleArgument()
 	{
-		var userData = inviteButton.getScene().getRoot().getUserData();
+		var userData = UiUtils.getUserData(inviteButton);
 		if (userData != null)
 		{
 			chatRoomId = (long) userData;

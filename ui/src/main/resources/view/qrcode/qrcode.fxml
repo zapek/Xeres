@@ -19,8 +19,30 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.VBox?>
-<VBox alignment="CENTER" prefWidth="256" prefHeight="256" maxWidth="256" maxHeight="256" minWidth="256" minHeight="256" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.qrcode.QrCodeWindowController">
+<?import javafx.scene.layout.*?>
+<VBox alignment="CENTER" prefWidth="256" prefHeight="256" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.qrcode.QrCodeWindowController">
     <ImageView fx:id="ownQrCode" fitHeight="256" fitWidth="256" pickOnBounds="true" preserveRatio="true"/>
+    <Region VBox.vgrow="ALWAYS"/>
+    <Label fx:id="status"/>
+    <HBox alignment="TOP_RIGHT">
+        <Button fx:id="printButton" minWidth="72.0" mnemonicParsing="false" text="%qrcode.print">
+            <HBox.margin>
+                <Insets right="4.0"/>
+            </HBox.margin>
+        </Button>
+        <Button fx:id="saveButton" minWidth="72.0" mnemonicParsing="false" text="%qrcode.save-as">
+            <HBox.margin>
+                <Insets right="4.0"/>
+            </HBox.margin>
+        </Button>
+        <Button fx:id="closeButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%button.close">
+            <HBox.margin>
+                <Insets left="4.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
 </VBox>

@@ -22,6 +22,7 @@ package io.xeres.ui.support.window;
 import io.xeres.common.AppName;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.MainWindowController;
@@ -154,15 +155,15 @@ public class WindowManager
 						.open());
 	}
 
-	public void openQrCode(Window parent)
+	public void openQrCode(Window parent, RSIdResponse rsIdResponse)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(QrCodeWindowController.class)
 						.setParent(parent)
 						.setTitle(bundle.getString("qrcode.window-title"))
-						.setMinWidth(256)
-						.setMinHeight(256)
-						.setResizeable(false)
+						.setMinWidth(282)
+						.setMinHeight(354)
+						.setUserData(rsIdResponse)
 						.build()
 						.open());
 	}

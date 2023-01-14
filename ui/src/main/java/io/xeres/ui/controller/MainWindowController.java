@@ -182,7 +182,7 @@ public class MainWindowController implements WindowController
 		copyOwnId.setOnAction(event -> copyOwnId());
 		copyShortIdButton.setOnAction(event -> copyOwnId());
 
-		showQrCodeButton.setOnAction(event -> windowManager.openQrCode(titleLabel.getScene().getWindow()));
+		showQrCodeButton.setOnAction(event -> showQrCode());
 
 		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
 
@@ -259,6 +259,12 @@ public class MainWindowController implements WindowController
 			content.putString(reply.rsId());
 			clipboard.setContent(content);
 		}));
+	}
+
+	private void showQrCode()
+	{
+		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID, Type.ANY);
+		rsIdResponse.subscribe(reply -> Platform.runLater(() -> windowManager.openQrCode(titleLabel.getScene().getWindow(), reply)));
 	}
 
 	public void addPeer(String rsId)

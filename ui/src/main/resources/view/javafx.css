@@ -221,3 +221,10 @@
     -fx-background-color: -fx-box-border;
     -fx-padding: 1;
 }
+
+.credit-card {
+    -fx-background-color: rgba(128, 128, 128, 0.22);
+    -fx-background-radius: 19px;
+    -fx-border-color: black;
+    -fx-border-radius: 19px;
+}

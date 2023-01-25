@@ -52,7 +52,7 @@ jobs:
       - name: Build, test and generate reports
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build test jacocoTestReport --no-build-cache # Disabling the build cache is needed for CodeQL (otherwise compilation output might not be generated)
+          arguments: build test jacocoTestReport --no-build-cache --info # Disabling the build cache is needed for CodeQL (otherwise compilation output might not be generated)
           gradle-home-cache-cleanup: true
 
       - name: Perform CodeQL Analysis

@@ -49,8 +49,6 @@ import java.util.Set;
 import static io.xeres.common.rest.PathConfig.*;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ConfigController.class)
@@ -129,10 +127,11 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_CreateLocation_Fail() throws Exception
 	{
+		var ownLocationRequest = new OwnLocationRequest("test location");
+
 		doThrow(CertificateException.class).when(locationService).createOwnLocation(anyString());
 
-		mvc.perform(post(BASE_URL + "/location")
-				.accept(APPLICATION_JSON))
+		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
 				.andExpect(status().isInternalServerError());
 	}
 

@@ -169,7 +169,7 @@ public class ScrambledString
 	public String getBase64SHA256Hash()
 	{
 		checkNotDisposed();
-		return this.hash;
+		return hash;
 	}
 
 	private void regeneratePad(int length)

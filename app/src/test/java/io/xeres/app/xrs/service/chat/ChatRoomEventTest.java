@@ -34,5 +34,7 @@ class ChatRoomEventTest
 		assertEquals(3, PEER_JOINED.getCode());
 		assertEquals(4, PEER_CHANGE_NICKNAME.getCode());
 		assertEquals(5, KEEP_ALIVE.getCode());
+
+		assertEquals(5, values().length);
 	}
 }

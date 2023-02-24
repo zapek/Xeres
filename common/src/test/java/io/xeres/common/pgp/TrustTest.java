@@ -34,5 +34,7 @@ class TrustTest
 		assertEquals(2, MARGINAL.ordinal());
 		assertEquals(3, FULL.ordinal());
 		assertEquals(4, ULTIMATE.ordinal());
+
+		assertEquals(5, values().length);
 	}
 }

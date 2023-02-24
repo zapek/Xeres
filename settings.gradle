@@ -16,10 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
+plugins {
+    id("com.gradle.enterprise") version("3.9")
+}
+
+gradleEnterprise {
+    if (System.getenv("CI") != null) {
+        buildScan {
+            publishAlways()
+            termsOfServiceUrl = "https://gradle.com/terms-of-service"
+            termsOfServiceAgree = "yes"
+        }
+    }
+}
 
 rootProject.name = 'Xeres'
 include 'ui'
 include 'app'
 include 'webui'
 include 'common'
-

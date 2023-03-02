@@ -77,7 +77,7 @@ public class IdentityRsService extends GxsRsService
 	@Override
 	public List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
 	{
-		return identityService.findAllPublishedSince(since);
+		return identityService.findAllPublishedSince(since); // XXX: probably wrong. we shouldn't send everything
 	}
 
 	@Override

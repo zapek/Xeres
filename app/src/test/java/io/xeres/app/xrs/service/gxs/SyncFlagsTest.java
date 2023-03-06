@@ -29,8 +29,8 @@ class SyncFlagsTest
 	@Test
 	void SyncFlags_Enum_Order()
 	{
-		assertEquals(0, REQUEST.ordinal());
-		assertEquals(1, RESPONSE.ordinal());
+		assertEquals(0, UNUSED.ordinal());
+		assertEquals(1, USE_HASHED_GROUP_ID.ordinal());
 
 		assertEquals(2, values().length);
 	}

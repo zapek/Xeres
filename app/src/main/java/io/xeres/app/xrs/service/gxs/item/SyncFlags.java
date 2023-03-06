@@ -19,8 +19,13 @@
 
 package io.xeres.app.xrs.service.gxs.item;
 
+/**
+ * SyncFlags is only really useful for GxsSyncMessageItem. Its values are used only for compatibility
+ * purposes in GxsSyncGroupItem.
+ */
 public enum SyncFlags
 {
-	REQUEST,
-	RESPONSE
+	UNUSED, // used to be REQUEST for GxsSyncGroupItem
+	USE_HASHED_GROUP_ID, // used to be RESPONSE for GxsSyncGroupItem
+
 }

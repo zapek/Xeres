@@ -40,7 +40,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	private String syncHash; // unused. This is old stuff where it used to transfer files instead of building tunnels
 
 	@RsSerialized
-	private int updateTimestamp; // last group update
+	private int lastUpdated; // last group update. XXX: set it!
 
 	public GxsSyncGroupRequestItem()
 	{
@@ -49,7 +49,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 
 	public GxsSyncGroupRequestItem(Instant lastUpdate)
 	{
-		this.updateTimestamp = (int) lastUpdate.getEpochSecond();
+		this.lastUpdated = (int) lastUpdate.getEpochSecond();
 	}
 
 	public int getCreatedSince()
@@ -62,14 +62,14 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 		this.createdSince = createdSince;
 	}
 
-	public int getUpdateTimestamp()
+	public int getLastUpdated()
 	{
-		return updateTimestamp;
+		return lastUpdated;
 	}
 
-	public void setUpdateTimestamp(int updateTimestamp)
+	public void setLastUpdated(int lastUpdated)
 	{
-		this.updateTimestamp = updateTimestamp;
+		this.lastUpdated = lastUpdated;
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 				", flag=" + flag +
 				", createdSince=" + createdSince +
 				", syncHash='" + syncHash + '\'' +
-				", updateTimestamp=" + updateTimestamp +
+				", lastUpdated=" + lastUpdated +
 				", super=" + super.toString() +
 				'}';
 	}

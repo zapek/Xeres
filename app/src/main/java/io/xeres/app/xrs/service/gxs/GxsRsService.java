@@ -147,7 +147,7 @@ public abstract class GxsRsService extends RsService
 	private void sync(PeerConnection peerConnection)
 	{
 		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsExchangeService.getLastPeerUpdate(peerConnection.getLocation(), getServiceType()));
-		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsSyncGroupRequestItem.getUpdateTimestamp(), getServiceType());
+		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsSyncGroupRequestItem.getLastUpdated(), getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 	}
 
@@ -158,7 +158,7 @@ public abstract class GxsRsService extends RsService
 		log.debug("Got sync request item {} from peer {}", item, peerConnection);
 
 		var transactionId = getTransactionId(peerConnection);
-		var since = Instant.ofEpochSecond(item.getUpdateTimestamp());
+		var since = Instant.ofEpochSecond(item.getLastUpdated());
 		if (areGxsUpdatesAvailableForPeer(since))
 		{
 			log.debug("Updates available for peer, sending...");
@@ -170,7 +170,7 @@ public abstract class GxsRsService extends RsService
 				if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
 				{
 					var gxsSyncGroupItem = new GxsSyncGroupItem(
-							EnumSet.of(SyncFlags.RESPONSE),
+							EnumSet.of(SyncFlags.USE_HASHED_GROUP_ID), // set for compatibility purposes
 							gxsGroupItem,
 							transactionId);
 
@@ -316,7 +316,7 @@ public abstract class GxsRsService extends RsService
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsSyncGroupItem> items = new ArrayList<>();
 
-		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(EnumSet.of(SyncFlags.REQUEST), gxsId, transactionId)));
+		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(EnumSet.of(SyncFlags.UNUSED), gxsId, transactionId)));
 
 		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}

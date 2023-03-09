@@ -43,6 +43,7 @@ public class GxsSyncGroupItem extends GxsExchange
 	@RsSerialized
 	private GxsId authorId;
 
+	@SuppressWarnings("unused")
 	public GxsSyncGroupItem()
 	{
 		// Needed
@@ -51,9 +52,9 @@ public class GxsSyncGroupItem extends GxsExchange
 	public GxsSyncGroupItem(Set<SyncFlags> flags, GxsGroupItem groupItem, int transactionId)
 	{
 		this.flags = flags;
-		this.publishTimestamp = (int) groupItem.getPublished().getEpochSecond();
-		this.groupId = groupItem.getGxsId();
-		this.authorId = groupItem.getAuthor();
+		publishTimestamp = (int) groupItem.getPublished().getEpochSecond();
+		groupId = groupItem.getGxsId();
+		authorId = groupItem.getAuthor();
 		setTransactionId(transactionId);
 	}
 

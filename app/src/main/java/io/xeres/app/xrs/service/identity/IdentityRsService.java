@@ -102,15 +102,14 @@ public class IdentityRsService extends GxsRsService
 	@Override
 	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
 	{
-		// From the received list, we keep:
-		// 1) all identities that we don't already have
-		// 2) all identities that have a more recent publishing date than what we have
+		// From the received list, we keep all identities that have a more recent publishing date than those
+		// we already have. If it's a new identity, we don't want it.
 		var existingMap = identityService.findAll(ids.keySet()).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, identityGroupItem -> identityGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
 
 		ids.entrySet().removeIf(gxsIdInstantEntry -> {
 			var existing = existingMap.get(gxsIdInstantEntry.getKey());
-			return existing != null && !gxsIdInstantEntry.getValue().isAfter(existing);
+			return existing == null || !gxsIdInstantEntry.getValue().isAfter(existing);
 		});
 		return ids.keySet();
 	}

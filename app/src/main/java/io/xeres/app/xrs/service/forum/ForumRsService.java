@@ -27,7 +27,6 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
-import io.xeres.app.xrs.service.gxs.Transaction;
 import io.xeres.app.xrs.service.gxs.item.GxsTransferGroupItem;
 import io.xeres.common.id.GxsId;
 import org.slf4j.Logger;
@@ -37,6 +36,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,31 +62,26 @@ public class ForumRsService extends GxsRsService
 	@Override
 	public List<GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
 	{
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
 	protected List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids)
 	{
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
 	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
 	{
-		return null;
+		log.debug("Received list response: {}", ids);
+		return Collections.emptySet();
 	}
 
 	@Override
 	protected void onGroupReceived(GxsTransferGroupItem item)
 	{
-
-	}
-
-	@Override
-	public void processItems(PeerConnection peerConnection, Transaction<?> transaction)
-	{
-
+		log.debug("Received group {}", item);
 	}
 
 	@Transactional

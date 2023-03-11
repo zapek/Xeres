@@ -1,0 +1,26 @@
+name: "Gradle dependencies"
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Dependency Submission API
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run snapshot action
+        uses: mikepenz/gradle-dependency-submission@v0.8.5
+        with:
+          gradle-build-module: |-
+            :app
+            :common
+            :ui
+          gradle-build-configuration: |-
+            compileClasspath

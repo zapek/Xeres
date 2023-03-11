@@ -128,6 +128,9 @@ public class IdentityService
 			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
 			// XXX: what should the serviceString have?
 		}
+
+		gxsIdGroupItem.setSubscribed(true);
+
 		return saveIdentity(gxsIdGroupItem).getId();
 	}
 
@@ -150,6 +153,7 @@ public class IdentityService
 			return; // Don't overwrite our own identity
 		}
 		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
+		identityGroupItem.setSubscribed(true);
 		gxsIdentityRepository.save(identityGroupItem);
 	}
 
@@ -186,9 +190,9 @@ public class IdentityService
 		return gxsIdentityRepository.findAllByGxsIdIn(gxsIds);
 	}
 
-	public List<IdentityGroupItem> findAllPublishedSince(Instant since)
+	public List<IdentityGroupItem> findAllSubscribedAndPublishedSince(Instant since)
 	{
-		return gxsIdentityRepository.findAllByPublishedAfter(since);
+		return gxsIdentityRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
 	@Transactional(propagation = Propagation.NEVER)

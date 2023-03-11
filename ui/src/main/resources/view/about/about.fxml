@@ -71,7 +71,7 @@
                             <Font name="System Bold" size="12.0"/>
                         </font>
                     </Text>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;©2019-2022 by David Gerber, All Rights Reserved&#10;"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;©2019-2023 by David Gerber, All Rights Reserved&#10;"/>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;Use " />
                     <Hyperlink text="https://github.com/zapek/Xeres/issues/new/choose" />
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" to report bugs or suggest improvements." />

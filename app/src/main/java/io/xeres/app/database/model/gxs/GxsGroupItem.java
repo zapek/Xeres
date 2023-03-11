@@ -97,7 +97,7 @@ public abstract class GxsGroupItem extends Item
 	private GxsId parentId;
 
 	// below is local data (stored in the database only)
-	private int subscribeFlags;
+	private boolean subscribed;
 
 	private int popularity; // number of friends subscribers
 	private int visibleMessageCount; // maximum messages reported by friends
@@ -254,14 +254,14 @@ public abstract class GxsGroupItem extends Item
 		this.parentId = parentId;
 	}
 
-	public int getSubscribeFlags()
+	public boolean isSubscribed()
 	{
-		return subscribeFlags;
+		return subscribed;
 	}
 
-	public void setSubscribeFlags(int subscribeFlags)
+	public void setSubscribed(boolean subscribed)
 	{
-		this.subscribeFlags = subscribeFlags;
+		this.subscribed = subscribed;
 	}
 
 	public int getPopularity()
@@ -534,7 +534,7 @@ public abstract class GxsGroupItem extends Item
 				", circleType=" + circleType +
 				", authenticationFlags=" + authenticationFlags +
 				", parentId=" + parentId +
-				", subscribeFlags=" + subscribeFlags +
+				", isSubscribed=" + subscribed +
 				", popularity=" + popularity +
 				", visibleMessageCount=" + visibleMessageCount +
 				", lastPosted=" + lastPosted +

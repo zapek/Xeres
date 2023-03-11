@@ -164,7 +164,6 @@ public abstract class GxsRsService extends RsService
 			log.debug("Updates available for peer, sending...");
 			List<GxsSyncGroupItem> items = new ArrayList<>();
 
-			// XXX: check if the group is subscribed (subscribeFlags & SUBSCRIBED)... what to do with gxsid? seems subscribe to all groups?
 			getPendingGroups(peerConnection, since).forEach(gxsGroupItem -> {
 				log.debug("Adding groupId of item: {}", gxsGroupItem);
 				if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))

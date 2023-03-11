@@ -41,5 +41,5 @@ public interface GxsIdentityRepository extends JpaRepository<IdentityGroupItem, 
 
 	List<IdentityGroupItem> findAllByType(Type type);
 
-	List<IdentityGroupItem> findAllByPublishedAfter(Instant since);
+	List<IdentityGroupItem> findAllBySubscribedIsTrueAndPublishedAfter(Instant since);
 }

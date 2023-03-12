@@ -27,15 +27,16 @@ Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
 - [JavaFX](https://openjfx.io/) UI
 - High concurrency
 
-## Build requirements
-
-- Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 19)
-
-If you want to quickly try the current development version without installing anything else, see the [command line](#Command-line) section below.
+## Documentation and support
+- [User documentation & FAQ](https://xeres.io/docs/)
+- [Wiki and technical documentation](https://github.com/zapek/Xeres/wiki)
+- [Roadmap](https://github.com/users/zapek/projects/4)
+- [Discussions & Forums](https://github.com/zapek/Xeres/discussions)
+- [Issues reporting](https://github.com/zapek/Xeres/issues)
 
 ## Donations
 
-Please consider a donation to help with the project's development. Contact me to get listed in the about window.
+Please consider a donation to help with the project's development. Contact me to get listed in the application's about window. The more donations, the more time is allocated on the project.
 
 | Method | Address                                                                                         |
 |--------|-------------------------------------------------------------------------------------------------|
@@ -48,9 +49,11 @@ Please consider a donation to help with the project's development. Contact me to
 | ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
 | BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |
 
-## Documentation
+## Build requirements
 
-[Here](https://xeres.io/docs/) and on the [wiki](https://github.com/zapek/Xeres/wiki).
+- Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 19)
+
+If you want to quickly try the current development version without installing anything else, see the [command line](#Command-line) section below.
 
 ## How to run
 
@@ -97,12 +100,6 @@ To pass Xeres arguments, just use the args feature, for example:
 
 (Use ``--help`` to know all arguments)
 
-## How to set up the WebUI
-
-_Note: the webui is currently disabled and the following tasks won't work at all._
-
-Run the gradle tasks ``installAngular`` (if you don't already have Angular installed) then ``buildAngular``. The later will create the needed files that will be served by Xeres on ``localhost:1066``.
-
 ## Database debugging
 
 With IntelliJ Ultimate, create the following Database connection with the built-in Datagrip client (aka the _Database_ tool window)
@@ -114,51 +111,39 @@ With IntelliJ Ultimate, create the following Database connection with the built-
 - User: ``sa``
 - There's no password
 
-## Run tests locally
-
-Note: because of https://github.com/JetBrains/gradle-intellij-plugin/issues/1039 and https://youtrack.jetbrains.com/issue/IDEA-305759/Gradle-cannot-handle-classpath.index-duplicates it is no longer recommended to use the method below, instead simply use the gradle `test` task.
-
-With IntelliJ IDEA Ultimate, setup the following JUnit Configuration:
-
-- add VM options: -ea -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8
-- All in packages: io.xeres
-- Working directory: put a **real** working directory (the default won't work if you want code coverage)
-- Search for tests: in whole project
-- If it breaks the build, see the note above and run the `clean` task to fix it
-
-## Misc
-
-The project was started on 2019-10-30.
-
-##### Git branching model
-
-The current plan is to use *master* for everything. Use a feature branch to work on a feature (for example, feature/165-the-feature (165 would be the ticket number, if any)). Once it's ready, have someone review it then merge to master.
-
-Releases will use tags and release branches if further fixes are needed.
-
-https://reallifeprogramming.com/git-process-that-works-say-no-to-gitflow-50bf2038ccf7
-
 ## Useful Gradle tasks
+
+##### Running tests locally
+
+run the ``test`` task
 
 ##### Cleaning the build directory
 
 run the ``clean`` task
-
-##### Cleaning the Angular generated directory
-
-run the ``cleanAngular`` task
 
 ##### Upgrading Gradle
 
 - change the version in _build.gradle_ in the _wrapper_ section
 - run the ``wrapper`` task
 
+## Git branching model
+
+*master* always contains the current and runnable code. Use a feature branch to work on a feature (for example, feature/165-the-feature (165 would be the ticket number, if any)). Once it's ready, have someone review it then merge to master.
+
+Releases use tags and might use a release branches if urgent fixes are needed.
+
+More information: [Git process that works - say no to GitFlow](https://reallifeprogramming.com/git-process-that-works-say-no-to-gitflow-50bf2038ccf7).
+
 ## Manual testing
 
 ##### Using multiple configs
 
-Node A:
+Pass the following arguments to run multiple instances.
+
+Location A:
+
 	--data-dir=./data2 --control-port=1068
 
-Node B:
+Location B:
+
 	--data-dir=./data3 --control-port=1069

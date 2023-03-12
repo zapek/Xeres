@@ -126,6 +126,12 @@ run the ``clean`` task
 - change the version in _build.gradle_ in the _wrapper_ section
 - run the ``wrapper`` task
 
+## Useful Links
+
+##### Pick an FontAwesome icon
+
+https://fontawesome.com/v4/icons/
+
 ## Git branching model
 
 *master* always contains the current and runnable code. Use a feature branch to work on a feature (for example, feature/165-the-feature (165 would be the ticket number, if any)). Once it's ready, have someone review it then merge to master.

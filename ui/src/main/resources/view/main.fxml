@@ -203,12 +203,19 @@
                 <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
             </VBox>
         </Tab>
-        <Tab text="%main.chat">
+        <Tab text="%main.chats">
             <graphic>
                 <FontAwesomeIconView glyphName="WECHAT" glyphSize="14"/>
             </graphic>
             <!--suppress Annotator -->
             <fx:include fx:id="chatViewController" source="chat/chatview.fxml"/>
+        </Tab>
+        <Tab text="%main.forums">
+            <graphic>
+                <FontAwesomeIconView glyphName="BULLHORN" glyphSize="14"/>
+            </graphic>
+            <!--suppress Annotator -->
+            <fx:include fx:id="forumsViewController" source="forum/forumview.fxml"/>
         </Tab>
     </TabPane>
     <HBox alignment="BOTTOM_LEFT">

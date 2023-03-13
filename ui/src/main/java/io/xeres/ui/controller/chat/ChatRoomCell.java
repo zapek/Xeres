@@ -42,7 +42,7 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 		setContextMenu(createContextMenu(this));
 		TooltipUtils.install(this,
 				() -> {
-					var roomInfo = this.getItem().getRoomInfo();
+					var roomInfo = getItem().getRoomInfo();
 					if (roomInfo.getId() == 0)
 					{
 						return null;
@@ -51,7 +51,7 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 							(StringUtils.isNotBlank(roomInfo.getTopic()) ? roomInfo.getTopic() : I18nUtils.getString("chat.room.none")),
 							roomInfo.getCount(),
 							String.join(", ", roomInfo.getRoomType() == RoomType.PRIVATE ? I18nUtils.getString("chat.room.private") : I18nUtils.getString("chat.room.public"), roomInfo.isSigned() ? I18nUtils.getString("chat.room.signed-only") : I18nUtils.getString("chat.room.anonymous-allowed")),
-							Id.toString(this.getItem().getRoomInfo().getId()));
+							Id.toString(getItem().getRoomInfo().getId()));
 				}
 				, null);
 	}

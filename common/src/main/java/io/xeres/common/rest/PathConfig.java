@@ -35,4 +35,5 @@ public final class PathConfig
 	public static final String IDENTITIES_PATH = "/api/v1/identities";
 	public static final String SETTINGS_PATH = "/api/v1/settings";
 	public static final String GEOIP_PATH = "/api/v1/geoip";
+	public static final String FORUMS_PATH = "/api/v1/forums";
 }

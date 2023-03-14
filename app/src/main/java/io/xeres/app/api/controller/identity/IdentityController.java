@@ -46,7 +46,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.xeres.app.database.model.identity.IdentityMapper.toDTO;
-import static io.xeres.app.database.model.identity.IdentityMapper.toGxsIdDTOs;
+import static io.xeres.app.database.model.identity.IdentityMapper.toDTOs;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -122,7 +122,7 @@ public class IdentityController
 	{
 		if (isNotBlank(name))
 		{
-			return toGxsIdDTOs(identityService.findAllByName(name));
+			return toDTOs(identityService.findAllByName(name));
 		}
 		else if (isNotBlank(gxsId))
 		{
@@ -131,8 +131,8 @@ public class IdentityController
 		}
 		else if (type != null)
 		{
-			return toGxsIdDTOs(identityService.findAllByType(type));
+			return toDTOs(identityService.findAllByType(type));
 		}
-		return toGxsIdDTOs(identityService.getAll());
+		return toDTOs(identityService.getAll());
 	}
 }

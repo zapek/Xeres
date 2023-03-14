@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,43 +17,41 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.identity;
+package io.xeres.app.database.model.forum;
 
-import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
-import io.xeres.common.dto.identity.IdentityDTO;
+import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.common.dto.forum.ForumDTO;
 
 import java.util.List;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
-public final class IdentityMapper
+public final class ForumMapper
 {
-	private IdentityMapper()
+	private ForumMapper()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static IdentityDTO toDTO(IdentityGroupItem identityGroupItem)
+	public static ForumDTO toDTO(ForumGroupItem forumGroupItem)
 	{
-		if (identityGroupItem == null)
+		if (forumGroupItem == null)
 		{
 			return null;
 		}
 
-		return new IdentityDTO(
-				identityGroupItem.getId(),
-				identityGroupItem.getName(),
-				identityGroupItem.getGxsId(),
-				identityGroupItem.getPublished(),
-				identityGroupItem.getType(),
-				identityGroupItem.hasImage()
+		return new ForumDTO(
+				forumGroupItem.getId(),
+				forumGroupItem.getGxsId(),
+				forumGroupItem.getName(),
+				forumGroupItem.getDescription()
 		);
 	}
 
-	public static List<IdentityDTO> toDTOs(List<IdentityGroupItem> identityGroupItems)
+	public static List<ForumDTO> toDTOs(List<ForumGroupItem> forumGroupItems)
 	{
-		return emptyIfNull(identityGroupItems).stream()
-				.map(IdentityMapper::toDTO)
+		return emptyIfNull(forumGroupItems).stream()
+				.map(ForumMapper::toDTO)
 				.toList();
 	}
 }

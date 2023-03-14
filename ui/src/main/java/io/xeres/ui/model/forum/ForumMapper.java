@@ -17,15 +17,29 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.forum;
+package io.xeres.ui.model.forum;
 
-import io.xeres.common.id.GxsId;
+import io.xeres.common.dto.forum.ForumDTO;
 
-public record ForumDTO(
-		long id,
-		GxsId gxsId,
-		String name,
-		String description
-)
+public final class ForumMapper
 {
+	private ForumMapper()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static Forum fromDTO(ForumDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		var forum = new Forum();
+		forum.setId(dto.id());
+		forum.setName(dto.name());
+		forum.setGxsId(dto.gxsId());
+		forum.setDescription(dto.description());
+		return forum;
+	}
 }

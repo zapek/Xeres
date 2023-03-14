@@ -17,15 +17,54 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.forum;
+package io.xeres.ui.model.forum;
 
 import io.xeres.common.id.GxsId;
 
-public record ForumDTO(
-		long id,
-		GxsId gxsId,
-		String name,
-		String description
-)
+public class Forum
 {
+	private long id;
+	private String name;
+	private GxsId gxsId;
+	private String description;
+
+	public long getId()
+	{
+		return id;
+	}
+
+	public void setId(long id)
+	{
+		this.id = id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public GxsId getGxsId()
+	{
+		return gxsId;
+	}
+
+	public void setGxsId(GxsId gxsId)
+	{
+		this.gxsId = gxsId;
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
 }

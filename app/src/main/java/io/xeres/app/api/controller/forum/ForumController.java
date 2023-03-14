@@ -30,9 +30,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 
+import static io.xeres.app.database.model.forum.ForumMapper.toDTOs;
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
 @Tag(name = "Forums", description = "Forums", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/forums", description = "Forums documentation"))
@@ -47,11 +47,11 @@ public class ForumController
 		this.forumService = forumService;
 	}
 
-	@GetMapping("/forums")
+	@GetMapping
 	@Operation(summary = "Get the list of forums")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumDTO> getForums()
 	{
-		return Collections.emptyList();
+		return toDTOs(forumService.findAll());
 	}
 }

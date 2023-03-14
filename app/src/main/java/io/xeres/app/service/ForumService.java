@@ -19,12 +19,30 @@
 
 package io.xeres.app.service;
 
+import io.xeres.app.database.repository.GxsForumRepository;
+import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 public class ForumService
 {
+	private static final Logger log = LoggerFactory.getLogger(ForumService.class);
 
+	private final GxsForumRepository gxsForumRepository;
+
+	public ForumService(GxsForumRepository gxsForumRepository)
+	{
+		this.gxsForumRepository = gxsForumRepository;
+	}
+
+	public List<ForumGroupItem> findAll()
+	{
+		return gxsForumRepository.findAll();
+	}
 }

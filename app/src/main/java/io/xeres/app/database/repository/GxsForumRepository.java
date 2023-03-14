@@ -17,15 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.forum;
+package io.xeres.app.database.repository;
 
-import io.xeres.common.id.GxsId;
+import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public record ForumDTO(
-		long id,
-		GxsId gxsId,
-		String name,
-		String description
-)
+@Repository
+public interface GxsForumRepository extends JpaRepository<ForumGroupItem, Long>
 {
 }

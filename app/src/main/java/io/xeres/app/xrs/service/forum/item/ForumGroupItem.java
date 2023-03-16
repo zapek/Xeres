@@ -26,6 +26,8 @@ import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 
@@ -42,9 +44,13 @@ public class ForumGroupItem extends GxsGroupItem
 	private String description;
 
 	@ElementCollection
-	private Set<GxsId> adminList = new HashSet<>();
+	@CollectionTable(name = "forum_admins")
+	@Column(name = "admin")
+	private Set<GxsId> admins = new HashSet<>();
 
 	@ElementCollection
+	@CollectionTable(name = "forum_pinned_posts")
+	@Column(name = "pinned_post")
 	private Set<MessageId> pinnedPosts = new HashSet<>();
 
 	public ForumGroupItem()
@@ -74,7 +80,7 @@ public class ForumGroupItem extends GxsGroupItem
 		var size = 0;
 
 		size += serialize(buf, description);
-		size += serialize(buf, SET_GXS_ID, adminList);
+		size += serialize(buf, SET_GXS_ID, admins);
 		size += serialize(buf, SET_GXS_MSG_ID, pinnedPosts);
 
 		return size;
@@ -85,7 +91,7 @@ public class ForumGroupItem extends GxsGroupItem
 	{
 		description = Serializer.deserializeString(buf);
 		//noinspection unchecked
-		adminList = (Set<GxsId>) Serializer.deserialize(buf, SET_GXS_ID);
+		admins = (Set<GxsId>) Serializer.deserialize(buf, SET_GXS_ID);
 		//noinspection unchecked
 		pinnedPosts = (Set<MessageId>) Serializer.deserialize(buf, SET_GXS_MSG_ID);
 	}

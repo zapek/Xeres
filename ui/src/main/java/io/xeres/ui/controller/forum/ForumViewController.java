@@ -19,12 +19,16 @@
 
 package io.xeres.ui.controller.forum;
 
+import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.model.forum.Forum;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -34,6 +38,8 @@ import java.util.ResourceBundle;
 @FxmlView(value = "/view/forum/forumview.fxml")
 public class ForumViewController implements Controller
 {
+	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);
+
 	@FXML
 	private TreeView<ForumHolder> forumTree;
 
@@ -42,13 +48,16 @@ public class ForumViewController implements Controller
 
 	private final ResourceBundle bundle;
 
+	private final ForumClient forumClient;
+
 	private final TreeItem<ForumHolder> ownForums;
 	private final TreeItem<ForumHolder> subscribedForums;
 	private final TreeItem<ForumHolder> popularForums;
 	private final TreeItem<ForumHolder> otherForums;
 
-	public ForumViewController(ResourceBundle bundle)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle)
 	{
+		this.forumClient = forumClient;
 		this.bundle = bundle;
 
 		ownForums = new TreeItem<>(new ForumHolder(bundle.getString("forum.tree.own")));
@@ -60,6 +69,7 @@ public class ForumViewController implements Controller
 	@Override
 	public void initialize() throws IOException
 	{
+		log.debug("Trying to get forums list...");
 
 		var root = new TreeItem<>(new ForumHolder());
 		//noinspection unchecked
@@ -68,5 +78,22 @@ public class ForumViewController implements Controller
 		forumTree.setRoot(root);
 		forumTree.setShowRoot(false);
 
+		getForums();
+	}
+
+	private void getForums()
+	{
+		forumClient.getForums().collectList()
+				.doOnSuccess(forums -> forums.forEach(this::addForum))
+				.subscribe();
+	}
+
+	private void addForum(Forum forum)
+	{
+		var subscribedTree = subscribedForums.getChildren();
+		var popularTree = popularForums.getChildren();
+
+		// XXX: add the forums...
+		log.debug("Would add forum: {}", forum);
 	}
 }

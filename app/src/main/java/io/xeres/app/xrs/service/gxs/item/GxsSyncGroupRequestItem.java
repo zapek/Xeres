@@ -26,7 +26,8 @@ import java.time.Instant;
 import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
 
 /**
- * Item used to request group list from a peer.
+ * Item used to request new group list from a peer. Sent each minute with
+ * the last syncing time.
  */
 public class GxsSyncGroupRequestItem extends GxsExchange
 {

@@ -75,7 +75,7 @@ public abstract class GxsRsService extends RsService
 	}
 
 	/**
-	 * Gets the list of Gxs groups to transfer.
+	 * Get the list of new groups that we have for the peer.
 	 *
 	 * @param recipient the recipient of the groups
 	 * @param since     the time after which the groups are relevant
@@ -83,10 +83,24 @@ public abstract class GxsRsService extends RsService
 	 */
 	public abstract List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since);
 
+	/**
+	 * Called when the peer wants specific groups.
+	 * @param ids the groups that the peer wants
+	 * @return the groups that we have within the requested set
+	 */
 	protected abstract List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids);
 
+	/**
+	 * Called when a peer sends the list of updated groups that might interest us.
+	 * @param ids the ids of updated groups and their update time that the peer has for us
+	 * @return the subset of those groups that we actually want
+	 */
 	protected abstract Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids);
 
+	/**
+	 * Called when a group has been received.
+	 * @param item the received group
+	 */
 	protected abstract void onGroupReceived(GxsTransferGroupItem item);
 
 	@Override

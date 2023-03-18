@@ -27,7 +27,7 @@ import io.xeres.common.id.GxsId;
 import java.util.Set;
 
 /**
- * Item used to send the list of groups to a peer.
+ * Item used to send the list of new groups that we have for a peer.
  */
 public class GxsSyncGroupItem extends GxsExchange
 {

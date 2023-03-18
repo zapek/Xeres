@@ -21,12 +21,15 @@ package io.xeres.app.service;
 
 import io.xeres.app.database.repository.GxsForumRepository;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.common.id.GxsId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -44,5 +47,15 @@ public class ForumService
 	public List<ForumGroupItem> findAll()
 	{
 		return gxsForumRepository.findAll();
+	}
+
+	public List<ForumGroupItem> findAll(Set<GxsId> gxsIds)
+	{
+		return gxsForumRepository.findAllByGxsIdIn(gxsIds);
+	}
+
+	public List<ForumGroupItem> findAllSubscribedAndPublishedSince(Instant since)
+	{
+		return gxsForumRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 }

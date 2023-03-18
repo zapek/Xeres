@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.forum;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.ForumService;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -48,9 +49,12 @@ public class ForumRsService extends GxsRsService
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumRsService.class);
 
-	public ForumRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
+	private final ForumService forumService;
+
+	public ForumRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, ForumService forumService)
 	{
 		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
+		this.forumService = forumService;
 	}
 
 	@Override
@@ -60,20 +64,21 @@ public class ForumRsService extends GxsRsService
 	}
 
 	@Override
-	public List<GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
+	public List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
 	{
-		return Collections.emptyList();
+		return forumService.findAllSubscribedAndPublishedSince(since);
 	}
 
 	@Override
 	protected List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids)
 	{
-		return Collections.emptyList();
+		return forumService.findAll(ids);
 	}
 
 	@Override
 	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
 	{
+		// XXX: return the groups that we are subscribed and that are more recent
 		log.debug("Received list response: {}", ids);
 		return Collections.emptySet();
 	}
@@ -81,6 +86,7 @@ public class ForumRsService extends GxsRsService
 	@Override
 	protected void onGroupReceived(GxsTransferGroupItem item)
 	{
+		// XXX: save/update in database
 		log.debug("Received group {}", item);
 	}
 

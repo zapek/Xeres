@@ -20,10 +20,18 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.common.id.GxsId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface GxsForumRepository extends JpaRepository<ForumGroupItem, Long>
 {
+	List<ForumGroupItem> findAllByGxsIdIn(Set<GxsId> gxsIds);
+
+	List<ForumGroupItem> findAllBySubscribedIsTrueAndPublishedAfter(Instant since);
 }

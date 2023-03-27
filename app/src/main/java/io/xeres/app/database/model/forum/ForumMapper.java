@@ -44,7 +44,8 @@ public final class ForumMapper
 				forumGroupItem.getId(),
 				forumGroupItem.getGxsId(),
 				forumGroupItem.getName(),
-				forumGroupItem.getDescription()
+				forumGroupItem.getDescription(),
+				forumGroupItem.isSubscribed()
 		);
 	}
 

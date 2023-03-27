@@ -42,8 +42,13 @@
         },
         {
             "name": "xrs.service.turtle.enabled",
-            "type": "java.lang.String",
+            "type": "java.lang.Boolean",
             "description": "Enable the turtle service, used for file searching, tunnel building and file transfers."
+        },
+        {
+            "name": "xrs.service.forum.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the forum service."
         }
     ]
 }

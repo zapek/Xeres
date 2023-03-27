@@ -20,6 +20,7 @@
 package io.xeres.ui.model.forum;
 
 import io.xeres.common.dto.forum.ForumDTO;
+import io.xeres.common.message.forum.Forum;
 
 public final class ForumMapper
 {
@@ -40,6 +41,7 @@ public final class ForumMapper
 		forum.setName(dto.name());
 		forum.setGxsId(dto.gxsId());
 		forum.setDescription(dto.description());
+		forum.setSubscribed(dto.subscribed());
 		return forum;
 	}
 }

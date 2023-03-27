@@ -51,7 +51,7 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 public abstract class GxsRsService extends RsService
 {
-	private static final Logger log = LoggerFactory.getLogger(GxsRsService.class);
+	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static final int KEY_TRANSACTION_ID = 1;
 

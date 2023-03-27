@@ -19,30 +19,35 @@
 
 package io.xeres.ui.controller.forum;
 
-import io.xeres.common.message.forum.ForumInfo;
+import io.xeres.common.message.forum.Forum;
 
 public class ForumHolder
 {
-	private final ForumInfo forumInfo;
+	private final Forum forum;
 
 	public ForumHolder()
 	{
-		forumInfo = new ForumInfo("");
+		forum = new Forum("");
 	}
 
 	public ForumHolder(String name)
 	{
-		forumInfo = new ForumInfo(name);
+		forum = new Forum(name);
 	}
 
-	public ForumHolder(ForumInfo forumInfo)
+	public ForumHolder(Forum forum)
 	{
-		this.forumInfo = forumInfo;
+		this.forum = forum;
+	}
+
+	public Forum getForum()
+	{
+		return forum;
 	}
 
 	@Override
 	public String toString()
 	{
-		return forumInfo.getName();
+		return forum.getName();
 	}
 }

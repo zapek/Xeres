@@ -25,7 +25,8 @@ public record ForumDTO(
 		long id,
 		GxsId gxsId,
 		String name,
-		String description
+		String description,
+		boolean subscribed
 )
 {
 }

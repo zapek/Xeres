@@ -19,9 +19,10 @@
 
 package io.xeres.ui.controller.forum;
 
+import io.xeres.common.message.forum.Forum;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.controller.Controller;
-import io.xeres.ui.model.forum.Forum;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TreeItem;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.ResourceBundle;
 
 @Component
@@ -84,16 +86,43 @@ public class ForumViewController implements Controller
 	private void getForums()
 	{
 		forumClient.getForums().collectList()
-				.doOnSuccess(forums -> forums.forEach(this::addForum))
+				.doOnSuccess(this::addForums)
 				.subscribe();
 	}
 
-	private void addForum(Forum forum)
+	private void addForums(List<Forum> forums)
 	{
 		var subscribedTree = subscribedForums.getChildren();
 		var popularTree = popularForums.getChildren();
+		var otherTree = otherForums.getChildren();
 
-		// XXX: add the forums...
-		log.debug("Would add forum: {}", forum);
+		log.debug("Would add {} forums", forums.size());
+
+		forums.forEach(forum -> {
+			if (forum.isSubscribed())
+			{
+				addOrUpdate(subscribedTree, forum);
+			}
+			else
+			{
+				addOrUpdate(popularTree, forum);
+			}
+		});
+	}
+
+	private void addOrUpdate(ObservableList<TreeItem<ForumHolder>> tree, Forum forum)
+	{
+		if (tree.stream()
+				.map(TreeItem::getValue)
+				.noneMatch(existingForum -> existingForum.getForum().equals(forum)))
+		{
+			tree.add(new TreeItem<>(new ForumHolder(forum)));
+			sortByName(tree);
+		}
+	}
+
+	private static void sortByName(ObservableList<TreeItem<ForumHolder>> children)
+	{
+		children.sort((o1, o2) -> o1.getValue().getForum().getName().compareToIgnoreCase(o2.getValue().getForum().getName()));
 	}
 }

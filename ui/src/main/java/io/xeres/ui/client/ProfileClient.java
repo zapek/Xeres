@@ -61,7 +61,7 @@ public class ProfileClient
 
 		return webClient.post()
 				.uri(uriBuilder -> uriBuilder
-						.path("/")
+						.path("")
 						.queryParam("connectionIndex", connectionIndex)
 						.queryParam("trust", trust.name())
 						.build())

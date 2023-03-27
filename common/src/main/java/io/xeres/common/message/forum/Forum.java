@@ -21,19 +21,70 @@ package io.xeres.common.message.forum;
 
 import io.xeres.common.id.GxsId;
 
-public class ForumInfo
+public class Forum
 {
-	private GxsId id;
+	private long id;
 	private String name;
+	private GxsId gxsId;
 	private String description;
+	private boolean subscribed;
 
-	public ForumInfo(String name)
+	public Forum()
+	{
+	}
+
+	public Forum(String name)
 	{
 		this.name = name;
+	}
+
+	public long getId()
+	{
+		return id;
+	}
+
+	public void setId(long id)
+	{
+		this.id = id;
 	}
 
 	public String getName()
 	{
 		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public GxsId getGxsId()
+	{
+		return gxsId;
+	}
+
+	public void setGxsId(GxsId gxsId)
+	{
+		this.gxsId = gxsId;
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public boolean isSubscribed()
+	{
+		return subscribed;
+	}
+
+	public void setSubscribed(boolean subscribed)
+	{
+		this.subscribed = subscribed;
 	}
 }

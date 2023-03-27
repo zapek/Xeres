@@ -20,8 +20,8 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.forum.ForumDTO;
+import io.xeres.common.message.forum.Forum;
 import io.xeres.ui.JavaFxApplication;
-import io.xeres.ui.model.forum.Forum;
 import io.xeres.ui.model.forum.ForumMapper;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;

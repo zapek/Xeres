@@ -75,20 +75,13 @@ public abstract class GxsRsService extends RsService
 	}
 
 	/**
-	 * Get the list of new groups that we have for the peer.
+	 * Called when the peer wants a list of new/updated groups that we have for him.
 	 *
 	 * @param recipient the recipient of the groups
 	 * @param since     the time after which the groups are relevant
 	 * @return the pending groups
 	 */
-	public abstract List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since);
-
-	/**
-	 * Called when the peer wants specific groups.
-	 * @param ids the groups that the peer wants
-	 * @return the groups that we have within the requested set
-	 */
-	protected abstract List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids);
+	public abstract List<? extends GxsGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since);
 
 	/**
 	 * Called when a peer sends the list of updated groups that might interest us.
@@ -96,6 +89,13 @@ public abstract class GxsRsService extends RsService
 	 * @return the subset of those groups that we actually want
 	 */
 	protected abstract Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids);
+
+	/**
+	 * Called when the peer wants specific groups.
+	 * @param ids the groups that the peer wants
+	 * @return the groups that we have within the requested set
+	 */
+	protected abstract List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids);
 
 	/**
 	 * Called when a group has been received.
@@ -178,7 +178,7 @@ public abstract class GxsRsService extends RsService
 			log.debug("Updates available for peer, sending...");
 			List<GxsSyncGroupItem> items = new ArrayList<>();
 
-			getPendingGroups(peerConnection, since).forEach(gxsGroupItem -> {
+			onPendingGroupListRequest(peerConnection, since).forEach(gxsGroupItem -> {
 				log.debug("Adding groupId of item: {}", gxsGroupItem);
 				if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
 				{

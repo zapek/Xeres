@@ -64,7 +64,7 @@ public class ForumRsService extends GxsRsService
 	}
 
 	@Override
-	public List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
+	public List<? extends GxsGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
 	{
 		return forumService.findAllSubscribedAndPublishedSince(since);
 	}

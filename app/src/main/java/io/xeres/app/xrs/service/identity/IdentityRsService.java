@@ -75,9 +75,24 @@ public class IdentityRsService extends GxsRsService
 	}
 
 	@Override
-	public List<? extends GxsGroupItem> getPendingGroups(PeerConnection recipient, Instant since)
+	public List<? extends GxsGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
 	{
 		return identityService.findAllSubscribedAndPublishedSince(since);
+	}
+
+	@Override
+	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
+	{
+		// From the received list, we keep all identities that have a more recent publishing date than those
+		// we already have. If it's a new identity, we don't want it.
+		var existingMap = identityService.findAll(ids.keySet()).stream()
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, identityGroupItem -> identityGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
+
+		ids.entrySet().removeIf(gxsIdInstantEntry -> {
+			var existing = existingMap.get(gxsIdInstantEntry.getKey());
+			return existing == null || !gxsIdInstantEntry.getValue().isAfter(existing);
+		});
+		return ids.keySet();
 	}
 
 	@Override
@@ -97,20 +112,5 @@ public class IdentityRsService extends GxsRsService
 		buf.release();
 
 		identityService.transferIdentity(gxsIdGroupItem);
-	}
-
-	@Override
-	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
-	{
-		// From the received list, we keep all identities that have a more recent publishing date than those
-		// we already have. If it's a new identity, we don't want it.
-		var existingMap = identityService.findAll(ids.keySet()).stream()
-				.collect(Collectors.toMap(GxsGroupItem::getGxsId, identityGroupItem -> identityGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
-
-		ids.entrySet().removeIf(gxsIdInstantEntry -> {
-			var existing = existingMap.get(gxsIdInstantEntry.getKey());
-			return existing == null || !gxsIdInstantEntry.getValue().isAfter(existing);
-		});
-		return ids.keySet();
 	}
 }

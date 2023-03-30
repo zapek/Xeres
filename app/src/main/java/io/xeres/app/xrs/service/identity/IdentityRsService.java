@@ -19,22 +19,17 @@
 
 package io.xeres.app.xrs.service.identity;
 
-import io.netty.buffer.Unpooled;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
-import io.xeres.app.xrs.service.gxs.item.GxsTransferGroupItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,10 +44,8 @@ import java.util.stream.Collectors;
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
 
 @Component
-public class IdentityRsService extends GxsRsService
+public class IdentityRsService extends GxsRsService<IdentityGroupItem>
 {
-	private static final Logger log = LoggerFactory.getLogger(IdentityRsService.class);
-
 	private final IdentityService identityService;
 
 	public IdentityRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, IdentityService identityService)
@@ -75,7 +68,7 @@ public class IdentityRsService extends GxsRsService
 	}
 
 	@Override
-	public List<? extends GxsGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
+	public List<IdentityGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
 	{
 		return identityService.findAllSubscribedAndPublishedSince(since);
 	}
@@ -96,21 +89,15 @@ public class IdentityRsService extends GxsRsService
 	}
 
 	@Override
-	protected List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids)
+	protected List<IdentityGroupItem> onGroupListRequest(Set<GxsId> ids)
 	{
 		return identityService.findAll(ids);
 	}
 
 	@Override
-	protected void onGroupReceived(GxsTransferGroupItem item)
+	protected void onGroupReceived(IdentityGroupItem item)
 	{
-		log.debug("Saving id {}", item.getGroupId());
-
-		var buf = Unpooled.copiedBuffer(item.getMeta(), item.getGroup()); //XXX: use ctx().alloc()?
-		var gxsIdGroupItem = new IdentityGroupItem();
-		Serializer.deserializeGxsGroupItem(buf, gxsIdGroupItem);
-		buf.release();
-
-		identityService.transferIdentity(gxsIdGroupItem);
+		log.debug("Saving id {}", item.getGxsId());
+		identityService.transferIdentity(item);
 	}
 }

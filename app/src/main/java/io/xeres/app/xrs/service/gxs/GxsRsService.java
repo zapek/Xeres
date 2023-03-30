@@ -38,6 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -49,7 +52,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
-public abstract class GxsRsService extends RsService
+public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 {
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -66,12 +69,17 @@ public abstract class GxsRsService extends RsService
 	protected final GxsTransactionManager gxsTransactionManager;
 	private final PeerConnectionManager peerConnectionManager;
 
+	private final Type itemClass;
+
 	protected GxsRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
 	{
 		super(environment);
 		this.gxsExchangeService = gxsExchangeService;
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
+
+		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of T
+		itemClass = ((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 	}
 
 	/**
@@ -81,7 +89,7 @@ public abstract class GxsRsService extends RsService
 	 * @param since     the time after which the groups are relevant
 	 * @return the pending groups
 	 */
-	public abstract List<? extends GxsGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since);
+	public abstract List<T> onPendingGroupListRequest(PeerConnection recipient, Instant since);
 
 	/**
 	 * Called when a peer sends the list of updated groups that might interest us.
@@ -95,13 +103,13 @@ public abstract class GxsRsService extends RsService
 	 * @param ids the groups that the peer wants
 	 * @return the groups that we have within the requested set
 	 */
-	protected abstract List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids);
+	protected abstract List<T> onGroupListRequest(Set<GxsId> ids);
 
 	/**
 	 * Called when a group has been received.
 	 * @param item the received group
 	 */
-	protected abstract void onGroupReceived(GxsTransferGroupItem item);
+	protected abstract void onGroupReceived(T item);
 
 	@Override
 	public RsServiceType getServiceType()
@@ -240,7 +248,7 @@ public abstract class GxsRsService extends RsService
 		return lastPeerUpdate.isBefore(gxsExchangeService.getLastServiceUpdate(getServiceType()));
 	}
 
-	private boolean isGxsAllowedForPeer(PeerConnection peerConnection, GxsGroupItem item)
+	private boolean isGxsAllowedForPeer(PeerConnection peerConnection, T item)
 	{
 		return true; // XXX: later one we should compare with the circles (though that can be done on the SQL request too)
 	}
@@ -277,12 +285,33 @@ public abstract class GxsRsService extends RsService
 		{
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
-			transferItems.forEach(this::onGroupReceived);
+			transferItems.forEach(gxsTransferGroupItem -> onGroupReceived(convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
 			gxsExchangeService.setLastServiceUpdate(getServiceType(), Instant.now());
 		}
 	}
 
-	private void sendGxsGroups(PeerConnection peerConnection, List<? extends GxsGroupItem> gxsGroupItems)
+	private T convertTransferGroupToGxsGroup(GxsTransferGroupItem fromItem)
+	{
+		T toItem;
+
+		try
+		{
+			//noinspection unchecked
+			toItem = ((Class<T>)itemClass).getDeclaredConstructor().newInstance();
+		}
+		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+		{
+			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemClass).getSimpleName() + " missing empty constructor?");
+		}
+
+		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getGroup()); //XXX: use ctx().alloc()?
+		Serializer.deserializeGxsGroupItem(buf, toItem);
+		buf.release();
+
+		return toItem;
+	}
+
+	private void sendGxsGroups(PeerConnection peerConnection, List<T> gxsGroupItems)
 	{
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();

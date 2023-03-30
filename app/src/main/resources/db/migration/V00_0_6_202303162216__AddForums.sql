@@ -9,14 +9,12 @@ CREATE TABLE forum_groups
 
 CREATE TABLE forum_admins
 (
-	forum_groups_id BIGINT PRIMARY KEY NOT NULL,
+	forum_groups_id BIGINT NOT NULL,
 	admin           BINARY(16)
 );
 
 CREATE TABLE forum_pinned_posts
 (
-	forum_groups_id BIGINT PRIMARY KEY NOT NULL,
+	forum_groups_id BIGINT NOT NULL,
 	pinned_post     BINARY(20)
 );
-
-// forum_groups_id ..

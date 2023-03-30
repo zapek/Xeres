@@ -35,6 +35,7 @@ public enum TlvType
 	IPV6(0x86),
 	STR_GROUP_ID(0xa0),
 	STR_KEY_ID(0xa4),
+	STR_DESCR(0xb3),
 	STR_SIGN(0xb4),
 	KEY_EVP_PKEY(0x110),
 	SIGN_RSA_SHA1(0x120),

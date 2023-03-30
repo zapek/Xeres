@@ -26,17 +26,13 @@ import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.serialize;
-import static io.xeres.app.xrs.serialization.TlvType.SET_GXS_ID;
-import static io.xeres.app.xrs.serialization.TlvType.SET_GXS_MSG_ID;
+import static io.xeres.app.xrs.serialization.TlvType.*;
 
 @Entity(name = "forum_groups")
 public class ForumGroupItem extends GxsGroupItem
@@ -45,12 +41,12 @@ public class ForumGroupItem extends GxsGroupItem
 
 	@ElementCollection
 	@CollectionTable(name = "forum_admins")
-	@Column(name = "admin")
+	@AttributeOverride(name = "identifier", column = @Column(name = "admin"))
 	private Set<GxsId> admins = new HashSet<>();
 
 	@ElementCollection
 	@CollectionTable(name = "forum_pinned_posts")
-	@Column(name = "pinned_post")
+	@AttributeOverride(name = "identifier", column = @Column(name = "pinned_post"))
 	private Set<MessageId> pinnedPosts = new HashSet<>();
 
 	public ForumGroupItem()
@@ -79,7 +75,7 @@ public class ForumGroupItem extends GxsGroupItem
 	{
 		var size = 0;
 
-		size += serialize(buf, description);
+		size += serialize(buf, STR_DESCR, description);
 		size += serialize(buf, SET_GXS_ID, admins);
 		size += serialize(buf, SET_GXS_MSG_ID, pinnedPosts);
 
@@ -89,11 +85,15 @@ public class ForumGroupItem extends GxsGroupItem
 	@Override
 	public void readGroupObject(ByteBuf buf)
 	{
-		description = Serializer.deserializeString(buf);
-		//noinspection unchecked
-		admins = (Set<GxsId>) Serializer.deserialize(buf, SET_GXS_ID);
-		//noinspection unchecked
-		pinnedPosts = (Set<MessageId>) Serializer.deserialize(buf, SET_GXS_MSG_ID);
+		description = (String) Serializer.deserialize(buf, STR_DESCR);
+
+		if (buf.isReadable())
+		{
+			//noinspection unchecked
+			admins = (Set<GxsId>) Serializer.deserialize(buf, SET_GXS_ID);
+			//noinspection unchecked
+			pinnedPosts = (Set<MessageId>) Serializer.deserialize(buf, SET_GXS_MSG_ID);
+		}
 	}
 
 	@Override

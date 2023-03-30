@@ -58,4 +58,12 @@ public class ForumService
 	{
 		return gxsForumRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
+
+	@Transactional
+	public void save(ForumGroupItem forumGroupItem)
+	{
+		forumGroupItem.setId(gxsForumRepository.findByGxsId(forumGroupItem.getGxsId()).orElse(forumGroupItem).getId());
+		gxsForumRepository.save(forumGroupItem);
+		// XXX: setLastServiceUpdate() ! (though, it seems to work already?) and I also should do it for messages
+	}
 }

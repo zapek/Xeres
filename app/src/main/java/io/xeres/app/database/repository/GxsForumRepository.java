@@ -26,11 +26,14 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
 public interface GxsForumRepository extends JpaRepository<ForumGroupItem, Long>
 {
+	Optional<ForumGroupItem> findByGxsId(GxsId gxsId);
+
 	List<ForumGroupItem> findAllByGxsIdIn(Set<GxsId> gxsIds);
 
 	List<ForumGroupItem> findAllBySubscribedIsTrueAndPublishedAfter(Instant since);

@@ -26,29 +26,26 @@ import io.xeres.app.service.ForumService;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
-import io.xeres.app.xrs.service.gxs.item.GxsTransferGroupItem;
 import io.xeres.common.id.GxsId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Collections;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.xeres.app.xrs.service.RsServiceType.FORUMS;
 
 @Component
-public class ForumRsService extends GxsRsService
+public class ForumRsService extends GxsRsService<ForumGroupItem>
 {
-	private static final Logger log = LoggerFactory.getLogger(ForumRsService.class);
-
 	private final ForumService forumService;
 
 	public ForumRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, ForumService forumService)
@@ -64,13 +61,13 @@ public class ForumRsService extends GxsRsService
 	}
 
 	@Override
-	public List<? extends GxsGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
+	public List<ForumGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
 	{
 		return forumService.findAllSubscribedAndPublishedSince(since);
 	}
 
 	@Override
-	protected List<? extends GxsGroupItem> onGroupListRequest(Set<GxsId> ids)
+	protected List<ForumGroupItem> onGroupListRequest(Set<GxsId> ids)
 	{
 		return forumService.findAll(ids);
 	}
@@ -78,16 +75,22 @@ public class ForumRsService extends GxsRsService
 	@Override
 	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
 	{
-		// XXX: return the groups that we are subscribed and that are more recent
-		log.debug("Received list response: {}", ids);
-		return Collections.emptySet();
+		// We want new forums as well as updated ones
+		var existingMap = forumService.findAll(ids.keySet()).stream()
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, forumGroupItem -> forumGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
+
+		ids.entrySet().removeIf(gxsIdInstantEntry -> {
+			var existing = existingMap.get(gxsIdInstantEntry.getKey());
+			return existing != null && !gxsIdInstantEntry.getValue().isAfter(existing);
+		});
+		return ids.keySet();
 	}
 
 	@Override
-	protected void onGroupReceived(GxsTransferGroupItem item)
+	protected void onGroupReceived(ForumGroupItem item)
 	{
-		// XXX: save/update in database
-		log.debug("Received group {}", item);
+		log.debug("Received group {}, saving/updating...", item);
+		forumService.save(item);
 	}
 
 	@Transactional

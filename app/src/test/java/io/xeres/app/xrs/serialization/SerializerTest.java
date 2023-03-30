@@ -576,7 +576,7 @@ class SerializerTest
 		var forumGroupItem = ForumGroupItemFakes.createForumGroupItem();
 
 		var size = Serializer.serializeGxsGroupItem(buf, forumGroupItem, EnumSet.noneOf(SerializationFlags.class));
-		assertEquals(176, size);
+		assertEquals(178, size);
 
 		var result = new ForumGroupItem();
 		Serializer.deserializeGxsGroupItem(buf, result);

@@ -43,6 +43,7 @@ class TlvTypeTest
 		assertEquals(0x86, IPV6.getValue());
 		assertEquals(0xa0, STR_GROUP_ID.getValue());
 		assertEquals(0xa4, STR_KEY_ID.getValue());
+		assertEquals(0xb3, STR_DESCR.getValue());
 		assertEquals(0xb4, STR_SIGN.getValue());
 		assertEquals(0x110, KEY_EVP_PKEY.getValue());
 		assertEquals(0x120, SIGN_RSA_SHA1.getValue());
@@ -62,6 +63,6 @@ class TlvTypeTest
 		assertEquals(0x1072, ADDRESS.getValue());
 		assertEquals(0x2223, STRING.getValue());
 
-		assertEquals(32, values().length);
+		assertEquals(33, values().length);
 	}
 }

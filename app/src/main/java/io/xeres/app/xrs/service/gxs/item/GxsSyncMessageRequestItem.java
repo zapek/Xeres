@@ -1,10 +1,7 @@
 package io.xeres.app.xrs.service.gxs.item;
 
-import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
-
-import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
 
@@ -13,8 +10,10 @@ import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
  */
 public class GxsSyncMessageRequestItem extends GxsExchange
 {
-	@RsSerialized(fieldSize = FieldSize.BYTE)
-	private Set<SyncFlags> flags;
+	public static final byte USE_HASHED_GROUP_ID = 0x2;
+
+	@RsSerialized
+	private byte flags;
 
 	@RsSerialized
 	private int createSince;
@@ -77,7 +76,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	public String toString()
 	{
 		return "GxsSyncMessageRequestItem{" +
-				"flag=" + flags +
+				"flags=" + flags +
 				", createSince=" + createSince +
 				", syncHash='" + syncHash + '\'' +
 				", groupId=" + groupId +

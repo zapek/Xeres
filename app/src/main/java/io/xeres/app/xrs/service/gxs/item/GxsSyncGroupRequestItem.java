@@ -32,7 +32,7 @@ import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
 public class GxsSyncGroupRequestItem extends GxsExchange
 {
 	@RsSerialized
-	private byte flag; // unused
+	private byte flags; // unused
 
 	@RsSerialized
 	private int createdSince; // how far back to sync data
@@ -48,9 +48,9 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 		// Needed
 	}
 
-	public GxsSyncGroupRequestItem(Instant lastUpdate)
+	public GxsSyncGroupRequestItem(Instant lastUpdated)
 	{
-		this.lastUpdated = (int) lastUpdate.getEpochSecond();
+		this.lastUpdated = (int) lastUpdated.getEpochSecond();
 	}
 
 	public int getCreatedSince()
@@ -77,7 +77,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	public String toString()
 	{
 		return "GxsSyncGroupRequestItem{" +
-				", flag=" + flag +
+				", flags=" + flags +
 				", createdSince=" + createdSince +
 				", syncHash='" + syncHash + '\'' +
 				", lastUpdated=" + lastUpdated +

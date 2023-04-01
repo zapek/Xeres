@@ -20,19 +20,19 @@
 package io.xeres.app.xrs.service.gxs.item;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
-
-import java.util.Set;
 
 /**
  * Item used to send the list of new groups that we have for a peer.
  */
 public class GxsSyncGroupItem extends GxsExchange
 {
-	@RsSerialized(fieldSize = FieldSize.BYTE)
-	private Set<SyncFlags> flags;
+	public static final byte REQUEST = 0x1;
+	public static final byte RESPONSE = 0x2;
+
+	@RsSerialized
+	private byte flags;
 
 	@RsSerialized
 	private GxsId groupId;
@@ -49,7 +49,7 @@ public class GxsSyncGroupItem extends GxsExchange
 		// Needed
 	}
 
-	public GxsSyncGroupItem(Set<SyncFlags> flags, GxsGroupItem groupItem, int transactionId)
+	public GxsSyncGroupItem(byte flags, GxsGroupItem groupItem, int transactionId)
 	{
 		this.flags = flags;
 		publishTimestamp = (int) groupItem.getPublished().getEpochSecond();
@@ -58,7 +58,7 @@ public class GxsSyncGroupItem extends GxsExchange
 		setTransactionId(transactionId);
 	}
 
-	public GxsSyncGroupItem(Set<SyncFlags> flags, GxsId groupId, int transactionId)
+	public GxsSyncGroupItem(byte flags, GxsId groupId, int transactionId)
 	{
 		this.flags = flags; // note that we still set the flag for compatibility purposes. It's only really used in GxsSyncMessageItem
 		this.groupId = groupId;

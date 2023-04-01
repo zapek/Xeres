@@ -47,6 +47,8 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.REQUEST;
+import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -125,6 +127,8 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 				GxsSyncGroupItem.class, 2,
 				GxsSyncGroupStatsItem.class, 3,
 				GxsTransferGroupItem.class, 4,
+				GxsSyncMessageItem.class, 8,
+				GxsSyncMessageRequestItem.class, 16,
 				GxsTransactionItem.class, 64
 		);
 	}
@@ -159,6 +163,15 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 			{
 				handleGxsSyncGroupRequestItem(sender, gxsSyncGroupRequestItem);
 			}
+			else if (item instanceof GxsSyncMessageRequestItem gxsSyncMessageRequestItem)
+			{
+				handleGxsSyncMessageRequestItem(sender, gxsSyncMessageRequestItem);
+			}
+			else if (item instanceof GxsSyncGroupStatsItem gxsSyncGroupStatsItem)
+			{
+				log.debug("Would handle group statistics item (not implemented yet)");
+				// XXX:
+			}
 		}
 		else
 		{
@@ -177,7 +190,7 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 
 	private void handleGxsSyncGroupRequestItem(PeerConnection peerConnection, GxsSyncGroupRequestItem item)
 	{
-		log.debug("Got sync request item {} from peer {}", item, peerConnection);
+		log.debug("Got group sync request item {} from peer {}", item, peerConnection);
 
 		var transactionId = getTransactionId(peerConnection);
 		var since = Instant.ofEpochSecond(item.getLastUpdated());
@@ -191,7 +204,7 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 				if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
 				{
 					var gxsSyncGroupItem = new GxsSyncGroupItem(
-							EnumSet.of(SyncFlags.USE_HASHED_GROUP_ID), // set for compatibility purposes
+							RESPONSE,
 							gxsGroupItem,
 							transactionId);
 
@@ -217,6 +230,12 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 		// XXX: check if the peer is subscribed, encrypt or not the group, etc... it's rsgxsnetservice.cc/handleRecvSyncGroup we might not need that for gxsid transferts
 
 		// XXX: to handle the synchronization we must know which tables to use, then it's generic
+	}
+
+	private void handleGxsSyncMessageRequestItem(PeerConnection peerConnection, GxsSyncMessageRequestItem item)
+	{
+		log.debug("Got message sync request item {} from peer {}", item, peerConnection);
+		// XXX
 	}
 
 	private void handleTransaction(PeerConnection peerConnection, GxsExchange item)
@@ -358,7 +377,7 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsSyncGroupItem> items = new ArrayList<>();
 
-		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(EnumSet.of(SyncFlags.UNUSED), gxsId, transactionId)));
+		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(REQUEST, gxsId, transactionId)));
 
 		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}

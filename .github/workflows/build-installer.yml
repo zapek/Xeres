@@ -20,7 +20,7 @@ jobs:
     - name: Set up JDK 19
       uses: actions/setup-java@v3
       with:
-        java-version: '19.0.1'
+        java-version: '19.0.2'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2
@@ -44,7 +44,7 @@ jobs:
     - name: Set up JDK 19
       uses: actions/setup-java@v3
       with:
-        java-version: '19.0.1'
+        java-version: '19.0.2'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2
@@ -68,7 +68,7 @@ jobs:
     - name: Set up JDK 19
       uses: actions/setup-java@v3
       with:
-        java-version: '19.0.1'
+        java-version: '19.0.2'
         distribution: 'temurin'
     - name: Build
       uses: gradle/gradle-build-action@v2

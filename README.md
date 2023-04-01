@@ -66,7 +66,7 @@ Select _Edit Configurations..._ of the _XeresApplication_ Spring Boot configurat
 
 Put the following _VM options_:
 
-    -ea -Djava.net.preferIPv4Stack=true
+    -ea -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8
 
 And the following _Active profiles_:
 
@@ -128,7 +128,7 @@ run the ``clean`` task
 
 ## Useful Links
 
-##### Pick an FontAwesome icon
+##### Pick a FontAwesome icon
 
 https://fontawesome.com/v4/icons/
 

@@ -39,7 +39,7 @@ plugins {
 
 // To upgrade Gradle, change the version here, refresh, then run the 'wrapper' task
 wrapper {
-    gradleVersion = '8.0.1'
+    gradleVersion = '8.0.2'
 }
 
 subprojects {

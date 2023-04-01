@@ -41,7 +41,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	private String syncHash; // unused. This is old stuff where it used to transfer files instead of building tunnels
 
 	@RsSerialized
-	private int lastUpdated; // last group update. XXX: set it!
+	private int lastUpdated; // last group update
 
 	public GxsSyncGroupRequestItem()
 	{

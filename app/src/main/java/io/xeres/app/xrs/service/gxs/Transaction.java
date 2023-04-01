@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.gxs;
 
+import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.gxs.item.GxsExchange;
 import io.xeres.app.xrs.service.gxs.item.TransactionFlags;
@@ -67,9 +68,9 @@ public class Transaction<T extends GxsExchange>
 	private final Duration timeout;
 	private final List<T> items;
 	private final int itemCount;
-	private final GxsRsService service;
+	private final GxsRsService<? extends GxsGroupItem> service;
 
-	Transaction(int id, Set<TransactionFlags> transactionFlags, List<T> items, int itemCount, GxsRsService service, Direction direction)
+	Transaction(int id, Set<TransactionFlags> transactionFlags, List<T> items, int itemCount, GxsRsService<? extends GxsGroupItem> service, Direction direction)
 	{
 		if (itemCount == 0)
 		{

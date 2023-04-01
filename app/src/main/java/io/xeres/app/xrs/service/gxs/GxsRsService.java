@@ -248,7 +248,7 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 		{
 			if (gxsTransactionManager.addIncomingItemToTransaction(peerConnection, item, this))
 			{
-				gxsExchangeService.setLastPeerUpdate(peerConnection.getLocation(), getServiceType(), Instant.now());
+				gxsExchangeService.setLastPeerUpdate(peerConnection.getLocation(), getServiceType(), Instant.now()); // XXX: that Instant.now() is probably wrong, we should store the timestamp the peer sent us
 			}
 		}
 	}

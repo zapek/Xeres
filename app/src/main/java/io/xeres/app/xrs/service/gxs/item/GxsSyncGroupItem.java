@@ -60,7 +60,7 @@ public class GxsSyncGroupItem extends GxsExchange
 
 	public GxsSyncGroupItem(byte flags, GxsId groupId, int transactionId)
 	{
-		this.flags = flags; // note that we still set the flag for compatibility purposes. It's only really used in GxsSyncMessageItem
+		this.flags = flags;
 		this.groupId = groupId;
 		setTransactionId(transactionId);
 	}

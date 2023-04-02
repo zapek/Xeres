@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.gxs;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.service.gxs.Transaction.Direction;
@@ -81,7 +82,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForGroupIdRequest(PeerConnection peerConnection, List<GxsSyncGroupItem> items, int transactionId, GxsRsService<? extends GxsGroupItem> gxsRsService)
+	public void startOutgoingTransactionForGroupIdRequest(PeerConnection peerConnection, List<GxsSyncGroupItem> items, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUP_LIST_REQUEST), items, items.size(), gxsRsService, Direction.OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, Instant.EPOCH);
@@ -95,7 +96,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForMessageIdRequest(PeerConnection peerConnection, List<GxsSyncMessageItem> items, int transactionId, GxsRsService<? extends GxsGroupItem> gxsRsService)
+	public void startOutgoingTransactionForMessageIdRequest(PeerConnection peerConnection, List<GxsSyncMessageItem> items, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_MESSAGE_LIST_REQUEST), items, items.size(), gxsRsService, Direction.OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, Instant.EPOCH);
@@ -110,7 +111,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForGroupIdResponse(PeerConnection peerConnection, List<GxsSyncGroupItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem> gxsRsService)
+	public void startOutgoingTransactionForGroupIdResponse(PeerConnection peerConnection, List<GxsSyncGroupItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUP_LIST_RESPONSE), items, items.size(), gxsRsService, Direction.OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);
@@ -125,7 +126,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForMessageIdResponse(PeerConnection peerConnection, List<GxsSyncMessageItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem> gxsRsService)
+	public void startOutgoingTransactionForMessageIdResponse(PeerConnection peerConnection, List<GxsSyncMessageItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_MESSAGE_LIST_RESPONSE), items, items.size(), gxsRsService, Direction.OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);
@@ -140,7 +141,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForGroupTransfer(PeerConnection peerConnection, List<GxsTransferGroupItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem> gxsRsService)
+	public void startOutgoingTransactionForGroupTransfer(PeerConnection peerConnection, List<GxsTransferGroupItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUPS), items, items.size(), gxsRsService, Direction.OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);
@@ -155,7 +156,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForMessageTransfer(PeerConnection peerConnection, List<GxsTransferMessageItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem> gxsRsService)
+	public void startOutgoingTransactionForMessageTransfer(PeerConnection peerConnection, List<GxsTransferMessageItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_MESSAGES), items, items.size(), gxsRsService, Direction.OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);
@@ -169,7 +170,7 @@ public class GxsTransactionManager
 	 * @param item           a transaction item (contains transaction type, timestamp and total number of items)
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void processIncomingTransaction(PeerConnection peerConnection, GxsTransactionItem item, GxsRsService<? extends GxsGroupItem> gxsRsService)
+	public void processIncomingTransaction(PeerConnection peerConnection, GxsTransactionItem item, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		if (item.getFlags().contains(START))
 		{
@@ -220,7 +221,7 @@ public class GxsTransactionManager
 	 * @param gxsRsService   the service the transaction is bound to
 	 * @return true if all expected items have been received
 	 */
-	public boolean addIncomingItemToTransaction(PeerConnection peerConnection, GxsExchange item, GxsRsService<? extends GxsGroupItem> gxsRsService)
+	public boolean addIncomingItemToTransaction(PeerConnection peerConnection, GxsExchange item, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		log.debug("Adding transaction item: {}", item);
 		var transaction = getTransaction(peerConnection, item.getTransactionId(), Transaction.Direction.INCOMING);

@@ -74,4 +74,34 @@ public abstract class GxsMessageItem extends Item
 	private Instant child;
 
 	private String serviceString;
+
+	public GxsId getGxsId()
+	{
+		return gxsId;
+	}
+
+	public void setGxsId(GxsId gxsId)
+	{
+		this.gxsId = gxsId;
+	}
+
+	public MessageId getMessageId()
+	{
+		return messageId;
+	}
+
+	public void setMessageId(MessageId messageId)
+	{
+		this.messageId = messageId;
+	}
+
+	public GxsId getAuthorId()
+	{
+		return authorId;
+	}
+
+	public void setAuthorId(GxsId authorId)
+	{
+		this.authorId = authorId;
+	}
 }

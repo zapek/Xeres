@@ -84,7 +84,7 @@ class IdentityServiceTest
 			gxsIdGroupItem.setPublished(Instant.now());
 			return gxsIdGroupItem;
 		});
-		doNothing().when(gxsExchangeService).setLastServiceUpdate(any(), any());
+		doNothing().when(gxsExchangeService).setLastServiceGroupsUpdateNow(any());
 
 		var id = identityService.createOwnIdentity(NAME, false);
 
@@ -128,7 +128,7 @@ class IdentityServiceTest
 			gxsIdGroupItem.setPublished(Instant.now());
 			return gxsIdGroupItem;
 		});
-		doNothing().when(gxsExchangeService).setLastServiceUpdate(any(), any());
+		doNothing().when(gxsExchangeService).setLastServiceGroupsUpdateNow(any());
 
 		var id = identityService.createOwnIdentity(NAME, true);
 

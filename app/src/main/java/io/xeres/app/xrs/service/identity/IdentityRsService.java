@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +46,7 @@ import java.util.stream.Collectors;
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
 
 @Component
-public class IdentityRsService extends GxsRsService<IdentityGroupItem>
+public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessageItem>
 {
 	private final IdentityService identityService;
 
@@ -68,7 +70,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem>
 	}
 
 	@Override
-	public List<IdentityGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
+	protected List<IdentityGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
 	{
 		return identityService.findAllSubscribedAndPublishedSince(since);
 	}
@@ -99,5 +101,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem>
 	{
 		log.debug("Saving id {}", item.getGxsId());
 		identityService.transferIdentity(item);
+	}
+
+	@Override
+	protected List<GxsMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
+	{
+		return Collections.emptyList(); // unused
 	}
 }

@@ -27,6 +27,7 @@ import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.common.id.GxsId;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +46,7 @@ import java.util.stream.Collectors;
 import static io.xeres.app.xrs.service.RsServiceType.FORUMS;
 
 @Component
-public class ForumRsService extends GxsRsService<ForumGroupItem>
+public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageItem>
 {
 	private final ForumService forumService;
 
@@ -61,7 +63,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem>
 	}
 
 	@Override
-	public List<ForumGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
+	protected List<ForumGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
 	{
 		return forumService.findAllSubscribedAndPublishedSince(since);
 	}
@@ -92,6 +94,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem>
 		log.debug("Received group {}, saving/updating...", item);
 		forumService.save(item);
 	}
+
+	@Override
+	protected List<ForumMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
+	{
+		return Collections.emptyList(); // TODO: implement
+	}
+
 
 	@Transactional
 	@Override

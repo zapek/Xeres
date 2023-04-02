@@ -44,7 +44,7 @@ public class GxsExchangeService
 		this.gxsServiceSettingRepository = gxsServiceSettingRepository;
 	}
 
-	public Instant getLastPeerUpdate(Location location, RsServiceType serviceType)
+	public Instant getLastPeerGroupsUpdate(Location location, RsServiceType serviceType)
 	{
 		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
 				.map(GxsClientUpdate::getLastSynced)
@@ -52,8 +52,9 @@ public class GxsExchangeService
 	}
 
 	@Transactional
-	public void setLastPeerUpdate(Location location, RsServiceType serviceType, Instant now)
+	public void setLastPeerGroupsUpdate(Location location, RsServiceType serviceType)
 	{
+		var now = Instant.now(); // we always use local time
 		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
 				.ifPresentOrElse(gxsClientUpdate -> {
 					gxsClientUpdate.setLastSynced(now);
@@ -61,16 +62,26 @@ public class GxsExchangeService
 				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), now)));
 	}
 
-	public Instant getLastServiceUpdate(RsServiceType serviceType)
+	/**
+	 * Gets the last time the service's groups were updated. This uses the local time.
+	 * @param serviceType the service type
+	 * @return the last time
+	 */
+	public Instant getLastServiceGroupsUpdate(RsServiceType serviceType)
 	{
 		return gxsServiceSettingRepository.findById(serviceType.getType())
 				.map(GxsServiceSetting::getLastUpdated)
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
+	/**
+	 * Sets the last time the service's groups were updated. This uses the local time.
+	 * @param serviceType the service type
+	 */
 	@Transactional
-	public void setLastServiceUpdate(RsServiceType serviceType, Instant now)
+	public void setLastServiceGroupsUpdateNow(RsServiceType serviceType)
 	{
+		var now = Instant.now(); // we always use local time
 		gxsServiceSettingRepository.findById(serviceType.getType())
 				.ifPresentOrElse(gxsServiceSetting -> {
 					gxsServiceSetting.setLastUpdated(now);

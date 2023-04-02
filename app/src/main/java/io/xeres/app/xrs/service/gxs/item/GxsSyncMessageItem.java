@@ -1,7 +1,9 @@
 package io.xeres.app.xrs.service.gxs.item;
 
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 
 public class GxsSyncMessageItem extends GxsExchange
 {
@@ -15,7 +17,7 @@ public class GxsSyncMessageItem extends GxsExchange
 	private GxsId groupId;
 
 	@RsSerialized
-	private GxsId messageId;
+	private MessageId messageId;
 
 	@RsSerialized
 	private GxsId authorId;
@@ -23,5 +25,14 @@ public class GxsSyncMessageItem extends GxsExchange
 	public GxsSyncMessageItem()
 	{
 		// Needed
+	}
+
+	public GxsSyncMessageItem(byte flags, GxsMessageItem messageItem, int transactionId)
+	{
+		this.flags = flags;
+		groupId = messageItem.getGxsId();
+		messageId = messageItem.getMessageId();
+		authorId = messageItem.getAuthorId();
+		setTransactionId(transactionId);
 	}
 }

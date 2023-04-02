@@ -35,7 +35,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	private byte flags; // unused
 
 	@RsSerialized
-	private int createdSince; // how far back to sync data
+	private int createdSince; // unused
 
 	@RsSerialized(tlvType = STR_HASH_SHA1)
 	private String syncHash; // unused. This is old stuff where it used to transfer files instead of building tunnels
@@ -51,16 +51,6 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	public GxsSyncGroupRequestItem(Instant lastUpdated)
 	{
 		this.lastUpdated = (int) lastUpdated.getEpochSecond();
-	}
-
-	public int getCreatedSince()
-	{
-		return createdSince;
-	}
-
-	public void setCreatedSince(int createdSince)
-	{
-		this.createdSince = createdSince;
 	}
 
 	public int getLastUpdated()

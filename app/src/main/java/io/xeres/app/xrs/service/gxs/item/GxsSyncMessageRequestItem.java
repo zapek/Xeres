@@ -16,7 +16,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	private byte flags;
 
 	@RsSerialized
-	private int createSince;
+	private int createSince; // how far back to sync data
 
 	@RsSerialized(tlvType = STR_HASH_SHA1)
 	private String syncHash;

@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
@@ -54,7 +55,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
-public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
+public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageItem> extends RsService
 {
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -91,7 +92,7 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 	 * @param since     the time after which the groups are relevant
 	 * @return the pending groups
 	 */
-	public abstract List<T> onPendingGroupListRequest(PeerConnection recipient, Instant since);
+	protected abstract List<G> onPendingGroupListRequest(PeerConnection recipient, Instant since);
 
 	/**
 	 * Called when a peer sends the list of updated groups that might interest us.
@@ -105,13 +106,15 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 	 * @param ids the groups that the peer wants
 	 * @return the groups that we have within the requested set
 	 */
-	protected abstract List<T> onGroupListRequest(Set<GxsId> ids);
+	protected abstract List<G> onGroupListRequest(Set<GxsId> ids);
 
 	/**
 	 * Called when a group has been received.
 	 * @param item the received group
 	 */
-	protected abstract void onGroupReceived(T item);
+	protected abstract void onGroupReceived(G item);
+
+	protected abstract List<M> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since);
 
 	@Override
 	public RsServiceType getServiceType()
@@ -181,7 +184,7 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 
 	private void sync(PeerConnection peerConnection)
 	{
-		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsExchangeService.getLastPeerUpdate(peerConnection.getLocation(), getServiceType()));
+		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsExchangeService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType())); // TODO: use the RTT's (RTT service) delta time value to compute the proper time on the remote's end
 		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsSyncGroupRequestItem.getLastUpdated(), getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 	}
@@ -217,14 +220,14 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 			gxsTransactionManager.startOutgoingTransactionForGroupIdResponse(
 					peerConnection,
 					items,
-					gxsExchangeService.getLastServiceUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
+					gxsExchangeService.getLastServiceGroupsUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
 					transactionId,
 					this
 			);
 		}
 		else
 		{
-			log.debug("No update available for peer"); // XXX: remove...
+			log.debug("No update available for peer");
 		}
 
 		// XXX: check if the peer is subscribed, encrypt or not the group, etc... it's rsgxsnetservice.cc/handleRecvSyncGroup we might not need that for gxsid transferts
@@ -235,7 +238,39 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 	private void handleGxsSyncMessageRequestItem(PeerConnection peerConnection, GxsSyncMessageRequestItem item)
 	{
 		log.debug("Got message sync request item {} from peer {}", item, peerConnection);
-		// XXX
+
+		var transactionId = getTransactionId(peerConnection);
+		var lastUpdated = Instant.ofEpochSecond(item.getLastUpdated());
+		var since = Instant.ofEpochSecond(item.getCreateSince());
+		if (areMessageUpdatesAvailableForPeer(item.getGroupId(), lastUpdated, since))
+		{
+			log.debug("Messages available for peer, sending...");
+			List<GxsSyncMessageItem> items = new ArrayList<>();
+
+			onPendingMessageListRequest(peerConnection, item.getGroupId(), since).forEach(gxsMessageItem -> {
+				var gxsSyncMessageItem = new GxsSyncMessageItem(
+						GxsSyncMessageItem.RESPONSE,
+						gxsMessageItem,
+						transactionId);
+
+				items.add(gxsSyncMessageItem);
+			});
+
+			log.debug("Calling transaction, number of items: {}", items.size());
+			gxsTransactionManager.startOutgoingTransactionForMessageIdResponse(
+					peerConnection,
+					items,
+					gxsExchangeService.getLastServiceGroupsUpdate(getServiceType()), // XXX: not sure that's correct
+					transactionId,
+					this
+			);
+		}
+		else
+		{
+			log.debug("No messages available for peer");
+		}
+
+		// XXX: maybe some more to do, check rsgxsnetservice.cc/handleRecvSyncMsg
 	}
 
 	private void handleTransaction(PeerConnection peerConnection, GxsExchange item)
@@ -248,7 +283,7 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 		{
 			if (gxsTransactionManager.addIncomingItemToTransaction(peerConnection, item, this))
 			{
-				gxsExchangeService.setLastPeerUpdate(peerConnection.getLocation(), getServiceType(), Instant.now()); // XXX: that Instant.now() is probably wrong, we should store the timestamp the peer sent us
+				gxsExchangeService.setLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType());
 			}
 		}
 	}
@@ -262,12 +297,29 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 
 	private boolean areGxsUpdatesAvailableForPeer(Instant lastPeerUpdate)
 	{
-		log.debug("Comparing stored peer's last update: {} to peer's advertised last update: {}", gxsExchangeService.getLastServiceUpdate(getServiceType()), lastPeerUpdate);
+		var lastServiceUpdate = gxsExchangeService.getLastServiceGroupsUpdate(getServiceType());
+		log.debug("Comparing stored peer's last update: {} to peer's advertised last update: {}", lastServiceUpdate, lastPeerUpdate);
 		// XXX: there should be a way to detect if the peer is sending a lastPeerUpdate several times (means the transaction isn't complete yet)
-		return lastPeerUpdate.isBefore(gxsExchangeService.getLastServiceUpdate(getServiceType()));
+		return lastPeerUpdate.isBefore(lastServiceUpdate);
 	}
 
-	private boolean isGxsAllowedForPeer(PeerConnection peerConnection, T item)
+	private boolean areMessageUpdatesAvailableForPeer(GxsId groupId, Instant lastPeerUpdate, Instant since)
+	{
+		var groupList = onGroupListRequest(Set.of(groupId));
+		if (groupList.isEmpty())
+		{
+			log.warn("Peer requested unavailable group {}", groupId);
+			return false;
+		}
+
+		var group = groupList.get(0);
+		return group.isSubscribed() &&
+				group.getLastPosted() != null &&
+				lastPeerUpdate.isBefore(group.getLastPosted()) &&
+				group.getLastPosted().isAfter(since);
+	}
+
+	private boolean isGxsAllowedForPeer(PeerConnection peerConnection, G item)
 	{
 		return true; // XXX: later one we should compare with the circles (though that can be done on the SQL request too)
 	}
@@ -305,18 +357,18 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
 			transferItems.forEach(gxsTransferGroupItem -> onGroupReceived(convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
-			gxsExchangeService.setLastServiceUpdate(getServiceType(), Instant.now());
+			gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType());
 		}
 	}
 
-	private T convertTransferGroupToGxsGroup(GxsTransferGroupItem fromItem)
+	private G convertTransferGroupToGxsGroup(GxsTransferGroupItem fromItem)
 	{
-		T toItem;
+		G toItem;
 
 		try
 		{
 			//noinspection unchecked
-			toItem = ((Class<T>)itemClass).getDeclaredConstructor().newInstance();
+			toItem = ((Class<G>)itemClass).getDeclaredConstructor().newInstance();
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 		{
@@ -330,7 +382,7 @@ public abstract class GxsRsService<T extends GxsGroupItem> extends RsService
 		return toItem;
 	}
 
-	private void sendGxsGroups(PeerConnection peerConnection, List<T> gxsGroupItems)
+	private void sendGxsGroups(PeerConnection peerConnection, List<G> gxsGroupItems)
 	{
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();

@@ -27,6 +27,7 @@ import io.xeres.app.xrs.item.ItemFactory;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -39,6 +40,13 @@ import static org.mockito.ArgumentMatchers.anyInt;
 
 class GxsSignatureTest
 {
+	private static IdentityGroupItem createIdentityGroupItem()
+	{
+		var item = new IdentityGroupItem();
+		item.setService(new IdentityRsService(null, null, null, null, null));
+		return item;
+	}
+
 	@Test
 	void GxsSignature_Create_And_Verify_OK()
 	{
@@ -59,7 +67,7 @@ class GxsSignatureTest
 
 		try (var itemFactory = Mockito.mockStatic(ItemFactory.class))
 		{
-			itemFactory.when(() -> ItemFactory.create(anyInt(), anyInt())).thenReturn(new IdentityGroupItem());
+			itemFactory.when(() -> ItemFactory.create(anyInt(), anyInt())).thenReturn(createIdentityGroupItem());
 
 			var tmpRawItem = new RawItem(rawItem.getBuffer().copy(), 0);
 			var item = (IdentityGroupItem) tmpRawItem.deserialize();

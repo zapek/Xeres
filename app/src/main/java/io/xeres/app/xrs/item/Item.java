@@ -22,7 +22,7 @@ package io.xeres.app.xrs.item;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ReferenceCountUtil;
-import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMetaData;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
@@ -72,10 +72,10 @@ public class Item
 	{
 		var size = 0;
 
-		if (GxsGroupItem.class.isAssignableFrom(getClass()))
+		if (GxsMetaData.class.isAssignableFrom(getClass()))
 		{
 			log.trace("Serializing class {} using GxsGroupItem system, flags: {}", getClass().getSimpleName(), flags);
-			size += Serializer.serializeGxsGroupItem(buf, (GxsGroupItem) this, flags);
+			size += Serializer.serializeGxsMetaDataItem(buf, (GxsMetaData) this, flags);
 		}
 		else if (RsSerializable.class.isAssignableFrom(getClass()))
 		{

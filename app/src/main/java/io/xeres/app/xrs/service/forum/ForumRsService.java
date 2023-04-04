@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.forum;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.ForumService;
@@ -31,13 +32,13 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,20 +66,20 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected List<ForumGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
 	{
-		return forumService.findAllSubscribedAndPublishedSince(since);
+		return forumService.findAllGroupsSubscribedAndPublishedSince(since);
 	}
 
 	@Override
 	protected List<ForumGroupItem> onGroupListRequest(Set<GxsId> ids)
 	{
-		return forumService.findAll(ids);
+		return forumService.findAllGroups(ids);
 	}
 
 	@Override
 	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
 	{
 		// We want new forums as well as updated ones
-		var existingMap = forumService.findAll(ids.keySet()).stream()
+		var existingMap = forumService.findAllGroups(ids.keySet()).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, forumGroupItem -> forumGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
 
 		ids.entrySet().removeIf(gxsIdInstantEntry -> {
@@ -98,9 +99,33 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected List<ForumMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
 	{
-		return Collections.emptyList(); // TODO: implement
+		return forumService.findAllMessagesInGroupSince(groupId, since);
 	}
 
+	@Override
+	protected List<ForumMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	{
+		return forumService.findAllMessages(groupId, messageIds);
+	}
+
+	@Override
+	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
+	{
+		var existing = forumService.findAllMessages(groupId, messageIds).stream()
+						.map(GxsMessageItem::getMessageId)
+						.collect(Collectors.toSet());
+
+		messageIds.removeIf(existing::contains);
+
+		return messageIds.stream().toList();
+	}
+
+	@Override
+	protected void onMessageReceived(ForumMessageItem item)
+	{
+		log.debug("Received message {}, saving...", item);
+		forumService.save(item);
+	}
 
 	@Transactional
 	@Override

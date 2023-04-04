@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface GxsForumRepository extends JpaRepository<ForumGroupItem, Long>
+public interface GxsForumGroupRepository extends JpaRepository<ForumGroupItem, Long>
 {
 	Optional<ForumGroupItem> findByGxsId(GxsId gxsId);
 

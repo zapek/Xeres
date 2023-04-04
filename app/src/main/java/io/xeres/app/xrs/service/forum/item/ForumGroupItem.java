@@ -23,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
@@ -71,7 +70,7 @@ public class ForumGroupItem extends GxsGroupItem
 	}
 
 	@Override
-	public int writeGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
 		var size = 0;
 
@@ -83,7 +82,7 @@ public class ForumGroupItem extends GxsGroupItem
 	}
 
 	@Override
-	public void readGroupObject(ByteBuf buf)
+	public void readDataObject(ByteBuf buf)
 	{
 		description = (String) Serializer.deserialize(buf, STR_DESCR);
 
@@ -94,11 +93,5 @@ public class ForumGroupItem extends GxsGroupItem
 			//noinspection unchecked
 			pinnedPosts = (Set<MessageId>) Serializer.deserialize(buf, SET_GXS_MSG_ID);
 		}
-	}
-
-	@Override
-	public RsServiceType getServiceType()
-	{
-		return RsServiceType.FORUMS;
 	}
 }

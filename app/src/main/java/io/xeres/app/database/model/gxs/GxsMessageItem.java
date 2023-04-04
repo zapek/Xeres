@@ -19,7 +19,12 @@
 
 package io.xeres.app.database.model.gxs;
 
+import io.netty.buffer.ByteBuf;
+import io.xeres.app.xrs.common.Signature;
+import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
@@ -28,12 +33,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.Set;
+
+import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_messages")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class GxsMessageItem extends Item
+public abstract class GxsMessageItem extends Item implements GxsMetaData
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsMessageItem.class);
+
+	private static final int API_VERSION_2 = 0x0000;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -75,6 +85,22 @@ public abstract class GxsMessageItem extends Item
 
 	private String serviceString;
 
+	@Transient
+	private byte[] publishSignature;
+
+	@Transient
+	private byte[] identitySignature;
+
+	public long getId()
+	{
+		return id;
+	}
+
+	public void setId(long id)
+	{
+		this.id = id;
+	}
+
 	public GxsId getGxsId()
 	{
 		return gxsId;
@@ -103,5 +129,131 @@ public abstract class GxsMessageItem extends Item
 	public void setAuthorId(GxsId authorId)
 	{
 		this.authorId = authorId;
+	}
+
+	public Instant getPublished()
+	{
+		return published;
+	}
+
+	public void setPublished(Instant published)
+	{
+		this.published = published;
+	}
+
+	public byte[] getPublishSignature()
+	{
+		return publishSignature;
+	}
+
+	public void setPublishSignature(byte[] publishSignature)
+	{
+		this.publishSignature = publishSignature;
+	}
+
+	public byte[] getIdentitySignature()
+	{
+		return identitySignature;
+	}
+
+	public void setIdentitySignature(byte[] identitySignature)
+	{
+		this.identitySignature = identitySignature;
+	}
+
+	@Override
+	public int writeMetaObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		var size = 0;
+
+		size += serialize(buf, API_VERSION_2);
+		var sizeOffset = buf.writerIndex();
+		size += serialize(buf, 0); // write size at the end
+		size += serialize(buf, gxsId, GxsId.class);
+		size += serialize(buf, messageId, MessageId.class);
+		size += serialize(buf, threadId, MessageId.class);
+		size += serialize(buf, parentId, MessageId.class);
+		size += serialize(buf, originalMessageId, MessageId.class);
+		size += serialize(buf, authorId, GxsId.class);
+		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new SignatureSet() : createSignatureSet());
+		size += serialize(buf, TlvType.STRING, name);
+		size += serialize(buf, (int) published.getEpochSecond());
+		size += serialize(buf, flags); // XXX: or diffusionFlags/messageFlags, FieldSize.INTEGER, see how groups does it
+		buf.setInt(sizeOffset, size); // write total size
+
+		return size;
+	}
+
+	@Override
+	public void readMetaObject(ByteBuf buf)
+	{
+		var apiVersion = deserializeInt(buf);
+		if (apiVersion != API_VERSION_2)
+		{
+			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
+		}
+		deserializeInt(buf); // the size
+		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
+		messageId = (MessageId) deserializeIdentifier(buf, MessageId.class);
+		threadId = (MessageId) deserializeIdentifier(buf, MessageId.class);
+		parentId = (MessageId) deserializeIdentifier(buf, MessageId.class);
+		originalMessageId = (MessageId) deserializeIdentifier(buf, MessageId.class);
+		authorId = (GxsId) deserializeIdentifier(buf, GxsId.class);
+		deserializeSignature(buf);
+		name = (String) deserialize(buf, TlvType.STRING);
+		published = Instant.ofEpochSecond(deserializeInt(buf));
+		flags = deserializeInt(buf); // XXX: or use enumset, etc...
+	}
+
+	private SignatureSet createSignatureSet()
+	{
+		var signatureSet = new SignatureSet();
+		if (getPublishSignature() != null)
+		{
+			signatureSet.put(SignatureSet.Type.PUBLISH, new Signature(gxsId, getPublishSignature()));
+		}
+		if (getIdentitySignature() != null)
+		{
+			signatureSet.put(SignatureSet.Type.IDENTITY, new Signature(gxsId, getIdentitySignature()));
+		}
+		return signatureSet;
+	}
+
+	private void deserializeSignature(ByteBuf buf)
+	{
+		var signatureSet = (SignatureSet) deserialize(buf, TlvType.SIGNATURE_SET);
+		if (signatureSet.getSignatures() != null)
+		{
+			var sign = signatureSet.getSignatures().get(SignatureSet.Type.PUBLISH.getValue());
+			if (sign != null)
+			{
+				publishSignature = sign.data();
+			}
+			sign = signatureSet.getSignatures().get(SignatureSet.Type.IDENTITY.getValue());
+			if (sign != null)
+			{
+				identitySignature = sign.data();
+			}
+		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "GxsMessageItem{" +
+				"id=" + id +
+				", gxsId=" + gxsId +
+				", messageId=" + messageId +
+				", threadId=" + threadId +
+				", parentId=" + parentId +
+				", originalMessageId=" + originalMessageId +
+				", authorId=" + authorId +
+				", name='" + name + '\'' +
+				", published=" + published +
+				", flags=" + flags +
+				", status=" + status +
+				", child=" + child +
+				", serviceString='" + serviceString + '\'' +
+				'}';
 	}
 }

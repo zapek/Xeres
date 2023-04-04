@@ -19,8 +19,16 @@
 
 package io.xeres.app.xrs.service.forum.item;
 
+import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
+import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.Serializer;
 import jakarta.persistence.Entity;
+
+import java.util.Set;
+
+import static io.xeres.app.xrs.serialization.Serializer.serialize;
+import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 
 @Entity(name = "forum_messages")
 public class ForumMessageItem extends GxsMessageItem
@@ -32,5 +40,25 @@ public class ForumMessageItem extends GxsMessageItem
 		// Needed for JPA
 	}
 
-	// XXX: overrides?
+	public String getContent()
+	{
+		return content;
+	}
+
+	public void setContent(String content)
+	{
+		this.content = content;
+	}
+
+	@Override
+	public int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		return serialize(buf, STR_MSG, content);
+	}
+
+	@Override
+	public void readDataObject(ByteBuf buf)
+	{
+		content = (String) Serializer.deserialize(buf, STR_MSG);
+	}
 }

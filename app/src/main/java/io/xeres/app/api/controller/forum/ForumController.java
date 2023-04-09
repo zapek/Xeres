@@ -52,6 +52,6 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumDTO> getForums()
 	{
-		return toDTOs(forumService.findAll());
+		return toDTOs(forumService.findAllGroups());
 	}
 }

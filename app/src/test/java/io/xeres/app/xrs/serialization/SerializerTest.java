@@ -25,7 +25,9 @@ import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.common.SignatureSet;
+import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
@@ -556,11 +558,13 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 		var identityGroupItem = IdentityGroupItemFakes.createIdentityGroupItem();
 
-		var size = Serializer.serializeGxsGroupItem(buf, identityGroupItem, EnumSet.noneOf(SerializationFlags.class));
+		var size = Serializer.serializeGxsMetaDataItem(buf, identityGroupItem, EnumSet.noneOf(SerializationFlags.class));
 		assertEquals(186, size);
 
 		var result = new IdentityGroupItem();
-		Serializer.deserializeGxsGroupItem(buf, result);
+		result.setService(new IdentityRsService(null, null, null, null, null));
+
+		Serializer.deserializeGxsMetaDataItem(buf, result);
 		assertEquals(identityGroupItem.getGxsId(), result.getGxsId());
 		assertEquals(identityGroupItem.getName(), result.getName());
 		assertEquals(identityGroupItem.getPublished().getEpochSecond(), result.getPublished().getEpochSecond());
@@ -575,11 +579,12 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 		var forumGroupItem = ForumGroupItemFakes.createForumGroupItem();
 
-		var size = Serializer.serializeGxsGroupItem(buf, forumGroupItem, EnumSet.noneOf(SerializationFlags.class));
+		var size = Serializer.serializeGxsMetaDataItem(buf, forumGroupItem, EnumSet.noneOf(SerializationFlags.class));
 		assertEquals(178, size);
 
 		var result = new ForumGroupItem();
-		Serializer.deserializeGxsGroupItem(buf, result);
+		result.setService(new ForumRsService(null, null, null, null, null));
+		Serializer.deserializeGxsMetaDataItem(buf, result);
 		assertEquals(forumGroupItem.getGxsId(), result.getGxsId());
 		assertEquals(forumGroupItem.getName(), result.getName());
 		assertEquals(forumGroupItem.getPublished().getEpochSecond(), result.getPublished().getEpochSecond());

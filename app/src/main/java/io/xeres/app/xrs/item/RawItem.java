@@ -21,7 +21,7 @@ package io.xeres.app.xrs.item;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.ReferenceCountUtil;
-import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMetaData;
 import io.xeres.app.net.peer.packet.Packet;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.Serializer;
@@ -61,10 +61,10 @@ public class RawItem
 
 		buf.skipBytes(HEADER_SIZE);
 		// XXX: oh, also see if the size matches the total size
-		if (GxsGroupItem.class.isAssignableFrom(item.getClass()))
+		if (GxsMetaData.class.isAssignableFrom(item.getClass()))
 		{
-			log.trace("Deserializing class {} using GxsGroup system", item.getClass().getSimpleName());
-			Serializer.deserializeGxsGroupItem(buf, (GxsGroupItem) item);
+			log.trace("Deserializing class {} using GxsMetaData system", item.getClass().getSimpleName());
+			Serializer.deserializeGxsMetaDataItem(buf, (GxsMetaData) item);
 		}
 		else if (RsSerializable.class.isAssignableFrom(item.getClass()))
 		{

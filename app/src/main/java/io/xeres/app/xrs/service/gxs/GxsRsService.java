@@ -35,6 +35,7 @@ import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -115,6 +116,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected abstract void onGroupReceived(G item);
 
 	protected abstract List<M> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since);
+
+	protected abstract List<M> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds);
+
+	protected abstract List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds);
+
+	protected abstract void onMessageReceived(M item);
 
 	@Override
 	public RsServiceType getServiceType()
@@ -337,14 +344,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			throw new IllegalArgumentException("Empty transaction items");
 		}
 
-		if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_REQUEST))
-		{
-			@SuppressWarnings("unchecked")
-			var gxsIds = ((List<GxsSyncGroupItem>) transaction.getItems()).stream().map(GxsSyncGroupItem::getGroupId).collect(toSet());
-			log.debug("Peer wants the following gxs ids (total: {}): {} ...", gxsIds.size(), gxsIds.stream().limit(10).toList());
-			sendGxsGroups(peerConnection, onGroupListRequest(gxsIds));
-		}
-		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_RESPONSE))
+		if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_RESPONSE))
 		{
 			@SuppressWarnings("unchecked")
 			var gxsIdsMap = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
@@ -352,12 +352,49 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			log.debug("Peer has the following gxsIds (new or updates) for us (total: {}): {} ...", gxsIdsMap.keySet().size(), gxsIdsMap.keySet().stream().limit(10).toList());
 			requestGxsGroups(peerConnection, onGroupListResponse(gxsIdsMap));
 		}
+		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_REQUEST))
+		{
+			@SuppressWarnings("unchecked")
+			var gxsIds = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
+					.map(GxsSyncGroupItem::getGroupId).collect(toSet());
+			log.debug("Peer wants the following gxs ids (total: {}): {} ...", gxsIds.size(), gxsIds.stream().limit(10).toList());
+			sendGxsGroups(peerConnection, onGroupListRequest(gxsIds));
+		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUPS))
 		{
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
 			transferItems.forEach(gxsTransferGroupItem -> onGroupReceived(convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
 			gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType());
+		}
+		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_RESPONSE))
+		{
+			@SuppressWarnings("unchecked")
+			var groupId = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
+					.map(GxsSyncMessageItem::getGroupId).findFirst().orElse(null);
+			@SuppressWarnings("unchecked")
+			var messageIds = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
+					.map(GxsSyncMessageItem::getMessageId).collect(toSet());
+			log.debug("Peer has the following messageIds for groupId {} (new) for us (total: {}): {} ...", groupId, messageIds.size(), messageIds.stream().limit(10).toList());
+			requestGxsMessages(peerConnection, groupId, onMessageListResponse(groupId, messageIds));
+		}
+		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_REQUEST))
+		{
+			@SuppressWarnings("unchecked")
+			var groupId = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
+					.map(GxsSyncMessageItem::getGroupId).findFirst().orElse(null);
+			@SuppressWarnings("unchecked")
+			var messageIds = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
+					.map(GxsSyncMessageItem::getMessageId).collect(toSet());
+			log.debug("Peer wants the following messageIds for groupId {} (total: {}): {} ...", groupId, messageIds.size(), messageIds.stream().limit(10).toList());
+			sendGxsMessages(peerConnection, onMessageListRequest(groupId, messageIds));
+		}
+		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGES))
+		{
+			@SuppressWarnings("unchecked")
+			var transferItems = (List<GxsTransferMessageItem>) transaction.getItems();
+			transferItems.forEach(gxsTransferMessageItem -> onMessageReceived(convertTransferGroupToGxsMessage(gxsTransferMessageItem)));
+			//gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
 		}
 	}
 
@@ -376,7 +413,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getGroup()); //XXX: use ctx().alloc()?
-		Serializer.deserializeGxsGroupItem(buf, toItem);
+		Serializer.deserializeGxsMetaDataItem(buf, toItem);
 		buf.release();
 
 		return toItem;
@@ -388,19 +425,19 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		List<GxsTransferGroupItem> items = new ArrayList<>();
 		gxsGroupItems.forEach(gxsGroupItem -> {
 			signGroupIfNeeded(gxsGroupItem);
-			var groupBuf = Unpooled.buffer(); // XXX: size... well, it autogrows
+			var groupBuf = Unpooled.buffer();
 			// Write that damn header
 			var groupSize = 0;
 			groupSize += Serializer.serialize(groupBuf, (byte) 2);
-			groupSize += Serializer.serialize(groupBuf, (short) gxsGroupItem.getServiceType().getType());
+			groupSize += Serializer.serialize(groupBuf, (short) gxsGroupItem.getService().getServiceType().getType());
 			groupSize += Serializer.serialize(groupBuf, (byte) 2);
 			var sizeOffset = groupBuf.writerIndex();
 			groupSize += Serializer.serialize(groupBuf, 0); // write size at end
 
-			groupSize += gxsGroupItem.writeGroupObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
+			groupSize += gxsGroupItem.writeDataObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
 			groupBuf.setInt(sizeOffset, groupSize); // write group size
 
-			var metaBuf = Unpooled.buffer(); // XXX: size... autogrows as well
+			var metaBuf = Unpooled.buffer();
 			gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
 			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, this);
 			groupBuf.release();
@@ -434,6 +471,79 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}
 
+	public void sendGxsMessages(PeerConnection peerConnection, List<M> gxsMessageItems)
+	{
+		var transactionId = getTransactionId(peerConnection);
+		List<GxsTransferMessageItem> items = new ArrayList<>();
+		gxsMessageItems.forEach(gxsMessageItem -> {
+			// XXX: sign the message. add the signature stuff to GxsMessageItem
+			var messageBuf = Unpooled.buffer();
+			// Write that damn header
+			var messageSize = 0;
+			messageSize += Serializer.serialize(messageBuf, (byte) 2);
+			messageSize += Serializer.serialize(messageBuf, (short) gxsMessageItem.getService().getServiceType().getType());
+			messageSize += Serializer.serialize(messageBuf, (byte) 2);
+			var sizeOffset = messageBuf.writerIndex();
+			messageSize += Serializer.serialize(messageBuf, 0); // write size at end
+
+			messageSize += gxsMessageItem.writeDataObject(messageBuf, EnumSet.noneOf(SerializationFlags.class));
+			messageBuf.setInt(sizeOffset, messageSize); // write message size
+
+			var metaBuf = Unpooled.buffer();
+			gxsMessageItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
+			var gxsTransferMessageItem = new GxsTransferMessageItem(gxsMessageItem.getGxsId(), gxsMessageItem.getMessageId(), getArray(messageBuf), getArray(metaBuf), transactionId, this);
+			messageBuf.release();
+			metaBuf.release();
+			items.add(gxsTransferMessageItem);
+		});
+
+		if (isNotEmpty(items))
+		{
+			gxsTransactionManager.startOutgoingTransactionForMessageTransfer(
+					peerConnection,
+					items,
+					Instant.now(), // XXX: not sure, see group transfer
+					transactionId,
+					this
+			);
+		}
+	}
+
+	public void requestGxsMessages(PeerConnection peerConnection, GxsId groupId, Collection<MessageId> messageIds)
+	{
+		if (isEmpty(messageIds))
+		{
+			return;
+		}
+		var transactionId = getTransactionId(peerConnection);
+		List<GxsSyncMessageItem> items = new ArrayList<>();
+
+		messageIds.forEach(messageId -> items.add(new GxsSyncMessageItem(GxsSyncMessageItem.REQUEST, groupId, messageId, transactionId)));
+
+		gxsTransactionManager.startOutgoingTransactionForMessageIdRequest(peerConnection, items, transactionId, this);
+	}
+
+	private M convertTransferGroupToGxsMessage(GxsTransferMessageItem fromItem)
+	{
+		M toItem;
+
+		try
+		{
+			//noinspection unchecked
+			toItem = ((Class<M>)itemClass).getDeclaredConstructor().newInstance();
+		}
+		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+		{
+			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemClass).getSimpleName() + " missing empty constructor?");
+		}
+
+		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getMessage()); //XXX: use ctx().alloc()?
+		Serializer.deserializeGxsMetaDataItem(buf, toItem);
+		buf.release();
+
+		return toItem;
+	}
+
 	private static byte[] getArray(ByteBuf buf)
 	{
 		var out = new byte[buf.writerIndex()];
@@ -454,7 +564,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private static byte[] serializeItemForSignature(GxsGroupItem gxsGroupItem)
 	{
-		gxsGroupItem.setSerialization(Unpooled.buffer().alloc(), 2, gxsGroupItem.getServiceType(), 1); // XXX: not very nice to have those arguments hardcoded here
+		gxsGroupItem.setSerialization(Unpooled.buffer().alloc(), 2, gxsGroupItem.getService().getServiceType(), 1); // XXX: not very nice to have those arguments hardcoded here
 		var buf = gxsGroupItem.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);

@@ -24,7 +24,6 @@ import io.xeres.app.database.converter.IdentityTypeConverter;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.identity.Type;
@@ -92,7 +91,7 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 
 	public void setHasImage(boolean value)
 	{
-		this.hasImage = value;
+		hasImage = value;
 	}
 
 	public byte[] getImage()
@@ -123,7 +122,7 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 	}
 
 	@Override
-	public int writeGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	public int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
 		var size = 0;
 
@@ -138,7 +137,7 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 	}
 
 	@Override
-	public void readGroupObject(ByteBuf buf)
+	public void readDataObject(ByteBuf buf)
 	{
 		profileHash = (Sha1Sum) deserializeIdentifier(buf, Sha1Sum.class);
 		setProfileSignature((byte[]) deserialize(buf, TlvType.STR_SIGN));
@@ -149,11 +148,5 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 		{
 			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
 		}
-	}
-
-	@Override
-	public RsServiceType getServiceType()
-	{
-		return RsServiceType.GXSID;
 	}
 }

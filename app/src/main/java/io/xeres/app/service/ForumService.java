@@ -19,9 +19,12 @@
 
 package io.xeres.app.service;
 
-import io.xeres.app.database.repository.GxsForumRepository;
+import io.xeres.app.database.repository.GxsForumGroupRepository;
+import io.xeres.app.database.repository.GxsForumMessageRepository;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -37,33 +40,53 @@ public class ForumService
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumService.class);
 
-	private final GxsForumRepository gxsForumRepository;
+	private final GxsForumGroupRepository gxsForumGroupRepository;
+	private final GxsForumMessageRepository gxsForumMessageRepository;
 
-	public ForumService(GxsForumRepository gxsForumRepository)
+	public ForumService(GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository)
 	{
-		this.gxsForumRepository = gxsForumRepository;
+		this.gxsForumGroupRepository = gxsForumGroupRepository;
+		this.gxsForumMessageRepository = gxsForumMessageRepository;
 	}
 
-	public List<ForumGroupItem> findAll()
+	public List<ForumGroupItem> findAllGroups()
 	{
-		return gxsForumRepository.findAll();
+		return gxsForumGroupRepository.findAll();
 	}
 
-	public List<ForumGroupItem> findAll(Set<GxsId> gxsIds)
+	public List<ForumGroupItem> findAllGroups(Set<GxsId> gxsIds)
 	{
-		return gxsForumRepository.findAllByGxsIdIn(gxsIds);
+		return gxsForumGroupRepository.findAllByGxsIdIn(gxsIds);
 	}
 
-	public List<ForumGroupItem> findAllSubscribedAndPublishedSince(Instant since)
+	public List<ForumGroupItem> findAllGroupsSubscribedAndPublishedSince(Instant since)
 	{
-		return gxsForumRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
+		return gxsForumGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
 	@Transactional
 	public void save(ForumGroupItem forumGroupItem)
 	{
-		forumGroupItem.setId(gxsForumRepository.findByGxsId(forumGroupItem.getGxsId()).orElse(forumGroupItem).getId());
-		gxsForumRepository.save(forumGroupItem);
+		forumGroupItem.setId(gxsForumGroupRepository.findByGxsId(forumGroupItem.getGxsId()).orElse(forumGroupItem).getId());
+		gxsForumGroupRepository.save(forumGroupItem);
 		// XXX: setLastServiceUpdate() ! (though, it seems to work already?) and I also should do it for messages
+	}
+
+	public List<ForumMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
+	{
+		return gxsForumMessageRepository.findAllByGxsIdAndPublishedAfter(groupId, since);
+	}
+
+	public List<ForumMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
+	{
+		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+	}
+
+	@Transactional
+	public void save(ForumMessageItem forumMessageItem)
+	{
+		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
+		gxsForumMessageRepository.save(forumMessageItem);
+		// XXX: setLastServiceUpdate() ? I think so actually!
 	}
 }

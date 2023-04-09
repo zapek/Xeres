@@ -20,52 +20,53 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMetaData;
+import io.xeres.app.xrs.item.Item;
 
 import java.util.Set;
 
-final class GxsGroupSerializer
+final class GxsMetaDataSerializer
 {
-	private GxsGroupSerializer()
+	private GxsMetaDataSerializer()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, GxsGroupItem gxsGroupItem, Set<SerializationFlags> flags)
+	static int serialize(ByteBuf buf, GxsMetaData gxsMetaData, Set<SerializationFlags> flags)
 	{
 		var metaSize = 0;
-		metaSize += gxsGroupItem.writeMetaObject(buf, flags);
+		metaSize += gxsMetaData.writeMetaObject(buf, flags);
 
-		var groupSize = 0;
-		groupSize += Serializer.serialize(buf, (byte) 2);
-		groupSize += Serializer.serialize(buf, (short) gxsGroupItem.getServiceType().getType());
-		groupSize += Serializer.serialize(buf, (byte) 2);
+		var dataSize = 0;
+		dataSize += Serializer.serialize(buf, (byte) 2);
+		dataSize += Serializer.serialize(buf, (short) ((Item)gxsMetaData).getService().getServiceType().getType());
+		dataSize += Serializer.serialize(buf, (byte) 2);
 		var sizeOffset = buf.writerIndex();
-		groupSize += Serializer.serialize(buf, 0); // write size at end
+		dataSize += Serializer.serialize(buf, 0); // write size at end
 
-		groupSize += gxsGroupItem.writeGroupObject(buf, flags);
+		dataSize += gxsMetaData.writeDataObject(buf, flags);
 
-		buf.setInt(sizeOffset, groupSize); // write group size
+		buf.setInt(sizeOffset, dataSize); // write group size
 
-		return metaSize + groupSize;
+		return metaSize + dataSize;
 	}
 
-	static void deserialize(ByteBuf buf, GxsGroupItem gxsGroupItem)
+	static void deserialize(ByteBuf buf, GxsMetaData gxsMetaData)
 	{
-		gxsGroupItem.readMetaObject(buf);
-		readFakeHeader(buf, gxsGroupItem);
-		gxsGroupItem.readGroupObject(buf);
+		gxsMetaData.readMetaObject(buf);
+		readFakeHeader(buf, gxsMetaData);
+		gxsMetaData.readDataObject(buf);
 	}
 
-	private static void readFakeHeader(ByteBuf buf, GxsGroupItem gxsGroupItem)
+	private static void readFakeHeader(ByteBuf buf, GxsMetaData gxsMetaData)
 	{
 		if (buf.readByte() != 2)
 		{
 			throw new IllegalArgumentException("Packet version is not 0x2");
 		}
-		if (buf.readShort() != gxsGroupItem.getServiceType().getType())
+		if (buf.readShort() != ((Item)gxsMetaData).getService().getServiceType().getType())
 		{
-			throw new IllegalArgumentException("Packet type is not " + gxsGroupItem.getServiceType().getType());
+			throw new IllegalArgumentException("Packet type is not " + ((Item)gxsMetaData).getService().getServiceType().getType());
 		}
 		if (buf.readByte() != 0x2)
 		{

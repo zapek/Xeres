@@ -22,6 +22,7 @@ public class GxsSyncMessageItem extends GxsExchange
 	@RsSerialized
 	private GxsId authorId;
 
+	@SuppressWarnings("unused")
 	public GxsSyncMessageItem()
 	{
 		// Needed
@@ -34,5 +35,34 @@ public class GxsSyncMessageItem extends GxsExchange
 		messageId = messageItem.getMessageId();
 		authorId = messageItem.getAuthorId();
 		setTransactionId(transactionId);
+	}
+
+	public GxsSyncMessageItem(byte flags, GxsId groupId, MessageId messageId, int transactionId)
+	{
+		this.flags = flags;
+		this.groupId = groupId;
+		this.messageId = messageId;
+		setTransactionId(transactionId);
+	}
+
+	public GxsId getGroupId()
+	{
+		return groupId;
+	}
+
+	public MessageId getMessageId()
+	{
+		return messageId;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "GxsSyncMessageItem{" +
+				"flags=" + flags +
+				", groupId=" + groupId +
+				", messageId=" + messageId +
+				", authorId=" + authorId +
+				'}';
 	}
 }

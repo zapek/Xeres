@@ -30,7 +30,6 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import jakarta.persistence.*;
@@ -52,7 +51,7 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_groups")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class GxsGroupItem extends Item
+public abstract class GxsGroupItem extends Item implements GxsMetaData
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsGroupItem.class);
 
@@ -127,12 +126,6 @@ public abstract class GxsGroupItem extends Item
 
 	@Transient
 	private byte[] signature;
-
-	public abstract int writeGroupObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);
-
-	public abstract void readGroupObject(ByteBuf buf);
-
-	public abstract RsServiceType getServiceType();
 
 	public long getId()
 	{
@@ -384,6 +377,7 @@ public abstract class GxsGroupItem extends Item
 		this.signature = signature;
 	}
 
+	@Override
 	public int writeMetaObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
 		var size = 0;
@@ -410,6 +404,7 @@ public abstract class GxsGroupItem extends Item
 		return size;
 	}
 
+	@Override
 	public void readMetaObject(ByteBuf buf)
 	{
 		var apiVersion = deserializeInt(buf);

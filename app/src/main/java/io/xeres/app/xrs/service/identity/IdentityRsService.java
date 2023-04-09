@@ -31,6 +31,7 @@ import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,6 +107,24 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Override
 	protected List<GxsMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
 	{
-		return Collections.emptyList(); // unused
+		return Collections.emptyList();
+	}
+
+	@Override
+	protected List<GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	{
+		return Collections.emptyList();
+	}
+
+	@Override
+	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
+	{
+		return Collections.emptyList();
+	}
+
+	@Override
+	protected void onMessageReceived(GxsMessageItem item)
+	{
+		// we don't receive messages
 	}
 }

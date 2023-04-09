@@ -64,7 +64,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected List<ForumGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
+	protected List<ForumGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
 	{
 		return forumService.findAllGroupsSubscribedAndPublishedSince(since);
 	}
@@ -76,7 +76,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
+	protected Set<GxsId> onAvailableGroupListResponse(Map<GxsId, Instant> ids)
 	{
 		// We want new forums as well as updated ones
 		var existingMap = forumService.findAllGroups(ids.keySet()).stream()

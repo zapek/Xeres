@@ -56,6 +56,15 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
+/**
+ * This abstract class is used by all Gxs services. The transfer system goes the following way, for example
+ * if Juergen asks Heike every minute if she has new groups for him:
+ * <p>
+ * <img src="doc-files/transfer.png">
+ *
+ * @param <G> the GxsGroupItem subclass
+ * @param <M> the GxsMessageItem subclass
+ */
 public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageItem> extends RsService
 {
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -87,25 +96,24 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	}
 
 	/**
-	 * Called when the peer wants a list of new/updated groups that we have for him.
-	 *
-	 * @param recipient the recipient of the groups
-	 * @param since     the time after which the groups are relevant
-	 * @return the pending groups
+	 * Called when the peer wants a list of new or updated groups that we have for him.
+	 * @param recipient the recipient of the result
+	 * @param since     the time after which the groups are relevant. Everything before is ignored
+	 * @return the available groups that we have
 	 */
-	protected abstract List<G> onPendingGroupListRequest(PeerConnection recipient, Instant since);
+	protected abstract List<G> onAvailableGroupListRequest(PeerConnection recipient, Instant since);
 
 	/**
-	 * Called when a peer sends the list of updated groups that might interest us.
+	 * Called when a peer sends the list of new or updated groups that might interest us.
 	 * @param ids the ids of updated groups and their update time that the peer has for us
 	 * @return the subset of those groups that we actually want
 	 */
-	protected abstract Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids);
+	protected abstract Set<GxsId> onAvailableGroupListResponse(Map<GxsId, Instant> ids);
 
 	/**
-	 * Called when the peer wants specific groups.
+	 * Called when the peer wants specific groups to be transferred to him.
 	 * @param ids the groups that the peer wants
-	 * @return the groups that we have within the requested set
+	 * @return the groups that we have available within the requested set
 	 */
 	protected abstract List<G> onGroupListRequest(Set<GxsId> ids);
 
@@ -115,12 +123,35 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 */
 	protected abstract void onGroupReceived(G item);
 
+	/**
+	 * Called when the peer wants a list of new messages within a group that we have for him.
+	 * @param recipient the recipient of the result
+	 * @param groupId the group ID
+	 * @param since the time after which the messages are relevant. Everything before is ignored
+	 * @return the available messages that we have
+	 */
 	protected abstract List<M> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since);
 
+	/**
+	 * Called when a peer sends the list of new messages that might interest us, within a group.
+	 * @param groupId the group ID
+	 * @param messageIds the ids of new messages
+	 * @return the subset of those messages that we actually want
+	 */
 	protected abstract List<M> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds);
 
+	/**
+	 * Called when the peer wants specific messages to be transferred to him, within a group.
+	 * @param groupId the group ID
+	 * @param messageIds the ids of messages that the peer wants
+	 * @return the messages that we have available within the requested set
+	 */
 	protected abstract List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds);
 
+	/**
+	 * Called when a message has been received.
+	 * @param item the received message
+	 */
 	protected abstract void onMessageReceived(M item);
 
 	@Override
@@ -209,7 +240,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			log.debug("Updates available for peer, sending...");
 			List<GxsSyncGroupItem> items = new ArrayList<>();
 
-			onPendingGroupListRequest(peerConnection, since).forEach(gxsGroupItem -> {
+			onAvailableGroupListRequest(peerConnection, since).forEach(gxsGroupItem -> {
 				log.debug("Adding groupId of item: {}", gxsGroupItem);
 				if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
 				{
@@ -350,7 +381,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			var gxsIdsMap = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
 					.collect(toMap(GxsSyncGroupItem::getGroupId, gxsSyncGroupItem -> Instant.ofEpochSecond(gxsSyncGroupItem.getPublishTimestamp())));
 			log.debug("Peer has the following gxsIds (new or updates) for us (total: {}): {} ...", gxsIdsMap.keySet().size(), gxsIdsMap.keySet().stream().limit(10).toList());
-			requestGxsGroups(peerConnection, onGroupListResponse(gxsIdsMap));
+			requestGxsGroups(peerConnection, onAvailableGroupListResponse(gxsIdsMap));
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_REQUEST))
 		{

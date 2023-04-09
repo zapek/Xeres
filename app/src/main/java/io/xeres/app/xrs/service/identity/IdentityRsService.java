@@ -71,13 +71,13 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected List<IdentityGroupItem> onPendingGroupListRequest(PeerConnection recipient, Instant since)
+	protected List<IdentityGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
 	{
 		return identityService.findAllSubscribedAndPublishedSince(since);
 	}
 
 	@Override
-	protected Set<GxsId> onGroupListResponse(Map<GxsId, Instant> ids)
+	protected Set<GxsId> onAvailableGroupListResponse(Map<GxsId, Instant> ids)
 	{
 		// From the received list, we keep all identities that have a more recent publishing date than those
 		// we already have. If it's a new identity, we don't want it.

@@ -1,0 +1,13 @@
+@startuml
+Juergen -> Heike : GxsSyncGroupRequestItem
+rnote over Heike : OnAvailableGroupListRequest()
+Juergen <- Heike : GROUP_LIST_RESPONSE //List<GxsSyncGroupItems>//
+rnote over Juergen: OnAvailableGroupListResponse()
+Juergen -> Heike: GROUP_LIST_REQUEST //List<GxsSyncGroupItems>//
+rnote over Heike: OnGroupListRequest()
+Heike -> Juergen: TRANSFER //List<GxsTransferGroupItem>//
+rnote over Juergen: OnGroupReceived()
+rnote over Juergen: OnGroupReceived()
+rnote over Juergen: OnGroupReceived()
+rnote over Juergen: ...
+@enduml

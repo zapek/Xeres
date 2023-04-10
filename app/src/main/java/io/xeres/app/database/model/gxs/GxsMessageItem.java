@@ -79,7 +79,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaData
 	// msgflags (32-bits). use serialize(buf, msgFlags, FieldSize.INTEGER) ... or maybe just serialize the integer as the bits are user defined...
 	private int flags;
 
-	private int status;
+	private int status; // see GXS_MSG_STATUS_*
 
 	private Instant child;
 

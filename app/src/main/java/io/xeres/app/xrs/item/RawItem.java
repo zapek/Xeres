@@ -64,7 +64,7 @@ public class RawItem
 		if (GxsMetaData.class.isAssignableFrom(item.getClass()))
 		{
 			log.trace("Deserializing class {} using GxsMetaData system", item.getClass().getSimpleName());
-			Serializer.deserializeGxsMetaDataItem(buf, (GxsMetaData) item);
+			Serializer.deserializeGxsMetaAndDataItem(buf, (GxsMetaData) item);
 		}
 		else if (RsSerializable.class.isAssignableFrom(item.getClass()))
 		{

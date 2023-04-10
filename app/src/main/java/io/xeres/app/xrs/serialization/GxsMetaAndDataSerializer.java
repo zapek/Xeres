@@ -25,9 +25,9 @@ import io.xeres.app.xrs.item.Item;
 
 import java.util.Set;
 
-final class GxsMetaDataSerializer
+final class GxsMetaAndDataSerializer
 {
-	private GxsMetaDataSerializer()
+	private GxsMetaAndDataSerializer()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}

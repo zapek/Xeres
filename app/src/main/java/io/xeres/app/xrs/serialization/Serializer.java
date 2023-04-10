@@ -473,14 +473,14 @@ public final class Serializer
 		RsSerializableSerializer.deserialize(buf, rsSerializable);
 	}
 
-	public static int serializeGxsMetaDataItem(ByteBuf buf, GxsMetaData gxsMetaData, Set<SerializationFlags> flags)
+	public static int serializeGxsMetaAndDataItem(ByteBuf buf, GxsMetaData gxsMetaData, Set<SerializationFlags> flags)
 	{
-		return GxsMetaDataSerializer.serialize(buf, gxsMetaData, flags);
+		return GxsMetaAndDataSerializer.serialize(buf, gxsMetaData, flags);
 	}
 
-	public static void deserializeGxsMetaDataItem(ByteBuf buf, GxsMetaData gxsMetaData)
+	public static void deserializeGxsMetaAndDataItem(ByteBuf buf, GxsMetaData gxsMetaData)
 	{
-		GxsMetaDataSerializer.deserialize(buf, gxsMetaData);
+		GxsMetaAndDataSerializer.deserialize(buf, gxsMetaData);
 	}
 
 	static int serialize(ByteBuf buf, Field field, Object object)

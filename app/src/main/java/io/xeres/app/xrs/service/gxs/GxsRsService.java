@@ -444,7 +444,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getGroup()); //XXX: use ctx().alloc()?
-		Serializer.deserializeGxsMetaDataItem(buf, toItem);
+		Serializer.deserializeGxsMetaAndDataItem(buf, toItem);
 		buf.release();
 
 		return toItem;
@@ -569,7 +569,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getMessage()); //XXX: use ctx().alloc()?
-		Serializer.deserializeGxsMetaDataItem(buf, toItem);
+		Serializer.deserializeGxsMetaAndDataItem(buf, toItem);
 		buf.release();
 
 		return toItem;

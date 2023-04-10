@@ -102,7 +102,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaData
 	private int visibleMessageCount; // maximum messages reported by friends
 	private Instant lastPosted; // timestamp for last message
 
-	private int status;
+	private int status; // GXS_GRP_STATUS_*
 
 	// service specific storage (not synced, but they are serialized though)
 	private String serviceString;

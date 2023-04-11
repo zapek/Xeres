@@ -54,7 +54,6 @@ import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 /**
  * This abstract class is used by all Gxs services. The transfer system goes the following way, for example
@@ -372,7 +371,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		if (isEmpty(transaction.getItems()))
 		{
-			throw new IllegalArgumentException("Empty transaction items");
+			return; // nothing to do
 		}
 
 		if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_RESPONSE))
@@ -476,16 +475,13 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			items.add(gxsTransferGroupItem);
 		});
 
-		if (isNotEmpty(items))
-		{
-			gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
-					peerConnection,
-					items,
-					Instant.now(), // XXX: not sure about that one... recheck. I think it has to be when our group last changed
-					transactionId,
-					this
-			);
-		}
+		gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
+				peerConnection,
+				items,
+				Instant.now(), // XXX: not sure about that one... recheck. I think it has to be when our group last changed
+				transactionId,
+				this
+		);
 	}
 
 	public void requestGxsGroups(PeerConnection peerConnection, Collection<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
@@ -528,16 +524,13 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			items.add(gxsTransferMessageItem);
 		});
 
-		if (isNotEmpty(items))
-		{
-			gxsTransactionManager.startOutgoingTransactionForMessageTransfer(
-					peerConnection,
-					items,
-					Instant.now(), // XXX: not sure, see group transfer
-					transactionId,
-					this
-			);
-		}
+		gxsTransactionManager.startOutgoingTransactionForMessageTransfer(
+				peerConnection,
+				items,
+				Instant.now(), // XXX: not sure, see group transfer
+				transactionId,
+				this
+		);
 	}
 
 	public void requestGxsMessages(PeerConnection peerConnection, GxsId groupId, Collection<MessageId> messageIds)

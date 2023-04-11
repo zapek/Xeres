@@ -73,10 +73,6 @@ public class Transaction<T extends GxsExchange>
 
 	Transaction(int id, Set<TransactionFlags> transactionFlags, List<T> items, int itemCount, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> service, Direction direction)
 	{
-		if (itemCount == 0)
-		{
-			throw new IllegalArgumentException("Can't create an empty transaction");
-		}
 		this.id = id;
 		this.transactionFlags = transactionFlags;
 		this.items = items;

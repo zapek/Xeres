@@ -51,7 +51,7 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_groups")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class GxsGroupItem extends Item implements GxsMetaData
+public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsGroupItem.class);
 

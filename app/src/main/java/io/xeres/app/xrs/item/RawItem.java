@@ -21,7 +21,7 @@ package io.xeres.app.xrs.item;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.ReferenceCountUtil;
-import io.xeres.app.database.model.gxs.GxsMetaData;
+import io.xeres.app.database.model.gxs.GxsMetaAndData;
 import io.xeres.app.net.peer.packet.Packet;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.Serializer;
@@ -60,11 +60,11 @@ public class RawItem
 		item.setIncoming(buf);
 
 		buf.skipBytes(HEADER_SIZE);
-		// XXX: oh, also see if the size matches the total size
-		if (GxsMetaData.class.isAssignableFrom(item.getClass()))
+
+		if (GxsMetaAndData.class.isAssignableFrom(item.getClass()))
 		{
 			log.trace("Deserializing class {} using GxsMetaData system", item.getClass().getSimpleName());
-			Serializer.deserializeGxsMetaAndDataItem(buf, (GxsMetaData) item);
+			Serializer.deserializeGxsMetaAndDataItem(buf, (GxsMetaAndData) item);
 		}
 		else if (RsSerializable.class.isAssignableFrom(item.getClass()))
 		{
@@ -78,6 +78,13 @@ public class RawItem
 			log.trace("Deserializing class {} using annotations", item.getClass().getSimpleName());
 			Serializer.deserializeAnnotatedFields(buf, item);
 		}
+
+		// Check if the size matches
+		if (buf.readerIndex() != getItemSize())
+		{
+			throw new IllegalArgumentException("Header size: " + getItemSize() + ", actual size: " + buf.readerIndex());
+		}
+
 		log.debug("<== {}", item);
 		return item;
 	}
@@ -108,6 +115,11 @@ public class RawItem
 	private int getPacketSubType()
 	{
 		return buf.getUnsignedByte(3);
+	}
+
+	private int getItemSize()
+	{
+		return buf.getInt(4);
 	}
 
 	public ByteBuf getBuffer()

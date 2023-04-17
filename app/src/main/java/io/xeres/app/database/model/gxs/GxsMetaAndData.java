@@ -24,7 +24,7 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 
 import java.util.Set;
 
-public interface GxsMetaData
+public interface GxsMetaAndData
 {
 	int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);
 

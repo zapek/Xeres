@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.database.model.gxs.GxsMetaData;
+import io.xeres.app.database.model.gxs.GxsMetaAndData;
 import io.xeres.common.id.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -473,14 +473,14 @@ public final class Serializer
 		RsSerializableSerializer.deserialize(buf, rsSerializable);
 	}
 
-	public static int serializeGxsMetaAndDataItem(ByteBuf buf, GxsMetaData gxsMetaData, Set<SerializationFlags> flags)
+	public static int serializeGxsMetaAndDataItem(ByteBuf buf, GxsMetaAndData gxsMetaAndData, Set<SerializationFlags> flags)
 	{
-		return GxsMetaAndDataSerializer.serialize(buf, gxsMetaData, flags);
+		return GxsMetaAndDataSerializer.serialize(buf, gxsMetaAndData, flags);
 	}
 
-	public static void deserializeGxsMetaAndDataItem(ByteBuf buf, GxsMetaData gxsMetaData)
+	public static void deserializeGxsMetaAndDataItem(ByteBuf buf, GxsMetaAndData gxsMetaAndData)
 	{
-		GxsMetaAndDataSerializer.deserialize(buf, gxsMetaData);
+		GxsMetaAndDataSerializer.deserialize(buf, gxsMetaAndData);
 	}
 
 	static int serialize(ByteBuf buf, Field field, Object object)

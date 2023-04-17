@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.database.model.gxs.GxsMetaData;
+import io.xeres.app.database.model.gxs.GxsMetaAndData;
 import io.xeres.app.xrs.item.Item;
 
 import java.util.Set;
@@ -32,41 +32,41 @@ final class GxsMetaAndDataSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, GxsMetaData gxsMetaData, Set<SerializationFlags> flags)
+	static int serialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, Set<SerializationFlags> flags)
 	{
 		var metaSize = 0;
-		metaSize += gxsMetaData.writeMetaObject(buf, flags);
+		metaSize += gxsMetaAndData.writeMetaObject(buf, flags);
 
 		var dataSize = 0;
 		dataSize += Serializer.serialize(buf, (byte) 2);
-		dataSize += Serializer.serialize(buf, (short) ((Item)gxsMetaData).getService().getServiceType().getType());
+		dataSize += Serializer.serialize(buf, (short) ((Item) gxsMetaAndData).getService().getServiceType().getType());
 		dataSize += Serializer.serialize(buf, (byte) 2);
 		var sizeOffset = buf.writerIndex();
 		dataSize += Serializer.serialize(buf, 0); // write size at end
 
-		dataSize += gxsMetaData.writeDataObject(buf, flags);
+		dataSize += gxsMetaAndData.writeDataObject(buf, flags);
 
 		buf.setInt(sizeOffset, dataSize); // write group size
 
 		return metaSize + dataSize;
 	}
 
-	static void deserialize(ByteBuf buf, GxsMetaData gxsMetaData)
+	static void deserialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData)
 	{
-		gxsMetaData.readMetaObject(buf);
-		readFakeHeader(buf, gxsMetaData);
-		gxsMetaData.readDataObject(buf);
+		gxsMetaAndData.readMetaObject(buf);
+		readFakeHeader(buf, gxsMetaAndData);
+		gxsMetaAndData.readDataObject(buf);
 	}
 
-	private static void readFakeHeader(ByteBuf buf, GxsMetaData gxsMetaData)
+	private static void readFakeHeader(ByteBuf buf, GxsMetaAndData gxsMetaAndData)
 	{
 		if (buf.readByte() != 2)
 		{
 			throw new IllegalArgumentException("Packet version is not 0x2");
 		}
-		if (buf.readShort() != ((Item)gxsMetaData).getService().getServiceType().getType())
+		if (buf.readShort() != ((Item) gxsMetaAndData).getService().getServiceType().getType())
 		{
-			throw new IllegalArgumentException("Packet type is not " + ((Item)gxsMetaData).getService().getServiceType().getType());
+			throw new IllegalArgumentException("Packet type is not " + ((Item) gxsMetaAndData).getService().getServiceType().getType());
 		}
 		if (buf.readByte() != 0x2)
 		{

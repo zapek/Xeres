@@ -39,7 +39,7 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_messages")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class GxsMessageItem extends Item implements GxsMetaData
+public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsMessageItem.class);
 

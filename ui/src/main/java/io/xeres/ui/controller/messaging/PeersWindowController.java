@@ -69,9 +69,17 @@ public class PeersWindowController implements WindowController
 		peersTree.addEventHandler(PeerContextMenu.DIRECT_MESSAGE, event -> directMessage(event.getTreeItem().getValue()));
 
 		peersTree.setOnMouseClicked(event -> {
-			if (event.getClickCount() == 2) // XXX: add another condition to make sure we're double clicking on a leaf
+			if (event.getClickCount() == 2)
 			{
-				directMessage(peersTree.getSelectionModel().getSelectedItem().getValue());
+				var selectedItem = peersTree.getSelectionModel().getSelectedItem();
+				if (selectedItem != null)
+				{
+					var peerHolder = selectedItem.getValue();
+					if (peerHolder.hasLocation())
+					{
+						directMessage(peerHolder);
+					}
+				}
 			}
 		});
 

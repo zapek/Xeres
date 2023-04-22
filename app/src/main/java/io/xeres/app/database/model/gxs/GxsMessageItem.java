@@ -68,8 +68,6 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	@AttributeOverride(name = "identifier", column = @Column(name = "author_id"))
 	private GxsId authorId;
 
-	// signSet (RsTlvKeySignatureSet). same as GxsGroupItem signatures... not sure which types we need
-
 	private String name; // tlv string message name (use serialize(buf, TlvType.STRING, name);
 
 	@UpdateTimestamp

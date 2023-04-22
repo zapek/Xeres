@@ -27,9 +27,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 
-public final class GxsIdFakes
+public final class IdentityFakes
 {
-	private GxsIdFakes()
+	private IdentityFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}

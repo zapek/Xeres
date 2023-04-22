@@ -21,7 +21,7 @@ package io.xeres.app.service;
 
 import io.xeres.app.database.model.chat.ChatRoom;
 import io.xeres.app.database.model.chat.ChatRoomFakes;
-import io.xeres.app.database.model.identity.GxsIdFakes;
+import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.repository.ChatRoomRepository;
 import io.xeres.common.message.chat.RoomType;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ class ChatRoomServiceTest
 	@Test
 	void ChatRoomService_CreateChatRoom_OK()
 	{
-		chatRoomService.createChatRoom(createSignedChatRoom(), GxsIdFakes.createOwnIdentity());
+		chatRoomService.createChatRoom(createSignedChatRoom(), IdentityFakes.createOwnIdentity());
 		verify(chatRoomRepository).save(any(ChatRoom.class));
 	}
 
@@ -58,7 +58,7 @@ class ChatRoomServiceTest
 	void ChatRoomService_SubscribeToChatRoomAndJoin_OK()
 	{
 		var serviceChatRoom = createSignedChatRoom();
-		var identity = GxsIdFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwnIdentity();
 		var chatRoom = ChatRoomFakes.createChatRoomEntity(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
 
 		when(chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity)).thenReturn(Optional.of(chatRoom));
@@ -77,7 +77,7 @@ class ChatRoomServiceTest
 	void ChatRoomService_UnsubscribeFromChatRoomAndLeave_OK()
 	{
 		var serviceChatRoom = createSignedChatRoom();
-		var identity = GxsIdFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwnIdentity();
 		var chatRoom = ChatRoomFakes.createChatRoomEntity(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
 
 		when(chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity)).thenReturn(Optional.of(chatRoom));

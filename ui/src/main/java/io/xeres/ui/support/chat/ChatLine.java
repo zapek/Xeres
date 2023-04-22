@@ -41,13 +41,13 @@ public class ChatLine
 	{
 		this.instant = instant;
 		this.action = action;
-		if (action.hasMessageLine())
+		if (action.isPresenceEvent())
 		{
 			if (log.isDebugEnabled() && contents.length > 0)
 			{
 				log.debug("Chat content for action {} is not needed", action);
 			}
-			this.contents = List.of(new ContentText(action.getMessageLine()));
+			this.contents = List.of(new ContentText(action.getPresenceLine()));
 		}
 		else
 		{

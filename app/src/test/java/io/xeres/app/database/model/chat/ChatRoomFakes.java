@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.model.chat;
 
-import io.xeres.app.database.model.identity.GxsIdFakes;
+import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.message.chat.RoomType;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -35,7 +35,7 @@ public final class ChatRoomFakes
 
 	public static ChatRoom createChatRoomEntity()
 	{
-		return createChatRoomEntity(ThreadLocalRandom.current().nextLong(), GxsIdFakes.createOwnIdentity(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoomEntity(ThreadLocalRandom.current().nextLong(), IdentityFakes.createOwnIdentity(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
 	}
 
 	public static ChatRoom createChatRoomEntity(IdentityGroupItem identityGroupItem)

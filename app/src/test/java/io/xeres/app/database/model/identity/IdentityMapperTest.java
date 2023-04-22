@@ -35,7 +35,7 @@ class IdentityMapperTest
 	@Test
 	void IdentityMapper_toDTO_OK()
 	{
-		var identity = GxsIdFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwnIdentity();
 		var identityDTO = IdentityMapper.toDTO(identity);
 
 		assertEquals(identity.getId(), identityDTO.id());

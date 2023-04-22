@@ -23,6 +23,8 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import jakarta.persistence.Entity;
 
 import java.util.Set;
@@ -38,6 +40,13 @@ public class ForumMessageItem extends GxsMessageItem
 	public ForumMessageItem()
 	{
 		// Needed for JPA
+	}
+
+	public ForumMessageItem(GxsId groupId, MessageId messageId, String name)
+	{
+		setGxsId(groupId);
+		setMessageId(messageId);
+		setName(name);
 	}
 
 	public String getContent()

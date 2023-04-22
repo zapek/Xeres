@@ -21,7 +21,7 @@ package io.xeres.app.api.controller.config;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.connection.Connection;
-import io.xeres.app.database.model.identity.GxsIdFakes;
+import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.CapabilityService;
@@ -311,7 +311,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_CreateIdentity_Signed_OK() throws Exception
 	{
-		var identity = GxsIdFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwnIdentity();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
 
 		when(identityService.createOwnIdentity(identityRequest.name(), true)).thenReturn(identity.getId());
@@ -326,7 +326,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_CreateIdentity_Anonymous_OK() throws Exception
 	{
-		var identity = GxsIdFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwnIdentity();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
 		when(identityService.createOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());

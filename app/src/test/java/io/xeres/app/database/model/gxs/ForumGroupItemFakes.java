@@ -22,8 +22,8 @@ package io.xeres.app.database.model.gxs;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.common.id.GxsId;
+import io.xeres.testutils.GxsIdFakes;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -37,7 +37,7 @@ public final class ForumGroupItemFakes
 
 	public static ForumGroupItem createForumGroupItem()
 	{
-		return createForumGroupItem(new GxsId(RandomUtils.nextBytes(16)), RandomStringUtils.randomAlphabetic(8));
+		return createForumGroupItem(GxsIdFakes.createGxsId(), RandomStringUtils.randomAlphabetic(8));
 	}
 
 	public static ForumGroupItem createForumGroupItem(GxsId gxsId, String name)

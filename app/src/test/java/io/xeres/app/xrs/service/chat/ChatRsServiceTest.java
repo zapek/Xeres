@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.service.chat;
 
 import io.xeres.app.database.DatabaseSessionManager;
-import io.xeres.app.database.model.identity.GxsIdFakes;
+import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
@@ -124,7 +124,7 @@ class ChatRsServiceTest
 
 		var item = new ChatRoomListRequestItem();
 
-		when(identityService.getOwnIdentity()).thenReturn(GxsIdFakes.createOwnIdentity());
+		when(identityService.getOwnIdentity()).thenReturn(IdentityFakes.createOwnIdentity());
 
 		var roomId = chatRsService.createChatRoom("test", "test topic", EnumSet.of(RoomFlags.PUBLIC), false);
 		chatRsService.handleItem(peerConnection, item);

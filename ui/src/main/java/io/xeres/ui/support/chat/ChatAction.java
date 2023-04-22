@@ -83,16 +83,24 @@ public class ChatAction
 		return gxsId;
 	}
 
-	public boolean hasMessageLine()
+	/**
+	 * Checks if it's a presence event. Those events don't have any user content (the user cannot say anything in them).
+	 * @return true if it's a presence event (join, leave or timeout).
+	 */
+	public boolean isPresenceEvent()
 	{
 		return Stream.of(JOIN, LEAVE, TIMEOUT).anyMatch(v -> type == v);
 	}
 
-	public String getMessageLine()
+	/**
+	 * Gets a presence content, to put in a line.
+	 * @return the presence content
+	 */
+	public String getPresenceLine()
 	{
-		if (!hasMessageLine())
+		if (!isPresenceEvent())
 		{
-			throw new IllegalStateException("no message line available, type: " + type);
+			throw new IllegalStateException("no presence line available, type: " + type);
 		}
 		var reason = "";
 		if (type == TIMEOUT)

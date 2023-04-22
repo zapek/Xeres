@@ -20,7 +20,7 @@
 package io.xeres.app.api.controller.chat;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
-import io.xeres.app.database.model.identity.GxsIdFakes;
+import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
@@ -123,7 +123,7 @@ class ChatControllerTest extends AbstractControllerTest
 		var chatRoomLists = new ChatRoomLists();
 		chatRoomLists.addSubscribed(subscribedChatRoom);
 		chatRoomLists.addAvailable(availableChatRoom);
-		var ownIdentity = GxsIdFakes.createOwnIdentity();
+		var ownIdentity = IdentityFakes.createOwnIdentity();
 		var chatRoomUser = new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage());
 		when(chatRsService.getChatRoomContext()).thenReturn(new ChatRoomContext(chatRoomLists, chatRoomUser));
 

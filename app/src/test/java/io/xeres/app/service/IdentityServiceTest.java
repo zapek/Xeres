@@ -20,7 +20,7 @@
 package io.xeres.app.service;
 
 import io.xeres.app.crypto.pgp.PGP;
-import io.xeres.app.database.model.identity.GxsIdFakes;
+import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.GxsIdentityRepository;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
@@ -143,7 +143,7 @@ class IdentityServiceTest
 	void IdentityService_SaveIdentityImage_OK() throws IOException
 	{
 		var id = 1L;
-		var identity = GxsIdFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwnIdentity();
 		var file = new MockMultipartFile("file", getClass().getResourceAsStream("/image/leguman.jpg"));
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
@@ -187,7 +187,7 @@ class IdentityServiceTest
 	void IdentityService_DeleteIdentityImage_OK()
 	{
 		var id = 1L;
-		var identity = GxsIdFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwnIdentity();
 		identity.setImage(new byte[1]);
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));

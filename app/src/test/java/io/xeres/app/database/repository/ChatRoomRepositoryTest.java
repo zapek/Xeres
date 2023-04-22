@@ -20,7 +20,7 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.chat.ChatRoomFakes;
-import io.xeres.app.database.model.identity.GxsIdFakes;
+import io.xeres.app.database.model.identity.IdentityFakes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -36,7 +36,7 @@ class ChatRoomRepositoryTest
 	@Test
 	void ChatRoomRepository_CRUD_OK()
 	{
-		var identity = GxsIdFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwnIdentity();
 
 		var chatRoom1 = ChatRoomFakes.createChatRoomEntity(identity);
 		var chatRoom2 = ChatRoomFakes.createChatRoomEntity(identity);

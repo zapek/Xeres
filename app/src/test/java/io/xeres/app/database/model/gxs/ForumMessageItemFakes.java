@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,36 +19,33 @@
 
 package io.xeres.app.database.model.gxs;
 
-import io.xeres.app.xrs.service.identity.IdentityRsService;
-import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.app.xrs.service.forum.ForumRsService;
+import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.id.MessageId;
 import io.xeres.testutils.GxsIdFakes;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.time.Instant;
-import java.util.EnumSet;
 
-public final class IdentityGroupItemFakes
+public final class ForumMessageItemFakes
 {
-	private IdentityGroupItemFakes()
+	private ForumMessageItemFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static IdentityGroupItem createIdentityGroupItem()
+	public static ForumMessageItem createForumMessageItem()
 	{
-		return createIdentityGroupItem(GxsIdFakes.createGxsId(), RandomStringUtils.randomAlphabetic(8));
+		return createForumMessageItem(GxsIdFakes.createGxsId(), new MessageId(RandomUtils.nextBytes(20)), RandomStringUtils.randomAlphabetic(8));
 	}
 
-	public static IdentityGroupItem createIdentityGroupItem(GxsId gxsId, String name)
+	private static ForumMessageItem createForumMessageItem(GxsId gxsId, MessageId messageId, String name)
 	{
-		var item = new IdentityGroupItem(gxsId, name);
-		item.setDiffusionFlags(EnumSet.noneOf(GxsPrivacyFlags.class));
-		item.setSignatureFlags(EnumSet.noneOf(GxsSignatureFlags.class));
+		var item = new ForumMessageItem(gxsId, messageId, name);
 		item.setPublished(Instant.now());
-		item.setProfileHash(new Sha1Sum(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
-		item.setService(new IdentityRsService(null, null, null, null, null));
+		item.setService(new ForumRsService(null, null, null, null, null));
 		return item;
 	}
 }

@@ -68,7 +68,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	@AttributeOverride(name = "identifier", column = @Column(name = "author_id"))
 	private GxsId authorId;
 
-	private String name; // tlv string message name (use serialize(buf, TlvType.STRING, name);
+	private String name;
 
 	@UpdateTimestamp
 	private Instant published; // publishts (32-bits)
@@ -127,6 +127,16 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	public void setAuthorId(GxsId authorId)
 	{
 		this.authorId = authorId;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 
 	public Instant getPublished()

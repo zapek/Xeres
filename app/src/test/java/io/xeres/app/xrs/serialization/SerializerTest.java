@@ -21,17 +21,21 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.Unpooled;
 import io.xeres.app.database.model.gxs.ForumGroupItemFakes;
+import io.xeres.app.database.model.gxs.ForumMessageItemFakes;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.MessageId;
+import io.xeres.testutils.GxsIdFakes;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -448,7 +452,7 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 		var key = new byte[1];
 
-		var input = new Signature(new GxsId(RandomUtils.nextBytes(16)), key);
+		var input = new Signature(GxsIdFakes.createGxsId(), key);
 
 		var size = Serializer.serialize(buf, TlvType.SIGNATURE, input);
 		assertEquals(6 + 6 + 38 + key.length, size);
@@ -465,7 +469,7 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 		var input = new SignatureSet();
-		var gxsId = new GxsId(RandomUtils.nextBytes(16));
+		var gxsId = GxsIdFakes.createGxsId();
 		var signature = RandomUtils.nextBytes(20);
 		var keySignature = new Signature(gxsId, signature);
 		input.put(SignatureSet.Type.ADMIN, keySignature);
@@ -514,8 +518,8 @@ class SerializerTest
 	void Serializer_Serialize_TlvSet_GxsId()
 	{
 		var buf = Unpooled.buffer();
-		var gxsId1 = new GxsId(RandomUtils.nextBytes(GxsId.LENGTH));
-		var gxsId2 = new GxsId(RandomUtils.nextBytes(GxsId.LENGTH));
+		var gxsId1 = GxsIdFakes.createGxsId();
+		var gxsId2 = GxsIdFakes.createGxsId();
 		Set<GxsId> input = new HashSet<>();
 		input.add(gxsId1);
 		input.add(gxsId2);
@@ -548,6 +552,24 @@ class SerializerTest
 		assertEquals(2, result.size());
 		assertTrue(result.contains(messageId1));
 		assertTrue(result.contains(messageId2));
+
+		buf.release();
+	}
+
+	@Test
+	void Serializer_Serialize_TlvAddress()
+	{
+		var buf = Unpooled.buffer();
+		var peerAddress = PeerAddress.fromAddress("192.168.1.1:1234");
+
+		var size = Serializer.serialize(buf, TlvType.ADDRESS, peerAddress);
+		assertEquals(TLV_HEADER_SIZE * 2 + 6, size);
+
+		var result = (PeerAddress) Serializer.deserialize(buf, TlvType.ADDRESS);
+		assertEquals(PeerAddress.Type.IPV4, result.getType());
+		assertTrue(result.isValid());
+		assertTrue(result.getAddress().isPresent());
+		assertEquals("192.168.1.1:1234", result.getAddress().get());
 
 		buf.release();
 	}
@@ -589,6 +611,26 @@ class SerializerTest
 		assertEquals(forumGroupItem.getName(), result.getName());
 		assertEquals(forumGroupItem.getPublished().getEpochSecond(), result.getPublished().getEpochSecond());
 		assertEquals(forumGroupItem.getDescription(), result.getDescription());
+
+		buf.release();
+	}
+
+	@Test
+	void Serializer_Serialize_ForumMessageItem()
+	{
+		var buf = Unpooled.buffer();
+		var forumMessageItem = ForumMessageItemFakes.createForumMessageItem();
+
+		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumMessageItem, EnumSet.noneOf(SerializationFlags.class));
+		assertEquals(162, size);
+
+		var result = new ForumMessageItem();
+		result.setService(new ForumRsService(null, null, null, null, null));
+		Serializer.deserializeGxsMetaAndDataItem(buf, result);
+		assertEquals(forumMessageItem.getGxsId(), result.getGxsId());
+		assertEquals(forumMessageItem.getMessageId(), result.getMessageId());
+		assertEquals(forumMessageItem.getName(), result.getName());
+		assertEquals(forumMessageItem.getPublished().getEpochSecond(), result.getPublished().getEpochSecond());
 
 		buf.release();
 	}

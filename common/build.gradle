@@ -56,4 +56,5 @@ dependencies {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
     testFixturesImplementation 'org.apache.commons:commons-lang3'
+    testImplementation(testFixtures(project(":common")))
 }

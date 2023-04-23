@@ -33,5 +33,4 @@ gradleEnterprise {
 rootProject.name = 'Xeres'
 include 'ui'
 include 'app'
-include 'webui'
 include 'common'

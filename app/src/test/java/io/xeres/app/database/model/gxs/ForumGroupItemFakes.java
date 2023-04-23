@@ -22,10 +22,10 @@ package io.xeres.app.database.model.gxs;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.testutils.GxsIdFakes;
+import io.xeres.testutils.IdFakes;
+import io.xeres.testutils.TimeFakes;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.time.Instant;
 import java.util.EnumSet;
 
 public final class ForumGroupItemFakes
@@ -37,7 +37,7 @@ public final class ForumGroupItemFakes
 
 	public static ForumGroupItem createForumGroupItem()
 	{
-		return createForumGroupItem(GxsIdFakes.createGxsId(), RandomStringUtils.randomAlphabetic(8));
+		return createForumGroupItem(IdFakes.createGxsId(), RandomStringUtils.randomAlphabetic(8));
 	}
 
 	public static ForumGroupItem createForumGroupItem(GxsId gxsId, String name)
@@ -45,8 +45,8 @@ public final class ForumGroupItemFakes
 		var item = new ForumGroupItem(gxsId, name);
 		item.setDiffusionFlags(EnumSet.noneOf(GxsPrivacyFlags.class));
 		item.setSignatureFlags(EnumSet.noneOf(GxsSignatureFlags.class));
-		item.setPublished(Instant.now());
-		item.setDescription("blabla");
+		item.setPublished(TimeFakes.createInstant());
+		item.setDescription(RandomStringUtils.randomAlphabetic(8));
 		item.setService(new ForumRsService(null, null, null, null, null));
 		return item;
 	}

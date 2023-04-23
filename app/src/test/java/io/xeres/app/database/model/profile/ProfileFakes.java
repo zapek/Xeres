@@ -20,7 +20,7 @@
 package io.xeres.app.database.model.profile;
 
 import io.xeres.common.id.ProfileFingerprint;
-import org.apache.commons.lang3.RandomStringUtils;
+import io.xeres.testutils.StringFakes;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -42,7 +42,7 @@ public final class ProfileFakes
 
 	public static Profile createProfile()
 	{
-		return createProfile(RandomStringUtils.randomAlphabetic(8), ThreadLocalRandom.current().nextLong());
+		return createProfile(StringFakes.createNickname(), ThreadLocalRandom.current().nextLong());
 	}
 
 	public static Profile createProfile(String name, long pgpIdentifier)

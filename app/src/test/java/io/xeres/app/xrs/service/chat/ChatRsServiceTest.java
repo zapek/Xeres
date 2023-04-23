@@ -124,7 +124,7 @@ class ChatRsServiceTest
 
 		var item = new ChatRoomListRequestItem();
 
-		when(identityService.getOwnIdentity()).thenReturn(IdentityFakes.createOwnIdentity());
+		when(identityService.getOwnIdentity()).thenReturn(IdentityFakes.createOwn());
 
 		var roomId = chatRsService.createChatRoom("test", "test topic", EnumSet.of(RoomFlags.PUBLIC), false);
 		chatRsService.handleItem(peerConnection, item);

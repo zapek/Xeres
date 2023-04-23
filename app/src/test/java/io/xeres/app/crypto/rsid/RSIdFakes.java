@@ -22,6 +22,7 @@ package io.xeres.app.crypto.rsid;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
+import io.xeres.testutils.StringFakes;
 
 import static io.xeres.common.rsid.Type.CERTIFICATE;
 import static io.xeres.common.rsid.Type.SHORT_INVITE;
@@ -38,7 +39,7 @@ public final class RSIdFakes
 		var profile = ProfileFakes.createProfile();
 
 		var builder = new RSIdBuilder(SHORT_INVITE);
-		return builder.setName("foobar".getBytes())
+		return builder.setName(StringFakes.createNickname().getBytes())
 				.setLocationId(LocationFakes.createLocation().getLocationId())
 				.setPgpFingerprint(profile.getProfileFingerprint().getBytes())
 				.build();
@@ -47,7 +48,7 @@ public final class RSIdFakes
 	public static RSId createRsCertificate()
 	{
 		var builder = new RSIdBuilder(CERTIFICATE);
-		return builder.setName("foobar".getBytes())
+		return builder.setName(StringFakes.createNickname().getBytes())
 				.setProfile(ProfileFakes.createProfile())
 				.setLocationId(LocationFakes.createLocation().getLocationId())
 				.build();

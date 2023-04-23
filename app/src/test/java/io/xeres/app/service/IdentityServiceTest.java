@@ -86,7 +86,7 @@ class IdentityServiceTest
 		});
 		doNothing().when(gxsExchangeService).setLastServiceGroupsUpdateNow(any());
 
-		var id = identityService.createOwnIdentity(NAME, false);
+		identityService.createOwnIdentity(NAME, false);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
@@ -130,7 +130,7 @@ class IdentityServiceTest
 		});
 		doNothing().when(gxsExchangeService).setLastServiceGroupsUpdateNow(any());
 
-		var id = identityService.createOwnIdentity(NAME, true);
+		identityService.createOwnIdentity(NAME, true);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
@@ -143,7 +143,7 @@ class IdentityServiceTest
 	void IdentityService_SaveIdentityImage_OK() throws IOException
 	{
 		var id = 1L;
-		var identity = IdentityFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwn();
 		var file = new MockMultipartFile("file", getClass().getResourceAsStream("/image/leguman.jpg"));
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
@@ -187,7 +187,7 @@ class IdentityServiceTest
 	void IdentityService_DeleteIdentityImage_OK()
 	{
 		var id = 1L;
-		var identity = IdentityFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwn();
 		identity.setImage(new byte[1]);
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));

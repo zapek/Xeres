@@ -23,10 +23,10 @@ import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
-import io.xeres.testutils.GxsIdFakes;
+import io.xeres.testutils.IdFakes;
+import io.xeres.testutils.TimeFakes;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.time.Instant;
 import java.util.EnumSet;
 
 public final class IdentityGroupItemFakes
@@ -38,7 +38,7 @@ public final class IdentityGroupItemFakes
 
 	public static IdentityGroupItem createIdentityGroupItem()
 	{
-		return createIdentityGroupItem(GxsIdFakes.createGxsId(), RandomStringUtils.randomAlphabetic(8));
+		return createIdentityGroupItem(IdFakes.createGxsId(), RandomStringUtils.randomAlphabetic(8));
 	}
 
 	public static IdentityGroupItem createIdentityGroupItem(GxsId gxsId, String name)
@@ -46,7 +46,7 @@ public final class IdentityGroupItemFakes
 		var item = new IdentityGroupItem(gxsId, name);
 		item.setDiffusionFlags(EnumSet.noneOf(GxsPrivacyFlags.class));
 		item.setSignatureFlags(EnumSet.noneOf(GxsSignatureFlags.class));
-		item.setPublished(Instant.now());
+		item.setPublished(TimeFakes.createInstant());
 		item.setProfileHash(new Sha1Sum(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
 		item.setService(new IdentityRsService(null, null, null, null, null));
 		return item;

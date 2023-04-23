@@ -23,7 +23,7 @@ import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.NetMode;
-import org.apache.commons.lang3.RandomStringUtils;
+import io.xeres.testutils.StringFakes;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -45,12 +45,12 @@ public final class LocationFakes
 
 	public static Location createOwnLocation()
 	{
-		return new Location(OWN_LOCATION_ID, RandomStringUtils.randomAlphabetic(8), ProfileFakes.createProfile(), new LocationId(getRandomArray()));
+		return new Location(OWN_LOCATION_ID, StringFakes.createNickname(), ProfileFakes.createProfile(), new LocationId(getRandomArray()));
 	}
 
 	public static Location createLocation()
 	{
-		return createLocation(RandomStringUtils.randomAlphabetic(8), ProfileFakes.createProfile(), new LocationId(getRandomArray()));
+		return createLocation(StringFakes.createNickname(), ProfileFakes.createProfile(), new LocationId(getRandomArray()));
 	}
 
 	public static Location createLocation(String name, Profile profile)

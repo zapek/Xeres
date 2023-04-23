@@ -123,7 +123,7 @@ class ChatControllerTest extends AbstractControllerTest
 		var chatRoomLists = new ChatRoomLists();
 		chatRoomLists.addSubscribed(subscribedChatRoom);
 		chatRoomLists.addAvailable(availableChatRoom);
-		var ownIdentity = IdentityFakes.createOwnIdentity();
+		var ownIdentity = IdentityFakes.createOwn();
 		var chatRoomUser = new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage());
 		when(chatRsService.getChatRoomContext()).thenReturn(new ChatRoomContext(chatRoomLists, chatRoomUser));
 

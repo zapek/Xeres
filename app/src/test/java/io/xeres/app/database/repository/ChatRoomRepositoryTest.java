@@ -36,7 +36,7 @@ class ChatRoomRepositoryTest
 	@Test
 	void ChatRoomRepository_CRUD_OK()
 	{
-		var identity = IdentityFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwn();
 
 		var chatRoom1 = ChatRoomFakes.createChatRoomEntity(identity);
 		var chatRoom2 = ChatRoomFakes.createChatRoomEntity(identity);

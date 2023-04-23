@@ -35,7 +35,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.MessageId;
-import io.xeres.testutils.GxsIdFakes;
+import io.xeres.testutils.IdFakes;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -452,7 +452,7 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 		var key = new byte[1];
 
-		var input = new Signature(GxsIdFakes.createGxsId(), key);
+		var input = new Signature(IdFakes.createGxsId(), key);
 
 		var size = Serializer.serialize(buf, TlvType.SIGNATURE, input);
 		assertEquals(6 + 6 + 38 + key.length, size);
@@ -469,7 +469,7 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 		var input = new SignatureSet();
-		var gxsId = GxsIdFakes.createGxsId();
+		var gxsId = IdFakes.createGxsId();
 		var signature = RandomUtils.nextBytes(20);
 		var keySignature = new Signature(gxsId, signature);
 		input.put(SignatureSet.Type.ADMIN, keySignature);
@@ -518,8 +518,8 @@ class SerializerTest
 	void Serializer_Serialize_TlvSet_GxsId()
 	{
 		var buf = Unpooled.buffer();
-		var gxsId1 = GxsIdFakes.createGxsId();
-		var gxsId2 = GxsIdFakes.createGxsId();
+		var gxsId1 = IdFakes.createGxsId();
+		var gxsId2 = IdFakes.createGxsId();
 		Set<GxsId> input = new HashSet<>();
 		input.add(gxsId1);
 		input.add(gxsId2);
@@ -602,7 +602,7 @@ class SerializerTest
 		var forumGroupItem = ForumGroupItemFakes.createForumGroupItem();
 
 		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumGroupItem, EnumSet.noneOf(SerializationFlags.class));
-		assertEquals(178, size);
+		assertEquals(180, size);
 
 		var result = new ForumGroupItem();
 		result.setService(new ForumRsService(null, null, null, null, null));

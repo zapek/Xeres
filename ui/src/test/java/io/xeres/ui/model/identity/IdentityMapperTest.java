@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,8 +17,9 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.identity;
+package io.xeres.ui.model.identity;
 
+import io.xeres.common.dto.identity.IdentityDTOFakes;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
@@ -27,22 +28,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class IdentityMapperTest
 {
 	@Test
-	void IdentityMapper_NoInstanceOK() throws NoSuchMethodException
+	void IdentityMapper_NoInstance_OK() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(IdentityMapper.class);
 	}
 
 	@Test
-	void IdentityMapper_toDTO_OK()
+	void IdentityMapper_fromDTO_OK()
 	{
-		var identity = IdentityFakes.createOwn();
-		var identityDTO = IdentityMapper.toDTO(identity);
+		var dto = IdentityDTOFakes.createIdentityDTO();
 
-		assertEquals(identity.getId(), identityDTO.id());
-		assertEquals(identity.getName(), identityDTO.name());
-		assertEquals(identity.getGxsId(), identityDTO.gxsId());
-		assertEquals(identity.getPublished(), identityDTO.updated());
-		assertEquals(identity.getType(), identityDTO.type());
-		assertEquals(identity.hasImage(), identityDTO.hasImage());
+		var identity = IdentityMapper.fromDTO(dto);
+
+		assertEquals(dto.id(), identity.getId());
+		assertEquals(dto.name(), identity.getName());
+		assertEquals(dto.gxsId(), identity.getGxsId());
+		assertEquals(dto.type(), identity.getType());
+		assertEquals(dto.hasImage(), identity.hasImage());
+		assertEquals(dto.updated(), identity.getUpdated());
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,39 +17,20 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.identity;
+package io.xeres.common.dto.chat;
 
-import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
-import io.xeres.common.identity.Type;
 import io.xeres.testutils.IdFakes;
 import io.xeres.testutils.StringFakes;
 
-import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
-
-public final class IdentityFakes
+public final class ChatIdentityDTOFakes
 {
-	private IdentityFakes()
+	private ChatIdentityDTOFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	private static long id = OWN_IDENTITY_ID + 1;
-
-	private static long getUniqueId()
+	public static ChatIdentityDTO createChatIdentityDTO()
 	{
-		return id++;
-	}
-
-	public static IdentityGroupItem createOwn()
-	{
-		return createOwn(StringFakes.createNickname());
-	}
-
-	public static IdentityGroupItem createOwn(String name)
-	{
-		var identity = new IdentityGroupItem(IdFakes.createGxsId(), name);
-		identity.setId(getUniqueId());
-		identity.setType(Type.OWN);
-		return identity;
+		return new ChatIdentityDTO(StringFakes.createNickname(), IdFakes.createGxsId(), new byte[1]);
 	}
 }

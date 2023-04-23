@@ -17,32 +17,26 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.chat;
+package io.xeres.testutils;
 
-import io.xeres.testutils.IdFakes;
-import io.xeres.testutils.StringFakes;
-import org.junit.jupiter.api.Test;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class ChatActionTest
+public final class TimeFakes
 {
-	@Test
-	void ChatAction_HasMessageLine_OK()
+	private TimeFakes()
 	{
-		var gxsId = IdFakes.createGxsId();
-		var nickname = StringFakes.createNickname();
-		var action = new ChatAction(ChatAction.Type.JOIN, nickname, gxsId);
-
-		assertTrue(action.isPresenceEvent());
-		assertEquals(nickname + " (" + gxsId + ")", action.getPresenceLine());
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	@Test
-	void ChatAction_HasMessageLine_None()
+	public static Instant createInstant()
 	{
-		var action = new ChatAction(ChatAction.Type.SAY, StringFakes.createNickname(), IdFakes.createGxsId());
+		var end = ZonedDateTime.now();
+		var start = end.minus(5, ChronoUnit.YEARS);
+		var random = ThreadLocalRandom.current().nextLong(start.toInstant().getEpochSecond(), end.toInstant().getEpochSecond());
 
-		assertFalse(action.isPresenceEvent());
+		return Instant.ofEpochSecond(random);
 	}
 }

@@ -22,9 +22,8 @@ package io.xeres.app.database.model.chat;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.message.chat.RoomType;
+import io.xeres.testutils.IdFakes;
 import org.apache.commons.lang3.RandomStringUtils;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 public final class ChatRoomFakes
 {
@@ -35,12 +34,12 @@ public final class ChatRoomFakes
 
 	public static ChatRoom createChatRoomEntity()
 	{
-		return createChatRoomEntity(ThreadLocalRandom.current().nextLong(), IdentityFakes.createOwnIdentity(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoomEntity(IdFakes.createLong(), IdentityFakes.createOwn(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
 	}
 
 	public static ChatRoom createChatRoomEntity(IdentityGroupItem identityGroupItem)
 	{
-		return createChatRoomEntity(ThreadLocalRandom.current().nextLong(), identityGroupItem, RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoomEntity(IdFakes.createLong(), identityGroupItem, RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
 	}
 
 	public static ChatRoom createChatRoomEntity(long roomId, IdentityGroupItem identityGroupItem, String name, String topic, int flags)
@@ -50,7 +49,7 @@ public final class ChatRoomFakes
 
 	public static io.xeres.app.xrs.service.chat.ChatRoom createChatRoom()
 	{
-		return createChatRoom(ThreadLocalRandom.current().nextLong(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), RoomType.PUBLIC, 5, false);
+		return createChatRoom(IdFakes.createLong(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), RoomType.PUBLIC, 5, false);
 	}
 
 	public static io.xeres.app.xrs.service.chat.ChatRoom createChatRoom(long id, String name, String topic, RoomType roomType, int userCount, boolean isSigned)

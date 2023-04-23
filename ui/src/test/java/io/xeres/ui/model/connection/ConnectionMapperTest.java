@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,32 +17,32 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.identity;
+package io.xeres.ui.model.connection;
 
+import io.xeres.common.dto.connection.ConnectionDTOFakes;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class IdentityMapperTest
+class ConnectionMapperTest
 {
 	@Test
-	void IdentityMapper_NoInstanceOK() throws NoSuchMethodException
+	void ConnectionMapper_NoInstance_OK() throws NoSuchMethodException
 	{
-		TestUtils.assertUtilityClass(IdentityMapper.class);
+		TestUtils.assertUtilityClass(ConnectionMapper.class);
 	}
 
 	@Test
-	void IdentityMapper_toDTO_OK()
+	void ConnectionMapper_fromDTO_OK()
 	{
-		var identity = IdentityFakes.createOwn();
-		var identityDTO = IdentityMapper.toDTO(identity);
+		var dto = ConnectionDTOFakes.createConnectionDTO();
 
-		assertEquals(identity.getId(), identityDTO.id());
-		assertEquals(identity.getName(), identityDTO.name());
-		assertEquals(identity.getGxsId(), identityDTO.gxsId());
-		assertEquals(identity.getPublished(), identityDTO.updated());
-		assertEquals(identity.getType(), identityDTO.type());
-		assertEquals(identity.hasImage(), identityDTO.hasImage());
+		var connection = ConnectionMapper.fromDTO(dto);
+
+		assertEquals(dto.id(), connection.getId());
+		assertEquals(dto.address(), connection.getAddress());
+		assertEquals(dto.lastConnected(), connection.getLastConnected());
+		assertEquals(dto.external(), connection.isExternal());
 	}
 }

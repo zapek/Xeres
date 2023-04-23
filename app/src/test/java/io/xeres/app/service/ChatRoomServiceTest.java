@@ -50,7 +50,7 @@ class ChatRoomServiceTest
 	@Test
 	void ChatRoomService_CreateChatRoom_OK()
 	{
-		chatRoomService.createChatRoom(createSignedChatRoom(), IdentityFakes.createOwnIdentity());
+		chatRoomService.createChatRoom(createSignedChatRoom(), IdentityFakes.createOwn());
 		verify(chatRoomRepository).save(any(ChatRoom.class));
 	}
 
@@ -58,7 +58,7 @@ class ChatRoomServiceTest
 	void ChatRoomService_SubscribeToChatRoomAndJoin_OK()
 	{
 		var serviceChatRoom = createSignedChatRoom();
-		var identity = IdentityFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwn();
 		var chatRoom = ChatRoomFakes.createChatRoomEntity(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
 
 		when(chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity)).thenReturn(Optional.of(chatRoom));
@@ -77,7 +77,7 @@ class ChatRoomServiceTest
 	void ChatRoomService_UnsubscribeFromChatRoomAndLeave_OK()
 	{
 		var serviceChatRoom = createSignedChatRoom();
-		var identity = IdentityFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwn();
 		var chatRoom = ChatRoomFakes.createChatRoomEntity(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
 
 		when(chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity)).thenReturn(Optional.of(chatRoom));

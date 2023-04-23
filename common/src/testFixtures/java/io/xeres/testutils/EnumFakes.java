@@ -19,18 +19,18 @@
 
 package io.xeres.testutils;
 
-import io.xeres.common.id.GxsId;
-import org.apache.commons.lang3.RandomUtils;
+import java.util.concurrent.ThreadLocalRandom;
 
-public final class GxsIdFakes
+public final class EnumFakes
 {
-	private GxsIdFakes()
+	private EnumFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static GxsId createGxsId()
+	public static <T extends Enum<?>> T create(Class<T> enumClass)
 	{
-		return new GxsId(RandomUtils.nextBytes(16));
+		var i = ThreadLocalRandom.current().nextInt(enumClass.getEnumConstants().length);
+		return enumClass.getEnumConstants()[i];
 	}
 }

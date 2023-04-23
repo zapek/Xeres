@@ -17,32 +17,19 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.chat;
+package io.xeres.testutils;
 
-import io.xeres.testutils.IdFakes;
-import io.xeres.testutils.StringFakes;
-import org.junit.jupiter.api.Test;
+import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class ChatActionTest
+public final class BooleanFakes
 {
-	@Test
-	void ChatAction_HasMessageLine_OK()
+	private BooleanFakes()
 	{
-		var gxsId = IdFakes.createGxsId();
-		var nickname = StringFakes.createNickname();
-		var action = new ChatAction(ChatAction.Type.JOIN, nickname, gxsId);
-
-		assertTrue(action.isPresenceEvent());
-		assertEquals(nickname + " (" + gxsId + ")", action.getPresenceLine());
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	@Test
-	void ChatAction_HasMessageLine_None()
+	public static boolean create()
 	{
-		var action = new ChatAction(ChatAction.Type.SAY, StringFakes.createNickname(), IdFakes.createGxsId());
-
-		assertFalse(action.isPresenceEvent());
+		return ThreadLocalRandom.current().nextBoolean();
 	}
 }

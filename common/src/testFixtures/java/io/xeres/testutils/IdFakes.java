@@ -17,33 +17,36 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.gxs;
+package io.xeres.testutils;
 
-import io.xeres.app.xrs.service.forum.ForumRsService;
-import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import io.xeres.testutils.IdFakes;
-import io.xeres.testutils.TimeFakes;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 
-public final class ForumMessageItemFakes
+public final class IdFakes
 {
-	private ForumMessageItemFakes()
+	private IdFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static ForumMessageItem createForumMessageItem()
+	public static GxsId createGxsId()
 	{
-		return createForumMessageItem(IdFakes.createGxsId(), IdFakes.createMessageId(), RandomStringUtils.randomAlphabetic(8));
+		return new GxsId(RandomUtils.nextBytes(16));
 	}
 
-	private static ForumMessageItem createForumMessageItem(GxsId gxsId, MessageId messageId, String name)
+	public static MessageId createMessageId()
 	{
-		var item = new ForumMessageItem(gxsId, messageId, name);
-		item.setPublished(TimeFakes.createInstant());
-		item.setService(new ForumRsService(null, null, null, null, null));
-		return item;
+		return new MessageId(RandomUtils.nextBytes(20));
+	}
+
+	public static long createLong()
+	{
+		return RandomUtils.nextLong(1, Long.MAX_VALUE);
+	}
+
+	public static int createInt()
+	{
+		return RandomUtils.nextInt(1, Integer.MAX_VALUE);
 	}
 }

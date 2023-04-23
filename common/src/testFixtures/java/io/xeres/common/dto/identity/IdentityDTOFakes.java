@@ -17,32 +17,20 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.chat;
+package io.xeres.common.dto.identity;
 
-import io.xeres.testutils.IdFakes;
-import io.xeres.testutils.StringFakes;
-import org.junit.jupiter.api.Test;
+import io.xeres.common.identity.Type;
+import io.xeres.testutils.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class ChatActionTest
+public final class IdentityDTOFakes
 {
-	@Test
-	void ChatAction_HasMessageLine_OK()
+	private IdentityDTOFakes()
 	{
-		var gxsId = IdFakes.createGxsId();
-		var nickname = StringFakes.createNickname();
-		var action = new ChatAction(ChatAction.Type.JOIN, nickname, gxsId);
-
-		assertTrue(action.isPresenceEvent());
-		assertEquals(nickname + " (" + gxsId + ")", action.getPresenceLine());
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	@Test
-	void ChatAction_HasMessageLine_None()
+	public static IdentityDTO createIdentityDTO()
 	{
-		var action = new ChatAction(ChatAction.Type.SAY, StringFakes.createNickname(), IdFakes.createGxsId());
-
-		assertFalse(action.isPresenceEvent());
+		return new IdentityDTO(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createGxsId(), TimeFakes.createInstant(), EnumFakes.create(Type.class), BooleanFakes.create());
 	}
 }

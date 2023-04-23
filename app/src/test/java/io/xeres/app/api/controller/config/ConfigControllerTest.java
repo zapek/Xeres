@@ -311,7 +311,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_CreateIdentity_Signed_OK() throws Exception
 	{
-		var identity = IdentityFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
 
 		when(identityService.createOwnIdentity(identityRequest.name(), true)).thenReturn(identity.getId());
@@ -326,7 +326,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_CreateIdentity_Anonymous_OK() throws Exception
 	{
-		var identity = IdentityFakes.createOwnIdentity();
+		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
 		when(identityService.createOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());

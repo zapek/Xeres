@@ -55,29 +55,4 @@ public class DHTSpringLog implements DHTLogger
 			case Verbose -> log.trace(EXCEPTION_HEADING, throwable);
 		}
 	}
-
-	public static LogLevel getLogLevel()
-	{
-		if (log.isTraceEnabled())
-		{
-			return LogLevel.Verbose;
-		}
-		else if (log.isDebugEnabled())
-		{
-			return LogLevel.Debug;
-		}
-		else if (log.isInfoEnabled())
-		{
-			return LogLevel.Info;
-		}
-		else if (log.isWarnEnabled())
-		{
-			return LogLevel.Error;
-		}
-		else if (log.isErrorEnabled())
-		{
-			return LogLevel.Fatal;
-		}
-		return LogLevel.Info;
-	}
 }

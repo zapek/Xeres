@@ -17,42 +17,25 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.testutils;
+package io.xeres.common.dto.location;
 
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.LocationId;
-import io.xeres.common.id.MessageId;
-import org.apache.commons.lang3.RandomUtils;
+import io.xeres.common.dto.connection.ConnectionDTOFakes;
+import io.xeres.testutils.BooleanFakes;
+import io.xeres.testutils.IdFakes;
+import io.xeres.testutils.StringFakes;
+import io.xeres.testutils.TimeFakes;
 
-public final class IdFakes
+import java.util.List;
+
+public final class LocationDTOFakes
 {
-	private IdFakes()
+	private LocationDTOFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static GxsId createGxsId()
+	public static LocationDTO create()
 	{
-		return new GxsId(RandomUtils.nextBytes(GxsId.LENGTH));
-	}
-
-	public static MessageId createMessageId()
-	{
-		return new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));
-	}
-
-	public static LocationId createLocationId()
-	{
-		return new LocationId(RandomUtils.nextBytes(LocationId.LENGTH));
-	}
-
-	public static long createLong()
-	{
-		return RandomUtils.nextLong(1, Long.MAX_VALUE);
-	}
-
-	public static int createInt()
-	{
-		return RandomUtils.nextInt(1, Integer.MAX_VALUE);
+		return new LocationDTO(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createLocationId().getBytes(), StringFakes.createNickname(), List.of(ConnectionDTOFakes.createConnectionDTO()), BooleanFakes.create(), TimeFakes.createInstant());
 	}
 }

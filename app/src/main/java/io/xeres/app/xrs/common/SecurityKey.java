@@ -39,11 +39,11 @@ public final class SecurityKey
 
 	public SecurityKey(PublicKey key, Set<Flags> flags, int startTs, int endTs) throws IOException
 	{
-		this.gxsId = RSA.getGxsId(key);
+		gxsId = RSA.getGxsId(key);
 		this.flags = flags;
 		this.startTs = startTs;
 		this.endTs = endTs;
-		this.data = RSA.getPublicKeyAsPkcs1(key);
+		data = RSA.getPublicKeyAsPkcs1(key);
 	}
 
 	public SecurityKey(GxsId gxsId, Set<Flags> flags, int startTs, int endTs, byte[] data)
@@ -84,13 +84,13 @@ public final class SecurityKey
 	public boolean equals(Object obj)
 	{
 		if (obj == this) return true;
-		if (obj == null || obj.getClass() != this.getClass()) return false;
+		if (obj == null || obj.getClass() != getClass()) return false;
 		var that = (SecurityKey) obj;
-		return Objects.equals(this.gxsId, that.gxsId) &&
-				Objects.equals(this.flags, that.flags) &&
-				this.startTs == that.startTs &&
-				this.endTs == that.endTs &&
-				Arrays.equals(this.data, that.data);
+		return Objects.equals(gxsId, that.gxsId) &&
+				Objects.equals(flags, that.flags) &&
+				startTs == that.startTs &&
+				endTs == that.endTs &&
+				Arrays.equals(data, that.data);
 	}
 
 	@Override

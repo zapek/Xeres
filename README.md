@@ -1,61 +1,62 @@
 [![Main site](docs/logo.png)](https://xeres.io)
 
-https://xeres.io
-
-## A decentralized and secure application designed for communication and sharing.
-
 [![GitHub release](https://img.shields.io/github/release/zapek/Xeres.svg?label=latest%20release)](https://github.com/zapek/Xeres/releases/latest)
+[![License](https://img.shields.io/github/license/zapek/Xeres.svg)](https://github.com/zapek/Xeres/blob/master/LICENSE)
 [![CodeQL](https://github.com/zapek/Xeres/actions/workflows/analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/analysis.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zapek_Xeres&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zapek_Xeres)
-[![License](https://img.shields.io/github/license/zapek/Xeres.svg)](https://github.com/zapek/Xeres/blob/master/LICENSE)
 
-## Supported platforms
+[Xeres](https://xeres.io) is a decentralized and secure application designed for communication and sharing.
+
+## Table of Contents
+
+- [Features](#features)
+- [Supported Platforms](#supported-platforms)
+- [Releases](#releases)
+- [Getting Help](#getting-help)
+- [Documentation](#documentation)
+- [Development](#development)
+- [Donations](#donations)
+
+## Features
+
+Xeres is an application that allows to connect to other peers to exchange information.
+
+- Peer-to-Peer (Friend-to-Friend), completely decentralized
+- Fully compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
+- Hardware accelerated encryption ([AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)) support
+- Fast and clean desktop UI using [JavaFX](https://openjfx.io/)
+- High concurrency, multi-threaded
+
+## Supported Platforms
 
 - Windows (x86_64)
 - Linux (x86_64)
 - MacOS (x86_64)
 
-## Downloads
+## Releases
 
-Latest release available [here](https://github.com/zapek/Xeres/releases/latest).
+Latest release always available [here](https://github.com/zapek/Xeres/releases/latest).
 
-## Features
+## Getting Help
 
-- Peer-to-Peer (Friend-to-Friend), decentralized
-- Fully compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
-- Hardware accelerated encryption ([AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)) support
-- [JavaFX](https://openjfx.io/) UI
-- High concurrency
-
-## Documentation and support
-- [User documentation & FAQ](https://xeres.io/docs/)
-- [Wiki and technical documentation](https://github.com/zapek/Xeres/wiki)
-- [Roadmap](https://github.com/users/zapek/projects/4)
+- [User Documentation & FAQ](https://xeres.io/docs/)
 - [Discussions & Forums](https://github.com/zapek/Xeres/discussions)
-- [Issues reporting](https://github.com/zapek/Xeres/issues)
+- [Issues Reporting](https://github.com/zapek/Xeres/issues)
 
-## Donations
+## Documentation
 
-Please consider a donation to help with the project's development. Contact me to get listed in the application's about window. The more donations, the more time is allocated on the project.
+- [Technical Documentation](https://github.com/zapek/Xeres/wiki)
+- [Roadmap](https://github.com/users/zapek/projects/4)
 
-| Method | Address                                                                                         |
-|--------|-------------------------------------------------------------------------------------------------|
-| GitHub | https://github.com/sponsors/zapek                                                               |
-| PayPal | https://www.paypal.me/zapek666                                                                  |
-| BTC    | bc1qn57zvp8s3h6renf805fan53kt7q4j963g7prvt                                                      |
-| XMR    | 84czz4Vg44GaGmQF8Lst3uWEMyXLSahBffhrDd77jdVJEoKCtUJF96mGQ4XzcYrLG1JGaj2hr2sMoDoihQ52MT1jMBnucyu |
-| GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |
-| ETH    | 0x7d9EfEe706c81227c73DA7814319301C6Bd63D05                                                      |
-| ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
-| BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |
+## Development
 
-## Build requirements
+### Build Requirements
 
 - Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 19)
 
-If you want to quickly try the current development version without installing anything else, see the [command line](#Command-line) section below.
+If you want to quickly try the current development version without installing anything else, see the [command line](#command-line) section below.
 
-## How to run
+### How to run
 
 ##### IntelliJ IDEA Ultimate
 
@@ -84,7 +85,7 @@ Run the Gradle ``bootRun`` target. It's in the top right _Gradle_ panel, Tasks /
 
 (This way also works with IntelliJ IDEA Ultimate, but you'll miss some extras like colored debug output and faster launch)
 
-##### Command line
+##### Command Line
 
 ###### Windows
 
@@ -94,13 +95,13 @@ Run the Gradle ``bootRun`` target. It's in the top right _Gradle_ panel, Tasks /
 
 	./gradlew bootRun
 
-To pass Xeres arguments, just use the args feature, for example:
+To pass arugments to Xeres, just use the args feature, for example:
 
 	./gradlew bootRun --args="--no-gui --fast-shutdown"
 
 (Use ``--help`` to know all arguments)
 
-## Database debugging
+### Database Debugging
 
 With IntelliJ Ultimate, create the following Database connection with the built-in Datagrip client (aka the _Database_ tool window)
 
@@ -111,13 +112,13 @@ With IntelliJ Ultimate, create the following Database connection with the built-
 - User: ``sa``
 - There's no password
 
-## Useful Gradle tasks
+### Useful Gradle Tasks
 
-##### Running tests locally
+##### Running Tests Locally
 
 run the ``test`` task
 
-##### Cleaning the build directory
+##### Cleaning the Build Directory
 
 run the ``clean`` task
 
@@ -126,13 +127,13 @@ run the ``clean`` task
 - change the version in _build.gradle_ in the _wrapper_ section
 - run the ``wrapper`` task
 
-## Useful Links
+### Useful Links
 
-##### Pick a FontAwesome icon
+##### Pick a FontAwesome Icon
 
 https://fontawesome.com/v4/icons/
 
-## Git branching model
+### Git Branching Model
 
 *master* always contains the current and runnable code. Use a feature branch to work on a feature (for example, feature/165-the-feature (165 would be the ticket number, if any)). Once it's ready, have someone review it then merge to master.
 
@@ -140,9 +141,9 @@ Releases use tags and might use a release branches if urgent fixes are needed.
 
 More information: [Git process that works - say no to GitFlow](https://reallifeprogramming.com/git-process-that-works-say-no-to-gitflow-50bf2038ccf7).
 
-## Manual testing
+### Manual Testing
 
-##### Using multiple configs
+##### Using Multiple Configs
 
 Pass the following arguments to run multiple instances.
 
@@ -153,3 +154,18 @@ Location A:
 Location B:
 
 	--data-dir=./data3 --control-port=1069
+	
+## Donations
+
+Please consider a donation to help with the project's development. Contact me if you want to get listed in the application's about window. The more donations, the more time is allocated on the project.
+
+| Method | Address                                                                                         |
+|--------|-------------------------------------------------------------------------------------------------|
+| GitHub | https://github.com/sponsors/zapek                                                               |
+| PayPal | https://www.paypal.me/zapek666                                                                  |
+| BTC    | bc1qn57zvp8s3h6renf805fan53kt7q4j963g7prvt                                                      |
+| XMR    | 84czz4Vg44GaGmQF8Lst3uWEMyXLSahBffhrDd77jdVJEoKCtUJF96mGQ4XzcYrLG1JGaj2hr2sMoDoihQ52MT1jMBnucyu |
+| GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |
+| ETH    | 0x7d9EfEe706c81227c73DA7814319301C6Bd63D05                                                      |
+| ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
+| BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |

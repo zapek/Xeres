@@ -247,10 +247,10 @@ public class ChatViewController implements Controller
 
 	private void joinChatRoom(ChatRoomInfo chatRoomInfo)
 	{
-		var found = subscribedRooms.getChildren().stream()
+		var alreadyJoined = subscribedRooms.getChildren().stream()
 				.anyMatch(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(chatRoomInfo));
 
-		if (!found)
+		if (!alreadyJoined)
 		{
 			chatClient.joinChatRoom(selectedRoom.getId())
 					.subscribe(); // XXX: sometimes the id of the roomInfo is wrong... of course! because we set the context menu BEFORE the room id is refreshed into it

@@ -27,6 +27,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
@@ -57,5 +58,25 @@ public class ForumClient
 				.retrieve()
 				.bodyToFlux(ForumDTO.class)
 				.map(ForumMapper::fromDTO);
+	}
+
+	public Mono<Long> subscribeToForum(long id)
+	{
+		return webClient.put()
+				.uri(uriBuilder -> uriBuilder
+						.path("/{id}/subscription")
+						.build(id))
+				.retrieve()
+				.bodyToMono(Long.class);
+	}
+
+	public Mono<Void> unsubscribeFromForum(long id)
+	{
+		return webClient.delete()
+				.uri(uriBuilder -> uriBuilder
+						.path("/{id}/subscription")
+						.build(id))
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

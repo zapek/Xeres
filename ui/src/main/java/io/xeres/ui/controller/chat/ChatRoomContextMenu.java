@@ -23,11 +23,16 @@ import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.control.TreeItem;
 
+import java.io.Serial;
+
 public class ChatRoomContextMenu extends Event
 {
 	public static final EventType<ChatRoomContextMenu> ALL = new EventType<>("CHAT_ROOM_CONTEXT_MENU_ALL");
 	public static final EventType<ChatRoomContextMenu> JOIN = new EventType<>(ALL, "CHAT_ROOM_CONTEXT_MENU_JOIN");
 	public static final EventType<ChatRoomContextMenu> LEAVE = new EventType<>(ALL, "CHAT_ROOM_CONTEXT_MENU_LEAVE");
+
+	@Serial
+	private static final long serialVersionUID = 2871441125245808383L;
 
 	private final transient TreeItem<RoomHolder> treeItem;
 

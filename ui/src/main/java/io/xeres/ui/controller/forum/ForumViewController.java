@@ -81,13 +81,7 @@ public class ForumViewController implements Controller
 		forumTree.setShowRoot(false);
 		forumTree.setCellFactory(ForumCell::new);
 		forumTree.addEventHandler(ForumContextMenu.SUBSCRIBE, event -> subscribeToForum(event.getTreeItem().getValue().getForum()));
-		forumTree.addEventHandler(ForumContextMenu.UNSUBSCRIBE, event -> {
-			var forum = event.getTreeItem().getValue().getForum();
-//			subscribedForums.getChildren().stream()
-//					.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().getForum().equals(forum))
-//					.findAny()
-//					.ifPresent(forumHolderTreeItem -> unsubscribeFromForum(forum.getId()));
-		});
+		forumTree.addEventHandler(ForumContextMenu.UNSUBSCRIBE, event -> unsubscribeFromForum(event.getTreeItem().getValue().getForum()));
 
 		// XXX
 
@@ -144,17 +138,17 @@ public class ForumViewController implements Controller
 
 		if (!alreadySubscribed)
 		{
-			//forumClient.subscribe(selectedForum.getId())
-			//		.subscribe(); // XXX: check why we would have to use selectedForum... the comment in ChatRoomCell doesn't make any sense...
+			forumClient.subscribeToForum(forum.getId())
+					.subscribe();
 		}
 	}
 
 	private void unsubscribeFromForum(Forum forum)
 	{
-//		subscribedForums.getChildren().stream()
-//				.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().getForum().equals(forum))
-//				.findAny()
-//				.ifPresent(forumHolderTreeItem -> forumClient.unsubscribe(forum.getId())
-//						.subscribe());
+		subscribedForums.getChildren().stream()
+				.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().getForum().equals(forum))
+				.findAny()
+				.ifPresent(forumHolderTreeItem -> forumClient.unsubscribeFromForum(forum.getId())
+						.subscribe());
 	}
 }

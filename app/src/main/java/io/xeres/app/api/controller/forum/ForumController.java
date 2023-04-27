@@ -25,10 +25,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.ForumService;
 import io.xeres.common.dto.forum.ForumDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,7 +39,7 @@ import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 @RequestMapping(value = FORUMS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ForumController
 {
-	private final ForumService forumService;
+	private final ForumService forumService; // XXX: this or forumRsService?
 
 	public ForumController(ForumService forumService)
 	{
@@ -53,5 +52,19 @@ public class ForumController
 	public List<ForumDTO> getForums()
 	{
 		return toDTOs(forumService.findAllGroups());
+	}
+
+	@PutMapping("/{id}/subscription")
+	@ResponseStatus(HttpStatus.OK)
+	public long subscribeToForum(@PathVariable long id)
+	{
+		return 0L; // XXX
+	}
+
+	@DeleteMapping("/{id}/subscription")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void unsubscribeFromForum(@PathVariable long id)
+	{
+		// XXX
 	}
 }

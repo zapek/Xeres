@@ -181,14 +181,7 @@ public class ChatViewController implements Controller
 		roomTree.setShowRoot(false);
 		roomTree.setCellFactory(ChatRoomCell::new);
 		roomTree.addEventHandler(ChatRoomContextMenu.JOIN, event -> joinChatRoom(event.getTreeItem().getValue().getRoomInfo()));
-		roomTree.addEventHandler(ChatRoomContextMenu.LEAVE, event -> {
-			var roomInfo = event.getTreeItem().getValue().getRoomInfo();
-			subscribedRooms.getChildren().stream()
-					.filter(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(roomInfo))
-					.findAny()
-					.ifPresent(roomHolderTreeItem -> chatClient.leaveChatRoom(roomInfo.getId())
-							.subscribe());
-		});
+		roomTree.addEventHandler(ChatRoomContextMenu.LEAVE, event -> leaveChatRoom(event.getTreeItem().getValue().getRoomInfo()));
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
 		roomTree.getSelectionModel().selectedItemProperty()
@@ -252,9 +245,18 @@ public class ChatViewController implements Controller
 
 		if (!alreadyJoined)
 		{
-			chatClient.joinChatRoom(selectedRoom.getId())
-					.subscribe(); // XXX: sometimes the id of the roomInfo is wrong... of course! because we set the context menu BEFORE the room id is refreshed into it
+			chatClient.joinChatRoom(chatRoomInfo.getId())
+					.subscribe();
 		}
+	}
+
+	private void leaveChatRoom(ChatRoomInfo chatRoomInfo)
+	{
+		subscribedRooms.getChildren().stream()
+				.filter(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(chatRoomInfo))
+				.findAny()
+				.ifPresent(roomHolderTreeItem -> chatClient.leaveChatRoom(chatRoomInfo.getId())
+						.subscribe());
 	}
 
 	private void getChatRoomContext()

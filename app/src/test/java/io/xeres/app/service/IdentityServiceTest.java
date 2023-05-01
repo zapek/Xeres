@@ -41,7 +41,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.Security;
 import java.security.cert.CertificateException;
-import java.time.Instant;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,11 +78,7 @@ class IdentityServiceTest
 
 		when(settingsService.isOwnProfilePresent()).thenReturn(true);
 		when(settingsService.hasOwnLocation()).thenReturn(true);
-		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> {
-			var gxsIdGroupItem = (IdentityGroupItem) invocation.getArguments()[0];
-			gxsIdGroupItem.setPublished(Instant.now());
-			return gxsIdGroupItem;
-		});
+		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 		doNothing().when(gxsExchangeService).setLastServiceGroupsUpdateNow(any());
 
 		identityService.createOwnIdentity(NAME, false);
@@ -123,11 +118,7 @@ class IdentityServiceTest
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 		when(settingsService.getSecretProfileKey()).thenReturn(encodedKey);
-		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> {
-			var gxsIdGroupItem = (IdentityGroupItem) invocation.getArguments()[0];
-			gxsIdGroupItem.setPublished(Instant.now());
-			return gxsIdGroupItem;
-		});
+		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 		doNothing().when(gxsExchangeService).setLastServiceGroupsUpdateNow(any());
 
 		identityService.createOwnIdentity(NAME, true);

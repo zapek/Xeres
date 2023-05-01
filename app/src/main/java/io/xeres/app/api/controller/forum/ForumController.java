@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.service.ForumService;
+import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.common.dto.forum.ForumDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,11 +39,11 @@ import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 @RequestMapping(value = FORUMS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ForumController
 {
-	private final ForumService forumService; // XXX: this or forumRsService?
+	private final ForumRsService forumRsService;
 
-	public ForumController(ForumService forumService)
+	public ForumController(ForumRsService forumRsService)
 	{
-		this.forumService = forumService;
+		this.forumRsService = forumRsService;
 	}
 
 	@GetMapping
@@ -51,20 +51,21 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumDTO> getForums()
 	{
-		return toDTOs(forumService.findAllGroups());
+		return toDTOs(forumRsService.getForums());
 	}
 
 	@PutMapping("/{id}/subscription")
 	@ResponseStatus(HttpStatus.OK)
 	public long subscribeToForum(@PathVariable long id)
 	{
-		return 0L; // XXX
+		forumRsService.subscribeToForum(id);
+		return id;
 	}
 
 	@DeleteMapping("/{id}/subscription")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void unsubscribeFromForum(@PathVariable long id)
 	{
-		// XXX
+		forumRsService.unsubscribeFromForum(id);
 	}
 }

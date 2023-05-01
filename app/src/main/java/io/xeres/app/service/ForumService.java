@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -47,6 +48,11 @@ public class ForumService
 	{
 		this.gxsForumGroupRepository = gxsForumGroupRepository;
 		this.gxsForumMessageRepository = gxsForumMessageRepository;
+	}
+
+	public Optional<ForumGroupItem> findById(long id)
+	{
+		return gxsForumGroupRepository.findById(id);
 	}
 
 	public List<ForumGroupItem> findAllGroups()

@@ -47,6 +47,7 @@ public class ForumMessageItem extends GxsMessageItem
 		setGxsId(groupId);
 		setMessageId(messageId);
 		setName(name);
+		updatePublished();
 	}
 
 	public String getContent()

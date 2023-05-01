@@ -3,6 +3,8 @@ package io.xeres.app.xrs.service.gxs.item;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
+import java.time.Instant;
+
 import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
 
 /**
@@ -30,6 +32,12 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	public GxsSyncMessageRequestItem()
 	{
 		// Needed
+	}
+
+	public GxsSyncMessageRequestItem(GxsId groupId, Instant lastUpdated)
+	{
+		this.groupId = groupId;
+		this.lastUpdated = (int) lastUpdated.getEpochSecond();
 	}
 
 	public int getCreateSince()

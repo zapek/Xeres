@@ -28,7 +28,6 @@ import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,6 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 
 	private String name;
 
-	@UpdateTimestamp
 	private Instant published; // publishts (32-bits)
 
 	//private Set<GxsMessageFlags> messageFlags; .. use a converter, etc... right now it seems there's only RS_GXS_FORUM_MSG_FLAGS_MODERATED
@@ -144,9 +142,9 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 		return published;
 	}
 
-	public void setPublished(Instant published)
+	public void updatePublished()
 	{
-		this.published = published;
+		published = Instant.now();
 	}
 
 	public byte[] getPublishSignature()

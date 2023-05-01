@@ -57,6 +57,7 @@ public class ForumGroupItem extends GxsGroupItem
 	{
 		setGxsId(gxsId);
 		setName(name);
+		updatePublished();
 	}
 
 	public String getDescription()

@@ -25,6 +25,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.repository.GxsClientUpdateRepository;
 import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.common.id.GxsId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +45,13 @@ public class GxsExchangeService
 		this.gxsServiceSettingRepository = gxsServiceSettingRepository;
 	}
 
+	/**
+	 * Gets the last update time of the peer's groups. The peer's time is always used, not our local time.
+	 *
+	 * @param location    the peer's location
+	 * @param serviceType the service type
+	 * @return the time when the peer last updated its groups, in peer's time
+	 */
 	public Instant getLastPeerGroupsUpdate(Location location, RsServiceType serviceType)
 	{
 		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
@@ -51,19 +59,43 @@ public class GxsExchangeService
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
-	@Transactional
-	public void setLastPeerGroupsUpdate(Location location, RsServiceType serviceType)
+	public Instant getLastPeerMessagesUpdate(Location location, GxsId groupId, RsServiceType serviceType)
 	{
-		var now = Instant.now(); // we always use local time
-		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
-				.ifPresentOrElse(gxsClientUpdate -> {
-					gxsClientUpdate.setLastSynced(now);
-					gxsClientUpdateRepository.save(gxsClientUpdate);
-				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), now)));
+		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+				.map(gxsClientUpdate -> gxsClientUpdate.getMessageUpdate(groupId))
+				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	/**
-	 * Gets the last time the service's groups were updated. This uses the local time.
+	 * Sets the last update time of the peer's groups. The peer's time is always used, not our local time.
+	 *
+	 * @param location    the peer's location
+	 * @param update      the peer's last update time, in peer's time (so given by the peer itself). Never supply a time computed locally
+	 * @param serviceType the service type
+	 */
+	@Transactional
+	public void setLastPeerGroupsUpdate(Location location, Instant update, RsServiceType serviceType)
+	{
+		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+				.ifPresentOrElse(gxsClientUpdate -> {
+					gxsClientUpdate.setLastSynced(update);
+					gxsClientUpdateRepository.save(gxsClientUpdate);
+				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
+	}
+
+	@Transactional
+	public void setLastPeerMessageUpdate(Location location, GxsId groupId, Instant update, RsServiceType serviceType)
+	{
+		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+				.ifPresentOrElse(gxsClientUpdate -> {
+					gxsClientUpdate.addMessageUpdate(groupId, update);
+					gxsClientUpdateRepository.save(gxsClientUpdate);
+				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
+	}
+
+	/**
+	 * Gets the last time our service's groups were updated. This uses the local time.
+	 *
 	 * @param serviceType the service type
 	 * @return the last time
 	 */
@@ -75,7 +107,7 @@ public class GxsExchangeService
 	}
 
 	/**
-	 * Sets the last time the service's groups were updated. This uses the local time.
+	 * Sets the last time our service's groups were updated.
 	 * @param serviceType the service type
 	 */
 	@Transactional
@@ -84,7 +116,7 @@ public class GxsExchangeService
 		var now = Instant.now(); // we always use local time
 		gxsServiceSettingRepository.findById(serviceType.getType())
 				.ifPresentOrElse(gxsServiceSetting -> {
-					gxsServiceSetting.setLastUpdated(now);
+					gxsServiceSetting.setLastUpdated(Instant.now());
 					gxsServiceSettingRepository.save(gxsServiceSetting);
 				}, () -> gxsServiceSettingRepository.save(new GxsServiceSetting(serviceType.getType(), now)));
 	}

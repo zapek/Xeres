@@ -221,7 +221,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void sync(PeerConnection peerConnection)
 	{
-		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsExchangeService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType())); // TODO: use the RTT's (RTT service) delta time value to compute the proper time on the remote's end
+		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsExchangeService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
 		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsSyncGroupRequestItem.getLastUpdated(), getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 	}
@@ -318,9 +318,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 		else
 		{
-			if (gxsTransactionManager.addIncomingItemToTransaction(peerConnection, item, this))
+			var lastUpdated = gxsTransactionManager.addIncomingItemToTransaction(peerConnection, item, this);
+			if (lastUpdated != null)
 			{
-				gxsExchangeService.setLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType());
+				// The transaction was completed successfully. We set the peer's last update time to the time
+				// it sent so that clock differences don't matter.
+				gxsExchangeService.setLastPeerGroupsUpdate(peerConnection.getLocation(), lastUpdated, getServiceType());
 			}
 		}
 	}

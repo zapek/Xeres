@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 plugins {
-    id 'com.gradle.enterprise' version '3.12.3'
+    id 'com.gradle.enterprise' version '3.13'
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
 }
 

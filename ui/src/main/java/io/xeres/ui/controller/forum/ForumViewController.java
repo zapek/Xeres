@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -123,7 +124,19 @@ public class ForumViewController implements Controller
 		{
 			tree.add(new TreeItem<>(new ForumHolder(forum)));
 			sortByName(tree);
+			removeFromOthers(tree, forum);
 		}
+	}
+
+	private void removeFromOthers(ObservableList<TreeItem<ForumHolder>> tree, Forum forum)
+	{
+		var removalList = new ArrayList<>(List.of(ownForums.getChildren(), subscribedForums.getChildren(), popularForums.getChildren(), otherForums.getChildren()));
+		removalList.remove(tree);
+
+		removalList.forEach(treeItems -> treeItems.stream()
+				.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().getForum().equals(forum))
+				.findFirst()
+				.ifPresent(treeItems::remove));
 	}
 
 	private static void sortByName(ObservableList<TreeItem<ForumHolder>> children)
@@ -139,6 +152,7 @@ public class ForumViewController implements Controller
 		if (!alreadySubscribed)
 		{
 			forumClient.subscribeToForum(forum.getId())
+					.doOnSuccess(forumId -> addOrUpdate(subscribedForums.getChildren(), forum))
 					.subscribe();
 		}
 	}
@@ -149,6 +163,7 @@ public class ForumViewController implements Controller
 				.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().getForum().equals(forum))
 				.findAny()
 				.ifPresent(forumHolderTreeItem -> forumClient.unsubscribeFromForum(forum.getId())
+						.doOnSuccess(unused -> addOrUpdate(popularForums.getChildren(), forum)) // XXX: wrong, could be something else then "otherForums"
 						.subscribe());
 	}
 }

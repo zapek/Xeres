@@ -17,6 +17,20 @@ public class ForumCell extends TreeCell<ForumHolder>
 		setContextMenu(createContextMenu(this));
 	}
 
+	@Override
+	protected void updateItem(ForumHolder item, boolean empty)
+	{
+		super.updateItem(item, empty);
+		if (empty)
+		{
+			setText(null);
+		}
+		else
+		{
+			setText(item.getForum().getName());
+		}
+	}
+
 	private ContextMenu createContextMenu(TreeCell<ForumHolder> cell)
 	{
 		var contextMenu = new ContextMenu();

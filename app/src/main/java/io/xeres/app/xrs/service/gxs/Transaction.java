@@ -70,6 +70,7 @@ public class Transaction<T extends GxsExchange>
 	private final List<T> items;
 	private final int itemCount;
 	private final GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> service;
+	private Instant updated;
 
 	Transaction(int id, Set<TransactionFlags> transactionFlags, List<T> items, int itemCount, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> service, Direction direction)
 	{
@@ -134,6 +135,16 @@ public class Transaction<T extends GxsExchange>
 	public Set<TransactionFlags> getTransactionFlags()
 	{
 		return transactionFlags;
+	}
+
+	public Instant getUpdated()
+	{
+		return updated;
+	}
+
+	public void setUpdated(Instant updated)
+	{
+		this.updated = updated;
 	}
 
 	@Override

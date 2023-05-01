@@ -24,7 +24,6 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.testutils.IdFakes;
-import io.xeres.testutils.TimeFakes;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public final class ForumMessageItemFakes
@@ -42,7 +41,6 @@ public final class ForumMessageItemFakes
 	private static ForumMessageItem createForumMessageItem(GxsId gxsId, MessageId messageId, String name)
 	{
 		var item = new ForumMessageItem(gxsId, messageId, name);
-		item.setPublished(TimeFakes.createInstant());
 		item.setService(new ForumRsService(null, null, null, null, null));
 		return item;
 	}

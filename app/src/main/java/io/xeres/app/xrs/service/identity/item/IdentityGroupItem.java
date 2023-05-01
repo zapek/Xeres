@@ -62,6 +62,7 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 	{
 		setGxsId(gxsId);
 		setName(name);
+		updatePublished();
 	}
 
 	public Sha1Sum getProfileHash()

@@ -20,10 +20,13 @@
 package io.xeres.app.database.model.gxs;
 
 import io.xeres.app.database.model.location.Location;
+import io.xeres.common.id.GxsId;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @Table(name = "gxs_client_updates")
 @Entity
@@ -43,6 +46,11 @@ public class GxsClientUpdate
 
 	private Instant lastSynced;
 
+	@ElementCollection
+	@CollectionTable(name = "gxs_client_updates_messages")
+	@Column(name = "updated")
+	private Map<GxsId, Instant> messagesUpdates = new HashMap<>();
+
 	public GxsClientUpdate()
 	{
 		// Needed
@@ -53,6 +61,13 @@ public class GxsClientUpdate
 		this.location = location;
 		this.serviceType = serviceType;
 		this.lastSynced = lastSynced;
+	}
+
+	public GxsClientUpdate(Location location, int serviceType, GxsId groupId, Instant lastSynced)
+	{
+		this.location = location;
+		this.serviceType = serviceType;
+		messagesUpdates.put(groupId, lastSynced);
 	}
 
 	public long getId()
@@ -93,6 +108,21 @@ public class GxsClientUpdate
 	public void setLastSynced(Instant lastSynced)
 	{
 		this.lastSynced = lastSynced;
+	}
+
+	public Instant getMessageUpdate(GxsId groupId)
+	{
+		return messagesUpdates.get(groupId);
+	}
+
+	public void addMessageUpdate(GxsId groupId, Instant lastSynced)
+	{
+		messagesUpdates.put(groupId, lastSynced);
+	}
+
+	public void removeMessageUpdate(GxsId groupId)
+	{
+		messagesUpdates.remove(groupId);
 	}
 
 	@Override

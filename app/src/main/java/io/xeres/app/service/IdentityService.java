@@ -228,6 +228,8 @@ public class IdentityService
 				.toOutputStream(out);
 
 		identity.setImage(out.toByteArray());
+		identity.updatePublished();
+
 		saveIdentity(identity);
 	}
 
@@ -241,6 +243,8 @@ public class IdentityService
 
 		var identity = findById(id).orElseThrow();
 		identity.setImage(null);
+		identity.updatePublished();
+
 		saveIdentity(identity);
 	}
 

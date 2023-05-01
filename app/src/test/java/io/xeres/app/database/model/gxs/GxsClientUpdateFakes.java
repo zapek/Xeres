@@ -21,6 +21,7 @@ package io.xeres.app.database.model.gxs;
 
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.common.id.GxsId;
 
 import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
@@ -40,5 +41,10 @@ public final class GxsClientUpdateFakes
 	public static GxsClientUpdate createGxsClientUpdate(Location location, int serviceType)
 	{
 		return new GxsClientUpdate(location, serviceType, Instant.now());
+	}
+
+	public static GxsClientUpdate createGxsClientUpdateWithMessages(Location location, GxsId groupId, Instant update, int serviceType)
+	{
+		return new GxsClientUpdate(location, serviceType, groupId, update);
 	}
 }

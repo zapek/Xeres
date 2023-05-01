@@ -37,11 +37,13 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.xrs.service.RsServiceType.FORUMS;
@@ -49,6 +51,9 @@ import static io.xeres.app.xrs.service.RsServiceType.FORUMS;
 @Component
 public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageItem>
 {
+	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(30);
+	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
+
 	private final ForumService forumService;
 
 	public ForumRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, ForumService forumService)
@@ -61,6 +66,23 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public RsServiceType getServiceType()
 	{
 		return FORUMS;
+	}
+
+	@Override
+	public void initialize(PeerConnection peerConnection)
+	{
+		super.initialize(peerConnection);
+		peerConnection.scheduleWithFixedDelay(
+				() -> syncMessages(peerConnection),
+				SYNCHRONIZATION_INITIAL_DELAY.toSeconds(),
+				SYNCHRONIZATION_DELAY.toSeconds(),
+				TimeUnit.SECONDS
+		);
+	}
+
+	private void syncMessages(PeerConnection peerConnection)
+	{
+		//var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem() // XXX: get the last groups update (last posted), but fix the mechanism first
 	}
 
 	@Override
@@ -132,5 +154,27 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public void handleItem(PeerConnection sender, Item item)
 	{
 		super.handleItem(sender, item); // This is required for the @Transactional to work
+	}
+
+	@Transactional(readOnly = true)
+	public List<ForumGroupItem> getForums()
+	{
+		return forumService.findAllGroups();
+	}
+
+	@Transactional
+	public void subscribeToForum(long id)
+	{
+		var forum = forumService.findById(id).orElseThrow();
+		forum.setSubscribed(true);
+		forumService.save(forum);
+	}
+
+	@Transactional
+	public void unsubscribeFromForum(long id)
+	{
+		var forum = forumService.findById(id).orElseThrow();
+		forum.setSubscribed(false);
+		forumService.save(forum);
 	}
 }

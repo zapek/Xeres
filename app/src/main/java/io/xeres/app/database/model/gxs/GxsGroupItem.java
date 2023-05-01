@@ -34,7 +34,6 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +75,6 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	@Convert(converter = GxsSignatureFlagsConverter.class)
 	private Set<GxsSignatureFlags> signatureFlags; // what signatures are required for parent and child messages
 
-	@UpdateTimestamp
 	private Instant published;
 
 	@Embedded
@@ -192,9 +190,9 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 		return published;
 	}
 
-	public void setPublished(Instant published)
+	public void updatePublished()
 	{
-		this.published = published;
+		published = Instant.now();
 	}
 
 	public GxsId getAuthor()

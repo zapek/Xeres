@@ -26,11 +26,15 @@ import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 public class GxsTransferMessageItem extends GxsExchange implements RsSerializable
 {
+	private static final Logger log = LoggerFactory.getLogger(GxsTransferMessageItem.class);
+
 	private byte position;
 	private GxsId groupId;
 	private MessageId messageId;

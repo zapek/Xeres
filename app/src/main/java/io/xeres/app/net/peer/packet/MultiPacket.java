@@ -21,6 +21,8 @@ package io.xeres.app.net.peer.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.ProtocolException;
 import java.util.List;
@@ -31,6 +33,8 @@ import java.util.List;
  */
 public class MultiPacket extends Packet
 {
+	private static final Logger log = LoggerFactory.getLogger(MultiPacket.class);
+
 	/**
 	 * Maximum packet ID. Wraps around.
 	 */
@@ -52,6 +56,8 @@ public class MultiPacket extends Packet
 	private static final int HEADER_FLAG_INDEX = 1;
 	private static final int HEADER_PACKET_ID_INDEX = 2;
 	public static final int HEADER_SIZE_INDEX = 6;
+
+	private int size;
 
 	protected static boolean isNewPacket(ByteBuf in) throws ProtocolException
 	{
@@ -75,7 +81,7 @@ public class MultiPacket extends Packet
 	public MultiPacket(ChannelHandlerContext ctx, List<Packet> packets)
 	{
 		priority = packets.stream().findFirst().orElseThrow().getPriority();
-		var size = packets.stream().mapToInt(Packet::getSize).sum();
+		size = packets.stream().mapToInt(Packet::getSize).sum();
 
 		buf = ctx.alloc().buffer(); // XXX: maybe we could use a CompoundBuffer (but maybe not because of the header in each packet), see documentation
 		writeHeader(SLICE_PROTOCOL_VERSION_ID_01, (byte) (SLICE_FLAG_START | SLICE_FLAG_END), 0, size);
@@ -139,7 +145,7 @@ public class MultiPacket extends Packet
 	@Override
 	public int getSize()
 	{
-		return buf.getUnsignedShort(HEADER_SIZE_INDEX);
+		return size != 0 ? size : buf.getUnsignedShort(HEADER_SIZE_INDEX); // The size in the header can overflow, so we store it in 'size'
 	}
 
 	@Override

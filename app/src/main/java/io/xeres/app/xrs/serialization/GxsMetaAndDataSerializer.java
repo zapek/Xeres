@@ -40,7 +40,7 @@ final class GxsMetaAndDataSerializer
 		var dataSize = 0;
 		dataSize += Serializer.serialize(buf, (byte) 2);
 		dataSize += Serializer.serialize(buf, (short) ((Item) gxsMetaAndData).getService().getServiceType().getType());
-		dataSize += Serializer.serialize(buf, (byte) 2);
+		dataSize += Serializer.serialize(buf, (byte) 3);
 		var sizeOffset = buf.writerIndex();
 		dataSize += Serializer.serialize(buf, 0); // write size at end
 
@@ -68,9 +68,9 @@ final class GxsMetaAndDataSerializer
 		{
 			throw new IllegalArgumentException("Packet type is not " + ((Item) gxsMetaAndData).getService().getServiceType().getType());
 		}
-		if (buf.readByte() != 0x2)
+		if (buf.readByte() != 0x3)
 		{
-			throw new IllegalArgumentException("Packet subtype is not " + 0x2);
+			throw new IllegalArgumentException("Packet subtype is not " + 0x3);
 		}
 		buf.readInt(); // size
 	}

@@ -222,7 +222,7 @@ public class GxsTransactionManager
 	 * @param gxsRsService   the service the transaction is bound to
 	 * @return the transaction update time or null if not all items are received yet
 	 */
-	public Instant addIncomingItemToTransaction(PeerConnection peerConnection, GxsExchange item, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
+	public void addIncomingItemToTransaction(PeerConnection peerConnection, GxsExchange item, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		log.debug("Adding transaction item: {}", item);
 		var transaction = getTransaction(peerConnection, item.getTransactionId(), Transaction.Direction.INCOMING);
@@ -240,13 +240,9 @@ public class GxsTransactionManager
 
 			gxsRsService.processItems(peerConnection, transaction); // XXX: how will processItems() know what the items are? should the transaction have something to know that? yes, the flag...
 
-			var lastUpdated = transaction.getUpdated();
 			removeTransaction(peerConnection, transaction);
 			// XXX: in the case that interest us, GxsIdService would call requestGxsGroups()
-
-			return lastUpdated;
 		}
-		return null;
 	}
 
 	private void addOutgoingTransaction(PeerConnection peerConnection, Transaction<?> transaction)

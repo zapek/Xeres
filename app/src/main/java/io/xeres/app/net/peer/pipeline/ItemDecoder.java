@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class ItemDecoder extends MessageToMessageDecoder<ByteBuf>
 {
-	private static final int MAX_SLICES = 128; // maximum number of slices per packets (XXX: does RS have a limit there? I don't think so actually)
+	private static final int MAX_SLICES = 195512; // maximum number of slices per packets (XXX: does RS have a limit there? I don't think so actually)
 	private static final int MAX_CONCURRENT_PACKETS = 16; // maximum number of concurrent packets
 	private final Map<Integer, List<Packet>> accumulator = new HashMap<>();
 

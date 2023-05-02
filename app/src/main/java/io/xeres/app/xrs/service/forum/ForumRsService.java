@@ -31,6 +31,7 @@ import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
+import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.springframework.core.env.Environment;
@@ -82,7 +83,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	private void syncMessages(PeerConnection peerConnection)
 	{
-		//var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem() // XXX: get the last groups update (last posted), but fix the mechanism first
+		// Request new messages for all subscribed groups
+		forumService.findAllSubscribedGroups().forEach(forumGroupItem -> {
+			var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsExchangeService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()));
+			log.debug("Asking peer {} for new messages in group {} since {} for service {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), gxsSyncMessageRequestItem.getLastUpdated(), getServiceType());
+			peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
+		});
 	}
 
 	@Override

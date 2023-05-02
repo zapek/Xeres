@@ -60,6 +60,11 @@ public class ForumService
 		return gxsForumGroupRepository.findAll();
 	}
 
+	public List<ForumGroupItem> findAllSubscribedGroups()
+	{
+		return gxsForumGroupRepository.findAllBySubscribedIsTrue();
+	}
+
 	public List<ForumGroupItem> findAllGroups(Set<GxsId> gxsIds)
 	{
 		return gxsForumGroupRepository.findAllByGxsIdIn(gxsIds);

@@ -141,11 +141,13 @@ public class RawItem
 	public String toString()
 	{
 		String bufOut = null;
+		int size = 0;
 		if (buf != null)
 		{
 			buf.markReaderIndex();
 			buf.readerIndex(0);
 			var out = new byte[buf.writerIndex()];
+			size = buf.writerIndex();
 			buf.readBytes(out);
 			buf.resetReaderIndex();
 			bufOut = new String(Hex.encode(out));
@@ -154,6 +156,7 @@ public class RawItem
 		return "RawItem{" +
 				"priority=" + priority +
 				", buf=" + bufOut +
+				", size=" + size +
 				'}';
 	}
 }

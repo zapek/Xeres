@@ -36,5 +36,7 @@ public interface GxsForumGroupRepository extends JpaRepository<ForumGroupItem, L
 
 	List<ForumGroupItem> findAllByGxsIdIn(Set<GxsId> gxsIds);
 
+	List<ForumGroupItem> findAllBySubscribedIsTrue();
+
 	List<ForumGroupItem> findAllBySubscribedIsTrueAndPublishedAfter(Instant since);
 }

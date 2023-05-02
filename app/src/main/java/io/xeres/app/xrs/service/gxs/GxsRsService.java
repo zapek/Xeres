@@ -77,11 +77,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private static final Duration SYNCHRONIZATION_DELAY_INITIAL_MAX = Duration.ofSeconds(15);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
-	private final GxsExchangeService gxsExchangeService;
+	protected final GxsExchangeService gxsExchangeService;
 	protected final GxsTransactionManager gxsTransactionManager;
-	private final PeerConnectionManager peerConnectionManager;
+	protected final PeerConnectionManager peerConnectionManager;
 
-	private final Type itemClass;
+	private final Type itemGroupClass;
+	private final Type itemMessageClass;
 
 	protected GxsRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
 	{
@@ -90,8 +91,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
 
-		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of T
-		itemClass = ((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of G
+		itemGroupClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+		itemMessageClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1]; // and M
 	}
 
 	/**
@@ -169,6 +171,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				GxsTransferGroupItem.class, 4,
 				GxsSyncMessageItem.class, 8,
 				GxsSyncMessageRequestItem.class, 16,
+				GxsTransferMessageItem.class, 32,
 				GxsTransactionItem.class, 64
 		);
 	}
@@ -318,13 +321,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 		else
 		{
-			var lastUpdated = gxsTransactionManager.addIncomingItemToTransaction(peerConnection, item, this);
-			if (lastUpdated != null)
-			{
-				// The transaction was completed successfully. We set the peer's last update time to the time
-				// it sent so that clock differences don't matter.
-				gxsExchangeService.setLastPeerGroupsUpdate(peerConnection.getLocation(), lastUpdated, getServiceType());
-			}
+			gxsTransactionManager.addIncomingItemToTransaction(peerConnection, item, this);
 		}
 	}
 
@@ -398,7 +395,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
 			transferItems.forEach(gxsTransferGroupItem -> onGroupReceived(convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
-			gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType());
+			if (!transferItems.isEmpty())
+			{
+				gxsExchangeService.setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
+				gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType());
+			}
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_RESPONSE))
 		{
@@ -427,7 +428,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferMessageItem>) transaction.getItems();
 			transferItems.forEach(gxsTransferMessageItem -> onMessageReceived(convertTransferGroupToGxsMessage(gxsTransferMessageItem)));
-			//gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
+			if (!transferItems.isEmpty())
+			{
+				gxsExchangeService.setLastPeerMessageUpdate(peerConnection.getLocation(), transferItems.get(0).getGroupId(), transaction.getUpdated(), getServiceType());
+				//gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
+			}
 		}
 	}
 
@@ -438,11 +443,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		try
 		{
 			//noinspection unchecked
-			toItem = ((Class<G>)itemClass).getDeclaredConstructor().newInstance();
+			toItem = ((Class<G>) itemGroupClass).getDeclaredConstructor().newInstance();
+			toItem.setService(fromItem.getService());
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 		{
-			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemClass).getSimpleName() + " missing empty constructor?");
+			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemGroupClass).getSimpleName() + " missing empty constructor?");
 		}
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getGroup()); //XXX: use ctx().alloc()?
@@ -557,11 +563,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		try
 		{
 			//noinspection unchecked
-			toItem = ((Class<M>)itemClass).getDeclaredConstructor().newInstance();
+			toItem = ((Class<M>) itemMessageClass).getDeclaredConstructor().newInstance();
+			toItem.setService(fromItem.getService());
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 		{
-			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemClass).getSimpleName() + " missing empty constructor?");
+			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemMessageClass).getSimpleName() + " missing empty constructor?");
 		}
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getMessage()); //XXX: use ctx().alloc()?

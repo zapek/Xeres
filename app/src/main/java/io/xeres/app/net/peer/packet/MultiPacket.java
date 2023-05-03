@@ -20,12 +20,10 @@
 package io.xeres.app.net.peer.packet;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ProtocolException;
-import java.util.List;
 
 /**
  * This packet supports slicing and grouping for a more efficient
@@ -57,8 +55,6 @@ public class MultiPacket extends Packet
 	private static final int HEADER_PACKET_ID_INDEX = 2;
 	public static final int HEADER_SIZE_INDEX = 6;
 
-	private int size;
-
 	protected static boolean isNewPacket(ByteBuf in) throws ProtocolException
 	{
 		if (in.getUnsignedByte(HEADER_VERSION_INDEX) == SLICE_PROTOCOL_VERSION_ID_01)
@@ -76,30 +72,6 @@ public class MultiPacket extends Packet
 	protected MultiPacket(ByteBuf in)
 	{
 		buf = in.retain();
-	}
-
-	public MultiPacket(ChannelHandlerContext ctx, List<Packet> packets)
-	{
-		priority = packets.stream().findFirst().orElseThrow().getPriority();
-		size = packets.stream().mapToInt(Packet::getSize).sum();
-
-		buf = ctx.alloc().buffer(); // XXX: maybe we could use a CompoundBuffer (but maybe not because of the header in each packet), see documentation
-		writeHeader(SLICE_PROTOCOL_VERSION_ID_01, (byte) (SLICE_FLAG_START | SLICE_FLAG_END), 0, size);
-		packets.forEach(this::addPacket);
-	}
-
-	private void addPacket(Packet packet)
-	{
-		buf.writeBytes(packet.getBuffer(), HEADER_SIZE, packet.getSize());
-		packet.dispose();
-	}
-
-	private void writeHeader(int version, int flags, int packetId, int size)
-	{
-		buf.writeByte(version);
-		buf.writeByte(flags);
-		buf.writeInt(packetId);
-		buf.writeShort(size);
 	}
 
 	public void setStart()
@@ -145,7 +117,7 @@ public class MultiPacket extends Packet
 	@Override
 	public int getSize()
 	{
-		return size != 0 ? size : buf.getUnsignedShort(HEADER_SIZE_INDEX); // The size in the header can overflow, so we store it in 'size'
+		return buf.getUnsignedShort(HEADER_SIZE_INDEX);
 	}
 
 	@Override

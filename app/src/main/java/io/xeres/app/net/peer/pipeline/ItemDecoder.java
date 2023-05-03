@@ -24,6 +24,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.xeres.app.net.peer.packet.MultiPacket;
 import io.xeres.app.net.peer.packet.Packet;
+import io.xeres.app.net.peer.packet.SimplePacket;
 import io.xeres.app.xrs.item.RawItem;
 
 import java.net.ProtocolException;
@@ -36,7 +37,7 @@ public class ItemDecoder extends MessageToMessageDecoder<ByteBuf>
 {
 	private static final int MAX_SLICES = 195512; // maximum number of slices per packets (XXX: does RS have a limit there? I don't think so actually)
 	private static final int MAX_CONCURRENT_PACKETS = 16; // maximum number of concurrent packets
-	private final Map<Integer, List<Packet>> accumulator = new HashMap<>();
+	private final Map<Integer, List<MultiPacket>> accumulator = new HashMap<>();
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws ProtocolException
@@ -74,7 +75,7 @@ public class ItemDecoder extends MessageToMessageDecoder<ByteBuf>
 			{
 				throw new ProtocolException("Too many concurrent packets (" + accumulator.size() + ")");
 			}
-			var list = new ArrayList<Packet>();
+			var list = new ArrayList<MultiPacket>();
 			list.add(packet);
 			accumulator.put(packet.getId(), list);
 		}
@@ -91,7 +92,7 @@ public class ItemDecoder extends MessageToMessageDecoder<ByteBuf>
 		{
 			var list = Optional.ofNullable(accumulator.remove(packet.getId())).orElseThrow(() -> new ProtocolException("End packet " + packet.getId() + " received without corresponding start packet"));
 			list.add(packet);
-			out.add(new RawItem(new MultiPacket(ctx, list)));
+			out.add(new RawItem(new SimplePacket(ctx, list)));
 		}
 	}
 }

@@ -20,6 +20,9 @@
 package io.xeres.app.net.peer.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+
+import java.util.List;
 
 /**
  * This is the old packet format of RS. It is still
@@ -32,6 +35,16 @@ public class SimplePacket extends Packet
 	protected SimplePacket(ByteBuf in)
 	{
 		buf = in.retain();
+	}
+
+	public SimplePacket(ChannelHandlerContext ctx, List<MultiPacket> packets)
+	{
+		priority = packets.stream().findFirst().orElseThrow().getPriority();
+		buf = ctx.alloc().buffer();
+		packets.forEach(packet -> {
+			buf.writeBytes(packet.getBuffer(), HEADER_SIZE, packet.getSize());
+			packet.dispose();
+		});
 	}
 
 	@Override

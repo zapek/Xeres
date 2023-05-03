@@ -28,6 +28,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemHeader;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsService;
@@ -59,7 +60,7 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
  * This abstract class is used by all Gxs services. The transfer system goes the following way, for example
  * if Juergen asks Heike every minute if she has new groups for him:
  * <p>
- * <img src="doc-files/transfer.png">
+ * <img src="doc-files/transfer.png" alt="Transfer diagram">
  *
  * @param <G> the GxsGroupItem subclass
  * @param <M> the GxsMessageItem subclass
@@ -466,15 +467,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			signGroupIfNeeded(gxsGroupItem);
 			var groupBuf = Unpooled.buffer();
 			// Write that damn header
-			var groupSize = 0;
-			groupSize += Serializer.serialize(groupBuf, (byte) 2);
-			groupSize += Serializer.serialize(groupBuf, (short) gxsGroupItem.getService().getServiceType().getType());
-			groupSize += Serializer.serialize(groupBuf, (byte) 2);
-			var sizeOffset = groupBuf.writerIndex();
-			groupSize += Serializer.serialize(groupBuf, 0); // write size at end
-
-			groupSize += gxsGroupItem.writeDataObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
-			groupBuf.setInt(sizeOffset, groupSize); // write group size
+			var itemHeader = new ItemHeader(groupBuf, gxsGroupItem.getService().getServiceType().getType());
+			itemHeader.writeHeader();
+			var groupSize = gxsGroupItem.writeDataObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
+			itemHeader.writeSize(groupSize);
 
 			var metaBuf = Unpooled.buffer();
 			gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
@@ -487,7 +483,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
 				peerConnection,
 				items,
-				Instant.now(), // XXX: not sure about that one... recheck. I think it has to be when our group last changed
+				gxsExchangeService.getLastServiceGroupsUpdate(getServiceType()),
 				transactionId,
 				this
 		);
@@ -515,15 +511,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// XXX: sign the message. add the signature stuff to GxsMessageItem
 			var messageBuf = Unpooled.buffer();
 			// Write that damn header
-			var messageSize = 0;
-			messageSize += Serializer.serialize(messageBuf, (byte) 2);
-			messageSize += Serializer.serialize(messageBuf, (short) gxsMessageItem.getService().getServiceType().getType());
-			messageSize += Serializer.serialize(messageBuf, (byte) 2);
-			var sizeOffset = messageBuf.writerIndex();
-			messageSize += Serializer.serialize(messageBuf, 0); // write size at end
-
-			messageSize += gxsMessageItem.writeDataObject(messageBuf, EnumSet.noneOf(SerializationFlags.class));
-			messageBuf.setInt(sizeOffset, messageSize); // write message size
+			var itemHeader = new ItemHeader(messageBuf, gxsMessageItem.getService().getServiceType().getType());
+			itemHeader.writeHeader();
+			var messageSize = gxsMessageItem.writeDataObject(messageBuf, EnumSet.noneOf(SerializationFlags.class));
+			itemHeader.writeSize(messageSize);
 
 			var metaBuf = Unpooled.buffer();
 			gxsMessageItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));

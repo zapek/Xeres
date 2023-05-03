@@ -35,15 +35,14 @@ final class GxsMetaAndDataSerializer
 
 	static int serialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, Set<SerializationFlags> flags)
 	{
-		var metaSize = 0;
-		metaSize += gxsMetaAndData.writeMetaObject(buf, flags);
+		var metaSize = gxsMetaAndData.writeMetaObject(buf, flags);
 
 		var itemHeader = new ItemHeader(buf, ((Item) gxsMetaAndData).getService().getServiceType().getType(), 3); // XXX: is 3 correct?
-		itemHeader.writeHeader();
+		var headerSize = itemHeader.writeHeader();
 		var dataSize = gxsMetaAndData.writeDataObject(buf, flags);
 		itemHeader.writeSize(dataSize);
 
-		return metaSize + dataSize;
+		return headerSize + metaSize + dataSize;
 	}
 
 	static void deserialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData)

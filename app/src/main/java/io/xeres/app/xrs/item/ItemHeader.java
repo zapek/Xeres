@@ -18,19 +18,21 @@ public class ItemHeader
 		this.subType = subType;
 	}
 
-	public void writeHeader()
+	public int writeHeader()
 	{
-		size += Serializer.serialize(buf, (byte) 2);
+		size = Serializer.serialize(buf, (byte) 2);
 		size += Serializer.serialize(buf, (short) serviceType);
 		size += Serializer.serialize(buf, (byte) subType);
 		sizeOffset = buf.writerIndex();
 		size += Serializer.serialize(buf, 0); // the size is written at the end when calling writeSize()
+		return size;
 	}
 
-	public void writeSize(int dataSize)
+	public int writeSize(int dataSize)
 	{
 		size += dataSize;
 		buf.setInt(sizeOffset, size);
+		return size;
 	}
 
 	public static void readHeader(ByteBuf buf, int serviceType, int subType)

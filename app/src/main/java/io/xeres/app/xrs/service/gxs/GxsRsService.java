@@ -467,7 +467,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			signGroupIfNeeded(gxsGroupItem);
 			var groupBuf = Unpooled.buffer();
 			// Write that damn header
-			var itemHeader = new ItemHeader(groupBuf, gxsGroupItem.getService().getServiceType().getType());
+			var itemHeader = new ItemHeader(groupBuf, gxsGroupItem.getService().getServiceType().getType(), 2); // XXX: 2 or 3? see readFakeHeader(), but maybe that's different
 			itemHeader.writeHeader();
 			var groupSize = gxsGroupItem.writeDataObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
 			itemHeader.writeSize(groupSize);
@@ -511,7 +511,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// XXX: sign the message. add the signature stuff to GxsMessageItem
 			var messageBuf = Unpooled.buffer();
 			// Write that damn header
-			var itemHeader = new ItemHeader(messageBuf, gxsMessageItem.getService().getServiceType().getType());
+			var itemHeader = new ItemHeader(messageBuf, gxsMessageItem.getService().getServiceType().getType(), 2); // XXX: 2 or 3? see readFakeHeader(), but maybe that's different
 			itemHeader.writeHeader();
 			var messageSize = gxsMessageItem.writeDataObject(messageBuf, EnumSet.noneOf(SerializationFlags.class));
 			itemHeader.writeSize(messageSize);

@@ -22,6 +22,7 @@ package io.xeres.app.xrs.serialization;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMetaAndData;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemHeader;
 
 import java.util.Set;
 
@@ -37,16 +38,10 @@ final class GxsMetaAndDataSerializer
 		var metaSize = 0;
 		metaSize += gxsMetaAndData.writeMetaObject(buf, flags);
 
-		var dataSize = 0;
-		dataSize += Serializer.serialize(buf, (byte) 2);
-		dataSize += Serializer.serialize(buf, (short) ((Item) gxsMetaAndData).getService().getServiceType().getType());
-		dataSize += Serializer.serialize(buf, (byte) 3);
-		var sizeOffset = buf.writerIndex();
-		dataSize += Serializer.serialize(buf, 0); // write size at end
-
-		dataSize += gxsMetaAndData.writeDataObject(buf, flags);
-
-		buf.setInt(sizeOffset, dataSize); // write group size
+		var itemHeader = new ItemHeader(buf, ((Item) gxsMetaAndData).getService().getServiceType().getType(), 3); // XXX: is 3 correct?
+		itemHeader.writeHeader();
+		var dataSize = gxsMetaAndData.writeDataObject(buf, flags);
+		itemHeader.writeSize(dataSize);
 
 		return metaSize + dataSize;
 	}
@@ -54,24 +49,7 @@ final class GxsMetaAndDataSerializer
 	static void deserialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData)
 	{
 		gxsMetaAndData.readMetaObject(buf);
-		readFakeHeader(buf, gxsMetaAndData);
+		ItemHeader.readHeader(buf, ((Item) gxsMetaAndData).getService().getServiceType().getType(), 3);
 		gxsMetaAndData.readDataObject(buf);
-	}
-
-	private static void readFakeHeader(ByteBuf buf, GxsMetaAndData gxsMetaAndData)
-	{
-		if (buf.readByte() != 2)
-		{
-			throw new IllegalArgumentException("Packet version is not 0x2");
-		}
-		if (buf.readShort() != ((Item) gxsMetaAndData).getService().getServiceType().getType())
-		{
-			throw new IllegalArgumentException("Packet type is not " + ((Item) gxsMetaAndData).getService().getServiceType().getType());
-		}
-		if (buf.readByte() != 0x3)
-		{
-			throw new IllegalArgumentException("Packet subtype is not " + 0x3);
-		}
-		buf.readInt(); // size
 	}
 }

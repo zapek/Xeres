@@ -25,8 +25,10 @@ import io.xeres.ui.controller.Controller;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +49,16 @@ public class ForumViewController implements Controller
 	private TreeView<ForumHolder> forumTree;
 
 	@FXML
-	private SplitPane splitPane;
+	private SplitPane splitPaneVertical;
+
+	@FXML
+	private SplitPane splitPaneHorizontal;
+
+	@FXML
+	private TableView<String> threadTable; // XXX: not a string
+
+	@FXML
+	private TextFlow messageContent;
 
 	private final ResourceBundle bundle;
 

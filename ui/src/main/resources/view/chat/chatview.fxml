@@ -26,7 +26,7 @@
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
     <SplitPane fx:id="splitPane" dividerPositions="0.1, 0.8" VBox.vgrow="ALWAYS">
         <TreeView fx:id="roomTree" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
-        <VBox VBox.vgrow="ALWAYS">
+        <VBox VBox.vgrow="ALWAYS" minWidth="200.0">
             <HBox fx:id="status" alignment="BASELINE_LEFT" visible="false">
                 <Label fx:id="roomName">
                     <HBox.margin>

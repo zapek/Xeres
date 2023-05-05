@@ -248,13 +248,15 @@ public class LocationService
 				.getConnections()
 				.stream()
 				.filter(Connection::isExternal)
-				.findFirst().orElseThrow();
+				.findFirst().orElse(null);
+
+		var ownIp = ownConnection != null ? ownConnection.getIp() : null;
 
 		locations = locationRepository.findAllByConnectedFalse(PageRequest.of(getPageIndex(), simultaneousLocations, Sort.by("lastConnected").descending()));
 
 		return locations.stream()
 				.filter(not(Location::isOwn))
-				.flatMap(location -> location.getBestConnection(getConnectionIndex(), ownConnection.getIp()))
+				.flatMap(location -> location.getBestConnection(getConnectionIndex(), ownIp))
 				.limit(simultaneousLocations)
 				.toList();
 	}

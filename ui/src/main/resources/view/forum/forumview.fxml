@@ -19,14 +19,29 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.VBox?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.TextFlow?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.forum.ForumViewController">
-    <SplitPane fx:id="splitPane" dividerPositions="01, 0.8" VBox.vgrow="ALWAYS">
-        <TreeView fx:id="forumTree" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
-        <VBox VBox.vgrow="ALWAYS">
-            <!-- add forum message list here -->
+    <SplitPane fx:id="splitPaneVertical" dividerPositions="0.1, 0.9" VBox.vgrow="ALWAYS">
+        <TreeView fx:id="forumTree" minWidth="-Infinity" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
+        <VBox VBox.vgrow="ALWAYS" minWidth="200.0">
+            <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3, 0.7" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+                <TableView fx:id="threadTable" minHeight="50.0" prefHeight="150.0">
+                    <columns>
+                        <TableColumn prefWidth="24" minWidth="24">
+                            <graphic>
+                                <FontAwesomeIconView glyphName="ENVELOPE" glyphSize="14"/>
+                            </graphic>
+                        </TableColumn>
+                        <TableColumn text="Subject" prefWidth="200" minWidth="80"/>
+                        <TableColumn text="Author" prefWidth="100" minWidth="40"/>
+                        <TableColumn text="Date" prefWidth="120" minWidth="40"/>
+                    </columns>
+                </TableView>
+                <TextFlow fx:id="messageContent" minHeight="30.0" prefHeight="150.0"/>
+            </SplitPane>
         </VBox>
     </SplitPane>
 </VBox>

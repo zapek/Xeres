@@ -19,7 +19,7 @@
 
 plugins {
     id 'org.springframework.boot'
-    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'org.openjfx.javafxplugin' version '0.0.14'
     id 'jacoco'
 }
 

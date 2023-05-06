@@ -19,8 +19,10 @@
 
 package io.xeres.ui.model.forum;
 
-import io.xeres.common.dto.forum.ForumDTO;
-import io.xeres.common.message.forum.Forum;
+import io.xeres.common.dto.forum.ForumGroupDTO;
+import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.common.message.forum.ForumGroup;
+import io.xeres.common.message.forum.ForumMessage;
 
 public final class ForumMapper
 {
@@ -29,19 +31,37 @@ public final class ForumMapper
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static Forum fromDTO(ForumDTO dto)
+	public static ForumGroup fromDTO(ForumGroupDTO dto)
 	{
 		if (dto == null)
 		{
 			return null;
 		}
 
-		var forum = new Forum();
-		forum.setId(dto.id());
-		forum.setName(dto.name());
-		forum.setGxsId(dto.gxsId());
-		forum.setDescription(dto.description());
-		forum.setSubscribed(dto.subscribed());
-		return forum;
+		var forumGroup = new ForumGroup();
+		forumGroup.setId(dto.id());
+		forumGroup.setName(dto.name());
+		forumGroup.setGxsId(dto.gxsId());
+		forumGroup.setDescription(dto.description());
+		forumGroup.setSubscribed(dto.subscribed());
+		return forumGroup;
+	}
+
+	public static ForumMessage fromDTO(ForumMessageDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		var forumMessage = new ForumMessage();
+		forumMessage.setId(dto.id());
+		forumMessage.setGxsId(dto.gxsId());
+		forumMessage.setParentId(dto.parentId());
+		forumMessage.setAuthorId(dto.authorId());
+		forumMessage.setName(dto.name());
+		forumMessage.setPublished(dto.published());
+		forumMessage.setContent(dto.content());
+		return forumMessage;
 	}
 }

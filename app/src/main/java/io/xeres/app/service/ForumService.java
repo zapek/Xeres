@@ -19,6 +19,7 @@
 
 package io.xeres.app.service;
 
+import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.database.repository.GxsForumGroupRepository;
 import io.xeres.app.database.repository.GxsForumMessageRepository;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
@@ -91,6 +92,17 @@ public class ForumService
 	public List<ForumMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
 	{
 		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+	}
+
+	public List<ForumMessageItemSummary> findAllMessagesSummary(long groupId)
+	{
+		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
+		return gxsForumMessageRepository.findSummaryAllByGxsId(forumGroup.getGxsId());
+	}
+
+	public ForumMessageItem findMessageById(long id)
+	{
+		return gxsForumMessageRepository.findById(id).orElseThrow();
 	}
 
 	@Transactional

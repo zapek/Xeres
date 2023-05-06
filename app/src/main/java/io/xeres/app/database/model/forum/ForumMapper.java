@@ -20,7 +20,9 @@
 package io.xeres.app.database.model.forum;
 
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
-import io.xeres.common.dto.forum.ForumDTO;
+import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
+import io.xeres.common.dto.forum.ForumGroupDTO;
+import io.xeres.common.dto.forum.ForumMessageDTO;
 
 import java.util.List;
 
@@ -33,14 +35,14 @@ public final class ForumMapper
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static ForumDTO toDTO(ForumGroupItem forumGroupItem)
+	public static ForumGroupDTO toDTO(ForumGroupItem forumGroupItem)
 	{
 		if (forumGroupItem == null)
 		{
 			return null;
 		}
 
-		return new ForumDTO(
+		return new ForumGroupDTO(
 				forumGroupItem.getId(),
 				forumGroupItem.getGxsId(),
 				forumGroupItem.getName(),
@@ -49,10 +51,55 @@ public final class ForumMapper
 		);
 	}
 
-	public static List<ForumDTO> toDTOs(List<ForumGroupItem> forumGroupItems)
+	public static List<ForumGroupDTO> toDTOs(List<ForumGroupItem> forumGroupItems)
 	{
 		return emptyIfNull(forumGroupItems).stream()
 				.map(ForumMapper::toDTO)
 				.toList();
+	}
+
+	public static ForumMessageDTO toDTO(ForumMessageItemSummary forumMessageItemSummary)
+	{
+		if (forumMessageItemSummary == null)
+		{
+			return null;
+		}
+
+		return new ForumMessageDTO(
+				forumMessageItemSummary.getId(),
+				forumMessageItemSummary.getGxsId(),
+				forumMessageItemSummary.getMessageId(),
+				forumMessageItemSummary.getParentId(),
+				forumMessageItemSummary.getAuthorId(),
+				forumMessageItemSummary.getName(),
+				forumMessageItemSummary.getPublished(),
+				null
+		);
+	}
+
+	public static List<ForumMessageDTO> toSummaryMessageDTOs(List<ForumMessageItemSummary> forumMessageItemSummaries)
+	{
+		return emptyIfNull(forumMessageItemSummaries).stream()
+				.map(ForumMapper::toDTO)
+				.toList();
+	}
+
+	public static ForumMessageDTO toDTO(ForumMessageItem forumMessageItem)
+	{
+		if (forumMessageItem == null)
+		{
+			return null;
+		}
+
+		return new ForumMessageDTO(
+				forumMessageItem.getId(),
+				forumMessageItem.getGxsId(),
+				forumMessageItem.getMessageId(),
+				forumMessageItem.getParentId(),
+				forumMessageItem.getAuthorId(),
+				forumMessageItem.getName(),
+				forumMessageItem.getPublished(),
+				forumMessageItem.getContent()
+		);
 	}
 }

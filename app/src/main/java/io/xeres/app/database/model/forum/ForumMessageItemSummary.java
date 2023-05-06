@@ -17,28 +17,26 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.repository;
+package io.xeres.app.database.model.forum;
 
-import io.xeres.app.database.model.forum.ForumMessageItemSummary;
-import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
-@Repository
-public interface GxsForumMessageRepository extends JpaRepository<ForumMessageItem, Long>
+public interface ForumMessageItemSummary
 {
-	Optional<ForumMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);
+	long getId();
 
-	List<ForumMessageItem> findAllByGxsIdAndPublishedAfter(GxsId groupId, Instant since);
+	GxsId getGxsId();
 
-	List<ForumMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
+	MessageId getMessageId();
 
-	List<ForumMessageItemSummary> findSummaryAllByGxsId(GxsId groupId);
+	MessageId getParentId();
+
+	GxsId getAuthorId();
+
+	String getName();
+
+	Instant getPublished();
 }

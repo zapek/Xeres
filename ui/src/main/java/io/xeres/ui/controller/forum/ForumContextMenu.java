@@ -15,15 +15,15 @@ public class ForumContextMenu extends Event
 	@Serial
 	private static final long serialVersionUID = -9007879320215259163L;
 
-	private final transient TreeItem<ForumHolder> treeItem;
+	private final transient TreeItem<ForumGroupHolder> treeItem;
 
-	public ForumContextMenu(EventType<ForumContextMenu> eventType, TreeItem<ForumHolder> treeItem)
+	public ForumContextMenu(EventType<ForumContextMenu> eventType, TreeItem<ForumGroupHolder> treeItem)
 	{
 		super(eventType);
 		this.treeItem = treeItem;
 	}
 
-	public TreeItem<ForumHolder> getTreeItem()
+	public TreeItem<ForumGroupHolder> getTreeItem()
 	{
 		return treeItem;
 	}

@@ -20,13 +20,19 @@
 package io.xeres.common.dto.forum;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 
-public record ForumDTO(
+import java.time.Instant;
+
+public record ForumMessageDTO(
 		long id,
 		GxsId gxsId,
+		MessageId messageId,
+		MessageId parentId,
+		GxsId authorId,
 		String name,
-		String description,
-		boolean subscribed
+		Instant published,
+		String content
 )
 {
 }

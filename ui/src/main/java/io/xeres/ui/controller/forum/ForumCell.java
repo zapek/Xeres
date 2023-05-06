@@ -6,11 +6,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 
-public class ForumCell extends TreeCell<ForumHolder>
+public class ForumCell extends TreeCell<ForumGroupHolder>
 {
-	private final TreeView<ForumHolder> treeView;
+	private final TreeView<ForumGroupHolder> treeView;
 
-	public ForumCell(TreeView<ForumHolder> treeView)
+	public ForumCell(TreeView<ForumGroupHolder> treeView)
 	{
 		super();
 		this.treeView = treeView;
@@ -18,7 +18,7 @@ public class ForumCell extends TreeCell<ForumHolder>
 	}
 
 	@Override
-	protected void updateItem(ForumHolder item, boolean empty)
+	protected void updateItem(ForumGroupHolder item, boolean empty)
 	{
 		super.updateItem(item, empty);
 		if (empty)
@@ -31,7 +31,7 @@ public class ForumCell extends TreeCell<ForumHolder>
 		}
 	}
 
-	private ContextMenu createContextMenu(TreeCell<ForumHolder> cell)
+	private ContextMenu createContextMenu(TreeCell<ForumGroupHolder> cell)
 	{
 		var contextMenu = new ContextMenu();
 

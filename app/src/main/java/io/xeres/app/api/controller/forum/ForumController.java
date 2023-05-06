@@ -24,14 +24,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.forum.ForumRsService;
-import io.xeres.common.dto.forum.ForumDTO;
+import io.xeres.common.dto.forum.ForumGroupDTO;
+import io.xeres.common.dto.forum.ForumMessageDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static io.xeres.app.database.model.forum.ForumMapper.toDTOs;
+import static io.xeres.app.database.model.forum.ForumMapper.*;
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
 @Tag(name = "Forums", description = "Forums", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/forums", description = "Forums documentation"))
@@ -49,23 +50,39 @@ public class ForumController
 	@GetMapping
 	@Operation(summary = "Get the list of forums")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public List<ForumDTO> getForums()
+	public List<ForumGroupDTO> getForumGroups()
 	{
-		return toDTOs(forumRsService.getForums());
+		return toDTOs(forumRsService.getForumGroups());
 	}
 
-	@PutMapping("/{id}/subscription")
+	@PutMapping("/{groupId}/subscription")
 	@ResponseStatus(HttpStatus.OK)
-	public long subscribeToForum(@PathVariable long id)
+	public long subscribeToForumGroup(@PathVariable long groupId)
 	{
-		forumRsService.subscribeToForum(id);
-		return id;
+		forumRsService.subscribeToForumGroup(groupId);
+		return groupId;
 	}
 
-	@DeleteMapping("/{id}/subscription")
+	@DeleteMapping("/{groupId}/subscription")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void unsubscribeFromForum(@PathVariable long id)
+	public void unsubscribeFromForumGroup(@PathVariable long groupId)
 	{
-		forumRsService.unsubscribeFromForum(id);
+		forumRsService.unsubscribeFromForumGroup(groupId);
+	}
+
+	@GetMapping("/{groupId}/messages")
+	@Operation(summary = "Get the summary of messages in a group")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public List<ForumMessageDTO> getForumMessages(@PathVariable long groupId)
+	{
+		return toSummaryMessageDTOs(forumRsService.getForumMessages(groupId));
+	}
+
+	@GetMapping("/{groupId}/messages/{messageId}")
+	@Operation(summary = "Get a message in a group")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public ForumMessageDTO getForumMessage(@PathVariable long groupId, @PathVariable long messageId)
+	{
+		return toDTO(forumRsService.getForumMessage(messageId));
 	}
 }

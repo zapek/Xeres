@@ -17,37 +17,16 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.forum;
+package io.xeres.common.dto.forum;
 
-import io.xeres.common.message.forum.Forum;
+import io.xeres.common.id.GxsId;
 
-public class ForumHolder
+public record ForumGroupDTO(
+		long id,
+		GxsId gxsId,
+		String name,
+		String description,
+		boolean subscribed
+)
 {
-	private final Forum forum;
-
-	public ForumHolder()
-	{
-		forum = new Forum("");
-	}
-
-	public ForumHolder(String name)
-	{
-		forum = new Forum(name);
-	}
-
-	public ForumHolder(Forum forum)
-	{
-		this.forum = forum;
-	}
-
-	public Forum getForum()
-	{
-		return forum;
-	}
-
-	@Override
-	public String toString()
-	{
-		return forum.getName();
-	}
 }

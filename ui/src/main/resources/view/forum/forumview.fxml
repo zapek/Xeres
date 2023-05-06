@@ -28,16 +28,16 @@
         <TreeView fx:id="forumTree" minWidth="-Infinity" prefWidth="200.0" SplitPane.resizableWithParent="false"/>
         <VBox VBox.vgrow="ALWAYS" minWidth="200.0">
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3, 0.7" orientation="VERTICAL" VBox.vgrow="ALWAYS">
-                <TableView fx:id="threadTable" minHeight="50.0" prefHeight="150.0">
+                <TableView fx:id="forumMessagesTableView" minHeight="50.0" prefHeight="150.0">
                     <columns>
                         <TableColumn prefWidth="24" minWidth="24">
                             <graphic>
                                 <FontAwesomeIconView glyphName="ENVELOPE" glyphSize="14"/>
                             </graphic>
                         </TableColumn>
-                        <TableColumn text="Subject" prefWidth="200" minWidth="80"/>
-                        <TableColumn text="Author" prefWidth="100" minWidth="40"/>
-                        <TableColumn text="Date" prefWidth="120" minWidth="40"/>
+                        <TableColumn fx:id="tableSubject" text="Subject" prefWidth="200" minWidth="80"/>
+                        <TableColumn fx:id="tableAuthor" text="Author" prefWidth="100" minWidth="40"/>
+                        <TableColumn fx:id="tableDate" text="Date" prefWidth="120" minWidth="40"/>
                     </columns>
                 </TableView>
                 <TextFlow fx:id="messageContent" minHeight="30.0" prefHeight="150.0"/>

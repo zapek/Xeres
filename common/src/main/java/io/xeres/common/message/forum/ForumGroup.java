@@ -21,7 +21,7 @@ package io.xeres.common.message.forum;
 
 import io.xeres.common.id.GxsId;
 
-public class Forum
+public class ForumGroup
 {
 	private long id;
 	private String name;
@@ -29,11 +29,11 @@ public class Forum
 	private String description;
 	private boolean subscribed;
 
-	public Forum()
+	public ForumGroup()
 	{
 	}
 
-	public Forum(String name)
+	public ForumGroup(String name)
 	{
 		this.name = name;
 	}

@@ -19,8 +19,10 @@
 
 package io.xeres.ui.client;
 
-import io.xeres.common.dto.forum.ForumDTO;
-import io.xeres.common.message.forum.Forum;
+import io.xeres.common.dto.forum.ForumGroupDTO;
+import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.common.message.forum.ForumGroup;
+import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.forum.ForumMapper;
 import jakarta.annotation.PostConstruct;
@@ -51,32 +53,54 @@ public class ForumClient
 				.build();
 	}
 
-	public Flux<Forum> getForums()
+	public Flux<ForumGroup> getForumGroups()
 	{
 		return webClient.get()
 				.uri("")
 				.retrieve()
-				.bodyToFlux(ForumDTO.class)
+				.bodyToFlux(ForumGroupDTO.class)
 				.map(ForumMapper::fromDTO);
 	}
 
-	public Mono<Long> subscribeToForum(long id)
+	public Mono<Long> subscribeToForumGroup(long groupId)
 	{
 		return webClient.put()
 				.uri(uriBuilder -> uriBuilder
-						.path("/{id}/subscription")
-						.build(id))
+						.path("/{groupId}/subscription")
+						.build(groupId))
 				.retrieve()
 				.bodyToMono(Long.class);
 	}
 
-	public Mono<Void> unsubscribeFromForum(long id)
+	public Mono<Void> unsubscribeFromForumGroup(long groupId)
 	{
 		return webClient.delete()
 				.uri(uriBuilder -> uriBuilder
-						.path("/{id}/subscription")
-						.build(id))
+						.path("/{groupId}/subscription")
+						.build(groupId))
 				.retrieve()
 				.bodyToMono(Void.class);
+	}
+
+	public Flux<ForumMessage> getForumMessages(long groupId)
+	{
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path("/{groupId}/messages")
+						.build(groupId))
+				.retrieve()
+				.bodyToFlux(ForumMessageDTO.class)
+				.map(ForumMapper::fromDTO);
+	}
+
+	public Mono<ForumMessage> getForumMessage(long groupId, long messageId)
+	{
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path("/{groupId}/messages/{messageId}")
+						.build(groupId, messageId))
+				.retrieve()
+				.bodyToMono(ForumMessageDTO.class)
+				.map(ForumMapper::fromDTO);
 	}
 }

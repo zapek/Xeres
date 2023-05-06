@@ -117,6 +117,16 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 		this.messageId = messageId;
 	}
 
+	public MessageId getParentId()
+	{
+		return parentId;
+	}
+
+	public void setParentId(MessageId parentId)
+	{
+		this.parentId = parentId;
+	}
+
 	public GxsId getAuthorId()
 	{
 		return authorId;

@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.forum;
 
+import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
@@ -140,8 +141,8 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
 	{
 		var existing = forumService.findAllMessages(groupId, messageIds).stream()
-						.map(GxsMessageItem::getMessageId)
-						.collect(Collectors.toSet());
+				.map(GxsMessageItem::getMessageId)
+				.collect(Collectors.toSet());
 
 		messageIds.removeIf(existing::contains);
 
@@ -163,13 +164,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional(readOnly = true)
-	public List<ForumGroupItem> getForums()
+	public List<ForumGroupItem> getForumGroups()
 	{
 		return forumService.findAllGroups();
 	}
 
 	@Transactional
-	public void subscribeToForum(long id)
+	public void subscribeToForumGroup(long id)
 	{
 		var forum = forumService.findById(id).orElseThrow();
 		forum.setSubscribed(true);
@@ -177,10 +178,22 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public void unsubscribeFromForum(long id)
+	public void unsubscribeFromForumGroup(long id)
 	{
 		var forum = forumService.findById(id).orElseThrow();
 		forum.setSubscribed(false);
 		forumService.save(forum);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ForumMessageItemSummary> getForumMessages(long id)
+	{
+		return forumService.findAllMessagesSummary(id);
+	}
+
+	@Transactional(readOnly = true)
+	public ForumMessageItem getForumMessage(long id)
+	{
+		return forumService.findMessageById(id);
 	}
 }

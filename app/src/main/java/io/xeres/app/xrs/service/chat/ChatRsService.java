@@ -28,6 +28,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.ChatRoomService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.util.UnHtml;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
@@ -43,9 +44,6 @@ import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.tray.TrayService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Entities;
-import org.jsoup.safety.Safelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -1206,13 +1204,6 @@ public class ChatRsService extends RsService
 
 	private String parseIncomingText(String text)
 	{
-		return Entities.unescape( // &lt; -> <
-				Jsoup.clean(text, Safelist.none() // <span> -> nothing
-						.addAttributes("img", "src")
-						.addProtocols("img", "src", "data")
-						.addAttributes("a", "href")
-						.addProtocols("a", "href", "retroshare")
-						.preserveRelativeLinks(true))
-		);
+		return UnHtml.cleanupChat(text);
 	}
 }

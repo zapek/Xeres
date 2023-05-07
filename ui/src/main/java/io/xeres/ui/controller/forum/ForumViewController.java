@@ -19,11 +19,13 @@
 
 package io.xeres.ui.controller.forum;
 
+import com.vdurmont.emoji.EmojiParser;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.support.util.SmileyUtils;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -228,8 +230,13 @@ public class ForumViewController implements Controller
 	{
 		forumClient.getForumMessage(forumMessage.getId())
 				.doOnSuccess(message -> Platform.runLater(() -> {
+					var content = message.getContent();
+
+					content = SmileyUtils.smileysToUnicode(content);
+					content = EmojiParser.parseToUnicode(content);
+
 					messageContent.getChildren().clear();
-					messageContent.getChildren().add(new Text(message.getContent()));
+					messageContent.getChildren().add(new Text(content));
 				}))
 				.subscribe();
 	}

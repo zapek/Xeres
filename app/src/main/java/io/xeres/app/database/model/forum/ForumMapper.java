@@ -19,6 +19,7 @@
 
 package io.xeres.app.database.model.forum;
 
+import io.xeres.app.util.UnHtml;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
@@ -99,7 +100,7 @@ public final class ForumMapper
 				forumMessageItem.getAuthorId(),
 				forumMessageItem.getName(),
 				forumMessageItem.getPublished(),
-				forumMessageItem.getContent()
+				UnHtml.cleanupMessage(forumMessageItem.getContent())
 		);
 	}
 }

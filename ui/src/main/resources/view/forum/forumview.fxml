@@ -20,6 +20,7 @@
   -->
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.TextFlow?>
@@ -40,7 +41,13 @@
                         <TableColumn fx:id="tableDate" text="Date" prefWidth="120" minWidth="40"/>
                     </columns>
                 </TableView>
-                <TextFlow fx:id="messageContent" minHeight="30.0" prefHeight="150.0"/>
+                <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
+                    <TextFlow fx:id="messageContent" styleClass="freeflow">
+                        <padding>
+                            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                        </padding>
+                    </TextFlow>
+                </ScrollPane>
             </SplitPane>
         </VBox>
     </SplitPane>

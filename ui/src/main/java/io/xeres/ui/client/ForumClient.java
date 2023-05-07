@@ -56,7 +56,7 @@ public class ForumClient
 	public Flux<ForumGroup> getForumGroups()
 	{
 		return webClient.get()
-				.uri("")
+				.uri("/groups")
 				.retrieve()
 				.bodyToFlux(ForumGroupDTO.class)
 				.map(ForumMapper::fromDTO);
@@ -66,7 +66,7 @@ public class ForumClient
 	{
 		return webClient.put()
 				.uri(uriBuilder -> uriBuilder
-						.path("/{groupId}/subscription")
+						.path("/groups/{groupId}/subscription")
 						.build(groupId))
 				.retrieve()
 				.bodyToMono(Long.class);
@@ -76,7 +76,7 @@ public class ForumClient
 	{
 		return webClient.delete()
 				.uri(uriBuilder -> uriBuilder
-						.path("/{groupId}/subscription")
+						.path("/groups/{groupId}/subscription")
 						.build(groupId))
 				.retrieve()
 				.bodyToMono(Void.class);
@@ -86,19 +86,19 @@ public class ForumClient
 	{
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
-						.path("/{groupId}/messages")
+						.path("/groups/{groupId}/messages")
 						.build(groupId))
 				.retrieve()
 				.bodyToFlux(ForumMessageDTO.class)
 				.map(ForumMapper::fromDTO);
 	}
 
-	public Mono<ForumMessage> getForumMessage(long groupId, long messageId)
+	public Mono<ForumMessage> getForumMessage(long messageId)
 	{
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
-						.path("/{groupId}/messages/{messageId}")
-						.build(groupId, messageId))
+						.path("/messages/{messageId}")
+						.build(messageId))
 				.retrieve()
 				.bodyToMono(ForumMessageDTO.class)
 				.map(ForumMapper::fromDTO);

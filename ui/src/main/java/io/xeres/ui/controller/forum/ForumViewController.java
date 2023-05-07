@@ -226,7 +226,7 @@ public class ForumViewController implements Controller
 
 	private void changeSelectedForumMessage(ForumMessage forumMessage)
 	{
-		forumClient.getForumMessage(1L, forumMessage.getId()) // XXX: get rid of the groupId (in the controller too! we don't need it)
+		forumClient.getForumMessage(forumMessage.getId())
 				.doOnSuccess(message -> Platform.runLater(() -> {
 					messageContent.getChildren().clear();
 					messageContent.getChildren().add(new Text(message.getContent()));

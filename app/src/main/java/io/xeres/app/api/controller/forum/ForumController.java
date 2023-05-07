@@ -47,7 +47,7 @@ public class ForumController
 		this.forumRsService = forumRsService;
 	}
 
-	@GetMapping
+	@GetMapping("/groups")
 	@Operation(summary = "Get the list of forums")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumGroupDTO> getForumGroups()
@@ -55,7 +55,7 @@ public class ForumController
 		return toDTOs(forumRsService.getForumGroups());
 	}
 
-	@PutMapping("/{groupId}/subscription")
+	@PutMapping("/groups/{groupId}/subscription")
 	@ResponseStatus(HttpStatus.OK)
 	public long subscribeToForumGroup(@PathVariable long groupId)
 	{
@@ -63,14 +63,14 @@ public class ForumController
 		return groupId;
 	}
 
-	@DeleteMapping("/{groupId}/subscription")
+	@DeleteMapping("/groups/{groupId}/subscription")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void unsubscribeFromForumGroup(@PathVariable long groupId)
 	{
 		forumRsService.unsubscribeFromForumGroup(groupId);
 	}
 
-	@GetMapping("/{groupId}/messages")
+	@GetMapping("/groups/{groupId}/messages")
 	@Operation(summary = "Get the summary of messages in a group")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumMessageDTO> getForumMessages(@PathVariable long groupId)
@@ -78,10 +78,10 @@ public class ForumController
 		return toSummaryMessageDTOs(forumRsService.getForumMessages(groupId));
 	}
 
-	@GetMapping("/{groupId}/messages/{messageId}")
-	@Operation(summary = "Get a message in a group")
+	@GetMapping("/messages/{messageId}")
+	@Operation(summary = "Get a message")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ForumMessageDTO getForumMessage(@PathVariable long groupId, @PathVariable long messageId)
+	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
 		return toDTO(forumRsService.getForumMessage(messageId));
 	}

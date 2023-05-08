@@ -19,12 +19,15 @@
 
 package io.xeres.app.util;
 
+import io.xeres.app.util.markdown.Markdown;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Entities;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Safelist;
+
+import static io.xeres.app.util.markdown.Markdown.HeaderSize.*;
 
 public final class UnHtml
 {
@@ -50,64 +53,50 @@ public final class UnHtml
 		var document = Jsoup.parse(text);
 		var cleaner = new Cleaner(Safelist.none()
 				.addAttributes("a", "href")
-				.addTags("p", "br", "ul", "li")
+				.addTags("p", "br", "ul", "li", "h1", "h2", "h3", "h4", "h5", "h6")
 				.preserveRelativeLinks(true));
 
 		document = cleaner.clean(document);
 
-		return toMarkdown(document);
+		return toMarkdown(document, 0);
 	}
 
-	private static String toMarkdown(Element element)
+	private static String toMarkdown(Element element, int depth)
 	{
-		StringBuilder sb = new StringBuilder();
+		if (depth++ > 30)
+		{
+			throw new IllegalStateException("HTML to markdown depth nesting exceeded");
+		}
 
-		element.childNodes().forEach(node -> {
+		var md = new Markdown();
+
+		for (var node : element.childNodes())
+		{
 			if (node instanceof TextNode textNode)
 			{
-				if (!sb.isEmpty()) // XXX: probably not ok (should only happend between textnodes
-				{
-					sb.append(" ");
-				}
-				sb.append(textNode.text());
+				md.addText(textNode.text());
 			}
-			else if (node instanceof Element elementNode)
+			else if (node instanceof Element en)
 			{
-				var tagName = elementNode.tag().getName();
+				var tagName = en.tag().getName();
 
 				switch (tagName)
 				{
-					case "p" ->
-					{
-						if (!sb.isEmpty())
-						{
-							sb.append("\n\n");
-						}
-						sb.append(toMarkdown(elementNode));
-					}
-					case "br" ->
-					{
-						sb.append("\n");
-						sb.append(toMarkdown(elementNode));
-					}
-					case "ul" ->
-					{
-						sb.append("\n");
-						sb.append(toMarkdown(elementNode));
-					}
-					case "li" ->
-					{
-						sb.append("\n  - ");
-						sb.append(toMarkdown(elementNode));
-					}
-					default ->
-					{
-						sb.append(toMarkdown(elementNode));
-					}
+					case "a" -> md.addUrl(en.text(), en.attr("href"));
+					case "p" -> md.addParagraph(toMarkdown(en, depth));
+					case "br" -> md.breakLine();
+					case "li" -> md.addListItem(toMarkdown(en, depth));
+					case "ul" -> md.addList(toMarkdown(en, depth));
+					case "h1" -> md.addHeader(toMarkdown(en, depth), H1);
+					case "h2" -> md.addHeader(toMarkdown(en, depth), H2);
+					case "h3" -> md.addHeader(toMarkdown(en, depth), H3);
+					case "h4" -> md.addHeader(toMarkdown(en, depth), H4);
+					case "h5" -> md.addHeader(toMarkdown(en, depth), H5);
+					case "h6" -> md.addHeader(toMarkdown(en, depth), H6);
+					default -> md.addText(toMarkdown(en, depth));
 				}
 			}
-		});
-
-		return sb.toString();
+		}
+		return md.toString();
 	}
 }

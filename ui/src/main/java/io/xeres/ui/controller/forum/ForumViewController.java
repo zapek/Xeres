@@ -19,20 +19,18 @@
 
 package io.xeres.ui.controller.forum;
 
-import com.vdurmont.emoji.EmojiParser;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.controller.Controller;
-import io.xeres.ui.support.util.SmileyUtils;
+import io.xeres.ui.support.markdown.Markdown2Flow;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
@@ -230,13 +228,10 @@ public class ForumViewController implements Controller
 	{
 		forumClient.getForumMessage(forumMessage.getId())
 				.doOnSuccess(message -> Platform.runLater(() -> {
-					var content = message.getContent();
-
-					content = SmileyUtils.smileysToUnicode(content);
-					content = EmojiParser.parseToUnicode(content);
+					var md2flow = new Markdown2Flow(message.getContent());
 
 					messageContent.getChildren().clear();
-					messageContent.getChildren().add(new Text(content));
+					messageContent.getChildren().addAll(md2flow.getNodes());
 				}))
 				.subscribe();
 	}

@@ -37,7 +37,7 @@ final class GxsMetaAndDataSerializer
 	{
 		var metaSize = gxsMetaAndData.writeMetaObject(buf, flags);
 
-		var itemHeader = new ItemHeader(buf, ((Item) gxsMetaAndData).getService().getServiceType().getType(), 3); // XXX: is 3 correct?
+		var itemHeader = new ItemHeader(buf, ((Item) gxsMetaAndData).getService().getServiceType().getType(), 3); // XXX: is 3 correct? no! I think group is 2 and message is 3. how to fix it?
 		var headerSize = itemHeader.writeHeader();
 		var dataSize = gxsMetaAndData.writeDataObject(buf, flags);
 		itemHeader.writeSize(dataSize);

@@ -464,6 +464,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();
 		gxsGroupItems.forEach(gxsGroupItem -> {
+			gxsGroupItem.setService(this); // XXX: this sucks... that setService() stuff should be reworked. it's hard to have items have all a service
 			signGroupIfNeeded(gxsGroupItem);
 			var groupBuf = Unpooled.buffer();
 			// Write that damn header

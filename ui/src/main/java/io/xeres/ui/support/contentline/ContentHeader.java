@@ -5,20 +5,12 @@ import javafx.scene.text.Text;
 
 public class ContentHeader implements Content
 {
-	public enum HeaderStyle {
-		H1,
-		H2,
-		H3,
-		H4,
-		H5,
-		H6
-	}
 	private final Text node;
 
-	public ContentHeader(String text, HeaderStyle style)
+	public ContentHeader(String text, int size)
 	{
 		node = new Text(text);
-		node.setStyle("-fx-font-size: " + getHeaderFontSize(style) + "px;");
+		node.setStyle("-fx-font-size: " + getHeaderFontSize(size) + "px;");
 	}
 
 	@Override
@@ -27,16 +19,17 @@ public class ContentHeader implements Content
 		return node;
 	}
 
-	private static int getHeaderFontSize(HeaderStyle headerStyle)
+	private static int getHeaderFontSize(int size)
 	{
-		return switch (headerStyle)
+		return switch (size)
 		{
-			case H1 -> 32;
-			case H2 -> 24;
-			case H3 -> 18;
-			case H4 -> 16;
-			case H5 -> 13;
-			case H6 -> 10;
+			case 1 -> 32;
+			case 2 -> 24;
+			case 3 -> 18;
+			case 4 -> 16;
+			case 5 -> 13;
+			case 6 -> 10;
+			default -> throw new IllegalStateException("Header size " + size + " is bigger than the maximum of 6");
 		};
 	}
 }

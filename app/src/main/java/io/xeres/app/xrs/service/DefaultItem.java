@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,14 +19,24 @@
 
 package io.xeres.app.xrs.service;
 
-import io.xeres.testutils.TestUtils;
-import org.junit.jupiter.api.Test;
+import io.xeres.app.xrs.item.Item;
 
-class RsServiceRegistryTest
+/**
+ * An item that is not part of any service.
+ * Is used when there's no service that maps to an item.
+ * Will just be disposed by the pipeline.
+ */
+public class DefaultItem extends Item
 {
-	@Test
-	void RsServiceRegistry_NoInstance_OK() throws NoSuchMethodException
+	@Override
+	public int getServiceType()
 	{
-		TestUtils.assertUtilityClass(RsServiceRegistry.class);
+		return RsServiceType.NONE.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 0;
 	}
 }

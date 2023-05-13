@@ -30,11 +30,9 @@ import io.xeres.app.xrs.service.serviceinfo.item.ServiceInfo;
 import io.xeres.app.xrs.service.serviceinfo.item.ServiceListItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -50,11 +48,13 @@ public class ServiceInfoRsService extends RsService
 	private static final Logger log = LoggerFactory.getLogger(ServiceInfoRsService.class);
 
 	private final PeerConnectionManager peerConnectionManager;
+	private final RsServiceRegistry rsServiceRegistry;
 
-	public ServiceInfoRsService(Environment environment, PeerConnectionManager peerConnectionManager)
+	public ServiceInfoRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment);
+		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
+		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
 	public void init(PeerConnection peerConnection)
@@ -69,12 +69,6 @@ public class ServiceInfoRsService extends RsService
 	}
 
 	@Override
-	public Map<Class<? extends Item>, Integer> getSupportedItems()
-	{
-		return Map.of(ServiceListItem.class, 1);
-	}
-
-	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
 		if (item instanceof ServiceListItem serviceListItem)
@@ -83,7 +77,7 @@ public class ServiceInfoRsService extends RsService
 
 			serviceListItem.getServices().forEach((integer, serviceInfo) ->
 			{
-				var rsService = RsServiceRegistry.getServiceFromType(serviceInfo.getType());
+				var rsService = rsServiceRegistry.getServiceFromType(serviceInfo.getType());
 				if (rsService != null)
 				{
 					sender.addService(rsService);
@@ -106,7 +100,7 @@ public class ServiceInfoRsService extends RsService
 		{
 			var services = new HashMap<Integer, ServiceInfo>();
 
-			var allServices = RsServiceRegistry.getServices();
+			var allServices = rsServiceRegistry.getServices();
 			allServices.stream()
 					.filter(Predicate.not(rsService -> rsService.getServiceType() == PACKET_SLICING_PROBE)) // we hide this as it's not strictly a service in RS' terms
 					.forEach(rsService ->

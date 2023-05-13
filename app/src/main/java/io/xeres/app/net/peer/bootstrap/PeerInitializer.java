@@ -33,6 +33,7 @@ import io.xeres.app.net.peer.ssl.SSL;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.ui.support.tray.TrayService;
 
@@ -59,17 +60,18 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
 	private final TrayService trayService;
+	private final RsServiceRegistry rsServiceRegistry;
 
 	private static final ChannelHandler SIMPLE_PACKET_ENCODER = new SimplePacketEncoder();
 	private static final ChannelHandler ITEM_ENCODER = new ItemEncoder();
 	private static final ChannelHandler IDLE_EVENT_HANDLER = new IdleEventHandler(PEER_IDLE_TIMEOUT);
 
-	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService)
+	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService, RsServiceRegistry rsServiceRegistry)
 	{
 		this.settingsService = settingsService;
 		try
 		{
-			this.sslContext = SSL.createSslContext(settingsService.getLocationPrivateKeyData(), settingsService.getLocationCertificate(), connectionType);
+			sslContext = SSL.createSslContext(settingsService.getLocationPrivateKeyData(), settingsService.getLocationCertificate(), connectionType);
 		}
 		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException e)
 		{
@@ -78,6 +80,7 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		this.networkProperties = networkProperties;
 		this.serviceInfoRsService = serviceInfoRsService;
 		this.trayService = trayService;
+		this.rsServiceRegistry = rsServiceRegistry;
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
@@ -123,6 +126,6 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		// ^^^^^^^^
 		// Outbound
 
-		pipeline.addLast(new PeerHandler(locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, connectionType, trayService));
+		pipeline.addLast(new PeerHandler(locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, connectionType, trayService, rsServiceRegistry));
 	}
 }

@@ -65,6 +65,12 @@ public class GxsSyncGroupItem extends GxsExchange
 		setTransactionId(transactionId);
 	}
 
+	@Override
+	public int getSubType()
+	{
+		return 2;
+	}
+
 	public GxsId getGroupId()
 	{
 		return groupId;

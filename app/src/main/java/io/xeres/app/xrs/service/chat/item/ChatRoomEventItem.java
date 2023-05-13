@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.service.RsServiceType;
 
 import java.time.Instant;
 import java.util.Set;
@@ -35,16 +36,28 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable,
 	private String status;
 	private int sendTime;
 
+	@SuppressWarnings("unused")
 	public ChatRoomEventItem()
 	{
-		// Required
 	}
 
 	public ChatRoomEventItem(ChatRoomEvent event, String status)
 	{
-		this.eventType = event.getCode();
+		eventType = event.getCode();
 		this.status = status;
-		this.sendTime = (int) Instant.now().getEpochSecond();
+		sendTime = (int) Instant.now().getEpochSecond();
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 24;
 	}
 
 	public byte getEventType()

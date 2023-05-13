@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public abstract class TurtleSearchResultItem extends Item implements Cloneable
 {
@@ -35,6 +36,12 @@ public abstract class TurtleSearchResultItem extends Item implements Cloneable
 	protected TurtleSearchResultItem()
 	{
 		// Needed
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.TURTLE.getType();
 	}
 
 	public int getRequestId()

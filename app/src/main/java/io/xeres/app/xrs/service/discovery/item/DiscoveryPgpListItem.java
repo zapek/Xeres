@@ -24,6 +24,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Id;
 
 import java.util.HashSet;
@@ -45,15 +46,33 @@ public class DiscoveryPgpListItem extends Item implements RsSerializable
 	private Mode mode;
 	private Set<Long> pgpIds = new HashSet<>();
 
+	@SuppressWarnings("unused")
 	public DiscoveryPgpListItem()
 	{
-
 	}
 
 	public DiscoveryPgpListItem(Mode mode, Set<Long> pgpIds)
 	{
 		this.mode = mode;
 		this.pgpIds = pgpIds;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.GOSSIP_DISCOVERY.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 1;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	public Mode getMode()
@@ -82,12 +101,6 @@ public class DiscoveryPgpListItem extends Item implements RsSerializable
 	{
 		mode = deserializeEnum(buf, Mode.class);
 		pgpIds = (Set<Long>) deserialize(buf, SET_PGP_ID);
-	}
-
-	@Override
-	public int getPriority()
-	{
-		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	@Override

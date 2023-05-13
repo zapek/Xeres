@@ -27,10 +27,9 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.common.SignatureSet;
-import io.xeres.app.xrs.service.forum.ForumRsService;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
@@ -580,13 +579,12 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 		var identityGroupItem = IdentityGroupItemFakes.createIdentityGroupItem();
 
-		var size = Serializer.serializeGxsMetaAndDataItem(buf, identityGroupItem, EnumSet.noneOf(SerializationFlags.class));
+		var size = Serializer.serializeGxsMetaAndDataItem(buf, identityGroupItem, RsServiceType.GXSID.getType(), EnumSet.noneOf(SerializationFlags.class));
 		assertEquals(186, size);
 
 		var result = new IdentityGroupItem();
-		result.setService(new IdentityRsService(null, null, null, null, null));
 
-		Serializer.deserializeGxsMetaAndDataItem(buf, result);
+		Serializer.deserializeGxsMetaAndDataItem(buf, result, RsServiceType.GXSID.getType());
 		assertEquals(identityGroupItem.getGxsId(), result.getGxsId());
 		assertEquals(identityGroupItem.getName(), result.getName());
 		assertEquals(identityGroupItem.getPublished().getEpochSecond(), result.getPublished().getEpochSecond());
@@ -601,12 +599,11 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 		var forumGroupItem = ForumGroupItemFakes.createForumGroupItem();
 
-		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumGroupItem, EnumSet.noneOf(SerializationFlags.class));
+		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumGroupItem, RsServiceType.FORUMS.getType(), EnumSet.noneOf(SerializationFlags.class));
 		assertEquals(180, size);
 
 		var result = new ForumGroupItem();
-		result.setService(new ForumRsService(null, null, null, null, null));
-		Serializer.deserializeGxsMetaAndDataItem(buf, result);
+		Serializer.deserializeGxsMetaAndDataItem(buf, result, RsServiceType.FORUMS.getType());
 		assertEquals(forumGroupItem.getGxsId(), result.getGxsId());
 		assertEquals(forumGroupItem.getName(), result.getName());
 		assertEquals(forumGroupItem.getPublished().getEpochSecond(), result.getPublished().getEpochSecond());
@@ -621,12 +618,11 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 		var forumMessageItem = ForumMessageItemFakes.createForumMessageItem();
 
-		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumMessageItem, EnumSet.noneOf(SerializationFlags.class));
+		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumMessageItem, RsServiceType.FORUMS.getType(), EnumSet.noneOf(SerializationFlags.class));
 		assertEquals(162, size);
 
 		var result = new ForumMessageItem();
-		result.setService(new ForumRsService(null, null, null, null, null));
-		Serializer.deserializeGxsMetaAndDataItem(buf, result);
+		Serializer.deserializeGxsMetaAndDataItem(buf, result, RsServiceType.FORUMS.getType());
 		assertEquals(forumMessageItem.getGxsId(), result.getGxsId());
 		assertEquals(forumMessageItem.getMessageId(), result.getMessageId());
 		assertEquals(forumMessageItem.getName(), result.getName());

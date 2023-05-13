@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.discovery.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Id;
 
 public class DiscoveryPgpKeyItem extends Item
@@ -32,6 +33,7 @@ public class DiscoveryPgpKeyItem extends Item
 	@RsSerialized
 	private byte[] keyData;
 
+	@SuppressWarnings("unused")
 	public DiscoveryPgpKeyItem()
 	{
 	}
@@ -42,6 +44,24 @@ public class DiscoveryPgpKeyItem extends Item
 		this.keyData = keyData;
 	}
 
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.GOSSIP_DISCOVERY.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 9;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.BACKGROUND.getPriority();
+	}
+
 	public long getPgpIdentifier()
 	{
 		return pgpIdentifier;
@@ -50,12 +70,6 @@ public class DiscoveryPgpKeyItem extends Item
 	public byte[] getKeyData()
 	{
 		return keyData;
-	}
-
-	@Override
-	public int getPriority()
-	{
-		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	@Override

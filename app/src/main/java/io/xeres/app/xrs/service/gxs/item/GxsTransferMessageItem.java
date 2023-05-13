@@ -23,37 +23,38 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
-import io.xeres.app.xrs.service.RsService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 public class GxsTransferMessageItem extends GxsExchange implements RsSerializable
 {
-	private static final Logger log = LoggerFactory.getLogger(GxsTransferMessageItem.class);
-
 	private byte position;
 	private GxsId groupId;
 	private MessageId messageId;
 	private byte[] message;
 	private byte[] meta;
 
+	@SuppressWarnings("unused")
 	public GxsTransferMessageItem()
 	{
-		// Needed
 	}
 
-	public GxsTransferMessageItem(GxsId groupId, MessageId messageId, byte[] message, byte[] meta, int transactionId, RsService service)
+	public GxsTransferMessageItem(GxsId groupId, MessageId messageId, byte[] message, byte[] meta, int transactionId, int serviceType)
 	{
 		this.groupId = groupId;
 		this.messageId = messageId;
 		this.message = message;
 		this.meta = meta;
 		setTransactionId(transactionId);
-		setService(service);
+		setServiceType(serviceType);
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 32;
 	}
 
 	public byte getPosition()
@@ -89,8 +90,8 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 		size += Serializer.serialize(buf, position);
 		size += Serializer.serialize(buf, messageId, MessageId.class);
 		size += Serializer.serialize(buf, groupId, GxsId.class);
-		size += Serializer.serializeTlvBinary(buf, getService().getServiceType().getType(), message);
-		size += Serializer.serializeTlvBinary(buf, getService().getServiceType().getType(), meta);
+		size += Serializer.serializeTlvBinary(buf, getServiceType(), message);
+		size += Serializer.serializeTlvBinary(buf, getServiceType(), meta);
 		return size;
 	}
 
@@ -101,8 +102,8 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 		position = Serializer.deserializeByte(buf);
 		messageId = (MessageId) Serializer.deserializeIdentifier(buf, MessageId.class);
 		groupId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
-		message = Serializer.deserializeTlvBinary(buf, getService().getServiceType().getType());
-		meta = Serializer.deserializeTlvBinary(buf, getService().getServiceType().getType());
+		message = Serializer.deserializeTlvBinary(buf, getServiceType());
+		meta = Serializer.deserializeTlvBinary(buf, getServiceType());
 	}
 
 	@Override

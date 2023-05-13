@@ -30,6 +30,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import jakarta.persistence.*;
@@ -124,6 +125,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 
 	@Transient
 	private byte[] signature;
+
+	@Override
+	public int getServiceType()
+	{
+		// GxsGroupItem are shared between services
+		return RsServiceType.NONE.getType();
+	}
 
 	public long getId()
 	{

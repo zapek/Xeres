@@ -26,9 +26,15 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 	@RsSerialized
 	private String expression;
 
+	@SuppressWarnings("unused")
 	public TurtleRegExpSearchRequestItem()
 	{
-		// Required
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 9;
 	}
 
 	public String getExpression()

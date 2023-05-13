@@ -36,6 +36,7 @@ import io.xeres.app.net.peer.ssl.SSL;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import io.xeres.ui.support.tray.TrayService;
@@ -61,8 +62,9 @@ public class PeerHandler extends ChannelDuplexHandler
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
 	private final TrayService trayService;
+	private final RsServiceRegistry rsServiceRegistry;
 
-	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService)
+	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService, RsServiceRegistry rsServiceRegistry)
 	{
 		super();
 		this.serviceInfoRsService = serviceInfoRsService;
@@ -71,6 +73,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		this.databaseSessionManager = databaseSessionManager;
 		this.locationService = locationService;
 		this.trayService = trayService;
+		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
 	@Override
@@ -93,9 +96,11 @@ public class PeerHandler extends ChannelDuplexHandler
 
 		try
 		{
-			item = rawItem.deserialize();
+			item = rsServiceRegistry.buildIncomingItem(rawItem.getPacketVersion(), rawItem.getPacketService(), rawItem.getPacketSubType());
+			rawItem.deserialize(item);
+			log.debug("<== {}", item);
 
-			var service = item.getService();
+			var service = rsServiceRegistry.getServiceFromType(item.getServiceType());
 			if (service != null)
 			{
 				var handleItemMethod = service.getClass().getDeclaredMethod("handleItem", PeerConnection.class, Item.class);
@@ -107,7 +112,7 @@ public class PeerHandler extends ChannelDuplexHandler
 			}
 			else
 			{
-				log.warn("Unknown item. Ignoring.");
+				log.warn("Unknown item (service: {}, subtype: {}). Ignoring.", item.getServiceType(), item.getSubType());
 			}
 		}
 		catch (IllegalArgumentException | NoSuchMethodException e)

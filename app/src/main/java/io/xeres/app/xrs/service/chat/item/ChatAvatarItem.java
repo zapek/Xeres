@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Id;
 
 public class ChatAvatarItem extends Item
@@ -38,6 +39,18 @@ public class ChatAvatarItem extends Item
 	public ChatAvatarItem(byte[] imageData)
 	{
 		this.imageData = imageData;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 3;
 	}
 
 	@Override

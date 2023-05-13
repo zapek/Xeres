@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.rtt.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public class RttPongItem extends Item
 {
@@ -34,6 +35,7 @@ public class RttPongItem extends Item
 	@RsSerialized
 	private long pongTimestamp;
 
+	@SuppressWarnings("unused")
 	public RttPongItem()
 	{
 	}
@@ -45,6 +47,24 @@ public class RttPongItem extends Item
 		pongTimestamp = timeStamp;
 	}
 
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.RTT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 2;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.REALTIME.getPriority();
+	}
+
 	public long getPingTimestamp()
 	{
 		return pingTimestamp;
@@ -53,12 +73,6 @@ public class RttPongItem extends Item
 	public long getPongTimestamp()
 	{
 		return pongTimestamp;
-	}
-
-	@Override
-	public int getPriority()
-	{
-		return ItemPriority.REALTIME.getPriority();
 	}
 
 	@Override

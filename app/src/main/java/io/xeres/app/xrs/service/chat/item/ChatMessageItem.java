@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.ChatFlags;
 
 import java.time.Instant;
@@ -44,14 +45,25 @@ public class ChatMessageItem extends Item
 	@SuppressWarnings("unused")
 	public ChatMessageItem()
 	{
-		// Required
 	}
 
 	public ChatMessageItem(String message, Set<ChatFlags> flags)
 	{
 		this.message = message;
-		this.sendTime = (int) Instant.now().getEpochSecond();
+		sendTime = (int) Instant.now().getEpochSecond();
 		this.flags = flags;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 1;
 	}
 
 	@Override

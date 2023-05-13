@@ -23,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
-import io.xeres.app.xrs.service.RsService;
 import io.xeres.common.id.GxsId;
 
 import java.util.Set;
@@ -39,18 +38,24 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 	private byte[] group; // actual group data; the service specific data (ie. avatar, etc...))
 	private byte[] meta; // binary data for the group meta that is sent to our friends
 
+	@SuppressWarnings("unused")
 	public GxsTransferGroupItem()
 	{
-		// Needed
 	}
 
-	public GxsTransferGroupItem(GxsId groupId, byte[] group, byte[] meta, int transactionId, RsService service)
+	public GxsTransferGroupItem(GxsId groupId, byte[] group, byte[] meta, int transactionId, int serviceType)
 	{
 		this.groupId = groupId;
 		this.group = group;
 		this.meta = meta;
 		setTransactionId(transactionId);
-		setService(service);
+		setServiceType(serviceType);
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 4;
 	}
 
 	public byte getPosition()
@@ -79,8 +84,8 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 		var size = Serializer.serialize(buf, getTransactionId());
 		size += Serializer.serialize(buf, position);
 		size += Serializer.serialize(buf, groupId, GxsId.class);
-		size += Serializer.serializeTlvBinary(buf, getService().getServiceType().getType(), group);
-		size += Serializer.serializeTlvBinary(buf, getService().getServiceType().getType(), meta);
+		size += Serializer.serializeTlvBinary(buf, getServiceType(), group);
+		size += Serializer.serializeTlvBinary(buf, getServiceType(), meta);
 		return size;
 	}
 
@@ -90,8 +95,8 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 		setTransactionId(Serializer.deserializeInt(buf));
 		position = Serializer.deserializeByte(buf);
 		groupId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
-		group = Serializer.deserializeTlvBinary(buf, getService().getServiceType().getType());
-		meta = Serializer.deserializeTlvBinary(buf, getService().getServiceType().getType());
+		group = Serializer.deserializeTlvBinary(buf, getServiceType());
+		meta = Serializer.deserializeTlvBinary(buf, getServiceType());
 	}
 
 	@Override

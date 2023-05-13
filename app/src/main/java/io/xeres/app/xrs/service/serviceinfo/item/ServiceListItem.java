@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.serviceinfo.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,7 @@ public class ServiceListItem extends Item
 	@RsSerialized
 	private Map<Integer, ServiceInfo> services = new HashMap<>();
 
+	@SuppressWarnings("unused")
 	public ServiceListItem()
 	{
 		// Constructor
@@ -40,15 +42,27 @@ public class ServiceListItem extends Item
 		this.services = services;
 	}
 
-	public Map<Integer, ServiceInfo> getServices()
+	@Override
+	public int getServiceType()
 	{
-		return services;
+		return RsServiceType.SERVICEINFO.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 1;
 	}
 
 	@Override
 	public int getPriority()
 	{
 		return 7;
+	}
+
+	public Map<Integer, ServiceInfo> getServices()
+	{
+		return services;
 	}
 
 	@Override

@@ -41,9 +41,9 @@ public class GxsTransactionItem extends GxsExchange
 
 	private int timestamp; // Not serialized, used for timeout detection (XXX: I don't think I need it)
 
+	@SuppressWarnings("unused")
 	public GxsTransactionItem()
 	{
-		// Needed
 	}
 
 	public GxsTransactionItem(Set<TransactionFlags> flags, int itemCount, int updateTimestamp, int transactionId)
@@ -58,6 +58,12 @@ public class GxsTransactionItem extends GxsExchange
 	{
 		this.flags = flags;
 		setTransactionId(transactionId);
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 64;
 	}
 
 	public Set<TransactionFlags> getFlags()

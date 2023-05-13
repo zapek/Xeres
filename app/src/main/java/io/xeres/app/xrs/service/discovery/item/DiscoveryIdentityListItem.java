@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.discovery.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 
 import java.util.ArrayList;
@@ -34,9 +35,9 @@ public class DiscoveryIdentityListItem extends Item
 	@RsSerialized
 	private final List<GxsId> identities = new ArrayList<>();
 
+	@SuppressWarnings("unused")
 	public DiscoveryIdentityListItem()
 	{
-		// Needed for instantiation
 	}
 
 	public DiscoveryIdentityListItem(List<GxsId> identities)
@@ -44,15 +45,27 @@ public class DiscoveryIdentityListItem extends Item
 		this.identities.addAll(identities);
 	}
 
-	public List<GxsId> getIdentities()
+	@Override
+	public int getServiceType()
 	{
-		return identities;
+		return RsServiceType.GOSSIP_DISCOVERY.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 6;
 	}
 
 	@Override
 	public int getPriority()
 	{
 		return ItemPriority.BACKGROUND.getPriority();
+	}
+
+	public List<GxsId> getIdentities()
+	{
+		return identities;
 	}
 
 	@Override

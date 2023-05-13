@@ -23,14 +23,11 @@ import io.xeres.app.net.peer.PeerAttribute;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 import static io.xeres.app.xrs.service.RsServiceType.PACKET_SLICING_PROBE;
 
@@ -39,23 +36,15 @@ public class SliceProbeRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(SliceProbeRsService.class);
 
-	public SliceProbeRsService(Environment environment)
+	public SliceProbeRsService(RsServiceRegistry rsServiceRegistry)
 	{
-		super(environment);
+		super(rsServiceRegistry);
 	}
 
 	@Override
 	public RsServiceType getServiceType()
 	{
 		return PACKET_SLICING_PROBE;
-	}
-
-	@Override
-	public Map<Class<? extends Item>, Integer> getSupportedItems()
-	{
-		return Map.of(
-				SliceProbeItem.class, 0xCC
-		);
 	}
 
 	@Override

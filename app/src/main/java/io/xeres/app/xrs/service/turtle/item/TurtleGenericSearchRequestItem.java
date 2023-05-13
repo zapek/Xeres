@@ -32,9 +32,15 @@ public class TurtleGenericSearchRequestItem extends TurtleFileSearchRequestItem 
 	@RsSerialized
 	private byte[] searchData; // XXX: not sure that's correct...
 
+	@SuppressWarnings("unused")
 	public TurtleGenericSearchRequestItem()
 	{
-		// Required
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 11;
 	}
 
 	public short getServiceId()

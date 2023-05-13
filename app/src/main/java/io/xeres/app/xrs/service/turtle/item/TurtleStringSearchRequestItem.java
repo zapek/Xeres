@@ -30,9 +30,15 @@ public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem i
 	@RsSerialized(tlvType = STR_VALUE)
 	private String search;
 
+	@SuppressWarnings("unused")
 	public TurtleStringSearchRequestItem()
 	{
-		// Required
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 1;
 	}
 
 	public String getSearch()

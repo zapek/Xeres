@@ -24,18 +24,17 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.rtt.item.RttPingItem;
 import io.xeres.app.xrs.service.rtt.item.RttPongItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.RTT;
@@ -49,9 +48,9 @@ public class RttRsService extends RsService
 
 	private static final int KEY_COUNTER = 1;
 
-	public RttRsService(Environment environment, PeerConnectionManager peerConnectionManager)
+	public RttRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment);
+		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
 	}
 
@@ -59,15 +58,6 @@ public class RttRsService extends RsService
 	public RsServiceType getServiceType()
 	{
 		return RTT;
-	}
-
-	@Override
-	public Map<Class<? extends Item>, Integer> getSupportedItems()
-	{
-		return Map.of(
-				RttPingItem.class, 1,
-				RttPongItem.class, 2
-		);
 	}
 
 	@Override

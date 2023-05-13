@@ -29,15 +29,21 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	@RsSerialized
 	private int lastUpdated;
 
+	@SuppressWarnings("unused")
 	public GxsSyncMessageRequestItem()
 	{
-		// Needed
 	}
 
 	public GxsSyncMessageRequestItem(GxsId groupId, Instant lastUpdated)
 	{
 		this.groupId = groupId;
 		this.lastUpdated = (int) lastUpdated.getEpochSecond();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 16;
 	}
 
 	public int getCreateSince()

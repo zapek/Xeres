@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Sha1Sum;
 
 public class TurtleTunnelRequestItem extends Item implements Cloneable
@@ -40,6 +41,18 @@ public class TurtleTunnelRequestItem extends Item implements Cloneable
 	public TurtleTunnelRequestItem()
 	{
 		// Required
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.TURTLE.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 3;
 	}
 
 	public Sha1Sum getFileHash()

@@ -23,17 +23,16 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
 
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
@@ -58,9 +57,9 @@ public class TurtleRsService extends RsService
 
 	private final PeerConnectionManager peerConnectionManager;
 
-	protected TurtleRsService(Environment environment, PeerConnectionManager peerConnectionManager)
+	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment);
+		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
 	}
 
@@ -68,19 +67,6 @@ public class TurtleRsService extends RsService
 	public RsServiceType getServiceType()
 	{
 		return TURTLE;
-	}
-
-	@Override
-	public Map<Class<? extends Item>, Integer> getSupportedItems()
-	{
-		return Map.of(
-				TurtleStringSearchRequestItem.class, 1,
-				TurtleTunnelRequestItem.class, 3,
-				TurtleTunnelResultItem.class, 4,
-				TurtleRegExpSearchRequestItem.class, 9,
-				TurtleGenericSearchRequestItem.class, 11,
-				TurtleGenericSearchResultItem.class, 12
-		);
 	}
 
 	@Override

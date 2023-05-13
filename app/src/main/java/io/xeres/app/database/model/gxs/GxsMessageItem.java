@@ -25,11 +25,10 @@ import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Set;
@@ -40,8 +39,6 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 {
-	private static final Logger log = LoggerFactory.getLogger(GxsMessageItem.class);
-
 	private static final int API_VERSION_2 = 0x0000;
 
 	@Id
@@ -86,6 +83,13 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 
 	@Transient
 	private byte[] identitySignature;
+
+	@Override
+	public int getServiceType()
+	{
+		// GxsMessage are shared between gxs services
+		return RsServiceType.NONE.getType();
+	}
 
 	public long getId()
 	{

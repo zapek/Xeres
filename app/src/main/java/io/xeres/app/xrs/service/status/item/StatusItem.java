@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.status.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 import java.time.Instant;
 
@@ -50,8 +51,20 @@ public class StatusItem extends Item
 
 	public StatusItem(Status status)
 	{
-		this.sendTime = (int) Instant.now().getEpochSecond();
+		sendTime = (int) Instant.now().getEpochSecond();
 		this.status = status;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.STATUS.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 1;
 	}
 
 	public int getSendTime()

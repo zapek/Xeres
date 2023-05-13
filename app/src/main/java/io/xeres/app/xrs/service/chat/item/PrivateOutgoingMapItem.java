@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 import java.util.Map;
 
@@ -29,6 +30,18 @@ public class PrivateOutgoingMapItem extends Item
 {
 	@RsSerialized
 	private Map<Long, ChatMessageItem> store;
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 28;
+	}
 
 	@Override
 	public int getPriority()

@@ -26,6 +26,7 @@ import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.NetMode;
@@ -92,6 +93,24 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		{
 			externalAddressList = builder.externalAddressList;
 		}
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.GOSSIP_DISCOVERY.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 5;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.BACKGROUND.getPriority();
 	}
 
 	public static Builder builder()
@@ -282,12 +301,6 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	}
 
 	@Override
-	public int getPriority()
-	{
-		return ItemPriority.BACKGROUND.getPriority();
-	}
-
-	@Override
 	public String toString()
 	{
 		return "DiscoveryContactItem{" +
@@ -352,7 +365,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 
 		public Builder setLocationName(String locationName)
 		{
-			this.location = locationName;
+			location = locationName;
 			return this;
 		}
 

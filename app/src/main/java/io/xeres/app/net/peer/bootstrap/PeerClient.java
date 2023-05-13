@@ -30,6 +30,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.tray.TrayService;
@@ -52,6 +53,7 @@ abstract class PeerClient
 	protected final DatabaseSessionManager databaseSessionManager;
 	protected final ServiceInfoRsService serviceInfoRsService;
 	protected final TrayService trayService;
+	protected final RsServiceRegistry rsServiceRegistry;
 
 	private Bootstrap bootstrap;
 	private EventLoopGroup group;
@@ -60,7 +62,7 @@ abstract class PeerClient
 
 	public abstract AddressResolverGroup<? extends SocketAddress> getAddressResolverGroup();
 
-	protected PeerClient(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService)
+	protected PeerClient(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService, RsServiceRegistry rsServiceRegistry)
 	{
 		this.settingsService = settingsService;
 		this.networkProperties = networkProperties;
@@ -69,6 +71,7 @@ abstract class PeerClient
 		this.databaseSessionManager = databaseSessionManager;
 		this.serviceInfoRsService = serviceInfoRsService;
 		this.trayService = trayService;
+		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
 	public void start()

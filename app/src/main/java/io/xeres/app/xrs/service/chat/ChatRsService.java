@@ -33,6 +33,7 @@ import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
@@ -46,7 +47,6 @@ import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +58,6 @@ import java.util.concurrent.*;
 import static io.xeres.app.xrs.service.RsServiceType.CHAT;
 import static io.xeres.common.message.MessageType.*;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
-import static java.util.Map.entry;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
@@ -155,9 +154,9 @@ public class ChatRsService extends RsService
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(Environment environment, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService)
+	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService)
 	{
-		super(environment);
+		super(rsServiceRegistry);
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.identityService = identityService;
@@ -171,29 +170,6 @@ public class ChatRsService extends RsService
 	public RsServiceType getServiceType()
 	{
 		return CHAT;
-	}
-
-	@Override
-	public Map<Class<? extends Item>, Integer> getSupportedItems()
-	{
-		//noinspection deprecation
-		return Map.ofEntries(
-				entry(ChatMessageItem.class, 1),
-				entry(ChatAvatarItem.class, 3),
-				entry(ChatStatusItem.class, 4),
-				entry(PrivateChatMessageConfigItem.class, 5),
-				entry(ChatRoomConnectChallengeItem.class, 9),
-				entry(ChatRoomUnsubscribeItem.class, 10),
-				entry(ChatRoomListRequestItem.class, 13),
-				entry(ChatRoomConfigItem.class, 21),
-				entry(ChatRoomMessageItem.class, 23),
-				entry(ChatRoomEventItem.class, 24),
-				entry(ChatRoomListItem.class, 25),
-				entry(ChatRoomInviteOldItem.class, 26),
-				entry(ChatRoomInviteItem.class, 27),
-				entry(PrivateOutgoingMapItem.class, 28),
-				entry(SubscribedChatRoomConfigItem.class, 29)
-		);
 	}
 
 	@Override

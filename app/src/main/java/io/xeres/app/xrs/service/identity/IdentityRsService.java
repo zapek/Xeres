@@ -26,13 +26,13 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,9 +51,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 {
 	private final IdentityService identityService;
 
-	public IdentityRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, IdentityService identityService)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, IdentityService identityService)
 	{
-		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
+		super(rsServiceRegistry, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
 		this.identityService = identityService;
 	}
 

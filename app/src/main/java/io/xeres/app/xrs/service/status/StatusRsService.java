@@ -24,14 +24,13 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.status.item.StatusItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.STATUS;
@@ -46,9 +45,9 @@ public class StatusRsService extends RsService
 
 	private final PeerConnectionManager peerConnectionManager;
 
-	public StatusRsService(Environment environment, PeerConnectionManager peerConnectionManager)
+	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager)
 	{
-		super(environment);
+		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
 	}
 
@@ -56,12 +55,6 @@ public class StatusRsService extends RsService
 	public RsServiceType getServiceType()
 	{
 		return STATUS;
-	}
-
-	@Override
-	public Map<Class<? extends Item>, Integer> getSupportedItems()
-	{
-		return Map.of(StatusItem.class, 1);
 	}
 
 	@Override

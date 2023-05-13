@@ -43,9 +43,15 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	@RsSerialized
 	private int lastUpdated; // last group update
 
+	@SuppressWarnings("unused")
 	public GxsSyncGroupRequestItem()
 	{
-		// Needed
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 1;
 	}
 
 	public GxsSyncGroupRequestItem(Instant lastUpdated)

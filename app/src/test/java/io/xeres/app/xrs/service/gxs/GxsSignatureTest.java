@@ -23,28 +23,22 @@ import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.item.ItemFactory;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
 
 class GxsSignatureTest
 {
 	private static IdentityGroupItem createIdentityGroupItem()
 	{
-		var item = new IdentityGroupItem();
-		item.setService(new IdentityRsService(null, null, null, null, null));
-		return item;
+		return new IdentityGroupItem();
 	}
 
 	@Test
@@ -65,32 +59,28 @@ class GxsSignatureTest
 		var rawItem = serializeItem(gxsIdGroupItem);
 		assertNotNull(rawItem);
 
-		try (var itemFactory = Mockito.mockStatic(ItemFactory.class))
-		{
-			itemFactory.when(() -> ItemFactory.create(anyInt(), anyInt())).thenReturn(createIdentityGroupItem());
 
-			var tmpRawItem = new RawItem(rawItem.getBuffer().copy(), 0);
-			var item = (IdentityGroupItem) tmpRawItem.deserialize();
-			assertNotNull(item);
+		var tmpRawItem = new RawItem(rawItem.getBuffer().copy(), 0);
+		var item = createIdentityGroupItem();
+		tmpRawItem.deserialize(item);
 
-			var verifyData = serializeItemForSignature(item);
+		var verifyData = serializeItemForSignature(item);
 
-			assertTrue(RSA.verify(item.getAdminPublicKey(), item.getSignature(), verifyData));
+		assertTrue(RSA.verify(item.getAdminPublicKey(), item.getSignature(), verifyData));
 
-			rawItem.getBuffer().release();
-			tmpRawItem.getBuffer().release();
-		}
+		rawItem.getBuffer().release();
+		tmpRawItem.getBuffer().release();
 	}
 
 	private RawItem serializeItem(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), 2, RsServiceType.GXSID, 1);
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null));
 		return item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 	}
 
 	private byte[] serializeItemForSignature(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), 2, RsServiceType.GXSID, 1);
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null));
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);

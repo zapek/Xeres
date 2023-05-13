@@ -54,9 +54,8 @@ public class RawItem
 		this.priority = priority;
 	}
 
-	public Item deserialize()
+	public void deserialize(Item item)
 	{
-		var item = buildItem();
 		item.setIncoming(buf);
 
 		buf.skipBytes(HEADER_SIZE);
@@ -64,7 +63,7 @@ public class RawItem
 		if (GxsMetaAndData.class.isAssignableFrom(item.getClass()))
 		{
 			log.trace("Deserializing class {} using GxsMetaData system", item.getClass().getSimpleName());
-			Serializer.deserializeGxsMetaAndDataItem(buf, (GxsMetaAndData) item);
+			Serializer.deserializeGxsMetaAndDataItem(buf, (GxsMetaAndData) item, item.getServiceType());
 		}
 		else if (RsSerializable.class.isAssignableFrom(item.getClass()))
 		{
@@ -84,35 +83,19 @@ public class RawItem
 		{
 			throw new IllegalArgumentException("Header size: " + getItemSize() + ", actual size: " + buf.readerIndex());
 		}
-
-		log.debug("<== {}", item);
-		return item;
 	}
 
-	private Item buildItem()
-	{
-		switch (getPacketVersion())
-		{
-			case 1 -> log.warn("Packet version 1 not supported yet");
-			case 2 -> {
-				return ItemFactory.create(getPacketService(), getPacketSubType());
-			}
-			default -> log.warn("Packet version {} not supported", getPacketVersion());
-		}
-		return new Item(); // will just get disposed
-	}
-
-	private int getPacketVersion()
+	public int getPacketVersion()
 	{
 		return buf.getUnsignedByte(0);
 	}
 
-	private int getPacketService()
+	public int getPacketService()
 	{
 		return buf.getUnsignedShort(1);
 	}
 
-	private int getPacketSubType()
+	public int getPacketSubType()
 	{
 		return buf.getUnsignedByte(3);
 	}

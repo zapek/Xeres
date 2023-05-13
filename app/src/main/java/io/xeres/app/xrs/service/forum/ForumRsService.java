@@ -27,6 +27,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.ForumService;
 import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
@@ -35,7 +36,6 @@ import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,9 +58,9 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	private final ForumService forumService;
 
-	public ForumRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, ForumService forumService)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, ForumService forumService)
 	{
-		super(environment, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
+		super(rsServiceRegistry, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
 		this.forumService = forumService;
 	}
 

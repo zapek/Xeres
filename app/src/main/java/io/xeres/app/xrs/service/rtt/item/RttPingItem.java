@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.rtt.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public class RttPingItem extends Item
 {
@@ -31,15 +32,33 @@ public class RttPingItem extends Item
 	@RsSerialized
 	private long timestamp;
 
+	@SuppressWarnings("unused")
 	public RttPingItem()
 	{
-		// Needed
 	}
 
 	public RttPingItem(int sequenceNumber, long timeStamp)
 	{
 		this.sequenceNumber = sequenceNumber;
 		timestamp = timeStamp;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.RTT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 1;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.REALTIME.getPriority();
 	}
 
 	public int getSequenceNumber()
@@ -50,12 +69,6 @@ public class RttPingItem extends Item
 	public long getTimestamp()
 	{
 		return timestamp;
-	}
-
-	@Override
-	public int getPriority()
-	{
-		return ItemPriority.REALTIME.getPriority();
 	}
 
 	@Override

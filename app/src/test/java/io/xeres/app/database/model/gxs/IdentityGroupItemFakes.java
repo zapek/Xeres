@@ -19,7 +19,6 @@
 
 package io.xeres.app.database.model.gxs;
 
-import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
@@ -46,7 +45,6 @@ public final class IdentityGroupItemFakes
 		item.setDiffusionFlags(EnumSet.noneOf(GxsPrivacyFlags.class));
 		item.setSignatureFlags(EnumSet.noneOf(GxsSignatureFlags.class));
 		item.setProfileHash(new Sha1Sum(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}));
-		item.setService(new IdentityRsService(null, null, null, null, null));
 		return item;
 	}
 }

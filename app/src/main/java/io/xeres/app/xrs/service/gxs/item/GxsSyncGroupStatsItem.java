@@ -45,6 +45,12 @@ public class GxsSyncGroupStatsItem extends GxsExchange
 	}
 
 	@Override
+	public int getSubType()
+	{
+		return 3;
+	}
+
+	@Override
 	public String toString()
 	{
 		return "GxsSyncGroupStatsItem{" +

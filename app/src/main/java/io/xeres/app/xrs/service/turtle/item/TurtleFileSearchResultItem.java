@@ -34,6 +34,12 @@ public class TurtleFileSearchResultItem extends TurtleSearchResultItem implement
 	}
 
 	@Override
+	public int getSubType()
+	{
+		return 2;
+	}
+
+	@Override
 	public int getCount()
 	{
 		return results.size();

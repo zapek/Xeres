@@ -21,9 +21,22 @@ package io.xeres.app.xrs.service.heartbeat.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public class HeartbeatItem extends Item
 {
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.HEARTBEAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 1;
+	}
+
 	@Override
 	public int getPriority()
 	{

@@ -35,6 +35,7 @@ import io.xeres.app.service.status_notification.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryContactItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryIdentityListItem;
@@ -48,7 +49,6 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +57,10 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.InvalidKeyException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.net.util.NetworkMode.getNetworkMode;
@@ -80,9 +83,9 @@ public class DiscoveryRsService extends RsService
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
 
-	public DiscoveryRsService(Environment environment, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, StatusNotificationService statusNotificationService)
+	public DiscoveryRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, StatusNotificationService statusNotificationService)
 	{
-		super(environment);
+		super(rsServiceRegistry);
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityService = identityService;
@@ -97,17 +100,6 @@ public class DiscoveryRsService extends RsService
 	public RsServiceType getServiceType()
 	{
 		return GOSSIP_DISCOVERY;
-	}
-
-	@Override
-	public Map<Class<? extends Item>, Integer> getSupportedItems()
-	{
-		return Map.of(
-				DiscoveryPgpListItem.class, 1,
-				DiscoveryContactItem.class, 5,
-				DiscoveryIdentityListItem.class, 6,
-				DiscoveryPgpKeyItem.class, 9
-		);
 	}
 
 	@Override

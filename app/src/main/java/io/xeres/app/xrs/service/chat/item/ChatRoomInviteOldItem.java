@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.id.Id;
 
@@ -49,14 +50,26 @@ public class ChatRoomInviteOldItem extends Item
 	private Set<RoomFlags> roomFlags;
 
 	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 26;
+	}
+
+	@Override
 	public int getPriority()
 	{
 		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
+	@SuppressWarnings("unused")
 	public ChatRoomInviteOldItem()
 	{
-		// Needed
 	}
 
 	public ChatRoomInviteOldItem(long roomId, String roomName, Set<RoomFlags> roomFlags)

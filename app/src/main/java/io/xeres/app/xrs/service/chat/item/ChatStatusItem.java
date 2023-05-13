@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.ChatFlags;
 
 import java.util.Set;
@@ -36,15 +37,27 @@ public class ChatStatusItem extends Item
 	@RsSerialized(tlvType = STR_MSG)
 	private String status;
 
+	@SuppressWarnings("unused")
 	public ChatStatusItem()
 	{
-		// Required
 	}
 
 	public ChatStatusItem(String status, Set<ChatFlags> flags)
 	{
 		this.status = status;
 		this.flags = flags;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 4;
 	}
 
 	@Override

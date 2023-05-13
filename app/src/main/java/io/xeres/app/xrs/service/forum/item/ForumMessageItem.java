@@ -50,6 +50,12 @@ public class ForumMessageItem extends GxsMessageItem
 		updatePublished();
 	}
 
+	@Override
+	public int getSubType()
+	{
+		return 3;
+	}
+
 	public String getContent()
 	{
 		return content;

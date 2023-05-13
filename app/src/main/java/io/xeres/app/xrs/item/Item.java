@@ -27,7 +27,7 @@ import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsService;
-import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.gxs.item.GxsExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,15 +35,20 @@ import java.util.Set;
 
 import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 
-public class Item
+public abstract class Item
 {
 	private static final Logger log = LoggerFactory.getLogger(Item.class);
 
+	private static final int VERSION = 2;
+
 	protected ByteBuf buf;
 	private ByteBuf backupBuf;
-	private RsService service;
 
-	public Item()
+	public abstract int getServiceType();
+
+	public abstract int getSubType();
+
+	protected Item()
 	{
 		// Needed for instantiation
 	}
@@ -53,19 +58,25 @@ public class Item
 		this.buf = buf;
 	}
 
-	public void setOutgoing(ByteBufAllocator allocator, int version, RsServiceType service, int subType)
+	public void setOutgoing(ByteBufAllocator allocator, RsService service)
 	{
 		buf = allocator.buffer();
-		buf.writeByte(version);
-		buf.writeShort(service.getType());
-		buf.writeByte(subType);
+		buf.writeByte(VERSION);
+
+		// GxsExchange are shared, hence have no intrinsic service type
+		if (GxsExchange.class.isAssignableFrom(getClass()))
+		{
+			((GxsExchange) this).setServiceType(service.getServiceType().getType());
+		}
+		buf.writeShort(getServiceType());
+		buf.writeByte(getSubType());
 		buf.writeInt(HEADER_SIZE);
 	}
 
-	public void setSerialization(ByteBufAllocator allocator, int version, RsServiceType service, int subType)
+	public void setSerialization(ByteBufAllocator allocator, RsService service)
 	{
 		backupBuf = buf;
-		setOutgoing(allocator, version, service, subType);
+		setOutgoing(allocator, service);
 	}
 
 	public RawItem serializeItem(Set<SerializationFlags> flags)
@@ -75,7 +86,7 @@ public class Item
 		if (GxsMetaAndData.class.isAssignableFrom(getClass()))
 		{
 			log.trace("Serializing class {} using GxsGroupItem system, flags: {}", getClass().getSimpleName(), flags);
-			size += Serializer.serializeGxsMetaAndDataItem(buf, (GxsMetaAndData) this, flags);
+			size += Serializer.serializeGxsMetaAndDataItem(buf, (GxsMetaAndData) this, getServiceType(), flags);
 		}
 		else if (RsSerializable.class.isAssignableFrom(getClass()))
 		{
@@ -116,15 +127,5 @@ public class Item
 	protected void setItemSize(int size)
 	{
 		buf.setInt(4, size);
-	}
-
-	public RsService getService()
-	{
-		return service;
-	}
-
-	public void setService(RsService service)
-	{
-		this.service = service;
 	}
 }

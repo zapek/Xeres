@@ -22,26 +22,39 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public class ChatRoomUnsubscribeItem extends Item
 {
 	@RsSerialized
 	private long roomId;
 
-	@Override
-	public int getPriority()
-	{
-		return ItemPriority.INTERACTIVE.getPriority();
-	}
-
+	@SuppressWarnings("unused")
 	public ChatRoomUnsubscribeItem()
 	{
-		// Needed
 	}
 
 	public ChatRoomUnsubscribeItem(long roomId)
 	{
 		this.roomId = roomId;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 10;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
 	public long getRoomId()

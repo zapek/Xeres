@@ -117,7 +117,7 @@ public class PeerConnectionManager
 	// XXX: prefer the writer using Location
 	public ChannelFuture writeItem(PeerConnection peerConnection, Item item, RsService rsService)
 	{
-		item.setOutgoing(peerConnection.getCtx().alloc(), 2, rsService.getServiceType(), rsService.getItemSubtype(item));
+		item.setOutgoing(peerConnection.getCtx().alloc(), rsService);
 		return writeItem(peerConnection.getCtx(), item);
 	}
 
@@ -130,7 +130,7 @@ public class PeerConnectionManager
 	 */
 	public ByteBuf serializeItemForSignature(Item item, RsService rsService)
 	{
-		item.setSerialization(Unpooled.buffer().alloc(), 2, rsService.getServiceType(), rsService.getItemSubtype(item));
+		item.setSerialization(Unpooled.buffer().alloc(), rsService);
 		return item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 	}
 

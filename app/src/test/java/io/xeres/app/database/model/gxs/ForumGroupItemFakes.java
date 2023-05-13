@@ -19,7 +19,6 @@
 
 package io.xeres.app.database.model.gxs;
 
-import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.testutils.IdFakes;
@@ -45,7 +44,6 @@ public final class ForumGroupItemFakes
 		item.setDiffusionFlags(EnumSet.noneOf(GxsPrivacyFlags.class));
 		item.setSignatureFlags(EnumSet.noneOf(GxsSignatureFlags.class));
 		item.setDescription(RandomStringUtils.randomAlphabetic(8));
-		item.setService(new ForumRsService(null, null, null, null, null));
 		return item;
 	}
 }

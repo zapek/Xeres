@@ -28,9 +28,15 @@ public class TurtleGenericSearchResultItem extends TurtleSearchResultItem implem
 	@RsSerialized
 	private byte[] searchData; // XXX: not sure it's the right data type
 
+	@SuppressWarnings("unused")
 	public TurtleGenericSearchResultItem()
 	{
-		// Required
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 12;
 	}
 
 	public byte[] getSearchData()

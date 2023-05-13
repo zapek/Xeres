@@ -29,7 +29,6 @@ import io.xeres.app.net.peer.pipeline.ItemDecoder;
 import io.xeres.app.net.peer.pipeline.PacketDecoder;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +45,7 @@ class RawItemDecoderPipelineTest extends AbstractPipelineTest
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
 		var item = new SliceProbeItem();
-		item.setOutgoing(ByteBufAllocator.DEFAULT, 2, RsServiceType.PACKET_SLICING_PROBE, 0xaa);
+		item.setOutgoing(ByteBufAllocator.DEFAULT, null);
 		var itemIn = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 
 		var inPacket = MultiPacketBuilder.builder()
@@ -68,7 +67,7 @@ class RawItemDecoderPipelineTest extends AbstractPipelineTest
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
 		var item = new SliceProbeItem();
-		item.setOutgoing(ByteBufAllocator.DEFAULT, 2, RsServiceType.PACKET_SLICING_PROBE, 0xaa);
+		item.setOutgoing(ByteBufAllocator.DEFAULT, null);
 		var itemIn = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 
 		var inPacket = SimplePacketBuilder.builder()

@@ -65,6 +65,12 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 		updatePublished();
 	}
 
+	@Override
+	public int getSubType()
+	{
+		return 2;
+	}
+
 	public Sha1Sum getProfileHash()
 	{
 		return profileHash;

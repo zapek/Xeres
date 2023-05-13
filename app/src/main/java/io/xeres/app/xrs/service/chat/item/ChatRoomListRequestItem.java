@@ -21,10 +21,23 @@ package io.xeres.app.xrs.service.chat.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public class ChatRoomListRequestItem extends Item
 {
 	// This is an empty item
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 13;
+	}
 
 	@Override
 	public int getPriority()

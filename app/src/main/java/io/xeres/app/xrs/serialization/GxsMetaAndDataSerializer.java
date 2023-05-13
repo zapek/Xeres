@@ -33,11 +33,11 @@ final class GxsMetaAndDataSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, Set<SerializationFlags> flags)
+	static int serialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, int serviceType, Set<SerializationFlags> flags)
 	{
 		var metaSize = gxsMetaAndData.writeMetaObject(buf, flags);
 
-		var itemHeader = new ItemHeader(buf, ((Item) gxsMetaAndData).getService().getServiceType().getType(), 3); // XXX: is 3 correct? no! I think group is 2 and message is 3. how to fix it?
+		var itemHeader = new ItemHeader(buf, serviceType, ((Item) gxsMetaAndData).getSubType());
 		var headerSize = itemHeader.writeHeader();
 		var dataSize = gxsMetaAndData.writeDataObject(buf, flags);
 		itemHeader.writeSize(dataSize);
@@ -45,10 +45,10 @@ final class GxsMetaAndDataSerializer
 		return headerSize + metaSize + dataSize;
 	}
 
-	static void deserialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData)
+	static void deserialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, int serviceType)
 	{
 		gxsMetaAndData.readMetaObject(buf);
-		ItemHeader.readHeader(buf, ((Item) gxsMetaAndData).getService().getServiceType().getType(), 3);
+		ItemHeader.readHeader(buf, serviceType, ((Item) gxsMetaAndData).getSubType());
 		gxsMetaAndData.readDataObject(buf);
 	}
 }

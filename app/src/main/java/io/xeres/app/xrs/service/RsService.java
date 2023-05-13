@@ -24,13 +24,8 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.item.Item;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.env.Environment;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Base class for "Retroshare services".
@@ -38,15 +33,10 @@ import java.util.Map;
  * <p>
  * Note: this class has a natural ordering that is inconsistent with equals.
  */
+@DependsOn({"rsServiceRegistry"})
 public abstract class RsService implements Comparable<RsService>
 {
-	public static final String RS_SERVICE_CLASS_SUFFIX = "RsService";
-	private final Map<Integer, Class<? extends Item>> searchBySubType = new HashMap<>();
-	private Map<Class<? extends Item>, Integer> searchByClass = new HashMap<>();
-
 	public abstract RsServiceType getServiceType();
-
-	public abstract Map<Class<? extends Item>, Integer> getSupportedItems();
 
 	/**
 	 * Handle incoming items. You can use JPA calls in there.
@@ -56,22 +46,18 @@ public abstract class RsService implements Comparable<RsService>
 	 */
 	public abstract void handleItem(PeerConnection sender, Item item);
 
-	private final Environment environment;
+	private final RsServiceRegistry rsServiceRegistry;
+	private boolean enabled;
 	private boolean initialized;
 
-	protected RsService(Environment environment)
+	protected RsService(RsServiceRegistry rsServiceRegistry)
 	{
-		this.environment = environment;
+		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
 	public RsServiceInitPriority getInitPriority()
 	{
 		return RsServiceInitPriority.OFF;
-	}
-
-	public int getItemSubtype(Item item)
-	{
-		return searchByClass.get(item.getClass());
 	}
 
 	/**
@@ -111,29 +97,13 @@ public abstract class RsService implements Comparable<RsService>
 	@PostConstruct
 	private void init()
 	{
-		if (Boolean.TRUE.equals(environment.getProperty(getPropertyName(), Boolean.class, false)))
-		{
-			RsServiceRegistry.registerService(getServiceType().getType(), this);
-			searchByClass = getSupportedItems();
-			getSupportedItems().forEach((itemClass, itemSubType) ->
-			{
-				try
-				{
-					itemClass.getConstructor();
-				}
-				catch (NoSuchMethodException e)
-				{
-					throw new IllegalArgumentException(itemClass.getSimpleName() + " requires a public constructor with no parameters");
-				}
-				searchBySubType.put(itemSubType, itemClass);
-			});
-		}
+		enabled = rsServiceRegistry.registerService(this);
 	}
 
 	@EventListener
 	public void init(NetworkReadyEvent event)
 	{
-		if (!initialized)
+		if (enabled && !initialized)
 		{
 			initialized = true;
 			initialize();
@@ -143,24 +113,10 @@ public abstract class RsService implements Comparable<RsService>
 	@PreDestroy
 	private void destroy()
 	{
-		cleanup();
-	}
-
-	public Item createItem(int subType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException
-	{
-		var itemClass = searchBySubType.get(subType);
-		if (itemClass == null)
+		if (enabled)
 		{
-			throw new InstantiationException("No such type " + subType);
+			cleanup();
 		}
-		return itemClass.getConstructor().newInstance();
-	}
-
-	private String getPropertyName()
-	{
-		var className = getClass().getSimpleName();
-		assert className.endsWith(RS_SERVICE_CLASS_SUFFIX);
-		return "xrs.service." + className.substring(0, className.length() - RS_SERVICE_CLASS_SUFFIX.length()).toLowerCase(Locale.ROOT) + ".enabled";
 	}
 
 	@Override

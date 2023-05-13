@@ -19,7 +19,6 @@
 
 package io.xeres.app.database.model.gxs;
 
-import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
@@ -40,8 +39,6 @@ public final class ForumMessageItemFakes
 
 	private static ForumMessageItem createForumMessageItem(GxsId gxsId, MessageId messageId, String name)
 	{
-		var item = new ForumMessageItem(gxsId, messageId, name);
-		item.setService(new ForumRsService(null, null, null, null, null));
-		return item;
+		return new ForumMessageItem(gxsId, messageId, name);
 	}
 }

@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.ChatFlags;
 
 import java.time.Instant;
@@ -41,17 +42,29 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	private String message;
 	private long parentMessageId;
 
+	@SuppressWarnings("unused")
 	public ChatRoomMessageItem()
 	{
-		// Needed
 	}
 
 	public ChatRoomMessageItem(String message)
 	{
-		this.flags = EnumSet.of(LOBBY, PRIVATE);
-		this.sendTime = (int) Instant.now().getEpochSecond();
+		flags = EnumSet.of(LOBBY, PRIVATE);
+		sendTime = (int) Instant.now().getEpochSecond();
 		this.message = message;
-		this.parentMessageId = 0L;
+		parentMessageId = 0L;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 23;
 	}
 
 	public Set<ChatFlags> getFlags()

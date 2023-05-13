@@ -87,8 +87,9 @@ public class Startup implements ApplicationRunner
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
 	private final AutoStart autoStart;
+	private final RsServiceRegistry rsServiceRegistry;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart)
+	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry)
 	{
 		this.peerService = peerService;
 		this.upnpService = upnpService;
@@ -107,6 +108,7 @@ public class Startup implements ApplicationRunner
 		this.identityManager = identityManager;
 		this.statusNotificationService = statusNotificationService;
 		this.autoStart = autoStart;
+		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
 	@Override
@@ -328,7 +330,7 @@ public class Startup implements ApplicationRunner
 		if (log.isDebugEnabled())
 		{
 			log.debug("Network features: {}", networkProperties.getFeatures());
-			log.debug("Services: {}", RsServiceRegistry.getServices().stream().map(rsService -> rsService.getServiceType().getName()).collect(Collectors.joining(", ")));
+			log.debug("Services: {}", rsServiceRegistry.getServices().stream().map(rsService -> rsService.getServiceType().getName()).collect(Collectors.joining(", ")));
 		}
 	}
 

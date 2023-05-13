@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +32,26 @@ public class ChatRoomListItem extends Item
 	@RsSerialized
 	private final List<VisibleChatRoomInfo> chatRooms = new ArrayList<>();
 
+	@SuppressWarnings("unused")
 	public ChatRoomListItem()
 	{
-		// Required
 	}
 
 	public ChatRoomListItem(List<VisibleChatRoomInfo> chatRooms)
 	{
 		this.chatRooms.addAll(chatRooms);
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 25;
 	}
 
 	@Override

@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public class ChatRoomConfigItem extends Item
 {
@@ -30,6 +31,18 @@ public class ChatRoomConfigItem extends Item
 
 	@RsSerialized
 	private int flags; // XXX: which flags?
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 21;
+	}
 
 	@Override
 	public int getPriority()

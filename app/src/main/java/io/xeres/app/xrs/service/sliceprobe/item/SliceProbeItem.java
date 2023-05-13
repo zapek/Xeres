@@ -28,8 +28,20 @@ public class SliceProbeItem extends Item
 	public static SliceProbeItem from(ChannelHandlerContext ctx)
 	{
 		var sliceProbeItem = new SliceProbeItem();
-		sliceProbeItem.setOutgoing(ctx.alloc(), 2, RsServiceType.PACKET_SLICING_PROBE, 0xCC);
+		sliceProbeItem.setOutgoing(ctx.alloc(), null);
 		return sliceProbeItem;
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.PACKET_SLICING_PROBE.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 0xCC;
 	}
 
 	@Override

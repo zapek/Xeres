@@ -60,6 +60,12 @@ public class ForumGroupItem extends GxsGroupItem
 		updatePublished();
 	}
 
+	@Override
+	public int getSubType()
+	{
+		return 2;
+	}
+
 	public String getDescription()
 	{
 		return description;

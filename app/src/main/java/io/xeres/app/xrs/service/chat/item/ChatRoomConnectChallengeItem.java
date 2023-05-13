@@ -23,6 +23,7 @@ import io.xeres.app.crypto.chatcipher.ChatChallenge;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.LocationId;
 
 public class ChatRoomConnectChallengeItem extends Item
@@ -30,20 +31,32 @@ public class ChatRoomConnectChallengeItem extends Item
 	@RsSerialized
 	private long challengeCode;
 
-	@Override
-	public int getPriority()
-	{
-		return ItemPriority.INTERACTIVE.getPriority();
-	}
-
+	@SuppressWarnings("unused")
 	public ChatRoomConnectChallengeItem()
 	{
-		// Required
 	}
 
 	public ChatRoomConnectChallengeItem(LocationId locationId, long chatRoomId, long messageId)
 	{
 		challengeCode = ChatChallenge.code(locationId, chatRoomId, messageId);
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.CHAT.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 9;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
 	public long getChallengeCode()

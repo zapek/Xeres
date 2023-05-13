@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 
 public class TurtleTunnelResultItem extends Item
 {
@@ -29,6 +30,18 @@ public class TurtleTunnelResultItem extends Item
 
 	@RsSerialized
 	private int requestId;
+
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.TURTLE.getType();
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 4;
+	}
 
 	public int getTunnelId()
 	{

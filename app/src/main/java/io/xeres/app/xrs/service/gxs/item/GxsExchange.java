@@ -28,6 +28,24 @@ public abstract class GxsExchange extends Item
 	@RsSerialized
 	private int transactionId;
 
+	private int serviceType;
+
+	@Override
+	public int getServiceType()
+	{
+		return serviceType;
+	}
+
+	/**
+	 * GxsExchange items are shared between GxsServices. Make sure this is set by whatever creates the item.
+	 *
+	 * @param serviceType the service type
+	 */
+	public void setServiceType(int serviceType)
+	{
+		this.serviceType = serviceType;
+	}
+
 	@Override
 	public int getPriority()
 	{

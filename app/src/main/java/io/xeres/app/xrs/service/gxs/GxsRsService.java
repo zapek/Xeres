@@ -33,13 +33,13 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -85,9 +85,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private final Type itemGroupClass;
 	private final Type itemMessageClass;
 
-	protected GxsRsService(Environment environment, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
+	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
 	{
-		super(environment);
+		super(rsServiceRegistry);
 		this.gxsExchangeService = gxsExchangeService;
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
@@ -160,21 +160,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	public RsServiceType getServiceType()
 	{
 		throw new IllegalStateException("Must override getServiceType()");
-	}
-
-	@Override
-	public Map<Class<? extends Item>, Integer> getSupportedItems()
-	{
-		return Map.of(
-				GxsSyncGroupRequestItem.class, 1,
-				GxsSyncGroupItem.class, 2,
-				GxsSyncGroupStatsItem.class, 3,
-				GxsTransferGroupItem.class, 4,
-				GxsSyncMessageItem.class, 8,
-				GxsSyncMessageRequestItem.class, 16,
-				GxsTransferMessageItem.class, 32,
-				GxsTransactionItem.class, 64
-		);
 	}
 
 	@Override
@@ -445,7 +430,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			//noinspection unchecked
 			toItem = ((Class<G>) itemGroupClass).getDeclaredConstructor().newInstance();
-			toItem.setService(fromItem.getService());
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 		{
@@ -453,7 +437,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getGroup()); //XXX: use ctx().alloc()?
-		Serializer.deserializeGxsMetaAndDataItem(buf, toItem);
+		Serializer.deserializeGxsMetaAndDataItem(buf, toItem, fromItem.getServiceType());
 		buf.release();
 
 		return toItem;
@@ -464,18 +448,17 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();
 		gxsGroupItems.forEach(gxsGroupItem -> {
-			gxsGroupItem.setService(this); // XXX: this sucks... that setService() stuff should be reworked. it's hard to have items have all a service
 			signGroupIfNeeded(gxsGroupItem);
 			var groupBuf = Unpooled.buffer();
 			// Write that damn header
-			var itemHeader = new ItemHeader(groupBuf, gxsGroupItem.getService().getServiceType().getType(), 2); // XXX: 2 or 3? see readFakeHeader(), but maybe that's different
+			var itemHeader = new ItemHeader(groupBuf, getServiceType().getType(), gxsGroupItem.getSubType());
 			itemHeader.writeHeader();
 			var groupSize = gxsGroupItem.writeDataObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
 			itemHeader.writeSize(groupSize);
 
 			var metaBuf = Unpooled.buffer();
 			gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
-			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, this);
+			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, getServiceType().getType());
 			groupBuf.release();
 			metaBuf.release();
 			items.add(gxsTransferGroupItem);
@@ -512,14 +495,14 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// XXX: sign the message. add the signature stuff to GxsMessageItem
 			var messageBuf = Unpooled.buffer();
 			// Write that damn header
-			var itemHeader = new ItemHeader(messageBuf, gxsMessageItem.getService().getServiceType().getType(), 2); // XXX: 2 or 3? see readFakeHeader(), but maybe that's different
+			var itemHeader = new ItemHeader(messageBuf, getServiceType().getType(), gxsMessageItem.getSubType());
 			itemHeader.writeHeader();
 			var messageSize = gxsMessageItem.writeDataObject(messageBuf, EnumSet.noneOf(SerializationFlags.class));
 			itemHeader.writeSize(messageSize);
 
 			var metaBuf = Unpooled.buffer();
 			gxsMessageItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
-			var gxsTransferMessageItem = new GxsTransferMessageItem(gxsMessageItem.getGxsId(), gxsMessageItem.getMessageId(), getArray(messageBuf), getArray(metaBuf), transactionId, this);
+			var gxsTransferMessageItem = new GxsTransferMessageItem(gxsMessageItem.getGxsId(), gxsMessageItem.getMessageId(), getArray(messageBuf), getArray(metaBuf), transactionId, getServiceType().getType());
 			messageBuf.release();
 			metaBuf.release();
 			items.add(gxsTransferMessageItem);
@@ -556,7 +539,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			//noinspection unchecked
 			toItem = ((Class<M>) itemMessageClass).getDeclaredConstructor().newInstance();
-			toItem.setService(fromItem.getService());
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 		{
@@ -564,7 +546,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getMessage()); //XXX: use ctx().alloc()?
-		Serializer.deserializeGxsMetaAndDataItem(buf, toItem);
+		Serializer.deserializeGxsMetaAndDataItem(buf, toItem, fromItem.getServiceType());
 		buf.release();
 
 		return toItem;
@@ -578,7 +560,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	}
 
 	// XXX: GXS messages will need publish/identity support here, not just admin
-	private static void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
+	private void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
 	{
 		if (gxsGroupItem.getAdminPrivateKey() != null)
 		{
@@ -588,9 +570,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private static byte[] serializeItemForSignature(GxsGroupItem gxsGroupItem)
+	private byte[] serializeItemForSignature(GxsGroupItem gxsGroupItem)
 	{
-		gxsGroupItem.setSerialization(Unpooled.buffer().alloc(), 2, gxsGroupItem.getService().getServiceType(), 1); // XXX: not very nice to have those arguments hardcoded here
+		gxsGroupItem.setSerialization(Unpooled.buffer().alloc(), this);
 		var buf = gxsGroupItem.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);

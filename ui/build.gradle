@@ -71,4 +71,6 @@ dependencies {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
     testImplementation(testFixtures(project(":common")))
+    testImplementation 'org.testfx:testfx-core:4.0.16-alpha'
+    testImplementation 'org.testfx:testfx-junit5:4.0.16-alpha'
 }

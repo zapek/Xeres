@@ -3,7 +3,7 @@ package io.xeres.ui.support.markdown;
 import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentHeader;
-import io.xeres.ui.support.contentline.ContentText;
+import io.xeres.ui.support.contentline.ContentUtils;
 import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.Node;
 
@@ -57,7 +57,7 @@ public class Markdown2Flow
 			}
 			else
 			{
-				content.add(new ContentText(line));
+				ContentUtils.parseInlineUrls(line, content);
 			}
 		}
 		scanner.close();

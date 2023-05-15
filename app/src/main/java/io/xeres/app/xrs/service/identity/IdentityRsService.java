@@ -98,7 +98,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected void onGroupReceived(IdentityGroupItem item)
+	protected void onGroupReceived(PeerConnection sender, IdentityGroupItem item)
 	{
 		log.debug("Saving id {}", item.getGxsId());
 		identityService.transferIdentity(item);
@@ -123,7 +123,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected void onMessageReceived(GxsMessageItem item)
+	protected void onMessageReceived(PeerConnection sender, GxsMessageItem item)
 	{
 		// we don't receive messages
 	}

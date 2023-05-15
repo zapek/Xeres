@@ -22,10 +22,13 @@ package io.xeres.app.database.model.forum;
 import io.xeres.app.util.UnHtml;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.common.id.GxsId;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
@@ -59,7 +62,7 @@ public final class ForumMapper
 				.toList();
 	}
 
-	public static ForumMessageDTO toDTO(ForumMessageItemSummary forumMessageItemSummary)
+	public static ForumMessageDTO toDTO(ForumMessageItemSummary forumMessageItemSummary, String authorName)
 	{
 		if (forumMessageItemSummary == null)
 		{
@@ -72,20 +75,21 @@ public final class ForumMapper
 				forumMessageItemSummary.getMessageId(),
 				forumMessageItemSummary.getParentId(),
 				forumMessageItemSummary.getAuthorId(),
+				authorName,
 				forumMessageItemSummary.getName(),
 				forumMessageItemSummary.getPublished(),
 				null
 		);
 	}
 
-	public static List<ForumMessageDTO> toSummaryMessageDTOs(List<ForumMessageItemSummary> forumMessageItemSummaries)
+	public static List<ForumMessageDTO> toSummaryMessageDTOs(List<ForumMessageItemSummary> forumMessageItemSummaries, Map<GxsId, IdentityGroupItem> authorsMap)
 	{
 		return emptyIfNull(forumMessageItemSummaries).stream()
-				.map(ForumMapper::toDTO)
+				.map(forumMessageItemSummary -> toDTO(forumMessageItemSummary, authorsMap.getOrDefault(forumMessageItemSummary.getAuthorId(), IdentityGroupItem.EMPTY).getName()))
 				.toList();
 	}
 
-	public static ForumMessageDTO toDTO(ForumMessageItem forumMessageItem)
+	public static ForumMessageDTO toDTO(ForumMessageItem forumMessageItem, String authorName)
 	{
 		if (forumMessageItem == null)
 		{
@@ -98,6 +102,7 @@ public final class ForumMapper
 				forumMessageItem.getMessageId(),
 				forumMessageItem.getParentId(),
 				forumMessageItem.getAuthorId(),
+				authorName,
 				forumMessageItem.getName(),
 				forumMessageItem.getPublished(),
 				UnHtml.cleanupMessage(forumMessageItem.getContent())

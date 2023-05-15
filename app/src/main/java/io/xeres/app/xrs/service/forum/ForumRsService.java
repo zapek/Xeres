@@ -34,6 +34,7 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
+import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.springframework.stereotype.Component;
@@ -57,11 +58,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
 	private final ForumService forumService;
+	private final IdentityManager identityManager;
 
-	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, ForumService forumService)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager, ForumService forumService, IdentityManager identityManager)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsExchangeService, gxsTransactionManager);
 		this.forumService = forumService;
+		this.identityManager = identityManager;
 	}
 
 	@Override
@@ -119,7 +122,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected void onGroupReceived(ForumGroupItem item)
+	protected void onGroupReceived(PeerConnection sender, ForumGroupItem item)
 	{
 		log.debug("Received group {}, saving/updating...", item);
 		forumService.save(item);
@@ -150,9 +153,10 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected void onMessageReceived(ForumMessageItem item)
+	protected void onMessageReceived(PeerConnection sender, ForumMessageItem item)
 	{
 		log.debug("Received message {}, saving...", item);
+		identityManager.getGxsGroup(sender, item.getAuthorId()); // Prefetch the identity that we will need later
 		forumService.save(item);
 	}
 

@@ -23,6 +23,9 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.database.model.forum.ForumMessageItemSummary;
+import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
@@ -31,6 +34,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static io.xeres.app.database.model.forum.ForumMapper.*;
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
@@ -41,10 +46,12 @@ import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 public class ForumController
 {
 	private final ForumRsService forumRsService;
+	private final IdentityService identityService;
 
-	public ForumController(ForumRsService forumRsService)
+	public ForumController(ForumRsService forumRsService, IdentityService identityService)
 	{
 		this.forumRsService = forumRsService;
+		this.identityService = identityService;
 	}
 
 	@GetMapping("/groups")
@@ -75,7 +82,16 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumMessageDTO> getForumMessages(@PathVariable long groupId)
 	{
-		return toSummaryMessageDTOs(forumRsService.getForumMessages(groupId));
+		var forumMessages = forumRsService.getForumMessages(groupId);
+
+		var authors = forumMessages.stream()
+				.map(ForumMessageItemSummary::getAuthorId)
+				.collect(Collectors.toSet());
+
+		var authorsMap = identityService.findAll(authors).stream()
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
+
+		return toSummaryMessageDTOs(forumMessages, authorsMap);
 	}
 
 	@GetMapping("/messages/{messageId}")
@@ -83,6 +99,9 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
-		return toDTO(forumRsService.getForumMessage(messageId));
+		var forumMessage = forumRsService.getForumMessage(messageId);
+		var author = identityService.findByGxsId(forumMessage.getAuthorId());
+
+		return toDTO(forumMessage, author.map(GxsGroupItem::getName).orElse(null));
 	}
 }

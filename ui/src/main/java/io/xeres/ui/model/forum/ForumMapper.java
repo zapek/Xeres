@@ -59,6 +59,7 @@ public final class ForumMapper
 		forumMessage.setGxsId(dto.gxsId());
 		forumMessage.setParentId(dto.parentId());
 		forumMessage.setAuthorId(dto.authorId());
+		forumMessage.setAuthorName(dto.authorName());
 		forumMessage.setName(dto.name());
 		forumMessage.setPublished(dto.published());
 		forumMessage.setContent(dto.content());

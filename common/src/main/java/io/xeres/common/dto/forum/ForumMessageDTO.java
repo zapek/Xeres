@@ -30,6 +30,7 @@ public record ForumMessageDTO(
 		MessageId messageId,
 		MessageId parentId,
 		GxsId authorId,
+		String authorName,
 		String name,
 		Instant published,
 		String content

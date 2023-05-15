@@ -118,7 +118,7 @@ public class ForumViewController implements Controller
 
 		//forumMessagesTableView.setRowFactory(ForumMessageCell::new); // if we want bold, etc...
 		tableSubject.setCellValueFactory(new PropertyValueFactory<>("name"));
-		tableAuthor.setCellValueFactory(param -> new SimpleStringProperty(Id.toString(param.getValue().getAuthorId()))); // XXX: needs mapping!
+		tableAuthor.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getAuthorName() != null ? param.getValue().getAuthorName() : Id.toString(param.getValue().getAuthorId())));
 		tableDate.setCellFactory(DateCell::new);
 		tableDate.setCellValueFactory(new PropertyValueFactory<>("published"));
 
@@ -226,13 +226,16 @@ public class ForumViewController implements Controller
 
 	private void changeSelectedForumMessage(ForumMessage forumMessage)
 	{
-		forumClient.getForumMessage(forumMessage.getId())
-				.doOnSuccess(message -> Platform.runLater(() -> {
-					var md2flow = new Markdown2Flow(message.getContent());
+		if (forumMessage != null)
+		{
+			forumClient.getForumMessage(forumMessage.getId())
+					.doOnSuccess(message -> Platform.runLater(() -> {
+						var md2flow = new Markdown2Flow(message.getContent());
 
-					messageContent.getChildren().clear();
-					messageContent.getChildren().addAll(md2flow.getNodes());
-				}))
-				.subscribe();
+						messageContent.getChildren().clear();
+						messageContent.getChildren().addAll(md2flow.getNodes());
+					}))
+					.subscribe();
+		}
 	}
 }

@@ -91,6 +91,13 @@ public class IdentityManager
 		}
 	}
 
+	/**
+	 * Gets a gxs group, if available. Otherwise, put a request to fetch it later
+	 *
+	 * @param peerConnection the peer to try to get the gxs group from
+	 * @param gxsId          the gxs group id
+	 * @return the gxs group, or null if not found yet
+	 */
 	public IdentityGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)
 	{
 		synchronized (pendingGxsIds)
@@ -142,7 +149,7 @@ public class IdentityManager
 				if (peerConnection != null)
 				{
 					identityRsService.requestGxsGroups(peerConnection, gxsIdsToGet);
-					gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is  not there anymore, we should try to get it from other peers...
+					gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is not there anymore, we should try to get it from other peers...
 				}
 			});
 

@@ -121,9 +121,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	/**
 	 * Called when a group has been received.
-	 * @param item the received group
+	 *
+	 * @param sender the sender of the group
+	 * @param item   the received group
 	 */
-	protected abstract void onGroupReceived(G item);
+	protected abstract void onGroupReceived(PeerConnection sender, G item);
 
 	/**
 	 * Called when the peer wants a list of new messages within a group that we have for him.
@@ -152,9 +154,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	/**
 	 * Called when a message has been received.
-	 * @param item the received message
+	 *
+	 * @param sender the sender of the group
+	 * @param item   the received message
 	 */
-	protected abstract void onMessageReceived(M item);
+	protected abstract void onMessageReceived(PeerConnection sender, M item);
 
 	@Override
 	public RsServiceType getServiceType()
@@ -380,7 +384,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
-			transferItems.forEach(gxsTransferGroupItem -> onGroupReceived(convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
+			transferItems.forEach(gxsTransferGroupItem -> onGroupReceived(peerConnection, convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
 			if (!transferItems.isEmpty())
 			{
 				gxsExchangeService.setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
@@ -413,7 +417,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferMessageItem>) transaction.getItems();
-			transferItems.forEach(gxsTransferMessageItem -> onMessageReceived(convertTransferGroupToGxsMessage(gxsTransferMessageItem)));
+			transferItems.forEach(gxsTransferMessageItem -> onMessageReceived(peerConnection, convertTransferGroupToGxsMessage(gxsTransferMessageItem)));
 			if (!transferItems.isEmpty())
 			{
 				gxsExchangeService.setLastPeerMessageUpdate(peerConnection.getLocation(), transferItems.get(0).getGroupId(), transaction.getUpdated(), getServiceType());

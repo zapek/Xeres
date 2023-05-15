@@ -39,6 +39,9 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 @Entity(name = "identity_groups")
 public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we need to be able to serialize just the group data (here) and the group metadata (superclass)
 {
+	@Transient
+	public static final IdentityGroupItem EMPTY = new IdentityGroupItem();
+
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "profile_hash"))
 	private Sha1Sum profileHash; // hash of the gxsId + public key

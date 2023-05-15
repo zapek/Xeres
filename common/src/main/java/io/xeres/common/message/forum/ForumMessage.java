@@ -31,6 +31,7 @@ public class ForumMessage
 	private MessageId messageId;
 	private MessageId parentId;
 	private GxsId authorId;
+	private String authorName;
 	private String name;
 	private Instant published;
 	private String content;
@@ -87,6 +88,16 @@ public class ForumMessage
 	public void setAuthorId(GxsId authorId)
 	{
 		this.authorId = authorId;
+	}
+
+	public String getAuthorName()
+	{
+		return authorName;
+	}
+
+	public void setAuthorName(String authorName)
+	{
+		this.authorName = authorName;
 	}
 
 	public String getName()

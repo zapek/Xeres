@@ -25,8 +25,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import org.springframework.http.HttpStatus;
@@ -46,12 +46,12 @@ import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 public class ForumController
 {
 	private final ForumRsService forumRsService;
-	private final IdentityService identityService;
+	private final IdentityRsService identityRsService;
 
-	public ForumController(ForumRsService forumRsService, IdentityService identityService)
+	public ForumController(ForumRsService forumRsService, IdentityRsService identityRsService)
 	{
 		this.forumRsService = forumRsService;
-		this.identityService = identityService;
+		this.identityRsService = identityRsService;
 	}
 
 	@GetMapping("/groups")
@@ -59,7 +59,7 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumGroupDTO> getForumGroups()
 	{
-		return toDTOs(forumRsService.getForumGroups());
+		return toDTOs(forumRsService.findAllGroups());
 	}
 
 	@PutMapping("/groups/{groupId}/subscription")
@@ -82,13 +82,13 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumMessageDTO> getForumMessages(@PathVariable long groupId)
 	{
-		var forumMessages = forumRsService.getForumMessages(groupId);
+		var forumMessages = forumRsService.findAllMessagesSummary(groupId);
 
 		var authors = forumMessages.stream()
 				.map(ForumMessageItemSummary::getAuthorId)
 				.collect(Collectors.toSet());
 
-		var authorsMap = identityService.findAll(authors).stream()
+		var authorsMap = identityRsService.findAll(authors).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 
 		return toSummaryMessageDTOs(forumMessages, authorsMap);
@@ -99,8 +99,8 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
-		var forumMessage = forumRsService.getForumMessage(messageId);
-		var author = identityService.findByGxsId(forumMessage.getAuthorId());
+		var forumMessage = forumRsService.findMessageById(messageId);
+		var author = identityRsService.findByGxsId(forumMessage.getAuthorId());
 
 		return toDTO(forumMessage, author.map(GxsGroupItem::getName).orElse(null));
 	}

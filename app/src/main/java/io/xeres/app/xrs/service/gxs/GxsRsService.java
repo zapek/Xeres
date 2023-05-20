@@ -22,11 +22,15 @@ package io.xeres.app.xrs.service.gxs;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.database.model.gxs.GxsClientUpdate;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
+import io.xeres.app.database.model.gxs.GxsServiceSetting;
+import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.repository.GxsClientUpdateRepository;
+import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.GxsExchangeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemHeader;
 import io.xeres.app.xrs.serialization.SerializationFlags;
@@ -40,12 +44,16 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -78,19 +86,21 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private static final Duration SYNCHRONIZATION_DELAY_INITIAL_MAX = Duration.ofSeconds(15);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
-	protected final GxsExchangeService gxsExchangeService;
 	protected final GxsTransactionManager gxsTransactionManager;
 	protected final PeerConnectionManager peerConnectionManager;
+	private final GxsClientUpdateRepository gxsClientUpdateRepository;
+	private final GxsServiceSettingRepository gxsServiceSettingRepository;
 
 	private final Type itemGroupClass;
 	private final Type itemMessageClass;
 
-	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsExchangeService gxsExchangeService, GxsTransactionManager gxsTransactionManager)
+	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository)
 	{
 		super(rsServiceRegistry);
-		this.gxsExchangeService = gxsExchangeService;
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
+		this.gxsClientUpdateRepository = gxsClientUpdateRepository;
+		this.gxsServiceSettingRepository = gxsServiceSettingRepository;
 
 		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of G
 		itemGroupClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
@@ -214,12 +224,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void sync(PeerConnection peerConnection)
 	{
-		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsExchangeService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
+		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
 		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsSyncGroupRequestItem.getLastUpdated(), getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 	}
-
-	// XXX: maybe have some Gxs dedicated methods...
 
 	private void handleGxsSyncGroupRequestItem(PeerConnection peerConnection, GxsSyncGroupRequestItem item)
 	{
@@ -250,7 +258,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsTransactionManager.startOutgoingTransactionForGroupIdResponse(
 					peerConnection,
 					items,
-					gxsExchangeService.getLastServiceGroupsUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
+					getLastServiceGroupsUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
 					transactionId,
 					this
 			);
@@ -290,7 +298,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsTransactionManager.startOutgoingTransactionForMessageIdResponse(
 					peerConnection,
 					items,
-					gxsExchangeService.getLastServiceGroupsUpdate(getServiceType()), // XXX: not sure that's correct
+					getLastServiceGroupsUpdate(getServiceType()), // XXX: not sure that's correct
 					transactionId,
 					this
 			);
@@ -324,7 +332,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private boolean areGxsUpdatesAvailableForPeer(Instant lastPeerUpdate)
 	{
-		var lastServiceUpdate = gxsExchangeService.getLastServiceGroupsUpdate(getServiceType());
+		var lastServiceUpdate = getLastServiceGroupsUpdate(getServiceType());
 		log.debug("Comparing stored peer's last update: {} to peer's advertised last update: {}", lastServiceUpdate, lastPeerUpdate);
 		// XXX: there should be a way to detect if the peer is sending a lastPeerUpdate several times (means the transaction isn't complete yet)
 		return lastPeerUpdate.isBefore(lastServiceUpdate);
@@ -387,8 +395,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			transferItems.forEach(gxsTransferGroupItem -> onGroupReceived(peerConnection, convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
 			if (!transferItems.isEmpty())
 			{
-				gxsExchangeService.setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
-				gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType());
+				setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
+				setLastServiceGroupsUpdateNow(getServiceType());
 			}
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_RESPONSE))
@@ -420,25 +428,31 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			transferItems.forEach(gxsTransferMessageItem -> onMessageReceived(peerConnection, convertTransferGroupToGxsMessage(gxsTransferMessageItem)));
 			if (!transferItems.isEmpty())
 			{
-				gxsExchangeService.setLastPeerMessageUpdate(peerConnection.getLocation(), transferItems.get(0).getGroupId(), transaction.getUpdated(), getServiceType());
-				//gxsExchangeService.setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
+				setLastPeerMessageUpdate(peerConnection.getLocation(), transferItems.get(0).getGroupId(), transaction.getUpdated(), getServiceType());
+				//setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
 			}
 		}
 	}
 
-	private G convertTransferGroupToGxsGroup(GxsTransferGroupItem fromItem)
+	private G createGxsGroupItem()
 	{
-		G toItem;
+		G gxsGroupItem;
 
 		try
 		{
 			//noinspection unchecked
-			toItem = ((Class<G>) itemGroupClass).getDeclaredConstructor().newInstance();
+			gxsGroupItem = ((Class<G>) itemGroupClass).getDeclaredConstructor().newInstance();
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 		{
 			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemGroupClass).getSimpleName() + " missing empty constructor?");
 		}
+		return gxsGroupItem;
+	}
+
+	private G convertTransferGroupToGxsGroup(GxsTransferGroupItem fromItem)
+	{
+		var toItem = createGxsGroupItem();
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getGroup()); //XXX: use ctx().alloc()?
 		Serializer.deserializeGxsMetaAndDataItem(buf, toItem, fromItem.getServiceType());
@@ -452,7 +466,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();
 		gxsGroupItems.forEach(gxsGroupItem -> {
-			signGroupIfNeeded(gxsGroupItem);
 			var groupBuf = Unpooled.buffer();
 			// Write that damn header
 			var itemHeader = new ItemHeader(groupBuf, getServiceType().getType(), gxsGroupItem.getSubType());
@@ -471,7 +484,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
 				peerConnection,
 				items,
-				gxsExchangeService.getLastServiceGroupsUpdate(getServiceType()),
+				getLastServiceGroupsUpdate(getServiceType()),
 				transactionId,
 				this
 		);
@@ -535,19 +548,25 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForMessageIdRequest(peerConnection, items, transactionId, this);
 	}
 
-	private M convertTransferGroupToGxsMessage(GxsTransferMessageItem fromItem)
+	private M createGxsMessageItem()
 	{
-		M toItem;
+		M gxsMessageItem;
 
 		try
 		{
 			//noinspection unchecked
-			toItem = ((Class<M>) itemMessageClass).getDeclaredConstructor().newInstance();
+			gxsMessageItem = ((Class<M>) itemMessageClass).getDeclaredConstructor().newInstance();
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 		{
 			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemMessageClass).getSimpleName() + " missing empty constructor?");
 		}
+		return gxsMessageItem;
+	}
+
+	private M convertTransferGroupToGxsMessage(GxsTransferMessageItem fromItem)
+	{
+		M toItem = createGxsMessageItem();
 
 		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getMessage()); //XXX: use ctx().alloc()?
 		Serializer.deserializeGxsMetaAndDataItem(buf, toItem, fromItem.getServiceType());
@@ -563,24 +582,130 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return out;
 	}
 
-	// XXX: GXS messages will need publish/identity support here, not just admin
-	private void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
+	protected G createGroup(String name)
 	{
-		if (gxsGroupItem.getAdminPrivateKey() != null)
-		{
-			var data = serializeItemForSignature(gxsGroupItem);
-			var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
-			gxsGroupItem.setSignature(signature);
-		}
+		var adminKeyPair = RSA.generateKeys(2048);
+
+		var adminPrivateKey = (RSAPrivateKey) adminKeyPair.getPrivate();
+		var adminPublicKey = (RSAPublicKey) adminKeyPair.getPublic();
+
+		// The GxsId is from the public admin key (n and e)
+		var gxsId = RSA.getGxsId(adminPublicKey);
+
+		var gxsGroupItem = createGxsGroupItem();
+		gxsGroupItem.setGxsId(gxsId);
+		gxsGroupItem.setName(name);
+		gxsGroupItem.setAdminPrivateKey(adminPrivateKey);
+		gxsGroupItem.setAdminPublicKey(adminPublicKey);
+		gxsGroupItem.updatePublished();
+
+		return gxsGroupItem;
 	}
 
-	private byte[] serializeItemForSignature(GxsGroupItem gxsGroupItem)
+	protected void signGroup(GxsGroupItem gxsGroupItem)
 	{
-		gxsGroupItem.setSerialization(Unpooled.buffer().alloc(), this);
-		var buf = gxsGroupItem.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
+		if (gxsGroupItem.getAdminPrivateKey() == null)
+		{
+			throw new IllegalArgumentException("Trying to sign group " + gxsGroupItem.getGxsId() + " (" + gxsGroupItem.getName() + ") without an admin key");
+		}
+
+		var data = serializeItemForSignature(gxsGroupItem);
+		var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
+		gxsGroupItem.setAdminSignature(signature);
+	}
+
+	protected void signMessage(GxsMessageItem gxsMessageItem)
+	{
+		// TODO: implement (need to check authorId, etc...). do it for authorSignature, publishSignature too but it's for circles I think
+	}
+
+	private byte[] serializeItemForSignature(Item item)
+	{
+		item.setSerialization(Unpooled.buffer().alloc(), this);
+		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);
 		buf.release();
 		return data;
+	}
+
+	/**
+	 * Gets the last update time of the peer's groups. The peer's time is always used, not our local time.
+	 *
+	 * @param location    the peer's location
+	 * @param serviceType the service type
+	 * @return the time when the peer last updated its groups, in peer's time
+	 */
+	@Transactional(readOnly = true)
+	public Instant getLastPeerGroupsUpdate(Location location, RsServiceType serviceType)
+	{
+		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+				.map(GxsClientUpdate::getLastSynced)
+				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
+	}
+
+	@Transactional(readOnly = true)
+	public Instant getLastPeerMessagesUpdate(Location location, GxsId groupId, RsServiceType serviceType)
+	{
+		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+				.map(gxsClientUpdate -> gxsClientUpdate.getMessageUpdate(groupId))
+				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
+	}
+
+	/**
+	 * Sets the last update time of the peer's groups. The peer's time is always used, not our local time.
+	 *
+	 * @param location    the peer's location
+	 * @param update      the peer's last update time, in peer's time (so given by the peer itself). Never supply a time computed locally
+	 * @param serviceType the service type
+	 */
+	@Transactional
+	public void setLastPeerGroupsUpdate(Location location, Instant update, RsServiceType serviceType)
+	{
+		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+				.ifPresentOrElse(gxsClientUpdate -> {
+					gxsClientUpdate.setLastSynced(update);
+					gxsClientUpdateRepository.save(gxsClientUpdate);
+				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
+	}
+
+	@Transactional
+	public void setLastPeerMessageUpdate(Location location, GxsId groupId, Instant update, RsServiceType serviceType)
+	{
+		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+				.ifPresentOrElse(gxsClientUpdate -> {
+					gxsClientUpdate.addMessageUpdate(groupId, update);
+					gxsClientUpdateRepository.save(gxsClientUpdate);
+				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
+	}
+
+	/**
+	 * Gets the last time our service's groups were updated. This uses the local time.
+	 *
+	 * @param serviceType the service type
+	 * @return the last time
+	 */
+	@Transactional(readOnly = true)
+	public Instant getLastServiceGroupsUpdate(RsServiceType serviceType)
+	{
+		return gxsServiceSettingRepository.findById(serviceType.getType())
+				.map(GxsServiceSetting::getLastUpdated)
+				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
+	}
+
+	/**
+	 * Sets the last time our service's groups were updated.
+	 *
+	 * @param serviceType the service type
+	 */
+	@Transactional
+	public void setLastServiceGroupsUpdateNow(RsServiceType serviceType)
+	{
+		var now = Instant.now(); // we always use local time
+		gxsServiceSettingRepository.findById(serviceType.getType())
+				.ifPresentOrElse(gxsServiceSetting -> {
+					gxsServiceSetting.setLastUpdated(Instant.now());
+					gxsServiceSettingRepository.save(gxsServiceSetting);
+				}, () -> gxsServiceSettingRepository.save(new GxsServiceSetting(serviceType.getType(), now)));
 	}
 }

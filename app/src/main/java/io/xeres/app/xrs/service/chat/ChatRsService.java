@@ -23,10 +23,9 @@ import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.repository.ChatRoomRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.ChatRoomService;
-import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.util.UnHtml;
 import io.xeres.app.xrs.common.Signature;
@@ -37,6 +36,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
@@ -146,24 +146,24 @@ public class ChatRsService extends RsService
 
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
-	private final IdentityService identityService;
-	private final ChatRoomService chatRoomService;
+	private final IdentityRsService identityRsService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final IdentityManager identityManager;
 	private final TrayService trayService;
+	private final ChatRoomRepository chatRoomRepository;
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityService identityService, ChatRoomService chatRoomService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService)
+	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityRsService identityRsService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService, ChatRoomRepository chatRoomRepository)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
-		this.identityService = identityService;
-		this.chatRoomService = chatRoomService;
+		this.identityRsService = identityRsService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
 		this.trayService = trayService;
+		this.chatRoomRepository = chatRoomRepository;
 	}
 
 	@Override
@@ -242,7 +242,7 @@ public class ChatRsService extends RsService
 
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			chatRoomService.markAllChatRoomsAsLeft();
+			markAllChatRoomsAsLeft();
 			subscribeToAllSavedRooms();
 		}
 	}
@@ -384,7 +384,7 @@ public class ChatRsService extends RsService
 	{
 		log.debug("Subscribing to all saved rooms...");
 
-		chatRoomService.getAllChatRoomsPendingToSubscribe().forEach(savedRoom -> {
+		getAllChatRoomsPendingToSubscribe().forEach(savedRoom -> {
 			var chatRoom = new ChatRoom(
 					savedRoom.getRoomId(),
 					savedRoom.getName(),
@@ -419,7 +419,7 @@ public class ChatRsService extends RsService
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			var ownIdentity = identityService.getOwnIdentity();
+			var ownIdentity = identityRsService.getOwnIdentity();
 			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage()));
 		}
 	}
@@ -454,7 +454,7 @@ public class ChatRsService extends RsService
 						inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.PLAIN);
 					}
 					updateRooms(chatRoom);
-					chatRoomService.getAllChatRoomsPendingToSubscribe().stream()
+					getAllChatRoomsPendingToSubscribe().stream()
 							.filter(pendingChatRoom -> pendingChatRoom.getRoomId() == chatRoom.getId())
 							.findFirst()
 							.ifPresent(pendingChatRoom -> joinChatRoom(pendingChatRoom.getRoomId()));
@@ -729,7 +729,7 @@ public class ChatRsService extends RsService
 
 	private void handleAvatarRequest(PeerConnection peerConnection)
 	{
-		var ownImage = identityService.getOwnIdentity().getImage();
+		var ownImage = identityRsService.getOwnIdentity().getImage();
 		if (ownImage != null && ownImage.length <= AVATAR_SIZE_MAX)
 		{
 			peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
@@ -824,13 +824,13 @@ public class ChatRsService extends RsService
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			var ownIdentity = identityService.getOwnIdentity();
+			var ownIdentity = identityRsService.getOwnIdentity();
 
 			bounce.setRoomId(chatRoom.getId());
 			bounce.setMessageId(chatRoom.getNewMessageId());
 			bounce.setSenderNickname(ownIdentity.getName()); // XXX: we should use the identity in chatRoom.getGxsId() once we have multiple identities support done properly
 
-			var signature = identityService.signData(ownIdentity, getBounceData(bounce));
+			var signature = identityRsService.signData(ownIdentity, getBounceData(bounce));
 
 			bounce.setSignature(new Signature(ownIdentity.getGxsId(), signature));
 		}
@@ -1050,9 +1050,9 @@ public class ChatRsService extends RsService
 
 		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: ugly, it's because we can be called from a lambda.. make it take the arguments later (needed for multi identity support)
 		{
-			var ownIdentity = identityService.getOwnIdentity(); // XXX: allow multiple identities later on
+			var ownIdentity = identityRsService.getOwnIdentity(); // XXX: allow multiple identities later on
 			chatRoom.setOwnGxsId(ownIdentity.getGxsId());
-			chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
+			subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
 			chatRoom.getParticipatingLocations().forEach(location -> inviteLocationToChatRoom(location, chatRoom, Invitation.PLAIN));
 
@@ -1094,7 +1094,7 @@ public class ChatRsService extends RsService
 		sendChatRoomEvent(chatRoomToRemove, ChatRoomEvent.PEER_LEFT);
 		chatRooms.remove(chatRoomId);
 		chatRoomToRemove.setJoinedRoomPacketSent(false); // in the case we rejoin immediately
-		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities
+		unsubscribeFromChatRoomAndLeave(chatRoomId, identityRsService.getOwnIdentity()); // XXX: allow multiple identities
 
 		chatRoomToRemove.getParticipatingLocations().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));
 		sendUserEventToClient(chatRoomToRemove.getId(), CHAT_ROOM_LEAVE);
@@ -1136,6 +1136,52 @@ public class ChatRsService extends RsService
 				inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.PLAIN);
 			}
 		}, this);
+	}
+
+	@Transactional
+	public io.xeres.app.database.model.chat.ChatRoom createChatRoom(io.xeres.app.xrs.service.chat.ChatRoom chatRoom, IdentityGroupItem identityGroupItem)
+	{
+		return chatRoomRepository.save(io.xeres.app.database.model.chat.ChatRoom.createChatRoom(chatRoom, identityGroupItem));
+	}
+
+	@Transactional
+	public io.xeres.app.database.model.chat.ChatRoom subscribeToChatRoomAndJoin(io.xeres.app.xrs.service.chat.ChatRoom chatRoom, IdentityGroupItem identityGroupItem)
+	{
+		var entity = chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getId(), identityGroupItem).orElseGet(() -> createChatRoom(chatRoom, identityGroupItem));
+		entity.setSubscribed(true);
+		entity.setJoined(true);
+		return chatRoomRepository.save(entity);
+	}
+
+	@Transactional
+	public io.xeres.app.database.model.chat.ChatRoom unsubscribeFromChatRoomAndLeave(long chatRoomId, IdentityGroupItem identityGroupItem)
+	{
+		var foundRoom = chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem);
+
+		foundRoom.ifPresent(subscribedRoom -> {
+			subscribedRoom.setSubscribed(false);
+			subscribedRoom.setJoined(false);
+			chatRoomRepository.save(subscribedRoom);
+		});
+		return foundRoom.orElse(null);
+	}
+
+	@Transactional
+	public void deleteChatRoom(long chatRoomId, IdentityGroupItem identityGroupItem)
+	{
+		chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem).ifPresent(chatRoomRepository::delete);
+	}
+
+	@Transactional(readOnly = true)
+	public List<io.xeres.app.database.model.chat.ChatRoom> getAllChatRoomsPendingToSubscribe()
+	{
+		return chatRoomRepository.findAllBySubscribedTrueAndJoinedFalse(); // Remember joined is set to false on startup
+	}
+
+	@Transactional
+	public void markAllChatRoomsAsLeft()
+	{
+		chatRoomRepository.putAllJoinedToFalse();
 	}
 
 	private long createUniqueRoomId()

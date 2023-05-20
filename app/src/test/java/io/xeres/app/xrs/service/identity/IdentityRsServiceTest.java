@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,12 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service;
+package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.GxsIdentityRepository;
+import io.xeres.app.database.repository.GxsServiceSettingRepository;
+import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.ProfileFingerprint;
 import jakarta.persistence.EntityNotFoundException;
@@ -48,7 +51,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class IdentityServiceTest
+class IdentityRsServiceTest
 {
 	@Mock
 	private SettingsService settingsService;
@@ -60,10 +63,10 @@ class IdentityServiceTest
 	private GxsIdentityRepository gxsIdentityRepository;
 
 	@Mock
-	private GxsExchangeService gxsExchangeService;
+	private GxsServiceSettingRepository gxsServiceSettingRepository;
 
 	@InjectMocks
-	private IdentityService identityService;
+	private IdentityRsService identityRsService;
 
 	@BeforeAll
 	static void setup()
@@ -79,9 +82,8 @@ class IdentityServiceTest
 		when(settingsService.isOwnProfilePresent()).thenReturn(true);
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
-		doNothing().when(gxsExchangeService).setLastServiceGroupsUpdateNow(any());
 
-		identityService.createOwnIdentity(NAME, false);
+		identityRsService.createOwnIdentity(NAME, false);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
@@ -119,9 +121,8 @@ class IdentityServiceTest
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 		when(settingsService.getSecretProfileKey()).thenReturn(encodedKey);
 		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
-		doNothing().when(gxsExchangeService).setLastServiceGroupsUpdateNow(any());
 
-		identityService.createOwnIdentity(NAME, true);
+		identityRsService.createOwnIdentity(NAME, true);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
@@ -139,7 +140,7 @@ class IdentityServiceTest
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
 
-		identityService.saveIdentityImage(id, file);
+		identityRsService.saveIdentityImage(id, file);
 
 		assertNotNull(identity.getImage());
 
@@ -153,7 +154,7 @@ class IdentityServiceTest
 		var id = 2L;
 		var file = mock(MultipartFile.class);
 
-		assertThrows(EntityNotFoundException.class, () -> identityService.saveIdentityImage(id, file));
+		assertThrows(EntityNotFoundException.class, () -> identityRsService.saveIdentityImage(id, file));
 	}
 
 	@Test
@@ -161,7 +162,7 @@ class IdentityServiceTest
 	{
 		var id = 1L;
 
-		assertThrows(IllegalArgumentException.class, () -> identityService.saveIdentityImage(id, null));
+		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveIdentityImage(id, null));
 	}
 
 	@Test
@@ -171,7 +172,7 @@ class IdentityServiceTest
 		var file = mock(MultipartFile.class);
 		when(file.getSize()).thenReturn(1024 * 1024 * 11L);
 
-		assertThrows(IllegalArgumentException.class, () -> identityService.saveIdentityImage(id, file), "Avatar image size is bigger than " + (1024 * 1024 * 10) + " bytes");
+		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveIdentityImage(id, file), "Avatar image size is bigger than " + (1024 * 1024 * 10) + " bytes");
 	}
 
 	@Test
@@ -183,7 +184,7 @@ class IdentityServiceTest
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
 
-		identityService.deleteIdentityImage(id);
+		identityRsService.deleteIdentityImage(id);
 
 		assertNull(identity.getImage());
 
@@ -196,6 +197,6 @@ class IdentityServiceTest
 	{
 		var id = 2L;
 
-		assertThrows(EntityNotFoundException.class, () -> identityService.deleteIdentityImage(id));
+		assertThrows(EntityNotFoundException.class, () -> identityRsService.deleteIdentityImage(id));
 	}
 }

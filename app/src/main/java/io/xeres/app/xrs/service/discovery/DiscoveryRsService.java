@@ -28,7 +28,6 @@ import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.status_notification.StatusNotificationService;
@@ -42,6 +41,7 @@ import io.xeres.app.xrs.service.discovery.item.DiscoveryIdentityListItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpKeyItem;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryPgpListItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
@@ -76,19 +76,19 @@ public class DiscoveryRsService extends RsService
 
 	private final ProfileService profileService;
 	private final LocationService locationService;
-	private final IdentityService identityService;
+	private final IdentityRsService identityRsService;
 	private final BuildProperties buildProperties;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final PeerConnectionManager peerConnectionManager;
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
 
-	public DiscoveryRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityService identityService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, StatusNotificationService statusNotificationService)
+	public DiscoveryRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, BuildProperties buildProperties, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, StatusNotificationService statusNotificationService)
 	{
 		super(rsServiceRegistry);
 		this.profileService = profileService;
 		this.locationService = locationService;
-		this.identityService = identityService;
+		this.identityRsService = identityRsService;
 		this.identityManager = identityManager;
 		this.buildProperties = buildProperties;
 		this.databaseSessionManager = databaseSessionManager;
@@ -124,7 +124,7 @@ public class DiscoveryRsService extends RsService
 		{
 			var ownLocation = locationService.findOwnLocation().orElseThrow();
 			sendContact(peerConnection, ownLocation);
-			sendIdentity(peerConnection, identityService.getOwnIdentity()); // XXX: in the future we will have several identities, just get the signed ones here
+			sendIdentity(peerConnection, identityRsService.getOwnIdentity()); // XXX: in the future we will have several identities, just get the signed ones here
 			// XXX: also send our own other locations, if any (ie. laptop, etc...). XXX: this should be already done in the current code but check. it is done when the peer sends us his list of friends and has us in it
 		}
 	}

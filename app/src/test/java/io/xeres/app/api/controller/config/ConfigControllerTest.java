@@ -25,9 +25,9 @@ import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.CapabilityService;
-import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.rest.config.IpAddressRequest;
 import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
@@ -63,7 +63,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	private LocationService locationService;
 
 	@MockBean
-	private IdentityService identityService;
+	private IdentityRsService identityRsService;
 
 	@MockBean
 	private CapabilityService capabilityService;
@@ -314,13 +314,13 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
 
-		when(identityService.createOwnIdentity(identityRequest.name(), true)).thenReturn(identity.getId());
+		when(identityRsService.createOwnIdentity(identityRequest.name(), true)).thenReturn(identity.getId());
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
-		verify(identityService).createOwnIdentity(identityRequest.name(), true);
+		verify(identityRsService).createOwnIdentity(identityRequest.name(), true);
 	}
 
 	@Test
@@ -329,13 +329,13 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
-		when(identityService.createOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());
+		when(identityRsService.createOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
-		verify(identityService).createOwnIdentity(identityRequest.name(), false);
+		verify(identityRsService).createOwnIdentity(identityRequest.name(), false);
 	}
 
 	@Test

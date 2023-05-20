@@ -54,7 +54,7 @@ class GxsSignatureTest
 		var data = serializeItemForSignature(gxsIdGroupItem);
 
 		var signature = RSA.sign(data, gxsIdGroupItem.getAdminPrivateKey());
-		gxsIdGroupItem.setSignature(signature);
+		gxsIdGroupItem.setAdminSignature(signature);
 
 		var rawItem = serializeItem(gxsIdGroupItem);
 		assertNotNull(rawItem);
@@ -66,7 +66,7 @@ class GxsSignatureTest
 
 		var verifyData = serializeItemForSignature(item);
 
-		assertTrue(RSA.verify(item.getAdminPublicKey(), item.getSignature(), verifyData));
+		assertTrue(RSA.verify(item.getAdminPublicKey(), item.getAdminSignature(), verifyData));
 
 		rawItem.getBuffer().release();
 		tmpRawItem.getBuffer().release();
@@ -74,13 +74,13 @@ class GxsSignatureTest
 
 	private RawItem serializeItem(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null));
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null));
 		return item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 	}
 
 	private byte[] serializeItemForSignature(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null));
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null));
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);

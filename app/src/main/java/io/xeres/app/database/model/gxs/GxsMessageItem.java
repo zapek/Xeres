@@ -29,6 +29,8 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Set;
@@ -39,6 +41,8 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 {
+	private static final Logger log = LoggerFactory.getLogger(GxsMessageItem.class);
+
 	private static final int API_VERSION_2 = 0x0000;
 
 	@Id
@@ -78,11 +82,8 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 
 	private String serviceString;
 
-	@Transient
 	private byte[] publishSignature;
-
-	@Transient
-	private byte[] identitySignature;
+	private byte[] authorSignature;
 
 	@Override
 	public int getServiceType()
@@ -171,14 +172,14 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 		this.publishSignature = publishSignature;
 	}
 
-	public byte[] getIdentitySignature()
+	public byte[] getAuthorSignature()
 	{
-		return identitySignature;
+		return authorSignature;
 	}
 
-	public void setIdentitySignature(byte[] identitySignature)
+	public void setAuthorSignature(byte[] identitySignature)
 	{
-		this.identitySignature = identitySignature;
+		this.authorSignature = identitySignature;
 	}
 
 	@Override
@@ -232,9 +233,9 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 		{
 			signatureSet.put(SignatureSet.Type.PUBLISH, new Signature(gxsId, getPublishSignature()));
 		}
-		if (getIdentitySignature() != null)
+		if (getAuthorSignature() != null)
 		{
-			signatureSet.put(SignatureSet.Type.IDENTITY, new Signature(gxsId, getIdentitySignature()));
+			signatureSet.put(SignatureSet.Type.AUTHOR, new Signature(gxsId, getAuthorSignature()));
 		}
 		return signatureSet;
 	}
@@ -242,19 +243,20 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	private void deserializeSignature(ByteBuf buf)
 	{
 		var signatureSet = (SignatureSet) deserialize(buf, TlvType.SIGNATURE_SET);
-		if (signatureSet.getSignatures() != null)
-		{
-			var sign = signatureSet.getSignatures().get(SignatureSet.Type.PUBLISH.getValue());
-			if (sign != null)
+		signatureSet.getSignatures().forEach((sigId, signature) -> {
+			if (sigId == SignatureSet.Type.PUBLISH.getValue())
 			{
-				publishSignature = sign.data();
+				setPublishSignature(signature.data());
 			}
-			sign = signatureSet.getSignatures().get(SignatureSet.Type.IDENTITY.getValue());
-			if (sign != null)
+			else if (sigId == SignatureSet.Type.AUTHOR.getValue())
 			{
-				identitySignature = sign.data();
+				setAuthorSignature(signature.data());
 			}
-		}
+			else
+			{
+				log.warn("Unknown signature type: {}", sigId);
+			}
+		});
 	}
 
 	@Override

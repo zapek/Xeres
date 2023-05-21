@@ -22,11 +22,11 @@ package io.xeres.app.database.repository;
 import io.xeres.app.database.model.gxs.GxsClientUpdate;
 import io.xeres.app.database.model.location.Location;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Repository
+@Transactional(readOnly = true)
 public interface GxsClientUpdateRepository extends JpaRepository<GxsClientUpdate, Long>
 {
 	Optional<GxsClientUpdate> findByLocationAndServiceType(Location location, int serviceType);

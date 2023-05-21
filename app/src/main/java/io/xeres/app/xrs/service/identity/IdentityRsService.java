@@ -154,7 +154,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		// we don't receive messages
 	}
 
-	@Transactional
 	public long createOwnIdentity(String name, boolean signed) throws CertificateException, PGPException, IOException
 	{
 		if (!settingsService.isOwnProfilePresent())
@@ -197,13 +196,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return saveIdentity(gxsIdGroupItem).getId();
 	}
 
-	@Transactional(readOnly = true)
 	public IdentityGroupItem getOwnIdentity() // XXX: temporary, we'll have several identities later
 	{
 		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own gxsId"));
 	}
 
-	@Transactional(readOnly = true)
 	public Optional<IdentityGroupItem> findById(long id)
 	{
 		return gxsIdentityRepository.findById(id);
@@ -222,7 +219,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		gxsIdentityRepository.save(identityGroupItem);
 	}
 
-	@Transactional
 	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
 	{
 		if (Profile.isOwn(identityGroupItem.getId()))
@@ -234,37 +230,31 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return savedIdentity;
 	}
 
-	@Transactional(readOnly = true)
 	public List<IdentityGroupItem> findAllByName(String name)
 	{
 		return gxsIdentityRepository.findAllByName(name);
 	}
 
-	@Transactional(readOnly = true)
 	public Optional<IdentityGroupItem> findByGxsId(GxsId gxsId)
 	{
 		return gxsIdentityRepository.findByGxsId(gxsId);
 	}
 
-	@Transactional(readOnly = true)
 	public List<IdentityGroupItem> findAllByType(Type type)
 	{
 		return gxsIdentityRepository.findAllByType(type);
 	}
 
-	@Transactional(readOnly = true)
 	public List<IdentityGroupItem> getAll()
 	{
 		return gxsIdentityRepository.findAll();
 	}
 
-	@Transactional(readOnly = true)
 	public List<IdentityGroupItem> findAll(Set<GxsId> gxsIds)
 	{
 		return gxsIdentityRepository.findAllByGxsIdIn(gxsIds);
 	}
 
-	@Transactional(readOnly = true)
 	public List<IdentityGroupItem> findAllSubscribedAndPublishedSince(Instant since)
 	{
 		return gxsIdentityRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
@@ -276,7 +266,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return RSA.sign(data, identityGroupItem.getAdminPrivateKey());
 	}
 
-	@Transactional
 	public void saveIdentityImage(long id, MultipartFile file) throws IOException
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)
@@ -308,7 +297,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		saveIdentity(identity);
 	}
 
-	@Transactional
 	public void deleteIdentityImage(long id)
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)

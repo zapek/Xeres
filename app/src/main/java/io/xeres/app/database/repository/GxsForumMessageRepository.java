@@ -24,14 +24,14 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Repository
+@Transactional(readOnly = true)
 public interface GxsForumMessageRepository extends JpaRepository<ForumMessageItem, Long>
 {
 	Optional<ForumMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);

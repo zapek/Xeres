@@ -188,31 +188,26 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		save(forum);
 	}
 
-	@Transactional(readOnly = true)
 	public Optional<ForumGroupItem> findById(long id)
 	{
 		return gxsForumGroupRepository.findById(id);
 	}
 
-	@Transactional(readOnly = true)
 	public List<ForumGroupItem> findAllGroups()
 	{
 		return gxsForumGroupRepository.findAll();
 	}
 
-	@Transactional(readOnly = true)
 	public List<ForumGroupItem> findAllSubscribedGroups()
 	{
 		return gxsForumGroupRepository.findAllBySubscribedIsTrue();
 	}
 
-	@Transactional(readOnly = true)
 	public List<ForumGroupItem> findAllGroups(Set<GxsId> gxsIds)
 	{
 		return gxsForumGroupRepository.findAllByGxsIdIn(gxsIds);
 	}
 
-	@Transactional(readOnly = true)
 	public List<ForumGroupItem> findAllGroupsSubscribedAndPublishedSince(Instant since)
 	{
 		return gxsForumGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
@@ -226,13 +221,11 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		// XXX: setLastServiceUpdate() ! (though, it seems to work already?) and I also should do it for messages
 	}
 
-	@Transactional(readOnly = true)
 	public List<ForumMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
 	{
 		return gxsForumMessageRepository.findAllByGxsIdAndPublishedAfter(groupId, since);
 	}
 
-	@Transactional(readOnly = true)
 	public List<ForumMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
 	{
 		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
@@ -245,7 +238,6 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findSummaryAllByGxsId(forumGroup.getGxsId());
 	}
 
-	@Transactional(readOnly = true)
 	public ForumMessageItem findMessageById(long id)
 	{
 		return gxsForumMessageRepository.findById(id).orElseThrow();

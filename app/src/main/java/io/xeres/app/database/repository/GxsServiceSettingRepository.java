@@ -21,9 +21,9 @@ package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.gxs.GxsServiceSetting;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-@Repository
+@Transactional(readOnly = true)
 public interface GxsServiceSettingRepository extends JpaRepository<GxsServiceSetting, Integer>
 {
 }

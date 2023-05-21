@@ -957,7 +957,6 @@ public class ChatRsService extends RsService
 	 * @param locationId the location id
 	 * @param message    the message
 	 */
-	@Transactional(readOnly = true)
 	public void sendPrivateMessage(LocationId locationId, String message)
 	{
 		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
@@ -969,14 +968,12 @@ public class ChatRsService extends RsService
 	 *
 	 * @param locationId the location id
 	 */
-	@Transactional(readOnly = true)
 	public void sendPrivateTypingNotification(LocationId locationId)
 	{
 		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
 		peerConnectionManager.writeItem(location, new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 
-	@Transactional(readOnly = true)
 	public void sendAvatarRequest(LocationId locationId)
 	{
 		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
@@ -1138,7 +1135,6 @@ public class ChatRsService extends RsService
 		}, this);
 	}
 
-	@Transactional
 	public io.xeres.app.database.model.chat.ChatRoom createChatRoom(io.xeres.app.xrs.service.chat.ChatRoom chatRoom, IdentityGroupItem identityGroupItem)
 	{
 		return chatRoomRepository.save(io.xeres.app.database.model.chat.ChatRoom.createChatRoom(chatRoom, identityGroupItem));
@@ -1172,14 +1168,12 @@ public class ChatRsService extends RsService
 		chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem).ifPresent(chatRoomRepository::delete);
 	}
 
-	@Transactional(readOnly = true)
 	public List<io.xeres.app.database.model.chat.ChatRoom> getAllChatRoomsPendingToSubscribe()
 	{
 		return chatRoomRepository.findAllBySubscribedTrueAndJoinedFalse(); // Remember joined is set to false on startup
 	}
 
-	@Transactional
-	public void markAllChatRoomsAsLeft()
+	private void markAllChatRoomsAsLeft()
 	{
 		chatRoomRepository.putAllJoinedToFalse();
 	}

@@ -62,7 +62,6 @@ import static io.xeres.common.properties.StartupProperties.Property.SERVER_PORT;
 import static java.util.function.Predicate.not;
 
 @Service
-@Transactional(readOnly = true)
 public class LocationService
 {
 	private static final Logger log = LoggerFactory.getLogger(LocationService.class);
@@ -198,7 +197,6 @@ public class LocationService
 		return locationRepository.findById(id);
 	}
 
-	@Transactional
 	public void markAllConnectionsAsDisconnected()
 	{
 		locationRepository.putAllConnectedToFalse();
@@ -242,6 +240,7 @@ public class LocationService
 		return locationRepository.save(location);
 	}
 
+	@Transactional(readOnly = true)
 	public List<Connection> getConnectionsToConnectTo(int simultaneousLocations)
 	{
 		var ownConnection = findOwnLocation().orElseThrow()

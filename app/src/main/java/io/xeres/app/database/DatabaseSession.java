@@ -39,7 +39,7 @@ public class DatabaseSession implements AutoCloseable
 	public DatabaseSession(DatabaseSessionManager databaseSessionManager)
 	{
 		this.databaseSessionManager = databaseSessionManager;
-		this.isBound = databaseSessionManager.bindSession();
+		isBound = databaseSessionManager.bindSession();
 	}
 
 	@Override

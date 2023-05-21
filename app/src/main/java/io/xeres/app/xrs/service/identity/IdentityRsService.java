@@ -27,6 +27,7 @@ import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.repository.GxsClientUpdateRepository;
+import io.xeres.app.database.repository.GxsGroupItemRepository;
 import io.xeres.app.database.repository.GxsIdentityRepository;
 import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.net.peer.PeerConnection;
@@ -77,9 +78,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final ProfileService profileService;
 	private final TransactionTemplate transactionTemplate;
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, TransactionTemplate transactionTemplate)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsGroupItemRepository gxsGroupItemRepository, TransactionTemplate transactionTemplate)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, gxsClientUpdateRepository, gxsServiceSettingRepository, transactionTemplate);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, gxsClientUpdateRepository, gxsServiceSettingRepository, identityManager, gxsGroupItemRepository, transactionTemplate);
 		this.gxsIdentityRepository = gxsIdentityRepository;
 		this.settingsService = settingsService;
 		this.profileService = profileService;
@@ -127,10 +128,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected void onGroupReceived(PeerConnection sender, IdentityGroupItem item)
+	protected boolean onGroupReceived(IdentityGroupItem identityGroupItem)
 	{
-		log.debug("Saving id {}", item.getGxsId());
-		transferIdentity(item);
+		log.debug("Saving id {}", identityGroupItem.getGxsId());
+		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
+		identityGroupItem.setSubscribed(true);
+		return true;
 	}
 
 	@Override
@@ -207,20 +210,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	public Optional<IdentityGroupItem> findById(long id)
 	{
 		return gxsIdentityRepository.findById(id);
-	}
-
-	public void transferIdentity(IdentityGroupItem identityGroupItem)
-	{
-		transactionTemplate.executeWithoutResult(status -> {
-			identityGroupItem.setId(gxsIdentityRepository.findByGxsId(identityGroupItem.getGxsId()).orElse(identityGroupItem).getId());
-			if (Profile.isOwn(identityGroupItem.getId()))
-			{
-				return; // Don't overwrite our own identity
-			}
-			// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
-			identityGroupItem.setSubscribed(true);
-			gxsIdentityRepository.save(identityGroupItem);
-		});
 	}
 
 	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)

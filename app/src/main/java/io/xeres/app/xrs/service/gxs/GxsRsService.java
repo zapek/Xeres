@@ -28,6 +28,7 @@ import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.gxs.GxsServiceSetting;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.repository.GxsClientUpdateRepository;
+import io.xeres.app.database.repository.GxsGroupItemRepository;
 import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
@@ -40,6 +41,8 @@ import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.item.*;
+import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.slf4j.Logger;
@@ -91,18 +94,22 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final PeerConnectionManager peerConnectionManager;
 	private final GxsClientUpdateRepository gxsClientUpdateRepository;
 	private final GxsServiceSettingRepository gxsServiceSettingRepository;
+	private final IdentityManager identityManager;
+	private final GxsGroupItemRepository gxsGroupItemRepository;
 	private final TransactionTemplate transactionTemplate;
 
 	private final Type itemGroupClass;
 	private final Type itemMessageClass;
 
-	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, TransactionTemplate transactionTemplate)
+	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, IdentityManager identityManager, GxsGroupItemRepository gxsGroupItemRepository, TransactionTemplate transactionTemplate)
 	{
 		super(rsServiceRegistry);
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
 		this.gxsClientUpdateRepository = gxsClientUpdateRepository;
 		this.gxsServiceSettingRepository = gxsServiceSettingRepository;
+		this.identityManager = identityManager;
+		this.gxsGroupItemRepository = gxsGroupItemRepository;
 		this.transactionTemplate = transactionTemplate;
 
 		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of G
@@ -110,8 +117,16 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		itemMessageClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1]; // and M
 	}
 
+	protected enum VerificationStatus
+	{
+		OK,
+		FAILED,
+		DELAYED
+	}
+
 	/**
 	 * Called when the peer wants a list of new or updated groups that we have for him.
+	 *
 	 * @param recipient the recipient of the result
 	 * @param since     the time after which the groups are relevant. Everything before is ignored
 	 * @return the available groups that we have
@@ -138,7 +153,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * @param sender the sender of the group
 	 * @param item   the received group
 	 */
-	protected abstract void onGroupReceived(PeerConnection sender, G item);
+	protected abstract boolean onGroupReceived(G item);
 
 	/**
 	 * Called when the peer wants a list of new messages within a group that we have for him.
@@ -395,7 +410,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
-			transferItems.forEach(gxsTransferGroupItem -> onGroupReceived(peerConnection, convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
+			transferItems.forEach(gxsTransferGroupItem -> verifyAndSaveGroup(peerConnection, convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
 			if (!transferItems.isEmpty())
 			{
 				setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
@@ -428,12 +443,43 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			@SuppressWarnings("unchecked")
 			var transferItems = (List<GxsTransferMessageItem>) transaction.getItems();
-			transferItems.forEach(gxsTransferMessageItem -> onMessageReceived(peerConnection, convertTransferGroupToGxsMessage(gxsTransferMessageItem)));
+			transferItems.forEach(gxsTransferMessageItem -> {
+				var gxsMessageItem = convertTransferGroupToGxsMessage(gxsTransferMessageItem);
+				identityManager.getGxsGroup(peerConnection, gxsMessageItem.getAuthorId()); // Prefetch the identity that we will need later
+				onMessageReceived(peerConnection, gxsMessageItem);
+			});
 			if (!transferItems.isEmpty())
 			{
 				setLastPeerMessageUpdate(peerConnection.getLocation(), transferItems.get(0).getGroupId(), transaction.getUpdated(), getServiceType());
 				//setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
 			}
+		}
+	}
+
+	private void verifyAndSaveGroup(PeerConnection peerConnection, G gxsGroupItem)
+	{
+		var verified = verifyGroup(gxsGroupItem, identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthor()));
+		if (verified == VerificationStatus.FAILED)
+		{
+			log.error("Failed to verify group {}", gxsGroupItem);
+		}
+		else if (verified == VerificationStatus.DELAYED)
+		{
+			log.warn("Delaying verification of group {}", gxsGroupItem);
+			// XXX: put it on some delay list that is checked each N seconds, until 60 seconds have passed
+		}
+		else
+		{
+			transactionTemplate.executeWithoutResult(transactionStatus -> {
+				gxsGroupItem.setId(gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId()).orElse(gxsGroupItem).getId());
+				if (onGroupReceived(gxsGroupItem))
+				{
+					if (gxsGroupItem.getAdminPrivateKey() != null) // Don't overwrite our own groups
+					{
+						gxsGroupItemRepository.save(gxsGroupItem);
+					}
+				}
+			});
 		}
 	}
 
@@ -615,6 +661,23 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var data = serializeItemForSignature(gxsGroupItem);
 		var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
 		gxsGroupItem.setAdminSignature(signature);
+	}
+
+	private VerificationStatus verifyGroup(GxsGroupItem gxsGroupItem, IdentityGroupItem author)
+	{
+		if (gxsGroupItem.getAuthorSignature() != null)
+		{
+			if (author == null)
+			{
+				return VerificationStatus.DELAYED;
+			}
+			var data = serializeItemForSignature(gxsGroupItem);
+			if (!RSA.verify(author.getAdminPublicKey(), gxsGroupItem.getAuthorSignature(), data))
+			{
+				return VerificationStatus.FAILED;
+			}
+		}
+		return VerificationStatus.OK;
 	}
 
 	protected void signMessage(GxsMessageItem gxsMessageItem)

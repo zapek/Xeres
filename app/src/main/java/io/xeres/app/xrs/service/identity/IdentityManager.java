@@ -26,6 +26,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
 import io.xeres.common.util.NoSuppressedRunnable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -62,7 +63,8 @@ public class IdentityManager
 
 	private final ScheduledExecutorService executorService;
 
-	public IdentityManager(IdentityRsService identityRsService, PeerConnectionManager peerConnectionManager)
+	// XXX: try to fix the circular dependency injection
+	public IdentityManager(@Lazy IdentityRsService identityRsService, PeerConnectionManager peerConnectionManager)
 	{
 		this.identityRsService = identityRsService;
 		this.peerConnectionManager = peerConnectionManager;

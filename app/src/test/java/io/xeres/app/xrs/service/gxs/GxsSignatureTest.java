@@ -74,13 +74,13 @@ class GxsSignatureTest
 
 	private RawItem serializeItem(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null));
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null));
 		return item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 	}
 
 	private byte[] serializeItemForSignature(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null));
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null));
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);

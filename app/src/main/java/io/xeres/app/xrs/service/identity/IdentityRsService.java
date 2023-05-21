@@ -51,6 +51,7 @@ import org.bouncycastle.openpgp.PGPSecretKey;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -74,13 +75,15 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final GxsIdentityRepository gxsIdentityRepository;
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
+	private final TransactionTemplate transactionTemplate;
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, TransactionTemplate transactionTemplate)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, gxsClientUpdateRepository, gxsServiceSettingRepository);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, gxsClientUpdateRepository, gxsServiceSettingRepository, transactionTemplate);
 		this.gxsIdentityRepository = gxsIdentityRepository;
 		this.settingsService = settingsService;
 		this.profileService = profileService;
+		this.transactionTemplate = transactionTemplate;
 	}
 
 	@Override
@@ -206,17 +209,18 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return gxsIdentityRepository.findById(id);
 	}
 
-	@Transactional
 	public void transferIdentity(IdentityGroupItem identityGroupItem)
 	{
-		identityGroupItem.setId(gxsIdentityRepository.findByGxsId(identityGroupItem.getGxsId()).orElse(identityGroupItem).getId());
-		if (Profile.isOwn(identityGroupItem.getId()))
-		{
-			return; // Don't overwrite our own identity
-		}
-		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
-		identityGroupItem.setSubscribed(true);
-		gxsIdentityRepository.save(identityGroupItem);
+		transactionTemplate.executeWithoutResult(status -> {
+			identityGroupItem.setId(gxsIdentityRepository.findByGxsId(identityGroupItem.getGxsId()).orElse(identityGroupItem).getId());
+			if (Profile.isOwn(identityGroupItem.getId()))
+			{
+				return; // Don't overwrite our own identity
+			}
+			// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
+			identityGroupItem.setSubscribed(true);
+			gxsIdentityRepository.save(identityGroupItem);
+		});
 	}
 
 	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)

@@ -20,8 +20,6 @@
 package io.xeres.app.net.peer.packet;
 
 import io.netty.buffer.ByteBuf;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.ProtocolException;
 
@@ -31,8 +29,6 @@ import java.net.ProtocolException;
  */
 public class MultiPacket extends Packet
 {
-	private static final Logger log = LoggerFactory.getLogger(MultiPacket.class);
-
 	/**
 	 * Maximum packet ID. Wraps around.
 	 */

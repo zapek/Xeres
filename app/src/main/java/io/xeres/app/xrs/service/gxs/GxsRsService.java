@@ -44,7 +44,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -77,6 +77,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 {
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
+	private static final int GXS_KEY_SIZE = 2048; // The RSA size of Gxs keys. Do not change unless you want everything to break.
 	private static final int KEY_TRANSACTION_ID = 1;
 
 	/**
@@ -90,17 +91,19 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final PeerConnectionManager peerConnectionManager;
 	private final GxsClientUpdateRepository gxsClientUpdateRepository;
 	private final GxsServiceSettingRepository gxsServiceSettingRepository;
+	private final TransactionTemplate transactionTemplate;
 
 	private final Type itemGroupClass;
 	private final Type itemMessageClass;
 
-	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository)
+	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, TransactionTemplate transactionTemplate)
 	{
 		super(rsServiceRegistry);
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
 		this.gxsClientUpdateRepository = gxsClientUpdateRepository;
 		this.gxsServiceSettingRepository = gxsServiceSettingRepository;
+		this.transactionTemplate = transactionTemplate;
 
 		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of G
 		itemGroupClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
@@ -584,7 +587,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	protected G createGroup(String name)
 	{
-		var adminKeyPair = RSA.generateKeys(2048);
+		var adminKeyPair = RSA.generateKeys(GXS_KEY_SIZE);
 
 		var adminPrivateKey = (RSAPrivateKey) adminKeyPair.getPrivate();
 		var adminPublicKey = (RSAPublicKey) adminKeyPair.getPublic();
@@ -636,7 +639,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * @param serviceType the service type
 	 * @return the time when the peer last updated its groups, in peer's time
 	 */
-	@Transactional(readOnly = true)
 	public Instant getLastPeerGroupsUpdate(Location location, RsServiceType serviceType)
 	{
 		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
@@ -644,7 +646,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
-	@Transactional(readOnly = true)
 	public Instant getLastPeerMessagesUpdate(Location location, GxsId groupId, RsServiceType serviceType)
 	{
 		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
@@ -659,24 +660,22 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * @param update      the peer's last update time, in peer's time (so given by the peer itself). Never supply a time computed locally
 	 * @param serviceType the service type
 	 */
-	@Transactional
 	public void setLastPeerGroupsUpdate(Location location, Instant update, RsServiceType serviceType)
 	{
-		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+		transactionTemplate.executeWithoutResult(status -> gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
 				.ifPresentOrElse(gxsClientUpdate -> {
 					gxsClientUpdate.setLastSynced(update);
 					gxsClientUpdateRepository.save(gxsClientUpdate);
-				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
+				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update))));
 	}
 
-	@Transactional
 	public void setLastPeerMessageUpdate(Location location, GxsId groupId, Instant update, RsServiceType serviceType)
 	{
-		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
+		transactionTemplate.executeWithoutResult(status -> gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
 				.ifPresentOrElse(gxsClientUpdate -> {
 					gxsClientUpdate.addMessageUpdate(groupId, update);
 					gxsClientUpdateRepository.save(gxsClientUpdate);
-				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
+				}, () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update))));
 	}
 
 	/**
@@ -685,7 +684,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * @param serviceType the service type
 	 * @return the last time
 	 */
-	@Transactional(readOnly = true)
 	public Instant getLastServiceGroupsUpdate(RsServiceType serviceType)
 	{
 		return gxsServiceSettingRepository.findById(serviceType.getType())
@@ -698,14 +696,13 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 *
 	 * @param serviceType the service type
 	 */
-	@Transactional
 	public void setLastServiceGroupsUpdateNow(RsServiceType serviceType)
 	{
 		var now = Instant.now(); // we always use local time
-		gxsServiceSettingRepository.findById(serviceType.getType())
+		transactionTemplate.executeWithoutResult(status -> gxsServiceSettingRepository.findById(serviceType.getType())
 				.ifPresentOrElse(gxsServiceSetting -> {
 					gxsServiceSetting.setLastUpdated(Instant.now());
 					gxsServiceSettingRepository.save(gxsServiceSetting);
-				}, () -> gxsServiceSettingRepository.save(new GxsServiceSetting(serviceType.getType(), now)));
+				}, () -> gxsServiceSettingRepository.save(new GxsServiceSetting(serviceType.getType(), now))));
 	}
 }

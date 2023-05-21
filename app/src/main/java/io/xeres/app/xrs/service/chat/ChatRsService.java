@@ -48,7 +48,7 @@ import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -151,10 +151,11 @@ public class ChatRsService extends RsService
 	private final IdentityManager identityManager;
 	private final TrayService trayService;
 	private final ChatRoomRepository chatRoomRepository;
+	private final TransactionTemplate transactionTemplate;
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityRsService identityRsService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService, ChatRoomRepository chatRoomRepository)
+	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityRsService identityRsService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService, ChatRoomRepository chatRoomRepository, TransactionTemplate transactionTemplate)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
@@ -164,6 +165,7 @@ public class ChatRsService extends RsService
 		this.identityManager = identityManager;
 		this.trayService = trayService;
 		this.chatRoomRepository = chatRoomRepository;
+		this.transactionTemplate = transactionTemplate;
 	}
 
 	@Override
@@ -1047,7 +1049,7 @@ public class ChatRsService extends RsService
 
 		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: ugly, it's because we can be called from a lambda.. make it take the arguments later (needed for multi identity support)
 		{
-			var ownIdentity = identityRsService.getOwnIdentity(); // XXX: allow multiple identities later on
+			var ownIdentity = identityRsService.getOwnIdentity();
 			chatRoom.setOwnGxsId(ownIdentity.getGxsId());
 			subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
@@ -1140,32 +1142,33 @@ public class ChatRsService extends RsService
 		return chatRoomRepository.save(io.xeres.app.database.model.chat.ChatRoom.createChatRoom(chatRoom, identityGroupItem));
 	}
 
-	@Transactional
 	public io.xeres.app.database.model.chat.ChatRoom subscribeToChatRoomAndJoin(io.xeres.app.xrs.service.chat.ChatRoom chatRoom, IdentityGroupItem identityGroupItem)
 	{
-		var entity = chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getId(), identityGroupItem).orElseGet(() -> createChatRoom(chatRoom, identityGroupItem));
-		entity.setSubscribed(true);
-		entity.setJoined(true);
-		return chatRoomRepository.save(entity);
+		return transactionTemplate.execute(status -> {
+			var entity = chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getId(), identityGroupItem).orElseGet(() -> createChatRoom(chatRoom, identityGroupItem));
+			entity.setSubscribed(true);
+			entity.setJoined(true);
+			return chatRoomRepository.save(entity);
+		});
 	}
 
-	@Transactional
 	public io.xeres.app.database.model.chat.ChatRoom unsubscribeFromChatRoomAndLeave(long chatRoomId, IdentityGroupItem identityGroupItem)
 	{
-		var foundRoom = chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem);
+		return transactionTemplate.execute(status -> {
+			var foundRoom = chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem);
 
-		foundRoom.ifPresent(subscribedRoom -> {
-			subscribedRoom.setSubscribed(false);
-			subscribedRoom.setJoined(false);
-			chatRoomRepository.save(subscribedRoom);
+			foundRoom.ifPresent(subscribedRoom -> {
+				subscribedRoom.setSubscribed(false);
+				subscribedRoom.setJoined(false);
+				chatRoomRepository.save(subscribedRoom);
+			});
+			return foundRoom.orElse(null);
 		});
-		return foundRoom.orElse(null);
 	}
 
-	@Transactional
 	public void deleteChatRoom(long chatRoomId, IdentityGroupItem identityGroupItem)
 	{
-		chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem).ifPresent(chatRoomRepository::delete);
+		transactionTemplate.executeWithoutResult(status -> chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem).ifPresent(chatRoomRepository::delete));
 	}
 
 	public List<io.xeres.app.database.model.chat.ChatRoom> getAllChatRoomsPendingToSubscribe()

@@ -37,8 +37,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -64,6 +67,10 @@ class IdentityRsServiceTest
 
 	@Mock
 	private GxsServiceSettingRepository gxsServiceSettingRepository;
+
+	@SuppressWarnings("unused")
+	@Spy
+	private TransactionTemplate transactionTemplate = new TransactionTemplate(mock(PlatformTransactionManager.class));
 
 	@InjectMocks
 	private IdentityRsService identityRsService;

@@ -26,8 +26,6 @@ import io.netty.handler.codec.TooLongFrameException;
 import io.xeres.app.net.peer.packet.MultiPacket;
 import io.xeres.app.net.peer.packet.Packet;
 import io.xeres.app.net.peer.packet.SimplePacket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.ProtocolException;
 import java.util.List;
@@ -40,8 +38,6 @@ import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
  */
 public class PacketDecoder extends ByteToMessageDecoder
 {
-	private static final Logger log = LoggerFactory.getLogger(PacketDecoder.class);
-
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
 	{

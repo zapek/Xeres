@@ -41,6 +41,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -63,13 +64,15 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	private final IdentityManager identityManager;
 	private final GxsForumGroupRepository gxsForumGroupRepository;
 	private final GxsForumMessageRepository gxsForumMessageRepository;
+	private final TransactionTemplate transactionTemplate;
 
-	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, IdentityManager identityManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, IdentityManager identityManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, TransactionTemplate transactionTemplate)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, gxsClientUpdateRepository, gxsServiceSettingRepository);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, gxsClientUpdateRepository, gxsServiceSettingRepository, transactionTemplate);
 		this.identityManager = identityManager;
 		this.gxsForumGroupRepository = gxsForumGroupRepository;
 		this.gxsForumMessageRepository = gxsForumMessageRepository;
+		this.transactionTemplate = transactionTemplate;
 	}
 
 	@Override
@@ -213,12 +216,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
-	@Transactional
 	public void save(ForumGroupItem forumGroupItem)
 	{
-		forumGroupItem.setId(gxsForumGroupRepository.findByGxsId(forumGroupItem.getGxsId()).orElse(forumGroupItem).getId());
-		gxsForumGroupRepository.save(forumGroupItem);
-		// XXX: setLastServiceUpdate() ! (though, it seems to work already?) and I also should do it for messages
+		transactionTemplate.executeWithoutResult(status -> {
+			forumGroupItem.setId(gxsForumGroupRepository.findByGxsId(forumGroupItem.getGxsId()).orElse(forumGroupItem).getId());
+			gxsForumGroupRepository.save(forumGroupItem);
+			// XXX: setLastServiceUpdate() ! (though, it seems to work already?) and I also should do it for messages
+		});
 	}
 
 	public List<ForumMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
@@ -243,11 +247,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findById(id).orElseThrow();
 	}
 
-	@Transactional
 	public void save(ForumMessageItem forumMessageItem)
 	{
-		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
-		gxsForumMessageRepository.save(forumMessageItem);
-		// XXX: setLastServiceUpdate() ? I think so actually!
+		transactionTemplate.executeWithoutResult(transactionStatus -> {
+			forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
+			gxsForumMessageRepository.save(forumMessageItem);
+			// XXX: setLastServiceUpdate() ? I think so actually!
+		});
 	}
 }

@@ -40,7 +40,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -48,8 +51,7 @@ import java.util.Optional;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class ChatRsServiceTest
@@ -65,6 +67,10 @@ class ChatRsServiceTest
 
 	@Mock
 	private ChatRoomRepository chatRoomRepository;
+
+	@SuppressWarnings("unused")
+	@Spy
+	private TransactionTemplate transactionTemplate = new TransactionTemplate(mock(PlatformTransactionManager.class));
 
 	@InjectMocks
 	private ChatRsService chatRsService;

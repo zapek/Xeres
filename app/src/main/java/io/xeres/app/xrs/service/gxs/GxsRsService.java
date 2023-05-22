@@ -534,12 +534,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		transactionTemplate.executeWithoutResult(transactionStatus -> {
 			gxsGroupItem.setId(gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId()).orElse(gxsGroupItem).getId());
-			if (onGroupReceived(gxsGroupItem))
+			if (onGroupReceived(gxsGroupItem) && gxsGroupItem.getAdminPrivateKey() == null) // Don't overwrite our own groups
 			{
-				if (gxsGroupItem.getAdminPrivateKey() != null) // Don't overwrite our own groups
-				{
-					gxsGroupItemRepository.save(gxsGroupItem);
-				}
+				gxsGroupItemRepository.save(gxsGroupItem);
 			}
 		});
 	}

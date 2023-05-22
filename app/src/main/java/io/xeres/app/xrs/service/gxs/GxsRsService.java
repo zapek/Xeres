@@ -282,7 +282,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				var status = verifyGroup(gxsGroupItem, author);
 				if (status == VerificationStatus.OK)
 				{
-					onGroupReceived(gxsGroupItem);
+					saveGroup(gxsGroupItem);
 				}
 				else
 				{
@@ -526,17 +526,22 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 		else
 		{
-			transactionTemplate.executeWithoutResult(transactionStatus -> {
-				gxsGroupItem.setId(gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId()).orElse(gxsGroupItem).getId());
-				if (onGroupReceived(gxsGroupItem))
-				{
-					if (gxsGroupItem.getAdminPrivateKey() != null) // Don't overwrite our own groups
-					{
-						gxsGroupItemRepository.save(gxsGroupItem);
-					}
-				}
-			});
+			saveGroup(gxsGroupItem);
 		}
+	}
+
+	private void saveGroup(G gxsGroupItem)
+	{
+		transactionTemplate.executeWithoutResult(transactionStatus -> {
+			gxsGroupItem.setId(gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId()).orElse(gxsGroupItem).getId());
+			if (onGroupReceived(gxsGroupItem))
+			{
+				if (gxsGroupItem.getAdminPrivateKey() != null) // Don't overwrite our own groups
+				{
+					gxsGroupItemRepository.save(gxsGroupItem);
+				}
+			}
+		});
 	}
 
 	private G createGxsGroupItem()

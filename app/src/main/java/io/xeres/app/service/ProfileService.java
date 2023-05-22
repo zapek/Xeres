@@ -44,7 +44,6 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-@Transactional(readOnly = true)
 public class ProfileService
 {
 	private static final Logger log = LoggerFactory.getLogger(ProfileService.class);

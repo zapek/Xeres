@@ -71,10 +71,10 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	@NotNull
 	private String name;
 	@Convert(converter = GxsPrivacyFlagsConverter.class)
-	private Set<GxsPrivacyFlags> diffusionFlags;
+	private Set<GxsPrivacyFlags> diffusionFlags = EnumSet.noneOf(GxsPrivacyFlags.class);
 
 	@Convert(converter = GxsSignatureFlagsConverter.class)
-	private Set<GxsSignatureFlags> signatureFlags; // what signatures are required for parent and child messages
+	private Set<GxsSignatureFlags> signatureFlags = EnumSet.noneOf(GxsSignatureFlags.class); // what signatures are required for parent and child messages
 
 	private Instant published;
 
@@ -123,8 +123,8 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	@Convert(converter = PublicKeyConverter.class)
 	private PublicKey publishingPublicKey;
 
-	@Transient
-	private byte[] signature;
+	private byte[] adminSignature;
+	private byte[] authorSignature;
 
 	@Override
 	public int getServiceType()
@@ -373,14 +373,24 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 		this.publishingPublicKey = publishingPublicKey;
 	}
 
-	public byte[] getSignature()
+	public byte[] getAdminSignature()
 	{
-		return signature;
+		return adminSignature;
 	}
 
-	public void setSignature(byte[] signature)
+	public void setAdminSignature(byte[] adminSignature)
 	{
-		this.signature = signature;
+		this.adminSignature = adminSignature;
+	}
+
+	public byte[] getAuthorSignature()
+	{
+		return authorSignature;
+	}
+
+	public void setAuthorSignature(byte[] authorSignature)
+	{
+		this.authorSignature = authorSignature;
 	}
 
 	@Override
@@ -471,9 +481,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	private SignatureSet createSignatureSet()
 	{
 		var signatureSet = new SignatureSet();
-		if (getSignature() != null)
+		if (getAdminSignature() != null)
 		{
-			signatureSet.put(SignatureSet.Type.ADMIN, new Signature(gxsId, getSignature()));
+			signatureSet.put(SignatureSet.Type.ADMIN, new Signature(gxsId, getAdminSignature()));
+		}
+		if (getAuthorSignature() != null)
+		{
+			signatureSet.put(SignatureSet.Type.AUTHOR, new Signature(gxsId, getAuthorSignature()));
 		}
 		return signatureSet;
 	}
@@ -510,14 +524,20 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	private void deserializeSignature(ByteBuf buf)
 	{
 		var signatureSet = (SignatureSet) deserialize(buf, TlvType.SIGNATURE_SET);
-		if (signatureSet.getSignatures() != null)
-		{
-			var sign = signatureSet.getSignatures().get(SignatureSet.Type.ADMIN.getValue());
-			if (sign != null)
+		signatureSet.getSignatures().forEach((sigId, signature) -> {
+			if (sigId == SignatureSet.Type.ADMIN.getValue())
 			{
-				signature = sign.data();
+				setAdminSignature(signature.data());
 			}
-		}
+			else if (sigId == SignatureSet.Type.AUTHOR.getValue())
+			{
+				setAuthorSignature(signature.data());
+			}
+			else
+			{
+				log.warn("Unknown signature type: {}", sigId);
+			}
+		});
 	}
 
 	@Override

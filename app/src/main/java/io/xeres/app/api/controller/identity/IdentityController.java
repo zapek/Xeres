@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.error.Error;
-import io.xeres.app.service.IdentityService;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
@@ -55,11 +55,11 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @RequestMapping(value = IDENTITIES_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class IdentityController
 {
-	private final IdentityService identityService;
+	private final IdentityRsService identityRsService;
 
-	public IdentityController(IdentityService identityService)
+	public IdentityController(IdentityRsService identityRsService)
 	{
-		this.identityService = identityService;
+		this.identityRsService = identityRsService;
 	}
 
 	@GetMapping("/{id}")
@@ -68,7 +68,7 @@ public class IdentityController
 	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
 	public IdentityDTO findIdentityById(@PathVariable long id)
 	{
-		return toDTO(identityService.findById(id).orElseThrow());
+		return toDTO(identityRsService.findById(id).orElseThrow());
 	}
 
 	@GetMapping("/{id}/image")
@@ -78,7 +78,7 @@ public class IdentityController
 	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<InputStreamResource> downloadIdentityImage(@PathVariable long id)
 	{
-		var identity = identityService.findById(id).orElseThrow();
+		var identity = identityRsService.findById(id).orElseThrow();
 		var imageType = ImageDetectionUtils.getImageMimeType(identity.getImage());
 		if (imageType == null)
 		{
@@ -99,7 +99,7 @@ public class IdentityController
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> uploadIdentityImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
 	{
-		identityService.saveIdentityImage(id, file);
+		identityRsService.saveIdentityImage(id, file);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -109,7 +109,7 @@ public class IdentityController
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteIdentityImage(@PathVariable long id)
 	{
-		identityService.deleteIdentityImage(id);
+		identityRsService.deleteIdentityImage(id);
 	}
 
 	@GetMapping
@@ -122,17 +122,17 @@ public class IdentityController
 	{
 		if (isNotBlank(name))
 		{
-			return toDTOs(identityService.findAllByName(name));
+			return toDTOs(identityRsService.findAllByName(name));
 		}
 		else if (isNotBlank(gxsId))
 		{
-			var identity = identityService.findByGxsId(new GxsId(Id.toBytes(gxsId)));
+			var identity = identityRsService.findByGxsId(new GxsId(Id.toBytes(gxsId)));
 			return identity.map(id -> List.of(toDTO(id))).orElse(Collections.emptyList());
 		}
 		else if (type != null)
 		{
-			return toDTOs(identityService.findAllByType(type));
+			return toDTOs(identityRsService.findAllByType(type));
 		}
-		return toDTOs(identityService.getAll());
+		return toDTOs(identityRsService.getAll());
 	}
 }

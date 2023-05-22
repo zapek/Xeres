@@ -61,7 +61,7 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 	{
 	}
 
-	public IdentityGroupItem(GxsId gxsId, String name)
+	public IdentityGroupItem(GxsId gxsId, String name) // XXX: remove?
 	{
 		setGxsId(gxsId);
 		setName(name);

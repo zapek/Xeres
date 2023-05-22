@@ -181,12 +181,9 @@ public class Markdown
 
 	private void removeTrailingEndOfLine()
 	{
-		if (!body.isEmpty())
+		if (!body.isEmpty() && body.get(body.size() - 1).isBlank())
 		{
-			if (body.get(body.size() - 1).isBlank())
-			{
-				body.remove(body.size() - 1);
-			}
+			body.remove(body.size() - 1);
 		}
 	}
 

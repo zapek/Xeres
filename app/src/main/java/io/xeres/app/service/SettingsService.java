@@ -44,7 +44,6 @@ import java.security.cert.X509Certificate;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
-@Transactional(readOnly = true)
 public class SettingsService
 {
 	private final SettingsRepository settingsRepository;

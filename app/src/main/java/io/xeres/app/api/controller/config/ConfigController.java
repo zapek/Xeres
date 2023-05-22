@@ -31,9 +31,9 @@ import io.xeres.app.api.error.exception.InternalServerErrorException;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.CapabilityService;
-import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.rest.config.*;
 import jakarta.validation.Valid;
 import org.bouncycastle.openpgp.PGPException;
@@ -61,14 +61,14 @@ public class ConfigController
 
 	private final ProfileService profileService;
 	private final LocationService locationService;
-	private final IdentityService identityService;
+	private final IdentityRsService identityRsService;
 	private final CapabilityService capabilityService;
 
-	public ConfigController(ProfileService profileService, LocationService locationService, IdentityService identityService, CapabilityService capabilityService)
+	public ConfigController(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, CapabilityService capabilityService)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
-		this.identityService = identityService;
+		this.identityRsService = identityRsService;
 		this.capabilityService = capabilityService;
 	}
 
@@ -122,7 +122,7 @@ public class ConfigController
 
 		try
 		{
-			id = identityService.createOwnIdentity(name, !ownIdentityRequest.anonymous());
+			id = identityRsService.createOwnIdentity(name, !ownIdentityRequest.anonymous());
 		}
 		catch (CertificateException | PGPException | IOException e)
 		{

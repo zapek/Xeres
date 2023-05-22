@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,15 +19,15 @@
 
 package io.xeres.app.database.repository;
 
-import io.xeres.app.database.model.gxs.GxsClientUpdate;
-import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.common.id.GxsId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Transactional(readOnly = true)
-public interface GxsClientUpdateRepository extends JpaRepository<GxsClientUpdate, Long>
+public interface GxsGroupItemRepository extends JpaRepository<GxsGroupItem, Long>
 {
-	Optional<GxsClientUpdate> findByLocationAndServiceType(Location location, int serviceType);
+	Optional<GxsGroupItem> findByGxsId(GxsId gxsId);
 }

@@ -81,38 +81,40 @@ public class RsServiceRegistry
 		// Add all item classes, they will be enabled later when the service is confirmed to be enabled
 		for (var bean : scannedItemClasses)
 		{
+			Class<? extends Item> itemClass = null;
+
 			try
 			{
-				@SuppressWarnings("unchecked")
-				var itemClass = (Class<? extends Item>) Class.forName(bean.getBeanClassName());
+				//noinspection unchecked
+				itemClass = (Class<? extends Item>) Class.forName(bean.getBeanClassName());
 
-				try
+				var item = (Item) itemClass.getConstructor().newInstance();
+
+				if (GxsGroupItem.class.isAssignableFrom(itemClass) || GxsMessageItem.class.isAssignableFrom(itemClass))
 				{
-					var item = (Item) itemClass.getConstructor().newInstance();
-
-					if (GxsGroupItem.class.isAssignableFrom(itemClass) || GxsMessageItem.class.isAssignableFrom(itemClass))
-					{
-						// For GxsGroup and GxsMessage items, we ignore them because they can only be received within transactions
-						// (but the real reason is that their subtype clashes with GxsExchange subtypes)
-					}
-					else if (GxsExchange.class.isAssignableFrom(itemClass))
-					{
-						// For GxsExchange items, we don't know their ServiceType yet because they are shared.
-						itemClassesGxsWaiting.put(item.getSubType(), itemClass);
-					}
-					else
-					{
-						itemClassesWaiting.computeIfAbsent(item.getServiceType(), k -> new HashMap<>()).put(item.getSubType(), itemClass);
-					}
+					// For GxsGroup and GxsMessage items, we ignore them because they can only be received within transactions
+					// (but the real reason is that their subtype clashes with GxsExchange subtypes)
 				}
-				catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
+				else if (GxsExchange.class.isAssignableFrom(itemClass))
+				{
+					// For GxsExchange items, we don't know their ServiceType yet because they are shared.
+					itemClassesGxsWaiting.put(item.getSubType(), itemClass);
+				}
+				else
+				{
+					itemClassesWaiting.computeIfAbsent(item.getServiceType(), k -> new HashMap<>()).put(item.getSubType(), itemClass);
+				}
+			}
+			catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e)
+			{
+				if (itemClass != null)
 				{
 					throw new IllegalArgumentException(itemClass.getSimpleName() + " requires a public constructor with no parameters");
 				}
-			}
-			catch (ClassNotFoundException e)
-			{
-				throw new RuntimeException(e);
+				else
+				{
+					throw new RuntimeException(e);
+				}
 			}
 		}
 	}

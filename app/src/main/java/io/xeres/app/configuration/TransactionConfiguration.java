@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,17 +17,19 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.repository;
+package io.xeres.app.configuration;
 
-import io.xeres.app.database.model.gxs.GxsClientUpdate;
-import io.xeres.app.database.model.location.Location;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.Optional;
-
-@Transactional(readOnly = true)
-public interface GxsClientUpdateRepository extends JpaRepository<GxsClientUpdate, Long>
+@Configuration
+public class TransactionConfiguration
 {
-	Optional<GxsClientUpdate> findByLocationAndServiceType(Location location, int serviceType);
+	@Bean
+	public TransactionTemplate getTransactionTemplate(PlatformTransactionManager platformTransactionManager)
+	{
+		return new TransactionTemplate(platformTransactionManager);
+	}
 }

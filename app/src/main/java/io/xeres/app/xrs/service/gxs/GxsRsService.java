@@ -458,7 +458,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void verifyAndSaveGroup(PeerConnection peerConnection, G gxsGroupItem)
 	{
-		var verified = verifyGroup(gxsGroupItem, identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthor()));
+		var verified = gxsGroupItem.getAuthor() == null ? VerificationStatus.OK : verifyGroup(gxsGroupItem, identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthor()));
 		if (verified == VerificationStatus.FAILED)
 		{
 			log.error("Failed to verify group {}", gxsGroupItem);

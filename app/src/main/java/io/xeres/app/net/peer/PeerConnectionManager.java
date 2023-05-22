@@ -39,6 +39,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 import static io.xeres.app.net.peer.PeerAttribute.PEER_CONNECTION;
@@ -85,6 +86,13 @@ public class PeerConnectionManager
 	public PeerConnection getPeerByLocationId(long id)
 	{
 		return peers.get(id);
+	}
+
+	public PeerConnection getRandomPeer()
+	{
+		return peers.values().stream()
+				.skip(ThreadLocalRandom.current().nextInt(peers.size()))
+				.findFirst().orElse(null);
 	}
 
 	public void removePeer(Location location)

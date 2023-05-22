@@ -45,6 +45,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.*;
@@ -564,5 +565,20 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 				", originator=" + originator +
 				", internalCircle=" + internalCircle +
 				'}';
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		GxsGroupItem that = (GxsGroupItem) o;
+		return Objects.equals(gxsId, that.gxsId);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(gxsId);
 	}
 }

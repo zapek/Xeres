@@ -45,6 +45,7 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import io.xeres.common.util.NoSuppressedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -58,8 +59,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.REQUEST;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
@@ -90,6 +90,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private static final Duration SYNCHRONIZATION_DELAY_INITIAL_MAX = Duration.ofSeconds(15);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
+	private static final Duration PENDING_VERIFICATION_MAX = Duration.ofMinutes(1);
+	private static final Duration PENDING_VERIFICATION_DELAY = Duration.ofSeconds(10);
+
 	protected final GxsTransactionManager gxsTransactionManager;
 	protected final PeerConnectionManager peerConnectionManager;
 	private final GxsClientUpdateRepository gxsClientUpdateRepository;
@@ -100,6 +103,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private final Type itemGroupClass;
 	private final Type itemMessageClass;
+
+	private ScheduledExecutorService executorService;
+
+	private final Map<G, Long> pendingGxsGroups = new ConcurrentHashMap<>();
 
 	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, IdentityManager identityManager, GxsGroupItemRepository gxsGroupItemRepository, TransactionTemplate transactionTemplate)
 	{
@@ -150,7 +157,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	/**
 	 * Called when a group has been received.
 	 *
-	 * @param sender the sender of the group
 	 * @param item   the received group
 	 */
 	protected abstract boolean onGroupReceived(G item);
@@ -201,6 +207,17 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	}
 
 	@Override
+	public void initialize()
+	{
+		executorService = Executors.newSingleThreadScheduledExecutor();
+
+		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::checkPendingGroups,
+				getInitPriority().getMaxTime() + PENDING_VERIFICATION_DELAY.toSeconds() / 2,
+				PENDING_VERIFICATION_DELAY.toSeconds(),
+				TimeUnit.SECONDS);
+	}
+
+	@Override
 	public void initialize(PeerConnection peerConnection)
 	{
 		peerConnection.scheduleWithFixedDelay(
@@ -240,11 +257,50 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
+	@Override
+	public void cleanup()
+	{
+		if (executorService != null) // Can happen when running tests
+		{
+			executorService.shutdownNow();
+		}
+	}
+
 	private void sync(PeerConnection peerConnection)
 	{
 		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
 		log.debug("Asking peer {} for last local sync {} for service {}", peerConnection, gxsSyncGroupRequestItem.getLastUpdated(), getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
+	}
+
+	private void checkPendingGroups()
+	{
+		pendingGxsGroups.forEach((gxsGroupItem, delay) -> {
+			var author = identityManager.getGxsGroup(peerConnectionManager.getRandomPeer(), gxsGroupItem.getAuthor());
+			if (author != null)
+			{
+				var status = verifyGroup(gxsGroupItem, author);
+				if (status == VerificationStatus.OK)
+				{
+					onGroupReceived(gxsGroupItem);
+				}
+				else
+				{
+					log.warn("Failed to validate {}, wrong signature", gxsGroupItem);
+				}
+				pendingGxsGroups.put(gxsGroupItem, -1L); // Remove the entry
+			}
+			else
+			{
+				var newDelay = delay - PENDING_VERIFICATION_DELAY.toSeconds();
+				pendingGxsGroups.put(gxsGroupItem, newDelay);
+				if (newDelay < 0)
+				{
+					log.warn("Failed to validate {}. Timeout exceeded", gxsGroupItem);
+				}
+			}
+		});
+		pendingGxsGroups.entrySet().removeIf(gxsGroupItemLongEntry -> gxsGroupItemLongEntry.getValue() < 0);
 	}
 
 	private void handleGxsSyncGroupRequestItem(PeerConnection peerConnection, GxsSyncGroupRequestItem item)
@@ -466,7 +522,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		else if (verified == VerificationStatus.DELAYED)
 		{
 			log.warn("Delaying verification of group {}", gxsGroupItem);
-			// XXX: put it on some delay list that is checked each N seconds, until 60 seconds have passed
+			pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
 		}
 		else
 		{

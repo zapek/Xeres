@@ -27,7 +27,7 @@ public class SignatureSet
 {
 	public enum Type
 	{
-		AUTHOR(0x10),
+		AUTHOR(0x10), // RS calls it IDENTITY
 		PUBLISH(0x20),
 		ADMIN(0x40);
 

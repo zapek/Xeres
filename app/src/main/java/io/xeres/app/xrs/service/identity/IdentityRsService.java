@@ -197,7 +197,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		}
 
 		gxsIdGroupItem.setSubscribed(true);
-		signGroup(gxsIdGroupItem);
 
 		return saveIdentity(gxsIdGroupItem).getId();
 	}

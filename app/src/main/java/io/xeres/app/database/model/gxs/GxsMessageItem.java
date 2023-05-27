@@ -85,8 +85,6 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	private byte[] publishSignature;
 	private byte[] authorSignature;
 
-	private boolean verified;
-
 	@Override
 	public int getServiceType()
 	{
@@ -182,16 +180,6 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	public void setAuthorSignature(byte[] authorSignature)
 	{
 		this.authorSignature = authorSignature;
-	}
-
-	public boolean isVerified()
-	{
-		return verified;
-	}
-
-	public void setVerified(boolean verified)
-	{
-		this.verified = verified;
 	}
 
 	@Override

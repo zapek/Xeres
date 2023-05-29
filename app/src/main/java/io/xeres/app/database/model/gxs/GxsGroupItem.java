@@ -488,7 +488,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 		}
 		if (getAuthorSignature() != null)
 		{
-			signatureSet.put(SignatureSet.Type.AUTHOR, new Signature(gxsId, getAuthorSignature()));
+			signatureSet.put(SignatureSet.Type.AUTHOR, new Signature(author, getAuthorSignature()));
 		}
 		return signatureSet;
 	}

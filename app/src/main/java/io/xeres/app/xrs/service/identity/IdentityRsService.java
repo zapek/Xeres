@@ -198,6 +198,8 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 		gxsIdGroupItem.setSubscribed(true);
 
+		signGroup(gxsIdGroupItem); // saveIdentity() only signs updates, so it needs to be done here
+
 		return saveIdentity(gxsIdGroupItem).getId();
 	}
 
@@ -213,7 +215,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
 	{
-		if (Profile.isOwn(identityGroupItem.getId()))
+		if (Profile.isOwn(identityGroupItem.getId())) // This only works for updates, make sure to sign before when creating
 		{
 			signGroup(identityGroupItem);
 		}

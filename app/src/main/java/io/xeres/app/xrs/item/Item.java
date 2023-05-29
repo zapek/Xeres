@@ -86,7 +86,7 @@ public abstract class Item
 		if (GxsMetaAndData.class.isAssignableFrom(getClass()))
 		{
 			log.trace("Serializing class {} using GxsGroupItem system, flags: {}", getClass().getSimpleName(), flags);
-			size += Serializer.serializeGxsMetaAndDataItem(buf, (GxsMetaAndData) this, getServiceType(), flags);
+			size += Serializer.serializeGxsMetaAndDataItem(buf, (GxsMetaAndData) this, flags);
 		}
 		else if (RsSerializable.class.isAssignableFrom(getClass()))
 		{

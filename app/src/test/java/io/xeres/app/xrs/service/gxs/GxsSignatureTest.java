@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
+import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GxsSignatureTest
 {
@@ -59,17 +59,7 @@ class GxsSignatureTest
 		var rawItem = serializeItem(gxsIdGroupItem);
 		assertNotNull(rawItem);
 
-
-		var tmpRawItem = new RawItem(rawItem.getBuffer().copy(), 0);
-		var item = createIdentityGroupItem();
-		tmpRawItem.deserialize(item);
-
-		var verifyData = serializeItemForSignature(item);
-
-		assertTrue(RSA.verify(item.getAdminPublicKey(), item.getAdminSignature(), verifyData));
-
 		rawItem.getBuffer().release();
-		tmpRawItem.getBuffer().release();
 	}
 
 	private RawItem serializeItem(Item item)
@@ -82,8 +72,8 @@ class GxsSignatureTest
 	{
 		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null, null, null));
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
-		var data = new byte[buf.writerIndex()];
-		buf.getBytes(0, data);
+		var data = new byte[buf.writerIndex() - HEADER_SIZE];
+		buf.getBytes(HEADER_SIZE, data);
 		buf.release();
 		return data;
 	}

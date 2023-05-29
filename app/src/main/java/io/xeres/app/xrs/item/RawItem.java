@@ -62,8 +62,8 @@ public class RawItem
 
 		if (GxsMetaAndData.class.isAssignableFrom(item.getClass()))
 		{
-			log.trace("Deserializing class {} using GxsMetaData system", item.getClass().getSimpleName());
-			Serializer.deserializeGxsMetaAndDataItem(buf, (GxsMetaAndData) item, item.getServiceType());
+			// This cannot be deserialized because the data is before the metadata and the data can vary in length (optional fields at the end). It would only be possible if the data was last.
+			throw new IllegalArgumentException("Cannot deserialize a GxsMetaAndData item");
 		}
 		else if (RsSerializable.class.isAssignableFrom(item.getClass()))
 		{

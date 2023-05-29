@@ -20,11 +20,16 @@
 package io.xeres.app.xrs.service.gxs.item;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.xrs.item.ItemHeader;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -43,13 +48,37 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 	{
 	}
 
-	public GxsTransferGroupItem(GxsId groupId, byte[] group, byte[] meta, int transactionId, int serviceType)
+	public GxsTransferGroupItem(GxsGroupItem gxsGroupItem, int transactionId, RsServiceType serviceType)
 	{
-		this.groupId = groupId;
-		this.group = group;
-		this.meta = meta;
+		groupId = gxsGroupItem.getGxsId();
 		setTransactionId(transactionId);
-		setServiceType(serviceType);
+		setServiceType(serviceType.getType());
+
+		var groupBuf = Unpooled.buffer();
+		var itemHeader = new ItemHeader(groupBuf, getServiceType(), gxsGroupItem.getSubType());
+		itemHeader.writeHeader();
+		var groupSize = gxsGroupItem.writeDataObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
+		itemHeader.writeSize(groupSize);
+
+		var metaBuf = Unpooled.buffer();
+		gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
+
+		group = getArray(groupBuf);
+		meta = getArray(metaBuf);
+
+		groupBuf.release();
+		metaBuf.release();
+	}
+
+	public void toGxsGroupItem(GxsGroupItem gxsGroupItem)
+	{
+		var buf = Unpooled.copiedBuffer(meta, group);
+
+		gxsGroupItem.readMetaObject(buf);
+		ItemHeader.readHeader(buf, getServiceType(), gxsGroupItem.getSubType());
+		gxsGroupItem.readDataObject(buf);
+
+		buf.release();
 	}
 
 	@Override
@@ -106,5 +135,12 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 				"position=" + position +
 				", groupId=" + groupId +
 				'}';
+	}
+
+	private static byte[] getArray(ByteBuf buf)
+	{
+		var out = new byte[buf.writerIndex()];
+		buf.readBytes(out);
+		return out;
 	}
 }

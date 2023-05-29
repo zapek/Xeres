@@ -25,7 +25,6 @@ import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
-import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.repository.GxsClientUpdateRepository;
 import io.xeres.app.database.repository.GxsGroupItemRepository;
 import io.xeres.app.database.repository.GxsIdentityRepository;
@@ -213,10 +212,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
 	{
-		if (Profile.isOwn(identityGroupItem.getId()))
-		{
-			signGroup(identityGroupItem);
-		}
+		signGroupIfNeeded(identityGroupItem);
 		var savedIdentity = gxsIdentityRepository.save(identityGroupItem);
 		setLastServiceGroupsUpdateNow(RsServiceType.GXSID);
 		return savedIdentity;

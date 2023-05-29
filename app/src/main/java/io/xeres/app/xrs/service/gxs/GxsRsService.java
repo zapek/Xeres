@@ -667,11 +667,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return gxsGroupItem;
 	}
 
-	protected void signGroup(GxsGroupItem gxsGroupItem)
+	protected void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
 	{
 		if (gxsGroupItem.getAdminPrivateKey() == null)
 		{
-			throw new IllegalArgumentException("Trying to sign group " + gxsGroupItem.getGxsId() + " (" + gxsGroupItem.getName() + ") without an admin key");
+			return; // Only sign our own groups
 		}
 
 		var data = serializeItemForSignature(gxsGroupItem);

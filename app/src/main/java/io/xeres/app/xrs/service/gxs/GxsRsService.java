@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.gxs;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.model.gxs.GxsClientUpdate;
@@ -33,9 +32,7 @@ import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.item.ItemHeader;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -61,6 +58,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.REQUEST;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
 import static java.util.stream.Collectors.toMap;
@@ -561,9 +559,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		var toItem = createGxsGroupItem();
 
-		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getGroup()); //XXX: use ctx().alloc()?
-		Serializer.deserializeGxsMetaAndDataItem(buf, toItem, fromItem.getServiceType());
-		buf.release();
+		fromItem.toGxsGroupItem(toItem);
 
 		return toItem;
 	}
@@ -572,21 +568,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();
-		gxsGroupItems.forEach(gxsGroupItem -> {
-			var groupBuf = Unpooled.buffer();
-			// Write that damn header
-			var itemHeader = new ItemHeader(groupBuf, getServiceType().getType(), gxsGroupItem.getSubType());
-			itemHeader.writeHeader();
-			var groupSize = gxsGroupItem.writeDataObject(groupBuf, EnumSet.noneOf(SerializationFlags.class));
-			itemHeader.writeSize(groupSize);
-
-			var metaBuf = Unpooled.buffer();
-			gxsGroupItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
-			var gxsTransferGroupItem = new GxsTransferGroupItem(gxsGroupItem.getGxsId(), getArray(groupBuf), getArray(metaBuf), transactionId, getServiceType().getType());
-			groupBuf.release();
-			metaBuf.release();
-			items.add(gxsTransferGroupItem);
-		});
+		gxsGroupItems.forEach(gxsGroupItem -> items.add(new GxsTransferGroupItem(gxsGroupItem, transactionId, getServiceType())));
 
 		gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
 				peerConnection,
@@ -615,22 +597,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		var transactionId = getTransactionId(peerConnection);
 		List<GxsTransferMessageItem> items = new ArrayList<>();
-		gxsMessageItems.forEach(gxsMessageItem -> {
-			// XXX: sign the message. add the signature stuff to GxsMessageItem
-			var messageBuf = Unpooled.buffer();
-			// Write that damn header
-			var itemHeader = new ItemHeader(messageBuf, getServiceType().getType(), gxsMessageItem.getSubType());
-			itemHeader.writeHeader();
-			var messageSize = gxsMessageItem.writeDataObject(messageBuf, EnumSet.noneOf(SerializationFlags.class));
-			itemHeader.writeSize(messageSize);
-
-			var metaBuf = Unpooled.buffer();
-			gxsMessageItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
-			var gxsTransferMessageItem = new GxsTransferMessageItem(gxsMessageItem.getGxsId(), gxsMessageItem.getMessageId(), getArray(messageBuf), getArray(metaBuf), transactionId, getServiceType().getType());
-			messageBuf.release();
-			metaBuf.release();
-			items.add(gxsTransferMessageItem);
-		});
+		gxsMessageItems.forEach(gxsMessageItem -> items.add(new GxsTransferMessageItem(gxsMessageItem, transactionId, getServiceType())));
 
 		gxsTransactionManager.startOutgoingTransactionForMessageTransfer(
 				peerConnection,
@@ -673,20 +640,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private M convertTransferGroupToGxsMessage(GxsTransferMessageItem fromItem)
 	{
-		M toItem = createGxsMessageItem();
+		var toItem = createGxsMessageItem();
 
-		var buf = Unpooled.copiedBuffer(fromItem.getMeta(), fromItem.getMessage()); //XXX: use ctx().alloc()?
-		Serializer.deserializeGxsMetaAndDataItem(buf, toItem, fromItem.getServiceType());
-		buf.release();
+		fromItem.toGxsMessageItem(toItem);
 
 		return toItem;
-	}
-
-	private static byte[] getArray(ByteBuf buf)
-	{
-		var out = new byte[buf.writerIndex()];
-		buf.readBytes(out);
-		return out;
 	}
 
 	protected G createGroup(String name)
@@ -709,11 +667,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return gxsGroupItem;
 	}
 
-	protected void signGroup(GxsGroupItem gxsGroupItem)
+	protected void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
 	{
 		if (gxsGroupItem.getAdminPrivateKey() == null)
 		{
-			throw new IllegalArgumentException("Trying to sign group " + gxsGroupItem.getGxsId() + " (" + gxsGroupItem.getName() + ") without an admin key");
+			return; // Only sign our own groups
 		}
 
 		var data = serializeItemForSignature(gxsGroupItem);
@@ -747,8 +705,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		item.setSerialization(Unpooled.buffer().alloc(), this);
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
-		var data = new byte[buf.writerIndex()];
-		buf.getBytes(0, data);
+		// Skip the header
+		var data = new byte[buf.writerIndex() - HEADER_SIZE];
+		buf.getBytes(HEADER_SIZE, data);
 		buf.release();
 		return data;
 	}

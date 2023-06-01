@@ -235,7 +235,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 		}
 		if (getAuthorSignature() != null)
 		{
-			signatureSet.put(SignatureSet.Type.AUTHOR, new Signature(gxsId, getAuthorSignature()));
+			signatureSet.put(SignatureSet.Type.AUTHOR, new Signature(authorId, getAuthorSignature()));
 		}
 		return signatureSet;
 	}

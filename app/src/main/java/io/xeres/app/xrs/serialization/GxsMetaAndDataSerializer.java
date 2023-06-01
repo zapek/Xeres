@@ -21,8 +21,6 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMetaAndData;
-import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.item.ItemHeader;
 
 import java.util.Set;
 
@@ -33,22 +31,11 @@ final class GxsMetaAndDataSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, int serviceType, Set<SerializationFlags> flags)
+	static int serialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, Set<SerializationFlags> flags)
 	{
+		var dataSize = gxsMetaAndData.writeDataObject(buf, flags);
 		var metaSize = gxsMetaAndData.writeMetaObject(buf, flags);
 
-		var itemHeader = new ItemHeader(buf, serviceType, ((Item) gxsMetaAndData).getSubType());
-		var headerSize = itemHeader.writeHeader();
-		var dataSize = gxsMetaAndData.writeDataObject(buf, flags);
-		itemHeader.writeSize(dataSize);
-
-		return headerSize + metaSize + dataSize;
-	}
-
-	static void deserialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, int serviceType)
-	{
-		gxsMetaAndData.readMetaObject(buf);
-		ItemHeader.readHeader(buf, serviceType, ((Item) gxsMetaAndData).getSubType());
-		gxsMetaAndData.readDataObject(buf);
+		return dataSize + metaSize;
 	}
 }

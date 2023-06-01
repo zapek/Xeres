@@ -20,12 +20,17 @@
 package io.xeres.app.xrs.service.gxs.item;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
+import io.xeres.app.xrs.item.ItemHeader;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 public class GxsTransferMessageItem extends GxsExchange implements RsSerializable
@@ -41,14 +46,39 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 	{
 	}
 
-	public GxsTransferMessageItem(GxsId groupId, MessageId messageId, byte[] message, byte[] meta, int transactionId, int serviceType)
+	public GxsTransferMessageItem(GxsMessageItem gxsMessageItem, int transactionId, RsServiceType serviceType)
 	{
-		this.groupId = groupId;
-		this.messageId = messageId;
-		this.message = message;
-		this.meta = meta;
+		groupId = gxsMessageItem.getGxsId();
+		messageId = gxsMessageItem.getMessageId();
 		setTransactionId(transactionId);
-		setServiceType(serviceType);
+		setServiceType(serviceType.getType());
+
+		// XXX: sign the message. add the signature stuff to GxsMessageItem
+		var messageBuf = Unpooled.buffer();
+		var itemHeader = new ItemHeader(messageBuf, getServiceType(), gxsMessageItem.getSubType());
+		itemHeader.writeHeader();
+		var messageSize = gxsMessageItem.writeDataObject(messageBuf, EnumSet.noneOf(SerializationFlags.class));
+		itemHeader.writeSize(messageSize);
+
+		var metaBuf = Unpooled.buffer();
+		gxsMessageItem.writeMetaObject(metaBuf, EnumSet.noneOf(SerializationFlags.class));
+
+		message = getArray(messageBuf);
+		meta = getArray(metaBuf);
+
+		messageBuf.release();
+		metaBuf.release();
+	}
+
+	public void toGxsMessageItem(GxsMessageItem gxsMessageItem)
+	{
+		var buf = Unpooled.copiedBuffer(meta, message);
+
+		gxsMessageItem.readMetaObject(buf);
+		ItemHeader.readHeader(buf, getServiceType(), gxsMessageItem.getSubType());
+		gxsMessageItem.readDataObject(buf);
+
+		buf.release();
 	}
 
 	@Override
@@ -114,5 +144,12 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 				", groupId=" + groupId +
 				", messageId=" + messageId +
 				'}';
+	}
+
+	private static byte[] getArray(ByteBuf buf)
+	{
+		var out = new byte[buf.writerIndex()];
+		buf.readBytes(out);
+		return out;
 	}
 }

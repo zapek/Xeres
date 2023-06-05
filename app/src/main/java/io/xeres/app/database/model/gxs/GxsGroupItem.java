@@ -21,9 +21,10 @@ package io.xeres.app.database.model.gxs;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.crypto.rsa.RSA;
-import io.xeres.app.database.converter.*;
+import io.xeres.app.database.converter.GxsCircleTypeConverter;
+import io.xeres.app.database.converter.GxsPrivacyFlagsConverter;
+import io.xeres.app.database.converter.GxsSignatureFlagsConverter;
 import io.xeres.app.xrs.common.SecurityKey;
-import io.xeres.app.xrs.common.SecurityKeySet;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.app.xrs.item.Item;
@@ -44,10 +45,9 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
+import static io.xeres.app.xrs.common.SecurityKey.Flags.*;
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_groups")
@@ -113,16 +113,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	@AttributeOverride(name = "identifier", column = @Column(name = "internal_circle"))
 	private GxsId internalCircle;
 
-	@Convert(converter = PrivateKeyConverter.class)
-	private PrivateKey adminPrivateKey;
-	@Convert(converter = PublicKeyConverter.class)
-	private PublicKey adminPublicKey;
-
 	// the publishing key is used for both DISTRIBUTION_PUBLISHING and DISTRIBUTION_IDENTITY
-	@Convert(converter = PrivateKeyConverter.class)
-	private PrivateKey publishingPrivateKey;
-	@Convert(converter = PublicKeyConverter.class)
-	private PublicKey publishingPublicKey;
+
+	@ElementCollection
+	private List<SecurityKey> privateKeys = new ArrayList<>(2);
+
+	@ElementCollection
+	private List<SecurityKey> publicKeys = new ArrayList<>(2);
 
 	private byte[] adminSignature;
 	private byte[] authorSignature;
@@ -334,45 +331,78 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 		this.internalCircle = internalCircle;
 	}
 
-	public PrivateKey getAdminPrivateKey()
+	/**
+	 * Checks if it comes from an external source (meaning: not our own).
+	 *
+	 * @return true if coming from someone else
+	 */
+	public boolean isExternal()
 	{
-		return adminPrivateKey;
+		return privateKeys.stream()
+				.noneMatch(securityKey -> securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_ADMIN, TYPE_FULL)));
 	}
 
-	public void setAdminPrivateKey(PrivateKey adminPrivateKey)
+	public PrivateKey getAdminPrivateKey()
 	{
-		this.adminPrivateKey = adminPrivateKey;
+		var privateKey = privateKeys.stream()
+				.filter(securityKey -> securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_ADMIN, TYPE_FULL)))
+				.findFirst().orElseThrow();
+
+		try
+		{
+			return RSA.getPrivateKeyFromPkcs1(privateKey.getData());
+		}
+		catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e)
+		{
+			throw new IllegalArgumentException("Cannot read PrivateKey from database: " + e.getMessage(), e);
+		}
+	}
+
+	public void setAdminKeys(PrivateKey privateKey, PublicKey publicKey, Instant validFrom, Instant validTo)
+	{
+		var keyId = getGxsId();
+		if (keyId == null)
+		{
+			throw new IllegalStateException("GxsGroupItem has no GxsId for the private key");
+		}
+
+		try
+		{
+			var privateData = RSA.getPrivateKeyAsPkcs1(privateKey);
+			var publicData = RSA.getPublicKeyAsPkcs1(publicKey);
+
+			privateKeys.add(new SecurityKey(keyId, EnumSet.of(DISTRIBUTION_ADMIN, TYPE_FULL), validFrom, validTo, privateData));
+			publicKeys.add(new SecurityKey(keyId, EnumSet.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY), validFrom, validTo, publicData));
+		}
+		catch (IOException e)
+		{
+			throw new IllegalArgumentException("Cannot read PrivateKey from database: " + e.getMessage(), e);
+		}
+	}
+
+	public boolean hasAdminPublicKey()
+	{
+		return publicKeys.stream()
+				.noneMatch(securityKey -> securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY)));
 	}
 
 	public PublicKey getAdminPublicKey()
 	{
-		return adminPublicKey;
+		var publicKey = publicKeys.stream()
+				.filter(securityKey -> securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY)))
+				.findFirst().orElseThrow();
+
+		try
+		{
+			return RSA.getPublicKeyFromPkcs1(publicKey.getData());
+		}
+		catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e)
+		{
+			throw new IllegalArgumentException("Cannot read PublicKey from database: " + e.getMessage(), e);
+		}
 	}
 
-	public void setAdminPublicKey(PublicKey adminPublicKey)
-	{
-		this.adminPublicKey = adminPublicKey;
-	}
-
-	public PrivateKey getPublishingPrivateKey()
-	{
-		return publishingPrivateKey;
-	}
-
-	public void setPublishingPrivateKey(PrivateKey publishingPrivateKey)
-	{
-		this.publishingPrivateKey = publishingPrivateKey;
-	}
-
-	public PublicKey getPublishingPublicKey()
-	{
-		return publishingPublicKey;
-	}
-
-	public void setPublishingPublicKey(PublicKey publishingPublicKey)
-	{
-		this.publishingPublicKey = publishingPublicKey;
-	}
+	// TODO: add publishing key accessors as well
 
 	public byte[] getAdminSignature()
 	{
@@ -414,7 +444,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 		size += serialize(buf, TlvType.STRING, serviceString);
 		size += serialize(buf, circleId, GxsId.class);
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new SignatureSet() : createSignatureSet());
-		size += serialize(buf, TlvType.SECURITY_KEY_SET, createSecurityKeySet());
+		size += serialize(buf, TlvType.SECURITY_KEY_SET, getSecurityKeys());
 		size += serialize(buf, signatureFlags, FieldSize.INTEGER);
 		buf.setInt(sizeOffset, size); // write total size
 
@@ -450,33 +480,15 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	}
 
 	/**
-	 * Creates a security key set. Note that only public keys are added to it. The private
-	 * key has to stay private.
+	 * Gets the security keys. Note that only public keys returned. The private keys have to stay private.
 	 *
-	 * @return a SecurityKeySet containing public keys
+	 * @return a list of SecurityKey with public keys
 	 */
-	private SecurityKeySet createSecurityKeySet()
+	private List<SecurityKey> getSecurityKeys()
 	{
-		var startTs = (int) getPublished().getEpochSecond();
-		var stopTs = startTs + 60 * 60 * 24 * 365 * 5; // 5 years
-
-		var securityKeySet = new SecurityKeySet();
-		try
-		{
-			if (adminPublicKey != null)
-			{
-				securityKeySet.put(new SecurityKey(adminPublicKey, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs));
-			}
-			if (publishingPublicKey != null)
-			{
-				securityKeySet.put(new SecurityKey(publishingPublicKey, EnumSet.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY), startTs, stopTs));
-			}
-		}
-		catch (IOException e)
-		{
-			throw new IllegalArgumentException("Couldn't create RSA key from byte array: " + e.getMessage(), e);
-		}
-		return securityKeySet;
+		return publicKeys.stream()
+				.sorted()
+				.toList();
 	}
 
 	private SignatureSet createSignatureSet()
@@ -495,29 +507,15 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 
 	private void deserializeSecurityKeySet(ByteBuf buf)
 	{
-		var securityKeySet = (SecurityKeySet) deserialize(buf, TlvType.SECURITY_KEY_SET);
-		securityKeySet.getPublicKeys().forEach((keyId, securityKey) -> {
-			if (securityKey.flags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_ADMIN, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
+		var securityKeys = (List<SecurityKey>) deserialize(buf, TlvType.SECURITY_KEY_SET);
+		securityKeys.forEach(securityKey -> {
+			if (securityKey.getFlags().contains(TYPE_PUBLIC_ONLY))
 			{
-				try
-				{
-					adminPublicKey = RSA.getPublicKeyFromPkcs1(securityKey.data());
-				}
-				catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
-				{
-					log.error("Identity {} has wrong admin public key: {}", gxsId, e.getMessage());
-				}
+				publicKeys.add(securityKey);
 			}
-			else if (securityKey.flags().containsAll(Set.of(SecurityKey.Flags.DISTRIBUTION_PUBLISHING, SecurityKey.Flags.TYPE_PUBLIC_ONLY)))
+			else
 			{
-				try
-				{
-					publishingPublicKey = RSA.getPublicKeyFromPkcs1(securityKey.data());
-				}
-				catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
-				{
-					log.error("Identity {} has wrong publishing public key: {}", gxsId, e.getMessage());
-				}
+				log.warn("Peer tried to send a private key, ignoring");
 			}
 		});
 	}

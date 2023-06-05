@@ -892,7 +892,7 @@ public class ChatRsService extends RsService
 		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().gxsId());
 		if (gxsGroup != null)
 		{
-			if (gxsGroup.getAdminPublicKey() == null)
+			if (!gxsGroup.hasAdminPublicKey())
 			{
 				log.debug("{} has no public admin key, not validating", bounce.getSenderNickname());
 				return false;

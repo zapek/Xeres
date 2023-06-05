@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional(readOnly = true)
+@Transactional
 public interface ProfileRepository extends JpaRepository<Profile, Long>
 {
 	Optional<Profile> findByName(String name);

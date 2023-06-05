@@ -47,9 +47,8 @@ public class GxsClientUpdate
 	private Instant lastSynced;
 
 	@ElementCollection
-	@CollectionTable(name = "gxs_client_updates_messages")
 	@Column(name = "updated")
-	private Map<GxsId, Instant> messagesUpdates = new HashMap<>();
+	private Map<GxsId, Instant> messages = new HashMap<>();
 
 	public GxsClientUpdate()
 	{
@@ -67,7 +66,7 @@ public class GxsClientUpdate
 	{
 		this.location = location;
 		this.serviceType = serviceType;
-		messagesUpdates.put(groupId, lastSynced);
+		messages.put(groupId, lastSynced);
 	}
 
 	public long getId()
@@ -112,17 +111,17 @@ public class GxsClientUpdate
 
 	public Instant getMessageUpdate(GxsId groupId)
 	{
-		return messagesUpdates.get(groupId);
+		return messages.get(groupId);
 	}
 
 	public void addMessageUpdate(GxsId groupId, Instant lastSynced)
 	{
-		messagesUpdates.put(groupId, lastSynced);
+		messages.put(groupId, lastSynced);
 	}
 
 	public void removeMessageUpdate(GxsId groupId)
 	{
-		messagesUpdates.remove(groupId);
+		messages.remove(groupId);
 	}
 
 	@Override

@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional(readOnly = true)
+@Transactional
 public interface LocationRepository extends JpaRepository<Location, Long>
 {
 	Optional<Location> findByLocationId(LocationId locationId);
@@ -42,7 +42,6 @@ public interface LocationRepository extends JpaRepository<Location, Long>
 
 	List<Location> findAllByConnectedTrue();
 
-	@Transactional
 	@Modifying
 	@Query("UPDATE Location l SET l.connected = false WHERE l.connected = true")
 	void putAllConnectedToFalse();

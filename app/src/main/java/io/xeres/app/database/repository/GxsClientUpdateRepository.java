@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Transactional(readOnly = true)
+@Transactional
 public interface GxsClientUpdateRepository extends JpaRepository<GxsClientUpdate, Long>
 {
 	Optional<GxsClientUpdate> findByLocationAndServiceType(Location location, int serviceType);

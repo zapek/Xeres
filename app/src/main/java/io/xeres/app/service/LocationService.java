@@ -208,7 +208,6 @@ public class LocationService
 		updateConnection(location, socketAddress); // XXX: is this the right place? maybe it should be done in discovery service
 
 		location.setConnected(true);
-		locationRepository.save(location);
 	}
 
 	private void updateConnection(Location location, SocketAddress socketAddress)
@@ -225,7 +224,6 @@ public class LocationService
 	public void setDisconnected(Location location)
 	{
 		location.setConnected(false);
-		locationRepository.save(location);
 	}
 
 	@Transactional
@@ -240,7 +238,7 @@ public class LocationService
 		return locationRepository.save(location);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public List<Connection> getConnectionsToConnectTo(int simultaneousLocations)
 	{
 		var ownConnection = findOwnLocation().orElseThrow()

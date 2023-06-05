@@ -19,65 +19,137 @@
 
 package io.xeres.app.xrs.common;
 
-import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.database.converter.SecurityKeyFlagsConverter;
 import io.xeres.common.id.GxsId;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
-import java.io.IOException;
-import java.security.PublicKey;
+import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 
-public final class SecurityKey
+@Embeddable
+public final class SecurityKey implements Comparable<SecurityKey>
 {
-	private final GxsId gxsId;
-	private final Set<Flags> flags;
-	private final int startTs;
-	private final int endTs;
-	private final byte[] data;
+	@Embedded
+	@NotNull
+	@AttributeOverride(name = "identifier", column = @Column(name = "key_id"))
+	private GxsId keyId;
 
-	public SecurityKey(PublicKey key, Set<Flags> flags, int startTs, int endTs) throws IOException
+	@Convert(converter = SecurityKeyFlagsConverter.class)
+	private Set<Flags> flags = EnumSet.noneOf(SecurityKey.Flags.class);
+
+	@NotNull
+	private Instant validFrom;
+
+	private Instant validTo; // if null, there's no expiration
+
+	private byte[] data;
+
+	public SecurityKey()
 	{
-		gxsId = RSA.getGxsId(key);
-		this.flags = flags;
-		this.startTs = startTs;
-		this.endTs = endTs;
-		data = RSA.getPublicKeyAsPkcs1(key);
 	}
 
-	public SecurityKey(GxsId gxsId, Set<Flags> flags, int startTs, int endTs, byte[] data)
+	public SecurityKey(@NotNull GxsId keyId, Set<Flags> flags, @NotNull Instant validFrom, Instant validTo, byte[] data)
 	{
-		this.gxsId = gxsId;
+		this.keyId = keyId;
 		this.flags = flags;
-		this.startTs = startTs;
-		this.endTs = endTs;
+		this.validFrom = validFrom;
+		this.validTo = validTo;
 		this.data = data;
 	}
 
-	public GxsId gxsId()
+	public SecurityKey(@NotNull GxsId keyId, Set<Flags> flags, int validFrom, int validTo, byte[] data)
 	{
-		return gxsId;
+		this.keyId = keyId;
+		this.flags = flags;
+		this.validFrom = Instant.ofEpochSecond(validFrom);
+		this.validTo = validTo == 0 ? null : Instant.ofEpochSecond(validTo);
+		this.data = data;
 	}
 
-	public Set<Flags> flags()
+	public @NotNull GxsId getKeyId()
+	{
+		return keyId;
+	}
+
+	public void setKeyId(@NotNull GxsId keyId)
+	{
+		this.keyId = keyId;
+	}
+
+	public Set<Flags> getFlags()
 	{
 		return flags;
 	}
 
-	public int startTs()
+	public void setFlags(Set<Flags> flags)
 	{
-		return startTs;
+		this.flags = flags;
 	}
 
-	public int endTs()
+	public @NotNull Instant getValidFrom()
 	{
-		return endTs;
+		return validFrom;
 	}
 
-	public byte[] data()
+	public void setValidFrom(@NotNull Instant validFrom)
+	{
+		this.validFrom = validFrom;
+	}
+
+	public int getValidFromInTs()
+	{
+		return (int) validFrom.getEpochSecond();
+	}
+
+	public void setValidFrom(int validFrom)
+	{
+		this.validFrom = Instant.ofEpochSecond(validFrom);
+	}
+
+	public Instant getValidTo()
+	{
+		return validTo;
+	}
+
+	public void setValidTo(Instant validTo)
+	{
+		this.validTo = validTo;
+	}
+
+	public int getValidToInTs()
+	{
+		if (validTo == null)
+		{
+			return 0; // no expiration
+		}
+		return (int) validTo.getEpochSecond();
+	}
+
+	public void setValidTo(int validTo)
+	{
+		if (validTo == 0)
+		{
+			this.validTo = null;
+		}
+		else
+		{
+			this.validTo = Instant.ofEpochSecond(validTo);
+		}
+	}
+
+	public byte[] getData()
 	{
 		return data;
+	}
+
+	public void setData(byte[] data)
+	{
+		this.data = data;
 	}
 
 	@Override
@@ -86,28 +158,30 @@ public final class SecurityKey
 		if (obj == this) return true;
 		if (obj == null || obj.getClass() != getClass()) return false;
 		var that = (SecurityKey) obj;
-		return Objects.equals(gxsId, that.gxsId) &&
-				Objects.equals(flags, that.flags) &&
-				startTs == that.startTs &&
-				endTs == that.endTs &&
-				Arrays.equals(data, that.data);
+		return Objects.equals(keyId, that.keyId);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(gxsId, flags, startTs, endTs, Arrays.hashCode(data));
+		return Objects.hash(keyId);
 	}
 
 	@Override
 	public String toString()
 	{
 		return "SecurityKey[" +
-				"gxsId=" + gxsId + ", " +
+				"gxsId=" + keyId + ", " +
 				"flags=" + flags + ", " +
-				"startTs=" + startTs + ", " +
-				"endTs=" + endTs + ", " +
+				"validFrom=" + validFrom + ", " +
+				"validTo=" + validTo + ", " +
 				"data=" + Arrays.toString(data) + ']';
+	}
+
+	@Override
+	public int compareTo(SecurityKey other)
+	{
+		return new BigInteger(1, keyId.getBytes()).compareTo(new BigInteger(1, other.getKeyId().getBytes()));
 	}
 
 	public enum Flags

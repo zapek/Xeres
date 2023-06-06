@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Transactional(readOnly = true)
+@Transactional
 public interface GxsForumMessageRepository extends JpaRepository<ForumMessageItem, Long>
 {
 	Optional<ForumMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);

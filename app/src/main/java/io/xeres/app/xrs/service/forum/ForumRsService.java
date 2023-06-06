@@ -19,10 +19,13 @@
 
 package io.xeres.app.xrs.service.forum;
 
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
-import io.xeres.app.database.repository.*;
+import io.xeres.app.database.repository.GxsForumGroupRepository;
+import io.xeres.app.database.repository.GxsForumMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
@@ -32,13 +35,13 @@ import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
+import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -60,14 +63,16 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	private final GxsForumGroupRepository gxsForumGroupRepository;
 	private final GxsForumMessageRepository gxsForumMessageRepository;
-	private final TransactionTemplate transactionTemplate;
+	private final GxsUpdateService<ForumGroupItem> gxsUpdateService;
+	private final DatabaseSessionManager databaseSessionManager;
 
-	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, IdentityManager identityManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsGroupItemRepository gxsGroupItemRepository, TransactionTemplate transactionTemplate)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsUpdateService<ForumGroupItem> gxsUpdateService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, gxsClientUpdateRepository, gxsServiceSettingRepository, identityManager, gxsGroupItemRepository, transactionTemplate);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsForumGroupRepository = gxsForumGroupRepository;
 		this.gxsForumMessageRepository = gxsForumMessageRepository;
-		this.transactionTemplate = transactionTemplate;
+		this.gxsUpdateService = gxsUpdateService;
+		this.databaseSessionManager = databaseSessionManager;
 	}
 
 	@Override
@@ -90,12 +95,15 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	private void syncMessages(PeerConnection peerConnection)
 	{
-		// Request new messages for all subscribed groups
-		findAllSubscribedGroups().forEach(forumGroupItem -> {
-			var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()));
-			log.debug("Asking peer {} for new messages in group {} since {} for service {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), gxsSyncMessageRequestItem.getLastUpdated(), getServiceType());
-			peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
-		});
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			// Request new messages for all subscribed groups
+			findAllSubscribedGroups().forEach(forumGroupItem -> {
+				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()));
+				log.debug("Asking peer {} for new messages in group {} since {} for service {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), gxsSyncMessageRequestItem.getLastUpdated(), getServiceType());
+				peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
+			});
+		}
 	}
 
 	@Override
@@ -175,7 +183,6 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		// XXX: setLastServiceUpdate()? how will the client know there's new groups available otherwise?
 		var forumGroupItem = findById(id).orElseThrow();
 		forumGroupItem.setSubscribed(true);
-		gxsForumGroupRepository.save(forumGroupItem);
 	}
 
 	@Transactional
@@ -183,7 +190,6 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		var forumGroupItem = findById(id).orElseThrow();
 		forumGroupItem.setSubscribed(false);
-		gxsForumGroupRepository.save(forumGroupItem);
 	}
 
 	public Optional<ForumGroupItem> findById(long id)
@@ -227,7 +233,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public List<ForumMessageItemSummary> findAllMessagesSummary(long groupId)
 	{
 		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
@@ -239,12 +245,11 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findById(id).orElseThrow();
 	}
 
+	@Transactional
 	public void save(ForumMessageItem forumMessageItem)
 	{
-		transactionTemplate.executeWithoutResult(transactionStatus -> {
-			forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
-			gxsForumMessageRepository.save(forumMessageItem);
-			// XXX: setLastServiceUpdate() ? I think so actually!
-		});
+		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
+		gxsForumMessageRepository.save(forumMessageItem);
+		// XXX: setLastServiceUpdate() ? I think so actually!
 	}
 }

@@ -21,10 +21,8 @@ package io.xeres.app.database.model.settings;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
-@Table(name = "settings")
 @Entity
 public class Settings
 {
@@ -70,7 +68,7 @@ public class Settings
 
 	public void setPgpPrivateKeyData(byte[] keyData)
 	{
-		this.pgpPrivateKeyData = keyData;
+		pgpPrivateKeyData = keyData;
 	}
 
 	public byte[] getLocationPrivateKeyData()
@@ -80,7 +78,7 @@ public class Settings
 
 	public void setLocationPrivateKeyData(byte[] keyData)
 	{
-		this.locationPrivateKeyData = keyData;
+		locationPrivateKeyData = keyData;
 	}
 
 	public byte[] getLocationPublicKeyData()
@@ -90,7 +88,7 @@ public class Settings
 
 	public void setLocationPublicKeyData(byte[] keyData)
 	{
-		this.locationPublicKeyData = keyData;
+		locationPublicKeyData = keyData;
 	}
 
 	public byte[] getLocationCertificate()
@@ -100,7 +98,7 @@ public class Settings
 
 	public void setLocationCertificate(byte[] certificate)
 	{
-		this.locationCertificate = certificate;
+		locationCertificate = certificate;
 	}
 
 	public boolean hasLocationCertificate()

@@ -38,7 +38,6 @@ import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
 import static io.xeres.common.properties.StartupProperties.Property.FAST_SHUTDOWN;
@@ -74,7 +73,6 @@ abstract class PeerServer
 		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
-	@Transactional(readOnly = true) // needed for getPort() to work
 	public void start(int localPort)
 	{
 		bossGroup = new NioEventLoopGroup(1);

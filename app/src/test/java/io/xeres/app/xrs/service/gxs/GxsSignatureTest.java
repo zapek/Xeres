@@ -26,9 +26,9 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
-import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.EnumSet;
 
 import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
@@ -36,11 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class GxsSignatureTest
 {
-	private static IdentityGroupItem createIdentityGroupItem()
-	{
-		return new IdentityGroupItem();
-	}
-
 	@Test
 	void GxsSignature_Create_And_Verify_OK()
 	{
@@ -48,8 +43,7 @@ class GxsSignatureTest
 
 		var keyPair = RSA.generateKeys(512);
 
-		gxsIdGroupItem.setAdminPrivateKey(keyPair.getPrivate());
-		gxsIdGroupItem.setAdminPublicKey(keyPair.getPublic());
+		gxsIdGroupItem.setAdminKeys(keyPair.getPrivate(), keyPair.getPublic(), Instant.now(), null);
 
 		var data = serializeItemForSignature(gxsIdGroupItem);
 
@@ -64,13 +58,13 @@ class GxsSignatureTest
 
 	private RawItem serializeItem(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null, null, null));
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null));
 		return item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 	}
 
 	private byte[] serializeItemForSignature(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null, null, null));
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null));
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex() - HEADER_SIZE];
 		buf.getBytes(HEADER_SIZE, data);

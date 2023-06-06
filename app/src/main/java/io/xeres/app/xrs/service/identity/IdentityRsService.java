@@ -21,14 +21,12 @@ package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
-import io.xeres.app.database.repository.GxsClientUpdateRepository;
-import io.xeres.app.database.repository.GxsGroupItemRepository;
 import io.xeres.app.database.repository.GxsIdentityRepository;
-import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.ProfileService;
@@ -38,6 +36,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
+import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.id.*;
@@ -51,7 +50,6 @@ import org.bouncycastle.openpgp.PGPSecretKey;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -75,15 +73,15 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final GxsIdentityRepository gxsIdentityRepository;
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
-	private final TransactionTemplate transactionTemplate;
+	private final GxsUpdateService<IdentityGroupItem> gxsUpdateService;
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsGroupItemRepository gxsGroupItemRepository, TransactionTemplate transactionTemplate)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem> gxsUpdateService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, gxsClientUpdateRepository, gxsServiceSettingRepository, identityManager, gxsGroupItemRepository, transactionTemplate);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsIdentityRepository = gxsIdentityRepository;
 		this.settingsService = settingsService;
 		this.profileService = profileService;
-		this.transactionTemplate = transactionTemplate;
+		this.gxsUpdateService = gxsUpdateService;
 	}
 
 	@Override
@@ -159,6 +157,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		// we don't receive messages
 	}
 
+	@Transactional
 	public long createOwnIdentity(String name, boolean signed) throws CertificateException, PGPException, IOException
 	{
 		if (!settingsService.isOwnProfilePresent())
@@ -210,11 +209,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return gxsIdentityRepository.findById(id);
 	}
 
+	@Transactional
 	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
 	{
 		signGroupIfNeeded(identityGroupItem);
 		var savedIdentity = gxsIdentityRepository.save(identityGroupItem);
-		setLastServiceGroupsUpdateNow(RsServiceType.GXSID);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(RsServiceType.GXSID);
 		return savedIdentity;
 	}
 
@@ -254,6 +254,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return RSA.sign(data, identityGroupItem.getAdminPrivateKey());
 	}
 
+	@Transactional
 	public void saveIdentityImage(long id, MultipartFile file) throws IOException
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)
@@ -285,6 +286,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		saveIdentity(identity);
 	}
 
+	@Transactional
 	public void deleteIdentityImage(long id)
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)

@@ -17,19 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.configuration;
+package io.xeres.app.database.converter;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
+import io.xeres.app.xrs.common.SecurityKey;
+import jakarta.persistence.Converter;
 
-@Configuration
-public class TransactionConfiguration
+@Converter
+public class SecurityKeyFlagsConverter extends EnumSetConverter<SecurityKey.Flags>
 {
-	@Bean
-	public TransactionTemplate getTransactionTemplate(PlatformTransactionManager platformTransactionManager)
+	@Override
+	Class<SecurityKey.Flags> getEnumClass()
 	{
-		return new TransactionTemplate(platformTransactionManager);
+		return SecurityKey.Flags.class;
 	}
 }

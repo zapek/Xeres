@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Transactional(readOnly = true)
+@Transactional
 public interface GxsGroupItemRepository extends JpaRepository<GxsGroupItem, Long>
 {
 	Optional<GxsGroupItem> findByGxsId(GxsId gxsId);

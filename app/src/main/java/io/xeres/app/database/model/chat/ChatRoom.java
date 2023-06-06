@@ -26,7 +26,6 @@ import org.apache.commons.lang3.EnumUtils;
 
 import java.util.Set;
 
-@Table(name = "chatrooms")
 @Entity
 public class ChatRoom
 {

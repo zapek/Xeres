@@ -32,7 +32,6 @@ import java.util.Objects;
 import static io.xeres.app.net.protocol.PeerAddress.Type.HOSTNAME;
 import static io.xeres.app.net.protocol.PeerAddress.Type.IPV4;
 
-@Table(name = "connections")
 @Entity
 public class Connection
 {

@@ -21,11 +21,9 @@ package io.xeres.app.database.model.gxs;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 import java.time.Instant;
 
-@Table(name = "gxs_service_settings")
 @Entity
 public class GxsServiceSetting
 {

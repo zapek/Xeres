@@ -37,7 +37,7 @@ import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
-@Entity(name = "gxs_messages")
+@Entity(name = "gxs_message")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 {

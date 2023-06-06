@@ -23,9 +23,9 @@ import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.GxsIdentityRepository;
-import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.ProfileFingerprint;
 import jakarta.persistence.EntityNotFoundException;
@@ -37,11 +37,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -66,11 +63,7 @@ class IdentityRsServiceTest
 	private GxsIdentityRepository gxsIdentityRepository;
 
 	@Mock
-	private GxsServiceSettingRepository gxsServiceSettingRepository;
-
-	@SuppressWarnings("unused")
-	@Spy
-	private TransactionTemplate transactionTemplate = new TransactionTemplate(mock(PlatformTransactionManager.class));
+	private GxsUpdateService<IdentityGroupItem> gxsUpdateService;
 
 	@InjectMocks
 	private IdentityRsService identityRsService;

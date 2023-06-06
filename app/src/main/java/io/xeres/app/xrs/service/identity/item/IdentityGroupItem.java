@@ -36,7 +36,7 @@ import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
-@Entity(name = "identity_groups")
+@Entity(name = "identity_group")
 public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we need to be able to serialize just the group data (here) and the group metadata (superclass)
 {
 	@Transient

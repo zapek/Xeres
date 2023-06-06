@@ -21,9 +21,11 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.common.SecurityKey;
-import io.xeres.app.xrs.common.SecurityKeySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.*;
@@ -31,55 +33,54 @@ import static io.xeres.app.xrs.serialization.TlvType.*;
 final class TlvSecurityKeySetSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(TlvSecurityKeySetSerializer.class);
+	private static final String GROUP_ID_VALUE = ""; // unused
 
 	private TlvSecurityKeySetSerializer()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, SecurityKeySet securityKeySet)
+	static int serialize(ByteBuf buf, List<SecurityKey> securityKeys)
 	{
 		log.trace("Writing TlvSecurityKeySet");
 
-		var len = getSize(securityKeySet);
+		var len = getSize(securityKeys);
 		buf.ensureWritable(len);
 		buf.writeShort(SECURITY_KEY_SET.getValue());
 		buf.writeInt(len);
-		TlvSerializer.serialize(buf, STR_GROUP_ID, securityKeySet.getGroupId());
-		securityKeySet.getPublicKeys().forEach((gxsId, securityKey) -> TlvSerializer.serialize(buf, SECURITY_KEY, securityKey));
-		securityKeySet.getPrivateKeys().forEach((gxsId, securityKey) -> TlvSerializer.serialize(buf, SECURITY_KEY, securityKey));
+		TlvSerializer.serialize(buf, STR_GROUP_ID, GROUP_ID_VALUE);
+		securityKeys.forEach(securityKey -> TlvSerializer.serialize(buf, SECURITY_KEY, securityKey));
 
 		return len;
 	}
 
-	static int getSize(SecurityKeySet securityKeySet)
+	static int getSize(List<SecurityKey> securityKeys)
 	{
 		return TLV_HEADER_SIZE +
-				TlvStringSerializer.getSize(securityKeySet.getGroupId()) +
-				securityKeySet.getPublicKeys().values().stream().mapToInt(publicKey -> TlvSerializer.getSize(SECURITY_KEY, publicKey)).sum() +
-				securityKeySet.getPrivateKeys().values().stream().mapToInt(privateKey -> TlvSerializer.getSize(SECURITY_KEY, privateKey)).sum();
+				TlvStringSerializer.getSize(GROUP_ID_VALUE) +
+				securityKeys.stream().mapToInt(key -> TlvSerializer.getSize(SECURITY_KEY, key)).sum();
 	}
 
-	static SecurityKeySet deserialize(ByteBuf buf)
+	static List<SecurityKey> deserialize(ByteBuf buf)
 	{
 		log.trace("Reading TlvSecurityKeySet");
 
 		var len = TlvUtils.checkTypeAndLength(buf, SECURITY_KEY_SET);
 
 		// STR_GROUP_ID must be empty
-		if (!TlvSerializer.deserialize(buf, STR_GROUP_ID).equals(""))
+		if (!TlvSerializer.deserialize(buf, STR_GROUP_ID).equals(GROUP_ID_VALUE))
 		{
 			throw new IllegalArgumentException("STR_GROUP_ID is not empty");
 		}
 		len -= TlvStringSerializer.getSize("");
 
-		var securityKeySet = new SecurityKeySet();
+		List<SecurityKey> securityKeys = new ArrayList<>();
 		while (len > 0)
 		{
 			var securityKey = (SecurityKey) TlvSerializer.deserialize(buf, SECURITY_KEY);
-			securityKeySet.put(securityKey);
+			securityKeys.add(securityKey);
 			len -= TlvSerializer.getSize(SECURITY_KEY, securityKey);
 		}
-		return securityKeySet;
+		return securityKeys;
 	}
 }

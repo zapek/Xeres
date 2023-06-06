@@ -35,7 +35,6 @@ import java.util.List;
 
 import static io.xeres.common.dto.profile.ProfileConstants.*;
 
-@Table(name = "profiles")
 @Entity
 public class Profile
 {

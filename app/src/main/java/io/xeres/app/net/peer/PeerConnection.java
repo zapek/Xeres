@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.ScheduledFuture;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.common.util.NoSuppressedRunnable;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -106,19 +107,19 @@ public class PeerConnection
 		}
 	}
 
-	public void scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)
+	public void scheduleAtFixedRate(NoSuppressedRunnable command, long initialDelay, long period, TimeUnit unit)
 	{
 		var scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay, period, unit);
 		schedules.add(scheduledFuture);
 	}
 
-	public void scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)
+	public void scheduleWithFixedDelay(NoSuppressedRunnable command, long initialDelay, long delay, TimeUnit unit)
 	{
 		var scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay, delay, unit);
 		schedules.add(scheduledFuture);
 	}
 
-	public void schedule(Runnable command, long delay, TimeUnit unit)
+	public void schedule(NoSuppressedRunnable command, long delay, TimeUnit unit)
 	{
 		var scheduledFuture = ctx.executor().schedule(command, delay, unit);
 		schedules.add(scheduledFuture);

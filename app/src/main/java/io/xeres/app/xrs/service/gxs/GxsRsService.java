@@ -21,6 +21,8 @@ package io.xeres.app.xrs.service.gxs;
 
 import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
@@ -87,6 +89,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final PeerConnectionManager peerConnectionManager;
 	private final IdentityManager identityManager;
 	private final GxsUpdateService<G> gxsUpdateService;
+	private final DatabaseSessionManager databaseSessionManager;
 
 	private final Type itemGroupClass;
 	private final Type itemMessageClass;
@@ -95,11 +98,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private final Map<G, Long> pendingGxsGroups = new ConcurrentHashMap<>();
 
-	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, IdentityManager identityManager, GxsUpdateService<G> gxsUpdateService)
+	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<G> gxsUpdateService)
 	{
 		super(rsServiceRegistry);
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
+		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
 		this.gxsUpdateService = gxsUpdateService;
 
@@ -259,32 +263,35 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void checkPendingGroups()
 	{
-		pendingGxsGroups.forEach((gxsGroupItem, delay) -> {
-			var author = identityManager.getGxsGroup(peerConnectionManager.getRandomPeer(), gxsGroupItem.getAuthor());
-			if (author != null)
-			{
-				var status = verifyGroup(gxsGroupItem, author);
-				if (status == VerificationStatus.OK)
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			pendingGxsGroups.forEach((gxsGroupItem, delay) -> {
+				var author = identityManager.getGxsGroup(peerConnectionManager.getRandomPeer(), gxsGroupItem.getAuthor());
+				if (author != null)
 				{
-					gxsUpdateService.saveGroup(gxsGroupItem, this::onGroupReceived);
+					var status = verifyGroup(gxsGroupItem, author);
+					if (status == VerificationStatus.OK)
+					{
+						gxsUpdateService.saveGroup(gxsGroupItem, this::onGroupReceived);
+					}
+					else
+					{
+						log.warn("Failed to validate {}, wrong signature", gxsGroupItem);
+					}
+					pendingGxsGroups.put(gxsGroupItem, -1L); // Remove the entry
 				}
 				else
 				{
-					log.warn("Failed to validate {}, wrong signature", gxsGroupItem);
+					var newDelay = delay - PENDING_VERIFICATION_DELAY.toSeconds();
+					pendingGxsGroups.put(gxsGroupItem, newDelay);
+					if (newDelay < 0)
+					{
+						log.warn("Failed to validate {}. Timeout exceeded", gxsGroupItem);
+					}
 				}
-				pendingGxsGroups.put(gxsGroupItem, -1L); // Remove the entry
-			}
-			else
-			{
-				var newDelay = delay - PENDING_VERIFICATION_DELAY.toSeconds();
-				pendingGxsGroups.put(gxsGroupItem, newDelay);
-				if (newDelay < 0)
-				{
-					log.warn("Failed to validate {}. Timeout exceeded", gxsGroupItem);
-				}
-			}
-		});
-		pendingGxsGroups.entrySet().removeIf(gxsGroupItemLongEntry -> gxsGroupItemLongEntry.getValue() < 0);
+			});
+			pendingGxsGroups.entrySet().removeIf(gxsGroupItemLongEntry -> gxsGroupItemLongEntry.getValue() < 0);
+		}
 	}
 
 	private void handleGxsSyncGroupRequestItem(PeerConnection peerConnection, GxsSyncGroupRequestItem item)

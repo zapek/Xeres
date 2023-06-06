@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
@@ -74,9 +75,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final ProfileService profileService;
 	private final GxsUpdateService<IdentityGroupItem> gxsUpdateService;
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem> gxsUpdateService)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem> gxsUpdateService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, identityManager, gxsUpdateService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsIdentityRepository = gxsIdentityRepository;
 		this.settingsService = settingsService;
 		this.profileService = profileService;

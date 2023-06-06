@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static java.util.Comparator.*;
 
-@Table(name = "locations")
 @Entity
 public class Location
 {

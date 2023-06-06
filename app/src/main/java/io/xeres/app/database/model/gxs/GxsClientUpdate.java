@@ -28,7 +28,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-@Table(name = "gxs_client_updates")
 @Entity
 public class GxsClientUpdate
 {

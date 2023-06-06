@@ -50,7 +50,7 @@ import java.util.*;
 import static io.xeres.app.xrs.common.SecurityKey.Flags.*;
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
-@Entity(name = "gxs_groups")
+@Entity(name = "gxs_group")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 {
@@ -116,9 +116,11 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	// the publishing key is used for both DISTRIBUTION_PUBLISHING and DISTRIBUTION_IDENTITY
 
 	@ElementCollection
+	@OrderColumn
 	private List<SecurityKey> privateKeys = new ArrayList<>(2);
 
 	@ElementCollection
+	@OrderColumn
 	private List<SecurityKey> publicKeys = new ArrayList<>(2);
 
 	private byte[] adminSignature;

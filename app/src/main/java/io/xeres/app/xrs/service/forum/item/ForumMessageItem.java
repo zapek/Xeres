@@ -32,7 +32,7 @@ import java.util.Set;
 import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 
-@Entity(name = "forum_messages")
+@Entity(name = "forum_message")
 public class ForumMessageItem extends GxsMessageItem
 {
 	private String content;

@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.forum;
 
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
@@ -62,13 +64,15 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	private final GxsForumGroupRepository gxsForumGroupRepository;
 	private final GxsForumMessageRepository gxsForumMessageRepository;
 	private final GxsUpdateService<ForumGroupItem> gxsUpdateService;
+	private final DatabaseSessionManager databaseSessionManager;
 
-	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsUpdateService<ForumGroupItem> gxsUpdateService)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsUpdateService<ForumGroupItem> gxsUpdateService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, identityManager, gxsUpdateService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsForumGroupRepository = gxsForumGroupRepository;
 		this.gxsForumMessageRepository = gxsForumMessageRepository;
 		this.gxsUpdateService = gxsUpdateService;
+		this.databaseSessionManager = databaseSessionManager;
 	}
 
 	@Override
@@ -91,12 +95,15 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	private void syncMessages(PeerConnection peerConnection)
 	{
-		// Request new messages for all subscribed groups
-		findAllSubscribedGroups().forEach(forumGroupItem -> {
-			var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()));
-			log.debug("Asking peer {} for new messages in group {} since {} for service {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), gxsSyncMessageRequestItem.getLastUpdated(), getServiceType());
-			peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
-		});
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			// Request new messages for all subscribed groups
+			findAllSubscribedGroups().forEach(forumGroupItem -> {
+				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()));
+				log.debug("Asking peer {} for new messages in group {} since {} for service {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), gxsSyncMessageRequestItem.getLastUpdated(), getServiceType());
+				peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
+			});
+		}
 	}
 
 	@Override

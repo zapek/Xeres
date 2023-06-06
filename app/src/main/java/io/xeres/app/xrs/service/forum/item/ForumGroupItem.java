@@ -25,7 +25,10 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -33,18 +36,16 @@ import java.util.Set;
 import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.*;
 
-@Entity(name = "forum_groups")
+@Entity(name = "forum_group")
 public class ForumGroupItem extends GxsGroupItem
 {
 	private String description;
 
 	@ElementCollection
-	@CollectionTable(name = "forum_admins")
 	@AttributeOverride(name = "identifier", column = @Column(name = "admin"))
 	private Set<GxsId> admins = new HashSet<>();
 
 	@ElementCollection
-	@CollectionTable(name = "forum_pinned_posts")
 	@AttributeOverride(name = "identifier", column = @Column(name = "pinned_post"))
 	private Set<MessageId> pinnedPosts = new HashSet<>();
 

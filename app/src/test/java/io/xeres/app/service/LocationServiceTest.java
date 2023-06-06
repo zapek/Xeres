@@ -269,7 +269,6 @@ class LocationServiceTest
 		locationService.setConnected(location, new InetSocketAddress("127.0.0.1", 666));
 
 		assertTrue(location.isConnected());
-		verify(locationRepository).save(location);
 	}
 
 	@Test

@@ -20,11 +20,8 @@
 package io.xeres.app.xrs.service.chat;
 
 import io.xeres.app.database.DatabaseSessionManager;
-import io.xeres.app.database.model.chat.ChatRoom;
-import io.xeres.app.database.model.chat.ChatRoomFakes;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.LocationFakes;
-import io.xeres.app.database.repository.ChatRoomRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.service.RsService;
@@ -34,24 +31,19 @@ import io.xeres.app.xrs.service.chat.item.ChatRoomListRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.PrivateChatMessage;
-import io.xeres.common.message.chat.RoomType;
-import org.apache.commons.lang3.EnumUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.EnumSet;
-import java.util.Optional;
 
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class ChatRsServiceTest
@@ -66,11 +58,7 @@ class ChatRsServiceTest
 	private IdentityRsService identityRsService;
 
 	@Mock
-	private ChatRoomRepository chatRoomRepository;
-
-	@SuppressWarnings("unused")
-	@Spy
-	private TransactionTemplate transactionTemplate = new TransactionTemplate(mock(PlatformTransactionManager.class));
+	private ChatRoomService chatRoomService;
 
 	@InjectMocks
 	private ChatRsService chatRsService;
@@ -142,7 +130,6 @@ class ChatRsServiceTest
 		var item = new ChatRoomListRequestItem();
 
 		when(identityRsService.getOwnIdentity()).thenReturn(ownIdentity);
-		when(chatRoomRepository.save(any())).thenReturn(ChatRoomFakes.createChatRoomEntity(1L, ownIdentity, roomName, roomTopic, (int) EnumUtils.generateBitVector(RoomFlags.class, roomFlags)));
 
 		var roomId = chatRsService.createChatRoom(roomName, roomTopic, roomFlags, false);
 		chatRsService.handleItem(peerConnection, item);
@@ -153,55 +140,5 @@ class ChatRsServiceTest
 			assertEquals(roomId, ((ChatRoomListItem) chatRoomListItem).getChatRooms().get(0).getId());
 			return true;
 		}), any(RsService.class));
-	}
-
-	@Test
-	void ChatRoomService_CreateChatRoom_OK()
-	{
-		chatRsService.createChatRoom(createSignedChatRoom(), IdentityFakes.createOwn());
-		verify(chatRoomRepository).save(any(ChatRoom.class));
-	}
-
-	@Test
-	void ChatRoomService_SubscribeToChatRoomAndJoin_OK()
-	{
-		var serviceChatRoom = createSignedChatRoom();
-		var identity = IdentityFakes.createOwn();
-		var chatRoom = ChatRoomFakes.createChatRoomEntity(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
-
-		when(chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity)).thenReturn(Optional.of(chatRoom));
-		when(chatRoomRepository.save(chatRoom)).thenReturn(chatRoom);
-
-		var subscribedChatRoom = chatRsService.subscribeToChatRoomAndJoin(serviceChatRoom, identity);
-
-		assertTrue(subscribedChatRoom.isSubscribed());
-		assertTrue(subscribedChatRoom.isJoined());
-
-		verify(chatRoomRepository).findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity);
-		verify(chatRoomRepository).save(subscribedChatRoom);
-	}
-
-	@Test
-	void ChatRoomService_UnsubscribeFromChatRoomAndLeave_OK()
-	{
-		var serviceChatRoom = createSignedChatRoom();
-		var identity = IdentityFakes.createOwn();
-		var chatRoom = ChatRoomFakes.createChatRoomEntity(serviceChatRoom.getId(), identity, serviceChatRoom.getName(), serviceChatRoom.getTopic(), 0);
-
-		when(chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity)).thenReturn(Optional.of(chatRoom));
-		when(chatRoomRepository.save(chatRoom)).thenReturn(chatRoom);
-
-		var unsubscribedChatRoom = chatRsService.unsubscribeFromChatRoomAndLeave(serviceChatRoom.getId(), identity);
-
-		assertFalse(unsubscribedChatRoom.isSubscribed());
-		assertFalse(unsubscribedChatRoom.isJoined());
-
-		verify(chatRoomRepository).findByRoomIdAndIdentityGroupItem(chatRoom.getRoomId(), identity);
-		verify(chatRoomRepository).save(unsubscribedChatRoom);
-	}
-
-	private io.xeres.app.xrs.service.chat.ChatRoom createSignedChatRoom()
-	{
-		return new io.xeres.app.xrs.service.chat.ChatRoom(1L, "test", "something", RoomType.PUBLIC, 1, true);
 	}
 }

@@ -23,7 +23,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
-public abstract class GxsExchange extends Item
+public abstract class GxsExchange extends Item implements DynamicServiceType
 {
 	@RsSerialized
 	private int transactionId;
@@ -41,6 +41,7 @@ public abstract class GxsExchange extends Item
 	 *
 	 * @param serviceType the service type
 	 */
+	@Override
 	public void setServiceType(int serviceType)
 	{
 		this.serviceType = serviceType;

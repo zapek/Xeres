@@ -52,7 +52,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.REQUEST;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
 import static java.util.stream.Collectors.toMap;
@@ -686,9 +685,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		item.setSerialization(Unpooled.buffer().alloc(), this);
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
-		// Skip the header
-		var data = new byte[buf.writerIndex() - HEADER_SIZE];
-		buf.getBytes(HEADER_SIZE, data);
+		var data = new byte[buf.writerIndex()];
+		buf.getBytes(0, data);
 		buf.release();
 		return data;
 	}

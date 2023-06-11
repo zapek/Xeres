@@ -574,8 +574,9 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 		var identityGroupItem = IdentityGroupItemFakes.createIdentityGroupItem();
+		var result = new GxsMetaAndDataResult();
 
-		var size = Serializer.serializeGxsMetaAndDataItem(buf, identityGroupItem, EnumSet.noneOf(SerializationFlags.class));
+		var size = Serializer.serializeGxsMetaAndDataItem(buf, identityGroupItem, EnumSet.noneOf(SerializationFlags.class), result);
 		assertEquals(178, size);
 
 		buf.release();
@@ -586,8 +587,9 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 		var forumGroupItem = ForumGroupItemFakes.createForumGroupItem();
+		var result = new GxsMetaAndDataResult();
 
-		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumGroupItem, EnumSet.noneOf(SerializationFlags.class));
+		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumGroupItem, EnumSet.noneOf(SerializationFlags.class), result);
 		assertEquals(172, size);
 
 		buf.release();
@@ -598,8 +600,9 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 		var forumMessageItem = ForumMessageItemFakes.createForumMessageItem();
+		var result = new GxsMetaAndDataResult();
 
-		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumMessageItem, EnumSet.noneOf(SerializationFlags.class));
+		var size = Serializer.serializeGxsMetaAndDataItem(buf, forumMessageItem, EnumSet.noneOf(SerializationFlags.class), result);
 		assertEquals(154, size);
 
 		buf.release();

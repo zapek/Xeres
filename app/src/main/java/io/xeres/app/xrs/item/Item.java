@@ -23,11 +23,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ReferenceCountUtil;
 import io.xeres.app.database.model.gxs.GxsMetaAndData;
+import io.xeres.app.xrs.serialization.GxsMetaAndDataResult;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsService;
-import io.xeres.app.xrs.service.gxs.item.GxsExchange;
+import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,10 +64,10 @@ public abstract class Item
 		buf = allocator.buffer();
 		buf.writeByte(VERSION);
 
-		// GxsExchange are shared, hence have no intrinsic service type
-		if (GxsExchange.class.isAssignableFrom(getClass()))
+		// Handle items that are shared between service and hence have no intrinsic service type
+		if (DynamicServiceType.class.isAssignableFrom(getClass()))
 		{
-			((GxsExchange) this).setServiceType(service.getServiceType().getType());
+			((DynamicServiceType) this).setServiceType(service.getServiceType().getType());
 		}
 		buf.writeShort(getServiceType());
 		buf.writeByte(getSubType());
@@ -86,22 +87,28 @@ public abstract class Item
 		if (GxsMetaAndData.class.isAssignableFrom(getClass()))
 		{
 			log.trace("Serializing class {} using GxsGroupItem system, flags: {}", getClass().getSimpleName(), flags);
-			size += Serializer.serializeGxsMetaAndDataItem(buf, (GxsMetaAndData) this, flags);
+			var result = new GxsMetaAndDataResult();
+			size += Serializer.serializeGxsMetaAndDataItem(buf, (GxsMetaAndData) this, flags, result);
+
+			// RS sets this as the size for GxsMetaAndData
+			setItemSize(result.getDataSize() + HEADER_SIZE);
 		}
 		else if (RsSerializable.class.isAssignableFrom(getClass()))
 		{
 			log.trace("Serializing class {} using writeObject(), flags: {}", getClass().getSimpleName(), flags);
 			size += Serializer.serializeRsSerializable(buf, (RsSerializable) this, flags);
+			setItemSize(size + HEADER_SIZE);
 		}
 		else
 		{
 			log.trace("Serializing class {} using annotations", getClass().getSimpleName());
 			size += Serializer.serializeAnnotatedFields(buf, this);
+			setItemSize(size + HEADER_SIZE);
 		}
 		log.debug("==> {} ({})", getClass().getSimpleName(), size + HEADER_SIZE);
-		setItemSize(size + HEADER_SIZE);
 
 		var rawItem = new RawItem(buf, getPriority());
+		log.trace("Serialized buffer ==> {}", rawItem);
 		if (flags.contains(SerializationFlags.SIGNATURE))
 		{
 			buf = backupBuf;

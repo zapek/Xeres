@@ -33,7 +33,16 @@ class GxsSignatureFlagsTest
 		assertEquals(1, ALL_SIGNED.ordinal());
 		assertEquals(2, THREAD_HEAD.ordinal());
 		assertEquals(3, NONE_REQUIRED.ordinal());
+		assertEquals(4, UNUSED_1.ordinal());
+		assertEquals(5, UNUSED_2.ordinal());
+		assertEquals(6, UNUSED_3.ordinal());
+		assertEquals(7, UNUSED_4.ordinal());
+		assertEquals(8, ANTI_SPAM.ordinal());
+		assertEquals(9, AUTHENTICATION_REQUIRED.ordinal());
+		assertEquals(10, IF_NO_PUB_SIGN.ordinal());
+		assertEquals(11, TRACK_MESSAGES.ordinal());
+		assertEquals(12, ANTI_SPAM_2.ordinal());
 
-		assertEquals(4, values().length);
+		assertEquals(13, values().length);
 	}
 }

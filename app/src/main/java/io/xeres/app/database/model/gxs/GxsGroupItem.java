@@ -31,7 +31,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
-import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import jakarta.persistence.*;
@@ -52,7 +52,7 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_group")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class GxsGroupItem extends Item implements GxsMetaAndData
+public abstract class GxsGroupItem extends Item implements GxsMetaAndData, DynamicServiceType
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsGroupItem.class);
 
@@ -126,11 +126,19 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData
 	private byte[] adminSignature;
 	private byte[] authorSignature;
 
+	@Transient
+	private int serviceType;
+
 	@Override
 	public int getServiceType()
 	{
-		// GxsGroupItem are shared between services
-		return RsServiceType.NONE.getType();
+		return serviceType;
+	}
+
+	@Override
+	public void setServiceType(int serviceType)
+	{
+		this.serviceType = serviceType;
 	}
 
 	public long getId()

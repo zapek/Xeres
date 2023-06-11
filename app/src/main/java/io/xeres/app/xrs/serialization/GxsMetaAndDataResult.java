@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,29 +19,28 @@
 
 package io.xeres.app.xrs.serialization;
 
-import io.netty.buffer.ByteBuf;
-import io.xeres.app.database.model.gxs.GxsMetaAndData;
-
-import java.util.Set;
-
-final class GxsMetaAndDataSerializer
+public final class GxsMetaAndDataResult
 {
-	private GxsMetaAndDataSerializer()
+	private int dataSize;
+	private int metaSize;
+
+	public int getDataSize()
 	{
-		throw new UnsupportedOperationException("Utility class");
+		return dataSize;
 	}
 
-	static int serialize(ByteBuf buf, GxsMetaAndData gxsMetaAndData, Set<SerializationFlags> flags, GxsMetaAndDataResult result)
+	public void setDataSize(int dataSize)
 	{
-		var dataSize = gxsMetaAndData.writeDataObject(buf, flags);
-		var metaSize = gxsMetaAndData.writeMetaObject(buf, flags);
+		this.dataSize = dataSize;
+	}
 
-		if (result != null)
-		{
-			result.setDataSize(dataSize);
-			result.setMetaSize(metaSize);
-		}
+	public int getMetaSize()
+	{
+		return metaSize;
+	}
 
-		return dataSize + metaSize;
+	public void setMetaSize(int metaSize)
+	{
+		this.metaSize = metaSize;
 	}
 }

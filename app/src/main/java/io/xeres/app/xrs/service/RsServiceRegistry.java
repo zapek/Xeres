@@ -23,6 +23,7 @@ import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
+import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import io.xeres.app.xrs.service.gxs.item.GxsExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,9 +166,9 @@ public class RsServiceRegistry
 				try
 				{
 					var item = itemClass.getConstructor().newInstance();
-					if (GxsExchange.class.isAssignableFrom(item.getClass()))
+					if (DynamicServiceType.class.isAssignableFrom(item.getClass()))
 					{
-						((GxsExchange) item).setServiceType(service);
+						((DynamicServiceType) item).setServiceType(service);
 					}
 					return item;
 				}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,21 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.gxs;
+package io.xeres.app.xrs.service.gxs.item;
 
-public enum GxsSignatureFlags
+/**
+ * This interface is used for items that don't have an intrinsic service type, because for example
+ * they're shared between multiple services (Gxs, ...).
+ */
+public interface DynamicServiceType
 {
-	ENCRYPTED, // unused?
-	ALL_SIGNED, // unused?
-	THREAD_HEAD, // unused?
-	NONE_REQUIRED, // set for all services but never checked
-	UNUSED_1,
-	UNUSED_2,
-	UNUSED_3,
-	UNUSED_4,
-	ANTI_SPAM,
-	AUTHENTICATION_REQUIRED, // unused?
-	IF_NO_PUB_SIGN, // unused
-	TRACK_MESSAGES, // unused
-	ANTI_SPAM_2
+	int getServiceType();
+
+	void setServiceType(int serviceType);
 }

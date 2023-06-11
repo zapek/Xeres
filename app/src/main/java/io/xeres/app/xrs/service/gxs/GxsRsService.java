@@ -508,7 +508,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var verified = gxsGroupItem.getAuthor() == null ? VerificationStatus.OK : verifyGroup(gxsGroupItem, identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthor()));
 		if (verified == VerificationStatus.FAILED)
 		{
-			log.error("Failed to verify group {}", gxsGroupItem);
+			log.error("Failed to verify group {}: wrong signature", gxsGroupItem);
 		}
 		else if (verified == VerificationStatus.DELAYED)
 		{

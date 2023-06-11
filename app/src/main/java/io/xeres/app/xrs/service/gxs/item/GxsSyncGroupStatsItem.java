@@ -19,13 +19,16 @@
 
 package io.xeres.app.xrs.service.gxs.item;
 
+import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
 /**
  * This item is used to request statistics about a group.
+ * Note that it doesn't extend GxsExchange because it doesn't use transactions.
  */
-public class GxsSyncGroupStatsItem extends GxsExchange
+public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 {
 	@RsSerialized
 	private RequestType requestType;
@@ -39,15 +42,35 @@ public class GxsSyncGroupStatsItem extends GxsExchange
 	@RsSerialized
 	private int lastPostTimestamp;
 
+	private int serviceType;
+
+	@SuppressWarnings("unused")
 	public GxsSyncGroupStatsItem()
 	{
-		// Needed
 	}
 
 	@Override
 	public int getSubType()
 	{
 		return 3;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.HIGH.getPriority(); // XXX: not sure...
+	}
+
+	@Override
+	public int getServiceType()
+	{
+		return serviceType;
+	}
+
+	@Override
+	public void setServiceType(int serviceType)
+	{
+		this.serviceType = serviceType;
 	}
 
 	@Override

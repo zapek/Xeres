@@ -24,7 +24,6 @@ import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
-import io.xeres.app.xrs.service.gxs.item.GxsExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -96,9 +95,9 @@ public class RsServiceRegistry
 					// For GxsGroup and GxsMessage items, we ignore them because they can only be received within transactions
 					// (but the real reason is that their subtype clashes with GxsExchange subtypes)
 				}
-				else if (GxsExchange.class.isAssignableFrom(itemClass))
+				else if (DynamicServiceType.class.isAssignableFrom(itemClass))
 				{
-					// For GxsExchange items, we don't know their ServiceType yet because they are shared.
+					// For DynamicServiceType (mostly GxsExchange) items, we don't know their ServiceType yet because they are shared.
 					itemClassesGxsWaiting.put(item.getSubType(), itemClass);
 				}
 				else

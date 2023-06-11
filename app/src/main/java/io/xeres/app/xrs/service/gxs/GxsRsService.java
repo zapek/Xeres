@@ -232,15 +232,18 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			{
 				handleGxsSyncMessageRequestItem(sender, gxsSyncMessageRequestItem);
 			}
-			else if (item instanceof GxsSyncGroupStatsItem gxsSyncGroupStatsItem)
+		}
+		else
+		{
+			if (item instanceof GxsSyncGroupStatsItem gxsSyncGroupStatsItem)
 			{
 				log.debug("Would handle group statistics item (not implemented yet)");
 				// XXX:
 			}
-		}
-		else
-		{
-			log.error("Not a GxsExchange item: {}, ignoring", item);
+			else
+			{
+				log.error("Not a GxsExchange item: {}, ignoring", item);
+			}
 		}
 	}
 
@@ -676,7 +679,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return VerificationStatus.OK;
 	}
 
-	protected void signMessage(GxsMessageItem gxsMessageItem)
+	protected void signMessageIfNeeded(GxsMessageItem gxsMessageItem)
 	{
 		// TODO: implement (need to check authorId, etc...). do it for authorSignature, publishSignature too but it's for circles I think
 	}

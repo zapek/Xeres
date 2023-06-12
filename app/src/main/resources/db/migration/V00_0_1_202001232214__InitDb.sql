@@ -126,9 +126,7 @@ CREATE TABLE gxs_group
 	service_string        VARCHAR(512),
 	originator            BINARY(16),
 	internal_circle       BINARY(16),
-	subscribed            BOOLEAN      NOT NULL                                                                                   DEFAULT FALSE,
-	admin_signature       VARBINARY(512)                                                                                          DEFAULT NULL,
-	author_signature      VARBINARY(512)                                                                                          DEFAULT NULL
+	subscribed BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE gxs_group_private_keys
@@ -151,6 +149,15 @@ CREATE TABLE gxs_group_public_keys
 	valid_from        TIMESTAMP  NOT NULL,
 	valid_to          TIMESTAMP,
 	data              VARBINARY(16384)
+);
+
+CREATE TABLE gxs_group_signatures
+(
+	gxs_group_id     BIGINT     NOT NULL,
+	type             ENUM ('author', 'publish', 'admin'),
+	gxs_id           BINARY(16) NOT NULL,
+	signatures_order INT        NOT NULL DEFAULT 0,
+	data             VARBINARY(512)
 );
 
 CREATE TABLE identity_group
@@ -195,12 +202,19 @@ CREATE TABLE gxs_message
 	flags               INT          NOT NULL DEFAULT 0,
 	status              INT          NOT NULL DEFAULT 0,
 	child               TIMESTAMP,
-	service_string      VARCHAR(512),
-	publish_signature   VARBINARY(512)        DEFAULT NULL,
-	author_signature    VARBINARY(512)        DEFAULT NULL
+	service_string      VARCHAR(512)
 );
 CREATE INDEX idx_gxs_id ON gxs_message (gxs_id);
 CREATE INDEX idx_message_id ON gxs_message (message_id);
+
+CREATE TABLE gxs_message_signatures
+(
+	gxs_message_id   BIGINT     NOT NULL,
+	type             ENUM ('author', 'publish', 'admin'),
+	gxs_id           BINARY(16) NOT NULL,
+	signatures_order INT        NOT NULL DEFAULT 0,
+	data             VARBINARY(512)
+);
 
 CREATE TABLE forum_message
 (

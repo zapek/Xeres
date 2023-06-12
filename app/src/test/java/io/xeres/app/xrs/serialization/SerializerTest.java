@@ -26,7 +26,6 @@ import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.Signature;
-import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.MessageId;
@@ -453,8 +452,8 @@ class SerializerTest
 		assertEquals(6 + 6 + 38 + key.length, size);
 
 		var result = (Signature) Serializer.deserialize(buf, TlvType.SIGNATURE);
-		assertEquals(input.gxsId(), result.gxsId());
-		assertArrayEquals(input.data(), result.data());
+		assertEquals(input.getGxsId(), result.getGxsId());
+		assertArrayEquals(input.getData(), result.getData());
 
 		buf.release();
 	}
@@ -463,18 +462,18 @@ class SerializerTest
 	void Serializer_Serialize_TlvKeySignatureSet()
 	{
 		var buf = Unpooled.buffer();
-		var input = new SignatureSet();
+		List<Signature> input = new ArrayList<>();
 		var gxsId = IdFakes.createGxsId();
 		var signature = RandomUtils.nextBytes(20);
-		var keySignature = new Signature(gxsId, signature);
-		input.put(SignatureSet.Type.ADMIN, keySignature);
+		var keySignature = new Signature(Signature.Type.ADMIN, gxsId, signature);
+		input.add(keySignature);
 
 		var size = Serializer.serialize(buf, TlvType.SIGNATURE_SET, input);
 		assertEquals(TLV_HEADER_SIZE + TLV_HEADER_SIZE + 4 + TLV_HEADER_SIZE + TLV_HEADER_SIZE + GxsId.LENGTH * 2 + TLV_HEADER_SIZE + signature.length, size);
 
-		var result = (SignatureSet) Serializer.deserialize(buf, TlvType.SIGNATURE_SET);
-		assertEquals(input.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).gxsId(), result.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).gxsId());
-		assertArrayEquals(input.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).data(), result.getSignatures().get(SignatureSet.Type.ADMIN.getValue()).data());
+		@SuppressWarnings("unchecked") var result = (List<Signature>) Serializer.deserialize(buf, TlvType.SIGNATURE_SET);
+		assertEquals(input.get(0).getGxsId(), result.get(0).getGxsId());
+		assertArrayEquals(input.get(0).getData(), result.get(0).getData());
 
 		buf.release();
 	}

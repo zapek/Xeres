@@ -46,8 +46,8 @@ final class TlvSignatureSerializer
 		buf.ensureWritable(len);
 		buf.writeShort(SIGNATURE.getValue());
 		buf.writeInt(len);
-		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(signature.gxsId()));
-		TlvSerializer.serialize(buf, SIGN_RSA_SHA1, signature.data());
+		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(signature.getGxsId()));
+		TlvSerializer.serialize(buf, SIGN_RSA_SHA1, signature.getData());
 
 		return len;
 	}
@@ -56,7 +56,7 @@ final class TlvSignatureSerializer
 	{
 		return TLV_HEADER_SIZE +
 				TlvSerializer.getSize(STR_KEY_ID) +
-				TlvSerializer.getSize(SIGN_RSA_SHA1, signature.data());
+				TlvSerializer.getSize(SIGN_RSA_SHA1, signature.getData());
 	}
 
 	static Signature deserialize(ByteBuf buf)

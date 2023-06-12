@@ -26,7 +26,6 @@ import io.xeres.app.database.converter.GxsPrivacyFlagsConverter;
 import io.xeres.app.database.converter.GxsSignatureFlagsConverter;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.Signature;
-import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.SerializationFlags;
@@ -123,8 +122,9 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@OrderColumn
 	private List<SecurityKey> publicKeys = new ArrayList<>(2);
 
-	private byte[] adminSignature;
-	private byte[] authorSignature;
+	@ElementCollection
+	@OrderColumn
+	private List<Signature> signatures = new ArrayList<>(2);
 
 	@Transient
 	private int serviceType;
@@ -171,12 +171,12 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		this.originalGxsId = originalGxsId;
 	}
 
-	public String getName()
+	public @NotNull String getName()
 	{
 		return name;
 	}
 
-	public void setName(String name)
+	public void setName(@NotNull String name)
 	{
 		this.name = name;
 	}
@@ -416,22 +416,33 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	public byte[] getAdminSignature()
 	{
-		return adminSignature;
+		return signatures.stream()
+				.filter(signature -> signature.getType() == Signature.Type.ADMIN)
+				.findFirst().orElseThrow().getData();
 	}
 
 	public void setAdminSignature(byte[] adminSignature)
 	{
-		this.adminSignature = adminSignature;
+		var signature = new Signature(Signature.Type.ADMIN, gxsId, adminSignature);
+		signatures.add(signature);
 	}
 
 	public byte[] getAuthorSignature()
 	{
-		return authorSignature;
+		return signatures.stream()
+				.filter(signature -> signature.getType() == Signature.Type.AUTHOR)
+				.findFirst().orElseThrow().getData();
 	}
 
 	public void setAuthorSignature(byte[] authorSignature)
 	{
-		this.authorSignature = authorSignature;
+		var signature = new Signature(Signature.Type.AUTHOR, author, authorSignature); // XXX: make sure author is not null
+		signatures.add(signature);
+	}
+
+	public void addSignature(Signature signature)
+	{
+		signatures.add(signature);
 	}
 
 	@Override
@@ -453,7 +464,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		size += serialize(buf, author, GxsId.class);
 		size += serialize(buf, TlvType.STRING, serviceString);
 		size += serialize(buf, circleId, GxsId.class);
-		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new SignatureSet() : createSignatureSet());
+		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new ArrayList<>() : signatures);
 		size += serialize(buf, TlvType.SECURITY_KEY_SET, getSecurityKeys());
 		size += serialize(buf, signatureFlags, FieldSize.INTEGER);
 		buf.setInt(sizeOffset, size); // write total size
@@ -481,7 +492,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		author = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		serviceString = (String) deserialize(buf, TlvType.STRING);
 		circleId = (GxsId) deserializeIdentifier(buf, GxsId.class);
-		deserializeSignature(buf);
+		deserializeSignatures(buf);
 		deserializeSecurityKeySet(buf);
 		if (apiVersion == API_VERSION_2)
 		{
@@ -501,23 +512,9 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 				.toList();
 	}
 
-	private SignatureSet createSignatureSet()
-	{
-		var signatureSet = new SignatureSet();
-		if (getAdminSignature() != null)
-		{
-			signatureSet.put(SignatureSet.Type.ADMIN, new Signature(gxsId, getAdminSignature()));
-		}
-		if (getAuthorSignature() != null)
-		{
-			signatureSet.put(SignatureSet.Type.AUTHOR, new Signature(author, getAuthorSignature()));
-		}
-		return signatureSet;
-	}
-
 	private void deserializeSecurityKeySet(ByteBuf buf)
 	{
-		var securityKeys = (List<SecurityKey>) deserialize(buf, TlvType.SECURITY_KEY_SET);
+		@SuppressWarnings("unchecked") var securityKeys = (List<SecurityKey>) deserialize(buf, TlvType.SECURITY_KEY_SET);
 		securityKeys.forEach(securityKey -> {
 			if (securityKey.getFlags().contains(TYPE_PUBLIC_ONLY))
 			{
@@ -530,21 +527,17 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		});
 	}
 
-	private void deserializeSignature(ByteBuf buf)
+	private void deserializeSignatures(ByteBuf buf)
 	{
-		var signatureSet = (SignatureSet) deserialize(buf, TlvType.SIGNATURE_SET);
-		signatureSet.getSignatures().forEach((sigId, signature) -> {
-			if (sigId == SignatureSet.Type.ADMIN.getValue())
+		@SuppressWarnings("unchecked") var signatureSet = (List<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		signatureSet.forEach(signature -> {
+			if (signature.getType() == Signature.Type.ADMIN || signature.getType() == Signature.Type.AUTHOR)
 			{
-				setAdminSignature(signature.data());
-			}
-			else if (sigId == SignatureSet.Type.AUTHOR.getValue())
-			{
-				setAuthorSignature(signature.data());
+				addSignature(signature);
 			}
 			else
 			{
-				log.warn("Unknown signature type: {}", sigId);
+				log.warn("Unknown signature type: {}", signature.getType());
 			}
 		});
 	}

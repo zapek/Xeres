@@ -23,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.Signature;
-import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 
@@ -54,7 +53,7 @@ final class TlvSerializer
 					case SET_GXS_MSG_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<MessageId>) value);
 					case SET_RECOGN -> TlvStringSetRefSerializer.serialize(buf, type, (List<String>) value);
 					case STRING -> TlvStringSerializer.serialize(buf, TlvType.NONE, (String) value);
-					case SIGNATURE_SET -> TlvSignatureSetSerializer.serialize(buf, (SignatureSet) value);
+					case SIGNATURE_SET -> TlvSignatureSetSerializer.serialize(buf, (List<Signature>) value);
 					case SIGNATURE_TYPE -> TlvUint32Serializer.serialize(buf, SIGNATURE_TYPE, (Integer) value);
 					case SECURITY_KEY -> TlvSecurityKeySerializer.serialize(buf, (SecurityKey) value);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.serialize(buf, (List<SecurityKey>) value);

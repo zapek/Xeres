@@ -504,7 +504,7 @@ public class ChatRsService extends RsService
 		var chatRoom = chatRooms.get(item.getRoomId());
 
 		// And display the message for us
-		var user = item.getSignature().gxsId();
+		var user = item.getSignature().getGxsId();
 		chatRoom.userActivity(user);
 		sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_MESSAGE, user, item.getSenderNickname(), parseIncomingText(item.getMessage()));
 
@@ -527,7 +527,7 @@ public class ChatRsService extends RsService
 
 		// XXX: add routing clue
 		var chatRoom = chatRooms.get(item.getRoomId());
-		var user = item.getSignature().gxsId();
+		var user = item.getSignature().getGxsId();
 
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
@@ -603,15 +603,15 @@ public class ChatRsService extends RsService
 			return false;
 		}
 
-		if (isBanned(item.getSignature().gxsId()))
+		if (isBanned(item.getSignature().getGxsId()))
 		{
-			log.debug("Dropping item from banned entity {}", item.getSignature().gxsId());
+			log.debug("Dropping item from banned entity {}", item.getSignature().getGxsId());
 			return false;
 		}
 
 		if (!validateBounceSignature(peerConnection, item))
 		{
-			log.error("Invalid signature for item {} from peer {}, gxsId: {}, dropping", item, peerConnection, item.getSignature().gxsId());
+			log.error("Invalid signature for item {} from peer {}, gxsId: {}, dropping", item, peerConnection, item.getSignature().getGxsId());
 			return false;
 		}
 
@@ -885,7 +885,7 @@ public class ChatRsService extends RsService
 
 	private boolean validateBounceSignature(PeerConnection peerConnection, ChatRoomBounce bounce)
 	{
-		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().gxsId());
+		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
 		if (gxsGroup != null)
 		{
 			if (!gxsGroup.hasAdminPublicKey())
@@ -893,7 +893,7 @@ public class ChatRsService extends RsService
 				log.debug("{} has no public admin key, not validating", bounce.getSenderNickname());
 				return false;
 			}
-			return RSA.verify(gxsGroup.getAdminPublicKey(), bounce.getSignature().data(), getBounceData(bounce));
+			return RSA.verify(gxsGroup.getAdminPublicKey(), bounce.getSignature().getData(), getBounceData(bounce));
 		}
 		log.debug("No key yet for verification, passing through");
 		return true; // if we don't have the identity yet, we let the item pass because it could be valid, and it's impossible to impersonate an identity this way

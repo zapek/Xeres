@@ -21,7 +21,6 @@ package io.xeres.app.database.model.gxs;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.common.Signature;
-import io.xeres.app.xrs.common.SignatureSet;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
@@ -33,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.*;
@@ -82,8 +83,9 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 
 	private String serviceString;
 
-	private byte[] publishSignature;
-	private byte[] authorSignature;
+	@ElementCollection
+	@OrderColumn
+	private List<Signature> signatures = new ArrayList<>(2);
 
 	@Override
 	public int getServiceType()
@@ -164,22 +166,33 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 
 	public byte[] getPublishSignature()
 	{
-		return publishSignature;
+		return signatures.stream()
+				.filter(signature -> signature.getType() == Signature.Type.PUBLISH)
+				.findFirst().orElseThrow().getData();
 	}
 
 	public void setPublishSignature(byte[] publishSignature)
 	{
-		this.publishSignature = publishSignature;
+		var signature = new Signature(Signature.Type.PUBLISH, gxsId, publishSignature);
+		signatures.add(signature);
 	}
 
 	public byte[] getAuthorSignature()
 	{
-		return authorSignature;
+		return signatures.stream()
+				.filter(signature -> signature.getType() == Signature.Type.AUTHOR)
+				.findFirst().orElseThrow().getData();
 	}
 
 	public void setAuthorSignature(byte[] authorSignature)
 	{
-		this.authorSignature = authorSignature;
+		var signature = new Signature(Signature.Type.AUTHOR, authorId, authorSignature); // XXX: make sure authorId is not null
+		signatures.add(signature);
+	}
+
+	public void addSignature(Signature signature)
+	{
+		signatures.add(signature);
 	}
 
 	@Override
@@ -196,7 +209,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 		size += serialize(buf, parentId, MessageId.class);
 		size += serialize(buf, originalMessageId, MessageId.class);
 		size += serialize(buf, authorId, GxsId.class);
-		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new SignatureSet() : createSignatureSet());
+		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new ArrayList<>() : signatures);
 		size += serialize(buf, TlvType.STRING, name);
 		size += serialize(buf, (int) published.getEpochSecond());
 		size += serialize(buf, flags); // XXX: or diffusionFlags/messageFlags, FieldSize.INTEGER, see how groups does it
@@ -226,35 +239,17 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 		flags = deserializeInt(buf); // XXX: or use enumset, etc...
 	}
 
-	private SignatureSet createSignatureSet()
-	{
-		var signatureSet = new SignatureSet();
-		if (getPublishSignature() != null)
-		{
-			signatureSet.put(SignatureSet.Type.PUBLISH, new Signature(gxsId, getPublishSignature()));
-		}
-		if (getAuthorSignature() != null)
-		{
-			signatureSet.put(SignatureSet.Type.AUTHOR, new Signature(authorId, getAuthorSignature()));
-		}
-		return signatureSet;
-	}
-
 	private void deserializeSignature(ByteBuf buf)
 	{
-		var signatureSet = (SignatureSet) deserialize(buf, TlvType.SIGNATURE_SET);
-		signatureSet.getSignatures().forEach((sigId, signature) -> {
-			if (sigId == SignatureSet.Type.PUBLISH.getValue())
+		var signatureSet = (List<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		signatureSet.forEach(signature -> {
+			if (signature.getType() == Signature.Type.PUBLISH || signature.getType() == Signature.Type.AUTHOR)
 			{
-				setPublishSignature(signature.data());
-			}
-			else if (sigId == SignatureSet.Type.AUTHOR.getValue())
-			{
-				setAuthorSignature(signature.data());
+				addSignature(signature);
 			}
 			else
 			{
-				log.warn("Unknown signature type: {}", sigId);
+				log.warn("Unknown signature type: {}", signature.getType());
 			}
 		});
 	}

@@ -19,28 +19,93 @@
 
 package io.xeres.app.xrs.common;
 
+import io.xeres.app.database.converter.SignatureTypeConverter;
 import io.xeres.common.id.GxsId;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-public record Signature(GxsId gxsId, byte[] data)
+@Embeddable
+public final class Signature implements Comparable<Signature>
 {
+	@Convert(converter = SignatureTypeConverter.class)
+	private Type type;
+
+	@Embedded
+	@NotNull
+	@AttributeOverride(name = "identifier", column = @Column(name = "gxs_id"))
+	private GxsId gxsId;
+
+	private byte[] data;
+
+	public Signature()
+	{
+	}
+
+	public Signature(Type type, @NotNull GxsId gxsId, byte[] data)
+	{
+		this.type = type;
+		this.gxsId = gxsId;
+		this.data = data;
+	}
+
+	public Signature(@NotNull GxsId gxsId, byte[] data)
+	{
+		this.gxsId = gxsId;
+		this.data = data;
+	}
+
+	public Type getType()
+	{
+		return type;
+	}
+
+	public void setType(Type type)
+	{
+		this.type = type;
+	}
+
+	public @NotNull GxsId getGxsId()
+	{
+		return gxsId;
+	}
+
+	public void setGxsId(@NotNull GxsId gxsId)
+	{
+		this.gxsId = gxsId;
+	}
+
+	public byte[] getData()
+	{
+		return data;
+	}
+
+	public void setData(byte[] data)
+	{
+		this.data = data;
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		var signature = (Signature) o;
-		return gxsId.equals(signature.gxsId) && Arrays.equals(data, signature.data);
+		Signature signature = (Signature) o;
+		return Objects.equals(gxsId, signature.gxsId);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		var result = Objects.hash(gxsId);
-		result = 31 * result + Arrays.hashCode(data);
-		return result;
+		return Objects.hash(gxsId);
+	}
+
+	@Override
+	public int compareTo(Signature o)
+	{
+		return type.getValue() - o.type.getValue();
 	}
 
 	@Override
@@ -49,5 +114,29 @@ public record Signature(GxsId gxsId, byte[] data)
 		return "Signature{" +
 				"gxsId=" + gxsId +
 				'}';
+	}
+
+	public enum Type
+	{
+		AUTHOR(0x10), // RS calls it IDENTITY
+		PUBLISH(0x20),
+		ADMIN(0x40);
+
+		Type(int value)
+		{
+			this.value = value;
+		}
+
+		private final int value;
+
+		public int getValue()
+		{
+			return value;
+		}
+
+		public static Signature.Type findByValue(int value)
+		{
+			return Arrays.stream(values()).filter(type -> type.getValue() == value).findFirst().orElseThrow();
+		}
 	}
 }

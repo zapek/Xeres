@@ -21,9 +21,11 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.common.Signature;
-import io.xeres.app.xrs.common.SignatureSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.*;
@@ -37,41 +39,43 @@ final class TlvSignatureSetSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, SignatureSet signatureSet)
+	static int serialize(ByteBuf buf, List<Signature> signatures)
 	{
 		log.trace("Writing TlvSignatureSet");
 
-		var len = getSize(signatureSet);
+		var len = getSize(signatures);
 		buf.ensureWritable(len);
 		buf.writeShort(SIGNATURE_SET.getValue());
 		buf.writeInt(len);
-		signatureSet.getSignatures().forEach((signType, keySignature) -> {
-			TlvSerializer.serialize(buf, SIGNATURE_TYPE, signType);
-			TlvSerializer.serialize(buf, SIGNATURE, keySignature);
+		signatures.forEach(signature -> {
+			TlvSerializer.serialize(buf, SIGNATURE_TYPE, signature.getType().getValue());
+			TlvSerializer.serialize(buf, SIGNATURE, signature);
 		});
 
 		return len;
 	}
 
-	static int getSize(SignatureSet signatureSet)
+	static int getSize(List<Signature> signatures)
 	{
 		return TLV_HEADER_SIZE +
-				signatureSet.getSignatures().values().stream().mapToInt(signature -> TlvSerializer.getSize(SIGNATURE_TYPE) + TlvSerializer.getSize(SIGNATURE, signature)).sum();
+				signatures.stream().mapToInt(signature -> TlvSerializer.getSize(SIGNATURE_TYPE) + TlvSerializer.getSize(SIGNATURE, signature)).sum();
 	}
 
-	static SignatureSet deserialize(ByteBuf buf)
+	static List<Signature> deserialize(ByteBuf buf)
 	{
 		log.trace("Reading TlvSignatureSet");
 		var len = TlvUtils.checkTypeAndLength(buf, SIGNATURE_SET);
 
-		var keySignatureSet = new SignatureSet();
+		List<Signature> signatures = new ArrayList<>();
+
 		while (len > 0)
 		{
-			var type = SignatureSet.Type.findByValue((int) TlvSerializer.deserialize(buf, SIGNATURE_TYPE));
-			var keySignature = (Signature) TlvSerializer.deserialize(buf, SIGNATURE);
-			keySignatureSet.put(type, keySignature);
-			len -= TlvSerializer.getSize(SIGNATURE_TYPE) + TlvSerializer.getSize(SIGNATURE, keySignature);
+			var type = Signature.Type.findByValue((int) TlvSerializer.deserialize(buf, SIGNATURE_TYPE));
+			var signature = (Signature) TlvSerializer.deserialize(buf, SIGNATURE);
+			signature.setType(type);
+			signatures.add(signature);
+			len -= TlvSerializer.getSize(SIGNATURE_TYPE) + TlvSerializer.getSize(SIGNATURE, signature);
 		}
-		return keySignatureSet;
+		return signatures;
 	}
 }

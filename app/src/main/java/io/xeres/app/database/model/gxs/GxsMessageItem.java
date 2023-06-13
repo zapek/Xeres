@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.*;
@@ -84,8 +84,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	private String serviceString;
 
 	@ElementCollection
-	@OrderColumn
-	private List<Signature> signatures = new ArrayList<>(2);
+	private Set<Signature> signatures = new HashSet<>(2);
 
 	@Override
 	public int getServiceType()
@@ -241,7 +240,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 
 	private void deserializeSignature(ByteBuf buf)
 	{
-		var signatureSet = (List<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		var signatureSet = (Set<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
 		signatureSet.forEach(signature -> {
 			if (signature.getType() == Signature.Type.PUBLISH || signature.getType() == Signature.Type.AUTHOR)
 			{

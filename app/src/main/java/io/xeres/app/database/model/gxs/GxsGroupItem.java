@@ -44,7 +44,10 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import static io.xeres.app.xrs.common.SecurityKey.Flags.*;
 import static io.xeres.app.xrs.serialization.Serializer.*;
@@ -115,16 +118,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	// the publishing key is used for both DISTRIBUTION_PUBLISHING and DISTRIBUTION_IDENTITY
 
 	@ElementCollection
-	@OrderColumn
-	private List<SecurityKey> privateKeys = new ArrayList<>(2);
+	private Set<SecurityKey> privateKeys = new HashSet<>(2);
 
 	@ElementCollection
-	@OrderColumn
-	private List<SecurityKey> publicKeys = new ArrayList<>(2);
+	private Set<SecurityKey> publicKeys = new HashSet<>(2);
 
 	@ElementCollection
-	@OrderColumn
-	private List<Signature> signatures = new ArrayList<>(2);
+	private Set<Signature> signatures = new HashSet<>(2);
 
 	@Transient
 	private int serviceType;
@@ -464,8 +464,8 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		size += serialize(buf, author, GxsId.class);
 		size += serialize(buf, TlvType.STRING, serviceString);
 		size += serialize(buf, circleId, GxsId.class);
-		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new ArrayList<>() : signatures);
-		size += serialize(buf, TlvType.SECURITY_KEY_SET, getSecurityKeys());
+		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
+		size += serialize(buf, TlvType.SECURITY_KEY_SET, publicKeys);
 		size += serialize(buf, signatureFlags, FieldSize.INTEGER);
 		buf.setInt(sizeOffset, size); // write total size
 
@@ -500,21 +500,9 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		}
 	}
 
-	/**
-	 * Gets the security keys. Note that only public keys returned. The private keys have to stay private.
-	 *
-	 * @return a list of SecurityKey with public keys
-	 */
-	private List<SecurityKey> getSecurityKeys()
-	{
-		return publicKeys.stream()
-				.sorted()
-				.toList();
-	}
-
 	private void deserializeSecurityKeySet(ByteBuf buf)
 	{
-		@SuppressWarnings("unchecked") var securityKeys = (List<SecurityKey>) deserialize(buf, TlvType.SECURITY_KEY_SET);
+		@SuppressWarnings("unchecked") var securityKeys = (Set<SecurityKey>) deserialize(buf, TlvType.SECURITY_KEY_SET);
 		securityKeys.forEach(securityKey -> {
 			if (securityKey.getFlags().contains(TYPE_PUBLIC_ONLY))
 			{
@@ -529,7 +517,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	private void deserializeSignatures(ByteBuf buf)
 	{
-		@SuppressWarnings("unchecked") var signatureSet = (List<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		@SuppressWarnings("unchecked") var signatureSet = (Set<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
 		signatureSet.forEach(signature -> {
 			if (signature.getType() == Signature.Type.ADMIN || signature.getType() == Signature.Type.AUTHOR)
 			{

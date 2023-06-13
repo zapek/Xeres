@@ -24,8 +24,8 @@ import io.xeres.app.xrs.common.SecurityKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.*;
@@ -40,7 +40,7 @@ final class TlvSecurityKeySetSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, List<SecurityKey> securityKeys)
+	static int serialize(ByteBuf buf, Set<SecurityKey> securityKeys)
 	{
 		log.trace("Writing TlvSecurityKeySet");
 
@@ -49,19 +49,21 @@ final class TlvSecurityKeySetSerializer
 		buf.writeShort(SECURITY_KEY_SET.getValue());
 		buf.writeInt(len);
 		TlvSerializer.serialize(buf, STR_GROUP_ID, GROUP_ID_VALUE);
-		securityKeys.forEach(securityKey -> TlvSerializer.serialize(buf, SECURITY_KEY, securityKey));
+		securityKeys.stream()
+				.sorted()
+				.forEach(securityKey -> TlvSerializer.serialize(buf, SECURITY_KEY, securityKey));
 
 		return len;
 	}
 
-	static int getSize(List<SecurityKey> securityKeys)
+	static int getSize(Set<SecurityKey> securityKeys)
 	{
 		return TLV_HEADER_SIZE +
 				TlvStringSerializer.getSize(GROUP_ID_VALUE) +
 				securityKeys.stream().mapToInt(key -> TlvSerializer.getSize(SECURITY_KEY, key)).sum();
 	}
 
-	static List<SecurityKey> deserialize(ByteBuf buf)
+	static Set<SecurityKey> deserialize(ByteBuf buf)
 	{
 		log.trace("Reading TlvSecurityKeySet");
 
@@ -74,7 +76,7 @@ final class TlvSecurityKeySetSerializer
 		}
 		len -= TlvStringSerializer.getSize("");
 
-		List<SecurityKey> securityKeys = new ArrayList<>();
+		Set<SecurityKey> securityKeys = new HashSet<>(2);
 		while (len > 0)
 		{
 			var securityKey = (SecurityKey) TlvSerializer.deserialize(buf, SECURITY_KEY);

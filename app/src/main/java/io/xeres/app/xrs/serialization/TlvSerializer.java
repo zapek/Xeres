@@ -53,10 +53,10 @@ final class TlvSerializer
 					case SET_GXS_MSG_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<MessageId>) value);
 					case SET_RECOGN -> TlvStringSetRefSerializer.serialize(buf, type, (List<String>) value);
 					case STRING -> TlvStringSerializer.serialize(buf, TlvType.NONE, (String) value);
-					case SIGNATURE_SET -> TlvSignatureSetSerializer.serialize(buf, (List<Signature>) value);
+					case SIGNATURE_SET -> TlvSignatureSetSerializer.serialize(buf, (Set<Signature>) value);
 					case SIGNATURE_TYPE -> TlvUint32Serializer.serialize(buf, SIGNATURE_TYPE, (Integer) value);
 					case SECURITY_KEY -> TlvSecurityKeySerializer.serialize(buf, (SecurityKey) value);
-					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.serialize(buf, (List<SecurityKey>) value);
+					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.serialize(buf, (Set<SecurityKey>) value);
 					case IMAGE -> TlvImageSerializer.serialize(buf, (byte[]) value);
 					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE -> TlvBinarySerializer.serialize(buf, type, (byte[]) value);
 					case IPV4, IPV6, ADDRESS_INFO, NONE -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV serialization");

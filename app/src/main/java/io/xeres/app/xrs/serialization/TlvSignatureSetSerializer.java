@@ -24,8 +24,8 @@ import io.xeres.app.xrs.common.Signature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.*;
@@ -39,7 +39,7 @@ final class TlvSignatureSetSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, List<Signature> signatures)
+	static int serialize(ByteBuf buf, Set<Signature> signatures)
 	{
 		log.trace("Writing TlvSignatureSet");
 
@@ -47,26 +47,28 @@ final class TlvSignatureSetSerializer
 		buf.ensureWritable(len);
 		buf.writeShort(SIGNATURE_SET.getValue());
 		buf.writeInt(len);
-		signatures.forEach(signature -> {
-			TlvSerializer.serialize(buf, SIGNATURE_TYPE, signature.getType().getValue());
-			TlvSerializer.serialize(buf, SIGNATURE, signature);
-		});
+		signatures.stream()
+				.sorted()
+				.forEach(signature -> {
+					TlvSerializer.serialize(buf, SIGNATURE_TYPE, signature.getType().getValue());
+					TlvSerializer.serialize(buf, SIGNATURE, signature);
+				});
 
 		return len;
 	}
 
-	static int getSize(List<Signature> signatures)
+	static int getSize(Set<Signature> signatures)
 	{
 		return TLV_HEADER_SIZE +
 				signatures.stream().mapToInt(signature -> TlvSerializer.getSize(SIGNATURE_TYPE) + TlvSerializer.getSize(SIGNATURE, signature)).sum();
 	}
 
-	static List<Signature> deserialize(ByteBuf buf)
+	static Set<Signature> deserialize(ByteBuf buf)
 	{
 		log.trace("Reading TlvSignatureSet");
 		var len = TlvUtils.checkTypeAndLength(buf, SIGNATURE_SET);
 
-		List<Signature> signatures = new ArrayList<>();
+		Set<Signature> signatures = new HashSet<>(2);
 
 		while (len > 0)
 		{

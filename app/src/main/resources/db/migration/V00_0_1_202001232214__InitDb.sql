@@ -133,7 +133,6 @@ CREATE TABLE gxs_group_private_keys
 (
 	gxs_group_id       BIGINT     NOT NULL,
 	key_id             BINARY(16) NOT NULL,
-	private_keys_order INT        NOT NULL DEFAULT 0,
 	flags              INT        NOT NULL DEFAULT 0,
 	valid_from         TIMESTAMP  NOT NULL,
 	valid_to           TIMESTAMP,
@@ -144,7 +143,6 @@ CREATE TABLE gxs_group_public_keys
 (
 	gxs_group_id      BIGINT     NOT NULL,
 	key_id            BINARY(16) NOT NULL,
-	public_keys_order INT        NOT NULL DEFAULT 0,
 	flags             INT        NOT NULL DEFAULT 0,
 	valid_from        TIMESTAMP  NOT NULL,
 	valid_to          TIMESTAMP,
@@ -156,7 +154,6 @@ CREATE TABLE gxs_group_signatures
 	gxs_group_id     BIGINT     NOT NULL,
 	type             ENUM ('author', 'publish', 'admin'),
 	gxs_id           BINARY(16) NOT NULL,
-	signatures_order INT        NOT NULL DEFAULT 0,
 	data             VARBINARY(512)
 );
 

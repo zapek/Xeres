@@ -73,10 +73,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	public String toString()
 	{
 		return "GxsSyncGroupRequestItem{" +
-				", flags=" + flags +
-				", createdSince=" + createdSince +
-				", syncHash='" + syncHash + '\'' +
-				", lastUpdated=" + lastUpdated +
+				"lastUpdated=" + lastUpdated +
 				", super=" + super.toString() +
 				'}';
 	}

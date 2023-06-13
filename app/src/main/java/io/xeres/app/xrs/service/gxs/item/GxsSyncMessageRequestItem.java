@@ -91,10 +91,10 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	{
 		return "GxsSyncMessageRequestItem{" +
 				"flags=" + flags +
-				", createSince=" + createSince +
+				", createSince=" + Instant.ofEpochSecond(createSince) +
 				", syncHash='" + syncHash + '\'' +
 				", groupId=" + groupId +
-				", lastUpdated=" + lastUpdated +
+				", lastUpdated=" + Instant.ofEpochSecond(lastUpdated) +
 				", super=" + super.toString() +
 				'}';
 	}

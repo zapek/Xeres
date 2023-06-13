@@ -129,4 +129,9 @@ public class GxsUpdateService<G extends GxsGroupItem>
 			gxsGroupItemRepository.save(gxsGroupItem);
 		}
 	}
+
+	public boolean groupExists(G gxsGroupItem)
+	{
+		return gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId()).isPresent();
+	}
 }

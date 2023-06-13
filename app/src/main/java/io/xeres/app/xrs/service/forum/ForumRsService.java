@@ -100,7 +100,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(forumGroupItem -> {
 				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()));
-				log.debug("Asking peer {} for new messages in group {} since {} for service {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), gxsSyncMessageRequestItem.getLastUpdated(), getServiceType());
+				log.debug("Asking {} for new messages in {} since {} for {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getLastUpdated()) : null, getServiceType());
 				peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
 			});
 		}
@@ -135,7 +135,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected boolean onGroupReceived(ForumGroupItem item)
 	{
-		log.debug("Received group {}, saving/updating...", item);
+		log.debug("Received {}, saving/updating...", item);
 		return true;
 	}
 

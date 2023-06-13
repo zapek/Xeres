@@ -24,7 +24,9 @@ import io.xeres.common.id.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,7 +48,9 @@ final class TlvSetSerializer
 		buf.ensureWritable(len);
 		buf.writeShort(type.getValue());
 		buf.writeInt(len);
-		set.forEach(buf::writeLong);
+		set.stream()
+				.sorted()
+				.forEach(buf::writeLong);
 		return len;
 	}
 
@@ -57,7 +61,9 @@ final class TlvSetSerializer
 		buf.ensureWritable(len);
 		buf.writeShort(type.getValue());
 		buf.writeInt(len);
-		set.forEach(identifier -> buf.writeBytes(identifier.getBytes()));
+		set.stream()
+				.sorted(Comparator.comparing(identifier -> new BigInteger(1, identifier.getBytes())))
+				.forEach(identifier -> buf.writeBytes(identifier.getBytes()));
 		return len;
 	}
 

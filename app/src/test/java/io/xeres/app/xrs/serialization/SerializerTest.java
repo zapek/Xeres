@@ -462,7 +462,7 @@ class SerializerTest
 	void Serializer_Serialize_TlvKeySignatureSet()
 	{
 		var buf = Unpooled.buffer();
-		List<Signature> input = new ArrayList<>();
+		Set<Signature> input = new HashSet<>();
 		var gxsId = IdFakes.createGxsId();
 		var signature = RandomUtils.nextBytes(20);
 		var keySignature = new Signature(Signature.Type.ADMIN, gxsId, signature);
@@ -471,9 +471,9 @@ class SerializerTest
 		var size = Serializer.serialize(buf, TlvType.SIGNATURE_SET, input);
 		assertEquals(TLV_HEADER_SIZE + TLV_HEADER_SIZE + 4 + TLV_HEADER_SIZE + TLV_HEADER_SIZE + GxsId.LENGTH * 2 + TLV_HEADER_SIZE + signature.length, size);
 
-		@SuppressWarnings("unchecked") var result = (List<Signature>) Serializer.deserialize(buf, TlvType.SIGNATURE_SET);
-		assertEquals(input.get(0).getGxsId(), result.get(0).getGxsId());
-		assertArrayEquals(input.get(0).getData(), result.get(0).getData());
+		@SuppressWarnings("unchecked") var result = (Set<Signature>) Serializer.deserialize(buf, TlvType.SIGNATURE_SET);
+		assertEquals(input.stream().findFirst().orElseThrow().getGxsId(), result.stream().findFirst().orElseThrow().getGxsId());
+		assertArrayEquals(input.stream().findFirst().orElseThrow().getData(), result.stream().findFirst().orElseThrow().getData());
 
 		buf.release();
 	}

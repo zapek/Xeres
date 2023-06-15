@@ -163,6 +163,7 @@ Please consider a donation to help with the project's development. Contact me if
 |--------|-------------------------------------------------------------------------------------------------|
 | GitHub | https://github.com/sponsors/zapek                                                               |
 | PayPal | https://www.paypal.me/zapek666                                                                  |
+| Coffee | https://www.buymeacoffee.com/zapek                                                              |
 | BTC    | bc1qn57zvp8s3h6renf805fan53kt7q4j963g7prvt                                                      |
 | XMR    | 84czz4Vg44GaGmQF8Lst3uWEMyXLSahBffhrDd77jdVJEoKCtUJF96mGQ4XzcYrLG1JGaj2hr2sMoDoihQ52MT1jMBnucyu |
 | GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |

@@ -34,6 +34,7 @@ import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.gxs.AuthenticationRequirements;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
@@ -62,6 +63,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
+import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.CHILD_AUTHOR;
+import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.ROOT_AUTHOR;
 
 @Component
 public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessageItem>
@@ -88,6 +91,16 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	public RsServiceType getServiceType()
 	{
 		return GXSID;
+	}
+
+	@Override
+	protected AuthenticationRequirements getAuthenticationRequirements()
+	{
+		return new AuthenticationRequirements.Builder()
+				.withPublic(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
+				.withRestricted(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
+				.withPrivate(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
+				.build();
 	}
 
 	@Transactional

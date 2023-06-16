@@ -33,6 +33,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
+import io.xeres.app.xrs.service.gxs.AuthenticationRequirements;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
@@ -46,14 +47,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.xrs.service.RsServiceType.FORUMS;
+import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 
 @Component
 public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageItem>
@@ -79,6 +78,16 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public RsServiceType getServiceType()
 	{
 		return FORUMS;
+	}
+
+	@Override
+	protected AuthenticationRequirements getAuthenticationRequirements()
+	{
+		return new AuthenticationRequirements.Builder()
+				.withPublic(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
+				.withRestricted(EnumSet.of(ROOT_PUBLISH, CHILD_PUBLISH))
+				.withPrivate(EnumSet.of(ROOT_PUBLISH, CHILD_PUBLISH))
+				.build();
 	}
 
 	@Override

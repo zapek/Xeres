@@ -97,6 +97,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private final Map<G, Long> pendingGxsGroups = new ConcurrentHashMap<>();
 
+	private AuthenticationRequirements authenticationRequirements;
+
 	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<G> gxsUpdateService)
 	{
 		super(rsServiceRegistry);
@@ -181,6 +183,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 */
 	protected abstract void onMessageReceived(PeerConnection sender, M item);
 
+	protected abstract AuthenticationRequirements getAuthenticationRequirements();
+
 	@Override
 	public RsServiceType getServiceType()
 	{
@@ -196,6 +200,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	@Override
 	public void initialize()
 	{
+		authenticationRequirements = Objects.requireNonNull(getAuthenticationRequirements(), "AuthenticationRequirements cannot be null");
+
 		executorService = Executors.newSingleThreadScheduledExecutor();
 
 		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::checkPendingGroups,
@@ -597,6 +603,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}
 
+	private void verifyAndStoreMessage(PeerConnection peerConnection, M gxsMessageItem)
+	{
+
+	}
+
 	public void sendGxsMessages(PeerConnection peerConnection, List<M> gxsMessageItems)
 	{
 		var transactionId = getTransactionId(peerConnection);
@@ -684,7 +695,15 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	protected void signMessageIfNeeded(GxsMessageItem gxsMessageItem)
 	{
-		// TODO: implement (need to check authorId, etc...). do it for authorSignature, publishSignature too but it's for circles I think
+		// TODO: needs to handle publish sign (I think it's for the circles)
+		//var ownIdentity =
+
+//		if (gxsMessageItem.getAuthorId() != null) // XXX: check if it's our own id! we only sign our own messages
+//		{
+//			var data = serializeItemForSignature(gxsMessageItem);
+//			var signature = RSA.sign(data, ownIdentity.());
+//			gxsMessageItem.setAuthorSignature(signature);
+//		}
 	}
 
 	private byte[] serializeItemForSignature(Item item)

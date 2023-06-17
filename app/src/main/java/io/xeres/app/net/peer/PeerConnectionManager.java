@@ -24,7 +24,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.service.status_notification.StatusNotificationService;
+import io.xeres.app.service.notification.status_notification.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsService;

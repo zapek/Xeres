@@ -27,7 +27,7 @@ import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.service.status_notification.StatusNotificationService;
+import io.xeres.app.service.notification.status_notification.StatusNotificationService;
 import io.xeres.common.id.Id;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;

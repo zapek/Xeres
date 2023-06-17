@@ -32,7 +32,7 @@ import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.service.status_notification.StatusNotificationService;
+import io.xeres.app.service.notification.status_notification.StatusNotificationService;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.pgp.Trust;

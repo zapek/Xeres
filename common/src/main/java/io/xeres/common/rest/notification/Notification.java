@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,6 @@
 
 package io.xeres.common.rest.notification;
 
-public record StatusNotificationResponse(int currentUsers, int totalUsers, NatStatus natStatus, DhtInfo dhtInfo) implements Notification
+public interface Notification
 {
 }

@@ -20,6 +20,7 @@
 package io.xeres.app.service.status_notification;
 
 import io.xeres.app.api.sse.SsePushNotificationService;
+import io.xeres.app.service.notification.status_notification.StatusNotificationService;
 import io.xeres.common.rest.notification.StatusNotificationResponse;
 import io.xeres.ui.support.tray.TrayService;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,6 @@ import java.time.Duration;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
@@ -58,7 +58,7 @@ class StatusNotificationServiceTest
 
 		verify(ssePushNotificationService).sendNotification(argThat(notification -> {
 			assertEquals(1, ((StatusNotificationResponse) notification).currentUsers());
-			assertNull(((StatusNotificationResponse) notification).totalUsers());
+			assertEquals(0, ((StatusNotificationResponse) notification).totalUsers());
 			return true;
 		}));
 	}
@@ -71,7 +71,7 @@ class StatusNotificationServiceTest
 
 		verify(ssePushNotificationService, times(1)).sendNotification(argThat(notification -> {
 			assertEquals(1, ((StatusNotificationResponse) notification).currentUsers());
-			assertNull(((StatusNotificationResponse) notification).totalUsers());
+			assertEquals(0, ((StatusNotificationResponse) notification).totalUsers());
 			return true;
 		}));
 	}

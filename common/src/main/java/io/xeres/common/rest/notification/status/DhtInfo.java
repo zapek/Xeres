@@ -17,11 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification;
+package io.xeres.common.rest.notification.status;
 
-public enum NatStatus
+public record DhtInfo(DhtStatus dhtStatus, int numPeers, long receivedPackets, long receivedBytes, long sentPackets, long sentBytes, int keyCount, int itemCount)
 {
-	UNKNOWN,
-	FIREWALLED,
-	UPNP
+	public static DhtInfo fromStatus(DhtStatus dhtStatus)
+	{
+		return new DhtInfo(dhtStatus, 0, 0, 0, 0, 0, 0, 0);
+	}
+
+	public static DhtInfo fromStats(int numPeers, long receivedPackets, long receivedBytes, long sentPackets, long sentBytes, int keyCount, int itemCount)
+	{
+		return new DhtInfo(DhtStatus.RUNNING, numPeers, receivedPackets, receivedBytes, sentPackets, sentBytes, keyCount, itemCount);
+	}
 }

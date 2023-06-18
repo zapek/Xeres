@@ -20,8 +20,8 @@
 package io.xeres.ui.controller;
 
 import io.xeres.common.dto.identity.IdentityConstants;
-import io.xeres.common.rest.notification.DhtInfo;
-import io.xeres.common.rest.notification.NatStatus;
+import io.xeres.common.rest.notification.status.DhtInfo;
+import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.JavaFxApplication;
@@ -283,7 +283,7 @@ public class MainWindowController implements WindowController
 		natStatus.setState(true);
 		dhtStatus.setState(true);
 
-		notificationDisposable = notificationClient.getNotifications()
+		notificationDisposable = notificationClient.getStatusNotifications()
 				.doOnComplete(() -> log.debug("Notification connection closed"))
 				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
 				.doOnNext(sse -> Platform.runLater(() -> {

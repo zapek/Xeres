@@ -37,7 +37,7 @@ import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PeerService;
 import io.xeres.app.service.SettingsService;
-import io.xeres.app.service.notification.status_notification.StatusNotificationService;
+import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;

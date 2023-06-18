@@ -20,7 +20,8 @@
 package io.xeres.app.api.controller.notification;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
-import io.xeres.app.service.notification.status_notification.StatusNotificationService;
+import io.xeres.app.service.notification.forum.ForumNotificationService;
+import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -40,6 +41,9 @@ class NotificationControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private StatusNotificationService statusNotificationService;
+
+	@MockBean
+	private ForumNotificationService forumNotificationService;
 
 	@Autowired
 	public MockMvc mvc;

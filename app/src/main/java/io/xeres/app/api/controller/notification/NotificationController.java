@@ -23,7 +23,8 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.service.notification.status_notification.StatusNotificationService;
+import io.xeres.app.service.notification.forum.ForumNotificationService;
+import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,17 +39,27 @@ import static io.xeres.common.rest.PathConfig.NOTIFICATIONS_PATH;
 public class NotificationController
 {
 	private final StatusNotificationService statusNotificationService;
+	private final ForumNotificationService forumNotificationService;
 
-	public NotificationController(StatusNotificationService statusNotificationService)
+	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService)
 	{
 		this.statusNotificationService = statusNotificationService;
+		this.forumNotificationService = forumNotificationService;
 	}
 
 	@GetMapping("/status")
 	@Operation(summary = "Subscribe to status notifications")
 	@ApiResponse(responseCode = "200", description = "Request completed successfully")
-	public SseEmitter setupNotification()
+	public SseEmitter setupStatusNotification()
 	{
 		return statusNotificationService.addClient();
+	}
+
+	@GetMapping("/forum")
+	@Operation(summary = "Subscribe to forum notifications")
+	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	public SseEmitter setupForumNotification()
+	{
+		return forumNotificationService.addClient();
 	}
 }

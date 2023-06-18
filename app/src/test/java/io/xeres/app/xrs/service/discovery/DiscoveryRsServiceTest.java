@@ -26,7 +26,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
-import io.xeres.app.service.notification.status_notification.StatusNotificationService;
+import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.discovery.item.DiscoveryContactItem;

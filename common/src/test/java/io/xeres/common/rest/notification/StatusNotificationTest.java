@@ -19,19 +19,23 @@
 
 package io.xeres.common.rest.notification;
 
+import io.xeres.common.rest.notification.status.DhtInfo;
+import io.xeres.common.rest.notification.status.DhtStatus;
+import io.xeres.common.rest.notification.status.NatStatus;
+import io.xeres.common.rest.notification.status.StatusNotification;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-class StatusNotificationResponseTest
+class StatusNotificationTest
 {
 	@Test
 	void StatusNotificationResponse_Equals()
 	{
-		var response1 = new StatusNotificationResponse(0, 1, NatStatus.UPNP, DhtInfo.fromStatus(DhtStatus.OFF));
-		var response2 = new StatusNotificationResponse(0, 1, NatStatus.UPNP, DhtInfo.fromStatus(DhtStatus.OFF));
-		var response3 = new StatusNotificationResponse(0, 1, NatStatus.FIREWALLED, DhtInfo.fromStatus(DhtStatus.OFF));
+		var response1 = new StatusNotification(0, 1, NatStatus.UPNP, DhtInfo.fromStatus(DhtStatus.OFF));
+		var response2 = new StatusNotification(0, 1, NatStatus.UPNP, DhtInfo.fromStatus(DhtStatus.OFF));
+		var response3 = new StatusNotification(0, 1, NatStatus.FIREWALLED, DhtInfo.fromStatus(DhtStatus.OFF));
 
 		assertEquals(response1, response2);
 		assertNotEquals(response1, response3);

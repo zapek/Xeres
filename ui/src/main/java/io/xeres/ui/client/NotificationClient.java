@@ -19,7 +19,8 @@
 
 package io.xeres.ui.client;
 
-import io.xeres.common.rest.notification.StatusNotificationResponse;
+import io.xeres.common.rest.notification.forum.ForumNotification;
+import io.xeres.common.rest.notification.status.StatusNotification;
 import io.xeres.ui.JavaFxApplication;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.ParameterizedTypeReference;
@@ -50,10 +51,20 @@ public class NotificationClient
 				.build();
 	}
 
-	public Flux<ServerSentEvent<StatusNotificationResponse>> getNotifications()
+	public Flux<ServerSentEvent<StatusNotification>> getStatusNotifications()
 	{
 		return webClient.get()
 				.uri("/status")
+				.retrieve()
+				.bodyToFlux(new ParameterizedTypeReference<>()
+				{
+				});
+	}
+
+	public Flux<ServerSentEvent<ForumNotification>> getForumNotifications()
+	{
+		return webClient.get()
+				.uri("/forum")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

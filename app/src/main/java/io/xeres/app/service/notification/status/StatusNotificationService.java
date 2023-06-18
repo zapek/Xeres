@@ -17,11 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service.notification.status_notification;
+package io.xeres.app.service.notification.status;
 
 import io.xeres.app.api.sse.SsePushNotificationService;
 import io.xeres.app.service.notification.NotificationService;
-import io.xeres.common.rest.notification.*;
+import io.xeres.common.rest.notification.Notification;
+import io.xeres.common.rest.notification.status.DhtInfo;
+import io.xeres.common.rest.notification.status.DhtStatus;
+import io.xeres.common.rest.notification.status.NatStatus;
+import io.xeres.common.rest.notification.status.StatusNotification;
 import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Service;
 
@@ -87,7 +91,7 @@ public class StatusNotificationService extends NotificationService
 	@Override
 	protected Notification createNotification()
 	{
-		return new StatusNotificationResponse(
+		return new StatusNotification(
 				currentUserCount,
 				totalUsers,
 				natStatus,

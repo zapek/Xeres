@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification;
+package io.xeres.common.rest.notification.status;
 
 public enum DhtStatus
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,17 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification;
+package io.xeres.common.rest.notification.forum;
 
-public record DhtInfo(DhtStatus dhtStatus, int numPeers, long receivedPackets, long receivedBytes, long sentPackets, long sentBytes, int keyCount, int itemCount)
+public record ForumNotification()
 {
-	public static DhtInfo fromStatus(DhtStatus dhtStatus)
-	{
-		return new DhtInfo(dhtStatus, 0, 0, 0, 0, 0, 0, 0);
-	}
-
-	public static DhtInfo fromStats(int numPeers, long receivedPackets, long receivedBytes, long sentPackets, long sentBytes, int keyCount, int itemCount)
-	{
-		return new DhtInfo(DhtStatus.RUNNING, numPeers, receivedPackets, receivedBytes, sentPackets, sentBytes, keyCount, itemCount);
-	}
 }

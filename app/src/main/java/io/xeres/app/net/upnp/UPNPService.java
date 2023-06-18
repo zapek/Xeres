@@ -20,9 +20,9 @@
 package io.xeres.app.net.upnp;
 
 import io.xeres.app.application.events.PortsForwardedEvent;
-import io.xeres.app.service.notification.status_notification.StatusNotificationService;
+import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.protocol.ip.IP;
-import io.xeres.common.rest.notification.NatStatus;
+import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.ui.client.ConfigClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

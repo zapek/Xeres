@@ -17,8 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification;
+package io.xeres.common.rest.notification.status;
 
-public record StatusNotificationResponse(int currentUsers, int totalUsers, NatStatus natStatus, DhtInfo dhtInfo) implements Notification
+import io.xeres.common.rest.notification.Notification;
+
+public record StatusNotification(int currentUsers, int totalUsers, NatStatus natStatus, DhtInfo dhtInfo) implements Notification
 {
 }

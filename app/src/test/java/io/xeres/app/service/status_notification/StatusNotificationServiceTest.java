@@ -20,8 +20,8 @@
 package io.xeres.app.service.status_notification;
 
 import io.xeres.app.api.sse.SsePushNotificationService;
-import io.xeres.app.service.notification.status_notification.StatusNotificationService;
-import io.xeres.common.rest.notification.StatusNotificationResponse;
+import io.xeres.app.service.notification.status.StatusNotificationService;
+import io.xeres.common.rest.notification.status.StatusNotification;
 import io.xeres.ui.support.tray.TrayService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,8 +57,8 @@ class StatusNotificationServiceTest
 		statusNotificationService.setCurrentUsersCount(1); // default is 0
 
 		verify(ssePushNotificationService).sendNotification(argThat(notification -> {
-			assertEquals(1, ((StatusNotificationResponse) notification).currentUsers());
-			assertEquals(0, ((StatusNotificationResponse) notification).totalUsers());
+			assertEquals(1, ((StatusNotification) notification).currentUsers());
+			assertEquals(0, ((StatusNotification) notification).totalUsers());
 			return true;
 		}));
 	}
@@ -70,8 +70,8 @@ class StatusNotificationServiceTest
 		statusNotificationService.setCurrentUsersCount(1);
 
 		verify(ssePushNotificationService, times(1)).sendNotification(argThat(notification -> {
-			assertEquals(1, ((StatusNotificationResponse) notification).currentUsers());
-			assertEquals(0, ((StatusNotificationResponse) notification).totalUsers());
+			assertEquals(1, ((StatusNotification) notification).currentUsers());
+			assertEquals(0, ((StatusNotification) notification).totalUsers());
 			return true;
 		}));
 	}
@@ -83,8 +83,8 @@ class StatusNotificationServiceTest
 
 		await().atMost(Duration.ofSeconds(2)).untilAsserted(() -> verify(ssePushNotificationService).sendNotification(any(SseEmitter.class),
 				argThat(notification -> {
-					assertEquals(0, ((StatusNotificationResponse) notification).currentUsers());
-					assertEquals(0, ((StatusNotificationResponse) notification).totalUsers());
+					assertEquals(0, ((StatusNotification) notification).currentUsers());
+					assertEquals(0, ((StatusNotification) notification).totalUsers());
 					return true;
 				})));
 	}

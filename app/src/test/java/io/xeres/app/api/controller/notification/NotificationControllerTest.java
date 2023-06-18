@@ -49,13 +49,24 @@ class NotificationControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void NotificationController_SetupNotification_OK() throws Exception
+	void NotificationController_SetupStatusNotification_OK() throws Exception
 	{
 		var sseEmitter = new SseEmitter();
 
 		when(statusNotificationService.addClient()).thenReturn(sseEmitter);
 
 		mvc.perform(getJson(BASE_URL + "/status", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void NotificationController_SetupForumNotification_OK() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(forumNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(getJson(BASE_URL + "/forum", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 }

@@ -28,6 +28,7 @@ import io.xeres.app.database.repository.GxsForumGroupRepository;
 import io.xeres.app.database.repository.GxsForumMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -64,14 +65,16 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	private final GxsForumMessageRepository gxsForumMessageRepository;
 	private final GxsUpdateService<ForumGroupItem> gxsUpdateService;
 	private final DatabaseSessionManager databaseSessionManager;
+	private final ForumNotificationService forumNotificationService;
 
-	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsUpdateService<ForumGroupItem> gxsUpdateService)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsUpdateService<ForumGroupItem> gxsUpdateService, ForumNotificationService forumNotificationService)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsForumGroupRepository = gxsForumGroupRepository;
 		this.gxsForumMessageRepository = gxsForumMessageRepository;
 		this.gxsUpdateService = gxsUpdateService;
 		this.databaseSessionManager = databaseSessionManager;
+		this.forumNotificationService = forumNotificationService;
 	}
 
 	@Override
@@ -145,6 +148,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	protected boolean onGroupReceived(ForumGroupItem item)
 	{
 		log.debug("Received {}, saving/updating...", item);
+		forumNotificationService.addForums(List.of(item));
 		return true;
 	}
 

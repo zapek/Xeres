@@ -19,8 +19,10 @@
 
 package io.xeres.common.rest.notification.forum;
 
-import io.xeres.common.rest.notification.Notification;
+import io.xeres.common.dto.forum.ForumGroupDTO;
 
-public record ForumNotification(Object action) implements Notification
+import java.util.List;
+
+public record AddForums(List<ForumGroupDTO> forums)
 {
 }

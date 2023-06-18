@@ -19,7 +19,6 @@
 
 package io.xeres.app.service.notification.status;
 
-import io.xeres.app.api.sse.SsePushNotificationService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.status.DhtInfo;
@@ -42,9 +41,9 @@ public class StatusNotificationService extends NotificationService
 
 	private final TrayService trayService;
 
-	public StatusNotificationService(SsePushNotificationService ssePushNotificationService, TrayService trayService)
+	public StatusNotificationService(TrayService trayService)
 	{
-		super(ssePushNotificationService);
+		super();
 		this.trayService = trayService;
 	}
 

@@ -19,16 +19,19 @@
 
 package io.xeres.app.service.notification;
 
-import io.xeres.app.api.sse.SsePushNotificationService;
 import io.xeres.common.rest.notification.Notification;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 public abstract class NotificationService
 {
-	private final SsePushNotificationService ssePushNotificationService;
+	final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
 	/**
 	 * Creates the notification that will be sent by sendNotification().
@@ -40,26 +43,28 @@ public abstract class NotificationService
 
 	private Notification previousNotification;
 
-	protected NotificationService(SsePushNotificationService ssePushNotificationService)
+	protected NotificationService()
 	{
-		this.ssePushNotificationService = ssePushNotificationService;
 	}
 
 	public SseEmitter addClient()
 	{
 		var emitter = new SseEmitter(-1L); // no timeout
-		ssePushNotificationService.addEmitter(emitter);
-		emitter.onCompletion(() -> ssePushNotificationService.removeEmitter(emitter));
-		emitter.onTimeout(() -> ssePushNotificationService.removeEmitter(emitter));
+		addEmitter(emitter);
+		emitter.onCompletion(() -> removeEmitter(emitter));
+		emitter.onTimeout(() -> removeEmitter(emitter));
 
-		CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(() -> sendNotification(emitter)); // send a notification to the client that just connected to "sync" it
+		CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(() -> sendNotification(null, emitter)); // send a notification to the client that just connected to "sync" it
 
 		return emitter;
 	}
 
-	private void sendNotification(SseEmitter specificEmitter)
+	private void sendNotification(Notification notification, SseEmitter specificEmitter)
 	{
-		Notification notification = createNotification();
+		if (notification == null)
+		{
+			notification = createNotification();
+		}
 
 		if (notification == null)
 		{
@@ -75,11 +80,11 @@ public abstract class NotificationService
 
 		if (specificEmitter != null)
 		{
-			ssePushNotificationService.sendNotification(specificEmitter, notification);
+			sendSseNotification(specificEmitter, notification);
 		}
 		else
 		{
-			ssePushNotificationService.sendNotification(notification);
+			sendSseNotification(notification);
 		}
 	}
 
@@ -89,6 +94,51 @@ public abstract class NotificationService
 	 */
 	public void sendNotification()
 	{
-		sendNotification(null);
+		sendNotification(null, null);
+	}
+
+	public void sendNotification(Notification notification)
+	{
+		sendNotification(notification, null);
+	}
+
+	private void addEmitter(SseEmitter emitter)
+	{
+		emitters.add(emitter);
+	}
+
+	private void removeEmitter(SseEmitter emitter)
+	{
+		emitters.remove(emitter);
+	}
+
+	private void sendSseNotification(Object notification)
+	{
+		List<SseEmitter> deadEmitters = new ArrayList<>();
+
+		emitters.forEach(emitter ->
+		{
+			try
+			{
+				emitter.send(SseEmitter.event().data(notification));
+			}
+			catch (IOException e)
+			{
+				deadEmitters.add(emitter);
+			}
+		});
+		emitters.removeAll(deadEmitters);
+	}
+
+	private void sendSseNotification(SseEmitter emitter, Object notification)
+	{
+		try
+		{
+			emitter.send(SseEmitter.event().data(notification));
+		}
+		catch (IOException e)
+		{
+			emitters.remove(emitter);
+		}
 	}
 }

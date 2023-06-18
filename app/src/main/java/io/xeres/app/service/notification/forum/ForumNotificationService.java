@@ -19,22 +19,33 @@
 
 package io.xeres.app.service.notification.forum;
 
-import io.xeres.app.api.sse.SsePushNotificationService;
 import io.xeres.app.service.notification.NotificationService;
+import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.common.rest.notification.Notification;
+import io.xeres.common.rest.notification.forum.AddForums;
+import io.xeres.common.rest.notification.forum.ForumNotification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static io.xeres.app.database.model.forum.ForumMapper.toDTOs;
 
 @Service
 public class ForumNotificationService extends NotificationService
 {
-	public ForumNotificationService(SsePushNotificationService ssePushNotificationService)
+	public ForumNotificationService()
 	{
-		super(ssePushNotificationService);
+		super();
+	}
+
+	public void addForums(List<ForumGroupItem> forums)
+	{
+		sendNotification(new ForumNotification(new AddForums(toDTOs(forums))));
 	}
 
 	@Override
 	protected Notification createNotification()
 	{
-		return null;
+		return null; // XXX: send the forums as notification? the client currently does a GET so it's the same... ponder...
 	}
 }

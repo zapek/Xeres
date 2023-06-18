@@ -22,7 +22,9 @@ package io.xeres.ui.controller.forum;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
+import io.xeres.common.rest.notification.forum.AddForums;
 import io.xeres.ui.client.ForumClient;
+import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.support.markdown.Markdown2Flow;
 import javafx.application.Platform;
@@ -35,7 +37,10 @@ import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import reactor.core.Disposable;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -78,13 +83,16 @@ public class ForumViewController implements Controller
 	private final ResourceBundle bundle;
 
 	private final ForumClient forumClient;
+	private final NotificationClient notificationClient;
+
+	private Disposable notificationDisposable;
 
 	private final TreeItem<ForumGroupHolder> ownForums;
 	private final TreeItem<ForumGroupHolder> subscribedForums;
 	private final TreeItem<ForumGroupHolder> popularForums;
 	private final TreeItem<ForumGroupHolder> otherForums;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -93,6 +101,7 @@ public class ForumViewController implements Controller
 		subscribedForums = new TreeItem<>(new ForumGroupHolder(bundle.getString("forum.tree.subscribed")));
 		popularForums = new TreeItem<>(new ForumGroupHolder(bundle.getString("forum.tree.popular")));
 		otherForums = new TreeItem<>(new ForumGroupHolder(bundle.getString("forum.tree.other")));
+		this.notificationClient = notificationClient;
 	}
 
 	@Override
@@ -129,7 +138,31 @@ public class ForumViewController implements Controller
 		forumMessagesTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue));
 
+		setupForumNotifications();
+
 		getForumGroups();
+	}
+
+	private void setupForumNotifications()
+	{
+		log.debug("Setting up forum notifications...");
+		notificationDisposable = notificationClient.getForumNotifications()
+				.doOnComplete(() -> log.debug("Notification connection closed"))
+				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
+				.doOnNext(sse -> Platform.runLater(() -> {
+					log.debug("Received notification...");
+					if (sse.data() != null)
+					{
+						var action = sse.data().action();
+						log.debug("action: {}", action);
+
+						if (action instanceof AddForums addForums)
+						{
+							log.debug("*** Would add forums: {}", addForums.forums());
+						}
+					}
+				}))
+				.subscribe();
 	}
 
 	private void getForumGroups()
@@ -236,6 +269,15 @@ public class ForumViewController implements Controller
 						messageContent.getChildren().addAll(md2flow.getNodes());
 					}))
 					.subscribe();
+		}
+	}
+
+	@EventListener
+	public void onApplicationEvent(ContextClosedEvent ignored)
+	{
+		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		{
+			notificationDisposable.dispose();
 		}
 	}
 }

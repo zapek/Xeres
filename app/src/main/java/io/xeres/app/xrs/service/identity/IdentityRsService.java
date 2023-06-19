@@ -147,6 +147,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
+	protected void onGroupSaved(IdentityGroupItem item)
+	{
+		// XXX: notify?
+	}
+
+	@Override
 	protected List<GxsMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
 	{
 		return Collections.emptyList();

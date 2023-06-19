@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.forum;
 
 import io.xeres.common.rest.notification.Notification;
 
-public record ForumNotification(Object action) implements Notification
+public record ForumNotification(String id, Object action) implements Notification
 {
 }

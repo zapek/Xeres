@@ -19,13 +19,15 @@
 
 package io.xeres.ui.controller.forum;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
-import io.xeres.common.rest.notification.forum.AddForums;
+import io.xeres.common.rest.notification.forum.AddForum;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.support.markdown.Markdown2Flow;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -46,6 +48,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static javafx.scene.control.TableColumn.SortType.DESCENDING;
@@ -84,6 +87,7 @@ public class ForumViewController implements Controller
 
 	private final ForumClient forumClient;
 	private final NotificationClient notificationClient;
+	private final ObjectMapper objectMapper;
 
 	private Disposable notificationDisposable;
 
@@ -92,7 +96,7 @@ public class ForumViewController implements Controller
 	private final TreeItem<ForumGroupHolder> popularForums;
 	private final TreeItem<ForumGroupHolder> otherForums;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, ObjectMapper objectMapper)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -102,6 +106,7 @@ public class ForumViewController implements Controller
 		popularForums = new TreeItem<>(new ForumGroupHolder(bundle.getString("forum.tree.popular")));
 		otherForums = new TreeItem<>(new ForumGroupHolder(bundle.getString("forum.tree.other")));
 		this.notificationClient = notificationClient;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -121,7 +126,7 @@ public class ForumViewController implements Controller
 
 		// XXX
 		forumTree.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> changeSelectedForumGroup(newValue.getValue().getForum()));
+				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue().getForum()))); // XXX: check if that Platform.runLater() is really  needed
 
 		// XXX: add double click
 
@@ -145,21 +150,22 @@ public class ForumViewController implements Controller
 
 	private void setupForumNotifications()
 	{
-		log.debug("Setting up forum notifications...");
 		notificationDisposable = notificationClient.getForumNotifications()
 				.doOnComplete(() -> log.debug("Notification connection closed"))
 				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
 				.doOnNext(sse -> Platform.runLater(() -> {
-					log.debug("Received notification...");
 					if (sse.data() != null)
 					{
-						var action = sse.data().action();
-						log.debug("action: {}", action);
-
-						if (action instanceof AddForums addForums)
+						switch (Objects.requireNonNull(sse.id()))
 						{
-							log.debug("*** Would add forums: {}", addForums.forums());
+							case "AddForum" ->
+							{
+								var action = objectMapper.convertValue(sse.data().action(), AddForum.class);
+								addForumGroups(List.of(ForumMapper.fromDTO(action.forum())));
+							}
+							default -> log.debug("Non handled case");
 						}
+						// XXX: add message, etc... but only if the group is already selected
 					}
 				}))
 				.subscribe();
@@ -245,6 +251,7 @@ public class ForumViewController implements Controller
 
 	private void changeSelectedForumGroup(ForumGroup forumGroup)
 	{
+		// XXX: must check that it is subscribed. do like chatView. also have a "selected" so that we can update on the fly
 		forumClient.getForumMessages(forumGroup.getId()).collectList()
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
 					forumMessagesTableView.getItems().clear();

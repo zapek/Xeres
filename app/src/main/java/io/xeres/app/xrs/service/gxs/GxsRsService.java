@@ -146,15 +146,18 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	/**
 	 * Called when a group has been received.
 	 *
-	 * @param item   the received group
+	 * @param item the received group
 	 */
 	protected abstract boolean onGroupReceived(G item);
 
+	protected abstract void onGroupSaved(G item);
+
 	/**
 	 * Called when the peer wants a list of new messages within a group that we have for him.
+	 *
 	 * @param recipient the recipient of the result
-	 * @param groupId the group ID
-	 * @param since the time after which the messages are relevant. Everything before is ignored
+	 * @param groupId   the group ID
+	 * @param since     the time after which the messages are relevant. Everything before is ignored
 	 * @return the available messages that we have
 	 */
 	protected abstract List<M> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since);
@@ -535,7 +538,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		// Save the group if everything is OK
 		if (validation)
 		{
-			gxsUpdateService.saveGroup(gxsGroupItem, this::onGroupReceived);
+			gxsUpdateService.saveGroup(gxsGroupItem, this::onGroupReceived, this::onGroupSaved);
 		}
 
 		// If the group verification was delayed, remove it

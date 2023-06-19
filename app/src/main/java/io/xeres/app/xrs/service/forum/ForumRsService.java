@@ -148,8 +148,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	protected boolean onGroupReceived(ForumGroupItem item)
 	{
 		log.debug("Received {}, saving/updating...", item);
-		forumNotificationService.addForums(List.of(item));
 		return true;
+	}
+
+	@Override
+	protected void onGroupSaved(ForumGroupItem item)
+	{
+		forumNotificationService.addForum(item);
 	}
 
 	@Override

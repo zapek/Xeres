@@ -188,7 +188,7 @@ public class ChatViewController implements Controller
 				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedRoom(newValue.getValue().getRoomInfo())));
 
 		roomTree.setOnMouseClicked(event -> {
-			if (event.getClickCount() == 2 && selectedRoom != null && selectedRoom.getId() != 0)
+			if (event.getClickCount() == 2 && isRoomSelected())
 			{
 				joinChatRoom(selectedRoom);
 			}
@@ -196,7 +196,7 @@ public class ChatViewController implements Controller
 
 		send.setOnKeyPressed(event ->
 		{
-			if (selectedRoom != null && selectedRoom.getId() != 0)
+			if (isRoomSelected())
 			{
 				if (event.getCode().equals(KeyCode.ENTER) && isNotBlank(send.getText()))
 				{
@@ -457,6 +457,11 @@ public class ChatViewController implements Controller
 		nicknameCompleter.setUsernameFinder(selectedChatListView);
 	}
 
+	private boolean isRoomSelected()
+	{
+		return selectedRoom != null && selectedRoom.getId() != 0;
+	}
+
 	private Optional<TreeItem<RoomHolder>> getSubscribedTreeItem(long roomId)
 	{
 		return subscribedRooms.getChildren().stream()
@@ -468,7 +473,7 @@ public class ChatViewController implements Controller
 	{
 		if (chatRoomMessage.isEmpty())
 		{
-			if (selectedRoom != null && chatRoomMessage.getRoomId() == selectedRoom.getId())
+			if (isRoomSelected() && chatRoomMessage.getRoomId() == selectedRoom.getId())
 			{
 				typingNotification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), chatRoomMessage.getSenderNickname()));
 				lastTypingTimeline.playFromStart();
@@ -481,7 +486,7 @@ public class ChatViewController implements Controller
 				setHighlighted(chatRoomMessage.getContent());
 			});
 			getSubscribedTreeItem(chatRoomMessage.getRoomId()).ifPresent(roomHolderTreeItem -> {
-				if (selectedRoom != null && selectedRoom.getId() != chatRoomMessage.getRoomId())
+				if (isRoomSelected() && selectedRoom.getId() != chatRoomMessage.getRoomId())
 				{
 					setUnreadMessages(roomHolderTreeItem, true);
 				}

@@ -71,19 +71,19 @@ public abstract class NotificationService
 			return;
 		}
 
-		if (notification.equals(previousNotification))
-		{
-			return;
-		}
-
-		previousNotification = notification;
-
 		if (specificEmitter != null)
 		{
 			sendSseNotification(specificEmitter, notification);
 		}
 		else
 		{
+			if (notification.equals(previousNotification))
+			{
+				return;
+			}
+
+			previousNotification = notification;
+
 			sendSseNotification(notification);
 		}
 	}
@@ -112,7 +112,7 @@ public abstract class NotificationService
 		emitters.remove(emitter);
 	}
 
-	private void sendSseNotification(Object notification)
+	private void sendSseNotification(Notification notification)
 	{
 		List<SseEmitter> deadEmitters = new ArrayList<>();
 
@@ -120,7 +120,7 @@ public abstract class NotificationService
 		{
 			try
 			{
-				emitter.send(SseEmitter.event().data(notification));
+				emitter.send(createEventBuilder(notification));
 			}
 			catch (IOException e)
 			{
@@ -130,15 +130,23 @@ public abstract class NotificationService
 		emitters.removeAll(deadEmitters);
 	}
 
-	private void sendSseNotification(SseEmitter emitter, Object notification)
+	private void sendSseNotification(SseEmitter emitter, Notification notification)
 	{
 		try
 		{
-			emitter.send(SseEmitter.event().data(notification));
+			emitter.send(createEventBuilder(notification));
 		}
 		catch (IOException e)
 		{
 			emitters.remove(emitter);
 		}
+	}
+
+	private SseEmitter.SseEventBuilder createEventBuilder(Notification notification)
+	{
+		var event = SseEmitter.event();
+		event.data(notification);
+		event.id(notification.id());
+		return event;
 	}
 }

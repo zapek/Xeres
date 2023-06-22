@@ -73,6 +73,12 @@ public class ServiceInfoRsService extends RsService
 	{
 		if (item instanceof ServiceListItem serviceListItem)
 		{
+			// RS requests services twice upon first connection (bug?)
+			if (!sender.canSendServices())
+			{
+				return;
+			}
+
 			var services = new PriorityQueue<RsService>();
 
 			serviceListItem.getServices().forEach((integer, serviceInfo) ->
@@ -96,23 +102,19 @@ public class ServiceInfoRsService extends RsService
 
 	private void sendFirstServiceList(PeerConnection peerConnection)
 	{
-		if (!peerConnection.hasSentServices())
-		{
-			var services = new HashMap<Integer, ServiceInfo>();
+		var services = new HashMap<Integer, ServiceInfo>();
 
-			var allServices = rsServiceRegistry.getServices();
-			allServices.stream()
-					.filter(Predicate.not(rsService -> rsService.getServiceType() == PACKET_SLICING_PROBE)) // we hide this as it's not strictly a service in RS' terms
-					.forEach(rsService ->
-					{
-						var serviceType = rsService.getServiceType();
-						var type = 2 << 24 | rsService.getServiceType().getType() << 8;
-						services.put(type, new ServiceInfo(serviceType.getName(), type, rsService.getServiceType().getVersionMajor(), rsService.getServiceType().getVersionMinor()));
-					});
+		var allServices = rsServiceRegistry.getServices();
+		allServices.stream()
+				.filter(Predicate.not(rsService -> rsService.getServiceType() == PACKET_SLICING_PROBE)) // we hide this as it's not strictly a service in RS' terms
+				.forEach(rsService ->
+				{
+					var serviceType = rsService.getServiceType();
+					var type = 2 << 24 | rsService.getServiceType().getType() << 8;
+					services.put(type, new ServiceInfo(serviceType.getName(), type, rsService.getServiceType().getVersionMajor(), rsService.getServiceType().getVersionMinor()));
+				});
 
-			peerConnectionManager.writeItem(peerConnection, new ServiceListItem(services), this);
-			peerConnection.setServicesSent();
-		}
+		peerConnectionManager.writeItem(peerConnection, new ServiceListItem(services), this);
 	}
 
 	private void initializeServices(PeerConnection peerConnection, PriorityQueue<RsService> services)

@@ -22,13 +22,11 @@ package io.xeres.app.service.notification.forum;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.common.rest.notification.Notification;
-import io.xeres.common.rest.notification.forum.AddForums;
+import io.xeres.common.rest.notification.forum.AddForum;
 import io.xeres.common.rest.notification.forum.ForumNotification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-import static io.xeres.app.database.model.forum.ForumMapper.toDTOs;
+import static io.xeres.app.database.model.forum.ForumMapper.toDTO;
 
 @Service
 public class ForumNotificationService extends NotificationService
@@ -38,14 +36,15 @@ public class ForumNotificationService extends NotificationService
 		super();
 	}
 
-	public void addForums(List<ForumGroupItem> forums)
+	public void addForum(ForumGroupItem forum)
 	{
-		sendNotification(new ForumNotification(new AddForums(toDTOs(forums))));
+		var action = new AddForum(toDTO(forum));
+		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
 	}
 
 	@Override
 	protected Notification createNotification()
 	{
-		return null; // XXX: send the forums as notification? the client currently does a GET so it's the same... ponder...
+		return null;
 	}
 }

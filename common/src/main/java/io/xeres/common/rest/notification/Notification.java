@@ -21,4 +21,8 @@ package io.xeres.common.rest.notification;
 
 public interface Notification
 {
+	default String id()
+	{
+		return "";
+	}
 }

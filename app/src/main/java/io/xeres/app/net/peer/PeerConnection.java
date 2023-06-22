@@ -27,13 +27,14 @@ import io.xeres.common.util.NoSuppressedRunnable;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PeerConnection
 {
 	private Location location;
 	private final ChannelHandlerContext ctx;
 	private final Set<RsService> services = new HashSet<>();
-	private boolean servicesSent;
+	private AtomicBoolean servicesSent = new AtomicBoolean(false);
 	private final Map<Integer, Map<Integer, Object>> serviceData = new HashMap<>();
 	private final List<ScheduledFuture<?>> schedules = new ArrayList<>();
 
@@ -71,14 +72,9 @@ public class PeerConnection
 		return services.contains(rsService);
 	}
 
-	public boolean hasSentServices()
+	public boolean canSendServices()
 	{
-		return servicesSent;
-	}
-
-	public void setServicesSent()
-	{
-		servicesSent = true;
+		return servicesSent.compareAndSet(false, true);
 	}
 
 	public void putServiceData(RsService service, int key, Object data)

@@ -459,7 +459,7 @@ public class ChatViewController implements Controller
 
 	private boolean isRoomSelected()
 	{
-		return selectedRoom != null && selectedRoom.getId() != 0;
+		return selectedRoom != null && selectedRoom.getId() != 0L;
 	}
 
 	private Optional<TreeItem<RoomHolder>> getSubscribedTreeItem(long roomId)

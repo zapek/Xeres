@@ -46,10 +46,7 @@ import reactor.core.Disposable;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static javafx.scene.control.TableColumn.SortType.DESCENDING;
 
@@ -88,6 +85,7 @@ public class ForumViewController implements Controller
 	private final ForumClient forumClient;
 	private final NotificationClient notificationClient;
 	private final ObjectMapper objectMapper;
+	private ForumGroup selectedForum;
 
 	private Disposable notificationDisposable;
 
@@ -124,11 +122,17 @@ public class ForumViewController implements Controller
 		forumTree.addEventHandler(ForumContextMenu.SUBSCRIBE, event -> subscribeToForumGroup(event.getTreeItem().getValue().getForum()));
 		forumTree.addEventHandler(ForumContextMenu.UNSUBSCRIBE, event -> unsubscribeFromForumGroups(event.getTreeItem().getValue().getForum()));
 
-		// XXX
+		// We need Platform.runLater() because when an entry is moved, the selection can change
 		forumTree.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue().getForum()))); // XXX: check if that Platform.runLater() is really  needed
+				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue().getForum())));
 
 		// XXX: add double click
+		forumTree.setOnMouseClicked(event -> {
+			if (event.getClickCount() == 2 && isForumSelected())
+			{
+				subscribeToForumGroup(selectedForum);
+			}
+		});
 
 		//forumMessagesTableView.setRowFactory(ForumMessageCell::new); // if we want bold, etc...
 		tableSubject.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -146,6 +150,11 @@ public class ForumViewController implements Controller
 		setupForumNotifications();
 
 		getForumGroups();
+	}
+
+	private boolean isForumSelected()
+	{
+		return selectedForum != null && selectedForum.getId() != 0L;
 	}
 
 	private void setupForumNotifications()
@@ -251,8 +260,9 @@ public class ForumViewController implements Controller
 
 	private void changeSelectedForumGroup(ForumGroup forumGroup)
 	{
-		// XXX: must check that it is subscribed. do like chatView. also have a "selected" so that we can update on the fly
-		forumClient.getForumMessages(forumGroup.getId()).collectList()
+		selectedForum = forumGroup;
+
+		getSubscribedTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupHolderTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
 					forumMessagesTableView.getItems().clear();
 					forumMessagesTableView.getItems().addAll(forumMessages);
@@ -260,8 +270,18 @@ public class ForumViewController implements Controller
 					messageContent.getChildren().clear();
 				}))
 				.doOnError(throwable -> log.error("Error while getting the forum messages: {}", throwable.getMessage(), throwable)) // XXX: cleanup on error?
-				.subscribe();
+				.subscribe(), () -> {
+			// XXX: display some forum info in the message view
+			forumMessagesTableView.getItems().clear();
+			messageContent.getChildren().clear();
+		});
+	}
 
+	private Optional<TreeItem<ForumGroupHolder>> getSubscribedTreeItem(long forumId)
+	{
+		return subscribedForums.getChildren().stream()
+				.filter(forumGroupHolderTreeItem -> forumGroupHolderTreeItem.getValue().getForum().getId() == forumId)
+				.findFirst();
 	}
 
 	private void changeSelectedForumMessage(ForumMessage forumMessage)

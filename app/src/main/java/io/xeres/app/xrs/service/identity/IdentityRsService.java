@@ -147,7 +147,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected void onGroupSaved(IdentityGroupItem item)
+	protected void onGroupsSaved(List<IdentityGroupItem> items)
 	{
 		// XXX: notify?
 	}

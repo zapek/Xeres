@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
-import io.xeres.common.rest.notification.forum.AddForum;
+import io.xeres.common.rest.notification.forum.AddForums;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
@@ -165,14 +165,19 @@ public class ForumViewController implements Controller
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{
-						switch (Objects.requireNonNull(sse.id()))
+						var idName = Objects.requireNonNull(sse.id());
+
+						if (idName.equals(AddForums.class.getSimpleName()))
 						{
-							case "AddForum" ->
-							{
-								var action = objectMapper.convertValue(sse.data().action(), AddForum.class);
-								addForumGroups(List.of(ForumMapper.fromDTO(action.forum())));
-							}
-							default -> log.debug("Non handled case");
+							var action = objectMapper.convertValue(sse.data().action(), AddForums.class);
+
+							addForumGroups(action.forums().stream()
+									.map(ForumMapper::fromDTO)
+									.toList());
+						}
+						else
+						{
+							log.debug("Unknown forum notification");
 						}
 						// XXX: add message, etc... but only if the group is already selected
 					}

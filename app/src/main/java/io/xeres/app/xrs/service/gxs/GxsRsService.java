@@ -131,6 +131,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	/**
 	 * Called when a peer sends the list of new or updated groups that might interest us.
+	 *
 	 * @param ids the ids of updated groups and their update time that the peer has for us
 	 * @return the subset of those groups that we actually want
 	 */
@@ -138,6 +139,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	/**
 	 * Called when the peer wants specific groups to be transferred to him.
+	 *
 	 * @param ids the groups that the peer wants
 	 * @return the groups that we have available within the requested set
 	 */
@@ -147,10 +149,16 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * Called when a group has been received.
 	 *
 	 * @param item the received group
+	 * @return true if the group must be saved to disk
 	 */
 	protected abstract boolean onGroupReceived(G item);
 
-	protected abstract void onGroupSaved(G item);
+	/**
+	 * Called when the groups have been saved.
+	 *
+	 * @param items the list of groups that have been successfully saved to disk
+	 */
+	protected abstract void onGroupsSaved(List<G> items);
 
 	/**
 	 * Called when the peer wants a list of new messages within a group that we have for him.
@@ -164,7 +172,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	/**
 	 * Called when a peer sends the list of new messages that might interest us, within a group.
-	 * @param groupId the group ID
+	 *
+	 * @param groupId    the group ID
 	 * @param messageIds the ids of new messages
 	 * @return the subset of those messages that we actually want
 	 */
@@ -172,7 +181,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	/**
 	 * Called when the peer wants specific messages to be transferred to him, within a group.
-	 * @param groupId the group ID
+	 *
+	 * @param groupId    the group ID
 	 * @param messageIds the ids of messages that the peer wants
 	 * @return the messages that we have available within the requested set
 	 */
@@ -276,7 +286,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			pendingGxsGroups.forEach((gxsGroupItem, delay) -> verifyAndStoreGroup(peerConnectionManager.getRandomPeer(), gxsGroupItem));
+			var randomPeer = peerConnectionManager.getRandomPeer();
+			if (randomPeer != null)
+			{
+				verifyAndStoreGroups(randomPeer, pendingGxsGroups.keySet());
+			}
 			pendingGxsGroups.entrySet().removeIf(gxsGroupItemLongEntry -> gxsGroupItemLongEntry.getValue() < 0);
 		}
 	}
@@ -444,9 +458,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUPS))
 		{
 			@SuppressWarnings("unchecked")
-			var transferItems = (List<GxsTransferGroupItem>) transaction.getItems();
-			transferItems.forEach(gxsTransferGroupItem -> verifyAndStoreGroup(peerConnection, convertTransferGroupToGxsGroup(gxsTransferGroupItem)));
-			if (!transferItems.isEmpty())
+			var gxsGroupItems = ((List<GxsTransferGroupItem>) transaction.getItems()).stream()
+					.map(this::convertTransferGroupToGxsGroup)
+					.toList();
+
+			verifyAndStoreGroups(peerConnection, gxsGroupItems);
+			if (!gxsGroupItems.isEmpty())
 			{
 				gxsUpdateService.setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
 				gxsUpdateService.setLastServiceGroupsUpdateNow(getServiceType());
@@ -491,58 +508,68 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private void verifyAndStoreGroup(PeerConnection peerConnection, G gxsGroupItem)
+	private void verifyAndStoreGroups(PeerConnection peerConnection, Collection<G> gxsGroupItems)
 	{
-		boolean validation = true;
-		var author = gxsGroupItem.getAuthor();
+		List<G> savedGroups = new ArrayList<>();
 
-		// Validate author signature
-		if (author != null && gxsGroupItem.getAuthorSignature() != null) // XXX: what happens if there's an author but no signature, and vice versa? current code just says it's OK (check what RS does)
+		for (var gxsGroupItem : gxsGroupItems)
 		{
-			var authorIdentity = identityManager.getGxsGroup(peerConnection, author);
-			if (authorIdentity == null)
+			boolean validation = true;
+			var author = gxsGroupItem.getAuthor();
+
+			// Validate author signature
+			if (author != null && gxsGroupItem.getAuthorSignature() != null) // XXX: what happens if there's an author but no signature, and vice versa? current code just says it's OK (check what RS does)
 			{
-				log.warn("Delaying verification of group {}", gxsGroupItem);
-				var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
-				if (existingDelay != null)
+				var authorIdentity = identityManager.getGxsGroup(peerConnection, author);
+				if (authorIdentity == null)
 				{
-					var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
-					pendingGxsGroups.put(gxsGroupItem, newDelay);
-					if (newDelay < 0)
+					log.warn("Delaying verification of group {}", gxsGroupItem);
+					var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
+					if (existingDelay != null)
 					{
-						log.warn("Failed to validate group {}: timeout exceeded", gxsGroupItem);
+						var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
+						pendingGxsGroups.put(gxsGroupItem, newDelay);
+						if (newDelay < 0)
+						{
+							log.warn("Failed to validate group {}: timeout exceeded", gxsGroupItem);
+						}
+					}
+					continue;
+				}
+				else
+				{
+					validation = validateGroup(gxsGroupItem, authorIdentity.getAdminPublicKey(), gxsGroupItem.getAuthorSignature());
+					if (!validation)
+					{
+						log.warn("Failed to validate group {}: wrong author signature", gxsGroupItem);
 					}
 				}
-				return;
 			}
-			else
+
+			// If this is a group update, validate its admin signature
+			if (validation && gxsUpdateService.groupExists(gxsGroupItem))
 			{
-				validation = validateGroup(gxsGroupItem, authorIdentity.getAdminPublicKey(), gxsGroupItem.getAuthorSignature());
+				validation = validateGroup(gxsGroupItem, gxsGroupItem.getAdminPublicKey(), gxsGroupItem.getAdminSignature());
 				if (!validation)
 				{
-					log.warn("Failed to validate group {}: wrong author signature", gxsGroupItem);
+					log.warn("Failed to validate group {} for update: wrong admin signature", gxsGroupItem);
 				}
 			}
-		}
 
-		// If this is a group update, validate its admin signature
-		if (validation && gxsUpdateService.groupExists(gxsGroupItem))
-		{
-			validation = validateGroup(gxsGroupItem, gxsGroupItem.getAdminPublicKey(), gxsGroupItem.getAdminSignature());
-			if (!validation)
+			// Save the group if everything is OK
+			if (validation)
 			{
-				log.warn("Failed to validate group {} for update: wrong admin signature", gxsGroupItem);
+				gxsUpdateService.saveGroup(gxsGroupItem, this::onGroupReceived).ifPresent(savedGroups::add);
 			}
+
+			// If the group verification was delayed, remove it
+			pendingGxsGroups.computeIfPresent(gxsGroupItem, (group, delay) -> -1L);
 		}
 
-		// Save the group if everything is OK
-		if (validation)
+		if (!savedGroups.isEmpty())
 		{
-			gxsUpdateService.saveGroup(gxsGroupItem, this::onGroupReceived, this::onGroupSaved);
+			onGroupsSaved(savedGroups);
 		}
-
-		// If the group verification was delayed, remove it
-		pendingGxsGroups.computeIfPresent(gxsGroupItem, (group, delay) -> -1L);
 	}
 
 	// XXX: that too

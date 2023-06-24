@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.function.Consumer;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -122,14 +122,14 @@ public class GxsUpdateService<G extends GxsGroupItem>
 	}
 
 	@Transactional
-	public void saveGroup(G gxsGroupItem, Predicate<G> confirmation, Consumer<G> action)
+	public Optional<G> saveGroup(G gxsGroupItem, Predicate<G> confirmation)
 	{
 		gxsGroupItem.setId(gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId()).orElse(gxsGroupItem).getId());
 		if (confirmation.test(gxsGroupItem) && gxsGroupItem.isExternal()) // Don't overwrite our own groups
 		{
-			var saved = gxsGroupItemRepository.save(gxsGroupItem);
-			action.accept(saved);
+			return Optional.of(gxsGroupItemRepository.save(gxsGroupItem));
 		}
+		return Optional.empty();
 	}
 
 	public boolean groupExists(G gxsGroupItem)

@@ -152,9 +152,9 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected void onGroupSaved(ForumGroupItem item)
+	protected void onGroupsSaved(List<ForumGroupItem> items)
 	{
-		forumNotificationService.addForum(item);
+		forumNotificationService.addForums(items);
 	}
 
 	@Override

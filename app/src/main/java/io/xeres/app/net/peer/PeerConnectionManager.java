@@ -90,6 +90,10 @@ public class PeerConnectionManager
 
 	public PeerConnection getRandomPeer()
 	{
+		if (peers.isEmpty())
+		{
+			return null;
+		}
 		return peers.values().stream()
 				.skip(ThreadLocalRandom.current().nextInt(peers.size()))
 				.findFirst().orElse(null);

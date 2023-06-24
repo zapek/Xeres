@@ -22,11 +22,13 @@ package io.xeres.app.service.notification.forum;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.common.rest.notification.Notification;
-import io.xeres.common.rest.notification.forum.AddForum;
+import io.xeres.common.rest.notification.forum.AddForums;
 import io.xeres.common.rest.notification.forum.ForumNotification;
 import org.springframework.stereotype.Service;
 
-import static io.xeres.app.database.model.forum.ForumMapper.toDTO;
+import java.util.List;
+
+import static io.xeres.app.database.model.forum.ForumMapper.toDTOs;
 
 @Service
 public class ForumNotificationService extends NotificationService
@@ -36,9 +38,9 @@ public class ForumNotificationService extends NotificationService
 		super();
 	}
 
-	public void addForum(ForumGroupItem forum)
+	public void addForums(List<ForumGroupItem> forums)
 	{
-		var action = new AddForum(toDTO(forum));
+		var action = new AddForums(toDTOs(forums));
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
 	}
 

@@ -21,6 +21,8 @@ package io.xeres.common.rest.notification.forum;
 
 import io.xeres.common.dto.forum.ForumGroupDTO;
 
-public record AddForum(ForumGroupDTO forum)
+import java.util.List;
+
+public record AddForums(List<ForumGroupDTO> forums)
 {
 }

@@ -30,6 +30,7 @@ import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
+import io.xeres.ui.controller.forum.ForumEditorViewController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.identity.IdentitiesWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
@@ -254,6 +255,16 @@ public class WindowManager
 						.setParent(parent)
 						.setTitle(bundle.getString("chat.room.invite.window-title"))
 						.setUserData(chatRoom)
+						.build()
+						.open());
+	}
+
+	public void openForumEditor(Window parent) // XXX: needs some forum destination and message id
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(ForumEditorViewController.class)
+						.setParent(parent) // XXX: needs to become multi modal then
+						.setTitle("New message")
 						.build()
 						.open());
 	}

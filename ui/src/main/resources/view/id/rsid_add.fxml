@@ -20,13 +20,13 @@
   -->
 
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
-<VBox prefHeight="400.0" prefWidth="480.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
+<VBox prefHeight="400.0" prefWidth="480.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
     <TextFlow styleClass="freeflow">
         <Text text="%rsid.add.textarea.instruction"/>
         <Hyperlink fx:id="scanQrCode" text="%rsid.add.textarea.instruction2"/>
@@ -46,7 +46,7 @@
     <TitledPane fx:id="titledPane" expanded="false" text="%rsid.add.details" VBox.vgrow="ALWAYS">
         <GridPane>
             <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
@@ -56,39 +56,62 @@
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-                <RowConstraints/>
             </rowConstraints>
-            <Label text="%rsid.add.name"/>
+            <Label text="%rsid.add.name">
+                <GridPane.margin>
+                    <Insets right="8.0"/>
+                </GridPane.margin>
+            </Label>
             <ReadOnlyTextField fx:id="certName" editable="false" GridPane.columnIndex="1">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.name.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
-            <Label text="%rsid.add.profile" GridPane.rowIndex="1"/>
+            <Label text="%rsid.add.profile" GridPane.rowIndex="1">
+                <GridPane.margin>
+                    <Insets right="8.0"/>
+                </GridPane.margin>
+            </Label>
             <ReadOnlyTextField fx:id="certId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.profile.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
-            <Label text="%rsid.add.fingerprint" GridPane.rowIndex="2"/>
+            <Label text="%rsid.add.fingerprint" GridPane.rowIndex="2">
+                <GridPane.margin>
+                    <Insets right="8.0"/>
+                </GridPane.margin>
+            </Label>
             <ReadOnlyTextField fx:id="certFingerprint" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.fingerprint.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
-            <Label text="%rsid.add.location" GridPane.rowIndex="3"/>
+            <Label text="%rsid.add.location" GridPane.rowIndex="3">
+                <GridPane.margin>
+                    <Insets right="8.0"/>
+                </GridPane.margin>
+            </Label>
             <ReadOnlyTextField fx:id="certLocId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.location.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
-            <Label text="%rsid.add.addresses" GridPane.rowIndex="4"/>
+            <Label text="%rsid.add.addresses" GridPane.rowIndex="4">
+                <GridPane.margin>
+                    <Insets right="8.0"/>
+                </GridPane.margin>
+            </Label>
             <ComboBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.addresses.tip"/>
                 </tooltip>
             </ComboBox>
-            <Label text="%rsid.add.trust" GridPane.rowIndex="5"/>
+            <Label text="%rsid.add.trust" GridPane.rowIndex="5">
+                <GridPane.margin>
+                    <Insets right="8.0"/>
+                </GridPane.margin>
+            </Label>
             <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.trust.tip"/>

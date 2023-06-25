@@ -228,3 +228,13 @@
     -fx-border-color: black;
     -fx-border-radius: 19px;
 }
+
+.flat-toolbar .button {
+    -fx-background-color: transparent;
+}
+
+.flat-toolbar .button:hover {
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+}

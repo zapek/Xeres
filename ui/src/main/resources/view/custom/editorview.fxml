@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2023 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import de.jensd.fx.glyphs.fontawesome.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<fx:root prefHeight="480" prefWidth="640" type="VBox" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+    <HBox styleClass="flat-toolbar">
+        <VBox.margin>
+            <Insets bottom="4.0" top="4.0"/>
+        </VBox.margin>
+        <Button fx:id="bold">
+            <graphic>
+                <FontAwesomeIconView glyphName="BOLD" glyphSize="14"/>
+            </graphic>
+        </Button>
+        <Button fx:id="italic">
+            <graphic>
+                <FontAwesomeIconView glyphName="ITALIC" glyphSize="14"/>
+            </graphic>
+        </Button>
+        <Button fx:id="hyperlink">
+            <graphic>
+                <FontAwesomeIconView glyphName="LINK" glyphSize="14"/>
+            </graphic>
+            <HBox.margin>
+                <Insets left="8.0"/>
+            </HBox.margin>
+        </Button>
+        <Button fx:id="quote">
+            <graphic>
+                <FontAwesomeIconView glyphName="QUOTE_LEFT" glyphSize="14"/>
+            </graphic>
+        </Button>
+        <Button fx:id="code">
+            <graphic>
+                <FontAwesomeIconView glyphName="CODE" glyphSize="14"/>
+            </graphic>
+        </Button>
+        <Button fx:id="list">
+            <graphic>
+                <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
+            </graphic>
+            <HBox.margin>
+                <Insets left="8.0"/>
+            </HBox.margin>
+        </Button>
+        <Button fx:id="heading">
+            <graphic>
+                <FontAwesomeIconView glyphName="HEADER" glyphSize="14"/>
+            </graphic>
+        </Button>
+    </HBox>
+    <TextArea fx:id="editor" wrapText="true" VBox.vgrow="SOMETIMES"/>
+</fx:root>

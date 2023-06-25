@@ -29,6 +29,7 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.support.markdown.Markdown2Flow;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -80,10 +81,14 @@ public class ForumViewController implements Controller
 	@FXML
 	private TextFlow messageContent;
 
+	@FXML
+	private Button newThread;
+
 	private final ResourceBundle bundle;
 
 	private final ForumClient forumClient;
 	private final NotificationClient notificationClient;
+	private final WindowManager windowManager;
 	private final ObjectMapper objectMapper;
 	private ForumGroup selectedForum;
 
@@ -94,7 +99,7 @@ public class ForumViewController implements Controller
 	private final TreeItem<ForumGroupHolder> popularForums;
 	private final TreeItem<ForumGroupHolder> otherForums;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, ObjectMapper objectMapper)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -104,6 +109,7 @@ public class ForumViewController implements Controller
 		popularForums = new TreeItem<>(new ForumGroupHolder(bundle.getString("forum.tree.popular")));
 		otherForums = new TreeItem<>(new ForumGroupHolder(bundle.getString("forum.tree.other")));
 		this.notificationClient = notificationClient;
+		this.windowManager = windowManager;
 		this.objectMapper = objectMapper;
 	}
 
@@ -146,6 +152,8 @@ public class ForumViewController implements Controller
 
 		forumMessagesTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue));
+
+		newThread.setOnAction(event -> windowManager.openForumEditor(newThread.getScene().getWindow()));
 
 		setupForumNotifications();
 

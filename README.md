@@ -133,6 +133,8 @@ run the ``clean`` task
 
 https://fontawesome.com/v4/icons/
 
+Replace all '-' by '_' in their names for use in JavaFX.
+
 ### Git Branching Model
 
 *master* always contains the current and runnable code. Use a feature branch to work on a feature (for example, feature/165-the-feature (165 would be the ticket number, if any)). Once it's ready, have someone review it then merge to master.

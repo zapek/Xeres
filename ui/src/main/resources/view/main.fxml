@@ -165,7 +165,7 @@
                     <ReadOnlyTextField fx:id="shortId" editable="false" prefWidth="540.0"/>
                     <Button fx:id="copyShortIdButton">
                         <graphic>
-                            <FontAwesomeIconView glyphName="CLIPBOARD" glyphSize="18" size="16" text=""/>
+                            <FontAwesomeIconView glyphName="CLIPBOARD" glyphSize="18" size="16"/>
                         </graphic>
                         <tooltip>
                             <Tooltip showDuration="1m" text="%main.home.copy-id.tip"/>

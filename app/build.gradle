@@ -168,7 +168,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
-    implementation 'net.coobird:thumbnailator:0.4.19'
+    implementation 'net.coobird:thumbnailator:0.4.20'
     implementation 'net.java.dev.jna:jna-platform:5.13.0'
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"
     implementation 'com.maxmind.geoip2:geoip2:4.0.1'

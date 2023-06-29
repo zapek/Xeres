@@ -34,6 +34,7 @@ import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -45,6 +46,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,11 +184,11 @@ public class MainWindowController implements WindowController
 		copyOwnId.setOnAction(event -> copyOwnId());
 		copyShortIdButton.setOnAction(event -> copyOwnId());
 
-		showQrCodeButton.setOnAction(event -> showQrCode());
+		showQrCodeButton.setOnAction(event -> showQrCode(UiUtils.getWindow(event)));
 
 		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
 
-		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation(titleLabel.getScene().getWindow()));
+		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation(UiUtils.getWindow(event)));
 
 		showHelp.setOnAction(event -> openUrl(XERES_DOCS_URL));
 		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));
@@ -195,21 +197,21 @@ public class MainWindowController implements WindowController
 
 		forums.setOnAction(event -> openUrl(XERES_FORUMS_URL));
 
-		showAboutWindow.setOnAction(event -> windowManager.openAbout(titleLabel.getScene().getWindow()));
+		showAboutWindow.setOnAction(event -> windowManager.openAbout(UiUtils.getWindow(event)));
 
-		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast(titleLabel.getScene().getWindow()));
+		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast(UiUtils.getWindow(event)));
 
-		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(titleLabel.getScene().getWindow()));
+		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(UiUtils.getWindow(event)));
 
-		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(titleLabel.getScene().getWindow()));
+		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(UiUtils.getWindow(event)));
 
-		showSettingsWindow.setOnAction(even -> windowManager.openSettings(titleLabel.getScene().getWindow()));
+		showSettingsWindow.setOnAction(event -> windowManager.openSettings(UiUtils.getWindow(event)));
 
 		changeOwnIdentityPicture.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("main.select-avatar"));
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.jfif"));
-			var selectedFile = fileChooser.showOpenDialog(titleLabel.getScene().getWindow());
+			var selectedFile = fileChooser.showOpenDialog(UiUtils.getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
 			{
 				identityClient.uploadIdentityImage(IdentityConstants.OWN_IDENTITY_ID, selectedFile)
@@ -261,10 +263,10 @@ public class MainWindowController implements WindowController
 		}));
 	}
 
-	private void showQrCode()
+	private void showQrCode(Window window)
 	{
 		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID, Type.ANY);
-		rsIdResponse.subscribe(reply -> Platform.runLater(() -> windowManager.openQrCode(titleLabel.getScene().getWindow(), reply)));
+		rsIdResponse.subscribe(reply -> Platform.runLater(() -> windowManager.openQrCode(window, reply)));
 	}
 
 	public void addPeer(String rsId)

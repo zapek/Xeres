@@ -24,12 +24,14 @@ import io.xeres.ui.JavaFxApplication;
 import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -230,6 +232,30 @@ public final class UiUtils
 			{
 				hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
 			}
+		}
+	}
+
+	/**
+	 * Gets the window from an event, handles MenuItems as well.
+	 *
+	 * @param event the event
+	 * @return a Window
+	 */
+	public static Window getWindow(Event event)
+	{
+		var target = Objects.requireNonNull(event.getTarget(), "event has no target");
+
+		if (target instanceof MenuItem menuItem)
+		{
+			return menuItem.getParentPopup().getOwnerWindow();
+		}
+		else if (target instanceof Node node)
+		{
+			return node.getScene().getWindow();
+		}
+		else
+		{
+			throw new IllegalStateException("Cannot find a window from the event " + event);
 		}
 	}
 }

@@ -36,6 +36,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
@@ -80,8 +81,8 @@ public class QrCodeWindowController implements WindowController
 	@Override
 	public void initialize() throws IOException
 	{
-		printButton.setOnAction(event -> showPrintSetupThenPrint());
-		saveButton.setOnAction(event -> saveAsPng());
+		printButton.setOnAction(event -> showPrintSetupThenPrint(UiUtils.getWindow(event)));
+		saveButton.setOnAction(event -> saveAsPng(UiUtils.getWindow(event)));
 		closeButton.setOnAction(UiUtils::closeWindow);
 
 		Platform.runLater(() -> closeButton.requestFocus());
@@ -101,10 +102,10 @@ public class QrCodeWindowController implements WindowController
 		ownQrCode.setImage(new Image(JavaFxApplication.getControlUrl() + LOCATIONS_PATH + "/" + 1L + "/rsId/qrCode", true));
 	}
 
-	private void showPrintSetupThenPrint()
+	private void showPrintSetupThenPrint(Window window)
 	{
 		var printerJob = PrinterJob.createPrinterJob();
-		if (printerJob.showPrintDialog(ownQrCode.getScene().getWindow()))
+		if (printerJob.showPrintDialog(window))
 		{
 			print(printerJob, ownQrCode);
 		}
@@ -150,12 +151,12 @@ public class QrCodeWindowController implements WindowController
 		}
 	}
 
-	private void saveAsPng()
+	private void saveAsPng(Window window)
 	{
 		var fileChooser = new FileChooser();
 		fileChooser.setTitle(bundle.getString("qrcode.save-as-png"));
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("PNG files", "*.png"));
-		var selectedFile = fileChooser.showSaveDialog(ownQrCode.getScene().getWindow());
+		var selectedFile = fileChooser.showSaveDialog(window);
 		if (selectedFile != null && (!selectedFile.exists() || selectedFile.canWrite()))
 		{
 			var bufferedImage = SwingFXUtils.fromFXImage(ownQrCode.snapshot(null, null), null);

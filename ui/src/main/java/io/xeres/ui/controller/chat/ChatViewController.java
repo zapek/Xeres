@@ -233,7 +233,7 @@ public class ChatViewController implements Controller
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		send.setContextMenu(createChatInputContextMenu(send));
 
-		invite.setOnAction(event -> windowManager.openInvite(send.getScene().getWindow(), selectedRoom.getId()));
+		invite.setOnAction(event -> windowManager.openInvite(UiUtils.getWindow(event), selectedRoom.getId()));
 
 		getChatRoomContext();
 	}

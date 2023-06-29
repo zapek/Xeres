@@ -109,7 +109,7 @@ public class AddRsIdWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		scanQrCode.setOnAction(event -> windowManager.openCamera(scanQrCode.getScene().getWindow(), this));
+		scanQrCode.setOnAction(event -> windowManager.openCamera(UiUtils.getWindow(event), this));
 		addButton.setOnAction(event -> addPeer());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 

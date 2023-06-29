@@ -29,6 +29,7 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.support.markdown.Markdown2Flow;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -153,7 +154,7 @@ public class ForumViewController implements Controller
 		forumMessagesTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue));
 
-		newThread.setOnAction(event -> windowManager.openForumEditor(newThread.getScene().getWindow()));
+		newThread.setOnAction(event -> windowManager.openForumEditor(UiUtils.getWindow(event)));
 
 		setupForumNotifications();
 

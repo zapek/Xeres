@@ -76,9 +76,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final GxsIdentityRepository gxsIdentityRepository;
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
-	private final GxsUpdateService<IdentityGroupItem> gxsUpdateService;
+	private final GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem> gxsUpdateService)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsIdentityRepository = gxsIdentityRepository;
@@ -171,9 +171,15 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected void onMessageReceived(PeerConnection sender, GxsMessageItem item)
+	protected boolean onMessageReceived(GxsMessageItem item)
 	{
-		// we don't receive messages
+		return false; // we don't receive messages
+	}
+
+	@Override
+	protected void onMessagesSaved(List<GxsMessageItem> items)
+	{
+		// nothing to do since we don't receive them
 	}
 
 	@Transactional

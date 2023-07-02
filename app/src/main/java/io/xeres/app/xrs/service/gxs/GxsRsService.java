@@ -87,7 +87,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final GxsTransactionManager gxsTransactionManager;
 	protected final PeerConnectionManager peerConnectionManager;
 	private final IdentityManager identityManager;
-	private final GxsUpdateService<G> gxsUpdateService;
+	private final GxsUpdateService<G, M> gxsUpdateService;
 	private final DatabaseSessionManager databaseSessionManager;
 
 	private final Type itemGroupClass;
@@ -96,10 +96,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private ScheduledExecutorService executorService;
 
 	private final Map<G, Long> pendingGxsGroups = new ConcurrentHashMap<>();
+	private final Map<M, Long> pendingGxsMessages = new ConcurrentHashMap<>();
 
 	private AuthenticationRequirements authenticationRequirements;
 
-	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<G> gxsUpdateService)
+	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<G, M> gxsUpdateService)
 	{
 		super(rsServiceRegistry);
 		this.gxsTransactionManager = gxsTransactionManager;
@@ -191,10 +192,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	/**
 	 * Called when a message has been received.
 	 *
-	 * @param sender the sender of the group
-	 * @param item   the received message
+	 * @param item the received message
 	 */
-	protected abstract void onMessageReceived(PeerConnection sender, M item);
+	protected abstract boolean onMessageReceived(M item);
+
+	protected abstract void onMessagesSaved(List<M> items);
 
 	protected abstract AuthenticationRequirements getAuthenticationRequirements();
 
@@ -217,7 +219,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		executorService = Executors.newSingleThreadScheduledExecutor();
 
-		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::checkPendingGroups,
+		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::checkPendingGroupsAndMessages,
 				getInitPriority().getMaxTime() + PENDING_VERIFICATION_DELAY.toSeconds() / 2,
 				PENDING_VERIFICATION_DELAY.toSeconds(),
 				TimeUnit.SECONDS);
@@ -282,7 +284,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 	}
 
-	private void checkPendingGroups()
+	private void checkPendingGroupsAndMessages()
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
@@ -290,8 +292,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			if (randomPeer != null)
 			{
 				verifyAndStoreGroups(randomPeer, pendingGxsGroups.keySet());
+				verifyAndStoreMessages(randomPeer, pendingGxsMessages.keySet());
 			}
 			pendingGxsGroups.entrySet().removeIf(gxsGroupItemLongEntry -> gxsGroupItemLongEntry.getValue() < 0);
+			pendingGxsMessages.entrySet().removeIf(gxsMessageItemLongEntry -> gxsMessageItemLongEntry.getValue() < 0);
 		}
 	}
 
@@ -494,15 +498,14 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGES))
 		{
 			@SuppressWarnings("unchecked")
-			var transferItems = (List<GxsTransferMessageItem>) transaction.getItems();
-			transferItems.forEach(gxsTransferMessageItem -> {
-				var gxsMessageItem = convertTransferGroupToGxsMessage(gxsTransferMessageItem);
-				identityManager.getGxsGroup(peerConnection, gxsMessageItem.getAuthorId()); // Prefetch the identity that we will need later
-				onMessageReceived(peerConnection, gxsMessageItem);
-			});
-			if (!transferItems.isEmpty())
+			var gxsMessageItems = ((List<GxsTransferMessageItem>) transaction.getItems()).stream()
+					.map(this::convertTransferGroupToGxsMessage)
+					.toList();
+
+			verifyAndStoreMessages(peerConnection, gxsMessageItems);
+			if (!gxsMessageItems.isEmpty())
 			{
-				gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), transferItems.get(0).getGroupId(), transaction.getUpdated(), getServiceType());
+				gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), gxsMessageItems.get(0).getGxsId(), transaction.getUpdated(), getServiceType());
 				//setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
 			}
 		}
@@ -510,39 +513,47 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void verifyAndStoreGroups(PeerConnection peerConnection, Collection<G> gxsGroupItems)
 	{
-		List<G> savedGroups = new ArrayList<>();
+		List<G> savedGroups = new ArrayList<>(gxsGroupItems.size());
 
 		for (var gxsGroupItem : gxsGroupItems)
 		{
-			boolean validation = true;
+			var validation = true;
 			var author = gxsGroupItem.getAuthor();
 
 			// Validate author signature
-			if (author != null && gxsGroupItem.getAuthorSignature() != null) // XXX: what happens if there's an author but no signature, and vice versa? current code just says it's OK (check what RS does)
+			if (author != null)
 			{
-				var authorIdentity = identityManager.getGxsGroup(peerConnection, author);
-				if (authorIdentity == null)
+				if (gxsGroupItem.getAuthorSignature() != null)
 				{
-					log.warn("Delaying verification of group {}", gxsGroupItem);
-					var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
-					if (existingDelay != null)
+					var authorIdentity = identityManager.getGxsGroup(peerConnection, author);
+					if (authorIdentity == null)
 					{
-						var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
-						pendingGxsGroups.put(gxsGroupItem, newDelay);
-						if (newDelay < 0)
+						log.warn("Delaying verification of group {}", gxsGroupItem);
+						var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
+						if (existingDelay != null)
 						{
-							log.warn("Failed to validate group {}: timeout exceeded", gxsGroupItem);
+							var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
+							pendingGxsGroups.put(gxsGroupItem, newDelay);
+							if (newDelay < 0)
+							{
+								log.warn("Failed to validate group {}: timeout exceeded", gxsGroupItem);
+							}
+						}
+						continue;
+					}
+					else
+					{
+						validation = validateGroup(gxsGroupItem, authorIdentity.getAdminPublicKey(), gxsGroupItem.getAuthorSignature());
+						if (!validation)
+						{
+							log.warn("Failed to validate group {}: wrong author signature", gxsGroupItem);
 						}
 					}
-					continue;
 				}
 				else
 				{
-					validation = validateGroup(gxsGroupItem, authorIdentity.getAdminPublicKey(), gxsGroupItem.getAuthorSignature());
-					if (!validation)
-					{
-						log.warn("Failed to validate group {}: wrong author signature", gxsGroupItem);
-					}
+					log.warn("Missing author signature for group {}", gxsGroupItem);
+					validation = false;
 				}
 			}
 
@@ -572,7 +583,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	// XXX: that too
 	private boolean validateGroup(G gxsGroupItem, PublicKey publicKey, byte[] signature)
 	{
 		var data = serializeItemForSignature(gxsGroupItem);
@@ -633,9 +643,102 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}
 
-	private void verifyAndStoreMessage(PeerConnection peerConnection, M gxsMessageItem)
+	private void verifyAndStoreMessages(PeerConnection peerConnection, Collection<M> gxsMessageItems)
 	{
+		List<M> savedMessages = new ArrayList<>(gxsMessageItems.size());
 
+		for (var gxsMessageItem : gxsMessageItems)
+		{
+			var validation = true;
+			var publishSignature = false;
+			var authorSignature = false;
+
+			if (gxsMessageItem.getParentId() != null)
+			{
+				publishSignature = authenticationRequirements.getPublicRequirements().contains(AuthenticationRequirements.Flags.CHILD_PUBLISH);
+				authorSignature = gxsMessageItem.getAuthorId() != null;
+			}
+			else
+			{
+				publishSignature = authenticationRequirements.getPublicRequirements().contains(AuthenticationRequirements.Flags.ROOT_PUBLISH);
+				authorSignature = gxsMessageItem.getAuthorId() != null;
+			}
+
+			if (publishSignature)
+			{
+				// XXX: implement... I think those keys are stored in the actual message (private groups?)
+				log.error("Publish verification not implemented yet!");
+			}
+
+			if (authorSignature)
+			{
+				if (gxsMessageItem.getAuthorSignature() != null)
+				{
+					var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsMessageItem.getAuthorId());
+					if (authorIdentity == null)
+					{
+						log.warn("Delaying verification of message {}", gxsMessageItem);
+						var existingDelay = pendingGxsMessages.putIfAbsent(gxsMessageItem, PENDING_VERIFICATION_MAX.toSeconds());
+						if (existingDelay != null)
+						{
+							var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
+							pendingGxsMessages.put(gxsMessageItem, newDelay);
+							if (newDelay < 0)
+							{
+								log.warn("Failed to validate group {}: timeout exceeded", gxsMessageItem);
+							}
+						}
+						continue;
+					}
+					else
+					{
+						validation = validateMessage(gxsMessageItem, authorIdentity.getAdminPublicKey(), gxsMessageItem.getAuthorSignature());
+						if (!validation)
+						{
+							log.warn("Failed to validate message {}: wrong author signature", gxsMessageItem);
+						}
+						// XXX: check for reputation here, if reputation is too low, remove
+					}
+				}
+				else
+				{
+					log.warn("Missing author signature for message {}", gxsMessageItem);
+					validation = false;
+				}
+			}
+
+			// Save the message if everything is OK
+			if (validation)
+			{
+				gxsUpdateService.saveMessage(gxsMessageItem, this::onMessageReceived).ifPresent(savedMessages::add);
+			}
+
+			// If the message verification was delayed, remove it
+			pendingGxsMessages.computeIfPresent(gxsMessageItem, (message, delay) -> -1L);
+		}
+
+		if (!savedMessages.isEmpty())
+		{
+			onMessagesSaved(savedMessages);
+		}
+	}
+
+	private boolean validateMessage(M gxsMessageItem, PublicKey publicKey, byte[] signature)
+	{
+		// Clear messageId and possibly originalMessageId because they're created after the signature
+		// is made (they depend on the content)
+		var savedMessageId = gxsMessageItem.getMessageId();
+		var savedOriginalMessageId = savedMessageId == gxsMessageItem.getOriginalMessageId() ? gxsMessageItem.getOriginalMessageId() : null;
+		gxsMessageItem.setMessageId(null);
+		gxsMessageItem.setOriginalMessageId(null);
+
+		var data = serializeItemForSignature(gxsMessageItem);
+
+		// And restore them
+		gxsMessageItem.setMessageId(savedMessageId);
+		gxsMessageItem.setOriginalMessageId(savedOriginalMessageId);
+
+		return RSA.verify(publicKey, signature, data);
 	}
 
 	public void sendGxsMessages(PeerConnection peerConnection, List<M> gxsMessageItems)

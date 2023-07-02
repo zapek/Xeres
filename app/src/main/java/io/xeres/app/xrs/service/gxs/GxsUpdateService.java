@@ -21,10 +21,12 @@ package io.xeres.app.xrs.service.gxs;
 
 import io.xeres.app.database.model.gxs.GxsClientUpdate;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.gxs.GxsServiceSetting;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.repository.GxsClientUpdateRepository;
 import io.xeres.app.database.repository.GxsGroupItemRepository;
+import io.xeres.app.database.repository.GxsMessageItemRepository;
 import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
@@ -40,17 +42,19 @@ import java.util.function.Predicate;
  * Helper service to manage group updates comparisons.
  */
 @Service
-public class GxsUpdateService<G extends GxsGroupItem>
+public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 {
 	private final GxsClientUpdateRepository gxsClientUpdateRepository;
 	private final GxsServiceSettingRepository gxsServiceSettingRepository;
 	private final GxsGroupItemRepository gxsGroupItemRepository;
+	private final GxsMessageItemRepository gxsMessageItemRepository;
 
-	public GxsUpdateService(GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsGroupItemRepository gxsGroupItemRepository)
+	public GxsUpdateService(GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsGroupItemRepository gxsGroupItemRepository, GxsMessageItemRepository gxsMessageItemRepository)
 	{
 		this.gxsClientUpdateRepository = gxsClientUpdateRepository;
 		this.gxsServiceSettingRepository = gxsServiceSettingRepository;
 		this.gxsGroupItemRepository = gxsGroupItemRepository;
+		this.gxsMessageItemRepository = gxsMessageItemRepository;
 	}
 
 	/**
@@ -135,5 +139,16 @@ public class GxsUpdateService<G extends GxsGroupItem>
 	public boolean groupExists(G gxsGroupItem)
 	{
 		return gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId()).isPresent();
+	}
+
+	@Transactional
+	public Optional<M> saveMessage(M gxsMessageItem, Predicate<M> confirmation)
+	{
+		gxsMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMessageId(gxsMessageItem.getGxsId(), gxsMessageItem.getMessageId()).orElse(gxsMessageItem).getId());
+		if (confirmation.test(gxsMessageItem) /*&& gxsMessageItem.isExternal()*/) // Don't overwrite our own messages (XXX: find a way to do the check)
+		{
+			return Optional.of(gxsMessageItemRepository.save(gxsMessageItem));
+		}
+		return Optional.empty();
 	}
 }

@@ -24,7 +24,7 @@ import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
-import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,11 +39,11 @@ import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_message")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class GxsMessageItem extends Item implements GxsMetaAndData
+public abstract class GxsMessageItem extends Item implements GxsMetaAndData, DynamicServiceType
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsMessageItem.class);
 
-	private static final int API_VERSION_2 = 0x0000;
+	private static final int API_VERSION_1 = 0x0000;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,11 +85,19 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	@ElementCollection
 	private Set<Signature> signatures = new HashSet<>(2);
 
+	@Transient
+	private int serviceType;
+
 	@Override
 	public int getServiceType()
 	{
-		// GxsMessage are shared between gxs services
-		return RsServiceType.NONE.getType();
+		return serviceType;
+	}
+
+	@Override
+	public void setServiceType(int serviceType)
+	{
+		this.serviceType = serviceType;
 	}
 
 	public long getId()
@@ -121,6 +128,16 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	public void setMessageId(MessageId messageId)
 	{
 		this.messageId = messageId;
+	}
+
+	public MessageId getOriginalMessageId()
+	{
+		return originalMessageId;
+	}
+
+	public void setOriginalMessageId(MessageId originalMessageId)
+	{
+		this.originalMessageId = originalMessageId;
 	}
 
 	public MessageId getParentId()
@@ -199,7 +216,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	{
 		var size = 0;
 
-		size += serialize(buf, API_VERSION_2);
+		size += serialize(buf, API_VERSION_1); // API version
 		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end
 		size += serialize(buf, gxsId, GxsId.class);
@@ -208,7 +225,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 		size += serialize(buf, parentId, MessageId.class);
 		size += serialize(buf, originalMessageId, MessageId.class);
 		size += serialize(buf, authorId, GxsId.class);
-		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new ArrayList<>() : signatures);
+		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += serialize(buf, TlvType.STRING, name);
 		size += serialize(buf, (int) published.getEpochSecond());
 		size += serialize(buf, flags); // XXX: or diffusionFlags/messageFlags, FieldSize.INTEGER, see how groups does it
@@ -221,7 +238,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 	public void readMetaObject(ByteBuf buf)
 	{
 		var apiVersion = deserializeInt(buf);
-		if (apiVersion != API_VERSION_2)
+		if (apiVersion != API_VERSION_1)
 		{
 			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
 		}
@@ -240,7 +257,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData
 
 	private void deserializeSignature(ByteBuf buf)
 	{
-		var signatureSet = (Set<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		@SuppressWarnings("unchecked") var signatureSet = (Set<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
 		signatureSet.forEach(signature -> {
 			if (signature.getType() == Signature.Type.PUBLISH || signature.getType() == Signature.Type.AUTHOR)
 			{

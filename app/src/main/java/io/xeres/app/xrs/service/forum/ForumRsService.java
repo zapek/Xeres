@@ -63,11 +63,11 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	private final GxsForumGroupRepository gxsForumGroupRepository;
 	private final GxsForumMessageRepository gxsForumMessageRepository;
-	private final GxsUpdateService<ForumGroupItem> gxsUpdateService;
+	private final GxsUpdateService<ForumGroupItem, ForumMessageItem> gxsUpdateService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ForumNotificationService forumNotificationService;
 
-	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsUpdateService<ForumGroupItem> gxsUpdateService, ForumNotificationService forumNotificationService)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsUpdateService<ForumGroupItem, ForumMessageItem> gxsUpdateService, ForumNotificationService forumNotificationService)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsForumGroupRepository = gxsForumGroupRepository;
@@ -182,10 +182,16 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected void onMessageReceived(PeerConnection sender, ForumMessageItem item)
+	protected boolean onMessageReceived(ForumMessageItem item)
 	{
 		log.debug("Received message {}, saving...", item);
-		save(item);
+		return true;
+	}
+
+	@Override
+	protected void onMessagesSaved(List<ForumMessageItem> items)
+	{
+		// XXX: call notification service! like for groups
 	}
 
 	@Transactional

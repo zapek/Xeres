@@ -53,7 +53,7 @@ public enum TlvType
 	ADDRESS_INFO(0x1070),
 	ADDRESS_SET(0x1071),
 	ADDRESS(0x1072),
-	STRING(0x2223); // not an official RS tlv, used to write string with type 0 (XXX: make sure RS really does that!)
+	STRING(0x2223); // not an official RS tlv, used to write string with type 0
 
 	private final int value;
 

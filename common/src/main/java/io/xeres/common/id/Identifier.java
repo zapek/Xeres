@@ -26,6 +26,8 @@ import java.util.Arrays;
 /**
  * Interface that represents an identifier of an object in the Retroshare protocol that doesn't fit
  * in a primitive type.
+ * <br>
+ * Note that, unlike Retroshare, there's no identifier full of zeroes, they are null instead.
  */
 public interface Identifier
 {

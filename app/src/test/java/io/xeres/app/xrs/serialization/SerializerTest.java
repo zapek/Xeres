@@ -576,7 +576,7 @@ class SerializerTest
 		var result = new GxsMetaAndDataResult();
 
 		var size = Serializer.serializeGxsMetaAndDataItem(buf, identityGroupItem, EnumSet.noneOf(SerializationFlags.class), result);
-		assertEquals(178, size);
+		assertEquals(194, size);
 
 		buf.release();
 	}

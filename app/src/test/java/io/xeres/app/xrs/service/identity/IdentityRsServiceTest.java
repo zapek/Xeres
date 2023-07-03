@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.crypto.pgp.PGP;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.GxsIdentityRepository;
@@ -63,7 +64,7 @@ class IdentityRsServiceTest
 	private GxsIdentityRepository gxsIdentityRepository;
 
 	@Mock
-	private GxsUpdateService<IdentityGroupItem> gxsUpdateService;
+	private GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
 
 	@InjectMocks
 	private IdentityRsService identityRsService;

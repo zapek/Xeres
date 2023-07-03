@@ -25,10 +25,7 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -48,6 +45,9 @@ public class ForumGroupItem extends GxsGroupItem
 	@ElementCollection
 	@AttributeOverride(name = "identifier", column = @Column(name = "pinned_post"))
 	private Set<MessageId> pinnedPosts = new HashSet<>();
+
+	@Transient
+	private boolean oldVersion; // Needed because RS added admins and pinnedPosts later, and it would break signature verification otherwise
 
 	public ForumGroupItem()
 	{
@@ -83,9 +83,11 @@ public class ForumGroupItem extends GxsGroupItem
 		var size = 0;
 
 		size += serialize(buf, STR_DESCR, description);
-		size += serialize(buf, SET_GXS_ID, admins);
-		size += serialize(buf, SET_GXS_MSG_ID, pinnedPosts);
-
+		if (!oldVersion)
+		{
+			size += serialize(buf, SET_GXS_ID, admins);
+			size += serialize(buf, SET_GXS_MSG_ID, pinnedPosts);
+		}
 		return size;
 	}
 
@@ -100,6 +102,10 @@ public class ForumGroupItem extends GxsGroupItem
 			admins = (Set<GxsId>) Serializer.deserialize(buf, SET_GXS_ID);
 			//noinspection unchecked
 			pinnedPosts = (Set<MessageId>) Serializer.deserialize(buf, SET_GXS_MSG_ID);
+		}
+		else
+		{
+			oldVersion = true;
 		}
 	}
 }

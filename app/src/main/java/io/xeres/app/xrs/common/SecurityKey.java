@@ -26,7 +26,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
@@ -174,8 +173,7 @@ public final class SecurityKey implements Comparable<SecurityKey>
 				"gxsId=" + keyId + ", " +
 				"flags=" + flags + ", " +
 				"validFrom=" + validFrom + ", " +
-				"validTo=" + validTo + ", " +
-				"data=" + Arrays.toString(data) + ']';
+				"validTo=" + validTo;
 	}
 
 	@Override

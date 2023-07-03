@@ -393,13 +393,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	public boolean hasAdminPublicKey()
 	{
 		return publicKeys.stream()
-				.noneMatch(securityKey -> securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY)));
+				.anyMatch(securityKey -> isAdminKey(securityKey) && isValidKey(securityKey));
 	}
 
 	public PublicKey getAdminPublicKey()
 	{
 		var publicKey = publicKeys.stream()
-				.filter(securityKey -> securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY)))
+				.filter(securityKey -> isAdminKey(securityKey) && isValidKey(securityKey))
 				.findFirst().orElseThrow();
 
 		try
@@ -410,6 +410,21 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		{
 			throw new IllegalArgumentException("Cannot read PublicKey from database: " + e.getMessage(), e);
 		}
+	}
+
+	private static boolean isAdminKey(SecurityKey securityKey)
+	{
+		return securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY));
+	}
+
+	private boolean isValidKey(SecurityKey securityKey)
+	{
+		if (securityKey.getValidFrom().isAfter(getPublished()))
+		{
+			log.warn("Key {} has an invalid creation date that is less recent than the group's creation", securityKey);
+			return false;
+		}
+		return true;
 	}
 
 	// TODO: add publishing key accessors as well

@@ -51,11 +51,12 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 	private List<String> recognitionTags = new ArrayList<>(); // not used (but serialized)
 
 	private byte[] image;
-	@Transient
-	private Boolean hasImage;
 
 	@Convert(converter = IdentityTypeConverter.class)
 	private Type type = Type.OTHER;
+
+	@Transient
+	private boolean oldVersion; // Needed because RS added image later, and it would break signature verification otherwise
 
 	public IdentityGroupItem()
 	{
@@ -96,12 +97,7 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 
 	public boolean hasImage()
 	{
-		return hasImage != null ? hasImage : image != null;
-	}
-
-	public void setHasImage(boolean value)
-	{
-		hasImage = value;
+		return image != null;
 	}
 
 	public byte[] getImage()
@@ -139,7 +135,7 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 		size += serialize(buf, profileHash, Sha1Sum.class);
 		size += serialize(buf, TlvType.STR_SIGN, profileSignature);
 		size += serialize(buf, TlvType.SET_RECOGN, recognitionTags);
-		if (image != null)
+		if (!oldVersion)
 		{
 			size += serialize(buf, TlvType.IMAGE, image);
 		}
@@ -157,6 +153,10 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 		if (buf.isReadable())
 		{
 			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
+		}
+		else
+		{
+			oldVersion = true;
 		}
 	}
 }

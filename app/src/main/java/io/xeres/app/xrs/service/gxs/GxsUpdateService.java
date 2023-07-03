@@ -136,9 +136,9 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return Optional.empty();
 	}
 
-	public boolean groupExists(G gxsGroupItem)
+	public Optional<GxsGroupItem> getExistingGroup(G gxsGroupItem)
 	{
-		return gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId()).isPresent();
+		return gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId());
 	}
 
 	@Transactional

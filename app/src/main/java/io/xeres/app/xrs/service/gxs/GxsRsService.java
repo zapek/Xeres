@@ -517,11 +517,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		for (var gxsGroupItem : gxsGroupItems)
 		{
-			var validation = true;
+			var validation = gxsGroupItem.hasAdminPublicKey(); // all groups require an admin key
 			var author = gxsGroupItem.getAuthor();
 
 			// Validate author signature
-			if (author != null)
+			if (validation && author != null)
 			{
 				if (gxsGroupItem.getAuthorSignature() != null)
 				{
@@ -557,13 +557,24 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				}
 			}
 
-			// If this is a group update, validate its admin signature
-			if (validation && gxsUpdateService.groupExists(gxsGroupItem))
+			// If this is a group update, validate its admin signature using the public key we already have
+			if (validation)
 			{
-				validation = validateGroup(gxsGroupItem, gxsGroupItem.getAdminPublicKey(), gxsGroupItem.getAdminSignature());
-				if (!validation)
+				var existingGroup = gxsUpdateService.getExistingGroup(gxsGroupItem);
+				if (existingGroup.isPresent())
 				{
-					log.warn("Failed to validate group {} for update: wrong admin signature", gxsGroupItem);
+					validation = validateGroup(gxsGroupItem, existingGroup.get().getAdminPublicKey(), gxsGroupItem.getAdminSignature());
+					if (!validation)
+					{
+						if (isSameKey(existingGroup.get().getAdminPublicKey(), gxsGroupItem.getAdminPublicKey()))
+						{
+							log.warn("Failed to validate group {} for update: wrong admin signature", gxsGroupItem);
+						}
+						else
+						{
+							log.warn("Failed to validate group {} for update: new public key doesn't match the old one", gxsGroupItem);
+						}
+					}
 				}
 			}
 
@@ -587,6 +598,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		var data = serializeItemForSignature(gxsGroupItem);
 		return RSA.verify(publicKey, signature, data);
+	}
+
+	private static boolean isSameKey(PublicKey a, PublicKey b)
+	{
+		return Arrays.equals(a.getEncoded(), b.getEncoded());
 	}
 
 	private G createGxsGroupItem()

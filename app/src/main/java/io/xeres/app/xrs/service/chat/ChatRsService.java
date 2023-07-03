@@ -47,6 +47,7 @@ import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -170,6 +171,7 @@ public class ChatRsService extends RsService
 		return CHAT;
 	}
 
+	@Transactional
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{

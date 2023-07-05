@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.gxs;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 public class AuthenticationRequirements
 {
@@ -31,10 +31,10 @@ public class AuthenticationRequirements
 		CHILD_PUBLISH
 	}
 
-	private final EnumSet<Flags> publicRequirements;
-	private final EnumSet<Flags> restrictedRequirements;
-	private final EnumSet<Flags> privateRequirements;
-	private boolean optionalAuthor;
+	private final Set<Flags> publicRequirements;
+	private final Set<Flags> restrictedRequirements;
+	private final Set<Flags> privateRequirements;
+	private final boolean optionalAuthor;
 
 	private AuthenticationRequirements(Builder builder)
 	{
@@ -44,25 +44,17 @@ public class AuthenticationRequirements
 		optionalAuthor = builder.optionalRequirements;
 	}
 
-	private AuthenticationRequirements(EnumSet<Flags> publicRequirements, EnumSet<Flags> restrictedRequirements, EnumSet<Flags> privateRequirements, boolean optionalAuthor)
-	{
-		this.publicRequirements = publicRequirements;
-		this.restrictedRequirements = restrictedRequirements;
-		this.privateRequirements = privateRequirements;
-		this.optionalAuthor = optionalAuthor;
-	}
-
-	public EnumSet<Flags> getPublicRequirements()
+	public Set<Flags> getPublicRequirements()
 	{
 		return publicRequirements;
 	}
 
-	public EnumSet<Flags> getRestrictedRequirements()
+	public Set<Flags> getRestrictedRequirements()
 	{
 		return restrictedRequirements;
 	}
 
-	public EnumSet<Flags> getPrivateRequirements()
+	public Set<Flags> getPrivateRequirements()
 	{
 		return privateRequirements;
 	}
@@ -74,28 +66,29 @@ public class AuthenticationRequirements
 
 	public static final class Builder
 	{
-		private EnumSet<Flags> publicRequirements;
-		private EnumSet<Flags> restrictedRequirements;
-		private EnumSet<Flags> privateRequirements;
+		private Set<Flags> publicRequirements;
+		private Set<Flags> restrictedRequirements;
+		private Set<Flags> privateRequirements;
 		private boolean optionalRequirements;
 
 		public Builder()
 		{
+			// Default constructor
 		}
 
-		public Builder withPublic(EnumSet<Flags> val)
+		public Builder withPublic(Set<Flags> val)
 		{
 			publicRequirements = val;
 			return this;
 		}
 
-		public Builder withRestricted(EnumSet<Flags> val)
+		public Builder withRestricted(Set<Flags> val)
 		{
 			restrictedRequirements = val;
 			return this;
 		}
 
-		public Builder withPrivate(EnumSet<Flags> val)
+		public Builder withPrivate(Set<Flags> val)
 		{
 			privateRequirements = val;
 			return this;

@@ -35,5 +35,7 @@ class ItemPriorityTest
 		assertEquals(7, INTERACTIVE.getPriority());
 		assertEquals(8, IMPORTANT.getPriority());
 		assertEquals(9, REALTIME.getPriority());
+
+		assertEquals(6, values().length);
 	}
 }

@@ -56,7 +56,8 @@ import static io.xeres.app.xrs.service.gxs.item.TransactionFlags.*;
  *     <li>we send GxsExchange items to the peer</li>
  *     <li>once the peer has received all the items, it sends back a GxsTransactionItem with flag END_SUCCESS</li>
  * </ul>
- *
+ * <p>
+ * <img src="doc-files/transaction.png" alt="Transaction diagram">
  * @see Transaction
  */
 @Service
@@ -220,7 +221,6 @@ public class GxsTransactionManager
 	 * @param peerConnection the peer
 	 * @param item           the item to add to the transaction
 	 * @param gxsRsService   the service the transaction is bound to
-	 * @return the transaction update time or null if not all items are received yet
 	 */
 	public void addIncomingItemToTransaction(PeerConnection peerConnection, GxsExchange item, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{

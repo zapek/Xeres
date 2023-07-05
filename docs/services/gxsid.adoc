@@ -1,5 +1,0 @@
-= GxSId
-:icons: font
-
-Service type: 529
-

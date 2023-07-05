@@ -60,24 +60,7 @@ If you want to quickly try the current development version without installing an
 
 ##### IntelliJ IDEA Ultimate
 
-It is recommended to run the _XeresApplication_ Spring Boot configuration which is the most convenient and fastest way.  
-Just make sure to configure it in the following way:
-
-Select _Edit Configurations..._ of the _XeresApplication_ Spring Boot configuration.
-
-Put the following _VM options_:
-
-    -ea -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8
-
-And the following _Active profiles_:
-
-    dev
-
-Optionally, for faster build/test turnarounds you can add in the _program arguments_:
-
-	--fast-shutdown
-
-Then just run the _XeresApplication_ Spring Boot configuration.
+Run the _XeresApplication_ Spring Boot configuration.
 
 ##### IntelliJ Community Edition
 

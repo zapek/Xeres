@@ -3,6 +3,7 @@ package io.xeres.app.xrs.item;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ItemHeaderTest
@@ -12,9 +13,8 @@ class ItemHeaderTest
 	{
 		var buf = Unpooled.wrappedBuffer(new byte[]{2, 8, 8, 3, 0, 0, 0, 1});
 
-		ItemHeader.readHeader(buf, 0x808, 3);
+		assertDoesNotThrow(() -> ItemHeader.readHeader(buf, 0x808, 3));
 	}
-
 
 	@Test
 	void ItemHeader_ReadHeader_WrongVersion()

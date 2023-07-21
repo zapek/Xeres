@@ -19,14 +19,14 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.custom.ResizeableImageView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<VBox alignment="CENTER" prefWidth="256" prefHeight="256" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.qrcode.QrCodeWindowController">
-    <ImageView fx:id="ownQrCode" fitHeight="256" fitWidth="256" pickOnBounds="true" preserveRatio="true"/>
-    <Region VBox.vgrow="ALWAYS"/>
+<VBox alignment="CENTER" prefWidth="360" prefHeight="384" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.qrcode.QrCodeWindowController">
+    <ResizeableImageView fx:id="ownQrCode" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS"/>
+    <Region VBox.vgrow="SOMETIMES"/>
     <Label fx:id="status"/>
     <HBox alignment="TOP_RIGHT">
         <Button fx:id="printButton" minWidth="72.0" mnemonicParsing="false" text="%qrcode.print">

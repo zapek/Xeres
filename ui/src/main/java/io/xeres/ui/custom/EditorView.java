@@ -19,14 +19,19 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 import java.io.IOException;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class EditorView extends VBox
 {
@@ -78,6 +83,7 @@ public class EditorView extends VBox
 		quote.setOnAction(event -> prefixLines(">"));
 		list.setOnAction(event -> insertNextLine("-"));
 		heading.setOnAction(event -> insertNextLine("##"));
+		hyperlink.setOnAction(event -> insertUrl(UiUtils.getWindow(event)));
 
 		Platform.runLater(() -> editor.requestFocus());
 	}
@@ -182,5 +188,35 @@ public class EditorView extends VBox
 	private boolean isBeginningOfLine(int pos)
 	{
 		return pos == 0 || editor.getText(pos - 1, pos).equals("\n");
+	}
+
+	private void insertUrl(Window parent)
+	{
+		var selection = editor.getSelection();
+
+		var dialog = new TextInputDialog();
+		dialog.setTitle("Insert Hyperlink");
+		dialog.setGraphic(null);
+		dialog.setHeaderText("Enter URL");
+		dialog.initOwner(parent);
+
+		dialog.showAndWait().ifPresent(link -> {
+			if (isNotBlank(link))
+			{
+				if (selection.getLength() <= 0)
+				{
+					var pos = editor.getCaretPosition();
+
+					editor.insertText(pos, "[](" + link + ")");
+					editor.positionCaret(pos + 1);
+				}
+				else
+				{
+					editor.insertText(selection.getStart(), "[");
+					editor.insertText(selection.getEnd(), "](" + link + ")");
+				}
+			}
+			editor.requestFocus();
+		});
 	}
 }

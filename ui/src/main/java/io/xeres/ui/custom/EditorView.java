@@ -215,7 +215,7 @@ public class EditorView extends VBox
 				else
 				{
 					editor.insertText(selection.getStart(), "[");
-					editor.insertText(selection.getEnd(), "](" + link + ")");
+					editor.insertText(editor.getText(selection.getEnd(), selection.getEnd() + 1).equals(" ") ? selection.getEnd() : (selection.getEnd() + 1), "](" + link + ")");
 				}
 			}
 			editor.requestFocus();

@@ -20,7 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.support.util.UiUtils;
-import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -59,6 +59,8 @@ public class EditorView extends VBox
 	@FXML
 	private TextArea editor;
 
+	public final ReadOnlyIntegerWrapper lengthProperty = new ReadOnlyIntegerWrapper();
+
 	public EditorView()
 	{
 		var loader = new FXMLLoader(getClass().getResource("/view/custom/editorview.fxml")); // XXX: translation bundle? how?
@@ -85,7 +87,7 @@ public class EditorView extends VBox
 		heading.setOnAction(event -> insertNextLine("##"));
 		hyperlink.setOnAction(event -> insertUrl(UiUtils.getWindow(event)));
 
-		Platform.runLater(() -> editor.requestFocus());
+		lengthProperty.bind(editor.lengthProperty());
 	}
 
 	public String getText()

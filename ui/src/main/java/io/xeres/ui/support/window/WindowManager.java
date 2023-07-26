@@ -265,6 +265,8 @@ public class WindowManager
 				UiWindow.builder(ForumEditorViewController.class)
 						.setParent(parent) // XXX: needs to become multi modal then
 						.setTitle("New message")
+						.setMinWidth(320.0)
+						.setMinHeight(256.0)
 						.build()
 						.open());
 	}

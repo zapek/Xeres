@@ -22,7 +22,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox prefWidth="640" prefHeight="480" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.forum.ForumEditorViewController">
+<VBox alignment="CENTER" prefWidth="640" prefHeight="480" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.forum.ForumEditorViewController">
     <GridPane>
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -54,4 +54,11 @@
         </TextField>
     </GridPane>
     <EditorView fx:id="editorView" VBox.vgrow="SOMETIMES"/>
+    <HBox alignment="TOP_RIGHT">
+        <Button fx:id="send" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Send">
+            <HBox.margin>
+                <Insets top="8.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
 </VBox>

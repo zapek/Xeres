@@ -21,12 +21,16 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.EditorView;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 @FxmlView(value = "/view/forum/forumeditorview.fxml")
@@ -41,9 +45,20 @@ public class ForumEditorViewController implements WindowController
 	@FXML
 	private EditorView editorView;
 
+	@FXML
+	private Button send;
+
 	@Override
 	public void initialize() throws IOException
 	{
+		Platform.runLater(() -> title.requestFocus());
 
+		editorView.lengthProperty.addListener((observable, oldValue, newValue) -> checkSendable((Integer) newValue));
+		title.setOnKeyTyped(event -> checkSendable(editorView.lengthProperty.getValue()));
+	}
+
+	private void checkSendable(int editorLength)
+	{
+		send.setDisable(isBlank(title.getText()) || editorLength == 0);
 	}
 }

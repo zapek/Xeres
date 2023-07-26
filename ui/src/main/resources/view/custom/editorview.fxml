@@ -28,17 +28,17 @@
         <VBox.margin>
             <Insets bottom="4.0" top="4.0"/>
         </VBox.margin>
-        <Button fx:id="bold">
+        <Button fx:id="bold" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="BOLD" glyphSize="14"/>
             </graphic>
         </Button>
-        <Button fx:id="italic">
+        <Button fx:id="italic" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="ITALIC" glyphSize="14"/>
             </graphic>
         </Button>
-        <Button fx:id="hyperlink">
+        <Button fx:id="hyperlink" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="LINK" glyphSize="14"/>
             </graphic>
@@ -46,17 +46,17 @@
                 <Insets left="8.0"/>
             </HBox.margin>
         </Button>
-        <Button fx:id="quote">
+        <Button fx:id="quote" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="QUOTE_LEFT" glyphSize="14"/>
             </graphic>
         </Button>
-        <Button fx:id="code">
+        <Button fx:id="code" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="CODE" glyphSize="14"/>
             </graphic>
         </Button>
-        <Button fx:id="list">
+        <Button fx:id="list" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
             </graphic>
@@ -64,7 +64,7 @@
                 <Insets left="8.0"/>
             </HBox.margin>
         </Button>
-        <Button fx:id="heading">
+        <Button fx:id="heading" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="HEADER" glyphSize="14"/>
             </graphic>

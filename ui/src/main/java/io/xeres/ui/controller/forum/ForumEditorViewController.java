@@ -19,8 +19,11 @@
 
 package io.xeres.ui.controller.forum;
 
+import io.xeres.common.rest.forum.PostRequest;
+import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.EditorView;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -48,6 +51,15 @@ public class ForumEditorViewController implements WindowController
 	@FXML
 	private Button send;
 
+	private PostRequest postRequest;
+
+	private final ForumClient forumClient;
+
+	public ForumEditorViewController(ForumClient forumClient)
+	{
+		this.forumClient = forumClient;
+	}
+
 	@Override
 	public void initialize() throws IOException
 	{
@@ -55,6 +67,22 @@ public class ForumEditorViewController implements WindowController
 
 		editorView.lengthProperty.addListener((observable, oldValue, newValue) -> checkSendable((Integer) newValue));
 		title.setOnKeyTyped(event -> checkSendable(editorView.lengthProperty.getValue()));
+	}
+
+	@Override
+	public void onShown()
+	{
+		var userData = UiUtils.getUserData(title);
+		if (userData == null)
+		{
+			throw new IllegalArgumentException("Missing PostRequest");
+		}
+
+		postRequest = (PostRequest) userData;
+
+		forumClient.getForumGroupById(Long.parseLong(postRequest.forumId()))
+				.doOnSuccess(forumGroup -> forumName.setText(forumGroup.getName()))
+				.subscribe();
 	}
 
 	private void checkSendable(int editorLength)

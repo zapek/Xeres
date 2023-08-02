@@ -62,6 +62,14 @@ public class ForumController
 		return toDTOs(forumRsService.findAllGroups());
 	}
 
+	@GetMapping("/groups/{groupId}")
+	@Operation(summary = "Get a forum details")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public ForumGroupDTO getForumGroupById(@PathVariable long groupId)
+	{
+		return toDTO(forumRsService.findById(groupId).orElseThrow());
+	}
+
 	@PutMapping("/groups/{groupId}/subscription")
 	@ResponseStatus(HttpStatus.OK)
 	public long subscribeToForumGroup(@PathVariable long groupId)

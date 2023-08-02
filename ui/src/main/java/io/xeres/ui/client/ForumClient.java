@@ -62,6 +62,17 @@ public class ForumClient
 				.map(ForumMapper::fromDTO);
 	}
 
+	public Mono<ForumGroup> getForumGroupById(long groupId)
+	{
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path("/groups/{groupId}")
+						.build(groupId))
+				.retrieve()
+				.bodyToMono(ForumGroupDTO.class)
+				.map(ForumMapper::fromDTO);
+	}
+
 	public Mono<Long> subscribeToForumGroup(long groupId)
 	{
 		return webClient.put()

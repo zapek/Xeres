@@ -32,7 +32,7 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="newThread" text="New Thread">
+                <Button fx:id="newThread" text="New Thread" disable="true">
                     <graphic>
                         <FontAwesomeIconView glyphName="PENCIL" glyphSize="14"/>
                     </graphic>

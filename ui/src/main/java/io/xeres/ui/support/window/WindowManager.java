@@ -22,6 +22,7 @@ package io.xeres.ui.support.window;
 import io.xeres.common.AppName;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
@@ -259,14 +260,15 @@ public class WindowManager
 						.open());
 	}
 
-	public void openForumEditor(Window parent) // XXX: needs some forum destination and message id
+	public void openForumEditor(Window parent, PostRequest postRequest)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(ForumEditorViewController.class)
-						.setParent(parent) // XXX: needs to become multi modal then
+						.setParent(parent) // XXX: needs to become multi modal to avoid blocking (useful to browse other posts while we write)
 						.setTitle("New message")
 						.setMinWidth(320.0)
 						.setMinHeight(256.0)
+						.setUserData(postRequest)
 						.build()
 						.open());
 	}

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
+import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.notification.forum.AddForums;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.NotificationClient;
@@ -38,6 +39,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,11 +156,17 @@ public class ForumViewController implements Controller
 		forumMessagesTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue));
 
-		newThread.setOnAction(event -> windowManager.openForumEditor(UiUtils.getWindow(event)));
+		newThread.setOnAction(event -> newForumPost(UiUtils.getWindow(event)));
 
 		setupForumNotifications();
 
 		getForumGroups();
+	}
+
+	private void newForumPost(Window window)
+	{
+		var postRequest = new PostRequest(Long.toString(selectedForum.getId()), "");
+		windowManager.openForumEditor(window, postRequest);
 	}
 
 	private boolean isForumSelected()
@@ -282,12 +290,14 @@ public class ForumViewController implements Controller
 					forumMessagesTableView.getItems().addAll(forumMessages);
 					forumMessagesTableView.sort();
 					messageContent.getChildren().clear();
+					newThread.setDisable(false);
 				}))
 				.doOnError(throwable -> log.error("Error while getting the forum messages: {}", throwable.getMessage(), throwable)) // XXX: cleanup on error?
 				.subscribe(), () -> {
 			// XXX: display some forum info in the message view
 			forumMessagesTableView.getItems().clear();
 			messageContent.getChildren().clear();
+			newThread.setDisable(true);
 		});
 	}
 

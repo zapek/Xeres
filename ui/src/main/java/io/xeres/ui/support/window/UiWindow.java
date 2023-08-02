@@ -266,6 +266,12 @@ final class UiWindow
 			return this;
 		}
 
+		/**
+		 * Remembers the window size and position.
+		 *
+		 * @param remember true if remembering is needed (defaults to false)
+		 * @return the builder
+		 */
 		Builder setRememberEnvironment(boolean remember)
 		{
 			this.rememberEnvironment = remember;

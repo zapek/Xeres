@@ -152,6 +152,5 @@ Please consider a donation to help with the project's development. Contact me if
 | BTC    | bc1qn57zvp8s3h6renf805fan53kt7q4j963g7prvt                                                      |
 | XMR    | 84czz4Vg44GaGmQF8Lst3uWEMyXLSahBffhrDd77jdVJEoKCtUJF96mGQ4XzcYrLG1JGaj2hr2sMoDoihQ52MT1jMBnucyu |
 | GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |
-| ETH    | 0x7d9EfEe706c81227c73DA7814319301C6Bd63D05                                                      |
 | ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
 | BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |

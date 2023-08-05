@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
     <configuration default="false" name="XeresApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
         <option name="ACTIVE_PROFILES" value="dev"/>
-        <module name="io.xeres.Xeres.app.main"/>
+        <module name="Xeres.app.main"/>
         <option name="PROGRAM_PARAMETERS" value="--fast-shutdown"/>
         <option name="SPRING_BOOT_MAIN_CLASS" value="io.xeres.app.XeresApplication"/>
         <option name="VM_PARAMETERS" value="-ea -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8"/>

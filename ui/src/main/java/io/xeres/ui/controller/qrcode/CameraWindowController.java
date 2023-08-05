@@ -33,6 +33,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -53,6 +54,9 @@ public class CameraWindowController implements WindowController
 	@FXML
 	private ImageView capturedImage;
 
+	@FXML
+	private Label error;
+
 	private boolean stopCamera;
 	private AddRsIdWindowController parentController;
 	private final ObjectProperty<Image> imageProperty = new SimpleObjectProperty<>();
@@ -68,7 +72,11 @@ public class CameraWindowController implements WindowController
 		{
 			initializeCamera(camera);
 		}
-		// XXX: no camera found
+		else
+		{
+			error.setText("No camera has been detected");
+			error.setVisible(true);
+		}
 	}
 
 	@Override

@@ -19,8 +19,10 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
 <VBox alignment="CENTER" prefWidth="640" prefHeight="480" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.qrcode.CameraWindowController">
     <ImageView fx:id="capturedImage" fitWidth="640" fitHeight="480" pickOnBounds="true" preserveRatio="true"/>
+    <Label fx:id="error" visible="false"/>
 </VBox>

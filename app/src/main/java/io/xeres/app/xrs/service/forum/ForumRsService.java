@@ -22,10 +22,7 @@ package io.xeres.app.xrs.service.forum;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
-import io.xeres.app.database.model.gxs.GxsCircleType;
-import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.database.model.gxs.GxsMessageItem;
-import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
+import io.xeres.app.database.model.gxs.*;
 import io.xeres.app.database.repository.GxsForumGroupRepository;
 import io.xeres.app.database.repository.GxsForumMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
@@ -280,13 +277,21 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public long createForum(String name, String description)
+	public long createForum(GxsId identity, String name, String description)
 	{
 		var gxsForumGroupItem = createGroup(name);
 		gxsForumGroupItem.setDescription(description);
 
+		if (identity != null)
+		{
+			gxsForumGroupItem.setAuthor(identity);
+		}
+
 		gxsForumGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: I think...
-		gxsForumGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC)); // XXX: I think so as well. or use PRIVATE and SIGNED_ID?
+		gxsForumGroupItem.setSignatureFlags(Set.of(GxsSignatureFlags.NONE_REQUIRED, GxsSignatureFlags.AUTHENTICATION_REQUIRED));
+		gxsForumGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
+
+		// XXX: set list of moderators
 
 		gxsForumGroupItem.setSubscribed(true);
 

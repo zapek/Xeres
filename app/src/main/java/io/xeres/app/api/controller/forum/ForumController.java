@@ -73,7 +73,8 @@ public class ForumController
 	@ApiResponse(responseCode = "201", description = "Forum created successfully", headers = @Header(name = "Forum", description = "The location of the created forum", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateForumRequest createForumRequest)
 	{
-		var id = forumRsService.createForum(createForumRequest.name(), createForumRequest.description());
+		var ownIdentity = identityRsService.getOwnIdentity();
+		var id = forumRsService.createForum(ownIdentity.getGxsId(), createForumRequest.name(), createForumRequest.description());
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();

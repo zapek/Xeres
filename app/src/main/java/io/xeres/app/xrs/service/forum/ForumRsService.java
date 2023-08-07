@@ -22,8 +22,10 @@ package io.xeres.app.xrs.service.forum;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
+import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
+import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
 import io.xeres.app.database.repository.GxsForumGroupRepository;
 import io.xeres.app.database.repository.GxsForumMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
@@ -275,5 +277,28 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		gxsForumMessageRepository.save(forumMessageItem);
 		// XXX: setLastServiceUpdate() ? I think so actually!
+	}
+
+	@Transactional
+	public long createForum(String name, String description)
+	{
+		var gxsForumGroupItem = createGroup(name);
+		gxsForumGroupItem.setDescription(description);
+
+		gxsForumGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: I think...
+		gxsForumGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC)); // XXX: I think so as well. or use PRIVATE and SIGNED_ID?
+
+		gxsForumGroupItem.setSubscribed(true);
+
+		return saveForum(gxsForumGroupItem).getId();
+	}
+
+	@Transactional
+	public ForumGroupItem saveForum(ForumGroupItem forumGroupItem)
+	{
+		signGroupIfNeeded(forumGroupItem);
+		var savedForum = gxsForumGroupRepository.save(forumGroupItem);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(FORUMS);
+		return savedForum;
 	}
 }

@@ -21,6 +21,8 @@ package io.xeres.app.api.controller.forum;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
@@ -29,9 +31,13 @@ import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.common.rest.forum.CreateForumRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.function.Function;
@@ -60,6 +66,17 @@ public class ForumController
 	public List<ForumGroupDTO> getForumGroups()
 	{
 		return toDTOs(forumRsService.findAllGroups());
+	}
+
+	@PostMapping("/groups")
+	@Operation(summary = "Create a forum")
+	@ApiResponse(responseCode = "201", description = "Forum created successfully", headers = @Header(name = "Forum", description = "The location of the created forum", schema = @Schema(type = "string")))
+	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateForumRequest createForumRequest)
+	{
+		var id = forumRsService.createForum(createForumRequest.name(), createForumRequest.description());
+
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
+		return ResponseEntity.created(location).build();
 	}
 
 	@GetMapping("/groups/{groupId}")

@@ -21,7 +21,6 @@ package io.xeres.app.net.dht;
 
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
-import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 
 import java.nio.charset.StandardCharsets;
@@ -39,7 +38,7 @@ final class NodeId
 	{
 		var sha1sum = new byte[Sha1Sum.LENGTH];
 
-		Digest digest = new SHA1Digest();
+		var digest = new SHA1Digest();
 		var version = VERSION.getBytes(StandardCharsets.US_ASCII);
 		digest.update(version, 0, version.length);
 		digest.update(locationId.getBytes(), 0, LocationId.LENGTH);

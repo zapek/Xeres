@@ -240,12 +240,6 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
-	public void save(ForumGroupItem forumGroupItem)
-	{
-		gxsForumGroupRepository.save(forumGroupItem);
-			// XXX: setLastServiceUpdate() ! (though, it seems to work already?) and I also should do it for messages
-	}
-
 	public List<ForumMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
 	{
 		return gxsForumMessageRepository.findAllByGxsIdAndPublishedAfter(groupId, since);
@@ -305,5 +299,18 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		var savedForum = gxsForumGroupRepository.save(forumGroupItem);
 		gxsUpdateService.setLastServiceGroupsUpdateNow(FORUMS);
 		return savedForum;
+	}
+
+	@Transactional
+	public long createForumMessage(long forumId, String title, String content, GxsId author, MessageId parent, MessageId originalMessage)
+	{
+		var builder = new MessageBuilder(gxsForumGroupRepository.findById(forumId).orElseThrow().getGxsId(), title)
+				.authorId(author)
+				.parentId(parent)
+				.originalMessageId(originalMessage);
+
+		builder.getMessageItem().setContent(content);
+
+		return builder.build().getId();
 	}
 }

@@ -121,7 +121,7 @@ class IdentityControllerTest extends AbstractControllerTest
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + id + "/image"));
 
-		verify(identityRsService).saveIdentityImage(eq(id), any());
+		verify(identityRsService).saveOwnIdentityImage(eq(id), any());
 	}
 
 	@Test
@@ -132,7 +132,7 @@ class IdentityControllerTest extends AbstractControllerTest
 		mvc.perform(delete(BASE_URL + "/" + id + "/image"))
 				.andExpect(status().isNoContent());
 
-		verify(identityRsService).deleteIdentityImage(id);
+		verify(identityRsService).deleteOwnIdentityImage(id);
 	}
 
 	@Test

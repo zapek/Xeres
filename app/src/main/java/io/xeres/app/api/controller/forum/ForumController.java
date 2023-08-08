@@ -31,6 +31,7 @@ import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.CreateForumRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -129,5 +130,24 @@ public class ForumController
 		var author = identityRsService.findByGxsId(forumMessage.getAuthorId());
 
 		return toDTO(forumMessage, author.map(GxsGroupItem::getName).orElse(null));
+	}
+
+	@PostMapping("/messages")
+	@Operation(summary = "Create a forum message")
+	@ApiResponse(responseCode = "201", description = "Forum message created successfully", headers = @Header(name = "Message", description = "The location of the created message", schema = @Schema(type = "string")))
+	public ResponseEntity<Void> createForumMessage(@Valid @RequestBody CreateForumMessageRequest createMessageRequest)
+	{
+		var ownIdentity = identityRsService.getOwnIdentity();
+		var id = forumRsService.createForumMessage(
+				createMessageRequest.forumId(),
+				createMessageRequest.title(),
+				createMessageRequest.content(),
+				ownIdentity.getGxsId(),
+				createMessageRequest.parentId(),
+				createMessageRequest.originalId()
+		);
+
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/messages/{id}").buildAndExpand(id).toUri();
+		return ResponseEntity.created(location).build();
 	}
 }

@@ -141,7 +141,7 @@ class IdentityRsServiceTest
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
 
-		identityRsService.saveIdentityImage(id, file);
+		identityRsService.saveOwnIdentityImage(id, file);
 
 		assertNotNull(identity.getImage());
 
@@ -155,7 +155,7 @@ class IdentityRsServiceTest
 		var id = 2L;
 		var file = mock(MultipartFile.class);
 
-		assertThrows(EntityNotFoundException.class, () -> identityRsService.saveIdentityImage(id, file));
+		assertThrows(EntityNotFoundException.class, () -> identityRsService.saveOwnIdentityImage(id, file));
 	}
 
 	@Test
@@ -163,7 +163,7 @@ class IdentityRsServiceTest
 	{
 		var id = 1L;
 
-		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveIdentityImage(id, null));
+		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveOwnIdentityImage(id, null));
 	}
 
 	@Test
@@ -173,7 +173,7 @@ class IdentityRsServiceTest
 		var file = mock(MultipartFile.class);
 		when(file.getSize()).thenReturn(1024 * 1024 * 11L);
 
-		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveIdentityImage(id, file), "Avatar image size is bigger than " + (1024 * 1024 * 10) + " bytes");
+		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveOwnIdentityImage(id, file), "Avatar image size is bigger than " + (1024 * 1024 * 10) + " bytes");
 	}
 
 	@Test
@@ -185,7 +185,7 @@ class IdentityRsServiceTest
 
 		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
 
-		identityRsService.deleteIdentityImage(id);
+		identityRsService.deleteOwnIdentityImage(id);
 
 		assertNull(identity.getImage());
 
@@ -198,6 +198,6 @@ class IdentityRsServiceTest
 	{
 		var id = 2L;
 
-		assertThrows(EntityNotFoundException.class, () -> identityRsService.deleteIdentityImage(id));
+		assertThrows(EntityNotFoundException.class, () -> identityRsService.deleteOwnIdentityImage(id));
 	}
 }

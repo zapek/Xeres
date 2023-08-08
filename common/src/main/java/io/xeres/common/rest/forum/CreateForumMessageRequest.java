@@ -19,14 +19,21 @@
 
 package io.xeres.common.rest.forum;
 
+import io.xeres.common.id.MessageId;
 import jakarta.validation.constraints.NotBlank;
 
-public record CreateForumRequest(
-		@NotBlank(message = "Name must not be empty")
-		String name,
+public record CreateForumMessageRequest(
+		long forumId,
 
-		@NotBlank(message = "Description must not be empty")
-		String description
+		@NotBlank(message = "Title must not be empty")
+		String title,
+
+		@NotBlank(message = "Content must not be empty")
+		String content,
+
+		MessageId parentId,
+
+		MessageId originalId
 )
 {
 }

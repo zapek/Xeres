@@ -37,7 +37,9 @@ import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.util.NoSuppressedRunnable;
+import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -840,6 +842,74 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var data = serializeItemForSignature(gxsGroupItem);
 		var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
 		gxsGroupItem.setAdminSignature(signature);
+	}
+
+	// XXX: remove!
+	protected M createMessage(GxsId groupId, String name)
+	{
+		var gxsMessageItem = createGxsMessageItem();
+		gxsMessageItem.setGxsId(groupId);
+		gxsMessageItem.setName(name);
+		gxsMessageItem.updatePublished();
+
+		return gxsMessageItem;
+	}
+
+	protected final class MessageBuilder
+	{
+		private final M gxsMessageItem;
+
+		public MessageBuilder(GxsId groupId, String name)
+		{
+			gxsMessageItem = createGxsMessageItem();
+			gxsMessageItem.setGxsId(groupId);
+			gxsMessageItem.setName(name);
+			gxsMessageItem.updatePublished(); // XXX: do it at build time?
+		}
+
+		public MessageBuilder originalMessageId(MessageId originalMessageId)
+		{
+			// XXX: original message must exist!
+			gxsMessageItem.setOriginalMessageId(originalMessageId);
+			return this;
+		}
+
+		public MessageBuilder authorId(GxsId authorId)
+		{
+			gxsMessageItem.setAuthorId(authorId);
+			return this;
+		}
+
+		public MessageBuilder parentId(MessageId parentId)
+		{
+			// XXX: if parentId != null, then parentId and threadId must be set and the parent must exist too
+			gxsMessageItem.setParentId(parentId);
+			return this;
+		}
+
+		public M getMessageItem()
+		{
+			return gxsMessageItem;
+		}
+
+		public M build()
+		{
+			// XXX: serviceType? how? how does group do it?
+
+			// The identifier is the sha1 hash of the data and meta
+			var data = serializeItemForSignature(gxsMessageItem);
+			var sha1sum = new byte[Sha1Sum.LENGTH];
+
+			var digest = new SHA1Digest();
+			digest.update(data, 0, data.length);
+			digest.doFinal(sha1sum, 0);
+
+			gxsMessageItem.setMessageId(new MessageId(sha1sum));
+
+			// XXX: signature? or is it signMessageIfNeeded? do we need a signature before computing the hash? we don't compute using the signature no. but we could do it here actually!
+
+			return gxsMessageItem;
+		}
 	}
 
 	protected void signMessageIfNeeded(GxsMessageItem gxsMessageItem)

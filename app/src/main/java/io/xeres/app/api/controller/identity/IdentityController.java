@@ -99,7 +99,7 @@ public class IdentityController
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> uploadIdentityImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
 	{
-		identityRsService.saveIdentityImage(id, file);
+		identityRsService.saveOwnIdentityImage(id, file);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -109,7 +109,7 @@ public class IdentityController
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteIdentityImage(@PathVariable long id)
 	{
-		identityRsService.deleteIdentityImage(id);
+		identityRsService.deleteOwnIdentityImage(id);
 	}
 
 	@GetMapping

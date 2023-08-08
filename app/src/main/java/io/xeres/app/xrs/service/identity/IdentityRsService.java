@@ -221,7 +221,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 		gxsIdGroupItem.setSubscribed(true);
 
-		return saveIdentity(gxsIdGroupItem).getId();
+		return saveIdentity(gxsIdGroupItem, true).getId();
 	}
 
 	public IdentityGroupItem getOwnIdentity() // XXX: temporary, we'll have several identities later
@@ -237,9 +237,17 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Transactional
 	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
 	{
+		return saveIdentity(identityGroupItem, false);
+	}
+
+	private IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem, boolean updateGroup)
+	{
 		signGroupIfNeeded(identityGroupItem);
 		var savedIdentity = gxsIdentityRepository.save(identityGroupItem);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(RsServiceType.GXSID);
+		if (updateGroup)
+		{
+			gxsUpdateService.setLastServiceGroupsUpdateNow(RsServiceType.GXSID);
+		}
 		return savedIdentity;
 	}
 
@@ -280,7 +288,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Transactional
-	public void saveIdentityImage(long id, MultipartFile file) throws IOException
+	public void saveOwnIdentityImage(long id, MultipartFile file) throws IOException
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)
 		{
@@ -308,11 +316,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		identity.setImage(out.toByteArray());
 		identity.updatePublished();
 
-		saveIdentity(identity);
+		saveIdentity(identity, true);
 	}
 
 	@Transactional
-	public void deleteIdentityImage(long id)
+	public void deleteOwnIdentityImage(long id)
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)
 		{
@@ -323,7 +331,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		identity.setImage(null);
 		identity.updatePublished();
 
-		saveIdentity(identity);
+		saveIdentity(identity, true);
 	}
 
 	private Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)

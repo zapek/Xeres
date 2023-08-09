@@ -224,14 +224,18 @@ public final class UiUtils
 		{
 			tabPane.getTabs().forEach(tab -> linkify(tab.getContent()));
 		}
+		else if (rootNode instanceof ScrollPane scrollPane)
+		{
+			linkify(scrollPane.getContent());
+		}
 		else if (rootNode instanceof Parent parent)
 		{
 			parent.getChildrenUnmodifiable().forEach(UiUtils::linkify);
+		}
 
-			if (parent instanceof Hyperlink hyperlink)
-			{
-				hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
-			}
+		if (rootNode instanceof Hyperlink hyperlink)
+		{
+			hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
 		}
 	}
 

@@ -27,7 +27,10 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Safelist;
 
+import java.util.Locale;
+
 import static io.xeres.app.util.markdown.Markdown.HeaderSize.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public final class UnHtml
 {
@@ -50,6 +53,14 @@ public final class UnHtml
 
 	public static String cleanupMessage(String text)
 	{
+		// Only process HTML
+		if (isBlank(text) ||
+				(!text.toLowerCase(Locale.ROOT).startsWith("<body>") &&
+						!text.toLowerCase(Locale.ROOT).startsWith("<html>")))
+		{
+			return text;
+		}
+
 		var document = Jsoup.parse(text);
 		var cleaner = new Cleaner(Safelist.none()
 				.addAttributes("a", "href")

@@ -95,6 +95,21 @@ public class EditorView extends VBox
 		return editor.getText();
 	}
 
+	public void setReply(String reply)
+	{
+		if (!reply.isBlank())
+		{
+			reply = "\n\n> " + reply.replace("\n", "\n> ");
+			if (reply.endsWith("\n> "))
+			{
+				reply = reply.substring(0, reply.length() - 3);
+			}
+		}
+		editor.setText(reply);
+		editor.positionCaret(0);
+		editor.requestFocus();
+	}
+
 	private void surround(String text)
 	{
 		var selection = editor.getSelection();

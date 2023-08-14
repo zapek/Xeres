@@ -105,7 +105,7 @@ public class MessagingWindowController implements WindowController
 	public void initialize()
 	{
 		var ownProfileResult = profileClient.getOwn();
-		ownProfileResult.doOnSuccess(profile -> setupChatListView(profile.getName(), profile.getId()))
+		ownProfileResult.doOnSuccess(profile -> Platform.runLater(() -> setupChatListView(profile.getName(), profile.getId())))
 				.subscribe();
 
 		send.setOnKeyPressed(event ->
@@ -142,10 +142,8 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		Platform.runLater(() -> {
-			receive = new ChatListView(nickname, id);
-			content.getChildren().add(0, receive.getChatView());
-		});
+		receive = new ChatListView(nickname, id);
+		content.getChildren().add(0, receive.getChatView());
 	}
 
 	@Override

@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.forum;
 
+import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.controller.WindowController;
@@ -43,10 +44,10 @@ public class ForumEditorViewController implements WindowController
 	private TextField forumName;
 
 	@FXML
-	private TextField title;
+	private TextField title; // XXX: should be disabled, then enabled
 
 	@FXML
-	private EditorView editorView;
+	private EditorView editorView; // XXX: should be disabled, then enabled
 
 	@FXML
 	private Button send;
@@ -83,8 +84,16 @@ public class ForumEditorViewController implements WindowController
 		postRequest = (PostRequest) userData;
 
 		forumClient.getForumGroupById(postRequest.forumId())
-				.doOnSuccess(forumGroup -> forumName.setText(forumGroup.getName()))
+				.doOnSuccess(forumGroup -> Platform.runLater(() -> forumName.setText(forumGroup.getName())))
 				.subscribe();
+
+		if (postRequest.replyToId() != 0L)
+		{
+			title.setDisable(true);
+			forumClient.getForumMessage(postRequest.replyToId())
+					.doOnSuccess(forumMessage -> Platform.runLater(() -> addReply(forumMessage)))
+					.subscribe();
+		}
 	}
 
 	private void checkSendable(int editorLength)
@@ -92,9 +101,15 @@ public class ForumEditorViewController implements WindowController
 		send.setDisable(isBlank(title.getText()) || editorLength == 0);
 	}
 
+	private void addReply(ForumMessage forumMessage)
+	{
+		title.setText((forumMessage.getParentId() == 0L ? "Re: " : "") + forumMessage.getName());
+		editorView.setReply(forumMessage.getContent());
+	}
+
 	private void postMessage()
 	{
-		forumClient.createForumMessage(postRequest.forumId(), title.getText(), editorView.getText(), postRequest.parentId(), postRequest.originalId())
+		forumClient.createForumMessage(postRequest.forumId(), title.getText(), editorView.getText(), postRequest.replyToId(), postRequest.originalId())
 				.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
 				.subscribe();
 	}

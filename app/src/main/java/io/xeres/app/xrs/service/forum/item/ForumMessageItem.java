@@ -26,6 +26,7 @@ import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 
 import java.util.Set;
 
@@ -35,6 +36,9 @@ import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 @Entity(name = "forum_message")
 public class ForumMessageItem extends GxsMessageItem
 {
+	@Transient
+	public static final ForumMessageItem EMPTY = new ForumMessageItem();
+
 	private String content;
 
 	public ForumMessageItem()

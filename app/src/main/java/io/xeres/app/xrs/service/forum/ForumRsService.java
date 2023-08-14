@@ -251,6 +251,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
 	}
 
+	public List<ForumMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
+	{
+		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
+		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(forumGroup.getGxsId(), messageIds);
+	}
+
 	@Transactional
 	public List<ForumMessageItemSummary> findAllMessagesSummary(long groupId)
 	{
@@ -306,19 +312,19 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public long createForumMessage(IdentityGroupItem author, long forumId, String title, String content, long parent, long originalMessage)
+	public long createForumMessage(IdentityGroupItem author, long forumId, String title, String content, long parentId, long originalId)
 	{
 		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsForumGroupRepository.findById(forumId).orElseThrow().getGxsId(), title)
 				.authorId(author.getGxsId());
 
-		if (parent != 0L)
+		if (parentId != 0L)
 		{
-			builder.parentId(gxsForumMessageRepository.findById(parent).orElseThrow().getMessageId());
+			builder.parentId(gxsForumMessageRepository.findById(parentId).orElseThrow().getMessageId());
 		}
 
-		if (originalMessage != 0L)
+		if (originalId != 0L)
 		{
-			builder.originalMessageId(gxsForumMessageRepository.findById(originalMessage).orElseThrow().getMessageId());
+			builder.originalMessageId(gxsForumMessageRepository.findById(originalId).orElseThrow().getMessageId());
 		}
 
 		builder.getMessageItem().setContent(content);

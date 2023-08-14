@@ -93,7 +93,8 @@ public class ForumViewController implements Controller
 	private final NotificationClient notificationClient;
 	private final WindowManager windowManager;
 	private final ObjectMapper objectMapper;
-	private ForumGroup selectedForum;
+	private ForumGroup selectedForumGroup;
+	private ForumMessage selectedForumMessage;
 
 	private Disposable notificationDisposable;
 
@@ -139,11 +140,12 @@ public class ForumViewController implements Controller
 		forumTree.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2 && isForumSelected())
 			{
-				subscribeToForumGroup(selectedForum);
+				subscribeToForumGroup(selectedForumGroup);
 			}
 		});
 
-		//forumMessagesTableView.setRowFactory(ForumMessageCell::new); // if we want bold, etc...
+		forumMessagesTableView.setRowFactory(ForumMessageCell::new);
+		forumMessagesTableView.addEventHandler(ForumMessageContextMenu.REPLY, event -> newForumPost(UiUtils.getWindow(event), true));
 		tableSubject.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableAuthor.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getAuthorName() != null ? param.getValue().getAuthorName() : Id.toString(param.getValue().getAuthorId())));
 		tableDate.setCellFactory(DateCell::new);
@@ -156,22 +158,31 @@ public class ForumViewController implements Controller
 		forumMessagesTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue));
 
-		newThread.setOnAction(event -> newForumPost(UiUtils.getWindow(event)));
+		newThread.setOnAction(event -> newForumPost(UiUtils.getWindow(event), false));
 
 		setupForumNotifications();
 
 		getForumGroups();
 	}
 
-	private void newForumPost(Window window)
+	private void newForumPost(Window window, boolean replyTo)
 	{
-		var postRequest = new PostRequest(selectedForum.getId(), 0L, 0L); // XXX: set the IDs properly! we need to use a selectedMessage!
+		var replyToId = 0L;
+		var originalId = 0L;
+
+		if (selectedForumMessage != null)
+		{
+			replyToId = replyTo ? selectedForumMessage.getId() : 0L;
+			//originalId = selectedForumMessage.getOriginalId(); // XXX: means edit. if desired, set it to its current id
+		}
+
+		var postRequest = new PostRequest(selectedForumGroup.getId(), originalId, replyToId);
 		windowManager.openForumEditor(window, postRequest);
 	}
 
 	private boolean isForumSelected()
 	{
-		return selectedForum != null && selectedForum.getId() != 0L;
+		return selectedForumGroup != null && selectedForumGroup.getId() != 0L;
 	}
 
 	private void setupForumNotifications()
@@ -282,7 +293,8 @@ public class ForumViewController implements Controller
 
 	private void changeSelectedForumGroup(ForumGroup forumGroup)
 	{
-		selectedForum = forumGroup;
+		selectedForumGroup = forumGroup;
+		selectedForumMessage = null;
 
 		getSubscribedTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupHolderTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
@@ -310,6 +322,8 @@ public class ForumViewController implements Controller
 
 	private void changeSelectedForumMessage(ForumMessage forumMessage)
 	{
+		selectedForumMessage = forumMessage;
+
 		if (forumMessage != null)
 		{
 			forumClient.getForumMessage(forumMessage.getId())

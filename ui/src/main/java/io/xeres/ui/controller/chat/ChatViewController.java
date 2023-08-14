@@ -170,7 +170,7 @@ public class ChatViewController implements Controller
 	@Override
 	public void initialize() throws IOException
 	{
-		profileClient.getOwn().doOnSuccess(profile -> nickname = profile.getName())
+		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> nickname = profile.getName()))
 				.subscribe();
 
 		var root = new TreeItem<>(new RoomHolder());

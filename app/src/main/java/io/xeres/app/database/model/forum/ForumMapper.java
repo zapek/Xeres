@@ -26,6 +26,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public final class ForumMapper
 				.toList();
 	}
 
-	public static ForumMessageDTO toDTO(ForumMessageItemSummary forumMessageItemSummary, String authorName)
+	public static ForumMessageDTO toDTO(ForumMessageItemSummary forumMessageItemSummary, String authorName, long originalId, long parentId)
 	{
 		if (forumMessageItemSummary == null)
 		{
@@ -73,7 +74,8 @@ public final class ForumMapper
 				forumMessageItemSummary.getId(),
 				forumMessageItemSummary.getGxsId(),
 				forumMessageItemSummary.getMessageId(),
-				forumMessageItemSummary.getParentId(),
+				originalId,
+				parentId,
 				forumMessageItemSummary.getAuthorId(),
 				authorName,
 				forumMessageItemSummary.getName(),
@@ -82,14 +84,18 @@ public final class ForumMapper
 		);
 	}
 
-	public static List<ForumMessageDTO> toSummaryMessageDTOs(List<ForumMessageItemSummary> forumMessageItemSummaries, Map<GxsId, IdentityGroupItem> authorsMap)
+	public static List<ForumMessageDTO> toSummaryMessageDTOs(List<ForumMessageItemSummary> forumMessageItemSummaries, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ForumMessageItem> messagesMap)
 	{
 		return emptyIfNull(forumMessageItemSummaries).stream()
-				.map(forumMessageItemSummary -> toDTO(forumMessageItemSummary, authorsMap.getOrDefault(forumMessageItemSummary.getAuthorId(), IdentityGroupItem.EMPTY).getName()))
+				.map(forumMessageItemSummary -> toDTO(forumMessageItemSummary,
+						authorsMap.getOrDefault(forumMessageItemSummary.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(forumMessageItemSummary.getOriginalMessageId(), ForumMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(forumMessageItemSummary.getParentId(), ForumMessageItem.EMPTY).getId()
+				))
 				.toList();
 	}
 
-	public static ForumMessageDTO toDTO(ForumMessageItem forumMessageItem, String authorName)
+	public static ForumMessageDTO toDTO(ForumMessageItem forumMessageItem, String authorName, long originalId, long parentId)
 	{
 		if (forumMessageItem == null)
 		{
@@ -100,7 +106,8 @@ public final class ForumMapper
 				forumMessageItem.getId(),
 				forumMessageItem.getGxsId(),
 				forumMessageItem.getMessageId(),
-				forumMessageItem.getParentId(),
+				originalId,
+				parentId,
 				forumMessageItem.getAuthorId(),
 				authorName,
 				forumMessageItem.getName(),

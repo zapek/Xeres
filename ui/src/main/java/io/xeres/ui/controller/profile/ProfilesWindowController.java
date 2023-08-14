@@ -76,7 +76,7 @@ public class ProfilesWindowController implements WindowController
 			if (profile.getId() != OWN_PROFILE_ID)
 			{
 				profileClient.delete(profile.getId())
-						.doOnSuccess(unused -> event.getTableView().getItems().remove(profile))
+						.doOnSuccess(unused -> Platform.runLater(() -> event.getTableView().getItems().remove(profile)))
 						.subscribe();
 			}
 		});

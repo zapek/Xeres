@@ -90,8 +90,8 @@ public class SettingsWindowController implements WindowController
 		listView.setDisable(true);
 
 		settingsClient.getSettings().doOnSuccess(settings -> Platform.runLater(() -> {
-					this.originalSettings = settings;
-					this.newSettings = this.originalSettings.clone();
+					originalSettings = settings;
+					newSettings = originalSettings.clone();
 					listView.setDisable(false);
 					listView.getSelectionModel().selectFirst();
 				}))

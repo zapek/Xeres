@@ -29,7 +29,8 @@ public class ForumMessage
 	private long id;
 	private GxsId gxsId;
 	private MessageId messageId;
-	private MessageId parentId;
+	private long originalId;
+	private long parentId;
 	private GxsId authorId;
 	private String authorName;
 	private String name;
@@ -70,12 +71,22 @@ public class ForumMessage
 		this.messageId = messageId;
 	}
 
-	public MessageId getParentId()
+	public long getOriginalId()
+	{
+		return originalId;
+	}
+
+	public void setOriginalId(long originalId)
+	{
+		this.originalId = originalId;
+	}
+
+	public long getParentId()
 	{
 		return parentId;
 	}
 
-	public void setParentId(MessageId parentId)
+	public void setParentId(long parentId)
 	{
 		this.parentId = parentId;
 	}

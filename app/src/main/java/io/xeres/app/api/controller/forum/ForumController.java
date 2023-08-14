@@ -28,19 +28,25 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.service.forum.ForumRsService;
+import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import jakarta.validation.Valid;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -109,6 +115,7 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public List<ForumMessageDTO> getForumMessages(@PathVariable long groupId)
 	{
+		// XXX: too complex! should be moved to forumRsService...
 		var forumMessages = forumRsService.findAllMessagesSummary(groupId);
 
 		var authors = forumMessages.stream()
@@ -118,7 +125,20 @@ public class ForumController
 		var authorsMap = identityRsService.findAll(authors).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 
-		return toSummaryMessageDTOs(forumMessages, authorsMap);
+		var messageIds = forumMessages.stream()
+				.map(ForumMessageItemSummary::getMessageId)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		var parentIds = forumMessages.stream()
+				.map(ForumMessageItemSummary::getParentId)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		var messagesMap = forumRsService.findAllMessages(groupId, SetUtils.union(messageIds, parentIds)).stream()
+				.collect(Collectors.toMap(ForumMessageItem::getMessageId, Function.identity()));
+
+		return toSummaryMessageDTOs(forumMessages, authorsMap, messagesMap);
 	}
 
 	@GetMapping("/messages/{messageId}")
@@ -126,10 +146,24 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
+		// XXX: too complex! should be moved to forumRsService...
 		var forumMessage = forumRsService.findMessageById(messageId);
+		Objects.requireNonNull(forumMessage, "MessageId " + messageId + " not found");
+
 		var author = identityRsService.findByGxsId(forumMessage.getAuthorId());
 
-		return toDTO(forumMessage, author.map(GxsGroupItem::getName).orElse(null));
+		var messageSet = new HashSet<MessageId>(2); // they can be null so no Set.of() possible
+		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getOriginalMessageId());
+		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getParentId());
+
+		var messages = forumRsService.findAllMessages(forumMessage.getGxsId(), messageSet).stream()
+				.collect(Collectors.toMap(ForumMessageItem::getMessageId, ForumMessageItem::getId));
+
+		return toDTO(forumMessage,
+				author.map(GxsGroupItem::getName).orElse(null),
+				messages.getOrDefault(forumMessage.getOriginalMessageId(), 0L),
+				messages.getOrDefault(forumMessage.getParentId(), 0L)
+		);
 	}
 
 	@PostMapping("/messages")

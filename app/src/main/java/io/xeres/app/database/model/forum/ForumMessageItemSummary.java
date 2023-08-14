@@ -32,6 +32,8 @@ public interface ForumMessageItemSummary
 
 	MessageId getMessageId();
 
+	MessageId getOriginalMessageId();
+
 	MessageId getParentId();
 
 	GxsId getAuthorId();

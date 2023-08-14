@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,32 +17,32 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.profile;
+package io.xeres.ui.controller.forum;
 
-import io.xeres.ui.model.profile.Profile;
+import io.xeres.common.message.forum.ForumMessage;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.control.TableView;
 
 import java.io.Serial;
 
-public class ProfileContextMenu extends Event
+public class ForumMessageContextMenu extends Event
 {
-	public static final EventType<ProfileContextMenu> ALL = new EventType<>("PROFILE_CONTEXT_MENU_ALL");
-	public static final EventType<ProfileContextMenu> DELETE = new EventType<>("PROFILE_CONTEXT_MENU_DELETE");
+	public static final EventType<ForumMessageContextMenu> ALL = new EventType<>("FORUM_MESSAGE_CONTEXT_MENU_ALL");
+	public static final EventType<ForumMessageContextMenu> REPLY = new EventType<>("FORUM_MESSAGE_CONTEXT_MENU_REPLY");
+
+	private final transient TableView<ForumMessage> tableView;
 
 	@Serial
-	private static final long serialVersionUID = 8032581689271796522L;
+	private static final long serialVersionUID = -641225667890421501L;
 
-	private final transient TableView<Profile> tableView;
-
-	public ProfileContextMenu(EventType<ProfileContextMenu> eventType, TableView<Profile> tableView)
+	public ForumMessageContextMenu(EventType<ForumMessageContextMenu> eventType, TableView<ForumMessage> tableView)
 	{
 		super(eventType);
 		this.tableView = tableView;
 	}
 
-	public TableView<Profile> getTableView()
+	public TableView<ForumMessage> getTableView()
 	{
 		return tableView;
 	}

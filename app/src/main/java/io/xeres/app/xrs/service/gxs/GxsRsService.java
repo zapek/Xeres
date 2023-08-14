@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -858,13 +859,15 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final class MessageBuilder
 	{
 		private final M gxsMessageItem;
+		private final PrivateKey privateKey;
 
-		public MessageBuilder(GxsId groupId, String name)
+		public MessageBuilder(PrivateKey privateKey, GxsId groupId, String name)
 		{
 			gxsMessageItem = createGxsMessageItem();
 			gxsMessageItem.setGxsId(groupId);
 			gxsMessageItem.setName(name);
 			gxsMessageItem.updatePublished(); // XXX: do it at build time?
+			this.privateKey = privateKey;
 		}
 
 		public MessageBuilder originalMessageId(MessageId originalMessageId)
@@ -882,7 +885,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		public MessageBuilder parentId(MessageId parentId)
 		{
-			// XXX: if parentId != null, then parentId and threadId must be set and the parent must exist too
+			// XXX: if parentId != 0L, then threadId must be set
 			gxsMessageItem.setParentId(parentId);
 			return this;
 		}
@@ -903,26 +906,21 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			var digest = new SHA1Digest();
 			digest.update(data, 0, data.length);
 			digest.doFinal(sha1sum, 0);
-
 			gxsMessageItem.setMessageId(new MessageId(sha1sum));
 
-			// XXX: signature? or is it signMessageIfNeeded? do we need a signature before computing the hash? we don't compute using the signature no. but we could do it here actually!
+			// The signature is performed afterwards
+			signMessage(gxsMessageItem, data, privateKey);
 
 			return gxsMessageItem;
 		}
-	}
 
-	protected void signMessageIfNeeded(GxsMessageItem gxsMessageItem)
-	{
-		// TODO: needs to handle publish sign (I think it's for the circles)
-		//var ownIdentity =
-
-//		if (gxsMessageItem.getAuthorId() != null) // XXX: check if it's our own id! we only sign our own messages
-//		{
-//			var data = serializeItemForSignature(gxsMessageItem);
-//			var signature = RSA.sign(data, ownIdentity.());
-//			gxsMessageItem.setAuthorSignature(signature);
-//		}
+		private void signMessage(GxsMessageItem gxsMessageItem, byte[] data, PrivateKey privateKey)
+		{
+			// TODO: needs to handle publish sign (I think it's for the circles)
+			var signature = RSA.sign(data, privateKey);
+			gxsMessageItem.setAuthorSignature(signature);
+			// XXX: publish signature is missing (I think it's for the circles)
+		}
 	}
 
 	private byte[] serializeItemForSignature(Item item)

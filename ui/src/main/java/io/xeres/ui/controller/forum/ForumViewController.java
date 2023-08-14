@@ -165,7 +165,7 @@ public class ForumViewController implements Controller
 
 	private void newForumPost(Window window)
 	{
-		var postRequest = new PostRequest(Long.toString(selectedForum.getId()), "");
+		var postRequest = new PostRequest(selectedForum.getId(), 0L, 0L); // XXX: set the IDs properly! we need to use a selectedMessage!
 		windowManager.openForumEditor(window, postRequest);
 	}
 

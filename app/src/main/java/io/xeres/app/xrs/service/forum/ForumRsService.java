@@ -39,6 +39,7 @@ import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.springframework.stereotype.Component;
@@ -263,11 +264,14 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public void save(ForumMessageItem forumMessageItem)
+	public ForumMessageItem saveMessage(ForumMessageItem forumMessageItem)
 	{
 		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
-		gxsForumMessageRepository.save(forumMessageItem);
-		// XXX: setLastServiceUpdate() ? I think so actually!
+		var savedMessage = gxsForumMessageRepository.save(forumMessageItem);
+		var forumGroupItem = gxsForumGroupRepository.findByGxsId(forumMessageItem.getGxsId()).orElseThrow();
+		forumGroupItem.setLastPosted(Instant.now());
+		gxsForumGroupRepository.save(forumGroupItem);
+		return savedMessage;
 	}
 
 	@Transactional
@@ -302,15 +306,25 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public long createForumMessage(long forumId, String title, String content, GxsId author, MessageId parent, MessageId originalMessage)
+	public long createForumMessage(IdentityGroupItem author, long forumId, String title, String content, long parent, long originalMessage)
 	{
-		var builder = new MessageBuilder(gxsForumGroupRepository.findById(forumId).orElseThrow().getGxsId(), title)
-				.authorId(author)
-				.parentId(parent)
-				.originalMessageId(originalMessage);
+		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsForumGroupRepository.findById(forumId).orElseThrow().getGxsId(), title)
+				.authorId(author.getGxsId());
+
+		if (parent != 0L)
+		{
+			builder.parentId(gxsForumMessageRepository.findById(parent).orElseThrow().getMessageId());
+		}
+
+		if (originalMessage != 0L)
+		{
+			builder.originalMessageId(gxsForumMessageRepository.findById(originalMessage).orElseThrow().getMessageId());
+		}
 
 		builder.getMessageItem().setContent(content);
 
-		return builder.build().getId();
+		var forumMessageItem = builder.build();
+
+		return saveMessage(forumMessageItem).getId();
 	}
 }

@@ -23,6 +23,8 @@ import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
+import io.xeres.common.rest.forum.CreateForumGroupRequest;
+import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.forum.ForumMapper;
 import jakarta.annotation.PostConstruct;
@@ -60,6 +62,17 @@ public class ForumClient
 				.retrieve()
 				.bodyToFlux(ForumGroupDTO.class)
 				.map(ForumMapper::fromDTO);
+	}
+
+	public Mono<Void> createForumGroup(String name, String description)
+	{
+		var request = new CreateForumGroupRequest(name, description);
+
+		return webClient.post()
+				.uri("/groups")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 
 	public Mono<ForumGroup> getForumGroupById(long groupId)
@@ -113,5 +126,16 @@ public class ForumClient
 				.retrieve()
 				.bodyToMono(ForumMessageDTO.class)
 				.map(ForumMapper::fromDTO);
+	}
+
+	public Mono<Void> createForumMessage(long forumId, String title, String content, long parentId, long originalId)
+	{
+		var request = new CreateForumMessageRequest(forumId, title, content, parentId, originalId);
+
+		return webClient.post()
+				.uri("/messages")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

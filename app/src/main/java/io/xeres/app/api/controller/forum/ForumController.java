@@ -31,8 +31,8 @@ import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
-import io.xeres.common.rest.forum.CreateForumRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -72,10 +72,10 @@ public class ForumController
 	@PostMapping("/groups")
 	@Operation(summary = "Create a forum")
 	@ApiResponse(responseCode = "201", description = "Forum created successfully", headers = @Header(name = "Forum", description = "The location of the created forum", schema = @Schema(type = "string")))
-	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateForumRequest createForumRequest)
+	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateForumGroupRequest createForumGroupRequest)
 	{
 		var ownIdentity = identityRsService.getOwnIdentity();
-		var id = forumRsService.createForum(ownIdentity.getGxsId(), createForumRequest.name(), createForumRequest.description());
+		var id = forumRsService.createForum(ownIdentity.getGxsId(), createForumGroupRequest.name(), createForumGroupRequest.description());
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -139,10 +139,10 @@ public class ForumController
 	{
 		var ownIdentity = identityRsService.getOwnIdentity();
 		var id = forumRsService.createForumMessage(
+				ownIdentity,
 				createMessageRequest.forumId(),
 				createMessageRequest.title(),
 				createMessageRequest.content(),
-				ownIdentity.getGxsId(),
 				createMessageRequest.parentId(),
 				createMessageRequest.originalId()
 		);

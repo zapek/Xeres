@@ -67,6 +67,8 @@ public class ForumEditorViewController implements WindowController
 
 		editorView.lengthProperty.addListener((observable, oldValue, newValue) -> checkSendable((Integer) newValue));
 		title.setOnKeyTyped(event -> checkSendable(editorView.lengthProperty.getValue()));
+
+		send.setOnAction(event -> postMessage());
 	}
 
 	@Override
@@ -80,7 +82,7 @@ public class ForumEditorViewController implements WindowController
 
 		postRequest = (PostRequest) userData;
 
-		forumClient.getForumGroupById(Long.parseLong(postRequest.forumId()))
+		forumClient.getForumGroupById(postRequest.forumId())
 				.doOnSuccess(forumGroup -> forumName.setText(forumGroup.getName()))
 				.subscribe();
 	}
@@ -88,5 +90,12 @@ public class ForumEditorViewController implements WindowController
 	private void checkSendable(int editorLength)
 	{
 		send.setDisable(isBlank(title.getText()) || editorLength == 0);
+	}
+
+	private void postMessage()
+	{
+		forumClient.createForumMessage(postRequest.forumId(), title.getText(), editorView.getText(), postRequest.parentId(), postRequest.originalId())
+				.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
+				.subscribe();
 	}
 }

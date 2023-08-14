@@ -19,7 +19,6 @@
 
 package io.xeres.common.rest.forum;
 
-import io.xeres.common.id.MessageId;
 import jakarta.validation.constraints.NotBlank;
 
 public record CreateForumMessageRequest(
@@ -31,9 +30,9 @@ public record CreateForumMessageRequest(
 		@NotBlank(message = "Content must not be empty")
 		String content,
 
-		MessageId parentId,
+		long parentId,
 
-		MessageId originalId
+		long originalId
 )
 {
 }

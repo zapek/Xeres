@@ -20,30 +20,13 @@
 package io.xeres.ui.controller.forum;
 
 import io.xeres.common.message.forum.ForumMessage;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 
 public class ForumMessageCell extends TableRow<ForumMessage>
 {
-	private final TableView<ForumMessage> listView;
-
 	public ForumMessageCell(TableView<ForumMessage> listView)
 	{
 		super();
-		this.listView = listView;
-		setContextMenu(createContextMenu(this));
-	}
-
-	private ContextMenu createContextMenu(TableRow<ForumMessage> cell)
-	{
-		var contextMenu = new ContextMenu();
-
-		var replyItem = new MenuItem("Reply");
-		replyItem.setOnAction(event -> listView.fireEvent(new ForumMessageContextMenu(ForumMessageContextMenu.REPLY, cell.getTableView())));
-
-		contextMenu.getItems().addAll(replyItem);
-		return contextMenu;
 	}
 }

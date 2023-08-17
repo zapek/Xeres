@@ -121,7 +121,7 @@ public class ChatRoomInfo
 		this.newMessages = newMessages;
 	}
 
-	public boolean isARealRoom()
+	public boolean isReal()
 	{
 		return id != 0L;
 	}

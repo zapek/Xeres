@@ -19,20 +19,14 @@
 
 package io.xeres.ui.controller.messaging;
 
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 
 public class PeerCell extends TreeCell<PeerHolder>
 {
-	private final TreeView<PeerHolder> treeView;
-
 	public PeerCell(TreeView<PeerHolder> treeView)
 	{
 		super();
-		this.treeView = treeView;
-		setContextMenu(createContextMenu(this));
 	}
 
 	@Override
@@ -40,16 +34,5 @@ public class PeerCell extends TreeCell<PeerHolder>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.getProfile().getName()); // XXX: add some logic for children (leaves), etc...
-	}
-
-	private ContextMenu createContextMenu(TreeCell<PeerHolder> cell)
-	{
-		var contextMenu = new ContextMenu();
-
-		var directMessage = new MenuItem("Direct message");
-		directMessage.setOnAction(event -> treeView.fireEvent(new PeerContextMenu(PeerContextMenu.DIRECT_MESSAGE, cell.getTreeItem())));
-
-		contextMenu.getItems().addAll(directMessage);
-		return contextMenu;
 	}
 }

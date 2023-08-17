@@ -23,8 +23,6 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.RoomType;
 import io.xeres.ui.support.util.TooltipUtils;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 import org.apache.commons.lang3.StringUtils;
@@ -33,13 +31,9 @@ import java.text.MessageFormat;
 
 public class ChatRoomCell extends TreeCell<RoomHolder>
 {
-	private final TreeView<RoomHolder> treeView;
-
 	public ChatRoomCell(TreeView<RoomHolder> treeView)
 	{
 		super();
-		this.treeView = treeView;
-		setContextMenu(createContextMenu(this));
 		TooltipUtils.install(this,
 				() -> {
 					var roomInfo = getItem().getRoomInfo();
@@ -91,19 +85,5 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 				}
 			}
 		}
-	}
-
-	private ContextMenu createContextMenu(TreeCell<RoomHolder> cell)
-	{
-		var contextMenu = new ContextMenu();
-
-		var subscribeItem = new MenuItem(I18nUtils.getString("chat.room.join"));
-		subscribeItem.setOnAction(event -> treeView.fireEvent(new ChatRoomContextMenu(ChatRoomContextMenu.JOIN, cell.getTreeItem())));
-
-		var unsubscribeItem = new MenuItem(I18nUtils.getString("chat.room.leave"));
-		unsubscribeItem.setOnAction(event -> treeView.fireEvent(new ChatRoomContextMenu(ChatRoomContextMenu.LEAVE, cell.getTreeItem())));
-
-		contextMenu.getItems().addAll(subscribeItem, unsubscribeItem);
-		return contextMenu;
 	}
 }

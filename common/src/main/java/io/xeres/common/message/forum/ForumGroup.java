@@ -48,6 +48,11 @@ public class ForumGroup
 		this.id = id;
 	}
 
+	public boolean isReal()
+	{
+		return id != 0L;
+	}
+
 	public String getName()
 	{
 		return name;
@@ -86,5 +91,11 @@ public class ForumGroup
 	public void setSubscribed(boolean subscribed)
 	{
 		this.subscribed = subscribed;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getName();
 	}
 }

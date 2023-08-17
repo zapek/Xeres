@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.chat;
 
 import io.xeres.common.AppName;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
@@ -30,6 +31,7 @@ import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
 import io.xeres.ui.support.chat.NicknameCompleter;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -80,6 +82,8 @@ public class ChatViewController implements Controller
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination ENTER_KEY = new KeyCodeCombination(KeyCode.ENTER);
 	private static final KeyCodeCombination BACKSPACE_KEY = new KeyCodeCombination(KeyCode.BACK_SPACE);
+	public static final String SUBSCRIBED_MENU_ID = "subscribed";
+	public static final String UNSUBSCRIBED_MENU_ID = "unsubscribed";
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -146,6 +150,8 @@ public class ChatViewController implements Controller
 	private Node roomInfoView;
 	private ChatRoomInfoController chatRoomInfoController;
 
+	private XContextMenu<RoomHolder> roomHolderXContextMenu;
+
 	private Instant lastTypingNotification = Instant.EPOCH;
 
 	private double[] dividerPositions;
@@ -180,8 +186,7 @@ public class ChatViewController implements Controller
 		roomTree.setRoot(root);
 		roomTree.setShowRoot(false);
 		roomTree.setCellFactory(ChatRoomCell::new);
-		roomTree.addEventHandler(ChatRoomContextMenu.JOIN, event -> joinChatRoom(event.getTreeItem().getValue().getRoomInfo()));
-		roomTree.addEventHandler(ChatRoomContextMenu.LEAVE, event -> leaveChatRoom(event.getTreeItem().getValue().getRoomInfo()));
+		createRoomTreeContextMenu();
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
 		roomTree.getSelectionModel().selectedItemProperty()
@@ -238,12 +243,41 @@ public class ChatViewController implements Controller
 		getChatRoomContext();
 	}
 
+	private void createRoomTreeContextMenu()
+	{
+		var subscribeItem = new MenuItem(I18nUtils.getString("chat.room.join"));
+		subscribeItem.setId(SUBSCRIBED_MENU_ID);
+		subscribeItem.setOnAction(event -> joinChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
+
+		var unsubscribeItem = new MenuItem(I18nUtils.getString("chat.room.leave"));
+		unsubscribeItem.setId(UNSUBSCRIBED_MENU_ID);
+		unsubscribeItem.setOnAction(event -> leaveChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
+
+		roomHolderXContextMenu = new XContextMenu<>(roomTree, subscribeItem, unsubscribeItem);
+		roomHolderXContextMenu.setOnShowing((contextMenu, roomHolder) -> {
+			var chatRoomInfo = roomHolder.getRoomInfo();
+
+			contextMenu.getItems().stream()
+					.filter(menuItem -> menuItem.getId().equals(SUBSCRIBED_MENU_ID))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(isAlreadyJoined(chatRoomInfo)));
+
+			contextMenu.getItems().stream()
+					.filter(menuItem -> menuItem.getId().equals(UNSUBSCRIBED_MENU_ID))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(!isAlreadyJoined(chatRoomInfo)));
+
+			return chatRoomInfo.isReal();
+		});
+	}
+
+	private boolean isAlreadyJoined(ChatRoomInfo chatRoomInfo)
+	{
+		return subscribedRooms.getChildren().stream()
+				.anyMatch(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(chatRoomInfo));
+	}
+
 	private void joinChatRoom(ChatRoomInfo chatRoomInfo)
 	{
-		var alreadyJoined = subscribedRooms.getChildren().stream()
-				.anyMatch(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(chatRoomInfo));
-
-		if (!alreadyJoined)
+		if (!isAlreadyJoined(chatRoomInfo))
 		{
 			chatClient.joinChatRoom(chatRoomInfo.getId())
 					.subscribe();

@@ -23,10 +23,12 @@ import io.xeres.ui.client.ConnectionClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.location.Location;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -50,6 +52,8 @@ public class PeersWindowController implements WindowController
 	private final ConnectionClient connectionClient;
 	private final WindowManager windowManager;
 
+	private XContextMenu<PeerHolder> peerHolderXContextMenu;
+
 	public PeersWindowController(ProfileClient profileClient, ConnectionClient connectionClient, WindowManager windowManager)
 	{
 		this.profileClient = profileClient;
@@ -66,7 +70,7 @@ public class PeersWindowController implements WindowController
 		peersTree.setShowRoot(false);
 
 		peersTree.setCellFactory(PeerCell::new);
-		peersTree.addEventHandler(PeerContextMenu.DIRECT_MESSAGE, event -> directMessage(event.getTreeItem().getValue()));
+		createPeersTreeContextMenu();
 
 		peersTree.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2)
@@ -106,6 +110,14 @@ public class PeersWindowController implements WindowController
 				.subscribe();
 
 		// XXX: here lies a good example of a connection that should stay open to get refreshed... ponder how to do it
+	}
+
+	private void createPeersTreeContextMenu()
+	{
+		var directMessage = new MenuItem("Direct message");
+		directMessage.setOnAction(event -> directMessage(((PeerHolder) event.getSource())));
+
+		peerHolderXContextMenu = new XContextMenu<>(peersTree, directMessage);
 	}
 
 	private void directMessage(PeerHolder peerHolder)

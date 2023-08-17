@@ -57,7 +57,7 @@ public class ChatRoomInfoController implements Controller
 
 	public void setRoomInfo(ChatRoomInfo chatRoomInfo)
 	{
-		if (chatRoomInfo.isARealRoom())
+		if (chatRoomInfo.isReal())
 		{
 			roomGroup.setVisible(true);
 			roomName.setText(chatRoomInfo.getName());

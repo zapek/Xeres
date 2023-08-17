@@ -19,14 +19,17 @@
 
 package io.xeres.ui.controller.profile;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.pgp.Trust;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -44,6 +47,7 @@ import static javafx.scene.control.TableColumn.SortType.DESCENDING;
 public class ProfilesWindowController implements WindowController
 {
 	private static final Logger log = LoggerFactory.getLogger(ProfilesWindowController.class);
+	public static final String DELETE_MENU_ID = "delete";
 
 	private final ProfileClient profileClient;
 
@@ -62,6 +66,8 @@ public class ProfilesWindowController implements WindowController
 	@FXML
 	private TableColumn<Profile, Trust> tableTrust;
 
+	private XContextMenu<Profile> profileXContextMenu;
+
 	public ProfilesWindowController(ProfileClient profileClient)
 	{
 		this.profileClient = profileClient;
@@ -71,15 +77,7 @@ public class ProfilesWindowController implements WindowController
 	public void initialize()
 	{
 		profilesTableView.setRowFactory(ProfileCell::new);
-		profilesTableView.addEventHandler(ProfileContextMenu.DELETE, event -> {
-			var profile = event.getTableView().getSelectionModel().getSelectedItem();
-			if (profile.getId() != OWN_PROFILE_ID)
-			{
-				profileClient.delete(profile.getId())
-						.doOnSuccess(unused -> Platform.runLater(() -> event.getTableView().getItems().remove(profile)))
-						.subscribe();
-			}
-		});
+		createProfilesTableViewContextMenu();
 
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableIdentifier.setCellValueFactory(param -> new SimpleStringProperty(Id.toString(param.getValue().getPgpIdentifier())));
@@ -101,5 +99,23 @@ public class ProfilesWindowController implements WindowController
 				}))
 				.doOnError(throwable -> log.error("Error while getting the profiles: {}", throwable.getMessage(), throwable))
 				.subscribe();
+	}
+
+	private void createProfilesTableViewContextMenu()
+	{
+		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
+		deleteItem.setId(DELETE_MENU_ID);
+		deleteItem.setOnAction(event -> {
+			var profile = (Profile) event.getSource();
+			if (profile.getId() != OWN_PROFILE_ID)
+			{
+				profileClient.delete(profile.getId())
+						.doOnSuccess(unused -> Platform.runLater(() -> profilesTableView.getItems().remove(profile)))
+						.subscribe();
+			}
+		});
+
+		profileXContextMenu = new XContextMenu<>(profilesTableView, deleteItem);
+		profileXContextMenu.setOnShowing((contextMenu, profile) -> profile.getId() != OWN_PROFILE_ID);
 	}
 }

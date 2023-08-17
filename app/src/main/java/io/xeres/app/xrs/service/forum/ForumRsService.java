@@ -342,6 +342,11 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		var forumMessageItem = builder.build();
 
-		return saveMessage(forumMessageItem).getId();
+		var savedMessage = saveMessage(forumMessageItem).getId();
+
+		forumMessageItem.setId(savedMessage);
+		forumNotificationService.addForumMessages(List.of(forumMessageItem));
+
+		return savedMessage;
 	}
 }

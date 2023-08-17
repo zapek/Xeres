@@ -25,7 +25,8 @@ import io.xeres.common.id.Id;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.PostRequest;
-import io.xeres.common.rest.notification.forum.AddForums;
+import io.xeres.common.rest.notification.forum.AddForumGroups;
+import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
@@ -233,11 +234,19 @@ public class ForumViewController implements Controller
 					{
 						var idName = Objects.requireNonNull(sse.id());
 
-						if (idName.equals(AddForums.class.getSimpleName()))
+						if (idName.equals(AddForumGroups.class.getSimpleName()))
 						{
-							var action = objectMapper.convertValue(sse.data().action(), AddForums.class);
+							var action = objectMapper.convertValue(sse.data().action(), AddForumGroups.class);
 
-							addForumGroups(action.forums().stream()
+							addForumGroups(action.forumGroups().stream()
+									.map(ForumMapper::fromDTO)
+									.toList());
+						}
+						else if (idName.equals(AddForumMessages.class.getSimpleName()))
+						{
+							var action = objectMapper.convertValue(sse.data().action(), AddForumMessages.class);
+
+							addForumMessages(action.forumMessages().stream()
 									.map(ForumMapper::fromDTO)
 									.toList());
 						}
@@ -373,6 +382,27 @@ public class ForumViewController implements Controller
 					}))
 					.subscribe();
 		}
+	}
+
+	private void addForumMessages(List<ForumMessage> forumMessages)
+	{
+		if (selectedForumGroup == null)
+		{
+			return;
+		}
+
+		forumMessages.forEach(forumMessage -> {
+			if (forumMessage.getGxsId().equals(selectedForumGroup.getGxsId()))
+			{
+				add(forumMessage);
+			}
+		});
+	}
+
+	private void add(ForumMessage forumMessage)
+	{
+		forumMessagesTableView.getItems().add(forumMessage);
+		forumMessagesTableView.sort();
 	}
 
 	@EventListener

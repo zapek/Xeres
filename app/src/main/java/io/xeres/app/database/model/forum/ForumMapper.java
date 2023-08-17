@@ -115,4 +115,15 @@ public final class ForumMapper
 				UnHtml.cleanupMessage(forumMessageItem.getContent())
 		);
 	}
+
+	public static List<ForumMessageDTO> toForumMessageDTOs(List<ForumMessageItem> forumMessageItems, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ForumMessageItem> messagesMap)
+	{
+		return emptyIfNull(forumMessageItems).stream()
+				.map(forumMessageItem -> toDTO(forumMessageItem,
+						authorsMap.getOrDefault(forumMessageItem.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(forumMessageItem.getOriginalMessageId(), ForumMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(forumMessageItem.getParentId(), ForumMessageItem.EMPTY).getId()
+				))
+				.toList();
+	}
 }

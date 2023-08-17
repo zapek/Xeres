@@ -23,6 +23,6 @@ import io.xeres.common.dto.forum.ForumGroupDTO;
 
 import java.util.List;
 
-public record AddForums(List<ForumGroupDTO> forums)
+public record AddForumGroups(List<ForumGroupDTO> forumGroups)
 {
 }

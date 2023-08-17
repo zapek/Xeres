@@ -41,4 +41,6 @@ public interface GxsForumMessageRepository extends JpaRepository<ForumMessageIte
 	List<ForumMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
 
 	List<ForumMessageItemSummary> findSummaryAllByGxsId(GxsId groupId);
+
+	List<ForumMessageItem> findAllByMessageIdIn(Set<MessageId> messageIds);
 }

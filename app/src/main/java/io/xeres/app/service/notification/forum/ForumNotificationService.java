@@ -19,28 +19,44 @@
 
 package io.xeres.app.service.notification.forum;
 
+import io.xeres.app.service.ForumMessageService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.rest.notification.Notification;
-import io.xeres.common.rest.notification.forum.AddForums;
+import io.xeres.common.rest.notification.forum.AddForumGroups;
+import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.common.rest.notification.forum.ForumNotification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static io.xeres.app.database.model.forum.ForumMapper.toDTOs;
+import static io.xeres.app.database.model.forum.ForumMapper.toForumMessageDTOs;
 
 @Service
 public class ForumNotificationService extends NotificationService
 {
-	public ForumNotificationService()
+	private final ForumMessageService forumMessageService;
+
+	public ForumNotificationService(ForumMessageService forumMessageService)
 	{
 		super();
+		this.forumMessageService = forumMessageService;
 	}
 
-	public void addForums(List<ForumGroupItem> forums)
+	public void addForumGroups(List<ForumGroupItem> forumGroups)
 	{
-		var action = new AddForums(toDTOs(forums));
+		var action = new AddForumGroups(toDTOs(forumGroups));
+		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
+	}
+
+	public void addForumMessages(List<ForumMessageItem> forumMessages)
+	{
+		var action = new AddForumMessages(toForumMessageDTOs(forumMessages,
+				forumMessageService.getAuthorsMapFromMessages(forumMessages),
+				forumMessageService.getMessagesMapFromMessages(forumMessages)));
+
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
 	}
 

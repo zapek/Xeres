@@ -154,7 +154,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected void onGroupsSaved(List<ForumGroupItem> items)
 	{
-		forumNotificationService.addForums(items);
+		forumNotificationService.addForumGroups(items);
 	}
 
 	@Override
@@ -191,7 +191,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected void onMessagesSaved(List<ForumMessageItem> items)
 	{
-		// XXX: call notification service! like for groups
+		forumNotificationService.addForumMessages(items);
 	}
 
 	@Transactional
@@ -255,6 +255,17 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
 		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(forumGroup.getGxsId(), messageIds);
+	}
+
+	/**
+	 * Finds all messages. Prefer the other variants as this one is slower.
+	 *
+	 * @param messageIds the list of message ids
+	 * @return the messages
+	 */
+	public List<ForumMessageItem> findAllMessages(Set<MessageId> messageIds)
+	{
+		return gxsForumMessageRepository.findAllByMessageIdIn(messageIds);
 	}
 
 	@Transactional

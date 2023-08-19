@@ -95,7 +95,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		view.getStyleClass().add("chat-user-list");
 		VBox.setVgrow(view, Priority.ALWAYS);
 
-		view.setCellFactory(ChatUserCell::new);
+		view.setCellFactory(param -> new ChatUserCell());
 		view.setItems(users);
 		return view;
 	}

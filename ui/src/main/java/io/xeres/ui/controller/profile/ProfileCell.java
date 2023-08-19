@@ -23,11 +23,10 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
 
 public class ProfileCell extends TableRow<Profile>
 {
-	public ProfileCell(TableView<Profile> listView)
+	public ProfileCell()
 	{
 		super();
 	}

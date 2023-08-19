@@ -78,14 +78,12 @@ public class XContextMenu<T>
 			contextMenu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
 			if (!showContextMenu)
 			{
-				contextMenu.hide(); // We hide immediately so that the menu is not shown (but we still fire the onShowing event as we need to know if the user wants to not show a context menu)
+				contextMenu.hide(); // Workaround #2: we hide immediately so that the menu is not shown (but we still fire the onShowing event as we need to know if the user wants to not show a context menu)
 			}
 			event.consume();
 		});
-		// Workaround #2
-		node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-			contextMenu.hide(); // Hide the context menu on ANY mouse click, otherwise SECONDARY clicking around would reuse the same menu
-		});
+		// Workaround #3: hide the context menu on ANY mouse click, otherwise SECONDARY clicking around would reuse the same menu
+		node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> contextMenu.hide());
 	}
 
 	/**

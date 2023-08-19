@@ -22,7 +22,6 @@ package io.xeres.ui.controller.chat;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 
 import java.text.MessageFormat;
@@ -31,7 +30,7 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 {
 	private static final ImageView defaultImage = new ImageView("/image/avatar_16.png");
 
-	public ChatUserCell(ListView<ChatRoomUser> listView)
+	public ChatUserCell()
 	{
 		super();
 		TooltipUtils.install(this,

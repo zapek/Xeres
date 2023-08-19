@@ -20,11 +20,10 @@
 package io.xeres.ui.controller.settings;
 
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 
 class SettingsCell extends ListCell<SettingsGroup>
 {
-	SettingsCell(ListView<SettingsGroup> listView)
+	SettingsCell()
 	{
 		super();
 	}

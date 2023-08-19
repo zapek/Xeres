@@ -20,11 +20,10 @@
 package io.xeres.ui.controller.messaging;
 
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeView;
 
 public class PeerCell extends TreeCell<PeerHolder>
 {
-	public PeerCell(TreeView<PeerHolder> treeView)
+	public PeerCell()
 	{
 		super();
 	}

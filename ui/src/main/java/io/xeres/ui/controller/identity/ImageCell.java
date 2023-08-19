@@ -22,7 +22,6 @@ package io.xeres.ui.controller.identity;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.identity.Identity;
 import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -30,7 +29,7 @@ import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
 public class ImageCell extends TableCell<Identity, Long>
 {
-	public ImageCell(TableColumn<Identity, Long> identityLongTableColumn)
+	public ImageCell()
 	{
 		super();
 	}

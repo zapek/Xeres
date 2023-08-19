@@ -123,7 +123,7 @@ public class AddRsIdWindowController implements WindowController
 				.doOnSuccess(profile -> ownProfile = profile)
 				.subscribe();
 
-		certIps.setCellFactory(AddressCell::new);
+		certIps.setCellFactory(param -> new AddressCell());
 		certIps.setConverter(new AddressConverter());
 
 		Platform.runLater(this::handleArgument);

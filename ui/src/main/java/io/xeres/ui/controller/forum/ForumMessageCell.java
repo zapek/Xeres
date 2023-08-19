@@ -21,11 +21,10 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.common.message.forum.ForumMessage;
 import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
 
 public class ForumMessageCell extends TableRow<ForumMessage>
 {
-	public ForumMessageCell(TableView<ForumMessage> listView)
+	public ForumMessageCell()
 	{
 		super();
 	}

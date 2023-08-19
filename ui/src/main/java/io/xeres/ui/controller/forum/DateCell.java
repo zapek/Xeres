@@ -21,7 +21,6 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.common.message.forum.ForumMessage;
 import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -32,7 +31,7 @@ public class DateCell extends TableCell<ForumMessage, Instant>
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 			.withZone(ZoneId.systemDefault());
 
-	public DateCell(TableColumn<ForumMessage, Instant> forumMessageStringTableColumn)
+	public DateCell()
 	{
 		super();
 	}

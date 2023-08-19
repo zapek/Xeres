@@ -139,7 +139,7 @@ public class ForumViewController implements Controller
 		root.setExpanded(true);
 		forumTree.setRoot(root);
 		forumTree.setShowRoot(false);
-		forumTree.setCellFactory(ForumCell::new);
+		forumTree.setCellFactory(param -> new ForumCell());
 		createForumTreeContextMenu();
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
@@ -154,11 +154,11 @@ public class ForumViewController implements Controller
 			}
 		});
 
-		forumMessagesTableView.setRowFactory(ForumMessageCell::new);
+		forumMessagesTableView.setRowFactory(param -> new ForumMessageCell());
 		createForumMessageTableViewContextMenu();
 		tableSubject.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableAuthor.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getAuthorName() != null ? param.getValue().getAuthorName() : Id.toString(param.getValue().getAuthorId())));
-		tableDate.setCellFactory(DateCell::new);
+		tableDate.setCellFactory(param -> new DateCell());
 		tableDate.setCellValueFactory(new PropertyValueFactory<>("published"));
 
 		forumMessagesTableView.getSortOrder().add(tableDate);

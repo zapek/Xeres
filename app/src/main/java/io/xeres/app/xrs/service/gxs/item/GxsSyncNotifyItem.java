@@ -30,11 +30,6 @@ public class GxsSyncNotifyItem extends Item implements DynamicServiceType
 {
 	private int serviceType;
 
-	@SuppressWarnings("unused")
-	public GxsSyncNotifyItem()
-	{
-	}
-
 	@Override
 	public int getSubType()
 	{

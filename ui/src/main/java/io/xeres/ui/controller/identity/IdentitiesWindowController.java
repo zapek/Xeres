@@ -77,7 +77,7 @@ public class IdentitiesWindowController implements WindowController
 						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 								.withZone(ZoneId.systemDefault())
 								.format(param.getValue().getUpdated())));
-		tableImage.setCellFactory(ImageCell::new);
+		tableImage.setCellFactory(param -> new ImageCell());
 		tableImage.setCellValueFactory(new PropertyValueFactory<>("id"));
 
 		identityClient.getIdentities().collectList()

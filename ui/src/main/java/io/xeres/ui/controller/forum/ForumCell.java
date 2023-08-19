@@ -2,11 +2,10 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.common.message.forum.ForumGroup;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeView;
 
 public class ForumCell extends TreeCell<ForumGroup>
 {
-	public ForumCell(TreeView<ForumGroup> treeView)
+	public ForumCell()
 	{
 		super();
 	}

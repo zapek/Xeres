@@ -188,7 +188,7 @@ public class ChatViewController implements Controller
 		root.setExpanded(true);
 		roomTree.setRoot(root);
 		roomTree.setShowRoot(false);
-		roomTree.setCellFactory(ChatRoomCell::new);
+		roomTree.setCellFactory(param -> new ChatRoomCell());
 		createRoomTreeContextMenu();
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change

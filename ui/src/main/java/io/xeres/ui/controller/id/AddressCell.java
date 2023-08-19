@@ -22,7 +22,6 @@ package io.xeres.ui.controller.id;
 import io.xeres.common.geoip.Country;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -31,7 +30,7 @@ import java.util.Objects;
 
 public class AddressCell extends ListCell<AddressCountry>
 {
-	public AddressCell(ListView<AddressCountry> listView)
+	public AddressCell()
 	{
 		super();
 	}

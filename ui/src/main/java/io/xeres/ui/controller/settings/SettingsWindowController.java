@@ -61,7 +61,7 @@ public class SettingsWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		listView.setCellFactory(SettingsCell::new);
+		listView.setCellFactory(param -> new SettingsCell());
 		listView.getItems().addAll(
 				new SettingsGroup(bundle.getString("settings.general"), new ImageView("/image/settings_general.png"), SettingsGeneralController.class),
 				new SettingsGroup(bundle.getString("settings.network"), new ImageView("/image/settings_networks.png"), SettingsNetworksController.class));

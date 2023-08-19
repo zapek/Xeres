@@ -76,7 +76,7 @@ public class ProfilesWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		profilesTableView.setRowFactory(ProfileCell::new);
+		profilesTableView.setRowFactory(param -> new ProfileCell());
 		createProfilesTableViewContextMenu();
 
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));

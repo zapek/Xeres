@@ -69,7 +69,7 @@ public class PeersWindowController implements WindowController
 		peersTree.setRoot(root);
 		peersTree.setShowRoot(false);
 
-		peersTree.setCellFactory(PeerCell::new);
+		peersTree.setCellFactory(param -> new PeerCell());
 		createPeersTreeContextMenu();
 
 		peersTree.setOnMouseClicked(event -> {

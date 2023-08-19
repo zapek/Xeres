@@ -24,14 +24,13 @@ import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.RoomType;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeView;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
 
 public class ChatRoomCell extends TreeCell<RoomHolder>
 {
-	public ChatRoomCell(TreeView<RoomHolder> treeView)
+	public ChatRoomCell()
 	{
 		super();
 		TooltipUtils.install(this,

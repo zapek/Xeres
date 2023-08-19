@@ -130,6 +130,9 @@ public class ChatViewController implements Controller
 	@FXML
 	private Label roomTopic;
 
+	@FXML
+	public Button createChatRoom;
+
 	private final MessageClient messageClient;
 	private final ChatClient chatClient;
 	private final ProfileClient profileClient;
@@ -241,6 +244,8 @@ public class ChatViewController implements Controller
 		invite.setOnAction(event -> windowManager.openInvite(UiUtils.getWindow(event), selectedRoom.getId()));
 
 		getChatRoomContext();
+
+		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation(UiUtils.getWindow(event)));
 	}
 
 	private void createRoomTreeContextMenu()

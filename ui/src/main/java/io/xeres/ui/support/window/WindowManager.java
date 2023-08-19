@@ -31,6 +31,7 @@ import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
+import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorViewController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.identity.IdentitiesWindowController;
@@ -269,6 +270,16 @@ public class WindowManager
 						.setMinWidth(320.0)
 						.setMinHeight(256.0)
 						.setUserData(postRequest)
+						.build()
+						.open());
+	}
+
+	public void openForumCreation(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(ForumCreationWindowController.class)
+						.setParent(parent)
+						.setTitle("Create forum")
 						.build()
 						.open());
 	}

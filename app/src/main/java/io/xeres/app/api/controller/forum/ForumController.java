@@ -81,7 +81,7 @@ public class ForumController
 	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateForumGroupRequest createForumGroupRequest)
 	{
 		var ownIdentity = identityRsService.getOwnIdentity();
-		var id = forumRsService.createForum(ownIdentity.getGxsId(), createForumGroupRequest.name(), createForumGroupRequest.description());
+		var id = forumRsService.createForumGroup(ownIdentity.getGxsId(), createForumGroupRequest.name(), createForumGroupRequest.description());
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();

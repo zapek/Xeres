@@ -4,5 +4,5 @@ __   __
  /   \ / _ \ '__/ _ \/ __|
 / /^\ \  __/ | |  __/\__ \
 \/   \/\___|_|  \___||___/
-:: The Ultimate Peer-to-Peer Solution ::
+:: Uncensorable Peer-to-Peer ::
 :: https://xeres.io ::

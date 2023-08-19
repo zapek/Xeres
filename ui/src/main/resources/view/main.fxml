@@ -76,13 +76,6 @@
                 </graphic>
             </MenuItem>
         </Menu>
-        <Menu text="%main.menu.chat">
-            <MenuItem fx:id="createChatRoom" text="%main.menu.chat.create-chat-room">
-                <graphic>
-                    <FontAwesomeIconView glyphName="PLUS" glyphSize="14"/>
-                </graphic>
-            </MenuItem>
-        </Menu>
         <Menu text="%main.menu.tools">
             <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">
                 <graphic>

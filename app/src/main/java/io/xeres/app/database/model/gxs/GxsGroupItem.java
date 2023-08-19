@@ -446,7 +446,8 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	{
 		return signatures.stream()
 				.filter(signature -> signature.getType() == Signature.Type.AUTHOR)
-				.findFirst().orElseThrow().getData();
+				.findFirst()
+				.map(Signature::getData).orElse(null);
 	}
 
 	public void setAuthorSignature(byte[] authorSignature)

@@ -76,6 +76,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private static final int GXS_KEY_SIZE = 2048; // The RSA size of Gxs keys. Do not change unless you want everything to break.
 	private static final int KEY_TRANSACTION_ID = 1;
+	private static final int KEY_LAST_SYNC = 2;
 
 	/**
 	 * When to perform synchronization run with a peer.
@@ -232,7 +233,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	public void initialize(PeerConnection peerConnection)
 	{
 		peerConnection.scheduleWithFixedDelay(
-				() -> sync(peerConnection),
+				() -> autoSync(peerConnection),
 				ThreadLocalRandom.current().nextLong(SYNCHRONIZATION_DELAY_INITIAL_MIN.toSeconds(), SYNCHRONIZATION_DELAY_INITIAL_MAX.toSeconds() + 1),
 				SYNCHRONIZATION_DELAY.toSeconds(),
 				TimeUnit.SECONDS
@@ -264,6 +265,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				log.debug("Would handle group statistics item (not implemented yet)");
 				// XXX:
 			}
+			else if (item instanceof GxsSyncNotifyItem gxsSyncNotifyItem)
+			{
+				handleGxsSyncNotifyItem(sender, gxsSyncNotifyItem);
+			}
 			else
 			{
 				log.error("Not a GxsExchange item: {}, ignoring", item);
@@ -280,11 +285,27 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private void sync(PeerConnection peerConnection)
+	/**
+	 * Syncs automatically each SYNCHRONIZATION_DELAY, unless a syncNow() was performed in between, in that case
+	 * skip until the next one.
+	 *
+	 * @param peerConnection the peer connection
+	 */
+	private void autoSync(PeerConnection peerConnection)
+	{
+		var lastSync = (Instant) peerConnection.getServiceData(this, KEY_LAST_SYNC).orElse(Instant.EPOCH);
+		if (Duration.between(lastSync, Instant.now()).compareTo(SYNCHRONIZATION_DELAY.minusSeconds(1)) > 0)
+		{
+			syncNow(peerConnection);
+		}
+	}
+
+	private void syncNow(PeerConnection peerConnection)
 	{
 		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsUpdateService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
 		log.debug("Asking {} for last local sync {} for service {}", peerConnection, log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncGroupRequestItem.getLastUpdated()) : null, getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
+		peerConnection.putServiceData(this, KEY_LAST_SYNC, Instant.now());
 	}
 
 	private void checkPendingGroupsAndMessages()
@@ -300,6 +321,20 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			pendingGxsGroups.entrySet().removeIf(gxsGroupItemLongEntry -> gxsGroupItemLongEntry.getValue() < 0);
 			pendingGxsMessages.entrySet().removeIf(gxsMessageItemLongEntry -> gxsMessageItemLongEntry.getValue() < 0);
 		}
+	}
+
+	private void handleGxsSyncNotifyItem(PeerConnection peerConnection, GxsSyncNotifyItem item)
+	{
+		log.debug("Got {} from {}", item, peerConnection);
+
+		syncNow(peerConnection);
+	}
+
+	protected void sendSyncNotification(PeerConnection peerConnection)
+	{
+		var gxsSyncNotifyItem = new GxsSyncNotifyItem();
+		log.debug("Sending sync notification to {}", peerConnection);
+		peerConnectionManager.writeItem(peerConnection, gxsSyncNotifyItem, this);
 	}
 
 	private void handleGxsSyncGroupRequestItem(PeerConnection peerConnection, GxsSyncGroupRequestItem item)
@@ -474,6 +509,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			{
 				gxsUpdateService.setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
 				gxsUpdateService.setLastServiceGroupsUpdateNow(getServiceType());
+				peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
 			}
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_RESPONSE))
@@ -510,6 +546,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			{
 				gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), gxsMessageItems.get(0).getGxsId(), transaction.getUpdated(), getServiceType());
 				//setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
+				peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
 			}
 		}
 	}
@@ -843,6 +880,14 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var data = serializeItemForSignature(gxsGroupItem);
 		var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
 		gxsGroupItem.setAdminSignature(signature);
+
+		if (gxsGroupItem.getAuthor() != null)
+		{
+			var author = identityManager.getGxsGroup(gxsGroupItem.getAuthor());
+			Objects.requireNonNull(author, "Couldn't get own identity. Shouldn't happen (tm)");
+			var authorSignature = RSA.sign(data, author.getAdminPrivateKey());
+			gxsGroupItem.setAuthorSignature(authorSignature);
+		}
 	}
 
 	// XXX: remove!

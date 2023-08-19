@@ -87,9 +87,6 @@ public class MainWindowController implements WindowController
 	private MenuItem exitApplication;
 
 	@FXML
-	private MenuItem createChatRoom;
-
-	@FXML
 	private MenuItem showHelp;
 
 	@FXML
@@ -187,8 +184,6 @@ public class MainWindowController implements WindowController
 		showQrCodeButton.setOnAction(event -> showQrCode(UiUtils.getWindow(event)));
 
 		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
-
-		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation(UiUtils.getWindow(event)));
 
 		showHelp.setOnAction(event -> openUrl(XERES_DOCS_URL));
 		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));

@@ -204,9 +204,11 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Transactional
 	public void subscribeToForumGroup(long id)
 	{
-		// XXX: setLastServiceUpdate()? how will the client know there's new groups available otherwise?
 		var forumGroupItem = findById(id).orElseThrow();
 		forumGroupItem.setSubscribed(true);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(FORUMS);
+		// We don't need to send a sync notify here because it's not urgent.
+		// The peers will poll normally to show if there's a new group available.
 	}
 
 	@Transactional
@@ -292,25 +294,30 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public long createForum(GxsId identity, String name, String description)
+	public long createForumGroup(GxsId identity, String name, String description)
 	{
-		var gxsForumGroupItem = createGroup(name);
-		gxsForumGroupItem.setDescription(description);
+		var forumGroupItem = createGroup(name);
+		forumGroupItem.setDescription(description);
 
 		if (identity != null)
 		{
-			gxsForumGroupItem.setAuthor(identity);
+			forumGroupItem.setAuthor(identity);
 		}
 
-		gxsForumGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: I think...
-		gxsForumGroupItem.setSignatureFlags(Set.of(GxsSignatureFlags.NONE_REQUIRED, GxsSignatureFlags.AUTHENTICATION_REQUIRED));
-		gxsForumGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
+		forumGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: I think...
+		forumGroupItem.setSignatureFlags(Set.of(GxsSignatureFlags.NONE_REQUIRED, GxsSignatureFlags.AUTHENTICATION_REQUIRED));
+		forumGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
 
 		// XXX: set list of moderators
 
-		gxsForumGroupItem.setSubscribed(true);
+		forumGroupItem.setSubscribed(true);
 
-		return saveForum(gxsForumGroupItem).getId();
+		var savedForumId = saveForum(forumGroupItem).getId();
+
+		forumGroupItem.setId(savedForumId);
+		forumNotificationService.addForumGroups(List.of(forumGroupItem));
+
+		return savedForumId;
 	}
 
 	@Transactional
@@ -319,6 +326,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		signGroupIfNeeded(forumGroupItem);
 		var savedForum = gxsForumGroupRepository.save(forumGroupItem);
 		gxsUpdateService.setLastServiceGroupsUpdateNow(FORUMS);
+		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 		return savedForum;
 	}
 
@@ -342,11 +350,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		var forumMessageItem = builder.build();
 
-		var savedMessage = saveMessage(forumMessageItem).getId();
+		var savedMessageId = saveMessage(forumMessageItem).getId();
 
-		forumMessageItem.setId(savedMessage);
+		forumMessageItem.setId(savedMessageId);
 		forumNotificationService.addForumMessages(List.of(forumMessageItem));
 
-		return savedMessage;
+		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
+
+		return savedMessageId;
 	}
 }

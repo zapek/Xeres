@@ -90,6 +90,9 @@ public class ForumViewController implements Controller
 	private TextFlow messageContent;
 
 	@FXML
+	public Button createForum;
+
+	@FXML
 	private Button newThread;
 
 	private final ResourceBundle bundle;
@@ -164,6 +167,8 @@ public class ForumViewController implements Controller
 
 		forumMessagesTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue));
+
+		createForum.setOnAction(event -> windowManager.openForumCreation(UiUtils.getWindow(event)));
 
 		newThread.setOnAction(event -> newForumPost(UiUtils.getWindow(event), false));
 
@@ -272,8 +277,6 @@ public class ForumViewController implements Controller
 		var subscribedTree = subscribedForums.getChildren();
 		var popularTree = popularForums.getChildren();
 		var otherTree = otherForums.getChildren();
-
-		log.debug("Would add {} forums", forumGroups.size());
 
 		forumGroups.forEach(forumGroup -> {
 			if (forumGroup.isSubscribed())

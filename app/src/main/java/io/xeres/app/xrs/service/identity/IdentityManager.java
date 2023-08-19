@@ -110,6 +110,11 @@ public class IdentityManager
 		}
 	}
 
+	public IdentityGroupItem getGxsGroup(GxsId gxsId)
+	{
+		return identityRsService.findByGxsId(gxsId).orElse(null);
+	}
+
 	public void fetchGxsGroups(PeerConnection peerConnection, Set<GxsId> gxsIds)
 	{
 		synchronized (pendingGxsIds)

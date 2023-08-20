@@ -54,18 +54,19 @@
                 </Button>
             </HBox>
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
-                <TableView fx:id="forumMessagesTableView" minHeight="50.0" prefHeight="150.0">
+                <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0">
                     <columns>
-                        <TableColumn minWidth="24" prefWidth="24">
+                        <!--
+                        <TreeTableColumn minWidth="24" prefWidth="24">
                             <graphic>
                                 <FontAwesomeIconView glyphName="ENVELOPE" glyphSize="14"/>
                             </graphic>
-                        </TableColumn>
-                        <TableColumn fx:id="tableSubject" minWidth="80" prefWidth="200" text="Subject"/>
-                        <TableColumn fx:id="tableAuthor" minWidth="40" prefWidth="100" text="Author"/>
-                        <TableColumn fx:id="tableDate" minWidth="40" prefWidth="120" text="Date"/>
+                        </TreeTableColumn>-->
+                        <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="200" text="Subject"/>
+                        <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="100" text="Author"/>
+                        <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="120" text="Date"/>
                     </columns>
-                </TableView>
+                </TreeTableView>
                 <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
                     <TextFlow fx:id="messageContent" styleClass="freeflow">
                         <padding>

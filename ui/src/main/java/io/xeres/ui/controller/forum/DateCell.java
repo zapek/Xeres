@@ -20,13 +20,13 @@
 package io.xeres.ui.controller.forum;
 
 import io.xeres.common.message.forum.ForumMessage;
-import javafx.scene.control.TableCell;
+import javafx.scene.control.TreeTableCell;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-public class DateCell extends TableCell<ForumMessage, Instant>
+public class DateCell extends TreeTableCell<ForumMessage, Instant>
 {
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 			.withZone(ZoneId.systemDefault());

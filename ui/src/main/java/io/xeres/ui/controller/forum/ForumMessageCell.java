@@ -20,9 +20,9 @@
 package io.xeres.ui.controller.forum;
 
 import io.xeres.common.message.forum.ForumMessage;
-import javafx.scene.control.TableRow;
+import javafx.scene.control.TreeTableRow;
 
-public class ForumMessageCell extends TableRow<ForumMessage>
+public class ForumMessageCell extends TreeTableRow<ForumMessage>
 {
 	public ForumMessageCell()
 	{

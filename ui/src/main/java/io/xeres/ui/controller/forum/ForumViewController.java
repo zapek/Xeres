@@ -40,7 +40,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -55,7 +55,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
-import static javafx.scene.control.TableColumn.SortType.DESCENDING;
+import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
 @FxmlView(value = "/view/forum/forumview.fxml")
@@ -75,16 +75,16 @@ public class ForumViewController implements Controller
 	private SplitPane splitPaneHorizontal;
 
 	@FXML
-	private TableView<ForumMessage> forumMessagesTableView;
+	private TreeTableView<ForumMessage> forumMessagesTreeTableView;
 
 	@FXML
-	private TableColumn<ForumMessage, String> tableSubject;
+	private TreeTableColumn<ForumMessage, String> treeTableSubject;
 
 	@FXML
-	private TableColumn<ForumMessage, String> tableAuthor;
+	private TreeTableColumn<ForumMessage, String> treeTableAuthor;
 
 	@FXML
-	private TableColumn<ForumMessage, Instant> tableDate;
+	private TreeTableColumn<ForumMessage, Instant> treeTableDate;
 
 	@FXML
 	private TextFlow messageContent;
@@ -108,6 +108,8 @@ public class ForumViewController implements Controller
 
 	private XContextMenu<ForumGroup> forumGroupXContextMenu;
 	private XContextMenu<ForumMessage> forumMessageXContextMenu;
+
+	private TreeItem<ForumMessage> forumMessagesRoot;
 
 	private final TreeItem<ForumGroup> ownForums;
 	private final TreeItem<ForumGroup> subscribedForums;
@@ -154,19 +156,23 @@ public class ForumViewController implements Controller
 			}
 		});
 
-		forumMessagesTableView.setRowFactory(param -> new ForumMessageCell());
+		forumMessagesTreeTableView.setRowFactory(param -> new ForumMessageCell());
 		createForumMessageTableViewContextMenu();
-		tableSubject.setCellValueFactory(new PropertyValueFactory<>("name"));
-		tableAuthor.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getAuthorName() != null ? param.getValue().getAuthorName() : Id.toString(param.getValue().getAuthorId())));
-		tableDate.setCellFactory(param -> new DateCell());
-		tableDate.setCellValueFactory(new PropertyValueFactory<>("published"));
+		treeTableSubject.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
+		treeTableAuthor.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().getAuthorName() != null ? param.getValue().getValue().getAuthorName() : Id.toString(param.getValue().getValue().getAuthorId())));
+		treeTableDate.setCellFactory(param -> new DateCell());
+		treeTableDate.setCellValueFactory(new TreeItemPropertyValueFactory<>("published"));
 
-		forumMessagesTableView.getSortOrder().add(tableDate);
-		tableDate.setSortType(DESCENDING);
-		tableDate.setSortable(true);
+		forumMessagesRoot = new TreeItem<>(new ForumMessage());
+		forumMessagesTreeTableView.setRoot(forumMessagesRoot);
+		forumMessagesTreeTableView.setShowRoot(false);
 
-		forumMessagesTableView.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue));
+		forumMessagesTreeTableView.getSortOrder().add(treeTableDate);
+		treeTableDate.setSortType(DESCENDING);
+		treeTableDate.setSortable(true);
+
+		forumMessagesTreeTableView.getSelectionModel().selectedItemProperty()
+				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue != null ? newValue.getValue() : null));
 
 		createForum.setOnAction(event -> windowManager.openForumCreation(UiUtils.getWindow(event)));
 
@@ -206,7 +212,7 @@ public class ForumViewController implements Controller
 		var replyItem = new MenuItem("Reply");
 		replyItem.setOnAction(event -> newForumPost(UiUtils.getWindow(event), true));
 
-		forumMessageXContextMenu = new XContextMenu<>(forumMessagesTableView, replyItem);
+		forumMessageXContextMenu = new XContextMenu<>(forumMessagesTreeTableView, replyItem);
 	}
 
 	private void newForumPost(Window window, boolean replyTo)
@@ -348,19 +354,34 @@ public class ForumViewController implements Controller
 
 		getSubscribedTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
-					forumMessagesTableView.getItems().clear();
-					forumMessagesTableView.getItems().addAll(forumMessages);
-					forumMessagesTableView.sort();
+					forumMessagesRoot.getChildren().clear();
+					forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(forumMessages));
+					sortForumMessages();
 					messageContent.getChildren().clear();
 					newThread.setDisable(false);
 				}))
 				.doOnError(throwable -> log.error("Error while getting the forum messages: {}", throwable.getMessage(), throwable)) // XXX: cleanup on error?
 				.subscribe(), () -> {
 			// XXX: display some forum info in the message view
-			forumMessagesTableView.getItems().clear();
+			forumMessagesRoot.getChildren().clear();
 			messageContent.getChildren().clear();
 			newThread.setDisable(true);
 		});
+	}
+
+	// XXX: implement threaded support for the 2 following methods.
+	// if the message has a parentId, find it in the list then add the message to it.
+	// could be slow if the list is big so find tricks to speed it up
+	private List<TreeItem<ForumMessage>> toTreeItemForumMessages(List<ForumMessage> forumMessages)
+	{
+		return forumMessages.stream()
+				.map(TreeItem::new)
+				.toList();
+	}
+
+	private void add(ForumMessage forumMessage)
+	{
+		forumMessagesRoot.getChildren().add(new TreeItem<>(forumMessage));
 	}
 
 	private Optional<TreeItem<ForumGroup>> getSubscribedTreeItem(long forumId)
@@ -400,12 +421,15 @@ public class ForumViewController implements Controller
 				add(forumMessage);
 			}
 		});
+		sortForumMessages();
 	}
 
-	private void add(ForumMessage forumMessage)
+	private void sortForumMessages()
 	{
-		forumMessagesTableView.getItems().add(forumMessage);
-		forumMessagesTableView.sort();
+		if (!forumMessagesRoot.getChildren().isEmpty()) // without this check, there are exceptions sometimes, JavaFX bug?
+		{
+			forumMessagesTreeTableView.sort();
+		}
 	}
 
 	@EventListener

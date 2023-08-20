@@ -52,7 +52,8 @@ public final class ForumMapper
 				forumGroupItem.getGxsId(),
 				forumGroupItem.getName(),
 				forumGroupItem.getDescription(),
-				forumGroupItem.isSubscribed()
+				forumGroupItem.isSubscribed(),
+				forumGroupItem.isExternal()
 		);
 	}
 

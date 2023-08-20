@@ -26,7 +26,8 @@ public record ForumGroupDTO(
 		GxsId gxsId,
 		String name,
 		String description,
-		boolean subscribed
+		boolean subscribed,
+		boolean external
 )
 {
 }

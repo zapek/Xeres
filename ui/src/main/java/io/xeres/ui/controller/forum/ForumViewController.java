@@ -54,6 +54,7 @@ import reactor.core.Disposable;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
@@ -203,7 +204,7 @@ public class ForumViewController implements Controller
 					.filter(menuItem -> menuItem.getId().equals(UNSUBSCRIBE_MENU_ID))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(!forumGroup.isSubscribed()));
 
-			return forumGroup.isReal();
+			return forumGroup.isReal() && forumGroup.isExternal();
 		});
 	}
 
@@ -280,12 +281,17 @@ public class ForumViewController implements Controller
 
 	private void addForumGroups(List<ForumGroup> forumGroups)
 	{
+		var ownTree = ownForums.getChildren();
 		var subscribedTree = subscribedForums.getChildren();
 		var popularTree = popularForums.getChildren();
 		var otherTree = otherForums.getChildren();
 
 		forumGroups.forEach(forumGroup -> {
-			if (forumGroup.isSubscribed())
+			if (!forumGroup.isExternal())
+			{
+				addOrUpdate(ownTree, forumGroup);
+			}
+			else if (forumGroup.isSubscribed())
 			{
 				addOrUpdate(subscribedTree, forumGroup);
 			}
@@ -352,7 +358,7 @@ public class ForumViewController implements Controller
 		selectedForumGroup = forumGroup;
 		selectedForumMessage = null;
 
-		getSubscribedTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
+		getBrowsableTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
 					forumMessagesRoot.getChildren().clear();
 					forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(forumMessages));
@@ -384,9 +390,9 @@ public class ForumViewController implements Controller
 		forumMessagesRoot.getChildren().add(new TreeItem<>(forumMessage));
 	}
 
-	private Optional<TreeItem<ForumGroup>> getSubscribedTreeItem(long forumId)
+	private Optional<TreeItem<ForumGroup>> getBrowsableTreeItem(long forumId)
 	{
-		return subscribedForums.getChildren().stream()
+		return Stream.concat(subscribedForums.getChildren().stream(), ownForums.getChildren().stream())
 				.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == forumId)
 				.findFirst();
 	}

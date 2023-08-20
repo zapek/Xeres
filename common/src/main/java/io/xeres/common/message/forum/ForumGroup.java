@@ -28,6 +28,7 @@ public class ForumGroup
 	private GxsId gxsId;
 	private String description;
 	private boolean subscribed;
+	private boolean external;
 
 	public ForumGroup()
 	{
@@ -91,6 +92,16 @@ public class ForumGroup
 	public void setSubscribed(boolean subscribed)
 	{
 		this.subscribed = subscribed;
+	}
+
+	public boolean isExternal()
+	{
+		return external;
+	}
+
+	public void setExternal(boolean external)
+	{
+		this.external = external;
 	}
 
 	@Override

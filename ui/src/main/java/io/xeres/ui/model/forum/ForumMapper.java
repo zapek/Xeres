@@ -44,6 +44,7 @@ public final class ForumMapper
 		forumGroup.setGxsId(dto.gxsId());
 		forumGroup.setDescription(dto.description());
 		forumGroup.setSubscribed(dto.subscribed());
+		forumGroup.setExternal(dto.external());
 		return forumGroup;
 	}
 

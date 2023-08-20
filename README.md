@@ -21,11 +21,15 @@
 
 Xeres is an application that allows to connect to other peers to exchange information.
 
-- Peer-to-Peer (Friend-to-Friend), completely decentralized
-- Fully compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
-- Hardware accelerated encryption ([AES-NI](https://en.wikipedia.org/wiki/AES_instruction_set)) support
-- Fast and clean desktop UI using [JavaFX](https://openjfx.io/)
-- High concurrency, multi-threaded
+- Peer-to-Peer (Friend-to-Friend), fully decentralized
+- No censorship. Cannot be censored
+- Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
+- Hardware accelerated encryption
+- Desktop User Interface
+- Remote access
+- Asynchronous design
+- High concurrency
+- Free software (GPL)
 
 ## Supported Platforms
 

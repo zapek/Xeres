@@ -24,8 +24,7 @@ class Markdown2FlowTest
 
 				Line2 with trails
 
-				Line3
-				""";
+				Line3""";
 
 		assertEquals(wanted, Markdown2Flow.sanitize(text));
 	}

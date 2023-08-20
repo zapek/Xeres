@@ -360,19 +360,21 @@ public class ForumViewController implements Controller
 
 		getBrowsableTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
+					forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
 					forumMessagesRoot.getChildren().clear();
 					forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(forumMessages));
-					sortForumMessages();
+					forumMessagesTreeTableView.sort();
 					messageContent.getChildren().clear();
 					newThread.setDisable(false);
 				}))
 				.doOnError(throwable -> log.error("Error while getting the forum messages: {}", throwable.getMessage(), throwable)) // XXX: cleanup on error?
-				.subscribe(), () -> {
+				.subscribe(), () -> Platform.runLater(() -> {
 			// XXX: display some forum info in the message view
+			forumMessagesTreeTableView.getSelectionModel().clearSelection();
 			forumMessagesRoot.getChildren().clear();
 			messageContent.getChildren().clear();
 			newThread.setDisable(true);
-		});
+		}));
 	}
 
 	// XXX: implement threaded support for the 2 following methods.
@@ -427,15 +429,7 @@ public class ForumViewController implements Controller
 				add(forumMessage);
 			}
 		});
-		sortForumMessages();
-	}
-
-	private void sortForumMessages()
-	{
-		if (!forumMessagesRoot.getChildren().isEmpty()) // without this check, there are exceptions sometimes, JavaFX bug?
-		{
-			forumMessagesTreeTableView.sort();
-		}
+		forumMessagesTreeTableView.sort();
 	}
 
 	@EventListener

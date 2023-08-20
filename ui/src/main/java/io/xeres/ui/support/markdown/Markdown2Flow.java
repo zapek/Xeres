@@ -37,15 +37,10 @@ public class Markdown2Flow
 	{
 		input = sanitize(input);
 
-		var eatNextEmptyLine = false;
 		var scanner = new Scanner(input);
 		while (scanner.hasNextLine())
 		{
 			var line = scanner.nextLine();
-			if (eatNextEmptyLine && line.isEmpty())
-			{
-				continue;
-			}
 			line = line + "\n";
 			line = SmileyUtils.smileysToUnicode(line);
 			line = EmojiParser.parseToUnicode(line);
@@ -53,7 +48,10 @@ public class Markdown2Flow
 			if (line.startsWith("#"))
 			{
 				processHeader(line);
-				eatNextEmptyLine = true;
+			}
+			else if (line.contains("*"))
+			{
+				processBoldAndItalic(line);
 			}
 			else
 			{
@@ -67,7 +65,7 @@ public class Markdown2Flow
 	{
 		int size;
 
-		for (size = 1; size < line.length(); size++)
+		for (size = 0; size < line.length(); size++)
 		{
 			if (line.charAt(size) != '#')
 			{
@@ -81,29 +79,50 @@ public class Markdown2Flow
 		content.add(new ContentHeader(line.substring(size).trim() + "\n", size));
 	}
 
+	private void processBoldAndItalic(String line)
+	{
+		// we can have **hello *my* world** and also *hello **my** world*. a space after * or ** makes it fail
+
+		// XXX: try bold for now
+	}
+
 	/**
-	 * Currently removes consecutive empty lines and trailing spaces.
+	 * Currently removes trailing spaces and handles line feeds:
+	 * - one line feed makes the next line is a continuation
+	 * - two line feeds make a paragraph
 	 */
 	static String sanitize(String input)
 	{
 		var lines = input.split("\n");
 		var sb = new StringBuilder();
-		var skip = false;
+		var skip = 0; // XXX: use an enum or so... 0 = normal, 1 = empty lines, 2 = continuation break
 
 		for (String s : lines)
 		{
 			if (s.trim().isEmpty())
 			{
-				if (!skip)
+				// One empty line is treated as a paragraph
+				if (skip != 1)
 				{
-					sb.append("\n");
-					skip = true;
+					sb.append("\n\n");
+					skip = 1;
 				}
+			}
+			else if (s.startsWith("> "))
+			{
+				// We don't process quoted text
+				skip = 0;
+				sb.append(s.stripTrailing()).append("\n");
 			}
 			else
 			{
-				sb.append(s.stripTrailing()).append("\n");
-				skip = false;
+				// Normal break is treated as continuation
+				if (skip == 2)
+				{
+					sb.append(" ");
+				}
+				sb.append(s.stripTrailing());
+				skip = 2;
 			}
 		}
 		return sb.toString();

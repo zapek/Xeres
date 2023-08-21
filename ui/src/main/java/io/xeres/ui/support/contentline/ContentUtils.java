@@ -19,8 +19,9 @@
 
 package io.xeres.ui.support.contentline;
 
+import io.xeres.ui.support.util.Range;
+
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class ContentUtils
@@ -43,14 +44,14 @@ public final class ContentUtils
 			var currentRange = new Range(matcher);
 
 			// Text before/between URLs
-			var betweenRange = currentRange.textRange(previousRange);
+			var betweenRange = currentRange.outerRange(previousRange);
 			if (betweenRange.hasRange())
 			{
-				contents.add(new ContentText(s.substring(betweenRange.start, betweenRange.end)));
+				contents.add(new ContentText(s.substring(betweenRange.start(), betweenRange.end())));
 			}
 
 			// URL
-			contents.add(new ContentUri(s.substring(currentRange.start, currentRange.end)));
+			contents.add(new ContentUri(s.substring(currentRange.start(), currentRange.end())));
 
 			previousRange = currentRange;
 		}
@@ -60,47 +61,11 @@ public final class ContentUtils
 			// Text if no URL at all
 			contents.add(new ContentText(s));
 		}
-		else if (previousRange.end < s.length())
+		else if (previousRange.end() < s.length())
 		{
 			// Text after the last URL
-			contents.add(new ContentText(s.substring(previousRange.end)));
+			contents.add(new ContentText(s.substring(previousRange.end())));
 		}
 	}
 
-	private static class Range
-	{
-		private final int start;
-		private final int end;
-
-		public Range(Matcher matcher)
-		{
-			start = matcher.start(1);
-			end = matcher.end();
-		}
-
-		public Range(int start, int end)
-		{
-			this.start = start;
-			this.end = end;
-		}
-
-		public boolean hasRange()
-		{
-			return end > start;
-		}
-
-		public Range textRange(Range other)
-		{
-			if (other.start > start)
-			{
-				// other is after us
-				return new Range(end, other.start);
-			}
-			else
-			{
-				// other is before us
-				return new Range(other.end, start);
-			}
-		}
-	}
 }

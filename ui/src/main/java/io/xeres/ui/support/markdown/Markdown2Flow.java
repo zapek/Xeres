@@ -1,18 +1,23 @@
 package io.xeres.ui.support.markdown;
 
 import com.vdurmont.emoji.EmojiParser;
-import io.xeres.ui.support.contentline.Content;
-import io.xeres.ui.support.contentline.ContentHeader;
-import io.xeres.ui.support.contentline.ContentUtils;
+import io.xeres.ui.support.contentline.*;
+import io.xeres.ui.support.util.Range;
 import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.Node;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class Markdown2Flow
 {
+	private static final Pattern BOLD_PATTERN = Pattern.compile("(\\*\\*[^* ]((?!\\*\\*).)*[^* ]\\*\\*)");
+	private static final Pattern ITALIC_PATTERN = Pattern.compile("(\\*[^* ]((?!\\*).)*[^* ]\\*)");
+
 	private String input;
 	private final List<Content> content = new ArrayList<>();
 
@@ -51,7 +56,11 @@ public class Markdown2Flow
 			}
 			else if (line.contains("*"))
 			{
-				processBoldAndItalic(line);
+				processPattern(BOLD_PATTERN, line,
+						lineBold -> content.add(new ContentEmphasis(lineBold, EnumSet.of(ContentEmphasis.Style.BOLD))), 2,
+						lineBold -> processPattern(ITALIC_PATTERN, lineBold,
+								lineItalic -> content.add(new ContentEmphasis(lineItalic, EnumSet.of(ContentEmphasis.Style.ITALIC))), 1,
+								lineItalic -> content.add(new ContentText(lineItalic))));
 			}
 			else
 			{
@@ -79,11 +88,45 @@ public class Markdown2Flow
 		content.add(new ContentHeader(line.substring(size).trim() + "\n", size));
 	}
 
-	private void processBoldAndItalic(String line)
+	private void processPattern(Pattern pattern, String line, Consumer<String> match, int matchStrip, Consumer<String> noMatch)
 	{
-		// we can have **hello *my* world** and also *hello **my** world*. a space after * or ** makes it fail
+		var matcher = pattern.matcher(line);
+		var previousRange = new Range(0, 0);
 
-		// XXX: try bold for now
+		while (matcher.find())
+		{
+			var currentRange = new Range(matcher);
+
+			// Before/between matches
+			var betweenRange = currentRange.outerRange(previousRange);
+			if (betweenRange.hasRange())
+			{
+				noMatch.accept(line.substring(betweenRange.start(), betweenRange.end()));
+			}
+
+			// Match
+			match.accept(line.substring(currentRange.start() + matchStrip, currentRange.end() - matchStrip));
+
+			previousRange = currentRange;
+		}
+
+		if (!previousRange.hasRange())
+		{
+			// If no match at all
+			noMatch.accept(line);
+		}
+		else if (previousRange.end() < line.length())
+		{
+			// After the last match
+			noMatch.accept(line.substring(previousRange.end()));
+		}
+	}
+
+	private enum SANITIZE_MODE
+	{
+		NORMAL, // keep text as it is
+		EMPTY_LINES, // remove useless empty lines
+		CONTINUATION_BREAK // remove line feed to make a continuation break
 	}
 
 	/**
@@ -95,34 +138,42 @@ public class Markdown2Flow
 	{
 		var lines = input.split("\n");
 		var sb = new StringBuilder();
-		var skip = 0; // XXX: use an enum or so... 0 = normal, 1 = empty lines, 2 = continuation break
+		var skip = SANITIZE_MODE.NORMAL;
 
 		for (String s : lines)
 		{
 			if (s.trim().isEmpty())
 			{
 				// One empty line is treated as a paragraph
-				if (skip != 1)
+				if (skip != SANITIZE_MODE.EMPTY_LINES)
 				{
 					sb.append("\n\n");
-					skip = 1;
+					skip = SANITIZE_MODE.EMPTY_LINES;
 				}
 			}
-			else if (s.startsWith("> "))
+			else if (s.startsWith("> ") || s.startsWith(">>"))
 			{
 				// We don't process quoted text
-				skip = 0;
+				skip = SANITIZE_MODE.NORMAL;
 				sb.append(s.stripTrailing()).append("\n");
 			}
 			else
 			{
 				// Normal break is treated as continuation
-				if (skip == 2)
+				if (skip == SANITIZE_MODE.CONTINUATION_BREAK)
 				{
-					sb.append(" ");
+					if (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* "))
+					{
+						// Except quoted text
+						sb.append("\n");
+					}
+					else
+					{
+						sb.append(" ");
+					}
 				}
 				sb.append(s.stripTrailing());
-				skip = 2;
+				skip = SANITIZE_MODE.CONTINUATION_BREAK;
 			}
 		}
 		return sb.toString();

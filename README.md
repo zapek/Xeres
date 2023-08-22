@@ -56,7 +56,7 @@ Latest release always available [here](https://github.com/zapek/Xeres/releases/l
 
 ### Build Requirements
 
-- Java 8 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 19)
+- Java 17 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 20)
 
 If you want to quickly try the current development version without installing anything else, see the [command line](#command-line) section below.
 

@@ -39,7 +39,7 @@ plugins {
 
 // To upgrade Gradle, change the version here, refresh, then run the 'wrapper' task
 wrapper {
-    gradleVersion = '8.2.1'
+    gradleVersion = '8.3'
 }
 
 subprojects {
@@ -51,7 +51,7 @@ subprojects {
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(19))
+            languageVersion.set(JavaLanguageVersion.of(20))
         }
     }
 

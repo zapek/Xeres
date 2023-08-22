@@ -28,7 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 
-import java.net.URL;
+import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
 
@@ -62,7 +62,7 @@ final class Soap
 		return soap.toString();
 	}
 
-	static ResponseEntity<String> sendRequest(URL controlUrl, String serviceType, String action, Map<String, String> args)
+	static ResponseEntity<String> sendRequest(URI controlUrl, String serviceType, String action, Map<String, String> args)
 	{
 		var webClient = WebClient.builder()
 				.baseUrl(controlUrl.toString())

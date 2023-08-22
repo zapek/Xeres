@@ -19,7 +19,7 @@
 
 package io.xeres.app.net.upnp;
 
-import java.net.URL;
+import java.net.URI;
 
 public interface DeviceSpecs
 {
@@ -35,7 +35,7 @@ public interface DeviceSpecs
 
 	void setManufacturer(String manufacturer);
 
-	URL getManufacturerUrl();
+	URI getManufacturerUrl();
 
 	void setManufacturerUrl(String manufacturerUrl);
 
@@ -47,13 +47,13 @@ public interface DeviceSpecs
 
 	boolean hasControlUrl();
 
-	URL getControlUrl();
+	URI getControlUrl();
 
 	void setControlUrl(String controlUrl);
 
 	boolean hasPresentationUrl();
 
-	URL getPresentationUrl();
+	URI getPresentationUrl();
 
 	void setPresentationUrl(String presentationUrl);
 

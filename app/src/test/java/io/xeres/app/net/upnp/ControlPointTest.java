@@ -23,7 +23,6 @@ import io.xeres.testutils.FakeHttpServer;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,12 +37,12 @@ class ControlPointTest
 	}
 
 	@Test
-	void ControlPoint_AddPortMapping_OK() throws IOException
+	void ControlPoint_AddPortMapping_OK()
 	{
 		var fakeHTTPServer = new FakeHttpServer("/control", 200, null);
 
 		var added = ControlPoint.addPortMapping(
-				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
+				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control"),
 				"urn:schemas-upnp-org:service:WANIPConnection:1",
 				"192.168.1.78",
 				2000,
@@ -57,12 +56,12 @@ class ControlPointTest
 	}
 
 	@Test
-	void ControlPoint_RemovePortMapping_OK() throws IOException
+	void ControlPoint_RemovePortMapping_OK()
 	{
 		var fakeHTTPServer = new FakeHttpServer("/control", 200, null);
 
 		var removed = ControlPoint.removePortMapping(
-				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
+				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control"),
 				"urn:schemas-upnp-org:service:WANIPConnection:1",
 				2000,
 				Protocol.TCP
@@ -73,7 +72,7 @@ class ControlPointTest
 	}
 
 	@Test
-	void ControlPoint_GetExternalIPAddress_OK() throws IOException
+	void ControlPoint_GetExternalIPAddress_OK()
 	{
 		var responseBody = "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
 				"<s:Body>" +
@@ -86,7 +85,7 @@ class ControlPointTest
 		var fakeHTTPServer = new FakeHttpServer("/control", 200, responseBody.getBytes());
 
 		var response = ControlPoint.getExternalIpAddress(
-				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control").toURL(),
+				URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/control"),
 				"urn:schemas-upnp-org:service:WANIPConnection:1"
 		);
 

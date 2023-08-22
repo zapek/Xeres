@@ -35,7 +35,7 @@ import javax.xml.xpath.XPathNodes;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -49,7 +49,7 @@ final class ControlPoint
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static boolean updateDevice(DeviceSpecs upnpDevice, URL location)
+	static boolean updateDevice(DeviceSpecs upnpDevice, URI location)
 	{
 		var controlPointFound = false;
 
@@ -138,7 +138,7 @@ final class ControlPoint
 		return controlUrlFound;
 	}
 
-	static boolean addPortMapping(URL controlUrl, String serviceType, String internalIp, int internalPort, int externalPort, int duration, Protocol protocol)
+	static boolean addPortMapping(URI controlUrl, String serviceType, String internalIp, int internalPort, int externalPort, int duration, Protocol protocol)
 	{
 		Map<String, String> args = new HashMap<>();
 		args.put("NewRemoteHost", "");
@@ -154,7 +154,7 @@ final class ControlPoint
 		return response.getStatusCode() == HttpStatus.OK;
 	}
 
-	static boolean removePortMapping(URL controlUrl, String serviceType, int externalPort, Protocol protocol)
+	static boolean removePortMapping(URI controlUrl, String serviceType, int externalPort, Protocol protocol)
 	{
 		Map<String, String> args = new HashMap<>();
 		args.put("NewRemoteHost", "");
@@ -165,7 +165,7 @@ final class ControlPoint
 		return response.getStatusCode() == HttpStatus.OK;
 	}
 
-	static String getExternalIpAddress(URL controlUrl, String serviceType)
+	static String getExternalIpAddress(URI controlUrl, String serviceType)
 	{
 		var response = Soap.sendRequest(controlUrl, serviceType, "GetExternalIPAddress", null);
 		var body = response.getBody();

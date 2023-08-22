@@ -62,7 +62,7 @@ class SoapTest
 		args.put(KEY1, VALUE1);
 		args.put(KEY2, VALUE2);
 
-		var responseEntity = Soap.sendRequest(URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/soaptest.xml").toURL(), SERVICE_TYPE, ACTION, args);
+		var responseEntity = Soap.sendRequest(URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/soaptest.xml"), SERVICE_TYPE, ACTION, args);
 		assertEquals("OK", responseEntity.getBody());
 
 		var documentBuilderFactory = DocumentBuilderFactory.newInstance();

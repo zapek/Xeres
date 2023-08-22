@@ -25,9 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -99,7 +98,7 @@ public class AutoStarterWindows implements AutoStarter
 			var uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
 			file = uriToFile(uri.toString());
 		}
-		catch (URISyntaxException | MalformedURLException e)
+		catch (URISyntaxException e)
 		{
 			log.error("Invalid application path", e);
 			return null;
@@ -135,7 +134,7 @@ public class AutoStarterWindows implements AutoStarter
 	 * @return A file path suitable for use with e.g. {@link FileInputStream}
 	 * @throws IllegalArgumentException if the URL does not correspond to a file.
 	 */
-	private static File uriToFile(String url) throws MalformedURLException, URISyntaxException
+	private static File uriToFile(String url) throws URISyntaxException
 	{
 		var path = url;
 		if (path.startsWith("jar:"))
@@ -151,9 +150,9 @@ public class AutoStarterWindows implements AutoStarter
 			{
 				path = "file:/" + path.substring(5);
 			}
-			return new File(new URL(path).toURI());
+			return new File(new URI(path));
 		}
-		catch (MalformedURLException | URISyntaxException e)
+		catch (URISyntaxException e)
 		{
 			// NB: URL is not completely well-formed.
 			if (path.startsWith("file:"))

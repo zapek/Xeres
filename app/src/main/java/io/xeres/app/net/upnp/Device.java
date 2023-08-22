@@ -27,9 +27,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.SocketAddress;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -49,11 +49,11 @@ final class Device implements DeviceSpecs
 
 	private String modelName;
 	private String manufacturer;
-	private URL manufacturerUrl;
+	private URI manufacturerUrl;
 	private String serialNumber;
-	private URL presentationUrl;
-	private URL controlUrl;
-	private URL locationUrl;
+	private URI presentationUrl;
+	private URI controlUrl;
+	private URI locationUrl;
 	private String serviceType;
 	private boolean hasControlPoint;
 	private final HashSet<PortMapping> ports = new HashSet<>();
@@ -147,7 +147,7 @@ final class Device implements DeviceSpecs
 		return getLocationUrl() != null;
 	}
 
-	public URL getLocationUrl()
+	public URI getLocationUrl()
 	{
 		if (locationUrl != null)
 		{
@@ -157,9 +157,9 @@ final class Device implements DeviceSpecs
 		locationUrl = getHeaderValue(HttpuHeader.LOCATION).map(s -> {
 			try
 			{
-				return new URL(s);
+				return new URI(s);
 			}
-			catch (MalformedURLException e)
+			catch (URISyntaxException e)
 			{
 				log.error("UPNP: unparseable URL {}, {}", s, e.getMessage());
 				return null;
@@ -225,7 +225,7 @@ final class Device implements DeviceSpecs
 	}
 
 	@Override
-	public URL getManufacturerUrl()
+	public URI getManufacturerUrl()
 	{
 		return manufacturerUrl;
 	}
@@ -261,7 +261,7 @@ final class Device implements DeviceSpecs
 	}
 
 	@Override
-	public URL getControlUrl()
+	public URI getControlUrl()
 	{
 		return controlUrl;
 	}
@@ -279,7 +279,7 @@ final class Device implements DeviceSpecs
 	}
 
 	@Override
-	public URL getPresentationUrl()
+	public URI getPresentationUrl()
 	{
 		return presentationUrl;
 	}
@@ -344,22 +344,22 @@ final class Device implements DeviceSpecs
 		return ControlPoint.getExternalIpAddress(getControlUrl(), getServiceType());
 	}
 
-	private URL parseUrl(String url)
+	private URI parseUrl(String url)
 	{
 		return parseUrl(null, url);
 	}
 
-	private URL parseUrl(URL baseUrl, String url)
+	private URI parseUrl(URI baseUrl, String url)
 	{
 		try
 		{
 			if (baseUrl != null)
 			{
-				return new URL(baseUrl, url);
+				return baseUrl.resolve(url);
 			}
-			return new URL(addProtocolIfMissing(url));
+			return new URI(addProtocolIfMissing(url));
 		}
-		catch (MalformedURLException e)
+		catch (URISyntaxException e)
 		{
 			log.error("Wrong URL {}, {}", url, e.getMessage());
 			return null;

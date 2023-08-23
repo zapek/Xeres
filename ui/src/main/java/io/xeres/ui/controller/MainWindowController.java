@@ -34,7 +34,6 @@ import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.TooltipUtils;
-import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -61,6 +60,7 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
+import static io.xeres.ui.support.util.UiUtils.getWindow;
 
 @Component
 @FxmlView(value = "/view/main.fxml")
@@ -181,7 +181,7 @@ public class MainWindowController implements WindowController
 		copyOwnId.setOnAction(event -> copyOwnId());
 		copyShortIdButton.setOnAction(event -> copyOwnId());
 
-		showQrCodeButton.setOnAction(event -> showQrCode(UiUtils.getWindow(event)));
+		showQrCodeButton.setOnAction(event -> showQrCode(getWindow(event)));
 
 		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
 
@@ -192,21 +192,21 @@ public class MainWindowController implements WindowController
 
 		forums.setOnAction(event -> openUrl(XERES_FORUMS_URL));
 
-		showAboutWindow.setOnAction(event -> windowManager.openAbout(UiUtils.getWindow(event)));
+		showAboutWindow.setOnAction(event -> windowManager.openAbout(getWindow(event)));
 
-		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast(UiUtils.getWindow(event)));
+		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast(getWindow(event)));
 
-		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(UiUtils.getWindow(event)));
+		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(getWindow(event)));
 
-		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(UiUtils.getWindow(event)));
+		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(getWindow(event)));
 
-		showSettingsWindow.setOnAction(event -> windowManager.openSettings(UiUtils.getWindow(event)));
+		showSettingsWindow.setOnAction(event -> windowManager.openSettings(getWindow(event)));
 
 		changeOwnIdentityPicture.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("main.select-avatar"));
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.jfif"));
-			var selectedFile = fileChooser.showOpenDialog(UiUtils.getWindow(event));
+			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
 			{
 				identityClient.uploadIdentityImage(IdentityConstants.OWN_IDENTITY_ID, selectedFile)
@@ -266,7 +266,7 @@ public class MainWindowController implements WindowController
 
 	public void addPeer(String rsId)
 	{
-		windowManager.openAddPeer(titleLabel.getScene().getWindow(), rsId);
+		windowManager.openAddPeer(getWindow(titleLabel), rsId);
 	}
 
 	private void openUrl(String url)

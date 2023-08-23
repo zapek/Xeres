@@ -41,6 +41,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -53,6 +54,8 @@ import reactor.core.Disposable;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -65,6 +68,9 @@ public class ForumViewController implements Controller
 	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);
 	public static final String SUBSCRIBE_MENU_ID = "subscribe";
 	public static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
+
+	private static final DateTimeFormatter messageDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+			.withZone(ZoneId.systemDefault());
 
 	@FXML
 	private TreeView<ForumGroup> forumTree;
@@ -95,6 +101,15 @@ public class ForumViewController implements Controller
 
 	@FXML
 	private Button newThread;
+
+	@FXML
+	private HBox messageHeader;
+
+	@FXML
+	private Label messageAuthor;
+
+	@FXML
+	private Label messageDate;
 
 	private final ResourceBundle bundle;
 
@@ -364,7 +379,7 @@ public class ForumViewController implements Controller
 					forumMessagesRoot.getChildren().clear();
 					forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(forumMessages));
 					forumMessagesTreeTableView.sort();
-					messageContent.getChildren().clear();
+					clearMessage();
 					newThread.setDisable(false);
 				}))
 				.doOnError(throwable -> log.error("Error while getting the forum messages: {}", throwable.getMessage(), throwable)) // XXX: cleanup on error?
@@ -372,7 +387,7 @@ public class ForumViewController implements Controller
 			// XXX: display some forum info in the message view
 			forumMessagesTreeTableView.getSelectionModel().clearSelection();
 			forumMessagesRoot.getChildren().clear();
-			messageContent.getChildren().clear();
+			clearMessage();
 			newThread.setDisable(true);
 		}));
 	}
@@ -411,9 +426,24 @@ public class ForumViewController implements Controller
 
 						messageContent.getChildren().clear();
 						messageContent.getChildren().addAll(md2flow.getNodes());
+						messageAuthor.setText(forumMessage.getAuthorName());
+						messageDate.setText(messageDateFormatter.format(forumMessage.getPublished()));
+						messageHeader.setVisible(true);
 					}))
 					.subscribe();
 		}
+		else
+		{
+			clearMessage();
+		}
+	}
+
+	private void clearMessage()
+	{
+		messageHeader.setVisible(false);
+		messageAuthor.setText(null);
+		messageDate.setText(null);
+		messageContent.getChildren().clear();
 	}
 
 	private void addForumMessages(List<ForumMessage> forumMessages)

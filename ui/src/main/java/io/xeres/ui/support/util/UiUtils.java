@@ -255,11 +255,16 @@ public final class UiUtils
 		}
 		else if (target instanceof Node node)
 		{
-			return node.getScene().getWindow();
+			return getWindow(node);
 		}
 		else
 		{
 			throw new IllegalStateException("Cannot find a window from the event " + event);
 		}
+	}
+
+	public static Window getWindow(Node node)
+	{
+		return node.getScene().getWindow();
 	}
 }

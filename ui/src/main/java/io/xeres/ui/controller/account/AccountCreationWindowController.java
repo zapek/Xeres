@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
 
+import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
@@ -178,7 +179,7 @@ public class AccountCreationWindowController implements WindowController
 	{
 		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> {
 					windowManager.openMain(null, profile, false);
-					profileName.getScene().getWindow().hide();
+					getWindow(profileName).hide();
 				}))
 				.subscribe();
 

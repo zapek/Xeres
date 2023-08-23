@@ -67,13 +67,26 @@
                         <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="120" text="Date"/>
                     </columns>
                 </TreeTableView>
-                <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
-                    <TextFlow fx:id="messageContent" styleClass="freeflow">
-                        <padding>
+                <!-- XXX: put the vbox here! we don't want it to scroll... -->
+                <VBox>
+                    <HBox fx:id="messageHeader" visible="false">
+                        <VBox.margin>
                             <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
-                        </padding>
-                    </TextFlow>
-                </ScrollPane>
+                        </VBox.margin>
+                        <Label text="Author: "/>
+                        <Label fx:id="messageAuthor"/>
+                        <Region HBox.hgrow="SOMETIMES"/>
+                        <Label text="Date: "/>
+                        <Label fx:id="messageDate"/>
+                    </HBox>
+                    <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow" VBox.vgrow="ALWAYS">
+                        <TextFlow fx:id="messageContent" styleClass="freeflow">
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                            </padding>
+                        </TextFlow>
+                    </ScrollPane>
+                </VBox>
             </SplitPane>
         </VBox>
     </SplitPane>

@@ -52,6 +52,7 @@ import java.util.ResourceBundle;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
+import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @FxmlView(value = "/view/messaging/messaging.fxml")
@@ -152,7 +153,7 @@ public class MessagingWindowController implements WindowController
 		profileClient.findByLocationId(locationId).collectList()
 				.doOnSuccess(profiles -> {
 					targetProfile = profiles.stream().findFirst().orElseThrow();
-					var stage = (Stage) send.getScene().getWindow();
+					var stage = (Stage) getWindow(send);
 					Platform.runLater(() ->
 					{
 						stage.setTitle(targetProfile.getName()); // XXX: add the location name? yes but we need to retrieve the location then

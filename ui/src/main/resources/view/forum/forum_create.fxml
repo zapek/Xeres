@@ -24,7 +24,7 @@
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" prefHeight="180" prefWidth="400.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xeres.ui.controller.forum.ForumCreationWindowController">
-    <GridPane>
+    <GridPane hgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
@@ -33,21 +33,13 @@
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="Name">
-            <GridPane.margin>
-                <Insets right="8.0"/>
-            </GridPane.margin>
-        </Label>
+        <Label text="Name"/>
         <TextField fx:id="forumName" promptText="Short and descriptive name of the forum" GridPane.columnIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" text="Name of the room. Use proper capitalization and spaces."/>
             </tooltip>
         </TextField>
-        <Label text="Description" GridPane.rowIndex="1">
-            <GridPane.margin>
-                <Insets right="8.0"/>
-            </GridPane.margin>
-        </Label>
+        <Label text="Description" GridPane.rowIndex="1"/>
         <TextField fx:id="forumDescription" promptText="What the forum is about" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" text="The description of the forum, what is it about."/>

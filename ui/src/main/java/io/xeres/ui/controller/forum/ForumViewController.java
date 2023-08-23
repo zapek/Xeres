@@ -41,7 +41,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -103,13 +103,16 @@ public class ForumViewController implements Controller
 	private Button newThread;
 
 	@FXML
-	private HBox messageHeader;
+	private GridPane messageHeader;
 
 	@FXML
 	private Label messageAuthor;
 
 	@FXML
 	private Label messageDate;
+
+	@FXML
+	private Label messageSubject;
 
 	private final ResourceBundle bundle;
 
@@ -428,6 +431,7 @@ public class ForumViewController implements Controller
 						messageContent.getChildren().addAll(md2flow.getNodes());
 						messageAuthor.setText(forumMessage.getAuthorName());
 						messageDate.setText(messageDateFormatter.format(forumMessage.getPublished()));
+						messageSubject.setText(forumMessage.getName());
 						messageHeader.setVisible(true);
 					}))
 					.subscribe();
@@ -443,6 +447,7 @@ public class ForumViewController implements Controller
 		messageHeader.setVisible(false);
 		messageAuthor.setText(null);
 		messageDate.setText(null);
+		messageSubject.setText(null);
 		messageContent.getChildren().clear();
 	}
 

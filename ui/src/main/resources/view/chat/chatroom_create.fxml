@@ -19,12 +19,12 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="244.0" prefWidth="400.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xeres.ui.controller.chat.ChatRoomCreationWindowController">
-    <GridPane>
+    <GridPane hgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
@@ -35,41 +35,25 @@
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="%chat.room.name">
-            <GridPane.margin>
-                <Insets right="8.0"/>
-            </GridPane.margin>
-        </Label>
+        <Label text="%chat.room.name"/>
         <TextField fx:id="roomName" promptText="%chat.room.create.name.prompt" GridPane.columnIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" text="%chat.room.create.name.tip"/>
             </tooltip>
         </TextField>
-        <Label text="%chat.room.topic" GridPane.rowIndex="1">
-            <GridPane.margin>
-                <Insets right="8.0"/>
-            </GridPane.margin>
-        </Label>
+        <Label text="%chat.room.topic" GridPane.rowIndex="1"/>
         <TextField fx:id="topic" promptText="%chat.room.create.topic.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" text="%chat.room.create.topic.tip"/>
             </tooltip>
         </TextField>
-        <Label text="%chat.room.create.visibility" GridPane.rowIndex="2">
-            <GridPane.margin>
-                <Insets right="8.0"/>
-            </GridPane.margin>
-        </Label>
+        <Label text="%chat.room.create.visibility" GridPane.rowIndex="2"/>
         <ChoiceBox fx:id="visibility" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
             <tooltip>
                 <Tooltip showDuration="1m" text="%chat.room.create.visibility.tip"/>
             </tooltip>
         </ChoiceBox>
-        <Label text="%chat.room.security" GridPane.rowIndex="3">
-            <GridPane.margin>
-                <Insets right="8.0"/>
-            </GridPane.margin>
-        </Label>
+        <Label text="%chat.room.security" GridPane.rowIndex="3"/>
         <CheckBox fx:id="security" mnemonicParsing="false" text="%chat.room.create.security.checkbox" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <tooltip>
                 <Tooltip showDuration="1m" text="%chat.room.create.security.tip"/>

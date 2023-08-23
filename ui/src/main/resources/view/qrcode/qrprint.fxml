@@ -42,7 +42,7 @@
             </font>
         </Label>
         <Region prefHeight="32.0"/>
-        <GridPane>
+        <GridPane hgap="4">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
@@ -51,21 +51,13 @@
                 <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="ALWAYS"/>
             </rowConstraints>
-            <Label text="%account.profile">
-                <padding>
-                    <Insets right="4.0"/>
-                </padding>
-            </Label>
+            <Label text="%account.profile"/>
             <Text fx:id="profileText" GridPane.columnIndex="1">
                 <font>
                     <Font name="System Bold" size="12.0"/>
                 </font>
             </Text>
-            <Label text="%account.location" GridPane.rowIndex="1">
-                <padding>
-                    <Insets right="4.0"/>
-                </padding>
-            </Label>
+            <Label text="%account.location" GridPane.rowIndex="1"/>
             <Text fx:id="locationText" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <font>
                     <Font name="System Bold" size="12.0"/>

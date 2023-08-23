@@ -29,7 +29,7 @@
             <Font size="48.0"/>
         </font>
     </Label>
-    <GridPane>
+    <GridPane hgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>

@@ -23,7 +23,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" prefWidth="640" prefHeight="480" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.forum.ForumEditorViewController">
-    <GridPane>
+    <GridPane hgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
@@ -32,21 +32,13 @@
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="Forum">
-            <GridPane.margin>
-                <Insets right="8.0"/>
-            </GridPane.margin>
-        </Label>
+        <Label text="Forum"/>
         <ReadOnlyTextField fx:id="forumName" editable="false" GridPane.columnIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" text="The Forum's name"/>
             </tooltip>
         </ReadOnlyTextField>
-        <Label text="Title" GridPane.rowIndex="1">
-            <GridPane.margin>
-                <Insets right="8.0"/>
-            </GridPane.margin>
-        </Label>
+        <Label text="Title" GridPane.rowIndex="1"/>
         <TextField fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" text="The thread's title"/>

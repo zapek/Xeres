@@ -67,18 +67,26 @@
                         <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="120" text="Date"/>
                     </columns>
                 </TreeTableView>
-                <!-- XXX: put the vbox here! we don't want it to scroll... -->
                 <VBox>
-                    <HBox fx:id="messageHeader" visible="false">
+                    <GridPane fx:id="messageHeader" visible="false" hgap="8" vgap="4">
                         <VBox.margin>
                             <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                         </VBox.margin>
-                        <Label text="Author: "/>
-                        <Label fx:id="messageAuthor"/>
-                        <Region HBox.hgrow="SOMETIMES"/>
-                        <Label text="Date: "/>
-                        <Label fx:id="messageDate"/>
-                    </HBox>
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints vgrow="ALWAYS"/>
+                            <RowConstraints vgrow="ALWAYS"/>
+                        </rowConstraints>
+                        <Label text="From: "/>
+                        <Label fx:id="messageAuthor" GridPane.columnIndex="1"/>
+                        <Label fx:id="messageDate" GridPane.columnIndex="2"/>
+                        <Label text="Subject: " GridPane.rowIndex="1"/>
+                        <Label fx:id="messageSubject" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+                    </GridPane>
                     <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow" VBox.vgrow="ALWAYS">
                         <TextFlow fx:id="messageContent" styleClass="freeflow">
                             <padding>

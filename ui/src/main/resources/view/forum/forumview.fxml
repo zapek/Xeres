@@ -88,7 +88,7 @@
                         <Label fx:id="messageSubject" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
                     </GridPane>
                     <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow" VBox.vgrow="ALWAYS">
-                        <TextFlow fx:id="messageContent" styleClass="freeflow">
+                        <TextFlow fx:id="messageContent" styleClass="freeflow, forum-content">
                             <padding>
                                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                             </padding>

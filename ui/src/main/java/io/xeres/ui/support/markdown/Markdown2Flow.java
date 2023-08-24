@@ -17,6 +17,7 @@ public class Markdown2Flow
 {
 	private static final Pattern BOLD_PATTERN = Pattern.compile("(\\*\\*[^* ]((?!\\*\\*).)*[^* ]\\*\\*)");
 	private static final Pattern ITALIC_PATTERN = Pattern.compile("(\\*[^* ]((?!\\*).)*[^* ]\\*)");
+	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
 
 	private String input;
 	private final List<Content> content = new ArrayList<>();
@@ -53,6 +54,16 @@ public class Markdown2Flow
 			if (line.startsWith("#"))
 			{
 				processHeader(line);
+			}
+			else if (line.startsWith("    ") || line.startsWith("\t"))
+			{
+				processCode(line);
+			}
+			else if (line.contains("`"))
+			{
+				processPattern(CODE_PATTERN, line,
+						lineCode -> content.add(new ContentCode(lineCode)), 1,
+						lineCode -> content.add(new ContentText(lineCode)));
 			}
 			else if (line.contains("*"))
 			{
@@ -122,6 +133,11 @@ public class Markdown2Flow
 		}
 	}
 
+	private void processCode(String line)
+	{
+		content.add(new ContentCode(line.trim() + "\n"));
+	}
+
 	private enum SANITIZE_MODE
 	{
 		NORMAL, // keep text as it is
@@ -151,9 +167,9 @@ public class Markdown2Flow
 					skip = SANITIZE_MODE.EMPTY_LINES;
 				}
 			}
-			else if (s.startsWith("> ") || s.startsWith(">>"))
+			else if (s.startsWith("> ") || s.startsWith(">>") || s.startsWith("    ") || s.startsWith("\t"))
 			{
-				// We don't process quoted text
+				// We don't process quoted text and code
 				skip = SANITIZE_MODE.NORMAL;
 				sb.append(s.stripTrailing()).append("\n");
 			}

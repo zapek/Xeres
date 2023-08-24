@@ -81,7 +81,7 @@ public class EditorView extends VBox
 	{
 		bold.setOnAction(event -> surround("**"));
 		italic.setOnAction(event -> surround("*"));
-		code.setOnAction(event -> surround("`"));
+		code.setOnAction(event -> selection(() -> prefixLines("\t"), () -> surround("`")));
 		quote.setOnAction(event -> prefixLines(">"));
 		list.setOnAction(event -> insertNextLine("-"));
 		heading.setOnAction(event -> insertNextLine("##"));
@@ -149,10 +149,11 @@ public class EditorView extends VBox
 		}
 		else
 		{
-			var start = selection.getStart();
-			var end = selection.getEnd();
-			if ((start == 0 || editor.getText(start - 1, start).equals("\n")) && (editor.getText(end - 1, end).equals("\n") || end == editor.getLength() || editor.getText(end, end + 1).equals("\n")))
+			if (isParagraphBoundaries())
 			{
+				var start = selection.getStart();
+				var end = selection.getEnd();
+
 				while (start <= selection.getEnd())
 				{
 					end = editor.getText(start, selection.getEnd()).indexOf("\n");
@@ -235,5 +236,37 @@ public class EditorView extends VBox
 			}
 			editor.requestFocus();
 		});
+	}
+
+	private void selection(Runnable paragraph, Runnable subline)
+	{
+		var selection = editor.getSelection();
+
+		if (selection.getLength() <= 0)
+		{
+			subline.run();
+		}
+		else
+		{
+			if (isParagraphBoundaries())
+			{
+				paragraph.run();
+			}
+			else
+			{
+				subline.run();
+			}
+		}
+		editor.requestFocus();
+	}
+
+	private boolean isParagraphBoundaries()
+	{
+		var selection = editor.getSelection();
+
+		var start = selection.getStart();
+		var end = selection.getEnd();
+
+		return (start == 0 || editor.getText(start - 1, start).equals("\n")) && (editor.getText(end - 1, end).equals("\n") || end == editor.getLength() || editor.getText(end, end + 1).equals("\n"));
 	}
 }

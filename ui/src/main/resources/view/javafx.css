@@ -238,3 +238,7 @@
     -fx-background-radius: 0px;
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
 }
+
+.forum-content {
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
+}

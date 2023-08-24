@@ -20,6 +20,7 @@
 package io.xeres.app.service.notification;
 
 import io.xeres.common.rest.notification.Notification;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -100,6 +101,15 @@ public abstract class NotificationService
 	public void sendNotification(Notification notification)
 	{
 		sendNotification(notification, null);
+	}
+
+	/**
+	 * Closes all the emitters. If not called, tomcat will complain about non-closed connections
+	 * on shutdown.
+	 */
+	public void shutdown()
+	{
+		emitters.forEach(ResponseBodyEmitter::complete);
 	}
 
 	private void addEmitter(SseEmitter emitter)

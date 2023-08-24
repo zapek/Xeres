@@ -25,6 +25,7 @@ import io.xeres.app.xrs.item.Item;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 
 /**
@@ -75,6 +76,15 @@ public abstract class RsService implements Comparable<RsService>
 	 * Sent once when the application is exiting but before closing the connections.
 	 * Good place to send last messages (for example, leaving a room, etc...).
 	 */
+	public void shutdown(PeerConnection peerConnection)
+	{
+		// Do nothing by default
+	}
+
+	/**
+	 * Sent once when the application is exiting. Good place to perform spring boot related cleanups
+	 * since the beans are all still available.
+	 */
 	public void shutdown()
 	{
 		// Do nothing by default
@@ -107,6 +117,15 @@ public abstract class RsService implements Comparable<RsService>
 		{
 			initialized = true;
 			initialize();
+		}
+	}
+
+	@EventListener
+	public void onApplicationEvent(ContextClosedEvent event)
+	{
+		if (enabled)
+		{
+			shutdown();
 		}
 	}
 

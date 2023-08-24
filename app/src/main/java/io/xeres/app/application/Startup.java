@@ -240,6 +240,8 @@ public class Startup implements ApplicationRunner
 		identityManager.shutdown();
 		peerConnectionManager.shutdown();
 
+		statusNotificationService.shutdown();
+
 		stopNetworkServices();
 	}
 

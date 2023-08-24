@@ -359,4 +359,10 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		return savedMessageId;
 	}
+
+	@Override
+	public void shutdown()
+	{
+		forumNotificationService.shutdown();
+	}
 }

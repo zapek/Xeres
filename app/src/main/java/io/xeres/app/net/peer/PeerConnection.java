@@ -123,7 +123,7 @@ public class PeerConnection
 
 	public void shutdown()
 	{
-		services.forEach(RsService::shutdown);
+		services.forEach(rsService -> rsService.shutdown(this));
 	}
 
 	public void cleanup()

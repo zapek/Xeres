@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class Markdown2Flow
 {
-	private static final Pattern BOLD_PATTERN = Pattern.compile("(\\*\\*[^* ]((?!\\*\\*).)*[^* ]\\*\\*)");
-	private static final Pattern ITALIC_PATTERN = Pattern.compile("(\\*[^* ]((?!\\*).)*[^* ]\\*)");
+	private static final Pattern BOLD_AND_ITALIC_PATTERN = Pattern.compile("(?<b1>\\*\\*[^* ]((?!\\*\\*).)*[^* ]\\*\\*)|(?<b2>__[^_ ]((?!__).)*[^_ ]__)|(?<i1>\\*[^* ]((?!\\*).)*[^* ]\\*)|(?<i2>_[^_ ]((?!_).)*[^_ ]_)");
 	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
 
 	private String input;
@@ -62,16 +62,14 @@ public class Markdown2Flow
 			else if (line.contains("`"))
 			{
 				processPattern(CODE_PATTERN, line,
-						lineCode -> content.add(new ContentCode(lineCode)), 1,
+						(lineCode, groupName) -> content.add(new ContentCode(lineCode.substring(1, lineCode.length() - 1))),
 						lineCode -> content.add(new ContentText(lineCode)));
 			}
-			else if (line.contains("*"))
+			else if (line.contains("*") || line.contains("_"))
 			{
-				processPattern(BOLD_PATTERN, line,
-						lineBold -> content.add(new ContentEmphasis(lineBold, EnumSet.of(ContentEmphasis.Style.BOLD))), 2,
-						lineBold -> processPattern(ITALIC_PATTERN, lineBold,
-								lineItalic -> content.add(new ContentEmphasis(lineItalic, EnumSet.of(ContentEmphasis.Style.ITALIC))), 1,
-								lineItalic -> content.add(new ContentText(lineItalic))));
+				processPattern(BOLD_AND_ITALIC_PATTERN, line,
+						(s, groupName) -> content.add(new ContentEmphasis(s.substring(groupName.startsWith("b") ? 2 : 1, s.length() - (groupName.startsWith("b") ? 2 : 1)), EnumSet.of(groupName.startsWith("b") ? ContentEmphasis.Style.BOLD : ContentEmphasis.Style.ITALIC))),
+						s -> content.add(new ContentText(s)));
 			}
 			else
 			{
@@ -99,7 +97,7 @@ public class Markdown2Flow
 		content.add(new ContentHeader(line.substring(size).trim() + "\n", size));
 	}
 
-	private void processPattern(Pattern pattern, String line, Consumer<String> match, int matchStrip, Consumer<String> noMatch)
+	private void processPattern(Pattern pattern, String line, BiConsumer<String, String> match, Consumer<String> noMatch)
 	{
 		var matcher = pattern.matcher(line);
 		var previousRange = new Range(0, 0);
@@ -116,7 +114,7 @@ public class Markdown2Flow
 			}
 
 			// Match
-			match.accept(line.substring(currentRange.start() + matchStrip, currentRange.end() - matchStrip));
+			match.accept(line.substring(currentRange.start(), currentRange.end()), currentRange.groupName());
 
 			previousRange = currentRange;
 		}

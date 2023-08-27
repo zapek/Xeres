@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
@@ -27,13 +28,35 @@ import java.util.regex.Matcher;
  */
 public class Range
 {
-	private final int start;
+	private int start;
 	private final int end;
+	private int group;
+	private String groupName;
 
 	public Range(Matcher matcher)
 	{
-		start = matcher.start(1);
-		end = matcher.end();
+		if (matcher.groupCount() > 0)
+		{
+			for (int i = 1; i <= matcher.groupCount(); i++)
+			{
+				start = matcher.start(i);
+				if (start != -1)
+				{
+					group = i;
+					groupName = matcher.namedGroups().entrySet().stream()
+							.filter(entry -> entry.getValue().equals(group))
+							.map(Map.Entry::getKey)
+							.findFirst()
+							.orElse("");
+					break;
+				}
+			}
+		}
+		else
+		{
+			start = matcher.start();
+		}
+		end = matcher.end(group);
 	}
 
 	public Range(int start, int end)
@@ -69,5 +92,15 @@ public class Range
 	public int end()
 	{
 		return end;
+	}
+
+	public int group()
+	{
+		return group;
+	}
+
+	public String groupName()
+	{
+		return groupName;
 	}
 }

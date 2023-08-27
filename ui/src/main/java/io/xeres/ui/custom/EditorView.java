@@ -80,7 +80,7 @@ public class EditorView extends VBox
 	public void initialize()
 	{
 		bold.setOnAction(event -> surround("**"));
-		italic.setOnAction(event -> surround("*"));
+		italic.setOnAction(event -> surround("_"));
 		code.setOnAction(event -> selection(() -> prefixLines("\t"), () -> surround("`")));
 		quote.setOnAction(event -> prefixLines(">"));
 		list.setOnAction(event -> insertNextLine("-"));

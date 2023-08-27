@@ -25,6 +25,7 @@ import io.xeres.ui.client.message.ChatFrameHandler;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -59,7 +60,11 @@ public class PrimaryStageInitializer
 	{
 		Hooks.onErrorDropped(throwable -> log.debug("WebClient warning: {}", throwable.getMessage())); // Suppress Reactor's error messages
 
+		// Do not exit the platform when all windows are closed.
+		Platform.setImplicitExit(false);
+
 		profileClient.getOwn()
+				.doFirst(() -> Platform.runLater(() -> windowManager.calculateWindowDecorationSizes(event.getStage())))
 				.doOnSuccess(profile -> windowManager.openMain(event.getStage(), profile, StartupProperties.getBoolean(ICONIFIED, false)))
 				.doOnError(WebClientResponseException.class, e -> {
 					if (e.getStatusCode() == HttpStatus.NOT_FOUND)

@@ -25,7 +25,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
+<VBox minWidth="320.0" minHeight="260.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
     <HBox VBox.vgrow="NEVER">
         <opaqueInsets>
             <Insets />

@@ -51,6 +51,11 @@ final class UiWindow
 	private static FxWeaver fxWeaver;
 	private static ResourceBundle bundle;
 
+	private static double borderTop;
+	private static double borderBottom;
+	private static double borderLeft;
+	private static double borderRight;
+
 	final Scene scene;
 	final Stage stage;
 
@@ -58,6 +63,14 @@ final class UiWindow
 	{
 		UiWindow.fxWeaver = fxWeaver;
 		UiWindow.bundle = bundle;
+	}
+
+	static void setWindowDecorationSizes(double top, double bottom, double left, double right)
+	{
+		borderTop = top;
+		borderBottom = bottom;
+		borderLeft = left;
+		borderRight = right;
 	}
 
 	private UiWindow(Builder builder)
@@ -92,8 +105,11 @@ final class UiWindow
 		{
 			builder.root.setUserData(builder.userData);
 		}
-		stage.setMinWidth(builder.minWidth);
-		stage.setMinHeight(builder.minHeight);
+
+		// Set the minimums to the root's minimums + decorations.
+		stage.setMinWidth(builder.root.minWidth(-1) + (int) borderLeft + (int) borderRight); // There's some rounding errors in JavaFX somewhere. int is a bit better
+		stage.setMinHeight(builder.root.minHeight(-1) + (int) borderTop + (int) borderBottom);
+
 		stage.setTitle(builder.title);
 		stage.setScene(scene);
 
@@ -171,11 +187,6 @@ final class UiWindow
 		return Window.getWindows();
 	}
 
-	Window getWindow()
-	{
-		return scene.getWindow();
-	}
-
 	void open()
 	{
 		stage.show();
@@ -216,8 +227,6 @@ final class UiWindow
 		private final Parent root;
 		private final WindowController controller;
 		private Window parent;
-		private double minWidth = 240;
-		private double minHeight = 200;
 		private String title = AppName.NAME;
 		private String localId;
 		private Object userData;
@@ -239,18 +248,6 @@ final class UiWindow
 		Builder setStage(Stage stage)
 		{
 			this.stage = stage;
-			return this;
-		}
-
-		Builder setMinWidth(double minWidth)
-		{
-			this.minWidth = minWidth;
-			return this;
-		}
-
-		Builder setMinHeight(double minHeight)
-		{
-			this.minHeight = minHeight;
 			return this;
 		}
 

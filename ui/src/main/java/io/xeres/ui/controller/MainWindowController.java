@@ -225,11 +225,7 @@ public class MainWindowController implements WindowController
 		exitApplication.setOnAction(event ->
 		{
 			windowManager.closeAllWindows();
-
-			if (trayService.hasSystemTray())
-			{
-				Platform.exit();
-			}
+			Platform.exit();
 		});
 
 		setupStatusNotifications();

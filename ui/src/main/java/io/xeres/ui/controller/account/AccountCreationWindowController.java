@@ -95,6 +95,12 @@ public class AccountCreationWindowController implements WindowController
 		});
 	}
 
+	@Override
+	public void onShown()
+	{
+		getWindow(okButton).setOnCloseRequest(event -> Platform.exit());
+	}
+
 	/**
 	 * Try to make the hostname better by removing the domain part, if present.
 	 * For example, bar.foo.baz -> bar

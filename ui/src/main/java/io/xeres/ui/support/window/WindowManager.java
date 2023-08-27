@@ -45,6 +45,9 @@ import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.model.profile.Profile;
 import jakarta.annotation.PostConstruct;
 import javafx.application.Platform;
+import javafx.geometry.Point2D;
+import javafx.scene.Scene;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxWeaver;
@@ -130,8 +133,6 @@ public class WindowManager
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
 										.setUserData(chatMessage)
-										.setMinWidth(300)
-										.setMinHeight(300)
 										.build()
 										.open();
 							}
@@ -153,7 +154,6 @@ public class WindowManager
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(parent)
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
-						.setMinHeight(260)
 						.build()
 						.open());
 	}
@@ -164,8 +164,6 @@ public class WindowManager
 				UiWindow.builder(QrCodeWindowController.class)
 						.setParent(parent)
 						.setTitle(bundle.getString("qrcode.window-title"))
-						.setMinWidth(282)
-						.setMinHeight(354)
 						.setUserData(rsIdResponse)
 						.build()
 						.open());
@@ -177,8 +175,6 @@ public class WindowManager
 				UiWindow.builder(CameraWindowController.class)
 						.setParent(parent)
 						.setTitle(bundle.getString("camera.window-title"))
-						.setMinWidth(640)
-						.setMinHeight(480)
 						.setResizeable(false)
 						.setUserData(parentController)
 						.build()
@@ -201,7 +197,6 @@ public class WindowManager
 				UiWindow.builder(BroadcastWindowController.class)
 						.setParent(parent)
 						.setTitle("Broadcast")
-						.setMinHeight(220)
 						.build()
 						.open());
 	}
@@ -232,8 +227,6 @@ public class WindowManager
 				UiWindow.builder(SettingsWindowController.class)
 						.setParent(parent)
 						.setTitle(bundle.getString("settings.window-title"))
-						.setMinWidth(640)
-						.setMinHeight(480)
 						.build()
 						.open());
 	}
@@ -244,7 +237,6 @@ public class WindowManager
 				UiWindow.builder(AddRsIdWindowController.class)
 						.setParent(parent)
 						.setTitle(bundle.getString("rsid.add.window-title"))
-						.setMinHeight(380)
 						.setUserData(rsId)
 						.build()
 						.open());
@@ -267,8 +259,6 @@ public class WindowManager
 				UiWindow.builder(ForumEditorViewController.class)
 						.setParent(parent) // XXX: needs to become multi modal to avoid blocking (useful to browse other posts while we write)
 						.setTitle("New message")
-						.setMinWidth(320.0)
-						.setMinHeight(256.0)
 						.setUserData(postRequest)
 						.build()
 						.open());
@@ -296,8 +286,6 @@ public class WindowManager
 			{
 				mainWindow = UiWindow.builder(MainWindowController.class)
 						.setStage(stage)
-						.setMinWidth(640)
-						.setMinHeight(460)
 						.setRememberEnvironment(true)
 						.setTitle(profile != null ? (AppName.NAME + " - " + profile.getName() + " @ " + profile.getLocations().stream().findFirst().orElseThrow().getName()) : null)
 						.build();
@@ -319,9 +307,27 @@ public class WindowManager
 	{
 		Platform.runLater(() -> UiWindow.builder(AccountCreationWindowController.class)
 				.setStage(stage)
-				.setMinWidth(280)
-				.setMinHeight(240)
 				.build()
 				.open());
+	}
+
+	public void calculateWindowDecorationSizes(Stage stage)
+	{
+		var root = new Region();
+		stage.setScene(new Scene(root));
+		stage.setOpacity(0.0);
+		stage.show();
+
+		var bounds = root.getBoundsInLocal();
+		var topLeft = root.localToScreen(new Point2D(bounds.getMinX(), bounds.getMinY()));
+		var bottomRight = root.localToScreen(new Point2D(bounds.getMaxX(), bounds.getMaxY()));
+
+		stage.hide();
+		stage.setOpacity(1.0);
+
+		UiWindow.setWindowDecorationSizes(topLeft.getY() - stage.getY(),
+				stage.getY() + stage.getHeight() - bottomRight.getY(),
+				topLeft.getX() - stage.getX(),
+				stage.getX() + stage.getWidth() - bottomRight.getX());
 	}
 }

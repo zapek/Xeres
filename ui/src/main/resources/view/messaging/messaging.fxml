@@ -24,8 +24,8 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<HBox styleClass="base-spacing" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
-    <VBox fx:id="content" prefHeight="600.0" prefWidth="400.0" HBox.hgrow="ALWAYS">
+<HBox prefHeight="600.0" prefWidth="400.0" minHeight="300.0" minWidth="300.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox fx:id="content" HBox.hgrow="ALWAYS">
         <Label fx:id="notification" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER"/>
         <TextField fx:id="send" promptText="%messaging.prompt" VBox.vgrow="NEVER">
             <VBox.margin>

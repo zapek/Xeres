@@ -69,9 +69,6 @@ public class TrayService
 			return;
 		}
 
-		// Do not exit the platform when all windows are closed.
-		Platform.setImplicitExit(false);
-
 		var launchItem = new MenuItem(MessageFormat.format(bundle.getString("tray.open"), AppName.NAME));
 		launchItem.addActionListener(e ->
 				windowManager.openMain(null, null, false));

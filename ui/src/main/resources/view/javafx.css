@@ -240,5 +240,7 @@
 }
 
 .forum-content {
-    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
+    /*    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji"; */
 }
+
+/* XXX: Segoe UI Emoji does not suppor bold and italic */

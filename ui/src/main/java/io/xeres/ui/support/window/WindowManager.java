@@ -45,12 +45,16 @@ import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.model.profile.Profile;
 import jakarta.annotation.PostConstruct;
 import javafx.application.Platform;
-import javafx.geometry.Point2D;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxWeaver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
@@ -63,6 +67,8 @@ import java.util.ResourceBundle;
 @Component
 public class WindowManager
 {
+	private static final Logger log = LoggerFactory.getLogger(WindowManager.class);
+
 	private final FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
@@ -311,23 +317,46 @@ public class WindowManager
 				.open());
 	}
 
+	/**
+	 * Calculates the window's decoration sizes (aka the windows borders). To do that, a dummy scene is created and put on an invisible
+	 * window, which is opened, the insets are calculated then the window is closed.<br>
+	 * This only works if Platform.setExplicitExit() is false.
+	 *
+	 * @param stage the primary stage
+	 */
 	public void calculateWindowDecorationSizes(Stage stage)
 	{
+		if (Platform.isImplicitExit())
+		{
+			throw new IllegalStateException("implicit exit must not be set for window decoration calculation to work");
+		}
+
 		var root = new Region();
 		stage.setScene(new Scene(root));
 		stage.setOpacity(0.0);
 		stage.show();
 
-		var bounds = root.getBoundsInLocal();
-		var topLeft = root.localToScreen(new Point2D(bounds.getMinX(), bounds.getMinY()));
-		var bottomRight = root.localToScreen(new Point2D(bounds.getMaxX(), bounds.getMaxY()));
+		var insets = getInsets(stage);
 
 		stage.hide();
 		stage.setOpacity(1.0);
 
-		UiWindow.setWindowDecorationSizes(topLeft.getY() - stage.getY(),
-				stage.getY() + stage.getHeight() - bottomRight.getY(),
-				topLeft.getX() - stage.getX(),
-				stage.getX() + stage.getWidth() - bottomRight.getX());
+		UiWindow.setWindowDecorationSizes(insets.get().getTop(), insets.get().getBottom(), insets.get().getLeft(), insets.get().getRight());
+	}
+
+	private static ObjectBinding<Insets> getInsets(Stage stage)
+	{
+		var scene = stage.getScene();
+
+		return Bindings.createObjectBinding(() -> new Insets(scene.getY(),
+						stage.getWidth() - scene.getWidth() - scene.getX(),
+						stage.getHeight() - scene.getHeight() - scene.getY(),
+						scene.getX()),
+				scene.xProperty(),
+				scene.yProperty(),
+				scene.widthProperty(),
+				scene.heightProperty(),
+				stage.widthProperty(),
+				stage.heightProperty());
 	}
 }

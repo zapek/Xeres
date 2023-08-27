@@ -152,7 +152,7 @@ public class EditorView extends VBox
 			if (isParagraphBoundaries())
 			{
 				var start = selection.getStart();
-				var end = selection.getEnd();
+				int end;
 
 				while (start <= selection.getEnd())
 				{
@@ -166,7 +166,7 @@ public class EditorView extends VBox
 						end += start;
 					}
 
-					editor.insertText(start, text + " ");
+					editor.insertText(start, text + (text.isBlank() ? "" : " ")); // spacing not needed for indentation or so
 					editor.positionCaret(end + 2 + text.length());
 
 					start = end + 2 + text.length();

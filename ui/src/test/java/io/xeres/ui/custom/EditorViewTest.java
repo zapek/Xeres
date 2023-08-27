@@ -113,7 +113,7 @@ class EditorViewTest
 		robot.press(KeyCode.CONTROL, KeyCode.A);
 		robot.release(KeyCode.CONTROL, KeyCode.A);
 		robot.clickOn("#code");
-		assertEquals("`hello`", editorView.getText());
+		assertEquals("\thello", editorView.getText());
 	}
 
 	@Test

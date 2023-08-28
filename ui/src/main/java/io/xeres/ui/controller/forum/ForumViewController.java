@@ -32,6 +32,7 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.markdown.Markdown2Flow;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -120,6 +121,8 @@ public class ForumViewController implements Controller
 	private final NotificationClient notificationClient;
 	private final WindowManager windowManager;
 	private final ObjectMapper objectMapper;
+	private final EmojiService emojiService;
+
 	private ForumGroup selectedForumGroup;
 	private ForumMessage selectedForumMessage;
 
@@ -135,7 +138,7 @@ public class ForumViewController implements Controller
 	private final TreeItem<ForumGroup> popularForums;
 	private final TreeItem<ForumGroup> otherForums;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, EmojiService emojiService)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -147,6 +150,7 @@ public class ForumViewController implements Controller
 		this.notificationClient = notificationClient;
 		this.windowManager = windowManager;
 		this.objectMapper = objectMapper;
+		this.emojiService = emojiService;
 	}
 
 	@Override
@@ -425,8 +429,7 @@ public class ForumViewController implements Controller
 		{
 			forumClient.getForumMessage(forumMessage.getId())
 					.doOnSuccess(message -> Platform.runLater(() -> {
-						var md2flow = new Markdown2Flow(message.getContent());
-
+						var md2flow = new Markdown2Flow(message.getContent(), emojiService);
 						messageContent.getChildren().clear();
 						messageContent.getChildren().addAll(md2flow.getNodes());
 						messageAuthor.setText(forumMessage.getAuthorName());

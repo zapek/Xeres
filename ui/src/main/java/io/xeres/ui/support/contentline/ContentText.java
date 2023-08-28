@@ -25,6 +25,7 @@ import javafx.scene.text.Text;
 public class ContentText implements Content
 {
 	private final Text node;
+	private boolean complete;
 
 	public ContentText(String text)
 	{
@@ -35,6 +36,23 @@ public class ContentText implements Content
 	public Node getNode()
 	{
 		return node;
+	}
+
+	@Override
+	public boolean isComplete()
+	{
+		return complete;
+	}
+
+	public void setComplete()
+	{
+		complete = true;
+	}
+
+	@Override
+	public String asText()
+	{
+		return node.getText();
 	}
 
 	public static final ContentText EMPTY = new ContentText("");

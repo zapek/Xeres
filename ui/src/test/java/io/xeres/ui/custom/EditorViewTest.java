@@ -86,7 +86,7 @@ class EditorViewTest
 	void EditorView_Content_Italic(FxRobot robot)
 	{
 		robot.clickOn("#italic");
-		assertEquals("**", editorView.getText());
+		assertEquals("__", editorView.getText());
 	}
 
 	@Test
@@ -96,7 +96,7 @@ class EditorViewTest
 		robot.press(KeyCode.CONTROL, KeyCode.A);
 		robot.release(KeyCode.CONTROL, KeyCode.A);
 		robot.clickOn("#italic");
-		assertEquals("*hello*", editorView.getText());
+		assertEquals("_hello_", editorView.getText());
 	}
 
 	@Test

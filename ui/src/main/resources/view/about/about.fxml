@@ -79,8 +79,6 @@
                     <Hyperlink text="https://xeres.io" />
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Wiki: " />
                     <Hyperlink text="https://github.com/zapek/Xeres/wiki" />
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Forum: " />
-                    <Hyperlink text="https://github.com/zapek/Xeres/discussions" />
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Source code: " />
                     <Hyperlink text="https://github.com/zapek/Xeres" />
                 </TextFlow>
@@ -148,6 +146,18 @@
                     </font>
                 </TextArea>
             </AnchorPane>
+        </Tab>
+        <Tab text="Additional Licenses">
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
+                <TextFlow styleClass="freeflow">
+                    <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    </padding>
+                    <Hyperlink fx:id="twemoji" text="Twemoji"/>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" © 2020 Twitter, Inc and other contributors. Graphics licensed under "/>
+                    <Hyperlink fx:id="twemojiLicense" text="CC-BY 4.0"/>
+                </TextFlow>
+            </ScrollPane>
         </Tab>
     </TabPane>
     <HBox alignment="TOP_RIGHT">

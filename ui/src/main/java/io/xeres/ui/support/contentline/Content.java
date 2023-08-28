@@ -24,4 +24,14 @@ import javafx.scene.Node;
 public interface Content
 {
 	Node getNode();
+
+	default boolean isComplete()
+	{
+		return true;
+	}
+
+	default String asText()
+	{
+		return null;
+	}
 }

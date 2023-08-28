@@ -23,16 +23,22 @@ import java.util.Map;
 
 import static java.util.Map.entry;
 
+/**
+ * Class to handle smiley to emoticon conversion.<br>
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/List_of_emoticons">List of emoticons</a>
+ * @see <a href="https://www.webfx.com/tools/emoji-cheat-sheet/">Emoji cheat sheet</a>
+ */
 public final class SmileyUtils
 {
 	private static final Map<String, String> smileys = Map.ofEntries(
-			entry(":-)", "\u263A\uFE0F"),
-			entry(":)", "\u263A\uFE0F"),
+			entry(":-)", "\uD83D\uDE42"),
+			entry(":)", "\uD83D\uDE42"),
 			entry(":o)", "\uD83E\uDD21"), // not working on linux
 			entry(":-D", "\uD83D\uDE03"),
 			entry(":D", "\uD83D\uDE03"),
-			entry(":-(", "\u2639\uFE0F"),
-			entry(":(", "\u2639\uFE0F"),
+			entry(":-(", "\uD83D\uDE41"),
+			entry(":(", "\uD83D\uDE41"),
 			entry(":-O", "\uD83D\uDE2E"),
 			entry(":-*", "\uD83D\uDE18"),
 			entry(";-)", "\uD83D\uDE09"),
@@ -46,7 +52,7 @@ public final class SmileyUtils
 			entry(">:-)", "\uD83D\uDE08"),
 			entry(">:)", "\uD83D\uDE08"),
 			entry("B-)", "\uD83D\uDE0E"),
-			entry("<3", "\u2764"),
+			entry("<3", "\uD83D\uDC96"),
 			entry("O_o", "\uD83D\uDE33"),
 			entry("o_O", "\uD83D\uDE33")
 	);

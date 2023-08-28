@@ -235,7 +235,10 @@ public final class UiUtils
 
 		if (rootNode instanceof Hyperlink hyperlink)
 		{
-			hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
+			if (hyperlink.getOnAction() == null)
+			{
+				hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
+			}
 		}
 	}
 

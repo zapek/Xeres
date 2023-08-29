@@ -22,7 +22,7 @@ public class Markdown2Flow
 	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
 	private static final Pattern COLOR_EMOJI = Pattern.compile("(?<e>(&#\\d+;)+)");
-	private static final Pattern HREF_PATTERN = Pattern.compile("<a href=\".*?\">.*?</a>", Pattern.CASE_INSENSITIVE);
+	private static final Pattern HREF_PATTERN = Pattern.compile("<a href=\".{1,2083}?\">.{1,256}?</a>", Pattern.CASE_INSENSITIVE);
 
 	private String input;
 	private final List<Content> content = new ArrayList<>();

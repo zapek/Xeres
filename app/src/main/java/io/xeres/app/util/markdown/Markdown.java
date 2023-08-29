@@ -135,7 +135,7 @@ public class Markdown
 		}
 		invalidate();
 
-		if (!isBlank(text))
+		if (!isBlank(text) && !text.equals(url))
 		{
 			body.add("[" + text + "](" + url + ")");
 		}

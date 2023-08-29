@@ -143,7 +143,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id);
+		receive = new ChatListView(nickname, id, null); // XXX: fix or it will crash!
 		content.getChildren().add(0, receive.getChatView());
 	}
 

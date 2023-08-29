@@ -64,14 +64,17 @@ public final class SmileyUtils
 
 	public static String smileysToUnicode(String s)
 	{
-		// Only replace if first in the string or preceded by a space, to avoid false positives
-		for (var e : smileys.entrySet())
+		if (s.length() >= 2)
 		{
-			if (s.regionMatches(0, e.getKey(), 0, e.getKey().length()))
+			// Only replace if first in the string or preceded by a space, to avoid false positives
+			for (var e : smileys.entrySet())
 			{
-				s = e.getValue() + s.substring(e.getKey().length());
+				if (s.regionMatches(0, e.getKey(), 0, e.getKey().length()))
+				{
+					s = e.getValue() + s.substring(e.getKey().length());
+				}
+				s = s.replace(" " + e.getKey(), " " + e.getValue());
 			}
-			s = s.replace(" " + e.getKey(), " " + e.getValue());
 		}
 		return s;
 	}

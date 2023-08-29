@@ -32,13 +32,22 @@ public class ContentUri implements Content
 	public ContentUri(String uri)
 	{
 		node = new Hyperlink(uri);
-		node.setOnAction(event -> JavaFxApplication.openUrl(node.getText()));
+		node.setOnAction(event -> JavaFxApplication.openUrl(appendMailToIfNeeded(node.getText())));
 	}
 
 	public ContentUri(String uri, String description, Consumer<String> action)
 	{
 		node = new Hyperlink(description);
 		node.setOnAction(event -> action.accept(uri));
+	}
+
+	private String appendMailToIfNeeded(String uri)
+	{
+		if (uri.contains("@") && !uri.contains("://"))
+		{
+			return "mailto:" + uri;
+		}
+		return uri;
 	}
 
 	@Override

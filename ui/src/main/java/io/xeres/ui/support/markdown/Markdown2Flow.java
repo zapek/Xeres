@@ -3,9 +3,11 @@ package io.xeres.ui.support.markdown;
 import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
+import io.xeres.ui.support.uri.UriParser;
 import io.xeres.ui.support.util.Range;
 import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.Node;
+import org.jsoup.Jsoup;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -18,18 +20,36 @@ public class Markdown2Flow
 {
 	private static final Pattern BOLD_AND_ITALIC_PATTERN = Pattern.compile("(?<b1>\\*\\*[^* ]((?!\\*\\*).)*[^* ]\\*\\*)|(?<b2>__[^_ ]((?!__).)*[^_ ]__)|(?<i1>\\*[^* ]((?!\\*).)*[^* ]\\*)|(?<i2>_[^_ ]((?!_).)*[^_ ]_)");
 	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
-	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
+	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
 	private static final Pattern COLOR_EMOJI = Pattern.compile("(?<e>(&#\\d+;)+)");
+	private static final Pattern HREF_PATTERN = Pattern.compile("<a href=\".*?\">.*?</a>", Pattern.CASE_INSENSITIVE);
 
 	private String input;
 	private final List<Content> content = new ArrayList<>();
 	private final EmojiService emojiService;
 	private Scanner scanner;
+	private boolean oneLineMode;
 
 	public Markdown2Flow(String input, EmojiService emojiService)
 	{
 		this.input = input;
 		this.emojiService = emojiService;
+	}
+
+	/**
+	 * Do not add "\n" at the end of lines. Should be set when using it for one
+	 * line modes (e.g. chat).
+	 *
+	 * @param value true for one line mode (default is false)
+	 */
+	public void setOneLineMode(boolean value)
+	{
+		oneLineMode = value;
+	}
+
+	private String getLn()
+	{
+		return oneLineMode ? "" : "\n";
 	}
 
 	public List<Node> getNodes()
@@ -44,6 +64,15 @@ public class Markdown2Flow
 				.toList();
 	}
 
+	public List<Content> getContent()
+	{
+		if (content.isEmpty())
+		{
+			parse();
+		}
+		return content;
+	}
+
 	private void parse()
 	{
 		input = sanitize(input);
@@ -53,11 +82,14 @@ public class Markdown2Flow
 		while (isIncomplete())
 		{
 			var line = getNextLine();
-			line = SmileyUtils.smileysToUnicode(line);
-			line = EmojiParser.parseToUnicode(line);
-			line = EmojiParser.parseToHtmlDecimal(line); // make smileys into decimal html so that they can be detected and colorized
+			line = SmileyUtils.smileysToUnicode(line); // ;-)
+			line = EmojiParser.parseToUnicode(line); // :wink:
+			if (emojiService.isEnabled())
+			{
+				line = EmojiParser.parseToHtmlDecimal(line); // make smileys into decimal html (&#1234;) so that they can be detected and colorized
+			}
 
-			if (line.startsWith("#"))
+			if (line.startsWith("# "))
 			{
 				processHeader(line);
 			}
@@ -79,7 +111,12 @@ public class Markdown2Flow
 				processPattern(BOLD_AND_ITALIC_PATTERN, line,
 						(s, groupName) -> addContent(new ContentEmphasis(s.substring(groupName.startsWith("b") ? 2 : 1, s.length() - (groupName.startsWith("b") ? 2 : 1)), EnumSet.of(groupName.startsWith("b") ? ContentEmphasis.Style.BOLD : ContentEmphasis.Style.ITALIC))));
 			}
-			else if (line.contains("http") || line.contains("ftp"))
+			else if (line.contains("<a href=")) // inline HTML
+			{
+				processPattern(HREF_PATTERN, line,
+						(s, groupName) -> parseHrefs(s));
+			}
+			else if (line.contains("http") || line.contains("ftp") || line.contains("@"))
 			{
 				processPattern(URL_PATTERN, line,
 						(s, groupName) -> addContent(new ContentUri(s)));
@@ -139,7 +176,7 @@ public class Markdown2Flow
 				return possibleContent.asText();
 			}
 		}
-		return scanner.nextLine() + "\n";
+		return scanner.nextLine() + getLn();
 	}
 
 	private int previousIndex = -1;
@@ -170,7 +207,7 @@ public class Markdown2Flow
 		{
 			size = 6;
 		}
-		addContent(new ContentHeader(line.substring(size).trim() + "\n", size));
+		addContent(new ContentHeader(line.substring(size).trim() + getLn(), size));
 	}
 
 	private void processPattern(Pattern pattern, String line, BiConsumer<String, String> match)
@@ -209,7 +246,7 @@ public class Markdown2Flow
 
 	private void processCode(String line)
 	{
-		addContent(new ContentCode(line.trim() + "\n"));
+		addContent(new ContentCode(line.trim() + getLn()));
 	}
 
 	private enum SANITIZE_MODE
@@ -217,6 +254,18 @@ public class Markdown2Flow
 		NORMAL, // keep text as it is
 		EMPTY_LINES, // remove useless empty lines
 		CONTINUATION_BREAK // remove line feed to make a continuation break
+	}
+
+	private void parseHrefs(String s)
+	{
+		var document = Jsoup.parse(s);
+		var links = document.getElementsByTag("a");
+		for (var link : links)
+		{
+			var href = link.attr("href");
+			var text = link.text();
+			addContent(UriParser.parse(href, text));
+		}
 	}
 
 	/**

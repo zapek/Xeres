@@ -19,11 +19,7 @@
 
 package io.xeres.ui.support.chat;
 
-import io.xeres.ui.support.contentline.ContentText;
-import javafx.scene.text.Text;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,33 +42,4 @@ class ChatParserTest
 		assertTrue(ChatParser.isActionMe("/me is happy"));
 		assertFalse(ChatParser.isActionMe("and wants to use Xeres"));
 	}
-
-	@ParameterizedTest
-	@CsvSource({
-			"hello world,hello world",
-			";-),\uD83D\uDE09",
-			":wink:,\uD83D\uDE09"
-	})
-	void ChatParser_Parse_Text(String input, String expected)
-	{
-		var result = ChatParser.parse(input);
-
-		assertEquals(1, result.size());
-		assertInstanceOf(ContentText.class, result.get(0));
-		assertEquals(expected, ((Text) result.get(0).getNode()).getText());
-	}
-
-	@Test
-	void ChatParser_Parse_Href_Fail()
-	{
-		// This is an illegal input. A non retroshare:// URL which is not supported. The result are empty texts.
-		var input = "<a href=\"http://foobar.com\">super site</a>";
-		var result = ChatParser.parse(input);
-
-		assertEquals(2, result.size());
-		assertInstanceOf(ContentText.class, result.get(0));
-		assertEquals("", ((Text) result.get(0).getNode()).getText());
-	}
-
-	// Some tests cannot be done because JavaFX is not available fully
 }

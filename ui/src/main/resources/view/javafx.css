@@ -78,7 +78,6 @@
 /*noinspection CssUnusedSymbol*/
 .chat-list .list-cell {
     -fx-padding: 0px 0.25em 0px 0.25em;
-    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
 }
 
 .chat-list .list-cell .time {
@@ -100,6 +99,7 @@
     -fx-border-color: transparent;
 }
 
+/* this is needed to display emojis before sending them */
 .chat-send {
     -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
 }
@@ -240,7 +240,4 @@
 }
 
 .forum-content {
-    /*    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji"; */
 }
-
-/* XXX: Segoe UI Emoji does not suppor bold and italic */

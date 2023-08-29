@@ -22,6 +22,7 @@ package io.xeres.ui.support.emoji;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.xeres.ui.properties.UiClientProperties;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class EmojiService
 	private static final String EMOJI_DATABASE = "/emoji.json";
 
 	private final ObjectMapper objectMapper;
+	private final UiClientProperties uiClientProperties;
 	private final Map<String, String> emojisMap = new HashMap<>();
 	private final Map<String, WeakReference<Image>> imageCacheMap = new ConcurrentHashMap<>();
 
@@ -53,10 +55,16 @@ public class EmojiService
 	{
 	}
 
-	public EmojiService(ObjectMapper objectMapper)
+	public EmojiService(ObjectMapper objectMapper, UiClientProperties uiClientProperties)
 	{
 		this.objectMapper = objectMapper;
-		loadEmojis(); // XXX: make it configurable? people might not want to deal with them
+		this.uiClientProperties = uiClientProperties;
+
+		if (uiClientProperties.isColoredEmojis())
+		{
+			log.info("Loading colored Emojis...");
+			loadEmojis();
+		}
 	}
 
 	private void loadEmojis()
@@ -74,6 +82,11 @@ public class EmojiService
 		{
 			log.error("Couldn't load emojis database");
 		}
+	}
+
+	public boolean isEnabled()
+	{
+		return uiClientProperties.isColoredEmojis();
 	}
 
 	public Image getEmoji(String codeDecimal)

@@ -32,6 +32,7 @@ import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -140,6 +141,7 @@ public class ChatViewController implements Controller
 	private final WindowManager windowManager;
 	private final TrayService trayService;
 	private final ResourceBundle bundle;
+	private final EmojiService emojiService;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -161,7 +163,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, EmojiService emojiService)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -170,6 +172,7 @@ public class ChatViewController implements Controller
 		this.windowManager = windowManager;
 		this.trayService = trayService;
 		this.bundle = bundle;
+		this.emojiService = emojiService;
 
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
@@ -561,7 +564,7 @@ public class ChatViewController implements Controller
 		var chatListView = roomInfoTreeItem.getValue().getChatListView();
 		if (chatListView == null)
 		{
-			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId());
+			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId(), emojiService);
 			roomInfoTreeItem.getValue().setChatListView(chatListView);
 		}
 		return chatListView;

@@ -29,6 +29,8 @@ import io.xeres.ui.support.chat.ChatParser;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentImage;
+import io.xeres.ui.support.emoji.EmojiService;
+import io.xeres.ui.support.markdown.Markdown2Flow;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -64,6 +66,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private final VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> chatView;
 	private final ListView<ChatRoomUser> userListView;
+	private final EmojiService emojiService;
 
 	enum AddUserOrigin
 	{
@@ -71,10 +74,11 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		KEEP_ALIVE
 	}
 
-	public ChatListView(String nickname, long id)
+	public ChatListView(String nickname, long id, EmojiService emojiService)
 	{
 		this.nickname = nickname;
 		this.id = id;
+		this.emojiService = emojiService;
 
 		chatView = createChatView();
 		userListView = createUserListView();
@@ -125,7 +129,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		if (img != null)
 		{
 			var data = img.absUrl("src");
-			if (isNotEmpty(data))
+			if (isNotEmpty(data) && data.startsWith("data:")) // the core only allows 'data' already but better safe than sorry
 			{
 				var image = new Image(data);
 				if (!image.isError())
@@ -141,8 +145,9 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				message = ChatParser.parseActionMe(message, chatAction.getNickname());
 				chatAction.setType(ACTION);
 			}
-			var chatContents = ChatParser.parse(message);
-			var chatLine = new ChatLine(Instant.now(), chatAction, chatContents.toArray(Content[]::new));
+			var md2flow = new Markdown2Flow(message, emojiService);
+			md2flow.setOneLineMode(true);
+			var chatLine = new ChatLine(Instant.now(), chatAction, md2flow.getContent().toArray(new Content[0]));
 			addMessageLine(chatLine);
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,24 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.chat;
+package io.xeres.ui.properties;
 
-public final class ChatParser
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ConfigurationProperties(prefix = "xrs.ui.client")
+public class UiClientProperties
 {
-	private ChatParser()
+	private boolean coloredEmojis = true;
+
+	public boolean isColoredEmojis()
 	{
-		throw new UnsupportedOperationException("Utility class");
+		return coloredEmojis;
 	}
 
-	public static boolean isActionMe(String s)
+	public void setColoredEmojis(boolean coloredEmojis)
 	{
-		return s.startsWith("/me ");
-	}
-
-	public static String parseActionMe(String s, String nickname)
-	{
-		return nickname + " " + s.substring(4);
+		this.coloredEmojis = coloredEmojis;
 	}
 }

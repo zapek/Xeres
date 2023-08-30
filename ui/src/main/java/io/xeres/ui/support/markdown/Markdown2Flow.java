@@ -89,7 +89,7 @@ public class Markdown2Flow
 				line = EmojiParser.parseToHtmlDecimal(line); // make smileys into decimal html (&#1234;) so that they can be detected and colorized
 			}
 
-			if (line.startsWith("# "))
+			if (line.startsWith("#"))
 			{
 				processHeader(line);
 			}
@@ -194,15 +194,25 @@ public class Markdown2Flow
 
 	private void processHeader(String line)
 	{
+		char space = '#';
 		int size;
 
 		for (size = 0; size < line.length(); size++)
 		{
-			if (line.charAt(size) != '#')
+			space = line.charAt(size);
+			if (space != '#')
 			{
 				break;
 			}
 		}
+
+		if (space != ' ')
+		{
+			// Not a space, this is not a header
+			addContent(new ContentText(line));
+			return;
+		}
+
 		if (size > 6)
 		{
 			size = 6;

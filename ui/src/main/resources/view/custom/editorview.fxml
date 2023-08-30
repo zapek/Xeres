@@ -32,42 +32,63 @@
             <graphic>
                 <FontAwesomeIconView glyphName="BOLD" glyphSize="14"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="Bold"/>
+            </tooltip>
         </Button>
         <Button fx:id="italic" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="ITALIC" glyphSize="14"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="Italic"/>
+            </tooltip>
         </Button>
         <Button fx:id="hyperlink" focusTraversable="false">
-            <graphic>
-                <FontAwesomeIconView glyphName="LINK" glyphSize="14"/>
-            </graphic>
             <HBox.margin>
                 <Insets left="8.0"/>
             </HBox.margin>
+            <graphic>
+                <FontAwesomeIconView glyphName="LINK" glyphSize="14"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="Hyperlink"/>
+            </tooltip>
         </Button>
         <Button fx:id="quote" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="QUOTE_LEFT" glyphSize="14"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="Quote"/>
+            </tooltip>
         </Button>
         <Button fx:id="code" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="CODE" glyphSize="14"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="Code"/>
+            </tooltip>
         </Button>
         <Button fx:id="list" focusTraversable="false">
-            <graphic>
-                <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
-            </graphic>
             <HBox.margin>
                 <Insets left="8.0"/>
             </HBox.margin>
+            <graphic>
+                <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="List"/>
+            </tooltip>
         </Button>
         <Button fx:id="heading" focusTraversable="false">
             <graphic>
                 <FontAwesomeIconView glyphName="HEADER" glyphSize="14"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="Header"/>
+            </tooltip>
         </Button>
     </HBox>
     <TextArea fx:id="editor" wrapText="true" VBox.vgrow="SOMETIMES"/>

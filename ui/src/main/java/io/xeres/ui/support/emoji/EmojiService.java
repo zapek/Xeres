@@ -19,22 +19,17 @@
 
 package io.xeres.ui.support.emoji;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.ui.properties.UiClientProperties;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 @Service
 public class EmojiService
@@ -44,44 +39,14 @@ public class EmojiService
 	private static final String DEFAULT_UNICODE = "2753"; // question mark
 	private static final String EMOJI_PATH = "/image/emojis/";
 	private static final String EMOJI_EXTENSION = ".png";
-	private static final String EMOJI_DATABASE = "/emoji.json";
+	private static final Pattern CODE_DECIMAL_PATTERN = Pattern.compile("&#(\\d{1,10});");
 
-	private final ObjectMapper objectMapper;
 	private final UiClientProperties uiClientProperties;
-	private final Map<String, String> emojisMap = new HashMap<>();
 	private final Map<String, WeakReference<Image>> imageCacheMap = new ConcurrentHashMap<>();
 
-	private record EmojiEntity(String unicode, @JsonProperty("code_decimal") String codeDecimal)
+	public EmojiService(UiClientProperties uiClientProperties)
 	{
-	}
-
-	public EmojiService(ObjectMapper objectMapper, UiClientProperties uiClientProperties)
-	{
-		this.objectMapper = objectMapper;
 		this.uiClientProperties = uiClientProperties;
-
-		if (uiClientProperties.isColoredEmojis())
-		{
-			log.info("Loading colored Emojis...");
-			loadEmojis();
-		}
-	}
-
-	private void loadEmojis()
-	{
-		try
-		{
-			var loadedEmojis = objectMapper.readValue(Objects.requireNonNull(getClass().getResourceAsStream(EMOJI_DATABASE)),
-					new TypeReference<List<EmojiEntity>>()
-					{
-					});
-
-			loadedEmojis.forEach(emoji -> emojisMap.put(emoji.codeDecimal(), emoji.unicode()));
-		}
-		catch (IOException e)
-		{
-			log.error("Couldn't load emojis database");
-		}
 	}
 
 	public boolean isEnabled()
@@ -91,13 +56,23 @@ public class EmojiService
 
 	public Image getEmoji(String codeDecimal)
 	{
-		var unicode = emojisMap.get(codeDecimal);
+		return getImage(codeDecimalToUnicode(codeDecimal));
+	}
 
-		if (unicode == null)
+	String codeDecimalToUnicode(String codeDecimal)
+	{
+		StringBuilder result = new StringBuilder();
+
+		var matcher = CODE_DECIMAL_PATTERN.matcher(codeDecimal);
+		while (matcher.find())
 		{
-			unicode = DEFAULT_UNICODE;
+			if (!result.isEmpty())
+			{
+				result.append("-");
+			}
+			result.append(Integer.toHexString(Integer.parseUnsignedInt(matcher.group(1))));
 		}
-		return getImage(unicode);
+		return result.toString();
 	}
 
 	private Image getImage(String unicode)

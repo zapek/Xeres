@@ -21,7 +21,7 @@ public class Markdown2Flow
 	private static final Pattern BOLD_AND_ITALIC_PATTERN = Pattern.compile("(?<b1>\\*\\*[^* ]((?!\\*\\*).)*[^* ]\\*\\*)|(?<b2>__[^_ ]((?!__).)*[^_ ]__)|(?<i1>\\*[^* ]((?!\\*).)*[^* ]\\*)|(?<i2>_[^_ ]((?!_).)*[^_ ]_)");
 	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
-	private static final Pattern COLOR_EMOJI = Pattern.compile("(?<e>(&#\\d+;)+)");
+	private static final Pattern COLOR_EMOJI_PATTERN = Pattern.compile("(?<e>(&#\\d+;)+)");
 	private static final Pattern HREF_PATTERN = Pattern.compile("<a href=\".{1,2083}?\">.{1,256}?</a>", Pattern.CASE_INSENSITIVE);
 
 	private String input;
@@ -103,7 +103,7 @@ public class Markdown2Flow
 			}
 			else if (line.contains("&#") && line.contains(";"))
 			{
-				processPattern(COLOR_EMOJI, line,
+				processPattern(COLOR_EMOJI_PATTERN, line,
 						(s, groupName) -> addContent(new ContentEmoji(emojiService.getEmoji(s))));
 			}
 			else if (line.contains("*") || line.contains("_"))

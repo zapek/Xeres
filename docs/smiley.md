@@ -7,8 +7,8 @@ The following smileys are automatically converted to emojis:
 | Smiley | Alternative | Emoji |
 |--------|-------------|-------|
 | :-)    | :)          | 🙂    |
-| :o)    |             | 🤡    |
 | :-D    | :D          | 😃    |
+| :-DD   | :DD         | 😄    |
 | :-(    | :(          | 🙁    |
 | :-O    |             | 😮    |
 | :-*    |             | 😘    |
@@ -20,7 +20,7 @@ The following smileys are automatically converted to emojis:
 | >:-)   | >:)         | 😈    |
 | B-)    |             | 😎    |
 | <3     |             | 💖    |
-| O_o    | o_O         | 😳    |
+| :o)    |             | 🤡    |
 
 ## Aliases
 

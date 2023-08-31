@@ -31,34 +31,73 @@ import static java.util.Map.entry;
  */
 public final class SmileyUtils
 {
+	private static final String /* 🙂 */ SLIGHTLY_SMILING_FACE = Character.toString(0x1F642);
+	private static final String /* 😃 */ GRINNING_FACE_WITH_BIG_EYES = Character.toString(0x1F603);
+	private static final String /* 😄 */ GRINNING_FACE_WITH_SMILING_EYES = Character.toString(0x1F604);
+	private static final String /* 😅 */ GRINNING_FACE_WITH_SWEAT = Character.toString(0x1F605);
+	private static final String /* 😂 */ FACE_WITH_TEARS_OF_JOY = Character.toString(0x1F602);
+	private static final String /* 😠 */ ANGRY_FACE = Character.toString(0x1F620);
+	private static final String /* 😶 */ FACE_WITHOUT_MOUTH = Character.toString(0x1F636);
+	private static final String /* 😵 */ FACE_WITH_CROSSED_OUT_EYES = Character.toString(0x1F635);
+	private static final String /* 😳 */ FLUSHED_FACE = Character.toString(0x1F633);
+	private static final String /* 🙁 */ SLIGHTLY_FROWNING_FACE = Character.toString(0x1F641);
+	private static final String /* 😮 */ FACE_WITH_OPEN_MOUTH = Character.toString(0x1F62E);
+	private static final String /* 😘 */ FACE_BLOWING_A_KISS = Character.toString(0x1F618);
+	private static final String /* 😉 */ WINKING_FACE = Character.toString(0x1F609);
+	private static final String /* 😥 */ SAD_BUT_RELIEVED_FACE = Character.toString(0x1F625);
+	private static final String /* 😛 */ FACE_WITH_TONGUE = Character.toString(0x1F61B);
+	private static final String /* 😕 */ CONFUSED_FACE = Character.toString(0x1F615);
+	private static final String /* 😇 */ SMILING_FACE_WITH_HALO = Character.toString(0x1F607);
+	private static final String /* 😈 */ SMILING_FACE_WITH_HORNS = Character.toString(0x1F608);
+	private static final String /* 😎 */ SMILING_FACE_WITH_SUNGLASSES = Character.toString(0x1F60E);
+	private static final String /* 💖 */ SPARKLING_HEART = Character.toString(0x1F496);
+	private static final String /* 🤡 */ CLOWN_FACE = Character.toString(0x1F921);
+
 	private static final Map<String, String> smileys = Map.ofEntries(
-			entry(":-)", "\uD83D\uDE42"),
-			entry(":)", "\uD83D\uDE42"),
-			entry(":o)", "\uD83E\uDD21"), // not working on linux
-			entry(":-D", "\uD83D\uDE03"),
-			entry(":D", "\uD83D\uDE03"),
-			entry(":-(", "\uD83D\uDE41"),
-			entry(":(", "\uD83D\uDE41"),
-			entry(":-O", "\uD83D\uDE2E"),
-			entry(":-*", "\uD83D\uDE18"),
-			entry(";-)", "\uD83D\uDE09"),
-			entry(";)", "\uD83D\uDE09"),
-			entry(";-(", "\uD83D\uDE25"),
-			entry(";(", "\uD83D\uDE25"),
-			entry(":-P", "\uD83D\uDE1B"),
-			entry(":P", "\uD83D\uDE1B"),
-			entry(":p", "\uD83D\uDE1B"),
-			entry(":-/", "\uD83D\uDE15"),
-			entry(":/", "\uD83D\uDE15"),
-			entry("O:-)", "\uD83D\uDE07"),
-			entry("O:)", "\uD83D\uDE07"),
-			entry(">:-)", "\uD83D\uDE08"),
-			entry(">:)", "\uD83D\uDE08"),
-			entry("B-)", "\uD83D\uDE0E"),
-			entry("B)", "\uD83D\uDE0E"),
-			entry("<3", "\uD83D\uDC96"),
-			entry("O_o", "\uD83D\uDE33"),
-			entry("o_O", "\uD83D\uDE33")
+			entry(":-)", SLIGHTLY_SMILING_FACE),
+			entry(":)", SLIGHTLY_SMILING_FACE),
+			entry(":-D", GRINNING_FACE_WITH_BIG_EYES),
+			entry(":D", GRINNING_FACE_WITH_BIG_EYES),
+			entry(":-DD", GRINNING_FACE_WITH_SMILING_EYES),
+			entry(":DD", GRINNING_FACE_WITH_SMILING_EYES),
+			entry("':)", GRINNING_FACE_WITH_SWEAT),
+			entry("':-)", GRINNING_FACE_WITH_SWEAT),
+			entry("':D", GRINNING_FACE_WITH_SWEAT),
+			entry("':-D", GRINNING_FACE_WITH_SWEAT),
+			entry(":')", FACE_WITH_TEARS_OF_JOY),
+			entry(":'-)", FACE_WITH_TEARS_OF_JOY),
+			entry(":-(", SLIGHTLY_FROWNING_FACE),
+			entry(":(", SLIGHTLY_FROWNING_FACE),
+			entry(":-O", FACE_WITH_OPEN_MOUTH),
+			entry(":O", FACE_WITH_OPEN_MOUTH),
+			entry(":-*", FACE_BLOWING_A_KISS),
+			entry(":*", FACE_BLOWING_A_KISS),
+			entry(";-)", WINKING_FACE),
+			entry(";)", WINKING_FACE),
+			entry(";-(", SAD_BUT_RELIEVED_FACE),
+			entry(";(", SAD_BUT_RELIEVED_FACE),
+			entry(":-P", FACE_WITH_TONGUE),
+			entry(":P", FACE_WITH_TONGUE),
+			entry(":p", FACE_WITH_TONGUE),
+			entry(":-/", CONFUSED_FACE),
+			entry(":/", CONFUSED_FACE),
+			entry("O:-)", SMILING_FACE_WITH_HALO),
+			entry("O:)", SMILING_FACE_WITH_HALO),
+			entry(">:-)", SMILING_FACE_WITH_HORNS),
+			entry(">:)", SMILING_FACE_WITH_HORNS),
+			entry("B-)", SMILING_FACE_WITH_SUNGLASSES),
+			entry("B)", SMILING_FACE_WITH_SUNGLASSES),
+			entry(":@", ANGRY_FACE),
+			entry(":-X", FACE_WITHOUT_MOUTH),
+			entry(":-x", FACE_WITHOUT_MOUTH),
+			entry(":X", FACE_WITHOUT_MOUTH),
+			entry(":x", FACE_WITHOUT_MOUTH),
+			entry("%-)", FACE_WITH_CROSSED_OUT_EYES),
+			entry("%)", FACE_WITH_CROSSED_OUT_EYES),
+			entry(":-$", FLUSHED_FACE),
+			entry(":$", FLUSHED_FACE),
+			entry("<3", SPARKLING_HEART),
+			entry(":o)", CLOWN_FACE)
 	);
 
 	private SmileyUtils()
@@ -67,7 +106,7 @@ public final class SmileyUtils
 	}
 
 	/**
-	 * A smiley is detected on the following conditions:
+	 * A smiley is detected if the following 2 conditions are met:
 	 * <ul>
 	 *     <li>preceded by nothing or a space</li>
 	 *     <li>followed by nothing or a space, a dot, a comma or an end of line</li>
@@ -78,7 +117,7 @@ public final class SmileyUtils
 	 */
 	public static String smileysToUnicode(String s)
 	{
-		if (s.length() >= 2)
+		if (s.length() >= 2 && (s.contains(":") || s.contains(";") || s.contains("B") || s.contains("%") || s.contains("<"))) // optimizations
 		{
 			for (var e : smileys.entrySet())
 			{

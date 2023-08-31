@@ -46,12 +46,16 @@ public final class SmileyUtils
 			entry(";-(", "\uD83D\uDE25"),
 			entry(";(", "\uD83D\uDE25"),
 			entry(":-P", "\uD83D\uDE1B"),
+			entry(":P", "\uD83D\uDE1B"),
+			entry(":p", "\uD83D\uDE1B"),
 			entry(":-/", "\uD83D\uDE15"),
+			entry(":/", "\uD83D\uDE15"),
 			entry("O:-)", "\uD83D\uDE07"),
 			entry("O:)", "\uD83D\uDE07"),
 			entry(">:-)", "\uD83D\uDE08"),
 			entry(">:)", "\uD83D\uDE08"),
 			entry("B-)", "\uD83D\uDE0E"),
+			entry("B)", "\uD83D\uDE0E"),
 			entry("<3", "\uD83D\uDC96"),
 			entry("O_o", "\uD83D\uDE33"),
 			entry("o_O", "\uD83D\uDE33")
@@ -62,20 +66,64 @@ public final class SmileyUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * A smiley is detected on the following conditions:
+	 * <ul>
+	 *     <li>preceded by nothing or a space</li>
+	 *     <li>followed by nothing or a space, a dot, a comma or an end of line</li>
+	 * </ul>
+	 *
+	 * @param s the string
+	 * @return a string with smileys replaced by unicode emojis
+	 */
 	public static String smileysToUnicode(String s)
 	{
 		if (s.length() >= 2)
 		{
-			// Only replace if first in the string or preceded by a space, to avoid false positives
 			for (var e : smileys.entrySet())
 			{
-				if (s.regionMatches(0, e.getKey(), 0, e.getKey().length()))
+				int index = 0;
+				int searchIndex = 0;
+
+				while ((index = s.indexOf(e.getKey(), index)) != -1)
 				{
-					s = e.getValue() + s.substring(e.getKey().length());
+					if (isAlone(index, e.getKey(), s) || isProperlySeparated(index, e.getKey(), s))
+					{
+						s = s.substring(searchIndex, index) + e.getValue() + s.substring(index + e.getKey().length());
+						searchIndex = index + e.getValue().length();
+					}
+					else
+					{
+						index += e.getKey().length(); // skip it then
+					}
 				}
-				s = s.replace(" " + e.getKey(), " " + e.getValue());
 			}
 		}
 		return s;
+	}
+
+	private static boolean isAlone(int index, String key, String s)
+	{
+		return index == 0 && key.length() == s.length();
+	}
+
+	private static boolean isProperlySeparated(int index, String key, String s)
+	{
+		return beginningIsSeparator(index, s) && (endIsSeparator(index, key, s));
+	}
+
+	private static boolean beginningIsSeparator(int index, String s)
+	{
+		return index == 0 || Character.isSpaceChar(s.charAt(index - 1));
+	}
+
+	private static boolean endIsSeparator(int index, String key, String s)
+	{
+		if (index + key.length() == s.length())
+		{
+			return true;
+		}
+		var c = s.charAt(index + key.length());
+		return c == '.' || c == ',' || Character.isSpaceChar(c) || c == '\n';
 	}
 }

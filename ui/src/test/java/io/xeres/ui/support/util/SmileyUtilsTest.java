@@ -31,7 +31,8 @@ class SmileyUtilsTest
 	@ParameterizedTest
 	@CsvSource({
 			":-),\uD83D\uDE42",
-			"hello :-),hello \uD83D\uDE42"
+			"hello :-),hello \uD83D\uDE42",
+			":-) works, \uD83D\uDE42 works"
 	})
 	void SmileyUtils_SmileysToUnicode_Replace(String input, String expected)
 	{

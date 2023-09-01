@@ -66,6 +66,10 @@ If you want to quickly try the current development version without installing an
 
 Run the _XeresApplication_ Spring Boot configuration.
 
+- Active Profile: `dev`
+- VM Options: `-ea -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8`
+- CLI arguments: `--fast-shutdown`
+
 ##### IntelliJ Community Edition
 
 Run the Gradle ``bootRun`` target. It's in the top right _Gradle_ panel, Tasks / application. It's already preconfigured.

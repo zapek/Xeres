@@ -28,6 +28,7 @@ class Markdown2FlowTest
 				Line2 with trails  \s
 
 				Line3
+				Line4
 				""";
 
 		var wanted = """
@@ -35,7 +36,7 @@ class Markdown2FlowTest
 
 				Line2 with trails
 
-				Line3""";
+				Line3 Line4""";
 
 		assertEquals(wanted, Markdown2Flow.sanitize(text));
 	}

@@ -286,14 +286,6 @@ ij_editorconfig_space_before_colon = false
 ij_editorconfig_space_before_comma = false
 ij_editorconfig_spaces_around_assignment_operators = true
 
-[{*.bash,*.zsh,*.sh}]
-indent_style = space
-ij_shell_binary_ops_start_line = false
-ij_shell_keep_column_alignment_padding = false
-ij_shell_minify_program = false
-ij_shell_redirect_followed_by_space = false
-ij_shell_switch_cases_indented = false
-
 [{*.gant,*.groovy,*.gradle,*.gdsl,*.gy}]
 indent_style = space
 ij_smart_tabs = false
@@ -668,6 +660,7 @@ ij_smart_tabs = false
 ij_xml_block_comment_at_first_column = true
 ij_xml_keep_indents_on_empty_lines = false
 ij_xml_line_comment_at_first_column = true
+ij_xml_space_inside_empty_tag = false
 
 [{spring.schemas,spring.handlers,*.properties}]
 ij_properties_align_group_field_declarations = false

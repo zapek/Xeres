@@ -1,24 +1,35 @@
 package io.xeres.ui.support.markdown;
 
+import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.emoji.EmojiService;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.text.Text;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 
-class Markdown2FlowTest
+@ExtendWith(SpringExtension.class)
+class MarkdownServiceTest
 {
-	private final EmojiService emojiService = mock(EmojiService.class);
+	@Mock
+	private EmojiService emojiService;
+
+	@InjectMocks
+	private MarkdownService markdownService;
 
 	@Test
-	void Markdown2Flow_Sanitize_OK()
+	void MarkdownService_Parse_Sanitize_OK()
 	{
 		var text = """
 				Line1
@@ -36,38 +47,24 @@ class Markdown2FlowTest
 
 				Line2 with trails
 
-				Line3 Line4""";
+				Line3 Line4
+				""";
 
-		assertEquals(wanted, Markdown2Flow.sanitize(text));
-	}
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-	@ParameterizedTest
-	@CsvSource({
-			"hello world,hello world",
-			";-),\uD83D\uDE09",
-			":wink:,\uD83D\uDE09"
-	})
-	void Markdown2Flow_Parse_Text(String input, String expected)
-	{
-		var md = new Markdown2Flow(input, emojiService);
-		md.setOneLineMode(true);
-
-		var result = md.getContent();
-
-		assertEquals(1, result.size());
-		assertInstanceOf(ContentText.class, result.get(0));
-		assertEquals(expected, ((Text) result.get(0).getNode()).getText());
+		assertEquals(wanted, markdownService.parse(text, false).stream()
+				.map(Content::asText)
+				.collect(Collectors.joining()));
 	}
 
 	@Test
-	void Markdown2Flow_ParseInlineUrls_OK()
+	void MarkdownService_ParseInlineUrls_OK()
 	{
 		var input = "Hello world! https://xeres.io is the site to visit now!";
 
-		var md = new Markdown2Flow(input, emojiService);
-		md.setOneLineMode(true);
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		var output = md.getContent();
+		var output = markdownService.parse(input, true);
 
 		assertEquals(3, output.size());
 		assertInstanceOf(ContentText.class, output.get(0));

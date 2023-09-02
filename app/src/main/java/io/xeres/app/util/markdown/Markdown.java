@@ -162,7 +162,7 @@ public class Markdown
 
 	private boolean lastLineIsEmpty()
 	{
-		return getLastLine().equals("");
+		return getLastLine().isEmpty();
 	}
 
 	private String getLastLine()

@@ -5,25 +5,26 @@ import io.xeres.ui.properties.UiClientProperties;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@AutoConfigureJsonTesters
 class EmojiServiceTest
 {
 	@Mock
-	private ObjectMapper objectMapper;
-
-	@Mock
 	private UiClientProperties uiClientProperties;
 
-	@InjectMocks
-	private EmojiService emojiService;
+	// We cannot use @InjectMocks because EmojiService performs
+	// computations that requires mocks in the constructor and that
+	// is executed before "when" statements can be done.
+	private EmojiService createEmojiService()
+	{
+		return new EmojiService(uiClientProperties, new ObjectMapper());
+	}
+
 
 	@ParameterizedTest
 	@CsvSource({
@@ -33,24 +34,29 @@ class EmojiServiceTest
 	})
 	void EmojiService_CodeDecimalToUnicode_OK(String input, String expected)
 	{
+		var emojiService = createEmojiService();
 		var result = emojiService.codeDecimalToUnicode(input);
 
 		assertEquals(expected, result);
 	}
 
-	// XXX: mockito doesn't work here, no clue why
-//	@ParameterizedTest
-//	@CsvSource({
-//			"hello, hello",
-//			":wink:, 😉",
-//	})
-//	void EmojiService_toUnicode_OK(String input, String expected)
-//	{
-//		when(uiClientProperties.isColoredEmojis()).thenReturn(true);
-//		when(uiClientProperties.isRsEmojisAliases()).thenReturn(true);
-//
-//		var result = emojiService.toUnicode(input);
-//
-//		assertEquals(expected, result);
-//	}
+	@ParameterizedTest
+	@CsvSource({
+			"hello, hello",
+			";-), 😉",
+			":wink:, 😉",
+			":wink: :wink, 😉 :wink",
+			":wink :wink:, :wink 😉"
+	})
+	void EmojiService_toUnicode_OK(String input, String expected)
+	{
+		when(uiClientProperties.isColoredEmojis()).thenReturn(false);
+		when(uiClientProperties.isRsEmojisAliases()).thenReturn(true);
+
+		var emojiService = createEmojiService();
+
+		var result = emojiService.toUnicode(input);
+
+		assertEquals(expected, result);
+	}
 }

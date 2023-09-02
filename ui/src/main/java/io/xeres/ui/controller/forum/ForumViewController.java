@@ -31,9 +31,9 @@ import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.model.forum.ForumMapper;
+import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
-import io.xeres.ui.support.emoji.EmojiService;
-import io.xeres.ui.support.markdown.Markdown2Flow;
+import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -121,7 +121,7 @@ public class ForumViewController implements Controller
 	private final NotificationClient notificationClient;
 	private final WindowManager windowManager;
 	private final ObjectMapper objectMapper;
-	private final EmojiService emojiService;
+	private final MarkdownService markdownService;
 
 	private ForumGroup selectedForumGroup;
 	private ForumMessage selectedForumMessage;
@@ -138,7 +138,7 @@ public class ForumViewController implements Controller
 	private final TreeItem<ForumGroup> popularForums;
 	private final TreeItem<ForumGroup> otherForums;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, EmojiService emojiService)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -150,7 +150,7 @@ public class ForumViewController implements Controller
 		this.notificationClient = notificationClient;
 		this.windowManager = windowManager;
 		this.objectMapper = objectMapper;
-		this.emojiService = emojiService;
+		this.markdownService = markdownService;
 	}
 
 	@Override
@@ -429,9 +429,10 @@ public class ForumViewController implements Controller
 		{
 			forumClient.getForumMessage(forumMessage.getId())
 					.doOnSuccess(message -> Platform.runLater(() -> {
-						var md2flow = new Markdown2Flow(message.getContent(), emojiService);
+						var contents = markdownService.parse(message.getContent(), false);
 						messageContent.getChildren().clear();
-						messageContent.getChildren().addAll(md2flow.getNodes());
+						messageContent.getChildren().addAll(contents.stream()
+								.map(Content::getNode).toList());
 						messageAuthor.setText(forumMessage.getAuthorName());
 						messageDate.setText(messageDateFormatter.format(forumMessage.getPublished()));
 						messageSubject.setText(forumMessage.getName());

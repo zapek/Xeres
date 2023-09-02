@@ -1,0 +1,171 @@
+/*
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.ui.support.markdown;
+
+import io.xeres.ui.support.contentline.Content;
+import io.xeres.ui.support.contentline.ContentText;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Context
+{
+	private enum SANITIZE
+	{
+		NORMAL, // keep text as it is
+		EMPTY_LINES, // remove useless empty lines
+		CONTINUATION_BREAK // remove line feed to make a continuation break
+	}
+
+	private final boolean oneLineMode;
+	private final Scanner scanner;
+	private final List<Content> content = new ArrayList<>();
+	private int insertIndex;
+	private int completedIndex;
+	private int previousIndex = -1;
+
+	public Context(String input, boolean oneLineMode)
+	{
+		scanner = new Scanner(sanitize(input));
+		this.oneLineMode = oneLineMode;
+	}
+
+	public boolean isEmpty()
+	{
+		return content.isEmpty();
+	}
+
+	public List<Content> getContent()
+	{
+		return content;
+	}
+
+	/**
+	 * Checks if there are still newly created ContentText left to be processed or new lines
+	 *
+	 * @return true if processing remaining
+	 */
+	public boolean isIncomplete()
+	{
+		return hasIncompleteContent() || scanner.hasNextLine();
+	}
+
+	private boolean hasIncompleteContent()
+	{
+		for (int i = completedIndex + 1; i < content.size(); i++)
+		{
+			var possibleContent = content.get(i);
+			if (!possibleContent.isComplete())
+			{
+				return true;
+			}
+			completedIndex++;
+		}
+		return false;
+	}
+
+	/**
+	 * Gets the next line, either a newly created ContentText or from the scanner
+	 *
+	 * @return the next line
+	 */
+	public String getNextLine()
+	{
+		var nextIndex = completedIndex + 1;
+		if (nextIndex < content.size())
+		{
+			var possibleContent = content.get(nextIndex);
+			if (!possibleContent.isComplete())
+			{
+				content.remove(nextIndex);
+				insertIndex = nextIndex;
+				return possibleContent.asText();
+			}
+		}
+		return scanner.nextLine() + getLn();
+	}
+
+	public void addContent(Content newContent)
+	{
+		content.add(insertIndex, newContent);
+		if (previousIndex == insertIndex && !newContent.isComplete() && newContent instanceof ContentText contentText)
+		{
+			contentText.setComplete(); // Detect if we're in an infinite loop (e.g. "*" detected in line, but no matching "*foo*" so add ContentText then run again, etc...)
+		}
+		previousIndex = insertIndex;
+		insertIndex++;
+	}
+
+	public String getLn()
+	{
+		return oneLineMode ? "" : "\n";
+	}
+
+	/**
+	 * Currently removes trailing spaces and handles line feeds:
+	 * - one line feed makes the next line is a continuation
+	 * - two line feeds make a paragraph
+	 */
+	static String sanitize(String input)
+	{
+		var lines = input.split("\n");
+		var sb = new StringBuilder();
+		var skip = SANITIZE.NORMAL;
+
+		for (String s : lines)
+		{
+			if (s.trim().isEmpty())
+			{
+				// One empty line is treated as a paragraph
+				if (skip != SANITIZE.EMPTY_LINES)
+				{
+					sb.append("\n\n");
+					skip = SANITIZE.EMPTY_LINES;
+				}
+			}
+			else if (s.startsWith("> ") || s.startsWith(">>") || s.startsWith("    ") || s.startsWith("\t"))
+			{
+				// We don't process quoted text and code
+				skip = SANITIZE.NORMAL;
+				sb.append(s.stripTrailing()).append("\n");
+			}
+			else
+			{
+				// Normal break is treated as continuation
+				if (skip == SANITIZE.CONTINUATION_BREAK)
+				{
+					if (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* "))
+					{
+						// Except quoted text
+						sb.append("\n");
+					}
+					else
+					{
+						sb.append(" ");
+					}
+				}
+				sb.append(s.stripTrailing());
+				skip = SANITIZE.CONTINUATION_BREAK;
+			}
+		}
+		return sb.toString();
+	}
+}

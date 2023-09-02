@@ -28,6 +28,7 @@ import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.ImageUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -84,6 +85,7 @@ public class MessagingWindowController implements WindowController
 	private ChatListView receive;
 
 	private final ProfileClient profileClient;
+	private final MarkdownService markdownService;
 	private final ResourceBundle bundle;
 	private final LocationId locationId;
 	private Profile targetProfile;
@@ -94,10 +96,11 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, MessageClient messageClient, String locationId, ResourceBundle bundle)
+	public MessagingWindowController(ProfileClient profileClient, MessageClient messageClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
+		this.markdownService = markdownService;
 		this.bundle = bundle;
 		this.locationId = new LocationId(locationId);
 	}
@@ -143,7 +146,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, null); // XXX: fix or it will crash!
+		receive = new ChatListView(nickname, id, markdownService);
 		content.getChildren().add(0, receive.getChatView());
 	}
 

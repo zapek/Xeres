@@ -43,6 +43,7 @@ import io.xeres.ui.controller.qrcode.CameraWindowController;
 import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.markdown.MarkdownService;
 import jakarta.annotation.PostConstruct;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -53,8 +54,6 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxWeaver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
@@ -67,20 +66,20 @@ import java.util.ResourceBundle;
 @Component
 public class WindowManager
 {
-	private static final Logger log = LoggerFactory.getLogger(WindowManager.class);
-
 	private final FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
+	private final MarkdownService markdownService;
 	private final ResourceBundle bundle;
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ResourceBundle bundle)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, MarkdownService markdownService, ResourceBundle bundle)
 	{
 		this.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
+		this.markdownService = markdownService;
 		this.bundle = bundle;
 	}
 
@@ -134,7 +133,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double click)
 							{
-								var messaging = new MessagingWindowController(profileClient, messageClient, locationId, bundle);
+								var messaging = new MessagingWindowController(profileClient, messageClient, markdownService, locationId, bundle);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)

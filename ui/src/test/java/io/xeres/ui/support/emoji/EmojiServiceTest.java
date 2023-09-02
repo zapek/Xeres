@@ -1,18 +1,24 @@
 package io.xeres.ui.support.emoji;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.ui.properties.UiClientProperties;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
+@AutoConfigureJsonTesters
 class EmojiServiceTest
 {
+	@Mock
+	private ObjectMapper objectMapper;
+
 	@Mock
 	private UiClientProperties uiClientProperties;
 
@@ -31,4 +37,20 @@ class EmojiServiceTest
 
 		assertEquals(expected, result);
 	}
+
+	// XXX: mockito doesn't work here, no clue why
+//	@ParameterizedTest
+//	@CsvSource({
+//			"hello, hello",
+//			":wink:, 😉",
+//	})
+//	void EmojiService_toUnicode_OK(String input, String expected)
+//	{
+//		when(uiClientProperties.isColoredEmojis()).thenReturn(true);
+//		when(uiClientProperties.isRsEmojisAliases()).thenReturn(true);
+//
+//		var result = emojiService.toUnicode(input);
+//
+//		assertEquals(expected, result);
+//	}
 }

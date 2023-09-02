@@ -122,14 +122,13 @@ public final class SmileyUtils
 			for (var e : smileys.entrySet())
 			{
 				int index = 0;
-				int searchIndex = 0;
 
 				while ((index = s.indexOf(e.getKey(), index)) != -1)
 				{
 					if (isAlone(index, e.getKey(), s) || isProperlySeparated(index, e.getKey(), s))
 					{
-						s = s.substring(searchIndex, index) + e.getValue() + s.substring(index + e.getKey().length());
-						searchIndex = index + e.getValue().length();
+						s = s.substring(0, index) + e.getValue() + s.substring(index + e.getKey().length());
+						index += e.getValue().length();
 					}
 					else
 					{

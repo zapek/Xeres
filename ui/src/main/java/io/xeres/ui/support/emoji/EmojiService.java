@@ -19,17 +19,22 @@
 
 package io.xeres.ui.support.emoji;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.properties.UiClientProperties;
+import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class EmojiService
@@ -42,16 +47,90 @@ public class EmojiService
 	private static final Pattern CODE_DECIMAL_PATTERN = Pattern.compile("&#(\\d{1,10});");
 
 	private final UiClientProperties uiClientProperties;
+	private RsEmojiAlias rsEmojiAlias;
 	private final Map<String, WeakReference<Image>> imageCacheMap = new ConcurrentHashMap<>();
+	private final Pattern aliasPattern;
 
-	public EmojiService(UiClientProperties uiClientProperties)
+	public EmojiService(UiClientProperties uiClientProperties, ObjectMapper objectMapper)
 	{
 		this.uiClientProperties = uiClientProperties;
+
+		if (uiClientProperties.isRsEmojisAliases())
+		{
+			rsEmojiAlias = new RsEmojiAlias(objectMapper);
+			aliasPattern = Pattern.compile("\\w{1," + rsEmojiAlias.getLongestAlias() + "}");
+		}
+		else
+		{
+			aliasPattern = null;
+		}
 	}
 
-	public boolean isEnabled()
+	public String toUnicode(String input)
 	{
-		return uiClientProperties.isColoredEmojis();
+		var s = SmileyUtils.smileysToUnicode(input); // ;-)
+		//s = EmojiParser.parseToUnicode(s); // :wink: XXX: to be replaced by the internal RS parser. remove once it's tested well enough
+		if (rsEmojiAlias != null)
+		{
+			s = parseRsEmojiAliases(s); // :wink:
+		}
+		if (uiClientProperties.isColoredEmojis())
+		{
+			s = EmojiParser.parseToHtmlDecimal(s); // make smileys into decimal html (&#1234;) so that they can be detected and colorized. XXX: to be replaced by direct code once JDK 21 is released
+		}
+		return s;
+	}
+
+	private String parseRsEmojiAliases(String s)
+	{
+		if (s.length() >= 3)
+		{
+			int start = 0;
+			while ((start = s.indexOf(':', start)) != -1 && s.length() >= start + 2)
+			{
+				int end = s.indexOf(':', start + 2);
+				if (end == -1)
+				{
+					break;
+				}
+
+				if (end - start > rsEmojiAlias.getLongestAlias() + 1)
+				{
+					// Overshot, keep searching
+					start = end;
+					continue;
+				}
+
+				var range = s.substring(start + 1, end);
+
+				if (!aliasPattern.matcher(range).matches())
+				{
+					// Not an alias
+					start = end;
+					continue;
+				}
+
+				var alias = rsEmojiAlias.getUnicodeForAlias(range);
+				if (alias != null)
+				{
+					var codePoints = getCodepoints(alias);
+					s = s.substring(0, start) + getCodepoints(alias) + s.substring(end + 1);
+					start += codePoints.length();
+				}
+				else
+				{
+					start = end + 1;
+				}
+			}
+		}
+		return s;
+	}
+
+	private String getCodepoints(String unicode)
+	{
+		return Arrays.stream(unicode.split("-"))
+				.map(s -> Character.toString(Integer.parseUnsignedInt(unicode, 16)))
+				.collect(Collectors.joining());
 	}
 
 	public Image getEmoji(String codeDecimal)

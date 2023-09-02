@@ -1,0 +1,2814 @@
+[
+    {
+        "alias" : "grinning",
+        "unicode" : "1f600"
+    },
+    {
+        "alias" : "smiley",
+        "unicode" : "1f603"
+    },
+    {
+        "alias" : "smile",
+        "unicode" : "1f604"
+    },
+    {
+        "alias" : "grin",
+        "unicode" : "1f601"
+    },
+    {
+        "alias" : "laughing",
+        "unicode" : "1f606"
+    },
+    {
+        "alias" : "sweat_smile",
+        "unicode" : "1f605"
+    },
+    {
+        "alias" : "joy",
+        "unicode" : "1f602"
+    },
+    {
+        "alias" : "rofl",
+        "unicode" : "1f923"
+    },
+    {
+        "alias" : "blush",
+        "unicode" : "1f60a"
+    },
+    {
+        "alias" : "relaxed",
+        "unicode" : "263a"
+    },
+    {
+        "alias" : "innocent",
+        "unicode" : "1f607"
+    },
+    {
+        "alias" : "slight_smile",
+        "unicode" : "1f642"
+    },
+    {
+        "alias" : "updside_down_face",
+        "unicode" : "1f643"
+    },
+    {
+        "alias" : "wink",
+        "unicode" : "1f609"
+    },
+    {
+        "alias" : "relieved",
+        "unicode" : "1f60c"
+    },
+    {
+        "alias" : "heart_eyes",
+        "unicode" : "1f60d"
+    },
+    {
+        "alias" : "kissing_heart",
+        "unicode" : "1f618"
+    },
+    {
+        "alias" : "kissing",
+        "unicode" : "1f617"
+    },
+    {
+        "alias" : "kissing_smiling_eyes",
+        "unicode" : "1f619"
+    },
+    {
+        "alias" : "kissing_closed_eyes",
+        "unicode" : "1f61a"
+    },
+    {
+        "alias" : "yum",
+        "unicode" : "1f60b"
+    },
+    {
+        "alias" : "stuck_out_tongue",
+        "unicode" : "1f61b"
+    },
+    {
+        "alias" : "stuck_out_tongue_winking_eye",
+        "unicode" : "1f61c"
+    },
+    {
+        "alias" : "stuck_out_tongue_closed_eyes",
+        "unicode" : "1f61d"
+    },
+    {
+        "alias" : "money_mouth_face",
+        "unicode" : "1f911"
+    },
+    {
+        "alias" : "hugging",
+        "unicode" : "1f917"
+    },
+    {
+        "alias" : "nerd_face",
+        "unicode" : "1f913"
+    },
+    {
+        "alias" : "sunglasses",
+        "unicode" : "1f60e"
+    },
+    {
+        "alias" : "smirk",
+        "unicode" : "1f60f"
+    },
+    {
+        "alias" : "unamused",
+        "unicode" : "1f612"
+    },
+    {
+        "alias" : "disappointed",
+        "unicode" : "1f61e"
+    },
+    {
+        "alias" : "pensive",
+        "unicode" : "1f614"
+    },
+    {
+        "alias" : "worried",
+        "unicode" : "1f61f"
+    },
+    {
+        "alias" : "confused",
+        "unicode" : "1f615"
+    },
+    {
+        "alias" : "slight_frown",
+        "unicode" : "1f641"
+    },
+    {
+        "alias" : "frowning2",
+        "unicode" : "2639"
+    },
+    {
+        "alias" : "persevere",
+        "unicode" : "1f623"
+    },
+    {
+        "alias" : "confounded",
+        "unicode" : "1f616"
+    },
+    {
+        "alias" : "tired_face",
+        "unicode" : "1f62b"
+    },
+    {
+        "alias" : "weary",
+        "unicode" : "1f629"
+    },
+    {
+        "alias" : "triumph",
+        "unicode" : "1f624"
+    },
+    {
+        "alias" : "angry",
+        "unicode" : "1f620"
+    },
+    {
+        "alias" : "rage",
+        "unicode" : "1f621"
+    },
+    {
+        "alias" : "no_mouth",
+        "unicode" : "1f636"
+    },
+    {
+        "alias" : "neutral_face",
+        "unicode" : "1f610"
+    },
+    {
+        "alias" : "expressionless",
+        "unicode" : "1f611"
+    },
+    {
+        "alias" : "hushed",
+        "unicode" : "1f62f"
+    },
+    {
+        "alias" : "frowning",
+        "unicode" : "1f626"
+    },
+    {
+        "alias" : "anguished",
+        "unicode" : "1f627"
+    },
+    {
+        "alias" : "open_mouth",
+        "unicode" : "1f62e"
+    },
+    {
+        "alias" : "astonished",
+        "unicode" : "1f632"
+    },
+    {
+        "alias" : "dizzy_face",
+        "unicode" : "1f635"
+    },
+    {
+        "alias" : "flushed",
+        "unicode" : "1f633"
+    },
+    {
+        "alias" : "scream",
+        "unicode" : "1f631"
+    },
+    {
+        "alias" : "fearful",
+        "unicode" : "1f628"
+    },
+    {
+        "alias" : "cold_sweat",
+        "unicode" : "1f630"
+    },
+    {
+        "alias" : "cry",
+        "unicode" : "1f622"
+    },
+    {
+        "alias" : "disappointed_relieved",
+        "unicode" : "1f625"
+    },
+    {
+        "alias" : "drooling_face",
+        "unicode" : "1f924"
+    },
+    {
+        "alias" : "sob",
+        "unicode" : "1f62d"
+    },
+    {
+        "alias" : "sweat",
+        "unicode" : "1f613"
+    },
+    {
+        "alias" : "sleepy",
+        "unicode" : "1f62a"
+    },
+    {
+        "alias" : "sleeping",
+        "unicode" : "1f634"
+    },
+    {
+        "alias" : "rolling_eyes",
+        "unicode" : "1f644"
+    },
+    {
+        "alias" : "thinking_face",
+        "unicode" : "1f914"
+    },
+    {
+        "alias" : "lying_face",
+        "unicode" : "1f925"
+    },
+    {
+        "alias" : "grimacing",
+        "unicode" : "1f62c"
+    },
+    {
+        "alias" : "zipper_mouth_face",
+        "unicode" : "1f910"
+    },
+    {
+        "alias" : "sick",
+        "unicode" : "1f922"
+    },
+    {
+        "alias" : "sneeze",
+        "unicode" : "1f927"
+    },
+    {
+        "alias" : "mask",
+        "unicode" : "1f637"
+    },
+    {
+        "alias" : "face_with_thermometer",
+        "unicode" : "1f912"
+    },
+    {
+        "alias" : "head_bandage",
+        "unicode" : "1f915"
+    },
+    {
+        "alias" : "smiling_imp",
+        "unicode" : "1f608"
+    },
+    {
+        "alias" : "imp",
+        "unicode" : "1f47f"
+    },
+    {
+        "alias" : "japanese_ogre",
+        "unicode" : "1f479"
+    },
+    {
+        "alias" : "japanese_goblin",
+        "unicode" : "1f47a"
+    },
+    {
+        "alias" : "ghost",
+        "unicode" : "1f47b"
+    },
+    {
+        "alias" : "skull",
+        "unicode" : "1f480"
+    },
+    {
+        "alias" : "skull_crossbones",
+        "unicode" : "2620"
+    },
+    {
+        "alias" : "alien",
+        "unicode" : "1f47d"
+    },
+    {
+        "alias" : "space_invader",
+        "unicode" : "1f47e"
+    },
+    {
+        "alias" : "robot_face",
+        "unicode" : "1f916"
+    },
+    {
+        "alias" : "jack_o_lantern",
+        "unicode" : "1f383"
+    },
+    {
+        "alias" : "poop",
+        "unicode" : "1f4a9"
+    },
+    {
+        "alias" : "smile_cat",
+        "unicode" : "1f638"
+    },
+    {
+        "alias" : "joy_cat",
+        "unicode" : "1f639"
+    },
+    {
+        "alias" : "smiley_cat",
+        "unicode" : "1f63a"
+    },
+    {
+        "alias" : "heart_eyes_cat",
+        "unicode" : "1f63b"
+    },
+    {
+        "alias" : "smirk_cat",
+        "unicode" : "1f63c"
+    },
+    {
+        "alias" : "kissing_cat",
+        "unicode" : "1f63d"
+    },
+    {
+        "alias" : "pouting_cat",
+        "unicode" : "1f63e"
+    },
+    {
+        "alias" : "crying_cat_face",
+        "unicode" : "1f63f"
+    },
+    {
+        "alias" : "scream_cat",
+        "unicode" : "1f640"
+    },
+    {
+        "alias" : "boy",
+        "unicode" : "1f466"
+    },
+    {
+        "alias" : "girl",
+        "unicode" : "1f467"
+    },
+    {
+        "alias" : "man",
+        "unicode" : "1f468"
+    },
+    {
+        "alias" : "woman",
+        "unicode" : "1f469"
+    },
+    {
+        "alias" : "older_man",
+        "unicode" : "1f474"
+    },
+    {
+        "alias" : "older_woman",
+        "unicode" : "1f475"
+    },
+    {
+        "alias" : "baby",
+        "unicode" : "1f476"
+    },
+    {
+        "alias" : "angel",
+        "unicode" : "1f47c"
+    },
+    {
+        "alias" : "cop",
+        "unicode" : "1f46e"
+    },
+    {
+        "alias" : "spy",
+        "unicode" : "1f575"
+    },
+    {
+        "alias" : "guardsman",
+        "unicode" : "1f482"
+    },
+    {
+        "alias" : "construction_worker",
+        "unicode" : "1f477"
+    },
+    {
+        "alias" : "man_with_turban",
+        "unicode" : "1f473"
+    },
+    {
+        "alias" : "person_with_blond_hair",
+        "unicode" : "1f471"
+    },
+    {
+        "alias" : "santa",
+        "unicode" : "1f385"
+    },
+    {
+        "alias" : "princess",
+        "unicode" : "1f478"
+    },
+    {
+        "alias" : "bride_with_veil",
+        "unicode" : "1f470"
+    },
+    {
+        "alias" : "man_with_gua_pi_mao",
+        "unicode" : "1f472"
+    },
+    {
+        "alias" : "levitate",
+        "unicode" : "1f574"
+    },
+    {
+        "alias" : "dancer",
+        "unicode" : "1f483"
+    },
+    {
+        "alias" : "bust_in_silhouette",
+        "unicode" : "1f464"
+    },
+    {
+        "alias" : "busts_in_silhouette",
+        "unicode" : "1f465"
+    },
+    {
+        "alias" : "family",
+        "unicode" : "1f46a"
+    },
+    {
+        "alias" : "couple",
+        "unicode" : "1f46b"
+    },
+    {
+        "alias" : "dancers",
+        "unicode" : "1f46f"
+    },
+    {
+        "alias" : "bow",
+        "unicode" : "1f647"
+    },
+    {
+        "alias" : "information_desk_person",
+        "unicode" : "1f481"
+    },
+    {
+        "alias" : "couplekiss",
+        "unicode" : "1f48f"
+    },
+    {
+        "alias" : "couple_with_heart",
+        "unicode" : "1f491"
+    },
+    {
+        "alias" : "muscle",
+        "unicode" : "1f4aa"
+    },
+    {
+        "alias" : "finger_pointing_left",
+        "unicode" : "1f448"
+    },
+    {
+        "alias" : "finger_pointing_right",
+        "unicode" : "1f449"
+    },
+    {
+        "alias" : "finger_pointing_down",
+        "unicode" : "1f447"
+    },
+    {
+        "alias" : "finger_pointing_up",
+        "unicode" : "1f446"
+    },
+    {
+        "alias" : "point_up",
+        "unicode" : "261d"
+    },
+    {
+        "alias" : "middle_finger",
+        "unicode" : "1f595"
+    },
+    {
+        "alias" : "v",
+        "unicode" : "270c"
+    },
+    {
+        "alias" : "vulcan",
+        "unicode" : "1f596"
+    },
+    {
+        "alias" : "raised_hand",
+        "unicode" : "270b"
+    },
+    {
+        "alias" : "ok_hand",
+        "unicode" : "1f44c"
+    },
+    {
+        "alias" : "thumbsup",
+        "unicode" : "1f44d"
+    },
+    {
+        "alias" : "thumbsdown",
+        "unicode" : "1f44e"
+    },
+    {
+        "alias" : "fist",
+        "unicode" : "270a"
+    },
+    {
+        "alias" : "punch",
+        "unicode" : "1f44a"
+    },
+    {
+        "alias" : "wave",
+        "unicode" : "1f44b"
+    },
+    {
+        "alias" : "clap",
+        "unicode" : "1f44f"
+    },
+    {
+        "alias" : "open_hands",
+        "unicode" : "1f450"
+    },
+    {
+        "alias" : "raised_hands",
+        "unicode" : "1f64c"
+    },
+    {
+        "alias" : "nail_care",
+        "unicode" : "1f485"
+    },
+    {
+        "alias" : "ear",
+        "unicode" : "1f442"
+    },
+    {
+        "alias" : "nose",
+        "unicode" : "1f443"
+    },
+    {
+        "alias" : "footprints",
+        "unicode" : "1f463"
+    },
+    {
+        "alias" : "eyes",
+        "unicode" : "1f440"
+    },
+    {
+        "alias" : "eye",
+        "unicode" : "1f441"
+    },
+    {
+        "alias" : "tongue",
+        "unicode" : "1f445"
+    },
+    {
+        "alias" : "lips",
+        "unicode" : "1f444"
+    },
+    {
+        "alias" : "lips2",
+        "unicode" : "1f5e2"
+    },
+    {
+        "alias" : "kiss",
+        "unicode" : "1f48b"
+    },
+    {
+        "alias" : "zzz",
+        "unicode" : "1f4a4"
+    },
+    {
+        "alias" : "eyeglasses",
+        "unicode" : "1f453"
+    },
+    {
+        "alias" : "crown",
+        "unicode" : "1f451"
+    },
+    {
+        "alias" : "womans_hat",
+        "unicode" : "1f452"
+    },
+    {
+        "alias" : "necktie",
+        "unicode" : "1f454"
+    },
+    {
+        "alias" : "shirt",
+        "unicode" : "1f455"
+    },
+    {
+        "alias" : "jeans",
+        "unicode" : "1f456"
+    },
+    {
+        "alias" : "dress",
+        "unicode" : "1f457"
+    },
+    {
+        "alias" : "kimono",
+        "unicode" : "1f458"
+    },
+    {
+        "alias" : "bikini",
+        "unicode" : "1f459"
+    },
+    {
+        "alias" : "high_heel",
+        "unicode" : "1f460"
+    },
+    {
+        "alias" : "sandal",
+        "unicode" : "1f461"
+    },
+    {
+        "alias" : "boot",
+        "unicode" : "1f462"
+    },
+    {
+        "alias" : "lipstick",
+        "unicode" : "1f484"
+    },
+    {
+        "alias" : "ring",
+        "unicode" : "1f48d"
+    },
+    {
+        "alias" : "closed_umbrella",
+        "unicode" : "1f302"
+    },
+    {
+        "alias" : "star",
+        "unicode" : "2b50"
+    },
+    {
+        "alias" : "grapes",
+        "unicode" : "1f347"
+    },
+    {
+        "alias" : "melon",
+        "unicode" : "1f348"
+    },
+    {
+        "alias" : "watermelon",
+        "unicode" : "1f349"
+    },
+    {
+        "alias" : "tangerine",
+        "unicode" : "1f34a"
+    },
+    {
+        "alias" : "lemon",
+        "unicode" : "1f34b"
+    },
+    {
+        "alias" : "banana",
+        "unicode" : "1f34c"
+    },
+    {
+        "alias" : "apple",
+        "unicode" : "1f34e"
+    },
+    {
+        "alias" : "green_apple",
+        "unicode" : "1f34f"
+    },
+    {
+        "alias" : "pear",
+        "unicode" : "1f350"
+    },
+    {
+        "alias" : "peach",
+        "unicode" : "1f351"
+    },
+    {
+        "alias" : "cherries",
+        "unicode" : "1f352"
+    },
+    {
+        "alias" : "strawberry",
+        "unicode" : "1f353"
+    },
+    {
+        "alias" : "tomato",
+        "unicode" : "1f345"
+    },
+    {
+        "alias" : "aubergine",
+        "unicode" : "1f346"
+    },
+    {
+        "alias" : "corn",
+        "unicode" : "1f33d"
+    },
+    {
+        "alias" : "hot_pepper",
+        "unicode" : "1f336"
+    },
+    {
+        "alias" : "bread",
+        "unicode" : "1f35e"
+    },
+    {
+        "alias" : "meat_on_bone",
+        "unicode" : "1f356"
+    },
+    {
+        "alias" : "poultry_leg",
+        "unicode" : "1f357"
+    },
+    {
+        "alias" : "hamburger",
+        "unicode" : "1f354"
+    },
+    {
+        "alias" : "fries",
+        "unicode" : "1f35f"
+    },
+    {
+        "alias" : "pizza",
+        "unicode" : "1f355"
+    },
+    {
+        "alias" : "hotdog",
+        "unicode" : "1f32d"
+    },
+    {
+        "alias" : "taco",
+        "unicode" : "1f32e"
+    },
+    {
+        "alias" : "burrito",
+        "unicode" : "1f32f"
+    },
+    {
+        "alias" : "egg",
+        "unicode" : "1f373"
+    },
+    {
+        "alias" : "stew:",
+        "unicode" : "1f372"
+    },
+    {
+        "alias" : "sweet_potato",
+        "unicode" : "1f360"
+    },
+    {
+        "alias" : "dango",
+        "unicode" : "1f361"
+    },
+    {
+        "alias" : "oden",
+        "unicode" : "1f362"
+    },
+    {
+        "alias" : "sushi",
+        "unicode" : "1f363"
+    },
+    {
+        "alias" : "fried_shrimp",
+        "unicode" : "1f364"
+    },
+    {
+        "alias" : "fish_cake",
+        "unicode" : "1f365"
+    },
+    {
+        "alias" : "bento",
+        "unicode" : "1f371"
+    },
+    {
+        "alias" : "rice_cracker",
+        "unicode" : "1f358"
+    },
+    {
+        "alias" : "rice_ball",
+        "unicode" : "1f359"
+    },
+    {
+        "alias" : "rice",
+        "unicode" : "1f35a"
+    },
+    {
+        "alias" : "curry",
+        "unicode" : "1f35b"
+    },
+    {
+        "alias" : "ramen",
+        "unicode" : "1f35c"
+    },
+    {
+        "alias" : "spaghetti",
+        "unicode" : "1f35d"
+    },
+    {
+        "alias" : "icecream",
+        "unicode" : "1f366"
+    },
+    {
+        "alias" : "shaved_ice",
+        "unicode" : "1f367"
+    },
+    {
+        "alias" : "ice_cream",
+        "unicode" : "1f368"
+    },
+    {
+        "alias" : "doughnut",
+        "unicode" : "1f369"
+    },
+    {
+        "alias" : "cookie",
+        "unicode" : "1f36a"
+    },
+    {
+        "alias" : "birthday",
+        "unicode" : "1f382"
+    },
+    {
+        "alias" : "cake",
+        "unicode" : "1f370"
+    },
+    {
+        "alias" : "chocolate_bar",
+        "unicode" : "1f36b"
+    },
+    {
+        "alias" : "candy",
+        "unicode" : "1f36c"
+    },
+    {
+        "alias" : "lollipop",
+        "unicode" : "1f36d"
+    },
+    {
+        "alias" : "custard",
+        "unicode" : "1f36e"
+    },
+    {
+        "alias" : "honey_pot",
+        "unicode" : "1f36f"
+    },
+    {
+        "alias" : "coffee",
+        "unicode" : "2615"
+    },
+    {
+        "alias" : "sake",
+        "unicode" : "1f376"
+    },
+    {
+        "alias" : "tea",
+        "unicode" : "1f375"
+    },
+    {
+        "alias" : "wine_glass",
+        "unicode" : "1f377"
+    },
+    {
+        "alias" : "cocktail",
+        "unicode" : "1f378"
+    },
+    {
+        "alias" : "tropical_drink",
+        "unicode" : "1f379"
+    },
+    {
+        "alias" : "beer",
+        "unicode" : "1f37a"
+    },
+    {
+        "alias" : "beers",
+        "unicode" : "1f37b"
+    },
+    {
+        "alias" : "see_no_evil",
+        "unicode" : "1f648"
+    },
+    {
+        "alias" : "hear_no_evil",
+        "unicode" : "1f649"
+    },
+    {
+        "alias" : "speak_no_evil",
+        "unicode" : "1f64a"
+    },
+    {
+        "alias" : "monkey_face",
+        "unicode" : "1f435"
+    },
+    {
+        "alias" : "monkey",
+        "unicode" : "1f412"
+    },
+    {
+        "alias" : "wolf",
+        "unicode" : "1f43a"
+    },
+    {
+        "alias" : "cat",
+        "unicode" : "1f408"
+    },
+    {
+        "alias" : "tiger",
+        "unicode" : "1f42f"
+    },
+    {
+        "alias" : "tiger2",
+        "unicode" : "1f405"
+    },
+    {
+        "alias" : "leopard",
+        "unicode" : "1f406"
+    },
+    {
+        "alias" : "horse",
+        "unicode" : "1f434"
+    },
+    {
+        "alias" : "cow",
+        "unicode" : "1f404"
+    },
+    {
+        "alias" : "ox",
+        "unicode" : "1f402"
+    },
+    {
+        "alias" : "water_buffalo",
+        "unicode" : "1f403"
+    },
+    {
+        "alias" : "pig",
+        "unicode" : "1f416"
+    },
+    {
+        "alias" : "boar",
+        "unicode" : "1f417"
+    },
+    {
+        "alias" : "ram",
+        "unicode" : "1f410"
+    },
+    {
+        "alias" : "sheep",
+        "unicode" : "1f411"
+    },
+    {
+        "alias" : "elephant",
+        "unicode" : "1f418"
+    },
+    {
+        "alias" : "rat",
+        "unicode" : "1f400"
+    },
+    {
+        "alias" : "mouse2",
+        "unicode" : "1f401"
+    },
+    {
+        "alias" : "hamster",
+        "unicode" : "1f439"
+    },
+    {
+        "alias" : "rabbit_face",
+        "unicode" : "1f430"
+    },
+    {
+        "alias" : "rabbit",
+        "unicode" : "1f407"
+    },
+    {
+        "alias" : "chipmunk",
+        "unicode" : "1f43f"
+    },
+    {
+        "alias" : "bear",
+        "unicode" : "1f43b"
+    },
+    {
+        "alias" : "koala",
+        "unicode" : "1f428"
+    },
+    {
+        "alias" : "panda_face",
+        "unicode" : "1f43c"
+    },
+    {
+        "alias" : "rooster",
+        "unicode" : "1f413"
+    },
+    {
+        "alias" : "chicken",
+        "unicode" : "1f414"
+    },
+    {
+        "alias" : "dog2",
+        "unicode" : "1f415"
+    },
+    {
+        "alias" : "poodle",
+        "unicode" : "1f429"
+    },
+    {
+        "alias" : "dragon",
+        "unicode" : "1f409"
+    },
+    {
+        "alias" : "dragon_face",
+        "unicode" : "1f432"
+    },
+    {
+        "alias" : "hatching_chick",
+        "unicode" : "1f423"
+    },
+    {
+        "alias" : "baby_chick",
+        "unicode" : "1f424"
+    },
+    {
+        "alias" : "hatched_chick",
+        "unicode" : "1f425"
+    },
+    {
+        "alias" : "bird",
+        "unicode" : "1f426"
+    },
+    {
+        "alias" : "penguin",
+        "unicode" : "1f427"
+    },
+    {
+        "alias" : "crocodile",
+        "unicode" : "1f40a"
+    },
+    {
+        "alias" : "turtle",
+        "unicode" : "1f422"
+    },
+    {
+        "alias" : "whale",
+        "unicode" : "1f433"
+    },
+    {
+        "alias" : "tropical_fish",
+        "unicode" : "1f420"
+    },
+    {
+        "alias" : "blowfish",
+        "unicode" : "1f421"
+    },
+    {
+        "alias" : "octopus",
+        "unicode" : "1f419"
+    },
+    {
+        "alias" : "frog",
+        "unicode" : "1f438"
+    },
+    {
+        "alias" : "snail",
+        "unicode" : "1f40c"
+    },
+    {
+        "alias" : "bouquet",
+        "unicode" : "1f490"
+    },
+    {
+        "alias" : "cherry_blossom",
+        "unicode" : "1f338"
+    },
+    {
+        "alias" : "rose",
+        "unicode" : "1f339"
+    },
+    {
+        "alias" : "hibiscus",
+        "unicode" : "1f33a"
+    },
+    {
+        "alias" : "sunflower",
+        "unicode" : "1f33b"
+    },
+    {
+        "alias" : "blossom",
+        "unicode" : "1f33c"
+    },
+    {
+        "alias" : "tulip",
+        "unicode" : "1f337"
+    },
+    {
+        "alias" : "seedling",
+        "unicode" : "1f331"
+    },
+    {
+        "alias" : "evergreen_tree",
+        "unicode" : "1f332"
+    },
+    {
+        "alias" : "deciduous_tree",
+        "unicode" : "1f333"
+    },
+    {
+        "alias" : "palm_tree",
+        "unicode" : "1f334"
+    },
+    {
+        "alias" : "cactus",
+        "unicode" : "1f335"
+    },
+    {
+        "alias" : "four_leaf_clover",
+        "unicode" : "1f340"
+    },
+    {
+        "alias" : "maple_leaf",
+        "unicode" : "1f341"
+    },
+    {
+        "alias" : "fallen_leaf",
+        "unicode" : "1f342"
+    },
+    {
+        "alias" : "leaves",
+        "unicode" : "1f343"
+    },
+    {
+        "alias" : "mushroom",
+        "unicode" : "1f344"
+    },
+    {
+        "alias" : "chestnut",
+        "unicode" : "1f330"
+    },
+    {
+        "alias" : "crescent_moon",
+        "unicode" : "1f319"
+    },
+    {
+        "alias" : "sunny",
+        "unicode" : "2600"
+    },
+    {
+        "alias" : "partly_sunny",
+        "unicode" : "26c5"
+    },
+    {
+        "alias" : "white_sun_small_cloud",
+        "unicode" : "1f324"
+    },
+    {
+        "alias" : "white_sun_cloud",
+        "unicode" : "1f325"
+    },
+    {
+        "alias" : "white_sun_rain_cloud",
+        "unicode" : "1f326"
+    },
+    {
+        "alias" : "cloud",
+        "unicode" : "2601"
+    },
+    {
+        "alias" : "cloud_rain",
+        "unicode" : "1f327"
+    },
+    {
+        "alias" : "cloud_snow",
+        "unicode" : "1f328"
+    },
+    {
+        "alias" : "cloud_lightning",
+        "unicode" : "1f329"
+    },
+    {
+        "alias" : "cloud_tornado",
+        "unicode" : "1f32a"
+    },
+    {
+        "alias" : "fog",
+        "unicode" : "1f32b"
+    },
+    {
+        "alias" : "wind_blowing_face",
+        "unicode" : "1f32c"
+    },
+    {
+        "alias" : "umbrella",
+        "unicode" : "2614"
+    },
+    {
+        "alias" : "zap",
+        "unicode" : "26a1"
+    },
+    {
+        "alias" : "snowflake",
+        "unicode" : "2744"
+    },
+    {
+        "alias" : "sweat_drops",
+        "unicode" : "1f4a6"
+    },
+    {
+        "alias" : "droplet",
+        "unicode" : "1f4a7"
+    },
+    {
+        "alias" : "ocean",
+        "unicode" : "1f30a"
+    },
+    {
+        "alias" : "dash",
+        "unicode" : "1f4a8"
+    },
+    {
+        "alias" : "snowman",
+        "unicode" : "26c4"
+    },
+    {
+        "alias" : "comet",
+        "unicode" : "2604"
+    },
+    {
+        "alias" : "fire",
+        "unicode" : "1f525"
+    },
+    {
+        "alias" : "jack_o_lantern",
+        "unicode" : "1f383"
+    },
+    {
+        "alias" : "christmas_tree",
+        "unicode" : "1f384"
+    },
+    {
+        "alias" : "japan",
+        "unicode" : "1f5fe"
+    },
+    {
+        "alias" : "mountain_snow",
+        "unicode" : "1f3d4"
+    },
+    {
+        "alias" : "volcano",
+        "unicode" : "1f30b"
+    },
+    {
+        "alias" : "mount_fuji",
+        "unicode" : "1f5fb"
+    },
+    {
+        "alias" : "camping",
+        "unicode" : "1f3d5"
+    },
+    {
+        "alias" : "beach",
+        "unicode" : "1f3d6"
+    },
+    {
+        "alias" : "construction_site",
+        "unicode" : "1f3d7"
+    },
+    {
+        "alias" : "homes",
+        "unicode" : "1f3d8"
+    },
+    {
+        "alias" : "cityscape",
+        "unicode" : "1f3d9"
+    },
+    {
+        "alias" : "house_abandoned",
+        "unicode" : "1f3da"
+    },
+    {
+        "alias" : "classical_building",
+        "unicode" : "1f3db"
+    },
+    {
+        "alias" : "desert",
+        "unicode" : "1f3dc"
+    },
+    {
+        "alias" : "island",
+        "unicode" : "1f3dd"
+    },
+    {
+        "alias" : "park",
+        "unicode" : "1f3de"
+    },
+    {
+        "alias" : "stadium",
+        "unicode" : "1f3df"
+    },
+    {
+        "alias" : "house",
+        "unicode" : "1f3e0"
+    },
+    {
+        "alias" : "house_with_garden",
+        "unicode" : "1f3e1"
+    },
+    {
+        "alias" : "office",
+        "unicode" : "1f3e2"
+    },
+    {
+        "alias" : "post_office",
+        "unicode" : "1f3e3"
+    },
+    {
+        "alias" : "european_post_office",
+        "unicode" : "1f3e4"
+    },
+    {
+        "alias" : "hospital",
+        "unicode" : "1f3e5"
+    },
+    {
+        "alias" : "bank",
+        "unicode" : "1f3e6"
+    },
+    {
+        "alias" : "hotel",
+        "unicode" : "1f3e8"
+    },
+    {
+        "alias" : "love_hotel",
+        "unicode" : "1f3e9"
+    },
+    {
+        "alias" : "convenience_store",
+        "unicode" : "1f3ea"
+    },
+    {
+        "alias" : "school",
+        "unicode" : "1f3eb"
+    },
+    {
+        "alias" : "department_store",
+        "unicode" : "1f3ec"
+    },
+    {
+        "alias" : "factory",
+        "unicode" : "1f3ed"
+    },
+    {
+        "alias" : "japanese_castle",
+        "unicode" : "1f3ef"
+    },
+    {
+        "alias" : "european_castle",
+        "unicode" : "1f3f0"
+    },
+    {
+        "alias" : "tokyo_tower",
+        "unicode" : "1f5fc"
+    },
+    {
+        "alias" : "statue_of_liberty",
+        "unicode" : "1f5fd"
+    },
+    {
+        "alias" : "church",
+        "unicode" : "26ea"
+    },
+    {
+        "alias" : "fountain",
+        "unicode" : "26f2"
+    },
+    {
+        "alias" : "tent",
+        "unicode" : "26fa"
+    },
+    {
+        "alias" : "foggy",
+        "unicode" : "1f301"
+    },
+    {
+        "alias" : "night_with_stars",
+        "unicode" : "1f303"
+    },
+    {
+        "alias" : "sunrise_over_mountains",
+        "unicode" : "1f304"
+    },
+    {
+        "alias" : "sunrise",
+        "unicode" : "1f305"
+    },
+    {
+        "alias" : "city_dusk",
+        "unicode" : "1f306"
+    },
+    {
+        "alias" : "city_sunset",
+        "unicode" : "1f307"
+    },
+    {
+        "alias" : "bridge_at_night",
+        "unicode" : "1f309"
+    },
+    {
+        "alias" : "milky_way",
+        "unicode" : "1f30c"
+    },
+    {
+        "alias" : "helicopter",
+        "unicode" : "1f681"
+    },
+    {
+        "alias" : "steam_locomotive",
+        "unicode" : "1f682"
+    },
+    {
+        "alias" : "railway_car",
+        "unicode" : "1f683"
+    },
+    {
+        "alias" : "bullettrain_side",
+        "unicode" : "1f684"
+    },
+    {
+        "alias" : "bullettrain_front",
+        "unicode" : "1f685"
+    },
+    {
+        "alias" : "train2",
+        "unicode" : "1f686"
+    },
+    {
+        "alias" : "metro",
+        "unicode" : "1f687"
+    },
+    {
+        "alias" : "light_rail",
+        "unicode" : "1f688"
+    },
+    {
+        "alias" : "station",
+        "unicode" : "1f689"
+    },
+    {
+        "alias" : "tram",
+        "unicode" : "1f68a"
+    },
+    {
+        "alias" : "train",
+        "unicode" : "1f68b"
+    },
+    {
+        "alias" : "bus",
+        "unicode" : "1f68c"
+    },
+    {
+        "alias" : "oncoming_bus",
+        "unicode" : "1f68d"
+    },
+    {
+        "alias" : "trolleybus",
+        "unicode" : "1f68e"
+    },
+    {
+        "alias" : "busstop",
+        "unicode" : "1f68f"
+    },
+    {
+        "alias" : "minibus",
+        "unicode" : "1f690"
+    },
+    {
+        "alias" : "ambulance",
+        "unicode" : "1f691"
+    },
+    {
+        "alias" : "fire_engine",
+        "unicode" : "1f692"
+    },
+    {
+        "alias" : "police_car",
+        "unicode" : "1f693"
+    },
+    {
+        "alias" : "oncoming_police_car",
+        "unicode" : "1f694"
+    },
+    {
+        "alias" : "taxi",
+        "unicode" : "1f695"
+    },
+    {
+        "alias" : "oncoming_taxi",
+        "unicode" : "1f696"
+    },
+    {
+        "alias" : "red_car",
+        "unicode" : "1f697"
+    },
+    {
+        "alias" : "oncoming_automobile",
+        "unicode" : "1f698"
+    },
+    {
+        "alias" : "blue_car",
+        "unicode" : "1f699"
+    },
+    {
+        "alias" : "truck",
+        "unicode" : "1f69a"
+    },
+    {
+        "alias" : "articulated_lorry",
+        "unicode" : "1f69b"
+    },
+    {
+        "alias" : "tractor",
+        "unicode" : "1f69c"
+    },
+    {
+        "alias" : "motorway",
+        "unicode" : "1f6e3"
+    },
+    {
+        "alias" : "railway_track",
+        "unicode" : "1f6e4"
+    },
+    {
+        "alias" : "fuelpump",
+        "unicode" : "26fd"
+    },
+    {
+        "alias" : "monorail",
+        "unicode" : "1f69d"
+    },
+    {
+        "alias" : "mountain_railway",
+        "unicode" : "1f69e"
+    },
+    {
+        "alias" : "suspension_railway",
+        "unicode" : "1f69f"
+    },
+    {
+        "alias" : "mountain_cableway",
+        "unicode" : "1f6a0"
+    },
+    {
+        "alias" : "aerial_tramway",
+        "unicode" : "1f6a1"
+    },
+    {
+        "alias" : "traffic_light",
+        "unicode" : "1f6a5"
+    },
+    {
+        "alias" : "vertical_traffic_light",
+        "unicode" : "1f6a6"
+    },
+    {
+        "alias" : "construction",
+        "unicode" : "1f6a7"
+    },
+    {
+        "alias" : "rotating_light",
+        "unicode" : "1f6a8"
+    },
+    {
+        "alias" : "sailboat",
+        "unicode" : "26f5"
+    },
+    {
+        "alias" : "cruise_ship",
+        "unicode" : "1f6f3"
+    },
+    {
+        "alias" : "ferry",
+        "unicode" : "26f4"
+    },
+    {
+        "alias" : "motorboat",
+        "unicode" : "1f6e5"
+    },
+    {
+        "alias" : "ship",
+        "unicode" : "1f6a2"
+    },
+    {
+        "alias" : "airplane",
+        "unicode" : "2708"
+    },
+    {
+        "alias" : "airplane_small",
+        "unicode" : "1f6e9"
+    },
+    {
+        "alias" : "airplane_departure",
+        "unicode" : "1f6eb"
+    },
+    {
+        "alias" : "airplane_arriving",
+        "unicode" : "1f6ec"
+    },
+    {
+        "alias" : "rocket",
+        "unicode" : "1f680"
+    },
+    {
+        "alias" : "satellite_orbital",
+        "unicode" : "1f6f0"
+    },
+    {
+        "alias" : "stars",
+        "unicode" : "1f320"
+    },
+    {
+        "alias" : "rainbow",
+        "unicode" : "1f308"
+    },
+    {
+        "alias" : "rice_scene",
+        "unicode" : "1f391"
+    },
+    {
+        "alias" : "love_letter",
+        "unicode" : "1f48c"
+    },
+    {
+        "alias" : "bomb",
+        "unicode" : "1f4a3"
+    },
+    {
+        "alias" : "hole",
+        "unicode" : "1f573"
+    },
+    {
+        "alias" : "shopping_bags",
+        "unicode" : "1f6cd"
+    },
+    {
+        "alias" : "barber",
+        "unicode" : "1f488"
+    },
+    {
+        "alias" : "syringe",
+        "unicode" : "1f489"
+    },
+    {
+        "alias" : "pill",
+        "unicode" : "1f48a"
+    },
+    {
+        "alias" : "hourglass",
+        "unicode" : "231b"
+    },
+    {
+        "alias" : "hourglass_flowing_sand",
+        "unicode" : "23f3"
+    },
+    {
+        "alias" : "watch",
+        "unicode" : "231a"
+    },
+    {
+        "alias" : "alarm_clock",
+        "unicode" : "23f0"
+    },
+    {
+        "alias" : "thermometer",
+        "unicode" : "1f321"
+    },
+    {
+        "alias" : "iphone",
+        "unicode" : "1f4f1"
+    },
+    {
+        "alias" : "calling",
+        "unicode" : "1f4f2"
+    },
+    {
+        "alias" : "ribbon",
+        "unicode" : "1f380"
+    },
+    {
+        "alias" : "gift",
+        "unicode" : "1f381"
+    },
+    {
+        "alias" : "bulb",
+        "unicode" : "1f4a1"
+    },
+    {
+        "alias" : "telephone",
+        "unicode" : "260e"
+    },
+    {
+        "alias" : "bed",
+        "unicode" : "1f6cf"
+    },
+    {
+        "alias" : "couch",
+        "unicode" : "1f6cb"
+    },
+    {
+        "alias" : "shower",
+        "unicode" : "1f6bf"
+    },
+    {
+        "alias" : "bathtub",
+        "unicode" : "1f6c1"
+    },
+    {
+        "alias" : "bellhop",
+        "unicode" : "1f6ce"
+    },
+    {
+        "alias" : "joystick",
+        "unicode" : "1f579"
+    },
+    {
+        "alias" : "tv",
+        "unicode" : "1f4fa"
+    },
+    {
+        "alias" : "camera",
+        "unicode" : "1f4f7"
+    },
+    {
+        "alias" : "camera_with_flash",
+        "unicode" : "1f4f8"
+    },
+    {
+        "alias" : "video_camera",
+        "unicode" : "1f4f9"
+    },
+    {
+        "alias" : "projector",
+        "unicode" : "1f4fd"
+    },
+    {
+        "alias" : "fax",
+        "unicode" : "1f4e0"
+    },
+    {
+        "alias" : "satellite",
+        "unicode" : "1f4e1"
+    },
+    {
+        "alias" : "outbox_tray",
+        "unicode" : "1f4e4"
+    },
+    {
+        "alias" : "inbox_tray",
+        "unicode" : "1f4e5"
+    },
+    {
+        "alias" : "package",
+        "unicode" : "1f4e6"
+    },
+    {
+        "alias" : "e-mail",
+        "unicode" : "1f4e7"
+    },
+    {
+        "alias" : "incoming_envelope",
+        "unicode" : "1f4e8"
+    },
+    {
+        "alias" : "envelope_with_arrow",
+        "unicode" : "1f4e9"
+    },
+    {
+        "alias" : "mailbox_closed",
+        "unicode" : "1f4ea"
+    },
+    {
+        "alias" : "mailbox",
+        "unicode" : "1f4eb"
+    },
+    {
+        "alias" : "mailbox_with_mail",
+        "unicode" : "1f4ec"
+    },
+    {
+        "alias" : "mailbox_with_no_mail",
+        "unicode" : "1f4ed"
+    },
+    {
+        "alias" : "postal_horn",
+        "unicode" : "1f4ef"
+    },
+    {
+        "alias" : "newspaper",
+        "unicode" : "1f4f0"
+    },
+    {
+        "alias" : "dagger",
+        "unicode" : "1f5e1"
+    },
+    {
+        "alias" : "shield",
+        "unicode" : "1f6e1"
+    },
+    {
+        "alias" : "moyai",
+        "unicode" : "1f5ff"
+    },
+    {
+        "alias" : "crystal_ball",
+        "unicode" : "1f52e"
+    },
+    {
+        "alias" : "100",
+        "unicode" : "1f4af"
+    },
+    {
+        "alias" : "cupid",
+        "unicode" : "1f498"
+    },
+    {
+        "alias" : "heart",
+        "unicode" : "2764"
+    },
+    {
+        "alias" : "broken_heart",
+        "unicode" : "1f494"
+    },
+    {
+        "alias" : "two_hearts",
+        "unicode" : "1f495"
+    },
+    {
+        "alias" : "heartbeat",
+        "unicode" : "1f493"
+    },
+    {
+        "alias" : "heartpulse",
+        "unicode" : "1f497"
+    },
+    {
+        "alias" : "blue_heart",
+        "unicode" : "1f499"
+    },
+    {
+        "alias" : "green_heart",
+        "unicode" : "1f49a"
+    },
+    {
+        "alias" : "yellow_heart",
+        "unicode" : "1f49b"
+    },
+    {
+        "alias" : "purple_heart",
+        "unicode" : "1f49c"
+    },
+    {
+        "alias" : "sparkling_heart",
+        "unicode" : "1f496"
+    },
+    {
+        "alias" : "gift_heart",
+        "unicode" : "1f49d"
+    },
+    {
+        "alias" : "revolving_hearts",
+        "unicode" : "1f49e"
+    },
+    {
+        "alias" : "heart_decoration",
+        "unicode" : "1f49f"
+    },
+    {
+        "alias" : "heart_exclamation",
+        "unicode" : "2763"
+    },
+    {
+        "alias" : "anger",
+        "unicode" : "1f4a2"
+    },
+    {
+        "alias" : "dizzy",
+        "unicode" : "1f4ab"
+    },
+    {
+        "alias" : "boom",
+        "unicode" : "1f4a5"
+    },
+    {
+        "alias" : "loudspeaker",
+        "unicode" : "1f4e2"
+    },
+    {
+        "alias" : "mega",
+        "unicode" : "1f4e3"
+    },
+    {
+        "alias" : "atm",
+        "unicode" : "1f3e7"
+    },
+    {
+        "alias" : "copyright",
+        "unicode" : "00a9"
+    },
+    {
+        "alias" : "registered",
+        "unicode" : "00ae"
+    },
+    {
+        "alias" : "au",
+        "unicode" : "1f1e6-1f1fa"
+    },
+    {
+        "alias" : "at",
+        "unicode" : "1f1e6-1f1f9"
+    },
+    {
+        "alias" : "be",
+        "unicode" : "1f1e7-1f1ea"
+    },
+    {
+        "alias" : "br",
+        "unicode" : "1f1e7-1f1f7"
+    },
+    {
+        "alias" : "ca",
+        "unicode" : "1f1e8-1f1e6"
+    },
+    {
+        "alias" : "chile",
+        "unicode" : "1f1e8-1f1f1"
+    },
+    {
+        "alias" : "cn",
+        "unicode" : "1f1e8-1f1f3"
+    },
+    {
+        "alias" : "dk",
+        "unicode" : "1f1e9-1f1f0"
+    },
+    {
+        "alias" : "fi",
+        "unicode" : "1f1eb-1f1ee"
+    },
+    {
+        "alias" : "fr",
+        "unicode" : "1f1eb-1f1f7"
+    },
+    {
+        "alias" : "de",
+        "unicode" : "1f1e9-1f1ea"
+    },
+    {
+        "alias" : "hk",
+        "unicode" : "1f1ed-1f1f0"
+    },
+    {
+        "alias" : "in",
+        "unicode" : "1f1ee-1f1f3"
+    },
+    {
+        "alias" : "indonesia",
+        "unicode" : "1f1ee-1f1e9"
+    },
+    {
+        "alias" : "ie",
+        "unicode" : "1f1ee-1f1ea"
+    },
+    {
+        "alias" : "il",
+        "unicode" : "1f1ee-1f1f1"
+    },
+    {
+        "alias" : "it",
+        "unicode" : "1f1ee-1f1f9"
+    },
+    {
+        "alias" : "jp",
+        "unicode" : "1f1ef-1f1f5"
+    },
+    {
+        "alias" : "kr",
+        "unicode" : "1f1f0-1f1f7"
+    },
+    {
+        "alias" : "mo",
+        "unicode" : "1f1f2-1f1f4"
+    },
+    {
+        "alias" : "my",
+        "unicode" : "1f1f2-1f1fe"
+    },
+    {
+        "alias" : "mx",
+        "unicode" : "1f1f2-1f1fd"
+    },
+    {
+        "alias" : "nl",
+        "unicode" : "1f1f3-1f1f1"
+    },
+    {
+        "alias" : "nz",
+        "unicode" : "1f1f3-1f1ff"
+    },
+    {
+        "alias" : "no",
+        "unicode" : "1f1f3-1f1f4"
+    },
+    {
+        "alias" : "ph",
+        "unicode" : "1f1f5-1f1ed"
+    },
+    {
+        "alias" : "pl",
+        "unicode" : "1f1f5-1f1f1"
+    },
+    {
+        "alias" : "pt",
+        "unicode" : "1f1f5-1f1f9"
+    },
+    {
+        "alias" : "pr",
+        "unicode" : "1f1f5-1f1f7"
+    },
+    {
+        "alias" : "ru",
+        "unicode" : "1f1f7-1f1fa"
+    },
+    {
+        "alias" : "saudi",
+        "unicode" : "1f1f8-1f1e6"
+    },
+    {
+        "alias" : "sg",
+        "unicode" : "1f1f8-1f1ec"
+    },
+    {
+        "alias" : "za",
+        "unicode" : "1f1ff-1f1e6"
+    },
+    {
+        "alias" : "es",
+        "unicode" : "1f1ea-1f1f8"
+    },
+    {
+        "alias" : "se",
+        "unicode" : "1f1f8-1f1ea"
+    },
+    {
+        "alias" : "ch",
+        "unicode" : "1f1e8-1f1ed"
+    },
+    {
+        "alias" : "tr",
+        "unicode" : "1f1f9-1f1f7"
+    },
+    {
+        "alias" : "gb",
+        "unicode" : "1f1ec-1f1e7"
+    },
+    {
+        "alias" : "us",
+        "unicode" : "1f1fa-1f1f8"
+    },
+    {
+        "alias" : "ae",
+        "unicode" : "1f1e6-1f1ea"
+    },
+    {
+        "alias" : "vn",
+        "unicode" : "1f1fb-1f1f3"
+    },
+    {
+        "alias" : "af",
+        "unicode" : "1f1e6-1f1eb"
+    },
+    {
+        "alias" : "al",
+        "unicode" : "1f1e6-1f1f1"
+    },
+    {
+        "alias" : "dz",
+        "unicode" : "1f1e9-1f1ff"
+    },
+    {
+        "alias" : "ad",
+        "unicode" : "1f1e6-1f1e9"
+    },
+    {
+        "alias" : "ao",
+        "unicode" : "1f1e6-1f1f4"
+    },
+    {
+        "alias" : "ai",
+        "unicode" : "1f1e6-1f1ee"
+    },
+    {
+        "alias" : "ag",
+        "unicode" : "1f1e6-1f1ec"
+    },
+    {
+        "alias" : "ar",
+        "unicode" : "1f1e6-1f1f7"
+    },
+    {
+        "alias" : "am",
+        "unicode" : "1f1e6-1f1f2"
+    },
+    {
+        "alias" : "aw",
+        "unicode" : "1f1e6-1f1fc"
+    },
+    {
+        "alias" : "ac",
+        "unicode" : "1f1e6-1f1e8"
+    },
+    {
+        "alias" : "az",
+        "unicode" : "1f1e6-1f1ff"
+    },
+    {
+        "alias" : "bs",
+        "unicode" : "1f1e7-1f1f8"
+    },
+    {
+        "alias" : "bh",
+        "unicode" : "1f1e7-1f1ed"
+    },
+    {
+        "alias" : "bd",
+        "unicode" : "1f1e7-1f1e9"
+    },
+    {
+        "alias" : "bb",
+        "unicode" : "1f1e7-1f1e7"
+    },
+    {
+        "alias" : "by",
+        "unicode" : "1f1e7-1f1fe"
+    },
+    {
+        "alias" : "bz",
+        "unicode" : "1f1e7-1f1ff"
+    },
+    {
+        "alias" : "bj",
+        "unicode" : "1f1e7-1f1ef"
+    },
+    {
+        "alias" : "bm",
+        "unicode" : "1f1e7-1f1f2"
+    },
+    {
+        "alias" : "bt",
+        "unicode" : "1f1e7-1f1f9"
+    },
+    {
+        "alias" : "bo",
+        "unicode" : "1f1e7-1f1f4"
+    },
+    {
+        "alias" : "ba",
+        "unicode" : "1f1e7-1f1e6"
+    },
+    {
+        "alias" : "bw",
+        "unicode" : "1f1e7-1f1fc"
+    },
+    {
+        "alias" : "bn",
+        "unicode" : "1f1e7-1f1f3"
+    },
+    {
+        "alias" : "bg",
+        "unicode" : "1f1e7-1f1ec"
+    },
+    {
+        "alias" : "bf",
+        "unicode" : "1f1e7-1f1eb"
+    },
+    {
+        "alias" : "bi",
+        "unicode" : "1f1e7-1f1ee"
+    },
+    {
+        "alias" : "kh",
+        "unicode" : "1f1f0-1f1ed"
+    },
+    {
+        "alias" : "cm",
+        "unicode" : "1f1e8-1f1f2"
+    },
+    {
+        "alias" : "cv",
+        "unicode" : "1f1e8-1f1fb"
+    },
+    {
+        "alias" : "ky",
+        "unicode" : "1f1f0-1f1fe"
+    },
+    {
+        "alias" : "cf",
+        "unicode" : "1f1e8-1f1eb"
+    },
+    {
+        "alias" : "km",
+        "unicode" : "1f1f0-1f1f2"
+    },
+    {
+        "alias" : "congo",
+        "unicode" : "1f1e8-1f1e9"
+    },
+    {
+        "alias" : "cg",
+        "unicode" : "1f1e8-1f1ec"
+    },
+    {
+        "alias" : "td",
+        "unicode" : "1f1f9-1f1e9"
+    },
+    {
+        "alias" : "cr",
+        "unicode" : "1f1e8-1f1f7"
+    },
+    {
+        "alias" : "ci",
+        "unicode" : "1f1e8-1f1ee"
+    },
+    {
+        "alias" : "hr",
+        "unicode" : "1f1ed-1f1f7"
+    },
+    {
+        "alias" : "cu",
+        "unicode" : "1f1e8-1f1fa"
+    },
+    {
+        "alias" : "cy",
+        "unicode" : "1f1e8-1f1fe"
+    },
+    {
+        "alias" : "cz",
+        "unicode" : "1f1e8-1f1ff"
+    },
+    {
+        "alias" : "dj",
+        "unicode" : "1f1e9-1f1ef"
+    },
+    {
+        "alias" : "dm",
+        "unicode" : "1f1e9-1f1f2"
+    },
+    {
+        "alias" : "do",
+        "unicode" : "1f1e9-1f1f4"
+    },
+    {
+        "alias" : "tl",
+        "unicode" : "1f1f9-1f1f1"
+    },
+    {
+        "alias" : "ec",
+        "unicode" : "1f1ea-1f1e8"
+    },
+    {
+        "alias" : "eg",
+        "unicode" : "1f1ea-1f1ec"
+    },
+    {
+        "alias" : "sv",
+        "unicode" : "1f1f8-1f1fb"
+    },
+    {
+        "alias" : "gq",
+        "unicode" : "1f1ec-1f1f6"
+    },
+    {
+        "alias" : "er",
+        "unicode" : "1f1ea-1f1f7"
+    },
+    {
+        "alias" : "ee",
+        "unicode" : "1f1ea-1f1ea"
+    },
+    {
+        "alias" : "et",
+        "unicode" : "1f1ea-1f1f9"
+    },
+    {
+        "alias" : "fk",
+        "unicode" : "1f1eb-1f1f0"
+    },
+    {
+        "alias" : "fo",
+        "unicode" : "1f1eb-1f1f4"
+    },
+    {
+        "alias" : "fj",
+        "unicode" : "1f1eb-1f1ef"
+    },
+    {
+        "alias" : "pf",
+        "unicode" : "1f1f5-1f1eb"
+    },
+    {
+        "alias" : "ga",
+        "unicode" : "1f1ec-1f1e6"
+    },
+    {
+        "alias" : "gm",
+        "unicode" : "1f1ec-1f1f2"
+    },
+    {
+        "alias" : "ge",
+        "unicode" : "1f1ec-1f1ea"
+    },
+    {
+        "alias" : "gh",
+        "unicode" : "1f1ec-1f1ed"
+    },
+    {
+        "alias" : "gi",
+        "unicode" : "1f1ec-1f1ee"
+    },
+    {
+        "alias" : "gr",
+        "unicode" : "1f1ec-1f1f7"
+    },
+    {
+        "alias" : "gl",
+        "unicode" : "1f1ec-1f1f1"
+    },
+    {
+        "alias" : "gd",
+        "unicode" : "1f1ec-1f1e9"
+    },
+    {
+        "alias" : "gu",
+        "unicode" : "1f1ec-1f1fa"
+    },
+    {
+        "alias" : "gt",
+        "unicode" : "1f1ec-1f1f9"
+    },
+    {
+        "alias" : "gn",
+        "unicode" : "1f1ec-1f1f3"
+    },
+    {
+        "alias" : "gw",
+        "unicode" : "1f1ec-1f1fc"
+    },
+    {
+        "alias" : "gy",
+        "unicode" : "1f1ec-1f1fe"
+    },
+    {
+        "alias" : "ht",
+        "unicode" : "1f1ed-1f1f9"
+    },
+    {
+        "alias" : "hn",
+        "unicode" : "1f1ed-1f1f3"
+    },
+    {
+        "alias" : "hu",
+        "unicode" : "1f1ed-1f1fa"
+    },
+    {
+        "alias" : "is",
+        "unicode" : "1f1ee-1f1f8"
+    },
+    {
+        "alias" : "ir",
+        "unicode" : "1f1ee-1f1f7"
+    },
+    {
+        "alias" : "iq",
+        "unicode" : "1f1ee-1f1f6"
+    },
+    {
+        "alias" : "jm",
+        "unicode" : "1f1ef-1f1f2"
+    },
+    {
+        "alias" : "je",
+        "unicode" : "1f1ef-1f1ea"
+    },
+    {
+        "alias" : "jo",
+        "unicode" : "1f1ef-1f1f4"
+    },
+    {
+        "alias" : "kz",
+        "unicode" : "1f1f0-1f1ff"
+    },
+    {
+        "alias" : "ke",
+        "unicode" : "1f1f0-1f1ea"
+    },
+    {
+        "alias" : "ki",
+        "unicode" : "1f1f0-1f1ee"
+    },
+    {
+        "alias" : "xk",
+        "unicode" : "1f1fd-1f1f0"
+    },
+    {
+        "alias" : "kw",
+        "unicode" : "1f1f0-1f1fc"
+    },
+    {
+        "alias" : "kg",
+        "unicode" : "1f1f0-1f1ec"
+    },
+    {
+        "alias" : "la",
+        "unicode" : "1f1f1-1f1e6"
+    },
+    {
+        "alias" : "lv",
+        "unicode" : "1f1f1-1f1fb"
+    },
+    {
+        "alias" : "lb",
+        "unicode" : "1f1f1-1f1e7"
+    },
+    {
+        "alias" : "ls",
+        "unicode" : "1f1f1-1f1f8"
+    },
+    {
+        "alias" : "lr",
+        "unicode" : "1f1f1-1f1f7"
+    },
+    {
+        "alias" : "ly",
+        "unicode" : "1f1f1-1f1fe"
+    },
+    {
+        "alias" : "li",
+        "unicode" : "1f1f1-1f1ee"
+    },
+    {
+        "alias" : "lt",
+        "unicode" : "1f1f1-1f1f9"
+    },
+    {
+        "alias" : "lu",
+        "unicode" : "1f1f1-1f1fa"
+    },
+    {
+        "alias" : "mk",
+        "unicode" : "1f1f2-1f1f0"
+    },
+    {
+        "alias" : "mg",
+        "unicode" : "1f1f2-1f1ec"
+    },
+    {
+        "alias" : "mw",
+        "unicode" : "1f1f2-1f1fc"
+    },
+    {
+        "alias" : "mv",
+        "unicode" : "1f1f2-1f1fb"
+    },
+    {
+        "alias" : "ml",
+        "unicode" : "1f1f2-1f1f1"
+    },
+    {
+        "alias" : "mt",
+        "unicode" : "1f1f2-1f1f9"
+    },
+    {
+        "alias" : "mh",
+        "unicode" : "1f1f2-1f1ed"
+    },
+    {
+        "alias" : "mr",
+        "unicode" : "1f1f2-1f1f7"
+    },
+    {
+        "alias" : "mu",
+        "unicode" : "1f1f2-1f1fa"
+    },
+    {
+        "alias" : "fm",
+        "unicode" : "1f1eb-1f1f2"
+    },
+    {
+        "alias" : "md",
+        "unicode" : "1f1f2-1f1e9"
+    },
+    {
+        "alias" : "mc",
+        "unicode" : "1f1f2-1f1e8"
+    },
+    {
+        "alias" : "mn",
+        "unicode" : "1f1f2-1f1f3"
+    },
+    {
+        "alias" : "me",
+        "unicode" : "1f1f2-1f1ea"
+    },
+    {
+        "alias" : "ms",
+        "unicode" : "1f1f2-1f1f8"
+    },
+    {
+        "alias" : "ma",
+        "unicode" : "1f1f2-1f1e6"
+    },
+    {
+        "alias" : "mz",
+        "unicode" : "1f1f2-1f1ff"
+    },
+    {
+        "alias" : "mm",
+        "unicode" : "1f1f2-1f1f2"
+    },
+    {
+        "alias" : "na",
+        "unicode" : "1f1f3-1f1e6"
+    },
+    {
+        "alias" : "nr",
+        "unicode" : "1f1f3-1f1f7"
+    },
+    {
+        "alias" : "np",
+        "unicode" : "1f1f3-1f1f5"
+    },
+    {
+        "alias" : "nc",
+        "unicode" : "1f1f3-1f1e8"
+    },
+    {
+        "alias" : "ni",
+        "unicode" : "1f1f3-1f1ee"
+    },
+    {
+        "alias" : "ne",
+        "unicode" : "1f1f3-1f1ea"
+    },
+    {
+        "alias" : "nigeria",
+        "unicode" : "1f1f3-1f1ec"
+    },
+    {
+        "alias" : "nu",
+        "unicode" : "1f1f3-1f1fa"
+    },
+    {
+        "alias" : "kp",
+        "unicode" : "1f1f0-1f1f5"
+    },
+    {
+        "alias" : "om",
+        "unicode" : "1f1f4-1f1f2"
+    },
+    {
+        "alias" : "pk",
+        "unicode" : "1f1f5-1f1f0"
+    },
+    {
+        "alias" : "pw",
+        "unicode" : "1f1f5-1f1fc"
+    },
+    {
+        "alias" : "ps",
+        "unicode" : "1f1f5-1f1f8"
+    },
+    {
+        "alias" : "pa",
+        "unicode" : "1f1f5-1f1e6"
+    },
+    {
+        "alias" : "pg",
+        "unicode" : "1f1f5-1f1ec"
+    },
+    {
+        "alias" : "py",
+        "unicode" : "1f1f5-1f1fe"
+    },
+    {
+        "alias" : "pe",
+        "unicode" : "1f1f5-1f1ea"
+    },
+    {
+        "alias" : "qa",
+        "unicode" : "1f1f6-1f1e6"
+    },
+    {
+        "alias" : "ro",
+        "unicode" : "1f1f7-1f1f4"
+    },
+    {
+        "alias" : "rw",
+        "unicode" : "1f1f7-1f1fc"
+    },
+    {
+        "alias" : "sh",
+        "unicode" : "1f1f8-1f1ed"
+    },
+    {
+        "alias" : "kn",
+        "unicode" : "1f1f0-1f1f3"
+    },
+    {
+        "alias" : "lc",
+        "unicode" : "1f1f1-1f1e8"
+    },
+    {
+        "alias" : "vc",
+        "unicode" : "1f1fb-1f1e8"
+    },
+    {
+        "alias" : "ws",
+        "unicode" : "1f1fc-1f1f8"
+    },
+    {
+        "alias" : "sm",
+        "unicode" : "1f1f8-1f1f2"
+    },
+    {
+        "alias" : "st",
+        "unicode" : "1f1f8-1f1f9"
+    },
+    {
+        "alias" : "sn",
+        "unicode" : "1f1f8-1f1f3"
+    },
+    {
+        "alias" : "rs",
+        "unicode" : "1f1f7-1f1f8"
+    },
+    {
+        "alias" : "sc",
+        "unicode" : "1f1f8-1f1e8"
+    },
+    {
+        "alias" : "sl",
+        "unicode" : "1f1f8-1f1f1"
+    },
+    {
+        "alias" : "sk",
+        "unicode" : "1f1f8-1f1f0"
+    },
+    {
+        "alias" : "si",
+        "unicode" : "1f1f8-1f1ee"
+    },
+    {
+        "alias" : "sb",
+        "unicode" : "1f1f8-1f1e7"
+    },
+    {
+        "alias" : "so",
+        "unicode" : "1f1f8-1f1f4"
+    },
+    {
+        "alias" : "lk",
+        "unicode" : "1f1f1-1f1f0"
+    },
+    {
+        "alias" : "sd",
+        "unicode" : "1f1f8-1f1e9"
+    },
+    {
+        "alias" : "sr",
+        "unicode" : "1f1f8-1f1f7"
+    },
+    {
+        "alias" : "sz",
+        "unicode" : "1f1f8-1f1ff"
+    },
+    {
+        "alias" : "sy",
+        "unicode" : "1f1f8-1f1fe"
+    },
+    {
+        "alias" : "tw",
+        "unicode" : "1f1f9-1f1fc"
+    },
+    {
+        "alias" : "tj",
+        "unicode" : "1f1f9-1f1ef"
+    },
+    {
+        "alias" : "tz",
+        "unicode" : "1f1f9-1f1ff"
+    },
+    {
+        "alias" : "th",
+        "unicode" : "1f1f9-1f1ed"
+    },
+    {
+        "alias" : "tg",
+        "unicode" : "1f1f9-1f1ec"
+    },
+    {
+        "alias" : "to",
+        "unicode" : "1f1f9-1f1f4"
+    },
+    {
+        "alias" : "tt",
+        "unicode" : "1f1f9-1f1f9"
+    },
+    {
+        "alias" : "tn",
+        "unicode" : "1f1f9-1f1f3"
+    },
+    {
+        "alias" : "turkmenistan",
+        "unicode" : "1f1f9-1f1f2"
+    },
+    {
+        "alias" : "tuvalu",
+        "unicode" : "1f1f9-1f1fb"
+    },
+    {
+        "alias" : "vi",
+        "unicode" : "1f1fb-1f1ee"
+    },
+    {
+        "alias" : "ug",
+        "unicode" : "1f1fa-1f1ec"
+    },
+    {
+        "alias" : "ua",
+        "unicode" : "1f1fa-1f1e6"
+    },
+    {
+        "alias" : "uy",
+        "unicode" : "1f1fa-1f1fe"
+    },
+    {
+        "alias" : "uz",
+        "unicode" : "1f1fa-1f1ff"
+    },
+    {
+        "alias" : "vu",
+        "unicode" : "1f1fb-1f1fa"
+    },
+    {
+        "alias" : "va",
+        "unicode" : "1f1fb-1f1e6"
+    },
+    {
+        "alias" : "ve",
+        "unicode" : "1f1fb-1f1ea"
+    },
+    {
+        "alias" : "wf",
+        "unicode" : "1f1fc-1f1eb"
+    },
+    {
+        "alias" : "eh",
+        "unicode" : "1f1ea-1f1ed"
+    },
+    {
+        "alias" : "ye",
+        "unicode" : "1f1fe-1f1ea"
+    },
+    {
+        "alias" : "zm",
+        "unicode" : "1f1ff-1f1f2"
+    }
+]

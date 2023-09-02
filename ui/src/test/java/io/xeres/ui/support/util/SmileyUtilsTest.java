@@ -32,7 +32,9 @@ class SmileyUtilsTest
 	@CsvSource({
 			":-),\uD83D\uDE42",
 			"hello :-),hello \uD83D\uDE42",
-			":-) works, \uD83D\uDE42 works"
+			":-) works, \uD83D\uDE42 works",
+			":-) :-) :-), \uD83D\uDE42 \uD83D\uDE42 \uD83D\uDE42",
+			":-) :-( :-D :-) :-( :-( :-D, \uD83D\uDE42 \uD83D\uDE41 \uD83D\uDE03 \uD83D\uDE42 \uD83D\uDE41 \uD83D\uDE41 \uD83D\uDE03",
 	})
 	void SmileyUtils_SmileysToUnicode_Replace(String input, String expected)
 	{

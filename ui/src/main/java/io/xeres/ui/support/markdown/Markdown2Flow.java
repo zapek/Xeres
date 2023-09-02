@@ -1,11 +1,9 @@
 package io.xeres.ui.support.markdown;
 
-import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.uri.UriParser;
 import io.xeres.ui.support.util.Range;
-import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.Node;
 import org.jsoup.Jsoup;
 
@@ -82,12 +80,7 @@ public class Markdown2Flow
 		while (isIncomplete())
 		{
 			var line = getNextLine();
-			line = SmileyUtils.smileysToUnicode(line); // ;-)
-			line = EmojiParser.parseToUnicode(line); // :wink:
-			if (emojiService.isEnabled())
-			{
-				line = EmojiParser.parseToHtmlDecimal(line); // make smileys into decimal html (&#1234;) so that they can be detected and colorized
-			}
+			line = emojiService.toUnicode(line);
 
 			if (line.startsWith("#"))
 			{

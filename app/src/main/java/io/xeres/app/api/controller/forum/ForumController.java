@@ -165,4 +165,11 @@ public class ForumController
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/messages/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
 	}
+
+	@PutMapping("messages/{messageId}/flags")
+	@ResponseStatus(HttpStatus.OK)
+	public void setMessageRead(@PathVariable long messageId, @RequestParam boolean read)
+	{
+		forumRsService.setForumMessageAsRead(messageId, read);
+	}
 }

@@ -138,4 +138,15 @@ public class ForumClient
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
+
+	public Mono<Void> setForumMessageRead(long messageId, boolean read)
+	{
+		return webClient.put()
+				.uri(uriBuilder -> uriBuilder
+						.path("/messages/{messageId}/flags")
+						.queryParam("read", read)
+						.build(messageId))
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
 }

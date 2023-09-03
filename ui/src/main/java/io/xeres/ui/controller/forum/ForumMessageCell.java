@@ -28,4 +28,30 @@ public class ForumMessageCell extends TreeTableRow<ForumMessage>
 	{
 		super();
 	}
+
+	@Override
+	protected void updateItem(ForumMessage item, boolean empty)
+	{
+		super.updateItem(item, empty);
+		if (empty)
+		{
+			clearStyle();
+		}
+		else
+		{
+			if (item.isRead())
+			{
+				clearStyle();
+			}
+			else
+			{
+				setStyle("-fx-font-weight: bold");
+			}
+		}
+	}
+
+	private void clearStyle()
+	{
+		setStyle("");
+	}
 }

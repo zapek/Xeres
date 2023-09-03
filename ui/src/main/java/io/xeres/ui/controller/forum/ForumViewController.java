@@ -438,6 +438,12 @@ public class ForumViewController implements Controller
 						messageDate.setText(messageDateFormatter.format(forumMessage.getPublished()));
 						messageSubject.setText(forumMessage.getName());
 						messageHeader.setVisible(true);
+						forumClient.setForumMessageRead(message.getId(), true)
+								.doOnSuccess(unused -> Platform.runLater(() -> {
+									selectedForumMessage.setRead(true);
+									forumMessagesTreeTableView.refresh();
+								}))
+								.subscribe();
 					}))
 					.subscribe();
 		}

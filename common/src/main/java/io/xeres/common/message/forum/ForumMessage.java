@@ -36,9 +36,11 @@ public class ForumMessage
 	private String name;
 	private Instant published;
 	private String content;
+	private boolean read;
 
 	public ForumMessage()
 	{
+		// Needed
 	}
 
 	public long getId()
@@ -139,5 +141,15 @@ public class ForumMessage
 	public void setContent(String content)
 	{
 		this.content = content;
+	}
+
+	public boolean isRead()
+	{
+		return read;
+	}
+
+	public void setRead(boolean read)
+	{
+		this.read = read;
 	}
 }

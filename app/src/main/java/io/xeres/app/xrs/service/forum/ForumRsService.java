@@ -360,6 +360,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return savedMessageId;
 	}
 
+	@Transactional
+	public void setForumMessageAsRead(long messageId, boolean read)
+	{
+		var message = gxsForumMessageRepository.findById(messageId).orElseThrow();
+		message.setRead(read);
+	}
+
 	@Override
 	public void shutdown()
 	{

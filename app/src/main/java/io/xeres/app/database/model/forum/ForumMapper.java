@@ -81,7 +81,8 @@ public final class ForumMapper
 				authorName,
 				forumMessageItemSummary.getName(),
 				forumMessageItemSummary.getPublished(),
-				null
+				null,
+				forumMessageItemSummary.isRead()
 		);
 	}
 
@@ -113,7 +114,8 @@ public final class ForumMapper
 				authorName,
 				forumMessageItem.getName(),
 				forumMessageItem.getPublished(),
-				UnHtml.cleanupMessage(forumMessageItem.getContent())
+				UnHtml.cleanupMessage(forumMessageItem.getContent()),
+				forumMessageItem.isRead()
 		);
 	}
 

@@ -34,7 +34,8 @@ public record ForumMessageDTO(
 		String authorName,
 		String name,
 		Instant published,
-		String content
+		String content,
+		boolean read
 )
 {
 }

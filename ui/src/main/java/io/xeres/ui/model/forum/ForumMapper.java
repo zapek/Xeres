@@ -66,6 +66,7 @@ public final class ForumMapper
 		forumMessage.setName(dto.name());
 		forumMessage.setPublished(dto.published());
 		forumMessage.setContent(dto.content());
+		forumMessage.setRead(dto.read());
 		return forumMessage;
 	}
 }

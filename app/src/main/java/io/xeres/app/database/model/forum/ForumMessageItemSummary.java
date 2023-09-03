@@ -41,4 +41,6 @@ public interface ForumMessageItemSummary
 	String getName();
 
 	Instant getPublished();
+
+	boolean isRead();
 }

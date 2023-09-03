@@ -40,6 +40,7 @@ public class ForumMessageItem extends GxsMessageItem
 	public static final ForumMessageItem EMPTY = new ForumMessageItem();
 
 	private String content;
+	private boolean read;
 
 	public ForumMessageItem()
 	{
@@ -68,6 +69,16 @@ public class ForumMessageItem extends GxsMessageItem
 	public void setContent(String content)
 	{
 		this.content = content;
+	}
+
+	public boolean isRead()
+	{
+		return read;
+	}
+
+	public void setRead(boolean read)
+	{
+		this.read = read;
 	}
 
 	@Override

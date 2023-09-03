@@ -21,10 +21,12 @@ package io.xeres.ui.support.markdown;
 
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
+import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 class Context
 {
@@ -35,17 +37,17 @@ class Context
 		CONTINUATION_BREAK // remove line feed to make a continuation break
 	}
 
-	private final boolean oneLineMode;
+	private final Set<ParsingMode> options;
 	private final Scanner scanner;
 	private final List<Content> content = new ArrayList<>();
 	private int insertIndex;
 	private int completedIndex;
 	private int previousIndex = -1;
 
-	public Context(String input, boolean oneLineMode)
+	public Context(String input, Set<ParsingMode> options)
 	{
+		this.options = options;
 		scanner = new Scanner(sanitize(input));
-		this.oneLineMode = oneLineMode;
 	}
 
 	public boolean isEmpty()
@@ -116,7 +118,7 @@ class Context
 
 	public String getLn()
 	{
-		return oneLineMode ? "" : "\n";
+		return options.contains(ParsingMode.ONE_LINER) ? "" : "\n";
 	}
 
 	/**
@@ -124,7 +126,7 @@ class Context
 	 * - one line feed makes the next line is a continuation
 	 * - two line feeds make a paragraph
 	 */
-	static String sanitize(String input)
+	private String sanitize(String input)
 	{
 		var lines = input.split("\n");
 		var sb = new StringBuilder();
@@ -152,7 +154,7 @@ class Context
 				// Normal break is treated as continuation
 				if (skip == SANITIZE.CONTINUATION_BREAK)
 				{
-					if (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* "))
+					if (!options.contains(ParsingMode.PARAGRAPH) || (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* ")))
 					{
 						// Except quoted text
 						sb.append("\n");

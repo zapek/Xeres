@@ -34,6 +34,7 @@ import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -429,7 +430,7 @@ public class ForumViewController implements Controller
 		{
 			forumClient.getForumMessage(forumMessage.getId())
 					.doOnSuccess(message -> Platform.runLater(() -> {
-						var contents = markdownService.parse(message.getContent(), false);
+						var contents = markdownService.parse(message.getContent(), EnumSet.noneOf(ParsingMode.class));
 						messageContent.getChildren().clear();
 						messageContent.getChildren().addAll(contents.stream()
 								.map(Content::getNode).toList());

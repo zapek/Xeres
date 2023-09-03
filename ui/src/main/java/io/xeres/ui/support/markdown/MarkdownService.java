@@ -9,12 +9,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 @Service
 public class MarkdownService
 {
+	public enum ParsingMode
+	{
+		ONE_LINER, // don't add a \n at the end of the last line (for 1 line chats)
+		PARAGRAPH, // convert \n at end of lines to spaces
+	}
+
 	private static final Pattern BOLD_AND_ITALIC_PATTERN = Pattern.compile("(?<b1>\\*\\*[\\p{L}\\p{Z}\\p{N}\\p{Pd}\\p{Pc}\\p{S}]{1,256}\\*\\*)|(?<i1>\\*[\\p{L}\\p{Z}\\p{N}\\p{Pd}\\p{Pc}\\p{S}]{1,256}\\*)|\\b(?<b2>__[\\p{L}\\p{Z}\\p{N}\\p{Pd}\\p{Pc}\\p{S}]{1,256}__)|\\b(?<i2>_[\\p{L}\\p{Z}\\p{N}\\p{Pd}\\p{Pc}\\p{S}]{1,256}_)");
 	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
@@ -28,9 +35,9 @@ public class MarkdownService
 		this.emojiService = emojiService;
 	}
 
-	public List<Content> parse(String input, boolean oneLineMode)
+	public List<Content> parse(String input, Set<ParsingMode> modes)
 	{
-		var context = new Context(input, oneLineMode);
+		var context = new Context(input, modes);
 		return getContent(context);
 	}
 

@@ -30,6 +30,7 @@ import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentImage;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -46,6 +47,7 @@ import org.jsoup.Jsoup;
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -144,7 +146,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				message = ChatParser.parseActionMe(message, chatAction.getNickname());
 				chatAction.setType(ACTION);
 			}
-			var content = markdownService.parse(message, true);
+			var content = markdownService.parse(message, EnumSet.of(ParsingMode.ONE_LINER));
 			var chatLine = new ChatLine(Instant.now(), chatAction, content.toArray(new Content[0]));
 			addMessageLine(chatLine);
 		}

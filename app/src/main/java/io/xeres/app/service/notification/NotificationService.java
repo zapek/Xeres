@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class NotificationService
 {
@@ -43,13 +44,20 @@ public abstract class NotificationService
 	protected abstract Notification createNotification();
 
 	private Notification previousNotification;
+	private final AtomicBoolean running = new AtomicBoolean();
 
 	protected NotificationService()
 	{
+		running.lazySet(true);
 	}
 
 	public SseEmitter addClient()
 	{
+		if (!running.get())
+		{
+			return null;
+		}
+
 		var emitter = new SseEmitter(-1L); // no timeout
 		addEmitter(emitter);
 		emitter.onCompletion(() -> removeEmitter(emitter));
@@ -62,6 +70,11 @@ public abstract class NotificationService
 
 	private void sendNotification(Notification notification, SseEmitter specificEmitter)
 	{
+		if (!running.get())
+		{
+			return;
+		}
+
 		if (notification == null)
 		{
 			notification = createNotification();
@@ -109,6 +122,7 @@ public abstract class NotificationService
 	 */
 	public void shutdown()
 	{
+		running.set(false);
 		emitters.forEach(ResponseBodyEmitter::complete);
 	}
 

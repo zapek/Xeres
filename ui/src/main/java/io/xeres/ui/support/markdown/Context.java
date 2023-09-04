@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Stream;
 
 class Context
 {
@@ -143,7 +144,7 @@ class Context
 					skip = SANITIZE.EMPTY_LINES;
 				}
 			}
-			else if (s.startsWith("> ") || s.startsWith(">>") || s.startsWith("    ") || s.startsWith("\t"))
+			else if (Stream.of("> ", ">>", "    ", "\t").anyMatch(s::startsWith))
 			{
 				// We don't process quoted text and code
 				skip = SANITIZE.NORMAL;

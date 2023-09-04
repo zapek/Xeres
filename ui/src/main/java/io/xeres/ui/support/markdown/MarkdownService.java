@@ -61,13 +61,13 @@ public class MarkdownService
 			{
 				processHeader(context, line);
 			}
-			else if (line.startsWith("    ") || line.startsWith("\t"))
+			else if ((line.startsWith("    ") || line.startsWith("\t")) && !line.stripLeading().startsWith("- ") && !line.stripLeading().startsWith("* "))
 			{
 				processCode(context, line);
 			}
 			else if (line.contains("`"))
 			{
-				processPattern(CODE_PATTERN, context, line, (s, groupName) -> context.addContent(new ContentCode(s.substring(1, s.length() - 1))));
+				processPattern(CODE_PATTERN, context, line, (s, groupName) -> processCode(context, s.substring(1, s.length() - 1)));
 			}
 			else if (line.contains("&#") && line.contains(";"))
 			{

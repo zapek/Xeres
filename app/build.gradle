@@ -163,7 +163,7 @@ dependencies {
     implementation "org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion"
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation 'com.github.peter-gergely-horvath:windpapi4j:1.1.0'
-    implementation 'net.harawata:appdirs:1.2.1'
+    implementation 'net.harawata:appdirs:1.2.2'
     implementation 'com.github.atomashpolskiy:bt-dht:1.10'
     implementation 'org.apache.commons:commons-lang3'
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"

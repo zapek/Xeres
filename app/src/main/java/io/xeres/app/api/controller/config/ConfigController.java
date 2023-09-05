@@ -33,20 +33,25 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.CapabilityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.rest.config.*;
 import jakarta.validation.Valid;
+import jakarta.xml.bind.JAXBException;
 import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.util.Set;
 
@@ -63,13 +68,15 @@ public class ConfigController
 	private final LocationService locationService;
 	private final IdentityRsService identityRsService;
 	private final CapabilityService capabilityService;
+	private final BackupService backupService;
 
-	public ConfigController(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, CapabilityService capabilityService)
+	public ConfigController(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, CapabilityService capabilityService, BackupService backupService)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityRsService = identityRsService;
 		this.capabilityService = capabilityService;
+		this.backupService = backupService;
 	}
 
 	@PostMapping("/profile")
@@ -214,5 +221,24 @@ public class ConfigController
 	public Set<String> getCapabilities()
 	{
 		return capabilityService.getCapabilities();
+	}
+
+	@GetMapping(value = "/export", produces = MediaType.APPLICATION_XML_VALUE)
+	@Operation(summary = "Export a minimal configuration")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public ResponseEntity<byte[]> getBackup() throws JAXBException, CertificateEncodingException
+	{
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"xeres_backup.xml\"")
+				.body(backupService.backup());
+	}
+
+	@PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@Operation(summary = "Import a minimal configuration")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file) throws JAXBException, IOException
+	{
+		backupService.restore(file);
+		return ResponseEntity.ok().build();
 	}
 }

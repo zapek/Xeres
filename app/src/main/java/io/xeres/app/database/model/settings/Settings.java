@@ -22,8 +22,12 @@ package io.xeres.app.database.model.settings;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 @Entity
+@XmlAccessorType(XmlAccessType.NONE)
 public class Settings
 {
 	@SuppressWarnings("unused")
@@ -61,6 +65,7 @@ public class Settings
 	{
 	}
 
+	@XmlAttribute
 	public byte[] getPgpPrivateKeyData()
 	{
 		return pgpPrivateKeyData;
@@ -71,6 +76,7 @@ public class Settings
 		pgpPrivateKeyData = keyData;
 	}
 
+	@XmlAttribute
 	public byte[] getLocationPrivateKeyData()
 	{
 		return locationPrivateKeyData;
@@ -81,6 +87,7 @@ public class Settings
 		locationPrivateKeyData = keyData;
 	}
 
+	@XmlAttribute
 	public byte[] getLocationPublicKeyData()
 	{
 		return locationPublicKeyData;
@@ -91,6 +98,7 @@ public class Settings
 		locationPublicKeyData = keyData;
 	}
 
+	@XmlAttribute
 	public byte[] getLocationCertificate()
 	{
 		return locationCertificate;
@@ -186,6 +194,7 @@ public class Settings
 		this.localIpAddress = localIpAddress;
 	}
 
+	@XmlAttribute
 	public int getLocalPort()
 	{
 		return localPort;

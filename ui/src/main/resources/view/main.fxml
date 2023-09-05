@@ -82,6 +82,11 @@
                     <FontAwesomeIconView glyphName="GLOBE" glyphSize="14"/>
                 </graphic>
             </MenuItem>
+            <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="Export...">
+                <graphic>
+                    <FontAwesomeIconView glyphName="SIGN_OUT" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem fx:id="showSettingsWindow" text="%main.menu.tools.settings">
                 <graphic>

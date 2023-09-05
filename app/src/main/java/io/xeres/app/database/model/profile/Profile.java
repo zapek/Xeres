@@ -26,6 +26,10 @@ import io.xeres.common.pgp.Trust;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -36,6 +40,7 @@ import java.util.List;
 import static io.xeres.common.dto.profile.ProfileConstants.*;
 
 @Entity
+@XmlAccessorType(XmlAccessType.NONE)
 public class Profile
 {
 	@Id
@@ -158,6 +163,7 @@ public class Profile
 		this.id = id;
 	}
 
+	@XmlAttribute
 	public String getName()
 	{
 		return name;
@@ -168,6 +174,7 @@ public class Profile
 		this.name = name;
 	}
 
+	@XmlAttribute
 	public long getPgpIdentifier()
 	{
 		return pgpIdentifier;
@@ -188,6 +195,7 @@ public class Profile
 		this.profileFingerprint = profileFingerprint;
 	}
 
+	@XmlAttribute
 	public byte[] getPgpPublicKeyData()
 	{
 		return pgpPublicKeyData;
@@ -208,6 +216,7 @@ public class Profile
 		this.accepted = accepted;
 	}
 
+	@XmlAttribute
 	public Trust getTrust()
 	{
 		return trust;
@@ -218,6 +227,7 @@ public class Profile
 		this.trust = trust;
 	}
 
+	@XmlElement(name = "location")
 	public List<Location> getLocations()
 	{
 		return locations;

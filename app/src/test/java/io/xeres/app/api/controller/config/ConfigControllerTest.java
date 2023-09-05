@@ -27,6 +27,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.CapabilityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.rest.config.IpAddressRequest;
 import io.xeres.common.rest.config.OwnIdentityRequest;
@@ -67,6 +68,9 @@ class ConfigControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private CapabilityService capabilityService;
+
+	@MockBean
+	private BackupService backupService;
 
 	@Autowired
 	public MockMvc mvc;

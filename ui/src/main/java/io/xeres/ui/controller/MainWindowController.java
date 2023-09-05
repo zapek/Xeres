@@ -25,6 +25,7 @@ import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
@@ -34,6 +35,7 @@ import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -53,9 +55,11 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
+import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
@@ -114,6 +118,9 @@ public class MainWindowController implements WindowController
 	private MenuItem showBroadcastWindow;
 
 	@FXML
+	private MenuItem exportBackup;
+
+	@FXML
 	private MenuItem showSettingsWindow;
 
 	@FXML
@@ -153,6 +160,7 @@ public class MainWindowController implements WindowController
 	private final WindowManager windowManager;
 	private final Environment environment;
 	private final IdentityClient identityClient;
+	private final ConfigClient configClient;
 	private final NotificationClient notificationClient;
 	private final ResourceBundle bundle;
 
@@ -160,7 +168,7 @@ public class MainWindowController implements WindowController
 	private int totalUsers;
 	private Disposable notificationDisposable;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, ConfigClient configClient, NotificationClient notificationClient, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -168,6 +176,7 @@ public class MainWindowController implements WindowController
 		this.windowManager = windowManager;
 		this.environment = environment;
 		this.identityClient = identityClient;
+		this.configClient = configClient;
 		this.notificationClient = notificationClient;
 		this.bundle = bundle;
 	}
@@ -211,6 +220,18 @@ public class MainWindowController implements WindowController
 			{
 				identityClient.uploadIdentityImage(IdentityConstants.OWN_IDENTITY_ID, selectedFile)
 						.subscribe();
+			}
+		});
+
+		exportBackup.setOnAction(event -> {
+			var fileChooser = new FileChooser();
+			fileChooser.setTitle("Select the output file");
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("XML files", "*.xml"));
+			fileChooser.setInitialFileName("xeres_backup.xml");
+			var selectedFile = fileChooser.showSaveDialog(UiUtils.getWindow(event));
+			if (selectedFile != null)
+			{
+				DataBufferUtils.write(configClient.getBackup(), selectedFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING).subscribe();
 			}
 		});
 
@@ -301,7 +322,7 @@ public class MainWindowController implements WindowController
 			totalUsers = newTotalUsers;
 		}
 
-		numberOfConnections.setText(this.currentUsers + "/" + this.totalUsers);
+		numberOfConnections.setText(currentUsers + "/" + totalUsers);
 	}
 
 	private void setNatStatus(NatStatus newNatStatus)

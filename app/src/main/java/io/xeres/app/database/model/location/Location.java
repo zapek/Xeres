@@ -26,11 +26,17 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.gxs.GxsClientUpdate;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.protocol.PeerAddress;
+import io.xeres.app.service.backup.LocationIdXmlAdapter;
+import io.xeres.app.service.backup.RSIdXmlAdapter;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.common.rsid.Type;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -43,6 +49,7 @@ import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static java.util.Comparator.*;
 
 @Entity
+@XmlAccessorType(XmlAccessType.NONE)
 public class Location
 {
 	@Id
@@ -139,6 +146,14 @@ public class Location
 		rsId.getLocators().forEach(peerAddress -> addConnection(Connection.from(peerAddress)));
 	}
 
+	@XmlAttribute
+	@XmlJavaTypeAdapter(RSIdXmlAdapter.class)
+	@Transient
+	public RSId getCertificate()
+	{
+		return getRsId(Type.CERTIFICATE);
+	}
+
 	public RSId getRsId(Type type)
 	{
 		var builder = new RSIdBuilder(type);
@@ -202,6 +217,7 @@ public class Location
 		this.name = name;
 	}
 
+	@XmlAttribute
 	public String getName()
 	{
 		return name;
@@ -263,6 +279,8 @@ public class Location
 		this.locationId = locationId;
 	}
 
+	@XmlAttribute
+	@XmlJavaTypeAdapter(LocationIdXmlAdapter.class)
 	public LocationId getLocationId()
 	{
 		return locationId;

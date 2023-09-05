@@ -91,7 +91,7 @@ public class IdentityController
 				.body(new InputStreamResource(new ByteArrayInputStream(identity.getImage())));
 	}
 
-	@PostMapping("/{id}/image")
+	@PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Change an identity's avatar image")
 	@ApiResponse(responseCode = "201", description = "Identity's avatar image created")
 	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))

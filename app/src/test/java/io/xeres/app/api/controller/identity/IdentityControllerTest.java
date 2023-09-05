@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(IdentityController.class)
@@ -107,7 +109,7 @@ class IdentityControllerTest extends AbstractControllerTest
 
 		mvc.perform(getJson(BASE_URL + "/" + id + "/image"))
 				.andExpect(status().isOk())
-				.andExpect(header().string(CONTENT_TYPE, "image/jpeg"));
+				.andExpect(header().string(CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE));
 
 		verify(identityRsService).findById(id);
 	}
@@ -117,7 +119,10 @@ class IdentityControllerTest extends AbstractControllerTest
 	{
 		var id = 1L;
 
-		mvc.perform(postJson(BASE_URL + "/" + id + "/image", null))
+		mvc.perform(post(BASE_URL + "/" + id + "/image")
+						.contentType(MediaType.MULTIPART_FORM_DATA)
+						.accept(MediaType.APPLICATION_JSON)
+						.content(""))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + id + "/image"));
 

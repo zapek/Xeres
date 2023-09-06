@@ -19,44 +19,57 @@
 
 package io.xeres.app.service.backup;
 
-class Local
-{
-	private Profile profile;
-	private Location location;
-	private Identity identity;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
-	public Local()
+class Identity
+{
+	private String name;
+	private byte[] privateKey;
+	private byte[] publicKey;
+
+	@SuppressWarnings("unused")
+	public Identity()
 	{
 		// Default constructor
 	}
 
-	public Profile getProfile()
+	public Identity(String name, byte[] privateKey, byte[] publicKey)
 	{
-		return profile;
+		this.name = name;
+		this.privateKey = privateKey;
+		this.publicKey = publicKey;
 	}
 
-	public void setProfile(Profile profile)
+	@XmlAttribute
+	public String getName()
 	{
-		this.profile = profile;
+		return name;
 	}
 
-	public Location getLocation()
+	public void setName(String name)
 	{
-		return location;
+		this.name = name;
 	}
 
-	public void setLocation(Location location)
+	@XmlAttribute
+	public byte[] getPrivateKey()
 	{
-		this.location = location;
+		return privateKey;
 	}
 
-	public Identity getIdentity()
+	public void setPrivateKey(byte[] privateKey)
 	{
-		return identity;
+		this.privateKey = privateKey;
 	}
 
-	public void setIdentity(Identity identity)
+	@XmlAttribute
+	public byte[] getPublicKey()
 	{
-		this.identity = identity;
+		return publicKey;
+	}
+
+	public void setPublicKey(byte[] publicKey)
+	{
+		this.publicKey = publicKey;
 	}
 }

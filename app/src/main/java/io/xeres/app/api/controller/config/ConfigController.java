@@ -51,8 +51,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.*;
@@ -109,7 +112,7 @@ public class ConfigController
 
 		try
 		{
-			locationService.createOwnLocation(name);
+			locationService.generateOwnLocation(name);
 		}
 		catch (CertificateException e)
 		{
@@ -129,7 +132,7 @@ public class ConfigController
 
 		try
 		{
-			id = identityRsService.createOwnIdentity(name, !ownIdentityRequest.anonymous());
+			id = identityRsService.generateOwnIdentity(name, !ownIdentityRequest.anonymous());
 		}
 		catch (CertificateException | PGPException | IOException e)
 		{
@@ -236,7 +239,7 @@ public class ConfigController
 	@PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Import a minimal configuration")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file) throws JAXBException, IOException
+	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException
 	{
 		backupService.restore(file);
 		return ResponseEntity.ok().build();

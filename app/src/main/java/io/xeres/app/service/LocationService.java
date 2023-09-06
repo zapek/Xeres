@@ -49,6 +49,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
@@ -92,11 +93,11 @@ public class LocationService
 		this.publisher = publisher;
 	}
 
-	void generateLocationKeys()
+	KeyPair generateLocationKeys()
 	{
 		if (settingsService.getLocationPrivateKeyData() != null)
 		{
-			return;
+			return null;
 		}
 
 		log.info("Generating keys, algorithm: RSA, bits: {} ...", KEY_SIZE);
@@ -105,14 +106,14 @@ public class LocationService
 
 		log.info("Successfully generated key pair");
 
-		settingsService.saveLocationKeys(keyPair);
+		return keyPair;
 	}
 
-	void generateLocationCertificate() throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
+	byte[] generateLocationCertificate() throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
 	{
 		if (settingsService.hasOwnLocation())
 		{
-			return;
+			return null;
 		}
 		if (!settingsService.isOwnProfilePresent())
 		{
@@ -133,11 +134,11 @@ public class LocationService
 
 		log.info("Successfully generated certificate");
 
-		settingsService.saveLocationCertificate(x509Certificate.getEncoded());
+		return x509Certificate.getEncoded();
 	}
 
 	@Transactional
-	public void createOwnLocation(String name) throws CertificateException
+	public void generateOwnLocation(String name) throws CertificateException
 	{
 		if (!settingsService.isOwnProfilePresent())
 		{
@@ -150,26 +151,36 @@ public class LocationService
 			throw new CertificateException("Location already exists");
 		}
 
-		var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new CertificateException("Current host has no IP address. Please configure your network"));
-
-		// Create an IPv4 location
-		int localPort = Optional.ofNullable(StartupProperties.getInteger(SERVER_PORT)).orElseGet(IP::getFreeLocalPort);
-		log.info("Using local ip address {} and port {}", localIpAddress, localPort);
-
-		generateLocationKeys();
+		var keyPair = generateLocationKeys();
+		byte[] x509Certificate;
 
 		try
 		{
-			generateLocationCertificate();
+			x509Certificate = generateLocationCertificate();
 		}
 		catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e)
 		{
 			throw new CertificateException("Failed to generate certificate: " + e.getMessage());
 		}
 
+		createOwnLocation(name, keyPair, x509Certificate);
+	}
+
+	@Transactional
+	public void createOwnLocation(String name, KeyPair keyPair, byte[] x509Certificate) throws CertificateException
+	{
+		var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new CertificateException("Current host has no IP address. Please configure your network"));
+
+		// Create an IPv4 location
+		int localPort = Optional.ofNullable(StartupProperties.getInteger(SERVER_PORT)).orElseGet(IP::getFreeLocalPort);
+		log.info("Using local ip address {} and port {}", localIpAddress, localPort);
+
+		settingsService.saveLocationKeys(keyPair);
+		settingsService.saveLocationCertificate(x509Certificate);
+
 		var location = Location.createLocation(name);
 		location.setLocationId(settingsService.getLocationId());
-		ownProfile.addLocation(location);
+		profileService.getOwnProfile().addLocation(location);
 		locationRepository.save(location);
 
 		// Send the event asynchronously so that our transaction can complete first

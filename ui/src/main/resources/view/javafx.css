@@ -241,3 +241,13 @@
 
 .forum-content {
 }
+
+.flat-titledpane > .title {
+    -fx-padding: 0.6666em 0.75em 0.3333em 0em;
+    -fx-background-color: transparent;
+}
+
+.flat-titledpane > *.content {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}

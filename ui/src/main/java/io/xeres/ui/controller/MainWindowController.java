@@ -48,6 +48,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
+import java.io.File;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
@@ -225,7 +227,8 @@ public class MainWindowController implements WindowController
 
 		exportBackup.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle("Select the output file");
+			fileChooser.setTitle("Select the output profile");
+			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
 			fileChooser.getExtensionFilters().add(new ExtensionFilter("XML files", "*.xml"));
 			fileChooser.setInitialFileName("xeres_backup.xml");
 			var selectedFile = fileChooser.showSaveDialog(UiUtils.getWindow(event));

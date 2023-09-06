@@ -31,6 +31,8 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPSecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -91,9 +93,7 @@ public class ProfileService
 
 			log.info("Successfully generated PGP key pair, id: {}", Id.toString(pgpSecretKey.getKeyID()));
 
-			var ownProfile = Profile.createOwnProfile(name, pgpPublicKey.getKeyID(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
-			profileRepository.save(ownProfile);
-			settingsService.saveSecretProfileKey(pgpSecretKey.getEncoded());
+			createOwnProfile(name, pgpSecretKey, pgpPublicKey);
 			return true;
 		}
 		catch (PGPException | IOException e)
@@ -101,6 +101,14 @@ public class ProfileService
 			log.error("Failed to generate PGP key pair", e);
 		}
 		return false;
+	}
+
+	@Transactional
+	public void createOwnProfile(String name, PGPSecretKey pgpSecretKey, PGPPublicKey pgpPublicKey) throws IOException
+	{
+		var ownProfile = Profile.createOwnProfile(name, pgpPublicKey.getKeyID(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
+		profileRepository.save(ownProfile);
+		settingsService.saveSecretProfileKey(pgpSecretKey.getEncoded());
 	}
 
 	public Profile getOwnProfile()

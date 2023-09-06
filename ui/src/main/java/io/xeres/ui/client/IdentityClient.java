@@ -24,12 +24,8 @@ import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.identity.Identity;
 import io.xeres.ui.model.identity.IdentityMapper;
 import jakarta.annotation.PostConstruct;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -38,6 +34,7 @@ import reactor.core.publisher.Mono;
 import java.io.File;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
+import static io.xeres.ui.client.ClientUtils.fromFile;
 
 @Component
 public class IdentityClient
@@ -85,12 +82,5 @@ public class IdentityClient
 				.body(BodyInserters.fromMultipartData(fromFile(file)))
 				.retrieve()
 				.bodyToMono(Void.class);
-	}
-
-	private MultiValueMap<String, HttpEntity<?>> fromFile(File file)
-	{
-		var builder = new MultipartBodyBuilder();
-		builder.part("file", new FileSystemResource(file));
-		return builder.build();
 	}
 }

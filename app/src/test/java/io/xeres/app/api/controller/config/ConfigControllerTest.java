@@ -125,7 +125,7 @@ class ConfigControllerTest extends AbstractControllerTest
 		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
 				.andExpect(status().isCreated());
 
-		verify(locationService).createOwnLocation(anyString());
+		verify(locationService).generateOwnLocation(anyString());
 	}
 
 	@Test
@@ -133,7 +133,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
-		doThrow(CertificateException.class).when(locationService).createOwnLocation(anyString());
+		doThrow(CertificateException.class).when(locationService).generateOwnLocation(anyString());
 
 		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
 				.andExpect(status().isInternalServerError());
@@ -318,13 +318,13 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
 
-		when(identityRsService.createOwnIdentity(identityRequest.name(), true)).thenReturn(identity.getId());
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), true)).thenReturn(identity.getId());
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
-		verify(identityRsService).createOwnIdentity(identityRequest.name(), true);
+		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true);
 	}
 
 	@Test
@@ -333,13 +333,13 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
-		when(identityRsService.createOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
-		verify(identityRsService).createOwnIdentity(identityRequest.name(), false);
+		verify(identityRsService).generateOwnIdentity(identityRequest.name(), false);
 	}
 
 	@Test

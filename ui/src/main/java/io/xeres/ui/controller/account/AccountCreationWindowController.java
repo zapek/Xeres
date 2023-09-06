@@ -30,9 +30,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.ResourceBundle;
 
 import static io.xeres.ui.support.util.UiUtils.getWindow;
@@ -56,6 +60,9 @@ public class AccountCreationWindowController implements WindowController
 
 	@FXML
 	private Label status;
+
+	@FXML
+	private Button importBackup;
 
 	private final ConfigClient configClient;
 	private final ProfileClient profileClient;
@@ -91,6 +98,21 @@ public class AccountCreationWindowController implements WindowController
 			if (isNotBlank(profileNameText) && isNotBlank(locationNameText))
 			{
 				generateProfileAndLocation(profileNameText, locationNameText);
+			}
+		});
+
+		importBackup.setOnAction(event -> {
+			var fileChooser = new FileChooser();
+			fileChooser.setTitle("Select a profile file");
+			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("XML files", "*.xml"));
+			var selectedFile = fileChooser.showOpenDialog(UiUtils.getWindow(event));
+			if (selectedFile != null && selectedFile.canRead())
+			{
+				configClient.sendBackup(selectedFile)
+						.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
+						.doOnError(e -> Platform.runLater(() -> UiUtils.showAlertError("Import Error", "Import error", "Couldn't import from backup: " + e.getMessage())))
+						.subscribe();
 			}
 		});
 	}

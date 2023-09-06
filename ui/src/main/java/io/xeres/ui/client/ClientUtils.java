@@ -17,46 +17,26 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service.backup;
+package io.xeres.ui.client;
 
-class Local
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.util.MultiValueMap;
+
+import java.io.File;
+
+public final class ClientUtils
 {
-	private Profile profile;
-	private Location location;
-	private Identity identity;
-
-	public Local()
+	private ClientUtils()
 	{
-		// Default constructor
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public Profile getProfile()
+	public static MultiValueMap<String, HttpEntity<?>> fromFile(File file)
 	{
-		return profile;
-	}
-
-	public void setProfile(Profile profile)
-	{
-		this.profile = profile;
-	}
-
-	public Location getLocation()
-	{
-		return location;
-	}
-
-	public void setLocation(Location location)
-	{
-		this.location = location;
-	}
-
-	public Identity getIdentity()
-	{
-		return identity;
-	}
-
-	public void setIdentity(Identity identity)
-	{
-		this.identity = identity;
+		var builder = new MultipartBodyBuilder();
+		builder.part("file", new FileSystemResource(file));
+		return builder.build();
 	}
 }

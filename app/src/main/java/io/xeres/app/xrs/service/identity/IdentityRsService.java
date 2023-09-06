@@ -56,6 +56,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.KeyPair;
 import java.security.cert.CertificateException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -183,7 +184,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Transactional
-	public long createOwnIdentity(String name, boolean signed) throws CertificateException, PGPException, IOException
+	public long generateOwnIdentity(String name, boolean signed) throws CertificateException, PGPException, IOException
 	{
 		if (!settingsService.isOwnProfilePresent())
 		{
@@ -195,6 +196,18 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		}
 
 		var gxsIdGroupItem = createGroup(name);
+		return createOwnIdentity(gxsIdGroupItem, signed);
+	}
+
+	@Transactional
+	public long createOwnIdentity(String name, KeyPair keyPair) throws PGPException, IOException
+	{
+		var gxsIdGroupItem = createGroup(name, keyPair);
+		return createOwnIdentity(gxsIdGroupItem, true);
+	}
+
+	private long createOwnIdentity(IdentityGroupItem gxsIdGroupItem, boolean signed) throws PGPException, IOException
+	{
 		gxsIdGroupItem.setType(Type.OWN);
 
 		gxsIdGroupItem.setCircleType(GxsCircleType.PUBLIC);

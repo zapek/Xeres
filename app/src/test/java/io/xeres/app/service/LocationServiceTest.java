@@ -162,7 +162,7 @@ class LocationServiceTest
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 		doNothing().when(publisher).publishEvent(any());
 
-		locationService.createOwnLocation("test");
+		locationService.generateOwnLocation("test");
 
 		verify(settingsService, times(2)).isOwnProfilePresent();
 		verify(profileService, times(2)).getOwnProfile();

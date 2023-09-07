@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
@@ -67,7 +66,7 @@ public class BackupService
 		this.settingsService = settingsService;
 	}
 
-	public byte[] backup() throws JAXBException, CertificateEncodingException
+	public byte[] backup() throws JAXBException
 	{
 		var out = new ByteArrayOutputStream();
 
@@ -77,7 +76,7 @@ public class BackupService
 		local.setLocation(new Location(locationService.findOwnLocation().orElseThrow().getLocationId(),
 				settingsService.getLocationPrivateKeyData(),
 				settingsService.getLocationPublicKeyData(),
-				settingsService.getLocationCertificate().getEncoded(),
+				settingsService.getLocationCertificate(),
 				settingsService.getLocalPort()));
 
 		var identityGroupItem = identityRsService.getOwnIdentity();
@@ -132,8 +131,6 @@ public class BackupService
 		createOwnIdentity(export.getLocal().getIdentity().getName(), export.getLocal().getIdentity().getPrivateKey(), export.getLocal().getIdentity().getPublicKey());
 
 		createProfiles(export.getProfiles());
-
-		// XXX: I don't know why the network ready event isn't working... it should be, but technically that event should be fired at the end, when the identities are ready too! move the LocationReady somewhere else...
 	}
 
 	private void createOwnProfile(String name, byte[] privateKey, byte[] publicKey) throws InvalidKeyException, IOException

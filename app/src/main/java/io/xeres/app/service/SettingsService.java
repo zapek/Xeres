@@ -25,12 +25,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import io.xeres.app.application.events.SettingsChangedEvent;
-import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.settings.SettingsMapper;
 import io.xeres.app.database.repository.SettingsRepository;
 import io.xeres.common.dto.settings.SettingsDTO;
-import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.HostPort;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,8 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.KeyPair;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -144,21 +140,9 @@ public class SettingsService
 		settingsRepository.save(settings);
 	}
 
-	public X509Certificate getLocationCertificate()
+	public byte[] getLocationCertificate()
 	{
-		try
-		{
-			return X509.getCertificate(settings.getLocationCertificate());
-		}
-		catch (CertificateException e)
-		{
-			throw new IllegalStateException("Certificate is corrupt"); // Can't happen
-		}
-	}
-
-	public LocationId getLocationId() throws CertificateException
-	{
-		return X509.getLocationId(getLocationCertificate());
+		return settings.getLocationCertificate();
 	}
 
 	public boolean hasOwnLocation()
@@ -206,25 +190,14 @@ public class SettingsService
 		return settings.isDhtEnabled();
 	}
 
-	public void setLocalIpAddressAndPort(String localIpAddress, int localPort)
-	{
-		settings.setLocalIpAddress(localIpAddress);
-		settings.setLocalPort(localPort);
-	}
-
-	public void setLocalIpAddress(String localIpAddress)
-	{
-		settings.setLocalIpAddress(localIpAddress);
-	}
-
-	public String getLocalIpAddress()
-	{
-		return settings.getLocalIpAddress();
-	}
-
 	public int getLocalPort()
 	{
 		return settings.getLocalPort();
+	}
+
+	public void setLocalPort(int port)
+	{
+		settings.setLocalPort(port);
 	}
 
 	public boolean isAutoStartEnabled()

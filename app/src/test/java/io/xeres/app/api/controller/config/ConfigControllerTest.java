@@ -24,9 +24,7 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.app.service.CapabilityService;
-import io.xeres.app.service.LocationService;
-import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.*;
 import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.rest.config.IpAddressRequest;
@@ -42,7 +40,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.security.cert.CertificateException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -72,6 +69,9 @@ class ConfigControllerTest extends AbstractControllerTest
 	@MockBean
 	private BackupService backupService;
 
+	@MockBean
+	private NetworkService networkService;
+
 	@Autowired
 	public MockMvc mvc;
 
@@ -80,7 +80,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var profileRequest = new OwnProfileRequest("test node");
 
-		when(profileService.generateProfileKeys(profileRequest.name())).thenReturn(true);
+		when(profileService.generateProfileKeys(profileRequest.name())).thenReturn(ResourceCreationState.CREATED);
 
 		mvc.perform(postJson(BASE_URL + "/profile", profileRequest))
 				.andExpect(status().isCreated())
@@ -94,12 +94,25 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownProfileRequest = new OwnProfileRequest("test node");
 
-		when(profileService.generateProfileKeys(ownProfileRequest.name())).thenReturn(false);
+		when(profileService.generateProfileKeys(ownProfileRequest.name())).thenReturn(ResourceCreationState.FAILED);
 
 		mvc.perform(postJson(BASE_URL + "/profile", ownProfileRequest))
 				.andExpect(status().isInternalServerError());
 
 		verify(profileService).generateProfileKeys(ownProfileRequest.name());
+	}
+
+	@Test
+	void ConfigController_CreateProfile_AlreadyExists() throws Exception
+	{
+		var profileRequest = new OwnProfileRequest("test node");
+
+		when(profileService.generateProfileKeys(profileRequest.name())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+
+		mvc.perform(postJson(BASE_URL + "/profile", profileRequest))
+				.andExpect(status().isOk());
+
+		verify(profileService).generateProfileKeys(profileRequest.name());
 	}
 
 	@ParameterizedTest
@@ -133,7 +146,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
-		doThrow(CertificateException.class).when(locationService).generateOwnLocation(anyString());
+		when(locationService.generateOwnLocation(anyString())).thenReturn(ResourceCreationState.FAILED);
 
 		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
 				.andExpect(status().isInternalServerError());
@@ -272,7 +285,8 @@ class ConfigControllerTest extends AbstractControllerTest
 		var connection = Connection.from(PeerAddress.from(IP, PORT));
 		location.addConnection(connection);
 
-		when(locationService.findOwnLocation()).thenReturn(Optional.of(location));
+		when(networkService.getLocalIpAddress()).thenReturn(IP);
+		when(networkService.getPort()).thenReturn(PORT);
 
 		mvc.perform(getJson(BASE_URL + "/internalIp"))
 				.andExpect(status().isOk())
@@ -318,7 +332,7 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), true)).thenReturn(identity.getId());
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), true)).thenReturn(ResourceCreationState.CREATED);
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
@@ -333,7 +347,7 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), false)).thenReturn(identity.getId());
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), false)).thenReturn(ResourceCreationState.CREATED);
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())

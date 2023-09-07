@@ -25,6 +25,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.proxy.Socks5ProxyHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.ConnectionType;
 import io.xeres.app.net.peer.PeerConnectionManager;
@@ -40,6 +41,7 @@ import io.xeres.ui.support.tray.TrayService;
 import javax.net.ssl.SSLException;
 import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 
@@ -71,9 +73,9 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		this.settingsService = settingsService;
 		try
 		{
-			sslContext = SSL.createSslContext(settingsService.getLocationPrivateKeyData(), settingsService.getLocationCertificate(), connectionType);
+			sslContext = SSL.createSslContext(settingsService.getLocationPrivateKeyData(), X509.getCertificate(settingsService.getLocationCertificate()), connectionType);
 		}
-		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException e)
+		catch (SSLException | NoSuchAlgorithmException | InvalidKeySpecException | CertificateException e)
 		{
 			throw new IllegalStateException("Error setting up PeerClient: " + e.getMessage(), e);
 		}

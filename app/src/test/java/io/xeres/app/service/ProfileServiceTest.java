@@ -23,6 +23,7 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.ProfileRepository;
+import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,11 +65,7 @@ class ProfileServiceTest
 	{
 		var NAME = "test";
 
-		when(settingsService.getSecretProfileKey()).thenReturn(null);
-
-		assertTrue(profileService.generateProfileKeys(NAME));
-
-		verify(settingsService).getSecretProfileKey();
+		assertEquals(ResourceCreationState.CREATED, profileService.generateProfileKeys(NAME));
 
 		var profile = ArgumentCaptor.forClass(Profile.class);
 		verify(profileRepository).save(profile.capture());
@@ -81,13 +78,10 @@ class ProfileServiceTest
 	{
 		var NAME = "test";
 
-		when(settingsService.getSecretProfileKey()).thenReturn(new byte[]{1});
+		when(profileRepository.findById(ProfileConstants.OWN_PROFILE_ID)).thenReturn(Optional.of(ProfileFakes.createProfile()));
 
-		assertThatThrownBy(() -> profileService.generateProfileKeys(NAME))
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessageContaining("already exists");
+		assertEquals(ResourceCreationState.ALREADY_EXISTS, profileService.generateProfileKeys(NAME));
 
-		verify(settingsService).getSecretProfileKey();
 		verify(profileRepository, times(0)).save(any(Profile.class));
 		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
 	}
@@ -97,13 +91,10 @@ class ProfileServiceTest
 	{
 		var NAME = "";
 
-		when(settingsService.getSecretProfileKey()).thenReturn(null);
-
 		assertThatThrownBy(() -> profileService.generateProfileKeys(NAME))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("too short");
 
-		verify(settingsService).getSecretProfileKey();
 		verify(profileRepository, times(0)).save(any(Profile.class));
 		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
 	}
@@ -113,13 +104,10 @@ class ProfileServiceTest
 	{
 		var NAME = "12345678900987654321123456789098765432120987676543432123456798765";
 
-		when(settingsService.getSecretProfileKey()).thenReturn(null);
-
 		assertThatThrownBy(() -> profileService.generateProfileKeys(NAME))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("too long");
 
-		verify(settingsService).getSecretProfileKey();
 		verify(profileRepository, times(0)).save(any(Profile.class));
 		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
 	}

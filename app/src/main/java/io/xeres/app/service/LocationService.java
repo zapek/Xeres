@@ -19,7 +19,6 @@
 
 package io.xeres.app.service;
 
-import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
@@ -30,13 +29,10 @@ import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.util.NetworkMode;
 import io.xeres.common.id.LocationId;
-import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.NetMode;
-import io.xeres.common.protocol.ip.IP;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -60,7 +56,6 @@ import static io.xeres.app.net.util.NetworkMode.hasDht;
 import static io.xeres.app.net.util.NetworkMode.isDiscoverable;
 import static io.xeres.app.service.ResourceCreationState.*;
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
-import static io.xeres.common.properties.StartupProperties.Property.SERVER_PORT;
 import static java.util.function.Predicate.not;
 
 @Service
@@ -80,18 +75,16 @@ public class LocationService
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
 	private final LocationRepository locationRepository;
-	private final ApplicationEventPublisher publisher;
 
 	private Slice<Location> locations;
 	private int pageIndex;
 	private int connectionIndex = -1;
 
-	public LocationService(SettingsService settingsService, ProfileService profileService, LocationRepository locationRepository, ApplicationEventPublisher publisher)
+	public LocationService(SettingsService settingsService, ProfileService profileService, LocationRepository locationRepository)
 	{
 		this.settingsService = settingsService;
 		this.profileService = profileService;
 		this.locationRepository = locationRepository;
-		this.publisher = publisher;
 	}
 
 	KeyPair generateLocationKeys()
@@ -110,22 +103,13 @@ public class LocationService
 		return keyPair;
 	}
 
-	byte[] generateLocationCertificate() throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
+	byte[] generateLocationCertificate(byte[] locationPublicKeyData) throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
 	{
-		if (settingsService.hasOwnLocation())
-		{
-			return null;
-		}
-		if (!settingsService.isOwnProfilePresent())
-		{
-			throw new CertificateException("Cannot generate certificate without a profile; Create a profile first");
-		}
-
 		log.info("Generating certificate...");
 
 		var x509Certificate = X509.generateCertificate(
 				PGP.getPGPSecretKey(settingsService.getSecretProfileKey()),
-				RSA.getPublicKey(settingsService.getLocationPublicKeyData()),
+				RSA.getPublicKey(locationPublicKeyData),
 				"CN=" + Long.toHexString(profileService.getOwnProfile().getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23
 				"CN=-",
 				new Date(0),
@@ -158,7 +142,7 @@ public class LocationService
 
 		try
 		{
-			x509Certificate = generateLocationCertificate();
+			x509Certificate = generateLocationCertificate(keyPair.getPublic().getEncoded());
 			createOwnLocation(name, keyPair, x509Certificate);
 		}
 		catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | CertificateException e)
@@ -172,22 +156,13 @@ public class LocationService
 	@Transactional
 	public void createOwnLocation(String name, KeyPair keyPair, byte[] x509Certificate) throws CertificateException
 	{
-		var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new CertificateException("Current host has no IP address. Please configure your network"));
-
-		// Create an IPv4 location
-		int localPort = Optional.ofNullable(StartupProperties.getInteger(SERVER_PORT)).orElseGet(IP::getFreeLocalPort);
-		log.info("Using local ip address {} and port {}", localIpAddress, localPort);
-
 		settingsService.saveLocationKeys(keyPair);
 		settingsService.saveLocationCertificate(x509Certificate);
 
 		var location = Location.createLocation(name);
-		location.setLocationId(settingsService.getLocationId());
+		location.setLocationId(X509.getLocationId(X509.getCertificate(settingsService.getLocationCertificate())));
 		profileService.getOwnProfile().addLocation(location);
 		locationRepository.save(location);
-
-		// Send the event asynchronously so that our transaction can complete first
-		publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)); // XXX: remove!
 	}
 
 	/**
@@ -209,6 +184,11 @@ public class LocationService
 	public Optional<Location> findLocationById(long id)
 	{
 		return locationRepository.findById(id);
+	}
+
+	public boolean hasOwnLocation()
+	{
+		return findOwnLocation().isPresent();
 	}
 
 	public void markAllConnectionsAsDisconnected()

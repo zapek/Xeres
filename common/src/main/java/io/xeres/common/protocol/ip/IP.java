@@ -133,7 +133,7 @@ public final class IP
 			{
 				if (bindErrorDetector > BINDING_ATTEMPTS_MAX)
 				{
-					throw new IllegalStateException("Failure to bind a local port. Check your network setup.");
+					return 0;
 				}
 				bindErrorDetector++;
 			}
@@ -142,7 +142,8 @@ public final class IP
 
 	/**
 	 * Tries its best to get the local IP address, without requiring an external
-	 * server. Should work at all times unless the host has no Internet access.
+	 * server. Should work at all times unless the host has no TCP/IP stack.</br>
+	 * If the host has no internet access, then 127.0.0.1 is used.
 	 *
 	 * @return the local IP address or null
 	 */
@@ -154,7 +155,7 @@ public final class IP
 		{
 			socket.connect(InetAddress.getByName("1.1.1.1"), 10000);
 			ip = socket.getLocalAddress().getHostAddress();
-			if (isRoutableIp(ip))
+			if (isBindableIp(ip))
 			{
 				return ip;
 			}

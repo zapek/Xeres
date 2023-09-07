@@ -21,7 +21,6 @@ package io.xeres.app.database.model.settings;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
@@ -41,10 +40,6 @@ public class Settings
 	private byte[] locationPublicKeyData;
 	private byte[] locationCertificate;
 
-	// The following should not be stored in any database
-	@Transient
-	private String localIpAddress;
-	@Transient
 	private int localPort;
 
 	private String torSocksHost;
@@ -182,16 +177,6 @@ public class Settings
 	public void setDhtEnabled(boolean dhtEnabled)
 	{
 		this.dhtEnabled = dhtEnabled;
-	}
-
-	public String getLocalIpAddress()
-	{
-		return localIpAddress;
-	}
-
-	public void setLocalIpAddress(String localIpAddress)
-	{
-		this.localIpAddress = localIpAddress;
 	}
 
 	@XmlAttribute

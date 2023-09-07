@@ -259,6 +259,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own gxsId"));
 	}
 
+	public boolean hasOwnIdentity()
+	{
+		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).isPresent();
+	}
+
 	public Optional<IdentityGroupItem> findById(long id)
 	{
 		return gxsIdentityRepository.findById(id);

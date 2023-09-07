@@ -71,7 +71,7 @@ public class ProfileService
 	@Transactional
 	public ResourceCreationState generateProfileKeys(String name)
 	{
-		if (settingsService.getSecretProfileKey() != null)
+		if (hasOwnProfile())
 		{
 			return ALREADY_EXISTS;
 		}
@@ -116,6 +116,11 @@ public class ProfileService
 	public Profile getOwnProfile()
 	{
 		return profileRepository.findById(ProfileConstants.OWN_PROFILE_ID).orElseThrow(() -> new IllegalStateException("Missing own profile"));
+	}
+
+	public boolean hasOwnProfile()
+	{
+		return profileRepository.findById(ProfileConstants.OWN_PROFILE_ID).isPresent();
 	}
 
 	public Optional<Profile> findProfileById(long id)

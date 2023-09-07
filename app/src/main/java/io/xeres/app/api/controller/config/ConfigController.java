@@ -32,6 +32,7 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.CapabilityService;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.NetworkService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
@@ -52,9 +53,9 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.xeres.app.service.ResourceCreationState.ALREADY_EXISTS;
@@ -73,14 +74,16 @@ public class ConfigController
 	private final IdentityRsService identityRsService;
 	private final CapabilityService capabilityService;
 	private final BackupService backupService;
+	private final NetworkService networkService;
 
-	public ConfigController(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, CapabilityService capabilityService, BackupService backupService)
+	public ConfigController(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, CapabilityService capabilityService, BackupService backupService, NetworkService networkService)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
 		this.identityRsService = identityRsService;
 		this.capabilityService = capabilityService;
 		this.backupService = backupService;
+		this.networkService = networkService;
 	}
 
 	@PostMapping("/profile")
@@ -100,6 +103,8 @@ public class ConfigController
 		{
 			throw new InternalServerErrorException("Failed to generate profile keys");
 		}
+		networkService.checkReadiness();
+
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(PROFILES_PATH + "/{id}").buildAndExpand(1L).toUri();
 		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
 	}
@@ -120,6 +125,8 @@ public class ConfigController
 		{
 			throw new InternalServerErrorException("Failed to generate location");
 		}
+		networkService.checkReadiness();
+
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(LOCATIONS_PATH + "/{id}").buildAndExpand(1L).toUri();
 		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
 	}
@@ -140,6 +147,7 @@ public class ConfigController
 		{
 			throw new InternalServerErrorException("Failed to generate identity");
 		}
+		networkService.checkReadiness();
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}").buildAndExpand(1L).toUri();
 		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
@@ -194,13 +202,7 @@ public class ConfigController
 	@ApiResponse(responseCode = "404", description = "No location or no internal IP address", content = @Content(schema = @Schema(implementation = Error.class)))
 	public IpAddressResponse getInternalIpAddress()
 	{
-		var connection = locationService.findOwnLocation().orElseThrow()
-				.getConnections()
-				.stream()
-				.filter(Connection::isLan)
-				.findFirst().orElseThrow();
-
-		return new IpAddressResponse(connection.getIp(), connection.getPort());
+		return new IpAddressResponse(Optional.ofNullable(networkService.getLocalIpAddress()).orElseThrow(), networkService.getPort());
 	}
 
 	@GetMapping("/hostname")
@@ -232,7 +234,7 @@ public class ConfigController
 	@GetMapping(value = "/export", produces = MediaType.APPLICATION_XML_VALUE)
 	@Operation(summary = "Export a minimal configuration")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<byte[]> getBackup() throws JAXBException, CertificateEncodingException
+	public ResponseEntity<byte[]> getBackup() throws JAXBException
 	{
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"xeres_backup.xml\"")
@@ -245,6 +247,8 @@ public class ConfigController
 	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException
 	{
 		backupService.restore(file);
+		networkService.checkReadiness();
+
 		return ResponseEntity.ok().build();
 	}
 }

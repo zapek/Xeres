@@ -37,6 +37,7 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import static io.xeres.ui.support.util.UiUtils.getWindow;
@@ -161,9 +162,9 @@ public class AccountCreationWindowController implements WindowController
 
 		status.setText(bundle.getString("account.generation.profile-keys"));
 
-		result.doOnSuccess(aVoid -> Platform.runLater(() -> generateLocation(profileName, locationName)))
-				.doOnError(throwable -> Platform.runLater(() -> {
-					UiUtils.showError(this.profileName, bundle.getString("account.generation.profile.error"));
+		result.doOnSuccess(unused -> Platform.runLater(() -> generateLocation(profileName, locationName)))
+				.doOnError(e -> Platform.runLater(() -> {
+					UiUtils.showError(this.profileName, MessageFormat.format(bundle.getString("account.generation.profile.error"), e.getMessage()));
 					setInProgress(false);
 				}))
 				.subscribe();
@@ -177,10 +178,9 @@ public class AccountCreationWindowController implements WindowController
 
 		status.setText(bundle.getString("account.generation.location-keys-and-certificate"));
 
-		result.doOnSuccess(aVoid -> Platform.runLater(() -> generateIdentity(profileName)))
-				.doOnError(throwable -> Platform.runLater(() ->
-				{
-					UiUtils.showAlertError(bundle.getString("account.generation.location.error.title"), bundle.getString("account.generation.location.error.header"), "...");
+		result.doOnSuccess(unused -> Platform.runLater(() -> generateIdentity(profileName)))
+				.doOnError(e -> Platform.runLater(() -> {
+					UiUtils.showAlertError(bundle.getString("account.generation.location.error.title"), bundle.getString("account.generation.location.error.header"), e.getMessage());
 					setInProgress(false);
 				}))
 				.subscribe();
@@ -195,9 +195,8 @@ public class AccountCreationWindowController implements WindowController
 		status.setText(bundle.getString("account.generation.identity"));
 
 		result.doOnSuccess(identityResponse -> Platform.runLater(this::openDashboard))
-				.doOnError(throwable -> Platform.runLater(() ->
-				{
-					UiUtils.showAlertError(bundle.getString("account.generation.identity.error.title"), bundle.getString("account.generation.identity.error.header"), "...");
+				.doOnError(e -> Platform.runLater(() -> {
+					UiUtils.showAlertError(bundle.getString("account.generation.identity.error.title"), bundle.getString("account.generation.identity.error.header"), e.getMessage());
 					setInProgress(false);
 				}))
 				.subscribe();

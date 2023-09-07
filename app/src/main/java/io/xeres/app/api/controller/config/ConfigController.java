@@ -42,7 +42,6 @@ import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +57,8 @@ import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Set;
 
+import static io.xeres.app.service.ResourceCreationState.ALREADY_EXISTS;
+import static io.xeres.app.service.ResourceCreationState.FAILED;
 import static io.xeres.common.rest.PathConfig.*;
 
 @Tag(name = "Configuration", description = "Runtime general configuration", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/config", description = "Configuration documentation"))
@@ -84,6 +85,7 @@ public class ConfigController
 
 	@PostMapping("/profile")
 	@Operation(summary = "Create own profile")
+	@ApiResponse(responseCode = "200", description = "Profile already exists")
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "Location", description = "The location of the created profile", schema = @Schema(type = "string")))
 	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
@@ -92,54 +94,55 @@ public class ConfigController
 		var name = ownProfileRequest.name();
 		log.debug("Processing creation of Profile {}", name);
 
-		if (!profileService.generateProfileKeys(name))
+		var status = profileService.generateProfileKeys(name);
+
+		if (status == FAILED)
 		{
 			throw new InternalServerErrorException("Failed to generate profile keys");
 		}
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(PROFILES_PATH + "/{id}").buildAndExpand(1L).toUri();
-		return ResponseEntity.created(location).build();
+		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
 	}
 
 	@PostMapping("/location")
 	@Operation(summary = "Create own location")
-	@ApiResponse(responseCode = "201", description = "Location created successfully")
+	@ApiResponse(responseCode = "200", description = "Location already exists")
+	@ApiResponse(responseCode = "201", description = "Location created successfully", headers = @Header(name = "Location", description = "The location of the created location", schema = @Schema(type = "string")))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	@ResponseStatus(HttpStatus.CREATED)
-	public void createLocation(@Valid @RequestBody OwnLocationRequest ownLocationRequest)
+	public ResponseEntity<Void> createLocation(@Valid @RequestBody OwnLocationRequest ownLocationRequest)
 	{
 		var name = ownLocationRequest.name();
 		log.debug("Processing creation of Location {}", name);
 
-		try
+		var status = locationService.generateOwnLocation(name);
+
+		if (status == FAILED)
 		{
-			locationService.generateOwnLocation(name);
+			throw new InternalServerErrorException("Failed to generate location");
 		}
-		catch (CertificateException e)
-		{
-			throw new InternalServerErrorException("Failed to generate location: " + e.getMessage());
-		}
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(LOCATIONS_PATH + "/{id}").buildAndExpand(1L).toUri();
+		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
 	}
 
 	@PostMapping("/identity")
 	@Operation(summary = "Create own identity")
+	@ApiResponse(responseCode = "200", description = "Identity already exists")
 	@ApiResponse(responseCode = "201", description = "Identity created successfully")
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> createOwnIdentity(@Valid @RequestBody OwnIdentityRequest ownIdentityRequest)
 	{
 		var name = ownIdentityRequest.name();
 		log.debug("Creating identity {}", name);
-		long id;
 
-		try
+		var status = identityRsService.generateOwnIdentity(name, !ownIdentityRequest.anonymous());
+
+		if (status == FAILED)
 		{
-			id = identityRsService.generateOwnIdentity(name, !ownIdentityRequest.anonymous());
+			throw new InternalServerErrorException("Failed to generate identity");
 		}
-		catch (CertificateException | PGPException | IOException e)
-		{
-			throw new InternalServerErrorException("Failed to generate identity: " + e.getMessage());
-		}
-		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}").buildAndExpand(id).toUri();
-		return ResponseEntity.created(location).build();
+
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}").buildAndExpand(1L).toUri();
+		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
 	}
 
 	@PutMapping("/externalIp")

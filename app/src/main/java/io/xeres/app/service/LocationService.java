@@ -58,6 +58,7 @@ import java.util.*;
 
 import static io.xeres.app.net.util.NetworkMode.hasDht;
 import static io.xeres.app.net.util.NetworkMode.isDiscoverable;
+import static io.xeres.app.service.ResourceCreationState.*;
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static io.xeres.common.properties.StartupProperties.Property.SERVER_PORT;
 import static java.util.function.Predicate.not;
@@ -138,17 +139,18 @@ public class LocationService
 	}
 
 	@Transactional
-	public void generateOwnLocation(String name) throws CertificateException
+	public ResourceCreationState generateOwnLocation(String name)
 	{
 		if (!settingsService.isOwnProfilePresent())
 		{
-			throw new CertificateException("Cannot create a location without a profile; Create a profile first");
+			log.error("Cannot create a location without a profile; Create a profile first");
+			return FAILED;
 		}
 		var ownProfile = profileService.getOwnProfile();
 
 		if (!ownProfile.getLocations().isEmpty())
 		{
-			throw new CertificateException("Location already exists");
+			return ALREADY_EXISTS;
 		}
 
 		var keyPair = generateLocationKeys();
@@ -157,13 +159,14 @@ public class LocationService
 		try
 		{
 			x509Certificate = generateLocationCertificate();
+			createOwnLocation(name, keyPair, x509Certificate);
 		}
-		catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e)
+		catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | CertificateException e)
 		{
-			throw new CertificateException("Failed to generate certificate: " + e.getMessage());
+			log.error("Failed to generate certificate: {}", e.getMessage());
+			return FAILED;
 		}
-
-		createOwnLocation(name, keyPair, x509Certificate);
+		return CREATED;
 	}
 
 	@Transactional
@@ -184,7 +187,7 @@ public class LocationService
 		locationRepository.save(location);
 
 		// Send the event asynchronously so that our transaction can complete first
-		publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort));
+		publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort)); // XXX: remove!
 	}
 
 	/**

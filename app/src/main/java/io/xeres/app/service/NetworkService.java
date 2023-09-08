@@ -168,36 +168,15 @@ public class NetworkService
 			}
 			else
 			{
-				if (settingsService.isDhtEnabled())
-				{
-					if (restart)
-					{
-						dhtService.stop();
-					}
-					dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), settingsService.getLocalPort());
-				}
+				startDhtIfNeeded(restart);
 			}
-			if (settingsService.isBroadcastDiscoveryEnabled())
-			{
-				if (restart)
-				{
-					broadcastDiscoveryService.stop();
-				}
-				broadcastDiscoveryService.start(localIpAddress, settingsService.getLocalPort());
-			}
+			startBroadcastDiscoveryIfNeeded(restart);
 		}
 		else
 		{
 			upnpService.stop();
 			broadcastDiscoveryService.stop();
-			if (settingsService.isDhtEnabled())
-			{
-				if (restart)
-				{
-					dhtService.stop();
-				}
-				dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), settingsService.getLocalPort());
-			}
+			startDhtIfNeeded(restart);
 		}
 	}
 
@@ -274,6 +253,30 @@ public class NetworkService
 		if (settingsService.isDhtEnabled())
 		{
 			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), event.localPort());
+		}
+	}
+
+	private void startDhtIfNeeded(boolean restart)
+	{
+		if (settingsService.isDhtEnabled())
+		{
+			if (restart)
+			{
+				dhtService.stop();
+			}
+			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), settingsService.getLocalPort());
+		}
+	}
+
+	private void startBroadcastDiscoveryIfNeeded(boolean restart)
+	{
+		if (settingsService.isBroadcastDiscoveryEnabled())
+		{
+			if (restart)
+			{
+				broadcastDiscoveryService.stop();
+			}
+			broadcastDiscoveryService.start(localIpAddress, settingsService.getLocalPort());
 		}
 	}
 

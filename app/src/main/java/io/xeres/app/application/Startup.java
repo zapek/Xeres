@@ -184,7 +184,7 @@ public class Startup implements ApplicationRunner
 		log.info("OS: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
 		log.info("JRE: {} {} ({})", System.getProperty("java.vendor"), System.getProperty("java.version"), System.getProperty("java.home"));
 		log.info("Charset: {}", Charset.defaultCharset());
-		log.debug("Working directory: {}", System.getProperty("user.dir"));
+		log.debug("Working directory: {}", log.isDebugEnabled() ? System.getProperty("user.dir") : "");
 		log.info("Number of processor threads: {}", Runtime.getRuntime().availableProcessors());
 		log.info("Memory allocated for the JVM: {} MB", totalMemory / 1024 / 1024);
 		log.info("Maximum allocatable memory: {} MB", Runtime.getRuntime().maxMemory() / 1024 / 1024);

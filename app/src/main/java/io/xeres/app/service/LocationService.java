@@ -218,6 +218,7 @@ public class LocationService
 	public void setDisconnected(Location location)
 	{
 		location.setConnected(false);
+		locationRepository.save(location); // This is needed because PeerHandler calls it from a non managed context
 	}
 
 	@Transactional

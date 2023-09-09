@@ -9,6 +9,8 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.text.Text;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -130,5 +132,20 @@ class MarkdownServiceTest
 		assertEquals("Hello world! ", ((Text) output.get(0).getNode()).getText());
 		assertEquals("https://xeres.io", ((Hyperlink) output.get(1).getNode()).getText());
 		assertEquals(" is the site to visit now!", ((Text) output.get(2).getNode()).getText());
+	}
+
+	@ParameterizedTest
+	@CsvSource({
+			"    foo();, foo();",
+			"\tfoo();, foo();",
+			"        foo();,     foo();"
+	})
+	void MarkdownService_RemoveFirstStartingSpacesCode(String input, String expected)
+	{
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
+
+		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
+
+		assertEquals(expected, ((Text) output.get(0).getNode()).getText());
 	}
 }

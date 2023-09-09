@@ -162,7 +162,15 @@ public class MarkdownService
 
 	private static void processCode(Context context, String line)
 	{
-		context.addContent(new ContentCode(line.trim() + context.getLn()));
+		if (line.startsWith("\t"))
+		{
+			line = line.substring(1);
+		}
+		else if (line.startsWith("    "))
+		{
+			line = line.substring(4);
+		}
+		context.addContent(new ContentCode(line.stripTrailing() + context.getLn()));
 	}
 
 	private static void parseHrefs(Context context, String s)

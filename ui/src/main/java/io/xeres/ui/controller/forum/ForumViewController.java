@@ -96,6 +96,9 @@ public class ForumViewController implements Controller
 	private TreeTableColumn<ForumMessage, Instant> treeTableDate;
 
 	@FXML
+	private ScrollPane messagePane;
+
+	@FXML
 	private TextFlow messageContent;
 
 	@FXML
@@ -432,6 +435,7 @@ public class ForumViewController implements Controller
 					.doOnSuccess(message -> Platform.runLater(() -> {
 						var contents = markdownService.parse(message.getContent(), EnumSet.noneOf(ParsingMode.class));
 						messageContent.getChildren().clear();
+						messagePane.setVvalue(messagePane.getVmin());
 						messageContent.getChildren().addAll(contents.stream()
 								.map(Content::getNode).toList());
 						messageAuthor.setText(forumMessage.getAuthorName());

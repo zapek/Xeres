@@ -135,12 +135,33 @@ class Context
 
 		for (String s : lines)
 		{
+			// Normal break is treated as continuation
+			if (skip == SANITIZE.CONTINUATION_BREAK)
+			{
+				if (!options.contains(ParsingMode.PARAGRAPH) || (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* ")))
+				{
+					// Except quoted text
+					sb.append("\n");
+				}
+				else
+				{
+					sb.append(" ");
+				}
+			}
+
 			if (s.trim().isEmpty())
 			{
 				// One empty line is treated as a paragraph
 				if (skip != SANITIZE.EMPTY_LINES)
 				{
-					sb.append("\n\n");
+					if (options.contains(ParsingMode.PARAGRAPH))
+					{
+						sb.append("\n\n");
+					}
+					else
+					{
+						sb.append("\n");
+					}
 					skip = SANITIZE.EMPTY_LINES;
 				}
 			}
@@ -152,19 +173,6 @@ class Context
 			}
 			else
 			{
-				// Normal break is treated as continuation
-				if (skip == SANITIZE.CONTINUATION_BREAK)
-				{
-					if (!options.contains(ParsingMode.PARAGRAPH) || (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* ")))
-					{
-						// Except quoted text
-						sb.append("\n");
-					}
-					else
-					{
-						sb.append(" ");
-					}
-				}
 				sb.append(s.stripTrailing());
 				skip = SANITIZE.CONTINUATION_BREAK;
 			}

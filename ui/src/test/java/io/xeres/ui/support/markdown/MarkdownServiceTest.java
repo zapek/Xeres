@@ -63,6 +63,28 @@ class MarkdownServiceTest
 	}
 
 	@Test
+	void MarkdownService_Parse_Sanitize_Default2_OK()
+	{
+		var text = """
+				Line1
+				> Line2
+				> Line3
+				""";
+
+		var wanted = """
+				Line1
+				> Line2
+				> Line3
+				""";
+
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
+
+		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class)).stream()
+				.map(Content::asText)
+				.collect(Collectors.joining()));
+	}
+
+	@Test
 	void MarkdownService_Sanitize_NoEndOfLine_OK()
 	{
 		var text = """

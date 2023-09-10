@@ -60,13 +60,18 @@ public class ForumCreationWindowController implements WindowController
 	@Override
 	public void initialize() throws IOException
 	{
-		forumName.textProperty().addListener(observable -> createButton.setDisable(forumName.getText().isBlank()));
-		forumDescription.textProperty().addListener(observable -> createButton.setDisable(forumDescription.getText().isBlank()));
+		forumName.textProperty().addListener(observable -> checkCreatable());
+		forumDescription.textProperty().addListener(observable -> checkCreatable());
 
 		createButton.setOnAction(event -> forumClient.createForumGroup(forumName.getText(),
 						forumDescription.getText())
 				.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
 				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);
+	}
+
+	private void checkCreatable()
+	{
+		createButton.setDisable(forumName.getText().isBlank() || forumDescription.getText().isBlank());
 	}
 }

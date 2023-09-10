@@ -1,8 +1,7 @@
 package io.xeres.ui.support.markdown;
 
-import io.xeres.ui.support.contentline.Content;
-import io.xeres.ui.support.contentline.ContentText;
-import io.xeres.ui.support.contentline.ContentUri;
+import io.xeres.ui.FXTest;
+import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import javafx.scene.control.Hyperlink;
@@ -22,9 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class MarkdownServiceTest
+class MarkdownServiceTest extends FXTest
 {
 	@Mock
 	private EmojiService emojiService;
@@ -44,6 +44,9 @@ class MarkdownServiceTest
 
 				Line3
 				Line4
+								
+								
+				Line 5
 				""";
 
 		var wanted = """
@@ -53,6 +56,8 @@ class MarkdownServiceTest
 
 				Line3
 				Line4
+								
+				Line 5
 				""";
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
@@ -63,7 +68,7 @@ class MarkdownServiceTest
 	}
 
 	@Test
-	void MarkdownService_Parse_Sanitize_Default2_OK()
+	void MarkdownService_Parse_Sanitize_Default_Verbatim_OK()
 	{
 		var text = """
 				Line1
@@ -75,6 +80,30 @@ class MarkdownServiceTest
 				Line1
 				> Line2
 				> Line3
+				""";
+
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
+
+		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class)).stream()
+				.map(Content::asText)
+				.collect(Collectors.joining()));
+	}
+
+	@Test
+	void MarkdownService_Parse_Sanitize_Quoted_OK()
+	{
+		var text = """
+				> Line1
+				> Line2
+								
+				Line3
+				""";
+
+		var wanted = """
+				> Line1
+				> Line2
+								
+				Line3
 				""";
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
@@ -132,9 +161,11 @@ class MarkdownServiceTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH)).stream()
+		var result = markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH)).stream()
 				.map(Content::asText)
-				.collect(Collectors.joining()));
+				.collect(Collectors.joining());
+
+		assertEquals(wanted, result);
 	}
 
 	@Test
@@ -169,5 +200,109 @@ class MarkdownServiceTest
 		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
 
 		assertEquals(expected, ((Text) output.get(0).getNode()).getText());
+	}
+
+	@Test
+	void MarkdownService_Parse_Empty()
+	{
+		var input = "\n";
+
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
+
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+
+		assertEquals(0, output.size());
+	}
+
+	@Test
+	void MarkdownService_Parse_Empty_Too()
+	{
+		var input = "\n\n";
+
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
+
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+
+		assertEquals(0, output.size());
+	}
+
+	@Test
+	void MarkdownService_Parse_Simple_Text()
+	{
+		var input = "hello, world\n";
+
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
+
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+
+		assertEquals(1, output.size());
+
+		assertInstanceOf(ContentText.class, output.get(0));
+		assertEquals("hello, world\n", ((Text) output.get(0).getNode()).getText());
+	}
+
+	@Test
+	void MarkdownService_Parse_OneLine_Several()
+	{
+		var input = "https://zapek.com :-)\n";
+
+		when(emojiService.toUnicode(input)).thenReturn("https://zapek.com &#128578;\n");
+
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+
+		assertEquals(4, output.size()); // url + " " + 🙂 + "\n"
+
+		assertInstanceOf(ContentUri.class, output.get(0));
+		assertEquals("https://zapek.com", ((Hyperlink) output.get(0).getNode()).getText());
+
+		assertInstanceOf(ContentText.class, output.get(1));
+		assertEquals(" ", ((Text) output.get(1).getNode()).getText());
+
+		assertInstanceOf(ContentEmoji.class, output.get(2));
+
+		assertInstanceOf(ContentText.class, output.get(3));
+		assertEquals("\n", ((Text) output.get(3).getNode()).getText());
+	}
+
+	@Test
+	void MarkdownService_Parse_Multiline_Several()
+	{
+		var line1 = "https://zapek.com :-) **yeah**\n";
+		var line2 = "and another one: `fork();` it is\n";
+		var input = line1 + line2;
+
+		when(emojiService.toUnicode(line1)).thenReturn("https://zapek.com &#128578; **yeah**\n");
+		when(emojiService.toUnicode(line2)).thenReturn(line2);
+
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+
+		assertEquals(9, output.size());
+
+		assertInstanceOf(ContentUri.class, output.get(0));
+		assertEquals("https://zapek.com", ((Hyperlink) output.get(0).getNode()).getText());
+
+		assertInstanceOf(ContentText.class, output.get(1));
+		assertEquals(" ", ((Text) output.get(1).getNode()).getText());
+
+		assertInstanceOf(ContentEmoji.class, output.get(2));
+
+		assertInstanceOf(ContentText.class, output.get(3));
+		assertEquals(" ", ((Text) output.get(3).getNode()).getText());
+
+		assertInstanceOf(ContentEmphasis.class, output.get(4));
+		assertEquals("yeah", ((Text) output.get(4).getNode()).getText());
+		assertEquals("-fx-font-weight: bold;", output.get(4).getNode().getStyle());
+
+		assertInstanceOf(ContentText.class, output.get(5));
+		assertEquals("\n", ((Text) output.get(5).getNode()).getText());
+
+		assertInstanceOf(ContentText.class, output.get(6));
+		assertEquals("and another one: ", ((Text) output.get(6).getNode()).getText());
+
+		assertInstanceOf(ContentCode.class, output.get(7));
+		assertEquals("fork();", ((Text) output.get(7).getNode()).getText());
+
+		assertInstanceOf(ContentText.class, output.get(8));
+		assertEquals(" it is\n", ((Text) output.get(8).getNode()).getText());
 	}
 }

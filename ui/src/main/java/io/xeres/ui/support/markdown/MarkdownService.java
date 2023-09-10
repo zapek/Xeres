@@ -54,20 +54,26 @@ public class MarkdownService
 	{
 		while (context.isIncomplete())
 		{
-			var line = context.getNextLine();
-			line = emojiService.toUnicode(line);
+			var line = context.getNextSubstring();
 
-			if (line.startsWith("#"))
+			if (context.isLine())
 			{
-				processHeader(context, line);
+				line = emojiService.toUnicode(line);
+				if (line.startsWith("#"))
+				{
+					processHeader(context, line);
+					continue;
+				}
+				else if ((line.startsWith("    ") || line.startsWith("\t")) && !line.stripLeading().startsWith("- ") && !line.stripLeading().startsWith("* "))
+				{
+					processCode(context, line, true);
+					continue;
+				}
 			}
-			else if ((line.startsWith("    ") || line.startsWith("\t")) && !line.stripLeading().startsWith("- ") && !line.stripLeading().startsWith("* "))
+
+			if (line.contains("`"))
 			{
-				processCode(context, line);
-			}
-			else if (line.contains("`"))
-			{
-				processPattern(CODE_PATTERN, context, line, (s, groupName) -> processCode(context, s.substring(1, s.length() - 1)));
+				processPattern(CODE_PATTERN, context, line, (s, groupName) -> processCode(context, s.substring(1, s.length() - 1), false));
 			}
 			else if (line.contains("&#") && line.contains(";"))
 			{
@@ -160,7 +166,7 @@ public class MarkdownService
 		}
 	}
 
-	private static void processCode(Context context, String line)
+	private static void processCode(Context context, String line, boolean wholeLine)
 	{
 		if (line.startsWith("\t"))
 		{
@@ -170,7 +176,7 @@ public class MarkdownService
 		{
 			line = line.substring(4);
 		}
-		context.addContent(new ContentCode(line.stripTrailing() + context.getLn()));
+		context.addContent(new ContentCode(line.stripTrailing() + (wholeLine ? context.getLn() : "")));
 	}
 
 	private static void parseHrefs(Context context, String s)

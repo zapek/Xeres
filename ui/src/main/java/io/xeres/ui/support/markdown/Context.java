@@ -44,6 +44,7 @@ class Context
 	private int insertIndex;
 	private int completedIndex;
 	private int previousIndex = -1;
+	private boolean isLine;
 
 	public Context(String input, Set<ParsingMode> options)
 	{
@@ -73,7 +74,7 @@ class Context
 
 	private boolean hasIncompleteContent()
 	{
-		for (int i = completedIndex + 1; i < content.size(); i++)
+		for (int i = completedIndex; i < content.size(); i++)
 		{
 			var possibleContent = content.get(i);
 			if (!possibleContent.isComplete())
@@ -90,9 +91,9 @@ class Context
 	 *
 	 * @return the next line
 	 */
-	public String getNextLine()
+	public String getNextSubstring()
 	{
-		var nextIndex = completedIndex + 1;
+		var nextIndex = completedIndex;
 		if (nextIndex < content.size())
 		{
 			var possibleContent = content.get(nextIndex);
@@ -100,10 +101,17 @@ class Context
 			{
 				content.remove(nextIndex);
 				insertIndex = nextIndex;
+				isLine = false;
 				return possibleContent.asText();
 			}
 		}
+		isLine = true;
 		return scanner.nextLine() + getLn();
+	}
+
+	public boolean isLine()
+	{
+		return isLine;
 	}
 
 	public void addContent(Content newContent)
@@ -135,26 +143,12 @@ class Context
 
 		for (String s : lines)
 		{
-			// Normal break is treated as continuation
-			if (skip == SANITIZE.CONTINUATION_BREAK)
-			{
-				if (!options.contains(ParsingMode.PARAGRAPH) || (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* ")))
-				{
-					// Except quoted text
-					sb.append("\n");
-				}
-				else
-				{
-					sb.append(" ");
-				}
-			}
-
 			if (s.trim().isEmpty())
 			{
 				// One empty line is treated as a paragraph
 				if (skip != SANITIZE.EMPTY_LINES)
 				{
-					if (options.contains(ParsingMode.PARAGRAPH))
+					if (skip == SANITIZE.CONTINUATION_BREAK)
 					{
 						sb.append("\n\n");
 					}
@@ -165,16 +159,32 @@ class Context
 					skip = SANITIZE.EMPTY_LINES;
 				}
 			}
-			else if (Stream.of("> ", ">>", "    ", "\t").anyMatch(s::startsWith))
-			{
-				// We don't process quoted text and code
-				skip = SANITIZE.NORMAL;
-				sb.append(s.stripTrailing()).append("\n");
-			}
 			else
 			{
-				sb.append(s.stripTrailing());
-				skip = SANITIZE.CONTINUATION_BREAK;
+				// Normal break is treated as continuation
+				if (skip == SANITIZE.CONTINUATION_BREAK)
+				{
+					if (!options.contains(ParsingMode.PARAGRAPH) || (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* ")))
+					{
+						// Except quoted text
+						sb.append("\n");
+					}
+					else
+					{
+						sb.append(" ");
+					}
+				}
+				if (Stream.of("> ", ">>", "    ", "\t").anyMatch(s::startsWith))
+				{
+					// We don't process quoted text and code
+					skip = SANITIZE.NORMAL;
+					sb.append(s.stripTrailing()).append("\n");
+				}
+				else
+				{
+					sb.append(s.stripTrailing());
+					skip = SANITIZE.CONTINUATION_BREAK;
+				}
 			}
 		}
 		return sb.toString();

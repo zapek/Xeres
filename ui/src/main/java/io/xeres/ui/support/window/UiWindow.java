@@ -76,7 +76,7 @@ final class UiWindow
 	private UiWindow(Builder builder)
 	{
 		scene = new Scene(builder.root);
-		scene.getStylesheets().add("/view/javafx.css");
+		UiUtils.setDefaultStyle(scene);
 		stage = Objects.requireNonNullElseGet(builder.stage, Stage::new);
 		UiUtils.setDefaultIcon(stage);
 

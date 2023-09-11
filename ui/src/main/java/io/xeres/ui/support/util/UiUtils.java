@@ -19,19 +19,24 @@
 
 package io.xeres.ui.support.util;
 
-import io.xeres.common.AppName;
+import io.xeres.common.rest.ErrorResponseEntity;
 import io.xeres.ui.JavaFxApplication;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Region;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -53,14 +58,25 @@ public final class UiUtils
 	private static final String KEY_LISTENER = "listener";
 	private static final String KEY_POPUP = "popup";
 
-	// XXX: fix later
-	//public static ErrorResponseEntity getErrorResponseEntity(Throwable throwable)
-	//{
-	//	WebClientResponseException e = (WebClientResponseException) throwable;
+	/**
+	 * Builds an {@code ErrorResponseEntity} from a {@code WebClientResponseException}. Use in {@code doOnError} in the WebClients.
+	 *
+	 * @param e the WebClientResponseException
+	 * @return an ErrorResponseEntity
+	 */
+	public static ErrorResponseEntity getErrorResponseEntity(WebClientResponseException e)
+	{
+		ErrorResponseEntity.Builder builder = new ErrorResponseEntity.Builder(e.getStatusCode());
+		return builder.fromJson(e.getResponseBodyAsString());
+	}
 
-	//	ErrorResponseEntity.Builder builder = new ErrorResponseEntity.Builder(e.getStatusCode());
-	//	return builder.fromJson(e.getResponseBodyAsString());
-	//}
+	public static void showAlertError(WebClientResponseException e)
+	{
+		Platform.runLater(() -> {
+			var error = getErrorResponseEntity(e);
+			alert(AlertType.ERROR, error.getMessage()); // XXX: use getDetails()? it contains the first exception message
+		});
+	}
 
 	public static void showError(TextField field, String error)
 	{
@@ -122,49 +138,41 @@ public final class UiUtils
 		}
 	}
 
-	public static void showAlertError(String title, String header, String message)
+	public static void alert(AlertType alertType, String message)
 	{
-		var errorAlert = new Alert(Alert.AlertType.ERROR);
-		if (title != null)
-		{
-			errorAlert.setTitle(title);
-		}
-		if (header != null)
-		{
-			errorAlert.setHeaderText(header);
-		}
-		errorAlert.setContentText(message);
-		errorAlert.showAndWait();
+		var alert = buildAlert(alertType, message);
+		alert.showAndWait();
 	}
 
-	public static void showAlertInfo(String message)
+	public static void alertConfirm(String message, Runnable runnable)
 	{
-		showAlertInfo(AppName.NAME, null, message);
-	}
-
-	public static void showAlertInfo(String title, String header, String message)
-	{
-		var errorAlert = new Alert(Alert.AlertType.INFORMATION);
-		errorAlert.setTitle(title);
-		errorAlert.setHeaderText(header);
-		errorAlert.setContentText(message);
-		errorAlert.showAndWait();
-	}
-
-	public static void showAlertInfoConfirm(String title, String header, String message, Runnable runnable)
-	{
-		var alert = new Alert(Alert.AlertType.CONFIRMATION);
-		alert.setTitle(title);
-		alert.setHeaderText(header);
-		alert.setContentText(message);
+		var alert = buildAlert(AlertType.CONFIRMATION, message);
 		alert.showAndWait()
 				.filter(response -> response == ButtonType.OK)
 				.ifPresent(response -> runnable.run());
 	}
 
+	private static Alert buildAlert(AlertType alertType, String message)
+	{
+		var alert = new Alert(alertType);
+		var stage = (Stage) alert.getDialogPane().getScene().getWindow();
+
+		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
+		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied
+		alert.setHeaderText(null); // the header is ugly
+		alert.setContentText(message);
+		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
+		return alert;
+	}
+
 	public static void setDefaultIcon(Stage stage)
 	{
 		stage.getIcons().add(new Image(Objects.requireNonNull(stage.getClass().getResourceAsStream("/image/icon.png"))));
+	}
+
+	public static void setDefaultStyle(Scene scene)
+	{
+		scene.getStylesheets().add("/view/javafx.css");
 	}
 
 	/**

@@ -26,10 +26,7 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import net.harawata.appdirs.AppDirsFactory;
@@ -112,7 +109,7 @@ public class AccountCreationWindowController implements WindowController
 			{
 				configClient.sendBackup(selectedFile)
 						.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
-						.doOnError(e -> Platform.runLater(() -> UiUtils.showAlertError("Import Error", "Import error", "Couldn't import from backup: " + e.getMessage())))
+						.doOnError(e -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.ERROR, "Couldn't import from backup: " + e.getMessage())))
 						.subscribe();
 			}
 		});
@@ -180,7 +177,7 @@ public class AccountCreationWindowController implements WindowController
 
 		result.doOnSuccess(unused -> Platform.runLater(() -> generateIdentity(profileName)))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.showAlertError(bundle.getString("account.generation.location.error.title"), bundle.getString("account.generation.location.error.header"), e.getMessage());
+					UiUtils.alert(Alert.AlertType.ERROR, e.getMessage());
 					setInProgress(false);
 				}))
 				.subscribe();
@@ -196,7 +193,7 @@ public class AccountCreationWindowController implements WindowController
 
 		result.doOnSuccess(identityResponse -> Platform.runLater(this::openDashboard))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.showAlertError(bundle.getString("account.generation.identity.error.title"), bundle.getString("account.generation.identity.error.header"), e.getMessage());
+					UiUtils.alert(Alert.AlertType.ERROR, e.getMessage());
 					setInProgress(false);
 				}))
 				.subscribe();

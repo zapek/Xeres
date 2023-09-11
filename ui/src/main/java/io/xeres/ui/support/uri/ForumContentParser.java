@@ -23,6 +23,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.scene.control.Alert;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
@@ -54,6 +55,6 @@ public class ForumContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(msgId, name, s -> UiUtils.showAlertInfo("Forums are not supported yet."));
+		return new ContentUri(msgId, name, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Forums are not supported yet."));
 	}
 }

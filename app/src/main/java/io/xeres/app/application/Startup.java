@@ -50,7 +50,6 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 @Component
@@ -161,12 +160,9 @@ public class Startup implements ApplicationRunner
 
 	private void backupUserData()
 	{
-		// Right now we perform a backup on every shutdown, see #26 for possible improvements
-		if (dataDirConfiguration.getDataDir() != null)
+		if (dataDirConfiguration.getDataDir() != null) // Don't back up the database when running unit tests
 		{
-			var backupFile = Path.of(dataDirConfiguration.getDataDir(), "backup.zip").toString();
-			log.info("Doing backup of database to {}", backupFile);
-			settingsService.backup(backupFile);
+			settingsService.backup(dataDirConfiguration.getDataDir());
 		}
 	}
 

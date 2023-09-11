@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.api.error.exception.InternalServerErrorException;
+import io.xeres.app.api.exception.InternalServerErrorException;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.CapabilityService;

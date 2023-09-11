@@ -31,17 +31,38 @@ import io.xeres.app.database.repository.SettingsRepository;
 import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.protocol.HostPort;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyPair;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
 public class SettingsService
 {
+	private static final Logger log = LoggerFactory.getLogger(SettingsService.class);
+
+	private static final String BACKUP_FILE_PREFIX = "backup_";
+	private static final String BACKUP_FILE_EXTENSION = ".zip";
+	private static final Pattern BACKUP_FILES = Pattern.compile("^backup_\\d{14}.zip$");
+	private static final int BACKUP_FILES_RETENTION = 3;
+
+	private static final DateTimeFormatter backupFileFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+			.withZone(ZoneId.systemDefault());
+
 	private final SettingsRepository settingsRepository;
 
 	private final ApplicationEventPublisher publisher;
@@ -63,9 +84,49 @@ public class SettingsService
 		settings = settingsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));
 	}
 
-	public void backup(String file)
+	/**
+	 * Performs a backup of the database.
+	 * <p>
+	 * The last {@code BACKUP_FILE_RETENTION} files are kept. The rest is deleted. A timestamp is placed within the name of each backup file.
+	 *
+	 * @param directory the directory in where to place the backup.
+	 */
+	public void backup(String directory)
 	{
-		settingsRepository.backupDatabase(file);
+		Objects.requireNonNull(directory);
+
+		var backupFile = Path.of(directory, BACKUP_FILE_PREFIX + backupFileFormatter.format(Instant.now()) + BACKUP_FILE_EXTENSION);
+
+		log.info("Doing backup of database to {}", backupFile);
+		settingsRepository.backupDatabase(backupFile.toString());
+		deleteOldestBackupSiblings(backupFile);
+	}
+
+	private void deleteOldestBackupSiblings(Path file)
+	{
+		try (var pathStream = Files.find(file.getParent(), 1, (path, attributes) -> BACKUP_FILES.matcher(path.getFileName().toString()).matches() && attributes.isRegularFile()))
+		{
+			pathStream.sorted(Comparator.comparing(path -> path.toFile().lastModified()))
+					.sorted(Comparator.reverseOrder())
+					.skip(BACKUP_FILES_RETENTION)
+					.forEach(this::deleteFile);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void deleteFile(Path path)
+	{
+		try
+		{
+			Files.delete(path);
+		}
+		catch (IOException e)
+		{
+			log.error("Couldn't delete old backup file: {}", path);
+		}
 	}
 
 	/**

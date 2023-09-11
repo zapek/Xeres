@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.api.error.exception;
+package io.xeres.app.api.exception;
 
 public class InternalServerErrorException extends RuntimeException
 {

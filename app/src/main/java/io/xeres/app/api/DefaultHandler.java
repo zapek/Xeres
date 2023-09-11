@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
-import io.xeres.app.api.error.exception.UnprocessableEntityException;
+import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
 import io.xeres.common.rest.Error;
 import io.xeres.common.rest.ErrorResponseEntity;

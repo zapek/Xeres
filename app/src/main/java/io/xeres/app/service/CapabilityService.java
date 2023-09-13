@@ -26,6 +26,10 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Service that informs about the capabilities supported by the system.
+ * Usually dependent on the platform or installation.
+ */
 @Service
 public class CapabilityService
 {
@@ -36,6 +40,11 @@ public class CapabilityService
 		this.autoStart = autoStart;
 	}
 
+	/**
+	 * Informs about the capabilities supported by the system.
+	 *
+	 * @return a set of the supported capabilities.
+	 */
 	public Set<String> getCapabilities()
 	{
 		Set<String> capabilities = new HashSet<>();

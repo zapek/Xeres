@@ -55,7 +55,7 @@ public class PeerService
 		running.lazySet(true);
 
 		peerTcpServer.start(localPort);
-		if (!StartupProperties.getBoolean(SERVER_ONLY, false)) // XXX: do like NetworkProperties?
+		if (!StartupProperties.getBoolean(SERVER_ONLY, false))
 		{
 			peerTcpClient.start();
 		}

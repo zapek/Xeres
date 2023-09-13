@@ -34,7 +34,7 @@ public class PeerConnection
 	private Location location;
 	private final ChannelHandlerContext ctx;
 	private final Set<RsService> services = new HashSet<>();
-	private AtomicBoolean servicesSent = new AtomicBoolean(false);
+	private final AtomicBoolean servicesSent = new AtomicBoolean(false);
 	private final Map<Integer, Map<Integer, Object>> serviceData = new HashMap<>();
 	private final List<ScheduledFuture<?>> schedules = new ArrayList<>();
 
@@ -111,14 +111,20 @@ public class PeerConnection
 
 	public void scheduleWithFixedDelay(NoSuppressedRunnable command, long initialDelay, long delay, TimeUnit unit)
 	{
-		var scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay, delay, unit);
-		schedules.add(scheduledFuture);
+		try (var executor = ctx.executor())
+		{
+			var scheduledFuture = executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+			schedules.add(scheduledFuture);
+		}
 	}
 
 	public void schedule(NoSuppressedRunnable command, long delay, TimeUnit unit)
 	{
-		var scheduledFuture = ctx.executor().schedule(command, delay, unit);
-		schedules.add(scheduledFuture);
+		try (var executor = ctx.executor())
+		{
+			var scheduledFuture = executor.schedule(command, delay, unit);
+			schedules.add(scheduledFuture);
+		}
 	}
 
 	public void shutdown()

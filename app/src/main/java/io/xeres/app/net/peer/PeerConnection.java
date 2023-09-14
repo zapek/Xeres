@@ -105,26 +105,20 @@ public class PeerConnection
 
 	public void scheduleAtFixedRate(NoSuppressedRunnable command, long initialDelay, long period, TimeUnit unit)
 	{
-		var scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay, period, unit);
+		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay, period, unit);
 		schedules.add(scheduledFuture);
 	}
 
 	public void scheduleWithFixedDelay(NoSuppressedRunnable command, long initialDelay, long delay, TimeUnit unit)
 	{
-		try (var executor = ctx.executor())
-		{
-			var scheduledFuture = executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
-			schedules.add(scheduledFuture);
-		}
+		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay, delay, unit);
+		schedules.add(scheduledFuture);
 	}
 
 	public void schedule(NoSuppressedRunnable command, long delay, TimeUnit unit)
 	{
-		try (var executor = ctx.executor())
-		{
-			var scheduledFuture = executor.schedule(command, delay, unit);
-			schedules.add(scheduledFuture);
-		}
+		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().schedule(command, delay, unit);
+		schedules.add(scheduledFuture);
 	}
 
 	public void shutdown()

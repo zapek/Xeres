@@ -135,6 +135,9 @@ public class MainWindowController implements WindowController
 	private MenuItem h2Console;
 
 	@FXML
+	private MenuItem systemProperties;
+
+	@FXML
 	private ReadOnlyTextField shortId;
 
 	@FXML
@@ -248,6 +251,7 @@ public class MainWindowController implements WindowController
 			debug.setVisible(true);
 			runGc.setOnAction(event -> System.gc());
 			h2Console.setOnAction(event -> JavaFxApplication.openUrl(JavaFxApplication.getControlUrl() + "/h2-console"));
+			systemProperties.setOnAction(event -> windowManager.openSystemProperties(getWindow(event)));
 		}
 
 		exitApplication.setOnAction(event ->

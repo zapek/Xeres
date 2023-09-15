@@ -127,6 +127,11 @@
                     <FontAwesomeIconView glyphName="DATABASE" glyphSize="14"/>
                 </graphic>
             </MenuItem>
+            <MenuItem fx:id="systemProperties" text="System Properties">
+                <graphic>
+                    <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
+                </graphic>
+            </MenuItem>
         </Menu>
     </MenuBar>
     <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">

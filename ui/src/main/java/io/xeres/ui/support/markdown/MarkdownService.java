@@ -4,7 +4,10 @@ import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.uri.UriParser;
 import io.xeres.ui.support.util.Range;
+import javafx.scene.image.Image;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
@@ -16,17 +19,21 @@ import java.util.regex.Pattern;
 @Service
 public class MarkdownService
 {
+	private static final Logger log = LoggerFactory.getLogger(MarkdownService.class);
+
 	public enum ParsingMode
 	{
 		ONE_LINER, // don't add a \n at the end of the last line (for 1 line chats)
 		PARAGRAPH, // convert \n at end of lines to spaces
 	}
 
+	// Remember that each matcher's capture group is exclusive with the others
 	private static final Pattern BOLD_AND_ITALIC_PATTERN = Pattern.compile("(?<b1>\\*\\*[\\p{L}\\p{Z}\\p{N}\\p{Pd}\\p{Pc}\\p{S}]{1,256}\\*\\*)|(?<i1>\\*[\\p{L}\\p{Z}\\p{N}\\p{Pd}\\p{Pc}\\p{S}]{1,256}\\*)|\\b(?<b2>__[\\p{L}\\p{Z}\\p{N}\\p{Pd}\\p{Pc}\\p{S}]{1,256}__)|\\b(?<i2>_[\\p{L}\\p{Z}\\p{N}\\p{Pd}\\p{Pc}\\p{S}]{1,256}_)");
 	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
 	private static final Pattern COLOR_EMOJI_PATTERN = Pattern.compile("(?<e>(&#\\d+;)+)");
 	private static final Pattern HREF_PATTERN = Pattern.compile("<a href=\".{1,2083}?\">.{1,256}?</a>", Pattern.CASE_INSENSITIVE);
+	private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[.{0,256}]\\(.{0,264670}\\)"); // Maximum size of a gxs message + 30% of base 64 encoding
 
 	private final EmojiService emojiService;
 
@@ -95,6 +102,21 @@ public class MarkdownService
 				processPattern(URL_PATTERN, context, line,
 						(s, groupName) -> context.addContent(new ContentUri(s)));
 			}
+			else if (line.contains("!["))
+			{
+				processPattern(IMAGE_PATTERN, context, line,
+						(s, groupName) -> {
+							var image = getImage(s);
+							if (image != null)
+							{
+								context.addContent(new ContentImage(image));
+							}
+							else
+							{
+								context.addContent(new ContentText("[image corrupted]"));
+							}
+						});
+			}
 			else
 			{
 				var verbatim = new ContentText(line);
@@ -102,6 +124,26 @@ public class MarkdownService
 				context.addContent(verbatim);
 			}
 		}
+	}
+
+	private static Image getImage(String s)
+	{
+		Image image = null;
+		var index = s.indexOf("](data:");
+		var data = s.substring(index + 2, s.length() - 1); // skip "](" and the ")" at the end
+		try
+		{
+			image = new Image(data);
+			if (image.isError())
+			{
+				image = null;
+			}
+		}
+		catch (IllegalArgumentException e)
+		{
+			log.error("Error while loading image", e);
+		}
+		return image;
 	}
 
 	private static void processHeader(Context context, String line)

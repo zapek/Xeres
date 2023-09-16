@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class Markdown
 {
@@ -143,6 +144,22 @@ public class Markdown
 		{
 			body.add(url);
 		}
+	}
+
+	public void addImage(String title, String data)
+	{
+		if (isBlank(title) && isBlank(data))
+		{
+			return;
+		}
+
+		if (isNotBlank(data) && !data.startsWith("data:"))
+		{
+			return;
+		}
+		invalidate();
+
+		body.add("![" + title + "](" + data + ")");
 	}
 
 	private void addEmptyLine()

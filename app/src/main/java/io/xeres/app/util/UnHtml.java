@@ -63,6 +63,8 @@ public final class UnHtml
 
 		var document = Jsoup.parse(text);
 		var cleaner = new Cleaner(Safelist.none()
+				.addAttributes("img", "src")
+				.addProtocols("img", "src", "data")
 				.addAttributes("a", "href")
 				.addTags("p", "br", "ul", "li", "h1", "h2", "h3", "h4", "h5", "h6")
 				.preserveRelativeLinks(true));
@@ -104,6 +106,7 @@ public final class UnHtml
 					case "h4" -> md.addHeader(toMarkdown(en, depth), H4);
 					case "h5" -> md.addHeader(toMarkdown(en, depth), H5);
 					case "h6" -> md.addHeader(toMarkdown(en, depth), H6);
+					case "img" -> md.addImage(en.text(), en.attr("src"));
 					default -> md.addText(toMarkdown(en, depth));
 				}
 			}

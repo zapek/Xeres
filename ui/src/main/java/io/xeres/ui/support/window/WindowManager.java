@@ -31,6 +31,7 @@ import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
+import io.xeres.ui.controller.debug.PropertiesWindowController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorViewController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
@@ -159,6 +160,16 @@ public class WindowManager
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(parent)
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
+						.build()
+						.open());
+	}
+
+	public void openSystemProperties(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(PropertiesWindowController.class)
+						.setParent(parent)
+						.setTitle("System Properties")
 						.build()
 						.open());
 	}

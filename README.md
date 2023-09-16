@@ -94,6 +94,12 @@ To pass arugments to Xeres, just use the args feature, for example:
 
 ### Database Debugging
 
+#### Online
+
+When running Xeres with the `dev` profile, there's a built-in H2 Console available, accessible through the _Debug_ menu.
+
+#### Offline
+
 With IntelliJ Ultimate, create the following Database connection with the built-in Datagrip client (aka the _Database_ tool window)
 
 - Connection type: Embedded
@@ -102,6 +108,15 @@ With IntelliJ Ultimate, create the following Database connection with the built-
 - Authentication: User & Password
 - User: ``sa``
 - There's no password
+
+You can also download the [H2 installer](https://www.h2database.com/html/download.html) (version to use: 2.1.214).
+Then run the H2 console with the following settings:
+
+- Saved Settings: Generic H2 (Embedded)
+- Driver Class: org.h2.Driver
+- JDBC URL: `hdbc:h2:file:~/workspace/Xeres/data/userdata` (put your path, and no file extension at the end!)
+- User Name: sa
+- The password is empty
 
 ### Useful Gradle Tasks
 
@@ -147,6 +162,11 @@ Location A:
 Location B:
 
 	--data-dir=./data3 --control-port=1069
+
+### Monitoring
+
+When running Xeres with the `dev` profile, JMX monitoring is available either using JConsole or [VisualVM](https://visualvm.github.io/).
+Simply run them and connect to the Xeres session.
 	
 ## Donations
 

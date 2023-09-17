@@ -37,7 +37,7 @@ public class ItemDecoder extends MessageToMessageDecoder<ByteBuf>
 {
 	private static final int MAX_SLICES = 195512; // maximum number of slices per packets (XXX: does RS have a limit there? I don't think so actually)
 	private static final int MAX_CONCURRENT_PACKETS = 16; // maximum number of concurrent packets
-	private final Map<Integer, List<MultiPacket>> accumulator = new HashMap<>();
+	private final Map<Integer, List<MultiPacket>> accumulator = HashMap.newHashMap(MAX_CONCURRENT_PACKETS);
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws ProtocolException

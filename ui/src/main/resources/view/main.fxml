@@ -84,7 +84,7 @@
             </MenuItem>
             <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="Export...">
                 <graphic>
-                    <FontAwesomeIconView glyphName="SIGN_OUT" glyphSize="14"/>
+                    <FontAwesomeIconView glyphName="SAVE" glyphSize="14"/>
                 </graphic>
             </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false"/>

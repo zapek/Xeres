@@ -58,7 +58,7 @@ class SoapTest
 		String VALUE1 = "1234", VALUE2 = "TCP";
 		var fakeHTTPServer = new FakeHttpServer("/soaptest.xml", HttpURLConnection.HTTP_OK, "OK".getBytes());
 
-		var args = new LinkedHashMap<String, String>(2);
+		Map<String, String> args = LinkedHashMap.newLinkedHashMap(2);
 		args.put(KEY1, VALUE1);
 		args.put(KEY2, VALUE2);
 

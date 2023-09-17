@@ -25,6 +25,7 @@ import javafx.scene.control.TextArea;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class PropertiesWindowController implements WindowController
 	{
 		in = in.replace("\n", "\\n");
 		in = in.replace("\r", "\\r");
-		in = in.replace(";", ";\n    ");
+		in = in.replace(File.pathSeparator, File.pathSeparator + "\n    ");
 		return in;
 	}
 }

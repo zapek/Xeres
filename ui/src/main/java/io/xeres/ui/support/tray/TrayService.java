@@ -23,6 +23,7 @@ import io.xeres.common.AppName;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,7 @@ public class TrayService
 			return;
 		}
 
-		if (!SystemTray.isSupported())
+		if (!SystemTray.isSupported() || SystemUtils.IS_OS_LINUX)
 		{
 			log.error("System tray not supported");
 			return;

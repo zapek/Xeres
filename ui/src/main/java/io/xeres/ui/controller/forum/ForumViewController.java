@@ -96,6 +96,9 @@ public class ForumViewController implements Controller
 	private TreeTableColumn<ForumMessage, Instant> treeTableDate;
 
 	@FXML
+	private ProgressIndicator forumMessagesProgress;
+
+	@FXML
 	private ScrollPane messagePane;
 
 	@FXML
@@ -385,6 +388,7 @@ public class ForumViewController implements Controller
 		selectedForumMessage = null;
 
 		getBrowsableTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
+				.doFirst(() -> forumMessagesState(true))
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
 					forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
 					forumMessagesRoot.getChildren().clear();
@@ -394,13 +398,23 @@ public class ForumViewController implements Controller
 					newThread.setDisable(false);
 				}))
 				.doOnError(throwable -> log.error("Error while getting the forum messages: {}", throwable.getMessage(), throwable)) // XXX: cleanup on error?
+				.doFinally(signalType -> forumMessagesState(false))
 				.subscribe(), () -> Platform.runLater(() -> {
-			// XXX: display some forum info in the message view
+			// XXX: this is the case when there's no active forum selected. display some forum/tree group info in the message view
 			forumMessagesTreeTableView.getSelectionModel().clearSelection();
 			forumMessagesRoot.getChildren().clear();
 			clearMessage();
 			newThread.setDisable(true);
+			forumMessagesState(false);
 		}));
+	}
+
+	private void forumMessagesState(boolean loading)
+	{
+		Platform.runLater(() -> {
+			forumMessagesTreeTableView.setVisible(!loading);
+			forumMessagesProgress.setVisible(loading);
+		});
 	}
 
 	// XXX: implement threaded support for the 2 following methods.

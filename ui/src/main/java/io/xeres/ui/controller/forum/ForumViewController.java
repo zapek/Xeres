@@ -30,6 +30,7 @@ import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
@@ -96,7 +97,7 @@ public class ForumViewController implements Controller
 	private TreeTableColumn<ForumMessage, Instant> treeTableDate;
 
 	@FXML
-	private ProgressIndicator forumMessagesProgress;
+	private ProgressPane forumMessagesProgress;
 
 	@FXML
 	private ScrollPane messagePane;
@@ -413,7 +414,7 @@ public class ForumViewController implements Controller
 	{
 		Platform.runLater(() -> {
 			forumMessagesTreeTableView.setVisible(!loading);
-			forumMessagesProgress.setVisible(loading);
+			forumMessagesProgress.showProgress(loading);
 		});
 	}
 

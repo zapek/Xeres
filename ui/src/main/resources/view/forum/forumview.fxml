@@ -20,6 +20,7 @@
   -->
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import io.xeres.ui.custom.ProgressPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -54,7 +55,7 @@
                 </Button>
             </HBox>
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
-                <StackPane>
+                <ProgressPane fx:id="forumMessagesProgress">
                     <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0">
                         <columns>
                             <!--
@@ -68,8 +69,7 @@
                             <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="120" text="Date"/>
                         </columns>
                     </TreeTableView>
-                    <ProgressIndicator fx:id="forumMessagesProgress" visible="false"/>
-                </StackPane>
+                </ProgressPane>
                 <VBox>
                     <GridPane fx:id="messageHeader" visible="false" hgap="8" vgap="4">
                         <VBox.margin>

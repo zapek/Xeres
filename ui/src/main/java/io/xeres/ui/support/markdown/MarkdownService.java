@@ -33,21 +33,8 @@ public class MarkdownService
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HREF_PATTERN = Pattern.compile("<a href=\".{1,2083}?\">.{1,256}?</a>", Pattern.CASE_INSENSITIVE);
 	private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[.{0,256}]\\(.{0,264670}\\)"); // Maximum size of a gxs message + 30% of base 64 encoding
-	private static final Pattern EMOJI_PATTERN = Pattern.compile("([\\uD83C\\uDDE6-\\uD83C\\uDDFF]" + // Taken from https://unicode.org/reports/tr51/
-			"|\\p{IsEmoji}" +
-			"(\\p{IsEmoji_Modifier}" +
-			"|\\x{FE0F}\\x{20E3}?" +
-			"|[\\x{E0020}-\\x{E007E}]+\\x{E007F}" +
-			")?" +
-			"(\\x{200D}" +
-			"([\\uD83C\\uDDE6-\\uD83C\\uDDFF]" +
-			"|\\p{IsEmoji}" +
-			"(\\p{IsEmoji_Modifier}" +
-			"|\\x{FE0F}\\x{20E3}?" +
-			"|[\\x{E0020}-\\x{E007E}]+\\x{E007F}" +
-			")?" +
-			")" +
-			")*)");
+	// The following is taken from https://unicode.org/reports/tr51/
+	private static final Pattern EMOJI_PATTERN = Pattern.compile("([\\uD83C\\uDDE6-\\uD83C\\uDDFF]|\\p{IsEmoji}(\\p{IsEmoji_Modifier}|\\x{FE0F}\\x{20E3}?|[\\x{E0020}-\\x{E007E}]+\\x{E007F})?(\\x{200D}([\\uD83C\\uDDE6-\\uD83C\\uDDFF]|\\p{IsEmoji}(\\p{IsEmoji_Modifier}|\\x{FE0F}\\x{20E3}?|[\\x{E0020}-\\x{E007E}]+\\x{E007F})?)){0,256})");
 
 	private final EmojiService emojiService;
 

@@ -70,7 +70,7 @@ public final class SingleInstanceRun
 			if (lock != null)
 			{
 				result = true;
-				Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
+				Runtime.getRuntime().addShutdownHook(Thread.startVirtualThread(new ShutdownHook()));
 			}
 		}
 		catch (IOException | IllegalStateException | IllegalArgumentException e)

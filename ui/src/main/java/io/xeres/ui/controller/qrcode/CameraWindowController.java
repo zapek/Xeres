@@ -153,7 +153,7 @@ public class CameraWindowController implements WindowController
 			}
 		};
 		capturedImage.imageProperty().bind(imageProperty);
-		new Thread(cameraInitializer).start();
+		Thread.ofVirtual().name("Camera Handler").start(cameraInitializer);
 	}
 
 	private void stopCamera()

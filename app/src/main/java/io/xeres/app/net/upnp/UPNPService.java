@@ -114,8 +114,9 @@ public class UPNPService implements Runnable
 
 		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
 
-		thread = new Thread(this, "UPNP Service");
-		thread.start();
+		thread = Thread.ofVirtual()
+				.name("UPNP Service")
+				.start(this);
 	}
 
 	public void stop()

@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
  * Configuration of the scheduler. Just enables it. We also provide
  * a thread pool because by default it just uses one task for all
  * Scheduled beans.
+ * Note: Spring Boot currently doesn't support virtual threads in there. Revisit if it does one day.
  */
 @Configuration
 @EnableScheduling

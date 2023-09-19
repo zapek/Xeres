@@ -20,7 +20,6 @@
 package io.xeres.ui.support.emoji;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.properties.UiClientProperties;
 import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.image.Image;
@@ -42,7 +41,6 @@ public class EmojiService
 	private static final String DEFAULT_UNICODE = "2753"; // question mark
 	private static final String EMOJI_PATH = "/image/emojis/";
 	private static final String EMOJI_EXTENSION = ".png";
-	private static final Pattern CODE_DECIMAL_PATTERN = Pattern.compile("&#(\\d{1,10});");
 
 	private final UiClientProperties uiClientProperties;
 	private RsEmojiAlias rsEmojiAlias;
@@ -67,16 +65,16 @@ public class EmojiService
 	public String toUnicode(String input)
 	{
 		var s = SmileyUtils.smileysToUnicode(input); // ;-)
-		//s = EmojiParser.parseToUnicode(s); // :wink: XXX: to be replaced by the internal RS parser. remove once it's tested well enough
 		if (rsEmojiAlias != null)
 		{
 			s = parseRsEmojiAliases(s); // :wink:
 		}
-		if (uiClientProperties.isColoredEmojis())
-		{
-			s = EmojiParser.parseToHtmlDecimal(s); // make smileys into decimal html (&#1234;) so that they can be detected and colorized. XXX: to be replaced by direct code once JDK 21 is released
-		}
 		return s;
+	}
+
+	public boolean isColoredEmojis()
+	{
+		return uiClientProperties.isColoredEmojis();
 	}
 
 	private String parseRsEmojiAliases(String s)
@@ -131,25 +129,16 @@ public class EmojiService
 				.collect(Collectors.joining());
 	}
 
-	public Image getEmoji(String codeDecimal)
+	public Image getEmoji(String emoji)
 	{
-		return getImage(codeDecimalToUnicode(codeDecimal));
+		return getImage(emojiToFileName(emoji));
 	}
 
-	String codeDecimalToUnicode(String codeDecimal)
+	String emojiToFileName(String emoji)
 	{
-		StringBuilder result = new StringBuilder();
-
-		var matcher = CODE_DECIMAL_PATTERN.matcher(codeDecimal);
-		while (matcher.find())
-		{
-			if (!result.isEmpty())
-			{
-				result.append("-");
-			}
-			result.append(Integer.toHexString(Integer.parseUnsignedInt(matcher.group(1))));
-		}
-		return result.toString();
+		return emoji.codePoints()
+				.mapToObj(Integer::toHexString)
+				.collect(Collectors.joining("-"));
 	}
 
 	private Image getImage(String unicode)

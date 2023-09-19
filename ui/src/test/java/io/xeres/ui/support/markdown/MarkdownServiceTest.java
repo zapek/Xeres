@@ -6,7 +6,9 @@ import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.text.Text;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -24,6 +26,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MarkdownServiceTest extends FXTest
 {
 	@Mock
@@ -31,6 +34,12 @@ class MarkdownServiceTest extends FXTest
 
 	@InjectMocks
 	private MarkdownService markdownService;
+
+	@BeforeAll
+	void configureMock()
+	{
+		when(emojiService.isColoredEmojis()).thenReturn(true);
+	}
 
 	@Test
 	void MarkdownService_Parse_Sanitize_Default_OK()
@@ -246,7 +255,7 @@ class MarkdownServiceTest extends FXTest
 	{
 		var input = "https://zapek.com :-)\n";
 
-		when(emojiService.toUnicode(input)).thenReturn("https://zapek.com &#128578;\n");
+		when(emojiService.toUnicode(input)).thenReturn("https://zapek.com \uD83D\uDE42\n");
 
 		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
 
@@ -271,7 +280,7 @@ class MarkdownServiceTest extends FXTest
 		var line2 = "and another one: `fork();` it is\n";
 		var input = line1 + line2;
 
-		when(emojiService.toUnicode(line1)).thenReturn("https://zapek.com &#128578; **yeah**\n");
+		when(emojiService.toUnicode(line1)).thenReturn("https://zapek.com \uD83D\uDE42 **yeah**\n");
 		when(emojiService.toUnicode(line2)).thenReturn(line2);
 
 		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));

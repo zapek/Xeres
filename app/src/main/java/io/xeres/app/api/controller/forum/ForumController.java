@@ -133,7 +133,7 @@ public class ForumController
 
 		var author = identityRsService.findByGxsId(forumMessage.getAuthorId());
 
-		var messageSet = new HashSet<MessageId>(2); // they can be null so no Set.of() possible
+		HashSet<MessageId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
 		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getOriginalMessageId());
 		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getParentId());
 

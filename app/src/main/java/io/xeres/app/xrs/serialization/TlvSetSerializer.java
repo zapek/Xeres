@@ -86,7 +86,7 @@ final class TlvSetSerializer
 		log.trace("Reading set of longs");
 		var len = TlvUtils.checkTypeAndLength(buf, type);
 		var count = len / 8;
-		var set = new HashSet<Long>(count);
+		HashSet<Long> set = HashSet.newHashSet(count);
 
 		while (count-- > 0)
 		{
@@ -100,7 +100,7 @@ final class TlvSetSerializer
 		log.trace("Reading set of identifiers");
 		var len = TlvUtils.checkTypeAndLength(buf, type);
 		var count = len / IdentifierSerializer.getIdentifierLength(identifierClass);
-		var set = new HashSet<Identifier>(count);
+		HashSet<Identifier> set = HashSet.newHashSet(count);
 
 		while (count-- > 0)
 		{

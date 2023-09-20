@@ -83,7 +83,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	private String serviceString;
 
 	@ElementCollection
-	private Set<Signature> signatures = new HashSet<>(2);
+	private Set<Signature> signatures = HashSet.newHashSet(2);
 
 	@Transient
 	private int serviceType;

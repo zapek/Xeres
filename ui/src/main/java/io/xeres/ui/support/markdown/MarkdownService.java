@@ -33,8 +33,25 @@ public class MarkdownService
 	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HREF_PATTERN = Pattern.compile("<a href=\".{1,2083}?\">.{1,256}?</a>", Pattern.CASE_INSENSITIVE);
 	private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[.{0,256}]\\(.{0,264670}\\)"); // Maximum size of a gxs message + 30% of base 64 encoding
-	// The following is taken from https://unicode.org/reports/tr51/
-	private static final Pattern EMOJI_PATTERN = Pattern.compile("([\\uD83C\\uDDE6-\\uD83C\\uDDFF]|\\p{IsEmoji}(\\p{IsEmoji_Modifier}|\\x{FE0F}\\x{20E3}?|[\\x{E0020}-\\x{E007E}]+\\x{E007F})?(\\x{200D}([\\uD83C\\uDDE6-\\uD83C\\uDDFF]|\\p{IsEmoji}(\\p{IsEmoji_Modifier}|\\x{FE0F}\\x{20E3}?|[\\x{E0020}-\\x{E007E}]+\\x{E007F})?)){0,256})");
+	private static final Pattern EMOJI_PATTERN = Pattern.compile("(" +
+			"[\\x{1F1E6}-\\x{1F1FF}]{2}" + // Regional Indicator
+			"|(\\p{IsEmoji}" + // Emoji Sequence
+			"(\\p{IsEmoji_Modifier}" +
+			"|\\x{FE0F}\\x{20E3}?" + // Emoji Presentation Sequence (with optional Keycap)
+			"|[\\x{E0020}-\\x{E007E}]+\\x{E007F}" + // Emoji Tag Sequence
+			")" +
+			"|\\p{IsEmoji_Presentation}" + // Single Character Emoji
+			")" +
+			"(\\x{200D}" + // Emoji Zero-Width Joiner Sequence (ZWJ)
+			"(\\p{IsEmoji}" +
+			"(\\p{IsEmoji_Modifier}" +
+			"|\\x{FE0F}\\x{20E3}?" +
+			"|[\\x{E0020}-\\x{E007E}]+\\x{E007F}" +
+			")" +
+			"|\\p{IsEmoji_Presentation}" +
+			")" +
+			"){0,256}" +
+			")");
 
 	private final EmojiService emojiService;
 
@@ -88,11 +105,6 @@ public class MarkdownService
 				processPattern(BOLD_AND_ITALIC_PATTERN, context, line,
 						(s, groupName) -> context.addContent(new ContentEmphasis(s.substring(groupName.startsWith("b") ? 2 : 1, s.length() - (groupName.startsWith("b") ? 2 : 1)), EnumSet.of(groupName.startsWith("b") ? ContentEmphasis.Style.BOLD : ContentEmphasis.Style.ITALIC))));
 			}
-			else if (emojiService.isColoredEmojis() && !line.chars().allMatch(c -> c < 128)) // detects non ascii
-			{
-				processPattern(EMOJI_PATTERN, context, line,
-						(s, groupName) -> context.addContent(new ContentEmoji(emojiService.getEmoji(s))));
-			}
 			else if (line.contains("<a href=")) // inline HTML
 			{
 				processPattern(HREF_PATTERN, context, line,
@@ -117,6 +129,11 @@ public class MarkdownService
 								context.addContent(new ContentText("[image corrupted]"));
 							}
 						});
+			}
+			else if (emojiService.isColoredEmojis() && !line.chars().allMatch(c -> c < 128)) // Detects non ascii
+			{
+				processPattern(EMOJI_PATTERN, context, line,
+						(s, groupName) -> context.addContent(new ContentEmoji(emojiService.getEmoji(s))));
 			}
 			else
 			{

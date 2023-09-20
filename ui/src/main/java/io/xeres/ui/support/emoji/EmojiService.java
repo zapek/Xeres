@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.ui.properties.UiClientProperties;
 import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.image.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -38,6 +40,8 @@ import java.util.stream.Collectors;
 @Service
 public class EmojiService
 {
+	private static final Logger log = LoggerFactory.getLogger(EmojiService.class);
+
 	private static final String DEFAULT_UNICODE = "2753"; // question mark
 	private static final String EMOJI_PATH = "/image/emojis/";
 	private static final String EMOJI_EXTENSION = ".png";
@@ -136,9 +140,15 @@ public class EmojiService
 
 	String emojiToFileName(String emoji)
 	{
-		return emoji.codePoints()
+		var fileName = emoji.codePoints()
 				.mapToObj(Integer::toHexString)
 				.collect(Collectors.joining("-"));
+		if (!fileName.contains("-200d")) // Twemoji doesn't use the fully qualified names
+		{
+			fileName = fileName.replace("-fe0f", "");
+		}
+		log.debug("Emoji to filename: {} -> {}", emoji, fileName);
+		return fileName;
 	}
 
 	private Image getImage(String unicode)

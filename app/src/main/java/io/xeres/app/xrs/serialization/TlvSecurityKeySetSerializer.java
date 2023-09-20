@@ -76,7 +76,7 @@ final class TlvSecurityKeySetSerializer
 		}
 		len -= TlvStringSerializer.getSize("");
 
-		Set<SecurityKey> securityKeys = new HashSet<>(2);
+		Set<SecurityKey> securityKeys = HashSet.newHashSet(2);
 		while (len > 0)
 		{
 			var securityKey = (SecurityKey) TlvSerializer.deserialize(buf, SECURITY_KEY);

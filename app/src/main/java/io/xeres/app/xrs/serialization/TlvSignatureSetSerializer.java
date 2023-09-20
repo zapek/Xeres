@@ -68,7 +68,7 @@ final class TlvSignatureSetSerializer
 		log.trace("Reading TlvSignatureSet");
 		var len = TlvUtils.checkTypeAndLength(buf, SIGNATURE_SET);
 
-		Set<Signature> signatures = new HashSet<>(2);
+		Set<Signature> signatures = HashSet.newHashSet(2);
 
 		while (len > 0)
 		{

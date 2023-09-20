@@ -105,6 +105,11 @@ public class MarkdownService
 				processPattern(BOLD_AND_ITALIC_PATTERN, context, line,
 						(s, groupName) -> context.addContent(new ContentEmphasis(s.substring(groupName.startsWith("b") ? 2 : 1, s.length() - (groupName.startsWith("b") ? 2 : 1)), EnumSet.of(groupName.startsWith("b") ? ContentEmphasis.Style.BOLD : ContentEmphasis.Style.ITALIC))));
 			}
+			else if (emojiService.isColoredEmojis() && !line.chars().allMatch(c -> c < 128)) // detects non ascii
+			{
+				processPattern(EMOJI_PATTERN, context, line,
+						(s, groupName) -> context.addContent(new ContentEmoji(emojiService.getEmoji(s))));
+			}
 			else if (line.contains("<a href=")) // inline HTML
 			{
 				processPattern(HREF_PATTERN, context, line,

@@ -129,7 +129,7 @@ public class EmojiService
 	private String getCodepoints(String unicode)
 	{
 		return Arrays.stream(unicode.split("-"))
-				.map(s -> Character.toString(Integer.parseUnsignedInt(unicode, 16)))
+				.map(s -> Character.toString(Integer.parseUnsignedInt(s, 16)))
 				.collect(Collectors.joining());
 	}
 

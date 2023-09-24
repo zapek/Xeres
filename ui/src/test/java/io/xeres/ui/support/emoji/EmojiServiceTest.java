@@ -51,6 +51,7 @@ class EmojiServiceTest
 	void EmojiService_toUnicode_OK(String input, String expected)
 	{
 		when(uiClientProperties.isColoredEmojis()).thenReturn(false);
+		when(uiClientProperties.isSmileyToUnicode()).thenReturn(true);
 		when(uiClientProperties.isRsEmojisAliases()).thenReturn(true);
 
 		var emojiService = createEmojiService();

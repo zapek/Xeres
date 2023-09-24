@@ -12,7 +12,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -32,8 +31,13 @@ class MarkdownServiceTest extends FXTest
 	@Mock
 	private EmojiService emojiService;
 
-	@InjectMocks
-	private MarkdownService markdownService;
+	// We cannot use @InjectMocks because MarkdownService performs
+	// computations that requires mocks in the constructor and that
+	// is executed before "when" statements can be done.
+	private MarkdownService createMarkdownService()
+	{
+		return new MarkdownService(emojiService);
+	}
 
 	@BeforeAll
 	void configureMock()
@@ -44,6 +48,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Parse_Sanitize_Default_OK()
 	{
+		var markdownService = createMarkdownService();
+
 		var text = """
 				Line1
 
@@ -79,6 +85,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Parse_Sanitize_Default_Verbatim_OK()
 	{
+		var markdownService = createMarkdownService();
+
 		var text = """
 				Line1
 				> Line2
@@ -101,6 +109,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Parse_Sanitize_Quoted_OK()
 	{
+		var markdownService = createMarkdownService();
+
 		var text = """
 				> Line1
 				> Line2
@@ -125,6 +135,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Sanitize_NoEndOfLine_OK()
 	{
+		var markdownService = createMarkdownService();
+
 		var text = """
 				Line1
 
@@ -149,6 +161,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Sanitize_Paragraph_OK()
 	{
+		var markdownService = createMarkdownService();
+
 		var text = """
 				Line1
 
@@ -180,6 +194,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_ParseInlineUrls_OK()
 	{
+		var markdownService = createMarkdownService();
+
 		var input = "Hello world! https://xeres.io is the site to visit now!";
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
@@ -196,6 +212,23 @@ class MarkdownServiceTest extends FXTest
 		assertEquals(" is the site to visit now!", ((Text) output.get(2).getNode()).getText());
 	}
 
+	@Test
+	void MarkdownService_ParseInlineUrls_WeirdChars_OK()
+	{
+		var markdownService = createMarkdownService();
+
+		var input = "https://www.foobar.com/watch?v=aXfS2p_ZyHY";
+
+		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
+
+		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
+
+		assertEquals(1, output.size());
+		assertInstanceOf(ContentUri.class, output.get(0));
+
+		assertEquals(input, ((Hyperlink) output.get(0).getNode()).getText());
+	}
+
 	@ParameterizedTest
 	@CsvSource({
 			"    foo();, foo();",
@@ -204,6 +237,8 @@ class MarkdownServiceTest extends FXTest
 	})
 	void MarkdownService_RemoveFirstStartingSpacesCode(String input, String expected)
 	{
+		var markdownService = createMarkdownService();
+
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
 		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
@@ -214,6 +249,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Parse_Empty()
 	{
+		var markdownService = createMarkdownService();
+
 		var input = "\n";
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
@@ -226,6 +263,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Parse_Empty_Too()
 	{
+		var markdownService = createMarkdownService();
+
 		var input = "\n\n";
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
@@ -238,6 +277,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Parse_Simple_Text()
 	{
+		var markdownService = createMarkdownService();
+
 		var input = "hello, world\n";
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
@@ -253,6 +294,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Parse_OneLine_Several()
 	{
+		var markdownService = createMarkdownService();
+
 		var input = "https://zapek.com :-)\n";
 
 		when(emojiService.toUnicode(input)).thenReturn("https://zapek.com \uD83D\uDE42\n");
@@ -276,6 +319,8 @@ class MarkdownServiceTest extends FXTest
 	@Test
 	void MarkdownService_Parse_Multiline_Several()
 	{
+		var markdownService = createMarkdownService();
+
 		var line1 = "https://zapek.com :-) **yeah**\n";
 		var line2 = "and another one: `fork();` it is\n";
 		var input = line1 + line2;

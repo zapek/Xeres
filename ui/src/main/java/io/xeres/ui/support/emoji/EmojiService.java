@@ -68,7 +68,11 @@ public class EmojiService
 
 	public String toUnicode(String input)
 	{
-		var s = SmileyUtils.smileysToUnicode(input); // ;-)
+		var s = input;
+		if (uiClientProperties.isSmileyToUnicode())
+		{
+			s = SmileyUtils.smileysToUnicode(input); // ;-)
+		}
 		if (rsEmojiAlias != null)
 		{
 			s = parseRsEmojiAliases(s); // :wink:

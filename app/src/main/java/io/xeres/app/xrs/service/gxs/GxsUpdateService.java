@@ -39,7 +39,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
- * Helper service to manage group updates comparisons.
+ * Helper service to manage group and message updates comparisons.
  */
 @Service
 public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
@@ -71,6 +71,14 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
+	/**
+	 * Gets the last update of the peer's group messages. The peer's time is always used, not our local time.
+	 *
+	 * @param location    the peer's location.
+	 * @param groupId     the group's gxs id.
+	 * @param serviceType the service type.
+	 * @return the time when the peer last updated its group messages, in peer's time
+	 */
 	public Instant getLastPeerMessagesUpdate(Location location, GxsId groupId, RsServiceType serviceType)
 	{
 		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())

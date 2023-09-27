@@ -76,7 +76,7 @@ public class GxsTransactionManager
 	}
 
 	/**
-	 * Starts an outgoing transaction to request a list of gxs group IDs.
+	 * Starts an outgoing transaction to request a list of gxs group IDs that we want the peer to transfer to us.
 	 *
 	 * @param peerConnection the peer
 	 * @param items          gxs group IDs
@@ -90,7 +90,7 @@ public class GxsTransactionManager
 	}
 
 	/**
-	 * Starts an outgoing transaction to request a list of gxs message IDs.
+	 * Starts an outgoing transaction to request a list of gxs message IDs that we want the peer to transfer to us.
 	 *
 	 * @param peerConnection the peer
 	 * @param items          gxs message IDs
@@ -104,7 +104,7 @@ public class GxsTransactionManager
 	}
 
 	/**
-	 * Starts an outgoing transaction to respond with a list of gxs group IDs.
+	 * Starts an outgoing transaction to respond with a list of gxs group IDs that we have and their update time.
 	 *
 	 * @param peerConnection the peer
 	 * @param items          gxs group IDs
@@ -119,7 +119,7 @@ public class GxsTransactionManager
 	}
 
 	/**
-	 * Starts an outgoing transaction to respond with a list of gxs message IDs.
+	 * Starts an outgoing transaction to respond with a list of gxs message IDs that we have and their update time.
 	 *
 	 * @param peerConnection the peer
 	 * @param items          gxs message IDs

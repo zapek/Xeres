@@ -157,11 +157,11 @@ Pass the following arguments to run multiple instances.
 
 Location A:
 
-	--data-dir=./data2 --control-port=1068
+	--data-dir=./data2
 
 Location B:
 
-	--data-dir=./data3 --control-port=1069
+	--data-dir=./data3
 
 ### Monitoring
 

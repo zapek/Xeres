@@ -173,6 +173,7 @@ public final class UiUtils
 	public static void setDefaultStyle(Scene scene)
 	{
 		scene.getStylesheets().add("/view/javafx.css");
+		//scene.getStylesheets().add("/view/javafx-dark.css");
 	}
 
 	/**

@@ -65,13 +65,6 @@ public class LocationService
 
 	private static final int KEY_SIZE = 3072;
 
-	public enum UpdateConnectionStatus
-	{
-		UPDATED,
-		ADDED,
-		FAILED
-	}
-
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
 	private final LocationRepository locationRepository;
@@ -269,24 +262,24 @@ public class LocationService
 	}
 
 	@Transactional
-	public UpdateConnectionStatus updateConnection(Location location, PeerAddress peerAddress)
+	public void updateConnection(Location location, PeerAddress peerAddress)
 	{
 		if (peerAddress.isInvalid())
 		{
-			return UpdateConnectionStatus.FAILED;
+			return;
 		}
 
 		if (location.isOwn())
 		{
-			return updateOwnConnection(location, peerAddress);
+			updateOwnConnection(location, peerAddress);
 		}
 		else
 		{
-			return updateOtherConnection(location, peerAddress);
+			updateOtherConnection(location, peerAddress);
 		}
 	}
 
-	private UpdateConnectionStatus updateOwnConnection(Location location, PeerAddress peerAddress)
+	private void updateOwnConnection(Location location, PeerAddress peerAddress)
 	{
 		var updated = false;
 
@@ -301,17 +294,13 @@ public class LocationService
 
 		if (!updated)
 		{
-			updated = location.addConnection(Connection.from(peerAddress));
+			location.addConnection(Connection.from(peerAddress));
 		}
-		locationRepository.save(location);
-		return updated ? UpdateConnectionStatus.UPDATED : UpdateConnectionStatus.ADDED;
 	}
 
-	private UpdateConnectionStatus updateOtherConnection(Location location, PeerAddress peerAddress)
+	private void updateOtherConnection(Location location, PeerAddress peerAddress)
 	{
-		var updated = location.addConnection(Connection.from(peerAddress));
-		locationRepository.save(location);
-		return updated ? UpdateConnectionStatus.UPDATED : UpdateConnectionStatus.FAILED;
+		location.addConnection(Connection.from(peerAddress));
 	}
 
 	public String getHostname() throws UnknownHostException

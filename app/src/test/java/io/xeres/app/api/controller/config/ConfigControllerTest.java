@@ -40,7 +40,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -174,7 +173,6 @@ class ConfigControllerTest extends AbstractControllerTest
 		var PORT = 6667;
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(Location.createLocation("foo")));
-		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenReturn(LocationService.UpdateConnectionStatus.ADDED);
 
 		var request = new IpAddressRequest(IP, PORT);
 
@@ -186,47 +184,10 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_UpdateExternalIpAddress_Update_OK() throws Exception
-	{
-		var IP = "1.1.1.1";
-		var PORT = 6667;
-
-		when(locationService.findOwnLocation()).thenReturn(Optional.of(Location.createLocation("foo")));
-		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenReturn(LocationService.UpdateConnectionStatus.UPDATED);
-
-		var request = new IpAddressRequest(IP, PORT);
-
-
-		mvc.perform(putJson(BASE_URL + "/externalIp", request))
-				.andExpect(status().isNoContent());
-
-		verify(locationService).updateConnection(any(Location.class), any(PeerAddress.class));
-	}
-
-	@Test
-	void ConfigController_UpdateExternalIpAddress_Update_NoConnection_Fail() throws Exception
-	{
-		var IP = "1.1.1.1";
-		var PORT = 6667;
-
-		when(locationService.findOwnLocation()).thenReturn(Optional.of(Location.createLocation("foo")));
-		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenThrow(NoSuchElementException.class);
-
-		var request = new IpAddressRequest(IP, PORT);
-
-		mvc.perform(putJson(BASE_URL + "/externalIp", request))
-				.andExpect(status().isNotFound());
-
-		verify(locationService).updateConnection(any(Location.class), any(PeerAddress.class));
-	}
-
-	@Test
 	void ConfigController_UpdateExternalIpAddress_Update_WrongIp_Fail() throws Exception
 	{
 		var IP = "1.1.1.1.1";
 		var PORT = 6667;
-
-		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenThrow(NoSuchElementException.class);
 
 		var request = new IpAddressRequest(IP, PORT);
 
@@ -239,8 +200,6 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var IP = "192.168.1.38";
 		var PORT = 6667;
-
-		when(locationService.updateConnection(any(Location.class), any(PeerAddress.class))).thenThrow(NoSuchElementException.class);
 
 		var request = new IpAddressRequest(IP, PORT);
 

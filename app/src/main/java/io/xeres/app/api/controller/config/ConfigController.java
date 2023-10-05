@@ -156,29 +156,22 @@ public class ConfigController
 	@PutMapping("/externalIp")
 	@Operation(summary = "Set or update the external IP address and port.", description = "Note that an external IP address is not strictly required if for example the host is on a public IP already.")
 	@ApiResponse(responseCode = "201", description = "IP address set successfully", headers = @Header(name = "Location", description = "The location of where to get the IP address", schema = @Schema(type = "string")))
-	@ApiResponse(responseCode = "204", description = "IP address updated successfully")
 	public ResponseEntity<Void> updateExternalIpAddress(@Valid @RequestBody IpAddressRequest request)
 	{
 		log.info("External IP address: {}", request);
 		var peerAddress = PeerAddress.from(request.ip(), request.port());
+		if (peerAddress.isInvalid())
+		{
+			throw new IllegalArgumentException("IP is invalid");
+		}
 		if (!peerAddress.isExternal())
 		{
 			throw new IllegalArgumentException("Wrong external IP address");
 		}
 
-		switch (locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress))
-		{
-			case ADDED ->
-			{
-				var location = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
-				return ResponseEntity.created(location).build();
-			}
-			case UPDATED ->
-			{
-				return ResponseEntity.noContent().build();
-			}
-			default -> throw new IllegalStateException();
-		}
+		locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress);
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
+		return ResponseEntity.created(location).build();
 	}
 
 	@GetMapping("/externalIp")

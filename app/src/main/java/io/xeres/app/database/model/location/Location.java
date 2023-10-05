@@ -175,9 +175,8 @@ public class Location
 	 * Add a connection while avoiding duplicates.
 	 *
 	 * @param connection the connection to add
-	 * @return true if added, false if it's already present
 	 */
-	public boolean addConnection(Connection connection)
+	public void addConnection(Connection connection)
 	{
 		var connectionAlreadyExists = getConnections().stream()
 				.filter(existingConnection -> existingConnection.equals(connection))
@@ -187,9 +186,7 @@ public class Location
 		{
 			connection.setLocation(this);
 			getConnections().add(connection);
-			return true;
 		}
-		return false;
 	}
 
 	public Profile getProfile()

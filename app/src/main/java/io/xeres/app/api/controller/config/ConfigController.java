@@ -114,7 +114,7 @@ public class ConfigController
 	@ApiResponse(responseCode = "200", description = "Location already exists")
 	@ApiResponse(responseCode = "201", description = "Location created successfully", headers = @Header(name = "Location", description = "The location of the created location", schema = @Schema(type = "string")))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<Void> createLocation(@Valid @RequestBody OwnLocationRequest ownLocationRequest)
+	public ResponseEntity<Void> createOwnLocation(@Valid @RequestBody OwnLocationRequest ownLocationRequest)
 	{
 		var name = ownLocationRequest.name();
 		log.debug("Processing creation of Location {}", name);

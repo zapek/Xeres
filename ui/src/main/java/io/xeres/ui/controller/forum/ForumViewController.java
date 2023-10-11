@@ -179,7 +179,6 @@ public class ForumViewController implements Controller
 		forumTree.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue())));
 
-		// XXX: add double click
 		forumTree.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2 && isForumSelected())
 			{
@@ -368,7 +367,10 @@ public class ForumViewController implements Controller
 		if (!alreadySubscribed)
 		{
 			forumClient.subscribeToForumGroup(forumGroup.getId())
-					.doOnSuccess(forumId -> addOrUpdate(subscribedForums.getChildren(), forumGroup))
+					.doOnSuccess(forumId -> {
+						forumGroup.setSubscribed(true);
+						addOrUpdate(subscribedForums.getChildren(), forumGroup);
+					})
 					.subscribe();
 		}
 	}
@@ -379,7 +381,10 @@ public class ForumViewController implements Controller
 				.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().equals(forumGroup))
 				.findAny()
 				.ifPresent(forumHolderTreeItem -> forumClient.unsubscribeFromForumGroup(forumGroup.getId())
-						.doOnSuccess(unused -> addOrUpdate(popularForums.getChildren(), forumGroup)) // XXX: wrong, could be something else then "otherForums"
+						.doOnSuccess(unused -> {
+							forumGroup.setSubscribed(false);
+							addOrUpdate(popularForums.getChildren(), forumGroup);
+						}) // XXX: wrong, could be something else then "otherForums"
 						.subscribe());
 	}
 

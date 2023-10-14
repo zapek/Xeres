@@ -25,6 +25,7 @@ import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
+import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.forum.ForumMapper;
 import jakarta.annotation.PostConstruct;
@@ -32,6 +33,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
@@ -139,13 +142,13 @@ public class ForumClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> setForumMessageRead(long messageId, boolean read)
+	public Mono<Void> updateForumMessagesRead(Map<Long, Boolean> messages)
 	{
-		return webClient.put()
-				.uri(uriBuilder -> uriBuilder
-						.path("/messages/{messageId}/flags")
-						.queryParam("read", read)
-						.build(messageId))
+		var request = new UpdateForumMessagesReadRequest(messages);
+
+		return webClient.patch()
+				.uri("/messages")
+				.bodyValue(request)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}

@@ -35,6 +35,7 @@ import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
+import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
@@ -166,10 +167,11 @@ public class ForumController
 		return ResponseEntity.created(location).build();
 	}
 
-	@PutMapping("messages/{messageId}/flags")
+	@PatchMapping("/messages")
+	@Operation(summary = "Modifies forum messages read flag")
 	@ResponseStatus(HttpStatus.OK)
-	public void setMessageRead(@PathVariable long messageId, @RequestParam boolean read)
+	public void updateMessagesReadFlags(@Valid @RequestBody UpdateForumMessagesReadRequest updateForumMessagesReadRequest)
 	{
-		forumRsService.setForumMessageAsRead(messageId, read);
+		forumRsService.setForumMessagesAsRead(updateForumMessagesReadRequest.messageMap());
 	}
 }

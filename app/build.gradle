@@ -1,3 +1,5 @@
+import org.panteleyev.jpackage.ImageType
+
 /*
  * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
  *
@@ -122,6 +124,11 @@ jpackage {
                    '-Dlogging.logback.rollingpolicy.clean-history-on-start=true',
                    '-Dlogging.logback.rollingpolicy.max-file-size=1MB',
                    '-Dlogging.logback.rollingpolicy.max-history=3']
+    if (project.hasProperty("jpackage.msi")) {
+        type = ImageType.MSI
+    } else if (project.hasProperty("jpackage.rpm")) {
+        type = ImageType.RPM
+    }
     windows {
         winMenu = true
         winPerUserInstall = true

@@ -222,7 +222,7 @@ public class MainWindowController implements WindowController
 		changeOwnIdentityPicture.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("main.select-avatar"));
-			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.jfif"));
+			fileChooser.getExtensionFilters().addAll(new ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
 			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
 			{
@@ -235,7 +235,7 @@ public class MainWindowController implements WindowController
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle("Select the output profile");
 			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
-			fileChooser.getExtensionFilters().add(new ExtensionFilter("XML files", "*.xml"));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.images"), "*.xml"));
 			fileChooser.setInitialFileName("xeres_backup.xml");
 			var selectedFile = fileChooser.showSaveDialog(UiUtils.getWindow(event));
 			if (selectedFile != null)

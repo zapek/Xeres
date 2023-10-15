@@ -212,7 +212,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(BroadcastWindowController.class)
 						.setParent(parent)
-						.setTitle("Broadcast")
+						.setTitle(bundle.getString("broadcast.window-title"))
 						.build()
 						.open());
 	}
@@ -274,7 +274,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ForumEditorViewController.class)
 						.setParent(parent) // XXX: needs to become multi modal to avoid blocking (useful to browse other posts while we write)
-						.setTitle("New message")
+						.setTitle(bundle.getString("forum.new-message.window-title"))
 						.setUserData(postRequest)
 						.build()
 						.open());
@@ -285,7 +285,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ForumCreationWindowController.class)
 						.setParent(parent)
-						.setTitle("Create forum")
+						.setTitle(bundle.getString("forum.create.window-title"))
 						.build()
 						.open());
 	}

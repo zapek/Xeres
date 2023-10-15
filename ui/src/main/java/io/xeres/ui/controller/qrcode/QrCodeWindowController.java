@@ -155,7 +155,7 @@ public class QrCodeWindowController implements WindowController
 	{
 		var fileChooser = new FileChooser();
 		fileChooser.setTitle(bundle.getString("qrcode.save-as-png"));
-		fileChooser.getExtensionFilters().add(new ExtensionFilter("PNG files", "*.png"));
+		fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.png"), "*.png"));
 		var selectedFile = fileChooser.showSaveDialog(window);
 		if (selectedFile != null && (!selectedFile.exists() || selectedFile.canWrite()))
 		{

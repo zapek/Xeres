@@ -134,7 +134,7 @@
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0"
-                          text="Olivier Piras&#10;for coming up with the name&#10;&#10;Nicolas Dirand&#10;for raising a statue in my image in his village&#10;&#10;Cyril Soler&#10;for answering my silly questions&#10;&#10;The Retroshare developers&#10;for coming up with the most interesting P2P concepts"/>
+                          text="Olivier Piras&#10;for coming up with the name&#10;&#10;Nicolas Dirand&#10;for raising a statue in my image in his village&#10;&#10;Cyril Soler&#10;for answering my silly questions&#10;&#10;Adrien Gerber&#10;for testing the emojis&#10;&#10;The Retroshare developers&#10;for coming up with the most interesting P2P concepts"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>

@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ResourceBundle;
+
 @Component
 @FxmlView(value = "/view/messaging/peers.fxml")
 public class PeersWindowController implements WindowController
@@ -51,14 +53,16 @@ public class PeersWindowController implements WindowController
 	private final ProfileClient profileClient;
 	private final ConnectionClient connectionClient;
 	private final WindowManager windowManager;
+	private final ResourceBundle bundle;
 
 	private XContextMenu<PeerHolder> peerHolderXContextMenu;
 
-	public PeersWindowController(ProfileClient profileClient, ConnectionClient connectionClient, WindowManager windowManager)
+	public PeersWindowController(ProfileClient profileClient, ConnectionClient connectionClient, WindowManager windowManager, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
 		this.connectionClient = connectionClient;
 		this.windowManager = windowManager;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -114,7 +118,7 @@ public class PeersWindowController implements WindowController
 
 	private void createPeersTreeContextMenu()
 	{
-		var directMessage = new MenuItem("Direct message");
+		var directMessage = new MenuItem(bundle.getString("peers.direct-message"));
 		directMessage.setOnAction(event -> directMessage(((PeerHolder) event.getSource())));
 
 		peerHolderXContextMenu = new XContextMenu<>(peersTree, directMessage);

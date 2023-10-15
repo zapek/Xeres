@@ -52,7 +52,7 @@
     </GridPane>
     <TitledPane styleClass="flat-titledpane" expanded="false" text="Options" VBox.vgrow="ALWAYS">
         <HBox style="-fx-padding: 0px 8px 0px 12px;">
-            <Button fx:id="importBackup" text="Import..."/>
+            <Button fx:id="importBackup" text="%account.generation.import"/>
         </HBox>
     </TitledPane>
     <ProgressIndicator fx:id="progress" prefWidth="27.0" visible="false"/>

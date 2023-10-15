@@ -33,7 +33,7 @@
                 <FontAwesomeIconView glyphName="BOLD" glyphSize="14"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="Bold"/>
+                <Tooltip showDuration="1m" text="%editorview.action.bold"/>
             </tooltip>
         </Button>
         <Button fx:id="italic" focusTraversable="false">
@@ -41,7 +41,7 @@
                 <FontAwesomeIconView glyphName="ITALIC" glyphSize="14"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="Italic"/>
+                <Tooltip showDuration="1m" text="%editorview.action.italic"/>
             </tooltip>
         </Button>
         <Button fx:id="hyperlink" focusTraversable="false">
@@ -52,7 +52,7 @@
                 <FontAwesomeIconView glyphName="LINK" glyphSize="14"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="Hyperlink"/>
+                <Tooltip showDuration="1m" text="%editorview.action.hyperlink"/>
             </tooltip>
         </Button>
         <Button fx:id="quote" focusTraversable="false">
@@ -60,7 +60,7 @@
                 <FontAwesomeIconView glyphName="QUOTE_LEFT" glyphSize="14"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="Quote"/>
+                <Tooltip showDuration="1m" text="%editorview.action.quote"/>
             </tooltip>
         </Button>
         <Button fx:id="code" focusTraversable="false">
@@ -68,7 +68,7 @@
                 <FontAwesomeIconView glyphName="CODE" glyphSize="14"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="Code"/>
+                <Tooltip showDuration="1m" text="%editorview.action.code"/>
             </tooltip>
         </Button>
         <Button fx:id="list" focusTraversable="false">
@@ -79,7 +79,7 @@
                 <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="List"/>
+                <Tooltip showDuration="1m" text="%editorview.action.list"/>
             </tooltip>
         </Button>
         <Button fx:id="heading" focusTraversable="false">
@@ -87,7 +87,7 @@
                 <FontAwesomeIconView glyphName="HEADER" glyphSize="14"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="Header"/>
+                <Tooltip showDuration="1m" text="%editorview.action.header"/>
             </tooltip>
         </Button>
     </HBox>

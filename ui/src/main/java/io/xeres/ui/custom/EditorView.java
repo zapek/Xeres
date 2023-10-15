@@ -19,6 +19,7 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
@@ -33,6 +34,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -68,11 +70,15 @@ public class EditorView extends VBox
 	@FXML
 	private TextArea editor;
 
+	private final ResourceBundle bundle;
+
 	public final ReadOnlyIntegerWrapper lengthProperty = new ReadOnlyIntegerWrapper();
 
 	public EditorView()
 	{
-		var loader = new FXMLLoader(getClass().getResource("/view/custom/editorview.fxml")); // XXX: translation bundle? how?
+		bundle = I18nUtils.getBundle();
+
+		var loader = new FXMLLoader(getClass().getResource("/view/custom/editorview.fxml"), bundle);
 		loader.setRoot(this);
 		loader.setController(this);
 
@@ -224,9 +230,9 @@ public class EditorView extends VBox
 		var selection = editor.getSelection();
 
 		var dialog = new TextInputDialog();
-		dialog.setTitle("Insert Hyperlink");
+		dialog.setTitle(bundle.getString("editorview.hyperlink.insert"));
 		dialog.setGraphic(null);
-		dialog.setHeaderText("Enter URL");
+		dialog.setHeaderText(bundle.getString("editorview.hyperlink.enter"));
 		dialog.initOwner(parent);
 
 		dialog.showAndWait().ifPresent(link -> {

@@ -82,7 +82,7 @@
                     <FontAwesomeIconView glyphName="GLOBE" glyphSize="14"/>
                 </graphic>
             </MenuItem>
-            <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="Export...">
+            <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="%main.menu.tools.export">
                 <graphic>
                     <FontAwesomeIconView glyphName="SAVE" glyphSize="14"/>
                 </graphic>

@@ -101,15 +101,15 @@ public class AccountCreationWindowController implements WindowController
 
 		importBackup.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle("Select a profile file");
+			fileChooser.setTitle(bundle.getString("account.generation.profile-load"));
 			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
-			fileChooser.getExtensionFilters().add(new ExtensionFilter("XML files", "*.xml"));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
 			var selectedFile = fileChooser.showOpenDialog(UiUtils.getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
 			{
 				configClient.sendBackup(selectedFile)
 						.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
-						.doOnError(e -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.ERROR, "Couldn't import from backup: " + e.getMessage())))
+						.doOnError(e -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("account.generation.profile-load.error"), e.getMessage()))))
 						.subscribe();
 			}
 		});

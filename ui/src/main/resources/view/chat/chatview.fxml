@@ -36,7 +36,7 @@
                         <FontAwesomeIconView glyphName="PLUS" glyphSize="14"/>
                     </graphic>
                     <tooltip>
-                        <Tooltip showDuration="1m" text="Create a new chat room"/>
+                        <Tooltip showDuration="1m" text="%chat.room.create.tooltip"/>
                     </tooltip>
                 </Button>
             </HBox>

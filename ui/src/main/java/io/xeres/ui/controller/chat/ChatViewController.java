@@ -708,7 +708,7 @@ public class ChatViewController implements Controller
 
 	public void openInvite(long chatRoomId, ChatRoomInviteEvent event)
 	{
-		Platform.runLater(() -> UiUtils.alertConfirm(event.getLocationId() + " wants to invite you to " + event.getRoomName() + "(" + event.getRoomTopic() + ")",
+		Platform.runLater(() -> UiUtils.alertConfirm(MessageFormat.format(bundle.getString("chat.room.invite.request"), event.getLocationId(), event.getRoomName(), event.getRoomTopic()),
 				() -> chatClient.joinChatRoom(chatRoomId).subscribe())
 		);
 	}

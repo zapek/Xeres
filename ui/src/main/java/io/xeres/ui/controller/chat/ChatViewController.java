@@ -155,8 +155,6 @@ public class ChatViewController implements Controller
 	private Node roomInfoView;
 	private ChatRoomInfoController chatRoomInfoController;
 
-	private XContextMenu<RoomHolder> roomHolderXContextMenu;
-
 	private Instant lastTypingNotification = Instant.EPOCH;
 
 	private double[] dividerPositions;
@@ -261,7 +259,7 @@ public class ChatViewController implements Controller
 		unsubscribeItem.setId(UNSUBSCRIBED_MENU_ID);
 		unsubscribeItem.setOnAction(event -> leaveChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
-		roomHolderXContextMenu = new XContextMenu<>(roomTree, subscribeItem, unsubscribeItem);
+		var roomHolderXContextMenu = new XContextMenu<RoomHolder>(roomTree, subscribeItem, unsubscribeItem);
 		roomHolderXContextMenu.setOnShowing((contextMenu, roomHolder) -> {
 			var chatRoomInfo = roomHolder.getRoomInfo();
 

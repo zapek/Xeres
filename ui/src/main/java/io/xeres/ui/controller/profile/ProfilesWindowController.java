@@ -66,8 +66,6 @@ public class ProfilesWindowController implements WindowController
 	@FXML
 	private TableColumn<Profile, Trust> tableTrust;
 
-	private XContextMenu<Profile> profileXContextMenu;
-
 	public ProfilesWindowController(ProfileClient profileClient)
 	{
 		this.profileClient = profileClient;
@@ -115,7 +113,7 @@ public class ProfilesWindowController implements WindowController
 			}
 		});
 
-		profileXContextMenu = new XContextMenu<>(profilesTableView, deleteItem);
+		var profileXContextMenu = new XContextMenu<Profile>(profilesTableView, deleteItem);
 		profileXContextMenu.setOnShowing((contextMenu, profile) -> profile.getId() != OWN_PROFILE_ID);
 	}
 }

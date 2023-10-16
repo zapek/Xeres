@@ -55,8 +55,6 @@ public class PeersWindowController implements WindowController
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
 
-	private XContextMenu<PeerHolder> peerHolderXContextMenu;
-
 	public PeersWindowController(ProfileClient profileClient, ConnectionClient connectionClient, WindowManager windowManager, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
@@ -121,7 +119,7 @@ public class PeersWindowController implements WindowController
 		var directMessage = new MenuItem(bundle.getString("peers.direct-message"));
 		directMessage.setOnAction(event -> directMessage(((PeerHolder) event.getSource())));
 
-		peerHolderXContextMenu = new XContextMenu<>(peersTree, directMessage);
+		new XContextMenu<PeerHolder>(peersTree, directMessage);
 	}
 
 	private void directMessage(PeerHolder peerHolder)

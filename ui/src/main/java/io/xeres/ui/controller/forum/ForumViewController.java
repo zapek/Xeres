@@ -136,9 +136,6 @@ public class ForumViewController implements Controller
 
 	private Disposable notificationDisposable;
 
-	private XContextMenu<ForumGroup> forumGroupXContextMenu;
-	private XContextMenu<ForumMessage> forumMessageXContextMenu;
-
 	private TreeItem<ForumMessage> forumMessagesRoot;
 
 	private final TreeItem<ForumGroup> ownForums;
@@ -223,7 +220,7 @@ public class ForumViewController implements Controller
 		unsubscribeItem.setId(UNSUBSCRIBE_MENU_ID);
 		unsubscribeItem.setOnAction(event -> unsubscribeFromForumGroups((ForumGroup) event.getSource()));
 
-		forumGroupXContextMenu = new XContextMenu<>(forumTree, subscribeItem, unsubscribeItem);
+		var forumGroupXContextMenu = new XContextMenu<ForumGroup>(forumTree, subscribeItem, unsubscribeItem);
 		forumGroupXContextMenu.setOnShowing((contextMenu, forumGroup) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> menuItem.getId().equals(SUBSCRIBE_MENU_ID))
@@ -242,7 +239,7 @@ public class ForumViewController implements Controller
 		var replyItem = new MenuItem("Reply");
 		replyItem.setOnAction(event -> newForumPost(UiUtils.getWindow(event), true));
 
-		forumMessageXContextMenu = new XContextMenu<>(forumMessagesTreeTableView, replyItem);
+		new XContextMenu<ForumMessage>(forumMessagesTreeTableView, replyItem);
 	}
 
 	private void newForumPost(Window window, boolean replyTo)

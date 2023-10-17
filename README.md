@@ -182,3 +182,5 @@ Please consider a donation to help with the project's development. Contact me if
 | GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |
 | ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
 | BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |
+
+Thank you!

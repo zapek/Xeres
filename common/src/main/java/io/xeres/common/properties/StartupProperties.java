@@ -28,6 +28,7 @@ public final class StartupProperties
 	{
 		SERVER_ONLY("xrs.network.server-only", Boolean.class),
 		CONTROL_PORT("server.port", Integer.class),
+		SERVER_ADDRESS("xrs.network.server-address", String.class),
 		SERVER_PORT("xrs.network.server-port", Integer.class),
 		DATA_DIR("xrs.data.dir-path", String.class),
 		UI("xrs.ui.enabled", Boolean.class),

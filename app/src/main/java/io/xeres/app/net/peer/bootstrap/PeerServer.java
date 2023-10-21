@@ -36,6 +36,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.tray.TrayService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,7 @@ abstract class PeerServer
 		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
-	public void start(int localPort)
+	public void start(String host, int localPort)
 	{
 		bossGroup = new NioEventLoopGroup(1);
 		workerGroup = new NioEventLoopGroup();
@@ -88,7 +89,7 @@ abstract class PeerServer
 					.handler(new LoggingHandler(LogLevel.DEBUG))
 					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, TCP_INCOMING, trayService, rsServiceRegistry));
 
-			channel = serverBootstrap.bind(localPort).sync();
+			channel = StringUtils.isBlank(host) ? serverBootstrap.bind(localPort).sync() : serverBootstrap.bind(host, localPort).sync();
 			log.info("Listening on {}, port {}", channel.channel().localAddress(), localPort);
 		}
 		catch (InterruptedException e)

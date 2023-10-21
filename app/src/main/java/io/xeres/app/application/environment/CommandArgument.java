@@ -43,6 +43,7 @@ public final class CommandArgument
 	private static final String NO_GUI = "no-gui";
 	private static final String DATA_DIR = "data-dir";
 	private static final String CONTROL_PORT = "control-port";
+	private static final String SERVER_ADDRESS = "server-address";
 	private static final String SERVER_PORT = "server-port";
 	private static final String FAST_SHUTDOWN = "fast-shutdown";
 	public static final String SERVER_ONLY = "server-only";
@@ -78,6 +79,7 @@ public final class CommandArgument
 					setPort(StartupProperties.Property.CONTROL_PORT, appArgs, arg);
 					setPort(StartupProperties.Property.UI_PORT, appArgs, arg);
 				}
+				case SERVER_ADDRESS -> setString(StartupProperties.Property.SERVER_ADDRESS, appArgs, arg);
 				case SERVER_PORT -> setPort(StartupProperties.Property.SERVER_PORT, appArgs, arg);
 				case REMOTE_CONNECT -> {
 					var ipAndPort = appArgs.getOptionValues(arg).stream()
@@ -159,6 +161,7 @@ public final class CommandArgument
 				   --iconified                         start iconified into the tray
 				   --data-dir=<path>                   specify the data directory
 				   --control-port=<port>               specify the control port for remote access
+				   --server-address=<host>             specify a local address to bind to (if not specified, binds to all interfaces)
 				   --server-port=<port>                specify the local port to bind to for incoming peer connections
 				   --fast-shutdown                     ignore proper shutdown procedure (not recommended)
 				   --server-only                       only accept incoming connections, do not make outgoing ones

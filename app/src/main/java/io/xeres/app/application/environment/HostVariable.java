@@ -35,23 +35,28 @@ public final class HostVariable
 	/**
 	 * The location of the data directory. Either an absolute or a relative path.
 	 */
-	public static final String XERES_DATA_DIR = "XERES_DATA_DIR";
+	private static final String XERES_DATA_DIR = "XERES_DATA_DIR";
 
 	/**
 	 * The control port of the server (that is, where the UI client is sending commands to).
 	 */
-	public static final String XERES_CONTROL_PORT = "XERES_CONTROL_PORT";
+	private static final String XERES_CONTROL_PORT = "XERES_CONTROL_PORT";
+
+	/**
+	 * The interface address to bind to (default: all).
+	 */
+	private static final String XERES_SERVER_ADDRESS = "XERES_SERVER_ADDRESS";
 
 	/**
 	 * The incoming port for peer connections.
 	 */
-	public static final String XERES_SERVER_PORT = "XERES_SERVER_PORT";
+	private static final String XERES_SERVER_PORT = "XERES_SERVER_PORT";
 
 	/**
 	 * If we are running in server mode only (that is, we're only accepting incoming connections).
 	 * Ideal for a chat server.
 	 */
-	public static final String XERES_SERVER_ONLY = "XERES_SERVER_ONLY";
+	private static final String XERES_SERVER_ONLY = "XERES_SERVER_ONLY";
 
 	private static final String ENVIRONMENT_VARIABLE_STRING = "Environment variable";
 
@@ -71,6 +76,7 @@ public final class HostVariable
 			setPort(XERES_CONTROL_PORT, CONTROL_PORT, s);
 			setPort(XERES_CONTROL_PORT, UI_PORT, s);
 		});
+		get(XERES_SERVER_PORT).ifPresent(s -> setString(XERES_SERVER_ADDRESS, SERVER_ADDRESS, s));
 		get(XERES_SERVER_PORT).ifPresent(s -> setPort(XERES_SERVER_PORT, SERVER_PORT, s));
 	}
 

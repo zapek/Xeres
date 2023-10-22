@@ -119,15 +119,24 @@ public class PeerConnectionManager
 		var peer = peers.get(location.getId());
 		if (peer != null)
 		{
-			return writeItem(peer, item, rsService);
+			return setOutgoingAndWriteItem(peer, item, rsService);
 		}
 		log.warn("Peer with location {} not found while trying to write item. User disconnected?", location);
 		return null; // XXX: use executor.newFailedFuture()? but where do I get the executor from?
 	}
 
-	// XXX: this method is dangerous when called from outside PeerConnectionManager because it has no "peers" check...
-	// XXX: prefer the writer using Location
 	public ChannelFuture writeItem(PeerConnection peerConnection, Item item, RsService rsService)
+	{
+		var peer = peers.get(peerConnection.getLocation().getId());
+		if (peer != null)
+		{
+			return setOutgoingAndWriteItem(peer, item, rsService);
+		}
+		log.warn("Peer with location {} not found while trying to write item. User disconnected?", peerConnection.getLocation());
+		return null; // XXX: use executor.newFailedFuture()? but where do I get the executor from?
+	}
+
+	private ChannelFuture setOutgoingAndWriteItem(PeerConnection peerConnection, Item item, RsService rsService)
 	{
 		item.setOutgoing(peerConnection.getCtx().alloc(), rsService);
 		return writeItem(peerConnection.getCtx(), item);

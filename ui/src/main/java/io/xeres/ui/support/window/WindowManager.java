@@ -31,6 +31,7 @@ import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
+import io.xeres.ui.controller.debug.PropertiesWindowController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorViewController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
@@ -163,6 +164,16 @@ public class WindowManager
 						.open());
 	}
 
+	public void openSystemProperties(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(PropertiesWindowController.class)
+						.setParent(parent)
+						.setTitle("System Properties")
+						.build()
+						.open());
+	}
+
 	public void openQrCode(Window parent, RSIdResponse rsIdResponse)
 	{
 		Platform.runLater(() ->
@@ -201,7 +212,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(BroadcastWindowController.class)
 						.setParent(parent)
-						.setTitle("Broadcast")
+						.setTitle(bundle.getString("broadcast.window-title"))
 						.build()
 						.open());
 	}
@@ -263,7 +274,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ForumEditorViewController.class)
 						.setParent(parent) // XXX: needs to become multi modal to avoid blocking (useful to browse other posts while we write)
-						.setTitle("New message")
+						.setTitle(bundle.getString("forum.new-message.window-title"))
 						.setUserData(postRequest)
 						.build()
 						.open());
@@ -274,7 +285,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ForumCreationWindowController.class)
 						.setParent(parent)
-						.setTitle("Create forum")
+						.setTitle(bundle.getString("forum.create.window-title"))
 						.build()
 						.open());
 	}

@@ -24,6 +24,7 @@ import com.github.sarxos.webcam.WebcamResolution;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.support.util.UiUtils;
@@ -74,7 +75,7 @@ public class CameraWindowController implements WindowController
 		}
 		else
 		{
-			error.setText("No camera has been detected");
+			error.setText(I18nUtils.getString("qrcode.camera.error"));
 			error.setVisible(true);
 		}
 	}
@@ -153,7 +154,7 @@ public class CameraWindowController implements WindowController
 			}
 		};
 		capturedImage.imageProperty().bind(imageProperty);
-		new Thread(cameraInitializer).start();
+		Thread.ofVirtual().name("Camera Handler").start(cameraInitializer);
 	}
 
 	private void stopCamera()

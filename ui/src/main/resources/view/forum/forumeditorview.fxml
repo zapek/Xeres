@@ -32,22 +32,22 @@
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="Forum"/>
+        <Label text="%forum.editor.name"/>
         <ReadOnlyTextField fx:id="forumName" editable="false" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" text="The Forum's name"/>
+                <Tooltip showDuration="1m" text="%forum.editor.name.prompt"/>
             </tooltip>
         </ReadOnlyTextField>
-        <Label text="Title" GridPane.rowIndex="1"/>
+        <Label text="%forum.editor.thread.title" GridPane.rowIndex="1"/>
         <TextField fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" text="The thread's title"/>
+                <Tooltip showDuration="1m" text="%forum.editor.thread.description"/>
             </tooltip>
         </TextField>
     </GridPane>
     <EditorView fx:id="editorView" VBox.vgrow="SOMETIMES"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="send" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Send">
+        <Button fx:id="send" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%button.send">
             <HBox.margin>
                 <Insets top="8.0"/>
             </HBox.margin>

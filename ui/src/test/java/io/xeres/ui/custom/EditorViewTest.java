@@ -46,7 +46,6 @@ class EditorViewTest
 		editorView = new EditorView();
 		editorView.setId("editorView");
 		stage.setScene(new Scene(new VBox(editorView), 640, 480));
-		stage.requestFocus(); // workaround, see https://github.com/TestFX/TestFX/issues/749
 		stage.show();
 	}
 

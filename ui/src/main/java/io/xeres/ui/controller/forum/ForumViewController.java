@@ -30,6 +30,7 @@ import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
@@ -96,6 +97,12 @@ public class ForumViewController implements Controller
 	private TreeTableColumn<ForumMessage, Instant> treeTableDate;
 
 	@FXML
+	private ProgressPane forumMessagesProgress;
+
+	@FXML
+	private ScrollPane messagePane;
+
+	@FXML
 	private TextFlow messageContent;
 
 	@FXML
@@ -128,9 +135,6 @@ public class ForumViewController implements Controller
 	private ForumMessage selectedForumMessage;
 
 	private Disposable notificationDisposable;
-
-	private XContextMenu<ForumGroup> forumGroupXContextMenu;
-	private XContextMenu<ForumMessage> forumMessageXContextMenu;
 
 	private TreeItem<ForumMessage> forumMessagesRoot;
 
@@ -172,7 +176,6 @@ public class ForumViewController implements Controller
 		forumTree.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue())));
 
-		// XXX: add double click
 		forumTree.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2 && isForumSelected())
 			{
@@ -217,7 +220,7 @@ public class ForumViewController implements Controller
 		unsubscribeItem.setId(UNSUBSCRIBE_MENU_ID);
 		unsubscribeItem.setOnAction(event -> unsubscribeFromForumGroups((ForumGroup) event.getSource()));
 
-		forumGroupXContextMenu = new XContextMenu<>(forumTree, subscribeItem, unsubscribeItem);
+		var forumGroupXContextMenu = new XContextMenu<ForumGroup>(forumTree, subscribeItem, unsubscribeItem);
 		forumGroupXContextMenu.setOnShowing((contextMenu, forumGroup) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> menuItem.getId().equals(SUBSCRIBE_MENU_ID))
@@ -236,7 +239,7 @@ public class ForumViewController implements Controller
 		var replyItem = new MenuItem("Reply");
 		replyItem.setOnAction(event -> newForumPost(UiUtils.getWindow(event), true));
 
-		forumMessageXContextMenu = new XContextMenu<>(forumMessagesTreeTableView, replyItem);
+		new XContextMenu<ForumMessage>(forumMessagesTreeTableView, replyItem);
 	}
 
 	private void newForumPost(Window window, boolean replyTo)
@@ -361,7 +364,10 @@ public class ForumViewController implements Controller
 		if (!alreadySubscribed)
 		{
 			forumClient.subscribeToForumGroup(forumGroup.getId())
-					.doOnSuccess(forumId -> addOrUpdate(subscribedForums.getChildren(), forumGroup))
+					.doOnSuccess(forumId -> {
+						forumGroup.setSubscribed(true);
+						addOrUpdate(subscribedForums.getChildren(), forumGroup);
+					})
 					.subscribe();
 		}
 	}
@@ -372,7 +378,10 @@ public class ForumViewController implements Controller
 				.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().equals(forumGroup))
 				.findAny()
 				.ifPresent(forumHolderTreeItem -> forumClient.unsubscribeFromForumGroup(forumGroup.getId())
-						.doOnSuccess(unused -> addOrUpdate(popularForums.getChildren(), forumGroup)) // XXX: wrong, could be something else then "otherForums"
+						.doOnSuccess(unused -> {
+							forumGroup.setSubscribed(false);
+							addOrUpdate(popularForums.getChildren(), forumGroup);
+						}) // XXX: wrong, could be something else then "otherForums"
 						.subscribe());
 	}
 
@@ -382,6 +391,7 @@ public class ForumViewController implements Controller
 		selectedForumMessage = null;
 
 		getBrowsableTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
+				.doFirst(() -> forumMessagesState(true))
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
 					forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
 					forumMessagesRoot.getChildren().clear();
@@ -391,13 +401,23 @@ public class ForumViewController implements Controller
 					newThread.setDisable(false);
 				}))
 				.doOnError(throwable -> log.error("Error while getting the forum messages: {}", throwable.getMessage(), throwable)) // XXX: cleanup on error?
+				.doFinally(signalType -> forumMessagesState(false))
 				.subscribe(), () -> Platform.runLater(() -> {
-			// XXX: display some forum info in the message view
+			// XXX: this is the case when there's no active forum selected. display some forum/tree group info in the message view
 			forumMessagesTreeTableView.getSelectionModel().clearSelection();
 			forumMessagesRoot.getChildren().clear();
 			clearMessage();
 			newThread.setDisable(true);
+			forumMessagesState(false);
 		}));
+	}
+
+	private void forumMessagesState(boolean loading)
+	{
+		Platform.runLater(() -> {
+			forumMessagesTreeTableView.setVisible(!loading);
+			forumMessagesProgress.showProgress(loading);
+		});
 	}
 
 	// XXX: implement threaded support for the 2 following methods.
@@ -432,13 +452,14 @@ public class ForumViewController implements Controller
 					.doOnSuccess(message -> Platform.runLater(() -> {
 						var contents = markdownService.parse(message.getContent(), EnumSet.noneOf(ParsingMode.class));
 						messageContent.getChildren().clear();
+						messagePane.setVvalue(messagePane.getVmin());
 						messageContent.getChildren().addAll(contents.stream()
 								.map(Content::getNode).toList());
 						messageAuthor.setText(forumMessage.getAuthorName());
 						messageDate.setText(messageDateFormatter.format(forumMessage.getPublished()));
 						messageSubject.setText(forumMessage.getName());
 						messageHeader.setVisible(true);
-						forumClient.setForumMessageRead(message.getId(), true)
+						forumClient.updateForumMessagesRead(Map.of(message.getId(), true))
 								.doOnSuccess(unused -> Platform.runLater(() -> {
 									selectedForumMessage.setRead(true);
 									forumMessagesTreeTableView.refresh();

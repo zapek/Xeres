@@ -30,6 +30,7 @@ import io.xeres.app.database.repository.GxsIdentityRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.ResourceCreationState;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -56,12 +57,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.cert.CertificateException;
+import java.security.KeyPair;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.xeres.app.service.ResourceCreationState.*;
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.CHILD_AUTHOR;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.ROOT_AUTHOR;
@@ -183,18 +185,46 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Transactional
-	public long createOwnIdentity(String name, boolean signed) throws CertificateException, PGPException, IOException
+	public ResourceCreationState generateOwnIdentity(String name, boolean signed)
 	{
 		if (!settingsService.isOwnProfilePresent())
 		{
-			throw new CertificateException("Cannot create an identity without a profile; Create a profile first");
+			log.error("Cannot create an identity without a profile; Create a profile first");
+			return FAILED;
 		}
 		if (!settingsService.hasOwnLocation())
 		{
-			throw new IllegalArgumentException("Cannot create an identity without a location; Create a location first");
+			log.error("Cannot create an identity without a location; Create a location first");
+			return FAILED;
+		}
+
+		if (gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).isPresent())
+		{
+			return ALREADY_EXISTS;
 		}
 
 		var gxsIdGroupItem = createGroup(name);
+		try
+		{
+			createOwnIdentity(gxsIdGroupItem, signed);
+		}
+		catch (PGPException | IOException e)
+		{
+			log.error("Couldn't generate identity: {}", e.getMessage());
+			return FAILED;
+		}
+		return CREATED;
+	}
+
+	@Transactional
+	public long createOwnIdentity(String name, KeyPair keyPair) throws PGPException, IOException
+	{
+		var gxsIdGroupItem = createGroup(name, keyPair);
+		return createOwnIdentity(gxsIdGroupItem, true);
+	}
+
+	private long createOwnIdentity(IdentityGroupItem gxsIdGroupItem, boolean signed) throws PGPException, IOException
+	{
 		gxsIdGroupItem.setType(Type.OWN);
 
 		gxsIdGroupItem.setCircleType(GxsCircleType.PUBLIC);
@@ -227,6 +257,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	public IdentityGroupItem getOwnIdentity() // XXX: temporary, we'll have several identities later
 	{
 		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own gxsId"));
+	}
+
+	public boolean hasOwnIdentity()
+	{
+		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).isPresent();
 	}
 
 	public Optional<IdentityGroupItem> findById(long id)

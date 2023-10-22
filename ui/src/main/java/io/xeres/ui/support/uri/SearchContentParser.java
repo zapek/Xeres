@@ -23,6 +23,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.scene.control.Alert;
 import org.springframework.web.util.UriComponents;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -51,6 +52,6 @@ public class SearchContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(keywords, keywords, s -> UiUtils.showAlertInfo("Searching is not supported yet."));
+		return new ContentUri(keywords, keywords, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Searching is not supported yet."));
 	}
 }

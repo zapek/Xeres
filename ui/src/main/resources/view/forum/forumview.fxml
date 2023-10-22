@@ -20,6 +20,7 @@
   -->
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import io.xeres.ui.custom.ProgressPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -36,7 +37,7 @@
                         <FontAwesomeIconView glyphName="PLUS" glyphSize="14"/>
                     </graphic>
                     <tooltip>
-                        <Tooltip showDuration="1m" text="Create a new forum"/>
+                        <Tooltip showDuration="1m" text="%forum.view.create.tip"/>
                     </tooltip>
                 </Button>
             </HBox>
@@ -47,26 +48,28 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="newThread" text="New Thread" disable="true">
+                <Button fx:id="newThread" text="%forum.view.thread.create.tip" disable="true">
                     <graphic>
                         <FontAwesomeIconView glyphName="PENCIL" glyphSize="14"/>
                     </graphic>
                 </Button>
             </HBox>
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
-                <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0">
-                    <columns>
-                        <!--
-                        <TreeTableColumn minWidth="24" prefWidth="24">
-                            <graphic>
-                                <FontAwesomeIconView glyphName="ENVELOPE" glyphSize="14"/>
-                            </graphic>
-                        </TreeTableColumn>-->
-                        <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="200" text="Subject"/>
-                        <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="100" text="Author"/>
-                        <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="120" text="Date"/>
-                    </columns>
-                </TreeTableView>
+                <ProgressPane fx:id="forumMessagesProgress">
+                    <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0">
+                        <columns>
+                            <!--
+                            <TreeTableColumn minWidth="24" prefWidth="24">
+                                <graphic>
+                                    <FontAwesomeIconView glyphName="ENVELOPE" glyphSize="14"/>
+                                </graphic>
+                            </TreeTableColumn>-->
+                            <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="200" text="%forum.view.header.subject"/>
+                            <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="100" text="%forum.view.header.author"/>
+                            <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="120" text="%forum.view.header.date"/>
+                        </columns>
+                    </TreeTableView>
+                </ProgressPane>
                 <VBox>
                     <GridPane fx:id="messageHeader" visible="false" hgap="8" vgap="4">
                         <VBox.margin>
@@ -81,14 +84,14 @@
                             <RowConstraints vgrow="ALWAYS"/>
                             <RowConstraints vgrow="ALWAYS"/>
                         </rowConstraints>
-                        <Label text="From: "/>
+                        <Label text="%forum.view.from"/>
                         <Label fx:id="messageAuthor" GridPane.columnIndex="1"/>
                         <Label fx:id="messageDate" GridPane.columnIndex="2"/>
-                        <Label text="Subject: " GridPane.rowIndex="1"/>
+                        <Label text="%forum.view.subject" GridPane.rowIndex="1"/>
                         <Label fx:id="messageSubject" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
                     </GridPane>
-                    <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow" VBox.vgrow="ALWAYS">
-                        <TextFlow fx:id="messageContent" styleClass="freeflow, forum-content">
+                    <ScrollPane fx:id="messagePane" fitToWidth="true" styleClass="scroll-pane-freeflow" VBox.vgrow="ALWAYS">
+                        <TextFlow fx:id="messageContent" tabSize="4" styleClass="freeflow, forum-content">
                             <padding>
                                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                             </padding>

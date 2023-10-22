@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.api.error;
+package io.xeres.common.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -44,11 +44,11 @@ public class Error
 		this.message = message;
 		if (throwable != null && throwable.getMessage() != null)
 		{
-			this.details = List.of(throwable.getMessage());
+			details = List.of(throwable.getMessage());
 		}
 		else
 		{
-			this.details = new ArrayList<>();
+			details = new ArrayList<>();
 		}
 	}
 

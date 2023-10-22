@@ -49,6 +49,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static io.xeres.app.database.model.gxs.GxsConstants.GXS_ITEM_MAX_SIZE;
 import static io.xeres.app.xrs.common.SecurityKey.Flags.*;
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
@@ -118,13 +119,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	// the publishing key is used for both DISTRIBUTION_PUBLISHING and DISTRIBUTION_IDENTITY
 
 	@ElementCollection
-	private Set<SecurityKey> privateKeys = new HashSet<>(2);
+	private Set<SecurityKey> privateKeys = HashSet.newHashSet(2);
 
 	@ElementCollection
-	private Set<SecurityKey> publicKeys = new HashSet<>(2);
+	private Set<SecurityKey> publicKeys = HashSet.newHashSet(2);
 
 	@ElementCollection
-	private Set<Signature> signatures = new HashSet<>(2);
+	private Set<Signature> signatures = HashSet.newHashSet(2);
 
 	@Transient
 	private int serviceType;
@@ -496,7 +497,11 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		{
 			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
 		}
-		deserializeInt(buf); // the size
+		int size = deserializeInt(buf); // the size
+		if (size > GXS_ITEM_MAX_SIZE)
+		{
+			throw new IllegalArgumentException("Gxs group meta size " + size + " is bigger than the maximum of " + GXS_ITEM_MAX_SIZE);
+		}
 		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		originalGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		parentId = (GxsId) deserializeIdentifier(buf, GxsId.class);

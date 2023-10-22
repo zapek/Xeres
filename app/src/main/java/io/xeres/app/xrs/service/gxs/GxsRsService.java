@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
@@ -854,9 +855,13 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected G createGroup(String name)
 	{
 		var adminKeyPair = RSA.generateKeys(GXS_KEY_SIZE);
+		return createGroup(name, adminKeyPair);
+	}
 
-		var adminPrivateKey = (RSAPrivateKey) adminKeyPair.getPrivate();
-		var adminPublicKey = (RSAPublicKey) adminKeyPair.getPublic();
+	protected G createGroup(String name, KeyPair keyPair)
+	{
+		var adminPrivateKey = (RSAPrivateKey) keyPair.getPrivate();
+		var adminPublicKey = (RSAPublicKey) keyPair.getPublic();
 
 		// The GxsId is from the public admin key (n and e)
 		var gxsId = RSA.getGxsId(adminPublicKey);

@@ -19,12 +19,18 @@
 
 package io.xeres.app.service.backup;
 
+import io.xeres.app.crypto.pgp.PGP;
+import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.common.id.ProfileFingerprint;
+import io.xeres.common.pgp.Trust;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,7 +39,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 @Service
 public class BackupService
@@ -44,16 +55,18 @@ public class BackupService
 
 	private final ProfileService profileService;
 	private final LocationService locationService;
+	private final IdentityRsService identityRsService;
 	private final SettingsService settingsService;
 
-	public BackupService(ProfileService profileService, LocationService locationService, SettingsService settingsService)
+	public BackupService(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, SettingsService settingsService)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
+		this.identityRsService = identityRsService;
 		this.settingsService = settingsService;
 	}
 
-	public byte[] backup() throws JAXBException, CertificateEncodingException
+	public byte[] backup() throws JAXBException
 	{
 		var out = new ByteArrayOutputStream();
 
@@ -63,8 +76,11 @@ public class BackupService
 		local.setLocation(new Location(locationService.findOwnLocation().orElseThrow().getLocationId(),
 				settingsService.getLocationPrivateKeyData(),
 				settingsService.getLocationPublicKeyData(),
-				settingsService.getLocationCertificate().getEncoded(),
+				settingsService.getLocationCertificate(),
 				settingsService.getLocalPort()));
+
+		var identityGroupItem = identityRsService.getOwnIdentity();
+		local.setIdentity(new Identity(identityGroupItem.getName(), identityGroupItem.getAdminPrivateKey().getEncoded(), identityGroupItem.getAdminPublicKey().getEncoded()));
 
 		export.setProfiles(profileService.getAllDiscoverableProfiles());
 		export.setLocal(local);
@@ -80,7 +96,7 @@ public class BackupService
 	}
 
 	@Transactional
-	public void restore(MultipartFile file) throws JAXBException, IOException
+	public void restore(MultipartFile file) throws JAXBException, IOException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, PGPException
 	{
 		if (file == null)
 		{
@@ -101,6 +117,54 @@ public class BackupService
 
 		log.debug("Export is {}", export);
 
-		// XXX: when restoring check all the fields that we didn't save. for example pgpFingerprint will have to be regenerated (from the public key)
+		var localProfile = export.getProfiles().stream()
+				.filter(profile -> profile.getTrust() == Trust.ULTIMATE)
+				.findFirst().orElseThrow(() -> new IllegalArgumentException("No local profile in the profile list"));
+
+		var localLocationId = export.getLocal().getLocation().getLocationId();
+		var localLocation = localProfile.getLocations().stream()
+				.filter(location -> location.getLocationId().equals(localLocationId))
+				.findFirst().orElseThrow(); // XXX: if not found, create new location? should be allowed
+
+		createOwnProfile(localProfile.getName(), export.getLocal().getProfile().getPgpPrivateKey(), localProfile.getPgpPublicKeyData());
+		createOwnLocation(localLocation.getName(), export.getLocal().getLocation().getPrivateKey(), export.getLocal().getLocation().getPublicKey(), export.getLocal().getLocation().getX509Certificate());
+		createOwnIdentity(export.getLocal().getIdentity().getName(), export.getLocal().getIdentity().getPrivateKey(), export.getLocal().getIdentity().getPublicKey());
+
+		createProfiles(export.getProfiles());
+	}
+
+	private void createOwnProfile(String name, byte[] privateKey, byte[] publicKey) throws InvalidKeyException, IOException
+	{
+		var pgpSecretKey = PGP.getPGPSecretKey(privateKey);
+		var pgpPublicKey = PGP.getPGPPublicKey(publicKey);
+		profileService.createOwnProfile(name, pgpSecretKey, pgpPublicKey);
+	}
+
+	private void createOwnLocation(String name, byte[] privateKey, byte[] publicKey, byte[] x509Certificate) throws NoSuchAlgorithmException, InvalidKeySpecException, CertificateException
+	{
+		var keyPair = new KeyPair(RSA.getPublicKey(publicKey), RSA.getPrivateKey(privateKey));
+		locationService.createOwnLocation(name, keyPair, x509Certificate);
+	}
+
+	private void createOwnIdentity(String name, byte[] privateKey, byte[] publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, PGPException, IOException
+	{
+		var keyPair = new KeyPair(RSA.getPublicKey(publicKey), RSA.getPrivateKey(privateKey));
+		identityRsService.createOwnIdentity(name, keyPair);
+	}
+
+	private void createProfiles(List<io.xeres.app.database.model.profile.Profile> profiles) throws InvalidKeyException
+	{
+		for (io.xeres.app.database.model.profile.Profile profile : profiles)
+		{
+			if (profile.getTrust() != Trust.ULTIMATE)
+			{
+				var pgpPublicKey = PGP.getPGPPublicKey(profile.getPgpPublicKeyData());
+				var createdProfile = io.xeres.app.database.model.profile.Profile.createProfile(
+						profile.getName(), profile.getPgpIdentifier(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey);
+				profile.getLocations().forEach(createdProfile::addLocation);
+				createdProfile.setAccepted(true);
+				profileService.createOrUpdateProfile(createdProfile);
+			}
+		}
 	}
 }

@@ -63,14 +63,15 @@ public class PeerConnectionJob
 	@Scheduled(initialDelay = 5, fixedDelay = 60, timeUnit = TimeUnit.SECONDS)
 	void checkConnections()
 	{
-		if (JobUtils.canRun(peerService))
-		{
-			connectToPeers();
-		}
+		connectToPeers();
 	}
 
 	private void connectToPeers()
 	{
+		if (!JobUtils.canRun(peerService))
+		{
+			return;
+		}
 		synchronized (PeerConnectionJob.class)
 		{
 			var connections = locationService.getConnectionsToConnectTo(SIMULTANEOUS_CONNECTIONS);
@@ -84,6 +85,10 @@ public class PeerConnectionJob
 
 	public void connectImmediately(Location location, int connectionIndex)
 	{
+		if (!JobUtils.canRun(peerService))
+		{
+			return;
+		}
 		synchronized (PeerConnectionJob.class)
 		{
 			var connections = location.getConnections().stream()

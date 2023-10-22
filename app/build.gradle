@@ -1,3 +1,5 @@
+import org.panteleyev.jpackage.ImageType
+
 /*
  * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
  *
@@ -122,6 +124,11 @@ jpackage {
                    '-Dlogging.logback.rollingpolicy.clean-history-on-start=true',
                    '-Dlogging.logback.rollingpolicy.max-file-size=1MB',
                    '-Dlogging.logback.rollingpolicy.max-history=3']
+    if (project.hasProperty("jpackage.msi")) {
+        type = ImageType.MSI
+    } else if (project.hasProperty("jpackage.rpm")) {
+        type = ImageType.RPM
+    }
     windows {
         winMenu = true
         winPerUserInstall = true
@@ -163,7 +170,7 @@ dependencies {
     implementation "org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion"
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation 'com.github.peter-gergely-horvath:windpapi4j:1.1.0'
-    implementation 'net.harawata:appdirs:1.2.2'
+    implementation "net.harawata:appdirs:$appDirsVersion"
     implementation 'com.github.atomashpolskiy:bt-dht:1.10'
     implementation 'org.apache.commons:commons-lang3'
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"

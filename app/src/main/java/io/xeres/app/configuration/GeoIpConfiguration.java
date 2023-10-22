@@ -28,6 +28,9 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * This configuration sets up the GeoIP database.
+ */
 @Configuration
 public class GeoIpConfiguration
 {

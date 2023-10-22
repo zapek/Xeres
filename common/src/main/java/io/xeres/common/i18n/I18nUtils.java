@@ -38,6 +38,16 @@ public final class I18nUtils
 	 */
 	public static String getString(String messageKey)
 	{
-		return ResourceBundle.getBundle(BUNDLE).getString(messageKey);
+		return getBundle().getString(messageKey);
+	}
+
+	/**
+	 * Gets the ResourceBundle. Prefer using the ResourceBundle bean instead as it's faster.
+	 *
+	 * @return the resource bundle
+	 */
+	public static ResourceBundle getBundle()
+	{
+		return ResourceBundle.getBundle(BUNDLE);
 	}
 }

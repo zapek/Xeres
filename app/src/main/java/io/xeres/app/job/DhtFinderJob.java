@@ -39,6 +39,9 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.function.Predicate.not;
 
+/**
+ * Finds users in the DHT.
+ */
 @Component
 public class DhtFinderJob
 {

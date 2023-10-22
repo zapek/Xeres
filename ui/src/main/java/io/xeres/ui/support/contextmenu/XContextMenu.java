@@ -28,10 +28,6 @@ import javafx.scene.input.MouseEvent;
 import java.util.function.BiPredicate;
 
 /**
- * @param <T>
- */
-
-/**
  * This class simplifies context menu handling for the following classes:
  * <ul>
  *     <li>ListView</li>

@@ -37,6 +37,7 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
@@ -60,6 +61,9 @@ public class AddRsIdWindowController implements WindowController
 
 	@FXML
 	private Button addButton;
+
+	@FXML
+	private TextFlow instructions;
 
 	@FXML
 	private TextArea rsIdTextArea;
@@ -135,6 +139,9 @@ public class AddRsIdWindowController implements WindowController
 		if (userData != null)
 		{
 			setRsId((String) userData);
+			rsIdTextArea.setEditable(false);
+			instructions.setVisible(false);
+			instructions.setManaged(false);
 		}
 		else
 		{

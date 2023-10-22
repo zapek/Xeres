@@ -33,7 +33,7 @@ class RsEmojiAlias
 
 	private static final String EMOTES_DATABASE = "/retroshare-emojis.json";
 
-	private final Map<String, String> aliasesMap = new HashMap<>(705);
+	private final Map<String, String> aliasesMap = HashMap.newHashMap(705);
 	private final int longestAlias;
 
 	private record AliasEntity(String alias, String unicode)

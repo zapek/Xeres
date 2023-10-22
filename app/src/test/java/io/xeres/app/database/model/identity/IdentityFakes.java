@@ -48,7 +48,7 @@ public final class IdentityFakes
 	public static IdentityGroupItem createOwn(String name)
 	{
 		var identity = new IdentityGroupItem(IdFakes.createGxsId(), name);
-		identity.setId(getUniqueId());
+		identity.setId(1L);
 		identity.setType(Type.OWN);
 		return identity;
 	}

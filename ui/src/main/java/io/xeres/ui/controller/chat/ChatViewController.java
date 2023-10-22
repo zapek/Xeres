@@ -155,8 +155,6 @@ public class ChatViewController implements Controller
 	private Node roomInfoView;
 	private ChatRoomInfoController chatRoomInfoController;
 
-	private XContextMenu<RoomHolder> roomHolderXContextMenu;
-
 	private Instant lastTypingNotification = Instant.EPOCH;
 
 	private double[] dividerPositions;
@@ -261,7 +259,7 @@ public class ChatViewController implements Controller
 		unsubscribeItem.setId(UNSUBSCRIBED_MENU_ID);
 		unsubscribeItem.setOnAction(event -> leaveChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
-		roomHolderXContextMenu = new XContextMenu<>(roomTree, subscribeItem, unsubscribeItem);
+		var roomHolderXContextMenu = new XContextMenu<RoomHolder>(roomTree, subscribeItem, unsubscribeItem);
 		roomHolderXContextMenu.setOnShowing((contextMenu, roomHolder) -> {
 			var chatRoomInfo = roomHolder.getRoomInfo();
 
@@ -708,9 +706,7 @@ public class ChatViewController implements Controller
 
 	public void openInvite(long chatRoomId, ChatRoomInviteEvent event)
 	{
-		Platform.runLater(() -> UiUtils.showAlertInfoConfirm("Chat Room Invitation",
-				"Chat Room Invitation",
-				event.getLocationId() + " wants to invite you to " + event.getRoomName() + "(" + event.getRoomTopic() + ")",
+		Platform.runLater(() -> UiUtils.alertConfirm(MessageFormat.format(bundle.getString("chat.room.invite.request"), event.getLocationId(), event.getRoomName(), event.getRoomTopic()),
 				() -> chatClient.joinChatRoom(chatRoomId).subscribe())
 		);
 	}

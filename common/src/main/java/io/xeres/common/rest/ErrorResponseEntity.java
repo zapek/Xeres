@@ -17,11 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.api.error;
+package io.xeres.common.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Objects;
@@ -30,9 +30,9 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 {
 	private final Error error;
 
-	private ErrorResponseEntity(Error error, HttpStatus httpStatus)
+	private ErrorResponseEntity(Error error, HttpStatusCode httpStatusCode)
 	{
-		super(error, httpStatus);
+		super(error, httpStatusCode);
 		this.error = error;
 	}
 
@@ -44,6 +44,11 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 	public String getMessage()
 	{
 		return error.getMessage();
+	}
+
+	public String getDetail()
+	{
+		return error.getDetails().stream().findFirst().orElse("");
 	}
 
 	@Override
@@ -64,14 +69,14 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 
 	public static class Builder
 	{
-		private final HttpStatus httpStatus;
+		private final HttpStatusCode httpStatusCode;
 		private String id;
 		private String error;
 		private Throwable exception;
 
-		public Builder(HttpStatus httpStatus)
+		public Builder(HttpStatusCode httpStatusCode)
 		{
-			this.httpStatus = httpStatus;
+			this.httpStatusCode = httpStatusCode;
 		}
 
 		public Builder setId(String id)
@@ -94,7 +99,7 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 
 		public ErrorResponseEntity build()
 		{
-			return new ErrorResponseEntity(new Error(id, error, exception), httpStatus);
+			return new ErrorResponseEntity(new Error(id, error, exception), httpStatusCode);
 		}
 
 		public ErrorResponseEntity fromJson(String json)
@@ -102,11 +107,11 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 			var objectMapper = new ObjectMapper();
 			try
 			{
-				return new ErrorResponseEntity(objectMapper.readValue(json, Error.class), httpStatus);
+				return new ErrorResponseEntity(objectMapper.readValue(json, Error.class), httpStatusCode);
 			}
 			catch (JsonProcessingException e)
 			{
-				return new ErrorResponseEntity(new Error(null, null, null), httpStatus); // XXX: not sure those defaults are the best
+				return new ErrorResponseEntity(new Error(null, null, null), httpStatusCode); // XXX: not sure those defaults are the best
 			}
 		}
 	}

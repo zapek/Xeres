@@ -20,7 +20,6 @@
 package io.xeres.ui.support.emoji;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vdurmont.emoji.EmojiParser;
 import io.xeres.ui.properties.UiClientProperties;
 import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.image.Image;
@@ -28,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Map;
@@ -44,7 +45,6 @@ public class EmojiService
 	private static final String DEFAULT_UNICODE = "2753"; // question mark
 	private static final String EMOJI_PATH = "/image/emojis/";
 	private static final String EMOJI_EXTENSION = ".png";
-	private static final Pattern CODE_DECIMAL_PATTERN = Pattern.compile("&#(\\d{1,10});");
 
 	private final UiClientProperties uiClientProperties;
 	private RsEmojiAlias rsEmojiAlias;
@@ -68,17 +68,21 @@ public class EmojiService
 
 	public String toUnicode(String input)
 	{
-		var s = SmileyUtils.smileysToUnicode(input); // ;-)
-		//s = EmojiParser.parseToUnicode(s); // :wink: XXX: to be replaced by the internal RS parser. remove once it's tested well enough
+		var s = input;
+		if (uiClientProperties.isSmileyToUnicode())
+		{
+			s = SmileyUtils.smileysToUnicode(input); // ;-)
+		}
 		if (rsEmojiAlias != null)
 		{
 			s = parseRsEmojiAliases(s); // :wink:
 		}
-		if (uiClientProperties.isColoredEmojis())
-		{
-			s = EmojiParser.parseToHtmlDecimal(s); // make smileys into decimal html (&#1234;) so that they can be detected and colorized. XXX: to be replaced by direct code once JDK 21 is released
-		}
 		return s;
+	}
+
+	public boolean isColoredEmojis()
+	{
+		return uiClientProperties.isColoredEmojis();
 	}
 
 	private String parseRsEmojiAliases(String s)
@@ -129,29 +133,26 @@ public class EmojiService
 	private String getCodepoints(String unicode)
 	{
 		return Arrays.stream(unicode.split("-"))
-				.map(s -> Character.toString(Integer.parseUnsignedInt(unicode, 16)))
+				.map(s -> Character.toString(Integer.parseUnsignedInt(s, 16)))
 				.collect(Collectors.joining());
 	}
 
-	public Image getEmoji(String codeDecimal)
+	public Image getEmoji(String emoji)
 	{
-		return getImage(codeDecimalToUnicode(codeDecimal));
+		return getImage(emojiToFileName(emoji));
 	}
 
-	String codeDecimalToUnicode(String codeDecimal)
+	String emojiToFileName(String emoji)
 	{
-		StringBuilder result = new StringBuilder();
-
-		var matcher = CODE_DECIMAL_PATTERN.matcher(codeDecimal);
-		while (matcher.find())
+		var fileName = emoji.codePoints()
+				.mapToObj(Integer::toHexString)
+				.collect(Collectors.joining("-"));
+		if (!fileName.contains("-200d")) // Twemoji doesn't use the fully qualified names
 		{
-			if (!result.isEmpty())
-			{
-				result.append("-");
-			}
-			result.append(Integer.toHexString(Integer.parseUnsignedInt(matcher.group(1))));
+			fileName = fileName.replace("-fe0f", "");
 		}
-		return result.toString();
+		log.debug("Emoji to filename: {} -> {}", emoji, fileName);
+		return fileName;
 	}
 
 	private Image getImage(String unicode)
@@ -159,14 +160,29 @@ public class EmojiService
 		var reference = imageCacheMap.get(unicode);
 		if (reference == null || reference.get() == null)
 		{
-			var resource = getClass().getResourceAsStream(EMOJI_PATH + unicode + EMOJI_EXTENSION);
-			if (resource == null)
+			try (var resource = getExistingUnicodeResource(unicode))
 			{
-				resource = getClass().getResourceAsStream(EMOJI_PATH + DEFAULT_UNICODE + EMOJI_EXTENSION);
+				reference = new WeakReference<>(new Image(Objects.requireNonNull(resource)));
+				imageCacheMap.put(unicode, reference);
 			}
-			reference = new WeakReference<>(new Image(Objects.requireNonNull(resource)));
-			imageCacheMap.put(unicode, reference);
+			catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 		return reference.get();
+	}
+
+	private InputStream getExistingUnicodeResource(String unicode)
+	{
+		if (getClass().getResource(EMOJI_PATH + unicode + EMOJI_EXTENSION) == null)
+		{
+			if (getClass().getResource(EMOJI_PATH + DEFAULT_UNICODE + EMOJI_EXTENSION) == null)
+			{
+				throw new IllegalArgumentException("Missing emoji default resource");
+			}
+			return getClass().getResourceAsStream(EMOJI_PATH + DEFAULT_UNICODE + EMOJI_EXTENSION);
+		}
+		return getClass().getResourceAsStream(EMOJI_PATH + unicode + EMOJI_EXTENSION);
 	}
 }

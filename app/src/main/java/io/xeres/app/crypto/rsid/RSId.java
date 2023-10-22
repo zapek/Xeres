@@ -49,7 +49,7 @@ public abstract class RSId
 {
 	private static final Logger log = LoggerFactory.getLogger(RSId.class);
 
-	private static final Map<Class<? extends RSId>, Type> engines = new LinkedHashMap<>();
+	private static final Map<Class<? extends RSId>, Type> engines = LinkedHashMap.newLinkedHashMap(2);
 
 	static
 	{

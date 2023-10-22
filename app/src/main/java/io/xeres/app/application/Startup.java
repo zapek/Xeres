@@ -22,35 +22,27 @@ package io.xeres.app.application;
 import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
 import io.xeres.app.application.autostart.AutoStart;
-import io.xeres.app.application.events.*;
+import io.xeres.app.application.events.LocationReadyEvent;
+import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
-import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.settings.Settings;
-import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
-import io.xeres.app.net.dht.DhtService;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.app.net.upnp.UPNPService;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
-import io.xeres.app.service.PeerService;
+import io.xeres.app.service.NetworkService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
-import io.xeres.common.properties.StartupProperties;
-import io.xeres.common.protocol.ip.IP;
 import io.xeres.ui.support.splash.SplashService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -58,30 +50,21 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static io.xeres.common.properties.StartupProperties.Property.SERVER_PORT;
-import static java.util.function.Predicate.not;
 
 @Component
 public class Startup implements ApplicationRunner
 {
 	private static final Logger log = LoggerFactory.getLogger(Startup.class);
 
-	private final PeerService peerService;
-	private final UPNPService upnpService;
-	private final BroadcastDiscoveryService broadcastDiscoveryService;
-	private final DhtService dhtService;
 	private final LocationService locationService;
 	private final SettingsService settingsService;
 	private final BuildProperties buildProperties;
 	private final Environment environment;
-	private final ApplicationEventPublisher publisher;
 	private final NetworkProperties networkProperties;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final DataDirConfiguration dataDirConfiguration;
+	private final NetworkService networkService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final SplashService splashService;
 	private final IdentityManager identityManager;
@@ -89,20 +72,16 @@ public class Startup implements ApplicationRunner
 	private final AutoStart autoStart;
 	private final RsServiceRegistry rsServiceRegistry;
 
-	public Startup(PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, ApplicationEventPublisher publisher, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry)
+	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry)
 	{
-		this.peerService = peerService;
-		this.upnpService = upnpService;
-		this.broadcastDiscoveryService = broadcastDiscoveryService;
-		this.dhtService = dhtService;
 		this.locationService = locationService;
 		this.settingsService = settingsService;
 		this.buildProperties = buildProperties;
 		this.environment = environment;
-		this.publisher = publisher;
 		this.networkProperties = networkProperties;
 		this.databaseSessionManager = databaseSessionManager;
 		this.dataDirConfiguration = dataDirConfiguration;
+		this.networkService = networkService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.splashService = splashService;
 		this.identityManager = identityManager;
@@ -131,26 +110,9 @@ public class Startup implements ApplicationRunner
 			return;
 		}
 
-		if (settingsService.isOwnProfilePresent())
+		if (networkService.checkReadiness())
 		{
 			splashService.status("Starting network");
-			try (var ignored = new DatabaseSession(databaseSessionManager))
-			{
-				var location = locationService.findOwnLocation().orElseThrow();
-				var localIpAddress = Optional.ofNullable(IP.getLocalIpAddress()).orElseThrow(() -> new IllegalStateException("Current host has no IP address. Please configure your network."));
-
-				// If there's no --server-port specified, get the previously saved port. If there isn't any because there was an
-				// error on initialization, simply try to get a new one.
-				int localPort = Optional.ofNullable(StartupProperties.getInteger(SERVER_PORT))
-						.orElseGet(() -> location.getConnections().stream()
-								.filter(not(Connection::isExternal))
-								.findFirst()
-								.orElseGet(() -> Connection.from(PeerAddress.from(localIpAddress, IP.getFreeLocalPort())))
-								.getPort());
-
-				// Send the event asynchronously so that our transaction can complete first
-				publisher.publishEvent(new LocationReadyEvent(localIpAddress, localPort));
-			}
 		}
 		else
 		{
@@ -169,10 +131,9 @@ public class Startup implements ApplicationRunner
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			settingsService.setLocalIpAddressAndPort(event.localIpAddress(), event.localPort());
 			syncAutoStart();
 			statusNotificationService.setTotalUsers((int) locationService.getAllLocations().stream().filter(location -> !location.isOwn()).count());
-			startNetworkServices();
+			networkService.start();
 		}
 		splashService.close();
 	}
@@ -181,54 +142,6 @@ public class Startup implements ApplicationRunner
 	public void onSettingsChangedEvent(SettingsChangedEvent event)
 	{
 		compareSettingsAndApplyActions(event.oldSettings(), event.newSettings());
-	}
-
-	@EventListener
-	public void onIpChangedEvent(IpChangedEvent event)
-	{
-		log.warn("IP change event received, possibly restarting some services...");
-		settingsService.setLocalIpAddress(event.localIpAddress());
-
-		if (settingsService.isUpnpEnabled())
-		{
-			if (settingsService.isDhtEnabled())
-			{
-				dhtService.stop();
-			}
-			upnpService.stop();
-			upnpService.start(settingsService.getLocalIpAddress(), settingsService.getLocalPort());
-		}
-		else
-		{
-			if (settingsService.isDhtEnabled())
-			{
-				dhtService.stop();
-				dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), settingsService.getLocalPort());
-			}
-		}
-
-		if (settingsService.isBroadcastDiscoveryEnabled())
-		{
-			broadcastDiscoveryService.stop();
-			broadcastDiscoveryService.start(settingsService.getLocalIpAddress(), settingsService.getLocalPort());
-		}
-	}
-
-	@EventListener
-	public void onPortsForwarded(PortsForwardedEvent event)
-	{
-		log.info("Ports forwarded on the router");
-
-		if (settingsService.isDhtEnabled())
-		{
-			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), event.localPort());
-		}
-	}
-
-	@EventListener
-	public void onDhtReady(DhtReadyEvent event)
-	{
-		// Unused for now
 	}
 
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
@@ -242,68 +155,14 @@ public class Startup implements ApplicationRunner
 
 		statusNotificationService.shutdown();
 
-		stopNetworkServices();
-	}
-
-	void startNetworkServices()
-	{
-		var localIpAddress = settingsService.getLocalIpAddress();
-		var localPort = settingsService.getLocalPort();
-
-		locationService.markAllConnectionsAsDisconnected();
-
-		log.info("Starting network services...");
-		var ownAddress = PeerAddress.from(localIpAddress, localPort);
-		if (ownAddress.isValid())
-		{
-			locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), ownAddress);
-			if (ownAddress.isLAN())
-			{
-				if (settingsService.isUpnpEnabled())
-				{
-					upnpService.start(localIpAddress, localPort);
-				}
-				else
-				{
-					if (settingsService.isDhtEnabled())
-					{
-						dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), localPort);
-					}
-				}
-				if (settingsService.isBroadcastDiscoveryEnabled())
-				{
-					broadcastDiscoveryService.start(localIpAddress, localPort);
-				}
-			}
-			peerService.start(localPort);
-
-			// Send the event asynchronously so that our transaction can complete first
-			publisher.publishEvent(new NetworkReadyEvent());
-		}
-		else
-		{
-			log.error("Local address is invalid: {}, can't start network services", localIpAddress);
-		}
-	}
-
-	void stopNetworkServices()
-	{
-		dhtService.stop();
-		upnpService.stop();
-		broadcastDiscoveryService.stop();
-		peerService.stop();
-
-		upnpService.waitForTermination();
+		networkService.stop();
 	}
 
 	private void backupUserData()
 	{
-		// Right now we perform a backup on every shutdown, see #26 for possible improvements
-		if (dataDirConfiguration.getDataDir() != null)
+		if (dataDirConfiguration.getDataDir() != null) // Don't back up the database when running unit tests
 		{
-			var backupFile = Path.of(dataDirConfiguration.getDataDir(), "backup.zip").toString();
-			log.info("Doing backup of database to {}", backupFile);
-			settingsService.backup(backupFile);
+			settingsService.backup(dataDirConfiguration.getDataDir());
 		}
 	}
 
@@ -321,7 +180,7 @@ public class Startup implements ApplicationRunner
 		log.info("OS: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
 		log.info("JRE: {} {} ({})", System.getProperty("java.vendor"), System.getProperty("java.version"), System.getProperty("java.home"));
 		log.info("Charset: {}", Charset.defaultCharset());
-		log.debug("Working directory: {}", System.getProperty("user.dir"));
+		log.debug("Working directory: {}", log.isDebugEnabled() ? System.getProperty("user.dir") : "");
 		log.info("Number of processor threads: {}", Runtime.getRuntime().availableProcessors());
 		log.info("Memory allocated for the JVM: {} MB", totalMemory / 1024 / 1024);
 		log.info("Maximum allocatable memory: {} MB", Runtime.getRuntime().maxMemory() / 1024 / 1024);
@@ -366,73 +225,8 @@ public class Startup implements ApplicationRunner
 
 	private void compareSettingsAndApplyActions(Settings oldSettings, Settings newSettings)
 	{
-		applyBroadcastDiscovery(oldSettings, newSettings);
-		applyDht(oldSettings, newSettings);
-		applyUpnp(oldSettings, newSettings);
-		applyTor(oldSettings, newSettings);
-		applyI2p(oldSettings, newSettings);
+		networkService.compareSettingsAndApplyActions(oldSettings, newSettings);
 		applyAutoStart(oldSettings, newSettings);
-	}
-
-	private void applyBroadcastDiscovery(Settings oldSettings, Settings newSettings)
-	{
-		if (newSettings.isBroadcastDiscoveryEnabled() != oldSettings.isBroadcastDiscoveryEnabled())
-		{
-			if (newSettings.isBroadcastDiscoveryEnabled())
-			{
-				broadcastDiscoveryService.start(newSettings.getLocalIpAddress(), newSettings.getLocalPort());
-			}
-			else
-			{
-				broadcastDiscoveryService.stop();
-			}
-		}
-	}
-
-	private void applyDht(Settings oldSettings, Settings newSettings)
-	{
-		if (newSettings.isDhtEnabled() != oldSettings.isDhtEnabled())
-		{
-			if (newSettings.isDhtEnabled())
-			{
-				dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), newSettings.getLocalPort());
-			}
-			else
-			{
-				dhtService.stop();
-			}
-		}
-	}
-
-	private void applyUpnp(Settings oldSettings, Settings newSettings)
-	{
-		if (newSettings.isUpnpEnabled() != oldSettings.isUpnpEnabled())
-		{
-			if (newSettings.isUpnpEnabled())
-			{
-				upnpService.start(newSettings.getLocalIpAddress(), newSettings.getLocalPort());
-			}
-			else
-			{
-				upnpService.stop();
-			}
-		}
-	}
-
-	private void applyTor(Settings oldSettings, Settings newSettings)
-	{
-		if (!StringUtils.equals(newSettings.getTorSocksHost(), oldSettings.getTorSocksHost()) || newSettings.getTorSocksPort() != oldSettings.getTorSocksPort())
-		{
-			peerService.restartTor();
-		}
-	}
-
-	private void applyI2p(Settings oldSettings, Settings newSettings)
-	{
-		if (!StringUtils.equals(newSettings.getI2pSocksHost(), oldSettings.getI2pSocksHost()) || newSettings.getI2pSocksPort() != oldSettings.getI2pSocksPort())
-		{
-			peerService.restartI2p();
-		}
 	}
 
 	private void applyAutoStart(Settings oldSettings, Settings newSettings)

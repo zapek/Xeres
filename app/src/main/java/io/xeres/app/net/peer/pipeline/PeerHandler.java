@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
-import java.net.ProtocolException;
+import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -98,7 +98,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		{
 			item = rsServiceRegistry.buildIncomingItem(rawItem.getPacketVersion(), rawItem.getPacketService(), rawItem.getPacketSubType());
 			rawItem.deserialize(item);
-			log.debug("<== {}", item);
+			log.trace("<== {}", item);
 
 			var service = rsServiceRegistry.getServiceFromType(item.getServiceType());
 			if (service != null)
@@ -138,15 +138,17 @@ public class PeerHandler extends ChannelDuplexHandler
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 	{
-		if (cause instanceof TooLongFrameException || cause instanceof ProtocolException)
+		var peerConnection = ctx.channel().attr(PeerAttribute.PEER_CONNECTION).get();
+		var remote = peerConnection != null ? peerConnection : ctx.channel().remoteAddress();
+
+		if (cause instanceof TooLongFrameException || cause instanceof IOException)
 		{
-			log.error("Protocol error: {}, {}, closing connection...", cause.getClass(), cause.getMessage());
-			log.trace("Stacktrace: ", cause);
+			log.debug("Error in channel of {} (closing connection): ", remote, cause);
 			ctx.close();
 		}
 		else
 		{
-			log.error("Exception in channel:", cause);
+			log.error("Error in channel of {} (ignoring):", remote, cause);
 		}
 	}
 
@@ -199,12 +201,20 @@ public class PeerHandler extends ChannelDuplexHandler
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx)
 	{
-		log.debug("Closing connection with {}", ctx.channel().remoteAddress());
 		var peerConnection = ctx.channel().attr(PeerAttribute.PEER_CONNECTION).get();
+		if (log.isDebugEnabled())
+		{
+			var remote = peerConnection != null ? peerConnection : ctx.channel().remoteAddress();
+			log.debug("Closing connection with {} (channel inactive)", remote);
+		}
+
 		if (peerConnection != null)
 		{
 			peerConnection.cleanup();
-			locationService.setDisconnected(peerConnection.getLocation());
+			try (var ignored = new DatabaseSession(databaseSessionManager))
+			{
+				locationService.setDisconnected(peerConnection.getLocation());
+			}
 			peerConnectionManager.removePeer(peerConnection.getLocation());
 		}
 	}

@@ -25,6 +25,10 @@ import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
+/**
+ * This configuration makes the events asynchronous, that is, the method
+ * publishing them will return immediately instead of blocking.
+ */
 @Configuration
 public class AsynchronousEventsConfiguration
 {

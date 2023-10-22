@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,26 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.api.error.exception;
+package io.xeres.common.rest.forum;
 
-public class UnprocessableEntityException extends RuntimeException
+import java.util.Map;
+
+public record UpdateForumMessagesReadRequest(
+		Map<Long, Boolean> messageMap
+)
 {
-	@SuppressWarnings("java:S1165")
-	private String id;
-
-	public UnprocessableEntityException(String message)
-	{
-		super(message);
-	}
-
-	public UnprocessableEntityException(String id, String message)
-	{
-		super(message);
-		this.id = id;
-	}
-
-	public String getId()
-	{
-		return id;
-	}
 }

@@ -96,11 +96,11 @@ public final class SSL
 		var location = locationService.findLocationByLocationId(locationId).orElseThrow(() -> new CertificateException("Unknown location (SSL ID: " + locationId + ")")); // XXX: don't throw but handle location not found, see below
 		// XXX: if the location is not found, we can check if we have a profile (accepted=true) that would verify it (verify() method below), then it would be a new location. The pgp identifier is in the issuer field (CN=pgp_id). create the location above instead of the orElseThrow() add orElseGet()
 		// XXX: what we don't know is the location name so use something like [Unknown] (we need to allow null location names!) and get it with discovery
+		log.debug("Found location: {} {}", location.getName(), location.isConnected() ? ", is already connected" : "");
 		if (location.isConnected())
 		{
 			throw new CertificateException("Already connected");
 		}
-		log.debug("Found location: {} {}", location.getName(), location.isConnected() ? ", is already connected" : "");
 
 		// XXX: make sure everything is allright and there's no way to fool the system with shortInvites
 		if (location.getProfile().isComplete())

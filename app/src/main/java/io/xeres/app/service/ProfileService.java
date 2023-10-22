@@ -31,6 +31,8 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPSecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import static io.xeres.app.service.ResourceCreationState.*;
 
 @Service
 public class ProfileService
@@ -65,11 +69,11 @@ public class ProfileService
 	}
 
 	@Transactional
-	public boolean generateProfileKeys(String name)
+	public ResourceCreationState generateProfileKeys(String name)
 	{
-		if (settingsService.getSecretProfileKey() != null)
+		if (hasOwnProfile())
 		{
-			throw new IllegalStateException("Private profile key already exists");
+			return ALREADY_EXISTS;
 		}
 
 		if (name.length() < KEY_ID_LENGTH_MIN)
@@ -91,21 +95,32 @@ public class ProfileService
 
 			log.info("Successfully generated PGP key pair, id: {}", Id.toString(pgpSecretKey.getKeyID()));
 
-			var ownProfile = Profile.createOwnProfile(name, pgpPublicKey.getKeyID(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
-			profileRepository.save(ownProfile);
-			settingsService.saveSecretProfileKey(pgpSecretKey.getEncoded());
-			return true;
+			createOwnProfile(name, pgpSecretKey, pgpPublicKey);
+			return CREATED;
 		}
 		catch (PGPException | IOException e)
 		{
 			log.error("Failed to generate PGP key pair", e);
 		}
-		return false;
+		return FAILED;
+	}
+
+	@Transactional
+	public void createOwnProfile(String name, PGPSecretKey pgpSecretKey, PGPPublicKey pgpPublicKey) throws IOException
+	{
+		var ownProfile = Profile.createOwnProfile(name, pgpPublicKey.getKeyID(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
+		profileRepository.save(ownProfile);
+		settingsService.saveSecretProfileKey(pgpSecretKey.getEncoded());
 	}
 
 	public Profile getOwnProfile()
 	{
 		return profileRepository.findById(ProfileConstants.OWN_PROFILE_ID).orElseThrow(() -> new IllegalStateException("Missing own profile"));
+	}
+
+	public boolean hasOwnProfile()
+	{
+		return profileRepository.findById(ProfileConstants.OWN_PROFILE_ID).isPresent();
 	}
 
 	public Optional<Profile> findProfileById(long id)

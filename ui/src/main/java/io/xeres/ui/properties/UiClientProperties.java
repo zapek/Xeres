@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
 public class UiClientProperties
 {
 	private boolean coloredEmojis = true;
+	private boolean smileyToUnicode = true;
 	private boolean rsEmojisAliases = true;
 
 	public boolean isColoredEmojis()
@@ -37,6 +38,16 @@ public class UiClientProperties
 	public void setColoredEmojis(boolean coloredEmojis)
 	{
 		this.coloredEmojis = coloredEmojis;
+	}
+
+	public boolean isSmileyToUnicode()
+	{
+		return smileyToUnicode;
+	}
+
+	public void setSmileyToUnicode(boolean smileyToUnicode)
+	{
+		this.smileyToUnicode = smileyToUnicode;
 	}
 
 	public boolean isRsEmojisAliases()

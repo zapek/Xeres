@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,12 +17,25 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.api.error.exception;
+package io.xeres.ui.support.markdown;
 
-public class InternalServerErrorException extends RuntimeException
+import io.xeres.ui.support.contentline.ContentCode;
+
+import java.util.regex.Pattern;
+
+class CodeDetector implements MarkdownDetector
 {
-	public InternalServerErrorException(String message)
+	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
+
+	@Override
+	public boolean isPossibly(String line)
 	{
-		super(message);
+		return line.contains("`");
+	}
+
+	@Override
+	public void process(Context context, String line)
+	{
+		MarkdownService.processPattern(CODE_PATTERN, context, line, (s, groupName) -> context.addContent(new ContentCode(s.substring(1, s.length() - 1).strip())));
 	}
 }

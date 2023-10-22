@@ -241,3 +241,35 @@
 
 .forum-content {
 }
+
+.flat-titledpane > .title {
+    -fx-padding: 0.6666em 0.75em 0.3333em 0em;
+    -fx-background-color: transparent;
+}
+
+.flat-titledpane > *.content {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+/*
+TODO: find better icons
+
+.alert.confirmation.dialog-pane,
+.text-input-dialog.dialog-pane,
+.choice-dialog.dialog-pane {
+    -fx-graphic: url("dialog-confirm.png");
+}
+
+.alert.information.dialog-pane {
+    -fx-graphic: url("dialog-information.png");
+}
+
+.alert.error.dialog-pane {
+    -fx-graphic: url("dialog-error.png");
+}
+
+.alert.warning.dialog-pane {
+    -fx-graphic: url("dialog-warning.png");
+}
+ */

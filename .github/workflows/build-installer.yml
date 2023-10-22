@@ -4,117 +4,121 @@ on:
   workflow_dispatch:
   push:
     tags:
-    - "v*"
+      - "v*"
 
 # When setting the java version, always use x.y.z even if there's more numbers, otherwise @setup-java will fail.
 
 jobs:
-  build-windows-installer:
-    name: Build Windows installer
+  build-windows-installer-exe:
+    name: Build Windows installer (EXE)
     runs-on: windows-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Validate Gradle
-      uses: gradle/wrapper-validation-action@v1
-    - name: Set up JDK 20
-      uses: actions/setup-java@v3
-      with:
-        java-version: '20.0.2'
-        distribution: 'temurin'
-    - name: Build
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: jpackage --no-configuration-cache
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        path: ./app/build/dist/Xeres-*.exe
-        name: windows-installer
-        retention-days: 1
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate Gradle
+        uses: gradle/wrapper-validation-action@v1
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: jpackage --no-configuration-cache
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./app/build/dist/Xeres-*.exe
+          name: windows-installer-exe
+          retention-days: 1
 
-  build-linux-installer:
-    name: Build Linux installer
+  build-linux-installer-deb:
+    name: Build Linux installer (DEB)
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Validate Gradle
-      uses: gradle/wrapper-validation-action@v1
-    - name: Set up JDK 20
-      uses: actions/setup-java@v3
-      with:
-        java-version: '20.0.2'
-        distribution: 'temurin'
-    - name: Build
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: jpackage --no-configuration-cache
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        path: ./app/build/dist/xeres_*.deb
-        name: linux-installer
-        retention-days: 1
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate Gradle
+        uses: gradle/wrapper-validation-action@v1
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: jpackage --no-configuration-cache
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./app/build/dist/xeres_*.deb
+          name: linux-installer-deb
+          retention-days: 1
 
   build-macos-installer:
     name: Build MacOS installer
     runs-on: macos-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Validate Gradle
-      uses: gradle/wrapper-validation-action@v1
-    - name: Set up JDK 20
-      uses: actions/setup-java@v3
-      with:
-        java-version: '20.0.2'
-        distribution: 'temurin'
-    - name: Build
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: jpackage --no-configuration-cache
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        path: ./app/build/dist/Xeres-*.dmg
-        name: macos-installer
-        retention-days: 1
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate Gradle
+        uses: gradle/wrapper-validation-action@v1
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: jpackage --no-configuration-cache
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./app/build/dist/Xeres-*.dmg
+          name: macos-installer
+          retention-days: 1
 
   create-release:
     name: Create release
     runs-on: ubuntu-latest
-    needs: [ build-windows-installer, build-linux-installer, build-macos-installer ]
+    needs: [ build-windows-installer-exe, build-linux-installer-deb, build-macos-installer ]
     steps:
-    - name: Download Windows installer
-      uses: actions/download-artifact@v3
-      with:
-        name: windows-installer
-    - name: Download Linux installer
-      uses: actions/download-artifact@v3
-      with:
-        name: linux-installer
-    - name: Download MacOS installer
-      uses: actions/download-artifact@v3
-      with:
-        name: macos-installer
-    - name: Generate checksum
-      uses: jmgilman/actions-generate-checksum@v1
-      with:
-        patterns: |
-          *.exe
-          *.deb
-          *.dmg
-    - name: Create Github release
-      uses: marvinpinto/action-automatic-releases@v1.2.1
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
-        draft: true
-        files: |
-          checksum.txt
-          *.exe
-          *.deb
-          *.dmg
+      - name: Download Windows installer (EXE)
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-installer-exe
+      - name: Download Linux installer (DEB)
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-installer-deb
+      - name: Download MacOS installer
+        uses: actions/download-artifact@v3
+        with:
+          name: macos-installer
+      - name: Generate checksum
+        uses: jmgilman/actions-generate-checksum@v1
+        with:
+          patterns: |
+            *.exe
+            *.msi
+            *.deb
+            *.rpm
+            *.dmg
+      - name: Create Github release
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          draft: true
+          files: |
+            checksum.txt
+            *.exe
+            *.msi
+            *.deb
+            *.rpm
+            *.dmg
 
 # For manual builds, add automatic_release_tag: "Nightly" above

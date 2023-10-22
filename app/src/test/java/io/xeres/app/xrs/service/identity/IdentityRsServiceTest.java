@@ -84,7 +84,7 @@ class IdentityRsServiceTest
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-		identityRsService.createOwnIdentity(NAME, false);
+		identityRsService.generateOwnIdentity(NAME, false);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
@@ -123,7 +123,7 @@ class IdentityRsServiceTest
 		when(settingsService.getSecretProfileKey()).thenReturn(encodedKey);
 		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-		identityRsService.createOwnIdentity(NAME, true);
+		identityRsService.generateOwnIdentity(NAME, true);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());

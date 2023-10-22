@@ -52,10 +52,10 @@ public final class SingleInstanceRun
 	}
 
 	/**
-	 * Enforce an application to have a single instance of itself given a certain directory.
+	 * Enforces an application to have a single instance of itself, given a certain directory.
 	 *
-	 * @param dataDir the directory to be used by the application
-	 * @return true if the application can run without conflicts, false if it's already running
+	 * @param dataDir the directory to be used by the application.
+	 * @return {@code true} if the application can run without conflicts; {@code false} if it's already running.
 	 */
 	public static boolean enforceSingleInstance(String dataDir)
 	{
@@ -70,7 +70,7 @@ public final class SingleInstanceRun
 			if (lock != null)
 			{
 				result = true;
-				Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
+				Runtime.getRuntime().addShutdownHook(Thread.startVirtualThread(new ShutdownHook()));
 			}
 		}
 		catch (IOException | IllegalStateException | IllegalArgumentException e)

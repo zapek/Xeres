@@ -21,12 +21,10 @@ package io.xeres.ui.support.markdown;
 
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
+import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 class Context
@@ -38,16 +36,21 @@ class Context
 		CONTINUATION_BREAK // remove line feed to make a continuation break
 	}
 
+	private EmojiService emojiService;
 	private final Set<ParsingMode> options;
 	private final Scanner scanner;
 	private final List<Content> content = new ArrayList<>();
 	private int insertIndex;
 	private int completedIndex;
 	private int previousIndex = -1;
+	private boolean isLine;
+	private Set<MarkdownDetector> usedDetectors = new HashSet<>();
+	private int previousDetectorNum;
 
-	public Context(String input, Set<ParsingMode> options)
+	public Context(String input, EmojiService emojiService, Set<ParsingMode> options)
 	{
 		this.options = options;
+		this.emojiService = emojiService;
 		scanner = new Scanner(sanitize(input));
 	}
 
@@ -59,6 +62,11 @@ class Context
 	public List<Content> getContent()
 	{
 		return content;
+	}
+
+	public EmojiService getEmojiService()
+	{
+		return emojiService;
 	}
 
 	/**
@@ -73,7 +81,7 @@ class Context
 
 	private boolean hasIncompleteContent()
 	{
-		for (int i = completedIndex + 1; i < content.size(); i++)
+		for (int i = completedIndex; i < content.size(); i++)
 		{
 			var possibleContent = content.get(i);
 			if (!possibleContent.isComplete())
@@ -90,9 +98,9 @@ class Context
 	 *
 	 * @return the next line
 	 */
-	public String getNextLine()
+	public String getNextSubstring()
 	{
-		var nextIndex = completedIndex + 1;
+		var nextIndex = completedIndex;
 		if (nextIndex < content.size())
 		{
 			var possibleContent = content.get(nextIndex);
@@ -100,21 +108,52 @@ class Context
 			{
 				content.remove(nextIndex);
 				insertIndex = nextIndex;
+				isLine = false;
 				return possibleContent.asText();
 			}
 		}
+		isLine = true;
 		return scanner.nextLine() + getLn();
+	}
+
+	public boolean isLine()
+	{
+		return isLine;
+	}
+
+	public void addDetector(MarkdownDetector detector)
+	{
+		usedDetectors.add(detector);
+	}
+
+	public boolean hasUsedDetector(MarkdownDetector detector)
+	{
+		return usedDetectors.contains(detector);
+	}
+
+	public boolean hasNotUsedDetector(MarkdownDetector detector)
+	{
+		return !hasUsedDetector(detector);
 	}
 
 	public void addContent(Content newContent)
 	{
 		content.add(insertIndex, newContent);
-		if (previousIndex == insertIndex && !newContent.isComplete() && newContent instanceof ContentText contentText)
+
+		// Detect if we're in an infinite loop (e.g. "*" detected in line, but no matching "*foo*" so add ContentText then run again, etc...)
+		// We also check that no other detector can run anymore
+		if (previousIndex == insertIndex && !newContent.isComplete() && previousDetectorNum == usedDetectors.size() && newContent instanceof ContentText contentText)
 		{
-			contentText.setComplete(); // Detect if we're in an infinite loop (e.g. "*" detected in line, but no matching "*foo*" so add ContentText then run again, etc...)
+			contentText.setComplete();
 		}
 		previousIndex = insertIndex;
+		previousDetectorNum = usedDetectors.size();
 		insertIndex++;
+		if (newContent.isComplete())
+		{
+			usedDetectors.clear(); // We're done here
+			previousDetectorNum = 0;
+		}
 	}
 
 	public String getLn()
@@ -140,15 +179,16 @@ class Context
 				// One empty line is treated as a paragraph
 				if (skip != SANITIZE.EMPTY_LINES)
 				{
-					sb.append("\n\n");
+					if (skip == SANITIZE.CONTINUATION_BREAK)
+					{
+						sb.append("\n\n");
+					}
+					else
+					{
+						sb.append("\n");
+					}
 					skip = SANITIZE.EMPTY_LINES;
 				}
-			}
-			else if (Stream.of("> ", ">>", "    ", "\t").anyMatch(s::startsWith))
-			{
-				// We don't process quoted text and code
-				skip = SANITIZE.NORMAL;
-				sb.append(s.stripTrailing()).append("\n");
 			}
 			else
 			{
@@ -165,8 +205,17 @@ class Context
 						sb.append(" ");
 					}
 				}
-				sb.append(s.stripTrailing());
-				skip = SANITIZE.CONTINUATION_BREAK;
+				if (Stream.of("> ", ">>", "    ", "\t").anyMatch(s::startsWith))
+				{
+					// We don't process quoted text and code
+					skip = SANITIZE.NORMAL;
+					sb.append(s.stripTrailing()).append("\n");
+				}
+				else
+				{
+					sb.append(s.stripTrailing());
+					skip = SANITIZE.CONTINUATION_BREAK;
+				}
 			}
 		}
 		return sb.toString();

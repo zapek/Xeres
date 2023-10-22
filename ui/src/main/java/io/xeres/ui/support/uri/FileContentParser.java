@@ -23,6 +23,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.scene.control.Alert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
@@ -55,6 +56,6 @@ public class FileContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(hash, name + " (" + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", s -> UiUtils.showAlertInfo("Downloading files is not supported yet."));
+		return new ContentUri(hash, name + " (" + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Downloading files is not supported yet."));
 	}
 }

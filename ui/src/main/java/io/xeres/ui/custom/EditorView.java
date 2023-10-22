@@ -19,6 +19,8 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.fxml.FXML;
@@ -26,15 +28,24 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class EditorView extends VBox
 {
+	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+
+	private static final int IMAGE_WIDTH_MAX = 640;
+	private static final int IMAGE_HEIGHT_MAX = 480;
+	private static final int IMAGE_MAXIMUM_SIZE = 31000; // Same as the one in chat
+
 	@FXML
 	private Button bold;
 
@@ -59,11 +70,15 @@ public class EditorView extends VBox
 	@FXML
 	private TextArea editor;
 
+	private final ResourceBundle bundle;
+
 	public final ReadOnlyIntegerWrapper lengthProperty = new ReadOnlyIntegerWrapper();
 
 	public EditorView()
 	{
-		var loader = new FXMLLoader(getClass().getResource("/view/custom/editorview.fxml")); // XXX: translation bundle? how?
+		bundle = I18nUtils.getBundle();
+
+		var loader = new FXMLLoader(getClass().getResource("/view/custom/editorview.fxml"), bundle);
 		loader.setRoot(this);
 		loader.setController(this);
 
@@ -86,6 +101,8 @@ public class EditorView extends VBox
 		list.setOnAction(event -> insertNextLine("-"));
 		heading.setOnAction(event -> insertNextLine("##"));
 		hyperlink.setOnAction(event -> insertUrl(UiUtils.getWindow(event)));
+
+		editor.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 
 		lengthProperty.bind(editor.lengthProperty());
 	}
@@ -213,9 +230,9 @@ public class EditorView extends VBox
 		var selection = editor.getSelection();
 
 		var dialog = new TextInputDialog();
-		dialog.setTitle("Insert Hyperlink");
+		dialog.setTitle(bundle.getString("editorview.hyperlink.insert"));
 		dialog.setGraphic(null);
-		dialog.setHeaderText("Enter URL");
+		dialog.setHeaderText(bundle.getString("editorview.hyperlink.enter"));
 		dialog.initOwner(parent);
 
 		dialog.showAndWait().ifPresent(link -> {
@@ -268,5 +285,23 @@ public class EditorView extends VBox
 		var end = selection.getEnd();
 
 		return (start == 0 || editor.getText(start - 1, start).equals("\n")) && (editor.getText(end - 1, end).equals("\n") || end == editor.getLength() || editor.getText(end, end + 1).equals("\n"));
+	}
+
+	private void handleInputKeys(KeyEvent event)
+	{
+		if (PASTE_KEY.match(event))
+		{
+			var image = Clipboard.getSystemClipboard().getImage();
+			if (image != null)
+			{
+				var imageView = new ImageView(image);
+				ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX, IMAGE_HEIGHT_MAX);
+
+				var imgData = ImageUtils.writeImageAsJpegData(imageView.getImage(), IMAGE_MAXIMUM_SIZE);
+				editor.insertText(editor.getCaretPosition(), "![](" + imgData + ")");
+
+				event.consume();
+			}
+		}
 	}
 }

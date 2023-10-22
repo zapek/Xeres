@@ -29,9 +29,15 @@ import java.util.concurrent.TimeUnit;
 import static io.xeres.app.xrs.service.status.item.StatusItem.Status.AWAY;
 import static io.xeres.app.xrs.service.status.item.StatusItem.Status.ONLINE;
 
+/**
+ * This job changes the status of the user to away or online depending on
+ * if he's idle or not.
+ */
 @Component
 public class IdleDetectionJob
 {
+	private static final long IDLE_TIME_MINUTES = 5;
+
 	private final StatusRsService statusRsService;
 	private final IdleChecker idleChecker;
 
@@ -45,7 +51,7 @@ public class IdleDetectionJob
 	void checkIdle()
 	{
 		var idleTime = idleChecker.getIdleTime();
-		if (idleTime < TimeUnit.MINUTES.toSeconds(5))
+		if (idleTime < TimeUnit.MINUTES.toSeconds(IDLE_TIME_MINUTES))
 		{
 			statusRsService.changeStatus(ONLINE);
 		}

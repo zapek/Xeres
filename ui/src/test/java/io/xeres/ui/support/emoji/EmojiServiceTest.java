@@ -28,14 +28,14 @@ class EmojiServiceTest
 
 	@ParameterizedTest
 	@CsvSource({
-			"&#129393;, 1f971",
-			"&#127462;&#127464;, 1f1e6-1f1e8",
-			"&#128675;&#127997;&#8205;&#9792;&#65039;, 1f6a3-1f3fd-200d-2640-fe0f"
+			"\uD83E\uDD71, 1f971",
+			"\uD83C\uDDE6\uD83C\uDDE8, 1f1e6-1f1e8",
+			"\uD83D\uDEA3\uD83C\uDFFD\u200D\u2640\uFE0F, 1f6a3-1f3fd-200d-2640-fe0f"
 	})
 	void EmojiService_CodeDecimalToUnicode_OK(String input, String expected)
 	{
 		var emojiService = createEmojiService();
-		var result = emojiService.codeDecimalToUnicode(input);
+		var result = emojiService.emojiToFileName(input);
 
 		assertEquals(expected, result);
 	}
@@ -51,6 +51,7 @@ class EmojiServiceTest
 	void EmojiService_toUnicode_OK(String input, String expected)
 	{
 		when(uiClientProperties.isColoredEmojis()).thenReturn(false);
+		when(uiClientProperties.isSmileyToUnicode()).thenReturn(true);
 		when(uiClientProperties.isRsEmojisAliases()).thenReturn(true);
 
 		var emojiService = createEmojiService();

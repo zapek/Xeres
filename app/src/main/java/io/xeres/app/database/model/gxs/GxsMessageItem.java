@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
+import static io.xeres.app.database.model.gxs.GxsConstants.GXS_ITEM_MAX_SIZE;
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "gxs_message")
@@ -83,7 +84,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	private String serviceString;
 
 	@ElementCollection
-	private Set<Signature> signatures = new HashSet<>(2);
+	private Set<Signature> signatures = HashSet.newHashSet(2);
 
 	@Transient
 	private int serviceType;
@@ -242,7 +243,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		{
 			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
 		}
-		deserializeInt(buf); // the size
+		int size = deserializeInt(buf); // the size
+		if (size > GXS_ITEM_MAX_SIZE)
+		{
+			throw new IllegalArgumentException("Gxs message meta size " + size + " is bigger than the maximum of " + GXS_ITEM_MAX_SIZE);
+		}
 		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		messageId = (MessageId) deserializeIdentifier(buf, MessageId.class);
 		threadId = (MessageId) deserializeIdentifier(buf, MessageId.class);

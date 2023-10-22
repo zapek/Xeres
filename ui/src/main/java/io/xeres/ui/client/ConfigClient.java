@@ -24,14 +24,18 @@ import io.xeres.ui.JavaFxApplication;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.CONFIG_PATH;
+import static io.xeres.ui.client.ClientUtils.fromFile;
 
 @Component
 public class ConfigClient
@@ -145,5 +149,15 @@ public class ConfigClient
 				.uri("/export")
 				.retrieve()
 				.bodyToFlux(DataBuffer.class);
+	}
+
+	public Mono<Void> sendBackup(File file)
+	{
+		return webClient.post()
+				.uri("/import")
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(fromFile(file)))
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

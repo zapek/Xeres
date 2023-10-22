@@ -95,8 +95,9 @@ public class BroadcastDiscoveryService implements Runnable
 	{
 		log.info("Starting Broadcast Discovery service...");
 		localAddress = new InetSocketAddress(localIpAddress, localPort);
-		thread = new Thread(this, "Broadcast Discovery Service");
-		thread.start();
+		thread = Thread.ofVirtual()
+				.name("Broadcast Discovery Service")
+				.start(this);
 	}
 
 	public void stop()

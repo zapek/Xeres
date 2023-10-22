@@ -140,7 +140,7 @@ final class ControlPoint
 
 	static boolean addPortMapping(URI controlUrl, String serviceType, String internalIp, int internalPort, int externalPort, int duration, Protocol protocol)
 	{
-		Map<String, String> args = new HashMap<>();
+		Map<String, String> args = HashMap.newHashMap(8);
 		args.put("NewRemoteHost", "");
 		args.put("NewExternalPort", String.valueOf(externalPort));
 		args.put("NewProtocol", protocol.name());
@@ -156,7 +156,7 @@ final class ControlPoint
 
 	static boolean removePortMapping(URI controlUrl, String serviceType, int externalPort, Protocol protocol)
 	{
-		Map<String, String> args = new HashMap<>();
+		Map<String, String> args = HashMap.newHashMap(3);
 		args.put("NewRemoteHost", "");
 		args.put("NewExternalPort", String.valueOf(externalPort));
 		args.put("NewProtocol", protocol.name());

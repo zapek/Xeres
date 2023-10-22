@@ -71,7 +71,7 @@ public final class ImageUtils
 			do
 			{
 				out = compressBufferedImageToJpegArray(bufferedImage, quality);
-				quality -= 0.1;
+				quality -= 0.1f;
 			}
 			while (maximumSize != 0 && Math.ceil((double) out.length / 3) * 4 > maximumSize - 200 && quality > 0); // 200 bytes to be safe as the message might contain tags and so on
 

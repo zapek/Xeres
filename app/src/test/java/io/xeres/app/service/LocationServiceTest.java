@@ -27,7 +27,6 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.LocationRepository;
-import io.xeres.common.id.LocationId;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
@@ -56,7 +55,6 @@ import java.util.Optional;
 
 import static io.xeres.app.net.protocol.PeerAddress.Type.IPV4;
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -97,10 +95,9 @@ class LocationServiceTest
 	{
 		when(settingsService.getLocationPrivateKeyData()).thenReturn(null);
 
-		locationService.generateLocationKeys();
+		assertNotNull(locationService.generateLocationKeys());
 
 		verify(settingsService).getLocationPrivateKeyData();
-		verify(settingsService).saveLocationKeys(any(KeyPair.class));
 	}
 
 	@Test
@@ -114,61 +111,27 @@ class LocationServiceTest
 	@Test
 	void LocationService_GenerateLocationCertificate_OK() throws NoSuchAlgorithmException, CertificateException, InvalidKeySpecException, IOException
 	{
-		when(settingsService.hasOwnLocation()).thenReturn(false);
-		when(settingsService.isOwnProfilePresent()).thenReturn(true);
 		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
-		when(settingsService.getLocationPublicKeyData()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 
-		locationService.generateLocationCertificate();
+		assertNotNull(locationService.generateLocationCertificate(keyPair.getPublic().getEncoded()));
 
-		verify(settingsService).hasOwnLocation();
-		verify(settingsService).isOwnProfilePresent();
-		verify(settingsService).saveLocationCertificate(any(byte[].class));
 	}
 
 	@Test
-	void LocationService_GenerateLocationCertificate_LocationAlreadyExists_OK() throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
-	{
-		when(settingsService.hasOwnLocation()).thenReturn(true);
-
-		locationService.generateLocationCertificate();
-
-		verify(settingsService, times(0)).saveLocationCertificate(any(byte[].class));
-	}
-
-	@Test
-	void LocationService_GenerateLocationCertificate_MissingProfile_Fail()
-	{
-		when(settingsService.hasOwnLocation()).thenReturn(false);
-		when(settingsService.isOwnProfilePresent()).thenReturn(false);
-
-		assertThatThrownBy(() -> locationService.generateLocationCertificate())
-				.isInstanceOf(CertificateException.class)
-				.hasMessageContaining("without a profile");
-
-		verify(settingsService).hasOwnLocation();
-		verify(settingsService).isOwnProfilePresent();
-	}
-
-	@Test
-	void LocationService_CreateLocation_OK() throws CertificateException, IOException
+	void LocationService_CreateLocation_OK() throws IOException
 	{
 		when(settingsService.isOwnProfilePresent()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(settingsService.getLocationId()).thenReturn(new LocationId());
 		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
-		when(settingsService.getLocationPublicKeyData()).thenReturn(keyPair.getPublic().getEncoded());
+		when(settingsService.getLocationCertificate()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 		doNothing().when(publisher).publishEvent(any());
 
-		locationService.createOwnLocation("test");
+		locationService.generateOwnLocation("test");
 
-		verify(settingsService, times(2)).isOwnProfilePresent();
+		verify(settingsService, times(1)).isOwnProfilePresent();
 		verify(profileService, times(2)).getOwnProfile();
-		verify(settingsService).getLocationId();
-		verify(locationRepository).save(any(Location.class));
-		// There's no way to reliably wait for the publisher's event since it's asynchronous
 	}
 
 	@Test

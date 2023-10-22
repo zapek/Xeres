@@ -23,6 +23,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.scene.control.Alert;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
@@ -53,6 +54,6 @@ public class ProfileContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(hash, name + "@" + hash, s -> UiUtils.showAlertInfo("Adding profiles is not supported yet"));
+		return new ContentUri(hash, name + "@" + hash, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Adding profiles is not supported yet"));
 	}
 }

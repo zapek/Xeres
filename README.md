@@ -56,7 +56,7 @@ Latest release always available [here](https://github.com/zapek/Xeres/releases/l
 
 ### Build Requirements
 
-- Java 17 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 20)
+- Java 17 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 21)
 
 If you want to quickly try the current development version without installing anything else, see the [command line](#command-line) section below.
 
@@ -94,6 +94,12 @@ To pass arugments to Xeres, just use the args feature, for example:
 
 ### Database Debugging
 
+#### Online
+
+When running Xeres with the `dev` profile, there's a built-in H2 Console available, accessible through the _Debug_ menu.
+
+#### Offline
+
 With IntelliJ Ultimate, create the following Database connection with the built-in Datagrip client (aka the _Database_ tool window)
 
 - Connection type: Embedded
@@ -102,6 +108,15 @@ With IntelliJ Ultimate, create the following Database connection with the built-
 - Authentication: User & Password
 - User: ``sa``
 - There's no password
+
+You can also download the [H2 installer](https://www.h2database.com/html/download.html) (version to use: 2.1.214).
+Then run the H2 console with the following settings:
+
+- Saved Settings: Generic H2 (Embedded)
+- Driver Class: org.h2.Driver
+- JDBC URL: `hdbc:h2:file:~/workspace/Xeres/data/userdata` (put your path, and no file extension at the end!)
+- User Name: sa
+- The password is empty
 
 ### Useful Gradle Tasks
 
@@ -142,11 +157,16 @@ Pass the following arguments to run multiple instances.
 
 Location A:
 
-	--data-dir=./data2 --control-port=1068
+	--data-dir=./data2
 
 Location B:
 
-	--data-dir=./data3 --control-port=1069
+	--data-dir=./data3
+
+### Monitoring
+
+When running Xeres with the `dev` profile, JMX monitoring is available either using JConsole or [VisualVM](https://visualvm.github.io/).
+Simply run them and connect to the Xeres session.
 	
 ## Donations
 
@@ -162,3 +182,5 @@ Please consider a donation to help with the project's development. Contact me if
 | GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |
 | ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
 | BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |
+
+Thank you!

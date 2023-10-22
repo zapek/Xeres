@@ -21,6 +21,7 @@ package io.xeres.app;
 
 import io.xeres.app.application.environment.CommandArgument;
 import io.xeres.app.application.environment.HostVariable;
+import io.xeres.app.application.environment.LocalPortFinder;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.UiStarter;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class XeresApplication
 	{
 		HostVariable.parse();
 		CommandArgument.parse(args);
+		LocalPortFinder.ensureFreePort();
 
 		if (isRunningOnCloud() || !StartupProperties.getBoolean(UI, true))
 		{

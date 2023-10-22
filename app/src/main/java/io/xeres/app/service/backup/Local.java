@@ -23,6 +23,7 @@ class Local
 {
 	private Profile profile;
 	private Location location;
+	private Identity identity;
 
 	public Local()
 	{
@@ -47,5 +48,15 @@ class Local
 	public void setLocation(Location location)
 	{
 		this.location = location;
+	}
+
+	public Identity getIdentity()
+	{
+		return identity;
+	}
+
+	public void setIdentity(Identity identity)
+	{
+		this.identity = identity;
 	}
 }

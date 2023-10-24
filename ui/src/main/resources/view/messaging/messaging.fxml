@@ -24,7 +24,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<HBox prefHeight="600.0" prefWidth="400.0" minHeight="300.0" minWidth="300.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+<HBox minHeight="300.0" minWidth="300.0" prefHeight="600.0" prefWidth="400.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <VBox fx:id="content" HBox.hgrow="ALWAYS">
         <Label fx:id="notification" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER"/>
         <TextField fx:id="send" promptText="%messaging.prompt" VBox.vgrow="NEVER">
@@ -34,13 +34,13 @@
         </TextField>
     </VBox>
     <VBox HBox.hgrow="NEVER">
-        <HBox styleClass="imageview-avatar">
-            <ImageView fx:id="targetAvatar" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true"/>
-        </HBox>
+        <StackPane styleClass="imageview-avatar">
+            <ImageView fx:id="targetAvatar" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER"/>
+        </StackPane>
         <Region VBox.vgrow="ALWAYS"/>
-        <HBox styleClass="imageview-avatar">
-            <ImageView fx:id="ownAvatar" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true"/>
-        </HBox>
+        <StackPane styleClass="imageview-avatar">
+            <ImageView fx:id="ownAvatar" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER"/>
+        </StackPane>
         <HBox.margin>
             <Insets left="8.0"/>
         </HBox.margin>

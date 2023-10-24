@@ -109,7 +109,7 @@ public class ProfileClient
 	{
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
-						.path("/")
+						.path("")
 						.queryParam("locationId", locationId.toString())
 						.build())
 				.retrieve()

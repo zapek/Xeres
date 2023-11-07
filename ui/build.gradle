@@ -66,6 +66,7 @@ dependencies {
     implementation 'com.github.sarxos:webcam-capture:0.3.12'
     implementation "com.google.zxing:javase:$zxingVersion"
     implementation "net.harawata:appdirs:$appDirsVersion"
+    implementation 'io.github.mkpaz:atlantafx-base:2.0.1'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }

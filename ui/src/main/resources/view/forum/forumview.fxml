@@ -28,11 +28,11 @@
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.forum.ForumViewController">
     <SplitPane fx:id="splitPaneVertical" dividerPositions="0.1" VBox.vgrow="ALWAYS">
         <VBox SplitPane.resizableWithParent="false" VBox.vgrow="ALWAYS">
-            <HBox alignment="BASELINE_RIGHT" minHeight="-Infinity" VBox.vgrow="SOMETIMES">
+            <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" VBox.vgrow="NEVER">
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="createForum">
+                <Button fx:id="createForum" text="%button.create">
                     <graphic>
                         <FontAwesomeIconView glyphName="PLUS" glyphSize="14"/>
                     </graphic>

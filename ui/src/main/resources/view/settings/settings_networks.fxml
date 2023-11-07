@@ -25,15 +25,15 @@
 <?import javafx.scene.layout.*?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="300.0" prefWidth="400.0" spacing="12.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNetworksController">
     <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="%settings.network.hidden-services">
-        <GridPane hgap="4.0">
+        <GridPane hgap="8" vgap="8">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="40.0" prefWidth="50.0"/>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="60.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
             </rowConstraints>
             <Label text="%settings.network.tor-proxy">
                 <GridPane.margin>
@@ -69,14 +69,14 @@
         </GridPane>
     </TitledPane>
     <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="NAT">
-        <GridPane hgap="4.0">
+        <GridPane hgap="8" vgap="8">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
             </rowConstraints>
             <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="%settings.network.use-upnp" GridPane.columnSpan="2147483647">
                 <tooltip>
@@ -96,14 +96,14 @@
         </GridPane>
     </TitledPane>
     <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="LAN">
-        <GridPane hgap="4.0">
+        <GridPane hgap="8" vgap="8">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
             </rowConstraints>
             <CheckBox fx:id="broadcastDiscoveryEnabled" mnemonicParsing="false" text="%settings.network.use-broadcast-discovery" GridPane.columnSpan="2147483647">
                 <tooltip>
@@ -123,13 +123,13 @@
         </GridPane>
     </TitledPane>
     <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="DHT">
-        <GridPane hgap="4.0">
+        <GridPane hgap="8" vgap="8">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES"/>
             </rowConstraints>
             <CheckBox fx:id="dhtEnabled" mnemonicParsing="false" text="%settings.network.use-dht" GridPane.columnSpan="2147483647">
                 <tooltip>

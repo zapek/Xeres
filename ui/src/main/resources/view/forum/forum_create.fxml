@@ -24,14 +24,14 @@
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" prefHeight="180.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xeres.ui.controller.forum.ForumCreationWindowController">
-    <GridPane hgap="8">
+    <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="%forum.create.name"/>
         <TextField fx:id="forumName" promptText="%forum.create.name.prompt" GridPane.columnIndex="1">

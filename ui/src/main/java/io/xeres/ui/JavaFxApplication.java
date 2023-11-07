@@ -19,6 +19,7 @@
 
 package io.xeres.ui;
 
+import atlantafx.base.theme.PrimerLight;
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.ui.controller.MainWindowController;
 import javafx.application.Application;
@@ -74,6 +75,8 @@ public class JavaFxApplication extends Application
 	public void start(Stage primaryStage)
 	{
 		hostServices = getHostServices();
+
+		Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
 
 		Objects.requireNonNull(springContext);
 		mainWindowController = springContext.getBean(MainWindowController.class);

@@ -39,23 +39,13 @@
     -fx-text-fill: red;
 }
 
-/*noinspection CssUnusedSymbol*/
-.tooltip {
-    -fx-background: rgba(255, 255, 225);
-    -fx-text-fill: black;
-    -fx-background-color: rgba(255, 255, 225);
-    -fx-background-radius: 0px;
-    -fx-wrap-text: true;
-    -fx-font-size: 1em;
-}
-
 .chat-list-pane {
-    -fx-background-color: -fx-box-border;
+    -fx-background-color: -color-border-default;
     -fx-padding: 1;
 }
 
 .chat-list {
-    -fx-background-color: white;
+    -fx-background-color: -color-bg-default;
 }
 
 /*noinspection CssUnusedSymbol*/
@@ -65,7 +55,7 @@
 
 .chat-list .list-cell .time {
     -fx-padding: 0px 0.25em 0px 0px;
-    -fx-text-fill: grey;
+    -fx-text-fill: -color-fg-muted;
 }
 
 .chat-list .list-cell .action {
@@ -88,58 +78,8 @@
 }
 
 /*noinspection CssUnusedSymbol*/
-.oldchatlist .list-cell {
-    -fx-control-inner-background-alt: -fx-control-inner-background;
-    -fx-padding: 0px 0.25em 0px 0.25em
-}
-
-/*noinspection CssUnusedSymbol*/
-.chat-user-list .list-cell {
-    -fx-control-inner-background-alt: -fx-control-inner-background;
-}
-
-/*noinspection CssUnusedSymbol*/
-.tab-pane-borderless > *.tab-header-area > *.tab-header-background {
-    -fx-background-color: -fx-outer-border, -fx-text-box-border, #ececec;
-    -fx-effect: null;
-}
-
-.scroll-pane-freeflow {
-    -fx-background: white;
-}
-
-/*noinspection CssUnusedSymbol*/
 .freeflow .hyperlink {
     -fx-padding: 0px 0px 0px 0px;
-}
-
-.settings-list {
-    -fx-control-inner-background-alt: -fx-control-inner-background;
-}
-
-/* settings pane */
-.settings-pane > .title {
-    -fx-background-color: -fx-background;
-    -fx-padding: 0;
-}
-
-.settings-pane > *.content {
-    -fx-border-insets: 0 0 0 0;
-    -fx-background-color: -fx-background;
-}
-
-/*noinspection CssInvalidFunction*/
-.text-field-readonly {
-    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
-    linear-gradient(from 0px 0px to 0px 5px, derive(-fx-background, -9%), -fx-background);
-}
-
-/*noinspection CssInvalidFunction*/
-.text-field-readonly:focused {
-    -fx-background-color: -fx-focus-color,
-    -fx-control-inner-background,
-    -fx-faint-focus-color,
-    linear-gradient(from 0px 0px to 0px 5px, derive(-fx-background, -9%), -fx-background);
 }
 
 /* led */
@@ -200,11 +140,6 @@
     -fx-fill: blue;
 }
 
-.imageview-avatar {
-    -fx-background-color: -fx-box-border;
-    -fx-padding: 1;
-}
-
 .credit-card {
     -fx-background-color: rgba(255, 255, 255, 0);
     -fx-background-radius: 19px;
@@ -212,47 +147,4 @@
     -fx-border-radius: 19px;
 }
 
-.flat-toolbar .button {
-    -fx-background-color: transparent;
-}
 
-.flat-toolbar .button:hover {
-    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border;
-    -fx-background-radius: 0px;
-    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
-}
-
-.forum-content {
-}
-
-.flat-titledpane > .title {
-    -fx-padding: 0.6666em 0.75em 0.3333em 0em;
-    -fx-background-color: transparent;
-}
-
-.flat-titledpane > *.content {
-    -fx-border-color: transparent;
-    -fx-background-color: transparent;
-}
-
-/*
-TODO: find better icons
-
-.alert.confirmation.dialog-pane,
-.text-input-dialog.dialog-pane,
-.choice-dialog.dialog-pane {
-    -fx-graphic: url("dialog-confirm.png");
-}
-
-.alert.information.dialog-pane {
-    -fx-graphic: url("dialog-information.png");
-}
-
-.alert.error.dialog-pane {
-    -fx-graphic: url("dialog-error.png");
-}
-
-.alert.warning.dialog-pane {
-    -fx-graphic: url("dialog-warning.png");
-}
- */

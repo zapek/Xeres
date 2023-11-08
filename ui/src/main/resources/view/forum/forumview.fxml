@@ -19,12 +19,12 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import io.xeres.ui.custom.ProgressPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.TextFlow?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.forum.ForumViewController">
     <SplitPane fx:id="splitPaneVertical" dividerPositions="0.1" VBox.vgrow="ALWAYS">
         <VBox SplitPane.resizableWithParent="false" VBox.vgrow="ALWAYS">
@@ -34,7 +34,7 @@
                 </VBox.margin>
                 <Button fx:id="createForum" text="%button.create">
                     <graphic>
-                        <FontAwesomeIconView glyphName="PLUS" glyphSize="14"/>
+                        <FontIcon iconLiteral="fas-plus"/>
                     </graphic>
                     <tooltip>
                         <Tooltip showDuration="1m" text="%forum.view.create.tip"/>
@@ -50,13 +50,13 @@
                 </VBox.margin>
                 <Button fx:id="newThread" text="%forum.view.thread.create.tip" disable="true">
                     <graphic>
-                        <FontAwesomeIconView glyphName="PENCIL" glyphSize="14"/>
+                        <FontIcon iconLiteral="fas-pencil-alt"/>
                     </graphic>
                 </Button>
             </HBox>
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
                 <ProgressPane fx:id="forumMessagesProgress">
-                    <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0">
+                    <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0" styleClass="dense">
                         <columns>
                             <!--
                             <TreeTableColumn minWidth="24" prefWidth="24">
@@ -64,9 +64,9 @@
                                     <FontAwesomeIconView glyphName="ENVELOPE" glyphSize="14"/>
                                 </graphic>
                             </TreeTableColumn>-->
-                            <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="200" text="%forum.view.header.subject"/>
+                            <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="220" text="%forum.view.header.subject"/>
                             <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="100" text="%forum.view.header.author"/>
-                            <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="120" text="%forum.view.header.date"/>
+                            <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="140" text="%forum.view.header.date"/>
                         </columns>
                     </TreeTableView>
                 </ProgressPane>

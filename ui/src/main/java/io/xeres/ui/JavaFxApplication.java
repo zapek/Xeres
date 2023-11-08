@@ -77,6 +77,7 @@ public class JavaFxApplication extends Application
 		hostServices = getHostServices();
 
 		Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+		//Application.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet());
 
 		Objects.requireNonNull(springContext);
 		mainWindowController = springContext.getBean(MainWindowController.class);

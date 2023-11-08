@@ -19,11 +19,11 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
     <SplitPane fx:id="splitPane" dividerPositions="0.1, 0.8" VBox.vgrow="ALWAYS">
         <VBox SplitPane.resizableWithParent="false" VBox.vgrow="ALWAYS">
@@ -33,7 +33,7 @@
                 </VBox.margin>
                 <Button fx:id="createChatRoom" text="%button.create">
                     <graphic>
-                        <FontAwesomeIconView glyphName="PLUS" glyphSize="14"/>
+                        <FontIcon iconLiteral="fas-plus"/>
                     </graphic>
                     <tooltip>
                         <Tooltip showDuration="1m" text="%chat.room.create.tooltip"/>
@@ -60,7 +60,7 @@
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="invite" mnemonicParsing="false" text="%chat.room.invite.button">
                     <graphic>
-                        <FontAwesomeIconView glyphName="SIGN_IN" glyphSize="14"/>
+                        <FontIcon iconLiteral="fas-sign-in-alt"/>
                     </graphic>
                 </Button>
             </HBox>

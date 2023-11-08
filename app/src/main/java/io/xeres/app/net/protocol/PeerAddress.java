@@ -462,6 +462,11 @@ public final class PeerAddress
 
 	private static boolean isInvalidIpAddress(String address)
 	{
+		if (address == null)
+		{
+			return true;
+		}
+
 		var octets = address.split("\\.");
 
 		if (octets.length != 4)

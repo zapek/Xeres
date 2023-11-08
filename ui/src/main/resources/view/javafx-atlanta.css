@@ -131,20 +131,21 @@
     -fx-background-radius: 1024;
 }
 
-/* font awesome */
-.icon-web {
-    -fx-fill: green;
-}
-
-.icon-friend {
-    -fx-fill: blue;
-}
-
 .credit-card {
     -fx-background-color: rgba(255, 255, 255, 0);
     -fx-background-radius: 19px;
     -fx-border-color: black;
     -fx-border-radius: 19px;
+}
+
+#addFriendButton .ikonli-font-icon {
+    -fx-icon-color: blue;
+    -fx-icon-size: 24px;
+}
+
+#webHelpButton .ikonli-font-icon {
+    -fx-icon-color: green;
+    -fx-icon-size: 24px;
 }
 
 

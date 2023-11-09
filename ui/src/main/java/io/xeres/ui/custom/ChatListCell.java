@@ -20,7 +20,9 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.support.chat.ChatLine;
+import io.xeres.ui.support.chat.ColorGenerator;
 import io.xeres.ui.support.contentline.Content;
+import javafx.css.PseudoClass;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -29,6 +31,7 @@ import org.fxmisc.flowless.Cell;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.List;
 import java.util.Locale;
 
 public class ChatListCell implements Cell<ChatLine, TextFlow>
@@ -36,6 +39,10 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 			.withLocale(Locale.ROOT)
 			.withZone(ZoneId.systemDefault());
+
+	private static final PseudoClass passivePseudoClass = PseudoClass.getPseudoClass("passive");
+
+	private static final List<String> allColors = ColorGenerator.getAllColors();
 
 	private final TextFlow content;
 	private final Label time;
@@ -86,7 +93,12 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 
 		time.setText(formatter.format(line.getInstant()));
 		action.setText(line.getAction());
-		action.setTextFill(line.getNicknameColor());
+		var nicknameColor = line.getNicknameColor();
+		action.getStyleClass().removeAll(allColors);
+		if (nicknameColor != null)
+		{
+			action.getStyleClass().add(nicknameColor);
+		}
 
 		var nodes = line.getChatContents().stream()
 				.map(Content::getNode)
@@ -94,7 +106,7 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 
 		if (nodes.size() == 1 && nodes.get(0) instanceof Text text) // XXX: check if that works for single URLs..
 		{
-			text.setFill(line.getContentColor());
+			text.pseudoClassStateChanged(passivePseudoClass, !line.isActiveAction());
 		}
 
 		content.getChildren().addAll(nodes);

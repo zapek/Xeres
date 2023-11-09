@@ -66,8 +66,9 @@ dependencies {
     implementation "com.google.zxing:javase:$zxingVersion"
     implementation "net.harawata:appdirs:$appDirsVersion"
     implementation 'io.github.mkpaz:atlantafx-base:2.0.1'
-    implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
-    implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1'
+    implementation platform('org.kordamp.ikonli:ikonli-bom:12.3.1')
+    implementation 'org.kordamp.ikonli:ikonli-javafx'
+    implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }

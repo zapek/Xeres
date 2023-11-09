@@ -28,14 +28,14 @@
             <Font size="48.0"/>
         </font>
     </Label>
-    <GridPane hgap="8">
+    <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="%account.profile"/>
         <TextField fx:id="profileName" promptText="%account.profile.prompt" GridPane.columnIndex="1">

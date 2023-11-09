@@ -53,6 +53,11 @@
     -fx-padding: 0px 0.25em 0px 0.25em;
 }
 
+.chat-list .list-cell:passive {
+    -fx-padding: 0px 0.25em 0px 0.25em;
+    -fx-text-fill: -color-fg-muted;
+}
+
 .chat-list .list-cell .time {
     -fx-padding: 0px 0.25em 0px 0px;
     -fx-text-fill: -color-fg-muted;
@@ -148,4 +153,67 @@
     -fx-icon-size: 24px;
 }
 
+.color-00 {
+    -fx-text-fill: #CC0000;
+}
+
+.color-01 {
+    -fx-text-fill: #006CAD;
+}
+
+.color-02 {
+    -fx-text-fill: #4D9900;
+}
+
+.color-03 {
+    -fx-text-fill: #6600CC;
+}
+
+.color-04 {
+    -fx-text-fill: #A67D00;
+}
+
+.color-05 {
+    -fx-text-fill: #009927;
+}
+
+.color-06 {
+    -fx-text-fill: #0030C0;
+}
+
+.color-07 {
+    -fx-text-fill: #CC009A;
+}
+
+.color-08 {
+    -fx-text-fill: #B94600;
+}
+
+.color-09 {
+    -fx-text-fill: #869900;
+}
+
+.color-10 {
+    -fx-text-fill: #149900;
+}
+
+.color-11 {
+    -fx-text-fill: #009960;
+}
+
+.color-12 {
+    -fx-text-fill: #006CAD;
+}
+
+.color-13 {
+    -fx-text-fill: #0099CC;
+}
+
+.color-14 {
+    -fx-text-fill: #B300CC;
+}
+
+.color-15 {
+    -fx-text-fill: #CC004D;
+}
 

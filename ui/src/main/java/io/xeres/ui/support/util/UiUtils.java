@@ -21,7 +21,6 @@ package io.xeres.ui.support.util;
 
 import io.xeres.common.rest.ErrorResponseEntity;
 import io.xeres.ui.JavaFxApplication;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
@@ -164,15 +163,7 @@ public final class UiUtils
 
 	public static void setDefaultStyle(Scene scene)
 	{
-		if (Application.getUserAgentStylesheet() == null) // default, so modena
-		{
-			scene.getStylesheets().add("/view/javafx.css");
-		}
-		else
-		{
-			scene.getStylesheets().add("/view/javafx-atlanta.css");
-		}
-		//scene.getStylesheets().add("/view/javafx-dark.css");
+		scene.getStylesheets().add("/view/default.css");
 	}
 
 	/**

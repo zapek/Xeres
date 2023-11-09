@@ -19,123 +19,146 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import atlantafx.base.controls.Card?>
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="300.0" prefWidth="400.0" spacing="12.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNetworksController">
-    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="%settings.network.hidden-services">
-        <GridPane hgap="8" vgap="8">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="40.0" prefWidth="50.0"/>
-                <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="60.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints vgrow="ALWAYS"/>
-                <RowConstraints vgrow="ALWAYS"/>
-            </rowConstraints>
-            <Label text="%settings.network.tor-proxy">
-                <GridPane.margin>
-                    <Insets right="4.0"/>
-                </GridPane.margin>
-            </Label>
-            <TextField fx:id="torSocksHost" promptText="%settings.network.tor-proxy.prompt" GridPane.columnIndex="1">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.tor-proxy.tip"/>
-                </tooltip>
-            </TextField>
-            <TextField fx:id="torSocksPort" promptText="%settings.network.port" GridPane.columnIndex="2">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.tor-port.tip"/>
-                </tooltip>
-            </TextField>
+<ScrollPane fitToWidth="true" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNetworksController">
+    <VBox spacing="12.0">
+        <Card>
+            <header>
+                <Label text="%settings.network.hidden-services"/>
+            </header>
+            <body>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="40.0" prefWidth="50.0"/>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="60.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="ALWAYS"/>
+                        <RowConstraints vgrow="ALWAYS"/>
+                    </rowConstraints>
+                    <Label text="%settings.network.tor-proxy">
+                        <GridPane.margin>
+                            <Insets right="4.0"/>
+                        </GridPane.margin>
+                    </Label>
+                    <TextField fx:id="torSocksHost" promptText="%settings.network.tor-proxy.prompt" GridPane.columnIndex="1">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.tor-proxy.tip"/>
+                        </tooltip>
+                    </TextField>
+                    <TextField fx:id="torSocksPort" promptText="%settings.network.port" GridPane.columnIndex="2">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.tor-port.tip"/>
+                        </tooltip>
+                    </TextField>
 
-            <Label text="%settings.network.i2p-proxy" GridPane.rowIndex="1">
-                <GridPane.margin>
-                    <Insets right="4.0"/>
-                </GridPane.margin>
-            </Label>
-            <TextField fx:id="i2pSocksHost" promptText="%settings.network.i2p-proxy.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.i2p-proxy.tip"/>
-                </tooltip>
-            </TextField>
-            <TextField fx:id="i2pSocksPort" promptText="%settings.network.port" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.i2p-port.tip"/>
-                </tooltip>
-            </TextField>
-        </GridPane>
-    </TitledPane>
-    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="NAT">
-        <GridPane hgap="8" vgap="8">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints vgrow="SOMETIMES"/>
-                <RowConstraints vgrow="SOMETIMES"/>
-            </rowConstraints>
-            <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="%settings.network.use-upnp" GridPane.columnSpan="2147483647">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.use-upnp.tip"/>
-                </tooltip>
-            </CheckBox>
-            <Label text="%settings.network.external-ip-and-port" GridPane.rowIndex="1">
-                <GridPane.margin>
-                    <Insets right="4.0"/>
-                </GridPane.margin>
-            </Label>
-            <ReadOnlyTextField fx:id="externalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.external-ip-and-port.tip"/>
-                </tooltip>
-            </ReadOnlyTextField>
-        </GridPane>
-    </TitledPane>
-    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="LAN">
-        <GridPane hgap="8" vgap="8">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints vgrow="SOMETIMES"/>
-                <RowConstraints vgrow="SOMETIMES"/>
-            </rowConstraints>
-            <CheckBox fx:id="broadcastDiscoveryEnabled" mnemonicParsing="false" text="%settings.network.use-broadcast-discovery" GridPane.columnSpan="2147483647">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.use-broadcast-discovery.tip"/>
-                </tooltip>
-            </CheckBox>
-            <Label text="%settings.network.internal-ip-and-port" GridPane.rowIndex="1">
-                <GridPane.margin>
-                    <Insets right="4.0"/>
-                </GridPane.margin>
-            </Label>
-            <ReadOnlyTextField fx:id="internalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.internal-ip-and-port.tip"/>
-                </tooltip>
-            </ReadOnlyTextField>
-        </GridPane>
-    </TitledPane>
-    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="DHT">
-        <GridPane hgap="8" vgap="8">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints vgrow="SOMETIMES"/>
-            </rowConstraints>
-            <CheckBox fx:id="dhtEnabled" mnemonicParsing="false" text="%settings.network.use-dht" GridPane.columnSpan="2147483647">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.network.use-dht.tip"/>
-                </tooltip>
-            </CheckBox>
-        </GridPane>
-    </TitledPane>
-</VBox>
+                    <Label text="%settings.network.i2p-proxy" GridPane.rowIndex="1">
+                        <GridPane.margin>
+                            <Insets right="4.0"/>
+                        </GridPane.margin>
+                    </Label>
+                    <TextField fx:id="i2pSocksHost" promptText="%settings.network.i2p-proxy.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.i2p-proxy.tip"/>
+                        </tooltip>
+                    </TextField>
+                    <TextField fx:id="i2pSocksPort" promptText="%settings.network.port" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.i2p-port.tip"/>
+                        </tooltip>
+                    </TextField>
+                </GridPane>
+            </body>
+        </Card>
+        <Card>
+            <header>
+                <Label text="NAT"/>
+            </header>
+            <body>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="%settings.network.use-upnp" GridPane.columnSpan="2147483647">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.use-upnp.tip"/>
+                        </tooltip>
+                    </CheckBox>
+                    <Label text="%settings.network.external-ip-and-port" GridPane.rowIndex="1">
+                        <GridPane.margin>
+                            <Insets right="4.0"/>
+                        </GridPane.margin>
+                    </Label>
+                    <ReadOnlyTextField fx:id="externalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.external-ip-and-port.tip"/>
+                        </tooltip>
+                    </ReadOnlyTextField>
+                </GridPane>
+            </body>
+        </Card>
+        <Card>
+            <header>
+                <Label text="LAN"/>
+            </header>
+            <body>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <CheckBox fx:id="broadcastDiscoveryEnabled" mnemonicParsing="false" text="%settings.network.use-broadcast-discovery" GridPane.columnSpan="2147483647">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.use-broadcast-discovery.tip"/>
+                        </tooltip>
+                    </CheckBox>
+                    <Label text="%settings.network.internal-ip-and-port" GridPane.rowIndex="1">
+                        <GridPane.margin>
+                            <Insets right="4.0"/>
+                        </GridPane.margin>
+                    </Label>
+                    <ReadOnlyTextField fx:id="internalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.internal-ip-and-port.tip"/>
+                        </tooltip>
+                    </ReadOnlyTextField>
+                </GridPane>
+            </body>
+        </Card>
+        <Card>
+            <header>
+                <Label text="DHT"/>
+            </header>
+            <body>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <CheckBox fx:id="dhtEnabled" mnemonicParsing="false" text="%settings.network.use-dht" GridPane.columnSpan="2147483647">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.use-dht.tip"/>
+                        </tooltip>
+                    </CheckBox>
+                </GridPane>
+            </body>
+        </Card>
+    </VBox>
+</ScrollPane>

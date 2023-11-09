@@ -82,11 +82,6 @@
     -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
 }
 
-/*noinspection CssUnusedSymbol*/
-.freeflow .hyperlink {
-    -fx-padding: 0px 0px 0px 0px;
-}
-
 /* led */
 .led-control {
     -color: black;

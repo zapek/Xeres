@@ -27,7 +27,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.*?>
 <VBox minWidth="640.0" minHeight="460.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
     <AnchorPane VBox.vgrow="ALWAYS">
@@ -47,19 +46,12 @@
                         <ImageView fitHeight="59.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true">
                             <Image url="@../image/icon.png"/>
                         </ImageView>
-                        <Label fx:id="titleLabel" text="Xeres">
-                            <font>
-                                <Font size="36.0"/>
-                            </font>
-                        </Label>
+                        <Label fx:id="titleLabel" text="Xeres" styleClass="title-1"/>
                     </HBox>
-                    <Label text="%main.home.slogan">
+                    <Label text="%main.home.slogan" styleClass="text-caption">
                         <VBox.margin>
                             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
                         </VBox.margin>
-                        <font>
-                            <Font name="System Bold" size="12.0"/>
-                        </font>
                     </Label>
                     <Label text="%main.home.share-id">
                         <VBox.margin>

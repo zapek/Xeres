@@ -19,16 +19,18 @@
 
 package io.xeres.ui;
 
-import atlantafx.base.theme.NordDark;
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.ui.controller.MainWindowController;
+import io.xeres.ui.support.theme.AppTheme;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 public class JavaFxApplication extends Application
 {
@@ -76,12 +78,25 @@ public class JavaFxApplication extends Application
 	{
 		hostServices = getHostServices();
 
-		//Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-		Application.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet());
+		var preferences = Preferences.userRoot().node("Application");
+		var theme = preferences.get("Theme", AppTheme.PRIMER_LIGHT.getName());
+		setTheme(AppTheme.findByName(theme));
 
 		Objects.requireNonNull(springContext);
 		mainWindowController = springContext.getBean(MainWindowController.class);
 		springContext.publishEvent(new StageReadyEvent(primaryStage));
+	}
+
+	private static void setTheme(AppTheme appTheme)
+	{
+		try
+		{
+			Application.setUserAgentStylesheet(appTheme.getThemeClass().getDeclaredConstructor().newInstance().getUserAgentStylesheet());
+		}
+		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

@@ -24,7 +24,6 @@ import io.xeres.ui.support.chat.ColorGenerator;
 import io.xeres.ui.support.contentline.Content;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Label;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 
@@ -104,9 +103,9 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 				.map(Content::getNode)
 				.toList();
 
-		if (nodes.size() == 1 && nodes.get(0) instanceof Text text) // XXX: check if that works for single URLs..
+		if (!isComplex)
 		{
-			text.pseudoClassStateChanged(passivePseudoClass, !line.isActiveAction());
+			content.pseudoClassStateChanged(passivePseudoClass, !line.isActiveAction());
 		}
 
 		content.getChildren().addAll(nodes);

@@ -253,7 +253,11 @@ public final class UiUtils
 
 		if (target instanceof MenuItem menuItem)
 		{
-			return menuItem.getParentMenu().getParentPopup().getOwnerWindow();
+			if (menuItem.getParentMenu() != null)
+			{
+				return menuItem.getParentMenu().getParentPopup().getOwnerWindow();
+			}
+			return menuItem.getParentPopup().getOwnerWindow();
 		}
 		else if (target instanceof Node node)
 		{

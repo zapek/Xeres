@@ -53,9 +53,14 @@
     -fx-padding: 0px 0.25em 0px 0.25em;
 }
 
-.chat-list .list-cell:passive {
-    -fx-padding: 0px 0.25em 0px 0.25em;
-    -fx-text-fill: -color-fg-muted;
+/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
+.chat-list .list-cell:passive > .label {
+    -fx-text-fill: -color-fg-subtle;
+}
+
+/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
+.chat-list .list-cell:passive > Text {
+    -fx-fill: -color-fg-subtle;
 }
 
 .chat-list .list-cell .time {

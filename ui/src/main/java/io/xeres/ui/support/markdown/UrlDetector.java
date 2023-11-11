@@ -19,36 +19,24 @@
 
 package io.xeres.ui.support.markdown;
 
-import io.xeres.ui.support.uri.UriParser;
+import io.xeres.ui.support.contentline.ContentUri;
 
 import java.util.regex.Pattern;
 
-class LinkDetector implements MarkdownDetector
+class UrlDetector implements MarkdownDetector
 {
-	private static final Pattern LINK_PATTERN = Pattern.compile("\\[.{0,256}]\\(.{0,2048}\\)"); // Large URL
+	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public boolean isPossibly(String line)
 	{
-		return line.contains("[");
+		return line.contains("http") || line.contains("ftp") || line.contains("@");
 	}
 
 	@Override
 	public void process(Context context, String line)
 	{
-		MarkdownService.processPattern(LINK_PATTERN, context, line,
-				(s, groupName) -> context.addContent(UriParser.parse(getUrl(s), getDescription(s))));
-	}
-
-	private static String getUrl(String s)
-	{
-		var index = s.lastIndexOf("(");
-		return s.substring(index + 1, s.length() - 1); // skip the ")" at the end
-	}
-
-	private static String getDescription(String s)
-	{
-		var index = s.indexOf("]");
-		return s.substring(1, index - 1);
+		MarkdownService.processPattern(URL_PATTERN, context, line,
+				(s, groupName) -> context.addContent(new ContentUri(s)));
 	}
 }

@@ -28,7 +28,8 @@ import java.text.MessageFormat;
 
 public class ChatUserCell extends ListCell<ChatRoomUser>
 {
-	private static final ImageView defaultImage = new ImageView("/image/avatar_16.png");
+	private static final int DEFAULT_AVATAR_SIZE = 32;
+	private static final ImageView defaultImage = new ImageView("/image/avatar_" + DEFAULT_AVATAR_SIZE + ".png");
 
 	public ChatUserCell()
 	{
@@ -53,8 +54,8 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 		if (item.image() != null)
 		{
 			image = new ImageView(item.image().getImage());
-			image.setFitWidth(16.0);
-			image.setFitHeight(16.0);
+			image.setFitWidth(DEFAULT_AVATAR_SIZE);
+			image.setFitHeight(DEFAULT_AVATAR_SIZE);
 		}
 		else
 		{

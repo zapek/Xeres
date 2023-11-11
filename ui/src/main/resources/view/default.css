@@ -41,7 +41,7 @@
 
 .chat-list-pane {
     -fx-background-color: -color-border-default;
-    -fx-padding: 1;
+    -fx-padding: 1px;
 }
 
 .chat-list {
@@ -50,7 +50,7 @@
 
 /*noinspection CssUnusedSymbol*/
 .chat-list .list-cell {
-    -fx-padding: 0px 0.25em 0px 0.25em;
+    -fx-padding: 2px 8px 2px 8px;
 }
 
 /*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
@@ -72,19 +72,29 @@
     -fx-padding: 0px 0.25em 0px 0px;
 }
 
-/*noinspection CssUnusedSymbol*/
-.chat-list .list-cell .hyperlink {
-    -fx-padding: 0px 0px 0px 0px;
-}
-
-/*noinspection CssUnusedSymbol*/
-.chat-list .list-cell .hyperlink:focused {
-    -fx-border-color: transparent;
-}
-
 /* this is needed to display emojis before sending them */
 .chat-send {
     -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
+}
+
+.chat-user-list {
+    -fx-border-width: 0 1 1 1;
+}
+
+#messageHeader {
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-color: -color-border-default;
+    -fx-padding: 8px;
+}
+
+#messagePane {
+    -fx-border-color: -color-border-default;
+    -fx-padding: 8px;
+    -fx-border-width: 0 1 1 1;
+}
+
+.menu-bar {
+    -fx-background-color: transparent;
 }
 
 /* led */

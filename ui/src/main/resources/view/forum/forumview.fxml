@@ -72,9 +72,6 @@
                 </ProgressPane>
                 <VBox>
                     <GridPane fx:id="messageHeader" visible="false" hgap="8" vgap="4">
-                        <VBox.margin>
-                            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
-                        </VBox.margin>
                         <columnConstraints>
                             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
@@ -91,11 +88,7 @@
                         <Label fx:id="messageSubject" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
                     </GridPane>
                     <ScrollPane fx:id="messagePane" fitToWidth="true" VBox.vgrow="ALWAYS">
-                        <TextFlow fx:id="messageContent" tabSize="4" styleClass="forum-content">
-                            <padding>
-                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
-                            </padding>
-                        </TextFlow>
+                        <TextFlow fx:id="messageContent" tabSize="4" styleClass="forum-content"/>
                     </ScrollPane>
                 </VBox>
             </SplitPane>

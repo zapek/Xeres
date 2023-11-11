@@ -73,21 +73,26 @@ public final class UriParser
 		{
 			var uri = new URI(href);
 			var contentParserMap = contentParsers.get(uri.getScheme());
-			if (contentParserMap == null)
+			if (contentParserMap != null)
 			{
-				return ContentText.EMPTY;
-			}
-			var contentParser = contentParserMap.get(uri.getAuthority());
+				var contentParser = contentParserMap.get(uri.getAuthority());
 
-			if (contentParser != null)
+				if (contentParser != null)
+				{
+					var uriComponents = UriComponentsBuilder.fromPath(uri.getPath())
+							.query(uri.getQuery())
+							.build();
+
+					return contentParser.parse(uriComponents, text);
+				}
+			}
+
+			// If we don't know the URL, delegate to the OS
+			if (isBlank(text))
 			{
-				var uriComponents = UriComponentsBuilder.fromPath(uri.getPath())
-						.query(uri.getQuery())
-						.build();
-
-				return contentParser.parse(uriComponents, text);
+				return new ContentUri(uri.toString());
 			}
-			return new ContentUri(uri.toString());
+			return new ContentUri(uri.toString(), text);
 		}
 		catch (URISyntaxException e)
 		{

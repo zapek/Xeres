@@ -19,33 +19,40 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.control.Tooltip?>
+<?import atlantafx.base.controls.Card?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="12.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsGeneralController">
-    <TitledPane animated="false" collapsible="false" styleClass="settings-pane" text="%settings.general.system">
-        <GridPane hgap="4.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints/>
-            </rowConstraints>
-            <CheckBox fx:id="autoStartEnabled" disable="true" mnemonicParsing="false" text="%settings.general.startup" GridPane.columnSpan="2147483647">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%settings.general.startup.tip"/>
-                </tooltip>
-            </CheckBox>
-            <Label fx:id="autoStartNotAvailable" text="%settings.general.startup.not-available" visible="false" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <font>
-                    <Font size="11.0"/>
-                </font>
-            </Label>
-        </GridPane>
-    </TitledPane>
+    <Card>
+        <header>
+            <Label text="Theme"/>
+        </header>
+        <body>
+            <ChoiceBox fx:id="themeSelector">
+            </ChoiceBox>
+        </body>
+    </Card>
+    <Card>
+        <header>
+            <Label text="%settings.general.system"/>
+        </header>
+        <body>
+            <GridPane hgap="8" vgap="8">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints/>
+                </rowConstraints>
+                <CheckBox fx:id="autoStartEnabled" disable="true" mnemonicParsing="false" text="%settings.general.startup" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" text="%settings.general.startup.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <Label fx:id="autoStartNotAvailable" text="%settings.general.startup.not-available" visible="false" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="text-small"/>
+            </GridPane>
+        </body>
+    </Card>
 </VBox>

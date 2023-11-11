@@ -52,8 +52,6 @@ public class ReadOnlyTextField extends TextField
 
 	private void init()
 	{
-		getStyleClass().add("text-field-readonly");
-
 		setOnMouseClicked(event -> selectAll());
 
 		setContextMenu(createContextMenu());

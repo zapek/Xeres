@@ -20,7 +20,9 @@
 package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.support.util.ImageUtils;
+import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.fxml.FXML;
@@ -125,6 +127,11 @@ public class EditorView extends VBox
 		editor.setText(reply);
 		editor.positionCaret(0);
 		editor.requestFocus();
+	}
+
+	public void setInputContextMenu(LocationClient locationClient)
+	{
+		editor.setContextMenu(TextInputControlUtils.createInputContextMenu(editor, locationClient));
 	}
 
 	private void surround(String text)

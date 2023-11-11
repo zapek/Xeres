@@ -19,7 +19,6 @@
 
 package io.xeres.ui.support.chat;
 
-import javafx.scene.paint.Color;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +30,7 @@ class ColorGeneratorTest
 	void ColorGenerator_GenerateColor_OK()
 	{
 		var color = ColorGenerator.generateColor("abc");
-		assertEquals(Color.rgb(77, 153, 0), color);
+		assertEquals("color-02", color);
 	}
 
 	@Test

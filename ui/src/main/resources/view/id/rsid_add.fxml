@@ -26,14 +26,14 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
-<VBox prefWidth="480.0" prefHeight="400.0" minWidth="400.0" minHeight="380.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
-    <TextFlow fx:id="instructions" styleClass="freeflow">
+<VBox prefWidth="560.0" prefHeight="540.0" minWidth="400.0" minHeight="380.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
+    <TextFlow fx:id="instructions">
         <Text text="%rsid.add.textarea.instruction"/>
         <Hyperlink fx:id="scanQrCode" text="%rsid.add.textarea.instruction2"/>
     </TextFlow>
     <TextArea fx:id="rsIdTextArea" promptText="%rsid.add.textarea.prompt" VBox.vgrow="SOMETIMES">
         <font>
-            <Font name="Consolas" size="12.0"/>
+            <Font name="Consolas" size="14.0"/>
         </font>
         <VBox.margin>
             <Insets top="8.0"/>
@@ -44,18 +44,18 @@
     </TextArea>
     <Label fx:id="status"/>
     <TitledPane fx:id="titledPane" expanded="false" text="%rsid.add.details" VBox.vgrow="ALWAYS">
-        <GridPane hgap="8">
+        <GridPane hgap="8" vgap="8">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
             </rowConstraints>
             <Label text="%rsid.add.name"/>
             <ReadOnlyTextField fx:id="certName" editable="false" GridPane.columnIndex="1">
@@ -82,13 +82,13 @@
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.addresses" GridPane.rowIndex="4"/>
-            <ComboBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <ComboBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4" minWidth="150.0">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.addresses.tip"/>
                 </tooltip>
             </ComboBox>
             <Label text="%rsid.add.trust" GridPane.rowIndex="5"/>
-            <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5" minWidth="150.0">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.trust.tip"/>
                 </tooltip>

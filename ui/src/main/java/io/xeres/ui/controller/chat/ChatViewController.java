@@ -19,11 +19,8 @@
 
 package io.xeres.ui.controller.chat;
 
-import io.xeres.common.AppName;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.message.chat.*;
-import io.xeres.common.rest.location.RSIdResponse;
-import io.xeres.common.rsid.Type;
 import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ProfileClient;
@@ -35,12 +32,12 @@ import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.ImageUtils;
+import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -55,8 +52,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -66,9 +61,7 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -240,7 +233,7 @@ public class ChatViewController implements Controller
 				ae -> typingNotification.setText("")));
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
-		send.setContextMenu(createChatInputContextMenu(send));
+		send.setContextMenu(TextInputControlUtils.createInputContextMenu(send, locationClient));
 
 		invite.setOnAction(event -> windowManager.openInvite(UiUtils.getWindow(event), selectedRoom.getId()));
 
@@ -638,70 +631,6 @@ public class ChatViewController implements Controller
 	{
 		previewGroup.setVisible(visible);
 		previewGroup.setManaged(visible);
-	}
-
-	private ContextMenu createChatInputContextMenu(TextInputControl textInputControl)
-	{
-		var contextMenu = new ContextMenu();
-
-		contextMenu.getItems().addAll(createDefaultChatInputMenuItems(textInputControl));
-		var pasteId = new MenuItem(bundle.getString("chat.room.input.paste-id"));
-		pasteId.setOnAction(event -> appendOwnId(textInputControl));
-		contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
-		return contextMenu;
-	}
-
-	private void appendOwnId(TextInputControl textInputControl)
-	{
-		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID, Type.CERTIFICATE);
-		rsIdResponse.subscribe(reply -> Platform.runLater(() -> textInputControl.appendText(buildRetroshareUrl(reply))));
-	}
-
-	private String buildRetroshareUrl(RSIdResponse rsIdResponse)
-	{
-		var uri = URI.create("retroshare://certificate?" +
-				"radix=" + URLEncoder.encode(rsIdResponse.rsId().replace("\n", ""), UTF_8) + // Removing the '\n' is in case this is a certificate which is sliced for presentation
-				"&amp;name=" + URLEncoder.encode(rsIdResponse.name(), UTF_8) +
-				"&amp;location=" + URLEncoder.encode(rsIdResponse.location(), UTF_8));
-		return "<a href=\"" + uri + "\">" + AppName.NAME + " Certificate (" + rsIdResponse.name() + ", @" + rsIdResponse.location() + ")</a>";
-	}
-
-	private List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
-	{
-		var undo = new MenuItem(bundle.getString("chat.room.input.undo"));
-		undo.setOnAction(event -> textInputControl.undo());
-
-		var redo = new MenuItem(bundle.getString("chat.room.input.redo"));
-		redo.setOnAction(event -> textInputControl.redo());
-
-		var cut = new MenuItem(bundle.getString("chat.room.input.cut"));
-		cut.setOnAction(event -> textInputControl.cut());
-
-		var copy = new MenuItem(bundle.getString("chat.room.input.copy"));
-		copy.setOnAction(event -> textInputControl.copy());
-
-		var paste = new MenuItem(bundle.getString("chat.room.input.paste"));
-		paste.setOnAction(event -> textInputControl.paste());
-
-		var delete = new MenuItem(bundle.getString("chat.room.input.delete"));
-		delete.setOnAction(event -> textInputControl.deleteText(textInputControl.getSelection()));
-
-		var selectAll = new MenuItem(bundle.getString("chat.room.input.select-all"));
-		selectAll.setOnAction(event -> textInputControl.selectAll());
-
-		var emptySelection = Bindings.createBooleanBinding(() -> textInputControl.getSelection().getLength() == 0, textInputControl.selectionProperty());
-
-		cut.disableProperty().bind(emptySelection);
-		copy.disableProperty().bind(emptySelection);
-		delete.disableProperty().bind(emptySelection);
-
-		var canUndo = Bindings.createBooleanBinding(() -> !textInputControl.isUndoable(), textInputControl.undoableProperty());
-		var canRedo = Bindings.createBooleanBinding(() -> !textInputControl.isRedoable(), textInputControl.redoableProperty());
-
-		undo.disableProperty().bind(canUndo);
-		redo.disableProperty().bind(canRedo);
-
-		return List.of(undo, redo, cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
 	}
 
 	public void openInvite(long chatRoomId, ChatRoomInviteEvent event)

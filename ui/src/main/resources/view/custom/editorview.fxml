@@ -19,18 +19,18 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import de.jensd.fx.glyphs.fontawesome.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.*?>
 <fx:root prefHeight="480" prefWidth="640" type="VBox" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
-    <HBox styleClass="flat-toolbar">
+    <ToolBar>
         <VBox.margin>
-            <Insets bottom="4.0" top="4.0"/>
+            <Insets top="4.0"/>
         </VBox.margin>
         <Button fx:id="bold" focusTraversable="false">
             <graphic>
-                <FontAwesomeIconView glyphName="BOLD" glyphSize="14"/>
+                <FontIcon iconLiteral="fas-bold"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editorview.action.bold"/>
@@ -38,18 +38,16 @@
         </Button>
         <Button fx:id="italic" focusTraversable="false">
             <graphic>
-                <FontAwesomeIconView glyphName="ITALIC" glyphSize="14"/>
+                <FontIcon iconLiteral="fas-italic"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editorview.action.italic"/>
             </tooltip>
         </Button>
+        <Separator orientation="VERTICAL"/>
         <Button fx:id="hyperlink" focusTraversable="false">
-            <HBox.margin>
-                <Insets left="8.0"/>
-            </HBox.margin>
             <graphic>
-                <FontAwesomeIconView glyphName="LINK" glyphSize="14"/>
+                <FontIcon iconLiteral="fas-link"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editorview.action.hyperlink"/>
@@ -57,7 +55,7 @@
         </Button>
         <Button fx:id="quote" focusTraversable="false">
             <graphic>
-                <FontAwesomeIconView glyphName="QUOTE_LEFT" glyphSize="14"/>
+                <FontIcon iconLiteral="fas-quote-left"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editorview.action.quote"/>
@@ -65,18 +63,16 @@
         </Button>
         <Button fx:id="code" focusTraversable="false">
             <graphic>
-                <FontAwesomeIconView glyphName="CODE" glyphSize="14"/>
+                <FontIcon iconLiteral="fas-code"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editorview.action.code"/>
             </tooltip>
         </Button>
+        <Separator orientation="VERTICAL"/>
         <Button fx:id="list" focusTraversable="false">
-            <HBox.margin>
-                <Insets left="8.0"/>
-            </HBox.margin>
             <graphic>
-                <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
+                <FontIcon iconLiteral="fas-list-ul"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editorview.action.list"/>
@@ -84,12 +80,12 @@
         </Button>
         <Button fx:id="heading" focusTraversable="false">
             <graphic>
-                <FontAwesomeIconView glyphName="HEADER" glyphSize="14"/>
+                <FontIcon iconLiteral="fas-heading"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editorview.action.header"/>
             </tooltip>
         </Button>
-    </HBox>
+    </ToolBar>
     <TextArea fx:id="editor" wrapText="true" VBox.vgrow="SOMETIMES"/>
 </fx:root>

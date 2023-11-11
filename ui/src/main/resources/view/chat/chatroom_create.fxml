@@ -24,16 +24,16 @@
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="244.0" prefWidth="400.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.xeres.ui.controller.chat.ChatRoomCreationWindowController">
-    <GridPane hgap="8">
+    <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="%chat.room.name"/>
         <TextField fx:id="roomName" promptText="%chat.room.create.name.prompt" GridPane.columnIndex="1">

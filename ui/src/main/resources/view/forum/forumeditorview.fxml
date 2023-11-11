@@ -23,14 +23,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" prefWidth="640" prefHeight="480" minWidth="320.0" minHeight="256.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.forum.ForumEditorViewController">
-    <GridPane hgap="8">
+    <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
-            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="%forum.editor.name"/>
         <ReadOnlyTextField fx:id="forumName" editable="false" GridPane.columnIndex="1">

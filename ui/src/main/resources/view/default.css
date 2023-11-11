@@ -1,0 +1,235 @@
+/*
+ * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+.base-spacing {
+    -fx-padding: 12px;
+}
+
+/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
+.text-field:danger {
+    -fx-text-box-border: red;
+    -fx-focus-color: red;
+}
+
+/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
+.text-area:danger {
+    -fx-background-color: red;
+    -fx-text-fill: red;
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.label:danger {
+    -fx-text-fill: red;
+}
+
+.chat-list-pane {
+    -fx-background-color: -color-border-default;
+    -fx-padding: 1px;
+}
+
+.chat-list {
+    -fx-background-color: -color-bg-default;
+}
+
+/*noinspection CssUnusedSymbol*/
+.chat-list .list-cell {
+    -fx-padding: 2px 8px 2px 8px;
+}
+
+/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
+.chat-list .list-cell:passive > .label {
+    -fx-text-fill: -color-fg-subtle;
+}
+
+/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
+.chat-list .list-cell:passive > Text {
+    -fx-fill: -color-fg-subtle;
+}
+
+.chat-list .list-cell .time {
+    -fx-padding: 0px 0.25em 0px 0px;
+    -fx-text-fill: -color-fg-muted;
+}
+
+.chat-list .list-cell .action {
+    -fx-padding: 0px 0.25em 0px 0px;
+}
+
+/* this is needed to display emojis before sending them */
+.chat-send {
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
+}
+
+.chat-user-list {
+    -fx-border-width: 0 1 1 1;
+}
+
+#messageHeader {
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-color: -color-border-default;
+    -fx-padding: 8px;
+}
+
+#messagePane {
+    -fx-border-color: -color-border-default;
+    -fx-padding: 8px;
+    -fx-border-width: 0 1 1 1;
+}
+
+.menu-bar {
+    -fx-background-color: transparent;
+}
+
+/* led */
+.led-control {
+    -color: black;
+}
+
+.led-status-ok {
+    -color: #adff2f;
+}
+
+.led-status-warning {
+    -color: #ffa500;
+}
+
+.led-status-error {
+    -color: #ff3333;
+}
+
+.led-control .frame {
+    -fx-background-color: linear-gradient(from 14% 14% to 84% 84%,
+    rgba(20, 20, 20, 0.64706) 0%,
+    rgba(20, 20, 20, 0.64706) 15%,
+    rgba(41, 41, 41, 0.64706) 26%,
+    rgba(200, 200, 200, 0.40631) 85%,
+    rgba(200, 200, 200, 0.3451) 100%);
+    -fx-background-radius: 1024px;
+}
+
+/*noinspection CssInvalidFunction*/
+.led-control .main {
+    -fx-background-color: linear-gradient(from 15% 15% to 83% 83%,
+    derive(-color, -80%) 0%,
+    derive(-color, -87%) 49%,
+    derive(-color, -80%) 100%);
+    -fx-background-radius: 1024px;
+}
+
+/*noinspection CssInvalidFunction,CssInvalidPseudoSelector*/
+.led-control:on .main {
+    -fx-background-color: linear-gradient(from 15% 15% to 83% 83%,
+    derive(-color, -23%) 0%,
+    derive(-color, -50%) 49%,
+    -color 100%);
+}
+
+.led-control .highlight {
+    -fx-background-color: radial-gradient(center 15% 15%, radius 50%, white 0%, transparent 100%);
+    -fx-background-radius: 1024;
+}
+
+.credit-card {
+    -fx-background-color: rgba(255, 255, 255, 0);
+    -fx-background-radius: 19px;
+    -fx-border-color: black;
+    -fx-border-radius: 19px;
+}
+
+#addFriendButton .ikonli-font-icon {
+    -fx-icon-color: blue;
+    -fx-icon-size: 24px;
+}
+
+#webHelpButton .ikonli-font-icon {
+    -fx-icon-color: green;
+    -fx-icon-size: 24px;
+}
+
+.imageview-avatar {
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-color: -color-border-default;
+    -fx-padding: 1px;
+}
+
+.color-00 {
+    -fx-text-fill: #CC0000;
+}
+
+.color-01 {
+    -fx-text-fill: #006CAD;
+}
+
+.color-02 {
+    -fx-text-fill: #4D9900;
+}
+
+.color-03 {
+    -fx-text-fill: #6600CC;
+}
+
+.color-04 {
+    -fx-text-fill: #A67D00;
+}
+
+.color-05 {
+    -fx-text-fill: #009927;
+}
+
+.color-06 {
+    -fx-text-fill: #0030C0;
+}
+
+.color-07 {
+    -fx-text-fill: #CC009A;
+}
+
+.color-08 {
+    -fx-text-fill: #B94600;
+}
+
+.color-09 {
+    -fx-text-fill: #869900;
+}
+
+.color-10 {
+    -fx-text-fill: #149900;
+}
+
+.color-11 {
+    -fx-text-fill: #009960;
+}
+
+.color-12 {
+    -fx-text-fill: #006CAD;
+}
+
+.color-13 {
+    -fx-text-fill: #0099CC;
+}
+
+.color-14 {
+    -fx-text-fill: #B300CC;
+}
+
+.color-15 {
+    -fx-text-fill: #CC004D;
+}
+

@@ -34,8 +34,9 @@ public class MarkdownService
 
 		substringDetectors.add(new CodeDetector());
 		substringDetectors.add(new EmphasisDetector());
-		substringDetectors.add(new HrefDetector());
 		substringDetectors.add(new LinkDetector());
+		substringDetectors.add(new HrefDetector());
+		substringDetectors.add(new UrlDetector());
 		substringDetectors.add(new ImageDetector());
 		if (emojiService.isColoredEmojis())
 		{

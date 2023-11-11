@@ -22,6 +22,7 @@ package io.xeres.ui.controller.forum;
 import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.ui.client.ForumClient;
+import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.EditorView;
 import io.xeres.ui.support.util.UiUtils;
@@ -55,10 +56,12 @@ public class ForumEditorViewController implements WindowController
 	private PostRequest postRequest;
 
 	private final ForumClient forumClient;
+	private final LocationClient locationClient;
 
-	public ForumEditorViewController(ForumClient forumClient)
+	public ForumEditorViewController(ForumClient forumClient, LocationClient locationClient)
 	{
 		this.forumClient = forumClient;
+		this.locationClient = locationClient;
 	}
 
 	@Override
@@ -67,6 +70,7 @@ public class ForumEditorViewController implements WindowController
 		Platform.runLater(() -> title.requestFocus());
 
 		editorView.lengthProperty.addListener((observable, oldValue, newValue) -> checkSendable((Integer) newValue));
+		editorView.setInputContextMenu(locationClient);
 		title.setOnKeyTyped(event -> checkSendable(editorView.lengthProperty.getValue()));
 
 		send.setOnAction(event -> postMessage());

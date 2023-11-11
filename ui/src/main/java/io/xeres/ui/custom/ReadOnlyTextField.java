@@ -52,8 +52,6 @@ public class ReadOnlyTextField extends TextField
 
 	private void init()
 	{
-		getStyleClass().add("text-field-readonly"); // only used for modena
-
 		setOnMouseClicked(event -> selectAll());
 
 		setContextMenu(createContextMenu());

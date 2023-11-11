@@ -163,6 +163,12 @@
     -fx-icon-size: 24px;
 }
 
+.imageview-avatar {
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-color: -color-border-default;
+    -fx-padding: 1px;
+}
+
 .color-00 {
     -fx-text-fill: #CC0000;
 }

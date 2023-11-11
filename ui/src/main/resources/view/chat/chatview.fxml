@@ -19,21 +19,21 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.chat.ChatViewController">
     <SplitPane fx:id="splitPane" dividerPositions="0.1, 0.8" VBox.vgrow="ALWAYS">
         <VBox SplitPane.resizableWithParent="false" VBox.vgrow="ALWAYS">
-            <HBox alignment="BASELINE_RIGHT" minHeight="-Infinity" VBox.vgrow="SOMETIMES">
+            <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" VBox.vgrow="NEVER">
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="createChatRoom">
+                <Button fx:id="createChatRoom" text="%button.create">
                     <graphic>
-                        <FontAwesomeIconView glyphName="PLUS" glyphSize="14"/>
+                        <FontIcon iconLiteral="fas-plus"/>
                     </graphic>
                     <tooltip>
                         <Tooltip showDuration="1m" text="%chat.room.create.tooltip"/>
@@ -43,19 +43,26 @@
             <TreeView fx:id="roomTree" minWidth="-Infinity" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
         </VBox>
         <VBox minWidth="200.0" VBox.vgrow="ALWAYS">
-            <HBox fx:id="status" alignment="BASELINE_LEFT" visible="false">
+            <HBox fx:id="status" alignment="CENTER_LEFT" visible="false" VBox.vgrow="NEVER">
+                <VBox.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </VBox.margin>
                 <Label fx:id="roomName">
                     <HBox.margin>
-                        <Insets left="8.0" right="4.0"/>
+                        <Insets left="4.0" right="8.0"/>
                     </HBox.margin>
                 </Label>
-                <Label fx:id="roomTopic" ellipsisString="">
+                <Label fx:id="roomTopic" ellipsisString="" style="-fx-font-style: italic">
                     <HBox.margin>
-                        <Insets left="4.0" right="4.0"/>
+                        <Insets left="8.0"/>
                     </HBox.margin>
                 </Label>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="invite" mnemonicParsing="false" text="%chat.room.invite.button"/>
+                <Button fx:id="invite" mnemonicParsing="false" text="%chat.room.invite.button">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-sign-in-alt"/>
+                    </graphic>
+                </Button>
             </HBox>
             <VBox fx:id="content" VBox.vgrow="ALWAYS">
                 <VBox fx:id="sendGroup">
@@ -78,7 +85,11 @@
                             <Insets bottom="4.0" left="8.0" top="4.0"/>
                         </VBox.margin>
                     </Label>
-                    <TextField fx:id="send" styleClass="chat-send"/>
+                    <TextField fx:id="send" styleClass="chat-send">
+                        <VBox.margin>
+                            <Insets left="4.0" right="4.0" top="4.0"/>
+                        </VBox.margin>
+                    </TextField>
                 </VBox>
             </VBox>
         </VBox>

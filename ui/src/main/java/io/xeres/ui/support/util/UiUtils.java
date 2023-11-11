@@ -52,8 +52,7 @@ public final class UiUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	private static final PseudoClass errorPseudoClass = PseudoClass.getPseudoClass("error");
-	private static final PseudoClass warningPseudoClass = PseudoClass.getPseudoClass("warning");
+	private static final PseudoClass dangerPseudoClass = PseudoClass.getPseudoClass("danger");
 
 	private static final String KEY_LISTENER = "listener";
 	private static final String KEY_POPUP = "popup";
@@ -80,7 +79,7 @@ public final class UiUtils
 
 	public static void showError(TextField field, String error)
 	{
-		field.pseudoClassStateChanged(errorPseudoClass, true);
+		field.pseudoClassStateChanged(dangerPseudoClass, true);
 
 		var label = new Label();
 		label.setText(error);
@@ -111,22 +110,14 @@ public final class UiUtils
 		{
 			popup.hide();
 		}
-		field.pseudoClassStateChanged(errorPseudoClass, false);
+		field.pseudoClassStateChanged(dangerPseudoClass, false);
 	}
 
 	public static void showError(Node... nodes)
 	{
 		for (var node : nodes)
 		{
-			node.pseudoClassStateChanged(errorPseudoClass, true);
-		}
-	}
-
-	public static void showWarning(Node... nodes)
-	{
-		for (var node : nodes)
-		{
-			node.pseudoClassStateChanged(warningPseudoClass, true);
+			node.pseudoClassStateChanged(dangerPseudoClass, true);
 		}
 	}
 
@@ -134,7 +125,7 @@ public final class UiUtils
 	{
 		for (var node : nodes)
 		{
-			node.pseudoClassStateChanged(errorPseudoClass, false);
+			node.pseudoClassStateChanged(dangerPseudoClass, false);
 		}
 	}
 
@@ -172,8 +163,7 @@ public final class UiUtils
 
 	public static void setDefaultStyle(Scene scene)
 	{
-		scene.getStylesheets().add("/view/javafx.css");
-		//scene.getStylesheets().add("/view/javafx-dark.css");
+		scene.getStylesheets().add("/view/default.css");
 	}
 
 	/**
@@ -263,6 +253,10 @@ public final class UiUtils
 
 		if (target instanceof MenuItem menuItem)
 		{
+			if (menuItem.getParentMenu() != null)
+			{
+				return menuItem.getParentMenu().getParentPopup().getOwnerWindow();
+			}
 			return menuItem.getParentPopup().getOwnerWindow();
 		}
 		else if (target instanceof Node node)

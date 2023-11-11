@@ -22,7 +22,6 @@ package io.xeres.ui.support.chat;
 import io.xeres.common.id.GxsId;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
-import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,23 +69,24 @@ public class ChatLine
 		return action.getType() == ChatAction.Type.SAY && gxsId.toString().equals(action.getGxsId());
 	}
 
-	public Color getNicknameColor()
+	public String getNicknameColor()
 	{
 		return switch (action.getType())
 				{
-					case JOIN, LEAVE, TIMEOUT -> Color.GRAY;
-					case ACTION, SAY_OWN -> Color.BLACK;
 					case SAY -> ColorGenerator.generateColor(action.getGxsId() != null ? action.getGxsId() : action.getNickname());
+					default -> null;
 				};
 	}
 
-	public Color getContentColor()
+	public boolean isActiveAction()
 	{
 		return switch (action.getType())
-				{
-					case JOIN, LEAVE, TIMEOUT -> Color.GRAY;
-					case SAY, SAY_OWN, ACTION -> Color.BLACK;
-				};
+		{
+			case JOIN, LEAVE, TIMEOUT:
+				yield false;
+			case SAY, SAY_OWN, ACTION:
+				yield true;
+		};
 	}
 
 	public List<Content> getChatContents()

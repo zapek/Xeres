@@ -25,11 +25,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox minWidth="320.0" minHeight="260.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
+<VBox minWidth="320.0" minHeight="260.0" prefWidth="700.0" prefHeight="480.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
     <HBox VBox.vgrow="NEVER">
-        <opaqueInsets>
-            <Insets />
-        </opaqueInsets>
         <ImageView fitHeight="78.0" fitWidth="71.0" pickOnBounds="true" preserveRatio="true">
             <HBox.margin>
                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
@@ -37,11 +34,7 @@
             <Image url="@../../image/icon.png" />
         </ImageView>
         <VBox>
-            <Label text="Xeres">
-                <font>
-                    <Font size="24.0" />
-                </font>
-            </Label>
+            <Label text="Xeres" styleClass="title-2"/>
             <HBox>
                 <Label text="%about.version"/>
                 <Label fx:id="version" />
@@ -53,24 +46,14 @@
          </Label>
         </VBox>
     </HBox>
-    <TabPane fx:id="infoPane" prefHeight="256.0" prefWidth="560.0" style="-fx-background-color: -fx-outer-border, -fx-text-box-border, white; -fx-border-color: lightgrey;" styleClass="tab-pane-borderless" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-        <opaqueInsets>
-            <Insets />
-        </opaqueInsets>
-        <VBox.margin>
-            <Insets />
-        </VBox.margin>
+    <TabPane fx:id="infoPane" prefHeight="256.0" prefWidth="560.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <Tab text="%about.title">
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
-                <TextFlow styleClass="freeflow">
+            <ScrollPane fitToWidth="true">
+                <TextFlow>
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="%about.slogan">
-                        <font>
-                            <Font name="System Bold" size="12.0"/>
-                        </font>
-                    </Text>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="%about.slogan" styleClass="text-caption"/>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;©2019-2023 by David Gerber, All Rights Reserved&#10;"/>
                     <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;Use " />
                     <Hyperlink text="https://github.com/zapek/Xeres/issues/new/choose" />
@@ -85,28 +68,20 @@
             </ScrollPane>
         </Tab>
         <Tab text="%about.authors">
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
-                <TextFlow styleClass="freeflow">
+            <ScrollPane fitToWidth="true">
+                <TextFlow>
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="David Gerber (Zapek)&#10;">
-                        <font>
-                            <Font name="System Bold" size="12.0"/>
-                        </font>
-                    </Text>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="David Gerber (Zapek)&#10;" styleClass="text-caption"/>
                     <Hyperlink text="dg@zapek.com" />
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Benevolent dictator, lead developer">
-                        <font>
-                            <Font name="System Italic" size="12.0" />
-                        </font>
-                    </Text>
+                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Benevolent dictator, lead developer" styleClass="text-italic"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>
         <Tab text="%about.contributors">
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
-                <TextFlow styleClass="freeflow">
+            <ScrollPane fitToWidth="true">
+                <TextFlow>
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
@@ -115,8 +90,8 @@
             </ScrollPane>
         </Tab>
         <Tab text="%about.supporters">
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
-                <TextFlow styleClass="freeflow">
+            <ScrollPane fitToWidth="true">
+                <TextFlow>
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
@@ -128,8 +103,8 @@
             </ScrollPane>
         </Tab>
         <Tab text="%about.thanks">
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
-                <TextFlow styleClass="freeflow">
+            <ScrollPane fitToWidth="true">
+                <TextFlow>
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
@@ -139,17 +114,19 @@
             </ScrollPane>
         </Tab>
         <Tab text="%about.license">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <TextArea fx:id="licenseTextArea" editable="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <font>
-                        <Font name="Consolas" size="12.0"/>
-                    </font>
-                </TextArea>
-            </AnchorPane>
+            <ScrollPane fitToWidth="true">
+                <TextFlow>
+                    <Text fx:id="license">
+                        <font>
+                            <Font name="Consolas" size="14.0"/>
+                        </font>
+                    </Text>
+                </TextFlow>
+            </ScrollPane>
         </Tab>
         <Tab text="Additional Licenses">
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane-freeflow">
-                <TextFlow styleClass="freeflow">
+            <ScrollPane fitToWidth="true">
+                <TextFlow>
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>

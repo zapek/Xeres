@@ -24,7 +24,11 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.TabPane;
+import javafx.scene.text.Text;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.core.env.Environment;
@@ -46,7 +50,7 @@ public class AboutWindowController implements WindowController
 	private TabPane infoPane;
 
 	@FXML
-	private TextArea licenseTextArea;
+	private Text license;
 
 	@FXML
 	private Label version;
@@ -83,7 +87,7 @@ public class AboutWindowController implements WindowController
 		{
 			profile.setText("Profiles: " + String.join(", ", environment.getActiveProfiles()));
 		}
-		licenseTextArea.setText(UiUtils.getResourceFileAsString(getClass().getResourceAsStream("/LICENSE")));
+		license.setText(UiUtils.getResourceFileAsString(getClass().getResourceAsStream("/LICENSE")));
 
 		twemoji.setOnAction(event -> JavaFxApplication.openUrl("https://github.com/twitter/twemoji"));
 		twemojiLicense.setOnAction(event -> JavaFxApplication.openUrl("https://creativecommons.org/licenses/by/4.0/"));

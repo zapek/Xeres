@@ -69,8 +69,8 @@ public class ChatRoomCreationWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		roomName.textProperty().addListener(observable -> createButton.setDisable(roomName.getText().isBlank()));
-		topic.textProperty().addListener(observable -> createButton.setDisable(topic.getText().isBlank()));
+		roomName.textProperty().addListener(observable -> checkCreatable());
+		topic.textProperty().addListener(observable -> checkCreatable());
 
 		visibility.setItems(FXCollections.observableArrayList(bundle.getString("enum.roomtype.public"), bundle.getString("enum.roomtype.private")));
 		visibility.getSelectionModel().select(0);
@@ -82,5 +82,10 @@ public class ChatRoomCreationWindowController implements WindowController
 				.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(roomName)))
 				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);
+	}
+
+	private void checkCreatable()
+	{
+		createButton.setDisable(roomName.getText().isBlank() || topic.getText().isBlank());
 	}
 }

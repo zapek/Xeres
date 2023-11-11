@@ -195,5 +195,5 @@ dependencies {
     }
     testImplementation(testFixtures(project(":common")))
     testImplementation 'org.awaitility:awaitility:4.2.0'
-    testImplementation 'com.tngtech.archunit:archunit-junit5:1.1.0'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.2.0'
 }

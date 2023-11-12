@@ -72,15 +72,6 @@
     -fx-padding: 0px 0.25em 0px 0px;
 }
 
-/* this is needed to display emojis before sending them */
-.chat-send {
-    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Noto Emoji", "Apple Color Emoji";
-}
-
-.fixed-font {
-    -fx-font-family: "Consolas", "Courier New", "Courier", "monospace";
-}
-
 .chat-user-list {
     -fx-border-width: 0 1 1 1;
 }

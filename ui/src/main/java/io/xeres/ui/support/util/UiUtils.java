@@ -36,6 +36,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.apache.commons.lang3.SystemUtils;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.BufferedReader;
@@ -164,6 +165,18 @@ public final class UiUtils
 	public static void setDefaultStyle(Scene scene)
 	{
 		scene.getStylesheets().add("/view/default.css");
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			scene.getStylesheets().add("/view/windows.css");
+		}
+		else if (SystemUtils.IS_OS_LINUX)
+		{
+			scene.getStylesheets().add("/view/linux.css");
+		}
+		else if (SystemUtils.IS_OS_MAC)
+		{
+			scene.getStylesheets().add("/view/mac.css");
+		}
 	}
 
 	/**

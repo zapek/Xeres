@@ -25,21 +25,23 @@ import java.util.Arrays;
 
 public enum AppTheme
 {
-	PRIMER_LIGHT("Primer Light", PrimerLight.class),
-	PRIMER_DARK("Primer Dark", PrimerDark.class),
-	NORD_LIGHT("Nord Light", NordLight.class),
-	NORD_DARK("Nord Dark", NordDark.class),
-	CUPERTINO_LIGHT("Cupertino Light", CupertinoLight.class),
-	CUPERTINO_DARK("Cupertino Dark", CupertinoDark.class),
-	DRACULA("Dracula", Dracula.class);
+	PRIMER_LIGHT("Primer Light", PrimerLight.class, false),
+	PRIMER_DARK("Primer Dark", PrimerDark.class, true),
+	NORD_LIGHT("Nord Light", NordLight.class, false),
+	NORD_DARK("Nord Dark", NordDark.class, true),
+	CUPERTINO_LIGHT("Cupertino Light", CupertinoLight.class, false),
+	CUPERTINO_DARK("Cupertino Dark", CupertinoDark.class, true),
+	DRACULA("Dracula", Dracula.class, true);
 
 	private final String name;
 	private final Class<? extends Theme> themeClass;
+	private final boolean isDark;
 
-	AppTheme(String name, Class<? extends Theme> themeClass)
+	AppTheme(String name, Class<? extends Theme> themeClass, boolean isDark)
 	{
 		this.name = name;
 		this.themeClass = themeClass;
+		this.isDark = isDark;
 	}
 
 	public String getName()
@@ -50,6 +52,11 @@ public enum AppTheme
 	public Class<? extends Theme> getThemeClass()
 	{
 		return themeClass;
+	}
+
+	public boolean isDark()
+	{
+		return isDark;
 	}
 
 	public static AppTheme findByName(String name)

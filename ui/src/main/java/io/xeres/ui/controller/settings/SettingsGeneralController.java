@@ -23,9 +23,8 @@ import io.xeres.common.rest.config.Capabilities;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.theme.AppTheme;
-import javafx.application.Application;
+import io.xeres.ui.support.theme.AppThemeManager;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -33,9 +32,7 @@ import javafx.scene.control.Label;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.prefs.Preferences;
 
 @Component
 @FxmlView(value = "/view/settings/settings_general.fxml")
@@ -59,28 +56,13 @@ public class SettingsGeneralController implements SettingsController
 		this.configClient = configClient;
 	}
 
-	private static void changeTheme(ObservableValue<? extends AppTheme> observable, AppTheme oldValue, AppTheme newValue)
-	{
-		try
-		{
-			Application.setUserAgentStylesheet(newValue.getThemeClass().getDeclaredConstructor().newInstance().getUserAgentStylesheet());
-			var preferences = Preferences.userRoot().node("Application");
-			preferences.put("Theme", newValue.getName());
-		}
-		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
-
 	@Override
 	public void initialize()
 	{
 		themeSelector.getItems().addAll(Arrays.stream(AppTheme.values()).toList());
-		var preferences = Preferences.userRoot().node("Application");
-		var theme = preferences.get("Theme", AppTheme.PRIMER_LIGHT.getName());
-		themeSelector.getSelectionModel().select(AppTheme.findByName(theme));
-		themeSelector.getSelectionModel().selectedItemProperty().addListener(SettingsGeneralController::changeTheme);
+		var currentTheme = AppThemeManager.getCurrentTheme();
+		themeSelector.getSelectionModel().select(currentTheme);
+		themeSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> AppThemeManager.changeTheme(newValue));
 
 		configClient.getCapabilities()
 				.doOnSuccess(capabilities -> Platform.runLater(() -> {

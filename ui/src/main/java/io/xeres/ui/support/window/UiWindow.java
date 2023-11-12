@@ -21,6 +21,7 @@ package io.xeres.ui.support.window;
 
 import io.xeres.common.AppName;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -124,7 +125,10 @@ final class UiWindow
 		}
 
 		stage.setOnShowing(event -> builder.controller.onShowing());
-		stage.setOnShown(event -> builder.controller.onShown());
+		stage.setOnShown(event -> {
+			builder.controller.onShown();
+			UiBorders.setDarkModeOnOpeningWindow(AppThemeManager.getCurrentTheme().isDark());
+		});
 		stage.setOnHiding(event -> builder.controller.onHiding());
 		stage.setOnHidden(event -> builder.controller.onHidden());
 

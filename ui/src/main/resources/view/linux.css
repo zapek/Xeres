@@ -20,8 +20,3 @@
 .fixed-font {
     -fx-font-family: "monospace";
 }
-
-/* this is needed to display emojis before sending them */
-.chat-send {
-    -fx-font-family: "Noto Color Emoji";
-}

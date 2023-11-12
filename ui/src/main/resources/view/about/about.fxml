@@ -116,11 +116,7 @@
         <Tab text="%about.license">
             <ScrollPane fitToWidth="true">
                 <TextFlow>
-                    <Text fx:id="license">
-                        <font>
-                            <Font name="Consolas" size="14.0"/>
-                        </font>
-                    </Text>
+                    <Text fx:id="license" styleClass="fixed-font"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>

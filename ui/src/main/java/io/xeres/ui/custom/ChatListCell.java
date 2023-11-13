@@ -46,7 +46,7 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	private final TextFlow content;
 	private final Label time;
 	private final Label action;
-	private boolean isComplex;
+	private boolean isRich;
 
 	public ChatListCell(ChatLine line)
 	{
@@ -73,7 +73,7 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	@Override
 	public boolean isReusable()
 	{
-		return !isComplex;
+		return !isRich;
 	}
 
 	@Override
@@ -81,19 +81,20 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	{
 		if (isReusable())
 		{
-			content.getChildren().remove(2);
+			content.getChildren().remove(2); // keep time and action only
 		}
 	}
 
 	@Override
 	public void updateItem(ChatLine line)
 	{
-		isComplex = line.isRich();
+		isRich = line.isRich();
 
 		time.setText(formatter.format(line.getInstant()));
+
 		action.setText(line.getAction());
-		var nicknameColor = line.getNicknameColor();
 		action.getStyleClass().removeAll(allColors);
+		var nicknameColor = line.getNicknameColor();
 		if (nicknameColor != null)
 		{
 			action.getStyleClass().add(nicknameColor);
@@ -103,10 +104,7 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 				.map(Content::getNode)
 				.toList();
 
-		if (!isComplex)
-		{
-			content.pseudoClassStateChanged(passivePseudoClass, !line.isActiveAction());
-		}
+		content.pseudoClassStateChanged(passivePseudoClass, !line.isActiveAction());
 
 		content.getChildren().addAll(nodes);
 	}

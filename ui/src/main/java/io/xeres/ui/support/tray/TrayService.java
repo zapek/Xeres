@@ -64,9 +64,11 @@ public class TrayService
 			return;
 		}
 
-		if (!SystemTray.isSupported() || SystemUtils.IS_OS_LINUX)
+		// Only works properly on Windows. On Linux it makes an ugly mess with weird UI and flickering and on
+		// MacOS it hangs on exit.
+		if (!SystemTray.isSupported() || SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC)
 		{
-			log.error("System tray not supported");
+			log.error("System tray not supported on that platform");
 			return;
 		}
 

@@ -64,7 +64,7 @@ public final class UiBorders
 
 	private interface DwmSupport extends Library
 	{
-		DwmSupport INSTANCE = Native.load("dwmapi", DwmSupport.class);
+		DwmSupport INSTANCE = Platform.getOSType() == Platform.WINDOWS ? Native.load("dwmapi", DwmSupport.class) : null;
 
 		WinNT.HRESULT DwmSetWindowAttribute(
 				WinDef.HWND hwnd,
@@ -74,7 +74,7 @@ public final class UiBorders
 		);
 	}
 
-	public static void dwmSetBooleanValue(WindowHandle handle, DwmAttribute attribute, boolean value)
+	private static void dwmSetBooleanValue(WindowHandle handle, DwmAttribute attribute, boolean value)
 	{
 		if (handle != null)
 		{
@@ -112,6 +112,11 @@ public final class UiBorders
 
 	private static List<WindowHandle> findAllWindowHandle()
 	{
+		if (Platform.getOSType() != Platform.WINDOWS)
+		{
+			return List.of();
+		}
+
 		return com.sun.glass.ui.Window.getWindows().stream()
 				.map(window -> new WindowHandle(new WinDef.HWND(new Pointer(window.getNativeWindow()))))
 				.toList();

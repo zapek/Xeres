@@ -19,6 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.custom.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
@@ -29,21 +30,21 @@
     <HBox VBox.vgrow="NEVER">
         <ImageView fitHeight="78.0" fitWidth="71.0" pickOnBounds="true" preserveRatio="true">
             <HBox.margin>
-                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
             </HBox.margin>
-            <Image url="@../../image/icon.png" />
+            <Image url="@../../image/icon.png"/>
         </ImageView>
         <VBox>
             <Label text="Xeres" styleClass="title-2"/>
             <HBox>
                 <Label text="%about.version"/>
-                <Label fx:id="version" />
+                <Label fx:id="version"/>
             </HBox>
-         <Label fx:id="profile">
-            <VBox.margin>
-               <Insets top="4.0" />
-            </VBox.margin>
-         </Label>
+            <Label fx:id="profile">
+                <VBox.margin>
+                    <Insets top="4.0"/>
+                </VBox.margin>
+            </Label>
         </VBox>
     </HBox>
     <TabPane fx:id="infoPane" prefHeight="256.0" prefWidth="560.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
@@ -53,17 +54,15 @@
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="%about.slogan" styleClass="text-caption"/>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;©2019-2023 by David Gerber, All Rights Reserved&#10;"/>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;Use " />
-                    <Hyperlink text="https://github.com/zapek/Xeres/issues/new/choose" />
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" to report bugs or suggest improvements." />
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;&#10;Website: " />
-                    <Hyperlink text="https://xeres.io" />
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Wiki: " />
-                    <Hyperlink text="https://github.com/zapek/Xeres/wiki" />
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Source code: " />
-                    <Hyperlink text="https://github.com/zapek/Xeres" />
+                    <Text text="%about.slogan" styleClass="text-caption"/>
+                    <Text text="&#10;&#10;©2019-2023 by David Gerber, All Rights Reserved&#10;&#10;"/>
+                    <DisclosedHyperlink text="Report bugs or suggest improvements." uri="https://github.com/zapek/Xeres/issues/new/choose"/>
+                    <Text text="&#10;&#10;"/>
+                    <DisclosedHyperlink text="Website" uri="https://xeres.io"/>
+                    <Text text="&#10;"/>
+                    <DisclosedHyperlink text="Wiki" uri="https://github.com/zapek/Xeres/wiki"/>
+                    <Text text="&#10;"/>
+                    <DisclosedHyperlink text="Source code" uri="https://github.com/zapek/Xeres"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>
@@ -73,19 +72,9 @@
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="David Gerber (Zapek)&#10;" styleClass="text-caption"/>
-                    <Hyperlink text="dg@zapek.com" />
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="&#10;Benevolent dictator, lead developer" styleClass="text-italic"/>
-                </TextFlow>
-            </ScrollPane>
-        </Tab>
-        <Tab text="%about.contributors">
-            <ScrollPane fitToWidth="true">
-                <TextFlow>
-                    <padding>
-                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
-                    </padding>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="(None yet)"/>
+                    <Text text="David Gerber (Zapek)&#10;" styleClass="text-caption"/>
+                    <DisclosedHyperlink text="dg@zapek.com" uri="mailto:dg@zapek.com"/>
+                    <Text text="&#10;Benevolent dictator, lead developer" styleClass="text-italic"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>
@@ -95,10 +84,9 @@
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Please visit "/>
-                    <Hyperlink text="https://xeres.io"/>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" to make a donation.&#10;"/>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="All sponsors will be listed here (opt-in)."/>
+                    <Text text="Please "/>
+                    <DisclosedHyperlink text="make a donation." uri="https://xeres.io/donate"/>
+                    <Text text="&#10;All sponsors will be listed here (opt-in)."/>
                 </TextFlow>
             </ScrollPane>
         </Tab>
@@ -108,14 +96,16 @@
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0"
-                          text="Olivier Piras&#10;for coming up with the name&#10;&#10;Nicolas Dirand&#10;for raising a statue in my image in his village&#10;&#10;Cyril Soler&#10;for answering my silly questions&#10;&#10;Adrien Gerber&#10;for testing the emojis&#10;&#10;The Retroshare developers&#10;for coming up with the most interesting P2P concepts"/>
+                    <Text text="Olivier Piras&#10;for coming up with the name&#10;&#10;Nicolas Dirand&#10;for raising a statue in my image in his village&#10;&#10;Cyril Soler&#10;for answering my silly questions&#10;&#10;Adrien Gerber&#10;for testing the emojis&#10;&#10;The Retroshare developers&#10;for coming up with the most interesting P2P concepts"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>
         <Tab text="%about.license">
             <ScrollPane fitToWidth="true">
                 <TextFlow>
+                    <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    </padding>
                     <Text fx:id="license" styleClass="fixed-font"/>
                 </TextFlow>
             </ScrollPane>
@@ -126,16 +116,16 @@
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <Hyperlink fx:id="twemoji" text="Twemoji"/>
-                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text=" © 2020 Twitter, Inc and other contributors. Graphics licensed under "/>
-                    <Hyperlink fx:id="twemojiLicense" text="CC-BY 4.0"/>
+                    <DisclosedHyperlink text="Twemoji" uri="https://github.com/twitter/twemoji"/>
+                    <Text text=" © 2020 Twitter, Inc and other contributors. Graphics licensed under "/>
+                    <DisclosedHyperlink text="CC-BY 4.0" uri="https://creativecommons.org/licenses/by/4.0/"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>
     </TabPane>
     <HBox alignment="TOP_RIGHT">
         <VBox.margin>
-            <Insets top="8.0" />
+            <Insets top="8.0"/>
         </VBox.margin>
         <Button fx:id="closeWindow" minWidth="72.0" mnemonicParsing="false" text="%button.close"/>
     </HBox>

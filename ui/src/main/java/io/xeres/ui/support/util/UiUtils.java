@@ -21,6 +21,7 @@ package io.xeres.ui.support.util;
 
 import io.xeres.common.rest.ErrorResponseEntity;
 import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
@@ -245,7 +246,14 @@ public final class UiUtils
 			parent.getChildrenUnmodifiable().forEach(UiUtils::linkify);
 		}
 
-		if (rootNode instanceof Hyperlink hyperlink)
+		if (rootNode instanceof DisclosedHyperlink disclosedHyperlink)
+		{
+			if (disclosedHyperlink.getOnAction() == null)
+			{
+				disclosedHyperlink.setOnAction(event -> JavaFxApplication.openUrl(disclosedHyperlink.getUri()));
+			}
+		}
+		else if (rootNode instanceof Hyperlink hyperlink)
 		{
 			if (hyperlink.getOnAction() == null)
 			{

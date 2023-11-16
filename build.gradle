@@ -21,7 +21,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 buildscript {
     ext {
-        bouncycastleVersion = "1.76"
+        bouncycastleVersion = "1.77"
         apacheCommonsCollectionsVersion = "4.4"
         springOpenApiVersion = "2.2.0"
         jsoupVersion = "1.16.2"

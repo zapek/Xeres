@@ -19,13 +19,11 @@
 
 package io.xeres.ui.controller.about;
 
-import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.text.Text;
@@ -58,12 +56,6 @@ public class AboutWindowController implements WindowController
 	@FXML
 	private Label profile;
 
-	@FXML
-	private Hyperlink twemoji;
-
-	@FXML
-	private Hyperlink twemojiLicense;
-
 	private final BuildProperties buildProperties;
 	private final Environment environment;
 	private final ResourceBundle bundle;
@@ -88,9 +80,6 @@ public class AboutWindowController implements WindowController
 			profile.setText("Profiles: " + String.join(", ", environment.getActiveProfiles()));
 		}
 		license.setText(UiUtils.getResourceFileAsString(getClass().getResourceAsStream("/LICENSE")));
-
-		twemoji.setOnAction(event -> JavaFxApplication.openUrl("https://github.com/twitter/twemoji"));
-		twemojiLicense.setOnAction(event -> JavaFxApplication.openUrl("https://creativecommons.org/licenses/by/4.0/"));
 
 		closeWindow.setOnAction(UiUtils::closeWindow);
 		UiUtils.linkify(infoPane);

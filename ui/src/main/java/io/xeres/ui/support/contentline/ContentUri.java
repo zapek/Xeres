@@ -20,7 +20,7 @@
 package io.xeres.ui.support.contentline;
 
 import io.xeres.ui.JavaFxApplication;
-import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 
@@ -38,15 +38,13 @@ public class ContentUri implements Content
 
 	public ContentUri(String uri, String description)
 	{
-		node = new Hyperlink(description);
-		TooltipUtils.install(node, uri);
+		node = new DisclosedHyperlink(description, uri);
 		node.setOnAction(event -> JavaFxApplication.openUrl(appendMailToIfNeeded(uri)));
 	}
 
 	public ContentUri(String uri, String description, Consumer<String> action)
 	{
-		node = new Hyperlink(description);
-		TooltipUtils.install(node, uri);
+		node = new DisclosedHyperlink(description, uri);
 		node.setOnAction(event -> action.accept(uri));
 	}
 

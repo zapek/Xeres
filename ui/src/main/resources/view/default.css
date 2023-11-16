@@ -22,23 +22,6 @@
     -fx-padding: 12px;
 }
 
-/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
-.text-field:danger {
-    -fx-text-box-border: red;
-    -fx-focus-color: red;
-}
-
-/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
-.text-area:danger {
-    -fx-background-color: red;
-    -fx-text-fill: red;
-}
-
-/*noinspection CssInvalidPseudoSelector*/
-.label:danger {
-    -fx-text-fill: red;
-}
-
 .chat-list-pane {
     -fx-background-color: -color-border-default;
     -fx-padding: 1px;

@@ -35,7 +35,7 @@
                     <columnConstraints>
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="40.0" prefWidth="50.0"/>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="60.0"/>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="65.0"/>
                     </columnConstraints>
                     <rowConstraints>
                         <RowConstraints vgrow="ALWAYS"/>

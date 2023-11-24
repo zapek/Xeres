@@ -19,37 +19,16 @@
 
 package io.xeres.app.configuration;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
- * Configuration of the scheduler. Just enables it. We also provide
- * a thread pool because by default it just uses one task for all
- * Scheduled beans.
- * Note: Spring Boot currently doesn't support virtual threads in there. Revisit if it does one day.
+ * Configuration of the scheduler. Just enables it. We use JDK 21 and virtual threads
+ * are enabled so there's no need to set up a thread pool anymore.
  */
 @Configuration
 @EnableScheduling
-public class SchedulerConfiguration implements SchedulingConfigurer
+public class SchedulerConfiguration
 {
-	public static final int CORE_POOL_SIZE = 3;
 
-	@Override
-	public void configureTasks(ScheduledTaskRegistrar taskRegistrar)
-	{
-		taskRegistrar.setScheduler(taskExecutor());
-	}
-
-	@SuppressWarnings("ContextJavaBeanUnresolvedMethodsInspection")
-	@Bean(destroyMethod = "shutdown") // make sure task executor is properly shut down when spring exits
-	public Executor taskExecutor()
-	{
-		return Executors.newScheduledThreadPool(CORE_POOL_SIZE);
-	}
 }

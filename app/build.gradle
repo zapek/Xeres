@@ -112,7 +112,7 @@ jpackage {
     appDescription = parent.project.name
     input = "${project.buildDir}/${project.libsDirName}"
     destination = "${project.buildDir}/dist"
-    mainClass = "org.springframework.boot.loader.JarLauncher"
+    mainClass = "org.springframework.boot.loader.launch.JarLauncher"
     mainJar = "app-${project.version}.jar"
     licenseFile = "${parent.rootDir}/LICENSE"
     aboutUrl = "https://xeres.io"
@@ -161,7 +161,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-json'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    runtimeOnly 'com.h2database:h2'
+    implementation 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'

@@ -21,6 +21,7 @@ package io.xeres.app.configuration;
 
 import io.xeres.app.properties.DatabaseProperties;
 import io.xeres.ui.support.splash.SplashService;
+import org.h2.tools.Upgrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -32,7 +33,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 
 import javax.sql.DataSource;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Properties;
 
 /**
  * Configuration for the location and options of the database.
@@ -42,6 +47,11 @@ import java.nio.file.Path;
 public class DataSourceConfiguration
 {
 	private static final Logger log = LoggerFactory.getLogger(DataSourceConfiguration.class);
+
+	private static final int H2_UPGRADE_FROM_VERSION = 214;
+	private static final int H2_UPGRADE_CURRENT_FORMAT = 3;
+	private static final String H2_URL_PREFIX = "jdbc:h2:file:";
+	private static final String H2_USERNAME = "sa";
 
 	private final Environment environment;
 	private final DatabaseProperties databaseProperties;
@@ -80,11 +90,51 @@ public class DataSourceConfiguration
 			dbOpts += ";CACHE_SIZE=" + databaseProperties.getCacheSize();
 		}
 
+		var url = H2_URL_PREFIX + dataDir + dbOpts + useJMX;
+
+		upgradeIfNeeded(url);
+
 		return DataSourceBuilder
 				.create()
-				.url("jdbc:h2:file:" + dataDir + dbOpts + useJMX)
-				.username("sa")
+				.url(url)
+				.username(H2_USERNAME)
 				.driverClassName("org.h2.Driver")
 				.build();
+	}
+
+	private void upgradeIfNeeded(String url)
+	{
+		if (!url.startsWith(H2_URL_PREFIX))
+		{
+			log.debug("Not an H2 file, no upgrade needed");
+			return;
+		}
+		var fileName = url.substring(13, url.indexOf(";")) + ".mv.db";
+
+		try (var reader = new BufferedReader(new FileReader(fileName)))
+		{
+			var header = reader.readLine();
+			if (header.contains("format:" + H2_UPGRADE_CURRENT_FORMAT))
+			{
+				log.debug("No upgrade needed for H2");
+				return;
+			}
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException("Couldn't read database: " + e.getMessage());
+		}
+
+		var properties = new Properties();
+		properties.put("USER", H2_USERNAME);
+		properties.put("PASSWORD", "");
+		try
+		{
+			Upgrade.upgrade(url, properties, H2_UPGRADE_FROM_VERSION);
+		}
+		catch (Exception e)
+		{
+			log.error("Couldn't perform upgrade: {}", e.getMessage(), e);
+		}
 	}
 }

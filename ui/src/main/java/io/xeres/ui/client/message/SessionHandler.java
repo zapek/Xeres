@@ -51,12 +51,12 @@ public class SessionHandler extends StompSessionHandlerAdapter
 	@Override
 	public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception)
 	{
-		log.error("Handle Exception: {}", exception.getMessage());
+		log.error("Exception: {}", exception.getMessage());
 	}
 
 	@Override
 	public void handleTransportError(StompSession session, Throwable exception)
 	{
-		log.error("Transport Exception: {}", exception.getMessage());
+		log.warn("Transport Exception: {}", exception.getMessage());
 	}
 }

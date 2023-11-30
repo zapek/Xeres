@@ -40,7 +40,7 @@ plugins {
 
 // To upgrade Gradle, change the version here, refresh, then run the 'wrapper' task
 wrapper {
-    gradleVersion = '8.4'
+    gradleVersion = '8.5'
 }
 
 subprojects {
@@ -53,7 +53,7 @@ subprojects {
     java {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
-            vendor = JvmVendorSpec.ORACLE
+            vendor = JvmVendorSpec.ADOPTIUM
         }
     }
 

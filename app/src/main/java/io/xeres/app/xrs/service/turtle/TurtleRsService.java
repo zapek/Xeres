@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import com.sangupta.bloomfilter.BloomFilter;
+import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
@@ -56,14 +56,15 @@ public class TurtleRsService extends RsService
 
 	private final TunnelProbability tunnelProbability = new TunnelProbability();
 
-	private final BloomFilter<Sha1Sum> bloomFilter = new TurtleBloomFilter(10_000, 0.01d); // XXX: parameters will need experimenting
+	private final TurtleBloomFilter bloomFilter;
 
 	private final PeerConnectionManager peerConnectionManager;
 
-	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager)
+	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, DataDirConfiguration dataDirConfiguration)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
+		bloomFilter = new TurtleBloomFilter(dataDirConfiguration.getDataDir(), 10_000, 0.01d); // XXX: parameters will need experimenting, especially the max files
 	}
 
 	@Override
@@ -111,7 +112,7 @@ public class TurtleRsService extends RsService
 		}
 
 		// XXX: if it's not for us, perform a local search and send result back if found (otherwise forward)
-		if (bloomFilter.contains(item.getFileHash()))
+		if (bloomFilter.mightContain(item.getFileHash()))
 		{
 			// XXX: remember that it might be a false positive from the bloom filter
 		}

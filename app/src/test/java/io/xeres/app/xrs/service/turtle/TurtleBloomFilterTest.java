@@ -32,7 +32,27 @@ class TurtleBloomFilterTest
 	@Test
 	void TurtleBloomFilter_OK()
 	{
-		var filter = new TurtleBloomFilter(10_000, 0.01d);
+		var filter = new TurtleBloomFilter(null, 10_000, 0.01d);
+
+		var s1 = Sha1SumFakes.createSha1Sum();
+		var s2 = Sha1SumFakes.createSha1Sum();
+
+		filter.add(s1);
+		filter.add(s2);
+
+		assertTrue(filter.mightContain(s1));
+		assertTrue(filter.mightContain(s2));
+
+		filter.clear();
+
+		assertFalse(filter.mightContain(s1));
+		assertFalse(filter.mightContain(s2));
+	}
+
+	@Test
+	void TurtleBloomFilter_Multiple_OK()
+	{
+		var filter = new TurtleBloomFilter(null, 10_000, 0.01d);
 
 		var s1 = Sha1SumFakes.createSha1Sum();
 		var s2 = Sha1SumFakes.createSha1Sum();
@@ -47,7 +67,7 @@ class TurtleBloomFilterTest
 
 		filter.addAll(in);
 
-		assertTrue(filter.containsAll(in));
-		assertFalse(filter.containsAll(out));
+		assertTrue(filter.mightContainAll(in));
+		assertFalse(filter.mightContainAll(out));
 	}
 }

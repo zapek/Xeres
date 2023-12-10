@@ -28,10 +28,11 @@ import java.io.File;
 
 public class TurtleBloomFilter extends AbstractBloomFilter<Sha1Sum>
 {
+	private BitArray bArray;
+
 	protected TurtleBloomFilter(int expectedInsertions, double falsePositiveProbability)
 	{
 		super(expectedInsertions, falsePositiveProbability, (sha1Sum, byteSink) -> byteSink.putBytes(sha1Sum.getBytes()));
-		//super(expectedInsertions, falsePositiveProbability);
 	}
 
 	@Override
@@ -39,7 +40,8 @@ public class TurtleBloomFilter extends AbstractBloomFilter<Sha1Sum>
 	{
 		try
 		{
-			return new MMapFileBackedBitArray(new File("foo"), numBits);
+			bArray = new MMapFileBackedBitArray(new File("foo"), numBits);
+			return bArray;
 		}
 		catch (Exception e)
 		{
@@ -51,5 +53,10 @@ public class TurtleBloomFilter extends AbstractBloomFilter<Sha1Sum>
 	public boolean contains(Sha1Sum value)
 	{
 		return super.contains(value.getBytes()); // XXX: the following workaround is needed until https://github.com/sangupta/bloomfilter/pull/5 is merged and a new upstream release is done
+	}
+
+	public void clear()
+	{
+		bArray.clear();
 	}
 }

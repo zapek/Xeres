@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.turtle;
 
+import com.sangupta.bloomfilter.BloomFilter;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
@@ -54,6 +55,8 @@ public class TurtleRsService extends RsService
 	private final TunnelRequestCache tunnelRequestCache = new TunnelRequestCache();
 
 	private final TunnelProbability tunnelProbability = new TunnelProbability();
+
+	private final BloomFilter<Sha1Sum> bloomFilter = new TurtleBloomFilter(10_000, 0.01d); // XXX: parameters will need experimenting
 
 	private final PeerConnectionManager peerConnectionManager;
 
@@ -101,7 +104,6 @@ public class TurtleRsService extends RsService
 		}
 
 		// XXX: calculate forwarding probability
-
 		if (tunnelRequestCache.exists(item.getRequestId(), () -> new TunnelRequest(sender.getLocation().getLocationId(), item.getDepth())))
 		{
 			log.debug("Requests {} already exists", item.getRequestId());
@@ -109,6 +111,10 @@ public class TurtleRsService extends RsService
 		}
 
 		// XXX: if it's not for us, perform a local search and send result back if found (otherwise forward)
+		if (bloomFilter.contains(item.getFileHash()))
+		{
+			// XXX: remember that it might be a false positive from the bloom filter
+		}
 
 		if (tunnelProbability.isForwardable(item)) // XXX: this is different there! needs the number of peers and speed...
 		{

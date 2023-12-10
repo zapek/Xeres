@@ -30,7 +30,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.MessageId;
 import io.xeres.testutils.IdFakes;
-import org.apache.commons.lang3.RandomUtils;
+import io.xeres.testutils.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

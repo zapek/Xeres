@@ -20,7 +20,6 @@
 package io.xeres.testutils;
 
 import io.xeres.common.id.Sha1Sum;
-import org.apache.commons.lang3.RandomUtils;
 
 public final class Sha1SumFakes
 {

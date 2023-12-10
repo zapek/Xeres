@@ -22,7 +22,6 @@ package io.xeres.testutils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.MessageId;
-import org.apache.commons.lang3.RandomUtils;
 
 public final class IdFakes
 {

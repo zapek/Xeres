@@ -43,6 +43,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +148,20 @@ public class MessagingWindowController implements WindowController
 	private void setupChatListView(String nickname, long id)
 	{
 		receive = new ChatListView(nickname, id, markdownService);
-		content.getChildren().add(0, receive.getChatView());
+		content.getChildren().addFirst(receive.getChatView());
+		content.setOnDragOver(event -> {
+			if (event.getDragboard().hasFiles())
+			{
+				event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+			}
+			event.consume();
+		});
+		content.setOnDragDropped(event -> {
+			var files = event.getDragboard().getFiles();
+			CollectionUtils.emptyIfNull(files).forEach(file -> log.debug("File dropped: {}", file.getName())); // XXX: do something more useful
+			event.setDropCompleted(true);
+			event.consume();
+		});
 	}
 
 	@Override

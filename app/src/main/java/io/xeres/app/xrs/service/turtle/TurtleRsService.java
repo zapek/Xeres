@@ -98,6 +98,12 @@ public class TurtleRsService extends RsService
 	{
 		log.debug("Received tunnel request from peer {}: {}", sender, item);
 
+		if (item.getFileHash() == null) // XXX: not sure what to do with those
+		{
+			log.debug("null filehash, dropping...");
+			return;
+		}
+
 		if (isBanned(item.getFileHash()))
 		{
 			log.debug("Rejecting banned file hash {}", item.getFileHash());
@@ -111,9 +117,10 @@ public class TurtleRsService extends RsService
 			return;
 		}
 
-		// XXX: if it's not for us, perform a local search and send result back if found (otherwise forward)
+		// XXX: if the request is not from us, perform a local search and send result back if found (otherwise forward)
 		if (bloomFilter.mightContain(item.getFileHash()))
 		{
+			log.debug("filehash is in the bloom filter");
 			// XXX: remember that it might be a false positive from the bloom filter
 		}
 

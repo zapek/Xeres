@@ -81,7 +81,7 @@ public class RawItem
 		// Check if the size matches
 		if (buf.readerIndex() != getItemSize())
 		{
-			throw new IllegalArgumentException("Header size: " + getItemSize() + ", actual size: " + buf.readerIndex());
+			throw new IllegalArgumentException("Size mismatch, size in header: " + getItemSize() + ", actual size: " + buf.readerIndex() + ", (Version: " + getPacketVersion() + ", Service: " + getPacketService() + ", SubType: " + getPacketSubType());
 		}
 	}
 

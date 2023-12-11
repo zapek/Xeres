@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,21 +19,31 @@
 
 package io.xeres.ui.controller.settings;
 
-import javafx.scene.control.ListCell;
+import io.xeres.ui.model.settings.Settings;
+import net.rgielen.fxweaver.core.FxmlView;
+import org.springframework.stereotype.Component;
 
-class SettingsCell extends ListCell<SettingsGroup>
+import java.io.IOException;
+
+@Component
+@FxmlView(value = "/view/settings/settings_transfer.fxml")
+public class SettingsTransferController implements SettingsController
 {
-	SettingsCell()
+	@Override
+	public void initialize() throws IOException
 	{
-		super();
+
 	}
 
 	@Override
-	protected void updateItem(SettingsGroup item, boolean empty)
+	public void onLoad(Settings settings)
 	{
-		super.updateItem(item, empty);
-		setText(empty ? null : item.name());
-		setGraphic(empty ? null : item.graphic());
-		setGraphicTextGap(8.0);
+
+	}
+
+	@Override
+	public Settings onSave()
+	{
+		return null;
 	}
 }

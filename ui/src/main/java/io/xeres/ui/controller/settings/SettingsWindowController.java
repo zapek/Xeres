@@ -24,11 +24,14 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.settings.Settings;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import net.rgielen.fxweaver.core.FxWeaver;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
@@ -37,6 +40,8 @@ import java.util.ResourceBundle;
 @FxmlView(value = "/view/settings/settings.fxml")
 public class SettingsWindowController implements WindowController
 {
+	private static final int PREFERENCE_ICON_SIZE = 24;
+
 	private final SettingsClient settingsClient;
 
 	@FXML
@@ -62,9 +67,12 @@ public class SettingsWindowController implements WindowController
 	public void initialize()
 	{
 		listView.setCellFactory(param -> new SettingsCell());
+
 		listView.getItems().addAll(
-				new SettingsGroup(bundle.getString("settings.general"), new ImageView("/image/settings_general.png"), SettingsGeneralController.class),
-				new SettingsGroup(bundle.getString("settings.network"), new ImageView("/image/settings_networks.png"), SettingsNetworksController.class));
+				new SettingsGroup(bundle.getString("settings.general"), createPreferenceGraphic("fas-cog"), SettingsGeneralController.class),
+				new SettingsGroup(bundle.getString("settings.network"), createPreferenceGraphic("fas-network-wired"), SettingsNetworksController.class),
+				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("fas-exchange-alt"), SettingsTransferController.class)
+		);
 
 		listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			saveContent();
@@ -114,8 +122,21 @@ public class SettingsWindowController implements WindowController
 	{
 		if (!content.getChildren().isEmpty())
 		{
-			var controller = (SettingsController) content.getChildren().get(0).getUserData();
-			newSettings = controller.onSave();
+			var controller = (SettingsController) content.getChildren().getFirst().getUserData();
+			var controllerSettings = controller.onSave();
+			if (controllerSettings != null)
+			{
+				newSettings = controllerSettings;
+			}
 		}
+	}
+
+	private Node createPreferenceGraphic(String iconCode)
+	{
+		var pane = new StackPane(new FontIcon(iconCode));
+		pane.setPrefWidth(PREFERENCE_ICON_SIZE);
+		pane.setPrefHeight(PREFERENCE_ICON_SIZE);
+		pane.setAlignment(Pos.CENTER);
+		return pane;
 	}
 }

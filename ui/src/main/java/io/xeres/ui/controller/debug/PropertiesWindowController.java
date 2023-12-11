@@ -20,30 +20,63 @@
 package io.xeres.ui.controller.debug;
 
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.support.contextmenu.XContextMenu;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static javafx.scene.control.TableColumn.SortType.ASCENDING;
+
 @Component
 @FxmlView(value = "/view/debug/properties.fxml")
 public class PropertiesWindowController implements WindowController
 {
+	private static final String COPY_MENU_ID = "copy";
+
 	@FXML
-	private TextArea propertiesArea;
+	private TableView<Map.Entry<String, String>> propertiesTableView;
+
+	@FXML
+	private TableColumn<Map.Entry<String, String>, String> tableName;
+
+	@FXML
+	private TableColumn<Map.Entry<String, String>, String> tableValue;
+
+	@FXML
+	private MenuItem copyAll;
 
 	@Override
 	public void initialize() throws IOException
 	{
-		var sb = new StringBuilder();
-		getSortedProperties().forEach((k, v) -> sb.append(k).append(": ").append(beautifyOutput(v)).append("\n"));
-		propertiesArea.setText(sb.toString());
+		createPropertiesTableViewContextMenu();
+
+		tableName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getKey()));
+		tableValue.setCellValueFactory(param -> new SimpleStringProperty(showLineSeparator(param.getValue().getValue())));
+
+		propertiesTableView.getItems().addAll(FXCollections.observableArrayList(getSortedProperties().entrySet()));
+
+		propertiesTableView.getSortOrder().add(tableName);
+		tableName.setSortType(ASCENDING);
+
+		copyAll.setOnAction(event -> {
+			var clipboardContent = new ClipboardContent();
+			var sb = new StringBuilder();
+			getSortedProperties().forEach((k, v) -> sb.append(k).append(": ").append(showLineSeparator(v)).append("\n"));
+			clipboardContent.putString(showLineSeparator(sb.toString()));
+			Clipboard.getSystemClipboard().setContent(clipboardContent);
+		});
 	}
 
 	private LinkedHashMap<String, String> getSortedProperties()
@@ -58,17 +91,26 @@ public class PropertiesWindowController implements WindowController
 						(oldValue, newValue) -> oldValue, LinkedHashMap::new));
 	}
 
-	/**
-	 * Shows the line separators and put entries separated with ; on a different line.
-	 *
-	 * @param in the input string
-	 * @return the beautified string
-	 */
-	private String beautifyOutput(String in)
+	private String showLineSeparator(String in)
 	{
 		in = in.replace("\n", "\\n");
 		in = in.replace("\r", "\\r");
-		in = in.replace(File.pathSeparator, File.pathSeparator + "\n    ");
 		return in;
+	}
+
+	private void createPropertiesTableViewContextMenu()
+	{
+		var copyItem = new MenuItem("Copy entry");
+		copyItem.setId(COPY_MENU_ID);
+		copyItem.setOnAction(event -> {
+			@SuppressWarnings("unchecked") var entry = (Map.Entry<String, String>) event.getSource();
+			if (entry != null)
+			{
+				var clipboardContent = new ClipboardContent();
+				clipboardContent.putString(entry.getKey() + " = " + showLineSeparator(entry.getValue()));
+				Clipboard.getSystemClipboard().setContent(clipboardContent);
+			}
+		});
+		new XContextMenu<Map.Entry<String, String>>(propertiesTableView, copyItem);
 	}
 }

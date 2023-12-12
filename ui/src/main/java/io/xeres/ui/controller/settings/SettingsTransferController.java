@@ -20,6 +20,11 @@
 package io.xeres.ui.controller.settings;
 
 import io.xeres.ui.model.settings.Settings;
+import io.xeres.ui.support.util.UiUtils;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.stage.DirectoryChooser;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
@@ -29,10 +34,26 @@ import java.io.IOException;
 @FxmlView(value = "/view/settings/settings_transfer.fxml")
 public class SettingsTransferController implements SettingsController
 {
+	@FXML
+	private TextField incomingDirectory;
+
+	@FXML
+	private Button incomingDirectorySelector;
+
 	@Override
 	public void initialize() throws IOException
 	{
-
+		incomingDirectorySelector.setOnAction(event -> {
+			// XXX: this is all wrong. I cannot use that because the file system is actually REMOTE. have to write everything by hand (browsing, selection, etc...)
+			var directoryChooser = new DirectoryChooser();
+			directoryChooser.setTitle("Select Incoming Directory");
+			//directoryChooser.setInitialDirectory(Path.of()); ... how to get dataDir? have to ask the server... actually... the selection would be remote :) this is hard...
+			var selectedDirectory = directoryChooser.showDialog(UiUtils.getWindow(event));
+			if (selectedDirectory != null && selectedDirectory.isDirectory())
+			{
+				incomingDirectory.setText(selectedDirectory.getAbsolutePath());
+			}
+		});
 	}
 
 	@Override

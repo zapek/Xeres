@@ -33,7 +33,7 @@
             <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="%forum.editor.name"/>
-        <ReadOnlyTextField fx:id="forumName" editable="false" GridPane.columnIndex="1">
+        <ReadOnlyTextField fx:id="forumName" GridPane.columnIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" text="%forum.editor.name.prompt"/>
             </tooltip>

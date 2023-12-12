@@ -59,8 +59,8 @@
                         </VBox.margin>
                     </Label>
                     <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
-                        <ReadOnlyTextField fx:id="shortId" editable="false" prefWidth="540.0"/>
-                        <Button fx:id="copyShortIdButton">
+                        <ReadOnlyTextField fx:id="shortId" prefWidth="540.0" styleClass="left-pill"/>
+                        <Button fx:id="copyShortIdButton" styleClass="right-pill, button-icon">
                             <graphic>
                                 <FontIcon iconLiteral="fas-clipboard"/>
                             </graphic>

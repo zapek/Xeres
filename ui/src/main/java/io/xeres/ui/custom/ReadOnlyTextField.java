@@ -53,6 +53,7 @@ public class ReadOnlyTextField extends TextField
 	private void init()
 	{
 		setOnMouseClicked(event -> selectAll());
+		setEditable(false);
 
 		setContextMenu(createContextMenu());
 	}

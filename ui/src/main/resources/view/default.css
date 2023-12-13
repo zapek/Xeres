@@ -23,8 +23,7 @@
 }
 
 .ikonli-font-icon {
-    -fx-icon-size: 20px;
-/ / AtlantaFX defaults to 18 px but somehow my text fields are 2 pixels bigger so it needs 20 to be able to group them in input groups
+    -fx-icon-size: 20px; /* AtlantaFX defaults to 18 px but somehow my text fields are 2 pixels bigger so it needs 20 to be able to group them in input groups */
 }
 
 .chat-list-pane {

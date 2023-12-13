@@ -28,7 +28,7 @@
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>
-        <Button fx:id="bold" focusTraversable="false">
+        <Button fx:id="bold" focusTraversable="false" styleClass="button-icon">
             <graphic>
                 <FontIcon iconLiteral="fas-bold"/>
             </graphic>
@@ -36,7 +36,7 @@
                 <Tooltip showDuration="1m" text="%editorview.action.bold"/>
             </tooltip>
         </Button>
-        <Button fx:id="italic" focusTraversable="false">
+        <Button fx:id="italic" focusTraversable="false" styleClass="button-icon">
             <graphic>
                 <FontIcon iconLiteral="fas-italic"/>
             </graphic>
@@ -45,7 +45,7 @@
             </tooltip>
         </Button>
         <Separator orientation="VERTICAL"/>
-        <Button fx:id="hyperlink" focusTraversable="false">
+        <Button fx:id="hyperlink" focusTraversable="false" styleClass="button-icon">
             <graphic>
                 <FontIcon iconLiteral="fas-link"/>
             </graphic>
@@ -53,7 +53,7 @@
                 <Tooltip showDuration="1m" text="%editorview.action.hyperlink"/>
             </tooltip>
         </Button>
-        <Button fx:id="quote" focusTraversable="false">
+        <Button fx:id="quote" focusTraversable="false" styleClass="button-icon">
             <graphic>
                 <FontIcon iconLiteral="fas-quote-left"/>
             </graphic>
@@ -61,7 +61,7 @@
                 <Tooltip showDuration="1m" text="%editorview.action.quote"/>
             </tooltip>
         </Button>
-        <Button fx:id="code" focusTraversable="false">
+        <Button fx:id="code" focusTraversable="false" styleClass="button-icon">
             <graphic>
                 <FontIcon iconLiteral="fas-code"/>
             </graphic>
@@ -70,7 +70,7 @@
             </tooltip>
         </Button>
         <Separator orientation="VERTICAL"/>
-        <Button fx:id="list" focusTraversable="false">
+        <Button fx:id="list" focusTraversable="false" styleClass="button-icon">
             <graphic>
                 <FontIcon iconLiteral="fas-list-ul"/>
             </graphic>
@@ -78,7 +78,7 @@
                 <Tooltip showDuration="1m" text="%editorview.action.list"/>
             </tooltip>
         </Button>
-        <Button fx:id="heading" focusTraversable="false">
+        <Button fx:id="heading" focusTraversable="false" styleClass="button-icon">
             <graphic>
                 <FontIcon iconLiteral="fas-heading"/>
             </graphic>

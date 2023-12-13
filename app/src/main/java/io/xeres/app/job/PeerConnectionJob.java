@@ -95,7 +95,10 @@ public class PeerConnectionJob
 					.sorted(Comparator.comparing(Connection::isExternal).reversed())
 					.toList();
 
-			connect(connections.get(connectionIndex));
+			if (!connections.isEmpty())
+			{
+				connect(connections.get(connectionIndex));
+			}
 		}
 	}
 

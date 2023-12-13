@@ -116,7 +116,7 @@
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <DisclosedHyperlink text="Twemoji" uri="https://github.com/twitter/twemoji"/>
+                    <DisclosedHyperlink text="Twemoji" uri="https://github.com/jdecked/twemoji"/>
                     <Text text=" © 2020 Twitter, Inc and other contributors. Graphics licensed under "/>
                     <DisclosedHyperlink text="CC-BY 4.0" uri="https://creativecommons.org/licenses/by/4.0/"/>
                 </TextFlow>

@@ -122,7 +122,7 @@ public class ProfileController
 
 		locationToConnectTo.ifPresent(location ->
 		{
-			if (connectionIndex != null)
+			if (connectionIndex != null && connectionIndex >= 0)
 			{
 				peerConnectionJob.connectImmediately(location, connectionIndex);
 			}

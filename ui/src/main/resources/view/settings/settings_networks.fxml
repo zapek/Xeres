@@ -20,6 +20,7 @@
   -->
 
 <?import atlantafx.base.controls.Card?>
+<?import atlantafx.base.layout.InputGroup?>
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
@@ -34,8 +35,7 @@
                 <GridPane hgap="8" vgap="8">
                     <columnConstraints>
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="40.0" prefWidth="50.0"/>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="65.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308"/>
                     </columnConstraints>
                     <rowConstraints>
                         <RowConstraints vgrow="ALWAYS"/>
@@ -46,32 +46,36 @@
                             <Insets right="4.0"/>
                         </GridPane.margin>
                     </Label>
-                    <TextField fx:id="torSocksHost" promptText="%settings.network.tor-proxy.prompt" GridPane.columnIndex="1">
-                        <tooltip>
-                            <Tooltip showDuration="1m" text="%settings.network.tor-proxy.tip"/>
-                        </tooltip>
-                    </TextField>
-                    <TextField fx:id="torSocksPort" promptText="%settings.network.port" GridPane.columnIndex="2">
-                        <tooltip>
-                            <Tooltip showDuration="1m" text="%settings.network.tor-port.tip"/>
-                        </tooltip>
-                    </TextField>
+                    <InputGroup GridPane.columnIndex="1">
+                        <TextField fx:id="torSocksHost" promptText="%settings.network.tor-proxy.prompt" HBox.hgrow="ALWAYS">
+                            <tooltip>
+                                <Tooltip showDuration="1m" text="%settings.network.tor-proxy.tip"/>
+                            </tooltip>
+                        </TextField>
+                        <TextField fx:id="torSocksPort" promptText="%settings.network.port" minWidth="55.0" prefWidth="65.0">
+                            <tooltip>
+                                <Tooltip showDuration="1m" text="%settings.network.tor-port.tip"/>
+                            </tooltip>
+                        </TextField>
+                    </InputGroup>
 
                     <Label text="%settings.network.i2p-proxy" GridPane.rowIndex="1">
                         <GridPane.margin>
                             <Insets right="4.0"/>
                         </GridPane.margin>
                     </Label>
-                    <TextField fx:id="i2pSocksHost" promptText="%settings.network.i2p-proxy.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <tooltip>
-                            <Tooltip showDuration="1m" text="%settings.network.i2p-proxy.tip"/>
-                        </tooltip>
-                    </TextField>
-                    <TextField fx:id="i2pSocksPort" promptText="%settings.network.port" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                        <tooltip>
-                            <Tooltip showDuration="1m" text="%settings.network.i2p-port.tip"/>
-                        </tooltip>
-                    </TextField>
+                    <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <TextField fx:id="i2pSocksHost" promptText="%settings.network.i2p-proxy.prompt" HBox.hgrow="ALWAYS">
+                            <tooltip>
+                                <Tooltip showDuration="1m" text="%settings.network.i2p-proxy.tip"/>
+                            </tooltip>
+                        </TextField>
+                        <TextField fx:id="i2pSocksPort" promptText="%settings.network.port" minWidth="55.0" prefWidth="65.0">
+                            <tooltip>
+                                <Tooltip showDuration="1m" text="%settings.network.i2p-port.tip"/>
+                            </tooltip>
+                        </TextField>
+                    </InputGroup>
                 </GridPane>
             </body>
         </Card>
@@ -99,11 +103,14 @@
                             <Insets right="4.0"/>
                         </GridPane.margin>
                     </Label>
-                    <ReadOnlyTextField fx:id="externalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <tooltip>
-                            <Tooltip showDuration="1m" text="%settings.network.external-ip-and-port.tip"/>
-                        </tooltip>
-                    </ReadOnlyTextField>
+                    <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <ReadOnlyTextField fx:id="externalIp" HBox.hgrow="ALWAYS">
+                            <tooltip>
+                                <Tooltip showDuration="1m" text="%settings.network.external-ip-and-port.tip"/>
+                            </tooltip>
+                        </ReadOnlyTextField>
+                        <ReadOnlyTextField fx:id="externalPort" minWidth="55.0" prefWidth="65.0"/>
+                    </InputGroup>
                 </GridPane>
             </body>
         </Card>
@@ -131,11 +138,14 @@
                             <Insets right="4.0"/>
                         </GridPane.margin>
                     </Label>
-                    <ReadOnlyTextField fx:id="internalIpAndPort" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <tooltip>
-                            <Tooltip showDuration="1m" text="%settings.network.internal-ip-and-port.tip"/>
-                        </tooltip>
-                    </ReadOnlyTextField>
+                    <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <ReadOnlyTextField fx:id="internalIp" HBox.hgrow="ALWAYS">
+                            <tooltip>
+                                <Tooltip showDuration="1m" text="%settings.network.internal-ip-and-port.tip"/>
+                            </tooltip>
+                        </ReadOnlyTextField>
+                        <ReadOnlyTextField fx:id="internalPort" minWidth="55.0" prefWidth="65.0"/>
+                    </InputGroup>
                 </GridPane>
             </body>
         </Card>

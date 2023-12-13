@@ -33,6 +33,7 @@ class SettingsCell extends ListCell<SettingsGroup>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.name());
-		setGraphic(empty ? null : item.image());
+		setGraphic(empty ? null : item.graphic());
+		setGraphicTextGap(8.0);
 	}
 }

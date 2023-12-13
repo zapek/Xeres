@@ -47,7 +47,7 @@ import static javafx.scene.control.TableColumn.SortType.DESCENDING;
 public class ProfilesWindowController implements WindowController
 {
 	private static final Logger log = LoggerFactory.getLogger(ProfilesWindowController.class);
-	public static final String DELETE_MENU_ID = "delete";
+	private static final String DELETE_MENU_ID = "delete";
 
 	private final ProfileClient profileClient;
 

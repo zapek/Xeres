@@ -19,8 +19,8 @@
 
 package io.xeres.ui.controller.settings;
 
-import javafx.scene.image.ImageView;
+import javafx.scene.Node;
 
-record SettingsGroup(String name, ImageView image, Class<? extends SettingsController> controllerClass)
+record SettingsGroup(String name, Node graphic, Class<? extends SettingsController> controllerClass)
 {
 }

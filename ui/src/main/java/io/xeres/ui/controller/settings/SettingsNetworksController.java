@@ -49,13 +49,19 @@ public class SettingsNetworksController implements SettingsController
 	private CheckBox upnpEnabled;
 
 	@FXML
-	private TextField externalIpAndPort;
+	private TextField externalIp;
+
+	@FXML
+	private TextField externalPort;
 
 	@FXML
 	private CheckBox broadcastDiscoveryEnabled;
 
 	@FXML
-	private TextField internalIpAndPort;
+	private TextField internalIp;
+
+	@FXML
+	private TextField internalPort;
 
 	@FXML
 	private CheckBox dhtEnabled;
@@ -79,11 +85,17 @@ public class SettingsNetworksController implements SettingsController
 		TextFieldUtils.setNumeric(i2pSocksPort, 0, 65535);
 
 		configClient.getExternalIpAddress()
-				.doOnSuccess(ipAddressResponse -> Platform.runLater(() -> externalIpAndPort.setText(ipAddressResponse.ip() + ":" + ipAddressResponse.port())))
+				.doOnSuccess(ipAddressResponse -> Platform.runLater(() -> {
+					externalIp.setText(ipAddressResponse.ip());
+					externalPort.setText(String.valueOf(ipAddressResponse.port()));
+				}))
 				.subscribe();
 
 		configClient.getInternalIpAddress()
-				.doOnSuccess(ipAddressResponse -> Platform.runLater(() -> internalIpAndPort.setText(ipAddressResponse.ip() + ":" + ipAddressResponse.port())))
+				.doOnSuccess(ipAddressResponse -> Platform.runLater(() -> {
+					internalIp.setText(ipAddressResponse.ip());
+					internalPort.setText(String.valueOf(ipAddressResponse.port()));
+				}))
 				.subscribe();
 	}
 

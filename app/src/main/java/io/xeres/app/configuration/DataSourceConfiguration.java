@@ -36,6 +36,7 @@ import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -109,9 +110,17 @@ public class DataSourceConfiguration
 			log.debug("Not an H2 file, no upgrade needed");
 			return;
 		}
-		var fileName = url.substring(13, url.indexOf(";")) + ".mv.db";
 
-		try (var reader = new BufferedReader(new FileReader(fileName)))
+		var fileName = url.substring(13, url.indexOf(";")) + ".mv.db";
+		var filePath = Path.of(fileName);
+
+		if (!Files.exists(filePath) || !Files.isRegularFile(filePath))
+		{
+			log.debug("No file present, no upgrade needed");
+			return;
+		}
+
+		try (var reader = new BufferedReader(new FileReader(filePath.toFile())))
 		{
 			var header = reader.readLine();
 			if (header.contains("format:" + H2_UPGRADE_CURRENT_FORMAT))

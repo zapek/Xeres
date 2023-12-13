@@ -54,25 +54,25 @@
                 <RowConstraints vgrow="ALWAYS"/>
             </rowConstraints>
             <Label text="%rsid.add.name"/>
-            <ReadOnlyTextField fx:id="certName" editable="false" GridPane.columnIndex="1">
+            <ReadOnlyTextField fx:id="certName" GridPane.columnIndex="1">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.name.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.profile" GridPane.rowIndex="1"/>
-            <ReadOnlyTextField fx:id="certId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <ReadOnlyTextField fx:id="certId" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.profile.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.fingerprint" GridPane.rowIndex="2"/>
-            <ReadOnlyTextField fx:id="certFingerprint" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <ReadOnlyTextField fx:id="certFingerprint" GridPane.columnIndex="1" GridPane.rowIndex="2">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.fingerprint.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.location" GridPane.rowIndex="3"/>
-            <ReadOnlyTextField fx:id="certLocId" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <ReadOnlyTextField fx:id="certLocId" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <tooltip>
                     <Tooltip showDuration="1m" text="%rsid.add.location.tip"/>
                 </tooltip>

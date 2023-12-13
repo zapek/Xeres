@@ -22,6 +22,11 @@
     -fx-padding: 12px;
 }
 
+.ikonli-font-icon {
+    -fx-icon-size: 20px;
+/ / AtlantaFX defaults to 18 px but somehow my text fields are 2 pixels bigger so it needs 20 to be able to group them in input groups
+}
+
 .chat-list-pane {
     -fx-background-color: -color-border-default;
     -fx-padding: 1px;
@@ -71,7 +76,7 @@
     -fx-border-width: 0 1 1 1;
 }
 
-.menu-bar {
+.hamburger-menu-bar {
     -fx-background-color: transparent;
 }
 

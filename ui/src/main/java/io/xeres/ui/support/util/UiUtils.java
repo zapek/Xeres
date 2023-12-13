@@ -152,6 +152,7 @@ public final class UiUtils
 
 		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
 		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied
+		// Setting dark borders doesn't work because dialogs aren't in JavaFX' built-in windows list
 		alert.setHeaderText(null); // the header is ugly
 		alert.setContentText(message);
 		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...

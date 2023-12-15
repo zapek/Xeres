@@ -27,7 +27,7 @@ jobs:
         with:
           arguments: jpackage --no-configuration-cache
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./app/build/dist/Xeres-*.exe
           name: windows-installer-exe
@@ -51,7 +51,7 @@ jobs:
         with:
           arguments: jpackage --no-configuration-cache
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./app/build/dist/xeres_*.deb
           name: linux-installer-deb
@@ -75,7 +75,7 @@ jobs:
   #        with:
   #          arguments: jpackage --no-configuration-cache
   #      - name: Upload artifact
-  #        uses: actions/upload-artifact@v3
+  #        uses: actions/upload-artifact@v4
   #        with:
   #          path: ./app/build/dist/Xeres-*.dmg
   #          name: macos-installer

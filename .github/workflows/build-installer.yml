@@ -87,15 +87,15 @@ jobs:
     needs: [ build-windows-installer-exe, build-linux-installer-deb ]
     steps:
       - name: Download Windows installer (EXE)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: windows-installer-exe
       - name: Download Linux installer (DEB)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: linux-installer-deb
       #      - name: Download MacOS installer
-      #        uses: actions/download-artifact@v3
+      #        uses: actions/download-artifact@v4
       #        with:
       #          name: macos-installer
       - name: Generate checksum

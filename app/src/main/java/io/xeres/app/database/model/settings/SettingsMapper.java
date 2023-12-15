@@ -43,7 +43,8 @@ public final class SettingsMapper
 				settings.isUpnpEnabled(),
 				settings.isBroadcastDiscoveryEnabled(),
 				settings.isDhtEnabled(),
-				settings.isAutoStartEnabled()
+				settings.isAutoStartEnabled(),
+				settings.getIncomingDirectory()
 		);
 	}
 
@@ -63,6 +64,7 @@ public final class SettingsMapper
 		settings.setBroadcastDiscoveryEnabled(dto.broadcastDiscoveryEnabled());
 		settings.setDhtEnabled(dto.dhtEnabled());
 		settings.setAutoStartEnabled(dto.autoStartEnabled());
+		settings.setIncomingDirectory(dto.incomingDirectory());
 		return settings;
 	}
 }

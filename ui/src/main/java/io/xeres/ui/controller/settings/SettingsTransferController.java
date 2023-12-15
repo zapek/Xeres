@@ -19,7 +19,9 @@
 
 package io.xeres.ui.controller.settings;
 
+import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.settings.Settings;
+import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -29,6 +31,9 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.file.Path;
+
+import static javafx.scene.control.Alert.AlertType.INFORMATION;
 
 @Component
 @FxmlView(value = "/view/settings/settings_transfer.fxml")
@@ -40,14 +45,23 @@ public class SettingsTransferController implements SettingsController
 	@FXML
 	private Button incomingDirectorySelector;
 
+	private Settings settings;
+
 	@Override
 	public void initialize() throws IOException
 	{
 		incomingDirectorySelector.setOnAction(event -> {
-			// XXX: this is all wrong. I cannot use that because the file system is actually REMOTE. have to write everything by hand (browsing, selection, etc...)
+			if (JavaFxApplication.isRemoteUiClient())
+			{
+				UiUtils.alert(INFORMATION, "Cannot chose a directory in remote mode");
+				return;
+			}
 			var directoryChooser = new DirectoryChooser();
 			directoryChooser.setTitle("Select Incoming Directory");
-			//directoryChooser.setInitialDirectory(Path.of()); ... how to get dataDir? have to ask the server... actually... the selection would be remote :) this is hard...
+			if (settings.hasIncomingDirectory())
+			{
+				directoryChooser.setInitialDirectory(Path.of(settings.getIncomingDirectory()).toFile());
+			}
 			var selectedDirectory = directoryChooser.showDialog(UiUtils.getWindow(event));
 			if (selectedDirectory != null && selectedDirectory.isDirectory())
 			{
@@ -59,12 +73,16 @@ public class SettingsTransferController implements SettingsController
 	@Override
 	public void onLoad(Settings settings)
 	{
+		this.settings = settings;
 
+		incomingDirectory.setText(settings.getIncomingDirectory());
 	}
 
 	@Override
 	public Settings onSave()
 	{
-		return null;
+		settings.setIncomingDirectory(TextFieldUtils.getString(incomingDirectory));
+
+		return settings;
 	}
 }

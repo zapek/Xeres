@@ -48,8 +48,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 @Component
@@ -109,6 +112,8 @@ public class Startup implements ApplicationRunner
 			log.info("Remote UI mode");
 			return;
 		}
+
+		configureDefaults();
 
 		if (networkService.checkReadiness())
 		{
@@ -257,6 +262,31 @@ public class Startup implements ApplicationRunner
 			{
 				autoStart.disable();
 			}
+		}
+	}
+
+	/**
+	 * Configures defaults that cannot be done on the database definition because
+	 * they depend on some runtime parameters. This is not called in UI client
+	 * only mode.
+	 */
+	private void configureDefaults()
+	{
+		if (!settingsService.hasIncomingDirectory() && dataDirConfiguration.getDataDir() != null) // Don't do it for tests
+		{
+			var incomingDirectory = Path.of(dataDirConfiguration.getDataDir(), "Incoming");
+			if (Files.notExists(incomingDirectory))
+			{
+				try
+				{
+					Files.createDirectory(incomingDirectory);
+				}
+				catch (IOException e)
+				{
+					throw new IllegalStateException("Couldn't create incoming directory: " + incomingDirectory + ", :" + e.getMessage());
+				}
+			}
+			settingsService.setIncomingDirectory(incomingDirectory.toString());
 		}
 	}
 }

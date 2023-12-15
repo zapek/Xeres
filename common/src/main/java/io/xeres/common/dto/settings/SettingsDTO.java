@@ -27,7 +27,8 @@ public record SettingsDTO(
 		boolean upnpEnabled,
 		boolean broadcastDiscoveryEnabled,
 		boolean dhtEnabled,
-		boolean autoStartEnabled
+		boolean autoStartEnabled,
+		String incomingDirectory
 )
 {
 }

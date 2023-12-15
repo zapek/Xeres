@@ -56,6 +56,8 @@ public class Settings
 
 	private boolean autoStartEnabled;
 
+	private String incomingDirectory;
+
 	protected Settings()
 	{
 	}
@@ -198,5 +200,15 @@ public class Settings
 	public void setAutoStartEnabled(boolean autoStartEnabled)
 	{
 		this.autoStartEnabled = autoStartEnabled;
+	}
+
+	public String getIncomingDirectory()
+	{
+		return incomingDirectory;
+	}
+
+	public void setIncomingDirectory(String incomingDirectory)
+	{
+		this.incomingDirectory = incomingDirectory;
 	}
 }

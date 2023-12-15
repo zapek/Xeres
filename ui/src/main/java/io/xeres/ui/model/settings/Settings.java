@@ -19,6 +19,8 @@
 
 package io.xeres.ui.model.settings;
 
+import io.micrometer.common.util.StringUtils;
+
 public class Settings implements Cloneable
 {
 	private String torSocksHost;
@@ -34,6 +36,8 @@ public class Settings implements Cloneable
 	private boolean dhtEnabled;
 
 	private boolean autoStartEnabled;
+
+	private String incomingDirectory;
 
 	public String getTorSocksHost()
 	{
@@ -113,6 +117,21 @@ public class Settings implements Cloneable
 	public void setAutoStartEnabled(boolean autoStartEnabled)
 	{
 		this.autoStartEnabled = autoStartEnabled;
+	}
+
+	public boolean hasIncomingDirectory()
+	{
+		return StringUtils.isNotEmpty(incomingDirectory);
+	}
+
+	public String getIncomingDirectory()
+	{
+		return incomingDirectory;
+	}
+
+	public void setIncomingDirectory(String incomingDirectory)
+	{
+		this.incomingDirectory = incomingDirectory;
 	}
 
 	@Override

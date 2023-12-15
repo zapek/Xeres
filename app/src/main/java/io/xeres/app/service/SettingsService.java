@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import io.micrometer.common.util.StringUtils;
 import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.settings.SettingsMapper;
@@ -264,5 +265,21 @@ public class SettingsService
 	public boolean isAutoStartEnabled()
 	{
 		return settings.isAutoStartEnabled();
+	}
+
+	public boolean hasIncomingDirectory()
+	{
+		return StringUtils.isNotEmpty(settings.getIncomingDirectory());
+	}
+
+	public String getIncomingDirectory()
+	{
+		return settings.getIncomingDirectory();
+	}
+
+	public void setIncomingDirectory(String directory)
+	{
+		settings.setIncomingDirectory(directory);
+		settingsRepository.save(settings);
 	}
 }

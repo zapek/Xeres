@@ -19,16 +19,14 @@
 
 package io.xeres.app.crypto.rsa;
 
+import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.Sha1Sum;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.SHA1Digest;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -238,14 +236,11 @@ public final class RSA
 
 	private static GxsId makeGxsId(byte[] modulus, byte[] exponent)
 	{
-		var sha1sum = new byte[Sha1Sum.LENGTH];
-
-		Digest digest = new SHA1Digest();
-		digest.update(modulus, 0, modulus.length);
-		digest.update(exponent, 0, exponent.length);
-		digest.doFinal(sha1sum, 0);
+		var md = new Sha1MessageDigest();
+		md.update(modulus);
+		md.update(exponent);
 
 		// Copy the first 16 bytes of the sha1 sum to get the GxsId
-		return new GxsId(Arrays.copyOfRange(sha1sum, 0, GxsId.LENGTH));
+		return new GxsId(Arrays.copyOfRange(md.getBytes(), 0, GxsId.LENGTH));
 	}
 }

@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.chat;
 
-import io.xeres.app.crypto.chatcipher.ChatChallenge;
+import io.xeres.app.crypto.hash.chat.ChatChallenge;
 import io.xeres.common.id.LocationId;
 
 import java.time.Instant;

@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.identity;
 
+import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -45,8 +46,6 @@ import io.xeres.common.id.*;
 import io.xeres.common.identity.Type;
 import jakarta.persistence.EntityNotFoundException;
 import net.coobird.thumbnailator.Thumbnails;
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.springframework.stereotype.Component;
@@ -371,14 +370,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 	private Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)
 	{
-		var sha1sum = new byte[Sha1Sum.LENGTH];
 		var gxsIdAsciiUpper = Id.toAsciiBytesUpperCase(gxsId);
 
-		Digest digest = new SHA1Digest();
-		digest.update(gxsIdAsciiUpper, 0, gxsIdAsciiUpper.length);
-		digest.update(fingerprint.getBytes(), 0, fingerprint.getLength());
-		digest.doFinal(sha1sum, 0);
-		return new Sha1Sum(sha1sum);
+		var md = new Sha1MessageDigest();
+		md.update(gxsIdAsciiUpper);
+		md.update(fingerprint.getBytes());
+		return md.getSum();
 	}
 
 	private byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, Sha1Sum hashToSign) throws PGPException, IOException

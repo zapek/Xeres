@@ -19,6 +19,8 @@
 
 package io.xeres.app.crypto.x509;
 
+import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
+import io.xeres.app.crypto.hash.sha256.Sha256MessageDigest;
 import io.xeres.app.crypto.pgp.PGPSigner;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
 import io.xeres.common.id.LocationId;
@@ -30,8 +32,6 @@ import org.bouncycastle.openpgp.PGPSecretKey;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -62,7 +62,7 @@ public final class X509
 	 * @param dateOfExpiry date of certificate expiration
 	 * @param serial       serial number
 	 * @return a X509Certificate
-	 * @throws IOException I/O error
+	 * @throws IOException          I/O error
 	 * @throws CertificateException Certificate error
 	 */
 	public static X509Certificate generateCertificate(PGPSecretKey pgpSecretKey, PublicKey rsaPublicKey, String issuer, String subject, Date dateOfIssue, Date dateOfExpiry, BigInteger serial) throws IOException, CertificateException
@@ -84,6 +84,7 @@ public final class X509
 
 	/**
 	 * Gets the certificate from its encoded form.
+	 *
 	 * @param data a byte array with the encoded certificate
 	 * @return a X509 certificate
 	 * @throws CertificateException parse error
@@ -101,38 +102,31 @@ public final class X509
 	 */
 	public static LocationId getLocationId(X509Certificate certificate) throws CertificateException
 	{
-		try
-		{
-			var serialNumber = Optional.ofNullable(certificate.getSerialNumber()).orElseThrow(() -> new CertificateException("Missing serial number"));
+		var serialNumber = Optional.ofNullable(certificate.getSerialNumber()).orElseThrow(() -> new CertificateException("Missing serial number"));
 
-			var out = new byte[LocationId.LENGTH];
+		var out = new byte[LocationId.LENGTH];
 
-			// There are several certificate versions
-			if (serialNumber.equals(RSSerialVersion.V07_0001.serialNumber()))
-			{
-				// RS 0.6.6. ID is SHA-256 of signature (16 first bytes)
-				var md = MessageDigest.getInstance("SHA-256");
-				md.update(certificate.getSignature());
-				System.arraycopy(md.digest(), 0, out, 0, out.length);
-			}
-			else if (serialNumber.equals(RSSerialVersion.V06_0001.serialNumber()))
-			{
-				// RS 0.6.5 after November 2017, ID is SHA-1 of signature (16 first bytes)
-				var md = MessageDigest.getInstance("SHA-1");
-				md.update(certificate.getSignature());
-				System.arraycopy(md.digest(), 0, out, 0, out.length);
-			}
-			else
-			{
-				// The serial number here is either "60000" or a totally random string.
-				// RS < November 2017. ID is the last 16 bytes of the signature.
-				System.arraycopy(certificate.getSignature(), certificate.getSignature().length - out.length, out, 0, out.length);
-			}
-			return new LocationId(out);
-		}
-		catch (NoSuchAlgorithmException e)
+		// There are several certificate versions
+		if (serialNumber.equals(RSSerialVersion.V07_0001.serialNumber()))
 		{
-			throw new IllegalStateException("Missing algorithm in JCE provider: " + e.getMessage(), e);
+			// RS 0.6.6. ID is SHA-256 of signature (16 first bytes)
+			var md = new Sha256MessageDigest();
+			md.update(certificate.getSignature());
+			System.arraycopy(md.getBytes(), 0, out, 0, out.length);
 		}
+		else if (serialNumber.equals(RSSerialVersion.V06_0001.serialNumber()))
+		{
+			// RS 0.6.5 after November 2017, ID is SHA-1 of signature (16 first bytes)
+			var md = new Sha1MessageDigest();
+			md.update(certificate.getSignature());
+			System.arraycopy(md.getBytes(), 0, out, 0, out.length);
+		}
+		else
+		{
+			// The serial number here is either "60000" or a totally random string.
+			// RS < November 2017. ID is the last 16 bytes of the signature.
+			System.arraycopy(certificate.getSignature(), certificate.getSignature().length - out.length, out, 0, out.length);
+		}
+		return new LocationId(out);
 	}
 }

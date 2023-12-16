@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.gxs;
 
 import io.netty.buffer.Unpooled;
+import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -37,9 +38,7 @@ import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.util.NoSuppressedRunnable;
-import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -952,12 +951,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 			// The identifier is the sha1 hash of the data and meta
 			var data = serializeItemForSignature(gxsMessageItem);
-			var sha1sum = new byte[Sha1Sum.LENGTH];
 
-			var digest = new SHA1Digest();
-			digest.update(data, 0, data.length);
-			digest.doFinal(sha1sum, 0);
-			gxsMessageItem.setMessageId(new MessageId(sha1sum));
+			var md = new Sha1MessageDigest();
+			md.update(data);
+			gxsMessageItem.setMessageId(new MessageId(md.getBytes()));
 
 			// The signature is performed afterwards
 			signMessage(gxsMessageItem, data, privateKey);

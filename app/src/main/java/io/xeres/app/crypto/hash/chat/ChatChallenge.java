@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.crypto.chatcipher;
+package io.xeres.app.crypto.hash.chat;
 
 import io.xeres.common.id.Identifier;
 

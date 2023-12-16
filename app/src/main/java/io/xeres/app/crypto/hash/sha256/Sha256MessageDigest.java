@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,28 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.net.dht;
+package io.xeres.app.crypto.hash.sha256;
 
-import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
-import io.xeres.common.id.LocationId;
+import io.xeres.app.crypto.hash.AbstractMessageDigest;
 
-import java.nio.charset.StandardCharsets;
-
-final class NodeId
+public class Sha256MessageDigest extends AbstractMessageDigest
 {
-	private static final String VERSION = "RS_VERSION_0.5.1\0"; // null terminator is included
-
-	private NodeId()
+	public Sha256MessageDigest()
 	{
-		throw new UnsupportedOperationException("Utility class");
-	}
-
-	static byte[] create(LocationId locationId)
-	{
-		var md = new Sha1MessageDigest();
-		var version = VERSION.getBytes(StandardCharsets.US_ASCII);
-		md.update(version);
-		md.update(locationId.getBytes());
-		return md.getBytes();
+		super("SHA-256");
 	}
 }

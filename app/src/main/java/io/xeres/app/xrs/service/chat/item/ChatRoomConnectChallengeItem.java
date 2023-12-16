@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.chat.item;
 
-import io.xeres.app.crypto.chatcipher.ChatChallenge;
+import io.xeres.app.crypto.hash.chat.ChatChallenge;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;

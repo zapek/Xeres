@@ -19,8 +19,8 @@
 
 package io.xeres.app.crypto.scramble;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import io.xeres.app.crypto.hash.sha256.Sha256MessageDigest;
+
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
@@ -54,7 +54,7 @@ public class ScrambledString
 	private byte[] padBytes;
 	private byte[] scrambledBytes;
 	private String hash;
-	private final MessageDigest digest;
+	private final Sha256MessageDigest digest;
 	private SecureRandom random;
 
 	/**
@@ -73,14 +73,7 @@ public class ScrambledString
 	 */
 	public ScrambledString(char[] clearChars)
 	{
-		try
-		{
-			digest = MessageDigest.getInstance("SHA-256");
-		}
-		catch (NoSuchAlgorithmException e)
-		{
-			throw new IllegalStateException("No SHA-256 available on this system");
-		}
+		digest = new Sha256MessageDigest();
 		scrambleChars(clearChars);
 	}
 
@@ -200,7 +193,8 @@ public class ScrambledString
 
 		clear(scrambledBytes);
 		scrambledBytes = newBytes;
-		hash = Base64.getEncoder().encodeToString(digest.digest(bytes));
+		digest.update(bytes);
+		hash = Base64.getEncoder().encodeToString(digest.getBytes());
 	}
 
 	private byte[] unscrambleBytes()

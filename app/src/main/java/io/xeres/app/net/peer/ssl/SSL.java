@@ -24,6 +24,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
@@ -31,8 +32,6 @@ import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.ConnectionType;
 import io.xeres.app.service.LocationService;
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.slf4j.Logger;
@@ -130,11 +129,9 @@ public final class SSL
 			{
 				// If this is a 0.6 certificate, the signature verification is performed
 				// on the hash of the certificate
-				var hash = new byte[20];
-				Digest digest = new SHA1Digest();
-				digest.update(in, 0, in.length);
-				digest.doFinal(hash, 0);
-				in = hash;
+				var md = new Sha1MessageDigest();
+				md.update(in);
+				in = md.getBytes();
 			}
 			PGP.verify(pgpPublicKey, cert.getSignature(), new ByteArrayInputStream(in));
 		}

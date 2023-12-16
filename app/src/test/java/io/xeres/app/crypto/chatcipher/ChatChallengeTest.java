@@ -19,6 +19,7 @@
 
 package io.xeres.app.crypto.chatcipher;
 
+import io.xeres.app.crypto.hash.chat.ChatChallenge;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.testutils.TestUtils;

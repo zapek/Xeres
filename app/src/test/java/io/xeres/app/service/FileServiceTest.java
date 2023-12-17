@@ -21,10 +21,13 @@ package io.xeres.app.service;
 
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.common.id.Id;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.boot.logging.LogLevel;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.net.URISyntaxException;
@@ -43,11 +46,24 @@ class FileServiceTest
 	@InjectMocks
 	private FileService fileService;
 
+	@BeforeAll
+	public static void setErrorLogging()
+	{
+		LoggingSystem.get(ClassLoader.getSystemClassLoader()).setLogLevel("io.xeres", LogLevel.DEBUG);
+	}
+
 	@Test
 	void FileService_HashFile_OK() throws URISyntaxException
 	{
 		var hash = fileService.calculateFileHash(Path.of(Objects.requireNonNull(getClass().getResource("/image/leguman.jpg")).toURI()));
 		assertNotNull(hash);
 		assertEquals("0f02355b1b1e9a22801dddd85ded59fe7301698d", Id.toString(hash.getBytes()));
+	}
+
+	@Test
+	void FileService_ScanShare_OK() throws URISyntaxException
+	{
+		fileService.scanShare(Path.of(Objects.requireNonNull(getClass().getResource("/image")).toURI()));
+		// XXX: check the hashes once a proper notification is sent
 	}
 }

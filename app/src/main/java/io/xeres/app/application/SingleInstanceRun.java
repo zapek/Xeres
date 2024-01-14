@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -70,7 +70,7 @@ public final class SingleInstanceRun
 			if (lock != null)
 			{
 				result = true;
-				Runtime.getRuntime().addShutdownHook(Thread.startVirtualThread(new ShutdownHook()));
+				Runtime.getRuntime().addShutdownHook(Thread.ofVirtual().unstarted(new ShutdownHook()));
 			}
 		}
 		catch (IOException | IllegalStateException | IllegalArgumentException e)

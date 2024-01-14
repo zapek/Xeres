@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service;
+package io.xeres.app.service.file;
 
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.service.notification.file.FileNotificationService;

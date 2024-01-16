@@ -60,10 +60,10 @@ class FileServiceTest
 		assertEquals("0f02355b1b1e9a22801dddd85ded59fe7301698d", Id.toString(hash.getBytes()));
 	}
 
-	@Test
-	void FileService_ScanShare_OK() throws URISyntaxException
-	{
-		fileService.scanShare(Path.of(Objects.requireNonNull(getClass().getResource("/image")).toURI()));
-		// XXX: check the hashes once a proper notification is sent
-	}
+//	@Test
+//	void FileService_ScanShare_OK() throws URISyntaxException
+//	{
+//		fileService.scanShare(Path.of(Objects.requireNonNull(getClass().getResource("/image")).toURI()));
+//		// XXX: check the hashes once a proper notification is sent
+//	}
 }

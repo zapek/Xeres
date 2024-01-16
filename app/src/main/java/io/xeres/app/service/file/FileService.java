@@ -37,8 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class FileService
@@ -76,16 +75,32 @@ public class FileService
 		this.fileRepository = fileRepository;
 	}
 
-	public void scanShare(Share share)
+	public void addShare(Share share)
 	{
-		scanShare(getFilePath(share.getFile()));
+		saveFullPath(share.getFile());
+		shareRepository.save(share); // XXX: check if already here and ignore if so?
+		scanShare(share.getFile());
 	}
 
-	void scanShare(Path directory)
+	private void saveFullPath(File file)
+	{
+		List<File> tree = new ArrayList<>();
+
+		tree.add(file);
+		while (file.getParent() != null)
+		{
+			tree.add(file.getParent());
+			file = file.getParent();
+		}
+		Collections.reverse(tree);
+		fileRepository.saveAll(tree);
+	}
+
+	void scanShare(File directory)
 	{
 		try
 		{
-			Files.walkFileTree(directory, new TrackingFileVisitor(directory)
+			Files.walkFileTree(getFilePath(directory), new TrackingFileVisitor(directory)
 			{
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)

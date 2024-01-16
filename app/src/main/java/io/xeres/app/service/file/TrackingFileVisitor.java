@@ -24,7 +24,6 @@ import io.xeres.app.database.model.file.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -32,23 +31,22 @@ import java.util.List;
 
 public class TrackingFileVisitor implements FileVisitor<Path>
 {
-	private List<File> directories = new ArrayList<>();
+	private final List<File> directories = new ArrayList<>();
+	private boolean skipFirst; // XXX: lame hack, find something better (this is because the first entered directory is already the root directory)
 
-	public TrackingFileVisitor(Path currentDirectory)
+	public TrackingFileVisitor(File rootDirectory)
 	{
-		try
-		{
-			preVisitDirectory(currentDirectory, Files.readAttributes(currentDirectory, BasicFileAttributes.class));
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException(e);
-		}
+		directories.addLast(rootDirectory);
 	}
 
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
 	{
+		if (!skipFirst)
+		{
+			skipFirst = true;
+			return null;
+		}
 		var directory = File.createDirectory(directories.getLast(), dir.getFileName().toString(), attrs.lastModifiedTime().toInstant());
 		directories.addLast(directory);
 		return null;

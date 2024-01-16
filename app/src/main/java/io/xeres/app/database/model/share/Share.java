@@ -46,6 +46,16 @@ public class Share
 	@Convert(converter = TrustConverter.class)
 	private Trust browsable = Trust.UNKNOWN;
 
+	public static Share createShare(String name, File directory, boolean searchable, Trust browsable)
+	{
+		var share = new Share();
+		share.setName(name);
+		share.setFile(directory);
+		share.setSearchable(searchable);
+		share.setBrowsable(browsable);
+		return share;
+	}
+
 	protected Share()
 	{
 	}

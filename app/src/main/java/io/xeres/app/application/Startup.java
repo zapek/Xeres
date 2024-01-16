@@ -27,16 +27,20 @@ import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.settings.Settings;
+import io.xeres.app.database.model.share.Share;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.NetworkService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.file.FileService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
+import io.xeres.common.pgp.Trust;
 import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +78,9 @@ public class Startup implements ApplicationRunner
 	private final StatusNotificationService statusNotificationService;
 	private final AutoStart autoStart;
 	private final RsServiceRegistry rsServiceRegistry;
+	private final FileService fileService;
 
-	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry)
+	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry, FileService fileService)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -91,6 +96,7 @@ public class Startup implements ApplicationRunner
 		this.statusNotificationService = statusNotificationService;
 		this.autoStart = autoStart;
 		this.rsServiceRegistry = rsServiceRegistry;
+		this.fileService = fileService;
 	}
 
 	@Override
@@ -287,6 +293,7 @@ public class Startup implements ApplicationRunner
 				}
 			}
 			settingsService.setIncomingDirectory(incomingDirectory.toString());
+			fileService.addShare(Share.createShare("Incoming", File.createFile(incomingDirectory), false, Trust.UNKNOWN));
 		}
 	}
 }

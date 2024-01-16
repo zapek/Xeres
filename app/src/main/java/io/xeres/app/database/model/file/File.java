@@ -25,12 +25,18 @@ import io.xeres.common.id.Sha1Sum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 
 @Entity
 public class File
 {
+	private static final Logger log = LoggerFactory.getLogger(File.class);
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -47,7 +53,6 @@ public class File
 	private FileType type;
 
 	@Embedded
-	@NotNull
 	@AttributeOverride(name = "identifier", column = @Column(name = "hash"))
 	private Sha1Sum hash;
 
@@ -68,8 +73,46 @@ public class File
 		var file = new File();
 		file.setParent(parent);
 		file.setName(name);
-		file.setType(FileType.ANY); // XXX: set the proper type, just check the extension
+		file.setType(FileType.getTypeByExtension(name));
 		file.setModified(modified);
+		return file;
+	}
+
+	public static File createFile(Path path)
+	{
+		path = getCanonicalPath(path);
+		File file = createFile(path.getRoot().toString(), null);
+
+		for (Path component : path)
+		{
+			file = createFile(component.getFileName().toString(), file);
+			file.setType(FileType.DIRECTORY);
+		}
+		return file;
+	}
+
+	private static Path getCanonicalPath(Path path)
+	{
+		try
+		{
+			return Path.of(path.toFile().getCanonicalPath());
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to get canonical path: {}, using absolute path instead", path);
+			return path.toAbsolutePath();
+		}
+	}
+
+	private static File createFile(String name, File parent)
+	{
+		var file = new File();
+		file.setName(name);
+
+		if (parent != null)
+		{
+			file.setParent(parent);
+		}
 		return file;
 	}
 

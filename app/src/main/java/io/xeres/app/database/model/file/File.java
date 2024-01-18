@@ -41,7 +41,7 @@ public class File
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "parent_id")
 	private File parent;
 
@@ -82,6 +82,7 @@ public class File
 	{
 		path = getCanonicalPath(path);
 		File file = createFile(path.getRoot().toString(), null);
+		file.setType(FileType.DIRECTORY);
 
 		for (Path component : path)
 		{

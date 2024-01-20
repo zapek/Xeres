@@ -33,4 +33,6 @@ public interface FileRepository extends JpaRepository<File, Long>
 	Optional<File> findByNameIgnoreCase(String name);
 
 	Optional<File> findByNameAndParent(String name, File parent);
+
+	Optional<File> findByNameAndParentName(String name, String parentName);
 }

@@ -53,4 +53,26 @@ public enum FileType implements I18nEnum
 	{
 		return I18nUtils.getString(getMessageKey(this));
 	}
+
+	public static FileType getTypeByExtension(String filename)
+	{
+		var index = filename.lastIndexOf(".");
+		if (index == -1)
+		{
+			return ANY;
+		}
+		var extension = filename.substring(index + 1);
+		if (extension.isEmpty())
+		{
+			return ANY;
+		}
+		for (var value : values())
+		{
+			if (value.getExtensions().contains(extension))
+			{
+				return value;
+			}
+		}
+		return ANY;
+	}
 }

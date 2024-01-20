@@ -20,6 +20,10 @@
 package io.xeres.app.service.file;
 
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
+import io.xeres.app.database.model.file.File;
+import io.xeres.app.database.model.share.Share;
+import io.xeres.app.database.repository.FileRepository;
+import io.xeres.app.database.repository.ShareRepository;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
@@ -28,10 +32,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class FileService
@@ -39,6 +45,10 @@ public class FileService
 	private static final Logger log = LoggerFactory.getLogger(FileService.class);
 
 	private final FileNotificationService fileNotificationService;
+
+	private final ShareRepository shareRepository;
+
+	private final FileRepository fileRepository;
 
 	private static final String[] ignoredSuffixes = {
 			".bak",
@@ -58,16 +68,42 @@ public class FileService
 			"temp."
 	};
 
-	public FileService(FileNotificationService fileNotificationService)
+	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository)
 	{
 		this.fileNotificationService = fileNotificationService;
+		this.shareRepository = shareRepository;
+		this.fileRepository = fileRepository;
 	}
 
-	public void scanShare(Path directory)
+	public void addShare(Share share)
+	{
+		saveFullPath(share.getFile());
+		shareRepository.save(share); // XXX: check if already here and ignore if so?
+		scanShare(share.getFile());
+	}
+
+	private void saveFullPath(File file)
+	{
+		List<File> tree = new ArrayList<>();
+
+		tree.add(file);
+		while (file.getParent() != null)
+		{
+			tree.add(file.getParent());
+			file = file.getParent();
+		}
+		Collections.reverse(tree);
+		// XXX: following fails because fileToUpdate.getParent() is not saved to disk (so has no ID).. chicken & egg problem
+		tree.forEach(fileToUpdate -> fileRepository.findByNameAndParent(fileToUpdate.getName(), fileToUpdate.getParent()).ifPresent(fileFound -> fileToUpdate.setId(fileFound.getId())));
+		fileRepository.saveAll(tree); // XXX: if that resets the last modified... we need to change how we resolve the path and so on
+	}
+
+	void scanShare(File directory)
 	{
 		try
 		{
-			Files.walkFileTree(directory, new SimpleFileVisitor<>()
+			var directoryPath = getFilePath(directory);
+			Files.walkFileTree(directoryPath, new TrackingFileVisitor(directory)
 			{
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
@@ -76,8 +112,16 @@ public class FileService
 					Objects.requireNonNull(attrs);
 					if (isIndexableFile(file, attrs))
 					{
-						log.debug("Checking file {}, modification time: {}", file, attrs.lastModifiedTime()); // XXX: skip calculation if the modification time is not after what we already had
-						calculateFileHash(file); // XXX: store, etc...
+						log.debug("Checking file {}, modification time: {}", file, attrs.lastModifiedTime());
+						var currentFile = fileRepository.findByNameAndParent(file.getFileName().toString(), getCurrentDirectory()).orElseGet(() -> File.createFile(getCurrentDirectory(), file.getFileName().toString(), null));
+						var lastModified = attrs.lastModifiedTime().toInstant();
+						if (currentFile.getModified() == null || lastModified.isAfter(currentFile.getModified()))
+						{
+							var hash = calculateFileHash(file);
+							currentFile.setHash(hash);
+							currentFile.setModified(lastModified);
+							fileRepository.save(currentFile);
+						}
 					}
 					return FileVisitResult.CONTINUE;
 				}
@@ -89,7 +133,13 @@ public class FileService
 					Objects.requireNonNull(attrs);
 					if (isIndexableDirectory(dir, attrs))
 					{
-						log.debug("Entering directory {}", dir); // XXX: add it to the database, we need that for file tree building
+						super.preVisitDirectory(dir, attrs);
+						log.debug("Entering directory {}", dir);
+						var directory = getCurrentDirectory();
+						if (fileRepository.findByNameAndParent(directory.getName(), directory.getParent()).isEmpty())
+						{
+							fileRepository.save(directory);
+						}
 						return FileVisitResult.CONTINUE;
 					}
 					else
@@ -102,6 +152,7 @@ public class FileService
 				public FileVisitResult postVisitDirectory(Path dir, IOException exc)
 				{
 					Objects.requireNonNull(dir);
+					super.postVisitDirectory(dir, exc);
 					if (exc != null)
 					{
 						log.debug("Failed to fully scan directory {}: {}", dir, exc.getMessage());
@@ -117,11 +168,22 @@ public class FileService
 					return FileVisitResult.CONTINUE;
 				}
 			});
+			directory.setModified(Files.getLastModifiedTime(directoryPath).toInstant());
+			fileRepository.save(directory);
 		}
 		catch (IOException e)
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	private Path getFilePath(File file)
+	{
+		if (file.hasParent())
+		{
+			return getFilePath(file.getParent()).resolve(file.getName());
+		}
+		return Path.of(file.getName());
 	}
 
 	private boolean isIndexableFile(Path file, BasicFileAttributes attrs)

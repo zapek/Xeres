@@ -93,14 +93,17 @@ public class FileService
 			file = file.getParent();
 		}
 		Collections.reverse(tree);
-		fileRepository.saveAll(tree);
+		// XXX: following fails because fileToUpdate.getParent() is not saved to disk (so has no ID).. chicken & egg problem
+		tree.forEach(fileToUpdate -> fileRepository.findByNameAndParent(fileToUpdate.getName(), fileToUpdate.getParent()).ifPresent(fileFound -> fileToUpdate.setId(fileFound.getId())));
+		fileRepository.saveAll(tree); // XXX: if that resets the last modified... we need to change how we resolve the path and so on
 	}
 
 	void scanShare(File directory)
 	{
 		try
 		{
-			Files.walkFileTree(getFilePath(directory), new TrackingFileVisitor(directory)
+			var directoryPath = getFilePath(directory);
+			Files.walkFileTree(directoryPath, new TrackingFileVisitor(directory)
 			{
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
@@ -165,6 +168,8 @@ public class FileService
 					return FileVisitResult.CONTINUE;
 				}
 			});
+			directory.setModified(Files.getLastModifiedTime(directoryPath).toInstant());
+			fileRepository.save(directory);
 		}
 		catch (IOException e)
 		{

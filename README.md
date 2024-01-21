@@ -7,6 +7,10 @@
 
 [Xeres](https://xeres.io) is a decentralized and secure application designed for communication and sharing.
 
+---
+
+![Xeres Desktop](docs/screenshot-chat.jpg)
+
 ## Table of Contents
 
 - [Features](#features)
@@ -21,15 +25,15 @@
 
 Xeres is an application that allows to connect to other peers to exchange information.
 
-- Peer-to-Peer (Friend-to-Friend), fully decentralized
-- No censorship. Cannot be censored
-- Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
-- Hardware accelerated encryption
-- Desktop User Interface
-- Remote access
-- Asynchronous design
-- High concurrency
-- Free software (GPL)
+- 🤝 Peer-to-Peer (Friend-to-Friend), fully decentralized
+- 🚫 No censorship. Cannot be censored
+- 👋 Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
+- 🛠️ Hardware accelerated encryption
+- 🖥️ Desktop User Interface
+- 📶 Remote access
+- 🚀 Asynchronous design
+- ✈️ High concurrency
+- 📖 Free software (GPL)
 
 ## Supported Platforms
 

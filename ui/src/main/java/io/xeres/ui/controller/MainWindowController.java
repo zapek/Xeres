@@ -126,6 +126,9 @@ public class MainWindowController implements WindowController
 	private MenuItem showSettingsWindow;
 
 	@FXML
+	private MenuItem showSharesWindow;
+
+	@FXML
 	private Menu debug;
 
 	@FXML
@@ -218,6 +221,8 @@ public class MainWindowController implements WindowController
 		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(getWindow(event)));
 
 		showSettingsWindow.setOnAction(event -> windowManager.openSettings(getWindow(event)));
+
+		showSharesWindow.setOnAction(event -> windowManager.openShare(getWindow(event)));
 
 		changeOwnIdentityPicture.setOnAction(event -> {
 			var fileChooser = new FileChooser();

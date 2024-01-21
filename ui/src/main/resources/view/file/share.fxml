@@ -1,0 +1,31 @@
+<!--
+  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<VBox minWidth="800.0" minHeight="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.share.ShareWindowController" styleClass="base-spacing">
+    <TableView fx:id="shareTableView" VBox.vgrow="ALWAYS" editable="true">
+        <columns>
+            <TableColumn fx:id="tableDirectory" prefWidth="150.0" text="Shared directory"/>
+            <TableColumn fx:id="tableName" prefWidth="130.0" text="Visible name"/>
+            <TableColumn fx:id="tableSearchable" prefWidth="100.0" text="Searchable"/>
+            <TableColumn fx:id="tableBrowsable" prefWidth="100.0" text="Browsable"/>
+        </columns>
+    </TableView>
+</VBox>

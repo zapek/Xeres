@@ -185,6 +185,11 @@
                             <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
                         </accelerator>
                     </MenuItem>
+                    <MenuItem fx:id="showSharesWindow" text="Shares...">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-cogs"/>
+                        </graphic>
+                    </MenuItem>
                 </Menu>
                 <Menu text="%main.menu.help">
                     <MenuItem fx:id="showHelp" text="%main.menu.help.online-help">

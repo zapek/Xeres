@@ -43,6 +43,7 @@ import io.xeres.ui.controller.profile.ProfilesWindowController;
 import io.xeres.ui.controller.qrcode.CameraWindowController;
 import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
+import io.xeres.ui.controller.share.ShareWindowController;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import jakarta.annotation.PostConstruct;
@@ -160,6 +161,16 @@ public class WindowManager
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(parent)
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
+						.build()
+						.open());
+	}
+
+	public void openShare(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(ShareWindowController.class)
+						.setParent(parent)
+						.setTitle("Shares")
 						.build()
 						.open());
 	}

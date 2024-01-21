@@ -78,7 +78,11 @@ public class FileService
 	public void addShare(Share share)
 	{
 		saveFullPath(share.getFile());
-		shareRepository.save(share); // XXX: check if already here and ignore if so?
+		if (shareRepository.findByName(share.getName()).isPresent())
+		{
+			return;
+		}
+		shareRepository.save(share);
 		scanShare(share.getFile());
 	}
 

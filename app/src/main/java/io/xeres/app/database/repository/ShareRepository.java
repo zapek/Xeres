@@ -23,7 +23,10 @@ import io.xeres.app.database.model.share.Share;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 @Transactional
 public interface ShareRepository extends JpaRepository<Share, Long>
 {
+	Optional<Share> findByName(String name);
 }

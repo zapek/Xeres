@@ -26,6 +26,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import static io.xeres.common.dto.share.ShareConstants.NAME_LENGTH_MAX;
+import static io.xeres.common.dto.share.ShareConstants.NAME_LENGTH_MIN;
+
 @Entity
 public class Share
 {
@@ -38,7 +41,7 @@ public class Share
 	private File file;
 
 	@NotNull
-	@Size(min = 1, max = 64)
+	@Size(min = NAME_LENGTH_MIN, max = NAME_LENGTH_MAX)
 	private String name;
 
 	private boolean searchable;

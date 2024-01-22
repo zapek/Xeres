@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FileService
@@ -86,7 +87,26 @@ public class FileService
 		scanShare(share.getFile());
 	}
 
+	public List<Share> getShares()
+	{
+		return shareRepository.findAll();
+	}
+
+	public Map<Long, String> getFilesMapFromShares(List<Share> shares)
+	{
+		return shares.stream()
+				.collect(Collectors.toMap(Share::getId, share -> getFullPath(share.getFile()).stream()
+						.map(File::getName)
+						.collect(Collectors.joining(java.io.File.separator))));
+	}
+
 	private void saveFullPath(File file)
+	{
+		var tree = getFullPath(file);
+		fileRepository.saveAll(tree);
+	}
+
+	private List<File> getFullPath(File file)
 	{
 		List<File> tree = new ArrayList<>();
 
@@ -98,7 +118,7 @@ public class FileService
 		}
 		Collections.reverse(tree);
 		tree.forEach(fileToUpdate -> fileRepository.findByNameAndParentName(fileToUpdate.getName(), fileToUpdate.getParent() != null ? fileToUpdate.getParent().getName() : null).ifPresent(fileFound -> fileToUpdate.setId(fileFound.getId())));
-		fileRepository.saveAll(tree);
+		return tree;
 	}
 
 	void scanShare(File directory)

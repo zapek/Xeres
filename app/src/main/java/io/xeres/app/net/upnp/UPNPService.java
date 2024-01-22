@@ -20,10 +20,13 @@
 package io.xeres.app.net.upnp;
 
 import io.xeres.app.application.events.PortsForwardedEvent;
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.net.protocol.PeerAddress;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.status.NatStatus;
-import io.xeres.ui.client.ConfigClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -82,10 +85,10 @@ public class UPNPService implements Runnable
 		INTERRUPTED
 	}
 
-	private final ConfigClient configClient;
+	private final LocationService locationService;
 	private final ApplicationEventPublisher publisher;
-
 	private final StatusNotificationService statusNotificationService;
+	private final DatabaseSessionManager databaseSessionManager;
 
 	private int deviceIndex;
 
@@ -99,11 +102,12 @@ public class UPNPService implements Runnable
 	private State state;
 	private Device device;
 
-	public UPNPService(ConfigClient configClient, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
+	public UPNPService(LocationService locationService, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService, DatabaseSessionManager databaseSessionManager)
 	{
-		this.configClient = configClient;
+		this.locationService = locationService;
 		this.publisher = publisher;
 		this.statusNotificationService = statusNotificationService;
+		this.databaseSessionManager = databaseSessionManager;
 	}
 
 	public void start(String localIpAddress, int localPort)
@@ -398,17 +402,30 @@ public class UPNPService implements Runnable
 
 	private boolean findExternalIpAddress()
 	{
-		var externalIpAddress = device.getExternalIpAddress();
-		if (IP.isPublicIp(externalIpAddress))
+		try (var session = new DatabaseSession(databaseSessionManager))
 		{
-			var result = configClient.updateExternalIpAddress(externalIpAddress, localPort);
-			result.subscribe();
-			return true;
-		}
-		else
-		{
-			log.info("External IP address {} is not public, ignoring", externalIpAddress);
-			return false;
+			var externalIpAddress = device.getExternalIpAddress();
+			if (IP.isPublicIp(externalIpAddress))
+			{
+				var peerAddress = PeerAddress.from(externalIpAddress, localPort);
+				if (peerAddress.isInvalid())
+				{
+					log.warn("External IP is invalid: {}", externalIpAddress);
+					return false;
+				}
+				if (!peerAddress.isExternal())
+				{
+					log.warn("External IP is not external: {}", externalIpAddress);
+					return false;
+				}
+				locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress);
+				return true;
+			}
+			else
+			{
+				log.info("External IP address {} is not public, ignoring", externalIpAddress);
+				return false;
+			}
 		}
 	}
 }

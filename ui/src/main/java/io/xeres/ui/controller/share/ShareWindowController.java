@@ -24,27 +24,34 @@ import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.share.Share;
 import io.xeres.ui.support.util.UiUtils;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.DirectoryChooser;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 @FxmlView(value = "/view/file/share.fxml")
 public class ShareWindowController implements WindowController
 {
+	private static final Logger log = LoggerFactory.getLogger(ShareWindowController.class);
+
 	@FXML
 	private TableView<Share> shareTableView;
 
@@ -70,7 +77,6 @@ public class ShareWindowController implements WindowController
 			if (refreshHack)
 			{
 				refreshHack = false;
-				// XXX: do something to make sure it's selectable again
 				return;
 			}
 			if (JavaFxApplication.isRemoteUiClient())
@@ -80,15 +86,26 @@ public class ShareWindowController implements WindowController
 			}
 			var directoryChooser = new DirectoryChooser();
 			directoryChooser.setTitle("Select directory to share");
-			// XXX: set initial directory? yes, to param.getOldValue() ... (if it still exists...)
+			if (!isEmpty(param.getOldValue()))
+			{
+				var previousPath = Path.of(param.getOldValue());
+				if (Files.exists(previousPath))
+				{
+					directoryChooser.setInitialDirectory(previousPath.toFile());
+				}
+			}
 			var selectedDirectory = directoryChooser.showDialog(UiUtils.getWindow(shareTableView));
 			if (selectedDirectory != null && selectedDirectory.isDirectory())
 			{
-				getCurrentItem(param).setPath(selectedDirectory.getPath()); // XXX: canonical?
+				getCurrentItem(param).setPath(selectedDirectory.getPath());
 				refreshHack = true; // refresh() calls setOnEditStart() again so we need that workaround
-				tableDirectory.setOnEditStart(null);
 				param.getTableView().refresh();
+
 			}
+
+			Platform.runLater(() -> {
+				param.getTableView().getSelectionModel().clearSelection(); // We clear the selection so that the directory selector can be triggered again. Go figure...
+			});
 		});
 		tableDirectory.setOnEditCommit(param -> getCurrentItem(param).setPath(param.getNewValue()));
 
@@ -96,14 +113,21 @@ public class ShareWindowController implements WindowController
 		tableName.setCellFactory(TextFieldTableCell.forTableColumn());
 		tableName.setOnEditCommit(param -> getCurrentItem(param).setName(param.getNewValue()));
 
-		tableSearchable.setCellValueFactory(param -> new SimpleBooleanProperty(param.getValue().isSearchable()));
-		tableSearchable.setCellFactory(CheckBoxTableCell.forTableColumn(tableSearchable));
-		tableSearchable.setOnEditCommit(param -> getCurrentItem(param).setSearchable(param.getNewValue()));
+		// setOnEditCommit() doesn't work for CheckBoxes, so we have to do that
+		tableSearchable.setCellValueFactory(param -> {
+			var checkBox = new CheckBox();
+			checkBox.selectedProperty().setValue(param.getValue().isSearchable());
+			checkBox.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+				param.getValue().setSearchable(newValue);
+			});
+			return new SimpleObjectProperty(checkBox);
+		});
 
 		tableBrowsable.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getBrowsable()));
 		tableBrowsable.setCellFactory(ChoiceBoxTableCell.forTableColumn(Trust.values()));
 		tableBrowsable.setOnEditCommit(param -> getCurrentItem(param).setBrowsable(param.getNewValue()));
 
+		// XXX: get the shares from the API
 		var share = new Share();
 		share.setName("Incoming");
 		share.setPath("C:\\temp");

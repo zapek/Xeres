@@ -21,6 +21,7 @@ package io.xeres.ui.controller.share;
 
 import io.xeres.common.pgp.Trust;
 import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.share.Share;
 import io.xeres.ui.support.util.UiUtils;
@@ -44,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
+import static javafx.scene.control.TableColumn.SortType.ASCENDING;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
@@ -51,6 +53,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class ShareWindowController implements WindowController
 {
 	private static final Logger log = LoggerFactory.getLogger(ShareWindowController.class);
+
+	private final ShareClient shareClient;
 
 	@FXML
 	private TableView<Share> shareTableView;
@@ -68,6 +72,11 @@ public class ShareWindowController implements WindowController
 	private TableColumn<Share, Trust> tableBrowsable;
 
 	private boolean refreshHack;
+
+	public ShareWindowController(ShareClient shareClient)
+	{
+		this.shareClient = shareClient;
+	}
 
 	@Override
 	public void initialize() throws IOException
@@ -103,9 +112,8 @@ public class ShareWindowController implements WindowController
 
 			}
 
-			Platform.runLater(() -> {
-				param.getTableView().getSelectionModel().clearSelection(); // We clear the selection so that the directory selector can be triggered again. Go figure...
-			});
+			// We clear the selection so that the directory selector can be triggered again. Go figure...
+			Platform.runLater(param.getTableView().getSelectionModel()::clearSelection);
 		});
 		tableDirectory.setOnEditCommit(param -> getCurrentItem(param).setPath(param.getNewValue()));
 
@@ -117,9 +125,7 @@ public class ShareWindowController implements WindowController
 		tableSearchable.setCellValueFactory(param -> {
 			var checkBox = new CheckBox();
 			checkBox.selectedProperty().setValue(param.getValue().isSearchable());
-			checkBox.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-				param.getValue().setSearchable(newValue);
-			});
+			checkBox.selectedProperty().addListener((observableValue, oldValue, newValue) -> param.getValue().setSearchable(newValue));
 			return new SimpleObjectProperty(checkBox);
 		});
 
@@ -127,13 +133,18 @@ public class ShareWindowController implements WindowController
 		tableBrowsable.setCellFactory(ChoiceBoxTableCell.forTableColumn(Trust.values()));
 		tableBrowsable.setOnEditCommit(param -> getCurrentItem(param).setBrowsable(param.getNewValue()));
 
-		// XXX: get the shares from the API
-		var share = new Share();
-		share.setName("Incoming");
-		share.setPath("C:\\temp");
-		share.setBrowsable(Trust.UNKNOWN);
-		share.setSearchable(false);
-		shareTableView.getItems().add(share);
+		shareClient.findAll().collectList()
+				.doOnSuccess(shares -> Platform.runLater(() -> {
+					// Add all shares
+					shareTableView.getItems().addAll(shares);
+
+					// Sort by visible name
+					shareTableView.getSortOrder().add(tableName);
+					tableName.setSortType(ASCENDING);
+					tableName.setSortable(true);
+				}))
+				.doOnError(throwable -> log.error("Error while getting the shares: {}", throwable.getMessage(), throwable))
+				.subscribe();
 	}
 
 	private static <T> T getCurrentItem(TableColumn.CellEditEvent<T, ?> param)

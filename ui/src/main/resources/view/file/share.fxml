@@ -22,7 +22,7 @@
 <VBox minWidth="800.0" minHeight="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.share.ShareWindowController" styleClass="base-spacing">
     <TableView fx:id="shareTableView" VBox.vgrow="ALWAYS" editable="true">
         <columns>
-            <TableColumn fx:id="tableDirectory" prefWidth="150.0" text="Shared directory"/>
+            <TableColumn fx:id="tableDirectory" prefWidth="350.0" text="Shared directory"/>
             <TableColumn fx:id="tableName" prefWidth="130.0" text="Visible name"/>
             <TableColumn fx:id="tableSearchable" prefWidth="100.0" text="Searchable"/>
             <TableColumn fx:id="tableBrowsable" prefWidth="100.0" text="Browsable"/>

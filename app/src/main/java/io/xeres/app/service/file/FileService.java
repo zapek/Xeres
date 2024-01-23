@@ -96,7 +96,7 @@ public class FileService
 	{
 		return shares.stream()
 				.collect(Collectors.toMap(Share::getId, share -> getFullPath(share.getFile()).stream()
-						.map(File::getName)
+						.map(file -> file.getName().endsWith(":\\") ? file.getName().substring(0, file.getName().length() - 1) : file.getName()) // On Windows, C:\ -> C: to avoid double file separators
 						.collect(Collectors.joining(java.io.File.separator))));
 	}
 

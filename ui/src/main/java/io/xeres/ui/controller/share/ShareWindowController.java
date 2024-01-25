@@ -29,12 +29,14 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.DirectoryChooser;
+import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +72,15 @@ public class ShareWindowController implements WindowController
 
 	@FXML
 	private TableColumn<Share, Trust> tableBrowsable;
+
+	@FXML
+	private Button applyButton;
+
+	@FXML
+	private Button addButton;
+
+	@FXML
+	private Button cancelButton;
 
 	private boolean refreshHack;
 
@@ -132,6 +143,20 @@ public class ShareWindowController implements WindowController
 		tableBrowsable.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getBrowsable()));
 		tableBrowsable.setCellFactory(ChoiceBoxTableCell.forTableColumn(Trust.values()));
 		tableBrowsable.setOnEditCommit(param -> getCurrentItem(param).setBrowsable(param.getNewValue()));
+
+
+		addButton.setOnAction(event -> {
+			var newShare = new Share();
+			newShare.setName("Change Me");
+			newShare.setPath(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null));
+			newShare.setSearchable(true);
+			newShare.setBrowsable(Trust.NEVER);
+			shareTableView.getItems().add(newShare);
+		});
+
+		// XXX: set action on apply!
+
+		cancelButton.setOnAction(UiUtils::closeWindow);
 
 		shareClient.findAll().collectList()
 				.doOnSuccess(shares -> Platform.runLater(() -> {

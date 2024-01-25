@@ -29,6 +29,7 @@ import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -39,6 +40,8 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 @Service
 public class FileService
@@ -85,6 +88,27 @@ public class FileService
 		}
 		shareRepository.save(share);
 		scanShare(share.getFile());
+	}
+
+	@Transactional
+	public void synchronize(List<Share> shares)
+	{
+		emptyIfNull(shares).forEach(share -> {
+			saveFullPath(share.getFile());
+			shareRepository.save(share);
+		});
+
+		var ids = getShares().stream()
+				.map(Share::getId)
+				.filter(id -> id != 0)
+				.collect(Collectors.toSet());
+
+		emptyIfNull(getShares()).forEach(share -> {
+			if (!ids.contains(share.getId()))
+			{
+				shareRepository.delete(share);
+			}
+		});
 	}
 
 	public List<Share> getShares()

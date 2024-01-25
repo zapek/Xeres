@@ -19,8 +19,10 @@
 
 package io.xeres.app.database.model.share;
 
+import io.xeres.app.database.model.file.File;
 import io.xeres.common.dto.share.ShareDTO;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +55,29 @@ public final class ShareMapper
 	{
 		return emptyIfNull(shares).stream()
 				.map(share -> toDTO(share, filesMap.get(share.getId())))
+				.toList();
+	}
+
+	public static Share fromDTO(ShareDTO shareDTO)
+	{
+		if (shareDTO == null)
+		{
+			return null;
+		}
+
+		var share = new Share();
+		share.setId(shareDTO.id());
+		share.setName(shareDTO.name());
+		share.setFile(File.createFile(Paths.get(shareDTO.path()))); // XXX: ouch... not sure that works...
+		share.setSearchable(shareDTO.searchable());
+		share.setBrowsable(shareDTO.browsable());
+		return share;
+	}
+
+	public static List<Share> fromDTOs(List<ShareDTO> shares)
+	{
+		return shares.stream()
+				.map(ShareMapper::fromDTO)
 				.toList();
 	}
 }

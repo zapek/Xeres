@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.share.ShareDTO;
+import io.xeres.common.rest.share.UpdateShareRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.share.Share;
 import io.xeres.ui.model.share.ShareMapper;
@@ -27,6 +28,9 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static io.xeres.common.rest.PathConfig.SHARES_PATH;
 
@@ -58,5 +62,16 @@ public class ShareClient
 				.retrieve()
 				.bodyToFlux(ShareDTO.class)
 				.map(ShareMapper::fromDTO);
+	}
+
+	public Mono<Void> createAndUpdate(List<Share> shares)
+	{
+		var request = new UpdateShareRequest(ShareMapper.toDTOs(shares));
+
+		return webClient.post()
+				.uri("")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

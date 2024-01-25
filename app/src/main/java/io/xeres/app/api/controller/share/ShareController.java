@@ -21,17 +21,23 @@ package io.xeres.app.api.controller.share;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.file.FileService;
 import io.xeres.common.dto.share.ShareDTO;
+import io.xeres.common.rest.Error;
+import io.xeres.common.rest.share.UpdateShareRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static io.xeres.app.database.model.share.ShareMapper.fromDTOs;
 import static io.xeres.app.database.model.share.ShareMapper.toDTOs;
 import static io.xeres.common.rest.PathConfig.SHARES_PATH;
 
@@ -54,5 +60,16 @@ public class ShareController
 	{
 		var shares = fileService.getShares();
 		return toDTOs(shares, fileService.getFilesMapFromShares(shares));
+	}
+
+	@PostMapping
+	@Operation(summary = "Add/Update shares")
+	@ApiResponse(responseCode = "201", description = "Shares created/updated successfully")
+	@ApiResponse(responseCode = "422", description = "Shares cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
+	public ResponseEntity<Void> createAndUpdateShares(@Valid @RequestBody UpdateShareRequest updateSharesRequest)
+	{
+		fileService.synchronize(fromDTOs(updateSharesRequest.shares()));
+		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 }

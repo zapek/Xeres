@@ -21,6 +21,10 @@ package io.xeres.ui.model.share;
 
 import io.xeres.common.dto.share.ShareDTO;
 
+import java.util.List;
+
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
+
 @SuppressWarnings("DuplicatedCode")
 public final class ShareMapper
 {
@@ -43,5 +47,22 @@ public final class ShareMapper
 		share.setSearchable(dto.searchable());
 		share.setBrowsable(dto.browsable());
 		return share;
+	}
+
+	public static ShareDTO toDTO(Share share)
+	{
+		if (share == null)
+		{
+			return null;
+		}
+
+		return new ShareDTO(share.getId(), share.getName(), share.getPath(), share.isSearchable(), share.getBrowsable());
+	}
+
+	public static List<ShareDTO> toDTOs(List<Share> shares)
+	{
+		return emptyIfNull(shares).stream()
+				.map(ShareMapper::toDTO)
+				.toList();
 	}
 }

@@ -17,8 +17,11 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import atlantafx.base.controls.Spacer?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox minWidth="800.0" minHeight="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.share.ShareWindowController" styleClass="base-spacing">
     <TableView fx:id="shareTableView" VBox.vgrow="ALWAYS" editable="true">
         <columns>
@@ -28,4 +31,28 @@
             <TableColumn fx:id="tableBrowsable" prefWidth="100.0" text="Browsable"/>
         </columns>
     </TableView>
+    <HBox>
+        <Button fx:id="addButton" text="Add">
+            <HBox.margin>
+                <Insets top="12.0"/>
+            </HBox.margin>
+            <graphic>
+                <FontIcon iconLiteral="fas-plus"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="Create a new share"/>
+            </tooltip>
+        </Button>
+        <Spacer HBox.hgrow="ALWAYS"/>
+        <Button fx:id="applyButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Apply and close">
+            <HBox.margin>
+                <Insets right="4.0" top="12.0"/>
+            </HBox.margin>
+        </Button>
+        <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%button.cancel">
+            <HBox.margin>
+                <Insets left="4.0" top="12.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
 </VBox>

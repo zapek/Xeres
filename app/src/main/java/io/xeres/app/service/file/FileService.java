@@ -98,7 +98,7 @@ public class FileService
 			shareRepository.save(share);
 		});
 
-		var ids = getShares().stream()
+		var ids = shares.stream()
 				.map(Share::getId)
 				.filter(id -> id != 0)
 				.collect(Collectors.toSet());

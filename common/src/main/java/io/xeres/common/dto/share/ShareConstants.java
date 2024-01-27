@@ -24,6 +24,8 @@ public final class ShareConstants
 	public static final int NAME_LENGTH_MIN = 1;
 	public static final int NAME_LENGTH_MAX = 64;
 
+	public static final long INCOMING_SHARE = 1L;
+
 	private ShareConstants()
 	{
 		throw new UnsupportedOperationException("Utility class");

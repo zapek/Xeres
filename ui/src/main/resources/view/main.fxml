@@ -171,6 +171,11 @@
                             <FontIcon iconLiteral="fas-globe-europe"/>
                         </graphic>
                     </MenuItem>
+                    <MenuItem fx:id="showSharesWindow" text="Shares...">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-hdd"/>
+                        </graphic>
+                    </MenuItem>
                     <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="%main.menu.tools.export">
                         <graphic>
                             <FontIcon iconLiteral="fas-save"/>
@@ -184,11 +189,6 @@
                         <accelerator>
                             <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
                         </accelerator>
-                    </MenuItem>
-                    <MenuItem fx:id="showSharesWindow" text="Shares...">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-cogs"/>
-                        </graphic>
                     </MenuItem>
                 </Menu>
                 <Menu text="%main.menu.help">

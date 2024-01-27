@@ -24,15 +24,13 @@ import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.share.Share;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.DirectoryChooser;
@@ -45,7 +43,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import static io.xeres.common.dto.share.ShareConstants.INCOMING_SHARE;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.control.TableColumn.SortType.ASCENDING;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -55,6 +55,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class ShareWindowController implements WindowController
 {
 	private static final Logger log = LoggerFactory.getLogger(ShareWindowController.class);
+
+	private static final String REMOVE_MENU_ID = "remove";
 
 	private final ShareClient shareClient;
 
@@ -92,6 +94,8 @@ public class ShareWindowController implements WindowController
 	@Override
 	public void initialize() throws IOException
 	{
+		createShareTableViewContextMenu();
+
 		tableDirectory.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getPath()));
 		tableDirectory.setOnEditStart(param -> {
 			if (refreshHack)
@@ -146,15 +150,23 @@ public class ShareWindowController implements WindowController
 
 
 		addButton.setOnAction(event -> {
+			var downloadDir = AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null);
+			var downloadPath = Paths.get(downloadDir);
 			var newShare = new Share();
-			newShare.setName("Change Me");
-			newShare.setPath(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null));
+			newShare.setName(downloadPath.getName(downloadPath.getNameCount() - 1).toString());
+			newShare.setPath(downloadDir);
 			newShare.setSearchable(true);
 			newShare.setBrowsable(Trust.NEVER);
 			shareTableView.getItems().add(newShare);
+			shareTableView.getSelectionModel().select(newShare);
+			shareTableView.edit(shareTableView.getSelectionModel().getSelectedIndex(), tableName);
 		});
 
-		// XXX: set action on apply!
+		applyButton.setOnAction(event -> Platform.runLater(() ->
+				shareClient.createAndUpdate(shareTableView.getItems())
+						.doOnSuccess(unused -> Platform.runLater(() -> UiUtils.closeWindow(event)))
+						.doOnError(throwable -> log.error("Couldn't apply shares", throwable))
+						.subscribe()));
 
 		cancelButton.setOnAction(UiUtils::closeWindow);
 
@@ -170,6 +182,19 @@ public class ShareWindowController implements WindowController
 				}))
 				.doOnError(throwable -> log.error("Error while getting the shares: {}", throwable.getMessage(), throwable))
 				.subscribe();
+	}
+
+	private void createShareTableViewContextMenu()
+	{
+		var removeItem = new MenuItem("Remove share");
+		removeItem.setId(REMOVE_MENU_ID);
+		removeItem.setOnAction(event -> {
+			var share = (Share) event.getSource();
+			shareTableView.getItems().remove(share);
+		});
+
+		var tableShareXContextMenu = new XContextMenu<Share>(shareTableView, removeItem);
+		tableShareXContextMenu.setOnShowing((contextMenu, share) -> share.getId() != INCOMING_SHARE); // This prevents removing the incoming directory
 	}
 
 	private static <T> T getCurrentItem(TableColumn.CellEditEvent<T, ?> param)

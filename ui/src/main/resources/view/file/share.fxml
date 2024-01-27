@@ -44,7 +44,7 @@
             </tooltip>
         </Button>
         <Spacer HBox.hgrow="ALWAYS"/>
-        <Button fx:id="applyButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="Apply and close">
+        <Button fx:id="applyButton" defaultButton="true" minWidth="72.0" mnemonicParsing="false" text="Apply and close">
             <HBox.margin>
                 <Insets right="4.0" top="12.0"/>
             </HBox.margin>

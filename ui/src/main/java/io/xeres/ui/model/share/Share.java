@@ -21,6 +21,8 @@ package io.xeres.ui.model.share;
 
 import io.xeres.common.pgp.Trust;
 
+import java.time.Instant;
+
 public class Share
 {
 	private long id;
@@ -28,6 +30,7 @@ public class Share
 	private String path;
 	private boolean searchable;
 	private Trust browsable;
+	private Instant lastScanned;
 
 	public long getId()
 	{
@@ -77,5 +80,15 @@ public class Share
 	public void setBrowsable(Trust browsable)
 	{
 		this.browsable = browsable;
+	}
+
+	public Instant getLastScanned()
+	{
+		return lastScanned;
+	}
+
+	public void setLastScanned(Instant lastScanned)
+	{
+		this.lastScanned = lastScanned;
 	}
 }

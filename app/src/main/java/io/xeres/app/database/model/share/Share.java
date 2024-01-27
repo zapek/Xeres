@@ -26,6 +26,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.Instant;
+
 import static io.xeres.common.dto.share.ShareConstants.NAME_LENGTH_MAX;
 import static io.xeres.common.dto.share.ShareConstants.NAME_LENGTH_MIN;
 
@@ -48,6 +50,8 @@ public class Share
 
 	@Convert(converter = TrustConverter.class)
 	private Trust browsable = Trust.UNKNOWN;
+
+	private Instant lastScanned;
 
 	public static Share createShare(String name, File directory, boolean searchable, Trust browsable)
 	{
@@ -113,6 +117,16 @@ public class Share
 		this.browsable = browsable;
 	}
 
+	public Instant getLastScanned()
+	{
+		return lastScanned;
+	}
+
+	public void setLastScanned(Instant lastScanned)
+	{
+		this.lastScanned = lastScanned;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -122,6 +136,7 @@ public class Share
 				", name='" + name + '\'' +
 				", searchable=" + searchable +
 				", browsable=" + browsable +
+				", lastScanned=" + lastScanned +
 				'}';
 	}
 }

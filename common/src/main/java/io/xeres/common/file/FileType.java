@@ -23,6 +23,7 @@ import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
 
 import java.util.List;
+import java.util.Locale;
 
 public enum FileType implements I18nEnum
 {
@@ -68,7 +69,7 @@ public enum FileType implements I18nEnum
 		}
 		for (var value : values())
 		{
-			if (value.getExtensions().contains(extension))
+			if (value.getExtensions().contains(extension.toLowerCase(Locale.ROOT)))
 			{
 				return value;
 			}

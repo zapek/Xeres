@@ -46,6 +46,7 @@ public final class ShareMapper
 		share.setPath(dto.path());
 		share.setSearchable(dto.searchable());
 		share.setBrowsable(dto.browsable());
+		share.setLastScanned(dto.lastScanned());
 		return share;
 	}
 
@@ -56,7 +57,7 @@ public final class ShareMapper
 			return null;
 		}
 
-		return new ShareDTO(share.getId(), share.getName(), share.getPath(), share.isSearchable(), share.getBrowsable());
+		return new ShareDTO(share.getId(), share.getName(), share.getPath(), share.isSearchable(), share.getBrowsable(), share.getLastScanned());
 	}
 
 	public static List<ShareDTO> toDTOs(List<Share> shares)

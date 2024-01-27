@@ -23,6 +23,7 @@ import io.xeres.common.pgp.Trust;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import static io.xeres.common.dto.share.ShareConstants.NAME_LENGTH_MAX;
@@ -41,7 +42,9 @@ public record ShareDTO(
 
 		boolean searchable,
 
-		Trust browsable
+		Trust browsable,
+
+		Instant lastScanned
 )
 {
 	@Override

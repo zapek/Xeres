@@ -28,6 +28,7 @@ import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,7 +90,23 @@ public class FileService
 			return;
 		}
 		shareRepository.save(share);
-		scanShare(share.getFile());
+	}
+
+	// XXX: call this each 10 minutes
+	private void checkForShareToScan()
+	{
+		var sharesToScan = shareRepository.findAll(Sort.by(Sort.Order.by("lastScanned").nullsFirst()).descending());
+
+		log.debug("shares to scan: {}", sharesToScan);
+		var now = Instant.now();
+		sharesToScan.stream()
+				.filter(share -> share.getLastScanned() == null || share.getLastScanned().isAfter(now.plus(10, ChronoUnit.MINUTES)))
+				.findFirst().ifPresent(share -> {
+					log.debug("Scanning: {}", share);
+					share.setLastScanned(now);
+					shareRepository.save(share);
+					scanShare(share.getFile());
+				});
 	}
 
 	@Transactional
@@ -95,7 +114,7 @@ public class FileService
 	{
 		emptyIfNull(shares).forEach(share -> {
 			saveFullPath(share.getFile());
-			shareRepository.save(share);
+			shareRepository.save(share); // XXX: not needed I think... it's a transactional
 		});
 
 		var ids = shares.stream()
@@ -109,6 +128,7 @@ public class FileService
 				shareRepository.delete(share);
 			}
 		});
+		// XXX: signal to call checkForShareToScan()! don't call it here directly otherwise it'll block
 	}
 
 	public List<Share> getShares()

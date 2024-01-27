@@ -47,7 +47,8 @@ public final class ShareMapper
 				share.getName(),
 				path,
 				share.isSearchable(),
-				share.getBrowsable()
+				share.getBrowsable(),
+				share.getLastScanned()
 		);
 	}
 
@@ -71,6 +72,7 @@ public final class ShareMapper
 		share.setFile(File.createFile(Paths.get(shareDTO.path()))); // XXX: ouch... not sure that works...
 		share.setSearchable(shareDTO.searchable());
 		share.setBrowsable(shareDTO.browsable());
+		share.setLastScanned(shareDTO.lastScanned());
 		return share;
 	}
 

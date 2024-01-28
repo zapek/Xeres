@@ -92,15 +92,15 @@ public class FileService
 		shareRepository.save(share);
 	}
 
-	// XXX: call this each 10 minutes
-	private void checkForShareToScan()
+	@Transactional
+	public void checkForSharesToScan()
 	{
-		var sharesToScan = shareRepository.findAll(Sort.by(Sort.Order.by("lastScanned").nullsFirst()).descending());
+		var sharesToScan = shareRepository.findAll(Sort.by(Sort.Order.by("lastScanned").nullsFirst()).ascending());
 
-		log.debug("shares to scan: {}", sharesToScan);
+		log.debug("Shares to scan: {}", sharesToScan);
 		var now = Instant.now();
 		sharesToScan.stream()
-				.filter(share -> share.getLastScanned() == null || share.getLastScanned().isAfter(now.plus(10, ChronoUnit.MINUTES)))
+				.filter(share -> share.getLastScanned() == null || share.getLastScanned().isBefore(now.minus(10, ChronoUnit.MINUTES)))
 				.findFirst().ifPresent(share -> {
 					log.debug("Scanning: {}", share);
 					share.setLastScanned(now);
@@ -128,7 +128,6 @@ public class FileService
 				shareRepository.delete(share);
 			}
 		});
-		// XXX: signal to call checkForShareToScan()! don't call it here directly otherwise it'll block
 	}
 
 	public List<Share> getShares()

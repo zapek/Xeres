@@ -20,6 +20,7 @@
 package io.xeres.app.service.file;
 
 import io.xeres.app.database.model.file.File;
+import io.xeres.app.database.repository.FileRepository;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -31,11 +32,13 @@ import java.util.List;
 
 public class TrackingFileVisitor implements FileVisitor<Path>
 {
-	private final List<File> directories = new ArrayList<>();
+	private final FileRepository fileRepository;
 	private boolean skipFirst; // XXX: lame hack, find something better (this is because the first entered directory is already the root directory)
+	private final List<File> directories = new ArrayList<>();
 
-	public TrackingFileVisitor(File rootDirectory)
+	public TrackingFileVisitor(FileRepository fileRepository, File rootDirectory)
 	{
+		this.fileRepository = fileRepository;
 		directories.addLast(rootDirectory);
 	}
 
@@ -47,7 +50,7 @@ public class TrackingFileVisitor implements FileVisitor<Path>
 			skipFirst = true;
 			return null;
 		}
-		var directory = File.createDirectory(directories.getLast(), dir.getFileName().toString(), attrs.lastModifiedTime().toInstant());
+		var directory = fileRepository.findByNameAndParent(dir.getFileName().toString(), directories.getLast()).orElseGet(() -> File.createDirectory(directories.getLast(), dir.getFileName().toString(), attrs.lastModifiedTime().toInstant()));
 		directories.addLast(directory);
 		return null;
 	}

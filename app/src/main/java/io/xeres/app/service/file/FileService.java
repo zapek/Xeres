@@ -169,7 +169,7 @@ public class FileService
 		try
 		{
 			var directoryPath = getFilePath(directory);
-			Files.walkFileTree(directoryPath, new TrackingFileVisitor(directory)
+			Files.walkFileTree(directoryPath, new TrackingFileVisitor(fileRepository, directory)
 			{
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)

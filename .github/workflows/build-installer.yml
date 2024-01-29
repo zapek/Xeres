@@ -23,7 +23,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Build
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: jpackage --no-configuration-cache
       - name: Upload artifact
@@ -47,7 +47,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Build
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: jpackage --no-configuration-cache
       - name: Upload artifact
@@ -71,7 +71,7 @@ jobs:
   #          java-version: '21'
   #          distribution: 'temurin'
   #      - name: Build
-  #        uses: gradle/gradle-build-action@v2
+  #        uses: gradle/gradle-build-action@v3
   #        with:
   #          arguments: jpackage --no-configuration-cache
   #      - name: Upload artifact

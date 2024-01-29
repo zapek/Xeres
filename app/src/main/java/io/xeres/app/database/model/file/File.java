@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class File
@@ -41,9 +43,12 @@ public class File
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
 	private File parent;
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "parent", orphanRemoval = true)
+	private List<File> children = new ArrayList<>();
 
 	@NotNull
 	@Size(min = 1, max = 255)
@@ -140,6 +145,17 @@ public class File
 	public void setParent(File parent)
 	{
 		this.parent = parent;
+		parent.getChildren().add(parent);
+	}
+
+	public List<File> getChildren()
+	{
+		return children;
+	}
+
+	public void setChildren(List<File> children)
+	{
+		this.children = children;
 	}
 
 	public String getName()

@@ -125,7 +125,10 @@ public class FileService
 		emptyIfNull(getShares()).forEach(share -> {
 			if (!ids.contains(share.getId()))
 			{
+				// XXX: make sure no indexing process is handling this, it will have to be aborted first then
+				var sharedDirectory = share.getFile();
 				shareRepository.delete(share);
+				fileRepository.delete(sharedDirectory);
 			}
 		});
 	}

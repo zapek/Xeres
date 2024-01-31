@@ -26,7 +26,7 @@ buildscript {
         springOpenApiVersion = "2.3.0"
         jsoupVersion = "1.17.2"
         jsonPatchVersion = "1.13"
-        zxingVersion = "3.5.2"
+        zxingVersion = "3.5.3"
         appDirsVersion = "1.2.2"
     }
 }

@@ -27,12 +27,13 @@ import javafx.scene.control.TextField;
 import java.util.List;
 
 /**
- * A TextField that is used for read-only fields (like displaying some informative, yet important value).
+ * A TextField that is used for read-only fields (like displaying some informative, yet important value). It features:
  * <p>
- * Features:
- * - explanatory look
- * - automatic selection when clicking for easy cut & pasting
- * - context menu to disable the selection
+ * <ul>
+ * <li>explanatory look
+ * <li>automatic selection when clicking for easy cut & pasting
+ * <li>context menu to disable the selection
+ * </ul>
  */
 public class ReadOnlyTextField extends TextField
 {

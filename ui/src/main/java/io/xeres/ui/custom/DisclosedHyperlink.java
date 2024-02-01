@@ -22,6 +22,9 @@ package io.xeres.ui.custom;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.Hyperlink;
 
+/**
+ * A class that displays a tooltip over hyperlinks so that one knows what he's going to click on.
+ */
 public class DisclosedHyperlink extends Hyperlink
 {
 	private String uri;

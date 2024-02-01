@@ -3,10 +3,12 @@ package io.xeres.ui.custom;
 import javafx.scene.image.ImageView;
 
 /**
- * Modified image class that allows unlimited resizing.
+ * Modified image class that allows unlimited up-scaling.
  */
 public class ResizeableImageView extends ImageView
 {
+	private static final double MINIMUM_SIZE = 32.0;
+
 	public ResizeableImageView()
 	{
 		setPreserveRatio(false);
@@ -15,7 +17,7 @@ public class ResizeableImageView extends ImageView
 	@Override
 	public double minWidth(double height)
 	{
-		return 32;
+		return MINIMUM_SIZE;
 	}
 
 	@Override
@@ -38,7 +40,7 @@ public class ResizeableImageView extends ImageView
 	@Override
 	public double minHeight(double width)
 	{
-		return 32;
+		return MINIMUM_SIZE;
 	}
 
 	@Override

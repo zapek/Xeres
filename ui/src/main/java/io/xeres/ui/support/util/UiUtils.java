@@ -27,6 +27,7 @@ import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -34,6 +35,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -60,23 +62,29 @@ public final class UiUtils
 	private static final String KEY_POPUP = "popup";
 
 	/**
-	 * Builds an {@code ErrorResponseEntity} from a {@code WebClientResponseException}. Use in {@code doOnError} in the WebClients.
+	 * Shows a generic alert error. Is supposed to be used in {@code doOnError} in the WebClients.
 	 *
-	 * @param e the WebClientResponseException
-	 * @return an ErrorResponseEntity
+	 * @param t the throwable
 	 */
-	public static ErrorResponseEntity getErrorResponseEntity(WebClientResponseException e)
+	public static void showAlertError(Throwable t)
+	{
+		Platform.runLater(() -> {
+			if (t instanceof WebClientResponseException e)
+			{
+				var error = getErrorResponseEntity(e);
+				alert(error.getStatusCode().isError() ? AlertType.ERROR : AlertType.WARNING, error.getMessage());
+			}
+			else
+			{
+				alert(AlertType.ERROR, t.getMessage());
+			}
+		});
+	}
+
+	private static ErrorResponseEntity getErrorResponseEntity(WebClientResponseException e)
 	{
 		ErrorResponseEntity.Builder builder = new ErrorResponseEntity.Builder(e.getStatusCode());
 		return builder.fromJson(e.getResponseBodyAsString());
-	}
-
-	public static void showAlertError(WebClientResponseException e)
-	{
-		Platform.runLater(() -> {
-			var error = getErrorResponseEntity(e);
-			alert(AlertType.ERROR, error.getMessage()); // XXX: use getDetails()? it contains the first exception message
-		});
 	}
 
 	public static void showError(TextField field, String error)
@@ -154,7 +162,19 @@ public final class UiUtils
 		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied
 		// Setting dark borders doesn't work because dialogs aren't in JavaFX' built-in windows list
 		alert.setHeaderText(null); // the header is ugly
-		alert.setContentText(message);
+
+		// The default doesn't allow cut & pasting and doesn't have scrollbars when needed,
+		// so instead we use a TextArea with similar styling.
+		var vbox = new VBox();
+		var textArea = new TextArea();
+		textArea.setWrapText(true);
+		textArea.setEditable(false);
+		textArea.setText(message);
+		textArea.getStyleClass().add("alert-textarea");
+		vbox.setPadding(new Insets(14.0));
+		vbox.getChildren().add(textArea);
+		alert.getDialogPane().setContent(vbox);
+
 		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
 		return alert;
 	}

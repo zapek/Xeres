@@ -26,6 +26,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -34,8 +35,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
@@ -46,7 +45,6 @@ import static javafx.scene.control.TableColumn.SortType.DESCENDING;
 @FxmlView(value = "/view/profile/profiles.fxml")
 public class ProfilesWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(ProfilesWindowController.class);
 	private static final String DELETE_MENU_ID = "delete";
 
 	private final ProfileClient profileClient;
@@ -95,7 +93,7 @@ public class ProfilesWindowController implements WindowController
 					tableName.setSortType(ASCENDING);
 					tableName.setSortable(true);
 				}))
-				.doOnError(throwable -> log.error("Error while getting the profiles: {}", throwable.getMessage(), throwable))
+				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 	}
 

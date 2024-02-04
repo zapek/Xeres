@@ -160,7 +160,7 @@ public class AddRsIdWindowController implements WindowController
 		var profile = profileClient.create(rsIdTextArea.getText(), certIps.getSelectionModel().getSelectedIndex(), trust.getSelectionModel().getSelectedItem());
 
 		profile.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
-				.doOnError(throwable -> log.error("Error: {}", throwable.getMessage()))
+				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 	}
 

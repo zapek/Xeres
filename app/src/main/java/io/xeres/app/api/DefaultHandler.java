@@ -60,8 +60,7 @@ public class DefaultHandler
 	{
 		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
 		var builder = new ErrorResponseEntity.Builder(HttpStatus.NOT_FOUND)
-				.setError("No such entity")
-				.setException(e);
+				.setError(e.getMessage());
 
 		return builder.build();
 	}
@@ -72,8 +71,6 @@ public class DefaultHandler
 		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
 		return new ErrorResponseEntity.Builder(HttpStatus.UNPROCESSABLE_ENTITY)
 				.setError(e.getMessage())
-				.setId(e.getId())
-				.setException(e.getCause())
 				.build();
 	}
 
@@ -83,7 +80,6 @@ public class DefaultHandler
 		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
 		return new ErrorResponseEntity.Builder(HttpStatus.BAD_REQUEST)
 				.setError(e.getMessage())
-				.setException(e)
 				.build();
 	}
 
@@ -93,7 +89,6 @@ public class DefaultHandler
 		log.error("RuntimeException: {}, {}", e.getClass().getCanonicalName(), e.getMessage(), e);
 		return new ErrorResponseEntity.Builder(HttpStatus.INTERNAL_SERVER_ERROR)
 				.setError(e.getMessage())
-				.setException(e.getCause())
 				.build();
 	}
 }

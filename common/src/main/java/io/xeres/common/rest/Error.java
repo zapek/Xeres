@@ -21,9 +21,6 @@ package io.xeres.common.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class Error
@@ -31,25 +28,16 @@ public class Error
 	@JsonInclude(NON_NULL)
 	private String contextId;
 	private String message;
-	private List<String> details;
 
 	public Error()
 	{
 	}
 
-	public Error(String contextId, String message, Throwable throwable)
+	public Error(String contextId, String message)
 	{
 		super();
 		this.contextId = contextId;
 		this.message = message;
-		if (throwable != null && throwable.getMessage() != null)
-		{
-			details = List.of(throwable.getMessage());
-		}
-		else
-		{
-			details = new ArrayList<>();
-		}
 	}
 
 	@SuppressWarnings("unused")
@@ -62,11 +50,5 @@ public class Error
 	public String getMessage()
 	{
 		return message;
-	}
-
-	@SuppressWarnings("unused")
-	public List<String> getDetails()
-	{
-		return details;
 	}
 }

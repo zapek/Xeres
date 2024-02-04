@@ -63,6 +63,15 @@
     -fx-border-width: 0 1 1 1;
 }
 
+.alert-textarea {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0px;
+}
+
+.alert-textarea .content {
+    -fx-padding: 0 0 0 0;
+}
+
 #messageHeader {
     -fx-background-color: -color-bg-subtle;
     -fx-border-color: -color-border-default;

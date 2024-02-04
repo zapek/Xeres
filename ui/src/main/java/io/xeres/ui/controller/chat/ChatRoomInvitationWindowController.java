@@ -34,8 +34,6 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -46,8 +44,6 @@ import java.util.stream.Collectors;
 @FxmlView(value = "/view/chat/chatroom_invite.fxml")
 public class ChatRoomInvitationWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatRoomInvitationWindowController.class);
-
 	@FXML
 	private TreeView<PeerHolder> peersTree;
 
@@ -106,7 +102,7 @@ public class ChatRoomInvitationWindowController implements WindowController
 					}
 				})))
 				.doAfterTerminate(() -> root.setSelected(false))
-				.doOnError(throwable -> log.error("Error while getting profiles: {}", throwable.getMessage(), throwable))
+				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 
 		inviteButton.setOnAction(this::invitePeers);

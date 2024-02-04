@@ -266,7 +266,7 @@ public class ForumViewController implements Controller
 	{
 		notificationDisposable = notificationClient.getForumNotifications()
 				.doOnComplete(() -> log.debug("Notification connection closed"))
-				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
+				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{
@@ -400,7 +400,7 @@ public class ForumViewController implements Controller
 					clearMessage();
 					newThread.setDisable(false);
 				}))
-				.doOnError(throwable -> log.error("Error while getting the forum messages: {}", throwable.getMessage(), throwable)) // XXX: cleanup on error?
+				.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
 				.doFinally(signalType -> forumMessagesState(false))
 				.subscribe(), () -> Platform.runLater(() -> {
 			// XXX: this is the case when there's no active forum selected. display some forum/tree group info in the message view

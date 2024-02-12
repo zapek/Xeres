@@ -74,7 +74,7 @@ dependencies {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
     testImplementation(testFixtures(project(":common")))
-    testImplementation 'org.testfx:testfx-core:4.0.17'
+    testImplementation 'org.testfx:testfx-core:4.0.18'
     testImplementation 'org.testfx:testfx-junit5:4.0.17'
     testImplementation 'one.jpro:openjfx-monocle:jfx-21'
 }

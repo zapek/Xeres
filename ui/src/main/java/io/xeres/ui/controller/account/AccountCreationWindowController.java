@@ -135,20 +135,11 @@ public class AccountCreationWindowController implements WindowController
 
 	private void setInProgress(boolean inProgress)
 	{
-		if (inProgress)
-		{
-			okButton.setDisable(true);
-			profileName.setDisable(true);
-			locationName.setDisable(true);
-			progress.setVisible(true);
-		}
-		else
-		{
-			okButton.setDisable(false);
-			profileName.setDisable(false);
-			locationName.setDisable(false);
-			progress.setVisible(false);
-		}
+		okButton.setDisable(inProgress);
+		profileName.setDisable(inProgress);
+		locationName.setDisable(inProgress);
+		importBackup.setDisable(inProgress);
+		progress.setVisible(inProgress);
 	}
 
 	public void generateProfileAndLocation(String profileName, String locationName)

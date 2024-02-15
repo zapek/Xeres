@@ -315,7 +315,7 @@ public class MainWindowController implements WindowController
 
 		notificationDisposable = notificationClient.getStatusNotifications()
 				.doOnComplete(() -> log.debug("Notification connection closed"))
-				.doOnError(throwable -> log.debug("Notification error: {}", throwable.getMessage()))
+				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{

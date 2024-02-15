@@ -46,11 +46,6 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 		return error.getMessage();
 	}
 
-	public String getDetail()
-	{
-		return error.getDetails().stream().findFirst().orElse("");
-	}
-
 	@Override
 	public boolean equals(Object o)
 	{
@@ -72,7 +67,6 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 		private final HttpStatusCode httpStatusCode;
 		private String id;
 		private String error;
-		private Throwable exception;
 
 		public Builder(HttpStatusCode httpStatusCode)
 		{
@@ -91,15 +85,9 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 			return this;
 		}
 
-		public Builder setException(Throwable exception)
-		{
-			this.exception = exception;
-			return this;
-		}
-
 		public ErrorResponseEntity build()
 		{
-			return new ErrorResponseEntity(new Error(id, error, exception), httpStatusCode);
+			return new ErrorResponseEntity(new Error(id, error), httpStatusCode);
 		}
 
 		public ErrorResponseEntity fromJson(String json)
@@ -111,7 +99,7 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 			}
 			catch (JsonProcessingException e)
 			{
-				return new ErrorResponseEntity(new Error(null, null, null), httpStatusCode); // XXX: not sure those defaults are the best
+				return new ErrorResponseEntity(new Error(null, null), httpStatusCode); // XXX: not sure those defaults are the best
 			}
 		}
 	}

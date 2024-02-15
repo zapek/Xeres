@@ -39,8 +39,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,8 @@ import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 public class FileService
 {
 	private static final Logger log = LoggerFactory.getLogger(FileService.class);
+
+	private static final TemporalAmount SCAN_DELAY = Duration.ofMinutes(10); // Delay between shares scan
 
 	private final FileNotificationService fileNotificationService;
 
@@ -100,7 +103,7 @@ public class FileService
 		log.debug("Shares to scan: {}", sharesToScan);
 		var now = Instant.now();
 		sharesToScan.stream()
-				.filter(share -> share.getLastScanned() == null || share.getLastScanned().isBefore(now.minus(10, ChronoUnit.MINUTES)))
+				.filter(share -> share.getLastScanned() == null || share.getLastScanned().isBefore(now.minus(SCAN_DELAY)))
 				.findFirst().ifPresent(share -> {
 					log.debug("Scanning: {}", share);
 					share.setLastScanned(now);

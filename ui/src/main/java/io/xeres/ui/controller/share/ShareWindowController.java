@@ -36,26 +36,25 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.DirectoryChooser;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 
 import static io.xeres.common.dto.share.ShareConstants.INCOMING_SHARE;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.control.TableColumn.SortType.ASCENDING;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 @FxmlView(value = "/view/file/share.fxml")
 public class ShareWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(ShareWindowController.class);
-
 	private static final String REMOVE_MENU_ID = "remove";
 
 	private final ShareClient shareClient;
@@ -135,6 +134,7 @@ public class ShareWindowController implements WindowController
 		tableName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
 		tableName.setCellFactory(TextFieldTableCell.forTableColumn());
 		tableName.setOnEditCommit(param -> getCurrentItem(param).setName(param.getNewValue()));
+		// XXX: when clicking outside tableName, the value isn't committed but the edited value stays on display anyway (which is wrong). but we get no event at all
 
 		// setOnEditCommit() doesn't work for CheckBoxes, so we have to do that
 		tableSearchable.setCellValueFactory(param -> {
@@ -147,7 +147,6 @@ public class ShareWindowController implements WindowController
 		tableBrowsable.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getBrowsable()));
 		tableBrowsable.setCellFactory(ChoiceBoxTableCell.forTableColumn(Trust.values()));
 		tableBrowsable.setOnEditCommit(param -> getCurrentItem(param).setBrowsable(param.getNewValue()));
-
 
 		addButton.setOnAction(event -> {
 			var downloadDir = AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null);
@@ -162,11 +161,15 @@ public class ShareWindowController implements WindowController
 			shareTableView.edit(shareTableView.getSelectionModel().getSelectedIndex(), tableName);
 		});
 
-		applyButton.setOnAction(event -> Platform.runLater(() ->
+		applyButton.setOnAction(event -> Platform.runLater(() -> {
+			if (validateShares())
+			{
 				shareClient.createAndUpdate(shareTableView.getItems())
 						.doOnSuccess(unused -> Platform.runLater(() -> UiUtils.closeWindow(event)))
-						.doOnError(throwable -> log.error("Couldn't apply shares", throwable))
-						.subscribe()));
+						.doOnError(UiUtils::showAlertError)
+						.subscribe();
+			}
+		}));
 
 		cancelButton.setOnAction(UiUtils::closeWindow);
 
@@ -180,7 +183,7 @@ public class ShareWindowController implements WindowController
 					tableName.setSortType(ASCENDING);
 					tableName.setSortable(true);
 				}))
-				.doOnError(throwable -> log.error("Error while getting the shares: {}", throwable.getMessage(), throwable))
+				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 	}
 
@@ -195,6 +198,38 @@ public class ShareWindowController implements WindowController
 
 		var tableShareXContextMenu = new XContextMenu<Share>(shareTableView, removeItem);
 		tableShareXContextMenu.setOnShowing((contextMenu, share) -> share.getId() != INCOMING_SHARE); // This prevents removing the incoming directory
+	}
+
+	private boolean validateShares()
+	{
+		Set<String> shareNames = HashSet.newHashSet(shareTableView.getItems().size());
+
+		for (var share : shareTableView.getItems())
+		{
+			try
+			{
+				if (isBlank(share.getName()))
+				{
+					throw new IllegalArgumentException("Share name cannot be empty. Set a unique name.");
+				}
+				if (isBlank(share.getPath()))
+				{
+					throw new IllegalArgumentException("Share path cannot be empty. Set a share path.");
+				}
+				if (shareNames.contains(share.getName()))
+				{
+					throw new IllegalArgumentException("Share name already exists. Each share name has to be unique.");
+				}
+				shareNames.add(share.getName());
+			}
+			catch (IllegalArgumentException e)
+			{
+				shareTableView.getSelectionModel().select(share);
+				UiUtils.showAlertError(e);
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static <T> T getCurrentItem(TableColumn.CellEditEvent<T, ?> param)

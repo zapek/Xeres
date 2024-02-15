@@ -24,6 +24,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -32,8 +33,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
@@ -42,8 +41,6 @@ import java.util.ResourceBundle;
 @FxmlView(value = "/view/messaging/peers.fxml")
 public class PeersWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(PeersWindowController.class);
-
 	@FXML
 	private Label nickname;
 
@@ -108,7 +105,7 @@ public class PeersWindowController implements WindowController
 								.forEach(location -> parent.getChildren().add(new TreeItem<>(new PeerHolder(profile, location))));
 					}
 				})))
-				.doOnError(throwable -> log.error("Error while getting profiles: {}", throwable.getMessage(), throwable))
+				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 
 		// XXX: here lies a good example of a connection that should stay open to get refreshed... ponder how to do it

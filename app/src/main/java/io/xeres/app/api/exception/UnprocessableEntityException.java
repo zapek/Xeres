@@ -28,15 +28,4 @@ public class UnprocessableEntityException extends RuntimeException
 	{
 		super(message);
 	}
-
-	public UnprocessableEntityException(String id, String message)
-	{
-		super(message);
-		this.id = id;
-	}
-
-	public String getId()
-	{
-		return id;
-	}
 }

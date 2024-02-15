@@ -30,6 +30,7 @@ import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.ImageUtils;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -182,7 +183,7 @@ public class MessagingWindowController implements WindowController
 						}
 					});
 				})
-				.doOnError(throwable -> log.error("Error while getting the profiles: {}", throwable.getMessage(), throwable))
+				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 
 		ownAvatar.setImage(new Image(JavaFxApplication.getControlUrl() + IDENTITIES_PATH + "/" + 1L + "/image", true));

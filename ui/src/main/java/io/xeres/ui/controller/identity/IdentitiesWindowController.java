@@ -23,6 +23,7 @@ import io.xeres.common.id.Id;
 import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.identity.Identity;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -30,8 +31,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
@@ -43,8 +42,6 @@ import static javafx.scene.control.TableColumn.SortType.ASCENDING;
 @FxmlView(value = "/view/identity/identities.fxml")
 public class IdentitiesWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(IdentitiesWindowController.class);
-
 	private final IdentityClient identityClient;
 
 	@FXML
@@ -90,7 +87,7 @@ public class IdentitiesWindowController implements WindowController
 					tableName.setSortType(ASCENDING);
 					tableName.setSortable(true);
 				}))
-				.doOnError(throwable -> log.error("Error while getting the identities: {}", throwable.getMessage(), throwable))
+				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 	}
 }

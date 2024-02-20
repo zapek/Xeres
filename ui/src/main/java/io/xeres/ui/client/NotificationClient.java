@@ -19,6 +19,7 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.forum.ForumNotification;
 import io.xeres.common.rest.notification.status.StatusNotification;
 import io.xeres.ui.JavaFxApplication;
@@ -65,6 +66,16 @@ public class NotificationClient
 	{
 		return webClient.get()
 				.uri("/forum")
+				.retrieve()
+				.bodyToFlux(new ParameterizedTypeReference<>()
+				{
+				});
+	}
+
+	public Flux<ServerSentEvent<FileNotification>> getFileNotifications()
+	{
+		return webClient.get()
+				.uri("/file")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

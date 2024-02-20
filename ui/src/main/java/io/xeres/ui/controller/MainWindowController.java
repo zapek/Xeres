@@ -39,10 +39,7 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.FileChooser;
@@ -150,19 +147,22 @@ public class MainWindowController implements WindowController
 	private Button showQrCodeButton;
 
 	@FXML
-	public Button addFriendButton;
+	private Button addFriendButton;
 
 	@FXML
-	public Button webHelpButton;
+	private Button webHelpButton;
 
 	@FXML
-	public Label numberOfConnections;
+	private Label numberOfConnections;
 
 	@FXML
-	public LedControl natStatus;
+	private LedControl natStatus;
 
 	@FXML
-	public LedControl dhtStatus;
+	private LedControl dhtStatus;
+
+	@FXML
+	private ProgressIndicator hashingStatus;
 
 	private final ChatViewController chatViewController;
 
@@ -177,7 +177,8 @@ public class MainWindowController implements WindowController
 
 	private int currentUsers;
 	private int totalUsers;
-	private Disposable notificationDisposable;
+	private Disposable statusNotificationDisposable;
+	private Disposable fileNotificationDisposable;
 
 	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, ConfigClient configClient, NotificationClient notificationClient, ResourceBundle bundle)
 	{
@@ -265,7 +266,7 @@ public class MainWindowController implements WindowController
 			Platform.exit();
 		});
 
-		setupStatusNotifications();
+		setupNotifications();
 
 		trayService.addSystemTray();
 
@@ -307,14 +308,13 @@ public class MainWindowController implements WindowController
 		JavaFxApplication.openUrl(url);
 	}
 
-	private void setupStatusNotifications()
+	private void setupNotifications()
 	{
 		// Apparently the LED is not happy if we don't turn it on first here.
 		natStatus.setState(true);
 		dhtStatus.setState(true);
 
-		notificationDisposable = notificationClient.getStatusNotifications()
-				.doOnComplete(() -> log.debug("Notification connection closed"))
+		statusNotificationDisposable = notificationClient.getStatusNotifications()
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
@@ -322,6 +322,24 @@ public class MainWindowController implements WindowController
 						setUserCount(sse.data().currentUsers(), sse.data().totalUsers());
 						setNatStatus(sse.data().natStatus());
 						setDhtInfo(sse.data().dhtInfo());
+					}
+				}))
+				.subscribe();
+
+		fileNotificationDisposable = notificationClient.getFileNotifications()
+				.doOnError(UiUtils::showAlertError)
+				.doOnNext(sse -> Platform.runLater(() -> {
+					if (sse.data() != null)
+					{
+						hashingStatus.setVisible(sse.data().shareName() != null);
+						if (sse.data().scannedFile() != null)
+						{
+							TooltipUtils.install(hashingStatus, sse.data().shareName() + ": hashing " + sse.data().scannedFile() + "...");
+						}
+						else
+						{
+							TooltipUtils.install(hashingStatus, null);
+						}
 					}
 				}))
 				.subscribe();
@@ -400,9 +418,14 @@ public class MainWindowController implements WindowController
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
-		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		if (statusNotificationDisposable != null && !statusNotificationDisposable.isDisposed())
 		{
-			notificationDisposable.dispose();
+			statusNotificationDisposable.dispose();
+		}
+
+		if (fileNotificationDisposable != null && !fileNotificationDisposable.isDisposed())
+		{
+			fileNotificationDisposable.dispose();
 		}
 	}
 }

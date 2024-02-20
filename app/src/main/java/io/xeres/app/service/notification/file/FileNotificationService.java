@@ -19,16 +19,42 @@
 
 package io.xeres.app.service.notification.file;
 
+import io.xeres.app.database.model.share.Share;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.rest.notification.Notification;
+import io.xeres.common.rest.notification.file.FileNotification;
 import org.springframework.stereotype.Service;
+
+import java.nio.file.Path;
 
 @Service
 public class FileNotificationService extends NotificationService
 {
+	private String shareName;
+	private String scannedFile;
+
 	@Override
 	protected Notification createNotification()
 	{
-		return null; // XXX
+		return new FileNotification(shareName, scannedFile);
+	}
+
+	public void startScanning(Share share)
+	{
+		this.shareName = share.getName();
+		sendNotification();
+	}
+
+	public void setScanningFile(Path scannedFile)
+	{
+		this.scannedFile = scannedFile != null ? scannedFile.toString() : null;
+		sendNotification();
+	}
+
+	public void stopScanning()
+	{
+		this.shareName = null;
+		this.scannedFile = null;
+		sendNotification();
 	}
 }

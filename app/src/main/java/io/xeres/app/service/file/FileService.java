@@ -108,7 +108,7 @@ public class FileService
 					log.debug("Scanning: {}", share);
 					share.setLastScanned(now);
 					shareRepository.save(share);
-					scanShare(share.getFile());
+					scanShare(share);
 				});
 	}
 
@@ -170,10 +170,12 @@ public class FileService
 		return tree;
 	}
 
-	void scanShare(File directory)
+	void scanShare(Share share)
 	{
 		try
 		{
+			fileNotificationService.startScanning(share);
+			File directory = share.getFile();
 			var directoryPath = getFilePath(directory);
 			Files.walkFileTree(directoryPath, new TrackingFileVisitor(fileRepository, directory)
 			{
@@ -247,6 +249,10 @@ public class FileService
 		{
 			throw new RuntimeException(e);
 		}
+		finally
+		{
+			fileNotificationService.stopScanning();
+		}
 	}
 
 	private Path getFilePath(File file)
@@ -314,6 +320,7 @@ public class FileService
 		log.debug("Calculating file hash of file {}", path);
 		try (var fc = FileChannel.open(path, StandardOpenOption.READ)) // ExtendedOpenOption.DIRECT is useless for memory mapped files
 		{
+			fileNotificationService.setScanningFile(path);
 			var md = new Sha1MessageDigest();
 
 			var size = fc.size();
@@ -339,6 +346,7 @@ public class FileService
 		catch (IOException e)
 		{
 			log.warn("Error while trying to compute hash of file " + path, e);
+			fileNotificationService.setScanningFile(null);
 			return null;
 		}
 	}

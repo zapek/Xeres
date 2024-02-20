@@ -19,6 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import atlantafx.base.controls.Spacer?>
 <?import io.xeres.ui.custom.led.LedControl?>
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
 <?import javafx.geometry.*?>
@@ -244,5 +245,7 @@
             </HBox.margin>
         </Label>
         <LedControl fx:id="dhtStatus" prefHeight="16.0" prefWidth="16.0"/>
+        <Spacer HBox.hgrow="ALWAYS"/>
+        <ProgressIndicator fx:id="hashingStatus" visible="false" prefWidth="16.0" prefHeight="16.0"/>
     </HBox>
 </VBox>

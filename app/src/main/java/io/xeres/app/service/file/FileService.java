@@ -186,11 +186,12 @@ public class FileService
 					Objects.requireNonNull(attrs);
 					if (isIndexableFile(file, attrs))
 					{
-						log.debug("Checking file {}, modification time: {}", file, attrs.lastModifiedTime());
 						var currentFile = fileRepository.findByNameAndParent(file.getFileName().toString(), getCurrentDirectory()).orElseGet(() -> File.createFile(getCurrentDirectory(), file.getFileName().toString(), null));
 						var lastModified = attrs.lastModifiedTime().toInstant();
+						log.debug("Checking file {}, modification time: {}", file, lastModified);
 						if (currentFile.getModified() == null || lastModified.isAfter(currentFile.getModified()))
 						{
+							log.debug("Current file in database, modified: {}", currentFile.getModified());
 							var hash = calculateFileHash(file);
 							currentFile.setHash(hash);
 							currentFile.setModified(lastModified);
@@ -320,7 +321,7 @@ public class FileService
 		log.debug("Calculating file hash of file {}", path);
 		try (var fc = FileChannel.open(path, StandardOpenOption.READ)) // ExtendedOpenOption.DIRECT is useless for memory mapped files
 		{
-			fileNotificationService.setScanningFile(path);
+			fileNotificationService.startScanningFile(path);
 			var md = new Sha1MessageDigest();
 
 			var size = fc.size();
@@ -346,8 +347,11 @@ public class FileService
 		catch (IOException e)
 		{
 			log.warn("Error while trying to compute hash of file " + path, e);
-			fileNotificationService.setScanningFile(null);
 			return null;
+		}
+		finally
+		{
+			fileNotificationService.stopScanningFile();
 		}
 	}
 }

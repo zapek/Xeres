@@ -77,4 +77,9 @@ public final class TooltipUtils
 		tooltip.setShowDuration(DURATION);
 		Tooltip.install(node, tooltip);
 	}
+
+	public static void uninstall(Node node)
+	{
+		Tooltip.uninstall(node, null);
+	}
 }

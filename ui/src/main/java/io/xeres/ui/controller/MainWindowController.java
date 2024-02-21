@@ -39,9 +39,13 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
@@ -58,6 +62,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
@@ -162,7 +167,10 @@ public class MainWindowController implements WindowController
 	private LedControl dhtStatus;
 
 	@FXML
-	private ProgressIndicator hashingStatus;
+	private HBox hashingStatus;
+
+	@FXML
+	private Label hashingName;
 
 	private final ChatViewController chatViewController;
 
@@ -331,14 +339,24 @@ public class MainWindowController implements WindowController
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{
-						hashingStatus.setVisible(sse.data().shareName() != null);
-						if (sse.data().scannedFile() != null)
+						switch (sse.data().action())
 						{
-							TooltipUtils.install(hashingStatus, sse.data().shareName() + ": hashing " + sse.data().scannedFile() + "...");
-						}
-						else
-						{
-							TooltipUtils.install(hashingStatus, null);
+							case START_SCANNING ->
+							{
+								hashingName.setText("Scanning " + sse.data().shareName());
+								hashingStatus.setVisible(true);
+							}
+							case START_HASHING ->
+							{
+								hashingName.setText("Hashing " + Path.of(sse.data().scannedFile()).getFileName());
+								TooltipUtils.install(hashingStatus, "Share: " + sse.data().shareName() + ", file: " + sse.data().scannedFile());
+							}
+							case STOP_HASHING ->
+							{
+								hashingName.setText(null); // XXX: put back "scanning", etc... after a delay... do like ProgressPane()
+								TooltipUtils.uninstall(hashingStatus);
+							}
+							case STOP_SCANNING -> hashingStatus.setVisible(false);
 						}
 					}
 				}))

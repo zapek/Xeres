@@ -246,6 +246,13 @@
         </Label>
         <LedControl fx:id="dhtStatus" prefHeight="16.0" prefWidth="16.0"/>
         <Spacer HBox.hgrow="ALWAYS"/>
-        <ProgressIndicator fx:id="hashingStatus" visible="false" prefWidth="16.0" prefHeight="16.0"/>
+        <HBox fx:id="hashingStatus" visible="false">
+            <ProgressIndicator prefWidth="16.0" prefHeight="16.0"/>
+            <Label fx:id="hashingName" prefWidth="320">
+                <HBox.margin>
+                    <Insets left="8.0"/>
+                </HBox.margin>
+            </Label>
+        </HBox>
     </HBox>
 </VBox>

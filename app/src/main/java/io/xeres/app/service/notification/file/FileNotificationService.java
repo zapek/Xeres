@@ -23,38 +23,52 @@ import io.xeres.app.database.model.share.Share;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.file.FileNotification;
+import io.xeres.common.rest.notification.file.FileNotificationAction;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
 
+import static io.xeres.common.rest.notification.file.FileNotificationAction.*;
+
 @Service
 public class FileNotificationService extends NotificationService
 {
+	private FileNotificationAction action = START_SCANNING;
 	private String shareName;
 	private String scannedFile;
 
 	@Override
 	protected Notification createNotification()
 	{
-		return new FileNotification(shareName, scannedFile);
+		return new FileNotification(action, shareName, scannedFile);
 	}
 
 	public void startScanning(Share share)
 	{
+		action = START_SCANNING;
 		this.shareName = share.getName();
 		sendNotification();
 	}
 
-	public void setScanningFile(Path scannedFile)
+	public void startScanningFile(Path scannedFile)
 	{
-		this.scannedFile = scannedFile != null ? scannedFile.toString() : null;
+		action = START_HASHING;
+		this.scannedFile = scannedFile.toString();
+		sendNotification();
+	}
+
+	public void stopScanningFile()
+	{
+		action = STOP_HASHING;
+		scannedFile = null;
 		sendNotification();
 	}
 
 	public void stopScanning()
 	{
-		this.shareName = null;
-		this.scannedFile = null;
+		action = STOP_SCANNING;
+		shareName = null;
+		scannedFile = null;
 		sendNotification();
 	}
 }

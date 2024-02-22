@@ -147,6 +147,7 @@ public class UPNPService implements Runnable
 			{
 				log.info("Waiting for UPNP service to terminate...");
 				thread.join();
+				log.debug("UPNP service terminated");
 			}
 			catch (InterruptedException e)
 			{

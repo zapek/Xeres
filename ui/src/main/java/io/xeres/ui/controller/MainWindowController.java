@@ -30,6 +30,7 @@ import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.custom.DelayedAction;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
@@ -65,6 +66,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
@@ -187,6 +189,8 @@ public class MainWindowController implements WindowController
 	private int totalUsers;
 	private Disposable statusNotificationDisposable;
 	private Disposable fileNotificationDisposable;
+
+	private DelayedAction hashingDelayedDisplayAction;
 
 	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, ConfigClient configClient, NotificationClient notificationClient, ResourceBundle bundle)
 	{
@@ -343,20 +347,28 @@ public class MainWindowController implements WindowController
 						{
 							case START_SCANNING ->
 							{
-								hashingName.setText("Scanning " + sse.data().shareName());
+								var defaultText = "Scanning " + sse.data().shareName() + "...";
 								hashingStatus.setVisible(true);
+								hashingDelayedDisplayAction = new DelayedAction(() -> hashingName.setText(defaultText), () -> hashingName.setText(null), Duration.ofMillis(2000));
+								hashingDelayedDisplayAction.run();
 							}
 							case START_HASHING ->
 							{
+								hashingDelayedDisplayAction.abort();
 								hashingName.setText("Hashing " + Path.of(sse.data().scannedFile()).getFileName());
 								TooltipUtils.install(hashingStatus, "Share: " + sse.data().shareName() + ", file: " + sse.data().scannedFile());
 							}
 							case STOP_HASHING ->
 							{
-								hashingName.setText(null); // XXX: put back "scanning", etc... after a delay... do like ProgressPane()
 								TooltipUtils.uninstall(hashingStatus);
+								hashingDelayedDisplayAction.run();
 							}
-							case STOP_SCANNING -> hashingStatus.setVisible(false);
+							case STOP_SCANNING ->
+							{
+								hashingDelayedDisplayAction.abort();
+								hashingStatus.setVisible(false);
+								hashingDelayedDisplayAction = null;
+							}
 						}
 					}
 				}))

@@ -19,25 +19,20 @@
 
 package io.xeres.ui.custom;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.StackPane;
-import javafx.util.Duration;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.time.Duration;
 
 /**
  * Pane showing an intelligent undetermined progress.
  */
 public class ProgressPane extends StackPane
 {
-	private static final double PROGRESS_SHOW_DELAY_MILLISECONDS = 250.0;
+	private static final Duration PROGRESS_SHOW_DELAY = Duration.ofMillis(250);
 
 	private ProgressIndicator progressIndicator;
-	private final AtomicBoolean shouldShow = new AtomicBoolean();
-	private Timeline timeline;
+	private DelayedAction delayedAction;
 
 	/**
 	 * Shows the progress, but only after a certain delay, to avoid UI flickering in case the progress is quick.
@@ -50,23 +45,17 @@ public class ProgressPane extends StackPane
 
 		if (show)
 		{
-			if (shouldShow.compareAndSet(false, true))
-			{
-				runDelayed(() -> showProgressIndicator(true));
-			}
+			delayedAction.run();
 		}
 		else
 		{
-			if (shouldShow.compareAndSet(true, false))
-			{
-				removeDelayed();
-			}
+			delayedAction.abort();
 		}
 	}
 
 	private void showProgressIndicator(boolean show)
 	{
-		getChildrenUnmodifiable().get(0).setVisible(!show);
+		getChildrenUnmodifiable().getFirst().setVisible(!show);
 		progressIndicator.setVisible(show);
 	}
 
@@ -87,27 +76,10 @@ public class ProgressPane extends StackPane
 		{
 			throw new IllegalStateException("Progress indicator is only supported if there's 1 children");
 		}
-	}
 
-	private void runDelayed(Runnable runnable)
-	{
-		removeDelayed();
-		timeline = new Timeline(new KeyFrame(Duration.millis(PROGRESS_SHOW_DELAY_MILLISECONDS), event -> {
-			if (shouldShow.get())
-			{
-				runnable.run();
-			}
-		}));
-		Platform.runLater(() -> timeline.play());
-	}
-
-	private void removeDelayed()
-	{
-		if (timeline != null)
-		{
-			timeline.stop();
-			timeline = null;
-			showProgressIndicator(false);
-		}
+		delayedAction = new DelayedAction(
+				() -> showProgressIndicator(true),
+				() -> showProgressIndicator(false),
+				PROGRESS_SHOW_DELAY);
 	}
 }

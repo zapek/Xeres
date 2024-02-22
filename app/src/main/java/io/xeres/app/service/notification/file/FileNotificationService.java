@@ -33,7 +33,7 @@ import static io.xeres.common.rest.notification.file.FileNotificationAction.*;
 @Service
 public class FileNotificationService extends NotificationService
 {
-	private FileNotificationAction action = START_SCANNING;
+	private FileNotificationAction action = NONE;
 	private String shareName;
 	private String scannedFile;
 
@@ -46,7 +46,7 @@ public class FileNotificationService extends NotificationService
 	public void startScanning(Share share)
 	{
 		action = START_SCANNING;
-		this.shareName = share.getName();
+		shareName = share.getName();
 		sendNotification();
 	}
 

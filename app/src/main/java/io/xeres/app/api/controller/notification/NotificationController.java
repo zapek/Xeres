@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.springframework.http.MediaType;
@@ -40,11 +41,13 @@ public class NotificationController
 {
 	private final StatusNotificationService statusNotificationService;
 	private final ForumNotificationService forumNotificationService;
+	private final FileNotificationService fileNotificationService;
 
-	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService)
+	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService)
 	{
 		this.statusNotificationService = statusNotificationService;
 		this.forumNotificationService = forumNotificationService;
+		this.fileNotificationService = fileNotificationService;
 	}
 
 	@GetMapping("/status")
@@ -61,5 +64,13 @@ public class NotificationController
 	public SseEmitter setupForumNotification()
 	{
 		return forumNotificationService.addClient();
+	}
+
+	@GetMapping("/file")
+	@Operation(summary = "Subscribe to file notifications")
+	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	public SseEmitter setupFileNotification()
+	{
+		return fileNotificationService.addClient();
 	}
 }

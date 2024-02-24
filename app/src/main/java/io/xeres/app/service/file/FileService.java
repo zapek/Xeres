@@ -108,7 +108,7 @@ public class FileService
 					log.debug("Scanning: {}", share);
 					share.setLastScanned(now);
 					shareRepository.save(share);
-					scanShare(share.getFile());
+					scanShare(share);
 				});
 	}
 
@@ -170,10 +170,12 @@ public class FileService
 		return tree;
 	}
 
-	void scanShare(File directory)
+	void scanShare(Share share)
 	{
 		try
 		{
+			fileNotificationService.startScanning(share);
+			File directory = share.getFile();
 			var directoryPath = getFilePath(directory);
 			Files.walkFileTree(directoryPath, new TrackingFileVisitor(fileRepository, directory)
 			{
@@ -184,11 +186,12 @@ public class FileService
 					Objects.requireNonNull(attrs);
 					if (isIndexableFile(file, attrs))
 					{
-						log.debug("Checking file {}, modification time: {}", file, attrs.lastModifiedTime());
 						var currentFile = fileRepository.findByNameAndParent(file.getFileName().toString(), getCurrentDirectory()).orElseGet(() -> File.createFile(getCurrentDirectory(), file.getFileName().toString(), null));
 						var lastModified = attrs.lastModifiedTime().toInstant();
+						log.debug("Checking file {}, modification time: {}", file, lastModified);
 						if (currentFile.getModified() == null || lastModified.isAfter(currentFile.getModified()))
 						{
+							log.debug("Current file in database, modified: {}", currentFile.getModified());
 							var hash = calculateFileHash(file);
 							currentFile.setHash(hash);
 							currentFile.setModified(lastModified);
@@ -246,6 +249,10 @@ public class FileService
 		catch (IOException e)
 		{
 			throw new RuntimeException(e);
+		}
+		finally
+		{
+			fileNotificationService.stopScanning();
 		}
 	}
 
@@ -314,6 +321,7 @@ public class FileService
 		log.debug("Calculating file hash of file {}", path);
 		try (var fc = FileChannel.open(path, StandardOpenOption.READ)) // ExtendedOpenOption.DIRECT is useless for memory mapped files
 		{
+			fileNotificationService.startScanningFile(path);
 			var md = new Sha1MessageDigest();
 
 			var size = fc.size();
@@ -340,6 +348,10 @@ public class FileService
 		{
 			log.warn("Error while trying to compute hash of file " + path, e);
 			return null;
+		}
+		finally
+		{
+			fileNotificationService.stopScanningFile();
 		}
 	}
 }

@@ -30,6 +30,7 @@ import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.custom.DelayedAction;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
@@ -45,6 +46,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
@@ -61,8 +63,10 @@ import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
@@ -150,19 +154,25 @@ public class MainWindowController implements WindowController
 	private Button showQrCodeButton;
 
 	@FXML
-	public Button addFriendButton;
+	private Button addFriendButton;
 
 	@FXML
-	public Button webHelpButton;
+	private Button webHelpButton;
 
 	@FXML
-	public Label numberOfConnections;
+	private Label numberOfConnections;
 
 	@FXML
-	public LedControl natStatus;
+	private LedControl natStatus;
 
 	@FXML
-	public LedControl dhtStatus;
+	private LedControl dhtStatus;
+
+	@FXML
+	private HBox hashingStatus;
+
+	@FXML
+	private Label hashingName;
 
 	private final ChatViewController chatViewController;
 
@@ -177,7 +187,10 @@ public class MainWindowController implements WindowController
 
 	private int currentUsers;
 	private int totalUsers;
-	private Disposable notificationDisposable;
+	private Disposable statusNotificationDisposable;
+	private Disposable fileNotificationDisposable;
+
+	private DelayedAction hashingDelayedDisplayAction;
 
 	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, ConfigClient configClient, NotificationClient notificationClient, ResourceBundle bundle)
 	{
@@ -265,7 +278,7 @@ public class MainWindowController implements WindowController
 			Platform.exit();
 		});
 
-		setupStatusNotifications();
+		setupNotifications();
 
 		trayService.addSystemTray();
 
@@ -307,14 +320,13 @@ public class MainWindowController implements WindowController
 		JavaFxApplication.openUrl(url);
 	}
 
-	private void setupStatusNotifications()
+	private void setupNotifications()
 	{
 		// Apparently the LED is not happy if we don't turn it on first here.
 		natStatus.setState(true);
 		dhtStatus.setState(true);
 
-		notificationDisposable = notificationClient.getStatusNotifications()
-				.doOnComplete(() -> log.debug("Notification connection closed"))
+		statusNotificationDisposable = notificationClient.getStatusNotifications()
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
@@ -322,6 +334,42 @@ public class MainWindowController implements WindowController
 						setUserCount(sse.data().currentUsers(), sse.data().totalUsers());
 						setNatStatus(sse.data().natStatus());
 						setDhtInfo(sse.data().dhtInfo());
+					}
+				}))
+				.subscribe();
+
+		fileNotificationDisposable = notificationClient.getFileNotifications()
+				.doOnError(UiUtils::showAlertError)
+				.doOnNext(sse -> Platform.runLater(() -> {
+					if (sse.data() != null)
+					{
+						switch (sse.data().action())
+						{
+							case START_SCANNING ->
+							{
+								var defaultText = "Scanning " + sse.data().shareName() + "...";
+								hashingStatus.setVisible(true);
+								hashingDelayedDisplayAction = new DelayedAction(() -> hashingName.setText(defaultText), () -> hashingName.setText(null), Duration.ofMillis(2000));
+								hashingDelayedDisplayAction.run();
+							}
+							case START_HASHING ->
+							{
+								hashingDelayedDisplayAction.abort();
+								hashingName.setText("Hashing " + Path.of(sse.data().scannedFile()).getFileName());
+								TooltipUtils.install(hashingStatus, "Share: " + sse.data().shareName() + ", file: " + sse.data().scannedFile());
+							}
+							case STOP_HASHING ->
+							{
+								TooltipUtils.uninstall(hashingStatus);
+								hashingDelayedDisplayAction.run();
+							}
+							case STOP_SCANNING ->
+							{
+								hashingDelayedDisplayAction.abort();
+								hashingStatus.setVisible(false);
+								hashingDelayedDisplayAction = null;
+							}
+						}
 					}
 				}))
 				.subscribe();
@@ -400,9 +448,14 @@ public class MainWindowController implements WindowController
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
-		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		if (statusNotificationDisposable != null && !statusNotificationDisposable.isDisposed())
 		{
-			notificationDisposable.dispose();
+			statusNotificationDisposable.dispose();
+		}
+
+		if (fileNotificationDisposable != null && !fileNotificationDisposable.isDisposed())
+		{
+			fileNotificationDisposable.dispose();
 		}
 	}
 }

@@ -20,6 +20,7 @@
 package io.xeres.app.api.controller.notification;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
+import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,9 @@ class NotificationControllerTest extends AbstractControllerTest
 	@MockBean
 	private ForumNotificationService forumNotificationService;
 
+	@MockBean
+	private FileNotificationService fileNotificationService;
+
 	@Autowired
 	public MockMvc mvc;
 
@@ -67,6 +71,17 @@ class NotificationControllerTest extends AbstractControllerTest
 		when(forumNotificationService.addClient()).thenReturn(sseEmitter);
 
 		mvc.perform(getJson(BASE_URL + "/forum", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void NotificationController_SetupFileNotification_OK() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(fileNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(getJson(BASE_URL + "/file", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 }

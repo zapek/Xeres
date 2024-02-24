@@ -25,5 +25,5 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           dependency-graph: generate-and-submit
-      - name: Compile the class path
-        run: ./gradlew compileClasspath
+      - name: Build the project
+        run: ./gradlew build -x test

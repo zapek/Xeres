@@ -21,12 +21,9 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Run snapshot action
-        uses: mikepenz/gradle-dependency-submission@v0.9.2
+      - name: Setup Gradle to generate and submit dependency graphs
+        uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-build-module: |-
-            :app
-            :common
-            :ui
-          gradle-build-configuration: |-
-            compileClasspath
+          dependency-graph: generate-and-submit
+      - name: Compile the class path
+        run: ./gradlew compileClasspath

@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.turtle;
 
+import io.xeres.app.service.file.HashBloomFilter;
 import io.xeres.testutils.Sha1SumFakes;
 import org.junit.jupiter.api.Test;
 
@@ -27,12 +28,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TurtleBloomFilterTest
+class HashBloomFilterTest
 {
 	@Test
 	void TurtleBloomFilter_OK()
 	{
-		var filter = new TurtleBloomFilter(null, 10_000, 0.01d);
+		var filter = new HashBloomFilter(null, 10_000, 0.01d);
 
 		var s1 = Sha1SumFakes.createSha1Sum();
 		var s2 = Sha1SumFakes.createSha1Sum();
@@ -52,7 +53,7 @@ class TurtleBloomFilterTest
 	@Test
 	void TurtleBloomFilter_Multiple_OK()
 	{
-		var filter = new TurtleBloomFilter(null, 10_000, 0.01d);
+		var filter = new HashBloomFilter(null, 10_000, 0.01d);
 
 		var s1 = Sha1SumFakes.createSha1Sum();
 		var s2 = Sha1SumFakes.createSha1Sum();

@@ -19,6 +19,7 @@
 
 package io.xeres.app.service.file;
 
+import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.share.Share;
@@ -60,6 +61,8 @@ public class FileService
 
 	private final FileRepository fileRepository;
 
+	private HashBloomFilter bloomFilter;
+
 	private static final String[] ignoredSuffixes = {
 			".bak",
 			".sys",
@@ -78,11 +81,13 @@ public class FileService
 			"temp."
 	};
 
-	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository)
+	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository, DataDirConfiguration dataDirConfiguration)
 	{
 		this.fileNotificationService = fileNotificationService;
 		this.shareRepository = shareRepository;
 		this.fileRepository = fileRepository;
+		bloomFilter = new HashBloomFilter(dataDirConfiguration.getDataDir(), 10_000, 0.01d); // XXX: parameters will need experimenting, especially the max files (yes it can be extended, but not reduced)
+		updateBloomFilter();
 	}
 
 	public void addShare(Share share)
@@ -149,6 +154,17 @@ public class FileService
 						.collect(Collectors.joining(java.io.File.separator))));
 	}
 
+	public Optional<File> findFile(Sha1Sum hash)
+	{
+		Objects.requireNonNull(hash);
+
+		if (bloomFilter.mightContain(hash))
+		{
+			return fileRepository.findByHash(hash);
+		}
+		return Optional.empty();
+	}
+
 	private void saveFullPath(File file)
 	{
 		var tree = getFullPath(file);
@@ -177,7 +193,7 @@ public class FileService
 			fileNotificationService.startScanning(share);
 			File directory = share.getFile();
 			var directoryPath = getFilePath(directory);
-			Files.walkFileTree(directoryPath, new TrackingFileVisitor(fileRepository, directory)
+			var visitor = new TrackingFileVisitor(fileRepository, directory)
 			{
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
@@ -196,6 +212,7 @@ public class FileService
 							currentFile.setHash(hash);
 							currentFile.setModified(lastModified);
 							fileRepository.save(currentFile);
+							setChanged();
 						}
 					}
 					return FileVisitResult.CONTINUE;
@@ -242,9 +259,15 @@ public class FileService
 					log.debug("Visiting file {} failed: {}", file, exc.getMessage());
 					return FileVisitResult.CONTINUE;
 				}
-			});
+			};
+			Files.walkFileTree(directoryPath, visitor);
 			directory.setModified(Files.getLastModifiedTime(directoryPath).toInstant());
 			fileRepository.save(directory);
+
+			if (visitor.foundChanges())
+			{
+				updateBloomFilter();
+			}
 		}
 		catch (IOException e)
 		{
@@ -353,5 +376,12 @@ public class FileService
 		{
 			fileNotificationService.stopScanningFile();
 		}
+	}
+
+	private void updateBloomFilter()
+	{
+		// XXX: extend the bloom filter if needed
+		bloomFilter.clear();
+		fileRepository.findAll().forEach(file -> bloomFilter.add(file.getHash()));
 	}
 }

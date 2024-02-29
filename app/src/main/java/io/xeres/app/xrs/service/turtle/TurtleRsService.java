@@ -19,9 +19,9 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.file.FileService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -56,15 +56,15 @@ public class TurtleRsService extends RsService
 
 	private final TunnelProbability tunnelProbability = new TunnelProbability();
 
-	private final TurtleBloomFilter bloomFilter;
-
 	private final PeerConnectionManager peerConnectionManager;
 
-	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, DataDirConfiguration dataDirConfiguration)
+	private final FileService fileService;
+
+	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, FileService fileService)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
-		bloomFilter = new TurtleBloomFilter(dataDirConfiguration.getDataDir(), 10_000, 0.01d); // XXX: parameters will need experimenting, especially the max files
+		this.fileService = fileService;
 	}
 
 	@Override
@@ -118,10 +118,11 @@ public class TurtleRsService extends RsService
 		}
 
 		// XXX: if the request is not from us, perform a local search and send result back if found (otherwise forward)
-		if (bloomFilter.mightContain(item.getFileHash()))
+		var file = fileService.findFile(item.getFileHash());
+		if (file.isPresent())
 		{
-			log.debug("filehash is in the bloom filter");
-			// XXX: remember that it might be a false positive from the bloom filter
+			// XXX: return the file back!
+			return;
 		}
 
 		if (tunnelProbability.isForwardable(item)) // XXX: this is different there! needs the number of peers and speed...

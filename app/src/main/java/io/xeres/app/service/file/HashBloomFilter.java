@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle;
+package io.xeres.app.service.file;
 
 import com.sangupta.bloomfilter.AbstractBloomFilter;
 import com.sangupta.bloomfilter.core.BitArray;
@@ -39,13 +39,13 @@ import java.util.Collection;
  * <p>
  * The entries are persisted to disk.
  */
-public class TurtleBloomFilter
+public class HashBloomFilter
 {
 	private static final String PERSISTENT_FILE = "turtle_bf";
 	private final AbstractBloomFilter<Sha1Sum> bFilter;
 	private BitArray bArray;
 
-	public TurtleBloomFilter(String baseDir, int expectedInsertions, double falsePositiveProbability)
+	public HashBloomFilter(String baseDir, int expectedInsertions, double falsePositiveProbability)
 	{
 		bFilter = new AbstractBloomFilter<>(expectedInsertions, falsePositiveProbability, (sha1Sum, byteSink) -> byteSink.putBytes(sha1Sum.getBytes()))
 		{

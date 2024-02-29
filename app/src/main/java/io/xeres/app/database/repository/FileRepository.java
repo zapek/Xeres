@@ -20,6 +20,7 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.file.File;
+import io.xeres.common.id.Sha1Sum;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -35,4 +36,6 @@ public interface FileRepository extends JpaRepository<File, Long>
 	Optional<File> findByNameAndParent(String name, File parent);
 
 	Optional<File> findByNameAndParentName(String name, String parentName);
+
+	Optional<File> findByHash(Sha1Sum hash);
 }

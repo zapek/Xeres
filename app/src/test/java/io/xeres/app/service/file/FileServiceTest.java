@@ -19,6 +19,8 @@
 
 package io.xeres.app.service.file;
 
+import io.xeres.app.configuration.DataDirConfiguration;
+import io.xeres.app.database.repository.FileRepository;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.common.id.Id;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,6 +44,15 @@ class FileServiceTest
 {
 	@Mock
 	private FileNotificationService fileNotificationService;
+
+	@Mock
+	private HashBloomFilter hashBloomFilter;
+
+	@Mock
+	private DataDirConfiguration dataDirConfiguration;
+
+	@Mock
+	private FileRepository fileRepository;
 
 	@InjectMocks
 	private FileService fileService;

@@ -27,14 +27,18 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Handles shortcodes produced by Retroshare. Since they are sent directly by it in the wire,
+ * typos in its database should be preserved.
+ */
 class RsEmojiAlias
 {
 	private static final Logger log = LoggerFactory.getLogger(RsEmojiAlias.class);
 
 	private static final String EMOTES_DATABASE = "/retroshare-emojis.json";
 
-	private final Map<String, String> aliasesMap = HashMap.newHashMap(705);
-	private final int longestAlias;
+	private Map<String, String> aliasesMap;
+	private int longestAlias;
 
 	private record AliasEntity(String alias, String unicode)
 	{
@@ -42,8 +46,6 @@ class RsEmojiAlias
 
 	RsEmojiAlias(ObjectMapper objectMapper)
 	{
-		int longestAlias;
-
 		try
 		{
 			var loadedAliases = objectMapper.readValue(Objects.requireNonNull(getClass().getResourceAsStream(EMOTES_DATABASE)),
@@ -53,6 +55,8 @@ class RsEmojiAlias
 
 			log.debug("Loaded {} Retroshare emoji aliases", loadedAliases.size());
 
+			aliasesMap = HashMap.newHashMap(loadedAliases.size());
+
 			loadedAliases.forEach(aliasEntity -> aliasesMap.put(aliasEntity.alias(), aliasEntity.unicode()));
 			longestAlias = aliasesMap.keySet().stream()
 					.max(Comparator.comparingInt(String::length))
@@ -61,16 +65,26 @@ class RsEmojiAlias
 		catch (IOException e)
 		{
 			log.error("Couldn't load Retroshare emoji alias database", e);
+			aliasesMap = Map.of();
 			longestAlias = 0;
 		}
-		this.longestAlias = longestAlias;
 	}
 
+	/**
+	 * Gets the unicode emoji for the alias.
+	 *
+	 * @param alias the shortcode, for example <i>wink</i>
+	 * @return the unicode emoji
+	 */
 	public String getUnicodeForAlias(String alias)
 	{
 		return aliasesMap.get(alias);
 	}
 
+	/**
+	 * Gets the longest alias in the database, for optimization purposes.
+	 * @return the longest alias in the database
+	 */
 	public int getLongestAlias()
 	{
 		return longestAlias;

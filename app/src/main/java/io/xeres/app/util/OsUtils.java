@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +15,8 @@ public final class OsUtils
 {
 	private static final Logger log = LoggerFactory.getLogger(OsUtils.class);
 
-	private static final String CASE_FILE = "XeresFileSystemCaseDetectorFile";
+	private static final String CASE_FILE_PREFIX = "XeresFileSystemCaseDetectorFile";
+	private static final String CASE_FILE_EXTENSION = "tmp";
 
 	private OsUtils()
 	{
@@ -23,7 +25,7 @@ public final class OsUtils
 
 	public static boolean isFileSystemCaseSensitive(Path path)
 	{
-		Path lowerFile = null;
+		Path lowerFile;
 		Path upperFile = null;
 		try
 		{
@@ -72,7 +74,8 @@ public final class OsUtils
 	private static Path createFileSystemDetectionFile(Path path, boolean upperCase) throws IOException
 	{
 		var file = path.toFile();
-		var pathCaseFile = Path.of(upperCase ? CASE_FILE.toUpperCase(Locale.ROOT) : CASE_FILE.toLowerCase(Locale.ROOT));
+		var pid = ManagementFactory.getRuntimeMXBean().getPid();
+		var pathCaseFile = Path.of((upperCase ? CASE_FILE_PREFIX.toUpperCase(Locale.ROOT) : CASE_FILE_PREFIX.toLowerCase(Locale.ROOT)) + "_" + pid + "." + CASE_FILE_EXTENSION);
 
 		if (file.isDirectory())
 		{

@@ -117,6 +117,16 @@ public abstract class RsService implements Comparable<RsService>
 		{
 			initialized = true;
 			initialize();
+			addSlavesIfNeeded();
+		}
+	}
+
+	private void addSlavesIfNeeded()
+	{
+		if (RsServiceMaster.class.isAssignableFrom(getClass()))
+		{
+			//noinspection rawtypes,unchecked
+			rsServiceRegistry.getSlaves(this).forEach(rsServiceSlave -> ((RsServiceMaster) this).addRsSlave(rsServiceSlave));
 		}
 	}
 
@@ -143,5 +153,11 @@ public abstract class RsService implements Comparable<RsService>
 	public int compareTo(RsService o)
 	{
 		return Integer.compare(getInitPriority().ordinal(), o.getInitPriority().ordinal());
+	}
+
+	@Override
+	public String toString()
+	{
+		return getServiceType().getName();
 	}
 }

@@ -34,6 +34,8 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
+
 @Component
 public class RsServiceRegistry
 {
@@ -43,6 +45,7 @@ public class RsServiceRegistry
 
 	private final Set<String> enabledServiceClasses = new HashSet<>();
 	private final Map<Integer, RsService> services = new HashMap<>();
+	private final Map<Integer, List<RsServiceSlave>> masterServices = new HashMap<>();
 
 	private final Map<Integer, Map<Integer, Class<? extends Item>>> itemClassesWaiting = new HashMap<>();
 	private final Map<Integer, Class<? extends Item>> itemClassesGxsWaiting = new HashMap<>();
@@ -102,7 +105,7 @@ public class RsServiceRegistry
 				}
 				else
 				{
-					itemClassesWaiting.computeIfAbsent(item.getServiceType(), k -> new HashMap<>()).put(item.getSubType(), itemClass);
+					itemClassesWaiting.computeIfAbsent(item.getServiceType(), v -> new HashMap<>()).put(item.getSubType(), itemClass);
 				}
 			}
 			catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e)
@@ -140,6 +143,13 @@ public class RsServiceRegistry
 
 		services.put(serviceType, rsService);
 
+		if (RsServiceSlave.class.isAssignableFrom(rsService.getClass()))
+		{
+			var master = ((RsServiceSlave) rsService).isRsSlaveOf();
+
+			masterServices.computeIfAbsent(master.getServiceType().getType(), v -> new ArrayList<>()).add((RsServiceSlave) rsService);
+		}
+
 		if (GxsRsService.class.isAssignableFrom(rsService.getClass()))
 		{
 			itemClassesGxsWaiting.forEach((subType, itemClass) -> itemClasses.put(serviceType << 16 | subType, itemClass));
@@ -153,6 +163,15 @@ public class RsServiceRegistry
 			}
 		}
 		return true;
+	}
+
+	List<RsServiceSlave> getSlaves(RsService rsService)
+	{
+		if (!RsServiceMaster.class.isAssignableFrom(rsService.getClass()))
+		{
+			throw new IllegalArgumentException("Master service " + rsService + " doesn't implement RsServiceMaster interface");
+		}
+		return emptyIfNull(masterServices.get(rsService.getServiceType().getType()));
 	}
 
 	public Item buildIncomingItem(int version, int service, int subtype)

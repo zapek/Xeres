@@ -21,11 +21,13 @@ package io.xeres.app.xrs.service.turtle;
 
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.file.FileService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.RsServiceMaster;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
@@ -34,11 +36,13 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
 @Component
-public class TurtleRsService extends RsService
+public class TurtleRsService extends RsService implements RsServiceMaster<TurtleRsClient>
 {
 	private static final Logger log = LoggerFactory.getLogger(TurtleRsService.class);
 
@@ -58,19 +62,27 @@ public class TurtleRsService extends RsService
 
 	private final PeerConnectionManager peerConnectionManager;
 
-	private final FileService fileService;
+	private final List<TurtleRsClient> turtleClients = new ArrayList<>();
 
-	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, FileService fileService)
+	private final IdentityGroupItem ownIdentity;
+
+	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, IdentityRsService identityRsService)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
-		this.fileService = fileService;
+		ownIdentity = identityRsService.getOwnIdentity();
 	}
 
 	@Override
 	public RsServiceType getServiceType()
 	{
 		return TURTLE;
+	}
+
+	@Override
+	public void addRsSlave(TurtleRsClient client)
+	{
+		turtleClients.add(client);
 	}
 
 	@Override
@@ -117,11 +129,14 @@ public class TurtleRsService extends RsService
 			return;
 		}
 
-		// XXX: if the request is not from us, perform a local search and send result back if found (otherwise forward)
-		var file = fileService.findFile(item.getFileHash());
-		if (file.isPresent())
+		var client = turtleClients.stream()
+				.filter(turtleRsClient -> turtleRsClient.handleTunnelRequest(sender, item.getFileHash()))
+				.findFirst();
+
+		if (client.isPresent())
 		{
-			// XXX: return the file back!
+			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), generateTunnelId(item, false));
+
 			return;
 		}
 
@@ -135,6 +150,29 @@ public class TurtleRsService extends RsService
 					sender,
 					this);
 		}
+	}
+
+	private int generateTunnelId(TurtleTunnelRequestItem item, boolean symetrical)
+	{
+		// XXX: test this, compare with RS
+		var buf = item.getFileHash().toString() + ownIdentity.getGxsId().toString();
+		int result = tunnelProbability.getBias();
+		int decal = 0;
+
+		for (int i = 0; i < buf.length(); i++)
+		{
+			result += 7 * buf.charAt(i) + decal;
+
+			if (symetrical)
+			{
+				decal = decal * 44497 + 15641 + (result % 86243);
+			}
+			else
+			{
+				decal = decal * 86243 + 15649 + (result % 44497);
+			}
+		}
+		return item.getPartialTunnelId() ^ result;
 	}
 
 	private void handleSearchRequest(PeerConnection sender, TurtleSearchRequestItem item)

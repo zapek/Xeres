@@ -31,6 +31,17 @@ public class TurtleTunnelResultItem extends Item
 	@RsSerialized
 	private int requestId;
 
+	public TurtleTunnelResultItem()
+	{
+		// Needed
+	}
+
+	public TurtleTunnelResultItem(int tunnelId, int requestId)
+	{
+		this.tunnelId = tunnelId;
+		this.requestId = requestId;
+	}
+
 	@Override
 	public int getServiceType()
 	{

@@ -86,4 +86,9 @@ class TunnelProbability
 		}
 		return depth;
 	}
+
+	public int getBias()
+	{
+		return bias;
+	}
 }

@@ -1,0 +1,105 @@
+/*
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.app.xrs.service.filetransfer;
+
+import io.xeres.app.net.peer.PeerConnection;
+import io.xeres.app.service.file.FileService;
+import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.RsServiceRegistry;
+import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.turtle.TurtleRsClient;
+import io.xeres.common.id.Sha1Sum;
+import org.springframework.stereotype.Component;
+
+import static io.xeres.app.xrs.service.RsServiceType.FILE_TRANSFER;
+
+@Component
+public class FileTransferRsService extends RsService implements TurtleRsClient
+{
+	private final FileService fileService;
+
+	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService)
+	{
+		super(rsServiceRegistry);
+		this.fileService = fileService;
+	}
+
+	@Override
+	public RsServiceType getServiceType()
+	{
+		return FILE_TRANSFER;
+	}
+
+	@Override
+	public RsService isRsSlaveOf()
+	{
+		return this;
+	}
+
+	@Override
+	public void handleItem(PeerConnection sender, Item item)
+	{
+		// XXX
+	}
+
+	@Override
+	public boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash)
+	{
+		var file = fileService.findFile(hash);
+		if (file.isPresent())
+		{
+			// XXX: don't forget to handle encrypted hashes, files currently being swarmed and tons of other things
+			// XXX: sender might not necessarily be needed (it's for the permissions)
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void receiveTurtleData()
+	{
+
+	}
+
+	@Override
+	public boolean receiveSearchRequest()
+	{
+		return false;
+	}
+
+	@Override
+	public void receiveSearchResult()
+	{
+
+	}
+
+	@Override
+	public void addVirtualPeer()
+	{
+
+	}
+
+	@Override
+	public void removeVirtualPeer()
+	{
+
+	}
+}

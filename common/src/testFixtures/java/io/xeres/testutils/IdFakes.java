@@ -35,6 +35,11 @@ public final class IdFakes
 		return new GxsId(RandomUtils.nextBytes(GxsId.LENGTH));
 	}
 
+	public static GxsId createGxsId(byte[] gxsId)
+	{
+		return new GxsId(gxsId);
+	}
+
 	public static MessageId createMessageId()
 	{
 		return new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));

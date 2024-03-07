@@ -64,13 +64,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private final List<TurtleRsClient> turtleClients = new ArrayList<>();
 
-	private final IdentityGroupItem ownIdentity;
+	private final IdentityRsService identityRsService;
+
+	private IdentityGroupItem ownIdentity;
 
 	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, IdentityRsService identityRsService)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
-		ownIdentity = identityRsService.getOwnIdentity();
+		this.identityRsService = identityRsService;
 	}
 
 	@Override
@@ -83,6 +85,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	public void addRsSlave(TurtleRsClient client)
 	{
 		turtleClients.add(client);
+	}
+
+	@Override
+	public void initialize()
+	{
+		ownIdentity = identityRsService.getOwnIdentity();
 	}
 
 	@Override
@@ -135,8 +143,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (client.isPresent())
 		{
-			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), generateTunnelId(item, false));
-
+			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), generateTunnelId(item, tunnelProbability.getBias(), false));
+			peerConnectionManager.writeItem(sender, resultItem, this);
+			// XXX: store the opened tunnel somewhere! also we added a distant peer, etc...
 			return;
 		}
 
@@ -152,24 +161,23 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 	}
 
-	private int generateTunnelId(TurtleTunnelRequestItem item, boolean symetrical)
+	int generateTunnelId(TurtleTunnelRequestItem item, int bias, boolean symetrical)
 	{
-		// XXX: test this, compare with RS
 		var buf = item.getFileHash().toString() + ownIdentity.getGxsId().toString();
-		int result = tunnelProbability.getBias();
+		int result = bias;
 		int decal = 0;
 
 		for (int i = 0; i < buf.length(); i++)
 		{
-			result += 7 * buf.charAt(i) + decal;
+			result += (int) (7 * buf.charAt(i) + Integer.toUnsignedLong(decal));
 
 			if (symetrical)
 			{
-				decal = decal * 44497 + 15641 + (result % 86243);
+				decal = (int) (Integer.toUnsignedLong(decal) * 44497 + 15641 + (Integer.toUnsignedLong(result) % 86243));
 			}
 			else
 			{
-				decal = decal * 86243 + 15649 + (result % 44497);
+				decal = (int) (Integer.toUnsignedLong(decal) * 86243 + 15649 + (Integer.toUnsignedLong(result) % 44497));
 			}
 		}
 		return item.getPartialTunnelId() ^ result;

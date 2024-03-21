@@ -49,11 +49,13 @@ public class TrackingFileVisitor implements FileVisitor<Path>
 		if (!skipFirst)
 		{
 			skipFirst = true;
-			return null;
 		}
-		var directory = fileRepository.findByNameAndParent(dir.getFileName().toString(), directories.getLast()).orElseGet(() -> File.createDirectory(directories.getLast(), dir.getFileName().toString(), attrs.lastModifiedTime().toInstant()));
-		directories.addLast(directory);
-		return null;
+		else
+		{
+			var directory = fileRepository.findByNameAndParent(dir.getFileName().toString(), directories.getLast()).orElseGet(() -> File.createDirectory(directories.getLast(), dir.getFileName().toString(), attrs.lastModifiedTime().toInstant()));
+			directories.addLast(directory);
+		}
+		return FileVisitResult.CONTINUE;
 	}
 
 	@Override

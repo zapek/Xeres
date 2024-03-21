@@ -202,18 +202,7 @@ public class FileService
 					Objects.requireNonNull(attrs);
 					if (isIndexableFile(file, attrs))
 					{
-						var currentFile = fileRepository.findByNameAndParent(file.getFileName().toString(), getCurrentDirectory()).orElseGet(() -> File.createFile(getCurrentDirectory(), file.getFileName().toString(), null));
-						var lastModified = attrs.lastModifiedTime().toInstant();
-						log.debug("Checking file {}, modification time: {}", file, lastModified);
-						if (currentFile.getModified() == null || lastModified.isAfter(currentFile.getModified()))
-						{
-							log.debug("Current file in database, modified: {}", currentFile.getModified());
-							var hash = calculateFileHash(file);
-							currentFile.setHash(hash);
-							currentFile.setModified(lastModified);
-							fileRepository.save(currentFile);
-							setChanged();
-						}
+						indexFile(file, attrs);
 					}
 					return FileVisitResult.CONTINUE;
 				}
@@ -225,13 +214,7 @@ public class FileService
 					Objects.requireNonNull(attrs);
 					if (isIndexableDirectory(dir, attrs))
 					{
-						super.preVisitDirectory(dir, attrs);
-						log.debug("Entering directory {}", dir);
-						var directory = getCurrentDirectory();
-						if (fileRepository.findByNameAndParent(directory.getName(), directory.getParent()).isEmpty())
-						{
-							fileRepository.save(directory);
-						}
+						indexDirectory(dir, attrs);
 						return FileVisitResult.CONTINUE;
 					}
 					else
@@ -258,6 +241,33 @@ public class FileService
 					Objects.requireNonNull(file);
 					log.debug("Visiting file {} failed: {}", file, exc.getMessage());
 					return FileVisitResult.CONTINUE;
+				}
+
+				private void indexFile(Path file, BasicFileAttributes attrs)
+				{
+					var currentFile = fileRepository.findByNameAndParent(file.getFileName().toString(), getCurrentDirectory()).orElseGet(() -> File.createFile(getCurrentDirectory(), file.getFileName().toString(), null));
+					var lastModified = attrs.lastModifiedTime().toInstant();
+					log.debug("Checking file {}, modification time: {}", file, lastModified);
+					if (currentFile.getModified() == null || lastModified.isAfter(currentFile.getModified()))
+					{
+						log.debug("Current file in database, modified: {}", currentFile.getModified());
+						var hash = calculateFileHash(file);
+						currentFile.setHash(hash);
+						currentFile.setModified(lastModified);
+						fileRepository.save(currentFile);
+						setChanged();
+					}
+				}
+
+				private void indexDirectory(Path dir, BasicFileAttributes attrs)
+				{
+					super.preVisitDirectory(dir, attrs);
+					log.debug("Entering directory {}", dir);
+					var directory = getCurrentDirectory();
+					if (fileRepository.findByNameAndParent(directory.getName(), directory.getParent()).isEmpty())
+					{
+						fileRepository.save(directory);
+					}
 				}
 			};
 			Files.walkFileTree(directoryPath, visitor);
@@ -332,11 +342,7 @@ public class FileService
 
 	private boolean isIgnoredDirectory(String dirName)
 	{
-		if (dirName.startsWith("."))
-		{
-			return true;
-		}
-		return false;
+		return dirName.startsWith(".");
 	}
 
 	Sha1Sum calculateFileHash(Path path)

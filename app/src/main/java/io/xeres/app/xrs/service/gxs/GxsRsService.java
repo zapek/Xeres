@@ -455,7 +455,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			return false;
 		}
 
-		var group = groupList.get(0);
+		var group = groupList.getFirst();
 		return group.isSubscribed() &&
 				group.getLastPosted() != null &&
 				lastPeerUpdate.isBefore(group.getLastPosted()) &&

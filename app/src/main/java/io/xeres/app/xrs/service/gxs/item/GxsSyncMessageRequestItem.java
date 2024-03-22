@@ -3,7 +3,9 @@ package io.xeres.app.xrs.service.gxs.item;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.stream.Stream;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
 
@@ -34,10 +36,18 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	{
 	}
 
-	public GxsSyncMessageRequestItem(GxsId groupId, Instant lastUpdated)
+	public GxsSyncMessageRequestItem(GxsId groupId, Instant lastUpdated, Duration limit)
 	{
 		this.groupId = groupId;
 		this.lastUpdated = (int) lastUpdated.getEpochSecond();
+		createSince = (int) getMostRecent(lastUpdated, limit).getEpochSecond();
+	}
+
+	private Instant getMostRecent(Instant last, Duration limit)
+	{
+		return Stream.of(Instant.now().minus(limit), last)
+				.max(Instant::compareTo)
+				.get();
 	}
 
 	@Override

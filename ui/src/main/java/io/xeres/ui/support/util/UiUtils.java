@@ -274,12 +274,9 @@ public final class UiUtils
 				disclosedHyperlink.setOnAction(event -> JavaFxApplication.openUrl(disclosedHyperlink.getUri()));
 			}
 		}
-		else if (rootNode instanceof Hyperlink hyperlink)
+		else if (rootNode instanceof Hyperlink hyperlink && hyperlink.getOnAction() == null)
 		{
-			if (hyperlink.getOnAction() == null)
-			{
-				hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
-			}
+			hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
 		}
 	}
 

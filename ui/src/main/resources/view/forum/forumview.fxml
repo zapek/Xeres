@@ -64,7 +64,7 @@
                                     <FontAwesomeIconView glyphName="ENVELOPE" glyphSize="14"/>
                                 </graphic>
                             </TreeTableColumn>-->
-                            <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="220" text="%forum.view.header.subject"/>
+                            <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="320" text="%forum.view.header.subject"/>
                             <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="100" text="%forum.view.header.author"/>
                             <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="140" text="%forum.view.header.date"/>
                         </columns>

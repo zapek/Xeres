@@ -24,23 +24,24 @@ The following smileys are automatically converted to emojis:
 
 ## Aliases
 
-Here's an incomplete list of aliases that are automatically converted to emojis:
+Here's an incomplete list of aliases that are automatically converted to emojis.
+Remember to surround the alias with `:` symbols, like `:foo:`
 
-| Alias          | Emoji |
-|----------------|-------|
-| :ch:           | 🇨🇭  |
-| :smile:        | 😄    |
-| :blush:        | 😊    |
-| :wink:         | 😉    |
-| :heart_eyes:   | 😍    |
-| :disappointed: | 😞    |
-| :joy:          | 😂    |
-| :sob:          | 😭    |
-| :scream:       | 😱    |
-| :angry:        | 😠    |
-| :yum:          | 😋    |
-| :smirk:        | 😏    |
-| :man:          | 👨    |
-| :woman:        | 👩    |
-| :cat:          | 🐱    |
-| :notes:        | 🎶    |
+| Alias        | Emoji |
+|--------------|-------|
+| ch           | 🇨🇭  |
+| smile        | 😄    |
+| blush        | 😊    |
+| wink         | 😉    |
+| heart_eyes   | 😍    |
+| disappointed | 😞    |
+| joy          | 😂    |
+| sob          | 😭    |
+| scream       | 😱    |
+| angry        | 😠    |
+| yum          | 😋    |
+| smirk        | 😏    |
+| man          | 👨    |
+| woman        | 👩    |
+| cat          | 🐱    |
+| notes        | 🎶    |

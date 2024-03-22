@@ -26,6 +26,7 @@ import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -61,7 +62,18 @@ public class RsServiceRegistry
 		provider.addIncludeFilter(new AssignableTypeFilter(Item.class));
 		var scannedItemClasses = provider.findCandidateComponents(SERVICE_PACKAGE);
 
-		// Record which services are enabled in the properties file.
+		registerServices(environment, scannedServiceClasses);
+		registerItems(scannedItemClasses);
+	}
+
+	/**
+	 * Records which services are enabled in the properties file.
+	 *
+	 * @param environment           the environment
+	 * @param scannedServiceClasses the service classes
+	 */
+	private void registerServices(Environment environment, Set<BeanDefinition> scannedServiceClasses)
+	{
 		for (var bean : scannedServiceClasses)
 		{
 			try
@@ -80,8 +92,15 @@ public class RsServiceRegistry
 				throw new RuntimeException(e);
 			}
 		}
+	}
 
-		// Add all item classes, they will be enabled later when the service is confirmed to be enabled
+	/**
+	 * Adds all item classes, they will be enabled later when the service is confirmed to be enabled
+	 *
+	 * @param scannedItemClasses the item classes
+	 */
+	private void registerItems(Set<BeanDefinition> scannedItemClasses)
+	{
 		for (var bean : scannedItemClasses)
 		{
 			Class<? extends Item> itemClass = null;

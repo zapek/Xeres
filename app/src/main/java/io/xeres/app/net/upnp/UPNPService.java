@@ -46,14 +46,14 @@ public class UPNPService implements Runnable
 {
 	private static final Logger log = LoggerFactory.getLogger(UPNPService.class);
 
-	private static final String MCAST_IP = "239.255.255.250";
-	private static final int MCAST_PORT = 1900;
-	private static final int MCAST_BUFFER_SEND_SIZE_MAX = 512; // this is the maximum size used by MiniUPNPd so better not use more
-	private static final int MCAST_BUFFER_RECV_SIZE = 1024; // also used by MiniUPNPd
+	private static final String MULTICAST_IP = "239.255.255.250";
+	private static final int MULTICAST_PORT = 1900;
+	private static final int MULTICAST_BUFFER_SEND_SIZE_MAX = 512; // this is the maximum size used by MiniUPNPd so better not use more
+	private static final int MULTICAST_BUFFER_RECV_SIZE = 1024; // also used by MiniUPNPd
 
-	private static final int MCAST_MAX_WAIT_TIME = (int) Duration.ofSeconds(3).toMillis(); // time to wait for a router reply
-	private static final int MCAST_MAX_WAIT_SNOOZE = (int) Duration.ofMinutes(5).toMillis(); // time to wait if nothing has answered all requests
-	private static final int MCAST_DELAY_HINT = (int) Duration.ofSeconds(1).toSeconds(); // how long a router can delay its reply
+	private static final int MULTICAST_MAX_WAIT_TIME = (int) Duration.ofSeconds(3).toMillis(); // time to wait for a router reply
+	private static final int MULTICAST_MAX_WAIT_SNOOZE = (int) Duration.ofMinutes(5).toMillis(); // time to wait if nothing has answered all requests
+	private static final int MULTICAST_DELAY_HINT = (int) Duration.ofSeconds(1).toSeconds(); // how long a router can delay its reply
 
 	private static final int PORT_DURATION = (int) Duration.ofHours(1).toMillis(); // how long does a port mapping lasts
 	private static final int PORT_DURATION_ANTICIPATION = (int) Duration.ofMinutes(1).toMillis(); // when to kick in the refresh before it expires
@@ -159,15 +159,15 @@ public class UPNPService implements Runnable
 
 	private String getMSearch(String device)
 	{
-		return "M-SEARCH * HTTP/1.1\r\nHost: " + MCAST_IP + ":" + MCAST_PORT + "\r\nST: " + device + "\r\nMan: \"ssdp:discover\"\r\nMX: " + MCAST_DELAY_HINT + "\r\n\r\n";
+		return "M-SEARCH * HTTP/1.1\r\nHost: " + MULTICAST_IP + ":" + MULTICAST_PORT + "\r\nST: " + device + "\r\nMan: \"ssdp:discover\"\r\nMX: " + MULTICAST_DELAY_HINT + "\r\n\r\n";
 	}
 
 	private void getUpnpDeviceSearch(SelectionKey selectionKey)
 	{
 		sendBuffer = ByteBuffer.wrap(getMSearch(DEVICES[deviceIndex % DEVICES.length]).getBytes());
-		if (sendBuffer.limit() > MCAST_BUFFER_SEND_SIZE_MAX)
+		if (sendBuffer.limit() > MULTICAST_BUFFER_SEND_SIZE_MAX)
 		{
-			throw new IllegalArgumentException("Send buffer bigger than " + MCAST_BUFFER_SEND_SIZE_MAX + " (" + sendBuffer.limit() + ")");
+			throw new IllegalArgumentException("Send buffer bigger than " + MULTICAST_BUFFER_SEND_SIZE_MAX + " (" + sendBuffer.limit() + ")");
 		}
 		deviceIndex++;
 		if (deviceIndex > 0 && deviceIndex % DEVICES.length == 0)
@@ -204,8 +204,8 @@ public class UPNPService implements Runnable
 
 	private void upnpLoop() throws BindException
 	{
-		multicastAddress = new InetSocketAddress(MCAST_IP, MCAST_PORT);
-		receiveBuffer = ByteBuffer.allocate(MCAST_BUFFER_RECV_SIZE);
+		multicastAddress = new InetSocketAddress(MULTICAST_IP, MULTICAST_PORT);
+		receiveBuffer = ByteBuffer.allocate(MULTICAST_BUFFER_RECV_SIZE);
 
 		try (var selector = Selector.open();
 		     var channel = DatagramChannel.open(StandardProtocolFamily.INET)
@@ -246,11 +246,7 @@ public class UPNPService implements Runnable
 				}
 				handleSelection(selector, registerSelectionKeys);
 			}
-
-			if (device != null && device.hasControlPoint())
-			{
-				device.removeAllPortMapping();
-			}
+			cleanupDevice();
 		}
 		catch (ClosedByInterruptException e)
 		{
@@ -309,8 +305,8 @@ public class UPNPService implements Runnable
 	{
 		return switch (state)
 				{
-					case WAITING -> MCAST_MAX_WAIT_TIME;
-					case SNOOZING -> MCAST_MAX_WAIT_SNOOZE;
+					case WAITING -> MULTICAST_MAX_WAIT_TIME;
+					case SNOOZING -> MULTICAST_MAX_WAIT_SNOOZE;
 					case CONNECTED -> PORT_DURATION - PORT_DURATION_ANTICIPATION;
 					default -> 0;
 				};
@@ -399,6 +395,14 @@ public class UPNPService implements Runnable
 		}
 
 		return refreshed;
+	}
+
+	private void cleanupDevice()
+	{
+		if (device != null && device.hasControlPoint())
+		{
+			device.removeAllPortMapping();
+		}
 	}
 
 	private boolean findExternalIpAddress()

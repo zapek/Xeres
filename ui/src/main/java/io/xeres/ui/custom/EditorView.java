@@ -28,6 +28,7 @@ import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.IndexRange;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
@@ -165,39 +166,49 @@ public class EditorView extends VBox
 
 		if (selection.getLength() <= 0)
 		{
-			var pos = editor.getCaretPosition();
-			if (isBeginningOfLine(pos))
-			{
-				editor.insertText(pos, text + " ");
-			}
+			prefixSingleLine(text);
 		}
 		else
 		{
-			if (isParagraphBoundaries())
-			{
-				var start = selection.getStart();
-				int end;
-
-				while (start <= selection.getEnd())
-				{
-					end = editor.getText(start, selection.getEnd()).indexOf("\n");
-					if (end == -1)
-					{
-						end = selection.getEnd();
-					}
-					else
-					{
-						end += start;
-					}
-
-					editor.insertText(start, text + (text.isBlank() ? "" : " ")); // spacing not needed for indentation or so
-					editor.positionCaret(end + 2 + text.length());
-
-					start = end + 2 + text.length();
-				}
-			}
+			prefixParagraph(text, selection);
 		}
 		editor.requestFocus();
+	}
+
+	private void prefixSingleLine(String text)
+	{
+		var pos = editor.getCaretPosition();
+		if (isBeginningOfLine(pos))
+		{
+			editor.insertText(pos, text + " ");
+		}
+	}
+
+	private void prefixParagraph(String text, IndexRange selection)
+	{
+		if (isParagraphBoundaries())
+		{
+			var start = selection.getStart();
+			int end;
+
+			while (start <= selection.getEnd())
+			{
+				end = editor.getText(start, selection.getEnd()).indexOf("\n");
+				if (end == -1)
+				{
+					end = selection.getEnd();
+				}
+				else
+				{
+					end += start;
+				}
+
+				editor.insertText(start, text + (text.isBlank() ? "" : " ")); // spacing not needed for indentation or so
+				editor.positionCaret(end + 2 + text.length());
+
+				start = end + 2 + text.length();
+			}
+		}
 	}
 
 	private void insertNextLine(String text)

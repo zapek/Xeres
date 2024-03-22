@@ -87,44 +87,46 @@ public class EmojiService
 
 	private String parseRsEmojiAliases(String s)
 	{
-		if (s.length() >= 3)
+		if (s.length() < 3)
 		{
-			int start = 0;
-			while ((start = s.indexOf(':', start)) != -1 && s.length() >= start + 2)
+			return s;
+		}
+
+		int start = 0;
+		while ((start = s.indexOf(':', start)) != -1 && s.length() >= start + 2)
+		{
+			int end = s.indexOf(':', start + 2);
+			if (end == -1)
 			{
-				int end = s.indexOf(':', start + 2);
-				if (end == -1)
-				{
-					break;
-				}
+				break;
+			}
 
-				if (end - start > rsEmojiAlias.getLongestAlias() + 1)
-				{
-					// Overshot, keep searching
-					start = end;
-					continue;
-				}
+			if (end - start > rsEmojiAlias.getLongestAlias() + 1)
+			{
+				// Overshot, keep searching
+				start = end;
+				continue;
+			}
 
-				var range = s.substring(start + 1, end);
+			var range = s.substring(start + 1, end);
 
-				if (!aliasPattern.matcher(range).matches())
-				{
-					// Not an alias
-					start = end;
-					continue;
-				}
+			if (!aliasPattern.matcher(range).matches())
+			{
+				// Not an alias
+				start = end;
+				continue;
+			}
 
-				var alias = rsEmojiAlias.getUnicodeForAlias(range);
-				if (alias != null)
-				{
-					var codePoints = getCodepoints(alias);
-					s = s.substring(0, start) + getCodepoints(alias) + s.substring(end + 1);
-					start += codePoints.length();
-				}
-				else
-				{
-					start = end + 1;
-				}
+			var alias = rsEmojiAlias.getUnicodeForAlias(range);
+			if (alias != null)
+			{
+				var codePoints = getCodepoints(alias);
+				s = s.substring(0, start) + getCodepoints(alias) + s.substring(end + 1);
+				start += codePoints.length();
+			}
+			else
+			{
+				start = end + 1;
 			}
 		}
 		return s;

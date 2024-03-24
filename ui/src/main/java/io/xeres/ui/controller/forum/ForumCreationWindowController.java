@@ -30,7 +30,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ResourceBundle;
 
 @Component
 @FxmlView(value = "/view/forum/forum_create.fxml")
@@ -49,12 +48,10 @@ public class ForumCreationWindowController implements WindowController
 	private TextField forumDescription;
 
 	private final ForumClient forumClient;
-	private final ResourceBundle bundle;
 
-	public ForumCreationWindowController(ForumClient forumClient, ResourceBundle bundle)
+	public ForumCreationWindowController(ForumClient forumClient)
 	{
 		this.forumClient = forumClient;
-		this.bundle = bundle;
 	}
 
 	@Override

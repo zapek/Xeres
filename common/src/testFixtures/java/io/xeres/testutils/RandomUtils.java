@@ -28,6 +28,10 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class RandomUtils
 {
+
+	public static final String ERROR_START_END = "Start value must be smaller or equal to end value.";
+	public static final String ERROR_RANGES = "Both range values must be non-negative.";
+
 	private RandomUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -54,8 +58,8 @@ public final class RandomUtils
 
 	public static int nextInt(int startInclusive, int endExclusive)
 	{
-		Validate.isTrue(endExclusive >= startInclusive, "Start value must be smaller or equal to end value.");
-		Validate.isTrue(startInclusive >= 0, "Both range values must be non-negative.");
+		Validate.isTrue(endExclusive >= startInclusive, ERROR_START_END);
+		Validate.isTrue(startInclusive >= 0, ERROR_RANGES);
 
 		if (startInclusive == endExclusive)
 		{
@@ -71,8 +75,8 @@ public final class RandomUtils
 
 	public static double nextDouble(double startInclusive, double endExclusive)
 	{
-		Validate.isTrue(endExclusive >= startInclusive, "Start value must be smaller or equal to end value.");
-		Validate.isTrue(startInclusive >= 0, "Both range values must be non-negative.");
+		Validate.isTrue(endExclusive >= startInclusive, ERROR_START_END);
+		Validate.isTrue(startInclusive >= 0, ERROR_RANGES);
 
 		if (startInclusive == endExclusive)
 		{
@@ -93,8 +97,8 @@ public final class RandomUtils
 
 	public static long nextLong(long startInclusive, long endExclusive)
 	{
-		Validate.isTrue(endExclusive >= startInclusive, "Start value must be smaller or equal to end value.");
-		Validate.isTrue(startInclusive >= 0, "Both range values must be non-negative.");
+		Validate.isTrue(endExclusive >= startInclusive, ERROR_START_END);
+		Validate.isTrue(startInclusive >= 0, ERROR_RANGES);
 
 		if (startInclusive == endExclusive)
 		{
@@ -105,8 +109,8 @@ public final class RandomUtils
 
 	public static float nextFloat(float startInclusive, float endExclusive)
 	{
-		Validate.isTrue(endExclusive >= startInclusive, "Start value must be smaller or equal to end value.");
-		Validate.isTrue(startInclusive >= 0, "Both range values must be non-negative.");
+		Validate.isTrue(endExclusive >= startInclusive, ERROR_START_END);
+		Validate.isTrue(startInclusive >= 0, ERROR_RANGES);
 
 		if (startInclusive == endExclusive)
 		{

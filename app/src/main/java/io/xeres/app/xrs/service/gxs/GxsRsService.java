@@ -558,69 +558,32 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		for (var gxsGroupItem : gxsGroupItems)
 		{
-			var validation = gxsGroupItem.hasAdminPublicKey(); // all groups require an admin key
-			var author = gxsGroupItem.getAuthor();
+			var validation = VerificationStatus.OK;
+
+			if (!gxsGroupItem.hasAdminPublicKey())
+			{
+				log.warn("Failed to validate group {}: missing admin key", gxsGroupItem);
+				continue;
+			}
 
 			// Validate author signature
-			if (validation && author != null)
+			if (gxsGroupItem.getAuthor() != null)
 			{
-				if (gxsGroupItem.getAuthorSignature() != null)
+				validation = verifyGroup(peerConnection, gxsGroupItem);
+				if (validation == VerificationStatus.DELAYED)
 				{
-					var authorIdentity = identityManager.getGxsGroup(peerConnection, author);
-					if (authorIdentity == null)
-					{
-						log.warn("Delaying verification of group {}", gxsGroupItem);
-						var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
-						if (existingDelay != null)
-						{
-							var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
-							pendingGxsGroups.put(gxsGroupItem, newDelay);
-							if (newDelay < 0)
-							{
-								log.warn("Failed to validate group {}: timeout exceeded", gxsGroupItem);
-							}
-						}
-						continue;
-					}
-					else
-					{
-						validation = validateGroup(gxsGroupItem, authorIdentity.getAdminPublicKey(), gxsGroupItem.getAuthorSignature());
-						if (!validation)
-						{
-							log.warn("Failed to validate group {}: wrong author signature", gxsGroupItem);
-						}
-					}
-				}
-				else
-				{
-					log.warn("Missing author signature for group {}", gxsGroupItem);
-					validation = false;
+					continue;
 				}
 			}
 
 			// If this is a group update, validate its admin signature using the public key we already have
-			if (validation)
+			if (validation == VerificationStatus.OK)
 			{
-				var existingGroup = gxsUpdateService.getExistingGroup(gxsGroupItem);
-				if (existingGroup.isPresent())
-				{
-					validation = validateGroup(gxsGroupItem, existingGroup.get().getAdminPublicKey(), gxsGroupItem.getAdminSignature());
-					if (!validation)
-					{
-						if (isSameKey(existingGroup.get().getAdminPublicKey(), gxsGroupItem.getAdminPublicKey()))
-						{
-							log.warn("Failed to validate group {} for update: wrong admin signature", gxsGroupItem);
-						}
-						else
-						{
-							log.warn("Failed to validate group {} for update: new public key doesn't match the old one", gxsGroupItem);
-						}
-					}
-				}
+				validation = verifyGroupForUpdate(gxsGroupItem);
 			}
 
 			// Save the group if everything is OK
-			if (validation)
+			if (validation == VerificationStatus.OK)
 			{
 				gxsUpdateService.saveGroup(gxsGroupItem, this::onGroupReceived).ifPresent(savedGroups::add);
 			}
@@ -633,6 +596,69 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			onGroupsSaved(savedGroups);
 		}
+	}
+
+	private VerificationStatus verifyGroup(PeerConnection peerConnection, G gxsGroupItem)
+	{
+		if (gxsGroupItem.getAuthorSignature() == null)
+		{
+			log.warn("Missing author signature for group {}", gxsGroupItem);
+			return VerificationStatus.FAILED;
+		}
+
+		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthor());
+		if (authorIdentity == null)
+		{
+			log.warn("Delaying verification of group {}", gxsGroupItem);
+			var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
+			if (existingDelay != null)
+			{
+				var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
+				pendingGxsGroups.put(gxsGroupItem, newDelay);
+				if (newDelay < 0)
+				{
+					log.warn("Failed to validate group {}: timeout exceeded", gxsGroupItem);
+				}
+			}
+			return VerificationStatus.DELAYED;
+		}
+		else
+		{
+			if (validateGroup(gxsGroupItem, authorIdentity.getAdminPublicKey(), gxsGroupItem.getAuthorSignature()))
+			{
+				return VerificationStatus.OK;
+			}
+			else
+			{
+				log.warn("Failed to validate group {}: wrong author signature", gxsGroupItem);
+				return VerificationStatus.FAILED;
+			}
+		}
+	}
+
+	private VerificationStatus verifyGroupForUpdate(G gxsGroupItem)
+	{
+		var existingGroup = gxsUpdateService.getExistingGroup(gxsGroupItem);
+		if (existingGroup.isPresent())
+		{
+			if (validateGroup(gxsGroupItem, existingGroup.get().getAdminPublicKey(), gxsGroupItem.getAdminSignature()))
+			{
+				return VerificationStatus.OK;
+			}
+			else
+			{
+				if (isSameKey(existingGroup.get().getAdminPublicKey(), gxsGroupItem.getAdminPublicKey()))
+				{
+					log.warn("Failed to validate group {} for update: wrong admin signature", gxsGroupItem);
+				}
+				else
+				{
+					log.warn("Failed to validate group {} for update: new public key doesn't match the old one", gxsGroupItem);
+				}
+				return VerificationStatus.FAILED;
+			}
+		}
+		return VerificationStatus.OK;
 	}
 
 	private boolean validateGroup(G gxsGroupItem, PublicKey publicKey, byte[] signature)
@@ -706,19 +732,16 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		for (var gxsMessageItem : gxsMessageItems)
 		{
-			var validation = true;
+			var validation = VerificationStatus.OK;
 			var publishSignature = false;
-			var authorSignature = false;
 
 			if (gxsMessageItem.getParentId() != null)
 			{
 				publishSignature = authenticationRequirements.getPublicRequirements().contains(AuthenticationRequirements.Flags.CHILD_PUBLISH);
-				authorSignature = gxsMessageItem.getAuthorId() != null;
 			}
 			else
 			{
 				publishSignature = authenticationRequirements.getPublicRequirements().contains(AuthenticationRequirements.Flags.ROOT_PUBLISH);
-				authorSignature = gxsMessageItem.getAuthorId() != null;
 			}
 
 			if (publishSignature)
@@ -727,45 +750,17 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				log.error("Publish verification not implemented yet!");
 			}
 
-			if (authorSignature)
+			if (gxsMessageItem.getAuthorId() != null)
 			{
-				if (gxsMessageItem.getAuthorSignature() != null)
+				validation = verifyMessage(peerConnection, gxsMessageItem);
+				if (validation == VerificationStatus.DELAYED)
 				{
-					var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsMessageItem.getAuthorId());
-					if (authorIdentity == null)
-					{
-						log.warn("Delaying verification of message {}", gxsMessageItem);
-						var existingDelay = pendingGxsMessages.putIfAbsent(gxsMessageItem, PENDING_VERIFICATION_MAX.toSeconds());
-						if (existingDelay != null)
-						{
-							var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
-							pendingGxsMessages.put(gxsMessageItem, newDelay);
-							if (newDelay < 0)
-							{
-								log.warn("Failed to validate group {}: timeout exceeded", gxsMessageItem);
-							}
-						}
-						continue;
-					}
-					else
-					{
-						validation = validateMessage(gxsMessageItem, authorIdentity.getAdminPublicKey(), gxsMessageItem.getAuthorSignature());
-						if (!validation)
-						{
-							log.warn("Failed to validate message {}: wrong author signature", gxsMessageItem);
-						}
-						// XXX: check for reputation here, if reputation is too low, remove
-					}
-				}
-				else
-				{
-					log.warn("Missing author signature for message {}", gxsMessageItem);
-					validation = false;
+					continue;
 				}
 			}
 
 			// Save the message if everything is OK
-			if (validation)
+			if (validation == VerificationStatus.OK)
 			{
 				gxsUpdateService.saveMessage(gxsMessageItem, this::onMessageReceived).ifPresent(savedMessages::add);
 			}
@@ -777,6 +772,45 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		if (!savedMessages.isEmpty())
 		{
 			onMessagesSaved(savedMessages);
+		}
+	}
+
+	private VerificationStatus verifyMessage(PeerConnection peerConnection, M gxsMessageItem)
+	{
+		if (gxsMessageItem.getAuthorSignature() == null)
+		{
+			log.warn("Missing author signature for message {}", gxsMessageItem);
+			return VerificationStatus.FAILED;
+		}
+
+		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsMessageItem.getAuthorId());
+		if (authorIdentity == null)
+		{
+			log.warn("Delaying verification of message {}", gxsMessageItem);
+			var existingDelay = pendingGxsMessages.putIfAbsent(gxsMessageItem, PENDING_VERIFICATION_MAX.toSeconds());
+			if (existingDelay != null)
+			{
+				var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
+				pendingGxsMessages.put(gxsMessageItem, newDelay);
+				if (newDelay < 0)
+				{
+					log.warn("Failed to validate group {}: timeout exceeded", gxsMessageItem);
+				}
+			}
+			return VerificationStatus.DELAYED;
+		}
+		else
+		{
+			if (validateMessage(gxsMessageItem, authorIdentity.getAdminPublicKey(), gxsMessageItem.getAuthorSignature()))
+			{
+				// XXX: check for reputation here, if reputation is too low, remove
+				return VerificationStatus.OK;
+			}
+			else
+			{
+				log.warn("Failed to validate message {}: wrong author signature", gxsMessageItem);
+				return VerificationStatus.FAILED;
+			}
 		}
 	}
 

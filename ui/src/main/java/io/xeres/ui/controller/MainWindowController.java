@@ -52,8 +52,6 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -76,8 +74,6 @@ import static io.xeres.ui.support.util.UiUtils.getWindow;
 @FxmlView(value = "/view/main.fxml")
 public class MainWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(MainWindowController.class);
-
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
 	private static final String XERES_FORUMS_URL = "https://github.com/zapek/Xeres/discussions";
@@ -368,6 +364,10 @@ public class MainWindowController implements WindowController
 								hashingDelayedDisplayAction.abort();
 								hashingStatus.setVisible(false);
 								hashingDelayedDisplayAction = null;
+							}
+							case NONE ->
+							{
+								// Nothing to do
 							}
 						}
 					}

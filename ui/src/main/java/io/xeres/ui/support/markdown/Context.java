@@ -163,8 +163,10 @@ class Context
 
 	/**
 	 * Currently removes trailing spaces and handles line feeds:
-	 * - one line feed makes the next line is a continuation
-	 * - two line feeds make a paragraph
+	 * <ul>
+	 * <li>one line feed makes the next line is a continuation
+	 * <li>two line feeds make a paragraph
+	 * </ul>
 	 */
 	private String sanitize(String input)
 	{
@@ -176,48 +178,64 @@ class Context
 		{
 			if (s.trim().isEmpty())
 			{
-				// One empty line is treated as a paragraph
-				if (skip != SANITIZE.EMPTY_LINES)
-				{
-					if (skip == SANITIZE.CONTINUATION_BREAK)
-					{
-						sb.append("\n\n");
-					}
-					else
-					{
-						sb.append("\n");
-					}
-					skip = SANITIZE.EMPTY_LINES;
-				}
+				skip = sanitizeEmptyLine(skip, sb);
 			}
 			else
 			{
-				// Normal break is treated as continuation
-				if (skip == SANITIZE.CONTINUATION_BREAK)
-				{
-					if (!options.contains(ParsingMode.PARAGRAPH) || (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* ")))
-					{
-						// Except quoted text
-						sb.append("\n");
-					}
-					else
-					{
-						sb.append(" ");
-					}
-				}
-				if (Stream.of("> ", ">>", "    ", "\t").anyMatch(s::startsWith))
-				{
-					// We don't process quoted text and code
-					skip = SANITIZE.NORMAL;
-					sb.append(s.stripTrailing()).append("\n");
-				}
-				else
-				{
-					sb.append(s.stripTrailing());
-					skip = SANITIZE.CONTINUATION_BREAK;
-				}
+				skip = sanitizeContinuation(s, skip, sb);
 			}
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Sanitize an empty line by treating it as a paragraph.
+	 */
+	private static SANITIZE sanitizeEmptyLine(SANITIZE skip, StringBuilder sb)
+	{
+		if (skip != SANITIZE.EMPTY_LINES)
+		{
+			if (skip == SANITIZE.CONTINUATION_BREAK)
+			{
+				sb.append("\n\n");
+			}
+			else
+			{
+				sb.append("\n");
+			}
+			skip = SANITIZE.EMPTY_LINES;
+		}
+		return skip;
+	}
+
+	/**
+	 * Sanitize a break by treating it as continuation.
+	 */
+	private SANITIZE sanitizeContinuation(String s, SANITIZE skip, StringBuilder sb)
+	{
+		if (skip == SANITIZE.CONTINUATION_BREAK)
+		{
+			if (!options.contains(ParsingMode.PARAGRAPH) || (s.stripIndent().startsWith("- ") || s.stripIndent().startsWith("* ")))
+			{
+				// Except quoted text
+				sb.append("\n");
+			}
+			else
+			{
+				sb.append(" ");
+			}
+		}
+		if (Stream.of("> ", ">>", "    ", "\t").anyMatch(s::startsWith))
+		{
+			// We don't process quoted text and code
+			sb.append(s.stripTrailing()).append("\n");
+			skip = SANITIZE.NORMAL;
+		}
+		else
+		{
+			sb.append(s.stripTrailing());
+			skip = SANITIZE.CONTINUATION_BREAK;
+		}
+		return skip;
 	}
 }

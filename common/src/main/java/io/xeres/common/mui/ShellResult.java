@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,23 +17,31 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui;
+package io.xeres.common.mui;
 
-import javafx.stage.Stage;
-import org.springframework.context.ApplicationEvent;
-
-public class StageReadyEvent extends ApplicationEvent
+public class ShellResult
 {
-	private final transient Stage stage;
+	ShellAction action;
+	String output;
 
-	public StageReadyEvent(Stage primaryStage)
+	public ShellResult(ShellAction action, String output)
 	{
-		super(primaryStage);
-		stage = primaryStage;
+		this.action = action;
+		this.output = output;
 	}
 
-	public Stage getStage()
+	public ShellResult(ShellAction action)
 	{
-		return stage;
+		this.action = action;
+	}
+
+	public ShellAction getAction()
+	{
+		return action;
+	}
+
+	public String getOutput()
+	{
+		return output;
 	}
 }

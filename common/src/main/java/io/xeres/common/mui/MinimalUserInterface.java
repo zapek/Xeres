@@ -23,6 +23,7 @@ import io.xeres.common.AppName;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * MUI: the Minimal User Interface.
@@ -33,9 +34,18 @@ import java.awt.*;
  */
 public final class MinimalUserInterface
 {
+	private static JFrame shellFrame;
+	private static JTextField textField;
+	private static Shell shell;
+
 	private MinimalUserInterface()
 	{
 		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static void setShell(Shell shell)
+	{
+		MinimalUserInterface.shell = shell;
 	}
 
 	public static void showInformation(String message)
@@ -55,5 +65,78 @@ public final class MinimalUserInterface
 		scrollPane.getViewport().setView(textArea);
 
 		JOptionPane.showMessageDialog(null, scrollPane, AppName.NAME + " Runtime Problem", JOptionPane.ERROR_MESSAGE);
+	}
+
+	public static void openShell()
+	{
+		if (shellFrame == null)
+		{
+			createShellFrame(shell);
+		}
+		shellFrame.setVisible(true);
+		shellFrame.toFront();
+		textField.requestFocus();
+	}
+
+	private static void createShellFrame(Shell shell)
+	{
+		var textArea = new JTextArea();
+		textArea.setEditable(false);
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
+		textArea.setMargin(new Insets(8, 8, 8, 8));
+		textArea.setFocusable(false);
+		textArea.setText("""
+				New Shell process 1
+				Type 'help' for more information.
+								
+				""");
+
+		var scrollPane = new JScrollPane(textArea);
+		scrollPane.setPreferredSize(new Dimension(640, 320));
+		scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+
+		textField = new JTextField();
+		textField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+		textField.addActionListener(e -> {
+			textField.setText("");
+			if (shell != null)
+			{
+				var result = shell.sendCommand(e.getActionCommand());
+				switch (result.getAction())
+				{
+					case UNKNOWN_COMMAND -> appendToTextArea(textArea, e.getActionCommand() + ": Unknown command");
+					case CLS -> textArea.setText("");
+					case EXIT -> closeShell();
+					case NO_OP -> appendToTextArea(textArea, "");
+					case SUCCESS -> appendToTextArea(textArea, result.getOutput());
+				}
+			}
+			else
+			{
+				appendToTextArea(textArea, "No shell interface available");
+			}
+		});
+
+		shellFrame = new JFrame(AppName.NAME + " Shell");
+		shellFrame.setIconImage(new ImageIcon(Objects.requireNonNull(MinimalUserInterface.class.getResource("/image/icon.png"))).getImage());
+		shellFrame.getContentPane().setLayout(new BoxLayout(shellFrame.getContentPane(), BoxLayout.Y_AXIS));
+		shellFrame.add(scrollPane);
+		shellFrame.add(textField);
+		shellFrame.pack();
+		shellFrame.setLocationRelativeTo(null);
+		shellFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+	}
+
+	private static void appendToTextArea(JTextArea textArea, String text)
+	{
+		textArea.append(text + "\n");
+		textArea.setCaretPosition(textArea.getDocument().getLength());
+	}
+
+	public static void closeShell()
+	{
+		shellFrame.setVisible(false);
+		shellFrame.dispose();
 	}
 }

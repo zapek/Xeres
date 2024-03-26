@@ -1,0 +1,177 @@
+/*
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.app.service;
+
+import io.xeres.common.mui.MinimalUserInterface;
+import io.xeres.common.mui.Shell;
+import io.xeres.common.mui.ShellResult;
+import jakarta.annotation.PreDestroy;
+import org.springframework.boot.DefaultApplicationArguments;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+import static io.xeres.common.mui.ShellAction.*;
+
+@Service
+public class ShellService implements Shell
+{
+	@Override
+	public ShellResult sendCommand(String input)
+	{
+		var args = new DefaultApplicationArguments(translateCommandline(input));
+
+		for (var arg : args.getNonOptionArgs())
+		{
+			return switch (arg)
+			{
+				case "help", "?" -> new ShellResult(SUCCESS, """
+						Available commands:
+						  - help: displays this help
+						  - clear: clears the screen
+						  - avail: shows the available memory
+						  - pwd: shows the current directory
+						  - uname: shows the operating system
+						  - exit: closes the shell
+						""");
+				case "exit", "endshell", "endcli" -> new ShellResult(EXIT);
+				case "clear", "cls" -> new ShellResult(CLS);
+				case "avail" -> getMemorySpecs();
+				case "pwd" -> getWorkingDirectory();
+				case "uname" -> getOperatingSystem();
+				default -> new ShellResult(UNKNOWN_COMMAND, arg);
+			};
+		}
+		return new ShellResult(NO_OP);
+	}
+
+	private ShellResult getMemorySpecs()
+	{
+		return new ShellResult(SUCCESS,
+				"Memory allocated for the JVM: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + " MB\n" +
+						"Maximum allocatable memory: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + " MB");
+	}
+
+	private ShellResult getWorkingDirectory()
+	{
+		return new ShellResult(SUCCESS, System.getProperty("user.dir"));
+	}
+
+	private ShellResult getOperatingSystem()
+	{
+		return new ShellResult(SUCCESS, System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")");
+	}
+
+	/**
+	 * [code borrowed from ant.jar]
+	 * Crack a command line.
+	 *
+	 * @param toProcess the command line to process.
+	 * @return the command line broken into strings.
+	 * An empty or null toProcess parameter results in a zero sized array.
+	 */
+	public static String[] translateCommandline(String toProcess)
+	{
+		if (toProcess == null || toProcess.isEmpty())
+		{
+			//no command? no string
+			return new String[0];
+		}
+		// parse with a simple finite state machine
+
+		final int normal = 0;
+		final int inQuote = 1;
+		final int inDoubleQuote = 2;
+		int state = normal;
+		final StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
+		final ArrayList<String> result = new ArrayList<>();
+		final StringBuilder current = new StringBuilder();
+		boolean lastTokenHasBeenQuoted = false;
+
+		while (tok.hasMoreTokens())
+		{
+			String nextTok = tok.nextToken();
+			switch (state)
+			{
+				case inQuote:
+					if ("'".equals(nextTok))
+					{
+						lastTokenHasBeenQuoted = true;
+						state = normal;
+					}
+					else
+					{
+						current.append(nextTok);
+					}
+					break;
+				case inDoubleQuote:
+					if ("\"".equals(nextTok))
+					{
+						lastTokenHasBeenQuoted = true;
+						state = normal;
+					}
+					else
+					{
+						current.append(nextTok);
+					}
+					break;
+				default:
+					if ("'".equals(nextTok))
+					{
+						state = inQuote;
+					}
+					else if ("\"".equals(nextTok))
+					{
+						state = inDoubleQuote;
+					}
+					else if (" ".equals(nextTok))
+					{
+						if (lastTokenHasBeenQuoted || !current.isEmpty())
+						{
+							result.add(current.toString());
+							current.setLength(0);
+						}
+					}
+					else
+					{
+						current.append(nextTok);
+					}
+					lastTokenHasBeenQuoted = false;
+					break;
+			}
+		}
+		if (lastTokenHasBeenQuoted || !current.isEmpty())
+		{
+			result.add(current.toString());
+		}
+		if (state == inQuote || state == inDoubleQuote)
+		{
+			throw new RuntimeException("unbalanced quotes in " + toProcess);
+		}
+		return result.toArray(new String[0]);
+	}
+
+	@PreDestroy
+	private void cleanup()
+	{
+		MinimalUserInterface.closeShell();
+	}
+}

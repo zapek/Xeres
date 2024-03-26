@@ -57,7 +57,7 @@ public final class CommandArgument
 	 */
 	public static void parse(String[] args)
 	{
-		ApplicationArguments appArgs = new DefaultApplicationArguments(args);
+		var appArgs = new DefaultApplicationArguments(args);
 
 		for (var arg : appArgs.getNonOptionArgs())
 		{

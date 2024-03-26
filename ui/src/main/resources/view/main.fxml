@@ -227,6 +227,11 @@
                             <FontIcon iconLiteral="fas-list"/>
                         </graphic>
                     </MenuItem>
+                    <MenuItem fx:id="openShell" text="Shell">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-terminal"/>
+                        </graphic>
+                    </MenuItem>
                 </Menu>
             </Menu>
         </MenuBar>

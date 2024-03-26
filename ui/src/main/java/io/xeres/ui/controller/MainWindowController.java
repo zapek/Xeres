@@ -20,6 +20,7 @@
 package io.xeres.ui.controller;
 
 import io.xeres.common.dto.identity.IdentityConstants;
+import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rsid.Type;
@@ -139,6 +140,9 @@ public class MainWindowController implements WindowController
 
 	@FXML
 	private MenuItem systemProperties;
+
+	@FXML
+	private MenuItem openShell;
 
 	@FXML
 	private ReadOnlyTextField shortId;
@@ -266,6 +270,7 @@ public class MainWindowController implements WindowController
 			runGc.setOnAction(event -> System.gc());
 			h2Console.setOnAction(event -> JavaFxApplication.openUrl(JavaFxApplication.getControlUrl() + "/h2-console"));
 			systemProperties.setOnAction(event -> windowManager.openSystemProperties(getWindow(event)));
+			openShell.setOnAction(event -> MinimalUserInterface.openShell());
 		}
 
 		exitApplication.setOnAction(event ->

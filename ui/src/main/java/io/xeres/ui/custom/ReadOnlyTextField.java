@@ -31,7 +31,7 @@ import java.util.List;
  * <p>
  * <ul>
  * <li>explanatory look
- * <li>automatic selection when clicking for easy cut & pasting
+ * <li>automatic selection when clicking for easy cut &amp; pasting
  * <li>context menu to disable the selection
  * </ul>
  */

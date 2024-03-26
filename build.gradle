@@ -33,14 +33,14 @@ buildscript {
 
 plugins {
     id 'org.springframework.boot' version '3.2.4' apply false
-    id 'org.flywaydb.flyway' version '9.5.1' apply false // Keep the version in sync with spring-boot from time to time
+    id 'org.flywaydb.flyway' version '9.22.3' apply false // Keep the version in sync with spring-boot from time to time
     id 'org.panteleyev.jpackageplugin' version '1.6.0' apply false
-    id 'org.sonarqube' version '4.4.1.3373'
+    id 'org.sonarqube' version '5.0.0.4638'
 }
 
 // To upgrade Gradle, change the version here, refresh, then run the 'wrapper' task
 wrapper {
-    gradleVersion = '8.6'
+    gradleVersion = '8.7'
 }
 
 subprojects {

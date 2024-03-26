@@ -142,8 +142,8 @@ public final class IP
 
 	/**
 	 * Tries its best to get the local IP address, without requiring an external
-	 * server. Should work at all times unless the host has no TCP/IP stack.</br>
-	 * If the host has no internet access, then 127.0.0.1 is used.
+	 * server. Should work at all times unless the host has no TCP/IP stack.
+	 * <p>If the host has no internet access, then 127.0.0.1 is used.
 	 *
 	 * @return the local IP address or null
 	 */

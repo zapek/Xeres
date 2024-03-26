@@ -23,6 +23,7 @@ import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
 
 /**
+ * The list of country codes.
  * @see <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">Wikipedia ISO-3166-1 Alpha 2</a>
  */
 public enum Country implements I18nEnum

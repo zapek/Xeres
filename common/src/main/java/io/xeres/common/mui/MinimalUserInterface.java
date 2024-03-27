@@ -36,6 +36,7 @@ public final class MinimalUserInterface
 {
 	private static JFrame shellFrame;
 	private static JTextField textField;
+	private static JTextArea textArea;
 	private static Shell shell;
 
 	private MinimalUserInterface()
@@ -73,24 +74,26 @@ public final class MinimalUserInterface
 		{
 			createShellFrame(shell);
 		}
-		shellFrame.setVisible(true);
+		if (!shellFrame.isVisible())
+		{
+			textArea.setText("""
+					New Shell process 1
+					Type 'help' for more information.
+					""");
+			textField.setText("");
+			shellFrame.setVisible(true);
+		}
 		shellFrame.toFront();
 		textField.requestFocus();
 	}
 
 	private static void createShellFrame(Shell shell)
 	{
-		var textArea = new JTextArea();
+		textArea = new JTextArea();
 		textArea.setEditable(false);
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
 		textArea.setMargin(new Insets(8, 8, 8, 8));
-		textArea.setFocusable(false);
-		textArea.setText("""
-				New Shell process 1
-				Type 'help' for more information.
-								
-				""");
 
 		var scrollPane = new JScrollPane(textArea);
 		scrollPane.setPreferredSize(new Dimension(640, 320));

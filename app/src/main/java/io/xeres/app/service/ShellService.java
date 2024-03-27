@@ -27,6 +27,7 @@ import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import static io.xeres.common.mui.ShellAction.*;
@@ -38,10 +39,11 @@ public class ShellService implements Shell
 	public ShellResult sendCommand(String input)
 	{
 		var args = new DefaultApplicationArguments(translateCommandline(input));
+		var arg = args.getNonOptionArgs().getFirst();
 
-		for (var arg : args.getNonOptionArgs())
+		if (arg != null)
 		{
-			return switch (arg)
+			return switch (arg.toLowerCase(Locale.ROOT))
 			{
 				case "help", "?" -> new ShellResult(SUCCESS, """
 						Available commands:
@@ -50,13 +52,14 @@ public class ShellService implements Shell
 						  - avail: shows the available memory
 						  - pwd: shows the current directory
 						  - uname: shows the operating system
-						  - exit: closes the shell
-						""");
+						  - exit: closes the shell""");
 				case "exit", "endshell", "endcli" -> new ShellResult(EXIT);
 				case "clear", "cls" -> new ShellResult(CLS);
-				case "avail" -> getMemorySpecs();
-				case "pwd" -> getWorkingDirectory();
+				case "avail", "free" -> getMemorySpecs();
+				case "pwd", "cd" -> getWorkingDirectory();
 				case "uname" -> getOperatingSystem();
+				case "gc" -> runGc();
+				case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
 				default -> new ShellResult(UNKNOWN_COMMAND, arg);
 			};
 		}
@@ -78,6 +81,12 @@ public class ShellService implements Shell
 	private ShellResult getOperatingSystem()
 	{
 		return new ShellResult(SUCCESS, System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")");
+	}
+
+	private ShellResult runGc()
+	{
+		System.gc();
+		return new ShellResult(SUCCESS, "Done");
 	}
 
 	/**

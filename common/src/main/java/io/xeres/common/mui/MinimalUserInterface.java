@@ -139,7 +139,10 @@ public final class MinimalUserInterface
 
 	public static void closeShell()
 	{
-		shellFrame.setVisible(false);
-		shellFrame.dispose();
+		if (shellFrame != null)
+		{
+			shellFrame.setVisible(false);
+			shellFrame.dispose();
+		}
 	}
 }

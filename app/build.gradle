@@ -53,6 +53,7 @@ plugins {
     id 'org.flywaydb.flyway'
     id 'jacoco'
     id 'org.panteleyev.jpackageplugin'
+    //id 'org.graalvm.buildtools.native'
 }
 
 
@@ -72,6 +73,19 @@ bootRun {
     bootRun.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
     bootRun.systemProperty 'spring.profiles.active', 'dev'
 }
+
+//processAot {
+//    processAot.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
+//    processAot.systemProperty 'xrs.ui.enabled', 'false'
+//}
+//
+//graalvmNative {
+//    binaries.all {
+//        buildArgs.add("-H:+AddAllCharsets") // net.harawata:appdirs requires Windows' charset for the path
+//        sharedLibrary = false
+//        runtimeArgs.add("-D\"xrs.ui.enabled=false\"")
+//    }
+//}
 
 springBoot {
     buildInfo {

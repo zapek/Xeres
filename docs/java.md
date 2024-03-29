@@ -4,10 +4,10 @@ First, consider sticking to LTS unless there's a very desired feature or an impo
 
 - make sure there's a Temurin release (https://adoptium.net/temurin/releases/)
 - make sure IntelliJ supports it (https://www.jetbrains.com/help/idea/supported-java-versions.html although this page is often wrong)
-- make sure Gradle supports it in its toolchain mode (its normal mode is hopeless since they started adding Kotlin, also Kotlin frequently lags behind JDK releases)
+- make sure Gradle supports it (without using toolchains)
 - download the latest _Temurin_ release in IntelliJ
 - switch the project SDK to it
-- change the java toolchain version in the root build.gradle
+- change the sourceCompatibility in the root build.gradle
 - run all tests and make a dry run
 - change the java version in .github/workflows
 - change the java references in the root README

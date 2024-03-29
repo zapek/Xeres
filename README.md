@@ -60,7 +60,7 @@ Latest release always available [here](https://github.com/zapek/Xeres/releases/l
 
 ### Build Requirements
 
-- Java 17 or higher so that Gradle can bootstrap the rest (Xeres itself uses Java 21)
+- Java 21
 
 If you want to quickly try the current development version without installing anything else, see the [command line](#command-line) section below.
 
@@ -90,7 +90,7 @@ Run the Gradle ``bootRun`` target. It's in the top right _Gradle_ panel, Tasks /
 
 	./gradlew bootRun
 
-To pass arugments to Xeres, just use the args feature, for example:
+To pass arguments to Xeres, just use the args feature, for example:
 
 	./gradlew bootRun --args="--no-gui --fast-shutdown"
 

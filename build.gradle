@@ -52,10 +52,7 @@ subprojects {
     apply plugin: 'java-library'
 
     java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
-            vendor = JvmVendorSpec.ADOPTIUM
-        }
+        sourceCompatibility = '21'
     }
 
     repositories {

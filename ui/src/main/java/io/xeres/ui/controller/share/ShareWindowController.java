@@ -145,7 +145,7 @@ public class ShareWindowController implements WindowController
 		});
 
 		tableBrowsable.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getBrowsable()));
-		tableBrowsable.setCellFactory(ChoiceBoxTableCell.forTableColumn(Trust.values()));
+		tableBrowsable.setCellFactory(ChoiceBoxTableCell.forTableColumn(new TrustConverter(), Trust.values()));
 		tableBrowsable.setOnEditCommit(param -> getCurrentItem(param).setBrowsable(param.getNewValue()));
 
 		addButton.setOnAction(event -> {

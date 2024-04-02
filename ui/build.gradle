@@ -18,26 +18,12 @@
  */
 
 plugins {
-    id 'org.springframework.boot'
     id 'org.openjfx.javafxplugin' version '0.0.14'
-    id 'jacoco'
 }
 
 javafx {
     version = "21.0.1"
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']
-}
-
-bootJar {
-    enabled = false
-}
-
-bootRun {
-    enabled = false
-}
-
-jar {
-    enabled = true
 }
 
 test {

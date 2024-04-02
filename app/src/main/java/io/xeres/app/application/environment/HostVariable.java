@@ -76,7 +76,7 @@ public final class HostVariable
 			setPort(XERES_CONTROL_PORT, CONTROL_PORT, s);
 			setPort(XERES_CONTROL_PORT, UI_PORT, s);
 		});
-		get(XERES_SERVER_PORT).ifPresent(s -> setString(XERES_SERVER_ADDRESS, SERVER_ADDRESS, s));
+		get(XERES_SERVER_ADDRESS).ifPresent(s -> setString(XERES_SERVER_ADDRESS, SERVER_ADDRESS, s));
 		get(XERES_SERVER_PORT).ifPresent(s -> setPort(XERES_SERVER_PORT, SERVER_PORT, s));
 	}
 

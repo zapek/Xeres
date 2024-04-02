@@ -207,6 +207,11 @@ public class NetworkService
 	@Scheduled(initialDelay = 2, fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
 	void checkIp()
 	{
+		if (!locationService.hasOwnLocation())
+		{
+			return;
+		}
+
 		var newLocalIpAddress = IP.getLocalIpAddress();
 		if (newLocalIpAddress == null)
 		{

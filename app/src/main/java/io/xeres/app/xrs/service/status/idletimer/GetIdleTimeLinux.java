@@ -64,6 +64,10 @@ public class GetIdleTimeLinux implements GetIdleTime
 			Xss.INSTANCE.XScreenSaverQueryInfo(display, window, xScreenSaverInfo);
 			idleMillis = xScreenSaverInfo.idle.longValue();
 		}
+		catch (NoClassDefFoundError | UnsatisfiedLinkError e)
+		{
+			// No X11 library (console-only). There's no way to get idle time then.
+		}
 		finally
 		{
 			if (display != null)

@@ -18,26 +18,12 @@
  */
 
 plugins {
-    id 'org.springframework.boot'
-    id 'jacoco'
     id 'java-test-fixtures'
 }
 
 test {
     useJUnitPlatform()
     test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8"
-}
-
-bootJar {
-    enabled = false
-}
-
-bootRun {
-    enabled = false
-}
-
-jar {
-    enabled = true
 }
 
 jacocoTestReport {

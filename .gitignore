@@ -1,9 +1,12 @@
 /data*/
 /.idea/
+/.vscode/
 /.gradle/
 ./jpb/
-/out/
+/*/build/
 /build/
+/*/out/
+/*/bin/
 .xeres.lock
 /.jpb/persistence-units.xml
 .run/XeresApplication.run.xml

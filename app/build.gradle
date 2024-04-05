@@ -90,11 +90,11 @@ test {
 tasks.register('copyInstaller', Copy) {
     from "${parent.rootDir}/installer"
     include "*"
-    into "${project.buildDir}/${project.libsDirName}"
+    into "${project.layout.buildDirectory}/${project.libsDirName}"
 }
 
 tasks.register('deleteLibs', Delete) {
-    delete "${project.buildDir}/${project.libsDirName}/"
+    delete "${project.layout.buildDirectory}/${project.libsDirName}/"
 }
 
 bootBuildImage {
@@ -111,8 +111,8 @@ jpackage {
     vendor = "David Gerber"
     copyright = "Copyright 2019-2023 by David Gerber. All Rights Reserved"
     appDescription = parent.project.name
-    input = "${project.buildDir}/${project.libsDirName}"
-    destination = "${project.buildDir}/dist"
+    input = "${project.layout.buildDirectory}/${project.libsDirName}"
+    destination = "${project.layout.buildDirectory}/dist"
     mainClass = "org.springframework.boot.loader.launch.JarLauncher"
     mainJar = "app-${project.version}.jar"
     licenseFile = "${parent.rootDir}/LICENSE"
@@ -124,7 +124,8 @@ jpackage {
                    '-Dlogging.file.name=xeres.log',
                    '-Dlogging.logback.rollingpolicy.clean-history-on-start=true',
                    '-Dlogging.logback.rollingpolicy.max-file-size=1MB',
-                   '-Dlogging.logback.rollingpolicy.max-history=3']
+                   '-Dlogging.logback.rollingpolicy.max-history=3',
+                   '-Dspring.output.ansi.enabled=never']
     if (project.hasProperty("jpackage.msi")) {
         type = ImageType.MSI
     } else if (project.hasProperty("jpackage.rpm")) {

@@ -21,13 +21,14 @@ plugins {
 }
 
 develocity {
-    if (System.getenv("CI")) {
-        buildScan {
-            termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
-            termsOfUseUrl = "yes"
-            tag "CI"
-            uploadInBackground = false
+    buildScan {
+        publishing.onlyIf {
+            System.getenv("CI")
         }
+        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+        termsOfUseUrl = "yes"
+        tag "CI"
+        uploadInBackground = false
     }
 }
 

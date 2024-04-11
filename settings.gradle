@@ -17,17 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 plugins {
-    id 'com.gradle.develocity' version '3.17'
+    id 'com.gradle.develocity' version '3.17.1'
 }
 
 develocity {
-    if (System.getenv("CI")) {
-        buildScan {
-            termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
-            termsOfUseUrl = "yes"
-            tag "CI"
-            uploadInBackground = false
+    buildScan {
+        publishing.onlyIf {
+            System.getenv("CI")
         }
+        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+        termsOfUseUrl = "yes"
+        tag "CI"
+        uploadInBackground = false
     }
 }
 

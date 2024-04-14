@@ -37,6 +37,7 @@ import io.xeres.app.service.NetworkService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.ShellService;
 import io.xeres.app.service.file.FileService;
+import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.identity.IdentityManager;
@@ -82,8 +83,9 @@ public class Startup implements ApplicationRunner
 	private final RsServiceRegistry rsServiceRegistry;
 	private final FileService fileService;
 	private final ShellService shellService;
+	private final FileNotificationService fileNotificationService;
 
-	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry, FileService fileService, ShellService shellService)
+	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry, FileService fileService, ShellService shellService, FileNotificationService fileNotificationService)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -101,6 +103,7 @@ public class Startup implements ApplicationRunner
 		this.rsServiceRegistry = rsServiceRegistry;
 		this.fileService = fileService;
 		this.shellService = shellService;
+		this.fileNotificationService = fileNotificationService;
 	}
 
 	@Override
@@ -139,10 +142,10 @@ public class Startup implements ApplicationRunner
 	/**
 	 * Called when the application setup is ready (aka we have a location).
 	 *
-	 * @param event the LocationReadyEvent
+	 * @param ignoredEvent the LocationReadyEvent
 	 */
 	@EventListener
-	public void onApplicationEvent(LocationReadyEvent event)
+	public void onApplicationEvent(LocationReadyEvent ignoredEvent)
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
@@ -161,7 +164,7 @@ public class Startup implements ApplicationRunner
 	}
 
 	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
-	public void onApplicationEvent(ContextClosedEvent event)
+	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
 		backupUserData();
 
@@ -170,6 +173,7 @@ public class Startup implements ApplicationRunner
 		peerConnectionManager.shutdown();
 
 		statusNotificationService.shutdown();
+		fileNotificationService.shutdown();
 
 		networkService.stop();
 	}

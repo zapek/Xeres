@@ -23,20 +23,30 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.service.RsServiceSlave;
 import io.xeres.common.id.Sha1Sum;
 
+import java.util.List;
+
 public interface TurtleRsClient extends RsServiceSlave
 {
 	/**
-	 * @param sender
-	 * @param hash
-	 * @return true if found
+	 * Asks if this hash can be handled. It usually boils down to searching it in some database or list.
+	 * @param sender the peer where it comes from
+	 * @param hash the hash
+	 * @return true if it can be handled, false otherwise
 	 */
 	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash);
 
 	void receiveTurtleData(); // XXX: args
 
-	boolean receiveSearchRequest(); // XXX: args
+	/**
+	 * Asks to search something.
+	 *
+	 * @param query   the search query
+	 * @param maxHits the maximum number of hits to send back
+	 * @return the search results
+	 */
+	List<byte[]> receiveSearchRequest(byte[] query, int maxHits); // XXX: return a list of results (TurtleFileInfoV2.. actually it's generic stuff so service dependent)
 
-	void receiveSearchResult(); // XXX: args
+	void receiveSearchResult(int requestId, byte[] searchData); // XXX: args
 
 	void addVirtualPeer(); // XXX: args
 

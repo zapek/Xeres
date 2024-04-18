@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.turtle;
 
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.service.RsServiceSlave;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 
 import java.util.List;
@@ -48,7 +49,7 @@ public interface TurtleRsClient extends RsServiceSlave
 
 	void receiveSearchResult(int requestId, byte[] searchData); // XXX: args
 
-	void addVirtualPeer(); // XXX: args
+	void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId); // XXX: add direction
 
-	void removeVirtualPeer(); // XXX: args
+	void removeVirtualPeer(Sha1Sum hash, LocationId virtualLocationId); // XXX: args
 }

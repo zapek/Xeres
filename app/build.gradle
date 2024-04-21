@@ -90,11 +90,12 @@ test {
 tasks.register('copyInstaller', Copy) {
     from "${parent.rootDir}/installer"
     include "*"
-    into "${project.layout.buildDirectory}/${project.libsDirName}"
+    into "${project.buildDir}/${project.libsDirName}"
+    doNotTrackState("Copying installation file need to re-run every time")
 }
 
 tasks.register('deleteLibs', Delete) {
-    delete "${project.layout.buildDirectory}/${project.libsDirName}/"
+    delete "${project.buildDir}/${project.libsDirName}/"
 }
 
 bootBuildImage {
@@ -111,8 +112,8 @@ jpackage {
     vendor = "David Gerber"
     copyright = "Copyright 2019-2023 by David Gerber. All Rights Reserved"
     appDescription = parent.project.name
-    input = "${project.layout.buildDirectory}/${project.libsDirName}"
-    destination = "${project.layout.buildDirectory}/dist"
+    input = "${project.buildDir}/${project.libsDirName}"
+    destination = "${project.buildDir}/dist"
     mainClass = "org.springframework.boot.loader.launch.JarLauncher"
     mainJar = "app-${project.version}.jar"
     licenseFile = "${parent.rootDir}/LICENSE"

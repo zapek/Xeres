@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -16,23 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
-plugins {
-    id 'com.gradle.develocity' version '3.17.2'
-}
 
-develocity {
-    buildScan {
-        publishing.onlyIf {
-            System.getenv("CI") != null
-        }
-        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
-        termsOfUseUrl = "yes"
-        tag "CI"
-        uploadInBackground = false
-    }
-}
+package io.xeres.app.xrs.service.turtle;
 
-rootProject.name = 'Xeres'
-include 'ui'
-include 'app'
-include 'common'
+import io.xeres.common.id.LocationId;
+
+public final class VirtualLocationId
+{
+	public static LocationId fromTunnel(int tunnelId)
+	{
+		var buf = new byte[LocationId.LENGTH];
+
+		for (var i = 0; i < 4; ++i)
+		{
+			buf[i] = (byte) ((tunnelId >> ((3 - i) * 8)) & 0xff); // XXX: check sign
+		}
+		return new LocationId(buf);
+	}
+}

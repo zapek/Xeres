@@ -407,7 +407,7 @@ public class UPNPService implements Runnable
 
 	private boolean findExternalIpAddress()
 	{
-		try (var session = new DatabaseSession(databaseSessionManager))
+		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var externalIpAddress = device.getExternalIpAddress();
 			if (IP.isPublicIp(externalIpAddress))

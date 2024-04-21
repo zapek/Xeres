@@ -171,7 +171,25 @@ class ProfileControllerTest extends AbstractControllerTest
 				.andExpect(header().string("Location", "http://localhost" + PROFILES_PATH + "/" + expected.getId()));
 
 		verify(profileService).createOrUpdateProfile(any(Profile.class));
-		verify(peerConnectionJob).connectImmediately(expected.getLocations().get(0), 1);
+		verify(peerConnectionJob).connectImmediately(expected.getLocations().getFirst(), 1);
+	}
+
+	@Test
+	void ProfileController_CreateProfile_ShortInvite_WithTrustInMixedCaseAndConnectionIndex_OK() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 1);
+		expected.addLocation(LocationFakes.createLocation("test", expected));
+		var profileRequest = new RsIdRequest(RSIdFakes.createShortInvite().getArmored());
+
+		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
+		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));
+
+		mvc.perform(postJson(BASE_URL + "?trust=Full&connectionIndex=1", profileRequest))
+				.andExpect(status().isCreated())
+				.andExpect(header().string("Location", "http://localhost" + PROFILES_PATH + "/" + expected.getId()));
+
+		verify(profileService).createOrUpdateProfile(any(Profile.class));
+		verify(peerConnectionJob).connectImmediately(expected.getLocations().getFirst(), 1);
 	}
 
 	@Test

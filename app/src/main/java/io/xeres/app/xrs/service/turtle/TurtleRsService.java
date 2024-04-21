@@ -143,9 +143,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (client.isPresent())
 		{
-			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), generateTunnelId(item, tunnelProbability.getBias(), false));
+			var tunnelId = generateTunnelId(item, tunnelProbability.getBias(), false);
+			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), tunnelId);
 			peerConnectionManager.writeItem(sender, resultItem, this);
-			// XXX: store the opened tunnel somewhere! also we added a distant peer, etc... (p3turtle.cc/1687)
+
+			client.get().addVirtualPeer(item.getFileHash(), VirtualLocationId.fromTunnel(tunnelId));
+			// XXX: store the opened tunnel somewhere! also we need to store the tunnel, etc... (p3turtle.cc/1687)
 			return;
 		}
 

@@ -11,3 +11,4 @@
 .xeres.lock
 /.jpb/persistence-units.xml
 .run/XeresApplication.run.xml
+/scripts/bot/config.json

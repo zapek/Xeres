@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -16,23 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
-plugins {
-    id 'com.gradle.develocity' version '3.17.2'
-}
 
-develocity {
-    buildScan {
-        publishing.onlyIf {
-            System.getenv("CI") != null
-        }
-        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
-        termsOfUseUrl = "yes"
-        tag "CI"
-        uploadInBackground = false
-    }
-}
+package io.xeres.app.configuration;
 
-rootProject.name = 'Xeres'
-include 'ui'
-include 'app'
-include 'common'
+import org.springframework.boot.convert.ApplicationConversionService;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+/**
+ * This configuration makes sure that enums in web parameters don't require
+ * to be in uppercase.
+ */
+@Configuration
+public class EnumMappingConfiguration implements WebMvcConfigurer
+{
+	@Override
+	public void addFormatters(FormatterRegistry registry)
+	{
+		ApplicationConversionService.configure(registry);
+	}
+}

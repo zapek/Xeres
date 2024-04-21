@@ -20,12 +20,11 @@
 
 import json
 import os
-import time
-from urllib.parse import urlparse
-
 import requests
 import stomp
+import time
 from cachetools import TTLCache
+from urllib.parse import urlparse
 
 try:
 	with open('config.json') as config_file:
@@ -45,6 +44,7 @@ ROOM_NAMES = config['xeres']['room_names']
 
 OPENAI_URL = config['openai']['api_url']
 TEMPERATURE = config['openai']['temperature']
+MODEL = config['openai']['model'] if 'model' in config['openai'] else None
 PROMPT = config['openai']['prompt']
 AVATAR = "avatar.png"
 
@@ -170,9 +170,8 @@ def connect_and_subscribe(conn):
 
 
 class StompListener(stomp.ConnectionListener):
-	def __init__(self, conn, own_profile, own_id):
+	def __init__(self, conn, own_id):
 		self.conn = conn
-		self.own_profile = own_profile
 		self.own_id = own_id
 
 	def on_error(self, frame):
@@ -192,7 +191,6 @@ class StompListener(stomp.ConnectionListener):
 			                             data['content'])
 		elif headers['messageType'] == "CHAT_PRIVATE_MESSAGE":
 			handle_incoming_private_message(self.conn,
-			                                self.own_profile,
 			                                self.own_id,
 			                                headers['destinationId'],
 			                                data['content'])
@@ -201,9 +199,9 @@ class StompListener(stomp.ConnectionListener):
 		print('disconnected')
 
 
-def handle_chat(own_profile, own_id):
+def handle_chat(own_id):
 	conn = stomp.WSStompConnection([(XERES_API_HOST, XERES_API_PORT)], ws_path='/ws')
-	conn.set_listener('', StompListener(conn, own_profile, own_id))
+	conn.set_listener('', StompListener(conn, own_id))
 	connect_and_subscribe(conn)
 	while True:
 		time.sleep(60)
@@ -225,7 +223,7 @@ def handle_incoming_room_message(conn, own_id, destination_id, room_id, sender, 
 
 	# print(f"Handling message from {sender} in {room_id}: {content}")
 
-	content = openai_api_send(content, own_id['name'], sender, gxs_sender)
+	content = openai_api_send(content, own_id['name'], sender, gxs_sender, lambda: send_chat_room_typing_notification(conn, own_id, destination_id, room_id))
 
 	conn.send(destination="/app/api/v1/chat",
 	          content_type="application/json",
@@ -234,20 +232,40 @@ def handle_incoming_room_message(conn, own_id, destination_id, room_id, sender, 
 	          body=json.dumps({"roomId": room_id,
 	                           "senderNickname": PROFILE_NAME,
 	                           "gxsId": {"bytes": f"{own_id['gxsId']['bytes']}"},
-	                           "content": f"{sender}: {content}",
-	                           "empty": False})
+	                           "content": f"{sender}: {content}"})
 	          )
 
 
-def handle_incoming_private_message(conn, own_profile, own_id, destination_id, content):
-	content = openai_api_send(content, own_id['name'], own_profile['name'], destination_id)
+def handle_incoming_private_message(conn, own_id, destination_id, content):
+	# user is not really the destination_id, we should fetch it
+	content = openai_api_send(content, own_id['name'], destination_id, destination_id, lambda: send_private_typing_notification(conn, destination_id))
 
 	conn.send(destination="/app/api/v1/chat",
 	          content_type="application/json",
 	          headers={"messageType": "CHAT_PRIVATE_MESSAGE",
 	                   "destinationId": f"{destination_id}"},
-	          body=json.dumps({"content": f"{content}",
-	                           "empty": False})
+	          body=json.dumps({"content": f"{content}"})
+	          )
+
+
+def send_chat_room_typing_notification(conn, own_id, destination_id, room_id):
+	conn.send(destination="/app/api/v1/chat",
+	          content_type="application/json",
+	          headers={"messageType": "CHAT_ROOM_TYPING_NOTIFICATION",
+	                   "destinationId": f"{destination_id}"},
+	          body=json.dumps({"roomId": room_id,
+	                           "senderNickname": PROFILE_NAME,
+	                           "gxsId": {"bytes": f"{own_id['gxsId']['bytes']}"},
+	                           "content": ""})
+	          )
+
+
+def send_private_typing_notification(conn, destination_id):
+	conn.send(destination="/app/api/v1/chat",
+	          content_type="application/json",
+	          headers={"messageType": "CHAT_TYPING_NOTIFICATION",
+	                   "destinationId": f"{destination_id}"},
+	          body=json.dumps({"content": ""})
 	          )
 
 
@@ -277,8 +295,12 @@ def create_query_for_openai_api(prompt, messages):
 				"content": f"{prompt}"
 			}
 		],
-		"temperature": TEMPERATURE
+		"temperature": TEMPERATURE,
+		"stream": True
 	}
+
+	if MODEL:
+		model['model'] = MODEL
 
 	idx = 0
 
@@ -293,8 +315,11 @@ def create_query_for_openai_api(prompt, messages):
 
 
 # user_id can be gxs or location_id, doesn't matter, it's for the cache
-def openai_api_send(message, assistant, user, user_id):
+def openai_api_send(message, assistant, user, user_id, _callback=None):
 	print(f"<{user}> {assistant}: {message}")
+
+	start = time.time()
+	_callback()
 
 	messages = get_cache_messages(user_id)
 	messages.append(message)
@@ -304,11 +329,26 @@ def openai_api_send(message, assistant, user, user_id):
 	query = create_query_for_openai_api(prompt, messages)
 	# print(f"Query: {query}")
 
-	r = requests.post(OPENAI_URL, json=query)
+	r = requests.post(OPENAI_URL, json=query, stream=True)
 	if r.status_code != 200:
-		raise RuntimeError("Couldn't send message to openai API server")
+		raise RuntimeError(f"Couldn't send message to openai API server ({r.status_code}): {r.text}")
 
-	response = strip_nickname_prefix(json.loads(r.text)['choices'][0]['message']['content'], assistant)  # idiot AI sometimes inserts itself in the reply
+	output = ""
+
+	for line in r.iter_lines():
+		if line:
+			line = line.decode("utf-8")
+			if line == "data: [DONE]":
+				break
+			line = remove_prefix(line, "data: ")
+			o = json.loads(line)
+			if 'content' in o['choices'][0]['delta']:
+				output += o['choices'][0]['delta']['content']
+			if _callback and time.time() - start > 5.0:
+				_callback()
+				start = time.time()
+
+	response = strip_nickname_prefix(output, assistant)  # idiot AI sometimes inserts itself in the reply
 
 	print(f"<{assistant}> {user}: {response}")
 
@@ -318,18 +358,24 @@ def openai_api_send(message, assistant, user, user_id):
 	return response
 
 
+def remove_prefix(text, prefix):
+	if text.startswith(prefix):
+		return text[len(prefix):]
+	return text
+
+
 if not has_profile():
 	create_profile()
 	create_location()
 	create_identity()
 	if os.path.isfile(AVATAR):
 		upload_avatar(AVATAR)
-	for friend in FRIEND_IDS:
-		add_friend(friend)
+
+for friend in FRIEND_IDS:
+	add_friend(friend)
 
 print("Xeres Bot v1.0\n")
 
-own_profile = get_own_profile()
 own_id = get_own_identity()
 print(f"I am {own_id.get('name')}")
 print(f"This is my RS ID (paste it in friends I have to connect to):\n{get_own_rsid()}")
@@ -337,4 +383,4 @@ print(f"This is my RS ID (paste it in friends I have to connect to):\n{get_own_r
 synchronize_chatrooms(ROOM_NAMES)
 print("Ready and awaiting to be addressed to.")
 
-handle_chat(own_profile, own_id)
+handle_chat(own_id)

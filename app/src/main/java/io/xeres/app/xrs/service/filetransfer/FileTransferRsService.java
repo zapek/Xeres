@@ -26,8 +26,11 @@ import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static io.xeres.app.xrs.service.RsServiceType.FILE_TRANSFER;
 
@@ -80,25 +83,25 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public boolean receiveSearchRequest()
+	public List<byte[]> receiveSearchRequest(byte[] query, int maxHits)
 	{
-		return false;
+		return List.of();
 	}
 
 	@Override
-	public void receiveSearchResult()
-	{
-
-	}
-
-	@Override
-	public void addVirtualPeer()
+	public void receiveSearchResult(int requestId, byte[] searchData)
 	{
 
 	}
 
 	@Override
-	public void removeVirtualPeer()
+	public void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId)
+	{
+
+	}
+
+	@Override
+	public void removeVirtualPeer(Sha1Sum hash, LocationId virtualLocationId)
 	{
 
 	}

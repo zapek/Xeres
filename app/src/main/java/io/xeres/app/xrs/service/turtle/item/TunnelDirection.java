@@ -17,25 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle;
+package io.xeres.app.xrs.service.turtle.item;
 
-import io.xeres.common.id.LocationId;
-
-public final class VirtualLocationId
+public enum TunnelDirection
 {
-	private VirtualLocationId()
-	{
-		throw new UnsupportedOperationException("Utility class");
-	}
-
-	public static LocationId fromTunnel(int tunnelId)
-	{
-		var buf = new byte[LocationId.LENGTH];
-
-		for (var i = 0; i < 4; ++i)
-		{
-			buf[i] = (byte) ((tunnelId >> ((3 - i) * 8)) & 0xff); // XXX: check sign
-		}
-		return new LocationId(buf);
-	}
+	CLIENT,
+	SERVER
 }

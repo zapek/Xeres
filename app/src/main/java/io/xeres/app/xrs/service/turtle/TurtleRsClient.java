@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.turtle;
 
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.service.RsServiceSlave;
+import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 
@@ -36,7 +37,7 @@ public interface TurtleRsClient extends RsServiceSlave
 	 */
 	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash);
 
-	void receiveTurtleData(); // XXX: args
+	void receiveTurtleData(Sha1Sum hash, LocationId virtualLocationId, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
 
 	/**
 	 * Asks to search something.
@@ -47,9 +48,15 @@ public interface TurtleRsClient extends RsServiceSlave
 	 */
 	List<byte[]> receiveSearchRequest(byte[] query, int maxHits); // XXX: return a list of results (TurtleFileInfoV2.. actually it's generic stuff so service dependent)
 
-	void receiveSearchResult(int requestId, byte[] searchData); // XXX: args
+	/**
+	 * Informs that a search result has been received.
+	 *
+	 * @param requestId  the request id
+	 * @param searchData the search result
+	 */
+	void receiveSearchResult(int requestId, byte[] searchData);
 
-	void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId); // XXX: add direction
+	void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId, TunnelDirection direction);
 
-	void removeVirtualPeer(Sha1Sum hash, LocationId virtualLocationId); // XXX: args
+	void removeVirtualPeer(Sha1Sum hash, LocationId virtualLocationId);
 }

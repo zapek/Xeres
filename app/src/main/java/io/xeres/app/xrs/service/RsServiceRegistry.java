@@ -164,9 +164,9 @@ public class RsServiceRegistry
 
 		if (RsServiceSlave.class.isAssignableFrom(rsService.getClass()))
 		{
-			var master = ((RsServiceSlave) rsService).isRsSlaveOf();
+			var master = ((RsServiceSlave) rsService).getMasterServiceType();
 
-			masterServices.computeIfAbsent(master.getServiceType().getType(), v -> new ArrayList<>()).add((RsServiceSlave) rsService);
+			masterServices.computeIfAbsent(master.getType(), v -> new ArrayList<>()).add((RsServiceSlave) rsService);
 		}
 
 		if (GxsRsService.class.isAssignableFrom(rsService.getClass()))

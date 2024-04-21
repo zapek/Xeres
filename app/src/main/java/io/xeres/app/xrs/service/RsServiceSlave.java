@@ -31,5 +31,5 @@ public interface RsServiceSlave
 	 *
 	 * @return the master service this service is slave of
 	 */
-	RsService isRsSlaveOf();
+	RsServiceType getMasterServiceType();
 }

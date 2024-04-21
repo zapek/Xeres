@@ -26,6 +26,7 @@ import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
+import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 import static io.xeres.app.xrs.service.RsServiceType.FILE_TRANSFER;
+import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
 @Component
 public class FileTransferRsService extends RsService implements TurtleRsClient
@@ -52,9 +54,9 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public RsService isRsSlaveOf()
+	public RsServiceType getMasterServiceType()
 	{
-		return this;
+		return TURTLE;
 	}
 
 	@Override
@@ -77,7 +79,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void receiveTurtleData()
+	public void receiveTurtleData(Sha1Sum hash, LocationId virtualLocationId, TunnelDirection tunnelDirection)
 	{
 
 	}
@@ -95,7 +97,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId)
+	public void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId, TunnelDirection direction)
 	{
 
 	}

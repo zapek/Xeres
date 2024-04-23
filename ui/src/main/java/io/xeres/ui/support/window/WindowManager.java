@@ -32,6 +32,7 @@ import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.debug.PropertiesWindowController;
+import io.xeres.ui.controller.debug.UiCheckWindowController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorViewController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
@@ -181,6 +182,16 @@ public class WindowManager
 				UiWindow.builder(PropertiesWindowController.class)
 						.setParent(parent)
 						.setTitle("System Properties")
+						.build()
+						.open());
+	}
+
+	public void openUiCheck(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(UiCheckWindowController.class)
+						.setParent(parent)
+						.setTitle("Custom UI")
 						.build()
 						.open());
 	}

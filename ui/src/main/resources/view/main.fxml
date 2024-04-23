@@ -232,6 +232,11 @@
                             <FontIcon iconLiteral="fas-terminal"/>
                         </graphic>
                     </MenuItem>
+                    <MenuItem fx:id="openUiCheck" text="Ui Check">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-window-maximize"/>
+                        </graphic>
+                    </MenuItem>
                 </Menu>
             </Menu>
         </MenuBar>

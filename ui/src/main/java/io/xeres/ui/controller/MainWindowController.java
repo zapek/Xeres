@@ -145,6 +145,9 @@ public class MainWindowController implements WindowController
 	private MenuItem openShell;
 
 	@FXML
+	private MenuItem openUiCheck;
+
+	@FXML
 	private ReadOnlyTextField shortId;
 
 	@FXML
@@ -271,6 +274,7 @@ public class MainWindowController implements WindowController
 			h2Console.setOnAction(event -> JavaFxApplication.openUrl(JavaFxApplication.getControlUrl() + "/h2-console"));
 			systemProperties.setOnAction(event -> windowManager.openSystemProperties(getWindow(event)));
 			openShell.setOnAction(event -> MinimalUserInterface.openShell());
+			openUiCheck.setOnAction(event -> windowManager.openUiCheck(getWindow(event)));
 		}
 
 		exitApplication.setOnAction(event ->

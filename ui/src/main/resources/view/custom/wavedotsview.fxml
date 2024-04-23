@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<fx:root prefHeight="24" prefWidth="48" type="HBox" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <Circle fx:id="circle1" fill="DODGERBLUE" radius="12.0" stroke="BLACK" strokeType="INSIDE">
+        <HBox.margin>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+        </HBox.margin>
+    </Circle>
+    <Circle fx:id="circle2" fill="DODGERBLUE" radius="12.0" stroke="BLACK" strokeType="INSIDE">
+        <HBox.margin>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+        </HBox.margin>
+    </Circle>
+    <Circle fx:id="circle3" fill="DODGERBLUE" radius="12.0" stroke="BLACK" strokeType="INSIDE">
+        <HBox.margin>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+        </HBox.margin>
+    </Circle>
+</fx:root>

@@ -44,13 +44,11 @@ final class UiWindow
 {
 	private static final Logger log = LoggerFactory.getLogger(UiWindow.class);
 
-	private static final String WINDOW_X = "PosX";
-	private static final String WINDOW_Y = "PosY";
-	private static final String WINDOW_WIDTH = "Width";
-	private static final String WINDOW_HEIGHT = "Height";
-
-	private static FxWeaver fxWeaver;
-	private static ResourceBundle bundle;
+	private static final String KEY_WINDOW_X = "PosX";
+	private static final String KEY_WINDOW_Y = "PosY";
+	private static final String KEY_WINDOW_WIDTH = "Width";
+	private static final String KEY_WINDOW_HEIGHT = "Height";
+	public static final String NODE_WINDOWS = "Windows";
 
 	private static double borderTop;
 	private static double borderBottom;
@@ -59,12 +57,6 @@ final class UiWindow
 
 	final Scene scene;
 	final Stage stage;
-
-	static void setFxWeaver(FxWeaver fxWeaver, ResourceBundle bundle)
-	{
-		UiWindow.fxWeaver = fxWeaver;
-		UiWindow.bundle = bundle;
-	}
 
 	static void setWindowDecorationSizes(double top, double bottom, double left, double right)
 	{
@@ -114,10 +106,7 @@ final class UiWindow
 		stage.setTitle(builder.title);
 		stage.setScene(scene);
 
-		if (builder.rememberEnvironment)
-		{
-			setWindowPreferences(stage, builder.root.getId());
-		}
+		loadWindowPreferences(stage, builder);
 
 		if (!builder.resizeable)
 		{
@@ -127,16 +116,26 @@ final class UiWindow
 		stage.setOnShowing(event -> builder.controller.onShowing());
 		stage.setOnShown(event -> {
 			builder.controller.onShown();
-			UiBorders.setDarkModeOnOpeningWindow(AppThemeManager.getCurrentTheme().isDark());
+			UiBorders.setDarkModeOnOpeningWindow(builder.appThemeManager.getCurrentTheme().isDark());
 		});
-		stage.setOnHiding(event -> builder.controller.onHiding());
+		stage.setOnHiding(event -> {
+			saveWindowPreferences(stage, builder);
+			builder.controller.onHiding();
+		});
 		stage.setOnHidden(event -> builder.controller.onHidden());
 
 		scene.getWindow().setUserData(builder.controller);
 	}
 
-	private void setWindowPreferences(Stage stage, String id)
+	private void loadWindowPreferences(Stage stage, Builder builder)
 	{
+		var id = builder.root.getId();
+
+		if (!builder.rememberEnvironment)
+		{
+			return;
+		}
+
 		if (isEmpty(id))
 		{
 			throw new IllegalArgumentException("A Window requires an ID");
@@ -145,7 +144,7 @@ final class UiWindow
 		boolean preferencesExist;
 		try
 		{
-			preferencesExist = Preferences.userRoot().nodeExists("/Windows/" + id);
+			preferencesExist = builder.preferences.nodeExists(NODE_WINDOWS + "/" + id);
 		}
 		catch (BackingStoreException e)
 		{
@@ -155,21 +154,34 @@ final class UiWindow
 
 		if (preferencesExist)
 		{
-			var preferences = Preferences.userRoot().node("Windows").node(id);
-			stage.setX(preferences.getDouble(WINDOW_X, 0));
-			stage.setY(preferences.getDouble(WINDOW_Y, 0));
-			stage.setWidth(preferences.getDouble(WINDOW_WIDTH, 0));
-			stage.setHeight(preferences.getDouble(WINDOW_HEIGHT, 0));
+			var preferences = builder.preferences.node(NODE_WINDOWS).node(id);
+			stage.setX(preferences.getDouble(KEY_WINDOW_X, 0));
+			stage.setY(preferences.getDouble(KEY_WINDOW_Y, 0));
+			stage.setWidth(preferences.getDouble(KEY_WINDOW_WIDTH, 0));
+			stage.setHeight(preferences.getDouble(KEY_WINDOW_HEIGHT, 0));
+		}
+	}
+
+	private void saveWindowPreferences(Stage stage, Builder builder)
+	{
+		var id = builder.root.getId();
+
+		if (!builder.rememberEnvironment)
+		{
+			return;
 		}
 
-		stage.setOnCloseRequest(event -> {
-			var preferences = Preferences.userRoot().node("Windows").node(id);
-			preferences.putDouble(WINDOW_X, stage.getX());
-			preferences.putDouble(WINDOW_Y, stage.getY());
-			preferences.putDouble(WINDOW_WIDTH, stage.getWidth());
-			preferences.putDouble(WINDOW_HEIGHT, stage.getHeight());
-			log.debug("Saving Window {}, x: {}, y: {}, width: {}, height: {}", id, stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-		});
+		if (isEmpty(id))
+		{
+			throw new IllegalArgumentException("A Window requires an ID");
+		}
+
+		var preferences = builder.preferences.node(NODE_WINDOWS).node(id);
+		preferences.putDouble(KEY_WINDOW_X, stage.getX());
+		preferences.putDouble(KEY_WINDOW_Y, stage.getY());
+		preferences.putDouble(KEY_WINDOW_WIDTH, stage.getWidth());
+		preferences.putDouble(KEY_WINDOW_HEIGHT, stage.getHeight());
+		log.debug("Saving Window {}, x: {}, y: {}, width: {}, height: {}", id, stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
 	}
 
 	static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass)
@@ -201,14 +213,14 @@ final class UiWindow
 		stage.close();
 	}
 
-	static Builder builder(Class<? extends WindowController> controllerClass)
+	static Builder builder(Class<? extends WindowController> controllerClass, FxWeaver fxWeaver, ResourceBundle bundle, Preferences preferences, AppThemeManager appThemeManager)
 	{
 		var parent = (Parent) fxWeaver.loadView(controllerClass, bundle);
 		parent.setId(controllerClass.getName());
-		return new Builder(parent, fxWeaver.getBean(controllerClass));
+		return new Builder(parent, fxWeaver.getBean(controllerClass), preferences, appThemeManager);
 	}
 
-	static Builder builder(String resource, WindowController controller)
+	static Builder builder(String resource, WindowController controller, ResourceBundle bundle, Preferences preferences, AppThemeManager appThemeManager)
 	{
 		var fxmlLoader = new FXMLLoader(UiWindow.class.getResource(resource), bundle);
 		fxmlLoader.setController(controller);
@@ -222,7 +234,7 @@ final class UiWindow
 			throw new IllegalArgumentException("Failed to load FXML: " + e.getMessage(), e);
 		}
 		parent.setId(controller.getClass().getName() + ":" + UUID.randomUUID()); // This is a default ID to enforce uniqueness
-		return new Builder(parent, controller);
+		return new Builder(parent, controller, preferences, appThemeManager);
 	}
 
 	static final class Builder
@@ -230,6 +242,8 @@ final class UiWindow
 		private Stage stage;
 		private final Parent root;
 		private final WindowController controller;
+		private final Preferences preferences;
+		private final AppThemeManager appThemeManager;
 		private Window parent;
 		private String title = AppName.NAME;
 		private String localId;
@@ -237,10 +251,12 @@ final class UiWindow
 		private boolean rememberEnvironment;
 		private boolean resizeable = true;
 
-		private Builder(Parent root, WindowController controller)
+		private Builder(Parent root, WindowController controller, Preferences preferences, AppThemeManager appThemeManager)
 		{
 			this.root = root;
 			this.controller = controller;
+			this.preferences = preferences;
+			this.appThemeManager = appThemeManager;
 		}
 
 		Builder setParent(Window parent)
@@ -263,7 +279,7 @@ final class UiWindow
 
 		Builder setLocalId(String id)
 		{
-			this.localId = id;
+			localId = id;
 			return this;
 		}
 
@@ -275,7 +291,7 @@ final class UiWindow
 		 */
 		Builder setRememberEnvironment(boolean remember)
 		{
-			this.rememberEnvironment = remember;
+			rememberEnvironment = remember;
 			return this;
 		}
 

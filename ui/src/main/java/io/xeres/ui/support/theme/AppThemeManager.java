@@ -19,38 +19,49 @@
 
 package io.xeres.ui.support.theme;
 
+import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.window.UiBorders;
 import javafx.application.Application;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.prefs.Preferences;
 
-public final class AppThemeManager
+@Component
+public class AppThemeManager
 {
-	private AppThemeManager()
+	public static final String NODE_APPLICATION = "Application";
+	public static final String KEY_THEME = "Theme";
+	private final PreferenceService preferenceService;
+
+	public AppThemeManager(PreferenceService preferenceService)
 	{
-		throw new UnsupportedOperationException("Utility class");
+		this.preferenceService = preferenceService;
 	}
 
-	public static AppTheme getCurrentTheme()
+	public AppTheme getCurrentTheme()
 	{
-		var preferences = Preferences.userRoot().node("Application");
-		return AppTheme.findByName(preferences.get("Theme", String.valueOf(AppTheme.PRIMER_LIGHT)));
+		var preferences = preferenceService.getPreferences().node(NODE_APPLICATION);
+		return AppTheme.findByName(preferences.get(KEY_THEME, String.valueOf(AppTheme.PRIMER_LIGHT)));
 	}
 
-	public static void applyCurrentTheme()
+	public void applyCurrentTheme()
 	{
 		applyTheme(getCurrentTheme());
 	}
 
-	public static void changeTheme(AppTheme appTheme)
+	public void applyDefaultTheme()
+	{
+		applyTheme(AppTheme.PRIMER_LIGHT);
+	}
+
+	public void changeTheme(AppTheme appTheme)
 	{
 		applyTheme(appTheme);
 		UiBorders.setDarkModeAll(appTheme.isDark());
 		saveCurrentTheme(appTheme);
 	}
 
-	private static void applyTheme(AppTheme appTheme)
+	private void applyTheme(AppTheme appTheme)
 	{
 		try
 		{
@@ -62,9 +73,9 @@ public final class AppThemeManager
 		}
 	}
 
-	private static void saveCurrentTheme(AppTheme appTheme)
+	private void saveCurrentTheme(AppTheme appTheme)
 	{
-		var preferences = Preferences.userRoot().node("Application");
-		preferences.put("Theme", appTheme.getName());
+		var preferences = preferenceService.getPreferences().node(NODE_APPLICATION);
+		preferences.put(KEY_THEME, appTheme.getName());
 	}
 }

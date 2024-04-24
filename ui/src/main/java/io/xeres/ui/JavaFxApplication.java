@@ -21,7 +21,6 @@ package io.xeres.ui;
 
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.ui.controller.MainWindowController;
-import io.xeres.ui.support.theme.AppThemeManager;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.stage.Stage;
@@ -75,8 +74,6 @@ public class JavaFxApplication extends Application
 	public void start(Stage primaryStage)
 	{
 		hostServices = getHostServices();
-
-		AppThemeManager.applyCurrentTheme();
 
 		Objects.requireNonNull(springContext);
 		mainWindowController = springContext.getBean(MainWindowController.class);

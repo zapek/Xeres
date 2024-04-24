@@ -50,19 +50,21 @@ public class SettingsGeneralController implements SettingsController
 	private Settings settings;
 
 	private final ConfigClient configClient;
+	private final AppThemeManager appThemeManager;
 
-	public SettingsGeneralController(ConfigClient configClient)
+	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager)
 	{
 		this.configClient = configClient;
+		this.appThemeManager = appThemeManager;
 	}
 
 	@Override
 	public void initialize()
 	{
 		themeSelector.getItems().addAll(Arrays.stream(AppTheme.values()).toList());
-		var currentTheme = AppThemeManager.getCurrentTheme();
+		var currentTheme = appThemeManager.getCurrentTheme();
 		themeSelector.getSelectionModel().select(currentTheme);
-		themeSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> AppThemeManager.changeTheme(newValue));
+		themeSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> appThemeManager.changeTheme(newValue));
 
 		configClient.getCapabilities()
 				.doOnSuccess(capabilities -> Platform.runLater(() -> {

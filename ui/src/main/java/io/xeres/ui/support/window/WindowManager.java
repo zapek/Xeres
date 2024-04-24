@@ -47,7 +47,8 @@ import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.controller.share.ShareWindowController;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
-import jakarta.annotation.PostConstruct;
+import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.theme.AppThemeManager;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
@@ -74,22 +75,20 @@ public class WindowManager
 	private final MessageClient messageClient;
 	private final MarkdownService markdownService;
 	private final ResourceBundle bundle;
+	private final PreferenceService preferenceService;
+	private final AppThemeManager appThemeManager;
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, MarkdownService markdownService, ResourceBundle bundle)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, MarkdownService markdownService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
 	{
 		this.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
 		this.markdownService = markdownService;
 		this.bundle = bundle;
-	}
-
-	@PostConstruct
-	private void initializeUiWindow()
-	{
-		UiWindow.setFxWeaver(fxWeaver, bundle);
+		this.preferenceService = preferenceService;
+		this.appThemeManager = appThemeManager;
 	}
 
 	public void closeAllWindows()
@@ -116,7 +115,7 @@ public class WindowManager
 			}
 			else
 			{
-				UiWindow.builder(PeersWindowController.class)
+				UiWindow.builder(PeersWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setRememberEnvironment(true)
 						.build()
 						.open();
@@ -138,7 +137,7 @@ public class WindowManager
 							{
 								var messaging = new MessagingWindowController(profileClient, messageClient, markdownService, locationId, bundle);
 
-								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
+								UiWindow.builder("/view/messaging/messaging.fxml", messaging, bundle, preferenceService.getPreferences(), appThemeManager)
 										.setLocalId(locationId)
 										.setUserData(chatMessage)
 										.build()
@@ -159,7 +158,7 @@ public class WindowManager
 	public void openAbout(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(AboutWindowController.class)
+				UiWindow.builder(AboutWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
 						.build()
@@ -169,7 +168,7 @@ public class WindowManager
 	public void openShare(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(ShareWindowController.class)
+				UiWindow.builder(ShareWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle("Shares")
 						.build()
@@ -179,7 +178,7 @@ public class WindowManager
 	public void openSystemProperties(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(PropertiesWindowController.class)
+				UiWindow.builder(PropertiesWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle("System Properties")
 						.build()
@@ -189,7 +188,7 @@ public class WindowManager
 	public void openUiCheck(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(UiCheckWindowController.class)
+				UiWindow.builder(UiCheckWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle("Custom UI")
 						.build()
@@ -199,7 +198,7 @@ public class WindowManager
 	public void openQrCode(Window parent, RSIdResponse rsIdResponse)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(QrCodeWindowController.class)
+				UiWindow.builder(QrCodeWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("qrcode.window-title"))
 						.setUserData(rsIdResponse)
@@ -210,7 +209,7 @@ public class WindowManager
 	public void openCamera(Window parent, AddRsIdWindowController parentController)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(CameraWindowController.class)
+				UiWindow.builder(CameraWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("camera.window-title"))
 						.setResizeable(false)
@@ -222,7 +221,7 @@ public class WindowManager
 	public void openChatRoomCreation(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(ChatRoomCreationWindowController.class)
+				UiWindow.builder(ChatRoomCreationWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("chat.room.create.window-title"))
 						.build()
@@ -232,7 +231,7 @@ public class WindowManager
 	public void openBroadcast(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(BroadcastWindowController.class)
+				UiWindow.builder(BroadcastWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("broadcast.window-title"))
 						.build()
@@ -242,7 +241,7 @@ public class WindowManager
 	public void openProfiles(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(ProfilesWindowController.class)
+				UiWindow.builder(ProfilesWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("profiles.window-title"))
 						.build()
@@ -252,7 +251,7 @@ public class WindowManager
 	public void openIdentities(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(IdentitiesWindowController.class)
+				UiWindow.builder(IdentitiesWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("identities.window-title"))
 						.build()
@@ -262,7 +261,7 @@ public class WindowManager
 	public void openSettings(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(SettingsWindowController.class)
+				UiWindow.builder(SettingsWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("settings.window-title"))
 						.build()
@@ -272,7 +271,7 @@ public class WindowManager
 	public void openAddPeer(Window parent, String rsId)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(AddRsIdWindowController.class)
+				UiWindow.builder(AddRsIdWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("rsid.add.window-title"))
 						.setUserData(rsId)
@@ -283,7 +282,7 @@ public class WindowManager
 	public void openInvite(Window parent, long chatRoom)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(ChatRoomInvitationWindowController.class)
+				UiWindow.builder(ChatRoomInvitationWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("chat.room.invite.window-title"))
 						.setUserData(chatRoom)
@@ -294,7 +293,7 @@ public class WindowManager
 	public void openForumEditor(Window parent, PostRequest postRequest)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(ForumEditorViewController.class)
+				UiWindow.builder(ForumEditorViewController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent) // XXX: needs to become multi modal to avoid blocking (useful to browse other posts while we write)
 						.setTitle(bundle.getString("forum.new-message.window-title"))
 						.setUserData(postRequest)
@@ -305,7 +304,7 @@ public class WindowManager
 	public void openForumCreation(Window parent)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(ForumCreationWindowController.class)
+				UiWindow.builder(ForumCreationWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setParent(parent)
 						.setTitle(bundle.getString("forum.create.window-title"))
 						.build()
@@ -322,10 +321,15 @@ public class WindowManager
 			}
 			else
 			{
-				mainWindow = UiWindow.builder(MainWindowController.class)
+				var location = profile.getLocations().stream().findFirst().orElseThrow();
+				preferenceService.setLocation(location);
+
+				appThemeManager.applyCurrentTheme();
+
+				mainWindow = UiWindow.builder(MainWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 						.setStage(stage)
 						.setRememberEnvironment(true)
-						.setTitle(profile != null ? (AppName.NAME + " - " + profile.getName() + " @ " + profile.getLocations().stream().findFirst().orElseThrow().getName()) : null)
+						.setTitle(AppName.NAME + " - " + profile.getName() + " @ " + location.getName())
 						.build();
 
 				if (!iconified)
@@ -343,7 +347,9 @@ public class WindowManager
 
 	public void openAccountCreation(Stage stage)
 	{
-		Platform.runLater(() -> UiWindow.builder(AccountCreationWindowController.class)
+		appThemeManager.applyDefaultTheme(); // We don't have a location yet, so no way to get preferences
+
+		Platform.runLater(() -> UiWindow.builder(AccountCreationWindowController.class, fxWeaver, bundle, preferenceService.getPreferences(), appThemeManager)
 				.setStage(stage)
 				.build()
 				.open());

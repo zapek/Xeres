@@ -27,6 +27,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
+import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -95,7 +96,7 @@ public class ChatViewController implements Controller
 	private VBox sendGroup;
 
 	@FXML
-	private Label typingNotification;
+	private TypingNotificationView typingNotification;
 
 	@FXML
 	private HBox previewGroup;
@@ -413,15 +414,15 @@ public class ChatViewController implements Controller
 	{
 		if (content.getChildren().size() > 1)
 		{
-			content.getChildren().remove(0);
+			content.getChildren().removeFirst();
 		}
-		content.getChildren().add(0, contentNode);
+		content.getChildren().addFirst(contentNode);
 
 		if (userListNode == null)
 		{
 			if (!isEmpty(userListContent.getChildren()))
 			{
-				userListContent.getChildren().remove(0);
+				userListContent.getChildren().removeFirst();
 			}
 			if (splitPane.getItems().contains(userListContent))
 			{
@@ -433,9 +434,9 @@ public class ChatViewController implements Controller
 		{
 			if (!isEmpty(userListContent.getChildren()))
 			{
-				userListContent.getChildren().remove(0);
+				userListContent.getChildren().removeFirst();
 			}
-			userListContent.getChildren().add(0, userListNode);
+			userListContent.getChildren().addFirst(userListNode);
 
 			if (!splitPane.getItems().contains(userListContent))
 			{

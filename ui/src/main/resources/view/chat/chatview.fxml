@@ -19,6 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.custom.TypingNotificationView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
@@ -80,11 +81,11 @@
                             </HBox.margin>
                         </VBox>
                     </HBox>
-                    <Label fx:id="typingNotification">
+                    <TypingNotificationView fx:id="typingNotification">
                         <VBox.margin>
                             <Insets bottom="4.0" left="8.0" top="4.0"/>
                         </VBox.margin>
-                    </Label>
+                    </TypingNotificationView>
                     <TextField fx:id="send" styleClass="chat-send">
                         <VBox.margin>
                             <Insets left="4.0" right="4.0" top="4.0"/>

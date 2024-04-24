@@ -20,6 +20,8 @@
 package io.xeres.ui.custom;
 
 import javafx.animation.Animation;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -58,27 +60,27 @@ public class WaveDotsView extends HBox
 
 	public void initialize()
 	{
-		var t1 = new TranslateTransition(Duration.millis(500), circle1);
-		t1.setFromY(0.0f);
-		t1.setToY(-12.0f);
-		t1.setAutoReverse(true);
-		t1.setCycleCount(Animation.INDEFINITE);
+		var t1 = createAnimation(circle1, Duration.millis(0));
 		t1.play();
 
-		var t2 = new TranslateTransition(Duration.millis(500), circle2);
-		t2.setFromY(0.0f);
-		t2.setToY(-12.0f);
-		t2.setAutoReverse(true);
-		t2.setCycleCount(Animation.INDEFINITE);
-		t2.setDelay(Duration.millis(200));
+		var t2 = createAnimation(circle2, Duration.millis(200));
 		t2.play();
 
-		var t3 = new TranslateTransition(Duration.millis(500), circle3);
-		t3.setFromY(0.0f);
-		t3.setToY(-12.0f);
-		t3.setAutoReverse(true);
-		t3.setCycleCount(Animation.INDEFINITE);
-		t3.setDelay(Duration.millis(400));
+		var t3 = createAnimation(circle3, Duration.millis(400));
 		t3.play();
+	}
+
+	private Animation createAnimation(Circle circle, Duration initialDelay)
+	{
+		var translate = new TranslateTransition(Duration.millis(300), circle);
+		translate.setToY(5.0f);
+
+		var pause = new PauseTransition(Duration.millis(300));
+
+		var sequence = new SequentialTransition(translate, pause);
+		sequence.setAutoReverse(true);
+		sequence.setCycleCount(Animation.INDEFINITE);
+		sequence.setDelay(initialDelay);
+		return sequence;
 	}
 }

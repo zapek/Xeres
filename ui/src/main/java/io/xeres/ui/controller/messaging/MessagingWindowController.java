@@ -27,6 +27,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
+import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.ImageUtils;
@@ -35,7 +36,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -73,7 +73,7 @@ public class MessagingWindowController implements WindowController
 	private TextField send;
 
 	@FXML
-	private Label notification;
+	private TypingNotificationView notification;
 
 	@FXML
 	private VBox content;

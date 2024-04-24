@@ -63,6 +63,10 @@
     -fx-border-width: 0 1 1 1;
 }
 
+.chat-dot-wait {
+    -fx-fill: -color-fg-default;
+}
+
 .alert-textarea {
     -fx-background-color: transparent;
     -fx-background-insets: 0px;

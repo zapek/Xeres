@@ -19,14 +19,14 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.custom.TypingNotificationView?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <HBox minHeight="300.0" minWidth="300.0" prefHeight="650.0" prefWidth="500.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <VBox fx:id="content" HBox.hgrow="ALWAYS">
-        <Label fx:id="notification" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER"/>
+        <TypingNotificationView fx:id="notification" VBox.vgrow="NEVER"/>
         <TextField fx:id="send" promptText="%messaging.prompt" VBox.vgrow="NEVER">
             <VBox.margin>
                 <Insets top="4.0"/>

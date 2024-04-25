@@ -119,11 +119,12 @@ public class MessagingWindowController implements WindowController
 			if (event.getCode().equals(KeyCode.ENTER) && isNotBlank(send.getText()))
 			{
 				sendMessage(send.getText());
+				lastTypingNotification = Instant.EPOCH;
 			}
 			else
 			{
 				var now = Instant.now();
-				if (java.time.Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY) > 0)
+				if (java.time.Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
 				{
 					var message = new ChatMessage();
 					messageClient.sendToLocation(locationId, message);
@@ -134,8 +135,10 @@ public class MessagingWindowController implements WindowController
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 
-		lastTypingTimeline = new Timeline(new KeyFrame(Duration.seconds(5),
-				ae -> notification.setText("")));
+		lastTypingTimeline = new Timeline(
+				new KeyFrame(Duration.ZERO, event -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), targetProfile.getName()))),
+				new KeyFrame(Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
+		lastTypingTimeline.setOnFinished(event -> notification.setText(""));
 	}
 
 	private void sendMessage(String message)
@@ -196,13 +199,12 @@ public class MessagingWindowController implements WindowController
 		{
 			if (message.isEmpty())
 			{
-				notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), targetProfile.getName()));
 				lastTypingTimeline.playFromStart();
 			}
 			else
 			{
 				receive.addUserMessage(targetProfile.getName(), message.getContent());
-				notification.setText("");
+				lastTypingTimeline.jumpTo(Duration.INDEFINITE);
 			}
 		}
 	}

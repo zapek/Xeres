@@ -204,11 +204,12 @@ public class ChatViewController implements Controller
 				if (event.getCode().equals(KeyCode.ENTER) && isNotBlank(send.getText()))
 				{
 					sendChatMessage(send.getText());
+					lastTypingNotification = Instant.EPOCH;
 				}
 				else
 				{
 					var now = Instant.now();
-					if (Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY) > 0)
+					if (Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
 					{
 						var chatMessage = new ChatMessage();
 						messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
@@ -222,6 +223,9 @@ public class ChatViewController implements Controller
 		roomInfoView = loader.load();
 		chatRoomInfoController = loader.getController();
 
+		lastTypingTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
+		lastTypingTimeline.setOnFinished(event -> typingNotification.setText(""));
+
 		VBox.setVgrow(roomInfoView, Priority.ALWAYS);
 		switchChatContent(roomInfoView, null);
 		sendGroup.setVisible(false);
@@ -229,9 +233,6 @@ public class ChatViewController implements Controller
 
 		previewSend.setOnAction(event -> sendImage());
 		previewCancel.setOnAction(event -> cancelImage());
-
-		lastTypingTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(5),
-				ae -> typingNotification.setText("")));
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		send.setContextMenu(TextInputControlUtils.createInputContextMenu(send, locationClient));
@@ -444,7 +445,7 @@ public class ChatViewController implements Controller
 				splitPane.setDividerPositions(dividerPositions);
 			}
 		}
-		typingNotification.setText("");
+		lastTypingTimeline.jumpTo(javafx.util.Duration.INDEFINITE);
 	}
 
 	// right now I use a simple implementation. It also has a drawback that it doesn't update the counter
@@ -525,6 +526,10 @@ public class ChatViewController implements Controller
 					setUnreadMessages(roomHolderTreeItem, true);
 				}
 			});
+			if (isRoomSelected() && chatRoomMessage.getRoomId() == selectedRoom.getId())
+			{
+				lastTypingTimeline.jumpTo(javafx.util.Duration.INDEFINITE);
+			}
 		}
 	}
 

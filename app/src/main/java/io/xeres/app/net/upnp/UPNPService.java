@@ -441,6 +441,7 @@ public class UPNPService implements Runnable
 		{
 			externalIpAddressFound = true;
 			publisher.publishEvent(new UpnpEvent(localPort, false, true));
+			statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
 		}
 	}
 

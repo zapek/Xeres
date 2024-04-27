@@ -145,6 +145,13 @@ public class TrayService
 							}
 							else
 							{
+								// Yet another weird workaround that allows to
+								// remember the size before iconifying the
+								// window.
+								stage.setX(stage.getX());
+								stage.setY(stage.getY());
+								stage.setWidth(stage.getWidth());
+								stage.setHeight(stage.getHeight());
 								stage.show();
 								setEvent(false);
 							}

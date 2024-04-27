@@ -81,41 +81,6 @@
         </Card>
         <Card>
             <header>
-                <Label text="NAT"/>
-            </header>
-            <body>
-                <GridPane hgap="8" vgap="8">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES"/>
-                        <RowConstraints vgrow="SOMETIMES"/>
-                    </rowConstraints>
-                    <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="%settings.network.use-upnp" GridPane.columnSpan="2147483647">
-                        <tooltip>
-                            <Tooltip showDuration="1m" text="%settings.network.use-upnp.tip"/>
-                        </tooltip>
-                    </CheckBox>
-                    <Label text="%settings.network.external-ip-and-port" GridPane.rowIndex="1">
-                        <GridPane.margin>
-                            <Insets right="4.0"/>
-                        </GridPane.margin>
-                    </Label>
-                    <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <ReadOnlyTextField fx:id="externalIp" HBox.hgrow="ALWAYS">
-                            <tooltip>
-                                <Tooltip showDuration="1m" text="%settings.network.external-ip-and-port.tip"/>
-                            </tooltip>
-                        </ReadOnlyTextField>
-                        <ReadOnlyTextField fx:id="externalPort" minWidth="55.0" prefWidth="65.0"/>
-                    </InputGroup>
-                </GridPane>
-            </body>
-        </Card>
-        <Card>
-            <header>
                 <Label text="LAN"/>
             </header>
             <body>
@@ -145,6 +110,41 @@
                             </tooltip>
                         </ReadOnlyTextField>
                         <ReadOnlyTextField fx:id="internalPort" minWidth="55.0" prefWidth="65.0"/>
+                    </InputGroup>
+                </GridPane>
+            </body>
+        </Card>
+        <Card>
+            <header>
+                <Label text="NAT"/>
+            </header>
+            <body>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="%settings.network.use-upnp" GridPane.columnSpan="2147483647">
+                        <tooltip>
+                            <Tooltip showDuration="1m" text="%settings.network.use-upnp.tip"/>
+                        </tooltip>
+                    </CheckBox>
+                    <Label text="%settings.network.external-ip-and-port" GridPane.rowIndex="1">
+                        <GridPane.margin>
+                            <Insets right="4.0"/>
+                        </GridPane.margin>
+                    </Label>
+                    <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <ReadOnlyTextField fx:id="externalIp" HBox.hgrow="ALWAYS">
+                            <tooltip>
+                                <Tooltip showDuration="1m" text="%settings.network.external-ip-and-port.tip"/>
+                            </tooltip>
+                        </ReadOnlyTextField>
+                        <ReadOnlyTextField fx:id="externalPort" minWidth="55.0" prefWidth="65.0"/>
                     </InputGroup>
                 </GridPane>
             </body>

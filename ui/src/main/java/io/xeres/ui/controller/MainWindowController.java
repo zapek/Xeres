@@ -402,12 +402,23 @@ public class MainWindowController implements WindowController
 	{
 		if (newNatStatus != null)
 		{
-			natStatus.setStatus(newNatStatus == NatStatus.UPNP ? LedStatus.OK : LedStatus.WARNING);
 			switch (newNatStatus)
 			{
-				case UNKNOWN -> TooltipUtils.install(natStatus, bundle.getString("main.status.nat.unknown"));
-				case FIREWALLED -> TooltipUtils.install(natStatus, bundle.getString("main.status.nat.firewalled"));
-				case UPNP -> TooltipUtils.install(natStatus, bundle.getString("main.status.nat.upnp"));
+				case UNKNOWN ->
+				{
+					TooltipUtils.install(natStatus, bundle.getString("main.status.nat.unknown"));
+					natStatus.setStatus(LedStatus.WARNING);
+				}
+				case FIREWALLED ->
+				{
+					TooltipUtils.install(natStatus, bundle.getString("main.status.nat.firewalled"));
+					natStatus.setStatus(LedStatus.ERROR);
+				}
+				case UPNP ->
+				{
+					TooltipUtils.install(natStatus, bundle.getString("main.status.nat.upnp"));
+					natStatus.setStatus(LedStatus.OK);
+				}
 			}
 		}
 	}

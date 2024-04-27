@@ -19,6 +19,7 @@
 
 package io.xeres.app.job;
 
+import io.xeres.app.service.PeerService;
 import io.xeres.app.service.file.FileService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -28,16 +29,21 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class FileIndexingJob
 {
+	private final PeerService peerService;
 	private final FileService fileService;
 
-	public FileIndexingJob(FileService fileService)
+	public FileIndexingJob(PeerService peerService, FileService fileService)
 	{
+		this.peerService = peerService;
 		this.fileService = fileService;
 	}
 
 	@Scheduled(initialDelay = 60, fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
 	void checkFilesToIndex()
 	{
-		fileService.checkForSharesToScan();
+		if (JobUtils.canRun(peerService))
+		{
+			fileService.checkForSharesToScan();
+		}
 	}
 }

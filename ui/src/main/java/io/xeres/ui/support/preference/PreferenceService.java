@@ -54,6 +54,10 @@ public class PreferenceService
 		}
 		else
 		{
+			if (locationId == null)
+			{
+				return null;
+			}
 			return rootNode.node(locationId.toString());
 		}
 	}

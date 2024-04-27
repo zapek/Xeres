@@ -362,7 +362,7 @@ public class WindowManager
 
 	public void openAccountCreation(Stage stage)
 	{
-		appThemeManager.applyDefaultTheme(); // We don't have a location yet, so no way to get preferences
+		appThemeManager.applyCurrentTheme();
 
 		Platform.runLater(() -> UiWindow.builder(AccountCreationWindowController.class)
 				.setStage(stage)

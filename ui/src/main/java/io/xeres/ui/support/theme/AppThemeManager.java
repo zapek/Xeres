@@ -31,6 +31,9 @@ public class AppThemeManager
 {
 	public static final String NODE_APPLICATION = "Application";
 	public static final String KEY_THEME = "Theme";
+
+	private static final AppTheme DEFAULT_THEME = AppTheme.PRIMER_LIGHT;
+
 	private final PreferenceService preferenceService;
 
 	public AppThemeManager(PreferenceService preferenceService)
@@ -40,18 +43,18 @@ public class AppThemeManager
 
 	public AppTheme getCurrentTheme()
 	{
-		var preferences = preferenceService.getPreferences().node(NODE_APPLICATION);
-		return AppTheme.findByName(preferences.get(KEY_THEME, String.valueOf(AppTheme.PRIMER_LIGHT)));
+		var rootPreferences = preferenceService.getPreferences();
+		if (rootPreferences == null)
+		{
+			return DEFAULT_THEME;
+		}
+		var preferences = rootPreferences.node(NODE_APPLICATION);
+		return AppTheme.findByName(preferences.get(KEY_THEME, String.valueOf(DEFAULT_THEME)));
 	}
 
 	public void applyCurrentTheme()
 	{
 		applyTheme(getCurrentTheme());
-	}
-
-	public void applyDefaultTheme()
-	{
-		applyTheme(AppTheme.PRIMER_LIGHT);
 	}
 
 	public void changeTheme(AppTheme appTheme)

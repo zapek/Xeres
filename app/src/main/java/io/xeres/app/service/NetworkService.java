@@ -22,7 +22,7 @@ package io.xeres.app.service;
 import io.xeres.app.application.events.IpChangedEvent;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.NetworkReadyEvent;
-import io.xeres.app.application.events.PortsForwardedEvent;
+import io.xeres.app.application.events.UpnpEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
 import io.xeres.app.net.dht.DhtService;
@@ -227,8 +227,7 @@ public class NetworkService
 	}
 
 	@EventListener
-	public void onIpChangedEvent(
-			IpChangedEvent event)
+	public void onIpChangedEvent(IpChangedEvent event)
 	{
 		log.warn("IP change event received, possibly restarting some services...");
 
@@ -251,10 +250,23 @@ public class NetworkService
 	}
 
 	@EventListener
-	public void onPortsForwarded(PortsForwardedEvent event)
+	public void onUpnpEvent(UpnpEvent event)
 	{
-		log.info("Ports forwarded on the router");
+		if (event.portsForwarded())
+		{
+			log.info("Ports forwarded on the router");
+		}
+		else
+		{
+			log.info("Ports not forwarded on the router");
+		}
+		if (!event.externalIpFound())
+		{
+			log.warn("External IP address not found");
+		}
 
+		// We start the DHT here because it's better when the incoming port is working first.
+		// But it can still work without it.
 		if (settingsService.isDhtEnabled())
 		{
 			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), event.localPort());

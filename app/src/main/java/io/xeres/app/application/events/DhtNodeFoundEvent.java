@@ -22,6 +22,12 @@ package io.xeres.app.application.events;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.protocol.HostPort;
 
+/**
+ * This event is sent when a node is found using the DHT.
+ *
+ * @param locationId the location ID
+ * @param hostPort   the host and port of the node
+ */
 public record DhtNodeFoundEvent(LocationId locationId, HostPort hostPort)
 {
 }

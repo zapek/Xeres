@@ -19,13 +19,13 @@
 
 package io.xeres.app.net.upnp;
 
-import io.xeres.app.application.events.PortsForwardedEvent;
+import io.xeres.app.application.events.UpnpEvent;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
-import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.protocol.dns.DNS;
 import io.xeres.common.rest.notification.status.NatStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +40,9 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class UPNPService implements Runnable
@@ -75,6 +78,15 @@ public class UPNPService implements Runnable
 			// Most routers will respond to all entries
 	};
 
+	private static final String OWN_IP_HOST = "myip.opendns.com";
+
+	private static final List<String> NAME_SERVERS = Arrays.asList(
+			"208.67.222.222", // resolver1.opendns.com
+			"208.67.220.220", // resolver2.opendns.com
+			"208.67.222.220", // resolver3.opendns.com
+			"208.67.220.222"  // resolver4.opendns.com
+	);
+
 	private enum State
 	{
 		SNOOZING,
@@ -101,6 +113,7 @@ public class UPNPService implements Runnable
 	private ByteBuffer receiveBuffer;
 	private State state;
 	private Device device;
+	private boolean externalIpAddressFound;
 
 	public UPNPService(LocationService locationService, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService, DatabaseSessionManager databaseSessionManager)
 	{
@@ -223,6 +236,11 @@ public class UPNPService implements Runnable
 					getUpnpDeviceSearch(registerSelectionKeys);
 				}
 
+				if (state == State.SNOOZING)
+				{
+					attemptFindExternalAddressUsingDnsIfNeeded();
+				}
+
 				selector.select(getSelectorTimeout());
 				if (Thread.interrupted())
 				{
@@ -304,12 +322,12 @@ public class UPNPService implements Runnable
 	private int getSelectorTimeout()
 	{
 		return switch (state)
-				{
-					case WAITING -> MULTICAST_MAX_WAIT_TIME;
-					case SNOOZING -> MULTICAST_MAX_WAIT_SNOOZE;
-					case CONNECTED -> PORT_DURATION - PORT_DURATION_ANTICIPATION;
-					default -> 0;
-				};
+		{
+			case WAITING -> MULTICAST_MAX_WAIT_TIME;
+			case SNOOZING -> MULTICAST_MAX_WAIT_SNOOZE;
+			case CONNECTED -> PORT_DURATION - PORT_DURATION_ANTICIPATION;
+			default -> 0;
+		};
 	}
 
 	private void setState(State newState, SelectionKey key)
@@ -341,15 +359,23 @@ public class UPNPService implements Runnable
 			{
 				setState(State.CONNECTED, key);
 				var portsAdded = refreshPorts();
-				var externalAddressFound = findExternalIpAddress();
+				var externalAddressFound = findExternalIpAddressUsingUpnp();
 
 				if (portsAdded && externalAddressFound)
 				{
-					publisher.publishEvent(new PortsForwardedEvent(localPort));
+					publisher.publishEvent(new UpnpEvent(localPort, true, true));
 					statusNotificationService.setNatStatus(NatStatus.UPNP);
 				}
 				else
 				{
+					if (findExternalIpAddressUsingDns())
+					{
+						publisher.publishEvent(new UpnpEvent(localPort, false, true));
+					}
+					else
+					{
+						publisher.publishEvent(new UpnpEvent(localPort, false, false));
+					}
 					statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
 				}
 			}
@@ -405,32 +431,69 @@ public class UPNPService implements Runnable
 		}
 	}
 
-	private boolean findExternalIpAddress()
+	private void attemptFindExternalAddressUsingDnsIfNeeded()
+	{
+		// If no UPNP seems available after the first try, attempt
+		// to find the external address using OpenDNS then keep trying
+		// with UPNP (even though it's unlikely to work). This allows at least
+		// to have the IP in the ShortInvite, which is important for reachability.
+		if (!externalIpAddressFound && findExternalIpAddressUsingDns())
+		{
+			externalIpAddressFound = true;
+			publisher.publishEvent(new UpnpEvent(localPort, false, true));
+		}
+	}
+
+	private boolean findExternalIpAddressUsingUpnp()
+	{
+		return updateExternalIpAddress(device.getExternalIpAddress());
+	}
+
+	private boolean findExternalIpAddressUsingDns()
+	{
+		Collections.shuffle(NAME_SERVERS);
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			InetAddress externalIpAddress = null;
+
+			for (String nameServer : NAME_SERVERS)
+			{
+				try
+				{
+					externalIpAddress = DNS.resolve(OWN_IP_HOST, nameServer);
+				}
+				catch (IOException e)
+				{
+					// Log the error and try the next server
+					log.error("Failed to resolve own IP using server {}: {}", nameServer, e.getMessage());
+				}
+			}
+
+			if (externalIpAddress == null)
+			{
+				return false;
+			}
+			return updateExternalIpAddress(externalIpAddress.getHostAddress());
+		}
+	}
+
+	private boolean updateExternalIpAddress(String externalIpAddress)
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			var externalIpAddress = device.getExternalIpAddress();
-			if (IP.isPublicIp(externalIpAddress))
+			var peerAddress = PeerAddress.from(externalIpAddress, localPort);
+			if (peerAddress.isInvalid())
 			{
-				var peerAddress = PeerAddress.from(externalIpAddress, localPort);
-				if (peerAddress.isInvalid())
-				{
-					log.warn("External IP is invalid: {}", externalIpAddress);
-					return false;
-				}
-				if (!peerAddress.isExternal())
-				{
-					log.warn("External IP is not external: {}", externalIpAddress);
-					return false;
-				}
-				locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress);
-				return true;
-			}
-			else
-			{
-				log.info("External IP address {} is not public, ignoring", externalIpAddress);
+				log.warn("External IP is invalid: {}", externalIpAddress);
 				return false;
 			}
+			if (!peerAddress.isExternal())
+			{
+				log.warn("External IP is not external: {}", externalIpAddress);
+				return false;
+			}
+			locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress);
+			return true;
 		}
 	}
 }

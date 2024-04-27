@@ -23,9 +23,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.time.Duration;
 
 public final class DNS
 {
+	private static final Duration TIMEOUT = Duration.ofSeconds(10);
+	private static final int DNS_PORT = 53;
+
 	private DNS()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -48,7 +52,9 @@ public final class DNS
 
 		try (var socket = new DatagramSocket())
 		{
-			var dnsReqPacket = new DatagramPacket(dnsFrame, dnsFrame.length, serverAddress, 53);
+			socket.setSoTimeout((int) TIMEOUT.toMillis());
+
+			var dnsReqPacket = new DatagramPacket(dnsFrame, dnsFrame.length, serverAddress, DNS_PORT);
 			socket.send(dnsReqPacket);
 
 			var buf = new byte[1024];

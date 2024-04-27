@@ -19,6 +19,11 @@
 
 package io.xeres.app.application.events;
 
+/**
+ * This event is sent when the current local IP changed.
+ *
+ * @param localIpAddress the new IP address
+ */
 public record IpChangedEvent(String localIpAddress)
 {
 }

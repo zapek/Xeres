@@ -20,7 +20,6 @@
 package io.xeres.app.net.dht;
 
 import io.xeres.app.application.events.DhtNodeFoundEvent;
-import io.xeres.app.application.events.DhtReadyEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.id.Id;
@@ -171,7 +170,6 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 				log.info("DHT status -> running");
 				isReady.set(true);
 				statusNotificationService.setDhtInfo(DhtInfo.fromStatus(DhtStatus.RUNNING));
-				publisher.publishEvent(new DhtReadyEvent());
 			}
 
 			case Stopped ->

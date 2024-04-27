@@ -21,6 +21,12 @@ package io.xeres.app.application.events;
 
 import io.xeres.app.database.model.settings.Settings;
 
+/**
+ * This event is sent when the settings are changed.
+ *
+ * @param oldSettings the old settings
+ * @param newSettings the new settings
+ */
 public record SettingsChangedEvent(Settings oldSettings, Settings newSettings)
 {
 }

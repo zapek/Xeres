@@ -19,6 +19,13 @@
 
 package io.xeres.app.application.events;
 
-public record DhtReadyEvent()
+/**
+ * This event is sent when there's some update on the UPNP side.
+ *
+ * @param localPort       the local port
+ * @param portsForwarded  if true, the ports have been forwarded with UPNP
+ * @param externalIpFound if true, the external IP address has been found
+ */
+public record UpnpEvent(int localPort, boolean portsForwarded, boolean externalIpFound)
 {
 }

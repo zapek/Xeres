@@ -23,7 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ThreadLocalRandom;
+import java.security.SecureRandom;
 
 class DnsRequest
 {
@@ -32,7 +32,7 @@ class DnsRequest
 
 	DnsRequest(String hostname) throws IOException
 	{
-		id = (short) ThreadLocalRandom.current().nextInt();
+		id = (short) new SecureRandom().nextInt();
 
 		array = new ByteArrayOutputStream();
 		var out = new DataOutputStream(array);

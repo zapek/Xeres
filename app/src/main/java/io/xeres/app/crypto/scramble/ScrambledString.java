@@ -20,8 +20,8 @@
 package io.xeres.app.crypto.scramble;
 
 import io.xeres.app.crypto.hash.sha256.Sha256MessageDigest;
+import io.xeres.common.util.SecureRandomUtils;
 
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -55,7 +55,6 @@ public class ScrambledString
 	private byte[] scrambledBytes;
 	private String hash;
 	private final Sha256MessageDigest digest;
-	private SecureRandom random;
 
 	/**
 	 * Create an empty scrambled string.
@@ -169,16 +168,7 @@ public class ScrambledString
 	{
 		clear(padBytes);
 		padBytes = new byte[length];
-		getSecureRandom().nextBytes(padBytes);
-	}
-
-	private SecureRandom getSecureRandom()
-	{
-		if (random == null)
-		{
-			random = new SecureRandom();
-		}
-		return random;
+		SecureRandomUtils.nextBytes(padBytes);
 	}
 
 	private void scrambleBytes(byte[] bytes)

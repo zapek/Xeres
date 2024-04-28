@@ -19,11 +19,12 @@
 
 package io.xeres.common.protocol.dns;
 
+import io.xeres.common.util.SecureRandomUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 
 class DnsRequest
 {
@@ -32,7 +33,7 @@ class DnsRequest
 
 	DnsRequest(String hostname) throws IOException
 	{
-		id = (short) new SecureRandom().nextInt();
+		id = SecureRandomUtils.nextShort();
 
 		array = new ByteArrayOutputStream();
 		var out = new DataOutputStream(array);

@@ -43,6 +43,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.util.NoSuppressedRunnable;
+import io.xeres.common.util.SecureRandomUtils;
 import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1142,7 +1143,7 @@ public class ChatRsService extends RsService
 
 		do
 		{
-			newId = ThreadLocalRandom.current().nextLong();
+			newId = SecureRandomUtils.nextLong();
 		}
 		while (availableChatRooms.containsKey(newId) || chatRooms.containsKey(newId) || invitedChatRooms.containsKey(newId));
 

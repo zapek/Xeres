@@ -30,6 +30,7 @@ import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
@@ -56,10 +59,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private final SearchRequestCache searchRequestCache = new SearchRequestCache(MAX_SEARCH_REQUEST_IN_CACHE);
 
-	private final TunnelRequestCache tunnelRequestCache = new TunnelRequestCache();
-
-	private final TunnelProbability tunnelProbability = new TunnelProbability();
-
 	private final PeerConnectionManager peerConnectionManager;
 
 	private final List<TurtleRsClient> turtleClients = new ArrayList<>();
@@ -67,6 +66,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private final IdentityRsService identityRsService;
 
 	private IdentityGroupItem ownIdentity;
+
+	private final TunnelProbability tunnelProbability = new TunnelProbability();
+
+	private final Map<Integer, TunnelRequest> tunnelRequests = new ConcurrentHashMap<>();
+
+	private final Map<Integer, HashInfo> incomingHashes = new ConcurrentHashMap<>();
 
 	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, IdentityRsService identityRsService)
 	{
@@ -118,7 +123,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		log.debug("Received tunnel request from peer {}: {}", sender, item);
 
-		if (item.getFileHash() == null) // XXX: not sure what to do with those
+		if (item.getFileHash() == null) // XXX: not sure what to do with those (RS has no code handling that...)
 		{
 			log.debug("null filehash, dropping...");
 			return;
@@ -130,9 +135,10 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		// XXX: calculate forwarding probability
-		if (tunnelRequestCache.exists(item.getRequestId(), () -> new TunnelRequest(sender.getLocation().getLocationId(), item.getDepth())))
+		if (tunnelRequests.putIfAbsent(item.getRequestId(), new TunnelRequest(sender.getLocation().getLocationId(), item.getDepth())) != null)
 		{
+			// This can happen when the same tunnel request is relayed by different peers.
+			// Simply drop it.
 			log.debug("Requests {} already exists", item.getRequestId());
 			return;
 		}
@@ -162,6 +168,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 					sender,
 					this);
 		}
+	}
+
+	private void createTunnel(Sha1Sum hash)
+	{
+		var id = SecureRandomUtils.nextInt();
+
 	}
 
 	int generateTunnelId(TurtleTunnelRequestItem item, int bias, boolean symetrical)

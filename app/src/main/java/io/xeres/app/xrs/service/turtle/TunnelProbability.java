@@ -21,8 +21,7 @@ package io.xeres.app.xrs.service.turtle;
 
 import io.xeres.app.xrs.service.turtle.item.TurtleSearchRequestItem;
 import io.xeres.app.xrs.service.turtle.item.TurtleTunnelRequestItem;
-
-import java.util.concurrent.ThreadLocalRandom;
+import io.xeres.common.util.SecureRandomUtils;
 
 import static io.xeres.app.xrs.service.turtle.TurtleRsService.MAX_TUNNEL_DEPTH;
 
@@ -32,7 +31,7 @@ class TunnelProbability
 
 	public TunnelProbability()
 	{
-		bias = ThreadLocalRandom.current().nextInt();
+		bias = SecureRandomUtils.nextInt();
 	}
 
 	/**

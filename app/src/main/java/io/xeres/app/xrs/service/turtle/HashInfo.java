@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,16 +19,20 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import java.util.Map;
+import java.time.Instant;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
-class TunnelRequestCache
+class HashInfo
 {
-	private final Map<Integer, TunnelRequest> tunnelRequests = new ConcurrentHashMap<>();
+	private final Set<Integer> tunnels = ConcurrentHashMap.newKeySet(); // XXX: probably doesn't need to be concurrent?
+	private final int lastRequest;
+	private Instant lastTime;
+	// XXX: add the rest from TurtleHashInfo
 
-	public boolean exists(int id, Supplier<TunnelRequest> tunnelRequestSupplier)
+	public HashInfo(int tunnelId)
 	{
-		return tunnelRequests.replace(id, tunnelRequestSupplier.get()) != null;
+		lastRequest = tunnelId;
+		lastTime = Instant.now();
 	}
 }

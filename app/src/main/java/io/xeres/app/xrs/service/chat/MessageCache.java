@@ -21,11 +21,11 @@ package io.xeres.app.xrs.service.chat;
 
 import io.xeres.app.crypto.hash.chat.ChatChallenge;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.util.SecureRandomUtils;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 class MessageCache
 {
@@ -78,7 +78,7 @@ class MessageCache
 
 		do
 		{
-			newId = ThreadLocalRandom.current().nextLong();
+			newId = SecureRandomUtils.nextLong();
 		}
 		while (messages.containsKey(newId));
 

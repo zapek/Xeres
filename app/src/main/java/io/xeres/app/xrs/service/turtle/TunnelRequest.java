@@ -35,9 +35,9 @@ class TunnelRequest
 	public TunnelRequest(LocationId source, int depth)
 	{
 		this.source = source;
-		this.lastUsed = Instant.now();
+		lastUsed = Instant.now();
 		this.depth = depth;
-		this.responses = new HashSet<>();
+		responses = new HashSet<>();
 	}
 
 	public LocationId getSource()

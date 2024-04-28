@@ -377,7 +377,7 @@ public class WindowManager
 	 *
 	 * @param stage the primary stage
 	 */
-	public static void calculateWindowDecorationSizes(Stage stage)
+	public void calculateWindowDecorationSizes(Stage stage)
 	{
 		if (Platform.isImplicitExit())
 		{

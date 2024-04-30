@@ -22,6 +22,7 @@
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
@@ -78,11 +79,14 @@
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.addresses" GridPane.rowIndex="4"/>
-            <ComboBox fx:id="certIps" GridPane.columnIndex="1" GridPane.rowIndex="4" minWidth="150.0">
-                <tooltip>
-                    <Tooltip showDuration="1m" text="%rsid.add.addresses.tip"/>
-                </tooltip>
-            </ComboBox>
+            <HBox GridPane.columnIndex="1" GridPane.rowIndex="4">
+                <ComboBox fx:id="certIps" minWidth="150.0">
+                    <tooltip>
+                        <Tooltip showDuration="1m" text="%rsid.add.addresses.tip"/>
+                    </tooltip>
+                </ComboBox>
+                <ImageView fx:id="imageFlag"/>
+            </HBox>
             <Label text="%rsid.add.trust" GridPane.rowIndex="5"/>
             <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5" minWidth="150.0">
                 <tooltip>

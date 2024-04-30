@@ -37,6 +37,7 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -49,6 +50,8 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 @Component
 @FxmlView(value = "/view/id/rsid_add.fxml")
@@ -82,6 +85,9 @@ public class AddRsIdWindowController implements WindowController
 
 	@FXML
 	private ComboBox<AddressCountry> certIps;
+
+	@FXML
+	private ImageView imageFlag;
 
 	@FXML
 	private ChoiceBox<Trust> trust;
@@ -201,7 +207,7 @@ public class AddRsIdWindowController implements WindowController
 										.map(s -> new AddressCountry(s, null))
 										.toList());
 
-								CompletableFuture.runAsync(() -> Platform.runLater(() -> findFlags(certIps)));
+								CompletableFuture.runAsync(() -> Platform.runLater(this::findFlags));
 							});
 					setDefaultTrust(trust);
 					titledPane.setExpanded(true);
@@ -231,7 +237,7 @@ public class AddRsIdWindowController implements WindowController
 		trust.getSelectionModel().select(Trust.UNKNOWN);
 	}
 
-	private void findFlags(ComboBox<AddressCountry> certIps)
+	private void findFlags()
 	{
 		for (var i = 0; i < certIps.getItems().size(); i++)
 		{
@@ -266,6 +272,10 @@ public class AddRsIdWindowController implements WindowController
 			}
 		}
 		certIps.getSelectionModel().select(0);
+
+		emptyIfNull(certIps.getItems()).stream()
+				.min(Comparator.comparing(AddressCountry::country))
+				.ifPresent(addressCountry -> imageFlag.setImage(FlagUtils.getFlag(imageFlag, addressCountry.country())));
 	}
 
 	private Country findByGeoIp(String ip)

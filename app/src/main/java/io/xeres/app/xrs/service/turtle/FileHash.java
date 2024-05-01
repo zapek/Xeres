@@ -23,16 +23,38 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-class HashInfo
+class FileHash
 {
 	private final Set<Integer> tunnels = ConcurrentHashMap.newKeySet(); // XXX: probably doesn't need to be concurrent?
-	private final int lastRequest;
+	private int lastRequest;
 	private Instant lastTime;
-	// XXX: add the rest from TurtleHashInfo
+	private final TurtleRsClient client;
+	private boolean aggressiveMode;
 
-	public HashInfo(int tunnelId)
+	public FileHash(boolean aggressiveMode, TurtleRsClient client)
 	{
-		lastRequest = tunnelId;
 		lastTime = Instant.now();
+		this.client = client;
+		this.aggressiveMode = aggressiveMode;
+	}
+
+	public int getLastRequest()
+	{
+		return lastRequest;
+	}
+
+	public void setLastRequest(int lastRequest)
+	{
+		this.lastRequest = lastRequest;
+	}
+
+	public void addTunnel(int tunnelId)
+	{
+		tunnels.add(tunnelId);
+	}
+
+	public TurtleRsClient getClient()
+	{
+		return client;
 	}
 }

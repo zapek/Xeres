@@ -19,16 +19,19 @@
 
 package io.xeres.app.xrs.service.turtle;
 
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceMaster;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
-import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.app.xrs.service.turtle.item.*;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
@@ -40,12 +43,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
 @Component
-public class TurtleRsService extends RsService implements RsServiceMaster<TurtleRsClient>
+public class TurtleRsService extends RsService implements RsServiceMaster<TurtleRsClient>, TurtleRouter
 {
 	private static final Logger log = LoggerFactory.getLogger(TurtleRsService.class);
 
@@ -57,27 +61,38 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private static final Duration SEARCH_REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
-	private final SearchRequestCache searchRequestCache = new SearchRequestCache(MAX_SEARCH_REQUEST_IN_CACHE);
-
-	private final PeerConnectionManager peerConnectionManager;
-
-	private final List<TurtleRsClient> turtleClients = new ArrayList<>();
-
-	private final IdentityRsService identityRsService;
-
-	private IdentityGroupItem ownIdentity;
+	private static final Duration TUNNEL_REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
 	private final TunnelProbability tunnelProbability = new TunnelProbability();
 
-	private final Map<Integer, TunnelRequest> tunnelRequests = new ConcurrentHashMap<>();
+	private final Map<Integer, SearchRequest> searchRequestsOrigins = new ConcurrentHashMap<>();
 
-	private final Map<Integer, HashInfo> incomingHashes = new ConcurrentHashMap<>();
+	private final Map<Integer, TunnelRequest> tunnelRequestsOrigins = new ConcurrentHashMap<>();
 
-	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, IdentityRsService identityRsService)
+	private final Map<Sha1Sum, FileHash> incomingHashes = new ConcurrentHashMap<>();
+
+	private final Map<Integer, Tunnel> localTunnels = new ConcurrentHashMap<>();
+
+	private final Map<LocationId, Integer> virtualPeers = new ConcurrentHashMap<>();
+
+	private final Set<Sha1Sum> hashesToRemove = ConcurrentHashMap.newKeySet();
+
+	private final List<TurtleRsClient> turtleClients = new ArrayList<>();
+
+	private final PeerConnectionManager peerConnectionManager;
+
+	private final LocationService locationService;
+
+	private final DatabaseSessionManager databaseSessionManager;
+
+	private Location ownLocation;
+
+	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
-		this.identityRsService = identityRsService;
+		this.locationService = locationService;
+		this.databaseSessionManager = databaseSessionManager;
 	}
 
 	@Override
@@ -95,7 +110,10 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public void initialize()
 	{
-		ownIdentity = identityRsService.getOwnIdentity();
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			ownLocation = locationService.findOwnLocation().orElseThrow();
+		}
 	}
 
 	@Override
@@ -107,7 +125,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 		else if (item instanceof TurtleTunnelResultItem turtleTunnelResultItem)
 		{
-			log.debug("Got tunnel OK item {} from peer {}", turtleTunnelResultItem, sender);
+			handleTunnelResult(sender, turtleTunnelResultItem);
 		}
 		else if (item instanceof TurtleSearchRequestItem turtleSearchRequestItem)
 		{
@@ -135,7 +153,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		if (tunnelRequests.putIfAbsent(item.getRequestId(), new TunnelRequest(sender.getLocation().getLocationId(), item.getDepth())) != null)
+		if (tunnelRequestsOrigins.putIfAbsent(item.getRequestId(), new TunnelRequest(sender.getLocation(), item.getDepth())) != null)
 		{
 			// This can happen when the same tunnel request is relayed by different peers.
 			// Simply drop it.
@@ -153,8 +171,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), tunnelId);
 			peerConnectionManager.writeItem(sender, resultItem, this);
 
-			client.get().addVirtualPeer(item.getFileHash(), VirtualLocationId.fromTunnel(tunnelId), TunnelDirection.CLIENT);
-			// XXX: store the opened tunnel somewhere! also we need to store the tunnel, etc... (p3turtle.cc/1687)
+			// XXX: fix all that once I implemented the TunnelDirection.SERVER.. there are too many side effects (3 calls in the right order, etc...)
+			localTunnels.put(tunnelId, new Tunnel(sender.getLocation(), ownLocation, item.getFileHash()));
+			addDistantPeer(tunnelId);
+
+			client.get().addVirtualPeer(item.getFileHash(), localTunnels.get(tunnelId).getVirtualId(), TunnelDirection.CLIENT);
 			return;
 		}
 
@@ -170,15 +191,78 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 	}
 
+	private void handleTunnelResult(PeerConnection sender, TurtleTunnelResultItem item)
+	{
+		var tunnelRequest = tunnelRequestsOrigins.get(item.getRequestId());
+		if (tunnelRequest == null)
+		{
+			log.warn("Tunnel result has no request");
+			return;
+		}
+
+		if (tunnelRequest.hasResponseAlready(item.getTunnelId()))
+		{
+			log.error("Received a tunnel response twice. This should not happen.");
+			return;
+		}
+		else
+		{
+			tunnelRequest.addResponse(item.getTunnelId());
+		}
+
+		var tunnel = localTunnels.getOrDefault(item.getTunnelId(),
+				new Tunnel(tunnelRequest.getSource(), sender.getLocation())
+		);
+
+		if (Duration.between(tunnelRequest.getLastUsed(), Instant.now()).compareTo(TUNNEL_REQUEST_TIMEOUT) > 0)
+		{
+			log.warn("Tunnel request is known but the tunnel result arrived too late, dropping");
+			return;
+		}
+
+		// Check if it's for ourselves
+		if (tunnelRequest.getSource().equals(ownLocation))
+		{
+			var fileHash = findFileHashByRequest(item.getRequestId());
+			if (fileHash != null)
+			{
+				fileHash.getValue().addTunnel(item.getTunnelId());
+
+				tunnel.setHash(fileHash.getKey()); // local tunnel
+
+				addDistantPeer(item.getTunnelId());
+				fileHash.getValue().getClient().addVirtualPeer(fileHash.getKey(), tunnel.getVirtualId(), TunnelDirection.SERVER);
+			}
+		}
+		else
+		{
+			// Forward the result back to its source
+			peerConnectionManager.writeItem(tunnelRequest.getSource(), new TurtleTunnelResultItem(item.getTunnelId(), item.getRequestId()), this);
+		}
+	}
+
+	private Map.Entry<Sha1Sum, FileHash> findFileHashByRequest(int requestId)
+	{
+		return incomingHashes.entrySet().stream()
+				.filter(integerFileHashEntry -> integerFileHashEntry.getValue().getLastRequest() == requestId)
+				.findFirst()
+				.orElse(null);
+	}
+
 	private void createTunnel(Sha1Sum hash)
 	{
 		var id = SecureRandomUtils.nextInt();
 
 	}
 
+	private void addDistantPeer(int tunnelId)
+	{
+		localTunnels.get(tunnelId).setVirtualId(VirtualLocationId.fromTunnel(tunnelId));
+	}
+
 	int generateTunnelId(TurtleTunnelRequestItem item, int bias, boolean symetrical)
 	{
-		var buf = item.getFileHash().toString() + ownIdentity.getGxsId().toString();
+		var buf = item.getFileHash().toString() + ownLocation.toString();
 		int result = bias;
 		int decal = 0;
 
@@ -204,24 +288,23 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		// XXX: check maximum size
 
-		if (searchRequestCache.isFull())
+		if (searchRequestsOrigins.size() > MAX_SEARCH_REQUEST_IN_CACHE)
 		{
 			log.debug("Request cache is full. Check if a peer is flooding.");
 			return;
 		}
 
-		// XXX: perform local search
-
-		if (searchRequestCache.exists(item.getRequestId(),
-				() -> new SearchRequest(sender.getLocation(),
-						item.getDepth(),
-						item.getKeywords(),
-						0,
-						MAX_SEARCH_HITS)))
+		if (searchRequestsOrigins.putIfAbsent(item.getRequestId(), new SearchRequest(sender.getLocation(),
+				item.getDepth(),
+				item.getKeywords(),
+				0,
+				MAX_SEARCH_HITS)) != null)
 		{
 			log.debug("Request {} already in cache", item.getRequestId());
 			return;
 		}
+
+		// XXX: perform local search and send back the results to the sender
 
 		if (tunnelProbability.isForwardable(item))
 		{
@@ -244,10 +327,10 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			// XXX: check isBanned() on the fileInfo hashes
 		}
 
-		var searchRequest = searchRequestCache.get(item.getRequestId());
+		var searchRequest = searchRequestsOrigins.get(item.getRequestId());
 		if (searchRequest == null)
 		{
-			log.error("Search result for request {} doesn't exist in the cache", item);
+			log.warn("Search result for request {} doesn't exist in the cache", item);
 			return;
 		}
 
@@ -269,5 +352,13 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private boolean isBanned(Sha1Sum fileHash)
 	{
 		return false; // TODO: implement
+	}
+
+	@Override
+	public void monitorTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels)
+	{
+		hashesToRemove.remove(hash); // the file hash was scheduled for removal, cancel it
+
+		incomingHashes.putIfAbsent(hash, new FileHash(allowMultiTunnels, client));
 	}
 }

@@ -25,6 +25,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.common.id.LocationId;
@@ -39,6 +40,8 @@ import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 @Component
 public class FileTransferRsService extends RsService implements TurtleRsClient
 {
+	private TurtleRouter turtleRouter;
+
 	private final FileService fileService;
 
 	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService)
@@ -57,6 +60,12 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	public RsServiceType getMasterServiceType()
 	{
 		return TURTLE;
+	}
+
+	@Override
+	public void initializeTurtle(TurtleRouter turtleRouter)
+	{
+		this.turtleRouter = turtleRouter;
 	}
 
 	@Override

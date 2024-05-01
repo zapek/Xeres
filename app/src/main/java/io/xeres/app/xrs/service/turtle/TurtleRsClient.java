@@ -29,6 +29,7 @@ import java.util.List;
 
 public interface TurtleRsClient extends RsServiceSlave
 {
+	void initializeTurtle(TurtleRouter turtleRouter);
 	/**
 	 * Asks if this hash can be handled. It usually boils down to searching it in some database or list.
 	 * @param sender the peer where it comes from

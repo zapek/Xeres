@@ -19,17 +19,20 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.service.turtle.item.TurtleTunnelRequestItem;
 import io.xeres.common.id.Id;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
-import io.xeres.testutils.IdFakes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -39,7 +42,10 @@ import static org.mockito.Mockito.when;
 class TurtleRsServiceTest
 {
 	@Mock
-	private IdentityRsService identityRsService;
+	private LocationService locationService;
+
+	@Mock
+	private DatabaseSessionManager databaseSessionManager;
 
 	@InjectMocks
 	private TurtleRsService turtleRsService;
@@ -48,9 +54,9 @@ class TurtleRsServiceTest
 	void TurtleRsService_GenerateTunnelId_OK()
 	{
 		// Values have been taken directly from Retroshare to make sure there's no signed/unsigned bugs
-		var ownIdentity = IdentityGroupItemFakes.createIdentityGroupItem(IdFakes.createGxsId(Id.toBytes("d3b9c7ceb75c7c68b5e3c6446259c8e7")), "Test");
+		var ownLocation = LocationFakes.createLocation("Test", null, new LocationId("d3b9c7ceb75c7c68b5e3c6446259c8e7"));
 
-		when(identityRsService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
 		turtleRsService.initialize();
 
 		var item = mock(TurtleTunnelRequestItem.class);

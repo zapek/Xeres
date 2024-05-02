@@ -67,4 +67,9 @@ class Tunnel
 	{
 		this.hash = hash;
 	}
+
+	public double getSpeed()
+	{
+		return speed;
+	}
 }

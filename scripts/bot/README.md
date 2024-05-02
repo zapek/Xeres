@@ -20,9 +20,6 @@ Either run it standalone with the `--no-gui` option or with a docker compose lik
 services:
   xeres:
     image: zapek/xeres:0.6.3-rc1
-    ports:
-      - "1066:1066"
-      - "3333:3333"
     user: 0:0
     environment:
       - SPRING_PROFILES_ACTIVE=cloud
@@ -32,6 +29,10 @@ services:
     volumes:
       xeres-bot-data:
     mem_limit: 1G
+    restart: always
+    network_mode: host
+volumes:
+  xeres-bot-data:
 ```
 
 ## Running with llamafile

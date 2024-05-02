@@ -19,21 +19,25 @@
 
 package io.xeres.app.xrs.service.turtle;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static io.xeres.app.xrs.service.turtle.TurtleRsService.EMPTY_TUNNELS_DIGGING_TIME;
 
 class FileHash
 {
 	private final Set<Integer> tunnels = ConcurrentHashMap.newKeySet(); // XXX: probably doesn't need to be concurrent?
 	private int lastRequest;
-	private Instant lastTime;
+	private Instant lastDiggTime;
 	private final TurtleRsClient client;
 	private boolean aggressiveMode;
 
 	public FileHash(boolean aggressiveMode, TurtleRsClient client)
 	{
-		lastTime = Instant.now();
+		lastDiggTime = Instant.now().plus(Duration.ofSeconds(ThreadLocalRandom.current().nextLong(EMPTY_TUNNELS_DIGGING_TIME.toSeconds())));
 		this.client = client;
 		this.aggressiveMode = aggressiveMode;
 	}
@@ -56,5 +60,30 @@ class FileHash
 	public TurtleRsClient getClient()
 	{
 		return client;
+	}
+
+	public Set<Integer> getTunnels()
+	{
+		return tunnels;
+	}
+
+	public boolean hasTunnels()
+	{
+		return !tunnels.isEmpty();
+	}
+
+	public Instant getLastDiggTime()
+	{
+		return lastDiggTime;
+	}
+
+	public void setLastDiggTime(Instant lastDiggTime)
+	{
+		this.lastDiggTime = lastDiggTime;
+	}
+
+	public boolean isAggressiveMode()
+	{
+		return aggressiveMode;
 	}
 }

@@ -33,6 +33,7 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +41,11 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
@@ -53,7 +54,18 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 {
 	private static final Logger log = LoggerFactory.getLogger(TurtleRsService.class);
 
+	/**
+	 * Time between tunnel management runs.
+	 */
+	private static final Duration TUNNEL_MANAGEMENT_DELAY = Duration.ofSeconds(2);
+
 	public static final int MAX_TUNNEL_DEPTH = 6;
+
+	public static final Duration EMPTY_TUNNELS_DIGGING_TIME = Duration.ofSeconds(50);
+
+	private static final Duration REGULAR_TUNNELS_DIGGING_TIME = Duration.ofSeconds(300);
+
+	private static final Duration TUNNEL_CLEANING_TIME = Duration.ofSeconds(10);
 
 	private static final int MAX_SEARCH_REQUEST_IN_CACHE = 120;
 
@@ -85,7 +97,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private final DatabaseSessionManager databaseSessionManager;
 
+	private ScheduledExecutorService executorService;
+
 	private Location ownLocation;
+
+	private Instant lastTunnelCleanup = Instant.EPOCH;
 
 	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager)
 	{
@@ -113,6 +129,23 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			ownLocation = locationService.findOwnLocation().orElseThrow();
+		}
+
+		executorService = Executors.newSingleThreadScheduledExecutor();
+
+		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageAll,
+				getInitPriority().getMaxTime() + TUNNEL_MANAGEMENT_DELAY.toSeconds() / 2,
+				TUNNEL_MANAGEMENT_DELAY.toSeconds(),
+				TimeUnit.SECONDS
+		);
+	}
+
+	@Override
+	public void cleanup()
+	{
+		if (executorService != null) // Can happen when running tests
+		{
+			executorService.shutdownNow();
 		}
 	}
 
@@ -167,7 +200,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (client.isPresent())
 		{
-			var tunnelId = generateTunnelId(item, tunnelProbability.getBias(), false);
+			var tunnelId = item.getPartialTunnelId() ^ generatePersonalFilePrint(item.getFileHash(), tunnelProbability.getBias(), false);
 			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), tunnelId);
 			peerConnectionManager.writeItem(sender, resultItem, this);
 
@@ -249,20 +282,14 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				.orElse(null);
 	}
 
-	private void createTunnel(Sha1Sum hash)
-	{
-		var id = SecureRandomUtils.nextInt();
-
-	}
-
 	private void addDistantPeer(int tunnelId)
 	{
 		localTunnels.get(tunnelId).setVirtualId(VirtualLocationId.fromTunnel(tunnelId));
 	}
 
-	int generateTunnelId(TurtleTunnelRequestItem item, int bias, boolean symetrical)
+	int generatePersonalFilePrint(Sha1Sum hash, int bias, boolean symetrical)
 	{
-		var buf = item.getFileHash().toString() + ownLocation.toString();
+		var buf = hash.toString() + ownLocation.toString();
 		int result = bias;
 		int decal = 0;
 
@@ -279,7 +306,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				decal = (int) (Integer.toUnsignedLong(decal) * 86243 + 15649 + (Integer.toUnsignedLong(result) % 44497));
 			}
 		}
-		return item.getPartialTunnelId() ^ result;
+		return result;
 	}
 
 	private void handleSearchRequest(PeerConnection sender, TurtleSearchRequestItem item)
@@ -360,5 +387,76 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		hashesToRemove.remove(hash); // the file hash was scheduled for removal, cancel it
 
 		incomingHashes.putIfAbsent(hash, new FileHash(allowMultiTunnels, client));
+	}
+
+	private void manageAll()
+	{
+		manageTunnels();
+
+		// XXX: compute traffic information
+
+		cleanTunnelsIfNeeded();
+		// XXX: clean every 10 seconds
+
+		// XXX: estimate speed
+	}
+
+	private void manageTunnels()
+	{
+		var now = Instant.now();
+
+		incomingHashes.entrySet().stream()
+				.filter(entry -> {
+					var fileHash = entry.getValue();
+					var totalSpeed = fileHash.getTunnels().stream()
+							.mapToDouble(tunnelId -> localTunnels.get(tunnelId).getSpeed())
+							.sum();
+
+					var tunnelKeepingFactor = (Math.max(1.0, totalSpeed / (50 * 1024)) - 1.0) + 1.0;
+
+					return ((!fileHash.hasTunnels() && Duration.between(fileHash.getLastDiggTime(), now).compareTo(EMPTY_TUNNELS_DIGGING_TIME) > 0) ||
+							(fileHash.isAggressiveMode() && Duration.between(fileHash.getLastDiggTime(), now).compareTo(Duration.ofSeconds((long) (REGULAR_TUNNELS_DIGGING_TIME.toSeconds() * tunnelKeepingFactor))) > 0));
+				})
+				.sorted(Comparator.comparing(entry -> entry.getValue().getLastDiggTime()))
+				.map(Map.Entry::getKey)
+				.findFirst()
+				.ifPresent(this::diggTunnel);
+	}
+
+	private void diggTunnel(Sha1Sum hash)
+	{
+		var id = SecureRandomUtils.nextInt();
+
+		var fileHash = incomingHashes.get(hash);
+
+		fileHash.setLastRequest(id);
+		fileHash.setLastDiggTime(Instant.now());
+
+		var item = new TurtleTunnelRequestItem(hash, id, generatePersonalFilePrint(hash, tunnelProbability.getBias(), true));
+
+		// XXX: send it! do not use handleTunnelRequest() directly but something close, though...
+	}
+
+	private void cleanTunnelsIfNeeded()
+	{
+		var now = Instant.now();
+
+		if (Duration.between(lastTunnelCleanup, now).compareTo(TUNNEL_CLEANING_TIME) > 0)
+		{
+			lastTunnelCleanup = now;
+
+			hashesToRemove.stream()
+					.filter(incomingHashes::containsKey) // XXX: needed? what happens with null maps?
+					.map(incomingHashes::get)
+					.map(FileHash::getTunnels)
+					.forEach(tunnelId -> tunnelId.forEach(this::closeTunnel));
+
+			hashesToRemove.clear();
+		}
+	}
+
+	private void closeTunnel(int id)
+	{
+		// XXX: implement...
 	}
 }

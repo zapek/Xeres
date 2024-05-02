@@ -43,6 +43,13 @@ public class TurtleTunnelRequestItem extends Item implements Cloneable
 		// Required
 	}
 
+	public TurtleTunnelRequestItem(Sha1Sum fileHash, int requestId, int partialTunnelId)
+	{
+		this.fileHash = fileHash;
+		this.requestId = requestId;
+		this.partialTunnelId = partialTunnelId;
+	}
+
 	@Override
 	public int getServiceType()
 	{

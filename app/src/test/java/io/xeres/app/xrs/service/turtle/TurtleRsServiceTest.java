@@ -51,7 +51,7 @@ class TurtleRsServiceTest
 	private TurtleRsService turtleRsService;
 
 	@Test
-	void TurtleRsService_GenerateTunnelId_OK()
+	void TurtleRsService_GeneratePersonalFilePrint_OK()
 	{
 		// Values have been taken directly from Retroshare to make sure there's no signed/unsigned bugs
 		var ownLocation = LocationFakes.createLocation("Test", null, new LocationId("d3b9c7ceb75c7c68b5e3c6446259c8e7"));
@@ -61,7 +61,7 @@ class TurtleRsServiceTest
 
 		var item = mock(TurtleTunnelRequestItem.class);
 		when(item.getFileHash()).thenReturn(new Sha1Sum(Id.toBytes("ac39b8f761465b1460948973e8fe754f4e101700")));
-		var result = turtleRsService.generateTunnelId(item, 1_833_303_450, true);
+		var result = turtleRsService.generatePersonalFilePrint(item.getFileHash(), 1_833_303_450, true);
 
 		assertEquals(3_280_770_886L, Integer.toUnsignedLong(result));
 	}

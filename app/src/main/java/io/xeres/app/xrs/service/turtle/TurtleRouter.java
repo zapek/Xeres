@@ -23,5 +23,7 @@ import io.xeres.common.id.Sha1Sum;
 
 public interface TurtleRouter
 {
-	void monitorTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels); // XXX: better name?
+	void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels); // XXX: better name?
+
+	void stopMonitoringTunnels(Sha1Sum hash);
 }

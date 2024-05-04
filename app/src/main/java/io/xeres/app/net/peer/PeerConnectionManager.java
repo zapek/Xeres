@@ -182,6 +182,11 @@ public class PeerConnectionManager
 		return ctx.writeAndFlush(rawItem);
 	}
 
+	public int getNumberOfPeers()
+	{
+		return peers.size();
+	}
+
 	public void sendToClientSubscriptions(String path, MessageType type, Object payload)
 	{
 		var headers = buildMessageHeaders(type);

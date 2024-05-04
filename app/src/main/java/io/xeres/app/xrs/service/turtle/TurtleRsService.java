@@ -26,6 +26,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.serialization.SerializerSizeCache;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceMaster;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -67,9 +68,17 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private static final Duration TUNNEL_CLEANING_TIME = Duration.ofSeconds(10);
 
+	private static final Duration SPEED_ESTIMATE_TIME = Duration.ofSeconds(5);
+
 	private static final int MAX_SEARCH_REQUEST_IN_CACHE = 120;
 
 	private static final int MAX_SEARCH_HITS = 100;
+
+	private static final Duration MAX_TUNNEL_IDLE_TIME = Duration.ofSeconds(60);
+
+	private static final Duration SEARCH_REQUEST_LIFETIME = Duration.ofSeconds(600);
+
+	private static final Duration TUNNEL_REQUEST_LIFETIME = Duration.ofSeconds(600);
 
 	private static final Duration SEARCH_REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
@@ -89,6 +98,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private final Set<Sha1Sum> hashesToRemove = ConcurrentHashMap.newKeySet();
 
+	private final Map<Integer, TurtleRsClient> outgoingTunnelClients = new ConcurrentHashMap<>();
+
 	private final List<TurtleRsClient> turtleClients = new ArrayList<>();
 
 	private final PeerConnectionManager peerConnectionManager;
@@ -102,6 +113,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private Location ownLocation;
 
 	private Instant lastTunnelCleanup = Instant.EPOCH;
+
+	private Instant lastSpeedEstimation = Instant.EPOCH;
+
+	private final TrafficStatistics trafficStatistics = new TrafficStatistics();
+	private final TrafficStatistics trafficStatisticsBuffer = new TrafficStatistics();
 
 	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager)
 	{
@@ -180,6 +196,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
+		trafficStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item));
+
 		if (isBanned(item.getFileHash()))
 		{
 			log.debug("Rejecting banned file hash {}", item.getFileHash());
@@ -212,12 +230,22 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		if (tunnelProbability.isForwardable(item)) // XXX: this is different there! needs the number of peers and speed...
+		if (tunnelProbability.isForwardable(item))
 		{
+			var probability = tunnelProbability.getForwardingProbability(
+					item,
+					trafficStatistics.getTunnelRequestsUpload(),
+					trafficStatistics.getTunnelRequestsDownload(),
+					peerConnectionManager.getNumberOfPeers());// XXX: there's a difference with RS here, it's the number of peers USING the turtle service. do we care?
+
 			peerConnectionManager.doForAllPeersExceptSender(peerConnection -> {
 						var itemToSend = item.clone();
 						tunnelProbability.incrementDepth(itemToSend);
-						peerConnectionManager.writeItem(peerConnection, itemToSend, this);
+						if (SecureRandomUtils.nextInt() <= probability)
+						{
+							trafficStatistics.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend));
+							peerConnectionManager.writeItem(peerConnection, itemToSend, this);
+						}
 					},
 					sender,
 					this);
@@ -382,23 +410,28 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	}
 
 	@Override
-	public void monitorTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels)
+	public void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels)
 	{
 		hashesToRemove.remove(hash); // the file hash was scheduled for removal, cancel it
 
 		incomingHashes.putIfAbsent(hash, new FileHash(allowMultiTunnels, client));
 	}
 
+	@Override
+	public void stopMonitoringTunnels(Sha1Sum hash)
+	{
+		hashesToRemove.add(hash);
+	}
+
 	private void manageAll()
 	{
 		manageTunnels();
 
-		// XXX: compute traffic information
+		computeTrafficInformation();
 
 		cleanTunnelsIfNeeded();
-		// XXX: clean every 10 seconds
 
-		// XXX: estimate speed
+		estimateSpeedIfNeeded();
 	}
 
 	private void manageTunnels()
@@ -409,7 +442,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				.filter(entry -> {
 					var fileHash = entry.getValue();
 					var totalSpeed = fileHash.getTunnels().stream()
-							.mapToDouble(tunnelId -> localTunnels.get(tunnelId).getSpeed())
+							.mapToDouble(tunnelId -> localTunnels.get(tunnelId).getSpeedBps())
 							.sum();
 
 					var tunnelKeepingFactor = (Math.max(1.0, totalSpeed / (50 * 1024)) - 1.0) + 1.0;
@@ -421,6 +454,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				.map(Map.Entry::getKey)
 				.findFirst()
 				.ifPresent(this::diggTunnel);
+	}
+
+	private void computeTrafficInformation()
+	{
+		trafficStatistics.multiply(0.9).add(trafficStatisticsBuffer.multiply((0.1 / TUNNEL_MANAGEMENT_DELAY.toSeconds())));
+		trafficStatisticsBuffer.reset();
 	}
 
 	private void diggTunnel(Sha1Sum hash)
@@ -440,23 +479,92 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private void cleanTunnelsIfNeeded()
 	{
 		var now = Instant.now();
-
-		if (Duration.between(lastTunnelCleanup, now).compareTo(TUNNEL_CLEANING_TIME) > 0)
+		if (Duration.between(lastTunnelCleanup, now).compareTo(TUNNEL_CLEANING_TIME) <= 0)
 		{
-			lastTunnelCleanup = now;
-
-			hashesToRemove.stream()
-					.filter(incomingHashes::containsKey) // XXX: needed? what happens with null maps?
-					.map(incomingHashes::get)
-					.map(FileHash::getTunnels)
-					.forEach(tunnelId -> tunnelId.forEach(this::closeTunnel));
-
-			hashesToRemove.clear();
+			return;
 		}
+		lastTunnelCleanup = now;
+
+		var virtualPeersToRemove = new HashMap<TurtleRsClient, AbstractMap.SimpleEntry<Sha1Sum, LocationId>>();
+
+		// Hashes marked for removal
+		hashesToRemove.stream()
+				.map(incomingHashes::remove)
+				.filter(Objects::nonNull)
+				.map(FileHash::getTunnels)
+				.forEach(tunnelId -> tunnelId.forEach(id -> closeTunnel(id, virtualPeersToRemove)));
+
+		hashesToRemove.clear();
+
+		// Search requests
+		searchRequestsOrigins.entrySet().removeIf(entry ->
+				Duration.between(now, entry.getValue().getLastUsed()).compareTo(SEARCH_REQUEST_LIFETIME) > 0);
+
+		// Tunnel requests
+		tunnelRequestsOrigins.entrySet().removeIf(entry ->
+				Duration.between(now, entry.getValue().getLastUsed()).compareTo(TUNNEL_REQUEST_LIFETIME) > 0);
+
+		// Tunnels
+		localTunnels.entrySet().stream()
+				.filter(entry -> Duration.between(now, entry.getValue().getLastUsed()).compareTo(MAX_TUNNEL_IDLE_TIME) > 0)
+				.forEach(entry -> closeTunnel(entry.getKey(), virtualPeersToRemove));
+
+		// Remove all the virtual peer ids from the clients
+		virtualPeersToRemove.forEach((client, entry) -> client.removeVirtualPeer(entry.getKey(), entry.getValue()));
 	}
 
-	private void closeTunnel(int id)
+	private void closeTunnel(int id, Map<TurtleRsClient, AbstractMap.SimpleEntry<Sha1Sum, LocationId>> sourcesToRemove)
 	{
-		// XXX: implement...
+		var tunnel = localTunnels.get(id);
+
+		if (tunnel == null)
+		{
+			log.error("Cannot close tunnel {} because it doesn't exist", id);
+			return;
+		}
+
+		if (tunnel.getSource().equals(ownLocation))
+		{
+			// This is a starting tunnel.
+
+			// Remove the virtual peer from the virtual peers list
+			virtualPeers.remove(tunnel.getVirtualId());
+
+			// Remove the tunnel id from the file hash
+			Optional.ofNullable(incomingHashes.get(tunnel.getHash())).ifPresent(fileHash -> {
+				fileHash.removeTunnel(id);
+				sourcesToRemove.put(fileHash.getClient(), new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualId()));
+			});
+		}
+		else if (tunnel.getDestination().equals(ownLocation))
+		{
+			// This is an ending tunnel.
+
+			var client = outgoingTunnelClients.remove(id);
+			if (client != null)
+			{
+				sourcesToRemove.put(client, new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualId()));
+
+				// Remove associated virtual peers
+				virtualPeers.entrySet().removeIf(entry -> entry.getValue().equals(id));
+			}
+		}
+		localTunnels.remove(id);
+	}
+
+	private void estimateSpeedIfNeeded()
+	{
+		var now = Instant.now();
+		if (Duration.between(lastSpeedEstimation, now).compareTo(SPEED_ESTIMATE_TIME) <= 0)
+		{
+			return;
+		}
+		lastSpeedEstimation = now;
+
+		localTunnels.forEach((id, tunnel) -> {
+			var speedEstimate = tunnel.getTransferredBytes() / (double) SPEED_ESTIMATE_TIME.toSeconds();
+			tunnel.setSpeedBps(0.75 * tunnel.getSpeedBps() + 0.25 * speedEstimate);
+			tunnel.clearTransferredBytes();
+		});
 	}
 }

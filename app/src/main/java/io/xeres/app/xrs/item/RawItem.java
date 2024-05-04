@@ -105,6 +105,11 @@ public class RawItem
 		return buf.getInt(4);
 	}
 
+	public int getSize()
+	{
+		return getItemSize() + HEADER_SIZE;
+	}
+
 	public ByteBuf getBuffer()
 	{
 		return buf;

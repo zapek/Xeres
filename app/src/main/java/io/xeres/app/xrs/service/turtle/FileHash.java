@@ -67,6 +67,11 @@ class FileHash
 		return tunnels;
 	}
 
+	public void removeTunnel(int tunnelId)
+	{
+		tunnels.remove(tunnelId);
+	}
+
 	public boolean hasTunnels()
 	{
 		return !tunnels.isEmpty();

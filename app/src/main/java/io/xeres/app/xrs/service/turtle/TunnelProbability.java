@@ -27,6 +27,14 @@ import static io.xeres.app.xrs.service.turtle.TurtleRsService.MAX_TUNNEL_DEPTH;
 
 class TunnelProbability
 {
+	private static final int TUNNEL_REQUEST_PACKET_SIZE = 50;
+
+	private static final int MAX_TUNNEL_REQUEST_FORWARD_PER_SECOND = 20; // XXX: this one is settable in RS, decide what to do
+
+	private static final int DISTANCE_SQUEEZING_POWER = 8;
+
+	private static final double[] DEPTH_PEER_PROBABILITY = new double[]{1.0, 0.99, 0.9, 0.7, 0.6, 0.5, 0.4};
+
 	private final int bias;
 
 	public TunnelProbability()
@@ -89,5 +97,23 @@ class TunnelProbability
 	public int getBias()
 	{
 		return bias;
+	}
+
+	public double getForwardingProbability(TurtleTunnelRequestItem item, double tunnelRequestsUpload, double tunnelRequestsDownload, int numberOfPeers)
+	{
+		var distanceToMaximum = Math.min(100.0, tunnelRequestsUpload / (TUNNEL_REQUEST_PACKET_SIZE * MAX_TUNNEL_REQUEST_FORWARD_PER_SECOND));
+		var correctedDistance = Math.pow(distanceToMaximum, DISTANCE_SQUEEZING_POWER);
+		var forwardProbability = Math.pow(DEPTH_PEER_PROBABILITY[Math.min(6, item.getDepth())], correctedDistance);
+
+		if (forwardProbability * numberOfPeers < 1.0 && numberOfPeers > 0)
+		{
+			forwardProbability = 1.0 / numberOfPeers;
+
+			if (tunnelRequestsDownload / TUNNEL_REQUEST_PACKET_SIZE > MAX_TUNNEL_REQUEST_FORWARD_PER_SECOND)
+			{
+				forwardProbability *= MAX_TUNNEL_REQUEST_FORWARD_PER_SECOND * TUNNEL_REQUEST_PACKET_SIZE / tunnelRequestsDownload;
+			}
+		}
+		return forwardProbability;
 	}
 }

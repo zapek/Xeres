@@ -27,11 +27,11 @@ import java.time.Instant;
 
 class Tunnel
 {
-	private Location source;
-	private Location destination;
-	private Instant lastUsed;
-	private long transferred;
-	private double speed;
+	private final Location source;
+	private final Location destination;
+	private final Instant lastUsed;
+	private long transferredBytes;
+	private double speedBps;
 	private Sha1Sum hash;
 	private LocationId virtualId;
 
@@ -46,6 +46,16 @@ class Tunnel
 	public Tunnel(Location source, Location destination)
 	{
 		this(source, destination, null);
+	}
+
+	public Location getSource()
+	{
+		return source;
+	}
+
+	public Location getDestination()
+	{
+		return destination;
 	}
 
 	public void setVirtualId(LocationId virtualId)
@@ -68,8 +78,28 @@ class Tunnel
 		this.hash = hash;
 	}
 
-	public double getSpeed()
+	public double getSpeedBps()
 	{
-		return speed;
+		return speedBps;
+	}
+
+	public void setSpeedBps(double speedBps)
+	{
+		this.speedBps = speedBps;
+	}
+
+	public Instant getLastUsed()
+	{
+		return lastUsed;
+	}
+
+	public long getTransferredBytes()
+	{
+		return transferredBytes;
+	}
+
+	public void clearTransferredBytes()
+	{
+		transferredBytes = 0;
 	}
 }

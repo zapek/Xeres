@@ -35,7 +35,7 @@ class SearchRequest
 	public SearchRequest(Location source, int depth, String keywords, int resultCount, int hitLimit)
 	{
 		this.source = source;
-		this.lastUsed = Instant.now();
+		lastUsed = Instant.now();
 		this.depth = depth;
 		this.keywords = keywords;
 		this.resultCount = resultCount;

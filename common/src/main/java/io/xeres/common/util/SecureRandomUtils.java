@@ -49,6 +49,11 @@ public final class SecureRandomUtils
 		return SECURE_RANDOM.nextLong();
 	}
 
+	public static double nextDouble()
+	{
+		return SECURE_RANDOM.nextDouble();
+	}
+
 	public static void nextBytes(byte[] bytes)
 	{
 		SECURE_RANDOM.nextBytes(bytes);

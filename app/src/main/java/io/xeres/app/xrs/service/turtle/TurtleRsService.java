@@ -241,7 +241,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			peerConnectionManager.doForAllPeersExceptSender(peerConnection -> {
 						var itemToSend = item.clone();
 						tunnelProbability.incrementDepth(itemToSend);
-						if (SecureRandomUtils.nextInt() <= probability)
+						if (SecureRandomUtils.nextDouble() <= probability)
 						{
 							trafficStatistics.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend));
 							peerConnectionManager.writeItem(peerConnection, itemToSend, this);

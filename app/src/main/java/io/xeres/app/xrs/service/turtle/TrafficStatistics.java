@@ -114,6 +114,16 @@ class TrafficStatistics
 		tunnelRequestsUpload += size;
 	}
 
+	public void addToUnknownTotal(int size)
+	{
+		unknownTotal += size;
+	}
+
+	public void addToDataDownload(int size)
+	{
+		dataDownload += size;
+	}
+
 	public double getUnknownTotal()
 	{
 		return unknownTotal;

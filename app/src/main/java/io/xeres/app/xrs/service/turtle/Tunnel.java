@@ -30,22 +30,18 @@ class Tunnel
 	private final Location source;
 	private final Location destination;
 	private final Instant lastUsed;
+	private final LocationId virtualId;
+	private final Sha1Sum hash;
 	private long transferredBytes;
 	private double speedBps;
-	private Sha1Sum hash;
-	private LocationId virtualId;
 
-	public Tunnel(Location source, Location destination, Sha1Sum hash)
+	public Tunnel(int tunnelId, Location source, Location destination, Sha1Sum hash)
 	{
 		this.source = source;
 		this.destination = destination;
 		this.hash = hash;
+		virtualId = VirtualLocationId.fromTunnel(tunnelId);
 		lastUsed = Instant.now();
-	}
-
-	public Tunnel(Location source, Location destination)
-	{
-		this(source, destination, null);
 	}
 
 	public Location getSource()
@@ -58,11 +54,6 @@ class Tunnel
 		return destination;
 	}
 
-	public void setVirtualId(LocationId virtualId)
-	{
-		this.virtualId = virtualId;
-	}
-
 	public LocationId getVirtualId()
 	{
 		return virtualId;
@@ -73,11 +64,6 @@ class Tunnel
 		return hash;
 	}
 
-	public void setHash(Sha1Sum hash)
-	{
-		this.hash = hash;
-	}
-
 	public double getSpeedBps()
 	{
 		return speedBps;
@@ -86,6 +72,11 @@ class Tunnel
 	public void setSpeedBps(double speedBps)
 	{
 		this.speedBps = speedBps;
+	}
+
+	public void setTransferredBytes(long transferredBytes)
+	{
+		this.transferredBytes = transferredBytes;
 	}
 
 	public Instant getLastUsed()

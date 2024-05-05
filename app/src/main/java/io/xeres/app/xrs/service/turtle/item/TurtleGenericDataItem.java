@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,26 +17,34 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.item;
+package io.xeres.app.xrs.service.turtle.item;
 
-import org.junit.jupiter.api.Test;
-
-import static io.xeres.app.xrs.item.ItemPriority.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class ItemPriorityTest
+public class TurtleGenericDataItem extends TurtleGenericTunnelItem implements Cloneable
 {
-	@Test
-	void ItemPriority_Enum_Value()
-	{
-		assertEquals(2, BACKGROUND.getPriority());
-		assertEquals(3, DEFAULT.getPriority());
-		assertEquals(5, NORMAL.getPriority());
-		assertEquals(6, HIGH.getPriority());
-		assertEquals(7, INTERACTIVE.getPriority());
-		assertEquals(8, IMPORTANT.getPriority());
-		assertEquals(9, REALTIME.getPriority());
+	// XXX: do se need a shouldStamp()? see also for the fast version
 
-		assertEquals(7, values().length);
+	public TurtleGenericDataItem()
+	{
+		// Required
+	}
+
+	@Override
+	public int getSubType()
+	{
+		return 10;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TurtleGenericDataItem{" +
+				"tunnelData.length=" + super.getTunnelData().length +
+				'}';
+	}
+
+	@Override
+	public TurtleGenericDataItem clone()
+	{
+		return (TurtleGenericDataItem) super.clone();
 	}
 }

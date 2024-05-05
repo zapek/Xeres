@@ -31,6 +31,8 @@ public enum ItemPriority
 	 */
 	DEFAULT(3),
 
+	NORMAL(5),
+
 	/**
 	 * High priority. Has consequences for other services and should be serviced quickly (for example GxS exchanges).
 	 */

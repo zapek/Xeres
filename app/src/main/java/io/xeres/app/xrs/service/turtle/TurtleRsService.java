@@ -26,6 +26,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.SerializerSizeCache;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceMaster;
@@ -168,7 +169,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		if (item instanceof TurtleTunnelRequestItem turtleTunnelRequestItem)
+		if (item instanceof TurtleGenericTunnelItem turtleGenericTunnelItem)
+		{
+			routeGenericTunnel(sender, turtleGenericTunnelItem);
+		}
+		else if (item instanceof TurtleTunnelRequestItem turtleTunnelRequestItem)
 		{
 			handleTunnelRequest(sender, turtleTunnelRequestItem);
 		}
@@ -183,6 +188,80 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		else if (item instanceof TurtleSearchResultItem turtleSearchResultItem)
 		{
 			handleSearchResult(sender, turtleSearchResultItem);
+		}
+	}
+
+	private void routeGenericTunnel(PeerConnection sender, TurtleGenericTunnelItem item)
+	{
+		var tunnel = localTunnels.get(item.getTunnelId());
+		if (tunnel == null)
+		{
+			log.error("Got file map with unknown tunnel id {}", item.getTunnelId());
+			return;
+		}
+
+		// XXX: add time stamp logic
+
+		var serializedSize = item.serializeItem(EnumSet.noneOf(SerializationFlags.class)).getSize(); // XXX: maybe find a flag to do the size serialization only because it's a bit of a CPU waste
+		tunnel.setTransferredBytes(serializedSize);
+
+		if (sender.getLocation().equals(tunnel.getDestination()))
+		{
+			item.setDirection(TunnelDirection.CLIENT);
+		}
+		else if (sender.getLocation().equals(tunnel.getSource()))
+		{
+			item.setDirection(TunnelDirection.SERVER);
+		}
+		else
+		{
+			log.error("Generic tunnel mismatch source/destination id");
+			return;
+		}
+
+		if (sender.getLocation().equals(tunnel.getDestination()) && !tunnel.getSource().equals(ownLocation))
+		{
+			log.debug("Forwarding generic item to {}", tunnel.getSource());
+
+			trafficStatisticsBuffer.addToUnknownTotal(serializedSize);
+
+			peerConnectionManager.writeItem(tunnel.getSource(), item.clone(), this); // XXX: implement clone!
+			return;
+		}
+
+		if (sender.getLocation().equals(tunnel.getSource()) && !tunnel.getDestination().equals(ownLocation))
+		{
+			log.debug("Forwarding generic item to {}", tunnel.getDestination());
+
+			trafficStatisticsBuffer.addToUnknownTotal(serializedSize);
+
+			peerConnectionManager.writeItem(tunnel.getDestination(), item.clone(), this); // XXX: implement clone!
+			return;
+		}
+
+		// Item is for us
+		trafficStatisticsBuffer.addToDataDownload(serializedSize);
+
+		handleReceiveGenericTunnel(item, tunnel);
+	}
+
+	private void handleReceiveGenericTunnel(TurtleGenericTunnelItem item, Tunnel tunnel)
+	{
+		TurtleRsClient client = null;
+
+		if (tunnel.getSource().equals(ownLocation))
+		{
+			var fileHash = incomingHashes.get(tunnel.getHash());
+			if (fileHash == null)
+			{
+				log.warn("Hash {} for client side tunnel endpoint {} has been removed (late response?), dropping", tunnel.getHash(), item.getTunnelId());
+				return;
+			}
+			client = fileHash.getClient();
+		}
+		else if (tunnel.getDestination().equals(ownLocation))
+		{
+			// XXX: continue...
 		}
 	}
 
@@ -222,11 +301,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), tunnelId);
 			peerConnectionManager.writeItem(sender, resultItem, this);
 
-			// XXX: fix all that once I implemented the TunnelDirection.SERVER.. there are too many side effects (3 calls in the right order, etc...)
-			localTunnels.put(tunnelId, new Tunnel(sender.getLocation(), ownLocation, item.getFileHash()));
-			addDistantPeer(tunnelId);
-
-			client.get().addVirtualPeer(item.getFileHash(), localTunnels.get(tunnelId).getVirtualId(), TunnelDirection.CLIENT);
+			var tunnel = new Tunnel(tunnelId, sender.getLocation(), ownLocation, item.getFileHash());
+			localTunnels.put(tunnelId, tunnel);
+			client.get().addVirtualPeer(item.getFileHash(), tunnel.getVirtualId(), TunnelDirection.CLIENT);
 			return;
 		}
 
@@ -271,10 +348,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			tunnelRequest.addResponse(item.getTunnelId());
 		}
 
-		var tunnel = localTunnels.getOrDefault(item.getTunnelId(),
-				new Tunnel(tunnelRequest.getSource(), sender.getLocation())
-		);
-
 		if (Duration.between(tunnelRequest.getLastUsed(), Instant.now()).compareTo(TUNNEL_REQUEST_TIMEOUT) > 0)
 		{
 			log.warn("Tunnel request is known but the tunnel result arrived too late, dropping");
@@ -289,9 +362,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			{
 				fileHash.getValue().addTunnel(item.getTunnelId());
 
-				tunnel.setHash(fileHash.getKey()); // local tunnel
-
-				addDistantPeer(item.getTunnelId());
+				// Local tunnel
+				var tunnel = localTunnels.computeIfAbsent(item.getTunnelId(), tunnelId -> new Tunnel(item.getTunnelId(), tunnelRequest.getSource(), sender.getLocation(), fileHash.getKey()));
 				fileHash.getValue().getClient().addVirtualPeer(fileHash.getKey(), tunnel.getVirtualId(), TunnelDirection.SERVER);
 			}
 		}
@@ -308,11 +380,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				.filter(integerFileHashEntry -> integerFileHashEntry.getValue().getLastRequest() == requestId)
 				.findFirst()
 				.orElse(null);
-	}
-
-	private void addDistantPeer(int tunnelId)
-	{
-		localTunnels.get(tunnelId).setVirtualId(VirtualLocationId.fromTunnel(tunnelId));
 	}
 
 	int generatePersonalFilePrint(Sha1Sum hash, int bias, boolean symetrical)
@@ -426,11 +493,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private void manageAll()
 	{
 		manageTunnels();
-
 		computeTrafficInformation();
-
 		cleanTunnelsIfNeeded();
-
 		estimateSpeedIfNeeded();
 	}
 
@@ -460,6 +524,20 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		trafficStatistics.multiply(0.9).add(trafficStatisticsBuffer.multiply((0.1 / TUNNEL_MANAGEMENT_DELAY.toSeconds())));
 		trafficStatisticsBuffer.reset();
+	}
+
+	/**
+	 * Forces to re-digg a tunnel.
+	 *
+	 * @param hash the hash to re-digg a tunnel for
+	 */
+	public void forceReDiggTunnel(Sha1Sum hash)
+	{
+		if (!incomingHashes.containsKey(hash))
+		{
+			return;
+		}
+		diggTunnel(hash);
 	}
 
 	private void diggTunnel(Sha1Sum hash)

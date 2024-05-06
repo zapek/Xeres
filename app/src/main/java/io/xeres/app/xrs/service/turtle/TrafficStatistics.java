@@ -124,6 +124,11 @@ class TrafficStatistics
 		dataDownload += size;
 	}
 
+	public void addToDataUpload(int size)
+	{
+		dataUpload += size;
+	}
+
 	public double getUnknownTotal()
 	{
 		return unknownTotal;

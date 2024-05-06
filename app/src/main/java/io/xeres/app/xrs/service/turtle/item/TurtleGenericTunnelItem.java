@@ -57,6 +57,11 @@ public abstract class TurtleGenericTunnelItem extends Item implements Cloneable
 		return tunnelId;
 	}
 
+	public void setTunnelId(int tunnelId)
+	{
+		this.tunnelId = tunnelId;
+	}
+
 	public TunnelDirection getDirection()
 	{
 		return direction;

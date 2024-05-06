@@ -17,26 +17,39 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle;
+package io.xeres.app.xrs.service.filetransfer.item;
 
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
-import io.xeres.common.id.LocationId;
+import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
+import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Sha1Sum;
 
-public interface TurtleRouter
+public class FileTransferChunkMapItem extends Item
 {
-	void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels); // XXX: better name?
+	@RsSerialized
+	private boolean isClient;
 
-	void stopMonitoringTunnels(Sha1Sum hash);
+	@RsSerialized
+	private Sha1Sum hash;
 
-	/**
-	 * Forces to re-digg a tunnel.
-	 *
-	 * @param hash the hash to re-digg a tunnel for
-	 */
-	void forceReDiggTunnel(Sha1Sum hash);
+	// XXX: add CompressedChunkMap
 
-	void sendTurtleData(LocationId virtualPeerId, TurtleGenericTunnelItem item);
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.FILE_TRANSFER.getType();
+	}
 
-	boolean isVirtualPeer(LocationId locationId);
+	@Override
+	public int getSubType()
+	{
+		return 5;
+	}
+
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.HIGH.getPriority();
+	}
 }

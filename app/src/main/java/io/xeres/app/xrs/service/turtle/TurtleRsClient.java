@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.turtle;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.service.RsServiceSlave;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
+import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 
@@ -38,7 +39,7 @@ public interface TurtleRsClient extends RsServiceSlave
 	 */
 	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash);
 
-	void receiveTurtleData(Sha1Sum hash, LocationId virtualLocationId, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
+	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hash, LocationId virtualLocationId, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
 
 	/**
 	 * Asks to search something.

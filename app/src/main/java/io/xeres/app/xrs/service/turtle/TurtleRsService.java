@@ -25,6 +25,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.SerializerSizeCache;
@@ -108,6 +109,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private final LocationService locationService;
 
 	private final DatabaseSessionManager databaseSessionManager;
+	private final FileNotificationService fileNotificationService;
 
 	private ScheduledExecutorService executorService;
 
@@ -120,12 +122,13 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private final TrafficStatistics trafficStatistics = new TrafficStatistics();
 	private final TrafficStatistics trafficStatisticsBuffer = new TrafficStatistics();
 
-	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager)
+	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager, FileNotificationService fileNotificationService)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
 		this.locationService = locationService;
 		this.databaseSessionManager = databaseSessionManager;
+		this.fileNotificationService = fileNotificationService;
 	}
 
 	@Override
@@ -191,6 +194,73 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 	}
 
+	@Override
+	public void forceReDiggTunnel(Sha1Sum hash)
+	{
+		if (!incomingHashes.containsKey(hash))
+		{
+			return;
+		}
+		diggTunnel(hash);
+	}
+
+	@Override
+	public void sendTurtleData(LocationId virtualPeerId, TurtleGenericTunnelItem item)
+	{
+		var tunnelId = virtualPeers.get(virtualPeerId);
+		if (tunnelId == null)
+		{
+			log.warn("Couldn't find tunnel for virtual peer {}", virtualPeerId);
+			return;
+		}
+
+		var tunnel = localTunnels.get(tunnelId);
+		if (tunnel == null)
+		{
+			log.warn("Client asked to send a packet through a tunnel that has been deleted.");
+			return;
+		}
+
+		item.setTunnelId(tunnelId);
+
+		var itemSerializedSize = item.serializeItem(EnumSet.noneOf(SerializationFlags.class)).getSize(); // XXX: optimize... we're doing it twice
+
+		// XXX: timestamp the tunnel
+
+		tunnel.addTransferredBytes(itemSerializedSize);
+
+		if (tunnel.getSource().equals(ownLocation))
+		{
+			item.setDirection(TunnelDirection.SERVER);
+			trafficStatisticsBuffer.addToDataDownload(itemSerializedSize);
+			peerConnectionManager.writeItem(tunnel.getDestination(), item, this);
+		}
+		else if (tunnel.getDestination().equals(ownLocation))
+		{
+			item.setDirection(TunnelDirection.CLIENT);
+			trafficStatisticsBuffer.addToDataUpload(itemSerializedSize);
+			peerConnectionManager.writeItem(tunnel.getSource(), item, this);
+		}
+		else
+		{
+			log.error("Asked to send a packet into a tunnel that is not registered, dropping packet");
+		}
+	}
+
+	@Override
+	public void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels)
+	{
+		hashesToRemove.remove(hash); // the file hash was scheduled for removal, cancel it
+
+		incomingHashes.putIfAbsent(hash, new FileHash(allowMultiTunnels, client));
+	}
+
+	@Override
+	public void stopMonitoringTunnels(Sha1Sum hash)
+	{
+		hashesToRemove.add(hash);
+	}
+
 	private void routeGenericTunnel(PeerConnection sender, TurtleGenericTunnelItem item)
 	{
 		var tunnel = localTunnels.get(item.getTunnelId());
@@ -203,7 +273,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		// XXX: add time stamp logic
 
 		var serializedSize = item.serializeItem(EnumSet.noneOf(SerializationFlags.class)).getSize(); // XXX: maybe find a flag to do the size serialization only because it's a bit of a CPU waste
-		tunnel.setTransferredBytes(serializedSize);
+		tunnel.addTransferredBytes(serializedSize);
 
 		if (sender.getLocation().equals(tunnel.getDestination()))
 		{
@@ -245,6 +315,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		handleReceiveGenericTunnel(item, tunnel);
 	}
 
+	@Override
+	public boolean isVirtualPeer(LocationId locationId)
+	{
+		return virtualPeers.containsKey(locationId);
+	}
+
 	private void handleReceiveGenericTunnel(TurtleGenericTunnelItem item, Tunnel tunnel)
 	{
 		TurtleRsClient client = null;
@@ -261,8 +337,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 		else if (tunnel.getDestination().equals(ownLocation))
 		{
-			// XXX: continue...
+			client = outgoingTunnelClients.get(item.getTunnelId());
+			if (client == null)
+			{
+				log.warn("Hash {} for server side tunnel endpoint {} has been removed (late response?), dropping", tunnel.getHash(), item.getTunnelId());
+				return;
+			}
 		}
+		assert client != null;
+		client.receiveTurtleData(item, tunnel.getHash(), tunnel.getVirtualId(), item.getDirection());
 	}
 
 	private void handleTunnelRequest(PeerConnection sender, TurtleTunnelRequestItem item)
@@ -476,20 +559,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		return false; // TODO: implement
 	}
 
-	@Override
-	public void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels)
-	{
-		hashesToRemove.remove(hash); // the file hash was scheduled for removal, cancel it
-
-		incomingHashes.putIfAbsent(hash, new FileHash(allowMultiTunnels, client));
-	}
-
-	@Override
-	public void stopMonitoringTunnels(Sha1Sum hash)
-	{
-		hashesToRemove.add(hash);
-	}
-
 	private void manageAll()
 	{
 		manageTunnels();
@@ -524,20 +593,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		trafficStatistics.multiply(0.9).add(trafficStatisticsBuffer.multiply((0.1 / TUNNEL_MANAGEMENT_DELAY.toSeconds())));
 		trafficStatisticsBuffer.reset();
-	}
-
-	/**
-	 * Forces to re-digg a tunnel.
-	 *
-	 * @param hash the hash to re-digg a tunnel for
-	 */
-	public void forceReDiggTunnel(Sha1Sum hash)
-	{
-		if (!incomingHashes.containsKey(hash))
-		{
-			return;
-		}
-		diggTunnel(hash);
 	}
 
 	private void diggTunnel(Sha1Sum hash)

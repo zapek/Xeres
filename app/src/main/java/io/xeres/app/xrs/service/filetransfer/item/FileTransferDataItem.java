@@ -17,26 +17,31 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle;
+package io.xeres.app.xrs.service.filetransfer.item;
 
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
-import io.xeres.common.id.LocationId;
-import io.xeres.common.id.Sha1Sum;
+import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemPriority;
+import io.xeres.app.xrs.service.RsServiceType;
 
-public interface TurtleRouter
+public class FileTransferDataItem extends Item
 {
-	void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels); // XXX: better name?
+	// XXX: add file data fd
 
-	void stopMonitoringTunnels(Sha1Sum hash);
+	@Override
+	public int getServiceType()
+	{
+		return RsServiceType.FILE_TRANSFER.getType();
+	}
 
-	/**
-	 * Forces to re-digg a tunnel.
-	 *
-	 * @param hash the hash to re-digg a tunnel for
-	 */
-	void forceReDiggTunnel(Sha1Sum hash);
+	@Override
+	public int getSubType()
+	{
+		return 2;
+	}
 
-	void sendTurtleData(LocationId virtualPeerId, TurtleGenericTunnelItem item);
-
-	boolean isVirtualPeer(LocationId locationId);
+	@Override
+	public int getPriority()
+	{
+		return ItemPriority.NORMAL.getPriority();
+	}
 }

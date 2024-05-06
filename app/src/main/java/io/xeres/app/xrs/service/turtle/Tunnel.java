@@ -74,9 +74,9 @@ class Tunnel
 		this.speedBps = speedBps;
 	}
 
-	public void setTransferredBytes(long transferredBytes)
+	public void addTransferredBytes(long transferredBytes)
 	{
-		this.transferredBytes = transferredBytes;
+		this.transferredBytes += transferredBytes;
 	}
 
 	public Instant getLastUsed()

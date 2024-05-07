@@ -22,7 +22,11 @@ package io.xeres.app.xrs.serialization;
 public enum TlvType
 {
 	NONE(0x0),
+	INT_SIZE(0x30),
+	INT_POPULARITY(0x31),
+	INT_AGE(0x32),
 	STR_NAME(0x51),
+	STR_PATH(0x52),
 	STR_VALUE(0x54),
 	STR_MSG(0x57),
 	STR_GENID(0x5a),
@@ -40,6 +44,8 @@ public enum TlvType
 	KEY_EVP_PKEY(0x110),
 	SIGN_RSA_SHA1(0x120),
 	BIN_IMAGE(0x130),
+	FILE_ITEM(0x1000),
+	SET_HASH(0x1022),
 	SET_PGP_ID(0x1023),
 	SET_RECOGN(0x1024),
 	SET_GXS_ID(0x1025),

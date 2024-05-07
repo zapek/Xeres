@@ -19,10 +19,13 @@
 
 package io.xeres.app.xrs.service.filetransfer.item;
 
+import io.xeres.app.xrs.common.FileItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
+
+import static io.xeres.app.xrs.serialization.TlvType.FILE_ITEM;
 
 public class FileTransferDataRequestItem extends Item
 {
@@ -32,7 +35,8 @@ public class FileTransferDataRequestItem extends Item
 	@RsSerialized
 	private int chunkSize;
 
-	// XXX: add file information
+	@RsSerialized(tlvType = FILE_ITEM)
+	private FileItem fileItem;
 
 	@Override
 	public int getServiceType()

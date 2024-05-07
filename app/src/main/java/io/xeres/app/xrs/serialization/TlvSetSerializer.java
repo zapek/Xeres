@@ -72,7 +72,7 @@ final class TlvSetSerializer
 		return TLV_HEADER_SIZE + 8 * set.size();
 	}
 
-	private static int getIdentifierSize(Set<? extends Identifier> set)
+	static int getIdentifierSize(Set<? extends Identifier> set)
 	{
 		if (set.isEmpty())
 		{

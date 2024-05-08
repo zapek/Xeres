@@ -23,8 +23,6 @@ import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 final class ByteSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(ByteSerializer.class);
@@ -35,12 +33,11 @@ final class ByteSerializer
 	}
 
 	@SuppressWarnings("SameReturnValue")
-	static int serialize(ByteBuf buf, Byte b)
+	static int serialize(ByteBuf buf, byte value)
 	{
-		Objects.requireNonNull(b, "Null byte not supported");
-		log.trace("Writing byte: {}", b);
+		log.trace("Writing byte: {}", value);
 		buf.ensureWritable(1);
-		buf.writeByte(b);
+		buf.writeByte(value);
 		return 1;
 	}
 

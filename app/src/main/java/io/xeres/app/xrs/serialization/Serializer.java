@@ -27,10 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Class to serialize data types into a format compatible with
@@ -51,19 +48,19 @@ public final class Serializer
 	 * Serializes an integer.
 	 *
 	 * @param buf the buffer
-	 * @param i   the integer
-	 * @return the number of bytes taken
+	 * @param value the value to serialize
+	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, Integer i)
+	public static int serialize(ByteBuf buf, int value)
 	{
-		return IntSerializer.serialize(buf, i);
+		return IntSerializer.serialize(buf, value);
 	}
 
 	/**
 	 * Deserializes an integer.
 	 *
 	 * @param buf the buffer
-	 * @return the integer
+	 * @return the value
 	 */
 	public static int deserializeInt(ByteBuf buf)
 	{
@@ -74,19 +71,19 @@ public final class Serializer
 	 * Serializes a short.
 	 *
 	 * @param buf the buffer
-	 * @param sh  the short
-	 * @return the number of bytes taken
+	 * @param value the value to serialize
+	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, Short sh)
+	public static int serialize(ByteBuf buf, short value)
 	{
-		return ShortSerializer.serialize(buf, sh);
+		return ShortSerializer.serialize(buf, value);
 	}
 
 	/**
 	 * Deserializes a short.
 	 *
 	 * @param buf the buffer
-	 * @return the short
+	 * @return the value
 	 */
 	public static short deserializeShort(ByteBuf buf)
 	{
@@ -97,19 +94,19 @@ public final class Serializer
 	 * Serializes a byte.
 	 *
 	 * @param buf the buffer
-	 * @param b   the byte
-	 * @return the number of bytes taken
+	 * @param value the value to serialize
+	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, Byte b)
+	public static int serialize(ByteBuf buf, byte value)
 	{
-		return ByteSerializer.serialize(buf, b);
+		return ByteSerializer.serialize(buf, value);
 	}
 
 	/**
 	 * Deserializes a byte.
 	 *
 	 * @param buf the buffer
-	 * @return the byte
+	 * @return the value
 	 */
 	public static byte deserializeByte(ByteBuf buf)
 	{
@@ -120,19 +117,19 @@ public final class Serializer
 	 * Serializes a long.
 	 *
 	 * @param buf the buffer
-	 * @param l   the long
-	 * @return the number of bytes taken
+	 * @param value the value to serialize
+	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, Long l)
+	public static int serialize(ByteBuf buf, long value)
 	{
-		return LongSerializer.serialize(buf, l);
+		return LongSerializer.serialize(buf, value);
 	}
 
 	/**
 	 * Deserializes a long.
 	 *
 	 * @param buf the buffer
-	 * @return the long
+	 * @return the value
 	 */
 	public static long deserializeLong(ByteBuf buf)
 	{
@@ -143,19 +140,19 @@ public final class Serializer
 	 * Serializes a float.
 	 *
 	 * @param buf the buffer
-	 * @param f   the float
-	 * @return the number of bytes taken
+	 * @param value the value to serialize
+	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, Float f)
+	public static int serialize(ByteBuf buf, float value)
 	{
-		return FloatSerializer.serialize(buf, f);
+		return FloatSerializer.serialize(buf, value);
 	}
 
 	/**
 	 * Deserializes a float.
 	 *
 	 * @param buf the buffer
-	 * @return the float
+	 * @return the value
 	 */
 	public static float deserializeFloat(ByteBuf buf)
 	{
@@ -166,19 +163,19 @@ public final class Serializer
 	 * Serializes a double.
 	 *
 	 * @param buf the buffer
-	 * @param d   the double
-	 * @return the number of bytes taken
+	 * @param value the value to serialize
+	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, Double d)
+	public static int serialize(ByteBuf buf, double value)
 	{
-		return DoubleSerializer.serialize(buf, d);
+		return DoubleSerializer.serialize(buf, value);
 	}
 
 	/**
 	 * Deserializes a double.
 	 *
 	 * @param buf the buffer
-	 * @return the double
+	 * @return the value
 	 */
 	public static double deserializeDouble(ByteBuf buf)
 	{
@@ -189,19 +186,19 @@ public final class Serializer
 	 * Serializes a boolean.
 	 *
 	 * @param buf  the buffer
-	 * @param bool the boolean
-	 * @return the number of bytes taken
+	 * @param value the value to serialize
+	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, Boolean bool)
+	public static int serialize(ByteBuf buf, boolean value)
 	{
-		return BooleanSerializer.serialize(buf, bool);
+		return BooleanSerializer.serialize(buf, value);
 	}
 
 	/**
 	 * Deserializes a boolean.
 	 *
 	 * @param buf the buffer
-	 * @return the boolean
+	 * @return the value
 	 */
 	public static boolean deserializeBoolean(ByteBuf buf)
 	{
@@ -212,12 +209,12 @@ public final class Serializer
 	 * Serializes a string.
 	 *
 	 * @param buf the buffer
-	 * @param s   the string
-	 * @return the number of bytes taken
+	 * @param value   the string
+	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, String s)
+	public static int serialize(ByteBuf buf, String value)
 	{
-		return StringSerializer.serialize(buf, s);
+		return StringSerializer.serialize(buf, value);
 	}
 
 	/**
@@ -235,8 +232,8 @@ public final class Serializer
 	 * Serializes an identifier.
 	 *
 	 * @param buf        the buffer
-	 * @param identifier the identifier
-	 * @return the number of bytes taken
+	 * @param identifier the identifier, can be null
+	 * @return the number of bytes taken to serialize
 	 */
 	public static int serialize(ByteBuf buf, Identifier identifier)
 	{
@@ -249,7 +246,7 @@ public final class Serializer
 	 * @param buf             the buffer
 	 * @param identifier      the identifier, can be null
 	 * @param identifierClass the identifier class
-	 * @return the number of bytes taken
+	 * @return the number of bytes taken to serialize
 	 */
 	public static int serialize(ByteBuf buf, Identifier identifier, Class<? extends Identifier> identifierClass)
 	{
@@ -272,8 +269,8 @@ public final class Serializer
 	 * Serializes a byte array.
 	 *
 	 * @param buf the buffer
-	 * @param a   the byte array
-	 * @return the number of bytes taken
+	 * @param a   the byte array, can be null
+	 * @return the number of bytes taken to serialize
 	 */
 	public static int serialize(ByteBuf buf, byte[] a)
 	{
@@ -295,8 +292,8 @@ public final class Serializer
 	 * Serializes a map.
 	 *
 	 * @param buf the buffer
-	 * @param map the map
-	 * @return the number of bytes taken
+	 * @param map the map, can be null
+	 * @return the number of bytes taken to serialize
 	 */
 	public static int serialize(ByteBuf buf, Map<Object, Object> map)
 	{
@@ -319,8 +316,8 @@ public final class Serializer
 	 * Serializes a list.
 	 *
 	 * @param buf  the buffer
-	 * @param list the list
-	 * @return the number of bytes taken
+	 * @param list the list, can be null
+	 * @return the number of bytes taken to serialize
 	 */
 	public static int serialize(ByteBuf buf, List<Object> list)
 	{
@@ -345,7 +342,7 @@ public final class Serializer
 	 * @param buf       the buffer
 	 * @param enumSet   the enum set
 	 * @param fieldSize the size of the enum set bitfield
-	 * @return the number of bytes taken
+	 * @return the number of bytes taken to serialize
 	 */
 	public static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, FieldSize fieldSize)
 	{
@@ -489,7 +486,6 @@ public final class Serializer
 		var size = 0;
 
 		log.trace("Serializing...");
-		// XXX: don't forget to handle null values! ie. object can be null (and this can't be done for primitives...)
 
 		if (annotation != null && annotation.tlvType() != TlvType.NONE)
 		{
@@ -513,31 +509,38 @@ public final class Serializer
 		}
 		else if (javaClass.equals(int.class) || javaClass.equals(Integer.class))
 		{
-			size += IntSerializer.serialize(buf, (Integer) object);
+			Objects.requireNonNull(object, "Null integers not supported");
+			size += IntSerializer.serialize(buf, (int) object);
 		}
 		else if (javaClass.equals(short.class) || javaClass.equals(Short.class))
 		{
-			size += ShortSerializer.serialize(buf, (Short) object);
+			Objects.requireNonNull(object, "Null shorts not supported");
+			size += ShortSerializer.serialize(buf, (short) object);
 		}
 		else if (javaClass.equals(byte.class) || javaClass.equals(Byte.class))
 		{
-			size += ByteSerializer.serialize(buf, (Byte) object);
+			Objects.requireNonNull(object, "Null bytes not supported");
+			size += ByteSerializer.serialize(buf, (byte) object);
 		}
 		else if (javaClass.equals(long.class) || javaClass.equals(Long.class))
 		{
-			size += LongSerializer.serialize(buf, (Long) object);
+			Objects.requireNonNull(object, "Null longs not supported");
+			size += LongSerializer.serialize(buf, (long) object);
 		}
 		else if (javaClass.equals(float.class) || javaClass.equals(Float.class))
 		{
-			size += FloatSerializer.serialize(buf, (Float) object);
+			Objects.requireNonNull(object, "Null floats not supported");
+			size += FloatSerializer.serialize(buf, (float) object);
 		}
 		else if (javaClass.equals(double.class) || javaClass.equals(Double.class))
 		{
-			size += DoubleSerializer.serialize(buf, (Double) object);
+			Objects.requireNonNull(object, "Null doubles not supported");
+			size += DoubleSerializer.serialize(buf, (double) object);
 		}
 		else if (javaClass.equals(boolean.class) || javaClass.equals(Boolean.class))
 		{
-			size += BooleanSerializer.serialize(buf, (Boolean) object);
+			Objects.requireNonNull(object, "Null booleans not supported");
+			size += BooleanSerializer.serialize(buf, (boolean) object);
 		}
 		else if (javaClass.equals(String.class))
 		{

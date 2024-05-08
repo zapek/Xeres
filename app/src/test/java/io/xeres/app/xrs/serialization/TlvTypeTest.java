@@ -33,6 +33,7 @@ class TlvTypeTest
 		assertEquals(0x30, INT_SIZE.getValue());
 		assertEquals(0x31, INT_POPULARITY.getValue());
 		assertEquals(0x32, INT_AGE.getValue());
+		assertEquals(0x41, LONG_OFFSET.getValue());
 		assertEquals(0x51, STR_NAME.getValue());
 		assertEquals(0x52, STR_PATH.getValue());
 		assertEquals(0x54, STR_VALUE.getValue());
@@ -52,7 +53,9 @@ class TlvTypeTest
 		assertEquals(0x110, KEY_EVP_PKEY.getValue());
 		assertEquals(0x120, SIGN_RSA_SHA1.getValue());
 		assertEquals(0x130, BIN_IMAGE.getValue());
+		assertEquals(0x140, BIN_FILE_DATA.getValue());
 		assertEquals(0x1000, FILE_ITEM.getValue());
+		assertEquals(0x1002, FILE_DATA.getValue());
 		assertEquals(0x1022, SET_HASH.getValue());
 		assertEquals(0x1023, SET_PGP_ID.getValue());
 		assertEquals(0x1024, SET_RECOGN.getValue());
@@ -67,8 +70,8 @@ class TlvTypeTest
 		assertEquals(0x1070, ADDRESS_INFO.getValue());
 		assertEquals(0x1071, ADDRESS_SET.getValue());
 		assertEquals(0x1072, ADDRESS.getValue());
-		assertEquals(0x2223, STRING.getValue());
+		assertEquals(0xffff, UNKNOWN.getValue());
 
-		assertEquals(39, values().length);
+		assertEquals(42, values().length);
 	}
 }

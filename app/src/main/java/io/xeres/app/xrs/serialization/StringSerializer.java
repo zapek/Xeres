@@ -32,16 +32,16 @@ final class StringSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, String s)
+	static int serialize(ByteBuf buf, String value)
 	{
-		log.trace("Writing string: \"{}\"", s);
-		if (s == null)
+		log.trace("Writing string: \"{}\"", value);
+		if (value == null)
 		{
 			buf.ensureWritable(4);
 			buf.writeInt(0);
 			return 4;
 		}
-		var bytes = s.getBytes();
+		var bytes = value.getBytes();
 		buf.ensureWritable(4 + bytes.length);
 		buf.writeInt(bytes.length);
 		buf.writeBytes(bytes);

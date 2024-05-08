@@ -74,4 +74,35 @@ final class TlvUtils
 		}
 		return len - TLV_HEADER_SIZE;
 	}
+
+	/**
+	 * Checks the next buffer to get the TLV type.
+	 *
+	 * @param buf the ByteBuf containing the incoming data
+	 * @return the TLV type or null if not found or if the buffer is empty
+	 */
+	static TlvType peekTlvType(ByteBuf buf)
+	{
+		if (buf.readableBytes() < TLV_HEADER_SIZE)
+		{
+			return null;
+		}
+		return TlvType.fromValue(buf.readUnsignedShort());
+	}
+
+	/**
+	 * Skips the TLV.
+	 *
+	 * @param buf the ByteBuf containing the TLV
+	 */
+	static void skipTlv(ByteBuf buf)
+	{
+		if (buf.readableBytes() < TLV_HEADER_SIZE)
+		{
+			throw new IllegalArgumentException("Can't skip the TLV because there's not enough bytes to represent one");
+		}
+		buf.readUnsignedShort();
+		var size = buf.readInt();
+		buf.skipBytes(size);
+	}
 }

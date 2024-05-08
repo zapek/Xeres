@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,31 +20,43 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-final class LongSerializer
+import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+
+final class TlvUint64Serializer
 {
-	private static final Logger log = LoggerFactory.getLogger(LongSerializer.class);
-
-	private LongSerializer()
+	private TlvUint64Serializer()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	@SuppressWarnings("SameReturnValue")
-	static int serialize(ByteBuf buf, long value)
+	static int serialize(ByteBuf buf, TlvType type, long value)
 	{
-		log.trace("Writing long: {}", value);
-		buf.ensureWritable(8);
+		var len = getSize();
+		buf.ensureWritable(len);
+		buf.writeShort(type.getValue());
+		buf.writeInt(len);
 		buf.writeLong(value);
-		return 8;
+		return len;
 	}
 
-	static long deserialize(ByteBuf buf)
+	static int getSize()
 	{
-		var val = buf.readLong();
-		log.trace("Reading long: {}", val);
-		return val;
+		return TLV_HEADER_SIZE + 8;
+	}
+
+	static long deserialize(ByteBuf buf, TlvType type)
+	{
+		var readType = buf.readUnsignedShort();
+		if (readType != type.getValue())
+		{
+			throw new IllegalArgumentException("Type " + readType + " does not match " + type);
+		}
+		var len = buf.readInt();
+		if (len != getSize())
+		{
+			throw new IllegalArgumentException("Length is wrong: " + len + ", expected: " + getSize());
+		}
+		return buf.readLong();
 	}
 }

@@ -23,8 +23,6 @@ import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 final class BooleanSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(BooleanSerializer.class);
@@ -35,12 +33,11 @@ final class BooleanSerializer
 	}
 
 	@SuppressWarnings("SameReturnValue")
-	static int serialize(ByteBuf buf, Boolean bool)
+	static int serialize(ByteBuf buf, boolean value)
 	{
-		Objects.requireNonNull(bool, "Null boolean not supported");
-		log.trace("Writing boolean: {}", bool);
+		log.trace("Writing boolean: {}", value);
 		buf.ensureWritable(1);
-		buf.writeBoolean(bool);
+		buf.writeBoolean(value);
 		return 1;
 	}
 

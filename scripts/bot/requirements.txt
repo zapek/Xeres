@@ -1,0 +1,9 @@
+cachetools==5.3.3
+certifi==2024.2.2
+charset-normalizer==3.3.2
+docopt==0.6.2
+idna==3.6
+requests==2.31.0
+stomp.py==8.1.0
+urllib3==2.2.1
+websocket-client==1.7.0

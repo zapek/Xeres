@@ -39,7 +39,6 @@ final class EnumSetSerializer
 
 	static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, RsSerialized annotation)
 	{
-		Objects.requireNonNull(enumSet, "Null enumset not supported");
 		Objects.requireNonNull(annotation, "Annotation is needed for EnumSet");
 		var fieldSize = annotation.fieldSize();
 
@@ -48,6 +47,7 @@ final class EnumSetSerializer
 
 	static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, FieldSize fieldSize)
 	{
+		Objects.requireNonNull(enumSet, "Null enumset not supported");
 		return switch (fieldSize)
 				{
 					case INTEGER -> serializeEnumSetInt(buf, enumSet);

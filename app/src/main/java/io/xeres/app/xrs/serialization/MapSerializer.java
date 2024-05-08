@@ -42,7 +42,7 @@ final class MapSerializer
 	{
 		var size = 0;
 
-		if (map != null && map.size() > 0)
+		if (map != null && !map.isEmpty())
 		{
 			log.trace("Entries in Map: {}", map.size());
 			var mapSize = 0;

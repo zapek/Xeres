@@ -23,8 +23,6 @@ import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 final class DoubleSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(DoubleSerializer.class);
@@ -35,12 +33,11 @@ final class DoubleSerializer
 	}
 
 	@SuppressWarnings("SameReturnValue")
-	static int serialize(ByteBuf buf, Double d)
+	static int serialize(ByteBuf buf, double value)
 	{
-		Objects.requireNonNull(d, "Null double not supported");
-		log.trace("Writing double: {}", d);
+		log.trace("Writing double: {}", value);
 		buf.ensureWritable(8);
-		buf.writeDouble(d);
+		buf.writeDouble(value);
 		return 8;
 	}
 

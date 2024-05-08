@@ -59,11 +59,11 @@ final class TlvSecurityKeySerializer
 	static int getSize(SecurityKey securityKey)
 	{
 		return TLV_HEADER_SIZE
-				+ TlvSerializer.getSize(STR_KEY_ID)
+				+ (TLV_HEADER_SIZE + GxsId.LENGTH * 2)
 				+ 4
 				+ 4
 				+ 4
-				+ TLV_HEADER_SIZE + securityKey.getData().length; // XXX: add a getSize() accessor
+				+ TLV_HEADER_SIZE + securityKey.getData().length;
 	}
 
 	static SecurityKey deserialize(ByteBuf buf)

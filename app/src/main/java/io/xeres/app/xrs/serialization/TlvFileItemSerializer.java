@@ -22,6 +22,8 @@ package io.xeres.app.xrs.serialization;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.common.FileItem;
 import io.xeres.common.id.Sha1Sum;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +51,31 @@ final class TlvFileItemSerializer
 		buf.writeInt(len);
 		buf.writeLong(fileItem.size());
 		Serializer.serialize(buf, fileItem.hash());
-		TlvSerializer.serialize(buf, STR_NAME, fileItem.name());
-		TlvSerializer.serialize(buf, STR_PATH, fileItem.path());
-		TlvSerializer.serialize(buf, INT_POPULARITY, fileItem.popularity());
-		TlvSerializer.serialize(buf, INT_AGE, fileItem.age());
-		TlvSerializer.serialize(buf, INT_SIZE, fileItem.pieceSize());
-		TlvSerializer.serialize(buf, SET_HASH, fileItem.chunkHashes());
+		// XXX: the following are optional if empty... (length = 0, "" or 0)
+		if (!StringUtils.isEmpty(fileItem.name()))
+		{
+			TlvSerializer.serialize(buf, STR_NAME, fileItem.name());
+		}
+		if (!StringUtils.isEmpty(fileItem.path()))
+		{
+			TlvSerializer.serialize(buf, STR_PATH, fileItem.path());
+		}
+		if (fileItem.popularity() != 0)
+		{
+			TlvSerializer.serialize(buf, INT_POPULARITY, fileItem.popularity());
+		}
+		if (fileItem.age() != 0)
+		{
+			TlvSerializer.serialize(buf, INT_AGE, fileItem.age());
+		}
+		if (fileItem.pieceSize() != 0)
+		{
+			TlvSerializer.serialize(buf, INT_SIZE, fileItem.pieceSize());
+		}
+		if (!CollectionUtils.isEmpty((fileItem.chunkHashes())))
+		{
+			TlvSerializer.serialize(buf, SET_HASH, fileItem.chunkHashes());
+		}
 		return len;
 	}
 
@@ -63,12 +84,12 @@ final class TlvFileItemSerializer
 		return TLV_HEADER_SIZE +
 				8 +
 				Sha1Sum.LENGTH +
-				TlvSerializer.getSize(STR_NAME, fileItem.name()) +
-				TlvSerializer.getSize(STR_PATH, fileItem.path()) +
-				TlvSerializer.getSize(TlvType.INT_POPULARITY, fileItem.popularity()) +
-				TlvSerializer.getSize(TlvType.INT_AGE, fileItem.age()) +
-				TlvSerializer.getSize(TlvType.INT_SIZE, fileItem.pieceSize()) +
-				TlvSerializer.getSize(TlvType.SET_HASH, fileItem.chunkHashes());
+				(StringUtils.isEmpty(fileItem.name()) ? 0 : TlvStringSerializer.getSize(fileItem.name())) +
+				(StringUtils.isEmpty(fileItem.path()) ? 0 : TlvStringSerializer.getSize(fileItem.path())) +
+				(fileItem.popularity() == 0 ? 0 : TlvUint32Serializer.getSize()) +
+				(fileItem.age() == 0 ? 0 : TlvUint32Serializer.getSize()) +
+				(fileItem.pieceSize() == 0 ? 0 : TlvUint32Serializer.getSize()) +
+				(CollectionUtils.isEmpty(fileItem.chunkHashes()) ? 0 : TlvSetSerializer.getIdentifierSize(fileItem.chunkHashes()));
 	}
 
 	static FileItem deserialize(ByteBuf buf)
@@ -78,12 +99,28 @@ final class TlvFileItemSerializer
 		TlvUtils.checkTypeAndLength(buf, FILE_ITEM);
 		var size = Serializer.deserializeLong(buf);
 		var hash = (Sha1Sum) Serializer.deserializeIdentifier(buf, Sha1Sum.class);
-		var name = (String) TlvSerializer.deserialize(buf, STR_NAME);
-		var path = (String) TlvSerializer.deserialize(buf, STR_PATH);
-		var popularity = (int) TlvSerializer.deserialize(buf, INT_POPULARITY);
-		var age = (int) TlvSerializer.deserialize(buf, INT_AGE);
-		var pieceSize = (int) TlvSerializer.deserialize(buf, INT_SIZE);
-		@SuppressWarnings("unchecked") var chunkHashes = (Set<Sha1Sum>) TlvSerializer.deserialize(buf, TlvType.SET_HASH);
+
+		TlvType tlvType;
+		String name = null;
+		String path = null;
+		int popularity = 0;
+		int age = 0;
+		int pieceSize = 0;
+		Set<Sha1Sum> chunkHashes = Set.of();
+		while ((tlvType = TlvUtils.peekTlvType(buf)) != null)
+		{
+			switch (tlvType)
+			{
+				case STR_NAME -> name = Serializer.deserializeString(buf);
+				case STR_PATH -> path = (String) TlvSerializer.deserialize(buf, STR_PATH);
+				case INT_POPULARITY -> popularity = (int) TlvSerializer.deserialize(buf, INT_POPULARITY);
+				case INT_AGE -> age = (int) TlvSerializer.deserialize(buf, INT_AGE);
+				case INT_SIZE -> pieceSize = (int) TlvSerializer.deserialize(buf, INT_SIZE);
+				case SET_HASH -> //noinspection unchecked
+						chunkHashes = (Set<Sha1Sum>) TlvSerializer.deserialize(buf, SET_HASH);
+				default -> TlvUtils.skipTlv(buf);
+			}
+		}
 		return new FileItem(size, hash, name, path, popularity, age, pieceSize, chunkHashes);
 	}
 }

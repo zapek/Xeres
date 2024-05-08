@@ -21,10 +21,11 @@ package io.xeres.app.xrs.serialization;
 
 public enum TlvType
 {
-	NONE(0x0),
+	NONE(0x0), // Used to write strings without TLVs
 	INT_SIZE(0x30),
 	INT_POPULARITY(0x31),
 	INT_AGE(0x32),
+	LONG_OFFSET(0x41),
 	STR_NAME(0x51),
 	STR_PATH(0x52),
 	STR_VALUE(0x54),
@@ -44,7 +45,9 @@ public enum TlvType
 	KEY_EVP_PKEY(0x110),
 	SIGN_RSA_SHA1(0x120),
 	BIN_IMAGE(0x130),
+	BIN_FILE_DATA(0x140),
 	FILE_ITEM(0x1000),
+	FILE_DATA(0x1002),
 	SET_HASH(0x1022),
 	SET_PGP_ID(0x1023),
 	SET_RECOGN(0x1024),
@@ -59,7 +62,7 @@ public enum TlvType
 	ADDRESS_INFO(0x1070),
 	ADDRESS_SET(0x1071),
 	ADDRESS(0x1072),
-	STRING(0x2223); // not an official RS tlv, used to write string with type 0
+	UNKNOWN(0xffff); // Used to signal that an unknown TLV has been found
 
 	private final int value;
 
@@ -71,5 +74,24 @@ public enum TlvType
 	public int getValue()
 	{
 		return value;
+	}
+
+	/**
+	 * Gets a TLV from the value.
+	 *
+	 * @param value the TLV value
+	 * @return the TLV or UNKNOWN if the value is not known (including for NONE and UNKNOWN itself)
+	 */
+	public static TlvType fromValue(int value)
+	{
+		for (TlvType tlvType : values())
+		{
+			if (tlvType.getValue() == value && tlvType != NONE)
+			{
+				return tlvType;
+			}
+
+		}
+		return UNKNOWN;
 	}
 }

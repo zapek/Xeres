@@ -55,8 +55,8 @@ final class TlvSignatureSerializer
 	static int getSize(Signature signature)
 	{
 		return TLV_HEADER_SIZE +
-				TlvSerializer.getSize(STR_KEY_ID) +
-				TlvSerializer.getSize(SIGN_RSA_SHA1, signature.getData());
+				(TLV_HEADER_SIZE + GxsId.LENGTH * 2) +
+				TlvBinarySerializer.getSize(signature.getData());
 	}
 
 	static Signature deserialize(ByteBuf buf)

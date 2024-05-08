@@ -17,36 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.filetransfer.item;
+package io.xeres.app.xrs.common;
 
-import io.xeres.app.xrs.common.FileData;
-import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.item.ItemPriority;
-import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.app.xrs.service.RsServiceType;
-
-import static io.xeres.app.xrs.serialization.TlvType.FILE_DATA;
-
-public class FileTransferDataItem extends Item
+public record FileData(
+		FileItem fileItem,
+		long offset,
+		byte[] data
+)
 {
-	@RsSerialized(tlvType = FILE_DATA)
-	private FileData fileData;
-
-	@Override
-	public int getServiceType()
-	{
-		return RsServiceType.FILE_TRANSFER.getType();
-	}
-
-	@Override
-	public int getSubType()
-	{
-		return 2;
-	}
-
-	@Override
-	public int getPriority()
-	{
-		return ItemPriority.NORMAL.getPriority();
-	}
 }

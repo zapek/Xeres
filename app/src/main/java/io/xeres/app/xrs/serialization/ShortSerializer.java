@@ -23,8 +23,6 @@ import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 final class ShortSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(ShortSerializer.class);
@@ -35,12 +33,11 @@ final class ShortSerializer
 	}
 
 	@SuppressWarnings("SameReturnValue")
-	static int serialize(ByteBuf buf, Short sh)
+	static int serialize(ByteBuf buf, short value)
 	{
-		Objects.requireNonNull(sh, "Null short not supported");
-		log.trace("Writing short: {}", sh);
+		log.trace("Writing short: {}", value);
 		buf.ensureWritable(2);
-		buf.writeShort(sh);
+		buf.writeShort(value);
 		return 2;
 	}
 

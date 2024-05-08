@@ -60,7 +60,7 @@ final class TlvSignatureSetSerializer
 	static int getSize(Set<Signature> signatures)
 	{
 		return TLV_HEADER_SIZE +
-				signatures.stream().mapToInt(signature -> TlvSerializer.getSize(SIGNATURE_TYPE) + TlvSerializer.getSize(SIGNATURE, signature)).sum();
+				signatures.stream().mapToInt(signature -> TlvUint32Serializer.getSize() + TlvSignatureSerializer.getSize(signature)).sum();
 	}
 
 	static Set<Signature> deserialize(ByteBuf buf)
@@ -76,7 +76,7 @@ final class TlvSignatureSetSerializer
 			var signature = (Signature) TlvSerializer.deserialize(buf, SIGNATURE);
 			signature.setType(type);
 			signatures.add(signature);
-			len -= TlvSerializer.getSize(SIGNATURE_TYPE) + TlvSerializer.getSize(SIGNATURE, signature);
+			len -= TlvUint32Serializer.getSize() + TlvSignatureSerializer.getSize(signature);
 		}
 		return signatures;
 	}

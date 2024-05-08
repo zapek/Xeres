@@ -60,7 +60,7 @@ final class TlvSecurityKeySetSerializer
 	{
 		return TLV_HEADER_SIZE +
 				TlvStringSerializer.getSize(GROUP_ID_VALUE) +
-				securityKeys.stream().mapToInt(key -> TlvSerializer.getSize(SECURITY_KEY, key)).sum();
+				securityKeys.stream().mapToInt(TlvSecurityKeySerializer::getSize).sum();
 	}
 
 	static Set<SecurityKey> deserialize(ByteBuf buf)
@@ -81,7 +81,7 @@ final class TlvSecurityKeySetSerializer
 		{
 			var securityKey = (SecurityKey) TlvSerializer.deserialize(buf, SECURITY_KEY);
 			securityKeys.add(securityKey);
-			len -= TlvSerializer.getSize(SECURITY_KEY, securityKey);
+			len -= TlvSecurityKeySerializer.getSize(securityKey);
 		}
 		return securityKeys;
 	}

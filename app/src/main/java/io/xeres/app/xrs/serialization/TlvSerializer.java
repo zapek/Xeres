@@ -21,6 +21,7 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
+import io.xeres.app.xrs.common.FileData;
 import io.xeres.app.xrs.common.FileItem;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.Signature;
@@ -32,9 +33,17 @@ import io.xeres.common.id.Sha1Sum;
 import java.util.List;
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.SIGNATURE_TYPE;
 
+/**
+ * This class if for serializing/deserializing TLVs by:
+ * <ul>
+ * <li>{@code @RsSerialized} annotations</li>
+ * <li>classes outside the {@code serialization} package</li>
+ * </ul>
+ * For anything else, use the TLV classes directly because they don't require casting of the
+ * return types, and they have the {@code getSize()} method.
+ */
 final class TlvSerializer
 {
 	private TlvSerializer()
@@ -48,47 +57,24 @@ final class TlvSerializer
 		return switch (type)
 				{
 					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH -> TlvStringSerializer.serialize(buf, type, (String) value);
-					case INT_AGE, INT_POPULARITY, INT_SIZE -> TlvUint32Serializer.serialize(buf, type, (Integer) value);
+					case INT_AGE, INT_POPULARITY, INT_SIZE -> TlvUint32Serializer.serialize(buf, type, (int) value);
+					case LONG_OFFSET -> TlvUint64Serializer.serialize(buf, type, (long) value);
 					case ADDRESS -> TlvAddressSerializer.serialize(buf, (PeerAddress) value);
 					case ADDRESS_SET -> TlvAddressSerializer.serializeList(buf, (List<PeerAddress>) value);
 					case SIGNATURE -> TlvSignatureSerializer.serialize(buf, (Signature) value);
 					case SET_PGP_ID -> TlvSetSerializer.serializeLong(buf, type, (Set<Long>) value);
-					case SET_HASH -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<Sha1Sum>) value);
-					case SET_GXS_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<GxsId>) value);
-					case SET_GXS_MSG_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<MessageId>) value);
+					case SET_HASH, SET_GXS_ID, SET_GXS_MSG_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<? extends Identifier>) value);
 					case SET_RECOGN -> TlvStringSetRefSerializer.serialize(buf, type, (List<String>) value);
-					case STRING -> TlvStringSerializer.serialize(buf, TlvType.NONE, (String) value);
 					case SIGNATURE_SET -> TlvSignatureSetSerializer.serialize(buf, (Set<Signature>) value);
-					case SIGNATURE_TYPE -> TlvUint32Serializer.serialize(buf, SIGNATURE_TYPE, (Integer) value);
+					case SIGNATURE_TYPE -> TlvUint32Serializer.serialize(buf, SIGNATURE_TYPE, (int) value);
 					case SECURITY_KEY -> TlvSecurityKeySerializer.serialize(buf, (SecurityKey) value);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.serialize(buf, (Set<SecurityKey>) value);
 					case IMAGE -> TlvImageSerializer.serialize(buf, (byte[]) value);
 					case FILE_ITEM -> TlvFileItemSerializer.serialize(buf, (FileItem) value);
-					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE -> TlvBinarySerializer.serialize(buf, type, (byte[]) value);
-					case IPV4, IPV6, ADDRESS_INFO, NONE -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV serialization");
-				};
-	}
-
-	static int getSize(TlvType type, Object value)
-	{
-		return switch (type)
-				{
-					case SIGN_RSA_SHA1 -> TlvBinarySerializer.getSize((byte[]) value);
-					case SIGNATURE -> TlvSignatureSerializer.getSize((Signature) value);
-					case SECURITY_KEY -> TlvSecurityKeySerializer.getSize((SecurityKey) value);
-					case SET_HASH -> //noinspection unchecked
-							TlvSetSerializer.getIdentifierSize((Set<? extends Identifier>) value);
-					default -> throw new IllegalArgumentException("Not implemented for type " + type);
-				};
-	}
-
-	static int getSize(TlvType type)
-	{
-		return switch (type)
-				{
-					case STR_KEY_ID -> TLV_HEADER_SIZE + GxsId.LENGTH * 2;
-					case SIGNATURE_TYPE -> TlvUint32Serializer.getSize();
-					default -> throw new IllegalArgumentException("Not implemented for type " + type);
+					case FILE_DATA -> TlvFileDataSerializer.serialize(buf, (FileData) value);
+					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE, BIN_FILE_DATA -> TlvBinarySerializer.serialize(buf, type, (byte[]) value);
+					case NONE -> TlvStringSerializer.serialize(buf, TlvType.NONE, (String) value);
+					case IPV4, IPV6, ADDRESS_INFO, UNKNOWN -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV serialization");
 				};
 	}
 
@@ -98,6 +84,7 @@ final class TlvSerializer
 				{
 					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH -> TlvStringSerializer.deserialize(buf, type);
 					case INT_AGE, INT_POPULARITY, INT_SIZE -> TlvUint32Serializer.deserialize(buf, type);
+					case LONG_OFFSET -> TlvUint64Serializer.deserialize(buf, type);
 					case ADDRESS -> TlvAddressSerializer.deserialize(buf);
 					case ADDRESS_SET -> TlvAddressSerializer.deserializeList(buf);
 					case SIGNATURE -> TlvSignatureSerializer.deserialize(buf);
@@ -106,15 +93,16 @@ final class TlvSerializer
 					case SET_GXS_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, GxsId.class);
 					case SET_GXS_MSG_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, MessageId.class);
 					case SET_RECOGN -> TlvStringSetRefSerializer.deserialize(buf, type);
-					case STRING -> TlvStringSerializer.deserialize(buf, TlvType.NONE);
 					case SIGNATURE_SET -> TlvSignatureSetSerializer.deserialize(buf);
 					case SIGNATURE_TYPE -> TlvUint32Serializer.deserialize(buf, SIGNATURE_TYPE);
 					case SECURITY_KEY -> TlvSecurityKeySerializer.deserialize(buf);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.deserialize(buf);
 					case IMAGE -> TlvImageSerializer.deserialize(buf);
 					case FILE_ITEM -> TlvFileItemSerializer.deserialize(buf);
-					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE -> TlvBinarySerializer.deserialize(buf, type);
-					case IPV4, IPV6, ADDRESS_INFO, NONE -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV deserialization");
+					case FILE_DATA -> TlvFileDataSerializer.deserialize(buf);
+					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE, BIN_FILE_DATA -> TlvBinarySerializer.deserialize(buf, type);
+					case NONE -> TlvStringSerializer.deserialize(buf, TlvType.NONE);
+					case IPV4, IPV6, ADDRESS_INFO, UNKNOWN -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV deserialization");
 				};
 	}
 }

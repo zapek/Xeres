@@ -23,8 +23,6 @@ import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 final class FloatSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(FloatSerializer.class);
@@ -35,12 +33,11 @@ final class FloatSerializer
 	}
 
 	@SuppressWarnings("SameReturnValue")
-	static int serialize(ByteBuf buf, Float f)
+	static int serialize(ByteBuf buf, float value)
 	{
-		Objects.requireNonNull(f, "Null float not supported");
-		log.trace("Writing float: {}", f);
+		log.trace("Writing float: {}", value);
 		buf.ensureWritable(4);
-		buf.writeFloat(f);
+		buf.writeFloat(value);
 		return 4;
 	}
 

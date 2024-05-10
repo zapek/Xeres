@@ -109,7 +109,7 @@ public abstract class Item
 
 		var rawItem = new RawItem(buf, getPriority());
 		log.trace("Serialized buffer ==> {}", rawItem);
-		if (flags.contains(SerializationFlags.SIGNATURE))
+		if (flags.contains(SerializationFlags.SIGNATURE) || flags.contains(SerializationFlags.SIZE))
 		{
 			buf = backupBuf;
 			backupBuf = null;

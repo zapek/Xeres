@@ -19,7 +19,9 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.Unpooled;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.service.RsService;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -44,8 +46,11 @@ public final class SerializerSizeCache
 	 * @param item the item
 	 * @return the size of the item after serialization, header included
 	 */
-	public static int getItemSize(Item item)
+	public static int getItemSize(Item item, RsService service)
 	{
-		return cache.computeIfAbsent(item.getClass(), aClass -> item.serializeItem(EnumSet.noneOf(SerializationFlags.class)).getSize());
+		return cache.computeIfAbsent(item.getClass(), aClass -> {
+			item.setSerialization(Unpooled.buffer().alloc(), service);
+			return item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize();
+		});
 	}
 }

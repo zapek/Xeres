@@ -21,5 +21,6 @@ package io.xeres.app.xrs.serialization;
 
 public enum SerializationFlags
 {
-	SIGNATURE
+	SIGNATURE,
+	SIZE
 }

@@ -19,8 +19,8 @@
 
 package io.xeres.common.protocol.dns;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,8 +29,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DNSTest
 {
+	/**
+	 * This test verifies that myip.opendns.com works for finding one's own IP when UPNP is not working.
+	 * It also tests that akamai works, in case opendns is removed, and we need to fall back to something else.
+	 * It only runs on my machine because of the chicken & egg problem on knowing one's own IP.
+	 *
+	 * @throws IOException
+	 */
 	@Test
-	@Disabled
+	@EnabledIfEnvironmentVariable(named = "COMPUTERNAME", matches = "B650")
 	void DNS_OK() throws IOException
 	{
 		var ip1 = DNS.resolve("myip.opendns.com", "208.67.222.222"); // resolver1.opendns.com

@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.turtle;
 
+import io.netty.buffer.Unpooled;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
@@ -223,7 +224,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		item.setTunnelId(tunnelId);
 
-		var itemSerializedSize = item.serializeItem(EnumSet.noneOf(SerializationFlags.class)).getSize(); // XXX: optimize... we're doing it twice
+		item.setSerialization(Unpooled.buffer().alloc(), this);
+		var itemSerializedSize = item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize(); // XXX: optimize... we're doing it twice
 
 		// XXX: timestamp the tunnel
 
@@ -272,7 +274,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		// XXX: add time stamp logic
 
-		var serializedSize = item.serializeItem(EnumSet.noneOf(SerializationFlags.class)).getSize(); // XXX: maybe find a flag to do the size serialization only because it's a bit of a CPU waste
+		item.setSerialization(Unpooled.buffer().alloc(), this);
+		var serializedSize = item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize(); // XXX: maybe find a flag to do the size serialization only because it's a bit of a CPU waste
 		tunnel.addTransferredBytes(serializedSize);
 
 		if (sender.getLocation().equals(tunnel.getDestination()))
@@ -358,7 +361,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		trafficStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item));
+		trafficStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
 
 		if (isBanned(item.getFileHash()))
 		{
@@ -403,7 +406,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 						tunnelProbability.incrementDepth(itemToSend);
 						if (SecureRandomUtils.nextDouble() <= probability)
 						{
-							trafficStatistics.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend));
+							trafficStatistics.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
 							peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 						}
 					},

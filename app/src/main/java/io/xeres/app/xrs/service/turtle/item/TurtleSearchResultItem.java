@@ -49,6 +49,11 @@ public abstract class TurtleSearchResultItem extends Item implements Cloneable
 		return requestId;
 	}
 
+	public void setRequestId(int requestId)
+	{
+		this.requestId = requestId;
+	}
+
 	@Override
 	public TurtleSearchResultItem clone()
 	{

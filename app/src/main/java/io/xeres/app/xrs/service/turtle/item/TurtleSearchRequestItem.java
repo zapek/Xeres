@@ -34,8 +34,6 @@ public abstract class TurtleSearchRequestItem extends Item implements Cloneable
 
 	public abstract String getKeywords();
 
-	// XXX: Item has getService()... how do we implement that? (ie. how can another service use turtle itself?)
-
 	protected TurtleSearchRequestItem()
 	{
 		// Needed

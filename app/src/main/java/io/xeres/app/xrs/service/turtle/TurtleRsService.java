@@ -77,6 +77,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private static final int MAX_SEARCH_HITS = 100;
 
+	private static final int MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE = 200;
+
 	private static final Duration MAX_TUNNEL_IDLE_TIME = Duration.ofSeconds(60);
 
 	private static final Duration SEARCH_REQUEST_LIFETIME = Duration.ofSeconds(600);
@@ -399,7 +401,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		// XXX: missing partial tunnel id perturbation?
+		// Perturbate the partial tunnel id so that:
+		// - the tunnel id is unique for a given route
+		// - better balance of bandwidth for a given transfer
+		// - avoids the waste of items that get lost when re-routing a tunnel
+		item.setPartialTunnelId(generatePersonalFilePrint(item.getFileHash(), item.getPartialTunnelId() ^ tunnelProbability.getBias(), true));
 
 		if (tunnelProbability.isForwardable(item))
 		{
@@ -502,7 +508,13 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		log.debug("Received search request from peer {}: {}", sender, item);
 
-		// XXX: check maximum size
+		item.setSerialization(Unpooled.buffer().alloc(), this);
+		var itemSerializedSize = item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize();
+		if (itemSerializedSize > MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE)
+		{
+			log.warn("Got an arbitrary large size from {} of size {} and depth {}. Dropping", sender, itemSerializedSize, item.getDepth());
+			return;
+		}
 
 		if (searchRequestsOrigins.size() > MAX_SEARCH_REQUEST_IN_CACHE)
 		{
@@ -510,17 +522,29 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		if (searchRequestsOrigins.putIfAbsent(item.getRequestId(), new SearchRequest(sender.getLocation(),
+		var searchResults = performLocalSearch(item, MAX_SEARCH_HITS);
+		searchResults.forEach(turtleSearchResultItem -> {
+			turtleSearchResultItem.setRequestId(item.getRequestId());
+			peerConnectionManager.writeItem(sender, turtleSearchResultItem, this);
+		});
+
+		var searchRequest = new SearchRequest(sender.getLocation(),
 				item.getDepth(),
 				item.getKeywords(),
-				0,
-				MAX_SEARCH_HITS)) != null)
+				searchResults.size(),
+				MAX_SEARCH_HITS);
+
+		if (searchRequestsOrigins.putIfAbsent(item.getRequestId(), searchRequest) != null)
 		{
 			log.debug("Request {} already in cache", item.getRequestId());
 			return;
 		}
 
-		// XXX: perform local search and send back the results to the sender
+		// Do not search further if enough has been sent back already.
+		if (searchRequest.isFull())
+		{
+			return;
+		}
 
 		if (tunnelProbability.isForwardable(item))
 		{
@@ -532,6 +556,22 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 					sender,
 					this);
 		}
+	}
+
+	private List<TurtleSearchResultItem> performLocalSearch(TurtleSearchRequestItem item, int maxHits)
+	{
+		List<TurtleSearchResultItem> results = new ArrayList<>();
+
+		if (item instanceof TurtleFileSearchRequestItem fileSearchItem)
+		{
+			// XXX: file search
+		}
+		else if (item instanceof TurtleGenericSearchRequestItem genericSearchRequestItem)
+		{
+			// XXX: generic search
+		}
+
+		return results;
 	}
 
 	private void handleSearchResult(PeerConnection sender, TurtleSearchResultItem item)
@@ -617,8 +657,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		var item = new TurtleTunnelRequestItem(hash, id, generatePersonalFilePrint(hash, tunnelProbability.getBias(), true));
 
-		// XXX: ask Cyril if the next line is OK, looks dubious to me (the whole looks overblown too...)
-		//trafficStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
 		tunnelRequestsOrigins.put(item.getRequestId(), new TunnelRequest(ownLocation, item.getDepth()));
 
 		peerConnectionManager.doForAllPeers(peerConnection -> {

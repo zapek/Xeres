@@ -77,6 +77,11 @@ public class TurtleTunnelRequestItem extends Item implements Cloneable
 		return partialTunnelId;
 	}
 
+	public void setPartialTunnelId(int partialTunnelId)
+	{
+		this.partialTunnelId = partialTunnelId;
+	}
+
 	public short getDepth()
 	{
 		return depth;

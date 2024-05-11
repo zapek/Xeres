@@ -71,4 +71,9 @@ class SearchRequest
 	{
 		return hitLimit;
 	}
+
+	public boolean isFull()
+	{
+		return resultCount >= hitLimit;
+	}
 }

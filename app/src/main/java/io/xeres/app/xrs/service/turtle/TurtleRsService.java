@@ -227,7 +227,10 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		item.setSerialization(Unpooled.buffer().alloc(), this);
 		var itemSerializedSize = item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize(); // XXX: optimize... we're doing it twice
 
-		// XXX: timestamp the tunnel
+		if (item.shouldStampTunnel())
+		{
+			tunnel.stamp();
+		}
 
 		tunnel.addTransferredBytes(itemSerializedSize);
 
@@ -272,7 +275,10 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		// XXX: add time stamp logic
+		if (item.shouldStampTunnel())
+		{
+			tunnel.stamp();
+		}
 
 		item.setSerialization(Unpooled.buffer().alloc(), this);
 		var serializedSize = item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize(); // XXX: maybe find a flag to do the size serialization only because it's a bit of a CPU waste

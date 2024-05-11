@@ -29,9 +29,9 @@ class Tunnel
 {
 	private final Location source;
 	private final Location destination;
-	private final Instant lastUsed;
 	private final LocationId virtualId;
 	private final Sha1Sum hash;
+	private Instant lastUsed;
 	private long transferredBytes;
 	private double speedBps;
 
@@ -92,5 +92,10 @@ class Tunnel
 	public void clearTransferredBytes()
 	{
 		transferredBytes = 0;
+	}
+
+	public void stamp()
+	{
+		lastUsed = Instant.now();
 	}
 }

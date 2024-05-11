@@ -25,6 +25,8 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Sha1Sum;
 
+import java.util.List;
+
 public class FileTransferChunkMapItem extends Item
 {
 	@RsSerialized
@@ -33,7 +35,8 @@ public class FileTransferChunkMapItem extends Item
 	@RsSerialized
 	private Sha1Sum hash;
 
-	// XXX: add CompressedChunkMap
+	@RsSerialized
+	private List<Integer> compressedChunks;
 
 	@Override
 	public int getServiceType()

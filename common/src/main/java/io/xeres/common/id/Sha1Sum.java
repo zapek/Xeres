@@ -24,9 +24,8 @@ import jakarta.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.Objects;
 
-@SuppressWarnings("JpaAttributeMemberSignatureInspection")
 @Embeddable
-public class Sha1Sum implements Identifier
+public class Sha1Sum implements Identifier, Cloneable
 {
 	public static final int LENGTH = 20;
 
@@ -44,7 +43,7 @@ public class Sha1Sum implements Identifier
 		{
 			throw new IllegalArgumentException("Bad sha1 sum length, expected " + LENGTH + ", got " + sum.length);
 		}
-		this.identifier = sum;
+		identifier = sum;
 	}
 
 	@Override
@@ -78,5 +77,20 @@ public class Sha1Sum implements Identifier
 	public String toString()
 	{
 		return Id.toString(identifier);
+	}
+
+	@Override
+	public Sha1Sum clone()
+	{
+		try
+		{
+			var clone = (Sha1Sum) super.clone();
+			clone.identifier = identifier.clone();
+			return clone;
+		}
+		catch (CloneNotSupportedException e)
+		{
+			throw new AssertionError();
+		}
 	}
 }

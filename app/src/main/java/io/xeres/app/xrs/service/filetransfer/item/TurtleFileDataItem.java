@@ -17,31 +17,27 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle.item;
+package io.xeres.app.xrs.service.filetransfer.item;
 
-import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 
-public class TurtleGenericFastDataItem extends TurtleGenericTunnelItem implements Cloneable
+import static io.xeres.app.xrs.service.turtle.item.TunnelDirection.CLIENT;
+
+public class TurtleFileDataItem extends TurtleGenericTunnelItem implements Cloneable
 {
 	@RsSerialized
-	private byte[] tunnelData;
+	private long chunkOffset;
 
-	public TurtleGenericFastDataItem()
-	{
-		// Required
-	}
+	@RsSerialized
+	private int chunkSize;
 
-	@Override
-	public int getSubType()
-	{
-		return 22;
-	}
+	@RsSerialized
+	private byte[] chunkData;
 
-	@Override
-	public int getPriority()
+	public TurtleFileDataItem()
 	{
-		return ItemPriority.INTERACTIVE.getPriority();
+		setDirection(CLIENT);
 	}
 
 	@Override
@@ -50,24 +46,17 @@ public class TurtleGenericFastDataItem extends TurtleGenericTunnelItem implement
 		return true;
 	}
 
-	public byte[] getTunnelData()
+	@Override
+	public int getSubType()
 	{
-		return tunnelData;
+		return 8;
 	}
 
 	@Override
-	public String toString()
+	public TurtleFileDataItem clone()
 	{
-		return "TurtleGenericFastDataItem{" +
-				"tunnelData.length=" + getTunnelData().length +
-				'}';
-	}
-
-	@Override
-	public TurtleGenericFastDataItem clone()
-	{
-		var clone = (TurtleGenericFastDataItem) super.clone();
-		clone.tunnelData = tunnelData.clone();
+		var clone = (TurtleFileDataItem) super.clone();
+		clone.chunkData = chunkData.clone();
 		return clone;
 	}
 }

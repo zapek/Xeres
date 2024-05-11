@@ -29,11 +29,10 @@ public abstract class TurtleGenericTunnelItem extends Item implements Cloneable
 	@RsSerialized
 	private int tunnelId;
 
-	@RsSerialized
-	private byte[] tunnelData;
-
 	// This is not serialized
 	private TunnelDirection direction;
+
+	public abstract boolean shouldStampTunnel();
 
 	protected TurtleGenericTunnelItem()
 	{
@@ -72,19 +71,13 @@ public abstract class TurtleGenericTunnelItem extends Item implements Cloneable
 		this.direction = direction;
 	}
 
-	public byte[] getTunnelData()
-	{
-		return tunnelData;
-	}
-
 	@Override
 	public TurtleGenericTunnelItem clone()
 	{
 		try
 		{
-			TurtleGenericTunnelItem clone = (TurtleGenericTunnelItem) super.clone();
+			var clone = (TurtleGenericTunnelItem) super.clone();
 			clone.buf = null; // the cloning is done to write multiple buffers, we don't need to copy it
-			clone.tunnelData = tunnelData.clone();
 			return clone;
 		}
 		catch (CloneNotSupportedException e)

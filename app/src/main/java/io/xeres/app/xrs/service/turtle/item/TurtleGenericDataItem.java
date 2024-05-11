@@ -19,9 +19,12 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
+import io.xeres.app.xrs.serialization.RsSerialized;
+
 public class TurtleGenericDataItem extends TurtleGenericTunnelItem implements Cloneable
 {
-	// XXX: do se need a shouldStamp()? see also for the fast version
+	@RsSerialized
+	private byte[] tunnelData;
 
 	public TurtleGenericDataItem()
 	{
@@ -35,16 +38,29 @@ public class TurtleGenericDataItem extends TurtleGenericTunnelItem implements Cl
 	}
 
 	@Override
+	public boolean shouldStampTunnel()
+	{
+		return true;
+	}
+
+	public byte[] getTunnelData()
+	{
+		return tunnelData;
+	}
+
+	@Override
 	public String toString()
 	{
 		return "TurtleGenericDataItem{" +
-				"tunnelData.length=" + super.getTunnelData().length +
+				"tunnelData.length=" + getTunnelData().length +
 				'}';
 	}
 
 	@Override
 	public TurtleGenericDataItem clone()
 	{
-		return (TurtleGenericDataItem) super.clone();
+		var clone = (TurtleGenericDataItem) super.clone();
+		clone.tunnelData = tunnelData.clone();
+		return clone;
 	}
 }

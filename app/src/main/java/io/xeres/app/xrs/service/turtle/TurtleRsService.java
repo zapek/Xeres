@@ -304,7 +304,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 			trafficStatisticsBuffer.addToUnknownTotal(serializedSize);
 
-			peerConnectionManager.writeItem(tunnel.getSource(), item.clone(), this); // XXX: implement clone!
+			peerConnectionManager.writeItem(tunnel.getSource(), item.clone(), this);
 			return;
 		}
 
@@ -314,7 +314,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 			trafficStatisticsBuffer.addToUnknownTotal(serializedSize);
 
-			peerConnectionManager.writeItem(tunnel.getDestination(), item.clone(), this); // XXX: implement clone!
+			peerConnectionManager.writeItem(tunnel.getDestination(), item.clone(), this);
 			return;
 		}
 
@@ -398,6 +398,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			client.get().addVirtualPeer(item.getFileHash(), tunnel.getVirtualId(), TunnelDirection.CLIENT);
 			return;
 		}
+
+		// XXX: missing partial tunnel id perturbation?
 
 		if (tunnelProbability.isForwardable(item))
 		{
@@ -615,7 +617,16 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		var item = new TurtleTunnelRequestItem(hash, id, generatePersonalFilePrint(hash, tunnelProbability.getBias(), true));
 
-		// XXX: send it! do not use handleTunnelRequest() directly but something close, though...
+		// XXX: ask Cyril if the next line is OK, looks dubious to me (the whole looks overblown too...)
+		//trafficStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
+		tunnelRequestsOrigins.put(item.getRequestId(), new TunnelRequest(ownLocation, item.getDepth()));
+
+		peerConnectionManager.doForAllPeers(peerConnection -> {
+					var itemToSend = item.clone();
+					trafficStatistics.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
+					peerConnectionManager.writeItem(peerConnection, itemToSend, this);
+				},
+				this);
 	}
 
 	private void cleanTunnelsIfNeeded()

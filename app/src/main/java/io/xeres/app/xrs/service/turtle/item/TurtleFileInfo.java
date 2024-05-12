@@ -39,11 +39,11 @@ public class TurtleFileInfo
 		// Needed
 	}
 
-	public TurtleFileInfo(long fileSize, Sha1Sum fileHash, String fileName)
+	public TurtleFileInfo(String fileName, Sha1Sum fileHash, long fileSize)
 	{
-		this.fileSize = fileSize;
-		this.fileHash = fileHash;
 		this.fileName = fileName;
+		this.fileHash = fileHash;
+		this.fileSize = fileSize;
 	}
 
 	public long getFileSize()
@@ -59,6 +59,11 @@ public class TurtleFileInfo
 	public String getFileName()
 	{
 		return fileName;
+	}
+
+	public int getSize()
+	{
+		return 8 + Sha1Sum.LENGTH + 6 + fileName.length(); // XXX: a bit of a hack...
 	}
 
 	@Override

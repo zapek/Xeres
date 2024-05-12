@@ -21,12 +21,13 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TurtleFileSearchResultItem extends TurtleSearchResultItem implements Cloneable
 {
 	@RsSerialized
-	private List<TurtleFileInfo> results;
+	private List<TurtleFileInfo> results = new ArrayList<>();
 
 	public TurtleFileSearchResultItem()
 	{
@@ -48,6 +49,11 @@ public class TurtleFileSearchResultItem extends TurtleSearchResultItem implement
 	public List<TurtleFileInfo> getResults()
 	{
 		return results;
+	}
+
+	public void addFileInfo(TurtleFileInfo fileInfo)
+	{
+		results.add(new TurtleFileInfo());
 	}
 
 	@Override

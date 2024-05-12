@@ -54,6 +54,8 @@ public class File
 	@Size(min = 1, max = 255)
 	private String name;
 
+	private long size;
+
 	@Convert(converter = FileTypeConverter.class)
 	private FileType type;
 
@@ -73,11 +75,12 @@ public class File
 		return file;
 	}
 
-	public static File createFile(File parent, String name, Instant modified)
+	public static File createFile(File parent, String name, long size, Instant modified)
 	{
 		var file = new File();
 		file.setParent(parent);
 		file.setName(name);
+		file.setSize(size);
 		file.setType(FileType.getTypeByExtension(name));
 		file.setModified(modified);
 		return file;
@@ -166,6 +169,16 @@ public class File
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	public long getSize()
+	{
+		return size;
+	}
+
+	public void setSize(long size)
+	{
+		this.size = size;
 	}
 
 	public FileType getType()

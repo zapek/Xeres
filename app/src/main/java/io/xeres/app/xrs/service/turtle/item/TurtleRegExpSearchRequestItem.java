@@ -19,12 +19,25 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
-import io.xeres.app.xrs.serialization.RsSerialized;
+import io.netty.buffer.ByteBuf;
+import io.xeres.app.xrs.serialization.RsSerializable;
+import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.serialization.TlvType;
 
-public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem implements Cloneable
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem implements RsSerializable, Cloneable
 {
-	@RsSerialized
-	private String expression;
+	private static final int MAX_TOKENS_LIMIT = 256;
+
+	private List<Byte> tokens;
+
+	private List<Integer> ints;
+
+	private List<String> strings;
 
 	@SuppressWarnings("unused")
 	public TurtleRegExpSearchRequestItem()
@@ -37,18 +50,10 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 		return 9;
 	}
 
-	public String getExpression()
-	{
-		return expression;
-	}
-
-	// XXX: implements regexp system, see rsexpr.cc
-
-
 	@Override
 	public String getKeywords()
 	{
-		return expression;
+		return "[NI]"; // XXX: implement (there are ops and stuff, etc...)
 	}
 
 	@Override
@@ -57,7 +62,6 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 		return "TurtleRegExpSearchRequestItem{" +
 				"requestId=" + getRequestId() +
 				", depth=" + getDepth() +
-				", expression='" + expression + '\'' +
 				'}';
 	}
 
@@ -65,5 +69,66 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 	public TurtleRegExpSearchRequestItem clone()
 	{
 		return (TurtleRegExpSearchRequestItem) super.clone();
+	}
+
+	@Override
+	public int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		var size = 0;
+
+		size += Serializer.serializeAnnotatedFields(buf, this);
+
+		size += Serializer.serialize(buf, tokens.size());
+		size += tokens.stream()
+				.mapToInt(value -> Serializer.serialize(buf, value))
+				.sum();
+
+		size += Serializer.serialize(buf, ints.size());
+		size += ints.stream()
+				.mapToInt(value -> Serializer.serialize(buf, value))
+				.sum();
+
+		size += Serializer.serialize(buf, strings.size());
+		size += strings.stream()
+				.mapToInt(value -> Serializer.serialize(buf, TlvType.STR_VALUE, value))
+				.sum();
+
+		return size;
+	}
+
+	@Override
+	public void readObject(ByteBuf buf)
+	{
+		Serializer.deserializeAnnotatedFields(buf, this);
+
+		var length = validateTokenLimit(Serializer.deserializeInt(buf));
+		tokens = new ArrayList<>(length);
+		for (int i = 0; i < length; i++)
+		{
+			tokens.add(Serializer.deserializeByte(buf));
+		}
+
+		length = validateTokenLimit(Serializer.deserializeInt(buf));
+		ints = new ArrayList<>(length);
+		for (int i = 0; i < length; i++)
+		{
+			ints.add(Serializer.deserializeInt(buf));
+		}
+
+		length = validateTokenLimit(Serializer.deserializeInt(buf));
+		strings = new ArrayList<>(length);
+		for (int i = 0; i < length; i++)
+		{
+			strings.add((String) Serializer.deserialize(buf, TlvType.STR_VALUE));
+		}
+	}
+
+	private int validateTokenLimit(int size)
+	{
+		if (size >= MAX_TOKENS_LIMIT)
+		{
+			throw new IllegalArgumentException("Maximum search tokens exceeded");
+		}
+		return size;
 	}
 }

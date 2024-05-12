@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
-public class TurtleGenericSearchRequestItem extends TurtleFileSearchRequestItem implements Cloneable
+public class TurtleGenericSearchRequestItem extends TurtleSearchRequestItem implements Cloneable
 {
 	@RsSerialized
 	private short serviceId;
@@ -31,6 +31,12 @@ public class TurtleGenericSearchRequestItem extends TurtleFileSearchRequestItem 
 
 	@RsSerialized
 	private byte[] searchData; // XXX: not sure that's correct...
+
+	@Override
+	public String getKeywords()
+	{
+		return ""; // XXX: how to do that?
+	}
 
 	@SuppressWarnings("unused")
 	public TurtleGenericSearchRequestItem()

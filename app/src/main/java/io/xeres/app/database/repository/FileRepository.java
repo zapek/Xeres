@@ -24,12 +24,15 @@ import io.xeres.common.id.Sha1Sum;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
 public interface FileRepository extends JpaRepository<File, Long>
 {
 	Optional<File> findByName(String name);
+
+	List<File> findAllByNameContainingIgnoreCase(String name);
 
 	Optional<File> findByNameIgnoreCase(String name);
 

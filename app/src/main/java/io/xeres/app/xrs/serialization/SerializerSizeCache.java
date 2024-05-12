@@ -50,7 +50,10 @@ public final class SerializerSizeCache
 	{
 		return cache.computeIfAbsent(item.getClass(), aClass -> {
 			item.setSerialization(Unpooled.buffer().alloc(), service);
-			return item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize();
+			var rawItem = item.serializeItem(EnumSet.of(SerializationFlags.SIZE));
+			var size = rawItem.getSize();
+			rawItem.getBuffer().release();
+			return size;
 		});
 	}
 }

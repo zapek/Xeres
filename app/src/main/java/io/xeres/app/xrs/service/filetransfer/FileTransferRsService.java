@@ -31,6 +31,8 @@ import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -41,6 +43,7 @@ import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 @Component
 public class FileTransferRsService extends RsService implements TurtleRsClient
 {
+	private static final Logger log = LoggerFactory.getLogger(FileTransferRsService.class);
 	private TurtleRouter turtleRouter;
 
 	private final FileService fileService;
@@ -81,6 +84,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		var file = fileService.findFile(hash);
 		if (file.isPresent())
 		{
+			log.debug("Found file {}", file.get());
 			// XXX: don't forget to handle encrypted hashes, files currently being swarmed and tons of other things
 			// XXX: sender might not necessarily be needed (it's for the permissions)
 			return true;

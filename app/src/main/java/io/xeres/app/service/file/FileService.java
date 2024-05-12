@@ -61,7 +61,7 @@ public class FileService
 
 	private final FileRepository fileRepository;
 
-	private HashBloomFilter bloomFilter;
+	private final HashBloomFilter bloomFilter;
 
 	private static final String[] ignoredSuffixes = {
 			".bak",
@@ -165,6 +165,11 @@ public class FileService
 		return Optional.empty();
 	}
 
+	public List<File> searchFiles(String name)
+	{
+		return fileRepository.findAllByNameContainingIgnoreCase(name);
+	}
+
 	private void saveFullPath(File file)
 	{
 		var tree = getFullPath(file);
@@ -245,7 +250,7 @@ public class FileService
 
 				private void indexFile(Path file, BasicFileAttributes attrs)
 				{
-					var currentFile = fileRepository.findByNameAndParent(file.getFileName().toString(), getCurrentDirectory()).orElseGet(() -> File.createFile(getCurrentDirectory(), file.getFileName().toString(), null));
+					var currentFile = fileRepository.findByNameAndParent(file.getFileName().toString(), getCurrentDirectory()).orElseGet(() -> File.createFile(getCurrentDirectory(), file.getFileName().toString(), attrs.size(), null));
 					var lastModified = attrs.lastModifiedTime().toInstant();
 					log.debug("Checking file {}, modification time: {}", file, lastModified);
 					if (currentFile.getModified() == null || lastModified.isAfter(currentFile.getModified()))

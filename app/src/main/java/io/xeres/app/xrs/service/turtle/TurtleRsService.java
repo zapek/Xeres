@@ -22,11 +22,12 @@ package io.xeres.app.xrs.service.turtle;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
-import io.xeres.app.service.notification.file.FileNotificationService;
+import io.xeres.app.service.file.FileService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.SerializerSizeCache;
@@ -35,6 +36,7 @@ import io.xeres.app.xrs.service.RsServiceMaster;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.item.*;
+import io.xeres.common.file.FileType;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.util.NoSuppressedRunnable;
@@ -79,6 +81,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private static final int MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE = 200;
 
+	private static final int MAX_SEARCH_RESPONSE_SERIAL_SIZE = 10000;
+
 	private static final Duration MAX_TUNNEL_IDLE_TIME = Duration.ofSeconds(60);
 
 	private static final Duration SEARCH_REQUEST_LIFETIME = Duration.ofSeconds(600);
@@ -112,7 +116,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private final LocationService locationService;
 
 	private final DatabaseSessionManager databaseSessionManager;
-	private final FileNotificationService fileNotificationService;
+
+	private final FileService fileService;
 
 	private ScheduledExecutorService executorService;
 
@@ -125,13 +130,13 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private final TrafficStatistics trafficStatistics = new TrafficStatistics();
 	private final TrafficStatistics trafficStatisticsBuffer = new TrafficStatistics();
 
-	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager, FileNotificationService fileNotificationService)
+	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager, FileService fileService)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
 		this.locationService = locationService;
 		this.databaseSessionManager = databaseSessionManager;
-		this.fileNotificationService = fileNotificationService;
+		this.fileService = fileService;
 	}
 
 	@Override
@@ -226,8 +231,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		item.setTunnelId(tunnelId);
 
-		item.setSerialization(Unpooled.buffer().alloc(), this);
-		var itemSerializedSize = item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize(); // XXX: optimize... we're doing it twice
+		var itemSerializedSize = getItemSerializedSize(item); // XXX: optimize... we're doing it twice
 
 		if (item.shouldStampTunnel())
 		{
@@ -252,6 +256,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		{
 			log.error("Asked to send a packet into a tunnel that is not registered, dropping packet");
 		}
+	}
+
+	private int getItemSerializedSize(Item item)
+	{
+		item.setSerialization(Unpooled.buffer().alloc(), this);
+		var rawItem = item.serializeItem(EnumSet.of(SerializationFlags.SIZE));
+		var size = rawItem.getSize();
+		rawItem.getBuffer().release();
+		return size;
 	}
 
 	@Override
@@ -282,8 +295,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			tunnel.stamp();
 		}
 
-		item.setSerialization(Unpooled.buffer().alloc(), this);
-		var serializedSize = item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize(); // XXX: maybe find a flag to do the size serialization only because it's a bit of a CPU waste
+		var serializedSize = getItemSerializedSize(item); // XXX: maybe find a flag to do the size serialization only because it's a bit of a CPU waste
 		tunnel.addTransferredBytes(serializedSize);
 
 		if (sender.getLocation().equals(tunnel.getDestination()))
@@ -508,8 +520,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		log.debug("Received search request from peer {}: {}", sender, item);
 
-		item.setSerialization(Unpooled.buffer().alloc(), this);
-		var itemSerializedSize = item.serializeItem(EnumSet.of(SerializationFlags.SIZE)).getSize();
+		var itemSerializedSize = getItemSerializedSize(item);
 		if (itemSerializedSize > MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE)
 		{
 			log.warn("Got an arbitrary large size from {} of size {} and depth {}. Dropping", sender, itemSerializedSize, item.getDepth());
@@ -564,13 +575,47 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (item instanceof TurtleFileSearchRequestItem fileSearchItem)
 		{
-			// XXX: file search
+			log.debug("Received file search: {}, subclass: {}", fileSearchItem.getKeywords(), fileSearchItem.getClass());
+			// XXX: this doesn't really use "keywords" but the whole string, but I think RS does that too? nah, it does require both keyboards in the title, but probably uses the regexp item for it. yes! it uses NAME CONTAINS ALL the test
+			return mapResults(fileService.searchFiles(fileSearchItem.getKeywords()).stream()
+					.filter(file -> file.getType() != FileType.DIRECTORY)
+					.limit(maxHits)
+					.sorted(Comparator.comparing(File::getModified).reversed()) // Get the most recents first
+					.map(file -> new TurtleFileInfo(file.getName(), file.getHash(), file.getSize()))
+					.toList());
 		}
 		else if (item instanceof TurtleGenericSearchRequestItem genericSearchRequestItem)
 		{
+			log.debug("Received generic search: {}", genericSearchRequestItem.getKeywords());
 			// XXX: generic search
 		}
 
+		return results;
+	}
+
+	private List<TurtleSearchResultItem> mapResults(List<TurtleFileInfo> fileInfos)
+	{
+		List<TurtleSearchResultItem> results = new ArrayList<>();
+		TurtleFileSearchResultItem item = null;
+		int fileInfoSize = 0;
+
+		for (TurtleFileInfo fileInfo : fileInfos)
+		{
+			if (item == null)
+			{
+				item = new TurtleFileSearchResultItem();
+				results.add(item);
+				fileInfoSize = 0;
+			}
+
+			item.addFileInfo(fileInfo);
+			fileInfoSize += fileInfo.getSize();
+
+			if (fileInfoSize > MAX_SEARCH_RESPONSE_SERIAL_SIZE)
+			{
+				item = null;
+			}
+		}
 		return results;
 	}
 

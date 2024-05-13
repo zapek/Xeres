@@ -37,7 +37,7 @@ public final class Serializer
 {
 	private static final Logger log = LoggerFactory.getLogger(Serializer.class);
 
-	static final int TLV_HEADER_SIZE = 6;
+	static public final int TLV_HEADER_SIZE = 6;
 
 	private Serializer()
 	{

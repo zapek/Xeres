@@ -23,6 +23,8 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.Sha1Sum;
 
+import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+
 public class TurtleFileInfo
 {
 	@RsSerialized
@@ -63,7 +65,7 @@ public class TurtleFileInfo
 
 	public int getSize()
 	{
-		return 8 + Sha1Sum.LENGTH + 6 + fileName.length(); // XXX: a bit of a hack...
+		return Long.BYTES + Sha1Sum.LENGTH + TLV_HEADER_SIZE + fileName.length();
 	}
 
 	@Override

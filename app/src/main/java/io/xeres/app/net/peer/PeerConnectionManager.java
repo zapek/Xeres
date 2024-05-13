@@ -19,8 +19,6 @@
 
 package io.xeres.app.net.peer;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.xeres.app.database.model.location.Location;
@@ -140,19 +138,6 @@ public class PeerConnectionManager
 	{
 		item.setOutgoing(peerConnection.getCtx().alloc(), rsService);
 		return writeItem(peerConnection.getCtx(), item);
-	}
-
-	/**
-	 * Serializes an item to make a signature out of it.
-	 *
-	 * @param item      the item
-	 * @param rsService the service
-	 * @return a ByteBuf. Don't forget to release() it once you're done
-	 */
-	public ByteBuf serializeItemForSignature(Item item, RsService rsService)
-	{
-		item.setSerialization(Unpooled.buffer().alloc(), rsService);
-		return item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 	}
 
 	public void doForAllPeers(Consumer<PeerConnection> action, RsService rsService)

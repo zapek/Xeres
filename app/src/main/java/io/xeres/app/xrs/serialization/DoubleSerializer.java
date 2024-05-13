@@ -36,9 +36,9 @@ final class DoubleSerializer
 	static int serialize(ByteBuf buf, double value)
 	{
 		log.trace("Writing double: {}", value);
-		buf.ensureWritable(8);
+		buf.ensureWritable(Double.BYTES);
 		buf.writeDouble(value);
-		return 8;
+		return Double.BYTES;
 	}
 
 	static double deserialize(ByteBuf buf)

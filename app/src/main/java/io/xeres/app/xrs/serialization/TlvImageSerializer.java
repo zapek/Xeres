@@ -51,7 +51,7 @@ final class TlvImageSerializer
 		buf.ensureWritable(len);
 		buf.writeShort(IMAGE.getValue());
 		buf.writeInt(len);
-		Serializer.serialize(buf, ImageType.AUTO_DETECT);
+		EnumSerializer.serialize(buf, ImageType.AUTO_DETECT);
 		TlvSerializer.serialize(buf, BIN_IMAGE, image);
 
 		return len;
@@ -59,7 +59,7 @@ final class TlvImageSerializer
 
 	static int getSize(byte[] data)
 	{
-		return TLV_HEADER_SIZE + 4 + TlvBinarySerializer.getSize(data);
+		return TLV_HEADER_SIZE + EnumSerializer.getSize() + TlvBinarySerializer.getSize(data);
 	}
 
 	static byte[] deserialize(ByteBuf buf)
@@ -67,7 +67,7 @@ final class TlvImageSerializer
 		log.trace("Reading image");
 
 		TlvUtils.checkTypeAndLength(buf, IMAGE);
-		Serializer.deserializeEnum(buf, ImageType.class); // Not really used
+		EnumSerializer.deserialize(buf, ImageType.class); // Not really used
 		return (byte[]) TlvSerializer.deserialize(buf, BIN_IMAGE);
 	}
 }

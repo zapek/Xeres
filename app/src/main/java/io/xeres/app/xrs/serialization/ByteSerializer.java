@@ -36,9 +36,9 @@ final class ByteSerializer
 	static int serialize(ByteBuf buf, byte value)
 	{
 		log.trace("Writing byte: {}", value);
-		buf.ensureWritable(1);
+		buf.ensureWritable(Byte.BYTES);
 		buf.writeByte(value);
-		return 1;
+		return Byte.BYTES;
 	}
 
 	static byte deserialize(ByteBuf buf)

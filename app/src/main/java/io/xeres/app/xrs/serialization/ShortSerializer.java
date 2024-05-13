@@ -36,9 +36,9 @@ final class ShortSerializer
 	static int serialize(ByteBuf buf, short value)
 	{
 		log.trace("Writing short: {}", value);
-		buf.ensureWritable(2);
+		buf.ensureWritable(Short.BYTES);
 		buf.writeShort(value);
-		return 2;
+		return Short.BYTES;
 	}
 
 	static short deserialize(ByteBuf buf)

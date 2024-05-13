@@ -58,11 +58,11 @@ final class EnumSetSerializer
 
 	private static int serializeEnumSetInt(ByteBuf buf, Set<? extends Enum<?>> enumSet)
 	{
-		if (enumSet.size() > 32)
+		if (enumSet.size() > Integer.SIZE)
 		{
-			throw new IllegalArgumentException("EnumSet cannot have more than 32 entries");
+			throw new IllegalArgumentException("EnumSet cannot have more than " + Integer.SIZE + " entries");
 		}
-		var size = 4;
+		var size = Integer.BYTES;
 
 		log.trace("Enumset (int): {}", enumSet);
 		buf.ensureWritable(size);
@@ -77,18 +77,18 @@ final class EnumSetSerializer
 
 	private static int serializeEnumSetByte(ByteBuf buf, Set<? extends Enum<?>> enumSet)
 	{
-		if (enumSet.size() > 8)
+		if (enumSet.size() > Byte.SIZE)
 		{
-			throw new IllegalArgumentException("EnumSet for a byte cannot have more than 8 entries");
+			throw new IllegalArgumentException("EnumSet for a byte cannot have more than " + Byte.SIZE + " entries");
 		}
-		var size = 1;
+		var size = Byte.BYTES;
 
 		log.trace("Enumset (byte): {}", enumSet);
 		buf.ensureWritable(size);
 		byte value = 0;
 		for (Enum<?> anEnum : enumSet)
 		{
-			value |= 1 << anEnum.ordinal();
+			value |= (byte) (1 << anEnum.ordinal());
 		}
 		buf.writeByte(value);
 		return size;
@@ -96,18 +96,18 @@ final class EnumSetSerializer
 
 	private static int serializeEnumSetShort(ByteBuf buf, Set<? extends Enum<?>> enumSet)
 	{
-		if (enumSet.size() > 16)
+		if (enumSet.size() > Short.SIZE)
 		{
-			throw new IllegalArgumentException("EnumSet for a short cannot have more than 16 entries");
+			throw new IllegalArgumentException("EnumSet for a short cannot have more than " + Short.SIZE + " entries");
 		}
-		var size = 2;
+		var size = Short.BYTES;
 
 		log.trace("Enumset (short): {}", enumSet);
 		buf.ensureWritable(size);
 		short value = 0;
 		for (Enum<?> anEnum : enumSet)
 		{
-			value |= 1 << anEnum.ordinal();
+			value |= (short) (1 << anEnum.ordinal());
 		}
 		buf.writeShort(value);
 		return size;

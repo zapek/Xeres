@@ -38,9 +38,9 @@ final class ListSerializer
 
 	static int serialize(ByteBuf buf, List<Object> list)
 	{
-		var size = 4;
+		var size = Integer.BYTES;
 
-		buf.ensureWritable(4);
+		buf.ensureWritable(size);
 		if (list != null)
 		{
 			log.trace("Entries in List: {}", list.size());

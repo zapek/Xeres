@@ -69,7 +69,7 @@ final class TlvSetSerializer
 
 	private static int getLongSize(Set<Long> set)
 	{
-		return TLV_HEADER_SIZE + 8 * set.size();
+		return TLV_HEADER_SIZE + Long.BYTES * set.size();
 	}
 
 	static int getIdentifierSize(Set<? extends Identifier> set)
@@ -85,7 +85,7 @@ final class TlvSetSerializer
 	{
 		log.trace("Reading set of longs");
 		var len = TlvUtils.checkTypeAndLength(buf, type);
-		var count = len / 8;
+		var count = len / Long.BYTES;
 		HashSet<Long> set = HashSet.newHashSet(count);
 
 		while (count-- > 0)

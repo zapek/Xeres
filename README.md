@@ -141,7 +141,7 @@ run the ``clean`` task
 
 ##### Pick a FontAwesome Icon
 
-https://fontawesome.com/v4/icons/
+https://kordamp.org/ikonli/cheat-sheet-fontawesome5.html
 
 Replace all '-' by '_' in their names for use in JavaFX.
 

@@ -37,15 +37,15 @@ final class StringSerializer
 		log.trace("Writing string: \"{}\"", value);
 		if (value == null)
 		{
-			buf.ensureWritable(4);
+			buf.ensureWritable(Integer.BYTES);
 			buf.writeInt(0);
-			return 4;
+			return Integer.BYTES;
 		}
 		var bytes = value.getBytes();
-		buf.ensureWritable(4 + bytes.length);
+		buf.ensureWritable(Integer.BYTES + bytes.length);
 		buf.writeInt(bytes.length);
 		buf.writeBytes(bytes);
-		return 4 + bytes.length;
+		return Integer.BYTES + bytes.length;
 	}
 
 	static String deserialize(ByteBuf buf)

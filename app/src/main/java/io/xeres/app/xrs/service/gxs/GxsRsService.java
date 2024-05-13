@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.gxs;
 
-import io.netty.buffer.Unpooled;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
@@ -29,7 +28,7 @@ import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -663,7 +662,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private boolean validateGroup(G gxsGroupItem, PublicKey publicKey, byte[] signature)
 	{
-		var data = serializeItemForSignature(gxsGroupItem);
+		var data = ItemUtils.serializeItemForSignature(gxsGroupItem, this);
 		return RSA.verify(publicKey, signature, data);
 	}
 
@@ -823,7 +822,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsMessageItem.setMessageId(null);
 		gxsMessageItem.setOriginalMessageId(null);
 
-		var data = serializeItemForSignature(gxsMessageItem);
+		var data = ItemUtils.serializeItemForSignature(gxsMessageItem, this);
 
 		// And restore them
 		gxsMessageItem.setMessageId(savedMessageId);
@@ -916,7 +915,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			return; // Only sign our own groups
 		}
 
-		var data = serializeItemForSignature(gxsGroupItem);
+		var data = ItemUtils.serializeItemForSignature(gxsGroupItem, this);
 		var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
 		gxsGroupItem.setAdminSignature(signature);
 
@@ -984,7 +983,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// XXX: serviceType? how? how does group do it?
 
 			// The identifier is the sha1 hash of the data and meta
-			var data = serializeItemForSignature(gxsMessageItem);
+			var data = ItemUtils.serializeItemForSignature(gxsMessageItem, GxsRsService.this);
 
 			var md = new Sha1MessageDigest();
 			md.update(data);
@@ -1003,15 +1002,5 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsMessageItem.setAuthorSignature(signature);
 			// XXX: publish signature is missing (I think it's for the circles)
 		}
-	}
-
-	private byte[] serializeItemForSignature(Item item)
-	{
-		item.setSerialization(Unpooled.buffer().alloc(), this);
-		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
-		var data = new byte[buf.writerIndex()];
-		buf.getBytes(0, data);
-		buf.release();
-		return data;
 	}
 }

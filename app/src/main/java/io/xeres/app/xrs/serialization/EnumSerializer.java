@@ -39,9 +39,14 @@ final class EnumSerializer
 	{
 		Objects.requireNonNull(e, "Null enum not supported");
 		log.trace("Writing enum: {}", e.ordinal());
-		buf.ensureWritable(4);
+		buf.ensureWritable(Integer.BYTES);
 		buf.writeInt(e.ordinal());
-		return 4;
+		return Integer.BYTES;
+	}
+
+	static int getSize()
+	{
+		return Integer.BYTES;
 	}
 
 	@SuppressWarnings("unchecked")

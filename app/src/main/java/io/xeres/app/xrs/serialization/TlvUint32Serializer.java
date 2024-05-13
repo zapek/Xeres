@@ -42,7 +42,7 @@ final class TlvUint32Serializer
 
 	static int getSize()
 	{
-		return TLV_HEADER_SIZE + 4;
+		return TLV_HEADER_SIZE + Integer.BYTES;
 	}
 
 	static int deserialize(ByteBuf buf, TlvType type)

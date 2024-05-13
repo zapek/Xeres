@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import io.netty.buffer.Unpooled;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.file.File;
@@ -29,7 +28,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.serialization.SerializerSizeCache;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceMaster;
@@ -231,7 +230,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		item.setTunnelId(tunnelId);
 
-		var itemSerializedSize = getItemSerializedSize(item); // XXX: optimize... we're doing it twice
+		var itemSerializedSize = ItemUtils.getItemSerializedSize(item, this);
 
 		if (item.shouldStampTunnel())
 		{
@@ -256,15 +255,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		{
 			log.error("Asked to send a packet into a tunnel that is not registered, dropping packet");
 		}
-	}
-
-	private int getItemSerializedSize(Item item)
-	{
-		item.setSerialization(Unpooled.buffer().alloc(), this);
-		var rawItem = item.serializeItem(EnumSet.of(SerializationFlags.SIZE));
-		var size = rawItem.getSize();
-		rawItem.getBuffer().release();
-		return size;
 	}
 
 	@Override
@@ -295,7 +285,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			tunnel.stamp();
 		}
 
-		var serializedSize = getItemSerializedSize(item); // XXX: maybe find a flag to do the size serialization only because it's a bit of a CPU waste
+		var serializedSize = ItemUtils.getItemSerializedSize(item, this);
 		tunnel.addTransferredBytes(serializedSize);
 
 		if (sender.getLocation().equals(tunnel.getDestination()))
@@ -520,7 +510,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		log.debug("Received search request from peer {}: {}", sender, item);
 
-		var itemSerializedSize = getItemSerializedSize(item);
+		var itemSerializedSize = ItemUtils.getItemSerializedSize(item, this);
 		if (itemSerializedSize > MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE)
 		{
 			log.warn("Got an arbitrary large size from {} of size {} and depth {}. Dropping", sender, itemSerializedSize, item.getDepth());

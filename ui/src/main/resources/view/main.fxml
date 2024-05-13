@@ -115,6 +115,12 @@
                 <!--suppress Annotator -->
                 <fx:include fx:id="forumsViewController" source="forum/forumview.fxml"/>
             </Tab>
+            <Tab text="Files">
+                <graphic>
+                    <FontIcon iconLiteral="fas-exchange-alt"/>
+                </graphic>
+                <fx:include fx:id="fileMainController" source="file/main.fxml"/>
+            </Tab>
         </TabPane>
         <MenuBar AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" styleClass="hamburger-menu-bar">
             <Menu>

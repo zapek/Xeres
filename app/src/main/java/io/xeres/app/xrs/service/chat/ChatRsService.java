@@ -29,6 +29,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.util.UnHtml;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -911,11 +912,7 @@ public class ChatRsService extends RsService
 
 	private byte[] getBounceData(ChatRoomBounce chatRoomBounce)
 	{
-		var buffer = peerConnectionManager.serializeItemForSignature(chatRoomBounce, this);
-		var data = new byte[buffer.writerIndex()];
-		buffer.getBytes(0, data);
-		buffer.release();
-		return data;
+		return ItemUtils.serializeItemForSignature(chatRoomBounce, this);
 	}
 
 	/**

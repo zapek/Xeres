@@ -36,9 +36,9 @@ final class FloatSerializer
 	static int serialize(ByteBuf buf, float value)
 	{
 		log.trace("Writing float: {}", value);
-		buf.ensureWritable(4);
+		buf.ensureWritable(Float.BYTES);
 		buf.writeFloat(value);
-		return 4;
+		return Float.BYTES;
 	}
 
 	static float deserialize(ByteBuf buf)

@@ -36,15 +36,15 @@ final class ByteArraySerializer
 	{
 		if (a == null)
 		{
-			buf.ensureWritable(4);
+			buf.ensureWritable(Integer.BYTES);
 			buf.writeInt(0);
-			return 4;
+			return Integer.BYTES;
 		}
 		log.trace("Writing byte array of size {}", a.length);
-		buf.ensureWritable(4 + a.length);
+		buf.ensureWritable(Integer.BYTES + a.length);
 		buf.writeInt(a.length);
 		buf.writeBytes(a);
-		return 4 + a.length;
+		return Integer.BYTES + a.length;
 	}
 
 	static byte[] deserialize(ByteBuf buf)

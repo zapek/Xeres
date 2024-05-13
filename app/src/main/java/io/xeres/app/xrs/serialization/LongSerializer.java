@@ -36,9 +36,9 @@ final class LongSerializer
 	static int serialize(ByteBuf buf, long value)
 	{
 		log.trace("Writing long: {}", value);
-		buf.ensureWritable(8);
+		buf.ensureWritable(Long.BYTES);
 		buf.writeLong(value);
-		return 8;
+		return Long.BYTES;
 	}
 
 	static long deserialize(ByteBuf buf)

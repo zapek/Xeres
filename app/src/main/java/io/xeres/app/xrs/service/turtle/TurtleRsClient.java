@@ -23,6 +23,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.service.RsServiceSlave;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
+import io.xeres.app.xrs.service.turtle.item.TurtleSearchResultItem;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 
@@ -56,7 +57,7 @@ public interface TurtleRsClient extends RsServiceSlave
 	 * @param requestId  the request id
 	 * @param searchData the search result
 	 */
-	void receiveSearchResult(int requestId, byte[] searchData);
+	void receiveSearchResult(int requestId, TurtleSearchResultItem item);
 
 	void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId, TunnelDirection direction);
 

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-@FxmlView(value = "/view/file/filemain.fxml")
+@FxmlView(value = "/view/file/main.fxml")
 public class FileMainController implements Controller
 {
 	@Override

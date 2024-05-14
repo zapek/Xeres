@@ -51,6 +51,12 @@ public class TurtleGenericSearchResultItem extends TurtleSearchResultItem implem
 	}
 
 	@Override
+	public void trim(int size)
+	{
+		// XXX: implement?
+	}
+
+	@Override
 	public TurtleGenericSearchResultItem clone()
 	{
 		var clone = (TurtleGenericSearchResultItem) super.clone();

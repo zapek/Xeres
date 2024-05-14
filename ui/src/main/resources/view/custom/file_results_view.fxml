@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -19,14 +19,15 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<VBox spacing="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.file.FileSearchViewController">
-    <padding>
-        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
-    </padding>
-    <TextField fx:id="search" promptText="Enter file name"/>
-    <TabPane fx:id="resultTabPane" tabClosingPolicy="ALL_TABS" styleClass="floating" VBox.vgrow="ALWAYS"/>
-</VBox>
+<fx:root type="Tab" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <TableView fx:id="filesTableView" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="tableName" prefWidth="500" text="Name"/>
+            <TableColumn fx:id="tableSize" prefWidth="90" text="Size"/>
+            <TableColumn fx:id="tableType" prefWidth="100" text="Type"/>
+            <TableColumn fx:id="tableHash" prefWidth="320" text="Hash"/>
+        </columns>
+    </TableView>
+</fx:root>

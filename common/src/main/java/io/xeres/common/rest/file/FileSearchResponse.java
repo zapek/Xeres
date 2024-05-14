@@ -17,28 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle;
+package io.xeres.common.rest.file;
 
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
-import io.xeres.common.id.LocationId;
-import io.xeres.common.id.Sha1Sum;
-
-public interface TurtleRouter
+public record FileSearchResponse(int id)
 {
-	void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels); // XXX: better name?
-
-	void stopMonitoringTunnels(Sha1Sum hash);
-
-	/**
-	 * Forces to re-digg a tunnel.
-	 *
-	 * @param hash the hash to re-digg a tunnel for
-	 */
-	void forceReDiggTunnel(Sha1Sum hash);
-
-	void sendTurtleData(LocationId virtualPeerId, TurtleGenericTunnelItem item);
-
-	boolean isVirtualPeer(LocationId locationId);
-
-	int turtleSearch(String search, TurtleRsClient client);
 }

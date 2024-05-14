@@ -35,6 +35,11 @@ public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem i
 	{
 	}
 
+	public TurtleStringSearchRequestItem(String search)
+	{
+		this.search = search;
+	}
+
 	@Override
 	public int getSubType()
 	{

@@ -56,6 +56,11 @@ public abstract class TurtleSearchRequestItem extends Item implements Cloneable
 		return requestId;
 	}
 
+	public void setRequestId(int requestId)
+	{
+		this.requestId = requestId;
+	}
+
 	public short getDepth()
 	{
 		return depth;

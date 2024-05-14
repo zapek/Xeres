@@ -17,28 +17,32 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle;
+package io.xeres.ui.model.file;
 
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
-import io.xeres.common.id.LocationId;
-import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.file.FileType;
 
-public interface TurtleRouter
+import java.util.Objects;
+
+// XXX: missing children, parent? actually I should rename this because it's more like a Turtle/FT FileSearch than a File on disk..
+public record File(
+		String name,
+		long size,
+		FileType type,
+		String hash
+)
 {
-	void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels); // XXX: better name?
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		File file = (File) o;
+		return Objects.equals(hash, file.hash);
+	}
 
-	void stopMonitoringTunnels(Sha1Sum hash);
-
-	/**
-	 * Forces to re-digg a tunnel.
-	 *
-	 * @param hash the hash to re-digg a tunnel for
-	 */
-	void forceReDiggTunnel(Sha1Sum hash);
-
-	void sendTurtleData(LocationId virtualPeerId, TurtleGenericTunnelItem item);
-
-	boolean isVirtualPeer(LocationId locationId);
-
-	int turtleSearch(String search, TurtleRsClient client);
+	@Override
+	public int hashCode()
+	{
+		return Objects.hashCode(hash);
+	}
 }

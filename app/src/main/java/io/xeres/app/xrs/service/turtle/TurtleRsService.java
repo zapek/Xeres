@@ -148,6 +148,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	public void addRsSlave(TurtleRsClient client)
 	{
 		turtleClients.add(client);
+		client.initializeTurtle(this);
 	}
 
 	@Override
@@ -559,6 +560,25 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 	}
 
+	@Override
+	public int turtleSearch(String search, TurtleRsClient client) // XXX: put a size limit there in the search string length...
+	{
+		var id = SecureRandomUtils.nextInt();
+
+		var item = new TurtleStringSearchRequestItem(search);
+		item.setRequestId(id);
+
+		var request = new SearchRequest(client, ownLocation, 0, search, 0, MAX_SEARCH_HITS);
+		searchRequestsOrigins.put(id, request);
+
+		peerConnectionManager.doForAllPeers(peerConnection -> {
+			var itemToSend = item.clone();
+			peerConnectionManager.writeItem(peerConnection, itemToSend, this);
+		}, this);
+
+		return id;
+	}
+
 	private List<TurtleSearchResultItem> performLocalSearch(TurtleSearchRequestItem item, int maxHits)
 	{
 		List<TurtleSearchResultItem> results = new ArrayList<>();
@@ -615,7 +635,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (item instanceof TurtleFileSearchResultItem turtleFileSearchResultItem)
 		{
-			// XXX: check isBanned() on the fileInfo hashes
+			// XXX: remove all the isBanned() files from the result set
 		}
 
 		var searchRequest = searchRequestsOrigins.get(item.getRequestId());
@@ -625,16 +645,36 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		if (Duration.between(searchRequest.getLastUsed(), Instant.now()).compareTo(SEARCH_REQUEST_TIMEOUT) > 0)
+		if (Duration.between(searchRequest.getLastUsed(), Instant.now()).compareTo(SEARCH_REQUEST_TIMEOUT) > 0) // XXX: put that timeout somewhere in the UI (like a spinning, or something that indicates the search is ongoing
 		{
 			log.debug("Search result arrived too late, dropping...");
 			return;
 		}
 
-		// XXX: make sure we don't forward when source is our own ID (and add some caching because that is done a lot)
+		if (searchRequest.getSource().equals(ownLocation))
+		{
+			log.debug("Search result is for us, forwarding to right service...");
+			searchRequest.addResultCount(item.getCount());
+			searchRequest.getClient().receiveSearchResult(item.getRequestId(), item);
+			return;
+		}
 
-		// XXX: if the searchRequest.getResultCount() + total is bigger than searchRequest.getHitLimit(), then trim the result
-		// XXX: otherwise just increment the result count with the total. See what RS does there.
+		if (searchRequest.isFull())
+		{
+			log.warn("Exceeded turtle search result to forward. Request {} already forwarded: {}, max allowed: {}, dropping item with {} elements...",
+					item.getRequestId(),
+					searchRequest.getResultCount(),
+					searchRequest.getHitLimit(),
+					item.getCount());
+			return;
+		}
+
+		// Update the count and make sure we don't exceed the limit before forwarding
+		searchRequest.addResultCount(item.getCount());
+		if (searchRequest.isFull())
+		{
+			item.trim(searchRequest.getHitLimit());
+		}
 
 		// Forward the item to origin
 		peerConnectionManager.writeItem(searchRequest.getSource(), item.clone(), this);

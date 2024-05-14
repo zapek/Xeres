@@ -46,6 +46,15 @@ public class TurtleFileSearchResultItem extends TurtleSearchResultItem implement
 		return results.size();
 	}
 
+	@Override
+	public void trim(int size)
+	{
+		if (size < results.size())
+		{
+			results = results.subList(0, size);
+		}
+	}
+
 	public List<TurtleFileInfo> getResults()
 	{
 		return results;

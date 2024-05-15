@@ -44,7 +44,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'commons-io:commons-io:2.16.1'
     implementation 'net.rgielen:javafx-weaver-spring-boot-starter:1.3.0'
-    implementation 'org.fxmisc.flowless:flowless:0.7.2'
+    implementation 'org.fxmisc.flowless:flowless:0.7.3'
     implementation 'org.apache.commons:commons-lang3'
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
     implementation "org.jsoup:jsoup:$jsoupVersion"

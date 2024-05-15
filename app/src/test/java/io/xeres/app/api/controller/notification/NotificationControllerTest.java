@@ -21,6 +21,7 @@ package io.xeres.app.api.controller.notification;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.service.notification.file.FileNotificationService;
+import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,9 @@ class NotificationControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private FileNotificationService fileNotificationService;
+
+	@MockBean
+	private FileSearchNotificationService fileSearchNotificationService;
 
 	@Autowired
 	public MockMvc mvc;

@@ -112,6 +112,6 @@ public class ProfilesWindowController implements WindowController
 		});
 
 		var profileXContextMenu = new XContextMenu<Profile>(profilesTableView, deleteItem);
-		profileXContextMenu.setOnShowing((contextMenu, profile) -> profile.getId() != OWN_PROFILE_ID);
+		profileXContextMenu.setOnShowing((contextMenu, profile) -> profile != null && profile.getId() != OWN_PROFILE_ID);
 	}
 }

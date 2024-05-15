@@ -23,9 +23,11 @@ import io.xeres.common.file.FileType;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.model.file.File;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -38,9 +40,12 @@ import java.util.ResourceBundle;
 public class FileResultView extends Tab
 {
 	private static final Logger log = LoggerFactory.getLogger(FileResultView.class);
+
+	private static final String DOWNLOAD_MENU_ID = "download";
+
 	private final ResourceBundle bundle;
 
-	private int searchId;
+	private final int searchId;
 
 	@FXML
 	private TableView<File> filesTableView;
@@ -81,6 +86,8 @@ public class FileResultView extends Tab
 
 	public void initialize()
 	{
+		createFilesTableViewContextMenu();
+
 		tableName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().name()));
 		tableSize.setCellValueFactory(param -> new SimpleStringProperty(ByteUnitUtils.fromBytes(param.getValue().size())));
 		tableType.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().type().toString()));
@@ -100,5 +107,21 @@ public class FileResultView extends Tab
 		{
 			filesTableView.getItems().add(file);
 		}
+	}
+
+	private void createFilesTableViewContextMenu()
+	{
+		var downloadItem = new MenuItem("Download");
+		downloadItem.setId(DOWNLOAD_MENU_ID);
+		downloadItem.setOnAction(event -> {
+			if (event.getSource() instanceof File file)
+			{
+				log.debug("Downloading file {}", file.name());
+				// XXX: call to download the file
+			}
+		});
+
+		var fileXContextMenu = new XContextMenu<File>(filesTableView, downloadItem);
+		fileXContextMenu.setOnShowing((contextMenu, file) -> file != null);
 	}
 }

@@ -29,8 +29,9 @@ class SearchRequest
 	private final Instant lastUsed;
 	private final int depth;
 	private final String keywords;
-	private final int resultCount;
+	private int resultCount;
 	private final int hitLimit;
+	private TurtleRsClient client;
 
 	public SearchRequest(Location source, int depth, String keywords, int resultCount, int hitLimit)
 	{
@@ -40,6 +41,12 @@ class SearchRequest
 		this.keywords = keywords;
 		this.resultCount = resultCount;
 		this.hitLimit = hitLimit;
+	}
+
+	public SearchRequest(TurtleRsClient client, Location source, int depth, String keywords, int resultCount, int hitLimit)
+	{
+		this(source, depth, keywords, resultCount, hitLimit);
+		this.client = client;
 	}
 
 	public Location getSource()
@@ -75,5 +82,15 @@ class SearchRequest
 	public boolean isFull()
 	{
 		return resultCount >= hitLimit;
+	}
+
+	public void addResultCount(int value)
+	{
+		resultCount += value;
+	}
+
+	public TurtleRsClient getClient()
+	{
+		return client;
 	}
 }

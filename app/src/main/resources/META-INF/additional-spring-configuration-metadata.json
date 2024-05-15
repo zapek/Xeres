@@ -49,6 +49,11 @@
             "name": "xrs.service.forum.enabled",
             "type": "java.lang.Boolean",
             "description": "Enable the forum service."
+        },
+        {
+            "name" : "xrs.service.filetransfer.enabled",
+            "type" : "java.lang.Boolean",
+            "description" : "Enable the file transfer service."
         }
     ]
 }

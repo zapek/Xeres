@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.filetransfer;
 
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.service.file.FileService;
+import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -28,7 +29,9 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
+import io.xeres.app.xrs.service.turtle.item.TurtleFileSearchResultItem;
 import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
+import io.xeres.app.xrs.service.turtle.item.TurtleSearchResultItem;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
@@ -47,11 +50,13 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private TurtleRouter turtleRouter;
 
 	private final FileService fileService;
+	private final FileSearchNotificationService fileSearchNotificationService;
 
-	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService)
+	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, FileSearchNotificationService fileSearchNotificationService)
 	{
 		super(rsServiceRegistry);
 		this.fileService = fileService;
+		this.fileSearchNotificationService = fileSearchNotificationService;
 	}
 
 	@Override
@@ -105,9 +110,13 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void receiveSearchResult(int requestId, byte[] searchData)
+	public void receiveSearchResult(int requestId, TurtleSearchResultItem item)
 	{
-
+		if (item instanceof TurtleFileSearchResultItem fileItem)
+		{
+			log.debug("Forwarding search result id {} as notification", requestId);
+			fileItem.getResults().forEach(fileInfo -> fileSearchNotificationService.foundFile(requestId, fileInfo.getFileName(), fileInfo.getFileSize(), fileInfo.getFileHash()));
+		}
 	}
 
 	@Override
@@ -120,5 +129,20 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	public void removeVirtualPeer(Sha1Sum hash, LocationId virtualLocationId)
 	{
 
+	}
+
+	public int turtleSearch(String search) // XXX: maybe make a generic version or so...
+	{
+		if (turtleRouter != null) // Happens if the service is not enabled
+		{
+			return turtleRouter.turtleSearch(search, this);
+		}
+		return 0;
+	}
+
+	@Override
+	public void shutdown()
+	{
+		fileSearchNotificationService.shutdown();
 	}
 }

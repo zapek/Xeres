@@ -33,6 +33,8 @@ public abstract class TurtleSearchResultItem extends Item implements Cloneable
 
 	public abstract int getCount();
 
+	public abstract void trim(int size);
+
 	protected TurtleSearchResultItem()
 	{
 		// Needed

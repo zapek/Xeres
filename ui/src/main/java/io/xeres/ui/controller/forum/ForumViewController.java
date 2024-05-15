@@ -265,7 +265,6 @@ public class ForumViewController implements Controller
 	private void setupForumNotifications()
 	{
 		notificationDisposable = notificationClient.getForumNotifications()
-				.doOnComplete(() -> log.debug("Notification connection closed"))
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)

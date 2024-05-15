@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.notification.file.FileNotificationService;
+import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.springframework.http.MediaType;
@@ -42,12 +43,14 @@ public class NotificationController
 	private final StatusNotificationService statusNotificationService;
 	private final ForumNotificationService forumNotificationService;
 	private final FileNotificationService fileNotificationService;
+	private final FileSearchNotificationService fileSearchNotificationService;
 
-	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService)
+	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService)
 	{
 		this.statusNotificationService = statusNotificationService;
 		this.forumNotificationService = forumNotificationService;
 		this.fileNotificationService = fileNotificationService;
+		this.fileSearchNotificationService = fileSearchNotificationService;
 	}
 
 	@GetMapping("/status")
@@ -72,5 +75,13 @@ public class NotificationController
 	public SseEmitter setupFileNotification()
 	{
 		return fileNotificationService.addClient();
+	}
+
+	@GetMapping("/fileSearch")
+	@Operation(summary = "Subscribe to file search notifications")
+	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	public SseEmitter setupFileSearchNotification()
+	{
+		return fileSearchNotificationService.addClient();
 	}
 }

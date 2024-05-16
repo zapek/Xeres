@@ -34,7 +34,7 @@
             </Tab>
             <Tab text="Transfers">
                 <graphic>
-                    <FontIcon iconLiteral="far-arrow-alt-circle-down"/>
+                    <FontIcon iconLiteral="fas-download"/>
                 </graphic>
             </Tab>
         </TabPane>

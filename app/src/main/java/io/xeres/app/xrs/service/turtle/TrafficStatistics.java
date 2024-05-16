@@ -19,13 +19,15 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Everything is in bytes per seconds.
  */
 class TrafficStatistics
 {
+	private static final Logger log = LoggerFactory.getLogger(TrafficStatistics.class);
 	private double unknownTotal;
 
 	private double dataUpload;
@@ -34,10 +36,32 @@ class TrafficStatistics
 	private double tunnelRequestsUpload;
 	private double tunnelRequestsDownload;
 
+	private double searchRequestsUpload;
+	private double searchRequestsDownload;
+
 	private double totalUpload;
 	private double totalDownload;
 
-	private List<Double> forwardProbabilities;
+	public TrafficStatistics()
+	{
+	}
+
+	private TrafficStatistics(TrafficStatistics from)
+	{
+		unknownTotal = from.unknownTotal;
+
+		dataUpload = from.dataUpload;
+		dataDownload = from.dataDownload;
+
+		tunnelRequestsUpload = from.tunnelRequestsUpload;
+		tunnelRequestsDownload = from.tunnelRequestsDownload;
+
+		searchRequestsUpload = from.searchRequestsUpload;
+		searchRequestsDownload = from.searchRequestsDownload;
+
+		totalUpload = from.totalUpload;
+		totalDownload = from.totalDownload;
+	}
 
 	public void reset()
 	{
@@ -49,59 +73,74 @@ class TrafficStatistics
 		tunnelRequestsUpload = 0.0;
 		tunnelRequestsDownload = 0.0;
 
+		searchRequestsUpload = 0.0;
+		searchRequestsDownload = 0.0;
+
 		totalUpload = 0.0;
 		totalDownload = 0.0;
-
-		// XXX: no reset of forwardProbabilities? check what RS does with it...
 	}
 
 	public TrafficStatistics multiply(double number)
 	{
-		unknownTotal *= number;
+		var result = new TrafficStatistics(this);
 
-		dataUpload *= number;
-		dataDownload *= number;
+		result.unknownTotal *= number;
 
-		tunnelRequestsUpload *= number;
-		tunnelRequestsDownload *= number;
+		result.dataUpload *= number;
+		result.dataDownload *= number;
 
-		totalUpload *= number;
-		totalDownload *= number;
+		result.tunnelRequestsUpload *= number;
+		result.tunnelRequestsDownload *= number;
 
-		return this;
+		result.searchRequestsUpload *= number;
+		result.searchRequestsDownload *= number;
+
+		result.totalUpload *= number;
+		result.totalDownload *= number;
+
+		return result;
 	}
 
-	// XXX: remove if not needed...
 	public TrafficStatistics add(double number)
 	{
-		unknownTotal += number;
+		var result = new TrafficStatistics(this);
 
-		dataUpload += number;
-		dataDownload += number;
+		result.unknownTotal += number;
 
-		tunnelRequestsUpload += number;
-		tunnelRequestsDownload += number;
+		result.dataUpload += number;
+		result.dataDownload += number;
 
-		totalUpload += number;
-		totalDownload += number;
+		result.tunnelRequestsUpload += number;
+		result.tunnelRequestsDownload += number;
 
-		return this;
+		result.searchRequestsUpload += number;
+		result.searchRequestsDownload += number;
+
+		result.totalUpload += number;
+		result.totalDownload += number;
+
+		return result;
 	}
 
 	public TrafficStatistics add(TrafficStatistics other)
 	{
-		unknownTotal += other.getUnknownTotal();
+		var result = new TrafficStatistics(this);
 
-		dataUpload += other.getDataUpload();
-		dataDownload += other.getDataDownload();
+		result.unknownTotal += other.unknownTotal;
 
-		tunnelRequestsUpload += other.getTunnelRequestsUpload();
-		tunnelRequestsDownload += other.getTunnelRequestsDownload();
+		result.dataUpload += other.dataUpload;
+		result.dataDownload += other.dataDownload;
 
-		totalUpload += other.getTotalUpload();
-		totalDownload += other.getTotalDownload();
+		result.tunnelRequestsUpload += other.tunnelRequestsUpload;
+		result.tunnelRequestsDownload += other.tunnelRequestsDownload;
 
-		return this;
+		result.searchRequestsUpload += other.searchRequestsUpload;
+		result.searchRequestsDownload += other.searchRequestsDownload;
+
+		result.totalUpload += other.totalUpload;
+		result.totalDownload += other.totalDownload;
+
+		return result;
 	}
 
 	public void addToTunnelRequestsDownload(int size)
@@ -112,6 +151,16 @@ class TrafficStatistics
 	public void addToTunnelRequestsUpload(int size)
 	{
 		tunnelRequestsUpload += size;
+	}
+
+	public void addToSearchRequestsDownload(int size)
+	{
+		searchRequestsDownload += size;
+	}
+
+	public void addToSearchRequestsUpload(int size)
+	{
+		searchRequestsUpload += size;
 	}
 
 	public void addToUnknownTotal(int size)
@@ -154,6 +203,16 @@ class TrafficStatistics
 		return tunnelRequestsDownload;
 	}
 
+	public double getSearchRequestsUpload()
+	{
+		return searchRequestsUpload;
+	}
+
+	public double getSearchRequestsDownload()
+	{
+		return searchRequestsDownload;
+	}
+
 	public double getTotalUpload()
 	{
 		return totalUpload;
@@ -162,5 +221,19 @@ class TrafficStatistics
 	public double getTotalDownload()
 	{
 		return totalDownload;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TrafficStatistics [unknownTotal=" + unknownTotal +
+				", dataUpload=" + dataUpload +
+				", dataDownload=" + dataDownload +
+				", tunnelRequestsUpload=" + tunnelRequestsUpload +
+				", tunnelRequestsDownload=" + tunnelRequestsDownload +
+				", searchRequestsUpload=" + searchRequestsUpload +
+				", searchRequestsDownload=" + searchRequestsDownload +
+				", totalUpload=" + totalUpload +
+				", totalDownload=" + totalDownload + "]";
 	}
 }

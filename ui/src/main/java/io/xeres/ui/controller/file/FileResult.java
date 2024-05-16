@@ -17,15 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.model.file;
+package io.xeres.ui.controller.file;
 
 import io.xeres.common.file.FileType;
 
 import java.util.Objects;
 
-// XXX: missing children, parent?
-public record File(
-		long id,
+public record FileResult(
 		String name,
 		long size,
 		FileType type,
@@ -37,13 +35,13 @@ public record File(
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		File file = (File) o;
-		return id == file.id;
+		FileResult file = (FileResult) o;
+		return Objects.equals(hash, file.hash);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hashCode(id);
+		return Objects.hashCode(hash);
 	}
 }

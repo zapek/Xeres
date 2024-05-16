@@ -21,6 +21,10 @@ package io.xeres.common.file;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import static io.xeres.common.file.FileType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FileTypeTest
@@ -28,31 +32,57 @@ class FileTypeTest
 	@Test
 	void FileType_GetByExtension_NoExtension_OK()
 	{
-		assertEquals(FileType.ANY, FileType.getTypeByExtension("foobar."));
+		assertEquals(ANY, getTypeByExtension("foobar."));
 	}
 
 	@Test
 	void FileType_GetByExtension_NoExtension2_OK()
 	{
-		assertEquals(FileType.ANY, FileType.getTypeByExtension("foobar"));
+		assertEquals(ANY, getTypeByExtension("foobar"));
 	}
 
 	@Test
 	void FileType_GetByExtension_Found_OK()
 	{
-		assertEquals(FileType.AUDIO, FileType.getTypeByExtension("foobar.aac"));
-		assertEquals(FileType.AUDIO, FileType.getTypeByExtension("foobar.mp3"));
-		assertEquals(FileType.ARCHIVE, FileType.getTypeByExtension("foobar.tar"));
-		assertEquals(FileType.CDIMAGE, FileType.getTypeByExtension("foobar.bin"));
-		assertEquals(FileType.DOCUMENT, FileType.getTypeByExtension("foobar.doc"));
-		assertEquals(FileType.PICTURE, FileType.getTypeByExtension("foobar.jpg"));
-		assertEquals(FileType.PROGRAM, FileType.getTypeByExtension("foobar.bat"));
-		assertEquals(FileType.VIDEO, FileType.getTypeByExtension("foobar.avi"));
+		assertEquals(AUDIO, getTypeByExtension("foobar.aac"));
+		assertEquals(AUDIO, getTypeByExtension("foobar.mp3"));
+		assertEquals(ARCHIVE, getTypeByExtension("foobar.tar"));
+		assertEquals(DOCUMENT, getTypeByExtension("foobar.doc"));
+		assertEquals(PICTURE, getTypeByExtension("foobar.jpg"));
+		assertEquals(PROGRAM, getTypeByExtension("foobar.bat"));
+		assertEquals(VIDEO, getTypeByExtension("foobar.avi"));
+		assertEquals(SUBTITLES, getTypeByExtension("foobar.srt"));
+		assertEquals(COLLECTION, getTypeByExtension("foobar.rscollection"));
 	}
 
 	@Test
 	void FileType_GetByExtension_NotFound_OK()
 	{
-		assertEquals(FileType.ANY, FileType.getTypeByExtension("foobar.dtc"));
+		assertEquals(ANY, getTypeByExtension("foobar.dtc"));
+	}
+
+	@Test
+	void FileType_NoCrossMatches()
+	{
+		Set<String> all = new HashSet<>();
+		all.addAll(AUDIO.getExtensions());
+		all.addAll(ARCHIVE.getExtensions());
+		all.addAll(DOCUMENT.getExtensions());
+		all.addAll(PICTURE.getExtensions());
+		all.addAll(PROGRAM.getExtensions());
+		all.addAll(VIDEO.getExtensions());
+		all.addAll(SUBTITLES.getExtensions());
+		all.addAll(COLLECTION.getExtensions());
+
+		assertEquals(all.size(),
+				AUDIO.getExtensions().size() +
+						ARCHIVE.getExtensions().size() +
+						DOCUMENT.getExtensions().size() +
+						PICTURE.getExtensions().size() +
+						PROGRAM.getExtensions().size() +
+						VIDEO.getExtensions().size() +
+						SUBTITLES.getExtensions().size() +
+						COLLECTION.getExtensions().size(),
+				"There's a file extension which is in more than one group");
 	}
 }

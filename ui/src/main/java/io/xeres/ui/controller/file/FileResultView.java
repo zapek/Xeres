@@ -22,15 +22,19 @@ package io.xeres.ui.controller.file;
 import io.xeres.common.file.FileType;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.ByteUnitUtils;
-import io.xeres.ui.model.file.File;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.StackPane;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,25 +46,26 @@ public class FileResultView extends Tab
 	private static final Logger log = LoggerFactory.getLogger(FileResultView.class);
 
 	private static final String DOWNLOAD_MENU_ID = "download";
+	public static final int FILE_ICON_SIZE = 24;
 
 	private final ResourceBundle bundle;
 
 	private final int searchId;
 
 	@FXML
-	private TableView<File> filesTableView;
+	private TableView<FileResult> filesTableView;
 
 	@FXML
-	private TableColumn<File, String> tableName;
+	private TableColumn<FileResult, FileResult> tableName;
 
 	@FXML
-	private TableColumn<File, String> tableSize;
+	private TableColumn<FileResult, String> tableSize;
 
 	@FXML
-	private TableColumn<File, String> tableType;
+	private TableColumn<FileResult, String> tableType;
 
 	@FXML
-	private TableColumn<File, String> tableHash;
+	private TableColumn<FileResult, String> tableHash;
 
 
 	public FileResultView(String text, int searchId)
@@ -88,7 +93,8 @@ public class FileResultView extends Tab
 	{
 		createFilesTableViewContextMenu();
 
-		tableName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().name()));
+		tableName.setCellFactory(param -> new FileResultNameCell(this::getGraphicForType));
+		tableName.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
 		tableSize.setCellValueFactory(param -> new SimpleStringProperty(ByteUnitUtils.fromBytes(param.getValue().size())));
 		tableType.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().type().toString()));
 		tableHash.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().hash()));
@@ -101,7 +107,7 @@ public class FileResultView extends Tab
 
 	public void addResult(String name, long size, String hash)
 	{
-		var file = new File(name, size, FileType.getTypeByExtension(name), hash);
+		var file = new FileResult(name, size, FileType.getTypeByExtension(name), hash);
 
 		if (!filesTableView.getItems().contains(file))
 		{
@@ -109,19 +115,44 @@ public class FileResultView extends Tab
 		}
 	}
 
+	private Node getGraphicForType(FileType type)
+	{
+		var pane = new StackPane(new FontIcon(getIconCodeForType(type)));
+		pane.setPrefWidth(FILE_ICON_SIZE);
+		pane.setPrefHeight(FILE_ICON_SIZE);
+		pane.setAlignment(Pos.CENTER);
+		return pane;
+	}
+
+	private String getIconCodeForType(FileType type)
+	{
+		return switch (type)
+		{
+			case AUDIO -> "fas-music";
+			case VIDEO -> "fas-film";
+			case PICTURE -> "fas-image";
+			case DOCUMENT -> "fas-file-alt";
+			case ARCHIVE -> "fas-archive";
+			case PROGRAM -> "fas-microchip";
+			case COLLECTION -> "fas-layer-group";
+			case SUBTITLES -> "fas-closed-captioning";
+			case DIRECTORY, ANY -> "fas-file";
+		};
+	}
+
 	private void createFilesTableViewContextMenu()
 	{
 		var downloadItem = new MenuItem("Download");
 		downloadItem.setId(DOWNLOAD_MENU_ID);
 		downloadItem.setOnAction(event -> {
-			if (event.getSource() instanceof File file)
+			if (event.getSource() instanceof FileResult file)
 			{
 				log.debug("Downloading file {}", file.name());
 				// XXX: call to download the file
 			}
 		});
 
-		var fileXContextMenu = new XContextMenu<File>(filesTableView, downloadItem);
+		var fileXContextMenu = new XContextMenu<FileResult>(filesTableView, downloadItem);
 		fileXContextMenu.setOnShowing((contextMenu, file) -> file != null);
 	}
 }

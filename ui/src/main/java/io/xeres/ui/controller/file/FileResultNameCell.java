@@ -17,33 +17,30 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.model.file;
+package io.xeres.ui.controller.file;
 
 import io.xeres.common.file.FileType;
+import javafx.scene.Node;
+import javafx.scene.control.TableCell;
 
-import java.util.Objects;
+import java.util.function.Function;
 
-// XXX: missing children, parent?
-public record File(
-		long id,
-		String name,
-		long size,
-		FileType type,
-		String hash
-)
+class FileResultNameCell extends TableCell<FileResult, FileResult>
 {
-	@Override
-	public boolean equals(Object o)
+	private final Function<FileType, Node> converter;
+
+	public FileResultNameCell(Function<FileType, Node> converter)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		File file = (File) o;
-		return id == file.id;
+		super();
+		this.converter = converter;
 	}
 
 	@Override
-	public int hashCode()
+	protected void updateItem(FileResult item, boolean empty)
 	{
-		return Objects.hashCode(id);
+		super.updateItem(item, empty);
+		setText(empty ? null : item.name());
+		setGraphic(empty ? null : converter.apply(item.type()));
+		setGraphicTextGap(4.0);
 	}
 }

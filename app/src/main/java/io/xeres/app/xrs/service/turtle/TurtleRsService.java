@@ -126,7 +126,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private Instant lastSpeedEstimation = Instant.EPOCH;
 
-	private final TrafficStatistics trafficStatistics = new TrafficStatistics();
+	private TrafficStatistics trafficStatistics = new TrafficStatistics();
 	private final TrafficStatistics trafficStatisticsBuffer = new TrafficStatistics();
 
 	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager, FileService fileService)
@@ -366,13 +366,13 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		log.debug("Received tunnel request from peer {}: {}", sender, item);
 
+		trafficStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
+
 		if (item.getFileHash() == null) // XXX: not sure what to do with those (RS has no code handling that...)
 		{
 			log.debug("null filehash, dropping...");
 			return;
 		}
-
-		trafficStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
 
 		if (isBanned(item.getFileHash()))
 		{
@@ -423,7 +423,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 						tunnelProbability.incrementDepth(itemToSend);
 						if (SecureRandomUtils.nextDouble() <= probability)
 						{
-							trafficStatistics.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
+							trafficStatisticsBuffer.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
 							peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 						}
 					},
@@ -512,6 +512,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		log.debug("Received search request from peer {}: {}", sender, item);
 
 		var itemSerializedSize = ItemUtils.getItemSerializedSize(item, this);
+
+		trafficStatisticsBuffer.addToSearchRequestsDownload(itemSerializedSize);
+
 		if (itemSerializedSize > MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE)
 		{
 			log.warn("Got an arbitrary large size from {} of size {} and depth {}. Dropping", sender, itemSerializedSize, item.getDepth());
@@ -553,6 +556,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			peerConnectionManager.doForAllPeersExceptSender(peerConnection -> {
 						var itemToSend = item.clone();
 						tunnelProbability.incrementDepth(itemToSend);
+						trafficStatisticsBuffer.addToSearchRequestsUpload(itemSerializedSize);
 						peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 					},
 					sender,
@@ -571,8 +575,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		var request = new SearchRequest(client, ownLocation, 0, search, 0, MAX_SEARCH_HITS);
 		searchRequestsOrigins.put(id, request);
 
+		var itemSerializedSize = ItemUtils.getItemSerializedSize(item, this);
+
 		peerConnectionManager.doForAllPeers(peerConnection -> {
 			var itemToSend = item.clone();
+			trafficStatisticsBuffer.addToSearchRequestsUpload(itemSerializedSize);
 			peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 		}, this);
 
@@ -691,6 +698,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		computeTrafficInformation();
 		cleanTunnelsIfNeeded();
 		estimateSpeedIfNeeded();
+		displayStats();
 	}
 
 	private void manageTunnels()
@@ -717,7 +725,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private void computeTrafficInformation()
 	{
-		trafficStatistics.multiply(0.9).add(trafficStatisticsBuffer.multiply((0.1 / TUNNEL_MANAGEMENT_DELAY.toSeconds())));
+		trafficStatistics = trafficStatistics.multiply(0.9).add(trafficStatisticsBuffer.multiply((0.1 / TUNNEL_MANAGEMENT_DELAY.toSeconds())));
 		trafficStatisticsBuffer.reset();
 	}
 
@@ -736,7 +744,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		peerConnectionManager.doForAllPeers(peerConnection -> {
 					var itemToSend = item.clone();
-					trafficStatistics.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
+					trafficStatisticsBuffer.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
 					peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 				},
 				this);
@@ -832,5 +840,13 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			tunnel.setSpeedBps(0.75 * tunnel.getSpeedBps() + 0.25 * speedEstimate);
 			tunnel.clearTransferredBytes();
 		});
+	}
+
+	private void displayStats()
+	{
+		if (log.isDebugEnabled())
+		{
+			log.debug("Turtle statistics: {}", trafficStatistics);
+		}
 	}
 }

@@ -49,7 +49,7 @@ class FileTypeTest
 		assertEquals(ARCHIVE, getTypeByExtension("foobar.tar"));
 		assertEquals(DOCUMENT, getTypeByExtension("foobar.doc"));
 		assertEquals(PICTURE, getTypeByExtension("foobar.jpg"));
-		assertEquals(PROGRAM, getTypeByExtension("foobar.bat"));
+		assertEquals(PROGRAM, getTypeByExtension("foobar.exe"));
 		assertEquals(VIDEO, getTypeByExtension("foobar.avi"));
 		assertEquals(SUBTITLES, getTypeByExtension("foobar.srt"));
 		assertEquals(COLLECTION, getTypeByExtension("foobar.rscollection"));

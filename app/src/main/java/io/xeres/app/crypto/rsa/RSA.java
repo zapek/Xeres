@@ -36,6 +36,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Implements all RSA related functions. Used for creating the private and public SSL keys
@@ -83,6 +84,7 @@ public final class RSA
 	 */
 	public static PublicKey getPublicKey(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
+		Objects.requireNonNull(data);
 		return KeyFactory.getInstance(KEY_ALGORITHM).generatePublic(new X509EncodedKeySpec(data));
 	}
 
@@ -96,6 +98,7 @@ public final class RSA
 	 */
 	public static PrivateKey getPrivateKey(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
+		Objects.requireNonNull(data);
 		return KeyFactory.getInstance(KEY_ALGORITHM).generatePrivate(new PKCS8EncodedKeySpec(data));
 	}
 
@@ -108,6 +111,8 @@ public final class RSA
 	 */
 	public static byte[] sign(byte[] data, PrivateKey privateKey)
 	{
+		Objects.requireNonNull(privateKey);
+		Objects.requireNonNull(data);
 		try
 		{
 			var signer = Signature.getInstance(SIGNATURE_ALGORITHM);
@@ -131,6 +136,9 @@ public final class RSA
 	 */
 	public static boolean verify(PublicKey publicKey, byte[] signature, byte[] data)
 	{
+		Objects.requireNonNull(publicKey);
+		Objects.requireNonNull(signature);
+		Objects.requireNonNull(data);
 		try
 		{
 			var signer = Signature.getInstance(SIGNATURE_ALGORITHM);
@@ -153,6 +161,7 @@ public final class RSA
 	 */
 	public static byte[] getPrivateKeyAsPkcs1(PrivateKey privateKey) throws IOException
 	{
+		Objects.requireNonNull(privateKey);
 		var privateKeyInfo = PrivateKeyInfo.getInstance(privateKey.getEncoded());
 		var encodable = privateKeyInfo.parsePrivateKey();
 		var primitive = encodable.toASN1Primitive();
@@ -170,6 +179,7 @@ public final class RSA
 	 */
 	public static PrivateKey getPrivateKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{
+		Objects.requireNonNull(data);
 		//noinspection resource
 		var asn1InputStream = new ASN1InputStream(data);
 		var asn1Primitive = asn1InputStream.readObject();
@@ -187,6 +197,7 @@ public final class RSA
 	 */
 	public static byte[] getPublicKeyAsPkcs1(PublicKey publicKey) throws IOException
 	{
+		Objects.requireNonNull(publicKey);
 		var subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
 		var primitive = subjectPublicKeyInfo.parsePublicKey();
 		return primitive.getEncoded();
@@ -203,6 +214,7 @@ public final class RSA
 	 */
 	public static PublicKey getPublicKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{
+		Objects.requireNonNull(data);
 		var algorithmIdentifier = new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
 		var subjectPublicKeyInfo = new SubjectPublicKeyInfo(algorithmIdentifier, data);
 		return getPublicKey(subjectPublicKeyInfo.getEncoded());
@@ -217,6 +229,7 @@ public final class RSA
 	 */
 	public static GxsId getGxsId(PublicKey publicKey)
 	{
+		Objects.requireNonNull(publicKey);
 		var rsaPublicKey = (RSAPublicKey) publicKey;
 		return makeGxsId(
 				getAsOneComplement(rsaPublicKey.getModulus()),

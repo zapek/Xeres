@@ -102,7 +102,10 @@ public enum FileType implements I18nEnum
 			"dmg", // MacOS Disk Image
 			"dms", // The DiskMasher System Amiga Disk Archiver
 			"dsk", // Floppy Disk Archiving
+			"gb", // Game Boy ROMs
+			"gba", // GBA ROMs
 			"gz", // GNU Zip
+			"hdf", // UAE HardFile
 			"hqx", // BinHex 4.0
 			"img", // Disk Image Data File
 			"iso", // Disc Image File
@@ -116,13 +119,16 @@ public enum FileType implements I18nEnum
 			"par2", // Parchive 2 Index
 			"rar", // WinRAR
 			"ratdvd", // RatDVD Disk Image
+			"rom", // Emulator ROMs
 			"sea", // StuffIt Archive
+			"sfc", // SNES ROMs
 			"sit", // StuffIt Archive
 			"sitx", // Stuffit X Archive
 			"tar", // Tape Archive (Unix)
 			"tbz2", // BZip2-ed Tar File
 			"tgz", // GZipped Tar File
 			"toast", // Toast Disc Image
+			"vhdx", // Hyper-V Virtual Hard Disk
 			"z", // Unix Compress
 			"zip", // Zipped Archive
 			"zst" // Zstandard

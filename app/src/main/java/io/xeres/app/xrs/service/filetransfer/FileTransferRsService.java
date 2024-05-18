@@ -19,19 +19,19 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import io.xeres.app.crypto.rscrypto.RsCrypto;
 import io.xeres.app.net.peer.PeerConnection;
+import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
-import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
-import io.xeres.app.xrs.service.turtle.item.TurtleFileSearchResultItem;
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
-import io.xeres.app.xrs.service.turtle.item.TurtleSearchResultItem;
+import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
@@ -51,12 +51,34 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private final FileService fileService;
 	private final FileSearchNotificationService fileSearchNotificationService;
+	private final RsServiceRegistry rsServiceRegistry;
+	private final RsCrypto.EncryptionFormat encryptionFormat;
 
-	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, FileSearchNotificationService fileSearchNotificationService)
+	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, FileSearchNotificationService fileSearchNotificationService, NetworkProperties networkProperties)
 	{
 		super(rsServiceRegistry);
 		this.fileService = fileService;
 		this.fileSearchNotificationService = fileSearchNotificationService;
+		this.rsServiceRegistry = rsServiceRegistry;
+		encryptionFormat = getEncryptionFormat(networkProperties);
+	}
+
+	private static RsCrypto.EncryptionFormat getEncryptionFormat(NetworkProperties networkProperties)
+	{
+		final RsCrypto.EncryptionFormat encryptionFormat;
+		if (networkProperties.getTunnelEncryption().equals("chacha20-sha256"))
+		{
+			encryptionFormat = RsCrypto.EncryptionFormat.CHACHA20_SHA256;
+		}
+		else if (networkProperties.getTunnelEncryption().equals("chacha20-poly1305"))
+		{
+			encryptionFormat = RsCrypto.EncryptionFormat.CHACHA20_POLY1305;
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unsupported encryption format: " + networkProperties.getTunnelEncryption());
+		}
+		return encryptionFormat;
 	}
 
 	@Override
@@ -144,5 +166,24 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	public void shutdown()
 	{
 		fileSearchNotificationService.shutdown();
+	}
+
+	private void sendTurtleItem(LocationId virtualLocationId, Sha1Sum hash, TurtleGenericTunnelItem item)
+	{
+		// We only send encrypted tunnels. They're available since Retroshare 0.6.2
+		turtleRouter.sendTurtleData(virtualLocationId, encryptItem(item, hash));
+	}
+
+	private TurtleGenericDataItem encryptItem(TurtleGenericTunnelItem item, Sha1Sum hash)
+	{
+		var key = new FileTransferEncryptionKey(hash);
+		var serializedItem = ItemUtils.serializeItem(item, this);
+		return new TurtleGenericDataItem(RsCrypto.encryptAuthenticateData(key, serializedItem, encryptionFormat));
+	}
+
+	private TurtleGenericTunnelItem decryptItem(TurtleGenericDataItem item, Sha1Sum hash)
+	{
+		var key = new FileTransferEncryptionKey(hash);
+		return (TurtleGenericTunnelItem) ItemUtils.deserializeItem(RsCrypto.decryptAuthenticateData(key, item.getTunnelData()), rsServiceRegistry);
 	}
 }

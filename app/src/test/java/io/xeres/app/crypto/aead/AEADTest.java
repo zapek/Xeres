@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.crypto.chacha20_poly1305;
+package io.xeres.app.crypto.aead;
 
 import io.xeres.testutils.RandomUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,25 +28,38 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-class ChaCha20Poly1305Test
+class AEADTest
 {
 	private static SecretKey key;
 
 	@BeforeAll
 	static void setup()
 	{
-		key = ChaCha20Poly1305.generateKey();
+		key = AEAD.generateKey();
 	}
 
 	@Test
-	void ChaCha20Poly1305_EncryptDecrypt_OK()
+	void AEAD_EncryptChaCha20Poly1305_DecryptChaCha20Poly1305_OK()
 	{
 		var nonce = RandomUtils.nextBytes(12);
 		var plainText = "hello world".getBytes(StandardCharsets.UTF_8);
-		var aad = new byte[16];
+		var aad = RandomUtils.nextBytes(16);
 
-		var cipherText = ChaCha20Poly1305.encrypt(key, nonce, plainText, aad);
-		var decryptedText = ChaCha20Poly1305.decrypt(key, nonce, cipherText, aad);
+		var cipherText = AEAD.encryptChaCha20Poly1305(key, nonce, plainText, aad);
+		var decryptedText = AEAD.decryptChaCha20Poly1305(key, nonce, cipherText, aad);
+
+		assertArrayEquals(plainText, decryptedText);
+	}
+
+	@Test
+	void AEAD_EncryptChaCha20Aes256_DecryptChaCha20Aes256_OK()
+	{
+		var nonce = RandomUtils.nextBytes(12);
+		var plainText = "hello world".getBytes(StandardCharsets.UTF_8);
+		var aad = RandomUtils.nextBytes(16);
+
+		var cipherText = AEAD.encryptChaCha20Sha256(key, nonce, plainText, aad);
+		var decryptedText = AEAD.decryptChaCha20Sha256(key, nonce, cipherText, aad);
 
 		assertArrayEquals(plainText, decryptedText);
 	}

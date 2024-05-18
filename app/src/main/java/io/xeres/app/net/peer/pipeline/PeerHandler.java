@@ -96,7 +96,7 @@ public class PeerHandler extends ChannelDuplexHandler
 
 		try
 		{
-			item = rsServiceRegistry.buildIncomingItem(rawItem.getPacketVersion(), rawItem.getPacketService(), rawItem.getPacketSubType());
+			item = rsServiceRegistry.buildIncomingItem(rawItem);
 			rawItem.deserialize(item);
 			log.trace("<== {}", item);
 

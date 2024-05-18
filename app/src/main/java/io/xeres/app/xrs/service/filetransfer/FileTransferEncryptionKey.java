@@ -17,55 +17,43 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle.item;
+package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.crypto.hash.sha256.Sha256MessageDigest;
+import io.xeres.common.id.Sha1Sum;
 
-public class TurtleGenericDataItem extends TurtleGenericTunnelItem implements Cloneable
+import javax.crypto.SecretKey;
+import java.io.Serial;
+
+class FileTransferEncryptionKey implements SecretKey
 {
-	@RsSerialized
-	private byte[] tunnelData;
+	@Serial
+	private static final long serialVersionUID = 6540345707970134182L;
 
-	public TurtleGenericDataItem()
-	{
-		// Required
-	}
+	private final byte[] encoded;
 
-	public TurtleGenericDataItem(byte[] data)
+	public FileTransferEncryptionKey(Sha1Sum hash)
 	{
-		tunnelData = data;
-	}
-
-	@Override
-	public int getSubType()
-	{
-		return 10;
+		var digest = new Sha256MessageDigest();
+		digest.update(hash.getBytes());
+		encoded = digest.getBytes();
 	}
 
 	@Override
-	public boolean shouldStampTunnel()
+	public String getAlgorithm()
 	{
-		return true;
-	}
-
-	public byte[] getTunnelData()
-	{
-		return tunnelData;
+		return "ChaCha20";
 	}
 
 	@Override
-	public String toString()
+	public String getFormat()
 	{
-		return "TurtleGenericDataItem{" +
-				"tunnelData.length=" + getTunnelData().length +
-				'}';
+		return "RAW";
 	}
 
 	@Override
-	public TurtleGenericDataItem clone()
+	public byte[] getEncoded()
 	{
-		var clone = (TurtleGenericDataItem) super.clone();
-		clone.tunnelData = tunnelData.clone();
-		return clone;
+		return encoded.clone();
 	}
 }

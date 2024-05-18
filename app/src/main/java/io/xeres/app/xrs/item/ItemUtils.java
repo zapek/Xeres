@@ -22,6 +22,7 @@ package io.xeres.app.xrs.item;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.RsServiceRegistry;
 
 import java.util.EnumSet;
 
@@ -34,7 +35,6 @@ public final class ItemUtils
 
 	/**
 	 * Serializes an item to get its serialized size.
-	 *
 	 * @param item    the item
 	 * @param service the service
 	 * @return the total serialized size in bytes
@@ -50,7 +50,6 @@ public final class ItemUtils
 
 	/**
 	 * Serializes an item to make a signature out of it.
-	 *
 	 * @param item    the item
 	 * @param service the service
 	 * @return a byte array
@@ -63,5 +62,38 @@ public final class ItemUtils
 		buf.getBytes(0, data);
 		buf.release();
 		return data;
+	}
+
+	/**
+	 * Serializes an item. Do not use this within a netty pipeline.
+	 *
+	 * @param item    the item
+	 * @param service the service
+	 * @return a byte array
+	 */
+	public static byte[] serializeItem(Item item, RsService service)
+	{
+		item.setSerialization(Unpooled.buffer().alloc(), service);
+		var buf = item.serializeItem(EnumSet.noneOf(SerializationFlags.class)).getBuffer();
+		var data = new byte[buf.writerIndex()];
+		buf.getBytes(0, data);
+		buf.release();
+		return data;
+	}
+
+	/**
+	 * Deserializes an item. Do not use this within a netty pipeline.
+	 *
+	 * @param data     the byte array of the item
+	 * @param registry the registry to build the item
+	 * @return the item
+	 */
+	public static Item deserializeItem(byte[] data, RsServiceRegistry registry)
+	{
+		var rawItem = new RawItem(Unpooled.wrappedBuffer(data), ItemPriority.DEFAULT.getPriority());
+		var item = registry.buildIncomingItem(rawItem);
+		rawItem.deserialize(item);
+		rawItem.dispose();
+		return item;
 	}
 }

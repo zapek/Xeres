@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import org.slf4j.Logger;
@@ -193,11 +194,15 @@ public class RsServiceRegistry
 		return emptyIfNull(masterServices.get(rsService.getServiceType().getType()));
 	}
 
-	public Item buildIncomingItem(int version, int service, int subtype)
+	public Item buildIncomingItem(RawItem rawItem)
 	{
+		var version = rawItem.getPacketVersion();
+		var service = rawItem.getPacketService();
+		var subType = rawItem.getPacketSubType();
+
 		if (version == 2)
 		{
-			var itemClass = itemClasses.get(service << 16 | subtype);
+			var itemClass = itemClasses.get(service << 16 | subType);
 			if (itemClass != null)
 			{
 				try
@@ -216,7 +221,7 @@ public class RsServiceRegistry
 			}
 			else
 			{
-				log.warn("Couldn't create item (service: {}, subtype: {}): no mapping found", service, subtype);
+				log.warn("Couldn't create item (service: {}, subtype: {}): no mapping found", service, subType);
 			}
 		}
 		else

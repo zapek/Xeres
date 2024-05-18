@@ -38,6 +38,15 @@ public class NetworkProperties
 	 */
 	private boolean packetGrouping = false;
 
+	/**
+	 * Sets the encrypted tunnel format.
+	 * <ul>
+	 *     <li>ChaCha20 with HMAC SHA-256 {@code "chacha20-sha256"}: the default of Retroshare</li>
+	 *     <li>ChaCha20 with Poly1305 authenticator {@code "chacha20-poly1305"}: should be accepted by Retroshare, but untested</li>
+	 * </ul>
+	 */
+	private String tunnelEncryption = "chacha20-sha256";
+
 	@PostConstruct
 	private void checkConsistency()
 	{
@@ -71,5 +80,15 @@ public class NetworkProperties
 	public void setPacketGrouping(boolean packetGrouping)
 	{
 		this.packetGrouping = packetGrouping;
+	}
+
+	public String getTunnelEncryption()
+	{
+		return tunnelEncryption;
+	}
+
+	public void setTunnelEncryption(String tunnelEncryption)
+	{
+		this.tunnelEncryption = tunnelEncryption;
 	}
 }

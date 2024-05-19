@@ -46,6 +46,7 @@ import io.xeres.ui.controller.qrcode.CameraWindowController;
 import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.controller.share.ShareWindowController;
+import io.xeres.ui.controller.statistics.StatisticsMainController;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceService;
@@ -269,6 +270,16 @@ public class WindowManager
 				UiWindow.builder(IdentitiesWindowController.class)
 						.setParent(parent)
 						.setTitle(bundle.getString("identities.window-title"))
+						.build()
+						.open());
+	}
+
+	public void openStatistics(Window parent)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(StatisticsMainController.class)
+						.setParent(parent)
+						.setTitle("Statistics")
 						.build()
 						.open());
 	}

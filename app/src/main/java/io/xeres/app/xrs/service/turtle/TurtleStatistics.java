@@ -19,36 +19,32 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Everything is in bytes per seconds.
  */
-class TrafficStatistics
+public class TurtleStatistics
 {
-	private static final Logger log = LoggerFactory.getLogger(TrafficStatistics.class);
-	private double unknownTotal;
+	private float forwardTotal;
 
-	private double dataUpload;
-	private double dataDownload;
+	private float dataUpload;
+	private float dataDownload;
 
-	private double tunnelRequestsUpload;
-	private double tunnelRequestsDownload;
+	private float tunnelRequestsUpload;
+	private float tunnelRequestsDownload;
 
-	private double searchRequestsUpload;
-	private double searchRequestsDownload;
+	private float searchRequestsUpload;
+	private float searchRequestsDownload;
 
-	private double totalUpload;
-	private double totalDownload;
+	private float totalUpload;
+	private float totalDownload;
 
-	public TrafficStatistics()
+	public TurtleStatistics()
 	{
 	}
 
-	private TrafficStatistics(TrafficStatistics from)
+	private TurtleStatistics(TurtleStatistics from)
 	{
-		unknownTotal = from.unknownTotal;
+		forwardTotal = from.forwardTotal;
 
 		dataUpload = from.dataUpload;
 		dataDownload = from.dataDownload;
@@ -63,28 +59,28 @@ class TrafficStatistics
 		totalDownload = from.totalDownload;
 	}
 
-	public void reset()
+	public synchronized void reset()
 	{
-		unknownTotal = 0.0;
+		forwardTotal = 0.0f;
 
-		dataUpload = 0.0;
-		dataDownload = 0.0;
+		dataUpload = 0.0f;
+		dataDownload = 0.0f;
 
-		tunnelRequestsUpload = 0.0;
-		tunnelRequestsDownload = 0.0;
+		tunnelRequestsUpload = 0.0f;
+		tunnelRequestsDownload = 0.0f;
 
-		searchRequestsUpload = 0.0;
-		searchRequestsDownload = 0.0;
+		searchRequestsUpload = 0.0f;
+		searchRequestsDownload = 0.0f;
 
-		totalUpload = 0.0;
-		totalDownload = 0.0;
+		totalUpload = 0.0f;
+		totalDownload = 0.0f;
 	}
 
-	public TrafficStatistics multiply(double number)
+	public synchronized TurtleStatistics multiply(float number)
 	{
-		var result = new TrafficStatistics(this);
+		var result = new TurtleStatistics(this);
 
-		result.unknownTotal *= number;
+		result.forwardTotal *= number;
 
 		result.dataUpload *= number;
 		result.dataDownload *= number;
@@ -101,11 +97,11 @@ class TrafficStatistics
 		return result;
 	}
 
-	public TrafficStatistics add(double number)
+	public synchronized TurtleStatistics add(float number)
 	{
-		var result = new TrafficStatistics(this);
+		var result = new TurtleStatistics(this);
 
-		result.unknownTotal += number;
+		result.forwardTotal += number;
 
 		result.dataUpload += number;
 		result.dataDownload += number;
@@ -122,11 +118,11 @@ class TrafficStatistics
 		return result;
 	}
 
-	public TrafficStatistics add(TrafficStatistics other)
+	public synchronized TurtleStatistics add(TurtleStatistics other)
 	{
-		var result = new TrafficStatistics(this);
+		var result = new TurtleStatistics(this);
 
-		result.unknownTotal += other.unknownTotal;
+		result.forwardTotal += other.forwardTotal;
 
 		result.dataUpload += other.dataUpload;
 		result.dataDownload += other.dataDownload;
@@ -143,90 +139,95 @@ class TrafficStatistics
 		return result;
 	}
 
-	public void addToTunnelRequestsDownload(int size)
+	public synchronized void addToTunnelRequestsDownload(int size)
 	{
 		tunnelRequestsDownload += size;
 	}
 
-	public void addToTunnelRequestsUpload(int size)
+	public synchronized void addToTunnelRequestsUpload(int size)
 	{
 		tunnelRequestsUpload += size;
 	}
 
-	public void addToSearchRequestsDownload(int size)
+	public synchronized void addToSearchRequestsDownload(int size)
 	{
 		searchRequestsDownload += size;
 	}
 
-	public void addToSearchRequestsUpload(int size)
+	public synchronized void addToSearchRequestsUpload(int size)
 	{
 		searchRequestsUpload += size;
 	}
 
-	public void addToUnknownTotal(int size)
+	public synchronized void addToForwardTotal(int size)
 	{
-		unknownTotal += size;
+		forwardTotal += size;
 	}
 
-	public void addToDataDownload(int size)
+	public synchronized void addToDataDownload(int size)
 	{
 		dataDownload += size;
 	}
 
-	public void addToDataUpload(int size)
+	public synchronized void addToDataUpload(int size)
 	{
 		dataUpload += size;
 	}
 
-	public double getUnknownTotal()
+	public float getForwardTotal()
 	{
-		return unknownTotal;
+		return forwardTotal;
 	}
 
-	public double getDataUpload()
+	public float getDataUpload()
 	{
 		return dataUpload;
 	}
 
-	public double getDataDownload()
+	public float getDataDownload()
 	{
 		return dataDownload;
 	}
 
-	public double getTunnelRequestsUpload()
+	public float getTunnelRequestsUpload()
 	{
 		return tunnelRequestsUpload;
 	}
 
-	public double getTunnelRequestsDownload()
+	public float getTunnelRequestsDownload()
 	{
 		return tunnelRequestsDownload;
 	}
 
-	public double getSearchRequestsUpload()
+	public float getSearchRequestsUpload()
 	{
 		return searchRequestsUpload;
 	}
 
-	public double getSearchRequestsDownload()
+	public float getSearchRequestsDownload()
 	{
 		return searchRequestsDownload;
 	}
 
-	public double getTotalUpload()
+	public float getTotalUpload()
 	{
 		return totalUpload;
 	}
 
-	public double getTotalDownload()
+	public float getTotalDownload()
 	{
 		return totalDownload;
 	}
 
-	@Override
-	public String toString()
+	public TurtleStatistics getStatistics()
 	{
-		return "TrafficStatistics [unknownTotal=" + unknownTotal +
+		return new TurtleStatistics(this);
+	}
+
+	@Override
+	public synchronized String toString()
+	{
+		return "TrafficStatistics [ForwardTotal=" + forwardTotal +
 				", dataUpload=" + dataUpload +
 				", dataDownload=" + dataDownload +
 				", tunnelRequestsUpload=" + tunnelRequestsUpload +

@@ -261,6 +261,18 @@ public class ChatRsService extends RsService
 		if (executorService != null) // Can happen when running tests
 		{
 			executorService.shutdownNow();
+			try
+			{
+				var success = executorService.awaitTermination(2, TimeUnit.SECONDS);
+				if (!success)
+				{
+					log.warn("Executor failed to terminate during the waiting period");
+				}
+			}
+			catch (InterruptedException ignored)
+			{
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 

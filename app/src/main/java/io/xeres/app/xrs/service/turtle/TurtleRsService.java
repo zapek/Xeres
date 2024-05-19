@@ -126,8 +126,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private Instant lastSpeedEstimation = Instant.EPOCH;
 
-	private TrafficStatistics trafficStatistics = new TrafficStatistics();
-	private final TrafficStatistics trafficStatisticsBuffer = new TrafficStatistics();
+	private TurtleStatistics turtleStatistics = new TurtleStatistics();
+	private final TurtleStatistics turtleStatisticsBuffer = new TurtleStatistics();
 
 	protected TurtleRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, DatabaseSessionManager databaseSessionManager, FileService fileService)
 	{
@@ -174,6 +174,18 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		if (executorService != null) // Can happen when running tests
 		{
 			executorService.shutdownNow();
+			try
+			{
+				var success = executorService.awaitTermination(2, TimeUnit.SECONDS);
+				if (!success)
+				{
+					log.warn("Executor failed to terminate during the waiting period");
+				}
+			}
+			catch (InterruptedException ignored)
+			{
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 
@@ -243,13 +255,13 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		if (tunnel.getSource().equals(ownLocation))
 		{
 			item.setDirection(TunnelDirection.SERVER);
-			trafficStatisticsBuffer.addToDataDownload(itemSerializedSize);
+			turtleStatisticsBuffer.addToDataDownload(itemSerializedSize);
 			peerConnectionManager.writeItem(tunnel.getDestination(), item, this);
 		}
 		else if (tunnel.getDestination().equals(ownLocation))
 		{
 			item.setDirection(TunnelDirection.CLIENT);
-			trafficStatisticsBuffer.addToDataUpload(itemSerializedSize);
+			turtleStatisticsBuffer.addToDataUpload(itemSerializedSize);
 			peerConnectionManager.writeItem(tunnel.getSource(), item, this);
 		}
 		else
@@ -307,7 +319,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		{
 			log.debug("Forwarding generic item to {}", tunnel.getSource());
 
-			trafficStatisticsBuffer.addToUnknownTotal(serializedSize);
+			turtleStatisticsBuffer.addToForwardTotal(serializedSize);
 
 			peerConnectionManager.writeItem(tunnel.getSource(), item.clone(), this);
 			return;
@@ -317,14 +329,14 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		{
 			log.debug("Forwarding generic item to {}", tunnel.getDestination());
 
-			trafficStatisticsBuffer.addToUnknownTotal(serializedSize);
+			turtleStatisticsBuffer.addToForwardTotal(serializedSize);
 
 			peerConnectionManager.writeItem(tunnel.getDestination(), item.clone(), this);
 			return;
 		}
 
 		// Item is for us
-		trafficStatisticsBuffer.addToDataDownload(serializedSize);
+		turtleStatisticsBuffer.addToDataDownload(serializedSize);
 
 		handleReceiveGenericTunnel(item, tunnel);
 	}
@@ -366,7 +378,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		log.debug("Received tunnel request from peer {}: {}", sender, item);
 
-		trafficStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
+		turtleStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
 
 		if (item.getFileHash() == null) // XXX: not sure what to do with those (RS has no code handling that...)
 		{
@@ -414,8 +426,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		{
 			var probability = tunnelProbability.getForwardingProbability(
 					item,
-					trafficStatistics.getTunnelRequestsUpload(),
-					trafficStatistics.getTunnelRequestsDownload(),
+					turtleStatistics.getTunnelRequestsUpload(),
+					turtleStatistics.getTunnelRequestsDownload(),
 					peerConnectionManager.getNumberOfPeers());// XXX: there's a difference with RS here, it's the number of peers USING the turtle service. do we care?
 
 			peerConnectionManager.doForAllPeersExceptSender(peerConnection -> {
@@ -423,7 +435,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 						tunnelProbability.incrementDepth(itemToSend);
 						if (SecureRandomUtils.nextDouble() <= probability)
 						{
-							trafficStatisticsBuffer.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
+							turtleStatisticsBuffer.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
 							peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 						}
 					},
@@ -513,7 +525,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		var itemSerializedSize = ItemUtils.getItemSerializedSize(item, this);
 
-		trafficStatisticsBuffer.addToSearchRequestsDownload(itemSerializedSize);
+		turtleStatisticsBuffer.addToSearchRequestsDownload(itemSerializedSize);
 
 		if (itemSerializedSize > MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE)
 		{
@@ -556,7 +568,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			peerConnectionManager.doForAllPeersExceptSender(peerConnection -> {
 						var itemToSend = item.clone();
 						tunnelProbability.incrementDepth(itemToSend);
-						trafficStatisticsBuffer.addToSearchRequestsUpload(itemSerializedSize);
+						turtleStatisticsBuffer.addToSearchRequestsUpload(itemSerializedSize);
 						peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 					},
 					sender,
@@ -579,7 +591,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		peerConnectionManager.doForAllPeers(peerConnection -> {
 			var itemToSend = item.clone();
-			trafficStatisticsBuffer.addToSearchRequestsUpload(itemSerializedSize);
+			turtleStatisticsBuffer.addToSearchRequestsUpload(itemSerializedSize);
 			peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 		}, this);
 
@@ -725,8 +737,8 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private void computeTrafficInformation()
 	{
-		trafficStatistics = trafficStatistics.multiply(0.9).add(trafficStatisticsBuffer.multiply((0.1 / TUNNEL_MANAGEMENT_DELAY.toSeconds())));
-		trafficStatisticsBuffer.reset();
+		turtleStatistics = turtleStatistics.multiply(0.9f).add(turtleStatisticsBuffer.multiply(0.1f / TUNNEL_MANAGEMENT_DELAY.toSeconds()));
+		turtleStatisticsBuffer.reset();
 	}
 
 	private void diggTunnel(Sha1Sum hash)
@@ -744,7 +756,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		peerConnectionManager.doForAllPeers(peerConnection -> {
 					var itemToSend = item.clone();
-					trafficStatisticsBuffer.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
+					turtleStatisticsBuffer.addToTunnelRequestsUpload(SerializerSizeCache.getItemSize(itemToSend, this));
 					peerConnectionManager.writeItem(peerConnection, itemToSend, this);
 				},
 				this);
@@ -846,7 +858,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		if (log.isDebugEnabled())
 		{
-			log.debug("Turtle statistics: {}", trafficStatistics);
+			log.debug("Turtle statistics: {}", turtleStatistics);
 		}
+	}
+
+	public TurtleStatistics getStatistics()
+	{
+		return turtleStatistics.getStatistics();
 	}
 }

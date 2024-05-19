@@ -188,6 +188,11 @@
                             <FontIcon iconLiteral="fas-save"/>
                         </graphic>
                     </MenuItem>
+                    <MenuItem fx:id="statistics" mnemonicParsing="false" text="Statistics">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-chart-bar"/>
+                        </graphic>
+                    </MenuItem>
                     <SeparatorMenuItem mnemonicParsing="false"/>
                     <MenuItem fx:id="showSettingsWindow" text="%main.menu.tools.settings">
                         <graphic>

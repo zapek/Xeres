@@ -124,6 +124,9 @@ public class MainWindowController implements WindowController
 	private MenuItem exportBackup;
 
 	@FXML
+	private MenuItem statistics;
+
+	@FXML
 	private MenuItem showSettingsWindow;
 
 	@FXML
@@ -264,6 +267,8 @@ public class MainWindowController implements WindowController
 				DataBufferUtils.write(configClient.getBackup(), selectedFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING).subscribe();
 			}
 		});
+
+		statistics.setOnAction(event -> windowManager.openStatistics(getWindow(event)));
 
 		showPeersWindow.setOnAction(event -> windowManager.openPeers());
 

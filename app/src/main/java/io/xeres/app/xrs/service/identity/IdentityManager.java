@@ -26,6 +26,8 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
 import io.xeres.common.util.NoSuppressedRunnable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -51,6 +53,7 @@ import java.util.stream.Collectors;
 @Component
 public class IdentityManager
 {
+	private static final Logger log = LoggerFactory.getLogger(IdentityManager.class);
 	private final Map<Long, Set<GxsId>> pendingGxsIds = new HashMap<>();
 	private final Set<GxsId> friendGxsIds = new HashSet<>();
 
@@ -82,7 +85,11 @@ public class IdentityManager
 		executorService.shutdownNow();
 		try
 		{
-			executorService.awaitTermination(2, TimeUnit.SECONDS);
+			var success = executorService.awaitTermination(2, TimeUnit.SECONDS);
+			if (!success)
+			{
+				log.warn("Executor failed to terminate during the waiting period");
+			}
 		}
 		catch (InterruptedException ignored)
 		{

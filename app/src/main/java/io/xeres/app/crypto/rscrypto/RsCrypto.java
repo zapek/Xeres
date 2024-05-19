@@ -27,6 +27,8 @@ import java.nio.ByteBuffer;
 
 /**
  * This class implements the custom RS encryption, notably to encrypt file transfer tunnels.
+ *  <p>
+ *  <img src="doc-files/format.png" alt="Format diagram">
  */
 public final class RsCrypto
 {

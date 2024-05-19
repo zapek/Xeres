@@ -38,6 +38,18 @@ public class FileTransferChunkMapItem extends Item
 	@RsSerialized
 	private List<Integer> compressedChunks;
 
+	public FileTransferChunkMapItem()
+	{
+		// Needed
+	}
+
+	public FileTransferChunkMapItem(Sha1Sum hash, List<Integer> compressedChunks, boolean isClient)
+	{
+		this.hash = hash;
+		this.compressedChunks = compressedChunks;
+		this.isClient = isClient;
+	}
+
 	@Override
 	public int getServiceType()
 	{
@@ -54,5 +66,20 @@ public class FileTransferChunkMapItem extends Item
 	public int getPriority()
 	{
 		return ItemPriority.HIGH.getPriority();
+	}
+
+	public boolean isClient()
+	{
+		return isClient;
+	}
+
+	public Sha1Sum getHash()
+	{
+		return hash;
+	}
+
+	public List<Integer> getCompressedChunks()
+	{
+		return compressedChunks;
 	}
 }

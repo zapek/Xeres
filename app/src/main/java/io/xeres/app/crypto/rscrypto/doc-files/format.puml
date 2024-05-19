@@ -1,0 +1,14 @@
+@startuml
+map "Packet" as packet {
+	Header => 4 bytes
+	Initialization vector => 12 bytes
+	Encrypted data size => 4 bytes
+	Encrypted data => variable
+	Authentication tag => 16 bytes
+}
+
+map "Header" as header {
+	ChaCha20 Poly1305 => ae ad 01 01
+	ChaCha20 HMAC-SHA256 => ae ad 02 01
+}
+@enduml

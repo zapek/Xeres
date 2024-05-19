@@ -33,6 +33,17 @@ public class FileTransferSingleChunkCrcRequestItem extends Item
 	@RsSerialized
 	private int chunkNumber;
 
+	public FileTransferSingleChunkCrcRequestItem()
+	{
+		// Required
+	}
+
+	public FileTransferSingleChunkCrcRequestItem(Sha1Sum hash, int chunkNumber)
+	{
+		this.hash = hash;
+		this.chunkNumber = chunkNumber;
+	}
+
 	@Override
 	public int getServiceType()
 	{
@@ -49,5 +60,15 @@ public class FileTransferSingleChunkCrcRequestItem extends Item
 	public int getPriority()
 	{
 		return ItemPriority.HIGH.getPriority();
+	}
+
+	public int getChunkNumber()
+	{
+		return chunkNumber;
+	}
+
+	public Sha1Sum getHash()
+	{
+		return hash;
 	}
 }

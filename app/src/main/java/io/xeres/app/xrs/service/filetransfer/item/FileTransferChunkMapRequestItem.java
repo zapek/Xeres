@@ -33,6 +33,17 @@ public class FileTransferChunkMapRequestItem extends Item
 	@RsSerialized
 	private Sha1Sum hash;
 
+	public FileTransferChunkMapRequestItem()
+	{
+		// Needed
+	}
+
+	public FileTransferChunkMapRequestItem(Sha1Sum hash, boolean isClient)
+	{
+		this.hash = hash;
+		this.isClient = isClient;
+	}
+
 	@Override
 	public int getServiceType()
 	{
@@ -49,5 +60,15 @@ public class FileTransferChunkMapRequestItem extends Item
 	public int getPriority()
 	{
 		return ItemPriority.HIGH.getPriority();
+	}
+
+	public boolean isClient()
+	{
+		return isClient;
+	}
+
+	public Sha1Sum getHash()
+	{
+		return hash;
 	}
 }

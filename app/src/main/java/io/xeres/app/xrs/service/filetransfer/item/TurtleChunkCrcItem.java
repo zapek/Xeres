@@ -38,6 +38,13 @@ public class TurtleChunkCrcItem extends TurtleGenericTunnelItem implements Clone
 		setDirection(CLIENT);
 	}
 
+	public TurtleChunkCrcItem(int chunkNumber, Sha1Sum checksum)
+	{
+		super();
+		this.chunkNumber = chunkNumber;
+		this.checksum = checksum;
+	}
+
 	@Override
 	public boolean shouldStampTunnel()
 	{
@@ -48,6 +55,16 @@ public class TurtleChunkCrcItem extends TurtleGenericTunnelItem implements Clone
 	public int getSubType()
 	{
 		return 20;
+	}
+
+	public int getChunkNumber()
+	{
+		return chunkNumber;
+	}
+
+	public Sha1Sum getChecksum()
+	{
+		return checksum;
 	}
 
 	@Override

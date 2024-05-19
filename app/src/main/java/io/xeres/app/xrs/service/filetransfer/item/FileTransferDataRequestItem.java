@@ -24,6 +24,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.common.id.Sha1Sum;
 
 import static io.xeres.app.xrs.serialization.TlvType.FILE_ITEM;
 
@@ -37,6 +38,19 @@ public class FileTransferDataRequestItem extends Item
 
 	@RsSerialized(tlvType = FILE_ITEM)
 	private FileItem fileItem;
+
+	public FileTransferDataRequestItem()
+	{
+		// Required
+	}
+
+	public FileTransferDataRequestItem(long fileSize, Sha1Sum hash, long fileOffset, int chunkSize)
+	{
+		fileItem = new FileItem(fileSize, hash, null, null, 0, 0, 0, null);
+
+		this.fileOffset = fileOffset;
+		this.chunkSize = chunkSize;
+	}
 
 	@Override
 	public int getServiceType()

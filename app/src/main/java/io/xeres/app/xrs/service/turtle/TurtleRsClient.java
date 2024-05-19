@@ -40,7 +40,7 @@ public interface TurtleRsClient extends RsServiceSlave
 	 */
 	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash);
 
-	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hash, LocationId virtualLocationId, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
+	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hashOfHash, LocationId virtualLocationId, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
 
 	/**
 	 * Asks to search something.

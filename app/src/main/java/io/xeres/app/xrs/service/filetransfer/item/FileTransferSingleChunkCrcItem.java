@@ -36,6 +36,18 @@ public class FileTransferSingleChunkCrcItem extends Item
 	@RsSerialized
 	private Sha1Sum checkSum;
 
+	public FileTransferSingleChunkCrcItem()
+	{
+		// Needed
+	}
+
+	public FileTransferSingleChunkCrcItem(Sha1Sum hash, int chunkNumber, Sha1Sum checkSum)
+	{
+		this.hash = hash;
+		this.chunkNumber = chunkNumber;
+		this.checkSum = checkSum;
+	}
+
 	@Override
 	public int getServiceType()
 	{
@@ -52,5 +64,20 @@ public class FileTransferSingleChunkCrcItem extends Item
 	public int getPriority()
 	{
 		return ItemPriority.HIGH.getPriority();
+	}
+
+	public Sha1Sum getHash()
+	{
+		return hash;
+	}
+
+	public int getChunkNumber()
+	{
+		return chunkNumber;
+	}
+
+	public Sha1Sum getCheckSum()
+	{
+		return checkSum;
 	}
 }

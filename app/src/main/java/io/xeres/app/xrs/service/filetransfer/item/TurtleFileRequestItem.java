@@ -37,6 +37,13 @@ public class TurtleFileRequestItem extends TurtleGenericTunnelItem implements Cl
 		setDirection(SERVER);
 	}
 
+	public TurtleFileRequestItem(long chunkOffset, int chunkSize)
+	{
+		super();
+		this.chunkOffset = chunkOffset;
+		this.chunkSize = chunkSize;
+	}
+
 	@Override
 	public boolean shouldStampTunnel()
 	{

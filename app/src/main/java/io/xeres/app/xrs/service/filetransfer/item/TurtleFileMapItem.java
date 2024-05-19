@@ -37,6 +37,16 @@ public class TurtleFileMapItem extends TurtleGenericTunnelItem implements Clonea
 {
 	private List<Integer> compressedChunks;
 
+	public TurtleFileMapItem()
+	{
+		// Required
+	}
+
+	public TurtleFileMapItem(List<Integer> compressedChunks)
+	{
+		this.compressedChunks = compressedChunks;
+	}
+
 	@Override
 	public boolean shouldStampTunnel()
 	{

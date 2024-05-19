@@ -34,6 +34,12 @@ public class TurtleChunkCrcRequestItem extends TurtleGenericTunnelItem implement
 		setDirection(SERVER);
 	}
 
+	public TurtleChunkCrcRequestItem(int chunkNumber)
+	{
+		super();
+		this.chunkNumber = chunkNumber;
+	}
+
 	@Override
 	public boolean shouldStampTunnel()
 	{

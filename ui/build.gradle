@@ -56,6 +56,7 @@ dependencies {
     implementation platform('org.kordamp.ikonli:ikonli-bom:12.3.1')
     implementation 'org.kordamp.ikonli:ikonli-javafx'
     implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack'
+    implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack' // fallback for missing icons in fontawesome
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }

@@ -41,9 +41,10 @@ import java.util.concurrent.TimeUnit;
 @FxmlView(value = "/view/statistics/turtle.fxml")
 public class StatisticsTurtleController implements Controller
 {
+	private static final Logger log = LoggerFactory.getLogger(StatisticsTurtleController.class);
+
 	private static final int UPDATE_IN_SECONDS = 2;
 	private static final int DATA_WINDOW_SIZE = 60; // 2 minutes of data (one data each 2 seconds)
-	private static final Logger log = LoggerFactory.getLogger(StatisticsTurtleController.class);
 
 	@FXML
 	private LineChart<Number, Number> lineChart;
@@ -81,13 +82,13 @@ public class StatisticsTurtleController implements Controller
 		});
 
 
-		dataDownload.setName("Data download");
-		dataUpload.setName("Data upload");
+		dataDownload.setName("Data in");
+		dataUpload.setName("Data out");
 		forwardTotal.setName("Data forward");
-		tunnelRequestsDownload.setName("Tunnel requests download");
-		tunnelRequestsUpload.setName("Tunnel requests upload");
-		searchRequestsDownload.setName("Search requests download");
-		searchRequestsUpload.setName("Search requests upload");
+		tunnelRequestsDownload.setName("Tunnel reqs in");
+		tunnelRequestsUpload.setName("Tunnel reqs out");
+		searchRequestsDownload.setName("Search reqs in");
+		searchRequestsUpload.setName("Search reqs out");
 
 		lineChart.getData().add(dataDownload);
 		lineChart.getData().add(dataUpload);
@@ -101,19 +102,17 @@ public class StatisticsTurtleController implements Controller
 	public void start()
 	{
 		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-		scheduledExecutorService.scheduleAtFixedRate((NoSuppressedRunnable) () -> {
-			statisticsClient.getStatistics()
-					.doOnSuccess(turtleStatisticsResponse -> Platform.runLater(() -> {
-						updateData(dataDownload, turtleStatisticsResponse.dataDownload() / 1024f);
-						updateData(dataUpload, turtleStatisticsResponse.dataUpload() / 1024f);
-						updateData(forwardTotal, turtleStatisticsResponse.forwardTotal() / 1024f);
-						updateData(tunnelRequestsDownload, turtleStatisticsResponse.tunnelRequestsDownload() / 1024f);
-						updateData(tunnelRequestsUpload, turtleStatisticsResponse.tunnelRequestsUpload() / 1024f);
-						updateData(searchRequestsDownload, turtleStatisticsResponse.searchRequestsDownload() / 1024f);
-						updateData(searchRequestsUpload, turtleStatisticsResponse.searchRequestsUpload() / 1024f);
-					}))
-					.subscribe();
-		}, 0, UPDATE_IN_SECONDS, TimeUnit.SECONDS); // XXX: that period should be shared somewhere
+		scheduledExecutorService.scheduleAtFixedRate((NoSuppressedRunnable) () -> statisticsClient.getStatistics()
+				.doOnSuccess(turtleStatisticsResponse -> Platform.runLater(() -> {
+					updateData(dataDownload, turtleStatisticsResponse.dataDownload() / 1024f);
+					updateData(dataUpload, turtleStatisticsResponse.dataUpload() / 1024f);
+					updateData(forwardTotal, turtleStatisticsResponse.forwardTotal() / 1024f);
+					updateData(tunnelRequestsDownload, turtleStatisticsResponse.tunnelRequestsDownload() / 1024f);
+					updateData(tunnelRequestsUpload, turtleStatisticsResponse.tunnelRequestsUpload() / 1024f);
+					updateData(searchRequestsDownload, turtleStatisticsResponse.searchRequestsDownload() / 1024f);
+					updateData(searchRequestsUpload, turtleStatisticsResponse.searchRequestsUpload() / 1024f);
+				}))
+				.subscribe(), 0, UPDATE_IN_SECONDS, TimeUnit.SECONDS); // XXX: that period should be shared somewhere
 	}
 
 	public void stop()

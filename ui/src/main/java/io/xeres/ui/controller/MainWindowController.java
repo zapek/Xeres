@@ -268,7 +268,7 @@ public class MainWindowController implements WindowController
 			}
 		});
 
-		statistics.setOnAction(event -> windowManager.openStatistics(getWindow(event)));
+		statistics.setOnAction(event -> windowManager.openStatistics());
 
 		showPeersWindow.setOnAction(event -> windowManager.openPeers());
 

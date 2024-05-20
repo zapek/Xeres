@@ -228,3 +228,6 @@
     -fx-text-fill: #CC004D;
 }
 
+.chart-line-symbol {
+    -fx-background-insets: 0, 5; /* remove the white dot in the legend */
+}

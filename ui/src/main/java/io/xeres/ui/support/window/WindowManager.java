@@ -274,14 +274,23 @@ public class WindowManager
 						.open());
 	}
 
-	public void openStatistics(Window parent)
+	public void openStatistics()
 	{
-		Platform.runLater(() ->
+		Platform.runLater(() -> {
+			var stats = getOpenedWindow(StatisticsMainController.class).orElse(null);
+			if (stats != null)
+			{
+				stats.requestFocus();
+			}
+			else
+			{
 				UiWindow.builder(StatisticsMainController.class)
-						.setParent(parent)
+						.setRememberEnvironment(true)
 						.setTitle("Statistics")
 						.build()
-						.open());
+						.open();
+			}
+		});
 	}
 
 	public void openSettings(Window parent)

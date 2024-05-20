@@ -27,7 +27,7 @@
     <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <Tab text="Turtle">
             <graphic>
-                <FontIcon iconLiteral="fas-frog"/><!-- XXX: material design icons has a turtle -->
+                <FontIcon iconLiteral="mdi2t-turtle"/>
             </graphic>
             <fx:include fx:id="statisticsTurtle" source="turtle.fxml"/>
         </Tab>

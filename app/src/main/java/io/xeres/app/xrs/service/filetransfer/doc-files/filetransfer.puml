@@ -1,0 +1,41 @@
+@startuml
+'https://plantuml.com/component-diagram
+skinparam componentStyle rectangle
+
+package "File Transfer" {
+  [FileTransferManager] --> [FileTransferRsService]
+}
+
+[FileTransferManager] <-> FileProviders
+
+package "FileProviders" {
+	[FileCreator] <<FileProvider>>
+	[FileProvider]
+}
+
+[FileProvider] <--> [FileSystem]
+[FileCreator] <--> [FileSystem]
+
+[FileSystem]
+
+package "Turtle" {
+  [TurtleRsService] <-> Tunnels
+}
+
+package "Peers" {
+  [Peer #1]
+  [Peer #2]
+}
+
+database "H2 Database" {
+  folder "Metadata" {
+    [Files]
+  }
+}
+
+[FileTransferRsService] <--> [TurtleRsService]
+[FileTransferRsService] <--> [Metadata]
+[FileTransferRsService] <--> [Peers]
+[Tunnels] <-> [Peers]
+
+@enduml

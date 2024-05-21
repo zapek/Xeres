@@ -32,10 +32,17 @@
                 </graphic>
                 <fx:include fx:id="fileSearchViewController" source="search.fxml"/>
             </Tab>
-            <Tab text="Transfers">
+            <Tab text="Downloads">
                 <graphic>
                     <FontIcon iconLiteral="fas-download"/>
                 </graphic>
+                <fx:include fx:id="fileDownloadViewController" source="download.fxml"/>
+            </Tab>
+            <Tab text="Uploads">
+                <graphic>
+                    <FontIcon iconLiteral="fas-upload"/>
+                </graphic>
+                <fx:include fx:id="fileUploadViewController" source="upload.fxml"/>
             </Tab>
         </TabPane>
     </AnchorPane>

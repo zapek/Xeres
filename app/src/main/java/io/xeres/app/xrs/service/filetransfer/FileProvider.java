@@ -36,7 +36,7 @@ class FileProvider
 	protected final File file;
 	protected FileChannel channel;
 	protected FileLock lock;
-	protected long size;
+	protected long fileSize;
 
 	public FileProvider(File file)
 	{
@@ -58,7 +58,7 @@ class FileProvider
 			{
 				log.warn("Lock for file {} is not shared", file);
 			}
-			size = channel.size();
+			fileSize = channel.size();
 			return true;
 		}
 		catch (IOException e)
@@ -68,11 +68,11 @@ class FileProvider
 		}
 	}
 
-	public byte[] read(Location requester, long offset, int chunkSize) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
+	public byte[] read(Location requester, long offset, int size) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
 	{
 		// XXX: update the status of the peer
 
-		int bufferSize = (int) Math.min(chunkSize, size);
+		int bufferSize = (int) Math.min(size, fileSize);
 		var buf = ByteBuffer.allocate(bufferSize);
 		channel.read(buf, offset);
 		buf.flip();

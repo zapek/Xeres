@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -331,6 +332,36 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		{
 			var item = new FileTransferSingleChunkCrcItem(hash, chunkNumber, checkSum);
 			peerConnectionManager.writeItem(location, item, this);
+		}
+	}
+
+	private void sendData(Location location, Sha1Sum hash, long size, long baseOffset, byte[] data)
+	{
+		var remaining = data.length;
+		int offset = 0;
+		int chunkSize;
+		var buf = ByteBuffer.wrap(data);
+
+		while (remaining > 0)
+		{
+			chunkSize = Math.min(8 * 1024, remaining); // 8 KB or the remainder
+			var tmp = new byte[chunkSize];
+
+			buf.get(tmp, offset, chunkSize);
+
+			if (turtleRouter.isVirtualPeer(location.getLocationId()))
+			{
+				var item = new TurtleFileDataItem(baseOffset + offset, chunkSize, tmp);
+				sendTurtleItem(location.getLocationId(), hash, item);
+			}
+			else
+			{
+				var item = new FileTransferDataItem(baseOffset + offset, size, hash, tmp);
+				peerConnectionManager.writeItem(location, item, this);
+			}
+
+			offset += chunkSize;
+			remaining -= chunkSize;
 		}
 	}
 }

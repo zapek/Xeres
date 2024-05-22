@@ -43,7 +43,7 @@ class FileCreator extends FileProvider
 	@Override
 	public void setFileSize(long size)
 	{
-		this.size = size;
+		this.fileSize = size;
 		chunkMap = new BitSet((int) (size / 1024 / 1024)); // a chunk represents 1 MB
 	}
 
@@ -53,7 +53,7 @@ class FileCreator extends FileProvider
 		try
 		{
 			randomAccessFile = new RandomAccessFile(file, "rw");
-			randomAccessFile.setLength(size); // XXX: check if that creates a sparse file on windows (and on linux)
+			randomAccessFile.setLength(fileSize); // XXX: check if that creates a sparse file on windows (and on linux)
 			channel = randomAccessFile.getChannel();
 			lock = channel.lock(); // Exclusive lock
 			return true;
@@ -66,10 +66,13 @@ class FileCreator extends FileProvider
 	}
 
 	@Override
-	public byte[] read(Location requester, long offset, int chunkSize) throws IOException
+	public byte[] read(Location requester, long offset, int size) throws IOException
 	{
-		// XXX: check if we have the range before calling super...
-		return super.read(requester, offset, chunkSize);
+		if (isChunkAvailable(offset, size))
+		{
+			return super.read(requester, offset, size);
+		}
+		throw new IOException("File at offset " + offset + " with size " + size + " is not available yet.");
 	}
 
 	@Override
@@ -85,5 +88,25 @@ class FileCreator extends FileProvider
 		{
 			log.error("Failed to close file {} properly", file, e);
 		}
+	}
+
+	private boolean isChunkAvailable(long offset, int chunkSize)
+	{
+		int chunkStart = (int) (offset / chunkSize);
+		int chunkEnd = (int) ((offset + chunkSize) / chunkSize);
+
+		if ((offset + chunkSize) % chunkSize != 0)
+		{
+			chunkEnd++;
+		}
+
+		for (var i = chunkStart; i < chunkEnd; i++)
+		{
+			if (!chunkMap.get(i))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }

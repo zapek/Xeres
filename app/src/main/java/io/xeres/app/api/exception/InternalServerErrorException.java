@@ -19,8 +19,13 @@
 
 package io.xeres.app.api.exception;
 
+import java.io.Serial;
+
 public class InternalServerErrorException extends RuntimeException
 {
+	@Serial
+	private static final long serialVersionUID = 371250063985938335L;
+
 	public InternalServerErrorException(String message)
 	{
 		super(message);

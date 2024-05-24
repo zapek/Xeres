@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono;
 import java.io.File;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
-import static io.xeres.ui.client.ClientUtils.fromFile;
+import static io.xeres.ui.support.util.ClientUtils.fromFile;
 
 @Component
 public class IdentityClient

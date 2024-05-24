@@ -19,10 +19,12 @@
 
 package io.xeres.app.api.exception;
 
+import java.io.Serial;
+
 public class UnprocessableEntityException extends RuntimeException
 {
-	@SuppressWarnings("java:S1165")
-	private String id;
+	@Serial
+	private static final long serialVersionUID = -889467114836196650L;
 
 	public UnprocessableEntityException(String message)
 	{

@@ -35,7 +35,7 @@ import java.io.File;
 import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.CONFIG_PATH;
-import static io.xeres.ui.client.ClientUtils.fromFile;
+import static io.xeres.ui.support.util.ClientUtils.fromFile;
 
 @Component
 public class ConfigClient

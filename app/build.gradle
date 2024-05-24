@@ -110,12 +110,13 @@ jpackage {
     dependsOn "copyInstaller"
     appName = parent.project.name
     vendor = "David Gerber"
-    copyright = "Copyright 2019-2023 by David Gerber. All Rights Reserved"
+    copyright = "Copyright 2019-2024 by David Gerber. All Rights Reserved"
     appDescription = parent.project.name
     input = "${project.buildDir}/${project.libsDirName}"
     destination = "${project.buildDir}/dist"
     mainClass = "org.springframework.boot.loader.launch.JarLauncher"
-    mainJar = "app-${project.version}.jar"
+    macPackageName = bootJar.archiveBaseName.get()
+    mainJar = bootJar.archiveFileName.get()
     licenseFile = "${parent.rootDir}/LICENSE"
     aboutUrl = "https://xeres.io"
     javaOptions = ['-Djava.net.preferIPv4Stack=true',

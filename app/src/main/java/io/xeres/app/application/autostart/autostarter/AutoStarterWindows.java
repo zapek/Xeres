@@ -24,11 +24,12 @@ import io.xeres.common.AppName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,6 +85,12 @@ public class AutoStarterWindows implements AutoStarter
 		updateSplashScreen(true);
 	}
 
+	/**
+	 * Gets the application path.
+	 * Source: <a href="https://stackoverflow.com/questions/320542/how-to-get-the-path-of-a-running-jar-file">stack overflow</a>
+	 *
+	 * @return the application path
+	 */
 	private String getApplicationPath()
 	{
 		if (applicationPath != null)
@@ -91,20 +98,7 @@ public class AutoStarterWindows implements AutoStarter
 			return applicationPath.toString();
 		}
 
-		Path basePath;
-		File file;
-		try
-		{
-			var uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-			file = uriToFile(uri.toString());
-		}
-		catch (URISyntaxException e)
-		{
-			log.error("Invalid application path", e);
-			return null;
-		}
-
-		basePath = file.toPath();
+		Path basePath = Paths.get(getClass().getProtectionDomain().getPermissions().elements().nextElement().getName()).toAbsolutePath();
 
 		// We are located in 'app/something.jar', get the parent directory of 'app'
 		if (basePath.getParent() == null || basePath.getParent().getParent() == null)
@@ -124,45 +118,6 @@ public class AutoStarterWindows implements AutoStarter
 		log.info("Application path: {}", appPath);
 
 		return applicationPath.toString();
-	}
-
-	/**
-	 * Converts the given URL string to its corresponding {@link File}.
-	 * Source: <a href="https://stackoverflow.com/questions/320542/how-to-get-the-path-of-a-running-jar-file">stack overflow</a>
-	 *
-	 * @param url The URL to convert.
-	 * @return A file path suitable for use with e.g. {@link FileInputStream}
-	 * @throws IllegalArgumentException if the URL does not correspond to a file.
-	 */
-	private static File uriToFile(String url) throws URISyntaxException
-	{
-		var path = url;
-		if (path.startsWith("jar:"))
-		{
-			// remove "jar:" prefix and "!/" suffix
-			var index = path.indexOf("!/");
-			path = path.substring(4, index);
-		}
-		try
-		{
-			// For Windows only
-			if (path.matches("file:[A-Za-z]:.*"))
-			{
-				path = "file:/" + path.substring(5);
-			}
-			return new File(new URI(path));
-		}
-		catch (URISyntaxException e)
-		{
-			// NB: URL is not completely well-formed.
-			if (path.startsWith("file:"))
-			{
-				// pass through the URL as-is, minus "file:" prefix
-				path = path.substring(5);
-				return new File(path);
-			}
-			throw e;
-		}
 	}
 
 	private boolean isSplashScreenHidden()

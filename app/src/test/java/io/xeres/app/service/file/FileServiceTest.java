@@ -20,6 +20,7 @@
 package io.xeres.app.service.file;
 
 import io.xeres.app.configuration.DataDirConfiguration;
+import io.xeres.app.database.model.share.ShareFakes;
 import io.xeres.app.database.repository.FileRepository;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.common.id.Id;
@@ -38,6 +39,9 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 class FileServiceTest
@@ -71,10 +75,14 @@ class FileServiceTest
 		assertEquals("0f02355b1b1e9a22801dddd85ded59fe7301698d", Id.toString(hash.getBytes()));
 	}
 
-//	@Test
-//	void FileService_ScanShare_OK() throws URISyntaxException
-//	{
-//		fileService.scanShare(Path.of(Objects.requireNonNull(getClass().getResource("/image")).toURI()));
-//		// XXX: check the hashes once a proper notification is sent
-//	}
+	@Test
+	void FileService_ScanShare_OK() throws URISyntaxException
+	{
+		var share = ShareFakes.createShare(Path.of(Objects.requireNonNull(getClass().getResource("/image")).toURI()));
+		fileService.scanShare(share);
+		verify(fileNotificationService).startScanning(share);
+		verify(fileNotificationService, times(2)).startScanningFile(any());
+		verify(fileNotificationService, times(2)).stopScanningFile();
+		verify(fileNotificationService).stopScanning();
+	}
 }

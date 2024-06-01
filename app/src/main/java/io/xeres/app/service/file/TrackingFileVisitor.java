@@ -33,7 +33,7 @@ import java.util.List;
 public class TrackingFileVisitor implements FileVisitor<Path>
 {
 	private final FileRepository fileRepository;
-	private boolean skipFirst; // XXX: lame hack, find something better (this is because the first entered directory is already the root directory)
+	private boolean skipRoot; // The first entered directory is already the root directory
 	private final List<File> directories = new ArrayList<>();
 	private boolean foundChanges;
 
@@ -46,9 +46,9 @@ public class TrackingFileVisitor implements FileVisitor<Path>
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
 	{
-		if (!skipFirst)
+		if (!skipRoot)
 		{
-			skipFirst = true;
+			skipRoot = true;
 		}
 		else
 		{

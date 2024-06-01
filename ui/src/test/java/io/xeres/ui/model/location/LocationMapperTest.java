@@ -62,6 +62,6 @@ class LocationMapperTest
 		assertEquals(dto.connected(), location.isConnected());
 		assertEquals(dto.lastConnected(), location.getLastConnected());
 		assertEquals(dto.connections().size(), location.getConnections().size());
-		assertEquals(dto.connections().get(0).id(), location.getConnections().get(0).getId());
+		assertEquals(dto.connections().getFirst().id(), location.getConnections().getFirst().getId());
 	}
 }

@@ -55,7 +55,7 @@ public class VisibleChatRoomInfo
 		this.name = name;
 		this.topic = topic;
 		this.count = count;
-		this.flags = roomFlags;
+		flags = roomFlags;
 	}
 
 	public long getId()

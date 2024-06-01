@@ -76,13 +76,13 @@ public class ChatMessageController
 			}
 			case CHAT_TYPING_NOTIFICATION ->
 			{
-				log.debug("Sending typing notification...");
+				log.debug("Sending chat typing notification...");
 				Objects.requireNonNull(destinationId);
 				chatRsService.sendPrivateTypingNotification(new LocationId(destinationId));
 			}
 			case CHAT_ROOM_TYPING_NOTIFICATION ->
 			{
-				log.debug("Sending typing notification...");
+				log.debug("Sending chat room typing notification...");
 				Objects.requireNonNull(destinationId);
 				chatRsService.sendChatRoomTypingNotification(Long.parseLong(destinationId));
 			}

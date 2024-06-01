@@ -257,7 +257,7 @@ class ShortInvite extends RSId
 
 	private void setHiddenNodeAddress(String hiddenNodeAddress)
 	{
-		this.hiddenLocator = PeerAddress.fromHidden(hiddenNodeAddress);
+		hiddenLocator = PeerAddress.fromHidden(hiddenNodeAddress);
 	}
 
 	private void setHiddenNodeAddress(byte[] hiddenNodeAddress)
@@ -269,7 +269,7 @@ class ShortInvite extends RSId
 		}
 		else
 		{
-			this.hiddenLocator = PeerAddress.fromInvalid();
+			hiddenLocator = PeerAddress.fromInvalid();
 		}
 	}
 

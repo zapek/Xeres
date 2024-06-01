@@ -51,7 +51,7 @@ final class TlvStringSetRefSerializer
 
 	static int getSize(List<String> refIds)
 	{
-		return TLV_HEADER_SIZE + (int) refIds.stream().map(s -> TLV_HEADER_SIZE + s.length()).count();
+		return TLV_HEADER_SIZE + (int) refIds.stream().count();
 	}
 
 	static List<String> deserialize(ByteBuf buf, TlvType type)

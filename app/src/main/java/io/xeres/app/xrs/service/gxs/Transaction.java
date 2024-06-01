@@ -78,11 +78,11 @@ public class Transaction<T extends GxsExchange>
 		this.transactionFlags = transactionFlags;
 		this.items = items;
 		this.itemCount = itemCount;
-		this.timeout = TRANSACTION_TIMEOUT;
+		timeout = TRANSACTION_TIMEOUT;
 		this.service = service;
-		this.state = direction == Direction.OUTGOING ? State.WAITING_CONFIRMATION : State.STARTING;
+		state = direction == Direction.OUTGOING ? State.WAITING_CONFIRMATION : State.STARTING;
 		this.direction = direction;
-		this.start = Instant.now();
+		start = Instant.now();
 	}
 
 	public int getId()

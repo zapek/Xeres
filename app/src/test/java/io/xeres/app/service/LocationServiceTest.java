@@ -167,19 +167,19 @@ class LocationServiceTest
 		// First run
 		var connections = locationService.getConnectionsToConnectTo(10);
 		assertEquals(2, connections.size());
-		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(location1.getConnections().getFirst(), connections.get(0));
 		assertEquals(recentConnection, connections.get(1));
 
 		// Second run
 		connections = locationService.getConnectionsToConnectTo(10);
 		assertEquals(2, connections.size());
-		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(location1.getConnections().getFirst(), connections.get(0));
 		assertEquals(oldConnection, connections.get(1));
 
 		// Third run
 		connections = locationService.getConnectionsToConnectTo(10);
 		assertEquals(2, connections.size());
-		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(location1.getConnections().getFirst(), connections.get(0));
 		assertEquals(nullConnection, connections.get(1));
 	}
 
@@ -214,13 +214,13 @@ class LocationServiceTest
 		// First run
 		var connections = locationService.getConnectionsToConnectTo(10);
 		assertEquals(2, connections.size());
-		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(location1.getConnections().getFirst(), connections.get(0));
 		assertEquals(lanConnection, connections.get(1));
 
 		// Second run
 		connections = locationService.getConnectionsToConnectTo(10);
 		assertEquals(2, connections.size());
-		assertEquals(location1.getConnections().get(0), connections.get(0));
+		assertEquals(location1.getConnections().getFirst(), connections.get(0));
 		assertEquals(wanConnection, connections.get(1));
 	}
 

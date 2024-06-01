@@ -66,7 +66,7 @@ public class ChatRoom
 		this.topic = topic;
 		this.type = type;
 		this.userCount = userCount; // XXX: use that if available, other gxsId.size() which is more precise
-		this.signed = isSigned;
+		signed = isSigned;
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class ChatRoom
 
 	public void setOwnGxsId(GxsId gxsId)
 	{
-		this.ownGxsId = gxsId;
+		ownGxsId = gxsId;
 	}
 
 	public void addUser(GxsId user)
@@ -224,7 +224,7 @@ public class ChatRoom
 	public void resetConnectionChallengeCount()
 	{
 		connectionChallengeCount = 0;
-		this.lastConnectionChallenge = Instant.now();
+		lastConnectionChallenge = Instant.now();
 	}
 
 	public Instant getLastConnectionChallenge()

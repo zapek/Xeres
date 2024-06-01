@@ -101,6 +101,6 @@ public class ChatLine
 	 */
 	public boolean isRich()
 	{
-		return contents.size() > 1 || !(contents.get(0) instanceof ContentText);
+		return contents.size() > 1 || !(contents.getFirst() instanceof ContentText);
 	}
 }

@@ -60,7 +60,7 @@ class ProfileMapperTest
 		var profileDTO = ProfileMapper.toDeepDTO(profile);
 
 		assertEquals(profile.getId(), profileDTO.id());
-		assertEquals(profile.getLocations().get(0).getId(), profileDTO.locations().get(0).id());
+		assertEquals(profile.getLocations().getFirst().getId(), profileDTO.locations().getFirst().id());
 	}
 
 	@Test

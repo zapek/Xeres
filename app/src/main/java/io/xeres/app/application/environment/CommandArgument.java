@@ -149,7 +149,7 @@ public final class CommandArgument
 		{
 			throw new IllegalArgumentException("--" + arg + " cannot be specified more than once");
 		}
-		return optionValues.get(0);
+		return optionValues.getFirst();
 	}
 
 	private static void showHelp()

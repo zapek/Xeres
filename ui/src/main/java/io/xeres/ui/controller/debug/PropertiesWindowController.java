@@ -32,7 +32,6 @@ import javafx.scene.input.ClipboardContent;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,7 +57,7 @@ public class PropertiesWindowController implements WindowController
 	private MenuItem copyAll;
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		createPropertiesTableViewContextMenu();
 

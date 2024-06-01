@@ -33,8 +33,6 @@ import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
@@ -65,7 +63,7 @@ public class ForumEditorViewController implements WindowController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		Platform.runLater(() -> title.requestFocus());
 

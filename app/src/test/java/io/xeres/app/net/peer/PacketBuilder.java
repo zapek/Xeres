@@ -80,7 +80,7 @@ public class PacketBuilder
 
 		public Builder setNoAlloc()
 		{
-			this.noAlloc = true;
+			noAlloc = true;
 			return this;
 		}
 
@@ -104,13 +104,13 @@ public class PacketBuilder
 
 		public Builder setDataSize(int size)
 		{
-			this.dataSize = size;
+			dataSize = size;
 			return this;
 		}
 
 		public Builder setHeaderSize(int size)
 		{
-			this.headerSize = size;
+			headerSize = size;
 			return this;
 		}
 
@@ -134,7 +134,7 @@ public class PacketBuilder
 
 		public Builder setRandomData(int size)
 		{
-			this.data = new byte[size];
+			data = new byte[size];
 			ThreadLocalRandom.current().nextBytes(data);
 			return this;
 		}

@@ -25,8 +25,6 @@ import javafx.fxml.FXML;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @FxmlView(value = "/view/debug/uicheck.fxml")
 public class UiCheckWindowController implements WindowController
@@ -36,7 +34,7 @@ public class UiCheckWindowController implements WindowController
 
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 
 	}

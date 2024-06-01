@@ -25,7 +25,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
-import io.xeres.common.util.NoSuppressedRunnable;
+import io.xeres.common.util.ExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -37,9 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -72,29 +70,13 @@ public class IdentityManager
 		this.identityRsService = identityRsService;
 		this.peerConnectionManager = peerConnectionManager;
 
-		executorService = Executors.newSingleThreadScheduledExecutor();
-
-		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::requestGxsIds,
-				TIME_BETWEEN_REQUESTS.toSeconds(),
-				TIME_BETWEEN_REQUESTS.toSeconds(),
-				TimeUnit.SECONDS);
+		executorService = ExecutorUtils.createFixedRateExecutor(this::requestGxsIds,
+				TIME_BETWEEN_REQUESTS.toSeconds());
 	}
 
 	public void shutdown()
 	{
-		executorService.shutdownNow();
-		try
-		{
-			var success = executorService.awaitTermination(2, TimeUnit.SECONDS);
-			if (!success)
-			{
-				log.warn("Executor failed to terminate during the waiting period");
-			}
-		}
-		catch (InterruptedException ignored)
-		{
-			Thread.currentThread().interrupt();
-		}
+		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
 	/**

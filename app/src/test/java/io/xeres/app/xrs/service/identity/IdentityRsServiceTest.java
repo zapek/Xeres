@@ -31,7 +31,6 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.ProfileFingerprint;
 import jakarta.persistence.EntityNotFoundException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openpgp.PGPException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,11 +43,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Security;
-import java.security.cert.CertificateException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -76,7 +73,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_CreateOwnIdentity_Anonymous_OK() throws PGPException, CertificateException, IOException
+	void IdentityService_CreateOwnIdentity_Anonymous_OK()
 	{
 		var NAME = "test";
 
@@ -92,7 +89,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_CreateOwnIdentity_Signed_OK() throws PGPException, CertificateException, IOException
+	void IdentityService_CreateOwnIdentity_Signed_OK() throws IOException
 	{
 		var NAME = "test";
 

@@ -47,7 +47,7 @@ class GxsIdentityRepositoryTest
 		assertNotNull(gxsIdGroupItems);
 		assertEquals(3, gxsIdGroupItems.size());
 
-		var first = gxsIdentityRepository.findById(gxsIdGroupItems.get(0).getId()).orElse(null);
+		var first = gxsIdentityRepository.findById(gxsIdGroupItems.getFirst().getId()).orElse(null);
 		assertNotNull(first);
 		assertEquals(savedGxsIdGroupItem1.getId(), first.getId());
 		assertEquals(savedGxsIdGroupItem1.getName(), first.getName());

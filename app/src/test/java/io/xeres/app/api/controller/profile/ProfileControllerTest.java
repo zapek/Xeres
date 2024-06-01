@@ -128,7 +128,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	{
 		var expected = ProfileFakes.createProfile("test", 1);
 		expected.addLocation(LocationFakes.createLocation("test", expected));
-		var locationId = expected.getLocations().get(0).getLocationId();
+		var locationId = expected.getLocations().getFirst().getLocationId();
 
 		when(profileService.findProfileByLocationId(locationId)).thenReturn(Optional.of(expected));
 
@@ -151,7 +151,7 @@ class ProfileControllerTest extends AbstractControllerTest
 
 		mvc.perform(getJson(BASE_URL))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.[0].id").value(is(profiles.get(0).getId()), Long.class));
+				.andExpect(jsonPath("$.[0].id").value(is(profiles.getFirst().getId()), Long.class));
 
 		verify(profileService).getAllProfiles();
 	}

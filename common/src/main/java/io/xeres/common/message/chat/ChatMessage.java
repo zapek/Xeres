@@ -36,7 +36,7 @@ public class ChatMessage
 
 	public ChatMessage(String message)
 	{
-		this.content = message;
+		content = message;
 	}
 
 	public String getContent()

@@ -69,7 +69,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final ListView<ChatRoomUser> userListView;
 	private final MarkdownService markdownService;
 
-	enum AddUserOrigin
+	public enum AddUserOrigin
 	{
 		JOIN,
 		KEEP_ALIVE

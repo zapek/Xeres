@@ -102,29 +102,29 @@ public class XContextMenu<T>
 
 	private T getItem(Node ownerNode)
 	{
-		if (ownerNode instanceof TreeView<?> treeView)
+		switch (ownerNode)
 		{
-			@SuppressWarnings("unchecked") var treeItem = (TreeItem<T>) treeView.getSelectionModel().getSelectedItem();
-			return treeItem.getValue();
-		}
-		else if (ownerNode instanceof TableView<?> tableView)
-		{
-			@SuppressWarnings("unchecked") var tableItem = (T) tableView.getSelectionModel().getSelectedItem();
-			return tableItem;
-		}
-		else if (ownerNode instanceof TreeTableView<?> treeTableView)
-		{
-			@SuppressWarnings("unchecked") var treeTableItem = (T) treeTableView.getSelectionModel().getSelectedItem();
-			return treeTableItem;
-		}
-		else if (ownerNode instanceof ListView<?> listView)
-		{
-			@SuppressWarnings("unchecked") var listViewItem = (T) listView.getSelectionModel().getSelectedItem();
-			return listViewItem;
-		}
-		else
-		{
-			throw new IllegalArgumentException("Unrecognized node in context menu creation: " + ownerNode);
+			case TreeView<?> treeView ->
+			{
+				@SuppressWarnings("unchecked") var treeItem = (TreeItem<T>) treeView.getSelectionModel().getSelectedItem();
+				return treeItem.getValue();
+			}
+			case TableView<?> tableView ->
+			{
+				@SuppressWarnings("unchecked") var tableItem = (T) tableView.getSelectionModel().getSelectedItem();
+				return tableItem;
+			}
+			case TreeTableView<?> treeTableView ->
+			{
+				@SuppressWarnings("unchecked") var treeTableItem = (T) treeTableView.getSelectionModel().getSelectedItem();
+				return treeTableItem;
+			}
+			case ListView<?> listView ->
+			{
+				@SuppressWarnings("unchecked") var listViewItem = (T) listView.getSelectionModel().getSelectedItem();
+				return listViewItem;
+			}
+			case null, default -> throw new IllegalArgumentException("Unrecognized node in context menu creation: " + ownerNode);
 		}
 	}
 }

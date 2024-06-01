@@ -55,7 +55,6 @@ public interface TurtleRsClient extends RsServiceSlave
 	 * Informs that a search result has been received.
 	 *
 	 * @param requestId  the request id
-	 * @param searchData the search result
 	 */
 	void receiveSearchResult(int requestId, TurtleSearchResultItem item);
 

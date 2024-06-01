@@ -79,7 +79,7 @@ public class QrCodeWindowController implements WindowController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		printButton.setOnAction(event -> showPrintSetupThenPrint(UiUtils.getWindow(event)));
 		saveButton.setOnAction(event -> saveAsPng(UiUtils.getWindow(event)));

@@ -33,8 +33,7 @@ public final class ConnectionFakes
 	public static Connection createConnection()
 	{
 		var r = ThreadLocalRandom.current();
-		return createConnection(PeerAddress.Type.IPV4, "" +
-						r.nextInt(11, 110) + "." +
+		return createConnection(PeerAddress.Type.IPV4, r.nextInt(11, 110) + "." +
 						r.nextInt(1, 254) + "." +
 						r.nextInt(1, 254) + "." +
 						r.nextInt(1, 254) + ":" +

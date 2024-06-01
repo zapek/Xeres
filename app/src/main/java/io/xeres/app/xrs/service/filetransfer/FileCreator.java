@@ -43,7 +43,7 @@ class FileCreator extends FileProvider
 	@Override
 	public void setFileSize(long size)
 	{
-		this.fileSize = size;
+		fileSize = size;
 		chunkMap = new BitSet((int) (size / 1024 / 1024)); // a chunk represents 1 MB
 	}
 

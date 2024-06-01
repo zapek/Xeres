@@ -19,10 +19,14 @@
 
 package io.xeres.app.net.protocol;
 
+import java.io.Serial;
 import java.net.SocketAddress;
 
 public final class DomainNameSocketAddress extends SocketAddress
 {
+	@Serial
+	private static final long serialVersionUID = -551345992744929084L;
+	
 	private final String name;
 
 	private DomainNameSocketAddress(String name)

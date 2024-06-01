@@ -119,13 +119,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	// the publishing key is used for both DISTRIBUTION_PUBLISHING and DISTRIBUTION_IDENTITY
 
 	@ElementCollection
-	private Set<SecurityKey> privateKeys = HashSet.newHashSet(2);
+	private final Set<SecurityKey> privateKeys = HashSet.newHashSet(2);
 
 	@ElementCollection
-	private Set<SecurityKey> publicKeys = HashSet.newHashSet(2);
+	private final Set<SecurityKey> publicKeys = HashSet.newHashSet(2);
 
 	@ElementCollection
-	private Set<Signature> signatures = HashSet.newHashSet(2);
+	private final Set<Signature> signatures = HashSet.newHashSet(2);
 
 	@Transient
 	private int serviceType;

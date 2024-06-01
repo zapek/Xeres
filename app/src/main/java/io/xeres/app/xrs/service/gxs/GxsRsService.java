@@ -37,7 +37,7 @@ import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.util.NoSuppressedRunnable;
+import io.xeres.common.util.ExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.REQUEST;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
@@ -220,12 +223,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		authenticationRequirements = Objects.requireNonNull(getAuthenticationRequirements(), "AuthenticationRequirements cannot be null");
 
-		executorService = Executors.newSingleThreadScheduledExecutor();
-
-		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::checkPendingGroupsAndMessages,
+		executorService = ExecutorUtils.createFixedRateExecutor(this::checkPendingGroupsAndMessages,
 				getInitPriority().getMaxTime() + PENDING_VERIFICATION_DELAY.toSeconds() / 2,
-				PENDING_VERIFICATION_DELAY.toSeconds(),
-				TimeUnit.SECONDS);
+				PENDING_VERIFICATION_DELAY.toSeconds());
 	}
 
 	@Override
@@ -278,22 +278,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	@Override
 	public void cleanup()
 	{
-		if (executorService != null) // Can happen when running tests
-		{
-			executorService.shutdownNow();
-			try
-			{
-				var success = executorService.awaitTermination(2, TimeUnit.SECONDS);
-				if (!success)
-				{
-					log.warn("Executor failed to terminate during the waiting period");
-				}
-			}
-			catch (InterruptedException ignored)
-			{
-				Thread.currentThread().interrupt();
-			}
-		}
+		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
 	/**
@@ -556,7 +541,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			if (!gxsMessageItems.isEmpty())
 			{
 				log.debug("{} sent messages", peerConnection);
-				gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), gxsMessageItems.get(0).getGxsId(), transaction.getUpdated(), getServiceType());
+				gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), gxsMessageItems.getFirst().getGxsId(), transaction.getUpdated(), getServiceType());
 				//setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
 				peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
 			}

@@ -76,7 +76,7 @@ public final class SimplePacketBuilder
 
 		public Builder setHeaderSize(int size)
 		{
-			this.headerSize = size;
+			headerSize = size;
 			return this;
 		}
 

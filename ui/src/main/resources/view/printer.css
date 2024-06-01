@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,29 +17,35 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui;
+/* This file is used for the printing support */
 
-import javafx.application.Platform;
-import org.junit.jupiter.api.BeforeAll;
+.credit-card {
+    -fx-background-color: rgba(255, 255, 255, 0);
+    -fx-background-radius: 19px;
+    -fx-border-color: black;
+    -fx-border-radius: 19px;
+    -fx-padding: 19px;
+}
 
-/**
- * Extend your test from this abstract class if you don't use testfx's ApplicationExtension.class
- * (for example you use Spring Boot's SpringExtension.class).<br>
- * Note that depending on how you run the tests, the platform might already be running.
- */
-abstract public class FXTest
-{
-	@BeforeAll
-	static void initJfxRuntime()
-	{
-		try
-		{
-			Platform.startup(() -> {
-			});
-		}
-		catch (IllegalStateException e)
-		{
-			// Platform already running, just ignore
-		}
-	}
+.print-title {
+    -fx-text-fill: #000;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 0 5;
+}
+
+.print-label {
+    -fx-text-fill: #333;
+}
+
+.print-value {
+    -fx-fill: #000;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.print-url {
+    -fx-text-fill: #000;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
 }

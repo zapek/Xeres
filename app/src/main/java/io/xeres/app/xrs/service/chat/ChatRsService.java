@@ -43,7 +43,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
-import io.xeres.common.util.NoSuppressedRunnable;
+import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
 import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
@@ -54,7 +54,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.CHAT;
 import static io.xeres.common.message.MessageType.*;
@@ -234,19 +237,15 @@ public class ChatRsService extends RsService
 	@SuppressWarnings("java:S1905")
 	public void initialize()
 	{
-		executorService = Executors.newSingleThreadScheduledExecutor();
-
-		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageChatRooms,
-				getInitPriority().getMaxTime() + HOUSEKEEPING_DELAY.toSeconds() / 2,
-				HOUSEKEEPING_DELAY.toSeconds(),
-				TimeUnit.SECONDS
-		);
-
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			chatRoomService.markAllChatRoomsAsLeft();
 			subscribeToAllSavedRooms();
 		}
+
+		executorService = ExecutorUtils.createFixedRateExecutor(this::manageChatRooms,
+				getInitPriority().getMaxTime() + HOUSEKEEPING_DELAY.toSeconds() / 2,
+				HOUSEKEEPING_DELAY.toSeconds());
 	}
 
 	@Override
@@ -258,22 +257,7 @@ public class ChatRsService extends RsService
 	@Override
 	public void cleanup()
 	{
-		if (executorService != null) // Can happen when running tests
-		{
-			executorService.shutdownNow();
-			try
-			{
-				var success = executorService.awaitTermination(2, TimeUnit.SECONDS);
-				if (!success)
-				{
-					log.warn("Executor failed to terminate during the waiting period");
-				}
-			}
-			catch (InterruptedException ignored)
-			{
-				Thread.currentThread().interrupt();
-			}
-		}
+		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
 	@Override
@@ -533,7 +517,7 @@ public class ChatRsService extends RsService
 
 		if (!validateExpiration(item.getSendTime()))
 		{
-			log.warn("Received chat room message from peer {} failed time validation, dropping", peerConnection);
+			log.warn("Received chat room event from peer {} failed time validation, dropping", peerConnection);
 		}
 
 		if (!validateAndBounceItem(peerConnection, item))

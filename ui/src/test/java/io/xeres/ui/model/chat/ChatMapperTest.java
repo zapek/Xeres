@@ -44,8 +44,8 @@ class ChatMapperTest
 		assertEquals(dto.chatRooms().available().size(), chatRoomContext.chatRoomLists().getAvailable().size());
 		assertEquals(dto.chatRooms().subscribed().size(), chatRoomContext.chatRoomLists().getSubscribed().size());
 
-		var from = dto.chatRooms().available().get(0);
-		var to = chatRoomContext.chatRoomLists().getAvailable().get(0);
+		var from = dto.chatRooms().available().getFirst();
+		var to = chatRoomContext.chatRoomLists().getAvailable().getFirst();
 
 		assertEquals(from.name(), to.getName());
 		assertEquals(from.id(), to.getId());

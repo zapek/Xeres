@@ -55,7 +55,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -159,7 +158,7 @@ public class ForumViewController implements Controller
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		log.debug("Trying to get forums list...");
 

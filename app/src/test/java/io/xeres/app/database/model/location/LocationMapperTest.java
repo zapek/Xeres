@@ -60,7 +60,7 @@ class LocationMapperTest
 		var locationDTO = LocationMapper.toDeepDTO(location);
 
 		assertEquals(location.getId(), locationDTO.id());
-		assertEquals(location.getConnections().get(0).getAddress(), locationDTO.connections().get(0).address());
+		assertEquals(location.getConnections().getFirst().getAddress(), locationDTO.connections().getFirst().address());
 	}
 
 	@Test

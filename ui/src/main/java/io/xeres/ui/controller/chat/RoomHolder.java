@@ -34,7 +34,7 @@ public class RoomHolder
 
 	public RoomHolder(String name)
 	{
-		this.chatRoomInfo = new ChatRoomInfo(name);
+		chatRoomInfo = new ChatRoomInfo(name);
 	}
 
 	public RoomHolder(ChatRoomInfo chatRoomInfo)
@@ -44,7 +44,7 @@ public class RoomHolder
 
 	public RoomHolder()
 	{
-		this.chatRoomInfo = new ChatRoomInfo("");
+		chatRoomInfo = new ChatRoomInfo("");
 	}
 
 	public void setChatListView(ChatListView chatListView)
@@ -54,7 +54,7 @@ public class RoomHolder
 
 	public void clearChatListView()
 	{
-		this.chatListView = null;
+		chatListView = null;
 	}
 
 	public ChatListView getChatListView()

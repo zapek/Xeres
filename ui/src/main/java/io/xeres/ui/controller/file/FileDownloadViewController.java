@@ -23,14 +23,12 @@ import io.xeres.ui.controller.Controller;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @FxmlView(value = "/view/file/download.fxml")
 public class FileDownloadViewController implements Controller
 {
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 
 	}

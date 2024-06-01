@@ -222,7 +222,7 @@ class PeerAddressTest
 
 		assertTrue(peerAddress.isValid());
 		assertTrue(peerAddress.isHostname());
-		assertTrue(peerAddress.getSocketAddress() instanceof DomainNameSocketAddress);
+		assertInstanceOf(DomainNameSocketAddress.class, peerAddress.getSocketAddress());
 	}
 
 	@Test
@@ -240,7 +240,7 @@ class PeerAddressTest
 
 		assertTrue(peerAddress.isValid());
 		assertTrue(peerAddress.isHostname());
-		assertTrue(peerAddress.getSocketAddress() instanceof InetSocketAddress);
+		assertInstanceOf(InetSocketAddress.class, peerAddress.getSocketAddress());
 		assertEquals("foo.bar.com", ((InetSocketAddress) peerAddress.getSocketAddress()).getHostString());
 		assertEquals(8080, ((InetSocketAddress) peerAddress.getSocketAddress()).getPort());
 	}
@@ -252,7 +252,7 @@ class PeerAddressTest
 
 		assertTrue(peerAddress.isValid());
 		assertFalse(peerAddress.isHostname());
-		assertTrue(peerAddress.getSocketAddress() instanceof InetSocketAddress);
+		assertInstanceOf(InetSocketAddress.class, peerAddress.getSocketAddress());
 		assertEquals("foobar.com", ((InetSocketAddress) peerAddress.getSocketAddress()).getHostString());
 		assertEquals(1234, ((InetSocketAddress) peerAddress.getSocketAddress()).getPort());
 	}
@@ -264,7 +264,7 @@ class PeerAddressTest
 
 		assertTrue(peerAddress.isValid());
 		assertTrue(peerAddress.isHostname());
-		assertTrue(peerAddress.getSocketAddress() instanceof InetSocketAddress);
+		assertInstanceOf(InetSocketAddress.class, peerAddress.getSocketAddress());
 		assertEquals("foo.bar.com", ((InetSocketAddress) peerAddress.getSocketAddress()).getHostString());
 		assertEquals(8080, ((InetSocketAddress) peerAddress.getSocketAddress()).getPort());
 	}

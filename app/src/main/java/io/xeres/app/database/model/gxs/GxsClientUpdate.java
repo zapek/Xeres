@@ -47,7 +47,7 @@ public class GxsClientUpdate
 
 	@ElementCollection
 	@Column(name = "updated")
-	private Map<GxsId, Instant> messages = new HashMap<>();
+	private final Map<GxsId, Instant> messages = new HashMap<>();
 
 	public GxsClientUpdate()
 	{

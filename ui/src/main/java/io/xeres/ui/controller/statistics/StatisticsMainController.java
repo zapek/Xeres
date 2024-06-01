@@ -24,8 +24,6 @@ import javafx.fxml.FXML;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @FxmlView(value = "/view/statistics/main.fxml")
 public class StatisticsMainController implements WindowController
@@ -35,7 +33,7 @@ public class StatisticsMainController implements WindowController
 	private StatisticsTurtleController statisticsTurtleController;
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		// XXX: the start/stop should be done on tab switch maybe... but check later on when I have more tabs
 	}

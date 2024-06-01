@@ -65,6 +65,6 @@ class ProfileMapperTest
 		assertEquals(dto.accepted(), profile.isAccepted());
 		assertEquals(dto.trust(), profile.getTrust());
 		assertEquals(dto.locations().size(), profile.getLocations().size());
-		assertEquals(dto.locations().get(0).id(), profile.getLocations().get(0).getId());
+		assertEquals(dto.locations().getFirst().id(), profile.getLocations().getFirst().getId());
 	}
 }

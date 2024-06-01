@@ -110,7 +110,7 @@ public class ShellService implements Shell
 		final int inQuote = 1;
 		final int inDoubleQuote = 2;
 		int state = normal;
-		final StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
+		final StringTokenizer tok = new StringTokenizer(toProcess, "\"' ", true);
 		final ArrayList<String> result = new ArrayList<>();
 		final StringBuilder current = new StringBuilder();
 		boolean lastTokenHasBeenQuoted = false;

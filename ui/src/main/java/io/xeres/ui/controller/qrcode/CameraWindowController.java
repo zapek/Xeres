@@ -42,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +62,7 @@ public class CameraWindowController implements WindowController
 	private final ObjectProperty<Image> imageProperty = new SimpleObjectProperty<>();
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		stopCamera = false;
 

@@ -21,7 +21,6 @@ package io.xeres.testutils;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class TimeFakes
@@ -34,7 +33,7 @@ public final class TimeFakes
 	public static Instant createInstant()
 	{
 		var end = ZonedDateTime.now();
-		var start = end.minus(5, ChronoUnit.YEARS);
+		var start = end.minusYears(5);
 		var random = ThreadLocalRandom.current().nextLong(start.toInstant().getEpochSecond(), end.toInstant().getEpochSecond());
 
 		return Instant.ofEpochSecond(random);

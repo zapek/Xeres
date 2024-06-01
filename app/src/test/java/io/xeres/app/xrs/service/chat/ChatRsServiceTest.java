@@ -137,7 +137,7 @@ class ChatRsServiceTest
 		verify(peerConnectionManager).writeItem(eq(peerConnection), argThat(chatRoomListItem -> {
 			assertNotNull(chatRoomListItem);
 			assertFalse(((ChatRoomListItem) chatRoomListItem).getChatRooms().isEmpty());
-			assertEquals(roomId, ((ChatRoomListItem) chatRoomListItem).getChatRooms().get(0).getId());
+			assertEquals(roomId, ((ChatRoomListItem) chatRoomListItem).getChatRooms().getFirst().getId());
 			return true;
 		}), any(RsService.class));
 	}

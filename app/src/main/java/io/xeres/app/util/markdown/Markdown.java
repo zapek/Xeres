@@ -62,7 +62,7 @@ public class Markdown
 		}
 		else
 		{
-			var lastLine = body.remove(body.size() - 1);
+			var lastLine = body.removeLast();
 			body.add(lastLine + (lastLine.isBlank() ? "" : " ") + text.trim());
 		}
 	}
@@ -188,7 +188,7 @@ public class Markdown
 		{
 			return "";
 		}
-		return body.get(body.size() - 1);
+		return body.getLast();
 	}
 
 	private void invalidate()
@@ -198,9 +198,9 @@ public class Markdown
 
 	private void removeTrailingEndOfLine()
 	{
-		if (!body.isEmpty() && body.get(body.size() - 1).isBlank())
+		if (!body.isEmpty() && body.getLast().isBlank())
 		{
-			body.remove(body.size() - 1);
+			body.removeLast();
 		}
 	}
 

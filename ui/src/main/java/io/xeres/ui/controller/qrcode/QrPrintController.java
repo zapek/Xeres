@@ -25,8 +25,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 
-import java.io.IOException;
-
 public class QrPrintController implements Controller
 {
 	@FXML
@@ -39,7 +37,7 @@ public class QrPrintController implements Controller
 	private Text locationText;
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		// Nothing to do
 	}

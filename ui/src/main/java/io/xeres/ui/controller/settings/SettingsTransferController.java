@@ -30,7 +30,6 @@ import javafx.stage.DirectoryChooser;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
@@ -48,7 +47,7 @@ public class SettingsTransferController implements SettingsController
 	private Settings settings;
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		incomingDirectorySelector.setOnAction(event -> {
 			if (JavaFxApplication.isRemoteUiClient())

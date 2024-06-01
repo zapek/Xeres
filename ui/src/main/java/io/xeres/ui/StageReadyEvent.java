@@ -22,8 +22,13 @@ package io.xeres.ui;
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationEvent;
 
+import java.io.Serial;
+
 public class StageReadyEvent extends ApplicationEvent
 {
+	@Serial
+	private static final long serialVersionUID = 346107776084028526L;
+	
 	private final transient Stage stage;
 
 	public StageReadyEvent(Stage primaryStage)

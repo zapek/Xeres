@@ -224,9 +224,9 @@ class MarkdownServiceTest extends FXTest
 		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
 
 		assertEquals(1, output.size());
-		assertInstanceOf(ContentUri.class, output.get(0));
+		assertInstanceOf(ContentUri.class, output.getFirst());
 
-		assertEquals(input, ((Hyperlink) output.get(0).getNode()).getText());
+		assertEquals(input, ((Hyperlink) output.getFirst().getNode()).getText());
 	}
 
 	@ParameterizedTest
@@ -243,7 +243,7 @@ class MarkdownServiceTest extends FXTest
 
 		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
 
-		assertEquals(expected, ((Text) output.get(0).getNode()).getText());
+		assertEquals(expected, ((Text) output.getFirst().getNode()).getText());
 	}
 
 	@Test
@@ -287,8 +287,8 @@ class MarkdownServiceTest extends FXTest
 
 		assertEquals(1, output.size());
 
-		assertInstanceOf(ContentText.class, output.get(0));
-		assertEquals("hello, world\n", ((Text) output.get(0).getNode()).getText());
+		assertInstanceOf(ContentText.class, output.getFirst());
+		assertEquals("hello, world\n", ((Text) output.getFirst().getNode()).getText());
 	}
 
 	@Test

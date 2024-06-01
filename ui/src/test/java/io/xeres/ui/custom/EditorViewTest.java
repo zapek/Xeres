@@ -41,7 +41,7 @@ class EditorViewTest
 	private EditorView editorView;
 
 	@Start
-	private void start(Stage stage) throws InterruptedException
+	private void start(Stage stage)
 	{
 		editorView = new EditorView();
 		editorView.setId("editorView");

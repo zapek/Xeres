@@ -54,7 +54,7 @@ class GxsServiceSettingRepositoryTest
 		assertNotNull(gxsServiceSettings);
 		assertEquals(3, gxsServiceSettings.size());
 
-		var first = gxsServiceSettingRepository.findById(gxsServiceSettings.get(0).getId()).orElse(null);
+		var first = gxsServiceSettingRepository.findById(gxsServiceSettings.getFirst().getId()).orElse(null);
 		assertNotNull(first);
 		assertEquals(savedGxsServiceSetting1.getId(), first.getId());
 		assertEquals(savedGxsServiceSetting1.getLastUpdated(), first.getLastUpdated());

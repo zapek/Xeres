@@ -36,8 +36,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
-import java.io.IOException;
-
 @Component
 @FxmlView(value = "/view/file/search.fxml")
 public class FileSearchViewController implements Controller
@@ -62,7 +60,7 @@ public class FileSearchViewController implements Controller
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		search.setOnKeyPressed(event -> {
 			if (event.getCode().equals(KeyCode.ENTER))

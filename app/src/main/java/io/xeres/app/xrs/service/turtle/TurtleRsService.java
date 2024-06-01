@@ -38,7 +38,7 @@ import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.file.FileType;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
-import io.xeres.common.util.NoSuppressedRunnable;
+import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +48,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
@@ -159,34 +157,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			ownLocation = locationService.findOwnLocation().orElseThrow();
 		}
 
-		executorService = Executors.newSingleThreadScheduledExecutor();
-
-		executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageAll,
+		executorService = ExecutorUtils.createFixedRateExecutor(this::manageAll,
 				getInitPriority().getMaxTime() + TUNNEL_MANAGEMENT_DELAY.toSeconds() / 2,
-				TUNNEL_MANAGEMENT_DELAY.toSeconds(),
-				TimeUnit.SECONDS
-		);
+				TUNNEL_MANAGEMENT_DELAY.toSeconds());
 	}
 
 	@Override
 	public void cleanup()
 	{
-		if (executorService != null) // Can happen when running tests
-		{
-			executorService.shutdownNow();
-			try
-			{
-				var success = executorService.awaitTermination(2, TimeUnit.SECONDS);
-				if (!success)
-				{
-					log.warn("Executor failed to terminate during the waiting period");
-				}
-			}
-			catch (InterruptedException ignored)
-			{
-				Thread.currentThread().interrupt();
-			}
-		}
+		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
 	@Override

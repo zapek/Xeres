@@ -21,7 +21,7 @@ package io.xeres.common.mui;
 
 public class ShellResult
 {
-	ShellAction action;
+	final ShellAction action;
 	String output;
 
 	public ShellResult(ShellAction action, String output)

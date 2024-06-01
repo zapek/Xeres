@@ -34,7 +34,6 @@ class DNSTest
 	 * It also tests that akamai works, in case opendns is removed, and we need to fall back to something else.
 	 * It only runs on my machine because of the chicken & egg problem on knowing one's own IP.
 	 *
-	 * @throws IOException
 	 */
 	@Test
 	@EnabledIfEnvironmentVariable(named = "COMPUTERNAME", matches = "B650")

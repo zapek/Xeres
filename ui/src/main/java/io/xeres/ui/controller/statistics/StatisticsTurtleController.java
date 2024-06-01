@@ -19,7 +19,7 @@
 
 package io.xeres.ui.controller.statistics;
 
-import io.xeres.common.util.NoSuppressedRunnable;
+import io.xeres.common.util.ExecutorUtils;
 import io.xeres.ui.client.StatisticsClient;
 import io.xeres.ui.controller.Controller;
 import javafx.application.Platform;
@@ -32,10 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @FxmlView(value = "/view/statistics/turtle.fxml")
@@ -52,7 +49,7 @@ public class StatisticsTurtleController implements Controller
 	@FXML
 	private NumberAxis xAxis;
 
-	private ScheduledExecutorService scheduledExecutorService;
+	private ScheduledExecutorService executorService;
 
 	private final StatisticsClient statisticsClient;
 
@@ -70,7 +67,7 @@ public class StatisticsTurtleController implements Controller
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		xAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(xAxis)
 		{
@@ -80,7 +77,6 @@ public class StatisticsTurtleController implements Controller
 				return String.valueOf(-object.intValue());
 			}
 		});
-
 
 		dataDownload.setName("Data in");
 		dataUpload.setName("Data out");
@@ -101,35 +97,24 @@ public class StatisticsTurtleController implements Controller
 
 	public void start()
 	{
-		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-		scheduledExecutorService.scheduleAtFixedRate((NoSuppressedRunnable) () -> statisticsClient.getStatistics()
-				.doOnSuccess(turtleStatisticsResponse -> Platform.runLater(() -> {
-					updateData(dataDownload, turtleStatisticsResponse.dataDownload() / 1024f);
-					updateData(dataUpload, turtleStatisticsResponse.dataUpload() / 1024f);
-					updateData(forwardTotal, turtleStatisticsResponse.forwardTotal() / 1024f);
-					updateData(tunnelRequestsDownload, turtleStatisticsResponse.tunnelRequestsDownload() / 1024f);
-					updateData(tunnelRequestsUpload, turtleStatisticsResponse.tunnelRequestsUpload() / 1024f);
-					updateData(searchRequestsDownload, turtleStatisticsResponse.searchRequestsDownload() / 1024f);
-					updateData(searchRequestsUpload, turtleStatisticsResponse.searchRequestsUpload() / 1024f);
-				}))
-				.subscribe(), 0, UPDATE_IN_SECONDS, TimeUnit.SECONDS); // XXX: that period should be shared somewhere
+		executorService = ExecutorUtils.createFixedRateExecutor(() -> statisticsClient.getStatistics()
+						.doOnSuccess(turtleStatisticsResponse -> Platform.runLater(() -> {
+							updateData(dataDownload, turtleStatisticsResponse.dataDownload() / 1024f);
+							updateData(dataUpload, turtleStatisticsResponse.dataUpload() / 1024f);
+							updateData(forwardTotal, turtleStatisticsResponse.forwardTotal() / 1024f);
+							updateData(tunnelRequestsDownload, turtleStatisticsResponse.tunnelRequestsDownload() / 1024f);
+							updateData(tunnelRequestsUpload, turtleStatisticsResponse.tunnelRequestsUpload() / 1024f);
+							updateData(searchRequestsDownload, turtleStatisticsResponse.searchRequestsDownload() / 1024f);
+							updateData(searchRequestsUpload, turtleStatisticsResponse.searchRequestsUpload() / 1024f);
+						}))
+						.subscribe(),
+				0,
+				UPDATE_IN_SECONDS); // XXX: that period should be shared somewhere
 	}
 
 	public void stop()
 	{
-		scheduledExecutorService.shutdownNow();
-		try
-		{
-			var success = scheduledExecutorService.awaitTermination(1, TimeUnit.SECONDS);
-			if (!success)
-			{
-				log.warn("Executor failed to terminate during the waiting period");
-			}
-		}
-		catch (InterruptedException ignored)
-		{
-			Thread.currentThread().interrupt();
-		}
+		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
 	private void updateData(XYChart.Series<Number, Number> series, float value)

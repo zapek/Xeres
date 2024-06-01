@@ -33,7 +33,7 @@ class FileHash
 	private int lastRequest;
 	private Instant lastDiggTime;
 	private final TurtleRsClient client;
-	private boolean aggressiveMode;
+	private final boolean aggressiveMode;
 
 	public FileHash(boolean aggressiveMode, TurtleRsClient client)
 	{

@@ -146,7 +146,7 @@ public class MessageClient
 	{
 		while (!pendingSubscriptions.isEmpty())
 		{
-			var pendingSubscription = pendingSubscriptions.remove(0);
+			var pendingSubscription = pendingSubscriptions.removeFirst();
 
 			var subscription = session.subscribe(pendingSubscription.getPath(), pendingSubscription.getStompFrameHandler());
 			subscriptions.add(subscription);

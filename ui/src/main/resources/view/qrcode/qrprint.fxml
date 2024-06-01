@@ -24,11 +24,8 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<HBox alignment="CENTER" prefHeight="318.75" prefWidth="505.5" styleClass="credit-card" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.qrcode.QrPrintController" stylesheets="@/view/javafx.css">
-    <padding>
-        <Insets bottom="19.0" left="19.0" right="19.0" top="19.0"/>
-    </padding>
+<?import javafx.scene.text.Text?>
+<HBox alignment="CENTER" prefHeight="318.75" prefWidth="505.5" styleClass="credit-card" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.qrcode.QrPrintController" stylesheets="@/view/printer.css">
     <VBox>
         <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
             <HBox.margin>
@@ -36,11 +33,7 @@
             </HBox.margin>
             <Image url="@../../image/icon.png"/>
         </ImageView>
-        <Label text="Xeres ID">
-            <font>
-                <Font name="System Bold" size="18.0"/>
-            </font>
-        </Label>
+        <Label text="Xeres ID" styleClass="print-title"/>
         <Region prefHeight="32.0"/>
         <GridPane hgap="4">
             <columnConstraints>
@@ -51,25 +44,13 @@
                 <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="ALWAYS"/>
             </rowConstraints>
-            <Label text="%account.profile"/>
-            <Text fx:id="profileText" GridPane.columnIndex="1">
-                <font>
-                    <Font name="System Bold" size="12.0"/>
-                </font>
-            </Text>
-            <Label text="%account.location" GridPane.rowIndex="1"/>
-            <Text fx:id="locationText" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <font>
-                    <Font name="System Bold" size="12.0"/>
-                </font>
-            </Text>
+            <Label text="%account.profile" styleClass="print-label"/>
+            <Text fx:id="profileText" GridPane.columnIndex="1" styleClass="print-value"/>
+            <Label text="%account.location" GridPane.rowIndex="1" styleClass="print-label"/>
+            <Text fx:id="locationText" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="print-value"/>
         </GridPane>
         <Region VBox.vgrow="ALWAYS"/>
-        <Label text="%qrcode.download-client" wrapText="true">
-            <font>
-                <Font name="System Bold" size="11.0"/>
-            </font>
-        </Label>
+        <Label text="%qrcode.download-client" wrapText="true" styleClass="print-url"/>
     </VBox>
     <Region HBox.hgrow="SOMETIMES"/>
     <ImageView fx:id="qrCode" fitHeight="256.0" fitWidth="256.0" pickOnBounds="true" preserveRatio="true"/>

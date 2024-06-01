@@ -89,7 +89,7 @@ public class ChatRoomInvitationWindowController implements WindowController
 				.doOnSuccess(profiles -> Platform.runLater(() -> profiles.forEach(profile -> {
 					if (profile.getLocations().size() == 1)
 					{
-						root.getChildren().add(new CheckBoxTreeItem<>(new PeerHolder(profile, profile.getLocations().get(0))));
+						root.getChildren().add(new CheckBoxTreeItem<>(new PeerHolder(profile, profile.getLocations().getFirst())));
 					}
 					else
 					{

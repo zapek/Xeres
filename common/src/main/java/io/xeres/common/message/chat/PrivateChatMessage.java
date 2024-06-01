@@ -30,7 +30,7 @@ public class PrivateChatMessage
 
 	public PrivateChatMessage(String message)
 	{
-		this.content = message;
+		content = message;
 	}
 
 	public String getContent()

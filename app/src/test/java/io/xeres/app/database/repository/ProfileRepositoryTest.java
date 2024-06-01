@@ -47,7 +47,7 @@ class ProfileRepositoryTest
 		assertNotNull(profiles);
 		assertEquals(3, profiles.size());
 
-		var first = profileRepository.findById(profiles.get(0).getId()).orElse(null);
+		var first = profileRepository.findById(profiles.getFirst().getId()).orElse(null);
 
 		assertNotNull(first);
 		assertEquals(savedProfile.getId(), first.getId());

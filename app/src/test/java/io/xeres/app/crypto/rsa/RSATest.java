@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -108,6 +109,9 @@ class RSATest
 		byte[] data = {1, 2, 3};
 		var privateKey = new PrivateKey()
 		{
+			@Serial
+			private static final long serialVersionUID = -5166467762224595264L;
+
 			@Override
 			public String getAlgorithm()
 			{

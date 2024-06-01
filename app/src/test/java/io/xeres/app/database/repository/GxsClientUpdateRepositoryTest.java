@@ -50,9 +50,9 @@ class GxsClientUpdateRepositoryTest
 		profile.addLocation(location);
 		profile = profileRepository.save(profile);
 
-		var gxsClientUpdate1 = GxsClientUpdateFakes.createGxsClientUpdate(profile.getLocations().get(0), 200);
-		var gxsClientUpdate2 = GxsClientUpdateFakes.createGxsClientUpdate(profile.getLocations().get(0), 201);
-		var gxsClientUpdate3 = GxsClientUpdateFakes.createGxsClientUpdate(profile.getLocations().get(0), 202);
+		var gxsClientUpdate1 = GxsClientUpdateFakes.createGxsClientUpdate(profile.getLocations().getFirst(), 200);
+		var gxsClientUpdate2 = GxsClientUpdateFakes.createGxsClientUpdate(profile.getLocations().getFirst(), 201);
+		var gxsClientUpdate3 = GxsClientUpdateFakes.createGxsClientUpdate(profile.getLocations().getFirst(), 202);
 
 		var savedGxsClientUpdate1 = gxsClientUpdateRepository.save(gxsClientUpdate1);
 		var savedGxsClientUpdate2 = gxsClientUpdateRepository.save(gxsClientUpdate2);
@@ -62,7 +62,7 @@ class GxsClientUpdateRepositoryTest
 		assertNotNull(gxsClientUpdates);
 		assertEquals(3, gxsClientUpdates.size());
 
-		var first = gxsClientUpdateRepository.findById(gxsClientUpdates.get(0).getId()).orElse(null);
+		var first = gxsClientUpdateRepository.findById(gxsClientUpdates.getFirst().getId()).orElse(null);
 		assertNotNull(first);
 		assertEquals(savedGxsClientUpdate1.getId(), first.getId());
 		assertEquals(savedGxsClientUpdate1.getServiceType(), first.getServiceType());
@@ -106,7 +106,7 @@ class GxsClientUpdateRepositoryTest
 		var time3 = "2021-01-01T14:45:00.00Z";
 		var update3 = Instant.parse(time3);
 
-		var gxsClientUpdate = GxsClientUpdateFakes.createGxsClientUpdateWithMessages(profile.getLocations().get(0), groupId1, update1, 200);
+		var gxsClientUpdate = GxsClientUpdateFakes.createGxsClientUpdateWithMessages(profile.getLocations().getFirst(), groupId1, update1, 200);
 		gxsClientUpdate.addMessageUpdate(groupId2, update2);
 		gxsClientUpdate.addMessageUpdate(groupId3, update3);
 
@@ -116,7 +116,7 @@ class GxsClientUpdateRepositoryTest
 		assertNotNull(gxsClientUpdates);
 		assertEquals(1, gxsClientUpdates.size());
 
-		var first = gxsClientUpdateRepository.findById(gxsClientUpdates.get(0).getId()).orElse(null);
+		var first = gxsClientUpdateRepository.findById(gxsClientUpdates.getFirst().getId()).orElse(null);
 		assertNotNull(first);
 		assertEquals(savedGxsClientUpdate.getId(), first.getId());
 		assertEquals(savedGxsClientUpdate.getServiceType(), first.getServiceType());

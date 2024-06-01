@@ -25,7 +25,6 @@ import jakarta.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.Objects;
 
-@SuppressWarnings("JpaAttributeMemberSignatureInspection")
 @Embeddable
 public class GxsId implements Identifier
 {

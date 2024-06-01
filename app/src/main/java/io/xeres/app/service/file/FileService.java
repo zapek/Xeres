@@ -380,7 +380,7 @@ public class FileService
 		}
 		catch (IOException e)
 		{
-			log.warn("Error while trying to compute hash of file " + path, e);
+			log.warn("Error while trying to compute hash of file {}", path, e);
 			return null;
 		}
 		finally

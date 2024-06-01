@@ -56,11 +56,11 @@ class LocationRepositoryTest
 		assertNotNull(locations);
 		assertEquals(3, locations.size());
 
-		var first = locationRepository.findById(locations.get(0).getId()).orElse(null);
+		var first = locationRepository.findById(locations.getFirst().getId()).orElse(null);
 
 		assertNotNull(first);
-		assertEquals(locations.get(0).getId(), first.getId());
-		assertEquals(locations.get(0).getName(), first.getName());
+		assertEquals(locations.getFirst().getId(), first.getId());
+		assertEquals(locations.getFirst().getName(), first.getName());
 
 		first.setConnected(true);
 

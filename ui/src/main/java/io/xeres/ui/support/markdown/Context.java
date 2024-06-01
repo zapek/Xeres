@@ -36,7 +36,7 @@ class Context
 		CONTINUATION_BREAK // remove line feed to make a continuation break
 	}
 
-	private EmojiService emojiService;
+	private final EmojiService emojiService;
 	private final Set<ParsingMode> options;
 	private final Scanner scanner;
 	private final List<Content> content = new ArrayList<>();
@@ -44,7 +44,7 @@ class Context
 	private int completedIndex;
 	private int previousIndex = -1;
 	private boolean isLine;
-	private Set<MarkdownDetector> usedDetectors = new HashSet<>();
+	private final Set<MarkdownDetector> usedDetectors = new HashSet<>();
 	private int previousDetectorNum;
 
 	public Context(String input, EmojiService emojiService, Set<ParsingMode> options)

@@ -29,8 +29,6 @@ import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @FxmlView(value = "/view/forum/forum_create.fxml")
 public class ForumCreationWindowController implements WindowController
@@ -55,7 +53,7 @@ public class ForumCreationWindowController implements WindowController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		forumName.textProperty().addListener(observable -> checkCreatable());
 		forumDescription.textProperty().addListener(observable -> checkCreatable());

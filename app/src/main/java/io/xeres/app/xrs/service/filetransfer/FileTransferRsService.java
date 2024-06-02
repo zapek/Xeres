@@ -45,7 +45,9 @@ import org.springframework.stereotype.Component;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static io.xeres.app.xrs.service.RsServiceType.FILE_TRANSFER;
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
@@ -61,6 +63,8 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final FileSearchNotificationService fileSearchNotificationService;
 	private final RsServiceRegistry rsServiceRegistry;
 	private final RsCrypto.EncryptionFormat encryptionFormat;
+	private Thread fileTransferManagerThread;
+	private final BlockingQueue<FileTransferCommand> fileCommandQueue = new LinkedBlockingQueue<>(); // XXX: array, priority, linked? (and shouldn't be objects...)
 
 	private final Map<Sha1Sum, Sha1Sum> encryptedHashes = new ConcurrentHashMap<>();
 
@@ -90,6 +94,14 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			throw new IllegalArgumentException("Unsupported encryption format: " + networkProperties.getTunnelEncryption());
 		}
 		return encryptionFormat;
+	}
+
+	@Override
+	public void initialize()
+	{
+		fileTransferManagerThread = Thread.ofVirtual()
+				.name("File Transfer Manager")
+				.start(new FileTransferManager(fileCommandQueue));
 	}
 
 	@Override
@@ -215,6 +227,22 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	public void shutdown()
 	{
 		fileSearchNotificationService.shutdown();
+		if (fileTransferManagerThread != null)
+		{
+			log.info("Stopping FileTransferManager...");
+			fileTransferManagerThread.interrupt();
+			try
+			{
+				log.info("Waiting for FileTransferManager to terminate...");
+				fileTransferManagerThread.join();
+				log.debug("FileTransferManager terminated");
+			}
+			catch (InterruptedException e)
+			{
+				log.error("Failed to wait for termination: {}", e.getMessage(), e);
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 
 	private void sendTurtleItem(LocationId virtualLocationId, Sha1Sum hash, TurtleGenericTunnelItem item)

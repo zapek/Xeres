@@ -21,10 +21,13 @@ package io.xeres.app.xrs.service.filetransfer;
 
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.rscrypto.RsCrypto;
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.xrs.item.Item;
@@ -62,19 +65,26 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final PeerConnectionManager peerConnectionManager;
 	private final FileSearchNotificationService fileSearchNotificationService;
 	private final RsServiceRegistry rsServiceRegistry;
+	private final DatabaseSessionManager databaseSessionManager;
+	private final LocationService locationService;
 	private final RsCrypto.EncryptionFormat encryptionFormat;
 	private Thread fileTransferManagerThread;
+
 	private final BlockingQueue<FileTransferCommand> fileCommandQueue = new LinkedBlockingQueue<>(); // XXX: array, priority, linked? (and shouldn't be objects...)
+
+	private Location ownLocation;
 
 	private final Map<Sha1Sum, Sha1Sum> encryptedHashes = new ConcurrentHashMap<>();
 
-	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, NetworkProperties networkProperties)
+	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, NetworkProperties networkProperties)
 	{
 		super(rsServiceRegistry);
 		this.fileService = fileService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.fileSearchNotificationService = fileSearchNotificationService;
 		this.rsServiceRegistry = rsServiceRegistry;
+		this.databaseSessionManager = databaseSessionManager;
+		this.locationService = locationService;
 		encryptionFormat = getEncryptionFormat(networkProperties);
 	}
 
@@ -99,9 +109,14 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public void initialize()
 	{
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			ownLocation = locationService.findOwnLocation().orElseThrow();
+		}
+
 		fileTransferManagerThread = Thread.ofVirtual()
 				.name("File Transfer Manager")
-				.start(new FileTransferManager(fileCommandQueue));
+				.start(new FileTransferManager(this, ownLocation, fileCommandQueue));
 	}
 
 	@Override
@@ -125,7 +140,11 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		// XXX
+		if (item instanceof FileTransferDataRequestItem fileTransferDataRequestItem)
+		{
+			// XXX: check for upload limit for this peer and drop it if exceeded!
+		}
+		fileCommandQueue.add(new FileTransferCommand(sender.getLocation(), item));
 	}
 
 	@Override
@@ -135,7 +154,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		if (file.isPresent())
 		{
 			log.debug("Found file {}", file.get());
-			// XXX: don't forget to handle encrypted hashes, files currently being swarmed and tons of other things
+			// XXX: don't forget to handle files currently being swarmed and tons of other things
 			// XXX: sender might not necessarily be needed (it's for the permissions)
 			return true;
 		}
@@ -321,7 +340,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 	}
 
-	private void sendChunkMap(Location location, Sha1Sum hash, boolean isClient, List<Integer> compressedChunkMap)
+	void sendChunkMap(Location location, Sha1Sum hash, boolean isClient, List<Integer> compressedChunkMap)
 	{
 		if (turtleRouter.isVirtualPeer(location.getLocationId()))
 		{
@@ -363,7 +382,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 	}
 
-	private void sendData(Location location, Sha1Sum hash, long size, long baseOffset, byte[] data)
+	void sendData(Location location, Sha1Sum hash, long size, long baseOffset, byte[] data)
 	{
 		var remaining = data.length;
 		int offset = 0;

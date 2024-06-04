@@ -69,4 +69,19 @@ public class FileTransferDataRequestItem extends Item
 	{
 		return ItemPriority.HIGH.getPriority();
 	}
+
+	public long getFileOffset()
+	{
+		return fileOffset;
+	}
+
+	public int getChunkSize()
+	{
+		return chunkSize;
+	}
+
+	public FileItem getFileItem()
+	{
+		return fileItem;
+	}
 }

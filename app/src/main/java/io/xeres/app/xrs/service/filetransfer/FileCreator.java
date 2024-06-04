@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.util.BitSet;
+import java.util.List;
 
 class FileCreator extends FileProvider
 {
@@ -75,6 +77,17 @@ class FileCreator extends FileProvider
 		throw new IOException("File at offset " + offset + " with size " + size + " is not available yet.");
 	}
 
+	public void write(Location requester, long offset, byte[] data) throws IOException
+	{
+		// XXX: update the status of the peer
+		var buf = ByteBuffer.wrap(data);
+		var size = channel.write(buf, offset);
+		if (size != data.length)
+		{
+			throw new IOException("Failed to write data, requested size: " + data.length + ", actually written: " + size);
+		}
+	}
+
 	@Override
 	public void close()
 	{
@@ -88,6 +101,12 @@ class FileCreator extends FileProvider
 		{
 			log.error("Failed to close file {} properly", file, e);
 		}
+	}
+
+	public List<Integer> getCompressedChunkMap()
+	{
+		// XXX: implement
+		return List.of();
 	}
 
 	private boolean isChunkAvailable(long offset, int chunkSize)

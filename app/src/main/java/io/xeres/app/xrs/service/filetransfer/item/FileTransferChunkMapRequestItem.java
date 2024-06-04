@@ -28,7 +28,7 @@ import io.xeres.common.id.Sha1Sum;
 public class FileTransferChunkMapRequestItem extends Item
 {
 	@RsSerialized
-	private boolean isClient;
+	private boolean isLeecher;
 
 	@RsSerialized
 	private Sha1Sum hash;
@@ -38,10 +38,10 @@ public class FileTransferChunkMapRequestItem extends Item
 		// Needed
 	}
 
-	public FileTransferChunkMapRequestItem(Sha1Sum hash, boolean isClient)
+	public FileTransferChunkMapRequestItem(Sha1Sum hash, boolean isLeecher)
 	{
 		this.hash = hash;
-		this.isClient = isClient;
+		this.isLeecher = isLeecher;
 	}
 
 	@Override
@@ -62,9 +62,9 @@ public class FileTransferChunkMapRequestItem extends Item
 		return ItemPriority.HIGH.getPriority();
 	}
 
-	public boolean isClient()
+	public boolean isLeecher()
 	{
-		return isClient;
+		return isLeecher;
 	}
 
 	public Sha1Sum getHash()

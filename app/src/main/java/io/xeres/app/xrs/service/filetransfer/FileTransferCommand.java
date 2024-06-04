@@ -19,6 +19,9 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-public record FileTransferCommand()
+import io.xeres.app.database.model.location.Location;
+import io.xeres.app.xrs.item.Item;
+
+public record FileTransferCommand(Location location, Item item)
 {
 }

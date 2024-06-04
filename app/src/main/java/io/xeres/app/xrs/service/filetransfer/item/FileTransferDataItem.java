@@ -62,4 +62,9 @@ public class FileTransferDataItem extends Item
 	{
 		return ItemPriority.NORMAL.getPriority();
 	}
+
+	public FileData getFileData()
+	{
+		return fileData;
+	}
 }

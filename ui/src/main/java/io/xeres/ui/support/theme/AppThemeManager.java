@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.theme;
 
+import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.window.UiBorders;
 import javafx.application.Application;
@@ -28,6 +29,8 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
+
+import static io.xeres.common.properties.StartupProperties.Property.UI;
 
 @Component
 public class AppThemeManager
@@ -70,6 +73,12 @@ public class AppThemeManager
 
 	private AppTheme getDefaultTheme()
 	{
+		// If we start without a UI, the toolkit won't run,
+		// and we can't use getPreferences().
+		if (!StartupProperties.getBoolean(UI, true))
+		{
+			return AppTheme.PRIMER_LIGHT;
+		}
 		return switch (Platform.getPreferences().getColorScheme())
 		{
 			case ColorScheme.LIGHT -> AppTheme.PRIMER_LIGHT;

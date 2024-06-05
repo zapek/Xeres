@@ -29,6 +29,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Objects;
 
+/**
+ * This is only executed in UI mode (that is, without the --no-gui flag).
+ */
 public class JavaFxApplication extends Application
 {
 	private ConfigurableApplicationContext springContext;
@@ -45,11 +48,6 @@ public class JavaFxApplication extends Application
 		Application.launch(JavaFxApplication.class, args);
 	}
 
-	private boolean isHeadless()
-	{
-		return getParameters().getUnnamed().contains("no-gui");
-	}
-
 	@Override
 	public void init()
 	{
@@ -57,15 +55,12 @@ public class JavaFxApplication extends Application
 		{
 			springContext = new SpringApplicationBuilder()
 					.sources(springApplicationClass)
-					.headless(isHeadless()) // JavaFX defaults to true which is not what we want
+					.headless(false) // JavaFX defaults to true which is not what we want
 					.run(getParameters().getRaw().toArray(new String[0]));
 		}
 		catch (Exception e)
 		{
-			if (!isHeadless())
-			{
-				MinimalUserInterface.showError(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-			}
+			MinimalUserInterface.showError(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			throw e;
 		}
 	}

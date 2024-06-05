@@ -61,7 +61,7 @@ public enum AppTheme
 
 	public static AppTheme findByName(String name)
 	{
-		return Arrays.stream(values()).filter(appTheme -> appTheme.getName().equals(name)).findFirst().orElse(PRIMER_LIGHT);
+		return Arrays.stream(values()).filter(appTheme -> appTheme.getName().equals(name)).findFirst().orElse(null);
 	}
 
 	@Override

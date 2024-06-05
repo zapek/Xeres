@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
+import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
+
 /**
  * File transfer class.
  * <p>
@@ -191,7 +193,7 @@ class FileTransferManager implements Runnable
 
 	private void handleSeederRequest(Location location, FileProvider provider, Sha1Sum hash, long size, long offset, int chunkSize)
 	{
-		if (chunkSize > 1024 * 1024)
+		if (chunkSize > CHUNK_SIZE)
 		{
 			log.warn("Peer {} is requesting a large chunk ({}) for hash {}", location, chunkSize, hash);
 			return;

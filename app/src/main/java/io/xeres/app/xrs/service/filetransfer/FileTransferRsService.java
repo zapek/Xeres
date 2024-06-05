@@ -61,6 +61,8 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private static final Logger log = LoggerFactory.getLogger(FileTransferRsService.class);
 	private TurtleRouter turtleRouter;
 
+	final static int CHUNK_SIZE = 1024 * 1024; // 1 MB
+
 	private final FileService fileService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final FileSearchNotificationService fileSearchNotificationService;

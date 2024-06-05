@@ -27,8 +27,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+
+import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
 class FileCreator extends FileProvider
 {
@@ -46,7 +49,7 @@ class FileCreator extends FileProvider
 	public void setFileSize(long size)
 	{
 		fileSize = size;
-		chunkMap = new BitSet((int) (size / 1024 / 1024)); // a chunk represents 1 MB
+		chunkMap = new BitSet((int) (size / CHUNK_SIZE)); // a chunk represents 1 MB
 	}
 
 	@Override
@@ -82,6 +85,7 @@ class FileCreator extends FileProvider
 		// XXX: update the status of the peer
 		var buf = ByteBuffer.wrap(data);
 		var size = channel.write(buf, offset);
+		// XXX: update the available chunks
 		if (size != data.length)
 		{
 			throw new IOException("Failed to write data, requested size: " + data.length + ", actually written: " + size);
@@ -103,10 +107,24 @@ class FileCreator extends FileProvider
 		}
 	}
 
+	@Override
 	public List<Integer> getCompressedChunkMap()
 	{
-		// XXX: implement
-		return List.of();
+		var numberOfChunks = getNumberOfChunks();
+
+		var chunkList = new ArrayList<Integer>(numberOfChunks / 32);
+		int chunk = 0;
+
+		for (var chunkOffset = 0; chunkOffset < numberOfChunks; chunkOffset++)
+		{
+			chunk |= chunkMap.get(chunkOffset) ? 1 : 0;
+			if (chunkOffset % 32 == 0 || chunkOffset == numberOfChunks - 1)
+			{
+				chunkList.add(chunk);
+				chunk = 0;
+			}
+		}
+		return chunkList;
 	}
 
 	private boolean isChunkAvailable(long offset, int chunkSize)

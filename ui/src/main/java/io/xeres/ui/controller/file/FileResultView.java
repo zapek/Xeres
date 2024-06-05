@@ -21,7 +21,6 @@ package io.xeres.ui.controller.file;
 
 import io.xeres.common.file.FileType;
 import io.xeres.common.i18n.I18nUtils;
-import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -59,7 +58,7 @@ public class FileResultView extends Tab
 	private TableColumn<FileResult, FileResult> tableName;
 
 	@FXML
-	private TableColumn<FileResult, String> tableSize;
+	private TableColumn<FileResult, Long> tableSize;
 
 	@FXML
 	private TableColumn<FileResult, String> tableType;
@@ -95,7 +94,8 @@ public class FileResultView extends Tab
 
 		tableName.setCellFactory(param -> new FileResultNameCell(this::getGraphicForType));
 		tableName.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-		tableSize.setCellValueFactory(param -> new SimpleStringProperty(ByteUnitUtils.fromBytes(param.getValue().size())));
+		tableSize.setCellFactory(param -> new FileResultSizeCell());
+		tableSize.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().size()));
 		tableType.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().type().toString()));
 		tableHash.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().hash()));
 	}

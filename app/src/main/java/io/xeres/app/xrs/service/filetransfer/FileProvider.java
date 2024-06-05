@@ -29,6 +29,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
+import java.util.List;
+
+import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
 class FileProvider
 {
@@ -77,6 +81,28 @@ class FileProvider
 		channel.read(buf, offset);
 		buf.flip();
 		return buf.array();
+	}
+
+	public List<Integer> getCompressedChunkMap()
+	{
+		// This is inexact because there's always more chunks than
+		// the real file size, but RS does the same.
+		return Collections.nCopies(getNumberOfChunks(), 0xffffffff);
+	}
+
+	protected int getNumberOfChunks()
+	{
+		var numberOfChunks = fileSize / CHUNK_SIZE;
+		if (fileSize % CHUNK_SIZE != 0)
+		{
+			numberOfChunks++;
+		}
+		if (numberOfChunks > Integer.MAX_VALUE) // RS has a higher value because of unsigned ints. 4 TB instead of 2 TB
+		{
+			log.error("Maximum chunk value exceeded. File size: {}. File won't be transferred properly", fileSize);
+			return 0;
+		}
+		return (int) numberOfChunks;
 	}
 
 	public void close()

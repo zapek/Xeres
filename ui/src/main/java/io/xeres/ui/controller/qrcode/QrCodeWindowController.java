@@ -140,6 +140,8 @@ public class QrCodeWindowController implements WindowController
 			var scale = new Scale(sizeX / view.getPrefWidth(), sizeY / view.getPrefHeight());
 			view.getTransforms().add(scale);
 
+			// See https://bugs.openjdk.org/browse/JDK-8089053 about the "unexpected PG access" print out.
+			// There's nothing that can be done about it and it's harmless.
 			if (printerJob.printPage(view))
 			{
 				printerJob.endJob();

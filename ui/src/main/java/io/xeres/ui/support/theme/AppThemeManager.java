@@ -22,9 +22,12 @@ package io.xeres.ui.support.theme;
 import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.window.UiBorders;
 import javafx.application.Application;
+import javafx.application.ColorScheme;
+import javafx.application.Platform;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 
 @Component
 public class AppThemeManager
@@ -32,13 +35,14 @@ public class AppThemeManager
 	public static final String NODE_APPLICATION = "Application";
 	public static final String KEY_THEME = "Theme";
 
-	private static final AppTheme DEFAULT_THEME = AppTheme.PRIMER_LIGHT;
+	private final AppTheme defaultTheme;
 
 	private final PreferenceService preferenceService;
 
 	public AppThemeManager(PreferenceService preferenceService)
 	{
 		this.preferenceService = preferenceService;
+		defaultTheme = getDefaultTheme();
 	}
 
 	public AppTheme getCurrentTheme()
@@ -46,10 +50,10 @@ public class AppThemeManager
 		var rootPreferences = preferenceService.getPreferences();
 		if (rootPreferences == null)
 		{
-			return DEFAULT_THEME;
+			return defaultTheme;
 		}
 		var preferences = rootPreferences.node(NODE_APPLICATION);
-		return AppTheme.findByName(preferences.get(KEY_THEME, String.valueOf(DEFAULT_THEME)));
+		return Optional.ofNullable(AppTheme.findByName(preferences.get(KEY_THEME, String.valueOf(defaultTheme)))).orElse(defaultTheme);
 	}
 
 	public void applyCurrentTheme()
@@ -62,6 +66,15 @@ public class AppThemeManager
 		applyTheme(appTheme);
 		UiBorders.setDarkModeAll(appTheme.isDark());
 		saveCurrentTheme(appTheme);
+	}
+
+	private AppTheme getDefaultTheme()
+	{
+		return switch (Platform.getPreferences().getColorScheme())
+		{
+			case ColorScheme.LIGHT -> AppTheme.PRIMER_LIGHT;
+			case ColorScheme.DARK -> AppTheme.PRIMER_DARK;
+		};
 	}
 
 	private void applyTheme(AppTheme appTheme)

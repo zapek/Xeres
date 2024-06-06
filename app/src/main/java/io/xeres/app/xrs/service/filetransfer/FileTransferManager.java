@@ -161,7 +161,6 @@ class FileTransferManager implements Runnable
 			log.error("No matching leecher for hash {}", item.getHash());
 			return;
 		}
-		// XXX: get chunk map from provider (need to convert to compressed chunk map), then send
 		var compressedChunkMap = fileCreator.getCompressedChunkMap();
 		fileTransferRsService.sendChunkMap(location, item.getHash(), false, compressedChunkMap);
 	}
@@ -182,8 +181,8 @@ class FileTransferManager implements Runnable
 			return;
 		}
 
-		// XXX: build a plain map (full file, as we have it)
-		//fileTransferRsService.sendChunkMap(location, item.getHash(), true, compressedChunkMap);
+		var compressedChunkMap = fileProvider.getCompressedChunkMap();
+		fileTransferRsService.sendChunkMap(location, item.getHash(), true, compressedChunkMap);
 	}
 
 	private void handleReceiveChunkCrcRequest(Location location, FileTransferSingleChunkCrcRequestItem item)

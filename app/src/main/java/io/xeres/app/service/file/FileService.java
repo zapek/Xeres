@@ -33,6 +33,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileVisitResult;
@@ -53,7 +54,11 @@ public class FileService
 {
 	private static final Logger log = LoggerFactory.getLogger(FileService.class);
 
+	public static final String DOWNLOAD_EXTENSION = ".xrsdownload";
+
 	private static final TemporalAmount SCAN_DELAY = Duration.ofMinutes(10); // Delay between shares scan
+
+	static final int SMALL_FILE_SIZE = 1024 * 16; // 16 KB
 
 	private final FileNotificationService fileNotificationService;
 
@@ -73,6 +78,7 @@ public class FileService
 			".tmp",
 			".temp",
 			".cache",
+			DOWNLOAD_EXTENSION,
 			"~"
 	};
 
@@ -195,6 +201,7 @@ public class FileService
 	{
 		try
 		{
+			var ioBuffer = new byte[SMALL_FILE_SIZE];
 			fileNotificationService.startScanning(share);
 			File directory = share.getFile();
 			var directoryPath = getFilePath(directory);
@@ -256,7 +263,7 @@ public class FileService
 					if (currentFile.getModified() == null || lastModified.isAfter(currentFile.getModified()))
 					{
 						log.debug("Current file in database, modified: {}", currentFile.getModified());
-						var hash = calculateFileHash(file);
+						var hash = calculateFileHash(file, ioBuffer);
 						currentFile.setHash(hash);
 						currentFile.setModified(lastModified);
 						fileRepository.save(currentFile);
@@ -350,9 +357,36 @@ public class FileService
 		return dirName.startsWith(".");
 	}
 
-	Sha1Sum calculateFileHash(Path path)
+	Sha1Sum calculateFileHash(Path path, byte[] ioBuffer)
 	{
 		log.debug("Calculating file hash of file {}", path);
+		try
+		{
+			var size = Files.size(path);
+
+			if (size == 0)
+			{
+				log.debug("File is empty, ignoring");
+				return null; // We ignore empty files
+			}
+			else if (size > SMALL_FILE_SIZE)
+			{
+				return calculateLargeFileHash(path);
+			}
+			else
+			{
+				return calculateSmallFileHash(path, ioBuffer);
+			}
+		}
+		catch (IOException e)
+		{
+			log.warn("Error while trying to compute hash of file {}", path, e);
+			return null;
+		}
+	}
+
+	private Sha1Sum calculateLargeFileHash(Path path) throws IOException
+	{
 		try (var fc = FileChannel.open(path, StandardOpenOption.READ)) // ExtendedOpenOption.DIRECT is useless for memory mapped files
 		{
 			fileNotificationService.startScanningFile(path);
@@ -360,11 +394,6 @@ public class FileService
 
 			var size = fc.size();
 			var offset = 0L;
-			if (size == 0)
-			{
-				log.debug("File is empty, ignoring");
-				return null; // We ignore empty files
-			}
 
 			while (size > 0)
 			{
@@ -375,13 +404,27 @@ public class FileService
 				offset += bufferSize;
 				size -= bufferSize;
 			}
-			log.debug("Calculated hash: {}", md.getSum());
 			return md.getSum();
 		}
-		catch (IOException e)
+		finally
 		{
-			log.warn("Error while trying to compute hash of file {}", path, e);
-			return null;
+			fileNotificationService.stopScanningFile();
+		}
+	}
+
+	private Sha1Sum calculateSmallFileHash(Path path, byte[] ioBuffer) throws IOException
+	{
+		try (var ios = new FileInputStream(path.toFile()))
+		{
+			fileNotificationService.startScanningFile(path);
+			var md = new Sha1MessageDigest();
+			int read;
+
+			while ((read = ios.read(ioBuffer)) > 0)
+			{
+				md.update(ioBuffer, 0, read);
+			}
+			return md.getSum();
 		}
 		finally
 		{

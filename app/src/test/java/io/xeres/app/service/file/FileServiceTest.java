@@ -70,9 +70,17 @@ class FileServiceTest
 	@Test
 	void FileService_HashFile_OK() throws URISyntaxException
 	{
-		var hash = fileService.calculateFileHash(Path.of(Objects.requireNonNull(getClass().getResource("/image/leguman.jpg")).toURI()));
+		var ioBuffer = new byte[FileService.SMALL_FILE_SIZE];
+
+		// mmap (> 16 KB file)
+		var hash = fileService.calculateFileHash(Path.of(Objects.requireNonNull(getClass().getResource("/image/leguman.jpg")).toURI()), ioBuffer);
 		assertNotNull(hash);
 		assertEquals("0f02355b1b1e9a22801dddd85ded59fe7301698d", Id.toString(hash.getBytes()));
+
+		// non mmap (<= 16 KB file)
+		hash = fileService.calculateFileHash(Path.of(Objects.requireNonNull(getClass().getResource("/upnp/routers/RT-AC87U.xml")).toURI()), ioBuffer);
+		assertNotNull(hash);
+		assertEquals("a045c2c987b55e6c29082ded01a9abf33ad4cf9d", Id.toString(hash.getBytes()));
 	}
 
 	@Test

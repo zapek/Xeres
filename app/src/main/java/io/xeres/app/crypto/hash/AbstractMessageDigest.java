@@ -46,6 +46,12 @@ public abstract class AbstractMessageDigest
 		messageDigest.update(input);
 	}
 
+	public void update(byte[] input, int offset, int length)
+	{
+		resetCompletion();
+		messageDigest.update(input, offset, length);
+	}
+
 	public void update(ByteBuffer input)
 	{
 		resetCompletion();

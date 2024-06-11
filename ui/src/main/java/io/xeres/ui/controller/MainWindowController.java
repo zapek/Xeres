@@ -282,11 +282,7 @@ public class MainWindowController implements WindowController
 			openUiCheck.setOnAction(event -> windowManager.openUiCheck(getWindow(event)));
 		}
 
-		exitApplication.setOnAction(event ->
-		{
-			windowManager.closeAllWindows();
-			Platform.exit();
-		});
+		exitApplication.setOnAction(event -> trayService.exitApplication());
 
 		setupNotifications();
 
@@ -301,6 +297,15 @@ public class MainWindowController implements WindowController
 	public void onShown()
 	{
 		chatViewController.jumpToBottom();
+	}
+
+	@Override
+	public void onHidden()
+	{
+		if (!trayService.hasSystemTray())
+		{
+			trayService.exitApplication();
+		}
 	}
 
 	private void copyOwnId()

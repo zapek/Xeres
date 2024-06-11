@@ -64,9 +64,9 @@ public class TrayService
 			return;
 		}
 
-		// Only works properly on Windows. On Linux it makes an ugly mess with weird UI and flickering and on
-		// MacOS it hangs on exit.
-		if (!SystemTray.isSupported() || SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC)
+		// Only works properly on Windows. On Linux it depends, Java 21.0.3+ checks if it's supported.
+		// On MacOS it hangs on exit.
+		if (!SystemTray.isSupported() || SystemUtils.IS_OS_MAC)
 		{
 			log.error("System tray not supported on that platform");
 			return;
@@ -83,11 +83,7 @@ public class TrayService
 		var separator = new MenuItem("-");
 
 		var exitItem = new MenuItem(bundle.getString("tray.exit"));
-		exitItem.addActionListener(e ->
-		{
-			windowManager.closeAllWindows();
-			Platform.exit();
-		});
+		exitItem.addActionListener(e -> exitApplication());
 
 		var popupMenu = new PopupMenu();
 		popupMenu.add(launchItem);
@@ -114,6 +110,15 @@ public class TrayService
 		{
 			log.error("Failed to put system tray: {}", e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Exits the application in a clean way.
+	 */
+	public void exitApplication()
+	{
+		windowManager.closeAllWindows();
+		Platform.exit();
 	}
 
 	private MouseAdapter createContextMenuMouseAdapter()

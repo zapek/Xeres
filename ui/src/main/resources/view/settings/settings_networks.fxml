@@ -52,7 +52,7 @@
                                 <Tooltip showDuration="1m" text="%settings.network.tor-proxy.tip"/>
                             </tooltip>
                         </TextField>
-                        <TextField fx:id="torSocksPort" promptText="%settings.network.port" minWidth="55.0" prefWidth="65.0">
+                        <TextField fx:id="torSocksPort" promptText="%settings.network.port" minWidth="60.0" prefWidth="65.0">
                             <tooltip>
                                 <Tooltip showDuration="1m" text="%settings.network.tor-port.tip"/>
                             </tooltip>
@@ -70,7 +70,7 @@
                                 <Tooltip showDuration="1m" text="%settings.network.i2p-proxy.tip"/>
                             </tooltip>
                         </TextField>
-                        <TextField fx:id="i2pSocksPort" promptText="%settings.network.port" minWidth="55.0" prefWidth="65.0">
+                        <TextField fx:id="i2pSocksPort" promptText="%settings.network.port" minWidth="60.0" prefWidth="65.0">
                             <tooltip>
                                 <Tooltip showDuration="1m" text="%settings.network.i2p-port.tip"/>
                             </tooltip>
@@ -109,7 +109,7 @@
                                 <Tooltip showDuration="1m" text="%settings.network.internal-ip-and-port.tip"/>
                             </tooltip>
                         </ReadOnlyTextField>
-                        <ReadOnlyTextField fx:id="internalPort" minWidth="55.0" prefWidth="65.0"/>
+                        <ReadOnlyTextField fx:id="internalPort" minWidth="60.0" prefWidth="65.0"/>
                     </InputGroup>
                 </GridPane>
             </body>
@@ -144,7 +144,7 @@
                                 <Tooltip showDuration="1m" text="%settings.network.external-ip-and-port.tip"/>
                             </tooltip>
                         </ReadOnlyTextField>
-                        <ReadOnlyTextField fx:id="externalPort" minWidth="55.0" prefWidth="65.0"/>
+                        <ReadOnlyTextField fx:id="externalPort" minWidth="60.0" prefWidth="65.0"/>
                     </InputGroup>
                 </GridPane>
             </body>

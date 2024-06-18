@@ -22,7 +22,9 @@ package io.xeres.app.service.file;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.database.model.file.File;
+import io.xeres.app.database.model.file.FileDownload;
 import io.xeres.app.database.model.share.Share;
+import io.xeres.app.database.repository.FileDownloadRepository;
 import io.xeres.app.database.repository.FileRepository;
 import io.xeres.app.database.repository.ShareRepository;
 import io.xeres.app.service.notification.file.FileNotificationService;
@@ -66,6 +68,8 @@ public class FileService
 
 	private final FileRepository fileRepository;
 
+	private final FileDownloadRepository fileDownloadRepository;
+
 	private final HashBloomFilter bloomFilter;
 
 	private static final String[] ignoredSuffixes = {
@@ -87,11 +91,12 @@ public class FileService
 			"temp."
 	};
 
-	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository, DataDirConfiguration dataDirConfiguration)
+	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository, FileDownloadRepository fileDownloadRepository, DataDirConfiguration dataDirConfiguration)
 	{
 		this.fileNotificationService = fileNotificationService;
 		this.shareRepository = shareRepository;
 		this.fileRepository = fileRepository;
+		this.fileDownloadRepository = fileDownloadRepository;
 		bloomFilter = new HashBloomFilter(dataDirConfiguration.getDataDir(), 10_000, 0.01d); // XXX: parameters will need experimenting, especially the max files (yes it can be extended, but not reduced)
 		updateBloomFilter();
 	}
@@ -174,6 +179,21 @@ public class FileService
 	public List<File> searchFiles(String name)
 	{
 		return fileRepository.findAllByNameContainingIgnoreCase(name);
+	}
+
+	public long addDownload(String name, Sha1Sum hash, long size)
+	{
+		if (fileDownloadRepository.findByHash(hash).isPresent())
+		{
+			return 0L;
+		}
+
+		var fileDownload = new FileDownload();
+		fileDownload.setName(name);
+		fileDownload.setHash(hash);
+		fileDownload.setSize(size);
+		var saved = fileDownloadRepository.save(fileDownload);
+		return saved.getId();
 	}
 
 	private void saveFullPath(File file)

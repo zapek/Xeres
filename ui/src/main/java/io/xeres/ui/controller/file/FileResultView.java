@@ -21,6 +21,7 @@ package io.xeres.ui.controller.file;
 
 import io.xeres.common.file.FileType;
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.client.FileClient;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -47,6 +48,7 @@ public class FileResultView extends Tab
 	private static final String DOWNLOAD_MENU_ID = "download";
 	public static final int FILE_ICON_SIZE = 24;
 
+	private final FileClient fileClient;
 	private final ResourceBundle bundle;
 
 	private final int searchId;
@@ -67,9 +69,10 @@ public class FileResultView extends Tab
 	private TableColumn<FileResult, String> tableHash;
 
 
-	public FileResultView(String text, int searchId)
+	public FileResultView(FileClient fileClient, String text, int searchId)
 	{
 		super(text);
+		this.fileClient = fileClient;
 		this.searchId = searchId;
 
 		bundle = I18nUtils.getBundle();
@@ -148,7 +151,9 @@ public class FileResultView extends Tab
 			if (event.getSource() instanceof FileResult file)
 			{
 				log.debug("Downloading file {}", file.name());
-				// XXX: call to download the file
+				fileClient.download(file.name(), file.hash(), file.size())
+						//.doOnSuccess(id -> ) add the file to the download view?
+						.subscribe();
 			}
 		});
 

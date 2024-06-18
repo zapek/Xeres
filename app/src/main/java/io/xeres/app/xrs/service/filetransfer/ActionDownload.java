@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-interface FileTransferCommand
+import io.xeres.common.id.Sha1Sum;
+
+record ActionDownload(String name, Sha1Sum hash, long size) implements Action
 {
 }

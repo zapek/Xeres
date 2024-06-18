@@ -20,6 +20,8 @@
 package io.xeres.app.xrs.service.filetransfer;
 
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.file.FileService;
 import io.xeres.app.xrs.service.filetransfer.item.FileTransferChunkMapRequestItem;
 import io.xeres.app.xrs.service.filetransfer.item.FileTransferDataItem;
 import io.xeres.app.xrs.service.filetransfer.item.FileTransferDataRequestItem;
@@ -29,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -45,15 +48,17 @@ class FileTransferManager implements Runnable
 	private static final Logger log = LoggerFactory.getLogger(FileTransferManager.class);
 
 	private final FileTransferRsService fileTransferRsService;
+	private final SettingsService settingsService;
 	private final Location ownLocation;
 	private final BlockingQueue<FileTransferCommand> queue;
 
 	private final Map<Sha1Sum, FileCreator> leechers = new HashMap<>();
 	private final Map<Sha1Sum, FileProvider> seeders = new HashMap<>();
 
-	public FileTransferManager(FileTransferRsService fileTransferRsService, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
+	public FileTransferManager(FileTransferRsService fileTransferRsService, SettingsService settingsService, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
 	{
 		this.fileTransferRsService = fileTransferRsService;
+		this.settingsService = settingsService;
 		this.ownLocation = ownLocation;
 		this.queue = queue;
 	}
@@ -83,28 +88,62 @@ class FileTransferManager implements Runnable
 	{
 		log.debug("Processing command {}...", command);
 
-		if (command.item() instanceof FileTransferDataRequestItem item)
+		if (command instanceof FileTransferCommandItem commandItem)
 		{
-			handleReceiveDataRequest(command.location(), item);
+			processItem(commandItem);
 		}
-		else if (command.item() instanceof FileTransferDataItem item)
+		else if (command instanceof FileTransferCommandAction commandAction)
 		{
-			handleReceiveData(command.location(), item);
+			processAction(commandAction);
 		}
-		else if (command.item() instanceof FileTransferChunkMapRequestItem item)
+
+	}
+
+	private void processItem(FileTransferCommandItem commandItem)
+	{
+		if (commandItem.item() instanceof FileTransferDataRequestItem item)
+		{
+			handleReceiveDataRequest(commandItem.location(), item);
+		}
+		else if (commandItem.item() instanceof FileTransferDataItem item)
+		{
+			handleReceiveData(commandItem.location(), item);
+		}
+		else if (commandItem.item() instanceof FileTransferChunkMapRequestItem item)
 		{
 			if (item.isLeecher())
 			{
-				handleReceiveLeecherChunkMapRequest(command.location(), item);
+				handleReceiveLeecherChunkMapRequest(commandItem.location(), item);
 			}
 			else
 			{
-				handleReceiveSeederChunkMapRequest(command.location(), item);
+				handleReceiveSeederChunkMapRequest(commandItem.location(), item);
 			}
 		}
-		else if (command.item() instanceof FileTransferSingleChunkCrcRequestItem item)
+		else if (commandItem.item() instanceof FileTransferSingleChunkCrcRequestItem item)
 		{
-			handleReceiveChunkCrcRequest(command.location(), item);
+			handleReceiveChunkCrcRequest(commandItem.location(), item);
+		}
+	}
+
+	private void processAction(FileTransferCommandAction commandAction)
+	{
+		if (commandAction.action() instanceof ActionDownload actionDownload)
+		{
+			leechers.computeIfAbsent(actionDownload.hash(), hash -> {
+				var file = Paths.get(settingsService.getIncomingDirectory(), hash + FileService.DOWNLOAD_EXTENSION).toFile(); // XXX: check if the path is OK!
+				log.debug("Downloading file {}, size: {}", file, actionDownload.size());
+				var fileCreator = new FileCreator(file, actionDownload.size());
+				if (fileCreator.open())
+				{
+					return fileCreator;
+				}
+				else
+				{
+					log.error("Couldn't create downloaded file");
+					return null;
+				}
+			});
 		}
 	}
 

@@ -19,6 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-interface FileTransferCommand
+interface Action
 {
 }

@@ -17,8 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.filetransfer;
+package io.xeres.common.rest.file;
 
-interface FileTransferCommand
+import jakarta.validation.constraints.NotNull;
+
+public record FileDownloadRequest(
+		@NotNull String name,
+		@NotNull String hash,
+		long size
+)
 {
 }

@@ -39,6 +39,9 @@ public class File
 {
 	private static final Logger log = LoggerFactory.getLogger(File.class);
 
+	private static final int NAME_SIZE_MIN = 1;
+	private static final int NAME_SIZE_MAX = 255;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -51,7 +54,7 @@ public class File
 	private List<File> children = new ArrayList<>();
 
 	@NotNull
-	@Size(min = 1, max = 255)
+	@Size(min = NAME_SIZE_MIN, max = NAME_SIZE_MAX)
 	private String name;
 
 	private long size;
@@ -161,12 +164,12 @@ public class File
 		this.children = children;
 	}
 
-	public String getName()
+	public @NotNull @Size(min = NAME_SIZE_MIN, max = NAME_SIZE_MAX) String getName()
 	{
 		return name;
 	}
 
-	public void setName(String name)
+	public void setName(@NotNull @Size(min = NAME_SIZE_MIN, max = NAME_SIZE_MAX) String name)
 	{
 		this.name = name;
 	}

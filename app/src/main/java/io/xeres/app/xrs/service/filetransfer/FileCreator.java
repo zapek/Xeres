@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.filetransfer;
 
 import io.xeres.app.database.model.location.Location;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +28,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
+import static java.nio.file.StandardOpenOption.*;
 
 class FileCreator extends FileProvider
 {
@@ -40,9 +43,10 @@ class FileCreator extends FileProvider
 
 	private BitSet chunkMap;
 
-	public FileCreator(File file)
+	public FileCreator(File file, long size)
 	{
 		super(file);
+		setFileSize(size);
 	}
 
 	@Override
@@ -57,8 +61,9 @@ class FileCreator extends FileProvider
 	{
 		try
 		{
+			createSparseFile();
 			randomAccessFile = new RandomAccessFile(file, "rw");
-			randomAccessFile.setLength(fileSize); // XXX: check if that creates a sparse file on windows (and on linux)
+			ensureSparseFile();
 			channel = randomAccessFile.getChannel();
 			lock = channel.lock(); // Exclusive lock
 			return true;
@@ -67,6 +72,40 @@ class FileCreator extends FileProvider
 		{
 			log.error("Couldn't open file {} for writing", file, e);
 			return false;
+		}
+	}
+
+	/**
+	 * This creates a sparse file on Windows. The file must not
+	 * exist and is then marked as such.
+	 * (Write once, run anywhere, my ass...).
+	 *
+	 * @throws IOException if some error happens
+	 */
+	private void createSparseFile() throws IOException
+	{
+		if (SystemUtils.IS_OS_WINDOWS && !file.exists())
+		{
+			try (var seekableByteChannel = Files.newByteChannel(file.toPath(), CREATE_NEW, WRITE, SPARSE))
+			{
+				seekableByteChannel.position(fileSize - 1);
+				seekableByteChannel.write(ByteBuffer.wrap(new byte[]{(byte) 0}));
+			}
+		}
+
+	}
+
+	/**
+	 * This ensures the file is sparse. Basically on Linux, we just have to
+	 * set the length, and it's sparse by default.
+	 *
+	 * @throws IOException if some error happens
+	 */
+	private void ensureSparseFile() throws IOException
+	{
+		if (!SystemUtils.IS_OS_WINDOWS)
+		{
+			randomAccessFile.setLength(fileSize);
 		}
 	}
 

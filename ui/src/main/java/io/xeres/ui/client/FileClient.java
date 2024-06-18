@@ -19,6 +19,7 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.rest.file.FileDownloadRequest;
 import io.xeres.common.rest.file.FileSearchRequest;
 import io.xeres.common.rest.file.FileSearchResponse;
 import io.xeres.ui.JavaFxApplication;
@@ -58,5 +59,16 @@ public class FileClient
 				.bodyValue(request)
 				.retrieve()
 				.bodyToMono(FileSearchResponse.class);
+	}
+
+	public Mono<Long> download(String name, String hash, long size)
+	{
+		var request = new FileDownloadRequest(name, hash, size);
+
+		return webClient.post()
+				.uri("/download")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Long.class);
 	}
 }

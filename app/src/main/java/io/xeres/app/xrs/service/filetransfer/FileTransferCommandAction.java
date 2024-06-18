@@ -19,6 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-interface FileTransferCommand
+record FileTransferCommandAction(Action action) implements FileTransferCommand
 {
 }

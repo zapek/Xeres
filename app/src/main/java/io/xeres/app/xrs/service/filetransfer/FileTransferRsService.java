@@ -28,6 +28,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.xrs.item.Item;
@@ -44,6 +45,7 @@ import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -61,7 +63,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private static final Logger log = LoggerFactory.getLogger(FileTransferRsService.class);
 	private TurtleRouter turtleRouter;
 
-	final static int CHUNK_SIZE = 1024 * 1024; // 1 MB
+	static final int CHUNK_SIZE = 1024 * 1024; // 1 MB
 
 	private final FileService fileService;
 	private final PeerConnectionManager peerConnectionManager;
@@ -69,6 +71,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final RsServiceRegistry rsServiceRegistry;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final LocationService locationService;
+	private final SettingsService settingsService;
 	private final RsCrypto.EncryptionFormat encryptionFormat;
 	private Thread fileTransferManagerThread;
 
@@ -78,7 +81,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private final Map<Sha1Sum, Sha1Sum> encryptedHashes = new ConcurrentHashMap<>();
 
-	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, NetworkProperties networkProperties)
+	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties)
 	{
 		super(rsServiceRegistry);
 		this.fileService = fileService;
@@ -87,6 +90,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		this.rsServiceRegistry = rsServiceRegistry;
 		this.databaseSessionManager = databaseSessionManager;
 		this.locationService = locationService;
+		this.settingsService = settingsService;
 		encryptionFormat = getEncryptionFormat(networkProperties);
 	}
 
@@ -118,7 +122,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 		fileTransferManagerThread = Thread.ofVirtual()
 				.name("File Transfer Manager")
-				.start(new FileTransferManager(this, ownLocation, fileCommandQueue));
+				.start(new FileTransferManager(this, settingsService, ownLocation, fileCommandQueue));
 	}
 
 	@Override
@@ -146,7 +150,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		{
 			// XXX: check for upload limit for this peer and drop it if exceeded!
 		}
-		fileCommandQueue.add(new FileTransferCommand(sender.getLocation(), item));
+		fileCommandQueue.add(new FileTransferCommandItem(sender.getLocation(), item));
 	}
 
 	@Override
@@ -242,6 +246,18 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			return turtleRouter.turtleSearch(search, this);
 		}
 		return 0;
+	}
+
+	@Transactional
+	public long download(String name, Sha1Sum hash, long size)
+	{
+		var id = fileService.addDownload(name, hash, size);
+		if (id != 0L)
+		{
+			var action = new ActionDownload(name, hash, size);
+			fileCommandQueue.add(new FileTransferCommandAction(action));
+		}
+		return id;
 	}
 
 	@Override

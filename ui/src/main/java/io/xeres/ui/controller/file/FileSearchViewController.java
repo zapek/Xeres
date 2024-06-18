@@ -70,7 +70,7 @@ public class FileSearchViewController implements Controller
 				search.clear();
 				fileClient.search(searchText)
 						.doOnSuccess(fileSearchResponse -> Platform.runLater(() -> {
-							var fileResultView = new FileResultView(searchText, fileSearchResponse.id());
+							var fileResultView = new FileResultView(fileClient, searchText, fileSearchResponse.id());
 							resultTabPane.getTabs().add(fileResultView);
 						}))
 						.subscribe();

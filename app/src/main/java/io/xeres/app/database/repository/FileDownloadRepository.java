@@ -17,8 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.filetransfer;
+package io.xeres.app.database.repository;
 
-interface FileTransferCommand
+import io.xeres.app.database.model.file.FileDownload;
+import io.xeres.common.id.Sha1Sum;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+@Transactional
+public interface FileDownloadRepository extends JpaRepository<FileDownload, Long>
 {
+	Optional<FileDownload> findByHash(Sha1Sum hash);
 }

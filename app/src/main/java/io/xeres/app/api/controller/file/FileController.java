@@ -24,6 +24,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.filetransfer.FileTransferRsService;
+import io.xeres.common.id.Id;
+import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.rest.file.FileDownloadRequest;
 import io.xeres.common.rest.file.FileSearchRequest;
 import io.xeres.common.rest.file.FileSearchResponse;
 import jakarta.validation.Valid;
@@ -53,5 +56,13 @@ public class FileController
 	public FileSearchResponse search(@Valid @RequestBody FileSearchRequest fileSearchRequest)
 	{
 		return new FileSearchResponse(fileTransferRsService.turtleSearch(fileSearchRequest.name()));
+	}
+
+	@PostMapping("/download")
+	@Operation(summary = "Download a file")
+	@ApiResponse(responseCode = "200", description = "Download created successfully")
+	public long download(@RequestBody FileDownloadRequest fileDownloadRequest)
+	{
+		return fileTransferRsService.download(fileDownloadRequest.name(), new Sha1Sum(Id.toBytes(fileDownloadRequest.hash())), fileDownloadRequest.size());
 	}
 }

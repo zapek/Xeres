@@ -4,7 +4,9 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -23,6 +25,12 @@ public final class OsUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * Checks if a file system is case-sensitive.
+	 *
+	 * @param path the path where to write the file to check, obviously used by the file system we want to check
+	 * @return true if case-sensitive
+	 */
 	public static boolean isFileSystemCaseSensitive(Path path)
 	{
 		Path lowerFile;
@@ -69,6 +77,38 @@ public final class OsUtils
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Executes a shell command and its arguments, for example:
+	 * <p>
+	 * <code>
+	 * shellExecute("ls", "-al");
+	 * </code>
+	 * </p>
+	 *
+	 * @param args the command and its arguments
+	 * @return the resulting output, line by line (with a {@code \n} separator at the end of each line).
+	 */
+	public static String shellExecute(String... args)
+	{
+		var sb = new StringBuilder();
+		try
+		{
+			var processBuilder = new ProcessBuilder(args);
+			var process = processBuilder.start();
+			var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				sb.append(line).append("\n");
+			}
+		}
+		catch (Exception e)
+		{
+			return "Error: " + e.getMessage();
+		}
+		return sb.toString();
 	}
 
 	private static Path createFileSystemDetectionFile(Path path, boolean upperCase) throws IOException

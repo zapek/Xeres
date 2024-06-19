@@ -75,7 +75,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final RsCrypto.EncryptionFormat encryptionFormat;
 	private Thread fileTransferManagerThread;
 
-	private final BlockingQueue<FileTransferCommand> fileCommandQueue = new LinkedBlockingQueue<>(); // XXX: array, priority, linked? (and shouldn't be objects...)
+	private final BlockingQueue<FileTransferCommand> fileCommandQueue = new LinkedBlockingQueue<>();
 
 	private Location ownLocation;
 

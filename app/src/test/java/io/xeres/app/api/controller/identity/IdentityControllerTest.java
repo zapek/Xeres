@@ -24,6 +24,7 @@ import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -46,6 +47,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(IdentityController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class IdentityControllerTest extends AbstractControllerTest
 {
 	private static final String BASE_URL = IDENTITIES_PATH;

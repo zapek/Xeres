@@ -35,6 +35,7 @@ import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -52,6 +53,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ChatController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ChatControllerTest extends AbstractControllerTest
 {
 	private static final String BASE_URL = CHAT_PATH;

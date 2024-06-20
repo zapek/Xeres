@@ -32,6 +32,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -47,6 +48,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProfileController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ProfileControllerTest extends AbstractControllerTest
 {
 	private static final String BASE_URL = PROFILES_PATH;

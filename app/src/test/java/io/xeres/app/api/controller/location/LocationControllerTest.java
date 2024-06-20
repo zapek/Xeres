@@ -27,6 +27,7 @@ import io.xeres.app.service.QrCodeService;
 import io.xeres.common.rsid.Type;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -46,6 +47,7 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LocationController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import(BufferedImageConverter.class) // @Components aren't imported by default by @WebMvcTest
 class LocationControllerTest extends AbstractControllerTest
 {

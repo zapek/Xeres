@@ -26,6 +26,7 @@ import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -37,6 +38,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(NotificationController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class NotificationControllerTest extends AbstractControllerTest
 {
 	private static final String BASE_URL = NOTIFICATIONS_PATH;

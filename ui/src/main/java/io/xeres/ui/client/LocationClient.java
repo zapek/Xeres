@@ -20,12 +20,13 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.location.LocationDTO;
+import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.location.LocationMapper;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -44,8 +45,8 @@ public class LocationClient
 		this.webClientBuilder = webClientBuilder;
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + LOCATIONS_PATH)

@@ -25,18 +25,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import io.micrometer.common.util.StringUtils;
+import io.xeres.app.XeresApplication;
 import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.settings.SettingsMapper;
 import io.xeres.app.database.repository.SettingsRepository;
 import io.xeres.common.dto.settings.SettingsDTO;
+import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.HostPort;
+import io.xeres.ui.client.message.MessageClient;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -70,19 +74,58 @@ public class SettingsService
 
 	private final ObjectMapper objectMapper;
 
+	private final WebClient.Builder webClientBuilder;
+
+	private final MessageClient messageClient;
+
 	private Settings settings;
 
-	public SettingsService(SettingsRepository settingsRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper)
+	public SettingsService(SettingsRepository settingsRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper, WebClient.Builder webClientBuilder, MessageClient messageClient)
 	{
 		this.settingsRepository = settingsRepository;
 		this.publisher = publisher;
 		this.objectMapper = objectMapper;
+		this.webClientBuilder = webClientBuilder;
+		this.messageClient = messageClient;
 	}
 
 	@PostConstruct
 	void init()
 	{
 		settings = settingsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));
+
+		setPasswordInClients();
+	}
+
+	private void setPasswordInClients()
+	{
+		var remotePassword = getPasswordForClients();
+		if (remotePassword != null)
+		{
+			webClientBuilder.defaultHeaders(httpHeaders -> httpHeaders.setBasicAuth("user", remotePassword));
+			messageClient.setPassword(remotePassword);
+		}
+	}
+
+	private String getPasswordForClients()
+	{
+		if (!StartupProperties.getBoolean(StartupProperties.Property.CONTROL_PASSWORD, true))
+		{
+			return null;
+		}
+
+		String remotePassword = null;
+
+		if (XeresApplication.isRemoteUiClient())
+		{
+			remotePassword = StartupProperties.getString(StartupProperties.Property.REMOTE_PASSWORD);
+		}
+
+		if (remotePassword == null && hasRemotePassword())
+		{
+			remotePassword = getRemotePassword();
+		}
+		return remotePassword;
 	}
 
 	/**
@@ -257,9 +300,11 @@ public class SettingsService
 		return settings.getLocalPort();
 	}
 
+	@Transactional
 	public void setLocalPort(int port)
 	{
 		settings.setLocalPort(port);
+		settingsRepository.save(settings);
 	}
 
 	public boolean isAutoStartEnabled()
@@ -277,9 +322,39 @@ public class SettingsService
 		return settings.getIncomingDirectory();
 	}
 
+	@Transactional
 	public void setIncomingDirectory(String directory)
 	{
 		settings.setIncomingDirectory(directory);
+		settingsRepository.save(settings);
+	}
+
+	public boolean hasRemotePassword()
+	{
+		return StringUtils.isNotEmpty(settings.getRemotePassword());
+	}
+
+	public String getRemotePassword()
+	{
+		return settings.getRemotePassword();
+	}
+
+	@Transactional
+	public void setRemotePassword(String password)
+	{
+		settings.setRemotePassword(password);
+		settingsRepository.save(settings);
+	}
+
+	public int getVersion()
+	{
+		return settings.getVersion();
+	}
+
+	@Transactional
+	public void setVersion(int version)
+	{
+		settings.setVersion(version);
 		settingsRepository.save(settings);
 	}
 }

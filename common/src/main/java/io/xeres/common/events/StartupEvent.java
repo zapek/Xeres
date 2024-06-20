@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,9 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * This package contains Spring application events.
- * <b>Beware:</b> those events are <b>asynchronous</b> which means they'll run in a new thread. If you
- * need a synchronous event, make sure your event implements SynchronousEvent.
- */
-package io.xeres.app.application.events;
+package io.xeres.common.events;
+
+public record StartupEvent() implements SynchronousEvent
+{
+}

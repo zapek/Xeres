@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,9 +17,23 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package io.xeres.ui.configuration;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
+
 /**
- * This package contains Spring application events.
- * <b>Beware:</b> those events are <b>asynchronous</b> which means they'll run in a new thread. If you
- * need a synchronous event, make sure your event implements SynchronousEvent.
+ * This configuration overrides the default one of Spring Boot by making sure we only use
+ * a global webclient. Spring Boot has one that is customized then cloned so that it can only
+ * be modified globally once and from a configuration.
  */
-package io.xeres.app.application.events;
+@Configuration
+public class WebClientConfiguration
+{
+	@Bean
+	public WebClient.Builder webClientBuilder()
+	{
+		return WebClient.builder();
+	}
+}

@@ -71,7 +71,8 @@ public class SettingsWindowController implements WindowController
 		listView.getItems().addAll(
 				new SettingsGroup(bundle.getString("settings.general"), createPreferenceGraphic("fas-cog"), SettingsGeneralController.class),
 				new SettingsGroup(bundle.getString("settings.network"), createPreferenceGraphic("fas-network-wired"), SettingsNetworksController.class),
-				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("fas-exchange-alt"), SettingsTransferController.class)
+				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("fas-exchange-alt"), SettingsTransferController.class),
+				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("fas-globe"), SettingsRemoteController.class)
 		);
 
 		listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {

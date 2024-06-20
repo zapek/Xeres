@@ -43,9 +43,12 @@ public final class CommandArgument
 	private static final String NO_GUI = "no-gui";
 	private static final String DATA_DIR = "data-dir";
 	private static final String CONTROL_PORT = "control-port";
+	private static final String CONTROL_ADDRESS = "control-address";
+	private static final String NO_CONTROL_PASSWORD = "no-control-password";
 	private static final String SERVER_ADDRESS = "server-address";
 	private static final String SERVER_PORT = "server-port";
 	private static final String FAST_SHUTDOWN = "fast-shutdown";
+	private static final String REMOTE_PASSWORD = "remote-password";
 	public static final String SERVER_ONLY = "server-only";
 	public static final String REMOTE_CONNECT = "remote-connect";
 	public static final String ICONIFIED = "iconified";
@@ -79,6 +82,8 @@ public final class CommandArgument
 					setPort(StartupProperties.Property.CONTROL_PORT, appArgs, arg);
 					setPort(StartupProperties.Property.UI_PORT, appArgs, arg);
 				}
+				case CONTROL_ADDRESS -> setString(StartupProperties.Property.CONTROL_ADDRESS, appArgs, arg);
+				case NO_CONTROL_PASSWORD -> setBooleanInverted(StartupProperties.Property.CONTROL_PASSWORD, appArgs, arg);
 				case SERVER_ADDRESS -> setString(StartupProperties.Property.SERVER_ADDRESS, appArgs, arg);
 				case SERVER_PORT -> setPort(StartupProperties.Property.SERVER_PORT, appArgs, arg);
 				case REMOTE_CONNECT -> {
@@ -87,6 +92,7 @@ public final class CommandArgument
 							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:1066'"));
 					StartupProperties.setUiRemoteConnect(ipAndPort);
 				}
+				case REMOTE_PASSWORD -> setString(StartupProperties.Property.REMOTE_PASSWORD, appArgs, arg);
 				case NO_GUI -> setBooleanInverted(StartupProperties.Property.UI, appArgs, arg);
 				case FAST_SHUTDOWN -> setBoolean(StartupProperties.Property.FAST_SHUTDOWN, appArgs, arg);
 				case SERVER_ONLY -> setBoolean(StartupProperties.Property.SERVER_ONLY, appArgs, arg);
@@ -160,12 +166,15 @@ public final class CommandArgument
 				   --no-gui                            start without an UI
 				   --iconified                         start iconified into the tray
 				   --data-dir=<path>                   specify the data directory
+				   --control-address=<host>            specify the address to bind to for incoming remote access (defaults to localhost only)
 				   --control-port=<port>               specify the control port for remote access
-				   --server-address=<host>             specify a local address to bind to (if not specified, binds to all interfaces)
+				   --no-control-password               do not protect the control address with a password
+				   --server-address=<host>             specify a local address to bind to (defaults to all interfaces)
 				   --server-port=<port>                specify the local port to bind to for incoming peer connections
 				   --fast-shutdown                     ignore proper shutdown procedure (not recommended)
 				   --server-only                       only accept incoming connections, do not make outgoing ones
 				   --remote-connect=<host>[:<port>]    act as an UI client only and connect to a remote server
+				   --remote-password=<password>        password to use when connecting remotely
 				   --version                           print the version of the software
 				   --help                              print this help message
 				See https://xeres.io/docs/ for more details.

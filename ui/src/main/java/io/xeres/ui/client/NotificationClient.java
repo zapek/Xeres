@@ -19,12 +19,13 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
 import io.xeres.common.rest.notification.forum.ForumNotification;
 import io.xeres.common.rest.notification.status.StatusNotification;
 import io.xeres.ui.JavaFxApplication;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Component;
@@ -45,8 +46,8 @@ public class NotificationClient
 		this.webClientBuilder = webClientBuilder;
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + NOTIFICATIONS_PATH)

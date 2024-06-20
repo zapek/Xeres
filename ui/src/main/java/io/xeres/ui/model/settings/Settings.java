@@ -39,6 +39,8 @@ public class Settings implements Cloneable
 
 	private String incomingDirectory;
 
+	private String remotePassword;
+
 	public String getTorSocksHost()
 	{
 		return torSocksHost;
@@ -132,6 +134,16 @@ public class Settings implements Cloneable
 	public void setIncomingDirectory(String incomingDirectory)
 	{
 		this.incomingDirectory = incomingDirectory;
+	}
+
+	public String getRemotePassword()
+	{
+		return remotePassword;
+	}
+
+	public void setRemotePassword(String remotePassword)
+	{
+		this.remotePassword = remotePassword;
 	}
 
 	@Override

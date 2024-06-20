@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
+import io.xeres.common.events.StartupEvent;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
@@ -28,7 +29,7 @@ import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.chat.ChatMapper;
 import io.xeres.ui.model.location.Location;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -50,8 +51,8 @@ public class ChatClient
 		this.webClientBuilder = webClientBuilder;
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + CHAT_PATH)

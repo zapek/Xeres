@@ -20,6 +20,10 @@
 package io.xeres.common.util;
 
 import java.security.SecureRandom;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A utility class to get secure random numbers. Prefer this instead of using new SecureRandom() directly
@@ -57,5 +61,54 @@ public final class SecureRandomUtils
 	public static void nextBytes(byte[] bytes)
 	{
 		SECURE_RANDOM.nextBytes(bytes);
+	}
+
+	private static Stream<Character> getUpperCaseChars(int count)
+	{
+		var upperChars = SECURE_RANDOM.ints(count, 65, 91);
+		return upperChars.mapToObj(data -> (char) data);
+	}
+
+	private static Stream<Character> getLowerCaseChars(int count)
+	{
+		var lowerChars = SECURE_RANDOM.ints(count, 97, 123);
+		return lowerChars.mapToObj(data -> (char) data);
+	}
+
+	private static Stream<Character> getNumbers(int count)
+	{
+		var lowerChars = SECURE_RANDOM.ints(count, 48, 58);
+		return lowerChars.mapToObj(data -> (char) data);
+	}
+
+	public static void nextPassword(char[] password)
+	{
+		Objects.requireNonNull(password);
+		var size = password.length;
+		if (size == 0)
+		{
+			throw new IllegalArgumentException("Password length must be at least 1");
+		}
+		if (size > 512)
+		{
+			throw new IllegalArgumentException("Password length must be less than or equal to 512");
+		}
+
+		var upperSize = size / 3;
+		var lowerSize = size / 3;
+		size -= lowerSize + upperSize;
+		var numberSize = size;
+
+		var passwordList = Stream.concat(getUpperCaseChars(upperSize),
+						Stream.concat(getLowerCaseChars(lowerSize),
+								getNumbers(numberSize)))
+				.collect(Collectors.toList());
+
+		Collections.shuffle(passwordList);
+
+		for (int i = 0; i < passwordList.size(); i++)
+		{
+			password[i] = passwordList.get(i);
+		}
 	}
 }

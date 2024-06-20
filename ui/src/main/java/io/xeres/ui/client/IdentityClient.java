@@ -20,10 +20,11 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.identity.IdentityDTO;
+import io.xeres.common.events.StartupEvent;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.identity.Identity;
 import io.xeres.ui.model.identity.IdentityMapper;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -48,8 +49,8 @@ public class IdentityClient
 		this.webClientBuilder = webClientBuilder;
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + IDENTITIES_PATH)

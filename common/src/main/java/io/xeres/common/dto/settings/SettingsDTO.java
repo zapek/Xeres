@@ -28,7 +28,8 @@ public record SettingsDTO(
 		boolean broadcastDiscoveryEnabled,
 		boolean dhtEnabled,
 		boolean autoStartEnabled,
-		String incomingDirectory
+		String incomingDirectory,
+		String remotePassword
 )
 {
 }

@@ -40,6 +40,7 @@ public final class SettingsDTOFakes
 				BooleanFakes.create(),
 				BooleanFakes.create(),
 				BooleanFakes.create(),
-				"/foo/bar");
+				"/foo/bar",
+				"foobar1234");
 	}
 }

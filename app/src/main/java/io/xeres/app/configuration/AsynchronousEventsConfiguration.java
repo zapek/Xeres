@@ -19,15 +19,24 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.common.events.SynchronousEvent;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * This configuration makes the events asynchronous, that is, the method
- * publishing them will return immediately instead of blocking.
+ * publishing them will return immediately instead of blocking. If you want synchronous events,
+ * just make them implement SynchronousEvent.
  */
 @Configuration
 public class AsynchronousEventsConfiguration
@@ -35,8 +44,48 @@ public class AsynchronousEventsConfiguration
 	@Bean(name = "applicationEventMulticaster")
 	public ApplicationEventMulticaster simpleApplicationEventMulticaster()
 	{
-		var eventMulticaster = new SimpleApplicationEventMulticaster();
+		var eventMulticaster = new SimpleApplicationEventMulticaster()
+		{
+			@Override
+			public void multicastEvent(ApplicationEvent event, ResolvableType eventType)
+			{
+				var type = eventType != null ? eventType : ResolvableType.forInstance(event);
+				Executor executor = getTaskExecutor();
+
+				for (ApplicationListener<?> listener : getApplicationListeners(event, type))
+				{
+					if (executor != null && listener.supportsAsyncExecution() && !isSynchronousEvent(event))
+					{
+						try
+						{
+							executor.execute(() -> invokeListener(listener, event));
+						}
+						catch (RejectedExecutionException e)
+						{
+							invokeListener(listener, event);
+						}
+					}
+					else
+					{
+						invokeListener(listener, event);
+					}
+				}
+			}
+		};
 		eventMulticaster.setTaskExecutor(new SimpleAsyncTaskExecutor());
 		return eventMulticaster;
+	}
+
+	private boolean isSynchronousEvent(ApplicationEvent event)
+	{
+		if (event instanceof SynchronousEvent)
+		{
+			return true;
+		}
+		if (event instanceof PayloadApplicationEvent && ((PayloadApplicationEvent<?>) event).getPayload() instanceof SynchronousEvent)
+		{
+			return true;
+		}
+		return false;
 	}
 }

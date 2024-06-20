@@ -19,9 +19,10 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.config.*;
 import io.xeres.ui.JavaFxApplication;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
@@ -49,8 +50,8 @@ public class ConfigClient
 		this.webClientBuilder = webClientBuilder;
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + CONFIG_PATH)

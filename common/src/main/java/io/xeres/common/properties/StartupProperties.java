@@ -28,6 +28,8 @@ public final class StartupProperties
 	{
 		SERVER_ONLY("xrs.network.server-only", Boolean.class),
 		CONTROL_PORT("server.port", Integer.class),
+		CONTROL_ADDRESS("server.address", String.class),
+		CONTROL_PASSWORD("xrs.server.password", Boolean.class),
 		SERVER_ADDRESS("xrs.network.server-address", String.class),
 		SERVER_PORT("xrs.network.server-port", Integer.class),
 		DATA_DIR("xrs.data.dir-path", String.class),
@@ -35,7 +37,8 @@ public final class StartupProperties
 		UI_ADDRESS("xrs.ui.address", String.class),
 		UI_PORT("xrs.ui.port", Integer.class),
 		ICONIFIED("xrs.ui.iconified", Boolean.class),
-		FAST_SHUTDOWN("xrs.network.fast-shutdown", Boolean.class);
+		FAST_SHUTDOWN("xrs.network.fast-shutdown", Boolean.class),
+		REMOTE_PASSWORD("xrs.ui.remote-password", String.class);
 
 		Property(String propertyName, Class<?> javaClass)
 		{

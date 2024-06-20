@@ -21,6 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.common.events.StartupEvent;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.CreateForumGroupRequest;
@@ -28,7 +29,7 @@ import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.forum.ForumMapper;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -50,8 +51,8 @@ public class ForumClient
 		this.webClientBuilder = webClientBuilder;
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + FORUMS_PATH)

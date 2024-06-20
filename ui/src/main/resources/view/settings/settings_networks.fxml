@@ -35,7 +35,7 @@
                 <GridPane hgap="8" vgap="8">
                     <columnConstraints>
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308"/>
+                        <ColumnConstraints hgrow="SOMETIMES"/>
                     </columnConstraints>
                     <rowConstraints>
                         <RowConstraints vgrow="ALWAYS"/>

@@ -20,11 +20,12 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.share.ShareDTO;
+import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.share.UpdateShareRequest;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.share.Share;
 import io.xeres.ui.model.share.ShareMapper;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -47,8 +48,8 @@ public class ShareClient
 		this.webClientBuilder = webClientBuilder;
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + SHARES_PATH)

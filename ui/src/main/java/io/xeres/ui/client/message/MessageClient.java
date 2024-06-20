@@ -33,6 +33,7 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -59,6 +60,7 @@ public class MessageClient
 	private CompletableFuture<StompSession> future;
 
 	private StompSession stompSession;
+	private String password;
 
 	private final List<PendingSubscription> pendingSubscriptions = new ArrayList<>();
 	private final List<StompSession.Subscription> subscriptions = new ArrayList<>();
@@ -83,9 +85,20 @@ public class MessageClient
 		});
 
 		log.debug("Connecting to {}", url);
-		future = stompClient.connectAsync(url, sessionHandler);
+		var httpHeaders = new WebSocketHttpHeaders();
+		if (password != null)
+		{
+			httpHeaders.setBasicAuth("user", password);
+		}
+		var connectHeaders = new StompHeaders();
+		future = stompClient.connectAsync(url, httpHeaders, connectHeaders, sessionHandler);
 
 		return this;
+	}
+
+	public void setPassword(String password)
+	{
+		this.password = password;
 	}
 
 	public MessageClient subscribe(String path, StompFrameHandler frameHandler)

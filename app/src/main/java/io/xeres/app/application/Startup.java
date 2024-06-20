@@ -42,14 +42,17 @@ import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
+import io.xeres.common.events.StartupEvent;
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.util.SecureRandomUtils;
 import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -60,6 +63,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Component
@@ -84,8 +88,9 @@ public class Startup implements ApplicationRunner
 	private final FileService fileService;
 	private final ShellService shellService;
 	private final FileNotificationService fileNotificationService;
+	private final ApplicationEventPublisher publisher;
 
-	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry, FileService fileService, ShellService shellService, FileNotificationService fileNotificationService)
+	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry, FileService fileService, ShellService shellService, FileNotificationService fileNotificationService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -104,6 +109,7 @@ public class Startup implements ApplicationRunner
 		this.fileService = fileService;
 		this.shellService = shellService;
 		this.fileNotificationService = fileNotificationService;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -119,6 +125,8 @@ public class Startup implements ApplicationRunner
 		{
 			showDebug();
 		}
+
+		publisher.publishEvent(new StartupEvent());    // This is synchronous and allows WebClients to configure themselves.
 
 		if (XeresApplication.isRemoteUiClient())
 		{
@@ -287,7 +295,15 @@ public class Startup implements ApplicationRunner
 	 */
 	private void configureDefaults()
 	{
-		if (!settingsService.hasIncomingDirectory() && dataDirConfiguration.getDataDir() != null) // Don't do it for tests
+		var version = 1; // Increment this number when needing to add new defaults
+
+		// Don't do this stuff when running tests
+		if (dataDirConfiguration.getDataDir() == null)
+		{
+			return;
+		}
+
+		if (!settingsService.hasIncomingDirectory())
 		{
 			var incomingDirectory = Path.of(dataDirConfiguration.getDataDir(), "Incoming");
 			if (Files.notExists(incomingDirectory))
@@ -304,5 +320,17 @@ public class Startup implements ApplicationRunner
 			settingsService.setIncomingDirectory(incomingDirectory.toString());
 			fileService.addShare(Share.createShare("Incoming", File.createFile(incomingDirectory), false, Trust.UNKNOWN));
 		}
+
+		if (settingsService.getVersion() < 1)
+		{
+			var password = new char[20];
+			SecureRandomUtils.nextPassword(password);
+			settingsService.setRemotePassword(String.valueOf(password));
+			Arrays.fill(password, (char) 0);
+		}
+
+		// [Add new defaults here]
+
+		settingsService.setVersion(version);
 	}
 }

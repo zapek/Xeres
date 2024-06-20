@@ -20,10 +20,11 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.profile.ProfileDTO;
+import io.xeres.common.events.StartupEvent;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.model.profile.ProfileMapper;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -42,8 +43,8 @@ public class ConnectionClient
 		this.webClientBuilder = webClientBuilder;
 	}
 
-	@PostConstruct
-	private void init()
+	@EventListener
+	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + CONNECTIONS_PATH)

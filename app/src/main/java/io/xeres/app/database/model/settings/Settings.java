@@ -33,6 +33,8 @@ public class Settings
 	@Id
 	private final byte lock = 1;
 
+	private int version;
+
 	// The following 4 should not be exposed by JSON. The mapper must ignore them.
 	private byte[] pgpPrivateKeyData;
 
@@ -58,8 +60,20 @@ public class Settings
 
 	private String incomingDirectory;
 
+	private String remotePassword;
+
 	protected Settings()
 	{
+	}
+
+	public int getVersion()
+	{
+		return version;
+	}
+
+	public void setVersion(int version)
+	{
+		this.version = version;
 	}
 
 	@XmlAttribute
@@ -210,5 +224,15 @@ public class Settings
 	public void setIncomingDirectory(String incomingDirectory)
 	{
 		this.incomingDirectory = incomingDirectory;
+	}
+
+	public String getRemotePassword()
+	{
+		return remotePassword;
+	}
+
+	public void setRemotePassword(String remotePassword)
+	{
+		this.remotePassword = remotePassword;
 	}
 }

@@ -82,7 +82,7 @@ public class AppThemeManager
 		return switch (Platform.getPreferences().getColorScheme())
 		{
 			case ColorScheme.LIGHT -> AppTheme.PRIMER_LIGHT;
-			case ColorScheme.DARK -> AppTheme.PRIMER_DARK;
+			case ColorScheme.DARK -> AppTheme.DRACULA;
 		};
 	}
 

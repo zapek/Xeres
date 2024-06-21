@@ -49,6 +49,11 @@ public class ChatRoomInviteOldItem extends Item
 	@RsSerialized
 	private Set<RoomFlags> roomFlags;
 
+	@SuppressWarnings("unused")
+	public ChatRoomInviteOldItem()
+	{
+	}
+
 	@Override
 	public int getServiceType()
 	{
@@ -65,18 +70,6 @@ public class ChatRoomInviteOldItem extends Item
 	public int getPriority()
 	{
 		return ItemPriority.INTERACTIVE.getPriority();
-	}
-
-	@SuppressWarnings("unused")
-	public ChatRoomInviteOldItem()
-	{
-	}
-
-	public ChatRoomInviteOldItem(long roomId, String roomName, Set<RoomFlags> roomFlags)
-	{
-		this.roomId = roomId;
-		this.roomName = roomName;
-		this.roomFlags = roomFlags;
 	}
 
 	public long getRoomId()

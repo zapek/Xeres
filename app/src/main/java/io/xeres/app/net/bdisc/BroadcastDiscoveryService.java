@@ -24,7 +24,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
-import io.xeres.ui.support.tray.TrayService;
+import io.xeres.app.service.UiBridgeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -69,7 +69,7 @@ public class BroadcastDiscoveryService implements Runnable
 
 	private final DatabaseSessionManager databaseSessionManager;
 	private final LocationService locationService;
-	private final TrayService trayService;
+	private final UiBridgeService uiBridgeService;
 
 	private InetSocketAddress localAddress;
 	private InetSocketAddress sendAddress;
@@ -84,11 +84,11 @@ public class BroadcastDiscoveryService implements Runnable
 	private final int counter = 1;
 	private final Map<Integer, UdpDiscoveryPeer> peers = new HashMap<>();
 
-	public BroadcastDiscoveryService(DatabaseSessionManager databaseSessionManager, LocationService locationService, TrayService trayService)
+	public BroadcastDiscoveryService(DatabaseSessionManager databaseSessionManager, LocationService locationService, UiBridgeService uiBridgeService)
 	{
 		this.databaseSessionManager = databaseSessionManager;
 		this.locationService = locationService;
-		this.trayService = trayService;
+		this.uiBridgeService = uiBridgeService;
 	}
 
 	public void start(String localIpAddress, int localPort)
@@ -341,7 +341,7 @@ public class BroadcastDiscoveryService implements Runnable
 									log.debug("Updating friend {} with ip {}", location, lanConnection);
 									location.addConnection(lanConnection);
 								}
-							}, () -> trayService.showNotification("Detected client on LAN: " + peer.getProfileName() + " at " + peer.getIpAddress()));
+							}, () -> uiBridgeService.showNotification("Detected client on LAN: " + peer.getProfileName() + " at " + peer.getIpAddress()));
 						}
 					}
 				}

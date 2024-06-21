@@ -39,9 +39,9 @@ public class FileTransferDataRequestItem extends Item
 	@RsSerialized(tlvType = FILE_ITEM)
 	private FileItem fileItem;
 
+	@SuppressWarnings("unused")
 	public FileTransferDataRequestItem()
 	{
-		// Required
 	}
 
 	public FileTransferDataRequestItem(long fileSize, Sha1Sum hash, long fileOffset, int chunkSize)

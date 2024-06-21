@@ -26,6 +26,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.util.UnHtml;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
@@ -45,7 +46,6 @@ import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
-import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -153,12 +153,12 @@ public class ChatRsService extends RsService
 	private final IdentityRsService identityRsService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final IdentityManager identityManager;
-	private final TrayService trayService;
+	private final UiBridgeService uiBridgeService;
 	private final ChatRoomService chatRoomService;
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityRsService identityRsService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService, ChatRoomService chatRoomService)
+	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityRsService identityRsService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
@@ -166,7 +166,7 @@ public class ChatRsService extends RsService
 		this.identityRsService = identityRsService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
-		this.trayService = trayService;
+		this.uiBridgeService = uiBridgeService;
 		this.chatRoomService = chatRoomService;
 	}
 
@@ -721,7 +721,7 @@ public class ChatRsService extends RsService
 		}
 		else if (item.isBroadcast())
 		{
-			trayService.showNotification("Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName() + ": " + parseIncomingText(item.getMessage()));
+			uiBridgeService.showNotification("Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName() + ": " + parseIncomingText(item.getMessage()));
 		}
 	}
 

@@ -34,11 +34,6 @@ public abstract class TurtleSearchRequestItem extends Item implements Cloneable
 
 	public abstract String getKeywords();
 
-	protected TurtleSearchRequestItem()
-	{
-		// Needed
-	}
-
 	@Override
 	public int getServiceType()
 	{

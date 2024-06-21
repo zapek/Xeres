@@ -28,17 +28,13 @@ public abstract class TurtleSearchResultItem extends Item implements Cloneable
 	@RsSerialized
 	private int requestId;
 
+	@SuppressWarnings("unused")
 	@RsSerialized
 	private short depth; // Always set to 0, not used
 
 	public abstract int getCount();
 
 	public abstract void trim(int size);
-
-	protected TurtleSearchResultItem()
-	{
-		// Needed
-	}
 
 	@Override
 	public int getServiceType()

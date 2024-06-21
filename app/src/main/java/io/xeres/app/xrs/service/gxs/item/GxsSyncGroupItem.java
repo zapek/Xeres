@@ -46,7 +46,6 @@ public class GxsSyncGroupItem extends GxsExchange
 	@SuppressWarnings("unused")
 	public GxsSyncGroupItem()
 	{
-		// Needed
 	}
 
 	public GxsSyncGroupItem(byte flags, GxsGroupItem groupItem, int transactionId)

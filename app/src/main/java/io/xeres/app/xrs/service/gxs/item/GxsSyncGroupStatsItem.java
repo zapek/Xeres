@@ -44,12 +44,6 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 
 	private int serviceType;
 
-	@SuppressWarnings("unused")
-	public GxsSyncGroupStatsItem()
-	{
-		// Needed for instantiation
-	}
-
 	@Override
 	public int getSubType()
 	{

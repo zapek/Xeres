@@ -42,11 +42,9 @@ public class StatusItem extends Item
 	@RsSerialized
 	private Status status;
 
-
 	@SuppressWarnings("unused")
 	public StatusItem()
 	{
-		// Required
 	}
 
 	public StatusItem(Status status)

@@ -20,7 +20,7 @@
 package io.xeres.app.configuration;
 
 import io.xeres.app.properties.DatabaseProperties;
-import io.xeres.ui.support.splash.SplashService;
+import io.xeres.app.service.UiBridgeService;
 import org.h2.tools.Upgrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,21 +57,21 @@ public class DataSourceConfiguration
 	private final Environment environment;
 	private final DatabaseProperties databaseProperties;
 	private final DataDirConfiguration dataDirConfiguration;
-	private final SplashService splashService;
+	private final UiBridgeService uiBridgeService;
 
-	public DataSourceConfiguration(Environment environment, DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, SplashService splashService)
+	public DataSourceConfiguration(Environment environment, DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, UiBridgeService uiBridgeService)
 	{
 		this.environment = environment;
 		this.databaseProperties = databaseProperties;
 		this.dataDirConfiguration = dataDirConfiguration;
-		this.splashService = splashService;
+		this.uiBridgeService = uiBridgeService;
 	}
 
 	@Bean
 	@ConditionalOnProperty(prefix = "spring.datasource", name = "url", havingValue = "false", matchIfMissing = true)
 	public DataSource getDataSource()
 	{
-		splashService.status("Loading database");
+		uiBridgeService.setSplashStatus("Loading database");
 
 		var useJMX = "";
 

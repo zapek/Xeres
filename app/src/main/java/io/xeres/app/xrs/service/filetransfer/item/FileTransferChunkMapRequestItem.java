@@ -33,9 +33,9 @@ public class FileTransferChunkMapRequestItem extends Item
 	@RsSerialized
 	private Sha1Sum hash;
 
+	@SuppressWarnings("unused")
 	public FileTransferChunkMapRequestItem()
 	{
-		// Needed
 	}
 
 	public FileTransferChunkMapRequestItem(Sha1Sum hash, boolean isLeecher)

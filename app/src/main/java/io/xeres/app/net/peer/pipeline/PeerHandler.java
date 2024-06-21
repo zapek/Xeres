@@ -34,12 +34,13 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.peer.ssl.SSL;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
-import io.xeres.ui.support.tray.TrayService;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,10 +62,10 @@ public class PeerHandler extends ChannelDuplexHandler
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
-	private final TrayService trayService;
+	private final UiBridgeService uiBridgeService;
 	private final RsServiceRegistry rsServiceRegistry;
 
-	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, TrayService trayService, RsServiceRegistry rsServiceRegistry)
+	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
 	{
 		super();
 		this.serviceInfoRsService = serviceInfoRsService;
@@ -72,12 +73,12 @@ public class PeerHandler extends ChannelDuplexHandler
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
 		this.locationService = locationService;
-		this.trayService = trayService;
+		this.uiBridgeService = uiBridgeService;
 		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg)
+	public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg)
 	{
 		var peerConnection = ctx.channel().attr(PeerAttribute.PEER_CONNECTION).get();
 
@@ -186,7 +187,7 @@ public class PeerHandler extends ChannelDuplexHandler
 				var message = "Established " + connectionType.getDescription() + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")";
 
 				log.info(message);
-				trayService.showNotification(message);
+				uiBridgeService.showNotification(message);
 
 				sendSliceProbe(ctx);
 			}

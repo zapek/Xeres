@@ -33,14 +33,12 @@ import io.xeres.app.database.repository.SettingsRepository;
 import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.HostPort;
-import io.xeres.ui.client.message.MessageClient;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -74,19 +72,16 @@ public class SettingsService
 
 	private final ObjectMapper objectMapper;
 
-	private final WebClient.Builder webClientBuilder;
-
-	private final MessageClient messageClient;
+	private final UiBridgeService uiBridgeService;
 
 	private Settings settings;
 
-	public SettingsService(SettingsRepository settingsRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper, WebClient.Builder webClientBuilder, MessageClient messageClient)
+	public SettingsService(SettingsRepository settingsRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper, UiBridgeService uiBridgeService)
 	{
 		this.settingsRepository = settingsRepository;
 		this.publisher = publisher;
 		this.objectMapper = objectMapper;
-		this.webClientBuilder = webClientBuilder;
-		this.messageClient = messageClient;
+		this.uiBridgeService = uiBridgeService;
 	}
 
 	@PostConstruct
@@ -102,8 +97,7 @@ public class SettingsService
 		var remotePassword = getPasswordForClients();
 		if (remotePassword != null)
 		{
-			webClientBuilder.defaultHeaders(httpHeaders -> httpHeaders.setBasicAuth("user", remotePassword));
-			messageClient.setPassword(remotePassword);
+			uiBridgeService.setClientsAuthentication("user", remotePassword);
 		}
 	}
 

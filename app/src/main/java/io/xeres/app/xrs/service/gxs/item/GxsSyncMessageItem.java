@@ -25,7 +25,6 @@ public class GxsSyncMessageItem extends GxsExchange
 	@SuppressWarnings("unused")
 	public GxsSyncMessageItem()
 	{
-		// Needed
 	}
 
 	public GxsSyncMessageItem(byte flags, GxsMessageItem messageItem, int transactionId)

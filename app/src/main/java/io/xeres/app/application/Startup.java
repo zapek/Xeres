@@ -32,10 +32,7 @@ import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.share.Share;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
-import io.xeres.app.service.LocationService;
-import io.xeres.app.service.NetworkService;
-import io.xeres.app.service.SettingsService;
-import io.xeres.app.service.ShellService;
+import io.xeres.app.service.*;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
@@ -46,7 +43,6 @@ import io.xeres.common.events.StartupEvent;
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.util.SecureRandomUtils;
-import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -80,7 +76,7 @@ public class Startup implements ApplicationRunner
 	private final DataDirConfiguration dataDirConfiguration;
 	private final NetworkService networkService;
 	private final PeerConnectionManager peerConnectionManager;
-	private final SplashService splashService;
+	private final UiBridgeService uiBridgeService;
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
 	private final AutoStart autoStart;
@@ -90,7 +86,7 @@ public class Startup implements ApplicationRunner
 	private final FileNotificationService fileNotificationService;
 	private final ApplicationEventPublisher publisher;
 
-	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry, FileService fileService, ShellService shellService, FileNotificationService fileNotificationService, ApplicationEventPublisher publisher)
+	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry, FileService fileService, ShellService shellService, FileNotificationService fileNotificationService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -101,7 +97,7 @@ public class Startup implements ApplicationRunner
 		this.dataDirConfiguration = dataDirConfiguration;
 		this.networkService = networkService;
 		this.peerConnectionManager = peerConnectionManager;
-		this.splashService = splashService;
+		this.uiBridgeService = uiBridgeService;
 		this.identityManager = identityManager;
 		this.statusNotificationService = statusNotificationService;
 		this.autoStart = autoStart;
@@ -138,12 +134,12 @@ public class Startup implements ApplicationRunner
 
 		if (networkService.checkReadiness())
 		{
-			splashService.status("Starting network");
+			uiBridgeService.setSplashStatus("Starting network");
 		}
 		else
 		{
 			log.info("Waiting... Use the user interface to send commands to create a profile");
-			splashService.close();
+			uiBridgeService.closeSplashScreen();
 		}
 	}
 
@@ -162,7 +158,7 @@ public class Startup implements ApplicationRunner
 			networkService.start();
 		}
 		MinimalUserInterface.setShell(shellService);
-		splashService.close();
+		uiBridgeService.closeSplashScreen();
 	}
 
 	@EventListener

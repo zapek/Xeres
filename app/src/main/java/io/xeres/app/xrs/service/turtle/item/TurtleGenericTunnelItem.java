@@ -34,11 +34,6 @@ public abstract class TurtleGenericTunnelItem extends Item implements Cloneable
 
 	public abstract boolean shouldStampTunnel();
 
-	protected TurtleGenericTunnelItem()
-	{
-		// Needed
-	}
-
 	@Override
 	public int getServiceType()
 	{

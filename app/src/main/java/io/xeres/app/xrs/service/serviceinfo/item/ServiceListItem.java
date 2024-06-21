@@ -34,7 +34,6 @@ public class ServiceListItem extends Item
 	@SuppressWarnings("unused")
 	public ServiceListItem()
 	{
-		// Constructor
 	}
 
 	public ServiceListItem(Map<Integer, ServiceInfo> services)

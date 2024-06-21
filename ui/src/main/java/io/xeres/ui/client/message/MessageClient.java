@@ -60,6 +60,7 @@ public class MessageClient
 	private CompletableFuture<StompSession> future;
 
 	private StompSession stompSession;
+	private String username;
 	private String password;
 
 	private final List<PendingSubscription> pendingSubscriptions = new ArrayList<>();
@@ -88,7 +89,7 @@ public class MessageClient
 		var httpHeaders = new WebSocketHttpHeaders();
 		if (password != null)
 		{
-			httpHeaders.setBasicAuth("user", password);
+			httpHeaders.setBasicAuth(username, password);
 		}
 		var connectHeaders = new StompHeaders();
 		future = stompClient.connectAsync(url, httpHeaders, connectHeaders, sessionHandler);
@@ -96,8 +97,9 @@ public class MessageClient
 		return this;
 	}
 
-	public void setPassword(String password)
+	public void setAuthentication(String username, String password)
 	{
+		this.username = username;
 		this.password = password;
 	}
 

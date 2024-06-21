@@ -31,9 +31,9 @@ public class TurtleTunnelResultItem extends Item
 	@RsSerialized
 	private int requestId;
 
+	@SuppressWarnings("unused")
 	public TurtleTunnelResultItem()
 	{
-		// Needed
 	}
 
 	public TurtleTunnelResultItem(int tunnelId, int requestId)

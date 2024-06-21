@@ -38,9 +38,9 @@ public class TurtleTunnelRequestItem extends Item implements Cloneable
 	@RsSerialized
 	private short depth;
 
+	@SuppressWarnings("unused")
 	public TurtleTunnelRequestItem()
 	{
-		// Required
 	}
 
 	public TurtleTunnelRequestItem(Sha1Sum fileHash, int requestId, int partialTunnelId)

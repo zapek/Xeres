@@ -39,11 +39,6 @@ public abstract class ChatRoomBounce extends Item implements Cloneable
 	private String senderNickname;
 	private Signature signature;
 
-	protected ChatRoomBounce()
-	{
-		// Needed
-	}
-
 	@Override
 	public int getPriority()
 	{

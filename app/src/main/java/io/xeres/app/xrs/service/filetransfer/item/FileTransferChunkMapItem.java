@@ -38,9 +38,9 @@ public class FileTransferChunkMapItem extends Item
 	@RsSerialized
 	private List<Integer> compressedChunks;
 
+	@SuppressWarnings("unused")
 	public FileTransferChunkMapItem()
 	{
-		// Needed
 	}
 
 	public FileTransferChunkMapItem(Sha1Sum hash, List<Integer> compressedChunks, boolean isClient)

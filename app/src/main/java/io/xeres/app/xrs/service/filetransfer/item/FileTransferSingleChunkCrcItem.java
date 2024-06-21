@@ -36,9 +36,9 @@ public class FileTransferSingleChunkCrcItem extends Item
 	@RsSerialized
 	private Sha1Sum checkSum;
 
+	@SuppressWarnings("unused")
 	public FileTransferSingleChunkCrcItem()
 	{
-		// Needed
 	}
 
 	public FileTransferSingleChunkCrcItem(Sha1Sum hash, int chunkNumber, Sha1Sum checkSum)

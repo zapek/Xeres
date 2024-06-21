@@ -26,9 +26,9 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
-import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Component;
 
 import java.net.SocketAddress;
@@ -38,15 +38,15 @@ import static io.xeres.app.net.peer.ConnectionType.TOR_OUTGOING;
 @Component
 public class PeerTorClient extends PeerClient
 {
-	public PeerTorClient(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService, RsServiceRegistry rsServiceRegistry)
+	public PeerTorClient(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
 	{
-		super(settingsService, networkProperties, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, trayService, rsServiceRegistry);
+		super(settingsService, networkProperties, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, uiBridgeService, rsServiceRegistry);
 	}
 
 	@Override
 	public PeerInitializer getPeerInitializer()
 	{
-		return new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, TOR_OUTGOING, trayService, rsServiceRegistry);
+		return new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, TOR_OUTGOING, uiBridgeService, rsServiceRegistry);
 	}
 
 	@Override

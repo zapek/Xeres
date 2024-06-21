@@ -33,7 +33,6 @@ public class ChatAvatarItem extends Item
 	@SuppressWarnings("unused")
 	public ChatAvatarItem()
 	{
-		// Required
 	}
 
 	public ChatAvatarItem(byte[] imageData)

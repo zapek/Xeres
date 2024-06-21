@@ -19,13 +19,13 @@
 
 package io.xeres.app.service.notification.status;
 
+import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.DhtStatus;
 import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rest.notification.status.StatusNotification;
-import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,19 +39,19 @@ public class StatusNotificationService extends NotificationService
 
 	private DhtInfo dhtInfo = DhtInfo.fromStatus(DhtStatus.OFF);
 
-	private final TrayService trayService;
+	private final UiBridgeService uiBridgeService;
 
-	public StatusNotificationService(TrayService trayService)
+	public StatusNotificationService(UiBridgeService uiBridgeService)
 	{
 		super();
-		this.trayService = trayService;
+		this.uiBridgeService = uiBridgeService;
 	}
 
 	public void setCurrentUsersCount(int value)
 	{
 		currentUserCount = value;
 		sendNotification();
-		trayService.setTooltip(value + " peers connected");
+		uiBridgeService.setTrayStatus(value + " peers connected");
 	}
 
 	public void setTotalUsers(int value)

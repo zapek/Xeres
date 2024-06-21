@@ -32,10 +32,10 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
-import io.xeres.ui.support.tray.TrayService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,14 +55,14 @@ abstract class PeerServer
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
-	private final TrayService trayService;
+	private final UiBridgeService uiBridgeService;
 	private final RsServiceRegistry rsServiceRegistry;
 
 	private EventLoopGroup bossGroup;
 	private EventLoopGroup workerGroup;
 	private ChannelFuture channel;
 
-	protected PeerServer(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService, RsServiceRegistry rsServiceRegistry)
+	protected PeerServer(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
 	{
 		this.settingsService = settingsService;
 		this.networkProperties = networkProperties;
@@ -70,7 +70,7 @@ abstract class PeerServer
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
 		this.serviceInfoRsService = serviceInfoRsService;
-		this.trayService = trayService;
+		this.uiBridgeService = uiBridgeService;
 		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
@@ -87,7 +87,7 @@ abstract class PeerServer
 					.option(ChannelOption.SO_BACKLOG, 128) // should be more
 					.option(ChannelOption.SO_REUSEADDR, true)
 					.handler(new LoggingHandler(LogLevel.DEBUG))
-					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, TCP_INCOMING, trayService, rsServiceRegistry));
+					.childHandler(new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, TCP_INCOMING, uiBridgeService, rsServiceRegistry));
 
 			channel = StringUtils.isBlank(host) ? serverBootstrap.bind(localPort).sync() : serverBootstrap.bind(host, localPort).sync();
 			log.info("Listening on {}, port {}", channel.channel().localAddress(), localPort);

@@ -31,12 +31,15 @@ import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
  */
 public class GxsSyncGroupRequestItem extends GxsExchange
 {
+	@SuppressWarnings("unused")
 	@RsSerialized
 	private byte flags; // unused
 
+	@SuppressWarnings("unused")
 	@RsSerialized
 	private int createdSince; // unused
 
+	@SuppressWarnings("unused")
 	@RsSerialized(tlvType = STR_HASH_SHA1)
 	private String syncHash; // unused. This is old stuff where it used to transfer files instead of building tunnels
 
@@ -48,15 +51,15 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	{
 	}
 
+	public GxsSyncGroupRequestItem(Instant lastUpdated)
+	{
+		this.lastUpdated = (int) lastUpdated.getEpochSecond();
+	}
+
 	@Override
 	public int getSubType()
 	{
 		return 1;
-	}
-
-	public GxsSyncGroupRequestItem(Instant lastUpdated)
-	{
-		this.lastUpdated = (int) lastUpdated.getEpochSecond();
 	}
 
 	public int getLastUpdated()

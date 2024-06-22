@@ -82,11 +82,3 @@ sonarqube {
         property "sonar.cpd.exclusion", "**/*Mapper.java"
     }
 }
-
-tasks.register('cleanProfile', Delete) {
-    group = 'build'
-    description = 'Deletes the user profile.'
-    // when run with IDEA Ultimate
-    delete 'data/userdata.mv.db'
-    delete 'data/userdata.trace.db'
-}

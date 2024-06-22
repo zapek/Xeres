@@ -227,7 +227,7 @@ public class TurtleStatistics
 	@Override
 	public synchronized String toString()
 	{
-		return "TrafficStatistics [ForwardTotal=" + forwardTotal +
+		return "TrafficStatistics [forwardTotal=" + forwardTotal +
 				", dataUpload=" + dataUpload +
 				", dataDownload=" + dataDownload +
 				", tunnelRequestsUpload=" + tunnelRequestsUpload +

@@ -94,7 +94,7 @@ To pass arguments to Xeres, just use the args feature, for example:
 
 	./gradlew bootRun --args="--no-gui --fast-shutdown"
 
-(Use ``--help`` to know all arguments)
+(Use ``--args="--help"`` to know all arguments)
 
 ### Database Debugging
 

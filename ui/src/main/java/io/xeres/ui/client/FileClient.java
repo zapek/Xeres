@@ -62,9 +62,9 @@ public class FileClient
 				.bodyToMono(FileSearchResponse.class);
 	}
 
-	public Mono<Long> download(String name, String hash, long size)
+	public Mono<Long> download(String name, String hash, long size, String locationId)
 	{
-		var request = new FileDownloadRequest(name, hash, size);
+		var request = new FileDownloadRequest(name, hash, size, locationId);
 
 		return webClient.post()
 				.uri("/download")

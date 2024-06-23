@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FileCreatorTest
+class FileLeecherTest
 {
 	@Test
 	void FileCreator_Sparse_OK()
@@ -36,7 +36,7 @@ class FileCreatorTest
 		var tempDir = System.getProperty("java.io.tmpdir");
 		System.out.println("Temp dir: " + tempDir);
 		var file = Paths.get(tempDir, "sparsefile.tmp").toFile();
-		var fileCreator = new FileCreator(file, 16384);
+		var fileCreator = new FileLeecher(file, 16384);
 		fileCreator.open();
 		fileCreator.close();
 

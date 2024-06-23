@@ -24,7 +24,8 @@ import jakarta.validation.constraints.NotNull;
 public record FileDownloadRequest(
 		@NotNull String name,
 		@NotNull String hash,
-		long size
+		long size,
+		String locationId
 )
 {
 }

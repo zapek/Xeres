@@ -19,9 +19,21 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.common.id.LocationId;
-import io.xeres.common.id.Sha1Sum;
-
-record ActionDownload(String name, Sha1Sum hash, long size, LocationId from) implements Action
+class FileTransferAgent
 {
+	private final FileProvider fileProvider;
+
+	public FileTransferAgent(FileProvider fileProvider)
+	{
+		this.fileProvider = fileProvider;
+	}
+
+	// XXX: addPeer(), removePeer()
+	// XXX: probably also a method to return what to do to the file transfer manager... or just send the commands directly to the filetransferservice?
+
+
+	public FileProvider getFileProvider()
+	{
+		return fileProvider;
+	}
 }

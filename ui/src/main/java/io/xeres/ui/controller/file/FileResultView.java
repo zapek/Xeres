@@ -151,7 +151,7 @@ public class FileResultView extends Tab
 			if (event.getSource() instanceof FileResult file)
 			{
 				log.debug("Downloading file {}", file.name());
-				fileClient.download(file.name(), file.hash(), file.size())
+				fileClient.download(file.name(), file.hash(), file.size(), null)
 						//.doOnSuccess(id -> ) add the file to the download view?
 						.subscribe();
 			}

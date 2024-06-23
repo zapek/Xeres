@@ -20,101 +20,21 @@
 package io.xeres.app.xrs.service.filetransfer;
 
 import io.xeres.app.database.model.location.Location;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.StandardOpenOption;
-import java.util.Collections;
 import java.util.List;
 
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
-
-class FileProvider
+interface FileProvider
 {
-	private static final Logger log = LoggerFactory.getLogger(FileProvider.class);
-	protected final File file;
-	protected FileChannel channel;
-	protected FileLock lock;
-	protected long fileSize;
+	void setFileSize(long size);
 
-	public FileProvider(File file)
-	{
-		this.file = file;
-	}
+	boolean open();
 
-	public void setFileSize(long size)
-	{
-		throw new IllegalArgumentException("Cannot set the file size of a read only file");
-	}
+	byte[] read(Location requester, long offset, int size) throws IOException;
 
-	public boolean open()
-	{
-		try
-		{
-			channel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
-			lock = channel.lock(0, Long.MAX_VALUE, true);
-			if (!lock.isShared())
-			{
-				log.warn("Lock for file {} is not shared", file);
-			}
-			fileSize = channel.size();
-			return true;
-		}
-		catch (IOException e)
-		{
-			log.error("Couldn't open file {} for reading", file, e);
-			return false;
-		}
-	}
+	void write(Location request, long offset, byte[] data) throws IOException;
 
-	public byte[] read(Location requester, long offset, int size) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
-	{
-		// XXX: update the status of the peer
+	void close();
 
-		int bufferSize = (int) Math.min(size, fileSize);
-		var buf = ByteBuffer.allocate(bufferSize);
-		channel.read(buf, offset);
-		buf.flip();
-		return buf.array();
-	}
-
-	public List<Integer> getCompressedChunkMap()
-	{
-		// This is inexact because there's always more chunks than
-		// the real file size, but RS does the same.
-		return Collections.nCopies(getNumberOfChunks(), 0xffffffff);
-	}
-
-	protected int getNumberOfChunks()
-	{
-		var numberOfChunks = fileSize / CHUNK_SIZE;
-		if (fileSize % CHUNK_SIZE != 0)
-		{
-			numberOfChunks++;
-		}
-		if (numberOfChunks > Integer.MAX_VALUE) // RS has a higher value because of unsigned ints. 4 TB instead of 2 TB
-		{
-			log.error("Maximum chunk value exceeded. File size: {}. File won't be transferred properly", fileSize);
-			return 0;
-		}
-		return (int) numberOfChunks;
-	}
-
-	public void close()
-	{
-		try
-		{
-			lock.close();
-			channel.close();
-		}
-		catch (IOException e)
-		{
-			log.error("Failed to close file {} properly", file, e);
-		}
-	}
+	List<Integer> getCompressedChunkMap();
 }

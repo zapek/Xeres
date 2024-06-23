@@ -36,14 +36,14 @@ import java.util.List;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 import static java.nio.file.StandardOpenOption.*;
 
-class FileCreator extends FileProvider
+class FileLeecher extends FileSeeder
 {
-	private static final Logger log = LoggerFactory.getLogger(FileCreator.class);
+	private static final Logger log = LoggerFactory.getLogger(FileLeecher.class);
 	private RandomAccessFile randomAccessFile;
 
 	private BitSet chunkMap;
 
-	public FileCreator(File file, long size)
+	public FileLeecher(File file, long size)
 	{
 		super(file);
 		setFileSize(size);
@@ -119,6 +119,7 @@ class FileCreator extends FileProvider
 		throw new IOException("File at offset " + offset + " with size " + size + " is not available yet.");
 	}
 
+	@Override
 	public void write(Location requester, long offset, byte[] data) throws IOException
 	{
 		// XXX: update the status of the peer

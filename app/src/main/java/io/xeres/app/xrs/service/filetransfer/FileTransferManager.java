@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
@@ -52,8 +53,8 @@ class FileTransferManager implements Runnable
 	private final Location ownLocation;
 	private final BlockingQueue<FileTransferCommand> queue;
 
-	private final Map<Sha1Sum, FileCreator> leechers = new HashMap<>();
-	private final Map<Sha1Sum, FileProvider> seeders = new HashMap<>();
+	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
+	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
 
 	public FileTransferManager(FileTransferRsService fileTransferRsService, SettingsService settingsService, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
 	{
@@ -72,8 +73,9 @@ class FileTransferManager implements Runnable
 		{
 			try
 			{
-				var command = queue.take();
+				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(100, TimeUnit.MILLISECONDS); // XXX: change the timeout value...
 				processCommand(command);
+				processDownloads();
 			}
 			catch (InterruptedException e)
 			{
@@ -130,26 +132,33 @@ class FileTransferManager implements Runnable
 	{
 		if (commandAction.action() instanceof ActionDownload actionDownload)
 		{
-			leechers.computeIfAbsent(actionDownload.hash(), hash -> {
-				var file = Paths.get(settingsService.getIncomingDirectory(), hash + FileService.DOWNLOAD_EXTENSION).toFile(); // XXX: check if the path is OK!
-				log.debug("Downloading file {}, size: {}", file, actionDownload.size());
-				var fileCreator = new FileCreator(file, actionDownload.size());
-				if (fileCreator.open())
-				{
-					return fileCreator;
-				}
-				else
-				{
-					log.error("Couldn't create downloaded file");
-					return null;
-				}
-			});
+			actionDownloadFile(actionDownload);
 		}
+	}
+
+	private void actionDownloadFile(ActionDownload actionDownload)
+	{
+		leechers.computeIfAbsent(actionDownload.hash(), hash -> {
+			var file = Paths.get(settingsService.getIncomingDirectory(), hash + FileService.DOWNLOAD_EXTENSION).toFile();
+			log.debug("Downloading file {}, size: {}", file, actionDownload.size());
+			var fileCreator = new FileLeecher(file, actionDownload.size());
+			if (fileCreator.open())
+			{
+				var agent = new FileTransferAgent(fileCreator);
+				// XXX: add peer... and/or send a search request
+				return agent;
+			}
+			else
+			{
+				log.error("Couldn't create downloaded file");
+				return null;
+			}
+		});
 	}
 
 	private void handleReceiveDataRequest(Location location, FileTransferDataRequestItem item)
 	{
-		FileProvider fileProvider = null;
+		FileTransferAgent agent = null;
 
 		if (location.equals(ownLocation))
 		{
@@ -157,14 +166,14 @@ class FileTransferManager implements Runnable
 		}
 		else
 		{
-			fileProvider = leechers.get(item.getFileItem().hash());
-			if (fileProvider == null)
+			agent = leechers.get(item.getFileItem().hash());
+			if (agent == null)
 			{
-				fileProvider = seeders.get(item.getFileItem().hash());
+				agent = seeders.get(item.getFileItem().hash());
 			}
-			if (fileProvider != null)
+			if (agent != null)
 			{
-				handleSeederRequest(location, fileProvider, item.getFileItem().hash(), item.getFileItem().size(), item.getFileOffset(), item.getChunkSize());
+				handleSeederRequest(location, agent.getFileProvider(), item.getFileItem().hash(), item.getFileItem().size(), item.getFileOffset(), item.getChunkSize());
 				return;
 			}
 		}
@@ -175,16 +184,16 @@ class FileTransferManager implements Runnable
 
 	private void handleReceiveData(Location location, FileTransferDataItem item)
 	{
-		var fileCreator = leechers.get(item.getFileData().fileItem().hash());
-		if (fileCreator == null)
+		var agent = leechers.get(item.getFileData().fileItem().hash());
+		if (agent == null)
 		{
-			log.error("No matching leecher for hash {}", item.getFileData().fileItem().hash());
+			log.error("No matching agent for hash {}", item.getFileData().fileItem().hash());
 			return;
 		}
 
 		try
 		{
-			fileCreator.write(location, item.getFileData().offset(), item.getFileData().data());
+			agent.getFileProvider().write(location, item.getFileData().offset(), item.getFileData().data());
 		}
 		catch (IOException e)
 		{
@@ -194,33 +203,33 @@ class FileTransferManager implements Runnable
 
 	private void handleReceiveLeecherChunkMapRequest(Location location, FileTransferChunkMapRequestItem item)
 	{
-		var fileCreator = leechers.get(item.getHash());
-		if (fileCreator == null)
+		var agent = leechers.get(item.getHash());
+		if (agent == null)
 		{
-			log.error("No matching leecher for hash {}", item.getHash());
+			log.error("No matching agent for hash {}", item.getHash());
 			return;
 		}
-		var compressedChunkMap = fileCreator.getCompressedChunkMap();
+		var compressedChunkMap = agent.getFileProvider().getCompressedChunkMap();
 		fileTransferRsService.sendChunkMap(location, item.getHash(), false, compressedChunkMap);
 	}
 
 	private void handleReceiveSeederChunkMapRequest(Location location, FileTransferChunkMapRequestItem item)
 	{
-		var fileProvider = seeders.get(item.getHash());
-		if (fileProvider == null)
+		var agent = seeders.get(item.getHash());
+		if (agent == null)
 		{
 			// XXX: do a search request, handleSearchRequest(location, hash)
 
-			fileProvider = seeders.get(item.getHash());
+			agent = seeders.get(item.getHash());
 		}
 
-		if (fileProvider == null)
+		if (agent == null)
 		{
 			log.error("Search request succeeded but no seeder available");
 			return;
 		}
 
-		var compressedChunkMap = fileProvider.getCompressedChunkMap();
+		var compressedChunkMap = agent.getFileProvider().getCompressedChunkMap();
 		fileTransferRsService.sendChunkMap(location, item.getHash(), true, compressedChunkMap);
 	}
 
@@ -246,5 +255,12 @@ class FileTransferManager implements Runnable
 		{
 			log.error("Failed to read file", e);
 		}
+	}
+
+	private void processDownloads()
+	{
+		leechers.forEach((sha1Sum, fileCreator) -> {
+			// XXX: ask the peer for the next part... but we don't store the peers here... we need another abstraction!
+		});
 	}
 }

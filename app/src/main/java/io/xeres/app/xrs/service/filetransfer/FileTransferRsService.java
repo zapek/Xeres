@@ -24,6 +24,7 @@ import io.xeres.app.crypto.rscrypto.RsCrypto;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.repository.FileDownloadRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
@@ -73,6 +74,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final LocationService locationService;
 	private final SettingsService settingsService;
 	private final RsCrypto.EncryptionFormat encryptionFormat;
+	private final FileDownloadRepository fileDownloadRepository;
 	private Thread fileTransferManagerThread;
 
 	private final BlockingQueue<FileTransferCommand> fileCommandQueue = new LinkedBlockingQueue<>();
@@ -81,7 +83,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private final Map<Sha1Sum, Sha1Sum> encryptedHashes = new ConcurrentHashMap<>();
 
-	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties)
+	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, FileDownloadRepository fileDownloadRepository)
 	{
 		super(rsServiceRegistry);
 		this.fileService = fileService;
@@ -92,6 +94,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		this.locationService = locationService;
 		this.settingsService = settingsService;
 		encryptionFormat = getEncryptionFormat(networkProperties);
+		this.fileDownloadRepository = fileDownloadRepository;
 	}
 
 	private static RsCrypto.EncryptionFormat getEncryptionFormat(NetworkProperties networkProperties)
@@ -118,6 +121,8 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			ownLocation = locationService.findOwnLocation().orElseThrow();
+			fileDownloadRepository.findAll()
+					.forEach(file -> fileCommandQueue.add(new FileTransferCommandAction(new ActionDownload(file.getName(), file.getHash(), file.getSize(), null)))); // XXX: missing chunks restore
 		}
 
 		fileTransferManagerThread = Thread.ofVirtual()
@@ -249,12 +254,12 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Transactional
-	public long download(String name, Sha1Sum hash, long size)
+	public long download(String name, Sha1Sum hash, long size, LocationId locationId)
 	{
 		var id = fileService.addDownload(name, hash, size);
 		if (id != 0L)
 		{
-			var action = new ActionDownload(name, hash, size);
+			var action = new ActionDownload(name, hash, size, null);
 			fileCommandQueue.add(new FileTransferCommandAction(action));
 		}
 		return id;

@@ -561,7 +561,9 @@ public class ChatViewController implements Controller
 		var chatListView = roomInfoTreeItem.getValue().getChatListView();
 		if (chatListView == null)
 		{
-			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId(), markdownService);
+			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId(), markdownService, (contentParser, args) -> {
+				// XXX: implement!
+			});
 			roomInfoTreeItem.getValue().setChatListView(chatListView);
 		}
 		return chatListView;

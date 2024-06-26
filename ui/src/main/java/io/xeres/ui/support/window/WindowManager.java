@@ -24,6 +24,7 @@ import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
+import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.MainWindowController;
@@ -83,6 +84,7 @@ public class WindowManager
 {
 	private static FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
+	private final FileClient fileClient;
 	private final MessageClient messageClient;
 	private final MarkdownService markdownService;
 	private static ResourceBundle bundle;
@@ -96,10 +98,11 @@ public class WindowManager
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, MarkdownService markdownService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, MarkdownService markdownService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
+		this.fileClient = fileClient;
 		this.messageClient = messageClient;
 		this.markdownService = markdownService;
 		WindowManager.bundle = bundle;
@@ -151,7 +154,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double click)
 							{
-								var messaging = new MessagingWindowController(profileClient, messageClient, markdownService, locationId, bundle);
+								var messaging = new MessagingWindowController(profileClient, fileClient, messageClient, markdownService, locationId, bundle);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)

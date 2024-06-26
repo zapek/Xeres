@@ -23,6 +23,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
@@ -30,6 +31,8 @@ import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.uri.ContentParser;
+import io.xeres.ui.support.uri.FileContentParser;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.animation.KeyFrame;
@@ -51,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
@@ -87,6 +91,7 @@ public class MessagingWindowController implements WindowController
 	private ChatListView receive;
 
 	private final ProfileClient profileClient;
+	private final FileClient fileClient;
 	private final MarkdownService markdownService;
 	private final ResourceBundle bundle;
 	private final LocationId locationId;
@@ -98,9 +103,10 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, MessageClient messageClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
+	public MessagingWindowController(ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
+		this.fileClient = fileClient;
 		this.messageClient = messageClient;
 		this.markdownService = markdownService;
 		this.bundle = bundle;
@@ -151,7 +157,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, markdownService);
+		receive = new ChatListView(nickname, id, markdownService, this::handleLinkAction);
 		content.getChildren().addFirst(receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
@@ -166,6 +172,16 @@ public class MessagingWindowController implements WindowController
 			event.setDropCompleted(true);
 			event.consume();
 		});
+	}
+
+	private void handleLinkAction(ContentParser contentParser, Map<String, String> args)
+	{
+		fileClient.download(args.get(FileContentParser.PARAMETER_NAME),
+						args.get(FileContentParser.PARAMETER_HASH),
+						Long.parseLong(args.get(FileContentParser.PARAMETER_SIZE)),
+						String.valueOf(locationId))
+				.subscribe();
+		// XXX: add some visible action? like a toast or switch to download file. see what RS does
 	}
 
 	@Override

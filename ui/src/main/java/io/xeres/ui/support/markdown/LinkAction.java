@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,19 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.uri;
+package io.xeres.ui.support.markdown;
 
-import io.xeres.ui.support.contentline.Content;
-import io.xeres.ui.support.markdown.LinkAction;
-import org.springframework.web.util.UriComponents;
+import io.xeres.ui.support.uri.ContentParser;
 
-public interface ContentParser
+import java.util.Map;
+
+public interface LinkAction
 {
-	String PROTOCOL_RETROSHARE = "retroshare";
-
-	String getProtocol();
-
-	String getAuthority();
-
-	Content parse(UriComponents uriComponents, String text, LinkAction linkAction);
+	void openLink(ContentParser contentParser, Map<String, String> args);
 }

@@ -23,6 +23,7 @@ import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
+import io.xeres.ui.support.markdown.LinkAction;
 import org.springframework.web.util.UriComponents;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
@@ -43,7 +44,7 @@ public class CertificateContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text)
+	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
 		var radix = uriComponents.getQueryParams().getFirst("radix");
 

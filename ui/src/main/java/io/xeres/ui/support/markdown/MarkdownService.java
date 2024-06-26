@@ -44,13 +44,13 @@ public class MarkdownService
 		}
 	}
 
-	public List<Content> parse(String input, Set<ParsingMode> modes)
+	public List<Content> parse(String input, Set<ParsingMode> modes, LinkAction linkAction)
 	{
-		var context = new Context(input, emojiService, modes);
+		var context = new Context(input, emojiService, modes, linkAction);
 		return getContent(context);
 	}
 
-	public List<Content> getContent(Context context)
+	private List<Content> getContent(Context context)
 	{
 		if (context.isEmpty())
 		{

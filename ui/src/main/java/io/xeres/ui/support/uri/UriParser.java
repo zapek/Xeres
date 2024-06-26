@@ -22,6 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
+import io.xeres.ui.support.markdown.LinkAction;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -64,6 +65,13 @@ public final class UriParser
 
 	public static Content parse(String href, String text)
 	{
+		LinkAction linkAction = (contentParser, args) -> {
+		};
+		return parse(href, text, linkAction);
+	}
+
+	public static Content parse(String href, String text, LinkAction linkAction)
+	{
 		if (isBlank(href))
 		{
 			return new ContentText(text);
@@ -83,7 +91,7 @@ public final class UriParser
 							.query(uri.getQuery())
 							.build();
 
-					return contentParser.parse(uriComponents, text);
+					return contentParser.parse(uriComponents, text, linkAction);
 				}
 			}
 

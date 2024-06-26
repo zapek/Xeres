@@ -22,6 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
+import io.xeres.ui.support.markdown.LinkAction;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.scene.control.Alert;
 import org.springframework.web.util.UriComponents;
@@ -43,7 +44,7 @@ public class MessageContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text)
+	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
 		var id = uriComponents.getQueryParams().getFirst("id"); // warning: it can be of different type (gxsId, sslId, etc...)
 		var subject = uriComponents.getQueryParams().getFirst("subject");

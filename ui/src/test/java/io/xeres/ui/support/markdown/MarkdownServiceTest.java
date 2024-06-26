@@ -77,7 +77,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class)).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -101,7 +101,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class)).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -127,7 +127,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class)).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -153,7 +153,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.ONE_LINER)).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.ONE_LINER), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -184,7 +184,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		var result = markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH)).stream()
+		var result = markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining());
 
@@ -200,7 +200,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
+		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER), null);
 
 		assertEquals(3, output.size());
 		assertInstanceOf(ContentText.class, output.get(0));
@@ -221,7 +221,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
+		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER), null);
 
 		assertEquals(1, output.size());
 		assertInstanceOf(ContentUri.class, output.getFirst());
@@ -241,7 +241,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER));
+		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER), null);
 
 		assertEquals(expected, ((Text) output.getFirst().getNode()).getText());
 	}
@@ -255,7 +255,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
 
 		assertEquals(0, output.size());
 	}
@@ -269,7 +269,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
 
 		assertEquals(0, output.size());
 	}
@@ -283,7 +283,7 @@ class MarkdownServiceTest extends FXTest
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
 
 		assertEquals(1, output.size());
 
@@ -300,7 +300,7 @@ class MarkdownServiceTest extends FXTest
 
 		when(emojiService.toUnicode(input)).thenReturn("https://zapek.com \uD83D\uDE42\n");
 
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
 
 		assertEquals(4, output.size()); // url + " " + 🙂 + "\n"
 
@@ -328,7 +328,7 @@ class MarkdownServiceTest extends FXTest
 		when(emojiService.toUnicode(line1)).thenReturn("https://zapek.com \uD83D\uDE42 **yeah**\n");
 		when(emojiService.toUnicode(line2)).thenReturn(line2);
 
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class));
+		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
 
 		assertEquals(9, output.size());
 

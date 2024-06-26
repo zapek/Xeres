@@ -22,6 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
+import io.xeres.ui.support.markdown.LinkAction;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.scene.control.Alert;
 import org.apache.commons.io.FileUtils;
@@ -45,7 +46,7 @@ public class CollectionContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text)
+	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
 		var name = uriComponents.getQueryParams().getFirst("name");
 		var size = uriComponents.getQueryParams().getFirst("size");

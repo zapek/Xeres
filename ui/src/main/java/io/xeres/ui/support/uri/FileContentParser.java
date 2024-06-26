@@ -22,16 +22,21 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.util.UiUtils;
-import javafx.scene.control.Alert;
+import io.xeres.ui.support.markdown.LinkAction;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class FileContentParser implements ContentParser
 {
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_SIZE = "size";
+	public static final String PARAMETER_HASH = "hash";
+
 	@Override
 	public String getProtocol()
 	{
@@ -45,17 +50,23 @@ public class FileContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text)
+	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst("name");
-		var size = uriComponents.getQueryParams().getFirst("size");
-		var hash = uriComponents.getQueryParams().getFirst("hash");
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
+		var hash = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
 
 		if (Stream.of(name, size, hash).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(hash, name + " (" + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Downloading files is not supported yet."));
+		return new ContentUri(hash, name + " (" + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", uri -> {
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put(PARAMETER_NAME, name);
+			parameters.put(PARAMETER_SIZE, size);
+			parameters.put(PARAMETER_HASH, hash);
+			linkAction.openLink(this, parameters);
+		});
 	}
 }

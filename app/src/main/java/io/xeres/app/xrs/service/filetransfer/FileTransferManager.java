@@ -73,7 +73,7 @@ class FileTransferManager implements Runnable
 		{
 			try
 			{
-				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(100, TimeUnit.MILLISECONDS); // XXX: change the timeout value...
+				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(1000, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
 				processCommand(command);
 				processDownloads();
 			}
@@ -144,8 +144,12 @@ class FileTransferManager implements Runnable
 			var fileCreator = new FileLeecher(file, actionDownload.size());
 			if (fileCreator.open())
 			{
-				var agent = new FileTransferAgent(fileCreator);
-				// XXX: add peer... and/or send a search request
+				var agent = new FileTransferAgent(fileTransferRsService, hash, fileCreator);
+				if (actionDownload.from() != null)
+				{
+					agent.addPeer(actionDownload.from());
+				}
+				// XXX: send a search request (otherwise the download won't work without any peer
 				return agent;
 			}
 			else
@@ -249,7 +253,7 @@ class FileTransferManager implements Runnable
 		try
 		{
 			var data = provider.read(location, offset, chunkSize);
-			fileTransferRsService.sendData(location, hash, size, offset, data);
+			fileTransferRsService.sendData(location, hash, size, offset, data); // XXX: this is possibly going to take too much time and will lock the thread! RS uses one thread per connection and we don't
 		}
 		catch (IOException e)
 		{
@@ -259,8 +263,9 @@ class FileTransferManager implements Runnable
 
 	private void processDownloads()
 	{
-		leechers.forEach((sha1Sum, fileCreator) -> {
-			// XXX: ask the peer for the next part... but we don't store the peers here... we need another abstraction!
+		leechers.forEach((sha1Sum, agent) -> {
+			log.debug("Asking {} for next parts", agent);
+			agent.askForNextParts();
 		});
 	}
 }

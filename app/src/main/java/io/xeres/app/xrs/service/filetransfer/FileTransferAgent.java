@@ -19,21 +19,68 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import io.xeres.app.database.model.location.Location;
+import io.xeres.common.id.Sha1Sum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
 class FileTransferAgent
 {
-	private final FileProvider fileProvider;
+	private static final Logger log = LoggerFactory.getLogger(FileTransferAgent.class);
 
-	public FileTransferAgent(FileProvider fileProvider)
+	private final FileTransferRsService fileTransferRsService;
+	private final FileProvider fileProvider;
+	private Sha1Sum hash;
+
+	private List<Location> peers = new ArrayList<>();
+
+	public FileTransferAgent(FileTransferRsService fileTransferRsService, Sha1Sum hash, FileProvider fileProvider)
 	{
+		this.fileTransferRsService = fileTransferRsService;
+		this.hash = hash;
 		this.fileProvider = fileProvider;
 	}
-
-	// XXX: addPeer(), removePeer()
-	// XXX: probably also a method to return what to do to the file transfer manager... or just send the commands directly to the filetransferservice?
-
 
 	public FileProvider getFileProvider()
 	{
 		return fileProvider;
+	}
+
+	public void addPeer(Location peer)
+	{
+		peers.add(peer);
+	}
+
+	void removePeer(Location peer)
+	{
+		if (!peers.remove(peer))
+		{
+			log.warn("Removal of peer {} failed because it's not in the list. This shouldn't happen.", peer);
+		}
+	}
+
+	void askForNextParts()
+	{
+		if (fileProvider instanceof FileLeecher)
+		{
+			// File being downloaded
+
+			if (peers.isEmpty())
+			{
+				log.warn("Asked for next parts even tough there are no peers. Shouldn't happen.");
+				return;
+			}
+			var peer = peers.getFirst();
+
+			fileTransferRsService.sendDataRequest(peer, hash, fileProvider.getFileSize(), 0, FileTransferRsService.CHUNK_SIZE); // XXX: fix! as it only works with files < 1MB...
+		}
+		else if (fileProvider instanceof FileSeeder)
+		{
+			// File being served
+			log.error("Not implemented yet");
+		}
 	}
 }

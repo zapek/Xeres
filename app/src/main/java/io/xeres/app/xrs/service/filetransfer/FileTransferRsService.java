@@ -334,7 +334,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		return encryptedHashes.get(hashOfHash);
 	}
 
-	private void sendDataRequest(Location location, Sha1Sum hash, long size, long offset, int chunkSize)
+	public void sendDataRequest(Location location, Sha1Sum hash, long size, long offset, int chunkSize)
 	{
 		if (turtleRouter.isVirtualPeer(location.getLocationId()))
 		{

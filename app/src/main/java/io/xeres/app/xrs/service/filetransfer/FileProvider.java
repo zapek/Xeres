@@ -28,6 +28,8 @@ interface FileProvider
 {
 	void setFileSize(long size);
 
+	long getFileSize();
+
 	boolean open();
 
 	byte[] read(Location requester, long offset, int size) throws IOException;

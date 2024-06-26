@@ -54,6 +54,16 @@ class FileSeeder implements FileProvider
 	}
 
 	@Override
+	public long getFileSize()
+	{
+		if (channel == null)
+		{
+			throw new IllegalStateException("FileSeeder has not been initialized yet so the file size is not known");
+		}
+		return fileSize;
+	}
+
+	@Override
 	public boolean open()
 	{
 		try

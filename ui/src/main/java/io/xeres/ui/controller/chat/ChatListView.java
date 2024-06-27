@@ -128,6 +128,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private void addMessage(ChatAction chatAction, String message)
 	{
+		message = removeEmtpyImageTag(message);
+
 		var img = Jsoup.parse(message).selectFirst("img");
 
 		if (img != null)
@@ -153,6 +155,21 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 			var chatLine = new ChatLine(Instant.now(), chatAction, content.toArray(new Content[0]));
 			addMessageLine(chatLine);
 		}
+	}
+
+	/**
+	 * Removes the empty <img> tag that is added by Retroshare when sending a file URL.
+	 *
+	 * @param message the message
+	 * @return the cleaned up message
+	 */
+	private String removeEmtpyImageTag(String message)
+	{
+		if (message.startsWith("<img>") && message.length() > 5)
+		{
+			message = message.substring(5);
+		}
+		return message;
 	}
 
 	public void addUser(ChatRoomUserEvent event, AddUserOrigin addUserOrigin)

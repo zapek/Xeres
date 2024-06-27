@@ -259,7 +259,8 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		var id = fileService.addDownload(name, hash, size);
 		if (id != 0L)
 		{
-			var action = new ActionDownload(name, hash, size, null);
+			var location = locationService.findLocationByLocationId(locationId);
+			var action = new ActionDownload(name, hash, size, location.orElse(null));
 			fileCommandQueue.add(new FileTransferCommandAction(action));
 		}
 		return id;

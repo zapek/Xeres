@@ -85,7 +85,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		// Drop messages if SSL peer is not validated
 		if (peerConnection == null)
 		{
-			log.debug("Dropping message as SSL not validated");
+			log.warn("Dropping message as SSL not validated");
 			ReferenceCountUtil.release(msg);
 			return;
 		}
@@ -98,8 +98,8 @@ public class PeerHandler extends ChannelDuplexHandler
 		try
 		{
 			item = rsServiceRegistry.buildIncomingItem(rawItem);
+			log.debug("<== {}", item);
 			rawItem.deserialize(item);
-			log.trace("<== {}", item);
 
 			var service = rsServiceRegistry.getServiceFromType(item.getServiceType());
 			if (service != null)
@@ -118,7 +118,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		}
 		catch (IllegalArgumentException | NoSuchMethodException e)
 		{
-			log.error("Failed to deserialize", e);
+			log.error("Failed to deserialize item {}", item, e);
 			rawItem.dispose();
 			item = null; // Don't dispose twice
 		}
@@ -144,12 +144,12 @@ public class PeerHandler extends ChannelDuplexHandler
 
 		if (cause instanceof TooLongFrameException || cause instanceof IOException)
 		{
-			log.debug("Error in channel of {} (closing connection): ", remote, cause);
+			log.error("Error in channel of {} (closing connection): ", remote, cause);
 			ctx.close();
 		}
 		else
 		{
-			log.error("Error in channel of {} (ignoring):", remote, cause);
+			log.error("Error in channel of {}:", remote, cause);
 		}
 	}
 
@@ -206,7 +206,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		if (log.isDebugEnabled())
 		{
 			var remote = peerConnection != null ? peerConnection : ctx.channel().remoteAddress();
-			log.debug("Closing connection with {} (channel inactive)", remote);
+			log.warn("Closing connection with {} (channel inactive)", remote);
 		}
 
 		if (peerConnection != null)

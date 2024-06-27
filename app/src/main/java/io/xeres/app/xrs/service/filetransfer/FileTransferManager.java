@@ -88,6 +88,10 @@ class FileTransferManager implements Runnable
 
 	private void processCommand(FileTransferCommand command)
 	{
+		if (command == null)
+		{
+			return;
+		}
 		log.debug("Processing command {}...", command);
 
 		if (command instanceof FileTransferCommandItem commandItem)
@@ -149,7 +153,7 @@ class FileTransferManager implements Runnable
 				{
 					agent.addPeer(actionDownload.from());
 				}
-				// XXX: send a search request (otherwise the download won't work without any peer
+				// XXX: send a search request (otherwise the download won't work without any peer)
 				return agent;
 			}
 			else
@@ -197,7 +201,9 @@ class FileTransferManager implements Runnable
 
 		try
 		{
+			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileProvider(), item.getFileData().offset(), item.getFileData().data());
 			agent.getFileProvider().write(location, item.getFileData().offset(), item.getFileData().data());
+			// XXX: check if file is complete here...
 		}
 		catch (IOException e)
 		{

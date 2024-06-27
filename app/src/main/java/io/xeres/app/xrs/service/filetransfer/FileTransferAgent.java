@@ -76,6 +76,7 @@ class FileTransferAgent
 			var peer = peers.getFirst();
 
 			fileTransferRsService.sendDataRequest(peer, hash, fileProvider.getFileSize(), 0, FileTransferRsService.CHUNK_SIZE); // XXX: fix! as it only works with files < 1MB...
+			removePeer(peer); // XXX: hack! we only ask once for now...
 		}
 		else if (fileProvider instanceof FileSeeder)
 		{

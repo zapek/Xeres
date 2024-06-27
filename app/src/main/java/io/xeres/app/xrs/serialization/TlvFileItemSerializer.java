@@ -96,7 +96,8 @@ final class TlvFileItemSerializer
 	{
 		log.trace("Reading TlvFileItem");
 
-		TlvUtils.checkTypeAndLength(buf, FILE_ITEM);
+		var totalSize = TlvUtils.checkTypeAndLength(buf, FILE_ITEM);
+		var index = buf.readerIndex();
 		var size = Serializer.deserializeLong(buf);
 		var hash = (Sha1Sum) Serializer.deserializeIdentifier(buf, Sha1Sum.class);
 
@@ -107,7 +108,7 @@ final class TlvFileItemSerializer
 		int age = 0;
 		int pieceSize = 0;
 		Set<Sha1Sum> chunkHashes = Set.of();
-		while ((tlvType = TlvUtils.peekTlvType(buf)) != null)
+		while (buf.readerIndex() < index + totalSize && (tlvType = TlvUtils.peekTlvType(buf)) != null) // XXX: how to detect when we are done??
 		{
 			switch (tlvType)
 			{

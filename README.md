@@ -19,7 +19,6 @@
 - [Getting Help](#getting-help)
 - [Documentation](#documentation)
 - [Development](#development)
-- [Donations](#donations)
 
 ## Features
 
@@ -171,20 +170,3 @@ Location B:
 
 When running Xeres with the `dev` profile, JMX monitoring is available either using JConsole or [VisualVM](https://visualvm.github.io/).
 Simply run them and connect to the Xeres session.
-
-## Donations
-
-Please consider a donation to help with the project's development. Contact me if you want to get listed in the application's about window. The more donations, the more time is allocated on the project.
-
-| Method | Address                                                                                         |
-|--------|-------------------------------------------------------------------------------------------------|
-| GitHub | https://github.com/sponsors/zapek                                                               |
-| PayPal | https://www.paypal.me/zapek666                                                                  |
-| Coffee | https://www.buymeacoffee.com/zapek                                                              |
-| BTC    | bc1qn57zvp8s3h6renf805fan53kt7q4j963g7prvt                                                      |
-| XMR    | 84czz4Vg44GaGmQF8Lst3uWEMyXLSahBffhrDd77jdVJEoKCtUJF96mGQ4XzcYrLG1JGaj2hr2sMoDoihQ52MT1jMBnucyu |
-| GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |
-| ZEN    | znePxvhiUQLp7arEEVvuC1rkofgJf3LZ2uw                                                             |
-| BAT    | https://github.com/zapek/Xeres/commits?author=zapek (use tip button in Brave browser)           |
-
-Thank you!

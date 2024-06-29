@@ -55,7 +55,7 @@
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
                     <Text text="%about.slogan" styleClass="text-caption"/>
-                    <Text text="&#10;&#10;©2019-2023 by David Gerber, All Rights Reserved&#10;&#10;"/>
+                    <Text text="&#10;&#10;©2019-2024 by David Gerber, All Rights Reserved&#10;&#10;"/>
                     <DisclosedHyperlink text="Report bugs or suggest improvements." uri="https://github.com/zapek/Xeres/issues/new/choose"/>
                     <Text text="&#10;&#10;"/>
                     <DisclosedHyperlink text="Website" uri="https://xeres.io"/>
@@ -75,18 +75,6 @@
                     <Text text="David Gerber (Zapek)&#10;" styleClass="text-caption"/>
                     <DisclosedHyperlink text="dg@zapek.com" uri="mailto:dg@zapek.com"/>
                     <Text text="&#10;Benevolent dictator, lead developer" styleClass="text-italic"/>
-                </TextFlow>
-            </ScrollPane>
-        </Tab>
-        <Tab text="%about.supporters">
-            <ScrollPane fitToWidth="true">
-                <TextFlow>
-                    <padding>
-                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
-                    </padding>
-                    <Text text="Please "/>
-                    <DisclosedHyperlink text="make a donation." uri="https://xeres.io/donate"/>
-                    <Text text="&#10;All sponsors will be listed here (opt-in)."/>
                 </TextFlow>
             </ScrollPane>
         </Tab>

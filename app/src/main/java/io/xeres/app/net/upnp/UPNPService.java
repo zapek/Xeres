@@ -40,9 +40,9 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class UPNPService implements Runnable
@@ -78,13 +78,15 @@ public class UPNPService implements Runnable
 			// Most routers will respond to all entries
 	};
 
-	private static final String OWN_IP_HOST = "myip.opendns.com";
+	private static final String OPENDNS_OWN_IP_HOST = "myip.opendns.com";
+	private static final String AKAMAI_OWN_IP_HOST = "whoami.akamai.net";
 
-	private static final List<String> NAME_SERVERS = Arrays.asList(
-			"208.67.222.222", // resolver1.opendns.com
-			"208.67.220.220", // resolver2.opendns.com
-			"208.67.222.220", // resolver3.opendns.com
-			"208.67.220.222"  // resolver4.opendns.com
+	private static final Map<String, String> RESOLVERS = Map.of(
+			"208.67.222.222", OPENDNS_OWN_IP_HOST, // resolver1.opendns.com
+			"208.67.220.220", OPENDNS_OWN_IP_HOST, // resolver2.opendns.com
+			"208.67.222.220", OPENDNS_OWN_IP_HOST, // resolver3.opendns.com
+			"208.67.220.222", OPENDNS_OWN_IP_HOST, // resolver4.opendns.com
+			"193.108.88.1", AKAMAI_OWN_IP_HOST // ns1-1.akamaitech.net
 	);
 
 	private enum State
@@ -452,16 +454,18 @@ public class UPNPService implements Runnable
 
 	private boolean findExternalIpAddressUsingDns()
 	{
-		Collections.shuffle(NAME_SERVERS);
+		var keys = new ArrayList<>(RESOLVERS.keySet());
+		Collections.shuffle(keys);
+
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			InetAddress externalIpAddress = null;
 
-			for (String nameServer : NAME_SERVERS)
+			for (String nameServer : keys)
 			{
 				try
 				{
-					externalIpAddress = DNS.resolve(OWN_IP_HOST, nameServer);
+					externalIpAddress = DNS.resolve(RESOLVERS.get(nameServer), nameServer);
 				}
 				catch (IOException e)
 				{

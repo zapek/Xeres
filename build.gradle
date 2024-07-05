@@ -35,7 +35,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.1' apply false
     id 'org.flywaydb.flyway' version '10.0.0' apply false // Keep the version in sync with spring-boot from time to time
     id 'org.panteleyev.jpackageplugin' version '1.6.0' apply false
-    id 'org.sonarqube' version '5.0.0.4638'
+    id 'org.sonarqube' version '5.1.0.4882'
 }
 
 // To upgrade Gradle, change the version here, refresh, then run the 'wrapper' task

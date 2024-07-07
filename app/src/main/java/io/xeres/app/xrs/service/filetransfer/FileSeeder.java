@@ -49,12 +49,6 @@ class FileSeeder implements FileProvider
 	}
 
 	@Override
-	public void setFileSize(long size)
-	{
-		throw new IllegalArgumentException("Cannot set the file size of a read only file");
-	}
-
-	@Override
 	public long getFileSize()
 	{
 		if (channel == null)
@@ -88,7 +82,7 @@ class FileSeeder implements FileProvider
 	@Override
 	public byte[] read(Location requester, long offset, int size) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
 	{
-		// XXX: update the status of the peer
+		// XXX: update the status of the peer (or do it from somewhere else...)
 
 		int bufferSize = (int) Math.min(size, fileSize);
 		var buf = ByteBuffer.allocate(bufferSize);

@@ -26,8 +26,6 @@ import java.util.List;
 
 interface FileProvider
 {
-	void setFileSize(long size);
-
 	long getFileSize();
 
 	boolean open();

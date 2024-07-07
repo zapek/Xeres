@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileSeederTest
@@ -30,15 +31,6 @@ class FileSeederTest
 	}
 
 	@Test
-	void FileSeeder_SetFileSize_Refused() throws IOException
-	{
-		var tempFile = createTempFile(0);
-		var fileSeeder = new FileSeeder(tempFile);
-		assertThrows(IllegalArgumentException.class, () -> fileSeeder.setFileSize(10));
-		deleteTempFile(tempFile);
-	}
-
-	@Test
 	void FileSeeder_GetFileSize_NotInitialized() throws IOException
 	{
 		var tempFile = createTempFile(0);
@@ -54,6 +46,7 @@ class FileSeederTest
 		var fileSeeder = new FileSeeder(tempFile);
 		fileSeeder.open();
 		assertEquals(TEMP_FILE_SIZE, fileSeeder.getFileSize());
+		fileSeeder.close();
 		deleteTempFile(tempFile);
 	}
 
@@ -65,6 +58,7 @@ class FileSeederTest
 		var fileSeeder = new FileSeeder(tempFile);
 		fileSeeder.open();
 		assertThrows(IllegalArgumentException.class, () -> fileSeeder.write(location, 0, new byte[]{1, 2, 3}));
+		fileSeeder.close();
 		deleteTempFile(tempFile);
 	}
 
@@ -76,6 +70,7 @@ class FileSeederTest
 		var fileSeeder = new FileSeeder(tempFile);
 		fileSeeder.open();
 		assertArrayEquals(Files.readAllBytes(tempFile.toPath()), fileSeeder.read(location, 0, TEMP_FILE_SIZE));
+		fileSeeder.close();
 		deleteTempFile(tempFile);
 	}
 
@@ -85,7 +80,18 @@ class FileSeederTest
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
 		var fileSeeder = new FileSeeder(tempFile);
 		fileSeeder.open();
-		assertEquals(1, fileSeeder.getCompressedChunkMap().getFirst());
+		assertEquals(TEMP_FILE_SIZE / CHUNK_SIZE + 1, fileSeeder.getCompressedChunkMap().getFirst());
+		fileSeeder.close();
+		deleteTempFile(tempFile);
+	}
+
+	@Test
+	void FileSeeder_IsComplete_OK() throws IOException
+	{
+		var tempFile = createTempFile(0);
+		var fileSeeder = new FileSeeder(tempFile);
+		fileSeeder.isComplete();
+		assertTrue(fileSeeder.isComplete());
 		deleteTempFile(tempFile);
 	}
 }

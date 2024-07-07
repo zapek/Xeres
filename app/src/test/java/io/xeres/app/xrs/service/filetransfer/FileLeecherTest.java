@@ -19,26 +19,35 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.util.OsUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FileLeecherTest
 {
-	@Test
-	void FileCreator_Sparse_OK()
+	private static String tempDir;
+
+	@BeforeAll
+	public static void setup()
 	{
-		var tempDir = System.getProperty("java.io.tmpdir");
-		System.out.println("Temp dir: " + tempDir);
+		tempDir = System.getProperty("java.io.tmpdir");
+	}
+
+	@Test
+	void FileLeecher_Sparse_OK()
+	{
 		var file = Paths.get(tempDir, "sparsefile.tmp").toFile();
-		var fileCreator = new FileLeecher(file, 16384);
-		fileCreator.open();
-		fileCreator.close();
+		var fileLeecher = new FileLeecher(file, 16384);
+		fileLeecher.open();
+		assertEquals(16384, fileLeecher.getFileSize());
+		fileLeecher.close();
 
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
@@ -53,7 +62,18 @@ class FileLeecherTest
 
 			assertTrue(storageSize < fileSize);
 		}
+		file.delete();
+	}
 
+	@Test
+	void FileLeecher_Read_NotAvailable()
+	{
+		var location = LocationFakes.createLocation();
+		var file = Paths.get(tempDir, "filesize.tmp").toFile();
+		var fileLeecher = new FileLeecher(file, 256);
+		fileLeecher.open();
+		assertThrows(IOException.class, () -> fileLeecher.read(location, 0, 256));
+		fileLeecher.close();
 		file.delete();
 	}
 }

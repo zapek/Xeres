@@ -49,11 +49,10 @@ class FileLeecher extends FileSeeder
 		setFileSize(size);
 	}
 
-	@Override
-	public void setFileSize(long size)
+	private void setFileSize(long size)
 	{
 		fileSize = size;
-		chunkMap = new BitSet((int) (size / CHUNK_SIZE)); // a chunk represents 1 MB
+		chunkMap = new BitSet((int) (size / CHUNK_SIZE + (size % CHUNK_SIZE != 0 ? 1 : 0))); // a chunk represents 1 MB
 	}
 
 	@Override

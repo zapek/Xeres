@@ -167,6 +167,12 @@ class FileLeecher extends FileSeeder
 		return chunkList;
 	}
 
+	@Override
+	public boolean isComplete()
+	{
+		return false; // XXX: return true once all chunks are set
+	}
+
 	private boolean isChunkAvailable(long offset, int chunkSize)
 	{
 		int chunkStart = (int) (offset / chunkSize);

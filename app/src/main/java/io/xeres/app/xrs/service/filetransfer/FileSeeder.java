@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,9 +106,29 @@ class FileSeeder implements FileProvider
 	@Override
 	public List<Integer> getCompressedChunkMap()
 	{
-		// This is inexact because there's always more chunks than
-		// the real file size, but RS does the same.
-		return Collections.nCopies(getNumberOfChunks(), 0xffffffff);
+
+		// The RS implementation returns the last integer filled with 0xffffffff so there's always
+		// more chunks than what there really is. We return the real number of chunks though.
+		List<Integer> chunksList = new ArrayList<>();
+		var totalChunks = getNumberOfChunks();
+		var fullChunks = totalChunks / 32;
+		if (fullChunks > 0)
+		{
+			chunksList.addAll(Collections.nCopies(fullChunks, 0xffffffff));
+		}
+		chunksList.add(getLastChunk(totalChunks % 32));
+		return chunksList;
+	}
+
+	private int getLastChunk(int chunks)
+	{
+		int value = 0;
+
+		for (int i = 0; i < chunks; i++)
+		{
+			value |= 1 << i;
+		}
+		return value;
 	}
 
 	protected int getNumberOfChunks()
@@ -137,5 +158,11 @@ class FileSeeder implements FileProvider
 		{
 			log.error("Failed to close file {} properly", file, e);
 		}
+	}
+
+	@Override
+	public boolean isComplete()
+	{
+		return true;
 	}
 }

@@ -39,4 +39,6 @@ interface FileProvider
 	void close();
 
 	List<Integer> getCompressedChunkMap();
+
+	boolean isComplete();
 }

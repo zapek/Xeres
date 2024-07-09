@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.util.OsUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -68,11 +67,10 @@ class FileLeecherTest
 	@Test
 	void FileLeecher_Read_NotAvailable()
 	{
-		var location = LocationFakes.createLocation();
 		var file = Paths.get(tempDir, "filesize.tmp").toFile();
 		var fileLeecher = new FileLeecher(file, 256);
 		fileLeecher.open();
-		assertThrows(IOException.class, () -> fileLeecher.read(location, 0, 256));
+		assertThrows(IOException.class, () -> fileLeecher.read(0, 256));
 		fileLeecher.close();
 		file.delete();
 	}

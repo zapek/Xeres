@@ -19,8 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.database.model.location.Location;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -30,9 +28,9 @@ interface FileProvider
 
 	boolean open();
 
-	byte[] read(Location requester, long offset, int size) throws IOException;
+	byte[] read(long offset, int size) throws IOException;
 
-	void write(Location request, long offset, byte[] data) throws IOException;
+	void write(long offset, byte[] data) throws IOException;
 
 	void close();
 

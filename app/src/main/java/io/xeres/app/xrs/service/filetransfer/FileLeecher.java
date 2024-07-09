@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.database.model.location.Location;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +28,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 import static java.nio.file.StandardOpenOption.*;
@@ -42,6 +39,7 @@ class FileLeecher extends FileSeeder
 	private RandomAccessFile randomAccessFile;
 
 	private BitSet chunkMap;
+	private final Map<Integer, Block> blocksInChunk = new HashMap<>();
 
 	public FileLeecher(File file, long size)
 	{
@@ -109,26 +107,26 @@ class FileLeecher extends FileSeeder
 	}
 
 	@Override
-	public byte[] read(Location requester, long offset, int size) throws IOException
+	public byte[] read(long offset, int size) throws IOException
 	{
 		if (isChunkAvailable(offset, size))
 		{
-			return super.read(requester, offset, size);
+			return super.read(offset, size);
 		}
 		throw new IOException("File at offset " + offset + " with size " + size + " is not available yet.");
 	}
 
 	@Override
-	public void write(Location requester, long offset, byte[] data) throws IOException
+	public void write(long offset, byte[] data) throws IOException
 	{
 		// XXX: update the status of the peer
 		var buf = ByteBuffer.wrap(data);
 		var size = channel.write(buf, offset);
-		// XXX: update the available chunks
 		if (size != data.length)
 		{
 			throw new IOException("Failed to write data, requested size: " + data.length + ", actually written: " + size);
 		}
+		markBlockAsWritten(offset);
 	}
 
 	@Override
@@ -190,5 +188,18 @@ class FileLeecher extends FileSeeder
 			}
 		}
 		return true;
+	}
+
+	private void markBlockAsWritten(long offset)
+	{
+		int chunkKey = (int) (offset / CHUNK_SIZE);
+		var block = blocksInChunk.computeIfAbsent(chunkKey, k -> new Block());
+		block.setBlock(offset);
+
+		if (block.isComplete())
+		{
+			chunkMap.set(chunkKey);
+			blocksInChunk.remove(chunkKey);
+		}
 	}
 }

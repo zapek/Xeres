@@ -1,6 +1,5 @@
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.testutils.RandomUtils;
 import org.junit.jupiter.api.Test;
 
@@ -53,11 +52,10 @@ class FileSeederTest
 	@Test
 	void FileSeeder_Write_Illegal() throws IOException
 	{
-		var location = LocationFakes.createLocation();
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
 		var fileSeeder = new FileSeeder(tempFile);
 		fileSeeder.open();
-		assertThrows(IllegalArgumentException.class, () -> fileSeeder.write(location, 0, new byte[]{1, 2, 3}));
+		assertThrows(IllegalArgumentException.class, () -> fileSeeder.write(0, new byte[]{1, 2, 3}));
 		fileSeeder.close();
 		deleteTempFile(tempFile);
 	}
@@ -65,11 +63,10 @@ class FileSeederTest
 	@Test
 	void FileSeeder_Read_OK() throws IOException
 	{
-		var location = LocationFakes.createLocation();
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
 		var fileSeeder = new FileSeeder(tempFile);
 		fileSeeder.open();
-		assertArrayEquals(Files.readAllBytes(tempFile.toPath()), fileSeeder.read(location, 0, TEMP_FILE_SIZE));
+		assertArrayEquals(Files.readAllBytes(tempFile.toPath()), fileSeeder.read(0, TEMP_FILE_SIZE));
 		fileSeeder.close();
 		deleteTempFile(tempFile);
 	}

@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.database.model.location.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,10 +79,8 @@ class FileSeeder implements FileProvider
 	}
 
 	@Override
-	public byte[] read(Location requester, long offset, int size) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
+	public byte[] read(long offset, int size) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
 	{
-		// XXX: update the status of the peer (or do it from somewhere else...)
-
 		int bufferSize = (int) Math.min(size, fileSize);
 		var buf = ByteBuffer.allocate(bufferSize);
 		channel.read(buf, offset);
@@ -92,7 +89,7 @@ class FileSeeder implements FileProvider
 	}
 
 	@Override
-	public void write(Location request, long offset, byte[] data) throws IOException
+	public void write(long offset, byte[] data) throws IOException
 	{
 		throw new IllegalArgumentException("Cannot write data to a file provider");
 	}
@@ -101,7 +98,7 @@ class FileSeeder implements FileProvider
 	public List<Integer> getCompressedChunkMap()
 	{
 
-		// The RS implementation returns the last integer filled with 0xffffffff so there's always
+		// The RS implementation returns the last integer filled with 0xffffffff so there's often
 		// more chunks than what there really is. We return the real number of chunks though.
 		List<Integer> chunksList = new ArrayList<>();
 		var totalChunks = getNumberOfChunks();

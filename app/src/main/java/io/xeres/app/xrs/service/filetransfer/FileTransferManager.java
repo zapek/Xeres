@@ -202,7 +202,8 @@ class FileTransferManager implements Runnable
 		try
 		{
 			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileProvider(), item.getFileData().offset(), item.getFileData().data());
-			agent.getFileProvider().write(location, item.getFileData().offset(), item.getFileData().data());
+			// XXX: update location stats for writing (see how RS does it)
+			agent.getFileProvider().write(item.getFileData().offset(), item.getFileData().data());
 			// XXX: check if file is complete here...
 		}
 		catch (IOException e)
@@ -258,7 +259,8 @@ class FileTransferManager implements Runnable
 
 		try
 		{
-			var data = provider.read(location, offset, chunkSize);
+			// XXX: update location stats for reading, see how RS does it
+			var data = provider.read(offset, chunkSize);
 			fileTransferRsService.sendData(location, hash, size, offset, data); // XXX: this is possibly going to take too much time and will lock the thread! RS uses one thread per connection and we don't
 		}
 		catch (IOException e)

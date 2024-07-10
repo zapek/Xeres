@@ -33,7 +33,7 @@ class FileTransferAgent
 
 	private final FileTransferRsService fileTransferRsService;
 	private final FileProvider fileProvider;
-	private Sha1Sum hash;
+	private final Sha1Sum hash;
 
 	private List<Location> peers = new ArrayList<>();
 
@@ -67,7 +67,6 @@ class FileTransferAgent
 		if (fileProvider instanceof FileLeecher)
 		{
 			// File being downloaded
-
 			if (peers.isEmpty())
 			{
 				log.warn("Asked for next parts even tough there are no peers. Shouldn't happen.");
@@ -75,7 +74,8 @@ class FileTransferAgent
 			}
 			var peer = peers.getFirst();
 
-			fileTransferRsService.sendDataRequest(peer, hash, fileProvider.getFileSize(), 0, FileTransferRsService.CHUNK_SIZE); // XXX: fix! as it only works with files < 1MB...
+			// A for a chunk, the peer will send them in multiple blocks
+			fileTransferRsService.sendDataRequest(peer, hash, fileProvider.getFileSize(), 0, FileTransferRsService.CHUNK_SIZE); // XXX: fix! as it only works with files < 1MB... need to know if the previous chunk is finished, ask for other chunk, etc...
 			removePeer(peer); // XXX: hack! we only ask once for now...
 		}
 		else if (fileProvider instanceof FileSeeder)

@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.filetransfer;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 interface FileProvider
@@ -37,4 +38,6 @@ interface FileProvider
 	List<Integer> getCompressedChunkMap();
 
 	boolean isComplete();
+
+	Path getPath();
 }

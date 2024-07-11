@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -155,5 +156,11 @@ class FileSeeder implements FileProvider
 	public boolean isComplete()
 	{
 		return true;
+	}
+
+	@Override
+	public Path getPath()
+	{
+		return file.toPath();
 	}
 }

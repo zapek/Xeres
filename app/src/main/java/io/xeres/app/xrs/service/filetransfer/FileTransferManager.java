@@ -32,9 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -58,8 +56,6 @@ class FileTransferManager implements Runnable
 	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
 	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
 
-	private final List<ChunkSender> senders = new ArrayList<>(); // XXX: how to round robin them?
-
 	public FileTransferManager(FileTransferRsService fileTransferRsService, SettingsService settingsService, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
 	{
 		this.fileTransferRsService = fileTransferRsService;
@@ -79,8 +75,8 @@ class FileTransferManager implements Runnable
 			{
 				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(1000, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
 				processCommand(command);
-				processDownloads();
-				processUploads();
+				leechers.entrySet().removeIf(agent -> !agent.getValue().process());
+				seeders.entrySet().removeIf(agent -> !agent.getValue().process());
 			}
 			catch (InterruptedException e)
 			{
@@ -153,10 +149,10 @@ class FileTransferManager implements Runnable
 			var fileCreator = new FileLeecher(file, actionDownload.size());
 			if (fileCreator.open())
 			{
-				var agent = new FileTransferAgent(fileTransferRsService, hash, fileCreator);
+				var agent = new FileTransferAgent(fileTransferRsService, actionDownload.name(), hash, fileCreator);
 				if (actionDownload.from() != null)
 				{
-					agent.addPeer(actionDownload.from());
+					agent.addPeerForReceiving(actionDownload.from());
 				}
 				// XXX: send a search request (otherwise the download won't work without any peer)
 				return agent;
@@ -182,11 +178,11 @@ class FileTransferManager implements Runnable
 			agent = leechers.get(item.getFileItem().hash());
 			if (agent == null)
 			{
-				agent = seeders.get(item.getFileItem().hash());
+				agent = seeders.get(item.getFileItem().hash()); // XXX: wrong! we need to create and add the agent here if the file exists!
 			}
 			if (agent != null)
 			{
-				handleSeederRequest(location, agent.getFileProvider(), item.getFileItem().hash(), item.getFileItem().size(), item.getFileOffset(), item.getChunkSize());
+				handleSeederRequest(location, agent, item.getFileItem().hash(), item.getFileItem().size(), item.getFileOffset(), item.getChunkSize());
 				return;
 			}
 		}
@@ -210,10 +206,6 @@ class FileTransferManager implements Runnable
 			// XXX: update location stats for writing (see how RS does it)
 			var fileProvider = agent.getFileProvider();
 			fileProvider.write(item.getFileData().offset(), item.getFileData().data());
-			if (fileProvider.isComplete())
-			{
-				// XXX: rename the file and turn it into a seeder? or keep it that way... is this really the place to do it? I don't think so! should be in askNextParts or so
-			}
 		}
 		catch (IOException e)
 		{
@@ -258,7 +250,7 @@ class FileTransferManager implements Runnable
 		// XXX: not sure what to do yet, complicated
 	}
 
-	private void handleSeederRequest(Location location, FileProvider provider, Sha1Sum hash, long size, long offset, int chunkSize)
+	private void handleSeederRequest(Location location, FileTransferAgent agent, Sha1Sum hash, long size, long offset, int chunkSize)
 	{
 		if (chunkSize > CHUNK_SIZE)
 		{
@@ -266,28 +258,6 @@ class FileTransferManager implements Runnable
 			return;
 		}
 		// XXX: update location stats for reading, see how RS does it
-		senders.add(new ChunkSender(fileTransferRsService, location, provider, hash, size, offset, chunkSize));
-	}
-
-	private void processDownloads()
-	{
-		leechers.forEach((sha1Sum, agent) -> {
-			log.debug("Asking {} for next parts", agent);
-			agent.askForNextParts();
-		});
-	}
-
-	private void processUploads()
-	{
-		var it = senders.iterator();
-		while (it.hasNext())
-		{
-			var chunkSender = it.next();
-			log.debug("Sending data...");
-			if (!chunkSender.send())
-			{
-				it.remove();
-			}
-		}
+		agent.addPeerForSending(location, offset, chunkSize);
 	}
 }

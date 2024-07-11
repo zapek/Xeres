@@ -24,8 +24,12 @@ import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 class FileTransferAgent
 {
@@ -34,8 +38,16 @@ class FileTransferAgent
 	private final FileTransferRsService fileTransferRsService;
 	private final FileProvider fileProvider;
 	private final Sha1Sum hash;
+	private String fileName;
 
-	private List<Location> peers = new ArrayList<>();
+	private final Map<Location, ChunkSender> senders = new LinkedHashMap<>();
+	private final Map<Location, ChunkReceiver> receivers = new LinkedHashMap<>();
+
+	public FileTransferAgent(FileTransferRsService fileTransferRsService, String fileName, Sha1Sum hash, FileProvider fileProvider)
+	{
+		this(fileTransferRsService, hash, fileProvider);
+		this.fileName = fileName;
+	}
 
 	public FileTransferAgent(FileTransferRsService fileTransferRsService, Sha1Sum hash, FileProvider fileProvider)
 	{
@@ -49,39 +61,130 @@ class FileTransferAgent
 		return fileProvider;
 	}
 
-	public void addPeer(Location peer)
+	public void addPeerForReceiving(Location peer)
 	{
-		peers.add(peer);
+		receivers.computeIfAbsent(peer, k -> new ChunkReceiver());
 	}
 
-	void removePeer(Location peer)
+	public void addPeerForSending(Location peer, long offset, int size)
 	{
-		if (!peers.remove(peer))
+		senders.computeIfAbsent(peer, k -> new ChunkSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
+	}
+
+	public void removePeer(Location peer)
+	{
+		if (receivers.remove(peer) == null && senders.remove(peer) == null)
 		{
 			log.warn("Removal of peer {} failed because it's not in the list. This shouldn't happen.", peer);
 		}
 	}
 
-	void askForNextParts()
+	public boolean process()
 	{
-		if (fileProvider instanceof FileLeecher)
-		{
-			// File being downloaded
-			if (peers.isEmpty())
-			{
-				log.warn("Asked for next parts even tough there are no peers. Shouldn't happen.");
-				return;
-			}
-			var peer = peers.getFirst();
+		processDownloads();
+		processUploads();
+		return senders.isEmpty() && receivers.isEmpty();
+	}
 
-			// A for a chunk, the peer will send them in multiple blocks
-			fileTransferRsService.sendDataRequest(peer, hash, fileProvider.getFileSize(), 0, FileTransferRsService.CHUNK_SIZE); // XXX: fix! as it only works with files < 1MB... need to know if the previous chunk is finished, ask for other chunk, etc...
-			removePeer(peer); // XXX: hack! we only ask once for now...
-		}
-		else if (fileProvider instanceof FileSeeder)
+	private void processDownloads()
+	{
+		receivers.entrySet().stream()
+				.skip(ThreadLocalRandom.current().nextInt(receivers.size()))
+				.findFirst().ifPresent(entry -> {
+					if (entry.getValue().isReceiving())
+					{
+						if (isChunkReceived(entry.getValue().getChunkNumber()))
+						{
+							entry.getValue().setReceiving(false);
+						}
+					}
+					else
+					{
+						if (fileProvider.isComplete())
+						{
+							var filePath = fileProvider.getPath();
+							try
+							{
+								Files.move(filePath, filePath.resolveSibling(fileName));
+							}
+							catch (FileAlreadyExistsException e)
+							{
+								log.error("Name already exists!");
+								// XXX: rename the file with (1) or so and try again... what does RS do?
+							}
+							catch (IOException e)
+							{
+								throw new RuntimeException(e);
+							}
+							receivers.remove(entry.getKey());
+						}
+						else
+						{
+							var chunkNumber = getNextChunk();
+							fileTransferRsService.sendDataRequest(entry.getKey(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
+							entry.getValue().setChunkNumber(chunkNumber);
+							entry.getValue().setReceiving(true);
+						}
+					}
+				});
+	}
+
+	private void processUploads()
+	{
+		senders.entrySet().stream()
+				.skip(ThreadLocalRandom.current().nextInt(senders.size()))
+				.findFirst().ifPresent(entry -> {
+					var chunkSender = entry.getValue();
+					var remaining = chunkSender.send();
+					if (!remaining)
+					{
+						senders.remove(entry.getKey());
+					}
+				});
+	}
+
+	/**
+	 * Gets the next available chunk.
+	 *
+	 * @return the chunk number
+	 */
+	private int getNextChunk()
+	{
+		if (fileProvider.isComplete())
 		{
-			// File being served
-			log.error("Not implemented yet");
+			throw new IllegalStateException("Cannot find the next chunk of a complete file");
 		}
+		var compressedChunkMap = fileProvider.getCompressedChunkMap();
+
+		for (int i = 0; i < compressedChunkMap.size(); i++)
+		{
+			var slice = compressedChunkMap.get(i);
+			if (slice != 0xffffffff)
+			{
+				return i * 32 + getChunkIndex(slice);
+			}
+		}
+		throw new IllegalStateException("Cannot find the next chunk of an incomplete file. This is impossible");
+	}
+
+	private int getChunkIndex(int slice)
+	{
+		for (int i = 0; i < 32; i++)
+		{
+			if ((slice & 1 << i) == 0)
+			{
+				return i;
+			}
+		}
+		throw new IllegalStateException("Slice has no chunk available, this is impossible");
+	}
+
+	private boolean isChunkReceived(int chunkNumber)
+	{
+		var compressedChunkMap = fileProvider.getCompressedChunkMap();
+
+		var slice = compressedChunkMap.get(chunkNumber * 32);
+
+		return (slice & 1 << (chunkNumber % 32)) != 0;
 	}
 }

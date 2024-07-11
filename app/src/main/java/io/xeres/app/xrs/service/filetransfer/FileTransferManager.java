@@ -32,7 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -56,6 +58,8 @@ class FileTransferManager implements Runnable
 	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
 	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
 
+	private final List<ChunkSender> senders = new ArrayList<>(); // XXX: how to round robin them?
+
 	public FileTransferManager(FileTransferRsService fileTransferRsService, SettingsService settingsService, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
 	{
 		this.fileTransferRsService = fileTransferRsService;
@@ -76,6 +80,7 @@ class FileTransferManager implements Runnable
 				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(1000, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
 				processCommand(command);
 				processDownloads();
+				processUploads();
 			}
 			catch (InterruptedException e)
 			{
@@ -203,8 +208,12 @@ class FileTransferManager implements Runnable
 		{
 			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileProvider(), item.getFileData().offset(), item.getFileData().data());
 			// XXX: update location stats for writing (see how RS does it)
-			agent.getFileProvider().write(item.getFileData().offset(), item.getFileData().data());
-			// XXX: check if file is complete here...
+			var fileProvider = agent.getFileProvider();
+			fileProvider.write(item.getFileData().offset(), item.getFileData().data());
+			if (fileProvider.isComplete())
+			{
+				// XXX: rename the file and turn it into a seeder? or keep it that way... is this really the place to do it? I don't think so! should be in askNextParts or so
+			}
 		}
 		catch (IOException e)
 		{
@@ -256,17 +265,8 @@ class FileTransferManager implements Runnable
 			log.warn("Peer {} is requesting a large chunk ({}) for hash {}", location, chunkSize, hash);
 			return;
 		}
-
-		try
-		{
-			// XXX: update location stats for reading, see how RS does it
-			var data = provider.read(offset, chunkSize);
-			fileTransferRsService.sendData(location, hash, size, offset, data); // XXX: this is possibly going to take too much time and will lock the thread! RS uses one thread per connection and we don't
-		}
-		catch (IOException e)
-		{
-			log.error("Failed to read file", e);
-		}
+		// XXX: update location stats for reading, see how RS does it
+		senders.add(new ChunkSender(fileTransferRsService, location, provider, hash, size, offset, chunkSize));
 	}
 
 	private void processDownloads()
@@ -275,5 +275,19 @@ class FileTransferManager implements Runnable
 			log.debug("Asking {} for next parts", agent);
 			agent.askForNextParts();
 		});
+	}
+
+	private void processUploads()
+	{
+		var it = senders.iterator();
+		while (it.hasNext())
+		{
+			var chunkSender = it.next();
+			log.debug("Sending data...");
+			if (!chunkSender.send())
+			{
+				it.remove();
+			}
+		}
 	}
 }

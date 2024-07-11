@@ -40,11 +40,11 @@ public class TurtleFileDataItem extends TurtleGenericTunnelItem implements Clone
 		setDirection(CLIENT);
 	}
 
-	public TurtleFileDataItem(long chunkOffset, int chunkSize, byte[] chunkData)
+	public TurtleFileDataItem(long chunkOffset, byte[] chunkData)
 	{
 		super();
 		this.chunkOffset = chunkOffset;
-		this.chunkSize = chunkSize;
+		this.chunkSize = chunkData.length;
 		this.chunkData = chunkData;
 	}
 

@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -409,31 +408,27 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	void sendData(Location location, Sha1Sum hash, long size, long baseOffset, byte[] data)
 	{
-		var remaining = data.length;
-		int offset = 0;
-		int chunkSize;
-		var buf = ByteBuffer.wrap(data);
-
-		while (remaining > 0)
+		if (data.length > 0)
 		{
-			chunkSize = Math.min(8 * 1024, remaining); // 8 KB or the remainder
-			var tmp = new byte[chunkSize];
-
-			buf.get(tmp, offset, chunkSize);
+			if (data.length > BLOCK_SIZE)
+			{
+				throw new IllegalArgumentException("Maximum send size must be " + BLOCK_SIZE + ", not " + data.length);
+			}
 
 			if (turtleRouter.isVirtualPeer(location.getLocationId()))
 			{
-				var item = new TurtleFileDataItem(baseOffset + offset, chunkSize, tmp);
+				var item = new TurtleFileDataItem(baseOffset, data);
 				sendTurtleItem(location.getLocationId(), hash, item);
 			}
 			else
 			{
-				var item = new FileTransferDataItem(baseOffset + offset, size, hash, tmp);
+				var item = new FileTransferDataItem(baseOffset, size, hash, data);
 				peerConnectionManager.writeItem(location, item, this);
 			}
-
-			offset += chunkSize;
-			remaining -= chunkSize;
+		}
+		else
+		{
+			log.debug("Empty data, nothing to send. Bug?!");
 		}
 	}
 }

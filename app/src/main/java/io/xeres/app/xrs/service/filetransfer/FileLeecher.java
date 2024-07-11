@@ -119,7 +119,6 @@ class FileLeecher extends FileSeeder
 	@Override
 	public void write(long offset, byte[] data) throws IOException
 	{
-		// XXX: update the status of the peer
 		var buf = ByteBuffer.wrap(data);
 		var size = channel.write(buf, offset);
 		if (size != data.length)
@@ -167,7 +166,7 @@ class FileLeecher extends FileSeeder
 	@Override
 	public boolean isComplete()
 	{
-		return false; // XXX: return true once all chunks are set
+		return chunkMap.cardinality() == chunkMap.size();
 	}
 
 	private boolean isChunkAvailable(long offset, int chunkSize)

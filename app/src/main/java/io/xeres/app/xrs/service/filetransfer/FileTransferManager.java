@@ -196,13 +196,13 @@ class FileTransferManager implements Runnable
 		var agent = leechers.get(item.getFileData().fileItem().hash());
 		if (agent == null)
 		{
-			log.error("No matching agent for hash {}", item.getFileData().fileItem().hash());
+			log.error("No matching agent for hash {} for receiving data", item.getFileData().fileItem().hash());
 			return;
 		}
 
 		try
 		{
-			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileProvider(), item.getFileData().offset(), item.getFileData().data());
+			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileProvider(), item.getFileData().offset(), item.getFileData().data().length);
 			// XXX: update location stats for writing (see how RS does it)
 			var fileProvider = agent.getFileProvider();
 			fileProvider.write(item.getFileData().offset(), item.getFileData().data());
@@ -218,7 +218,7 @@ class FileTransferManager implements Runnable
 		var agent = leechers.get(item.getHash());
 		if (agent == null)
 		{
-			log.error("No matching agent for hash {}", item.getHash());
+			log.error("No matching agent for hash {} for chunk map request", item.getHash());
 			return;
 		}
 		var compressedChunkMap = agent.getFileProvider().getCompressedChunkMap();

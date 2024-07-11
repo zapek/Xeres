@@ -1,7 +1,5 @@
 package io.xeres.app.xrs.service.filetransfer;
 
-import java.util.Optional;
-
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
@@ -9,6 +7,13 @@ class Block
 {
 	private long hiBlocks;
 	private long lowBlocks;
+	private final int totalBlocks;
+
+	public Block(long size)
+	{
+		// size is at most CHUNK_SIZE but could be less if the end of the file is within the last chunk
+		totalBlocks = (int) (size / BLOCK_SIZE);
+	}
 
 	public void setBlock(long offset)
 	{
@@ -29,28 +34,25 @@ class Block
 		}
 	}
 
-	public Optional<Long> getNextBlock()
-	{
-		for (long blockIndex = 0; blockIndex < lowBlocks; blockIndex++)
-		{
-			if ((lowBlocks & blockIndex) != 0)
-			{
-				return Optional.of(blockIndex);
-			}
-		}
-
-		for (long blockIndex = 0; blockIndex < hiBlocks; blockIndex++)
-		{
-			if ((hiBlocks & blockIndex) != 0)
-			{
-				return Optional.of(blockIndex + 64);
-			}
-		}
-		return Optional.empty();
-	}
-
 	public boolean isComplete()
 	{
-		return getNextBlock().isEmpty();
+		int total = 0;
+
+		for (int blockIndex = 0; blockIndex < 64; blockIndex++)
+		{
+			if ((lowBlocks & 1L << blockIndex) != 0)
+			{
+				total++;
+			}
+		}
+
+		for (int blockIndex = 0; blockIndex < 64; blockIndex++)
+		{
+			if ((hiBlocks & 1L << blockIndex) != 0)
+			{
+				total++;
+			}
+		}
+		return total == totalBlocks;
 	}
 }

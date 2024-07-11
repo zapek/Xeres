@@ -39,6 +39,7 @@ class FileLeecher extends FileSeeder
 	private RandomAccessFile randomAccessFile;
 
 	private BitSet chunkMap;
+	private int nBits;
 	private final Map<Integer, Block> blocksInChunk = new HashMap<>();
 
 	public FileLeecher(File file, long size)
@@ -50,7 +51,8 @@ class FileLeecher extends FileSeeder
 	private void setFileSize(long size)
 	{
 		fileSize = size;
-		chunkMap = new BitSet((int) (size / CHUNK_SIZE + (size % CHUNK_SIZE != 0 ? 1 : 0))); // a chunk represents 1 MB
+		nBits = (int) (size / CHUNK_SIZE + (size % CHUNK_SIZE != 0 ? 1 : 0));
+		chunkMap = new BitSet(nBits);
 	}
 
 	@Override
@@ -166,7 +168,7 @@ class FileLeecher extends FileSeeder
 	@Override
 	public boolean isComplete()
 	{
-		return chunkMap.cardinality() == chunkMap.size();
+		return chunkMap.cardinality() == nBits;
 	}
 
 	private boolean isChunkAvailable(long offset, int chunkSize)
@@ -192,7 +194,7 @@ class FileLeecher extends FileSeeder
 	private void markBlockAsWritten(long offset)
 	{
 		int chunkKey = (int) (offset / CHUNK_SIZE);
-		var block = blocksInChunk.computeIfAbsent(chunkKey, k -> new Block());
+		var block = blocksInChunk.computeIfAbsent(chunkKey, k -> new Block(Math.min(CHUNK_SIZE, fileSize - offset)));
 		block.setBlock(offset);
 
 		if (block.isComplete())

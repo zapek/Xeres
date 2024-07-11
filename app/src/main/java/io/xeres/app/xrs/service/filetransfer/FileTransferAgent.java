@@ -79,22 +79,29 @@ class FileTransferAgent
 		}
 	}
 
+	/**
+	 * Processes file transfers.
+	 *
+	 * @return true if processing, false if there's nothing to process
+	 */
 	public boolean process()
 	{
 		processDownloads();
 		processUploads();
-		return senders.isEmpty() && receivers.isEmpty();
+		return !(senders.isEmpty() && receivers.isEmpty());
 	}
 
 	private void processDownloads()
 	{
 		receivers.entrySet().stream()
-				.skip(ThreadLocalRandom.current().nextInt(receivers.size()))
+				.skip(getRandomStreamSkip(receivers.size()))
 				.findFirst().ifPresent(entry -> {
 					if (entry.getValue().isReceiving())
 					{
+						log.debug("Receiving file...");
 						if (isChunkReceived(entry.getValue().getChunkNumber()))
 						{
+							log.debug("Chunk fully received");
 							entry.getValue().setReceiving(false);
 						}
 					}
@@ -102,6 +109,8 @@ class FileTransferAgent
 					{
 						if (fileProvider.isComplete())
 						{
+							log.debug("File is complete, renaming to {}", fileName);
+							fileProvider.close();
 							var filePath = fileProvider.getPath();
 							try
 							{
@@ -121,6 +130,7 @@ class FileTransferAgent
 						else
 						{
 							var chunkNumber = getNextChunk();
+							log.debug("Getting chunk number {}", chunkNumber);
 							fileTransferRsService.sendDataRequest(entry.getKey(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
 							entry.getValue().setChunkNumber(chunkNumber);
 							entry.getValue().setReceiving(true);
@@ -132,7 +142,7 @@ class FileTransferAgent
 	private void processUploads()
 	{
 		senders.entrySet().stream()
-				.skip(ThreadLocalRandom.current().nextInt(senders.size()))
+				.skip(getRandomStreamSkip(senders.size()))
 				.findFirst().ifPresent(entry -> {
 					var chunkSender = entry.getValue();
 					var remaining = chunkSender.send();
@@ -141,6 +151,15 @@ class FileTransferAgent
 						senders.remove(entry.getKey());
 					}
 				});
+	}
+
+	private static int getRandomStreamSkip(int size)
+	{
+		if (size == 0)
+		{
+			return 0;
+		}
+		return ThreadLocalRandom.current().nextInt(size);
 	}
 
 	/**
@@ -183,7 +202,7 @@ class FileTransferAgent
 	{
 		var compressedChunkMap = fileProvider.getCompressedChunkMap();
 
-		var slice = compressedChunkMap.get(chunkNumber * 32);
+		var slice = compressedChunkMap.get(chunkNumber / 32);
 
 		return (slice & 1 << (chunkNumber % 32)) != 0;
 	}

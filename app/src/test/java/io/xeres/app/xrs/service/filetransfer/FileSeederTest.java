@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileSeederTest
@@ -77,7 +76,7 @@ class FileSeederTest
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
 		var fileSeeder = new FileSeeder(tempFile);
 		fileSeeder.open();
-		assertEquals(TEMP_FILE_SIZE / CHUNK_SIZE + 1, fileSeeder.getCompressedChunkMap().getFirst());
+		assertTrue(fileSeeder.getChunkMap().get(0));
 		fileSeeder.close();
 		deleteTempFile(tempFile);
 	}

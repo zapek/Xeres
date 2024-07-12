@@ -31,9 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -221,7 +222,7 @@ class FileTransferManager implements Runnable
 			log.error("No matching agent for hash {} for chunk map request", item.getHash());
 			return;
 		}
-		var compressedChunkMap = agent.getFileProvider().getCompressedChunkMap();
+		var compressedChunkMap = toCompressedChunkMap(agent.getFileProvider().getChunkMap());
 		fileTransferRsService.sendChunkMap(location, item.getHash(), false, compressedChunkMap);
 	}
 
@@ -241,7 +242,7 @@ class FileTransferManager implements Runnable
 			return;
 		}
 
-		var compressedChunkMap = agent.getFileProvider().getCompressedChunkMap();
+		var compressedChunkMap = toCompressedChunkMap(agent.getFileProvider().getChunkMap());
 		fileTransferRsService.sendChunkMap(location, item.getHash(), true, compressedChunkMap);
 	}
 
@@ -259,5 +260,40 @@ class FileTransferManager implements Runnable
 		}
 		// XXX: update location stats for reading, see how RS does it
 		agent.addPeerForSending(location, offset, chunkSize);
+	}
+
+	/**
+	 * Converts the chunkMap to the format used by RS. Note that there might
+	 * be spurious unset chunks at the end. This is normal and RS also does that
+	 * because the file size is taken into account when searching chunks.
+	 *
+	 * @param chunkMap the chunk map
+	 * @return a compressed chunk map
+	 */
+	static List<Integer> toCompressedChunkMap(BitSet chunkMap)
+	{
+		var intBuf = ByteBuffer.wrap(alignArray(chunkMap.toByteArray()))
+				.order(ByteOrder.LITTLE_ENDIAN)
+				.asIntBuffer();
+		var ints = new int[intBuf.remaining()];
+		intBuf.get(ints);
+		return Arrays.stream(ints).boxed().toList();
+	}
+
+	/**
+	 * Aligns the array to an integer (32-bits) boundary.
+	 *
+	 * @param src the source array
+	 * @return the array aligned to an integer boundary
+	 */
+	private static byte[] alignArray(byte[] src)
+	{
+		if (src.length % 4 != 0)
+		{
+			byte[] dst = new byte[src.length + (4 - src.length % 4)];
+			System.arraycopy(src, 0, dst, 0, src.length);
+			return dst;
+		}
+		return src;
 	}
 }

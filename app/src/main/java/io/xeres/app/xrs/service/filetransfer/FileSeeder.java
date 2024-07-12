@@ -29,9 +29,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.BitSet;
 import java.util.Optional;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
@@ -43,6 +41,7 @@ class FileSeeder implements FileProvider
 	protected FileChannel channel;
 	protected FileLock lock;
 	protected long fileSize;
+	private BitSet chunkMap;
 
 	public FileSeeder(File file)
 	{
@@ -97,31 +96,15 @@ class FileSeeder implements FileProvider
 	}
 
 	@Override
-	public List<Integer> getCompressedChunkMap()
+	public BitSet getChunkMap()
 	{
-
-		// The RS implementation returns the last integer filled with 0xffffffff so there's often
-		// more chunks than what there really is. We return the real number of chunks though.
-		List<Integer> chunksList = new ArrayList<>();
-		var totalChunks = getNumberOfChunks();
-		var fullChunks = totalChunks / 32;
-		if (fullChunks > 0)
+		if (chunkMap == null)
 		{
-			chunksList.addAll(Collections.nCopies(fullChunks, 0xffffffff));
+			var numberOfChunks = getNumberOfChunks();
+			chunkMap = new BitSet(numberOfChunks);
+			chunkMap.set(0, numberOfChunks);
 		}
-		chunksList.add(getLastChunk(totalChunks % 32));
-		return chunksList;
-	}
-
-	private int getLastChunk(int chunks)
-	{
-		int value = 0;
-
-		for (int i = 0; i < chunks; i++)
-		{
-			value |= 1 << i;
-		}
-		return value;
+		return (BitSet) chunkMap.clone();
 	}
 
 	protected int getNumberOfChunks()

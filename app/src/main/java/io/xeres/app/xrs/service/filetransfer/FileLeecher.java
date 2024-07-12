@@ -28,7 +28,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 import static java.nio.file.StandardOpenOption.*;
@@ -146,24 +149,9 @@ class FileLeecher extends FileSeeder
 	}
 
 	@Override
-	public List<Integer> getCompressedChunkMap()
+	public BitSet getChunkMap()
 	{
-		// XXX: this is wrong... it stops at 31 or 63... rewrite it and put it somewhere else...
-		var numberOfChunks = getNumberOfChunks();
-
-		var chunkList = new ArrayList<Integer>(Math.min(1, numberOfChunks / 32));
-		int chunk = 0;
-
-		for (var chunkOffset = 0; chunkOffset < numberOfChunks; chunkOffset++)
-		{
-			chunk |= (chunkMap.get(chunkOffset) ? 1 : 0) << chunkOffset % 32;
-			if (chunkOffset > 0 && (chunkOffset % 31 == 0 || chunkOffset == numberOfChunks - 1))
-			{
-				chunkList.add(chunk);
-				chunk = 0;
-			}
-		}
-		return chunkList;
+		return (BitSet) chunkMap.clone();
 	}
 
 	@Override

@@ -32,6 +32,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
@@ -156,6 +157,18 @@ class FileSeeder implements FileProvider
 	public boolean isComplete()
 	{
 		return true;
+	}
+
+	@Override
+	public boolean hasChunk(int index)
+	{
+		return true;
+	}
+
+	@Override
+	public Optional<Integer> getNeededChunk()
+	{
+		return Optional.empty();
 	}
 
 	@Override

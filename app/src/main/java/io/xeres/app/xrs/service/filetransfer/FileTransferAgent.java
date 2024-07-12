@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -98,8 +99,8 @@ class FileTransferAgent
 				.findFirst().ifPresent(entry -> {
 					if (entry.getValue().isReceiving())
 					{
-						log.debug("Receiving file...");
-						if (isChunkReceived(entry.getValue().getChunkNumber()))
+						log.debug("Receiving file for chunk number {}", entry.getValue().getChunkNumber());
+						if (fileProvider.hasChunk(entry.getValue().getChunkNumber()))
 						{
 							log.debug("Chunk fully received");
 							entry.getValue().setReceiving(false);
@@ -111,20 +112,7 @@ class FileTransferAgent
 						{
 							log.debug("File is complete, renaming to {}", fileName);
 							fileProvider.close();
-							var filePath = fileProvider.getPath();
-							try
-							{
-								Files.move(filePath, filePath.resolveSibling(fileName));
-							}
-							catch (FileAlreadyExistsException e)
-							{
-								log.error("Name already exists!");
-								// XXX: rename the file with (1) or so and try again... what does RS do?
-							}
-							catch (IOException e)
-							{
-								throw new RuntimeException(e);
-							}
+							renameFile(fileProvider.getPath(), fileName);
 							receivers.remove(entry.getKey());
 						}
 						else
@@ -162,6 +150,30 @@ class FileTransferAgent
 		return ThreadLocalRandom.current().nextInt(size);
 	}
 
+	private static void renameFile(Path filePath, String fileName)
+	{
+		var success = false;
+
+		while (!success)
+		{
+			try
+			{
+				Files.move(filePath, filePath.resolveSibling(fileName));
+				success = true;
+			}
+			catch (FileAlreadyExistsException e)
+			{
+				log.warn("File name {} already exists, renaming...", fileName);
+				fileName = fileName + "_"; // XXX: rename the file with (1) or so and try again... what does RS do?
+			}
+			catch (IOException e)
+			{
+				log.error("Couldn't rename the file {} to {}", filePath, fileName, e);
+				success = true; // This is really a failure but there's nothing else we can do
+			}
+		}
+	}
+
 	/**
 	 * Gets the next available chunk.
 	 *
@@ -169,41 +181,6 @@ class FileTransferAgent
 	 */
 	private int getNextChunk()
 	{
-		if (fileProvider.isComplete())
-		{
-			throw new IllegalStateException("Cannot find the next chunk of a complete file");
-		}
-		var compressedChunkMap = fileProvider.getCompressedChunkMap();
-
-		for (int i = 0; i < compressedChunkMap.size(); i++)
-		{
-			var slice = compressedChunkMap.get(i);
-			if (slice != 0xffffffff)
-			{
-				return i * 32 + getChunkIndex(slice);
-			}
-		}
-		throw new IllegalStateException("Cannot find the next chunk of an incomplete file. This is impossible");
-	}
-
-	private int getChunkIndex(int slice)
-	{
-		for (int i = 0; i < 32; i++)
-		{
-			if ((slice & 1 << i) == 0)
-			{
-				return i;
-			}
-		}
-		throw new IllegalStateException("Slice has no chunk available, this is impossible");
-	}
-
-	private boolean isChunkReceived(int chunkNumber)
-	{
-		var compressedChunkMap = fileProvider.getCompressedChunkMap();
-
-		var slice = compressedChunkMap.get(chunkNumber / 32);
-
-		return (slice & 1 << (chunkNumber % 32)) != 0;
+		return fileProvider.getNeededChunk().orElseThrow(() -> new IllegalStateException("Cannot find the next chunk of a complete file"));
 	}
 }

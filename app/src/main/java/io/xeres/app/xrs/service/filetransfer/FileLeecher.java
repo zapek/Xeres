@@ -148,15 +148,16 @@ class FileLeecher extends FileSeeder
 	@Override
 	public List<Integer> getCompressedChunkMap()
 	{
+		// XXX: this is wrong... it stops at 31 or 63... rewrite it and put it somewhere else...
 		var numberOfChunks = getNumberOfChunks();
 
-		var chunkList = new ArrayList<Integer>(numberOfChunks / 32);
+		var chunkList = new ArrayList<Integer>(Math.min(1, numberOfChunks / 32));
 		int chunk = 0;
 
 		for (var chunkOffset = 0; chunkOffset < numberOfChunks; chunkOffset++)
 		{
-			chunk |= chunkMap.get(chunkOffset) ? 1 : 0;
-			if (chunkOffset % 32 == 0 || chunkOffset == numberOfChunks - 1)
+			chunk |= (chunkMap.get(chunkOffset) ? 1 : 0) << chunkOffset % 32;
+			if (chunkOffset > 0 && (chunkOffset % 31 == 0 || chunkOffset == numberOfChunks - 1))
 			{
 				chunkList.add(chunk);
 				chunk = 0;
@@ -169,6 +170,22 @@ class FileLeecher extends FileSeeder
 	public boolean isComplete()
 	{
 		return chunkMap.cardinality() == nBits;
+	}
+
+	@Override
+	public Optional<Integer> getNeededChunk()
+	{
+		if (isComplete())
+		{
+			return Optional.empty();
+		}
+		return Optional.of(chunkMap.nextClearBit(0));
+	}
+
+	@Override
+	public boolean hasChunk(int index)
+	{
+		return chunkMap.get(index);
 	}
 
 	private boolean isChunkAvailable(long offset, int chunkSize)
@@ -197,8 +214,11 @@ class FileLeecher extends FileSeeder
 		var block = blocksInChunk.computeIfAbsent(chunkKey, k -> new Block(Math.min(CHUNK_SIZE, fileSize - offset)));
 		block.setBlock(offset);
 
+		log.debug("Chunk key: {}", chunkKey);
+
 		if (block.isComplete())
 		{
+			log.debug("Block is complete");
 			chunkMap.set(chunkKey);
 			blocksInChunk.remove(chunkKey);
 		}

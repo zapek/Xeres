@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.filetransfer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 interface FileProvider
 {
@@ -35,7 +36,11 @@ interface FileProvider
 
 	void close();
 
-	List<Integer> getCompressedChunkMap();
+	List<Integer> getCompressedChunkMap(); // XXX: remove I think... put it somewhere else and just return the bitset
+
+	Optional<Integer> getNeededChunk();
+
+	boolean hasChunk(int index);
 
 	boolean isComplete();
 

@@ -24,10 +24,13 @@ import io.xeres.common.id.Sha1Sum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
 public interface FileDownloadRepository extends JpaRepository<FileDownload, Long>
 {
 	Optional<FileDownload> findByHash(Sha1Sum hash);
+
+	List<FileDownload> findAllByCompletedFalse();
 }

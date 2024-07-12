@@ -121,7 +121,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			ownLocation = locationService.findOwnLocation().orElseThrow();
-			fileDownloadRepository.findAll()
+			fileDownloadRepository.findAllByCompletedFalse()
 					.forEach(file -> fileCommandQueue.add(new FileTransferCommandAction(new ActionDownload(file.getName(), file.getHash(), file.getSize(), null)))); // XXX: missing chunks restore
 		}
 
@@ -264,6 +264,11 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			fileCommandQueue.add(new FileTransferCommandAction(action));
 		}
 		return id;
+	}
+
+	public void markDownloadAsCompleted(Sha1Sum hash)
+	{
+		fileService.markDownloadAsCompleted(hash);
 	}
 
 	@Override

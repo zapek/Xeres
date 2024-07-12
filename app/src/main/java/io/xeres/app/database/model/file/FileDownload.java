@@ -48,6 +48,8 @@ public class FileDownload
 
 	private final BitSet chunkMap = new BitSet();
 
+	private boolean completed;
+
 	public long getId()
 	{
 		return id;
@@ -93,6 +95,16 @@ public class FileDownload
 		return chunkMap;
 	}
 
+	public boolean isCompleted()
+	{
+		return completed;
+	}
+
+	public void setCompleted(boolean completed)
+	{
+		this.completed = completed;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -102,6 +114,7 @@ public class FileDownload
 				", size=" + size +
 				", hash=" + hash +
 				", chunkMap=" + chunkMap +
+				", completed=" + completed +
 				'}';
 	}
 }

@@ -196,6 +196,12 @@ public class FileService
 		return saved.getId();
 	}
 
+	@Transactional
+	public void markDownloadAsCompleted(Sha1Sum hash)
+	{
+		fileDownloadRepository.findByHash(hash).ifPresent(fileDownload -> fileDownload.setCompleted(true));
+	}
+
 	private void saveFullPath(File file)
 	{
 		var tree = getFullPath(file);

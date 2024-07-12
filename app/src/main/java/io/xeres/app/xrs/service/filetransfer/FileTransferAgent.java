@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.filetransfer;
 
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.util.FileNameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,7 +165,7 @@ class FileTransferAgent
 			catch (FileAlreadyExistsException e)
 			{
 				log.warn("File name {} already exists, renaming...", fileName);
-				fileName = fileName + "_"; // XXX: rename the file with (1) or so and try again... what does RS do?
+				fileName = FileNameUtils.rename(fileName);
 			}
 			catch (IOException e)
 			{

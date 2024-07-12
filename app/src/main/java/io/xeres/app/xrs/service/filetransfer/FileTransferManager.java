@@ -74,10 +74,10 @@ class FileTransferManager implements Runnable
 		{
 			try
 			{
-				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(1000, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
+				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(500, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
 				processCommand(command);
-				leechers.entrySet().removeIf(agent -> !agent.getValue().process());
-				seeders.entrySet().removeIf(agent -> !agent.getValue().process());
+				processLeechers();
+				processSeeders();
 			}
 			catch (InterruptedException e)
 			{
@@ -104,7 +104,16 @@ class FileTransferManager implements Runnable
 		{
 			processAction(commandAction);
 		}
+	}
 
+	private void processLeechers()
+	{
+		leechers.entrySet().removeIf(agent -> !agent.getValue().process());
+	}
+
+	private void processSeeders()
+	{
+		seeders.entrySet().removeIf(agent -> !agent.getValue().process());
 	}
 
 	private void processItem(FileTransferCommandItem commandItem)

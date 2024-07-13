@@ -127,7 +127,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 		fileTransferManagerThread = Thread.ofVirtual()
 				.name("File Transfer Manager")
-				.start(new FileTransferManager(this, settingsService, ownLocation, fileCommandQueue));
+				.start(new FileTransferManager(this, fileService, settingsService, ownLocation, fileCommandQueue));
 	}
 
 	@Override

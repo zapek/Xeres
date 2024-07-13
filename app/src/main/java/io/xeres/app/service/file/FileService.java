@@ -176,6 +176,11 @@ public class FileService
 		return Optional.empty();
 	}
 
+	public Optional<Path> findFilePath(Sha1Sum hash)
+	{
+		return findFile(hash).map(this::getFilePath);
+	}
+
 	public List<File> searchFiles(String name)
 	{
 		return fileRepository.findAllByNameContainingIgnoreCase(name);

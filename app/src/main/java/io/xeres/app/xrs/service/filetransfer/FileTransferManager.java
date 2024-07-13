@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -50,6 +51,7 @@ class FileTransferManager implements Runnable
 	private static final Logger log = LoggerFactory.getLogger(FileTransferManager.class);
 
 	private final FileTransferRsService fileTransferRsService;
+	private final FileService fileService;
 	private final SettingsService settingsService;
 	private final Location ownLocation;
 	private final BlockingQueue<FileTransferCommand> queue;
@@ -57,9 +59,10 @@ class FileTransferManager implements Runnable
 	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
 	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
 
-	public FileTransferManager(FileTransferRsService fileTransferRsService, SettingsService settingsService, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
+	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
 	{
 		this.fileTransferRsService = fileTransferRsService;
+		this.fileService = fileService;
 		this.settingsService = settingsService;
 		this.ownLocation = ownLocation;
 		this.queue = queue;
@@ -156,10 +159,10 @@ class FileTransferManager implements Runnable
 		leechers.computeIfAbsent(actionDownload.hash(), hash -> {
 			var file = Paths.get(settingsService.getIncomingDirectory(), hash + FileService.DOWNLOAD_EXTENSION).toFile();
 			log.debug("Downloading file {}, size: {}", file, actionDownload.size());
-			var fileCreator = new FileLeecher(file, actionDownload.size());
-			if (fileCreator.open())
+			var fileLeecher = new FileLeecher(file, actionDownload.size());
+			if (fileLeecher.open())
 			{
-				var agent = new FileTransferAgent(fileTransferRsService, actionDownload.name(), hash, fileCreator);
+				var agent = new FileTransferAgent(fileTransferRsService, actionDownload.name(), hash, fileLeecher);
 				if (actionDownload.from() != null)
 				{
 					agent.addPeerForReceiving(actionDownload.from());
@@ -169,7 +172,7 @@ class FileTransferManager implements Runnable
 			}
 			else
 			{
-				log.error("Couldn't create downloaded file");
+				log.error("Couldn't create file {} for download", file);
 				return null;
 			}
 		});
@@ -188,7 +191,21 @@ class FileTransferManager implements Runnable
 			agent = leechers.get(item.getFileItem().hash());
 			if (agent == null)
 			{
-				agent = seeders.get(item.getFileItem().hash()); // XXX: wrong! we need to create and add the agent here if the file exists!
+				agent = seeders.computeIfAbsent(item.getFileItem().hash(), hash -> fileService.findFilePath(hash)
+						.map(Path::toFile)
+						.map(file -> {
+							log.debug("Serving file {}", file);
+							var fileSeeder = new FileSeeder(file);
+							if (!fileSeeder.open())
+							{
+								log.debug("Failed to open file {} for serving", file);
+								return null;
+							}
+							var newAgent = new FileTransferAgent(fileTransferRsService, hash, fileSeeder);
+							newAgent.addPeerForSending(location, item.getFileOffset(), item.getChunkSize());
+							return newAgent;
+						})
+						.orElse(null));
 			}
 			if (agent != null)
 			{
@@ -264,7 +281,7 @@ class FileTransferManager implements Runnable
 	{
 		if (chunkSize > CHUNK_SIZE)
 		{
-			log.warn("Peer {} is requesting a large chunk ({}) for hash {}", location, chunkSize, hash);
+			log.warn("Peer {} is requesting a too large chunk ({}) for hash {}, ignoring", location, chunkSize, hash);
 			return;
 		}
 		// XXX: update location stats for reading, see how RS does it

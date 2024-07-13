@@ -19,11 +19,11 @@
 
 package io.xeres.ui.support.util;
 
-import io.xeres.common.AppName;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.client.LocationClient;
+import io.xeres.ui.support.uri.CertificateContentParser;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.ContextMenu;
@@ -31,12 +31,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputControl;
 
-import java.net.URI;
-import java.net.URLEncoder;
 import java.util.List;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class TextInputControlUtils
 {
@@ -64,11 +61,8 @@ public final class TextInputControlUtils
 
 	private static String buildRetroshareUrl(RSIdResponse rsIdResponse)
 	{
-		var uri = URI.create("retroshare://certificate?" +
-				"radix=" + URLEncoder.encode(rsIdResponse.rsId().replace("\n", ""), UTF_8) + // Removing the '\n' is in case this is a certificate which is sliced for presentation
-				"&amp;name=" + URLEncoder.encode(rsIdResponse.name(), UTF_8) +
-				"&amp;location=" + URLEncoder.encode(rsIdResponse.location(), UTF_8));
-		return "<a href=\"" + uri + "\">" + AppName.NAME + " Certificate (" + rsIdResponse.name() + ", @" + rsIdResponse.location() + ")</a>";
+		var cleanCert = rsIdResponse.rsId().replace("\n", ""); // Removing the '\n' is in case this is a certificate which is sliced for presentation
+		return CertificateContentParser.generate(cleanCert, rsIdResponse.name(), rsIdResponse.location());
 	}
 
 	private static List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)

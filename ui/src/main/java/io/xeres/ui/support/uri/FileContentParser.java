@@ -27,8 +27,8 @@ import io.xeres.ui.support.markdown.LinkAction;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriUtils;
 
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -41,6 +41,8 @@ public class FileContentParser implements ContentParser
 	public static final String PARAMETER_SIZE = "size";
 	public static final String PARAMETER_HASH = "hash";
 
+	private static final String AUTHORITY = "file";
+
 	@Override
 	public String getProtocol()
 	{
@@ -50,7 +52,7 @@ public class FileContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "file";
+		return AUTHORITY;
 	}
 
 	@Override
@@ -76,7 +78,10 @@ public class FileContentParser implements ContentParser
 
 	public static String generate(String name, long size, Sha1Sum hash)
 	{
-		// XXX: is the incoming name OK?
-		return "<a href=\"" + ContentParser.PROTOCOL_RETROSHARE + "://file?" + PARAMETER_NAME + "=" + URLEncoder.encode(name, UTF_8) + "&" + PARAMETER_SIZE + "=" + size + "&" + PARAMETER_HASH + "=" + hash + "\">" + name + "</a>";
+		var uri = PROTOCOL_RETROSHARE + "://" + AUTHORITY + "?" +
+				PARAMETER_NAME + "=" + UriUtils.encodeQueryParam(name, UTF_8) + "&" +
+				PARAMETER_SIZE + "=" + size + "&" +
+				PARAMETER_HASH + "=" + hash;
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

@@ -19,18 +19,27 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.AppName;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.LinkAction;
 import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriUtils;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class CertificateContentParser implements ContentParser
 {
+	public static final String PARAMETER_RADIX = "radix";
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_LOCATION = "location";
+
+	private static final String AUTHORITY = "certificate";
+
 	@Override
 	public String getProtocol()
 	{
@@ -40,13 +49,15 @@ public class CertificateContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "certificate";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var radix = uriComponents.getQueryParams().getFirst("radix");
+		var radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var location = uriComponents.getQueryParams().getFirst(PARAMETER_LOCATION);
 
 		if (isBlank(radix))
 		{
@@ -54,5 +65,16 @@ public class CertificateContentParser implements ContentParser
 		}
 
 		return new ContentUri(defaultString(radix), text, JavaFxApplication::addPeer);
+	}
+
+	public static String generate(String radix, String name, String location)
+	{
+		var uri = PROTOCOL_RETROSHARE + "://" + AUTHORITY + "?" +
+				PARAMETER_RADIX + "=" + UriUtils.encodeQueryParam(radix, UTF_8) + "&" +
+				PARAMETER_NAME + "=" + UriUtils.encodeQueryParam(name, UTF_8) + "&" +
+				PARAMETER_LOCATION + "=" + UriUtils.encodeQueryParam(location, UTF_8);
+
+		return "<a href=\"" + uri + "\">" + AppName.NAME + " Certificate (" + name + ", @" + location + ")</a>";
+
 	}
 }

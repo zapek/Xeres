@@ -39,7 +39,7 @@ class ChunkSender
 	{
 		var length = Math.min(BLOCK_SIZE, size);
 
-		byte[] data = null;
+		byte[] data;
 		try
 		{
 			data = provider.read(offset, length);

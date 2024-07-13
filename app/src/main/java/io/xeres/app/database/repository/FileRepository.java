@@ -30,7 +30,7 @@ import java.util.Optional;
 @Transactional
 public interface FileRepository extends JpaRepository<File, Long>
 {
-	Optional<File> findByName(String name);
+	List<File> findAllByName(String name);
 
 	List<File> findAllByNameContainingIgnoreCase(String name);
 

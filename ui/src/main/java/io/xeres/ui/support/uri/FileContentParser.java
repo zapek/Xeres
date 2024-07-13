@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
@@ -27,9 +28,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FileContentParser implements ContentParser
 {
@@ -68,5 +72,11 @@ public class FileContentParser implements ContentParser
 			parameters.put(PARAMETER_HASH, hash);
 			linkAction.openLink(this, parameters);
 		});
+	}
+
+	public static String generate(String name, long size, Sha1Sum hash)
+	{
+		// XXX: is the incoming name OK?
+		return "<a href=\"" + ContentParser.PROTOCOL_RETROSHARE + "://file?" + PARAMETER_NAME + "=" + URLEncoder.encode(name, UTF_8) + "&" + PARAMETER_SIZE + "=" + size + "&" + PARAMETER_HASH + "=" + hash + "\">" + name + "</a>";
 	}
 }

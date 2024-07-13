@@ -19,12 +19,15 @@
 
 package io.xeres.ui.controller.messaging;
 
+import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.ProfileClient;
+import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
@@ -52,6 +55,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Map;
@@ -98,16 +104,18 @@ public class MessagingWindowController implements WindowController
 	private Profile targetProfile;
 
 	private final MessageClient messageClient;
+	private final ShareClient shareClient;
 
 	private Instant lastTypingNotification = Instant.EPOCH;
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
+	public MessagingWindowController(ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
 		this.fileClient = fileClient;
 		this.messageClient = messageClient;
+		this.shareClient = shareClient;
 		this.markdownService = markdownService;
 		this.bundle = bundle;
 		this.locationId = new LocationId(locationId);
@@ -168,10 +176,28 @@ public class MessagingWindowController implements WindowController
 		});
 		content.setOnDragDropped(event -> {
 			var files = event.getDragboard().getFiles();
-			CollectionUtils.emptyIfNull(files).forEach(file -> log.debug("File dropped: {}", file.getName())); // XXX: do something more useful
+			CollectionUtils.emptyIfNull(files).forEach(file -> {
+				log.debug("File dropped: {}", file.getName());
+				shareClient.createTemporaryShare(file.getAbsolutePath())
+						.doOnSuccess(result -> sendMessage(FileContentParser.generate(file.getName(), getFileSize(file.toPath()), new Sha1Sum(Id.toBytes(result)))))
+						.subscribe();
+			});
 			event.setDropCompleted(true);
 			event.consume();
 		});
+	}
+
+	private long getFileSize(Path path)
+	{
+		try
+		{
+			return Files.size(path);
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to get the file size of {}", path);
+			return 0;
+		}
 	}
 
 	private void handleLinkAction(ContentParser contentParser, Map<String, String> args)

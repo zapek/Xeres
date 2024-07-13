@@ -75,4 +75,13 @@ public class ShareClient
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
+
+	public Mono<String> createTemporaryShare(String filePath)
+	{
+		return webClient.post()
+				.uri("/temporary")
+				.bodyValue(filePath)
+				.retrieve()
+				.bodyToMono(String.class);
+	}
 }

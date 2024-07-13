@@ -160,9 +160,14 @@ public class FileService
 	public Map<Long, String> getFilesMapFromShares(List<Share> shares)
 	{
 		return shares.stream()
-				.collect(Collectors.toMap(Share::getId, share -> getFullPath(share.getFile()).stream()
-						.map(file -> file.getName().endsWith(":\\") ? file.getName().substring(0, file.getName().length() - 1) : file.getName()) // On Windows, C:\ -> C: to avoid double file separators
-						.collect(Collectors.joining(java.io.File.separator))));
+				.collect(Collectors.toMap(Share::getId, share -> toPath(getFullPath(share.getFile()))));
+	}
+
+	private String toPath(List<File> files)
+	{
+		return files.stream()
+				.map(file -> file.getName().endsWith(":\\") ? file.getName().substring(0, file.getName().length() - 1) : file.getName()) // On Windows, C:\ -> C: to avoid double file separators
+				.collect(Collectors.joining(java.io.File.separator));
 	}
 
 	public Optional<File> findFile(Sha1Sum hash)
@@ -207,6 +212,19 @@ public class FileService
 		fileDownloadRepository.findByHash(hash).ifPresent(fileDownload -> fileDownload.setCompleted(true));
 	}
 
+	public Optional<Sha1Sum> findByPath(Path path)
+	{
+		var candidates = fileRepository.findAllByName(path.getFileName().toString());
+		for (File candidate : candidates)
+		{
+			if (getFullPathAsString(candidate).equals(path.toString()))
+			{
+				return Optional.of(candidate.getHash());
+			}
+		}
+		return Optional.empty();
+	}
+
 	private void saveFullPath(File file)
 	{
 		var tree = getFullPath(file);
@@ -226,6 +244,11 @@ public class FileService
 		Collections.reverse(tree);
 		tree.forEach(fileToUpdate -> fileRepository.findByNameAndParentName(fileToUpdate.getName(), fileToUpdate.getParent() != null ? fileToUpdate.getParent().getName() : null).ifPresent(fileFound -> fileToUpdate.setId(fileFound.getId())));
 		return tree;
+	}
+
+	private String getFullPathAsString(File file)
+	{
+		return toPath(getFullPath(file));
 	}
 
 	void scanShare(Share share)
@@ -386,6 +409,12 @@ public class FileService
 	private boolean isIgnoredDirectory(String dirName)
 	{
 		return dirName.startsWith(".");
+	}
+
+	public Sha1Sum calculateFileHash(Path path)
+	{
+		var ioBuffer = new byte[SMALL_FILE_SIZE];
+		return calculateFileHash(path, ioBuffer);
 	}
 
 	Sha1Sum calculateFileHash(Path path, byte[] ioBuffer)

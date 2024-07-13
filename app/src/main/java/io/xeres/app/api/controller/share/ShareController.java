@@ -35,6 +35,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static io.xeres.app.database.model.share.ShareMapper.fromDTOs;
@@ -71,5 +73,21 @@ public class ShareController
 	{
 		fileService.synchronize(fromDTOs(updateSharesRequest.shares()));
 		return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
+
+	@PostMapping("/temporary")
+	@Operation(summary = "Add a file to share temporarily")
+	@ApiResponse(responseCode = "200", description = "File added to temporary share successfully")
+	public String shareTemporarily(@Valid @RequestBody String filePath) throws IOException
+	{
+		var path = Paths.get(filePath);
+		var hash = fileService.findByPath(path)
+				.orElseGet(() -> fileService.calculateFileHash(path));
+
+		if (hash == null)
+		{
+			throw new IOException("Cannot compute hash of file");
+		}
+		return hash.toString();
 	}
 }

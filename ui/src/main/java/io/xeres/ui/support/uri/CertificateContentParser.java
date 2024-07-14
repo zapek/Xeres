@@ -26,9 +26,7 @@ import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.LinkAction;
 import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriUtils;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -69,12 +67,11 @@ public class CertificateContentParser implements ContentParser
 
 	public static String generate(String radix, String name, String location)
 	{
-		var uri = PROTOCOL_RETROSHARE + "://" + AUTHORITY + "?" +
-				PARAMETER_RADIX + "=" + UriUtils.encodeQueryParam(radix, UTF_8) + "&" +
-				PARAMETER_NAME + "=" + UriUtils.encodeQueryParam(name, UTF_8) + "&" +
-				PARAMETER_LOCATION + "=" + UriUtils.encodeQueryParam(location, UTF_8);
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_RADIX, radix,
+				PARAMETER_NAME, name,
+				PARAMETER_LOCATION, location);
 
 		return "<a href=\"" + uri + "\">" + AppName.NAME + " Certificate (" + name + ", @" + location + ")</a>";
-
 	}
 }

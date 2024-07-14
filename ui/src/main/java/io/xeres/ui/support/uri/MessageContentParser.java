@@ -31,6 +31,11 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class MessageContentParser implements ContentParser
 {
+	public static final String PARAMETER_ID = "id";
+	public static final String PARAMETER_SUBJECT = "subject";
+
+	private static final String AUTHORITY = "message";
+
 	@Override
 	public String getProtocol()
 	{
@@ -40,14 +45,14 @@ public class MessageContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "message";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var id = uriComponents.getQueryParams().getFirst("id"); // warning: it can be of different type (gxsId, sslId, etc...)
-		var subject = uriComponents.getQueryParams().getFirst("subject");
+		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID); // warning: it can be of different type (gxsId, sslId, etc...)
+		var subject = uriComponents.getQueryParams().getFirst(PARAMETER_SUBJECT);
 
 		if (isBlank(id))
 		{
@@ -55,5 +60,14 @@ public class MessageContentParser implements ContentParser
 		}
 
 		return new ContentUri(id, id, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Messages are not supported yet."));
+	}
+
+	public static String generate(String id, String subject)
+	{
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_ID, id,
+				PARAMETER_SUBJECT, subject);
+
+		return "<a href=\"" + uri + "\">" + subject + "</a>";
 	}
 }

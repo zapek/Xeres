@@ -31,6 +31,10 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SearchContentParser implements ContentParser
 {
+	public static final String PARAMETER_KEYWORDS = "keywords";
+
+	private static final String AUTHORITY = "search";
+
 	@Override
 	public String getProtocol()
 	{
@@ -40,13 +44,13 @@ public class SearchContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "search";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var keywords = uriComponents.getQueryParams().getFirst("keywords");
+		var keywords = uriComponents.getQueryParams().getFirst(PARAMETER_KEYWORDS);
 
 		if (isBlank(keywords))
 		{
@@ -54,5 +58,13 @@ public class SearchContentParser implements ContentParser
 		}
 
 		return new ContentUri(keywords, keywords, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Searching is not supported yet."));
+	}
+
+	public static String generate(String name, String keywords)
+	{
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_KEYWORDS, name);
+
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

@@ -32,6 +32,11 @@ import java.util.stream.Stream;
 
 public class ProfileContentParser implements ContentParser
 {
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_HASH = "hash";
+
+	private static final String AUTHORITY = "person";
+
 	@Override
 	public String getProtocol()
 	{
@@ -41,14 +46,14 @@ public class ProfileContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "person";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst("name");
-		var hash = uriComponents.getQueryParams().getFirst("hash");
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var hash = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
 
 		if (Stream.of(name, hash).anyMatch(StringUtils::isBlank))
 		{
@@ -56,5 +61,14 @@ public class ProfileContentParser implements ContentParser
 		}
 
 		return new ContentUri(hash, name + "@" + hash, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Adding profiles is not supported yet"));
+	}
+
+	public static String generate(String name, String hash)
+	{
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_HASH, hash);
+
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

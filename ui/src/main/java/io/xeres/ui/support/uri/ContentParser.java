@@ -21,7 +21,11 @@ package io.xeres.ui.support.uri;
 
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.markdown.LinkAction;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriUtils;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface ContentParser
 {
@@ -32,4 +36,37 @@ public interface ContentParser
 	String getAuthority();
 
 	Content parse(UriComponents uriComponents, String text, LinkAction linkAction);
+
+	static String buildUri(String protocol, String authority, String... args)
+	{
+		StringBuilder sb = new StringBuilder(protocol);
+		boolean firstArg = true;
+
+		if (args.length % 2 != 0)
+		{
+			throw new IllegalArgumentException("Wrong number of arguments: must be name and value pairs");
+		}
+		sb.append("://");
+		sb.append(authority);
+
+		for (int i = 0; i < args.length; i += 2)
+		{
+			if (StringUtils.isNotBlank(args[i + 1]))
+			{
+				if (firstArg)
+				{
+					sb.append("?");
+					firstArg = false;
+				}
+				else
+				{
+					sb.append("&");
+				}
+				sb.append(args[i]);
+				sb.append("=");
+				sb.append(UriUtils.encodeQueryParam(args[i + 1], UTF_8));
+			}
+		}
+		return sb.toString();
+	}
 }

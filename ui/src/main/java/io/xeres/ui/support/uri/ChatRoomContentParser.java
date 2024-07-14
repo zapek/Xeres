@@ -32,6 +32,11 @@ import java.util.stream.Stream;
 
 public class ChatRoomContentParser implements ContentParser
 {
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_ID = "id";
+
+	private static final String AUTHORITY = "chat_room";
+
 	@Override
 	public String getProtocol()
 	{
@@ -41,14 +46,14 @@ public class ChatRoomContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "chat_room";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst("name");
-		var id = uriComponents.getQueryParams().getFirst("id");
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
 
 		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
@@ -56,5 +61,14 @@ public class ChatRoomContentParser implements ContentParser
 		}
 
 		return new ContentUri(id, name, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Chat rooms are not supported yet.")); // XXX: support! ask to join or focus?
+	}
+
+	public static String generate(String name, String id, String msgid)
+	{
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_ID, id);
+
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

@@ -33,6 +33,13 @@ import java.util.stream.Stream;
 
 public class CollectionContentParser implements ContentParser
 {
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_SIZE = "size";
+	public static final String PARAMETER_RADIX = "radix";
+	public static final String PARAMETER_FILES = "files";
+
+	private static final String AUTHORITY = "collection";
+
 	@Override
 	public String getProtocol()
 	{
@@ -42,16 +49,16 @@ public class CollectionContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "collection";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst("name");
-		var size = uriComponents.getQueryParams().getFirst("size");
-		var radix = uriComponents.getQueryParams().getFirst("radix");
-		var count = uriComponents.getQueryParams().getFirst("files");
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
+		var radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
+		var count = uriComponents.getQueryParams().getFirst(PARAMETER_FILES);
 
 		if (Stream.of(name, size, radix, count).anyMatch(StringUtils::isBlank))
 		{
@@ -60,5 +67,16 @@ public class CollectionContentParser implements ContentParser
 
 		//noinspection ConstantConditions
 		return new ContentUri(radix, name + " (" + count + "files, " + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Browsing collections is not supported yet."));
+	}
+
+	public static String generate(String name, int size, String radix, String files)
+	{
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_SIZE, String.valueOf(size),
+				PARAMETER_RADIX, radix,
+				PARAMETER_FILES, files);
+
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

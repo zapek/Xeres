@@ -32,6 +32,12 @@ import java.util.stream.Stream;
 
 public class ChannelContentParser implements ContentParser
 {
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_ID = "id";
+	public static final String PARAMETER_MSGID = "msgid";
+
+	private static final String AUTHORITY = "channel";
+
 	@Override
 	public String getProtocol()
 	{
@@ -41,15 +47,15 @@ public class ChannelContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "channel";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst("name");
-		var channelId = uriComponents.getQueryParams().getFirst("id");
-		var msgId = uriComponents.getQueryParams().getFirst("msgid");
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var channelId = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
+		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
 
 		if (Stream.of(name, channelId).anyMatch(StringUtils::isBlank))
 		{
@@ -57,5 +63,15 @@ public class ChannelContentParser implements ContentParser
 		}
 
 		return new ContentUri(msgId, name, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Channels are not supported yet."));
+	}
+
+	public static String generate(String name, String id, String msgid)
+	{
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_ID, id,
+				PARAMETER_MSGID, msgid);
+
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

@@ -32,6 +32,12 @@ import java.util.stream.Stream;
 
 public class IdentityContentParser implements ContentParser
 {
+	public static final String PARAMETER_GXSID = "gxsid";
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_GROUPDATA = "groupdata";
+
+	private static final String AUTHORITY = "identity";
+
 	@Override
 	public String getProtocol()
 	{
@@ -41,21 +47,30 @@ public class IdentityContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "identity";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var gxsId = uriComponents.getQueryParams().getFirst("gxsid");
-		var name = uriComponents.getQueryParams().getFirst("name");
-		var groupData = uriComponents.getQueryParams().getFirst("groupdata");
+		var gxsId = uriComponents.getQueryParams().getFirst(PARAMETER_GXSID);
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var groupData = uriComponents.getQueryParams().getFirst(PARAMETER_GROUPDATA);
 
 		if (Stream.of(gxsId, name, groupData).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
-
 		return new ContentUri(groupData, "Identity (name=" + name + ", ID=" + gxsId + ")", data -> UiUtils.alert(Alert.AlertType.INFORMATION, "Adding identities is not supported yet."));
+	}
+
+	public static String generate(String gxsId, String name, String groupData)
+	{
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_GXSID, gxsId,
+				PARAMETER_NAME, name,
+				PARAMETER_GROUPDATA, groupData);
+
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

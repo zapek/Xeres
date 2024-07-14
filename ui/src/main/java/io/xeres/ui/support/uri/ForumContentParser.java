@@ -32,6 +32,12 @@ import java.util.stream.Stream;
 
 public class ForumContentParser implements ContentParser
 {
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_ID = "id";
+	public static final String PARAMETER_MSGID = "msgid";
+
+	private static final String AUTHORITY = "forum";
+
 	@Override
 	public String getProtocol()
 	{
@@ -41,15 +47,15 @@ public class ForumContentParser implements ContentParser
 	@Override
 	public String getAuthority()
 	{
-		return "forum";
+		return AUTHORITY;
 	}
 
 	@Override
 	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst("name");
-		var id = uriComponents.getQueryParams().getFirst("id");
-		var msgId = uriComponents.getQueryParams().getFirst("msgid");
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
+		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
 
 		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
@@ -57,5 +63,15 @@ public class ForumContentParser implements ContentParser
 		}
 
 		return new ContentUri(msgId, name, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Forums are not supported yet."));
+	}
+
+	public static String generate(String name, String id, String msgid)
+	{
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_ID, id,
+				PARAMETER_MSGID, msgid);
+
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

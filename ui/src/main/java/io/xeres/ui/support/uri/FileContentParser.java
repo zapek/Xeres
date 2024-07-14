@@ -27,13 +27,10 @@ import io.xeres.ui.support.markdown.LinkAction;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FileContentParser implements ContentParser
 {
@@ -78,10 +75,11 @@ public class FileContentParser implements ContentParser
 
 	public static String generate(String name, long size, Sha1Sum hash)
 	{
-		var uri = PROTOCOL_RETROSHARE + "://" + AUTHORITY + "?" +
-				PARAMETER_NAME + "=" + UriUtils.encodeQueryParam(name, UTF_8) + "&" +
-				PARAMETER_SIZE + "=" + size + "&" +
-				PARAMETER_HASH + "=" + hash;
+		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_SIZE, String.valueOf(size),
+				PARAMETER_HASH, hash.toString());
+
 		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

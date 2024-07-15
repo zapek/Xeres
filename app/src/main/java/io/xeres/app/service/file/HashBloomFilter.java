@@ -74,7 +74,10 @@ public class HashBloomFilter
 			@Override
 			public boolean contains(Sha1Sum value)
 			{
-				return super.contains(value.getBytes()); // The following workaround (the getBytes() call) is needed unless https://github.com/sangupta/bloomfilter/pull/5 is merged and a new upstream release is done.
+				// The following workaround (the getBytes() call) is needed unless
+				// https://github.com/sangupta/bloomfilter/pull/5 is merged and a new upstream release is done.
+				// We also need to clone it otherwise the array gets modified.
+				return super.contains(value.clone().getBytes());
 			}
 		};
 	}

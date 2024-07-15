@@ -43,6 +43,7 @@ import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -168,6 +169,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
+	@Transactional
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{

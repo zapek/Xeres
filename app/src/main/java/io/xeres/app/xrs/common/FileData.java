@@ -25,4 +25,13 @@ public record FileData(
 		byte[] data
 )
 {
+	@Override
+	public String toString()
+	{
+		return "FileData{" +
+				"fileItem=" + fileItem +
+				", offset=" + offset +
+				", data.length=" + data.length +
+				'}';
+	}
 }

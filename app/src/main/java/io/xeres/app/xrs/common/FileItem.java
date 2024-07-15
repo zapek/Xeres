@@ -33,4 +33,18 @@ public record FileItem(
 		int pieceSize,
 		Set<Sha1Sum> chunkHashes)
 {
+	@Override
+	public String toString()
+	{
+		return "FileItem{" +
+				"size=" + size +
+				", hash=" + hash +
+				", name='" + name + '\'' +
+				", path='" + path + '\'' +
+				", popularity=" + popularity +
+				", age=" + age +
+				", pieceSize=" + pieceSize +
+				", chunkHashes=" + chunkHashes +
+				'}';
+	}
 }

@@ -100,7 +100,7 @@ class FileTransferAgent
 				.findFirst().ifPresent(entry -> {
 					if (entry.getValue().isReceiving())
 					{
-						log.debug("Receiving file for chunk number {}", entry.getValue().getChunkNumber());
+						log.debug("Receiving file for chunk {}", entry.getValue().getChunkNumber());
 						if (fileProvider.hasChunk(entry.getValue().getChunkNumber()))
 						{
 							log.debug("Chunk fully received");
@@ -111,7 +111,7 @@ class FileTransferAgent
 					{
 						if (fileProvider.isComplete())
 						{
-							log.debug("File is complete, renaming to {}", fileName);
+							log.debug("File is complete, size: {}, renaming to {}", fileProvider.getFileSize(), fileName);
 							fileProvider.close();
 							fileTransferRsService.markDownloadAsCompleted(hash);
 							renameFile(fileProvider.getPath(), fileName);

@@ -67,4 +67,12 @@ public class FileTransferDataItem extends Item
 	{
 		return fileData;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "FileTransferDataItem{" +
+				"fileData=" + fileData +
+				'}';
+	}
 }

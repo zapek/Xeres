@@ -84,4 +84,14 @@ public class FileTransferDataRequestItem extends Item
 	{
 		return fileItem;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "FileTransferDataRequestItem{" +
+				"fileOffset=" + fileOffset +
+				", chunkSize=" + chunkSize +
+				", fileItem=" + fileItem +
+				'}';
+	}
 }

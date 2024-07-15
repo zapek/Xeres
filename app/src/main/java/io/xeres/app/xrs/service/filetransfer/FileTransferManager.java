@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.file.FileService;
@@ -53,17 +55,19 @@ class FileTransferManager implements Runnable
 	private final FileTransferRsService fileTransferRsService;
 	private final FileService fileService;
 	private final SettingsService settingsService;
+	private final DatabaseSessionManager databaseSessionManager;
 	private final Location ownLocation;
 	private final BlockingQueue<FileTransferCommand> queue;
 
 	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
 	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
 
-	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
+	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
 	{
 		this.fileTransferRsService = fileTransferRsService;
 		this.fileService = fileService;
 		this.settingsService = settingsService;
+		this.databaseSessionManager = databaseSessionManager;
 		this.ownLocation = ownLocation;
 		this.queue = queue;
 	}
@@ -97,7 +101,6 @@ class FileTransferManager implements Runnable
 		{
 			return;
 		}
-		log.debug("Processing command {}...", command);
 
 		if (command instanceof FileTransferCommandItem commandItem)
 		{
@@ -121,33 +124,38 @@ class FileTransferManager implements Runnable
 
 	private void processItem(FileTransferCommandItem commandItem)
 	{
-		if (commandItem.item() instanceof FileTransferDataRequestItem item)
+		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			handleReceiveDataRequest(commandItem.location(), item);
-		}
-		else if (commandItem.item() instanceof FileTransferDataItem item)
-		{
-			handleReceiveData(commandItem.location(), item);
-		}
-		else if (commandItem.item() instanceof FileTransferChunkMapRequestItem item)
-		{
-			if (item.isLeecher())
+			log.debug("Processing item {}", commandItem.item());
+			if (commandItem.item() instanceof FileTransferDataRequestItem item)
 			{
-				handleReceiveLeecherChunkMapRequest(commandItem.location(), item);
+				handleReceiveDataRequest(commandItem.location(), item);
 			}
-			else
+			else if (commandItem.item() instanceof FileTransferDataItem item)
 			{
-				handleReceiveSeederChunkMapRequest(commandItem.location(), item);
+				handleReceiveData(commandItem.location(), item);
 			}
-		}
-		else if (commandItem.item() instanceof FileTransferSingleChunkCrcRequestItem item)
-		{
-			handleReceiveChunkCrcRequest(commandItem.location(), item);
+			else if (commandItem.item() instanceof FileTransferChunkMapRequestItem item)
+			{
+				if (item.isLeecher())
+				{
+					handleReceiveLeecherChunkMapRequest(commandItem.location(), item);
+				}
+				else
+				{
+					handleReceiveSeederChunkMapRequest(commandItem.location(), item);
+				}
+			}
+			else if (commandItem.item() instanceof FileTransferSingleChunkCrcRequestItem item)
+			{
+				handleReceiveChunkCrcRequest(commandItem.location(), item);
+			}
 		}
 	}
 
 	private void processAction(FileTransferCommandAction commandAction)
 	{
+		log.debug("Processing action {}", commandAction.action());
 		if (commandAction.action() instanceof ActionDownload actionDownload)
 		{
 			actionDownloadFile(actionDownload);
@@ -180,6 +188,7 @@ class FileTransferManager implements Runnable
 
 	private void handleReceiveDataRequest(Location location, FileTransferDataRequestItem item)
 	{
+		log.debug("Received data request from {}: {}", location, item);
 		FileTransferAgent agent = null;
 
 		if (location.equals(ownLocation))
@@ -201,9 +210,7 @@ class FileTransferManager implements Runnable
 								log.debug("Failed to open file {} for serving", file);
 								return null;
 							}
-							var newAgent = new FileTransferAgent(fileTransferRsService, hash, fileSeeder);
-							newAgent.addPeerForSending(location, item.getFileOffset(), item.getChunkSize());
-							return newAgent;
+							return new FileTransferAgent(fileTransferRsService, hash, fileSeeder);
 						})
 						.orElse(null));
 			}

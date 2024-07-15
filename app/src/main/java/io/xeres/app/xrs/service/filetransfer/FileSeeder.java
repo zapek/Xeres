@@ -83,10 +83,12 @@ class FileSeeder implements FileProvider
 	public byte[] read(long offset, int size) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
 	{
 		int bufferSize = (int) Math.min(size, fileSize);
-		var buf = ByteBuffer.allocate(bufferSize);
-		channel.read(buf, offset);
-		buf.flip();
-		return buf.array();
+		var buf = ByteBuffer.allocate(bufferSize); // XXX: maybe optimize to only have one buffer for the whole operation...
+		var bytesRead = channel.read(buf, offset);
+		var a = new byte[bytesRead];
+		buf.flip(); // XXX: is this needed?
+		buf.get(a);
+		return a;
 	}
 
 	@Override

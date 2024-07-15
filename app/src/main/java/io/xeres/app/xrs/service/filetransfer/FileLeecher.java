@@ -202,11 +202,11 @@ class FileLeecher extends FileSeeder
 		var block = blocksInChunk.computeIfAbsent(chunkKey, k -> new Block(Math.min(CHUNK_SIZE, fileSize - offset)));
 		block.setBlock(offset);
 
-		log.debug("Chunk key: {}", chunkKey);
+		log.debug("Chunk: {}", chunkKey);
 
 		if (block.isComplete())
 		{
-			log.debug("Block is complete");
+			log.debug("Block is complete: {}", block);
 			chunkMap.set(chunkKey);
 			blocksInChunk.remove(chunkKey);
 		}

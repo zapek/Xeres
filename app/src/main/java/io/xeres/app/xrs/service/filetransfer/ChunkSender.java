@@ -49,11 +49,15 @@ class ChunkSender
 			log.error("Failed to read file", e);
 			return false;
 		}
-		fileTransferRsService.sendData(location, hash, totalSize, offset, data);
+		if (data.length > 0)
+		{
+			log.debug("Sending data, totalSize: {}, offset: {}, data.length: {}", totalSize, offset, data.length);
+			fileTransferRsService.sendData(location, hash, totalSize, offset, data);
+		}
 
-		size -= length;
-		offset += length;
+		size -= data.length;
+		offset += data.length;
 
-		return size > 0;
+		return size > 0 && data.length == length;
 	}
 }

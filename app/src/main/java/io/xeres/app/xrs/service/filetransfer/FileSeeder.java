@@ -32,6 +32,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.BitSet;
 import java.util.Optional;
 
+import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
 class FileSeeder implements FileProvider
@@ -42,6 +43,7 @@ class FileSeeder implements FileProvider
 	protected FileLock lock;
 	protected long fileSize;
 	private BitSet chunkMap;
+	private ByteBuffer buf;
 
 	public FileSeeder(File file)
 	{
@@ -82,13 +84,26 @@ class FileSeeder implements FileProvider
 	@Override
 	public byte[] read(long offset, int size) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
 	{
-		int bufferSize = (int) Math.min(size, fileSize);
-		var buf = ByteBuffer.allocate(bufferSize); // XXX: maybe optimize to only have one buffer for the whole operation...
-		var bytesRead = channel.read(buf, offset);
-		var a = new byte[bytesRead];
-		buf.flip(); // XXX: is this needed?
+		if (size > BLOCK_SIZE)
+		{
+			throw new IllegalArgumentException("size must be smaller than " + BLOCK_SIZE + " bytes");
+		}
+		allocateBufferIfNeeded();
+
+		buf.clear();
+		channel.read(buf, offset);
+		var a = new byte[buf.position()];
+		buf.flip();
 		buf.get(a);
 		return a;
+	}
+
+	private void allocateBufferIfNeeded()
+	{
+		if (buf == null)
+		{
+			buf = ByteBuffer.allocate(BLOCK_SIZE);
+		}
 	}
 
 	@Override

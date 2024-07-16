@@ -43,6 +43,7 @@ import io.xeres.app.xrs.service.turtle.TurtleRsClient;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.rest.file.FileProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -75,6 +76,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final SettingsService settingsService;
 	private final RsCrypto.EncryptionFormat encryptionFormat;
 	private final FileDownloadRepository fileDownloadRepository;
+	private FileTransferManager fileTransferManager;
 	private Thread fileTransferManagerThread;
 
 	private final BlockingQueue<FileTransferCommand> fileCommandQueue = new LinkedBlockingQueue<>();
@@ -125,9 +127,11 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 					.forEach(file -> fileCommandQueue.add(new FileTransferCommandAction(new ActionDownload(file.getName(), file.getHash(), file.getSize(), null)))); // XXX: missing chunks restore
 		}
 
+		fileTransferManager = new FileTransferManager(this, fileService, settingsService, databaseSessionManager, ownLocation, fileCommandQueue);
+
 		fileTransferManagerThread = Thread.ofVirtual()
 				.name("File Transfer Manager")
-				.start(new FileTransferManager(this, fileService, settingsService, databaseSessionManager, ownLocation, fileCommandQueue));
+				.start(fileTransferManager);
 	}
 
 	@Override
@@ -269,6 +273,14 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	public void markDownloadAsCompleted(Sha1Sum hash)
 	{
 		fileService.markDownloadAsCompleted(hash);
+	}
+
+	public List<FileProgress> getDownloadStatistics()
+	{
+		var action = new ActionGetDownloadsProgress();
+		fileCommandQueue.add(new FileTransferCommandAction(action));
+
+		return fileTransferManager.getDownloadsProgress();
 	}
 
 	@Override

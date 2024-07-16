@@ -63,6 +63,11 @@ class FileTransferAgent
 		return fileProvider;
 	}
 
+	public String getFileName()
+	{
+		return fileName;
+	}
+
 	public void addPeerForReceiving(Location peer)
 	{
 		receivers.computeIfAbsent(peer, k -> new ChunkReceiver());
@@ -139,6 +144,10 @@ class FileTransferAgent
 					if (!remaining)
 					{
 						senders.remove(entry.getKey());
+						if (senders.isEmpty())
+						{
+							fileProvider.close();
+						}
 					}
 				});
 	}

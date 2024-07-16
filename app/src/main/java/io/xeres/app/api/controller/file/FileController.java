@@ -28,15 +28,15 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.file.FileDownloadRequest;
+import io.xeres.common.rest.file.FileProgress;
 import io.xeres.common.rest.file.FileSearchRequest;
 import io.xeres.common.rest.file.FileSearchResponse;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static io.xeres.common.rest.PathConfig.FILES_PATH;
 
@@ -67,5 +67,13 @@ public class FileController
 	{
 		var locationId = StringUtils.isNotBlank(fileDownloadRequest.locationId()) ? new LocationId(fileDownloadRequest.locationId()) : null;
 		return fileTransferRsService.download(fileDownloadRequest.name(), new Sha1Sum(Id.toBytes(fileDownloadRequest.hash())), fileDownloadRequest.size(), locationId);
+	}
+
+	@GetMapping("/downloads")
+	@Operation(summary = "Show the current downloads")
+	@ApiResponse(responseCode = "200", description = "Success")
+	public List<FileProgress> getDownloads()
+	{
+		return fileTransferRsService.getDownloadStatistics();
 	}
 }

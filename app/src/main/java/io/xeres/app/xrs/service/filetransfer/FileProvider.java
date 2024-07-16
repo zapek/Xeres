@@ -45,4 +45,6 @@ interface FileProvider
 	boolean isComplete();
 
 	Path getPath();
+
+	long getBytesWritten();
 }

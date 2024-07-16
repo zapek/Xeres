@@ -44,6 +44,7 @@ class FileLeecher extends FileSeeder
 	private BitSet chunkMap;
 	private int nBits;
 	private final Map<Integer, Block> blocksInChunk = new HashMap<>();
+	private long bytesWritten;
 
 	public FileLeecher(File file, long size)
 	{
@@ -126,6 +127,7 @@ class FileLeecher extends FileSeeder
 	{
 		var buf = ByteBuffer.wrap(data);
 		var size = channel.write(buf, offset);
+		bytesWritten += size;
 		if (size != data.length)
 		{
 			throw new IOException("Failed to write data, requested size: " + data.length + ", actually written: " + size);
@@ -210,5 +212,11 @@ class FileLeecher extends FileSeeder
 			chunkMap.set(chunkKey);
 			blocksInChunk.remove(chunkKey);
 		}
+	}
+
+	@Override
+	public long getBytesWritten()
+	{
+		return bytesWritten;
 	}
 }

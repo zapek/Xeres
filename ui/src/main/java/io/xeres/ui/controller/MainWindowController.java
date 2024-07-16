@@ -31,6 +31,7 @@ import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.controller.file.FileMainController;
 import io.xeres.ui.custom.DelayedAction;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
@@ -180,6 +181,9 @@ public class MainWindowController implements WindowController
 	@FXML
 	private Label hashingName;
 
+	@FXML
+	private FileMainController fileMainController;
+
 	private final ChatViewController chatViewController;
 
 	private final LocationClient locationClient;
@@ -294,9 +298,21 @@ public class MainWindowController implements WindowController
 	}
 
 	@Override
+	public void onShowing()
+	{
+		fileMainController.resume();
+	}
+
+	@Override
 	public void onShown()
 	{
 		chatViewController.jumpToBottom();
+	}
+
+	@Override
+	public void onHiding()
+	{
+		fileMainController.suspend();
 	}
 
 	@Override

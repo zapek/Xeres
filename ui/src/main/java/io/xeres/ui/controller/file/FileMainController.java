@@ -20,16 +20,61 @@
 package io.xeres.ui.controller.file;
 
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.controller.TabActivation;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.TabPane;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 @FxmlView(value = "/view/file/main.fxml")
 public class FileMainController implements Controller
 {
+	private static final Logger log = LoggerFactory.getLogger(FileMainController.class);
+
+	@FXML
+	private TabPane tabPane;
+
+	@FXML
+	private FileSearchViewController fileSearchViewController;
+
+	@FXML
+	private FileDownloadViewController fileDownloadViewController;
+
+	@FXML
+	private FileUploadViewController fileUploadViewController;
+
 	@Override
 	public void initialize()
 	{
+		tabPane.getSelectionModel().selectedItemProperty()
+				.addListener((observableValue, oldValue, newValue) -> Platform.runLater(() -> {
+					idToController(oldValue.getId()).deactivate();
+					idToController(newValue.getId()).activate();
+				}));
+	}
 
+	private TabActivation idToController(String id)
+	{
+		return switch (id)
+		{
+			case "search" -> fileSearchViewController;
+			case "downloads" -> fileDownloadViewController;
+			case "uploads" -> fileUploadViewController;
+			default -> throw new IllegalStateException("Unexpected value: " + id);
+		};
+	}
+
+	public void resume()
+	{
+		fileDownloadViewController.resume();
+	}
+
+	public void suspend()
+	{
+		fileDownloadViewController.stop();
 	}
 }

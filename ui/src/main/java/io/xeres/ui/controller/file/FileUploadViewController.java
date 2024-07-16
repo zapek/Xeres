@@ -20,15 +20,28 @@
 package io.xeres.ui.controller.file;
 
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.controller.TabActivation;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 @Component
 @FxmlView(value = "/view/file/upload.fxml")
-public class FileUploadViewController implements Controller
+public class FileUploadViewController implements Controller, TabActivation
 {
 	@Override
 	public void initialize()
+	{
+
+	}
+
+	@Override
+	public void activate()
+	{
+
+	}
+
+	@Override
+	public void deactivate()
 	{
 
 	}

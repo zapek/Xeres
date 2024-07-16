@@ -29,6 +29,7 @@ import io.xeres.app.xrs.service.filetransfer.item.FileTransferDataItem;
 import io.xeres.app.xrs.service.filetransfer.item.FileTransferDataRequestItem;
 import io.xeres.app.xrs.service.filetransfer.item.FileTransferSingleChunkCrcRequestItem;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.rest.file.FileProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,8 @@ class FileTransferManager implements Runnable
 	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
 	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
 
+	private final List<FileProgress> downloadsProgress = new ArrayList<>();
+
 	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
 	{
 		this.fileTransferRsService = fileTransferRsService;
@@ -92,6 +95,14 @@ class FileTransferManager implements Runnable
 				done = true;
 				Thread.currentThread().interrupt();
 			}
+		}
+	}
+
+	public List<FileProgress> getDownloadsProgress()
+	{
+		synchronized (downloadsProgress)
+		{
+			return (List<FileProgress>) ((ArrayList<FileProgress>) downloadsProgress).clone();
 		}
 	}
 
@@ -160,6 +171,10 @@ class FileTransferManager implements Runnable
 		{
 			actionDownloadFile(actionDownload);
 		}
+		else if (commandAction.action() instanceof ActionGetDownloadsProgress actionGetDownloadsProgress)
+		{
+			actionComputeDownloadsProgress();
+		}
 	}
 
 	private void actionDownloadFile(ActionDownload actionDownload)
@@ -186,10 +201,26 @@ class FileTransferManager implements Runnable
 		});
 	}
 
+	private void actionComputeDownloadsProgress()
+	{
+		List<FileProgress> newDownloadList = new ArrayList<>(leechers.size());
+		leechers.forEach((sha1Sum, fileTransferAgent) -> newDownloadList.add(
+				new FileProgress(fileTransferAgent.getFileName(),
+						fileTransferAgent.getFileProvider().getBytesWritten(),
+						fileTransferAgent.getFileProvider().getFileSize(),
+						sha1Sum.toString())));
+
+		synchronized (downloadsProgress)
+		{
+			downloadsProgress.clear();
+			downloadsProgress.addAll(newDownloadList);
+		}
+	}
+
 	private void handleReceiveDataRequest(Location location, FileTransferDataRequestItem item)
 	{
 		log.debug("Received data request from {}: {}", location, item);
-		FileTransferAgent agent = null;
+		FileTransferAgent agent;
 
 		if (location.equals(ownLocation))
 		{

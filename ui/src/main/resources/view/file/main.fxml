@@ -25,24 +25,24 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.file.FileMainController">
     <AnchorPane VBox.vgrow="ALWAYS">
-        <TabPane side="LEFT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
-            <Tab text="Search">
+        <TabPane fx:id="tabPane" side="LEFT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+            <Tab fx:id="search" text="Search">
                 <graphic>
                     <FontIcon iconLiteral="fas-search"/>
                 </graphic>
-                <fx:include fx:id="fileSearchViewController" source="search.fxml"/>
+                <fx:include fx:id="fileSearchView" source="search.fxml"/>
             </Tab>
-            <Tab text="Downloads">
+            <Tab fx:id="downloads" text="Downloads">
                 <graphic>
                     <FontIcon iconLiteral="fas-download"/>
                 </graphic>
-                <fx:include fx:id="fileDownloadViewController" source="download.fxml"/>
+                <fx:include fx:id="fileDownloadView" source="download.fxml"/>
             </Tab>
-            <Tab text="Uploads">
+            <Tab fx:id="uploads" text="Uploads">
                 <graphic>
                     <FontIcon iconLiteral="fas-upload"/>
                 </graphic>
-                <fx:include fx:id="fileUploadViewController" source="upload.fxml"/>
+                <fx:include fx:id="fileUploadView" source="upload.fxml"/>
             </Tab>
         </TabPane>
     </AnchorPane>

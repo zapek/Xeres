@@ -22,6 +22,7 @@ package io.xeres.ui.controller.file;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.controller.TabActivation;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -38,7 +39,7 @@ import reactor.core.Disposable;
 
 @Component
 @FxmlView(value = "/view/file/search.fxml")
-public class FileSearchViewController implements Controller
+public class FileSearchViewController implements Controller, TabActivation
 {
 	private static final Logger log = LoggerFactory.getLogger(FileSearchViewController.class);
 
@@ -108,5 +109,17 @@ public class FileSearchViewController implements Controller
 		{
 			notificationDisposable.dispose();
 		}
+	}
+
+	@Override
+	public void activate()
+	{
+
+	}
+
+	@Override
+	public void deactivate()
+	{
+
 	}
 }

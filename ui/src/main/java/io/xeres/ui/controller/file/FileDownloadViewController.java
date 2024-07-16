@@ -19,17 +19,106 @@
 
 package io.xeres.ui.controller.file;
 
+import io.xeres.common.rest.file.FileProgress;
+import io.xeres.common.util.ExecutorUtils;
+import io.xeres.ui.client.FileClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.controller.TabActivation;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.ProgressBarTableCell;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 @Component
 @FxmlView(value = "/view/file/download.fxml")
-public class FileDownloadViewController implements Controller
+public class FileDownloadViewController implements Controller, TabActivation
 {
+	private static final Logger log = LoggerFactory.getLogger(FileDownloadViewController.class);
+
+	private static final int UPDATE_IN_SECONDS = 2;
+
+	private final FileClient fileClient;
+
+	@FXML
+	private TableView<FileProgress> downloadTableView;
+
+	@FXML
+	private TableColumn<FileProgress, String> tableName;
+
+	@FXML
+	private TableColumn<FileProgress, Double> tableProgress;
+
+	@FXML
+	private TableColumn<FileProgress, Long> tableTotalSize;
+
+	@FXML
+	private TableColumn<FileProgress, String> tableHash;
+
+	private ScheduledExecutorService executorService;
+
+	private boolean wasRunning;
+
+	public FileDownloadViewController(FileClient fileClient)
+	{
+		this.fileClient = fileClient;
+	}
+
 	@Override
 	public void initialize()
 	{
+		tableName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().name()));
+		tableProgress.setCellFactory(ProgressBarTableCell.forTableColumn());
+		tableProgress.setCellValueFactory(param -> new SimpleObjectProperty<>((double) param.getValue().currentSize() / param.getValue().totalSize()));
+		tableTotalSize.setCellFactory(param -> new FileProgressSizeCell());
+		tableTotalSize.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().totalSize()));
+		tableHash.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().hash()));
+	}
 
+	private void start()
+	{
+		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getDownloads().collectList()
+						.doOnSuccess(fileProgresses -> Platform.runLater(() -> {
+							downloadTableView.getItems().clear(); // XXX: not optimal...
+							downloadTableView.getItems().addAll(fileProgresses);
+						}))
+						.subscribe(),
+				0,
+				UPDATE_IN_SECONDS);
+	}
+
+	public void stop()
+	{
+		ExecutorUtils.cleanupExecutor(executorService);
+	}
+
+	public void resume()
+	{
+		if (wasRunning)
+		{
+			start();
+		}
+	}
+
+	@Override
+	public void activate()
+	{
+		start();
+		wasRunning = true;
+	}
+
+	@Override
+	public void deactivate()
+	{
+		stop();
+		wasRunning = false;
 	}
 }

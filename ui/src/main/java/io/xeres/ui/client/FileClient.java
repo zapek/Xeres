@@ -21,12 +21,14 @@ package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.file.FileDownloadRequest;
+import io.xeres.common.rest.file.FileProgress;
 import io.xeres.common.rest.file.FileSearchRequest;
 import io.xeres.common.rest.file.FileSearchResponse;
 import io.xeres.ui.JavaFxApplication;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static io.xeres.common.rest.PathConfig.FILES_PATH;
@@ -71,5 +73,13 @@ public class FileClient
 				.bodyValue(request)
 				.retrieve()
 				.bodyToMono(Long.class);
+	}
+
+	public Flux<FileProgress> getDownloads()
+	{
+		return webClient.get()
+				.uri("/downloads")
+				.retrieve()
+				.bodyToFlux(FileProgress.class);
 	}
 }

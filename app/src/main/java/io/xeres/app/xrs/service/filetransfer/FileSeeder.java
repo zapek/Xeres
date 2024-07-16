@@ -176,4 +176,10 @@ class FileSeeder implements FileProvider
 	{
 		return file.toPath();
 	}
+
+	@Override
+	public long getBytesWritten()
+	{
+		throw new IllegalStateException("FileSeeder doesn't write bytes");
+	}
 }

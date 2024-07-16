@@ -106,20 +106,20 @@
                     <FontIcon iconLiteral="fas-comments"/>
                 </graphic>
                 <!--suppress Annotator -->
-                <fx:include fx:id="chatViewController" source="chat/chatview.fxml"/>
+                <fx:include fx:id="chatView" source="chat/chatview.fxml"/>
             </Tab>
             <Tab text="%main.forums">
                 <graphic>
                     <FontIcon iconLiteral="fas-bullhorn"/>
                 </graphic>
                 <!--suppress Annotator -->
-                <fx:include fx:id="forumsViewController" source="forum/forumview.fxml"/>
+                <fx:include fx:id="forumsView" source="forum/forumview.fxml"/>
             </Tab>
             <Tab text="Files">
                 <graphic>
                     <FontIcon iconLiteral="fas-exchange-alt"/>
                 </graphic>
-                <fx:include fx:id="fileMainController" source="file/main.fxml"/>
+                <fx:include fx:id="fileMain" source="file/main.fxml"/>
             </Tab>
         </TabPane>
         <MenuBar AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" styleClass="hamburger-menu-bar">

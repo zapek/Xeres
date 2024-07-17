@@ -19,17 +19,10 @@ Xeres is an application that allows to connect to other peers to exchange inform
 - 🚫 No censorship. Cannot be censored
 - 👋 Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
 - 🛠️ Hardware accelerated encryption
-- 🖥️ Desktop User Interface
+- 🖥️ Modern looking desktop user interface with several themes including dark mode
 - 📶 Remote access
-- 🚀 Asynchronous design
-- ✈️ High concurrency
-- 📖 Free software (GPL)
-
-## Supported Platforms
-
-- Windows (x86_64)
-- Linux (x86_64)
-- MacOS (x86_64)
+- 📖 Free software ([GPL](https://www.gnu.org/licenses/quick-guide-gplv3.html))
+- 😃 Available for Windows, Linux and MacOS
 
 ## Releases
 

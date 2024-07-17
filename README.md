@@ -11,15 +11,6 @@
 
 ![Xeres Desktop](docs/screenshot-chat.jpg)
 
-## Table of Contents
-
-- [Features](#features)
-- [Supported Platforms](#supported-platforms)
-- [Releases](#releases)
-- [Getting Help](#getting-help)
-- [Documentation](#documentation)
-- [Development](#development)
-
 ## Features
 
 Xeres is an application that allows to connect to other peers to exchange information.
@@ -57,5 +48,5 @@ Latest release always available [here](https://github.com/zapek/Xeres/releases/l
 
 ## Development
 
-- [Here](https://github.com/zapek/Xeres/wiki#development)
+- [Development Help](https://github.com/zapek/Xeres/wiki#development)
 

@@ -13,8 +13,6 @@
 
 ## Features
 
-Xeres is an application that allows to connect to other peers to exchange information.
-
 - 🤝 Peer-to-Peer (Friend-to-Friend), fully decentralized
 - 🚫 No censorship. Cannot be censored
 - 👋 Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher

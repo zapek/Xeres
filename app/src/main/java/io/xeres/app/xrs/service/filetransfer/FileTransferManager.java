@@ -64,6 +64,7 @@ class FileTransferManager implements Runnable
 	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
 
 	private final List<FileProgress> downloadsProgress = new ArrayList<>();
+	private final List<FileProgress> uploadsProgress = new ArrayList<>();
 
 	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
 	{
@@ -103,6 +104,14 @@ class FileTransferManager implements Runnable
 		synchronized (downloadsProgress)
 		{
 			return (List<FileProgress>) ((ArrayList<FileProgress>) downloadsProgress).clone();
+		}
+	}
+
+	public List<FileProgress> getUploadsProgress()
+	{
+		synchronized (uploadsProgress)
+		{
+			return (List<FileProgress>) ((ArrayList<FileProgress>) uploadsProgress).clone();
 		}
 	}
 
@@ -171,9 +180,13 @@ class FileTransferManager implements Runnable
 		{
 			actionDownloadFile(actionDownload);
 		}
-		else if (commandAction.action() instanceof ActionGetDownloadsProgress actionGetDownloadsProgress)
+		else if (commandAction.action() instanceof ActionGetDownloadsProgress)
 		{
 			actionComputeDownloadsProgress();
+		}
+		else if (commandAction.action() instanceof ActionGetUploadsProgress)
+		{
+			actionComputeUploadsProgress();
 		}
 	}
 
@@ -217,6 +230,22 @@ class FileTransferManager implements Runnable
 		}
 	}
 
+	private void actionComputeUploadsProgress()
+	{
+		List<FileProgress> newUploadList = new ArrayList<>(seeders.size());
+		seeders.forEach((sha1Sum, fileTransferAgent) -> newUploadList.add(
+				new FileProgress(fileTransferAgent.getFileName(),
+						0,
+						fileTransferAgent.getFileProvider().getFileSize(),
+						sha1Sum.toString())));
+
+		synchronized (uploadsProgress)
+		{
+			uploadsProgress.clear();
+			uploadsProgress.addAll(newUploadList);
+		}
+	}
+
 	private void handleReceiveDataRequest(Location location, FileTransferDataRequestItem item)
 	{
 		log.debug("Received data request from {}: {}", location, item);
@@ -241,7 +270,7 @@ class FileTransferManager implements Runnable
 								log.debug("Failed to open file {} for serving", file);
 								return null;
 							}
-							return new FileTransferAgent(fileTransferRsService, hash, fileSeeder);
+							return new FileTransferAgent(fileTransferRsService, file.getName(), hash, fileSeeder);
 						})
 						.orElse(null));
 			}

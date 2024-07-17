@@ -82,4 +82,12 @@ public class FileClient
 				.retrieve()
 				.bodyToFlux(FileProgress.class);
 	}
+
+	public Flux<FileProgress> getUploads()
+	{
+		return webClient.get()
+				.uri("/uploads")
+				.retrieve()
+				.bodyToFlux(FileProgress.class);
+	}
 }

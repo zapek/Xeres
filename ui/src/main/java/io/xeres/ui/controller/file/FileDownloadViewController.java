@@ -32,8 +32,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -42,8 +40,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @FxmlView(value = "/view/file/download.fxml")
 public class FileDownloadViewController implements Controller, TabActivation
 {
-	private static final Logger log = LoggerFactory.getLogger(FileDownloadViewController.class);
-
 	private static final int UPDATE_IN_SECONDS = 2;
 
 	private final FileClient fileClient;
@@ -87,7 +83,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 	{
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getDownloads().collectList()
 						.doOnSuccess(fileProgresses -> Platform.runLater(() -> {
-							downloadTableView.getItems().clear(); // XXX: not optimal...
+							downloadTableView.getItems().clear(); // XXX: not optimal... this prevents selection, etc...
 							downloadTableView.getItems().addAll(fileProgresses);
 						}))
 						.subscribe(),

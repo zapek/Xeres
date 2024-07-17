@@ -71,10 +71,12 @@ public class FileMainController implements Controller
 	public void resume()
 	{
 		fileDownloadViewController.resume();
+		fileUploadViewController.resume();
 	}
 
 	public void suspend()
 	{
 		fileDownloadViewController.stop();
+		fileUploadViewController.stop();
 	}
 }

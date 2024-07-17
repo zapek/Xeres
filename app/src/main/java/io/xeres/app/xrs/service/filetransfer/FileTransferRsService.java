@@ -283,6 +283,14 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		return fileTransferManager.getDownloadsProgress();
 	}
 
+	public List<FileProgress> getUploadStatistics()
+	{
+		var action = new ActionGetUploadsProgress();
+		fileCommandQueue.add(new FileTransferCommandAction(action));
+
+		return fileTransferManager.getUploadsProgress();
+	}
+
 	@Override
 	public void shutdown()
 	{

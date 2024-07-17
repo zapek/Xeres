@@ -40,22 +40,17 @@ class FileTransferAgent
 	private final FileTransferRsService fileTransferRsService;
 	private final FileProvider fileProvider;
 	private final Sha1Sum hash;
-	private String fileName;
+	private final String fileName;
 
 	private final Map<Location, ChunkSender> senders = new LinkedHashMap<>();
 	private final Map<Location, ChunkReceiver> receivers = new LinkedHashMap<>();
 
 	public FileTransferAgent(FileTransferRsService fileTransferRsService, String fileName, Sha1Sum hash, FileProvider fileProvider)
 	{
-		this(fileTransferRsService, hash, fileProvider);
-		this.fileName = fileName;
-	}
-
-	public FileTransferAgent(FileTransferRsService fileTransferRsService, Sha1Sum hash, FileProvider fileProvider)
-	{
 		this.fileTransferRsService = fileTransferRsService;
 		this.hash = hash;
 		this.fileProvider = fileProvider;
+		this.fileName = fileName;
 	}
 
 	public FileProvider getFileProvider()

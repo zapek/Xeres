@@ -76,4 +76,12 @@ public class FileController
 	{
 		return fileTransferRsService.getDownloadStatistics();
 	}
+
+	@GetMapping("/uploads")
+	@Operation(summary = "Show the current uploads")
+	@ApiResponse(responseCode = "200", description = "Success")
+	public List<FileProgress> getUploads()
+	{
+		return fileTransferRsService.getUploadStatistics();
+	}
 }

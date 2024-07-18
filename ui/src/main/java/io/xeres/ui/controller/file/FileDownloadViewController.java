@@ -25,12 +25,11 @@ import io.xeres.ui.client.FileClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ProgressBarTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
@@ -45,19 +44,19 @@ public class FileDownloadViewController implements Controller, TabActivation
 	private final FileClient fileClient;
 
 	@FXML
-	private TableView<FileProgress> downloadTableView;
+	private TableView<FileProgressDisplay> downloadTableView;
 
 	@FXML
-	private TableColumn<FileProgress, String> tableName;
+	private TableColumn<FileProgressDisplay, String> tableName;
 
 	@FXML
-	private TableColumn<FileProgress, Double> tableProgress;
+	private TableColumn<FileProgressDisplay, Double> tableProgress;
 
 	@FXML
-	private TableColumn<FileProgress, Long> tableTotalSize;
+	private TableColumn<FileProgressDisplay, Long> tableTotalSize;
 
 	@FXML
-	private TableColumn<FileProgress, String> tableHash;
+	private TableColumn<FileProgressDisplay, String> tableHash;
 
 	private ScheduledExecutorService executorService;
 
@@ -71,20 +70,29 @@ public class FileDownloadViewController implements Controller, TabActivation
 	@Override
 	public void initialize()
 	{
-		tableName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().name()));
+		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableProgress.setCellFactory(ProgressBarTableCell.forTableColumn());
-		tableProgress.setCellValueFactory(param -> new SimpleObjectProperty<>((double) param.getValue().currentSize() / param.getValue().totalSize()));
+		tableProgress.setCellValueFactory(new PropertyValueFactory<>("progress"));
 		tableTotalSize.setCellFactory(param -> new FileProgressSizeCell());
-		tableTotalSize.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().totalSize()));
-		tableHash.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().hash()));
+		tableTotalSize.setCellValueFactory(new PropertyValueFactory<>("totalSize"));
+		tableHash.setCellValueFactory(new PropertyValueFactory<>("hash"));
 	}
 
 	private void start()
 	{
-		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getDownloads().collectList()
-						.doOnSuccess(fileProgresses -> Platform.runLater(() -> {
-							downloadTableView.getItems().clear(); // XXX: not optimal... this prevents selection, etc...
-							downloadTableView.getItems().addAll(fileProgresses);
+		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getDownloads().collectMap(FileProgress::hash)
+						.doOnSuccess(incomingProgresses -> Platform.runLater(() -> {
+							for (int i = 0; i < downloadTableView.getItems().size(); i++)
+							{
+								var currentProgress = downloadTableView.getItems().get(i);
+								var incomingProgress = incomingProgresses.get(currentProgress.getHash());
+								if (incomingProgress != null)
+								{
+									currentProgress.setProgress((double) incomingProgress.currentSize() / incomingProgress.totalSize());
+									incomingProgresses.remove(incomingProgress.hash());
+								}
+							}
+							incomingProgresses.forEach((s, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.name(), 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				0,

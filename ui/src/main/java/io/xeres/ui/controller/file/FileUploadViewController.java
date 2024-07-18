@@ -25,11 +25,10 @@ import io.xeres.ui.client.FileClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
@@ -44,16 +43,16 @@ public class FileUploadViewController implements Controller, TabActivation
 	private final FileClient fileClient;
 
 	@FXML
-	private TableView<FileProgress> uploadTableView;
+	private TableView<FileProgressDisplay> uploadTableView;
 
 	@FXML
-	private TableColumn<FileProgress, String> tableName;
+	private TableColumn<FileProgressDisplay, String> tableName;
 
 	@FXML
-	private TableColumn<FileProgress, Long> tableTotalSize;
+	private TableColumn<FileProgressDisplay, Long> tableTotalSize;
 
 	@FXML
-	private TableColumn<FileProgress, String> tableHash;
+	private TableColumn<FileProgressDisplay, String> tableHash;
 
 	private ScheduledExecutorService executorService;
 
@@ -67,18 +66,31 @@ public class FileUploadViewController implements Controller, TabActivation
 	@Override
 	public void initialize()
 	{
-		tableName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().name()));
+		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableTotalSize.setCellFactory(param -> new FileProgressSizeCell());
-		tableTotalSize.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().totalSize()));
-		tableHash.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().hash()));
+		tableTotalSize.setCellValueFactory(new PropertyValueFactory<>("totalSize"));
+		tableHash.setCellValueFactory(new PropertyValueFactory<>("hash"));
 	}
 
 	private void start()
 	{
-		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getUploads().collectList()
-						.doOnSuccess(fileProgresses -> Platform.runLater(() -> {
-							uploadTableView.getItems().clear(); // XXX: not optimal... this prevents selection, etc...
-							uploadTableView.getItems().addAll(fileProgresses);
+		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getUploads().collectMap(FileProgress::hash)
+						.doOnSuccess(incomingProgresses -> Platform.runLater(() -> {
+							var it = uploadTableView.getItems().iterator();
+							while (it.hasNext())
+							{
+								var currentProgress = it.next();
+								var incomingProgress = incomingProgresses.get(currentProgress.getHash());
+								if (incomingProgress != null)
+								{
+									incomingProgresses.remove(incomingProgress.hash());
+								}
+								else
+								{
+									it.remove();
+								}
+							}
+							incomingProgresses.forEach((s, fileProgress) -> uploadTableView.getItems().add(new FileProgressDisplay(fileProgress.name(), 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				0,

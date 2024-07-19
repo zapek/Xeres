@@ -25,7 +25,7 @@ import java.text.DecimalFormat;
  * In the beginning God created the computer. And the computer was without form, and void;
  * and darkness was upon the face of the silicon. And the Spirit of God moved upon the face of
  * the wafers. And God said, let there be bytes: and there were bytes. And God saw the bytes,
- * that it was good: and God divided the bytes by 1024.
+ * that they were good: and God divided the bytes by 1024.
  */
 public final class ByteUnitUtils
 {

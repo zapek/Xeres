@@ -21,13 +21,13 @@ package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.file.File;
 import io.xeres.common.id.Sha1Sum;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
+@Transactional(readOnly = true)
 public interface FileRepository extends JpaRepository<File, Long>
 {
 	List<File> findAllByName(String name);

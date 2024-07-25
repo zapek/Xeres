@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
+@Transactional(readOnly = true)
 public interface FileDownloadRepository extends JpaRepository<FileDownload, Long>
 {
 	Optional<FileDownload> findByHash(Sha1Sum hash);

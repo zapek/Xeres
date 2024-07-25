@@ -26,10 +26,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@Transactional(readOnly = true)
 public interface SettingsRepository extends JpaRepository<Settings, Byte>
 {
 	@Modifying
+	@Transactional
 	@Query(value = "BACKUP TO :file", nativeQuery = true)
 	void backupDatabase(@Param("file") String file);
 }

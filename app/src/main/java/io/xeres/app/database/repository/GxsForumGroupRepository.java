@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Transactional
+@Transactional(readOnly = true)
 public interface GxsForumGroupRepository extends JpaRepository<ForumGroupItem, Long>
 {
 	Optional<ForumGroupItem> findByGxsId(GxsId gxsId);

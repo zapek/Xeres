@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Transactional
+@Transactional(readOnly = true)
 public interface GxsIdentityRepository extends JpaRepository<IdentityGroupItem, Long>
 {
 	Optional<IdentityGroupItem> findByGxsId(GxsId gxsId);

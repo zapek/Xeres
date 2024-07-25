@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
+@Transactional(readOnly = true)
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
 {
 	Optional<ChatRoom> findByRoomIdAndIdentityGroupItem(long roomId, IdentityGroupItem identityGroupItem);
@@ -37,6 +37,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>
 	List<ChatRoom> findAllBySubscribedTrueAndJoinedFalse();
 
 	@Modifying
+	@Transactional
 	@Query("UPDATE ChatRoom c SET c.joined = false WHERE c.joined = true")
 	void putAllJoinedToFalse();
 }

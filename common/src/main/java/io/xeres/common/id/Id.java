@@ -21,6 +21,7 @@ package io.xeres.common.id;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.HexFormat;
 import java.util.Locale;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -30,8 +31,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  */
 public final class Id
 {
-	private static final char[] HEX = "0123456789abcdef".toCharArray();
-
 	private Id()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -55,8 +54,7 @@ public final class Id
 
 		for (var b : id)
 		{
-			sb.append(HEX[(b & 0xf0) >> 4])
-					.append(HEX[b & 0x0f]);
+			HexFormat.of().toHexDigits(sb, b);
 		}
 		return sb.toString();
 	}

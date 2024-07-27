@@ -152,7 +152,6 @@ public class FileResultView extends Tab
 			{
 				log.debug("Downloading file {}", file.name());
 				fileClient.download(file.name(), file.hash(), file.size(), null)
-						//.doOnSuccess(id -> ) add the file to the download view?
 						.subscribe();
 			}
 		});

@@ -109,6 +109,7 @@ class FileTransferManager implements Runnable
 	{
 		synchronized (downloadsProgress)
 		{
+			//noinspection unchecked
 			return (List<FileProgress>) ((ArrayList<FileProgress>) downloadsProgress).clone();
 		}
 	}
@@ -117,6 +118,7 @@ class FileTransferManager implements Runnable
 	{
 		synchronized (uploadsProgress)
 		{
+			//noinspection unchecked
 			return (List<FileProgress>) ((ArrayList<FileProgress>) uploadsProgress).clone();
 		}
 	}
@@ -140,7 +142,7 @@ class FileTransferManager implements Runnable
 
 	private void processLeechers()
 	{
-		leechers.entrySet().removeIf(agent -> !agent.getValue().process());
+		leechers.forEach((hash, agent) -> agent.process());
 	}
 
 	private void processSeeders()

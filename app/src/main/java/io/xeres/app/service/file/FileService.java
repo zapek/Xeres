@@ -209,9 +209,9 @@ public class FileService
 	@Transactional
 	public void suspendDownload(Sha1Sum hash, BitSet chunkMap)
 	{
-		fileDownloadRepository.findByHash(hash).ifPresent(fileDownload -> fileDownload.setChunkMap(chunkMap));
+		fileDownloadRepository.findByHashAndCompletedFalse(hash).ifPresent(fileDownload -> fileDownload.setChunkMap(chunkMap));
 	}
-	
+
 	@Transactional
 	public void markDownloadAsCompleted(Sha1Sum hash)
 	{

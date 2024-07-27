@@ -32,5 +32,7 @@ public interface FileDownloadRepository extends JpaRepository<FileDownload, Long
 {
 	Optional<FileDownload> findByHash(Sha1Sum hash);
 
+	Optional<FileDownload> findByHashAndCompletedFalse(Sha1Sum hash);
+
 	List<FileDownload> findAllByCompletedFalse();
 }

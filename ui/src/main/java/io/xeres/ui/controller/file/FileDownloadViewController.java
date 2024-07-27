@@ -35,6 +35,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import static io.xeres.ui.controller.file.FileProgressDisplay.State.*;
+
 @Component
 @FxmlView(value = "/view/file/download.fxml")
 public class FileDownloadViewController implements Controller, TabActivation
@@ -48,6 +50,9 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 	@FXML
 	private TableColumn<FileProgressDisplay, String> tableName;
+
+	@FXML
+	private TableColumn<FileProgressDisplay, String> tableState;
 
 	@FXML
 	private TableColumn<FileProgressDisplay, Double> tableProgress;
@@ -71,6 +76,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 	public void initialize()
 	{
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
+		tableState.setCellValueFactory(new PropertyValueFactory<>("state"));
 		tableProgress.setCellFactory(ProgressBarTableCell.forTableColumn());
 		tableProgress.setCellValueFactory(new PropertyValueFactory<>("progress"));
 		tableTotalSize.setCellFactory(param -> new FileProgressSizeCell());
@@ -88,11 +94,13 @@ public class FileDownloadViewController implements Controller, TabActivation
 								var incomingProgress = incomingProgresses.get(currentProgress.getHash());
 								if (incomingProgress != null)
 								{
-									currentProgress.setProgress((double) incomingProgress.currentSize() / incomingProgress.totalSize());
+									var newProgress = (double) incomingProgress.currentSize() / incomingProgress.totalSize();
+									currentProgress.setState(newProgress != currentProgress.getProgress() ? TRANSFERRING : SEARCHING);
+									currentProgress.setProgress(newProgress);
 									incomingProgresses.remove(incomingProgress.hash());
 								}
 							}
-							incomingProgresses.forEach((s, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.name(), 0.0, fileProgress.totalSize(), fileProgress.hash())));
+							incomingProgresses.forEach((s, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.name(), fileProgress.currentSize() == fileProgress.totalSize() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				0,

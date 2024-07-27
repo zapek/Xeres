@@ -23,8 +23,25 @@ import java.util.Locale;
 
 public interface I18nEnum
 {
+	/**
+	 * Returns the message key for an enum. The format is:
+	 * {@code enum.(<enclosing class>.)<enum name>.<enum value>} all in lower case.
+	 *
+	 * @param e the enum
+	 * @return the enum message key
+	 */
 	default String getMessageKey(Enum<?> e)
 	{
-		return "enum." + e.getClass().getSimpleName().toLowerCase(Locale.ROOT) + "." + e.name().toLowerCase(Locale.ROOT);
+		var enumClass = e.getClass();
+		var sb = new StringBuilder("enum.");
+		if (enumClass.getEnclosingClass() != null)
+		{
+			sb.append(enumClass.getEnclosingClass().getSimpleName().toLowerCase(Locale.ROOT));
+			sb.append(".");
+		}
+		sb.append(enumClass.getSimpleName().toLowerCase(Locale.ROOT));
+		sb.append(".");
+		sb.append(e.name().toLowerCase(Locale.ROOT));
+		return sb.toString();
 	}
 }

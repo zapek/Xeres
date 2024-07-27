@@ -34,6 +34,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import static io.xeres.ui.controller.file.FileProgressDisplay.State.TRANSFERRING;
+
 @Component
 @FxmlView(value = "/view/file/upload.fxml")
 public class FileUploadViewController implements Controller, TabActivation
@@ -90,7 +92,7 @@ public class FileUploadViewController implements Controller, TabActivation
 									it.remove();
 								}
 							}
-							incomingProgresses.forEach((s, fileProgress) -> uploadTableView.getItems().add(new FileProgressDisplay(fileProgress.name(), 0.0, fileProgress.totalSize(), fileProgress.hash())));
+							incomingProgresses.forEach((s, fileProgress) -> uploadTableView.getItems().add(new FileProgressDisplay(fileProgress.name(), TRANSFERRING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				0,

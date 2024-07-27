@@ -22,6 +22,8 @@ package io.xeres.app.xrs.service.filetransfer;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.Sha1Sum;
 
-record ActionDownload(String name, Sha1Sum hash, long size, Location from) implements Action
+import java.util.BitSet;
+
+record ActionDownload(String name, Sha1Sum hash, long size, Location from, BitSet chunkMap) implements Action
 {
 }

@@ -46,17 +46,17 @@ class FileLeecher extends FileSeeder
 	private final Map<Integer, Block> blocksInChunk = new HashMap<>();
 	private long bytesWritten;
 
-	public FileLeecher(File file, long size)
+	public FileLeecher(File file, long size, BitSet chunkMap)
 	{
 		super(file);
-		setFileSize(size);
+		setFileSize(size, chunkMap);
 	}
 
-	private void setFileSize(long size)
+	private void setFileSize(long size, BitSet chunkMap)
 	{
 		fileSize = size;
 		nBits = (int) (size / CHUNK_SIZE + (size % CHUNK_SIZE != 0 ? 1 : 0));
-		chunkMap = new BitSet(nBits);
+		this.chunkMap = chunkMap != null ? chunkMap : new BitSet(nBits);
 	}
 
 	@Override

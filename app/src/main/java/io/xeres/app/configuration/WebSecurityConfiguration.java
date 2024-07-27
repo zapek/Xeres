@@ -27,11 +27,13 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import static io.xeres.common.properties.StartupProperties.Property.CONTROL_PASSWORD;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
@@ -43,7 +45,7 @@ public class WebSecurityConfiguration
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(authorize -> {
-							if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(StartupProperties.Property.CONTROL_PASSWORD, true))
+					if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
 							{
 								authorize.anyRequest().authenticated();
 							}
@@ -54,7 +56,7 @@ public class WebSecurityConfiguration
 						}
 				)
 				.httpBasic(Customizer.withDefaults())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+				.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 		return http.build();
 	}
 

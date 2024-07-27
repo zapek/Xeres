@@ -93,10 +93,16 @@ class FileTransferManager implements Runnable
 			catch (InterruptedException e)
 			{
 				log.debug("FileTransferManager thread interrupted");
+				cleanup();
 				done = true;
 				Thread.currentThread().interrupt();
 			}
 		}
+	}
+
+	private void cleanup()
+	{
+		leechers.forEach((hash, fileTransferAgent) -> fileService.suspendDownload(hash, fileTransferAgent.getFileProvider().getChunkMap()));
 	}
 
 	public List<FileProgress> getDownloadsProgress()
@@ -195,7 +201,7 @@ class FileTransferManager implements Runnable
 		leechers.computeIfAbsent(actionDownload.hash(), hash -> {
 			var file = Paths.get(settingsService.getIncomingDirectory(), hash + FileService.DOWNLOAD_EXTENSION).toFile();
 			log.debug("Downloading file {}, size: {}", file, actionDownload.size());
-			var fileLeecher = new FileLeecher(file, actionDownload.size());
+			var fileLeecher = new FileLeecher(file, actionDownload.size(), actionDownload.chunkMap());
 			if (fileLeecher.open())
 			{
 				var agent = new FileTransferAgent(fileTransferRsService, actionDownload.name(), hash, fileLeecher);

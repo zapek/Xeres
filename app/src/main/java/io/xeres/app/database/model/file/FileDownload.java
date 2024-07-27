@@ -46,7 +46,7 @@ public class FileDownload
 	@AttributeOverride(name = "identifier", column = @Column(name = "hash"))
 	private Sha1Sum hash;
 
-	private final BitSet chunkMap = new BitSet();
+	private BitSet chunkMap = new BitSet();
 
 	private boolean completed;
 
@@ -93,6 +93,11 @@ public class FileDownload
 	public BitSet getChunkMap()
 	{
 		return chunkMap;
+	}
+
+	public void setChunkMap(BitSet chunkMap)
+	{
+		this.chunkMap = chunkMap;
 	}
 
 	public boolean isCompleted()

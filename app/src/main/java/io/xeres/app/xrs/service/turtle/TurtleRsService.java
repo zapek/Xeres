@@ -254,7 +254,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels)
 	{
-		hashesToRemove.remove(hash); // the file hash was scheduled for removal, cancel it
+		hashesToRemove.remove(hash); // if the file hash was scheduled for removal, cancel it
 
 		incomingHashes.putIfAbsent(hash, new FileHash(allowMultiTunnels, client));
 	}

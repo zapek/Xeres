@@ -43,7 +43,7 @@ class FileLeecherTest
 	void FileLeecher_Sparse_OK()
 	{
 		var file = Paths.get(tempDir, "sparsefile.tmp").toFile();
-		var fileLeecher = new FileLeecher(file, 16384);
+		var fileLeecher = new FileLeecher(file, 16384, null);
 		fileLeecher.open();
 		assertEquals(16384, fileLeecher.getFileSize());
 		fileLeecher.close();
@@ -68,7 +68,7 @@ class FileLeecherTest
 	void FileLeecher_Read_NotAvailable()
 	{
 		var file = Paths.get(tempDir, "filesize.tmp").toFile();
-		var fileLeecher = new FileLeecher(file, 256);
+		var fileLeecher = new FileLeecher(file, 256, null);
 		fileLeecher.open();
 		assertThrows(IOException.class, () -> fileLeecher.read(0, 256));
 		fileLeecher.close();

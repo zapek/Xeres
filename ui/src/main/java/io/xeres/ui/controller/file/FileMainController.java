@@ -19,22 +19,19 @@
 
 package io.xeres.ui.controller.file;
 
+import io.xeres.ui.client.FileClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 @FxmlView(value = "/view/file/main.fxml")
 public class FileMainController implements Controller
 {
-	private static final Logger log = LoggerFactory.getLogger(FileMainController.class);
-
 	@FXML
 	private TabPane tabPane;
 
@@ -47,6 +44,13 @@ public class FileMainController implements Controller
 	@FXML
 	private FileUploadViewController fileUploadViewController;
 
+	private final FileClient fileClient;
+
+	public FileMainController(FileClient fileClient)
+	{
+		this.fileClient = fileClient;
+	}
+
 	@Override
 	public void initialize()
 	{
@@ -55,6 +59,10 @@ public class FileMainController implements Controller
 					idToController(oldValue.getId()).deactivate();
 					idToController(newValue.getId()).activate();
 				}));
+
+		// The following is done at an attempt to populate the download list
+		// so that it's ready when the user navigates to it.
+		fileClient.getDownloads().subscribe();
 	}
 
 	private TabActivation idToController(String id)

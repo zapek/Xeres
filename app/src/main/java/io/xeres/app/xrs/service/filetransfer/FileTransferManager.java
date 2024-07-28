@@ -125,19 +125,16 @@ class FileTransferManager implements Runnable
 
 	private void processCommand(FileTransferCommand command)
 	{
-		if (command == null)
+		switch (command)
 		{
-			return;
+			case FileTransferCommandItem commandItem -> processItem(commandItem);
+			case FileTransferCommandAction commandAction -> processAction(commandAction);
+			case null, default ->
+			{
+				// Nothing to do
+			}
 		}
 
-		if (command instanceof FileTransferCommandItem commandItem)
-		{
-			processItem(commandItem);
-		}
-		else if (command instanceof FileTransferCommandAction commandAction)
-		{
-			processAction(commandAction);
-		}
 	}
 
 	private void processLeechers()

@@ -41,22 +41,19 @@ class FileLeecher extends FileSeeder
 	private static final Logger log = LoggerFactory.getLogger(FileLeecher.class);
 	private RandomAccessFile randomAccessFile;
 
-	private BitSet chunkMap;
-	private int nBits;
+	private final BitSet chunkMap;
+	private final int nBits;
+	private final ChunkDistributor chunkDistributor;
 	private final Map<Integer, Block> blocksInChunk = new HashMap<>();
 	private long bytesWritten;
 
-	public FileLeecher(File file, long size, BitSet chunkMap)
+	public FileLeecher(File file, long size, BitSet chunkMap, FileTransferStrategy fileTransferStrategy)
 	{
 		super(file);
-		setFileSize(size, chunkMap);
-	}
-
-	private void setFileSize(long size, BitSet chunkMap)
-	{
 		fileSize = size;
 		nBits = (int) (size / CHUNK_SIZE + (size % CHUNK_SIZE != 0 ? 1 : 0));
 		this.chunkMap = chunkMap != null ? chunkMap : new BitSet(nBits);
+		chunkDistributor = new ChunkDistributor(this.chunkMap, nBits, fileTransferStrategy);
 	}
 
 	@Override
@@ -165,11 +162,7 @@ class FileLeecher extends FileSeeder
 	@Override
 	public Optional<Integer> getNeededChunk()
 	{
-		if (isComplete())
-		{
-			return Optional.empty();
-		}
-		return Optional.of(chunkMap.nextClearBit(0));
+		return chunkDistributor.getNextChunk();
 	}
 
 	@Override

@@ -45,7 +45,13 @@ public class NetworkProperties
 	 *     <li>ChaCha20 with Poly1305 authenticator {@code "chacha20-poly1305"}: should be accepted by Retroshare, but untested</li>
 	 * </ul>
 	 */
-	private String tunnelEncryption = "chacha20-sha256";
+	private String tunnelEncryption = TUNNEL_ENCRYPTION_CHACHA20_SHA256;
+	public static final String TUNNEL_ENCRYPTION_CHACHA20_SHA256 = "chacha20-sha256";
+	public static final String TUNNEL_ENCRYPTION_CHACHA20_POLY1305 = "chacha20-poly1305";
+
+	private String fileTransferStrategy = FILE_TRANSFER_STRATEGY_LINEAR;
+	public static final String FILE_TRANSFER_STRATEGY_LINEAR = "linear";
+	public static final String FILE_TRANSFER_STRATEGY_RANDOM = "random";
 
 	@PostConstruct
 	private void checkConsistency()
@@ -90,5 +96,15 @@ public class NetworkProperties
 	public void setTunnelEncryption(String tunnelEncryption)
 	{
 		this.tunnelEncryption = tunnelEncryption;
+	}
+
+	public String getFileTransferStrategy()
+	{
+		return fileTransferStrategy;
+	}
+
+	public void setFileTransferStrategy(String fileTransferStrategy)
+	{
+		this.fileTransferStrategy = fileTransferStrategy;
 	}
 }

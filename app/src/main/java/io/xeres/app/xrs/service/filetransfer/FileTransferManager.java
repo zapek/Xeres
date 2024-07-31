@@ -59,6 +59,7 @@ class FileTransferManager implements Runnable
 	private final DatabaseSessionManager databaseSessionManager;
 	private final Location ownLocation;
 	private final BlockingQueue<FileTransferCommand> queue;
+	private final FileTransferStrategy fileTransferStrategy;
 
 	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
 	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
@@ -66,7 +67,7 @@ class FileTransferManager implements Runnable
 	private final List<FileProgress> downloadsProgress = new ArrayList<>();
 	private final List<FileProgress> uploadsProgress = new ArrayList<>();
 
-	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<FileTransferCommand> queue)
+	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<FileTransferCommand> queue, FileTransferStrategy fileTransferStrategy)
 	{
 		this.fileTransferRsService = fileTransferRsService;
 		this.fileService = fileService;
@@ -74,6 +75,7 @@ class FileTransferManager implements Runnable
 		this.databaseSessionManager = databaseSessionManager;
 		this.ownLocation = ownLocation;
 		this.queue = queue;
+		this.fileTransferStrategy = fileTransferStrategy;
 	}
 
 	@Override
@@ -200,7 +202,7 @@ class FileTransferManager implements Runnable
 		leechers.computeIfAbsent(actionDownload.hash(), hash -> {
 			var file = Paths.get(settingsService.getIncomingDirectory(), hash + FileService.DOWNLOAD_EXTENSION).toFile();
 			log.debug("Downloading file {}, size: {}", file, actionDownload.size());
-			var fileLeecher = new FileLeecher(file, actionDownload.size(), actionDownload.chunkMap());
+			var fileLeecher = new FileLeecher(file, actionDownload.size(), actionDownload.chunkMap(), actionDownload.from() != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
 			if (fileLeecher.open())
 			{
 				var agent = new FileTransferAgent(fileTransferRsService, actionDownload.name(), hash, fileLeecher);

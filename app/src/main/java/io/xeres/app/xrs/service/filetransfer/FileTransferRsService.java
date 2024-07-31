@@ -55,6 +55,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static io.xeres.app.properties.NetworkProperties.*;
 import static io.xeres.app.xrs.service.RsServiceType.FILE_TRANSFER;
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
@@ -75,6 +76,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final LocationService locationService;
 	private final SettingsService settingsService;
 	private final RsCrypto.EncryptionFormat encryptionFormat;
+	private final FileTransferStrategy fileTransferStrategy;
 	private final FileDownloadRepository fileDownloadRepository;
 	private FileTransferManager fileTransferManager;
 	private Thread fileTransferManagerThread;
@@ -96,25 +98,40 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		this.locationService = locationService;
 		this.settingsService = settingsService;
 		encryptionFormat = getEncryptionFormat(networkProperties);
+		fileTransferStrategy = getFileTransferStrategy(networkProperties);
 		this.fileDownloadRepository = fileDownloadRepository;
 	}
 
 	private static RsCrypto.EncryptionFormat getEncryptionFormat(NetworkProperties networkProperties)
 	{
-		final RsCrypto.EncryptionFormat encryptionFormat;
-		if (networkProperties.getTunnelEncryption().equals("chacha20-sha256"))
+		if (networkProperties.getTunnelEncryption().equals(TUNNEL_ENCRYPTION_CHACHA20_SHA256))
 		{
-			encryptionFormat = RsCrypto.EncryptionFormat.CHACHA20_SHA256;
+			return RsCrypto.EncryptionFormat.CHACHA20_SHA256;
 		}
-		else if (networkProperties.getTunnelEncryption().equals("chacha20-poly1305"))
+		else if (networkProperties.getTunnelEncryption().equals(TUNNEL_ENCRYPTION_CHACHA20_POLY1305))
 		{
-			encryptionFormat = RsCrypto.EncryptionFormat.CHACHA20_POLY1305;
+			return RsCrypto.EncryptionFormat.CHACHA20_POLY1305;
 		}
 		else
 		{
 			throw new IllegalArgumentException("Unsupported encryption format: " + networkProperties.getTunnelEncryption());
 		}
-		return encryptionFormat;
+	}
+
+	private static FileTransferStrategy getFileTransferStrategy(NetworkProperties networkProperties)
+	{
+		if (networkProperties.getFileTransferStrategy().equals(FILE_TRANSFER_STRATEGY_LINEAR))
+		{
+			return FileTransferStrategy.LINEAR;
+		}
+		else if (networkProperties.getFileTransferStrategy().equals(FILE_TRANSFER_STRATEGY_RANDOM))
+		{
+			return FileTransferStrategy.RANDOM;
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unsupported file transfer strategy: " + networkProperties.getFileTransferStrategy());
+		}
 	}
 
 	@Override
@@ -127,7 +144,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 					.forEach(file -> fileCommandQueue.add(new FileTransferCommandAction(new ActionDownload(file.getName(), file.getHash(), file.getSize(), null, file.getChunkMap()))));
 		}
 
-		fileTransferManager = new FileTransferManager(this, fileService, settingsService, databaseSessionManager, ownLocation, fileCommandQueue);
+		fileTransferManager = new FileTransferManager(this, fileService, settingsService, databaseSessionManager, ownLocation, fileCommandQueue, fileTransferStrategy);
 
 		fileTransferManagerThread = Thread.ofVirtual()
 				.name("File Transfer Manager")

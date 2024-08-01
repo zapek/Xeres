@@ -20,7 +20,6 @@
 package io.xeres.app.xrs.service.turtle;
 
 import io.xeres.app.database.model.location.Location;
-import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 
 import java.time.Instant;
@@ -29,7 +28,7 @@ class Tunnel
 {
 	private final Location source;
 	private final Location destination;
-	private final LocationId virtualId;
+	private final Location virtualLocation;
 	private final Sha1Sum hash;
 	private Instant lastUsed;
 	private long transferredBytes;
@@ -40,7 +39,7 @@ class Tunnel
 		this.source = source;
 		this.destination = destination;
 		this.hash = hash;
-		virtualId = VirtualLocationId.fromTunnel(tunnelId);
+		virtualLocation = VirtualLocation.fromTunnel(tunnelId);
 		lastUsed = Instant.now();
 	}
 
@@ -54,9 +53,9 @@ class Tunnel
 		return destination;
 	}
 
-	public LocationId getVirtualId()
+	public Location getVirtualLocation()
 	{
-		return virtualId;
+		return virtualLocation;
 	}
 
 	public Sha1Sum getHash()

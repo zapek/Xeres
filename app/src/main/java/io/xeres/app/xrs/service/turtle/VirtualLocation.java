@@ -20,25 +20,23 @@
 package io.xeres.app.xrs.service.turtle;
 
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
-import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.id.LocationId;
 
-public interface TurtleRouter
+public final class VirtualLocation
 {
-	void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels); // XXX: better name?
+	private VirtualLocation()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
 
-	void stopMonitoringTunnels(Sha1Sum hash);
+	public static Location fromTunnel(int tunnelId)
+	{
+		var buf = new byte[LocationId.LENGTH];
 
-	/**
-	 * Forces to re-digg a tunnel.
-	 *
-	 * @param hash the hash to re-digg a tunnel for
-	 */
-	void forceReDiggTunnel(Sha1Sum hash);
-
-	void sendTurtleData(Location virtualPeer, TurtleGenericTunnelItem item);
-
-	boolean isVirtualPeer(Location location);
-
-	int turtleSearch(String search, TurtleRsClient client);
+		for (var i = 0; i < 4; ++i)
+		{
+			buf[i] = (byte) ((tunnelId >> ((3 - i) * 8)) & 0xff); // XXX: check sign
+		}
+		return Location.createLocation("TurtleVirtualLocation", new LocationId(buf));
+	}
 }

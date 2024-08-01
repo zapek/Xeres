@@ -195,6 +195,14 @@ class FileTransferManager implements Runnable
 		{
 			actionComputeUploadsProgress();
 		}
+		else if (commandAction.action() instanceof ActionAddPeer addPeer)
+		{
+			actionAddPeer(addPeer.hash(), addPeer.location());
+		}
+		else if (commandAction.action() instanceof ActionRemovePeer removePeer)
+		{
+			actionRemovePeer(removePeer.hash(), removePeer.location());
+		}
 	}
 
 	private void actionDownloadFile(ActionDownload actionDownload)
@@ -250,6 +258,25 @@ class FileTransferManager implements Runnable
 		{
 			uploadsProgress.clear();
 			uploadsProgress.addAll(newUploadList);
+		}
+	}
+
+	private void actionAddPeer(Sha1Sum hash, Location location)
+	{
+		var seeder = seeders.get(hash);
+		if (seeder != null)
+		{
+			seeder.addPeerForReceiving(location);
+			fileTransferRsService.sendChunkMapRequest(location, hash, false);
+		}
+	}
+
+	private void actionRemovePeer(Sha1Sum hash, Location location)
+	{
+		var seeder = seeders.get(hash);
+		if (seeder != null)
+		{
+			seeder.removePeer(location);
 		}
 	}
 

@@ -128,6 +128,13 @@ public class Location
 		return new Location(name, profile, locationId);
 	}
 
+	public static Location createLocation(String name, LocationId locationId)
+	{
+		var location = new Location(name);
+		location.setLocationId(locationId);
+		return location;
+	}
+
 	public static void addOrUpdateLocations(Profile profile, Location newLocation)
 	{
 		profile.getLocations().removeIf(oldLocation -> oldLocation.getLocationId().equals(newLocation.getLocationId())); // XXX: don't remove but update if there are additional fields that were gathered before an update (ie. additional IPs)

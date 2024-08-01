@@ -180,12 +180,21 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash)
+	public boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hashOfHash)
 	{
-		var file = fileService.findFile(hash);
+		var file = fileService.findFile(hashOfHash);
 		if (file.isPresent())
 		{
 			log.debug("Found file {}", file.get());
+			var realHash = encryptHash(hashOfHash);
+			encryptedHashes.put(hashOfHash, realHash);
+
+			if (hashOfHash.equals(realHash))
+			{
+				log.warn("Rejecting file transfer for hash {} because it's not encrypted", hashOfHash);
+				return false;
+			}
+
 			// XXX: don't forget to handle files currently being swarmed and tons of other things
 			// XXX: sender might not necessarily be needed (it's for the permissions)
 			return true;
@@ -194,7 +203,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hashOfHash, LocationId virtualLocationId, TunnelDirection tunnelDirection)
+	public void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hashOfHash, Location virtualLocation, TunnelDirection tunnelDirection)
 	{
 		if (item instanceof TurtleGenericDataItem turtleGenericDataItem)
 		{
@@ -206,7 +215,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			}
 
 			var decryptedItem = decryptItem(turtleGenericDataItem, hash);
-			receiveTurtleData(decryptedItem, hash, virtualLocationId, tunnelDirection);
+			receiveTurtleData(decryptedItem, hash, virtualLocation, tunnelDirection);
 			decryptedItem.dispose();
 			return;
 		}
@@ -254,15 +263,32 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId, TunnelDirection direction)
+	public void addVirtualPeer(Sha1Sum hashOfHash, Location virtualLocation, TunnelDirection direction)
 	{
-
+		var realHash = findRealHash(hashOfHash);
+		if (realHash == null)
+		{
+			log.warn("Couldn't add virtual peer, not an encrypted hash");
+			return;
+		}
+		if (direction == TunnelDirection.SERVER)
+		{
+			var action = new ActionAddPeer(realHash, virtualLocation);
+			fileCommandQueue.add(new FileTransferCommandAction(action));
+		}
 	}
 
 	@Override
-	public void removeVirtualPeer(Sha1Sum hash, LocationId virtualLocationId)
+	public void removeVirtualPeer(Sha1Sum hashOfHash, Location virtualLocation)
 	{
-
+		var realHash = findRealHash(hashOfHash);
+		if (realHash == null)
+		{
+			log.warn("Couldn't remove virtual peer, not an encrypted hash");
+			return;
+		}
+		var action = new ActionRemovePeer(realHash, virtualLocation);
+		fileCommandQueue.add(new FileTransferCommandAction(action));
 	}
 
 	public int turtleSearch(String search) // XXX: maybe make a generic version or so...
@@ -330,10 +356,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 	}
 
-	private void sendTurtleItem(LocationId virtualLocationId, Sha1Sum hash, TurtleGenericTunnelItem item)
+	private void sendTurtleItem(Location virtualLocation, Sha1Sum hash, TurtleGenericTunnelItem item)
 	{
 		// We only send encrypted tunnels. They're available since Retroshare 0.6.2
-		turtleRouter.sendTurtleData(virtualLocationId, encryptItem(item, hash));
+		turtleRouter.sendTurtleData(virtualLocation, encryptItem(item, hash));
 	}
 
 	private TurtleGenericDataItem encryptItem(TurtleGenericTunnelItem item, Sha1Sum hash)
@@ -379,11 +405,11 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	public void sendDataRequest(Location location, Sha1Sum hash, long size, long offset, int chunkSize)
 	{
-		if (turtleRouter.isVirtualPeer(location.getLocationId()))
+		if (turtleRouter.isVirtualPeer(location))
 		{
 			var item = new TurtleFileRequestItem(offset, chunkSize);
 
-			sendTurtleItem(location.getLocationId(), hash, item);
+			sendTurtleItem(location, hash, item);
 		}
 		else
 		{
@@ -392,12 +418,12 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 	}
 
-	private void sendChunkMapRequest(Location location, Sha1Sum hash, boolean isClient)
+	public void sendChunkMapRequest(Location location, Sha1Sum hash, boolean isClient)
 	{
-		if (turtleRouter.isVirtualPeer(location.getLocationId()))
+		if (turtleRouter.isVirtualPeer(location))
 		{
 			var item = new TurtleFileMapRequestItem();
-			sendTurtleItem(location.getLocationId(), hash, item);
+			sendTurtleItem(location, hash, item);
 		}
 		else
 		{
@@ -408,10 +434,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	void sendChunkMap(Location location, Sha1Sum hash, boolean isClient, List<Integer> compressedChunkMap)
 	{
-		if (turtleRouter.isVirtualPeer(location.getLocationId()))
+		if (turtleRouter.isVirtualPeer(location))
 		{
 			var item = new TurtleFileMapItem(compressedChunkMap);
-			sendTurtleItem(location.getLocationId(), hash, item);
+			sendTurtleItem(location, hash, item);
 		}
 		else
 		{
@@ -422,10 +448,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private void sendSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber)
 	{
-		if (turtleRouter.isVirtualPeer(location.getLocationId()))
+		if (turtleRouter.isVirtualPeer(location))
 		{
 			var item = new TurtleChunkCrcRequestItem(chunkNumber);
-			sendTurtleItem(location.getLocationId(), hash, item);
+			sendTurtleItem(location, hash, item);
 		}
 		else
 		{
@@ -436,10 +462,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private void sendSingleChunkCrc(Location location, Sha1Sum hash, int chunkNumber, Sha1Sum checkSum)
 	{
-		if (turtleRouter.isVirtualPeer(location.getLocationId()))
+		if (turtleRouter.isVirtualPeer(location))
 		{
 			var item = new TurtleChunkCrcItem(chunkNumber, checkSum);
-			sendTurtleItem(location.getLocationId(), hash, item);
+			sendTurtleItem(location, hash, item);
 		}
 		else
 		{
@@ -457,10 +483,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 				throw new IllegalArgumentException("Maximum send size must be " + BLOCK_SIZE + ", not " + data.length);
 			}
 
-			if (turtleRouter.isVirtualPeer(location.getLocationId()))
+			if (turtleRouter.isVirtualPeer(location))
 			{
 				var item = new TurtleFileDataItem(baseOffset, data);
-				sendTurtleItem(location.getLocationId(), hash, item);
+				sendTurtleItem(location, hash, item);
 			}
 			else
 			{

@@ -17,25 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.turtle;
+package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.app.database.model.location.Location;
+import io.xeres.common.id.Sha1Sum;
 
-public final class VirtualLocationId
+record ActionRemovePeer(Sha1Sum hash, Location location) implements Action
 {
-	private VirtualLocationId()
-	{
-		throw new UnsupportedOperationException("Utility class");
-	}
-
-	public static LocationId fromTunnel(int tunnelId)
-	{
-		var buf = new byte[LocationId.LENGTH];
-
-		for (var i = 0; i < 4; ++i)
-		{
-			buf[i] = (byte) ((tunnelId >> ((3 - i) * 8)) & 0xff); // XXX: check sign
-		}
-		return new LocationId(buf);
-	}
 }

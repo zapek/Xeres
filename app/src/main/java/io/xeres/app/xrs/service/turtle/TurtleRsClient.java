@@ -19,12 +19,12 @@
 
 package io.xeres.app.xrs.service.turtle;
 
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.service.RsServiceSlave;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 import io.xeres.app.xrs.service.turtle.item.TurtleSearchResultItem;
-import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public interface TurtleRsClient extends RsServiceSlave
 	 */
 	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash);
 
-	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hashOfHash, LocationId virtualLocationId, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
+	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hashOfHash, Location virtualLocation, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
 
 	/**
 	 * Asks to search something.
@@ -58,7 +58,7 @@ public interface TurtleRsClient extends RsServiceSlave
 	 */
 	void receiveSearchResult(int requestId, TurtleSearchResultItem item);
 
-	void addVirtualPeer(Sha1Sum hash, LocationId virtualLocationId, TunnelDirection direction);
+	void addVirtualPeer(Sha1Sum hash, Location virtualLocation, TunnelDirection direction);
 
-	void removeVirtualPeer(Sha1Sum hash, LocationId virtualLocationId);
+	void removeVirtualPeer(Sha1Sum hash, Location virtualLocation);
 }

@@ -206,12 +206,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	}
 
 	@Override
-	public void sendTurtleData(LocationId virtualPeerId, TurtleGenericTunnelItem item)
+	public void sendTurtleData(Location virtualPeer, TurtleGenericTunnelItem item)
 	{
-		var tunnelId = virtualPeers.get(virtualPeerId);
+		var tunnelId = virtualPeers.get(virtualPeer.getLocationId());
 		if (tunnelId == null)
 		{
-			log.warn("Couldn't find tunnel for virtual peer {}", virtualPeerId);
+			log.warn("Couldn't find tunnel for virtual peer id {}", virtualPeer.getLocationId());
 			return;
 		}
 
@@ -323,9 +323,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	}
 
 	@Override
-	public boolean isVirtualPeer(LocationId locationId)
+	public boolean isVirtualPeer(Location location)
 	{
-		return virtualPeers.containsKey(locationId);
+		return virtualPeers.containsKey(location.getLocationId());
 	}
 
 	private void handleReceiveGenericTunnel(TurtleGenericTunnelItem item, Tunnel tunnel)
@@ -352,7 +352,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			}
 		}
 		assert client != null;
-		client.receiveTurtleData(item, tunnel.getHash(), tunnel.getVirtualId(), item.getDirection());
+		client.receiveTurtleData(item, tunnel.getHash(), tunnel.getVirtualLocation(), item.getDirection());
 	}
 
 	private void handleTunnelRequest(PeerConnection sender, TurtleTunnelRequestItem item)
@@ -393,7 +393,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 			var tunnel = new Tunnel(tunnelId, sender.getLocation(), ownLocation, item.getFileHash());
 			localTunnels.put(tunnelId, tunnel);
-			client.get().addVirtualPeer(item.getFileHash(), tunnel.getVirtualId(), TunnelDirection.CLIENT);
+			client.get().addVirtualPeer(item.getFileHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
 			return;
 		}
 
@@ -460,7 +460,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 				// Local tunnel
 				var tunnel = localTunnels.computeIfAbsent(item.getTunnelId(), tunnelId -> new Tunnel(item.getTunnelId(), tunnelRequest.getSource(), sender.getLocation(), fileHash.getKey()));
-				fileHash.getValue().getClient().addVirtualPeer(fileHash.getKey(), tunnel.getVirtualId(), TunnelDirection.SERVER);
+				fileHash.getValue().getClient().addVirtualPeer(fileHash.getKey(), tunnel.getVirtualLocation(), TunnelDirection.SERVER);
 			}
 		}
 		else
@@ -752,7 +752,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 		lastTunnelCleanup = now;
 
-		var virtualPeersToRemove = new HashMap<TurtleRsClient, AbstractMap.SimpleEntry<Sha1Sum, LocationId>>();
+		var virtualPeersToRemove = new HashMap<TurtleRsClient, AbstractMap.SimpleEntry<Sha1Sum, Location>>();
 
 		// Hashes marked for removal
 		hashesToRemove.stream()
@@ -780,7 +780,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		virtualPeersToRemove.forEach((client, entry) -> client.removeVirtualPeer(entry.getKey(), entry.getValue()));
 	}
 
-	private void closeTunnel(int id, Map<TurtleRsClient, AbstractMap.SimpleEntry<Sha1Sum, LocationId>> sourcesToRemove)
+	private void closeTunnel(int id, Map<TurtleRsClient, AbstractMap.SimpleEntry<Sha1Sum, Location>> sourcesToRemove)
 	{
 		var tunnel = localTunnels.get(id);
 
@@ -795,12 +795,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			// This is a starting tunnel.
 
 			// Remove the virtual peer from the virtual peers list
-			virtualPeers.remove(tunnel.getVirtualId());
+			virtualPeers.remove(tunnel.getVirtualLocation().getLocationId());
 
 			// Remove the tunnel id from the file hash
 			Optional.ofNullable(incomingHashes.get(tunnel.getHash())).ifPresent(fileHash -> {
 				fileHash.removeTunnel(id);
-				sourcesToRemove.put(fileHash.getClient(), new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualId()));
+				sourcesToRemove.put(fileHash.getClient(), new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualLocation()));
 			});
 		}
 		else if (tunnel.getDestination().equals(ownLocation))
@@ -810,7 +810,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			var client = outgoingTunnelClients.remove(id);
 			if (client != null)
 			{
-				sourcesToRemove.put(client, new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualId()));
+				sourcesToRemove.put(client, new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualLocation()));
 
 				// Remove associated virtual peers
 				virtualPeers.entrySet().removeIf(entry -> entry.getValue().equals(id));

@@ -26,7 +26,6 @@ import static io.xeres.app.xrs.service.filetransfer.FileTransferStrategy.LINEAR;
 
 class ChunkDistributor
 {
-
 	private static final int MAX_RANDOM_TRY = 10;
 
 	private final BitSet chunkMap; // This is updated externally

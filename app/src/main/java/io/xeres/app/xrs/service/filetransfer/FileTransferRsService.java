@@ -215,7 +215,14 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			}
 
 			var decryptedItem = decryptItem(turtleGenericDataItem, hash);
-			receiveTurtleData(decryptedItem, hash, virtualLocation, tunnelDirection);
+			if (decryptedItem instanceof TurtleGenericDataItem)
+			{
+				log.error("Decrypted item is a recursive bomb, dropping");
+			}
+			else
+			{
+				receiveTurtleData(decryptedItem, hash, virtualLocation, tunnelDirection);
+			}
 			decryptedItem.dispose();
 			return;
 		}

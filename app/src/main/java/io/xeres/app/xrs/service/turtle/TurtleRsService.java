@@ -393,11 +393,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 			var tunnel = new Tunnel(tunnelId, sender.getLocation(), ownLocation, item.getFileHash());
 			localTunnels.put(tunnelId, tunnel);
+			virtualPeers.put(tunnel.getVirtualLocation().getLocationId(), tunnelId);
 			client.get().addVirtualPeer(item.getFileHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
 			return;
 		}
 
-		// Perturbate the partial tunnel id so that:
+		// Perturb the partial tunnel id so that:
 		// - the tunnel id is unique for a given route
 		// - better balance of bandwidth for a given transfer
 		// - avoids the waste of items that get lost when re-routing a tunnel
@@ -460,6 +461,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 				// Local tunnel
 				var tunnel = localTunnels.computeIfAbsent(item.getTunnelId(), tunnelId -> new Tunnel(item.getTunnelId(), tunnelRequest.getSource(), sender.getLocation(), fileHash.getKey()));
+				virtualPeers.put(tunnel.getVirtualLocation().getLocationId(), item.getTunnelId());
 				fileHash.getValue().getClient().addVirtualPeer(fileHash.getKey(), tunnel.getVirtualLocation(), TunnelDirection.SERVER);
 			}
 		}
@@ -478,7 +480,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				.orElse(null);
 	}
 
-	int generatePersonalFilePrint(Sha1Sum hash, int bias, boolean symetrical)
+	int generatePersonalFilePrint(Sha1Sum hash, int bias, boolean symmetrical)
 	{
 		var buf = hash.toString() + ownLocation.toString();
 		int result = bias;
@@ -488,7 +490,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		{
 			result += (int) (7 * buf.charAt(i) + Integer.toUnsignedLong(decal));
 
-			if (symetrical)
+			if (symmetrical)
 			{
 				decal = (int) (Integer.toUnsignedLong(decal) * 44497 + 15641 + (Integer.toUnsignedLong(result) % 86243));
 			}

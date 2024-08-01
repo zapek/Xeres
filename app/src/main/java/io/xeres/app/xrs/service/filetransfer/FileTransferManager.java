@@ -218,7 +218,10 @@ class FileTransferManager implements Runnable
 				{
 					agent.addPeerForReceiving(actionDownload.from());
 				}
-				// XXX: send a search request (otherwise the download won't work without any peer)
+				else
+				{
+					fileTransferRsService.activateTunnels(actionDownload.hash());
+				}
 				return agent;
 			}
 			else
@@ -294,29 +297,30 @@ class FileTransferManager implements Runnable
 			agent = leechers.get(item.getFileItem().hash());
 			if (agent == null)
 			{
-				agent = seeders.computeIfAbsent(item.getFileItem().hash(), hash -> fileService.findFilePath(hash)
-						.map(Path::toFile)
-						.map(file -> {
-							log.debug("Serving file {}", file);
-							var fileSeeder = new FileSeeder(file);
-							if (!fileSeeder.open())
-							{
-								log.debug("Failed to open file {} for serving", file);
-								return null;
-							}
-							return new FileTransferAgent(fileTransferRsService, file.getName(), hash, fileSeeder);
-						})
-						.orElse(null));
+				agent = localSearch(item.getFileItem().hash());
 			}
 			if (agent != null)
 			{
 				handleSeederRequest(location, agent, item.getFileItem().hash(), item.getFileItem().size(), item.getFileOffset(), item.getChunkSize());
-				return;
 			}
 		}
+	}
 
-		// Add to search queue
-		// XXX: add, and also handle it
+	private FileTransferAgent localSearch(Sha1Sum hash)
+	{
+		return seeders.computeIfAbsent(hash, h -> fileService.findFilePath(h)
+				.map(Path::toFile)
+				.map(file -> {
+					log.debug("Serving file {}", file);
+					var fileSeeder = new FileSeeder(file);
+					if (!fileSeeder.open())
+					{
+						log.debug("Failed to open file {} for serving", file);
+						return null;
+					}
+					return new FileTransferAgent(fileTransferRsService, file.getName(), h, fileSeeder);
+				})
+				.orElse(null));
 	}
 
 	private void handleReceiveData(Location location, FileTransferDataItem item)
@@ -358,9 +362,7 @@ class FileTransferManager implements Runnable
 		var agent = seeders.get(item.getHash());
 		if (agent == null)
 		{
-			// XXX: do a search request, handleSearchRequest(location, hash)
-
-			agent = seeders.get(item.getHash());
+			agent = localSearch(item.getHash());
 		}
 
 		if (agent == null)
@@ -375,7 +377,7 @@ class FileTransferManager implements Runnable
 
 	private void handleReceiveChunkCrcRequest(Location location, FileTransferSingleChunkCrcRequestItem item)
 	{
-		// XXX: not sure what to do yet, complicated
+		// XXX: not sure what to do yet, complicated (look at the list of seeders first, etc...)
 	}
 
 	private void handleSeederRequest(Location location, FileTransferAgent agent, Sha1Sum hash, long size, long offset, int chunkSize)

@@ -375,7 +375,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		return (TurtleGenericTunnelItem) ItemUtils.deserializeItem(RsCrypto.decryptAuthenticateData(key, item.getTunnelData()), rsServiceRegistry);
 	}
 
-	private void activateTunnels(Sha1Sum hash)
+	public void activateTunnels(Sha1Sum hash)
 	{
 		var hashOfHash = encryptHash(hash);
 		encryptedHashes.put(hashOfHash, hash);
@@ -383,7 +383,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		turtleRouter.startMonitoringTunnels(hashOfHash, this, true);
 	}
 
-	private void deactivateTunnels(Sha1Sum hash)
+	public void deactivateTunnels(Sha1Sum hash)
 	{
 		var hashOfHash = encryptHash(hash);
 		encryptedHashes.put(hashOfHash, hash);

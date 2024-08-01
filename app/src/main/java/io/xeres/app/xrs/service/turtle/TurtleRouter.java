@@ -23,6 +23,10 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 import io.xeres.common.id.Sha1Sum;
 
+/**
+ * This interface is implemented by the Turtle Router. This is given to Turtle Clients in the initialization method so that its
+ * functions can be called anytime.
+ */
 public interface TurtleRouter
 {
 	void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels); // XXX: better name?
@@ -38,6 +42,12 @@ public interface TurtleRouter
 
 	void sendTurtleData(Location virtualPeer, TurtleGenericTunnelItem item);
 
+	/**
+	 * Checks if a location is a virtual turtle peer.
+	 *
+	 * @param location the location
+	 * @return true if it's a virtual turtle peer
+	 */
 	boolean isVirtualPeer(Location location);
 
 	int turtleSearch(String search, TurtleRsClient client);

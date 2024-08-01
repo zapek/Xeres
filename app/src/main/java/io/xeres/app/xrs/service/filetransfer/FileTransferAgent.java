@@ -114,6 +114,7 @@ class FileTransferAgent
 							log.debug("File is complete, size: {}, renaming to {}", fileProvider.getFileSize(), fileName);
 							fileProvider.close();
 							fileTransferRsService.markDownloadAsCompleted(hash);
+							fileTransferRsService.deactivateTunnels(hash);
 							renameFile(fileProvider.getPath(), fileName);
 							receivers.remove(entry.getKey());
 						}

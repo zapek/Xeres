@@ -29,9 +29,19 @@ import io.xeres.common.id.Sha1Sum;
 
 import java.util.List;
 
+/**
+ * This interface is implemented by turtle clients. For example the file transfer service is a turtle client and
+ * will receive events from the turtle router.
+ */
 public interface TurtleRsClient extends RsServiceSlave
 {
+	/**
+	 * Initializes the turtle client.
+	 *
+	 * @param turtleRouter the turtle router. Save it somewhere so that you can call its methods.
+	 */
 	void initializeTurtle(TurtleRouter turtleRouter);
+
 	/**
 	 * Asks if this hash can be handled. It usually boils down to searching it in some database or list.
 	 * @param sender the peer where it comes from

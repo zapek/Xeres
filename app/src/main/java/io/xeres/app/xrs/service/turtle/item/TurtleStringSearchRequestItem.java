@@ -25,7 +25,7 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 import static io.xeres.app.xrs.serialization.TlvType.STR_VALUE;
 
 @RsClassSerializedReversed
-public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem implements Cloneable
+public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem
 {
 	@RsSerialized(tlvType = STR_VALUE)
 	private String search;

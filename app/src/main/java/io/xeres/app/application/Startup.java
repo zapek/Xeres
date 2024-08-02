@@ -146,7 +146,7 @@ public class Startup implements ApplicationRunner
 	/**
 	 * Called when the application setup is ready (aka we have a location).
 	 *
-	 * @param ignoredEvent the LocationReadyEvent
+	 * @param ignoredEvent the {@link LocationReadyEvent}
 	 */
 	@EventListener
 	public void onApplicationEvent(LocationReadyEvent ignoredEvent)

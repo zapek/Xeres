@@ -30,7 +30,7 @@ import java.util.Set;
 import static io.xeres.app.xrs.serialization.Serializer.deserializeInt;
 import static io.xeres.app.xrs.serialization.Serializer.serialize;
 
-public class TurtleFileMapRequestItem extends TurtleGenericTunnelItem implements Cloneable, RsSerializable
+public class TurtleFileMapRequestItem extends TurtleGenericTunnelItem implements RsSerializable
 {
 	@Override
 	public boolean shouldStampTunnel()

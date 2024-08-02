@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.turtle.item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
-public class TurtleGenericFastDataItem extends TurtleGenericTunnelItem implements Cloneable
+public class TurtleGenericFastDataItem extends TurtleGenericTunnelItem
 {
 	@RsSerialized
 	private byte[] tunnelData;
@@ -66,8 +66,6 @@ public class TurtleGenericFastDataItem extends TurtleGenericTunnelItem implement
 	@Override
 	public TurtleGenericFastDataItem clone()
 	{
-		var clone = (TurtleGenericFastDataItem) super.clone();
-		clone.tunnelData = tunnelData.clone();
-		return clone;
+		return (TurtleGenericFastDataItem) super.clone();
 	}
 }

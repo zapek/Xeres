@@ -24,7 +24,10 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TurtleFileSearchResultItem extends TurtleSearchResultItem implements Cloneable
+/**
+ * The results of a file search.
+ */
+public class TurtleFileSearchResultItem extends TurtleSearchResultItem
 {
 	@RsSerialized
 	private List<TurtleFileInfo> results = new ArrayList<>();
@@ -68,9 +71,7 @@ public class TurtleFileSearchResultItem extends TurtleSearchResultItem implement
 	@Override
 	public TurtleFileSearchResultItem clone()
 	{
-		var clone = (TurtleFileSearchResultItem) super.clone();
-		// XXX: copy results I think... since it's no deep copy...
-		return clone;
+		return (TurtleFileSearchResultItem) super.clone();
 	}
 
 	@Override

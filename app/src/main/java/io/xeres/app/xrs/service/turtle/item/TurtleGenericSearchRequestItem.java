@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
-public class TurtleGenericSearchRequestItem extends TurtleSearchRequestItem implements Cloneable
+public class TurtleGenericSearchRequestItem extends TurtleSearchRequestItem
 {
 	@RsSerialized
 	private short serviceId;

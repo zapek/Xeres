@@ -19,8 +19,18 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
+/**
+ * The direction of the tunnel. Either {@link #CLIENT} or {@link #SERVER}.
+ */
 public enum TunnelDirection
 {
+	/**
+	 * A client, For example when downloading a file from a remote node.
+	 */
 	CLIENT,
+
+	/**
+	 * A server, for example when serving a file to a remote node.
+	 */
 	SERVER
 }

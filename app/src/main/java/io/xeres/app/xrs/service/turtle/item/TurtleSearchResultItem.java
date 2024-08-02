@@ -23,7 +23,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
 
-public abstract class TurtleSearchResultItem extends Item implements Cloneable
+public abstract class TurtleSearchResultItem extends Item
 {
 	@RsSerialized
 	private int requestId;
@@ -55,15 +55,6 @@ public abstract class TurtleSearchResultItem extends Item implements Cloneable
 	@Override
 	public TurtleSearchResultItem clone()
 	{
-		try
-		{
-			var clone = (TurtleSearchResultItem) super.clone();
-			clone.buf = null; // the cloning is done to write multiple buffers, we don't need to copy it
-			return clone;
-		}
-		catch (CloneNotSupportedException e)
-		{
-			throw new AssertionError();
-		}
+		return (TurtleSearchResultItem) super.clone();
 	}
 }

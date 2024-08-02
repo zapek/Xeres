@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
-public class TurtleGenericDataItem extends TurtleGenericTunnelItem implements Cloneable
+public class TurtleGenericDataItem extends TurtleGenericTunnelItem
 {
 	@RsSerialized
 	private byte[] tunnelData;
@@ -64,8 +64,6 @@ public class TurtleGenericDataItem extends TurtleGenericTunnelItem implements Cl
 	@Override
 	public TurtleGenericDataItem clone()
 	{
-		var clone = (TurtleGenericDataItem) super.clone();
-		clone.tunnelData = tunnelData.clone();
-		return clone;
+		return (TurtleGenericDataItem) super.clone();
 	}
 }

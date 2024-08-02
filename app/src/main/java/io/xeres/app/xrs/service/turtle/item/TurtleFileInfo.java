@@ -25,6 +25,9 @@ import io.xeres.common.id.Sha1Sum;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 
+/**
+ * The representation of a file by turtle.
+ */
 public class TurtleFileInfo
 {
 	@RsSerialized

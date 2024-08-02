@@ -24,7 +24,7 @@ import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 
 import static io.xeres.app.xrs.service.turtle.item.TunnelDirection.CLIENT;
 
-public class TurtleFileDataItem extends TurtleGenericTunnelItem implements Cloneable
+public class TurtleFileDataItem extends TurtleGenericTunnelItem
 {
 	@RsSerialized
 	private long chunkOffset;
@@ -60,11 +60,24 @@ public class TurtleFileDataItem extends TurtleGenericTunnelItem implements Clone
 		return 8;
 	}
 
+	public long getChunkOffset()
+	{
+		return chunkOffset;
+	}
+
+	public int getChunkSize()
+	{
+		return chunkSize;
+	}
+
+	public byte[] getChunkData()
+	{
+		return chunkData;
+	}
+
 	@Override
 	public TurtleFileDataItem clone()
 	{
-		var clone = (TurtleFileDataItem) super.clone();
-		clone.chunkData = chunkData.clone();
-		return clone;
+		return (TurtleFileDataItem) super.clone();
 	}
 }

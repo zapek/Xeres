@@ -84,9 +84,7 @@ public class Sha1Sum implements Identifier, Cloneable
 	{
 		try
 		{
-			var clone = (Sha1Sum) super.clone();
-			clone.identifier = identifier.clone();
-			return clone;
+			return (Sha1Sum) super.clone();
 		}
 		catch (CloneNotSupportedException e)
 		{

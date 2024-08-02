@@ -25,7 +25,7 @@ import io.xeres.common.id.Sha1Sum;
 
 import static io.xeres.app.xrs.service.turtle.item.TunnelDirection.CLIENT;
 
-public class TurtleChunkCrcItem extends TurtleGenericTunnelItem implements Cloneable
+public class TurtleChunkCrcItem extends TurtleGenericTunnelItem
 {
 	@RsSerialized
 	private int chunkNumber;
@@ -70,8 +70,6 @@ public class TurtleChunkCrcItem extends TurtleGenericTunnelItem implements Clone
 	@Override
 	public TurtleChunkCrcItem clone()
 	{
-		var clone = (TurtleChunkCrcItem) super.clone();
-		clone.checksum = checksum.clone();
-		return clone;
+		return (TurtleChunkCrcItem) super.clone();
 	}
 }

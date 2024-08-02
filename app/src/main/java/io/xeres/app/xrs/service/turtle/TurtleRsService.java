@@ -219,10 +219,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			case TurtleTunnelResultItem turtleTunnelResultItem -> handleTunnelResult(sender, turtleTunnelResultItem);
 			case TurtleSearchRequestItem turtleSearchRequestItem -> handleSearchRequest(sender, turtleSearchRequestItem);
 			case TurtleSearchResultItem turtleSearchResultItem -> handleSearchResult(sender, turtleSearchResultItem);
-			case null, default ->
-			{
-				log.debug("Unknown item {}", item);
-			}
+			default -> log.debug("Unknown item {}", item);
 		}
 	}
 

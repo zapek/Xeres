@@ -23,7 +23,7 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 
 import java.util.Arrays;
 
-public class TurtleGenericSearchResultItem extends TurtleSearchResultItem implements Cloneable
+public class TurtleGenericSearchResultItem extends TurtleSearchResultItem
 {
 	@RsSerialized
 	private byte[] searchData; // XXX: not sure it's the right data type
@@ -59,9 +59,7 @@ public class TurtleGenericSearchResultItem extends TurtleSearchResultItem implem
 	@Override
 	public TurtleGenericSearchResultItem clone()
 	{
-		var clone = (TurtleGenericSearchResultItem) super.clone();
-		// XXXX: not sure if I have to copy...
-		return clone;
+		return (TurtleGenericSearchResultItem) super.clone();
 	}
 
 	@Override

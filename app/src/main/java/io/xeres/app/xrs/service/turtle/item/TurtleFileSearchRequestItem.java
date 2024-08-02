@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
-public abstract class TurtleFileSearchRequestItem extends TurtleSearchRequestItem implements Cloneable
+public abstract class TurtleFileSearchRequestItem extends TurtleSearchRequestItem
 {
 	@Override
 	public String getKeywords()

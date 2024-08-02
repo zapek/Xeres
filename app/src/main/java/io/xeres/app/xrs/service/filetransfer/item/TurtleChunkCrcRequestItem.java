@@ -24,7 +24,7 @@ import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 
 import static io.xeres.app.xrs.service.turtle.item.TunnelDirection.SERVER;
 
-public class TurtleChunkCrcRequestItem extends TurtleGenericTunnelItem implements Cloneable
+public class TurtleChunkCrcRequestItem extends TurtleGenericTunnelItem
 {
 	@RsSerialized
 	private int chunkNumber;

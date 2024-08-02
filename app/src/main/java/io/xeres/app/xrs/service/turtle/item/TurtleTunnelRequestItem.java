@@ -24,7 +24,7 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Sha1Sum;
 
-public class TurtleTunnelRequestItem extends Item implements Cloneable
+public class TurtleTunnelRequestItem extends Item
 {
 	@RsSerialized
 	private Sha1Sum fileHash;
@@ -106,15 +106,6 @@ public class TurtleTunnelRequestItem extends Item implements Cloneable
 	@Override
 	public TurtleTunnelRequestItem clone()
 	{
-		try
-		{
-			var clone = (TurtleTunnelRequestItem) super.clone();
-			clone.buf = null; // the cloning is done to write multiple buffers, we don't need to copy it
-			return clone;
-		}
-		catch (CloneNotSupportedException e)
-		{
-			throw new AssertionError();
-		}
+		return (TurtleTunnelRequestItem) super.clone();
 	}
 }

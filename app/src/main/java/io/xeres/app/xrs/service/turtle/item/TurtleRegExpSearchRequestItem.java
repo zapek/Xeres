@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem implements RsSerializable, Cloneable
+public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem implements RsSerializable
 {
 	private static final int MAX_TOKENS_LIMIT = 256;
 

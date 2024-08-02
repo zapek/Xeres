@@ -24,7 +24,7 @@ import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
 
-public abstract class TurtleGenericTunnelItem extends Item implements Cloneable
+public abstract class TurtleGenericTunnelItem extends Item
 {
 	@RsSerialized
 	private int tunnelId;
@@ -69,15 +69,6 @@ public abstract class TurtleGenericTunnelItem extends Item implements Cloneable
 	@Override
 	public TurtleGenericTunnelItem clone()
 	{
-		try
-		{
-			var clone = (TurtleGenericTunnelItem) super.clone();
-			clone.buf = null; // the cloning is done to write multiple buffers, we don't need to copy it
-			return clone;
-		}
-		catch (CloneNotSupportedException e)
-		{
-			throw new AssertionError();
-		}
+		return (TurtleGenericTunnelItem) super.clone();
 	}
 }

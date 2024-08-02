@@ -27,13 +27,12 @@ import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
-public class TurtleFileMapItem extends TurtleGenericTunnelItem implements Cloneable, RsSerializable
+public class TurtleFileMapItem extends TurtleGenericTunnelItem implements RsSerializable
 {
 	private List<Integer> compressedChunks;
 
@@ -62,9 +61,7 @@ public class TurtleFileMapItem extends TurtleGenericTunnelItem implements Clonea
 	@Override
 	public TurtleFileMapItem clone()
 	{
-		var clone = (TurtleFileMapItem) super.clone();
-		clone.compressedChunks = new ArrayList<>(compressedChunks);
-		return clone;
+		return (TurtleFileMapItem) super.clone();
 	}
 
 	@Override

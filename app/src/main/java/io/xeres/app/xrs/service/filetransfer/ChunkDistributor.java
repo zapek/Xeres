@@ -101,7 +101,14 @@ class ChunkDistributor
 
 		if (givenChunks.contains(chunk))
 		{
-			chunk = minChunk;
+			for (int i = minChunk; i < maxChunk; i++)
+			{
+				if (!givenChunks.contains(i))
+				{
+					return i;
+				}
+			}
+			throw new IllegalStateException("Couldn't return random chunk. Shouldn't happen");
 		}
 		return chunk;
 	}

@@ -45,12 +45,12 @@ public interface TurtleRsClient extends RsServiceSlave
 	/**
 	 * Asks if this hash can be handled. It usually boils down to searching it in some database or list.
 	 * @param sender the peer where it comes from
-	 * @param hash the hash
+	 * @param encryptedHash the hash
 	 * @return true if it can be handled, false otherwise
 	 */
-	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash);
+	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum encryptedHash);
 
-	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hashOfHash, Location virtualLocation, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
+	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum encryptedHash, Location virtualLocation, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
 
 	/**
 	 * Asks to search something.
@@ -68,7 +68,9 @@ public interface TurtleRsClient extends RsServiceSlave
 	 */
 	void receiveSearchResult(int requestId, TurtleSearchResultItem item);
 
+	// XXX: document that only encrypted hashes are supported
 	void addVirtualPeer(Sha1Sum hash, Location virtualLocation, TunnelDirection direction);
 
+	// XXX: ditto
 	void removeVirtualPeer(Sha1Sum hash, Location virtualLocation);
 }

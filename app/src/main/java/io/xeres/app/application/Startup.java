@@ -291,7 +291,7 @@ public class Startup implements ApplicationRunner
 	 */
 	private void configureDefaults()
 	{
-		var version = 1; // Increment this number when needing to add new defaults
+		var version = 2; // Increment this number when needing to add new defaults
 
 		// Don't do this stuff when running tests
 		if (dataDirConfiguration.getDataDir() == null)
@@ -323,6 +323,11 @@ public class Startup implements ApplicationRunner
 			SecureRandomUtils.nextPassword(password);
 			settingsService.setRemotePassword(String.valueOf(password));
 			Arrays.fill(password, (char) 0);
+		}
+
+		if (settingsService.getVersion() < 2)
+		{
+			fileService.encryptAllHashes();
 		}
 
 		// [Add new defaults here]

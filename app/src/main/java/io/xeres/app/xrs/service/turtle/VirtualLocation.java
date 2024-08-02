@@ -33,9 +33,9 @@ public final class VirtualLocation
 	{
 		var buf = new byte[LocationId.LENGTH];
 
-		for (var i = 0; i < 4; ++i)
+		for (var i = 0; i < 4; i++)
 		{
-			buf[i] = (byte) ((tunnelId >> ((3 - i) * 8)) & 0xff); // XXX: check sign
+			buf[i] = (byte) ((tunnelId >> ((3 - i) * 8)) & 0xff);
 		}
 		return Location.createLocation("TurtleVirtualLocation", new LocationId(buf));
 	}

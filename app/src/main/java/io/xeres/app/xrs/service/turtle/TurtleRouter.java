@@ -25,7 +25,7 @@ import io.xeres.common.id.Sha1Sum;
 
 /**
  * This interface is implemented by the Turtle Router. This is given to Turtle Clients in the initialization method so that its
- * functions can be called anytime.
+ * functions can be called anytime. Only encrypted hashes are supported.
  */
 public interface TurtleRouter
 {

@@ -111,6 +111,20 @@ public class FileService
 		shareRepository.save(share);
 	}
 
+	/**
+	 * This is used for migration only.
+	 */
+	@Transactional
+	public void encryptAllHashes()
+	{
+		fileRepository.findAll().forEach(file -> {
+			if (file.getHash() != null)
+			{
+				file.setEncryptedHash(encryptHash(file.getHash()));
+			}
+		});
+	}
+
 	@Transactional
 	public void checkForSharesToScan()
 	{
@@ -170,20 +184,32 @@ public class FileService
 				.collect(Collectors.joining(java.io.File.separator));
 	}
 
-	public Optional<File> findFile(Sha1Sum hash)
+	public Optional<File> findFileByHash(Sha1Sum hash)
 	{
-		Objects.requireNonNull(hash);
+		return fileRepository.findByHash(hash);
+	}
 
-		if (bloomFilter.mightContain(hash))
+	public Optional<File> findFileByEncryptedHash(Sha1Sum encryptedHash)
+	{
+		if (bloomFilter.mightContain(encryptedHash))
 		{
-			return fileRepository.findByHash(hash);
+			return fileRepository.findByEncryptedHash(encryptedHash);
 		}
 		return Optional.empty();
 	}
 
-	public Optional<Path> findFilePath(Sha1Sum hash)
+	public Optional<Path> findFilePathByHash(Sha1Sum hash)
 	{
-		return findFile(hash).map(this::getFilePath);
+		Objects.requireNonNull(hash);
+
+		return findFileByHash(hash).map(this::getFilePath);
+	}
+
+	public Optional<Path> findFilePathByEncryptedHash(Sha1Sum encryptedHash)
+	{
+		Objects.requireNonNull(encryptedHash);
+
+		return findFileByEncryptedHash(encryptedHash).map(this::getFilePath);
 	}
 
 	public List<File> searchFiles(String name)
@@ -229,6 +255,13 @@ public class FileService
 			}
 		}
 		return Optional.empty();
+	}
+
+	public static Sha1Sum encryptHash(Sha1Sum hash)
+	{
+		var digest = new Sha1MessageDigest();
+		digest.update(hash.getBytes());
+		return digest.getSum();
 	}
 
 	private void saveFullPath(File file)
@@ -325,6 +358,7 @@ public class FileService
 						log.debug("Current file in database, modified: {}", currentFile.getModified());
 						var hash = calculateFileHash(file, ioBuffer);
 						currentFile.setHash(hash);
+						currentFile.setEncryptedHash(encryptHash(hash));
 						currentFile.setModified(lastModified);
 						fileRepository.save(currentFile);
 						setChanged();
@@ -502,6 +536,6 @@ public class FileService
 	{
 		// XXX: extend the bloom filter if needed
 		bloomFilter.clear();
-		fileRepository.findAll().forEach(file -> bloomFilter.add(file.getHash()));
+		fileRepository.findAll().forEach(file -> bloomFilter.add(file.getEncryptedHash()));
 	}
 }

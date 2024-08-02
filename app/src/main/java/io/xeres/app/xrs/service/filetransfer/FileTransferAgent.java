@@ -100,10 +100,9 @@ class FileTransferAgent
 				.findFirst().ifPresent(entry -> {
 					if (entry.getValue().isReceiving())
 					{
-						log.debug("Receiving file for chunk {}", entry.getValue().getChunkNumber());
 						if (fileProvider.hasChunk(entry.getValue().getChunkNumber()))
 						{
-							log.debug("Chunk fully received");
+							log.debug("Chunk {} fully received", entry.getValue().getChunkNumber());
 							entry.getValue().setReceiving(false);
 						}
 					}
@@ -121,7 +120,7 @@ class FileTransferAgent
 						else
 						{
 							var chunkNumber = getNextChunk();
-							log.debug("Getting chunk number {}", chunkNumber);
+							log.debug("Requesting chunk number {} to peer {}", chunkNumber, entry.getKey());
 							fileTransferRsService.sendDataRequest(entry.getKey(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
 							entry.getValue().setChunkNumber(chunkNumber);
 							entry.getValue().setReceiving(true);

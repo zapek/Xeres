@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.rscrypto.RsCrypto;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -180,20 +179,20 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hashOfHash)
+	public boolean handleTunnelRequest(PeerConnection sender, Sha1Sum encryptedHash)
 	{
-		var file = fileService.findFile(hashOfHash);
+		//
+		// - find file by encrypted hash (and get its real hash)
+		// - the correspondence can be put in the encryptedHashes, because the tunnel will likely be established
+
+		var file = fileService.findFileByEncryptedHash(encryptedHash);
 		if (file.isPresent())
 		{
 			log.debug("Found file {}", file.get());
-			var realHash = encryptHash(hashOfHash);
-			encryptedHashes.put(hashOfHash, realHash);
 
-			if (hashOfHash.equals(realHash))
-			{
-				log.warn("Rejecting file transfer for hash {} because it's not encrypted", hashOfHash);
-				return false;
-			}
+			// Add it to the encrypted hashes because it's going to be used soon
+			// to establish the tunnels
+			encryptedHashes.put(encryptedHash, file.get().getHash());
 
 			// XXX: don't forget to handle files currently being swarmed and tons of other things
 			// XXX: sender might not necessarily be needed (it's for the permissions)
@@ -203,54 +202,46 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hashOfHash, Location virtualLocation, TunnelDirection tunnelDirection)
+	public void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum encryptedHash, Location virtualLocation, TunnelDirection tunnelDirection)
 	{
-		if (item instanceof TurtleGenericDataItem turtleGenericDataItem)
+		switch (item)
 		{
-			var hash = findRealHash(hashOfHash);
-			if (hash == null)
+			case TurtleGenericDataItem turtleGenericDataItem ->
 			{
-				log.error("Cannot find the real hash of hash {}", hashOfHash);
-				return;
-			}
+				var hash = encryptedHashes.get(encryptedHash);
+				if (hash == null)
+				{
+					log.error("Cannot find the real hash of hash {}", encryptedHash);
+					return;
+				}
 
-			var decryptedItem = decryptItem(turtleGenericDataItem, hash);
-			if (decryptedItem instanceof TurtleGenericDataItem)
-			{
-				log.error("Decrypted item is a recursive bomb, dropping");
+				var decryptedItem = decryptItem(turtleGenericDataItem, hash);
+				if (decryptedItem instanceof TurtleGenericDataItem)
+				{
+					log.error("Decrypted item is a recursive bomb, dropping");
+				}
+				else
+				{
+					receiveTurtleData(decryptedItem, hash, virtualLocation, tunnelDirection);
+				}
+				decryptedItem.dispose();
 			}
-			else
-			{
-				receiveTurtleData(decryptedItem, hash, virtualLocation, tunnelDirection);
-			}
-			decryptedItem.dispose();
-			return;
+			case TurtleFileRequestItem turtleFileRequestItem -> log.debug("TurtleFileRequestItem received"); // XXX: implement
+
+			case TurtleFileDataItem turtleFileDataItem -> log.debug("TurtleFileDataItem received!"); // XXX: implement
+
+			case TurtleFileMapItem turtleFileMapItem -> log.debug("TurtleFileMapItem received!"); // XXX: implement
+
+			case TurtleFileMapRequestItem turtleFileMapRequestItem -> log.debug("TurtleFileMapRequestItem received!"); // XXX: implement
+
+			case TurtleChunkCrcItem turtleChunkCrcItem -> log.debug("TurtleChunkCrcItem received!"); // XXX: implement
+
+			case TurtleChunkCrcRequestItem turtleChunkCrcRequestItem -> log.debug("TurtleChunkCrcRequestItem received!"); // XXX: implement
+
+			case null -> throw new IllegalStateException("Null item");
+
+			default -> log.warn("Unknown packet type received: {}", item.getSubType());
 		}
-		else if (item instanceof TurtleFileRequestItem turtleFileRequestItem)
-		{
-			// XXX: implement
-		}
-		else if (item instanceof TurtleFileDataItem turtleFileDataItem)
-		{
-			// XXX: implement
-		}
-		else if (item instanceof TurtleFileMapItem turtleFileMapItem)
-		{
-			// XXX: implement
-		}
-		else if (item instanceof TurtleFileMapRequestItem turtleFileMapRequestItem)
-		{
-			// XXX: implement
-		}
-		else if (item instanceof TurtleChunkCrcItem turtleChunkCrcItem)
-		{
-			// XXX: implement
-		}
-		else if (item instanceof TurtleChunkCrcRequestItem turtleChunkCrcRequestItem)
-		{
-			// XXX: implement
-		}
-		log.warn("Unknown packet type received: {}", item.getSubType());
 	}
 
 	@Override
@@ -270,31 +261,31 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void addVirtualPeer(Sha1Sum hashOfHash, Location virtualLocation, TunnelDirection direction)
+	public void addVirtualPeer(Sha1Sum encryptedHash, Location virtualLocation, TunnelDirection direction)
 	{
-		var realHash = findRealHash(hashOfHash);
-		if (realHash == null)
+		var hash = encryptedHashes.get(encryptedHash);
+		if (hash == null)
 		{
 			log.warn("Couldn't add virtual peer, not an encrypted hash");
 			return;
 		}
 		if (direction == TunnelDirection.SERVER)
 		{
-			var action = new ActionAddPeer(realHash, virtualLocation);
+			var action = new ActionAddPeer(hash, virtualLocation);
 			fileCommandQueue.add(new FileTransferCommandAction(action));
 		}
 	}
 
 	@Override
-	public void removeVirtualPeer(Sha1Sum hashOfHash, Location virtualLocation)
+	public void removeVirtualPeer(Sha1Sum encryptedHash, Location virtualLocation)
 	{
-		var realHash = findRealHash(hashOfHash);
-		if (realHash == null)
+		var hash = encryptedHashes.get(encryptedHash);
+		if (hash == null)
 		{
 			log.warn("Couldn't remove virtual peer, not an encrypted hash");
 			return;
 		}
-		var action = new ActionRemovePeer(realHash, virtualLocation);
+		var action = new ActionRemovePeer(hash, virtualLocation);
 		fileCommandQueue.add(new FileTransferCommandAction(action));
 	}
 
@@ -384,30 +375,18 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	public void activateTunnels(Sha1Sum hash)
 	{
-		var hashOfHash = encryptHash(hash);
-		encryptedHashes.put(hashOfHash, hash);
+		var encryptedHash = FileService.encryptHash(hash);
+		encryptedHashes.put(encryptedHash, hash);
 
-		turtleRouter.startMonitoringTunnels(hashOfHash, this, true);
+		turtleRouter.startMonitoringTunnels(encryptedHash, this, true);
 	}
 
 	public void deactivateTunnels(Sha1Sum hash)
 	{
-		var hashOfHash = encryptHash(hash);
-		encryptedHashes.put(hashOfHash, hash);
+		var encryptedHash = FileService.encryptHash(hash);
+		encryptedHashes.put(encryptedHash, hash);
 
-		turtleRouter.stopMonitoringTunnels(hashOfHash);
-	}
-
-	private Sha1Sum encryptHash(Sha1Sum hash)
-	{
-		var digest = new Sha1MessageDigest();
-		digest.update(hash.getBytes());
-		return digest.getSum();
-	}
-
-	private Sha1Sum findRealHash(Sha1Sum hashOfHash)
-	{
-		return encryptedHashes.get(hashOfHash);
+		turtleRouter.stopMonitoringTunnels(encryptedHash);
 	}
 
 	public void sendDataRequest(Location location, Sha1Sum hash, long size, long offset, int chunkSize)
@@ -415,7 +394,6 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		if (turtleRouter.isVirtualPeer(location))
 		{
 			var item = new TurtleFileRequestItem(offset, chunkSize);
-
 			sendTurtleItem(location, hash, item);
 		}
 		else

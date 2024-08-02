@@ -66,6 +66,10 @@ public class File
 	@AttributeOverride(name = "identifier", column = @Column(name = "hash"))
 	private Sha1Sum hash;
 
+	@Embedded
+	@AttributeOverride(name = "identifier", column = @Column(name = "encrypted_hash"))
+	private Sha1Sum encryptedHash;
+
 	private Instant modified;
 
 	public static File createDirectory(File parent, String name, Instant modified)
@@ -204,6 +208,16 @@ public class File
 		this.hash = hash;
 	}
 
+	public Sha1Sum getEncryptedHash()
+	{
+		return encryptedHash;
+	}
+
+	public void setEncryptedHash(Sha1Sum encryptedHash)
+	{
+		this.encryptedHash = encryptedHash;
+	}
+
 	public Instant getModified()
 	{
 		return modified;
@@ -223,6 +237,7 @@ public class File
 				", name='" + name + '\'' +
 				", type=" + type +
 				", hash=" + hash +
+				", encryptedHash=" + encryptedHash +
 				", modified=" + modified +
 				'}';
 	}

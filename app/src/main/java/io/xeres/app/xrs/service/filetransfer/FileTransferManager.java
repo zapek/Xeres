@@ -266,20 +266,20 @@ class FileTransferManager implements Runnable
 
 	private void actionAddPeer(Sha1Sum hash, Location location)
 	{
-		var seeder = seeders.get(hash);
-		if (seeder != null)
+		var leecher = leechers.get(hash);
+		if (leecher != null)
 		{
-			seeder.addPeerForReceiving(location);
-			fileTransferRsService.sendChunkMapRequest(location, hash, false);
+			leecher.addPeerForReceiving(location);
+			//fileTransferRsService.sendChunkMapRequest(location, hash, true); // XXX: this shouldn't be done here but in the download loop (in FileTransferAgent)
 		}
 	}
 
 	private void actionRemovePeer(Sha1Sum hash, Location location)
 	{
-		var seeder = seeders.get(hash);
-		if (seeder != null)
+		var leecher = leechers.get(hash);
+		if (leecher != null)
 		{
-			seeder.removePeer(location);
+			leecher.removePeer(location);
 		}
 	}
 
@@ -308,7 +308,7 @@ class FileTransferManager implements Runnable
 
 	private FileTransferAgent localSearch(Sha1Sum hash)
 	{
-		return seeders.computeIfAbsent(hash, h -> fileService.findFilePath(h)
+		return seeders.computeIfAbsent(hash, h -> fileService.findFilePathByHash(h)
 				.map(Path::toFile)
 				.map(file -> {
 					log.debug("Serving file {}", file);

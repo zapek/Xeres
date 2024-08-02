@@ -53,6 +53,9 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
+/**
+ * Implementation of the Turtle Router. Only supports and requires encrypted hashes.
+ */
 @Component
 public class TurtleRsService extends RsService implements RsServiceMaster<TurtleRsClient>, TurtleRouter
 {
@@ -63,32 +66,68 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	 */
 	private static final Duration TUNNEL_MANAGEMENT_DELAY = Duration.ofSeconds(2);
 
+	/**
+	 * Maximum tunnel depth, that is the number of friends beyond you that are reachable.
+	 */
 	public static final int MAX_TUNNEL_DEPTH = 6;
 
+	/**
+	 * Time between checks of empty tunnels.
+	 */
 	public static final Duration EMPTY_TUNNELS_DIGGING_TIME = Duration.ofSeconds(50);
 
+	/**
+	 * Time between checks of normal tunnels.
+	 */
 	private static final Duration REGULAR_TUNNELS_DIGGING_TIME = Duration.ofSeconds(300);
 
+	/**
+	 * Time between tunnels cleanup.
+	 */
 	private static final Duration TUNNEL_CLEANING_TIME = Duration.ofSeconds(10);
 
+	/**
+	 * Time between tunnel speed estimation runs.
+	 */
 	private static final Duration SPEED_ESTIMATE_TIME = Duration.ofSeconds(5);
 
+	/**
+	 * Maximum number of search requests allowed in the cache.
+	 */
 	private static final int MAX_SEARCH_REQUEST_IN_CACHE = 120;
 
+	/**
+	 * Maximum number of search results forwarded by default.
+	 */
 	private static final int MAX_SEARCH_HITS = 100;
 
 	private static final int MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE = 200;
 
 	private static final int MAX_SEARCH_RESPONSE_SERIAL_SIZE = 10000;
 
+	/**
+	 * Maximum lifetime of unused tunnels.
+	 */
 	private static final Duration MAX_TUNNEL_IDLE_TIME = Duration.ofSeconds(60);
 
+	/**
+	 * Lifetime of search requests in the cache.
+	 */
 	private static final Duration SEARCH_REQUEST_LIFETIME = Duration.ofSeconds(600);
 
+	/**
+	 * Lifetime of tunnel requests in the cache.
+	 */
 	private static final Duration TUNNEL_REQUEST_LIFETIME = Duration.ofSeconds(600);
 
+	/**
+	 * Lifetime of an ongoing search requests. Results coming after that time are dropped.
+	 */
 	private static final Duration SEARCH_REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
+	/**
+	 * Lifetime of an ongoing tunnel requests. Results coming after that time are dropped.
+	 */
 	private static final Duration TUNNEL_REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
 	private final TunnelProbability tunnelProbability = new TunnelProbability();
@@ -173,25 +212,17 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		if (item instanceof TurtleGenericTunnelItem turtleGenericTunnelItem)
+		switch (item)
 		{
-			routeGenericTunnel(sender, turtleGenericTunnelItem);
-		}
-		else if (item instanceof TurtleTunnelRequestItem turtleTunnelRequestItem)
-		{
-			handleTunnelRequest(sender, turtleTunnelRequestItem);
-		}
-		else if (item instanceof TurtleTunnelResultItem turtleTunnelResultItem)
-		{
-			handleTunnelResult(sender, turtleTunnelResultItem);
-		}
-		else if (item instanceof TurtleSearchRequestItem turtleSearchRequestItem)
-		{
-			handleSearchRequest(sender, turtleSearchRequestItem);
-		}
-		else if (item instanceof TurtleSearchResultItem turtleSearchResultItem)
-		{
-			handleSearchResult(sender, turtleSearchResultItem);
+			case TurtleGenericTunnelItem turtleGenericTunnelItem -> routeGenericTunnel(sender, turtleGenericTunnelItem);
+			case TurtleTunnelRequestItem turtleTunnelRequestItem -> handleTunnelRequest(sender, turtleTunnelRequestItem);
+			case TurtleTunnelResultItem turtleTunnelResultItem -> handleTunnelResult(sender, turtleTunnelResultItem);
+			case TurtleSearchRequestItem turtleSearchRequestItem -> handleSearchRequest(sender, turtleSearchRequestItem);
+			case TurtleSearchResultItem turtleSearchResultItem -> handleSearchResult(sender, turtleSearchResultItem);
+			case null, default ->
+			{
+				log.debug("Unknown item {}", item);
+			}
 		}
 	}
 
@@ -254,6 +285,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels)
 	{
+		log.debug("Start monitoring tunnels for hash {}", hash);
 		hashesToRemove.remove(hash); // if the file hash was scheduled for removal, cancel it
 
 		incomingHashes.putIfAbsent(hash, new FileHash(allowMultiTunnels, client));
@@ -262,6 +294,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public void stopMonitoringTunnels(Sha1Sum hash)
 	{
+		log.debug("Stop monitoring tunnels for hash {}", hash);
 		hashesToRemove.add(hash);
 	}
 
@@ -357,7 +390,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private void handleTunnelRequest(PeerConnection sender, TurtleTunnelRequestItem item)
 	{
-		log.debug("Received tunnel request from peer {}: {}", sender, item);
+		log.trace("Received tunnel request from peer {}: {}", sender, item);
 
 		turtleStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
 
@@ -387,6 +420,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (client.isPresent())
 		{
+			log.debug("Honoring tunnel request from peer {}: {}", sender, item);
 			var tunnelId = item.getPartialTunnelId() ^ generatePersonalFilePrint(item.getFileHash(), tunnelProbability.getBias(), false);
 			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), tunnelId);
 			peerConnectionManager.writeItem(sender, resultItem, this);
@@ -428,6 +462,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private void handleTunnelResult(PeerConnection sender, TurtleTunnelResultItem item)
 	{
+		log.debug("Got tunnel result from {}: {}", sender, item);
 		var tunnelRequest = tunnelRequestsOrigins.get(item.getRequestId());
 		if (tunnelRequest == null)
 		{
@@ -475,7 +510,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private Map.Entry<Sha1Sum, FileHash> findFileHashByRequest(int requestId)
 	{
 		return incomingHashes.entrySet().stream()
-				.filter(integerFileHashEntry -> integerFileHashEntry.getValue().getLastRequest() == requestId)
+				.filter(entry -> entry.getValue().getLastRequest() == requestId)
 				.findFirst()
 				.orElse(null);
 	}
@@ -587,7 +622,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (item instanceof TurtleFileSearchRequestItem fileSearchItem)
 		{
-			log.debug("Received file search: {}, subclass: {}", fileSearchItem.getKeywords(), fileSearchItem.getClass());
+			log.debug("Received file search: {}, subclass: {}", fileSearchItem.getKeywords(), fileSearchItem.getClass().getSimpleName());
 			// XXX: this doesn't really use "keywords" but the whole string, but I think RS does that too? nah, it does require both keyboards in the title, but probably uses the regexp item for it. yes! it uses NAME CONTAINS ALL the test
 			return mapResults(fileService.searchFiles(fileSearchItem.getKeywords()).stream()
 					.filter(file -> file.getType() != FileType.DIRECTORY)
@@ -693,7 +728,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		computeTrafficInformation();
 		cleanTunnelsIfNeeded();
 		estimateSpeedIfNeeded();
-		displayStats();
 	}
 
 	private void manageTunnels()
@@ -726,14 +760,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private void diggTunnel(Sha1Sum hash)
 	{
-		var id = SecureRandomUtils.nextInt();
+		var requestId = SecureRandomUtils.nextInt();
+		log.debug("Digging tunnel for hash {}, requestId: {}", hash, requestId);
 
 		var fileHash = incomingHashes.get(hash);
 
-		fileHash.setLastRequest(id);
+		fileHash.setLastRequest(requestId);
 		fileHash.setLastDiggTime(Instant.now());
 
-		var item = new TurtleTunnelRequestItem(hash, id, generatePersonalFilePrint(hash, tunnelProbability.getBias(), true));
+		var item = new TurtleTunnelRequestItem(hash, requestId, generatePersonalFilePrint(hash, tunnelProbability.getBias(), true));
 
 		tunnelRequestsOrigins.put(item.getRequestId(), new TunnelRequest(ownLocation, item.getDepth()));
 
@@ -784,6 +819,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private void closeTunnel(int id, Map<TurtleRsClient, AbstractMap.SimpleEntry<Sha1Sum, Location>> sourcesToRemove)
 	{
+		log.debug("Closing tunnel {}", id);
 		var tunnel = localTunnels.get(id);
 
 		if (tunnel == null)
@@ -835,14 +871,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			tunnel.setSpeedBps(0.75 * tunnel.getSpeedBps() + 0.25 * speedEstimate);
 			tunnel.clearTransferredBytes();
 		});
-	}
-
-	private void displayStats()
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("Turtle statistics: {}", turtleStatistics);
-		}
 	}
 
 	public TurtleStatistics getStatistics()

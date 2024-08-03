@@ -23,11 +23,20 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
 
+/**
+ * Used for acknowledging that a tunnel has been opened.
+ */
 public class TurtleTunnelResultItem extends Item
 {
+	/**
+	 * The id of the tunnel. Should be identical for a tunnel between two same peers for the same hash.
+	 */
 	@RsSerialized
 	private int tunnelId;
 
+	/**
+	 * Randomly generated request id corresponding to the initial request.
+	 */
 	@RsSerialized
 	private int requestId;
 

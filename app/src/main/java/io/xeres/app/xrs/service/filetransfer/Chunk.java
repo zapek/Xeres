@@ -6,22 +6,34 @@ import org.slf4j.LoggerFactory;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
-class Block
+/**
+ * Represents a chunk. Is made up of several blocks of data.
+ */
+class Chunk
 {
-	private static final Logger log = LoggerFactory.getLogger(Block.class);
+	private static final Logger log = LoggerFactory.getLogger(Chunk.class);
 
 	private long hiBlocks;
 	private long lowBlocks;
 	private final int totalBlocks;
 
-	public Block(long size)
+	/**
+	 * Creates a chunk.
+	 *
+	 * @param size is at most {@link FileTransferRsService#CHUNK_SIZE} but can be less if the end of the file is within the last chunk
+	 */
+	public Chunk(long size)
 	{
-		// size is at most CHUNK_SIZE but could be less if the end of the file is within the last chunk
 		totalBlocks = (int) (size / BLOCK_SIZE + (size % BLOCK_SIZE != 0 ? 1 : 0));
 		log.debug("totalBlocks: {}", totalBlocks);
 	}
 
-	public void setBlock(long offset)
+	/**
+	 * Marks the block as written.
+	 *
+	 * @param offset the offset within the file
+	 */
+	public void setBlockAsWritten(long offset)
 	{
 		if (offset % BLOCK_SIZE != 0)
 		{
@@ -40,6 +52,11 @@ class Block
 		}
 	}
 
+	/**
+	 * Checks if the chunk has all data written to it.
+	 *
+	 * @return true if complete
+	 */
 	public boolean isComplete()
 	{
 		int total = 0;
@@ -65,7 +82,7 @@ class Block
 	@Override
 	public String toString()
 	{
-		return "Block{" +
+		return "Chunk{" +
 				"hiBlocks=" + hiBlocks +
 				", lowBlocks=" + lowBlocks +
 				", totalBlocks=" + totalBlocks +

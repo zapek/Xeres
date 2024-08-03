@@ -22,8 +22,17 @@ package io.xeres.app.xrs.service.turtle.item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
+/**
+ * Used by any service to pass on arbitrary data into a tunnel.
+ * <p>
+ * Same as {@link TurtleGenericDataItem} but with a fast priority. Can be
+ * used for example by distant chat.
+ */
 public class TurtleGenericFastDataItem extends TurtleGenericTunnelItem
 {
+	/**
+	 * The data.
+	 */
 	@RsSerialized
 	private byte[] tunnelData;
 

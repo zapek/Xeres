@@ -24,6 +24,9 @@ import java.nio.file.Path;
 import java.util.BitSet;
 import java.util.Optional;
 
+/**
+ * Represents a local file. Can be complete or being completed.
+ */
 interface FileProvider
 {
 	long getFileSize();

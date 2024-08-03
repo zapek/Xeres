@@ -35,6 +35,9 @@ import java.util.Optional;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
+/**
+ * This implementation of {@link FileProvider} is for uploading a file.
+ */
 class FileSeeder implements FileProvider
 {
 	private static final Logger log = LoggerFactory.getLogger(FileSeeder.class);

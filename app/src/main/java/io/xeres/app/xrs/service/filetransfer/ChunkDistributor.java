@@ -24,6 +24,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferStrategy.LINEAR;
 
+/**
+ * Used to track which chunks are still remaining for a file to be complete.
+ */
 class ChunkDistributor
 {
 	private static final int MAX_RANDOM_TRY = 10;
@@ -62,6 +65,11 @@ class ChunkDistributor
 		}
 	}
 
+	/**
+	 * Gets a next available chunk to fill in.
+	 *
+	 * @return an empty chunk which needs to be filled in
+	 */
 	public Optional<Integer> getNextChunk()
 	{
 		updateChunksInfo();

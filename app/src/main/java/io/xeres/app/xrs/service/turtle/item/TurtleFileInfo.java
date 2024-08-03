@@ -20,10 +20,10 @@
 package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.Sha1Sum;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+import static io.xeres.app.xrs.serialization.TlvType.STR_NAME;
 
 /**
  * The representation of a file by turtle.
@@ -36,7 +36,7 @@ public class TurtleFileInfo
 	@RsSerialized
 	private Sha1Sum fileHash;
 
-	@RsSerialized(tlvType = TlvType.STR_NAME)
+	@RsSerialized(tlvType = STR_NAME)
 	private String fileName;
 
 	public TurtleFileInfo()

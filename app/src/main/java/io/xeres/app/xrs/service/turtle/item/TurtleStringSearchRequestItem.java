@@ -24,9 +24,15 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_VALUE;
 
+/**
+ * Used to do a string search for a file.
+ */
 @RsClassSerializedReversed
 public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem
 {
+	/**
+	 * The string to search for.
+	 */
 	@RsSerialized(tlvType = STR_VALUE)
 	private String search;
 

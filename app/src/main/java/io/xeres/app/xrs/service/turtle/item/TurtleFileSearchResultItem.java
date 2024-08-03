@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The results of a file search.
+ * Used to provide the results of a file search.
  */
 public class TurtleFileSearchResultItem extends TurtleSearchResultItem
 {

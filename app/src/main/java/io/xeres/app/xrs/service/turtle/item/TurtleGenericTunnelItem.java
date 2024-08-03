@@ -24,12 +24,21 @@ import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
 
+/**
+ * The superclass of generic turtle packets.
+ */
 public abstract class TurtleGenericTunnelItem extends Item
 {
+	/**
+	 * The tunnel id.
+	 */
 	@RsSerialized
 	private int tunnelId;
 
-	// This is not serialized
+	/**
+	 * The direction of the tunnel (client or server).
+	 * This is not serialized.
+	 */
 	private TunnelDirection direction;
 
 	public abstract boolean shouldStampTunnel();

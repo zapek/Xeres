@@ -21,11 +21,20 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
+/**
+ * Used to do searches in a generic way.
+ */
 public class TurtleGenericSearchRequestItem extends TurtleSearchRequestItem
 {
+	/**
+	 * The service to search.
+	 */
 	@RsSerialized
 	private short serviceId;
 
+	/**
+	 * The type of request. This is used to limite the number of responses.
+	 */
 	@RsSerialized
 	private byte requestType;
 

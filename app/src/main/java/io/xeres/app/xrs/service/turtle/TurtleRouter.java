@@ -32,6 +32,8 @@ public interface TurtleRouter
 {
 	/**
 	 * Starts monitoring tunnels for a given hash.
+	 * <p>
+	 * Should be called before downloading a file so that the turtle router can provide the tunnels for it.
 	 *
 	 * @param hash              the encrypted hash to monitor tunnels for
 	 * @param client            the {@link TurtleRsClient}
@@ -41,8 +43,10 @@ public interface TurtleRouter
 
 	/**
 	 * Stops monitoring tunnels for a given hash.
+	 * <p>
+	 * Should be called after a download is finished (successfully or not) so that the tunnels can be cleaned up.
 	 *
-	 * @param hash  the encrypted hash to stops monitoring tunnels for
+	 * @param hash the encrypted hash to stops monitoring tunnels for
 	 */
 	void stopMonitoringTunnels(Sha1Sum hash);
 
@@ -56,8 +60,8 @@ public interface TurtleRouter
 	/**
 	 * Sends data using Turtle.
 	 *
-	 * @param virtualPeer  the virtual peer to send data to
-	 * @param item  the data represented by any subclass of {@link TurtleGenericTunnelItem}
+	 * @param virtualPeer the virtual peer to send data to
+	 * @param item        the data represented by any subclass of {@link TurtleGenericTunnelItem}
 	 */
 	void sendTurtleData(Location virtualPeer, TurtleGenericTunnelItem item);
 
@@ -72,8 +76,8 @@ public interface TurtleRouter
 	/**
 	 * Performs a tunnel search.
 	 *
-	 * @param search  the search string
-	 * @param client  a {@link TurtleRsClient}
+	 * @param search the search string
+	 * @param client a {@link TurtleRsClient}
 	 * @return the search id
 	 */
 	int turtleSearch(String search, TurtleRsClient client);

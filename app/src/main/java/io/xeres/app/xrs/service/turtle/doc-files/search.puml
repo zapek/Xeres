@@ -1,0 +1,57 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+abstract class TurtleSearchRequestItem {
+	int requestId;
+	short depth;
+	int getRequestId();
+	short getDepth();
+}
+
+abstract class TurtleFileSearchRequestItem {
+	String getKeywords();
+}
+
+abstract class TurtleSearchResultItem {
+	int requestId;
+	short depth;
+	getRequestId();
+}
+
+class TurtleStringSearchRequestItem {
+	String search;
+	String getSearch();
+}
+
+class TurtleRegExpSearchRequestItem {
+	List<Byte> tokens;
+	List<Integer> ints;
+	List<String> strings;
+	String getKeywords()
+}
+
+class TurtleGenericSearchRequestItem {
+	short serviceId;
+	byte requestType;
+	byte[] searchData;
+	String getKeywords();
+}
+
+class TurtleFileSearchResultItem {
+	List<TurtleFileInfo> results;
+	List<TurtleFileInfo> getResults();
+}
+
+class TurtleGenericSearchResultItem {
+	byte[] searchData;
+	byte[] getSearchData();
+}
+
+TurtleSearchRequestItem <|-- TurtleFileSearchRequestItem
+TurtleSearchRequestItem <|-- TurtleGenericSearchRequestItem
+TurtleFileSearchRequestItem <|-- TurtleStringSearchRequestItem
+TurtleFileSearchRequestItem <|-- TurtleRegExpSearchRequestItem
+TurtleSearchResultItem <|-- TurtleFileSearchResultItem
+TurtleSearchResultItem <|-- TurtleGenericSearchResultItem
+
+@enduml

@@ -19,6 +19,9 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
+/**
+ * The superclass of all file search requests.
+ */
 public abstract class TurtleFileSearchRequestItem extends TurtleSearchRequestItem
 {
 	@Override

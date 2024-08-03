@@ -21,8 +21,14 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
+/**
+ * Used by any service to pass on arbitrary data into a tunnel.
+ */
 public class TurtleGenericDataItem extends TurtleGenericTunnelItem
 {
+	/**
+	 * The data.
+	 */
 	@RsSerialized
 	private byte[] tunnelData;
 

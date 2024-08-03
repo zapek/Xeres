@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Used to do a regexp search for a file.
+ */
 public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem implements RsSerializable
 {
 	private static final int MAX_TOKENS_LIMIT = 256;

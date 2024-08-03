@@ -36,6 +36,9 @@ import java.util.Optional;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 import static java.nio.file.StandardOpenOption.*;
 
+/**
+ * This implementation of {@link FileProvider} is for downloading a file.
+ */
 class FileLeecher extends FileSeeder
 {
 	private static final Logger log = LoggerFactory.getLogger(FileLeecher.class);
@@ -44,7 +47,7 @@ class FileLeecher extends FileSeeder
 	private final BitSet chunkMap;
 	private final int nBits;
 	private final ChunkDistributor chunkDistributor;
-	private final Map<Integer, Block> blocksInChunk = new HashMap<>();
+	private final Map<Integer, Chunk> chunks = new HashMap<>();
 	private long bytesWritten;
 
 	public FileLeecher(File file, long size, BitSet chunkMap, FileTransferStrategy fileTransferStrategy)
@@ -194,16 +197,16 @@ class FileLeecher extends FileSeeder
 	private void markBlockAsWritten(long offset)
 	{
 		int chunkKey = (int) (offset / CHUNK_SIZE);
-		var block = blocksInChunk.computeIfAbsent(chunkKey, k -> new Block(Math.min(CHUNK_SIZE, fileSize - offset)));
-		block.setBlock(offset);
+		var chunk = chunks.computeIfAbsent(chunkKey, k -> new Chunk(Math.min(CHUNK_SIZE, fileSize - offset)));
+		chunk.setBlockAsWritten(offset);
 
 		log.debug("Chunk: {}", chunkKey);
 
-		if (block.isComplete())
+		if (chunk.isComplete())
 		{
-			log.debug("Block is complete: {}", block);
+			log.debug("Chunk is complete: {}", chunk);
 			chunkMap.set(chunkKey);
-			blocksInChunk.remove(chunkKey);
+			chunks.remove(chunkKey);
 		}
 	}
 

@@ -23,6 +23,9 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
 
+/**
+ * The superclass of all search result items.
+ */
 public abstract class TurtleSearchResultItem extends Item
 {
 	@RsSerialized

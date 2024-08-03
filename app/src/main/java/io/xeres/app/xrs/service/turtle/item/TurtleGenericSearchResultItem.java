@@ -23,6 +23,9 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 
 import java.util.Arrays;
 
+/**
+ * Used to provide a result for a generic search.
+ */
 public class TurtleGenericSearchResultItem extends TurtleSearchResultItem
 {
 	@RsSerialized

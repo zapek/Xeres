@@ -35,6 +35,11 @@ class ChunkSender
 		this.size = size;
 	}
 
+	/**
+	 * Sends data.
+	 *
+	 * @return false in case of an error or when it's done sending. Basically keep calling it when it's true
+	 */
 	public boolean send()
 	{
 		var length = Math.min(BLOCK_SIZE, size);

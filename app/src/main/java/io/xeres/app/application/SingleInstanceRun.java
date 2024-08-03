@@ -54,8 +54,8 @@ public final class SingleInstanceRun
 	/**
 	 * Enforces an application to have a single instance of itself, given a certain directory.
 	 *
-	 * @param dataDir the directory to be used by the application.
-	 * @return {@code true} if the application can run without conflicts; {@code false} if it's already running.
+	 * @param dataDir the directory to be used by the application, null if it's the current directory
+	 * @return true if the application can run without conflicts; false if it's already running
 	 */
 	public static boolean enforceSingleInstance(String dataDir)
 	{

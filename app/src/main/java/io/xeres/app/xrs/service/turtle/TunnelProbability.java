@@ -25,11 +25,14 @@ import io.xeres.common.util.SecureRandomUtils;
 
 import static io.xeres.app.xrs.service.turtle.TurtleRsService.MAX_TUNNEL_DEPTH;
 
+/**
+ * Calculates probabilities of forwarding turtle tunnels.
+ */
 class TunnelProbability
 {
 	private static final int TUNNEL_REQUEST_PACKET_SIZE = 50;
 
-	private static final int MAX_TUNNEL_REQUEST_FORWARD_PER_SECOND = 20; // XXX: this one is settable in RS, decide what to do
+	private static final int MAX_TUNNEL_REQUEST_FORWARD_PER_SECOND = 20;
 
 	private static final int DISTANCE_SQUEEZING_POWER = 8;
 
@@ -46,7 +49,7 @@ class TunnelProbability
 	 * Finds out if a search request subclass is forwardable. Its depth has to be lower than MAX_TUNNEL_DEPTH. There's a random
 	 * bias to let some packets pass to avoid a successful search by depth attack.
 	 *
-	 * @param item a TurtleSearchRequestItem
+	 * @param item  a {@link TurtleSearchRequestItem}, not null
 	 * @return true if forwardable
 	 */
 	public boolean isForwardable(TurtleSearchRequestItem item)
@@ -58,7 +61,7 @@ class TunnelProbability
 	 * Finds out if a tunnel request is forwardable. Its depth has to be lower than MAX_TUNNEL_DEPTH. There's a random
 	 * bias to let some packets pass to avoid a successful search by depth attack.
 	 *
-	 * @param item a TurtleTunnelRequestItem
+	 * @param item  a {@link TurtleTunnelRequestItem}, not null
 	 * @return true if forwardable
 	 */
 	public boolean isForwardable(TurtleTunnelRequestItem item)
@@ -100,9 +103,11 @@ class TunnelProbability
 	}
 
 	/**
-	 * Gets the forwarding probability of a tunnel request. A particular care is taken to not flood the network:
+	 * Gets the forwarding probability of a tunnel request.
+	 * <p></p>
+	 * A particular care is taken to not flood the network:
 	 * <ul>
-	 *     <li>if the number of tunnel requests to forward per seconds is below {@code MAX_TUNNEL_REQUEST_FORWARD_PER_SECOND}, keep the traffic</li>
+	 *     <li>if the number of tunnel requests to forward per seconds is below {@link #MAX_TUNNEL_REQUEST_FORWARD_PER_SECOND}, keep the traffic</li>
 	 *     <li>if the limit is approached, start dropping with long tunnels first</li>
 	 * </ul>
 	 * Variables involved:
@@ -110,16 +115,16 @@ class TunnelProbability
 	 *     <li>distanceToMaximum: in [0,inf] is the proportion of the current up TR speed with respect to the maximum allowed speed. This is estimated
 	 *     as an average between the average number of TR over the 60 last seconds and the current TR up speed</li>
 	 *     <li>correctedDistance: in [0,inf] is a squeezed version of distance: small values become very small and large values become very large</li>
-	 *     <li>{@code DEPTH_PEER_PROBABILITY}: basic probability of forwarding when the speed limit is reached</li>
+	 *     <li>{@link #DEPTH_PEER_PROBABILITY}: basic probability of forwarding when the speed limit is reached</li>
 	 *     <li>forwardProbability: final probability of forwarding the packet, per peer</li>
 	 * </ul>
 	 * When the number of peers increases, the speed limit is reached faster, but the behavior per peer is the same.
 	 *
-	 * @param item                   the tunnel request item
+	 * @param item  a {@link TurtleTunnelRequestItem}, not null
 	 * @param tunnelRequestsUpload   the bandwidth of tunnel requests (up) in bytes per seconds
-	 * @param tunnelRequestsDownload the bandwidth of tunnel requests (down) in bytes per seconds
-	 * @param numberOfPeers          the number of connected peers
-	 * @return a probability number between 0.0 and 1.0
+	 * @param tunnelRequestsDownload  the bandwidth of tunnel requests (down) in bytes per seconds
+	 * @param numberOfPeers  the number of connected peers
+	 * @return a probability value between 0.0 and 1.0, both inclusive
 	 */
 	public double getForwardingProbability(TurtleTunnelRequestItem item, double tunnelRequestsUpload, double tunnelRequestsDownload, int numberOfPeers)
 	{

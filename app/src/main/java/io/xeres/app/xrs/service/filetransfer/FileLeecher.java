@@ -76,11 +76,12 @@ class FileLeecher extends FileSeeder
 	}
 
 	/**
-	 * This creates a sparse file on Windows. The file must not
-	 * exist and is then marked as such.
+	 * This creates a sparse file on Windows.
+	 * <p>
+	 * The file must not exist and is then marked as such.
 	 * (Write once, run anywhere, my ass...).
 	 *
-	 * @throws IOException if some error happens
+	 * @throws IOException if some I/O error happens
 	 */
 	private void createSparseFile() throws IOException
 	{
@@ -92,14 +93,13 @@ class FileLeecher extends FileSeeder
 				seekableByteChannel.write(ByteBuffer.wrap(new byte[]{(byte) 0}));
 			}
 		}
-
 	}
 
 	/**
-	 * This ensures the file is sparse. Basically on Linux, we just have to
+	 * This ensures the file is sparse. Basically on Linux and MacOS, we just have to
 	 * set the length, and it's sparse by default.
 	 *
-	 * @throws IOException if some error happens
+	 * @throws IOException if some I/O error happens
 	 */
 	private void ensureSparseFile() throws IOException
 	{

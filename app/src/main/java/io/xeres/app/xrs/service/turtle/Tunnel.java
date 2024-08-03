@@ -24,6 +24,9 @@ import io.xeres.common.id.Sha1Sum;
 
 import java.time.Instant;
 
+/**
+ * Keeps track of tunnels.
+ */
 class Tunnel
 {
 	private final Location source;
@@ -34,6 +37,14 @@ class Tunnel
 	private long transferredBytes;
 	private double speedBps;
 
+	/**
+	 * Creates a tunnel.
+	 *
+	 * @param tunnelId    the tunnel id, it will define the virtual location
+	 * @param source      where packets come from
+	 * @param destination where packets go to (might not be the final recipient, the virtual location is)
+	 * @param hash        hash of the file for this tunnel
+	 */
 	public Tunnel(int tunnelId, Location source, Location destination, Sha1Sum hash)
 	{
 		this.source = source;

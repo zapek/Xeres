@@ -23,6 +23,9 @@ import io.xeres.app.database.model.location.Location;
 
 import java.time.Instant;
 
+/**
+ * Keeps track of search requests.
+ */
 class SearchRequest
 {
 	private final Location source;
@@ -33,6 +36,15 @@ class SearchRequest
 	private final int hitLimit;
 	private TurtleRsClient client;
 
+	/**
+	 * Creates a search request.
+	 *
+	 * @param source      where the search request came from
+	 * @param depth       depth of the search request, used to optimize tunnel length
+	 * @param keywords    search string
+	 * @param resultCount number of responses to this search request, useful to avoid spamming tunnel responses
+	 * @param hitLimit    maximum number of hits allowed for this search request
+	 */
 	public SearchRequest(Location source, int depth, String keywords, int resultCount, int hitLimit)
 	{
 		this.source = source;

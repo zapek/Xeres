@@ -65,9 +65,10 @@ public final class PGP
 
 	/**
 	 * Gets the PGP public key as an armored (ASCII) key.
+	 *
 	 * @param pgpPublicKey the public key
 	 * @param out the output stream
-	 * @throws IOException I/O error
+	 * @throws IOException if three's an I/O error
 	 */
 	public static void getPublicKeyArmored(PGPPublicKey pgpPublicKey, OutputStream out) throws IOException
 	{
@@ -76,9 +77,10 @@ public final class PGP
 
 	/**
 	 * Gets the PGP public key as an armored (ASCII) key.
+	 *
 	 * @param data the public key as a byte array
 	 * @param out the output stream
-	 * @throws IOException I/O error
+	 * @throws IOException if there's an I/O error
 	 */
 	public static void getPublicKeyArmored(byte[] data, OutputStream out) throws IOException
 	{
@@ -172,8 +174,11 @@ public final class PGP
 	}
 
 	/**
-	 * Generates a PGP secret key. The key is a PGP <b>V4</b> format, <b>RSA</b> key with a <b>default certification</b>,
-	 * <b>SHA-1</b> integrity checksum and encrypted with <b>CAST5</b>. The packet sizes are encoded using the original format.<p>
+	 * Generates a PGP secret key.
+	 * <p>
+	 * The key is a PGP <b>V4</b> format, <b>RSA</b> key with a <b>default certification</b>,
+	 * <b>SHA-1</b> integrity checksum and encrypted with <b>CAST5</b>. The packet sizes are encoded using the original format.
+	 * <p>
 	 * This is the most compatible PGP key, yet considered secure as of 2020. Do not attempt to change it.
 	 *
 	 * @param id     the id of the key
@@ -203,8 +208,8 @@ public final class PGP
 	 * @param in           the message
 	 * @param out          the resulting PGP signature
 	 * @param armor        optional ASCII armoring (base 64 encoding)
-	 * @throws PGPException PGP error
-	 * @throws IOException  I/O error
+	 * @throws PGPException if there's a PGP error
+	 * @throws IOException  if there's an I/O error
 	 */
 	public static void sign(PGPSecretKey pgpSecretKey, InputStream in, OutputStream out, Armor armor) throws PGPException, IOException
 	{
@@ -233,14 +238,16 @@ public final class PGP
 	}
 
 	/**
-	 * Verifies a PGP signature. Note that only a handful of algorithms are supported.
+	 * Verifies a PGP signature.
+	 * <p>
+	 * Note that only a handful of algorithms are supported.
 	 *
 	 * @param pgpPublicKey the public key corresponding to the private key used to generate the signature
 	 * @param signature    the signature
 	 * @param in           the message
 	 * @throws SignatureException if the message verification failed
-	 * @throws IOException        I/O error
-	 * @throws PGPException       PGP error
+	 * @throws IOException        if there's an I/O error
+	 * @throws PGPException       if there's a PGP error
 	 */
 	public static void verify(PGPPublicKey pgpPublicKey, byte[] signature, InputStream in) throws IOException, SignatureException, PGPException
 	{

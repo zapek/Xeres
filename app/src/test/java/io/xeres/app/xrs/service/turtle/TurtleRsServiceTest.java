@@ -60,8 +60,8 @@ class TurtleRsServiceTest
 		turtleRsService.initialize();
 
 		var item = mock(TurtleTunnelRequestItem.class);
-		when(item.getFileHash()).thenReturn(new Sha1Sum(Id.toBytes("ac39b8f761465b1460948973e8fe754f4e101700")));
-		var result = turtleRsService.generatePersonalFilePrint(item.getFileHash(), 1_833_303_450, true);
+		when(item.getHash()).thenReturn(new Sha1Sum(Id.toBytes("ac39b8f761465b1460948973e8fe754f4e101700")));
+		var result = turtleRsService.generatePersonalFilePrint(item.getHash(), 1_833_303_450, true);
 
 		assertEquals(3_280_770_886L, Integer.toUnsignedLong(result));
 	}

@@ -54,7 +54,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
 /**
- * Implementation of the Turtle Router. Only supports and requires encrypted hashes.
+ * Implementation of the {@link TurtleRouter}. Only supports and requires encrypted hashes.
  */
 @Component
 public class TurtleRsService extends RsService implements RsServiceMaster<TurtleRsClient>, TurtleRouter
@@ -136,7 +136,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private final Map<Integer, TunnelRequest> tunnelRequestsOrigins = new ConcurrentHashMap<>();
 
-	private final Map<Sha1Sum, FileHash> incomingHashes = new ConcurrentHashMap<>();
+	private final Map<Sha1Sum, HashInfo> incomingHashes = new ConcurrentHashMap<>();
 
 	private final Map<Integer, Tunnel> localTunnels = new ConcurrentHashMap<>();
 
@@ -285,7 +285,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		log.debug("Start monitoring tunnels for hash {}", hash);
 		hashesToRemove.remove(hash); // if the file hash was scheduled for removal, cancel it
 
-		incomingHashes.putIfAbsent(hash, new FileHash(allowMultiTunnels, client));
+		incomingHashes.putIfAbsent(hash, new HashInfo(allowMultiTunnels, client));
 	}
 
 	@Override
@@ -364,13 +364,13 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (tunnel.getSource().equals(ownLocation))
 		{
-			var fileHash = incomingHashes.get(tunnel.getHash());
-			if (fileHash == null)
+			var hashInfo = incomingHashes.get(tunnel.getHash());
+			if (hashInfo == null)
 			{
 				log.warn("Hash {} for client side tunnel endpoint {} has been removed (late response?), dropping", tunnel.getHash(), item.getTunnelId());
 				return;
 			}
-			client = fileHash.getClient();
+			client = hashInfo.getClient();
 		}
 		else if (tunnel.getDestination().equals(ownLocation))
 		{
@@ -391,15 +391,16 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		turtleStatisticsBuffer.addToTunnelRequestsDownload(SerializerSizeCache.getItemSize(item, this));
 
-		if (item.getFileHash() == null) // XXX: not sure what to do with those (RS has no code handling that...)
+		// RS sometimes sends null (0000...) hashes
+		if (item.getHash() == null)
 		{
-			log.debug("null filehash, dropping...");
+			log.debug("Null hash in tunnel request, dropping...");
 			return;
 		}
 
-		if (isBanned(item.getFileHash()))
+		if (isBanned(item.getHash()))
 		{
-			log.debug("Rejecting banned file hash {}", item.getFileHash());
+			log.debug("Rejecting banned file hash {}", item.getHash());
 			return;
 		}
 
@@ -412,20 +413,20 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 
 		var client = turtleClients.stream()
-				.filter(turtleRsClient -> turtleRsClient.handleTunnelRequest(sender, item.getFileHash()))
+				.filter(turtleRsClient -> turtleRsClient.handleTunnelRequest(sender, item.getHash()))
 				.findFirst();
 
 		if (client.isPresent())
 		{
 			log.debug("Honoring tunnel request from peer {}: {}", sender, item);
-			var tunnelId = item.getPartialTunnelId() ^ generatePersonalFilePrint(item.getFileHash(), tunnelProbability.getBias(), false);
+			var tunnelId = item.getPartialTunnelId() ^ generatePersonalFilePrint(item.getHash(), tunnelProbability.getBias(), false);
 			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), tunnelId);
 			peerConnectionManager.writeItem(sender, resultItem, this);
 
-			var tunnel = new Tunnel(tunnelId, sender.getLocation(), ownLocation, item.getFileHash());
+			var tunnel = new Tunnel(tunnelId, sender.getLocation(), ownLocation, item.getHash());
 			localTunnels.put(tunnelId, tunnel);
 			virtualPeers.put(tunnel.getVirtualLocation().getLocationId(), tunnelId);
-			client.get().addVirtualPeer(item.getFileHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
+			client.get().addVirtualPeer(item.getHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
 			return;
 		}
 
@@ -433,7 +434,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		// - the tunnel id is unique for a given route
 		// - better balance of bandwidth for a given transfer
 		// - avoids the waste of items that get lost when re-routing a tunnel
-		item.setPartialTunnelId(generatePersonalFilePrint(item.getFileHash(), item.getPartialTunnelId() ^ tunnelProbability.getBias(), true));
+		item.setPartialTunnelId(generatePersonalFilePrint(item.getHash(), item.getPartialTunnelId() ^ tunnelProbability.getBias(), true));
 
 		if (tunnelProbability.isForwardable(item))
 		{
@@ -486,15 +487,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		// Check if it's for ourselves
 		if (tunnelRequest.getSource().equals(ownLocation))
 		{
-			var fileHash = findFileHashByRequest(item.getRequestId());
-			if (fileHash != null)
+			var hashInfo = findHashInfoByRequest(item.getRequestId());
+			if (hashInfo != null)
 			{
-				fileHash.getValue().addTunnel(item.getTunnelId());
+				hashInfo.getValue().addTunnel(item.getTunnelId());
 
 				// Local tunnel
-				var tunnel = localTunnels.computeIfAbsent(item.getTunnelId(), tunnelId -> new Tunnel(item.getTunnelId(), tunnelRequest.getSource(), sender.getLocation(), fileHash.getKey()));
+				var tunnel = localTunnels.computeIfAbsent(item.getTunnelId(), tunnelId -> new Tunnel(item.getTunnelId(), tunnelRequest.getSource(), sender.getLocation(), hashInfo.getKey()));
 				virtualPeers.put(tunnel.getVirtualLocation().getLocationId(), item.getTunnelId());
-				fileHash.getValue().getClient().addVirtualPeer(fileHash.getKey(), tunnel.getVirtualLocation(), TunnelDirection.SERVER);
+				hashInfo.getValue().getClient().addVirtualPeer(hashInfo.getKey(), tunnel.getVirtualLocation(), TunnelDirection.SERVER);
 			}
 		}
 		else
@@ -504,7 +505,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 	}
 
-	private Map.Entry<Sha1Sum, FileHash> findFileHashByRequest(int requestId)
+	private Map.Entry<Sha1Sum, HashInfo> findHashInfoByRequest(int requestId)
 	{
 		return incomingHashes.entrySet().stream()
 				.filter(entry -> entry.getValue().getLastRequest() == requestId)
@@ -714,7 +715,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		peerConnectionManager.writeItem(searchRequest.getSource(), item.clone(), this);
 	}
 
-	private boolean isBanned(Sha1Sum fileHash)
+	private boolean isBanned(Sha1Sum hash)
 	{
 		return false; // TODO: implement
 	}
@@ -733,15 +734,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		incomingHashes.entrySet().stream()
 				.filter(entry -> {
-					var fileHash = entry.getValue();
-					var totalSpeed = fileHash.getTunnels().stream()
+					var hashInfo = entry.getValue();
+					var totalSpeed = hashInfo.getTunnels().stream()
 							.mapToDouble(tunnelId -> localTunnels.get(tunnelId).getSpeedBps())
 							.sum();
 
 					var tunnelKeepingFactor = (Math.max(1.0, totalSpeed / (50 * 1024)) - 1.0) + 1.0;
 
-					return ((!fileHash.hasTunnels() && Duration.between(fileHash.getLastDiggTime(), now).compareTo(EMPTY_TUNNELS_DIGGING_TIME) > 0) ||
-							(fileHash.isAggressiveMode() && Duration.between(fileHash.getLastDiggTime(), now).compareTo(Duration.ofSeconds((long) (REGULAR_TUNNELS_DIGGING_TIME.toSeconds() * tunnelKeepingFactor))) > 0));
+					return ((!hashInfo.hasTunnels() && Duration.between(hashInfo.getLastDiggTime(), now).compareTo(EMPTY_TUNNELS_DIGGING_TIME) > 0) ||
+							(hashInfo.isAggressiveMode() && Duration.between(hashInfo.getLastDiggTime(), now).compareTo(Duration.ofSeconds((long) (REGULAR_TUNNELS_DIGGING_TIME.toSeconds() * tunnelKeepingFactor))) > 0));
 				})
 				.sorted(Comparator.comparing(entry -> entry.getValue().getLastDiggTime()))
 				.map(Map.Entry::getKey)
@@ -760,10 +761,10 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		var requestId = SecureRandomUtils.nextInt();
 		log.debug("Digging tunnel for hash {}, requestId: {}", hash, requestId);
 
-		var fileHash = incomingHashes.get(hash);
+		var hashInfo = incomingHashes.get(hash);
 
-		fileHash.setLastRequest(requestId);
-		fileHash.setLastDiggTime(Instant.now());
+		hashInfo.setLastRequest(requestId);
+		hashInfo.setLastDiggTime(Instant.now());
 
 		var item = new TurtleTunnelRequestItem(hash, requestId, generatePersonalFilePrint(hash, tunnelProbability.getBias(), true));
 
@@ -792,7 +793,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		hashesToRemove.stream()
 				.map(incomingHashes::remove)
 				.filter(Objects::nonNull)
-				.map(FileHash::getTunnels)
+				.map(HashInfo::getTunnels)
 				.forEach(tunnelId -> tunnelId.forEach(id -> closeTunnel(id, virtualPeersToRemove)));
 
 		hashesToRemove.clear();
@@ -833,9 +834,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			virtualPeers.remove(tunnel.getVirtualLocation().getLocationId());
 
 			// Remove the tunnel id from the file hash
-			Optional.ofNullable(incomingHashes.get(tunnel.getHash())).ifPresent(fileHash -> {
-				fileHash.removeTunnel(id);
-				sourcesToRemove.put(fileHash.getClient(), new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualLocation()));
+			Optional.ofNullable(incomingHashes.get(tunnel.getHash())).ifPresent(hashInfo -> {
+				hashInfo.removeTunnel(id);
+				sourcesToRemove.put(hashInfo.getClient(), new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualLocation()));
 			});
 		}
 		else if (tunnel.getDestination().equals(ownLocation))

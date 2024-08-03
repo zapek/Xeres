@@ -194,6 +194,13 @@ public class RsServiceRegistry
 		return emptyIfNull(masterServices.get(rsService.getServiceType().getType()));
 	}
 
+	/**
+	 * Builds an item.
+	 *
+	 * @param rawItem the {@link RawItem} to deserialize from
+	 * @return the {@link Item}
+	 * @see io.xeres.app.xrs.serialization.Serializer Serializer
+	 */
 	public Item buildIncomingItem(RawItem rawItem)
 	{
 		var version = rawItem.getPacketVersion();

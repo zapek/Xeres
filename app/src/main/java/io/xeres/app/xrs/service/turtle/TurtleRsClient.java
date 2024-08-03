@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.turtle;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.service.RsServiceSlave;
+import io.xeres.app.xrs.service.filetransfer.FileTransferRsService;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
 import io.xeres.app.xrs.service.turtle.item.TurtleSearchResultItem;
@@ -30,47 +31,72 @@ import io.xeres.common.id.Sha1Sum;
 import java.util.List;
 
 /**
- * This interface is implemented by turtle clients. For example the file transfer service is a turtle client and
- * will receive events from the turtle router.
+ * Represents a turtle clients. For example the {@link FileTransferRsService file transfer service} is a turtle client and
+ * will receive events from the {@link TurtleRsService turtle router}.
  */
 public interface TurtleRsClient extends RsServiceSlave
 {
 	/**
-	 * Initializes the turtle client.
+	 * Called to initialize the turtle client.
 	 *
-	 * @param turtleRouter the turtle router. Save it somewhere so that you can call its methods.
+	 * @param turtleRouter  the {@link TurtleRouter}. Keep it somewhere so that you can call its methods.
 	 */
 	void initializeTurtle(TurtleRouter turtleRouter);
 
 	/**
-	 * Asks if this hash can be handled. It usually boils down to searching it in some database or list.
-	 * @param sender the peer where it comes from
-	 * @param encryptedHash the hash
-	 * @return true if it can be handled, false otherwise
+	 * Called to ask if this hash can be handled.
+	 * <p>
+	 * It usually boils down to searching it in some database or list.
+	 *
+	 * @param sender  the {@link PeerConnection} where it comes from
+	 * @param hash  the encrypted hash
+	 * @return true if it can be handled
 	 */
-	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum encryptedHash);
-
-	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum encryptedHash, Location virtualLocation, TunnelDirection tunnelDirection); // XXX: missing turtle generic data item
+	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash);
 
 	/**
-	 * Asks to search something.
+	 * Called when receiving data from a tunnel.
 	 *
-	 * @param query   the search query
-	 * @param maxHits the maximum number of hits to send back
+	 * @param item            a {@link TurtleGenericTunnelItem} subclass
+	 * @param hash            the encrypted hash from which the data is related to
+	 * @param virtualLocation the virtual location
+	 * @param tunnelDirection if data is from a {@link TunnelDirection#SERVER} or a {@link TunnelDirection#CLIENT}
+	 */
+	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hash, Location virtualLocation, TunnelDirection tunnelDirection);
+
+	/**
+	 * Called to ask to search for something.
+	 *
+	 * @param query  the search query
+	 * @param maxHits  the maximum number of hits to send back
 	 * @return the search results
 	 */
 	List<byte[]> receiveSearchRequest(byte[] query, int maxHits); // XXX: return a list of results (TurtleFileInfoV2.. actually it's generic stuff so service dependent)
 
 	/**
-	 * Informs that a search result has been received.
+	 * Called when receiving search results.
 	 *
-	 * @param requestId  the request id
+	 * @param requestId  the request id the search result belongs to
+	 * @param item  a {@link TurtleSearchResultItem} subclass containing the results
 	 */
 	void receiveSearchResult(int requestId, TurtleSearchResultItem item);
 
 	// XXX: document that only encrypted hashes are supported
+
+	/**
+	 * Called when a virtual peer related to a hash is added.
+	 *
+	 * @param hash  the encrypted hash
+	 * @param virtualLocation  the virtual location to add
+	 * @param direction  the direction of the tunnel, either {@link TunnelDirection#SERVER} or {@link TunnelDirection#CLIENT}
+	 */
 	void addVirtualPeer(Sha1Sum hash, Location virtualLocation, TunnelDirection direction);
 
-	// XXX: ditto
+	/**
+	 * Called when a virtual peer related to a hash is removed.
+	 *
+	 * @param hash  the encrypted hash
+	 * @param virtualLocation  the virtual location to remove
+	 */
 	void removeVirtualPeer(Sha1Sum hash, Location virtualLocation);
 }

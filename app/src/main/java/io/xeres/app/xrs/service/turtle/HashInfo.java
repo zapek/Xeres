@@ -27,15 +27,24 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static io.xeres.app.xrs.service.turtle.TurtleRsService.EMPTY_TUNNELS_DIGGING_TIME;
 
-class FileHash
+/**
+ * Keeps track of the activity for the file hashes that the turtle router is asked to monitor.
+ */
+class HashInfo
 {
-	private final Set<Integer> tunnels = ConcurrentHashMap.newKeySet(); // XXX: probably doesn't need to be concurrent?
+	private final Set<Integer> tunnels = ConcurrentHashMap.newKeySet();
 	private int lastRequest;
 	private Instant lastDiggTime;
 	private final TurtleRsClient client;
-	private final boolean aggressiveMode;
+	private final boolean aggressiveMode; // if set, allows creation of concurrent tunnels (for example 4 tunnels to download 1 file)
 
-	public FileHash(boolean aggressiveMode, TurtleRsClient client)
+	/**
+	 * Creates a HashInfo to keep track of the activity regarding a file hash, thus is usually paired with one.
+	 *
+	 * @param aggressiveMode if true, allow the use of multiple tunnels for one hash
+	 * @param client         the {@link TurtleRsClient}
+	 */
+	public HashInfo(boolean aggressiveMode, TurtleRsClient client)
 	{
 		lastDiggTime = Instant.now().plus(Duration.ofSeconds(ThreadLocalRandom.current().nextLong(EMPTY_TUNNELS_DIGGING_TIME.toSeconds())));
 		this.client = client;

@@ -22,13 +22,24 @@ package io.xeres.app.xrs.service.turtle;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.LocationId;
 
-public final class VirtualLocation
+/**
+ * Handles Virtual Locations, which are "distant" locations in the Turtle network (it could be your direct peer to, it's impossible to know).
+ */
+final class VirtualLocation
 {
 	private VirtualLocation()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * Creates a virtual location out of a tunnel id.
+	 * <p>
+	 * A virtual location performs more or less like a normal location.
+	 *
+	 * @param tunnelId the tunnel id
+	 * @return a virtual location
+	 */
 	public static Location fromTunnel(int tunnelId)
 	{
 		var buf = new byte[LocationId.LENGTH];

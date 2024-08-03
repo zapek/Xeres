@@ -25,6 +25,9 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Keeps track of tunnel requests.
+ */
 class TunnelRequest
 {
 	private final Location source;
@@ -32,6 +35,12 @@ class TunnelRequest
 	private final int depth;
 	private final Set<Integer> responses;
 
+	/**
+	 * Creates a tunnel request.
+	 *
+	 * @param source where the request came from
+	 * @param depth  depth of the request, used to optimize tunnel length
+	 */
 	public TunnelRequest(Location source, int depth)
 	{
 		this.source = source;

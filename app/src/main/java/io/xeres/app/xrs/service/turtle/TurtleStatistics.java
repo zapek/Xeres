@@ -20,6 +20,8 @@
 package io.xeres.app.xrs.service.turtle;
 
 /**
+ * Records statistics for Turtle.
+ * <p>
  * Everything is in bytes per seconds.
  */
 public class TurtleStatistics

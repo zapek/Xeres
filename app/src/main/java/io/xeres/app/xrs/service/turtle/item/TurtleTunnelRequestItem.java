@@ -27,7 +27,7 @@ import io.xeres.common.id.Sha1Sum;
 public class TurtleTunnelRequestItem extends Item
 {
 	@RsSerialized
-	private Sha1Sum fileHash;
+	private Sha1Sum hash;
 
 	@RsSerialized
 	private int requestId;
@@ -43,9 +43,9 @@ public class TurtleTunnelRequestItem extends Item
 	{
 	}
 
-	public TurtleTunnelRequestItem(Sha1Sum fileHash, int requestId, int partialTunnelId)
+	public TurtleTunnelRequestItem(Sha1Sum hash, int requestId, int partialTunnelId)
 	{
-		this.fileHash = fileHash;
+		this.hash = hash;
 		this.requestId = requestId;
 		this.partialTunnelId = partialTunnelId;
 	}
@@ -62,9 +62,9 @@ public class TurtleTunnelRequestItem extends Item
 		return 3;
 	}
 
-	public Sha1Sum getFileHash()
+	public Sha1Sum getHash()
 	{
-		return fileHash;
+		return hash;
 	}
 
 	public int getRequestId()
@@ -96,7 +96,7 @@ public class TurtleTunnelRequestItem extends Item
 	public String toString()
 	{
 		return "TurtleTunnelOpenItem{" +
-				"fileHash=" + fileHash +
+				"fileHash=" + hash +
 				", requestId=" + requestId +
 				", partialTunnelId=" + partialTunnelId +
 				", depth=" + depth +

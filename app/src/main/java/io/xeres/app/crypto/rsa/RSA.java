@@ -79,8 +79,8 @@ public final class RSA
 	 *
 	 * @param data the public key in encoded bytes
 	 * @return the public key
-	 * @throws NoSuchAlgorithmException RSA algorithm unavailable
-	 * @throws InvalidKeySpecException  Not an RSA key
+	 * @throws NoSuchAlgorithmException if the RSA algorithm is unavailable
+	 * @throws InvalidKeySpecException  if it's not an RSA key
 	 */
 	public static PublicKey getPublicKey(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
@@ -93,8 +93,8 @@ public final class RSA
 	 *
 	 * @param data the private key in encoded bytes
 	 * @return the private key
-	 * @throws NoSuchAlgorithmException RSA algorithm unavailable
-	 * @throws InvalidKeySpecException  Not an RSA key
+	 * @throws NoSuchAlgorithmException if the RSA algorithm is unavailable
+	 * @throws InvalidKeySpecException  if it's not an RSA key
 	 */
 	public static PrivateKey getPrivateKey(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
@@ -157,7 +157,7 @@ public final class RSA
 	 *
 	 * @param privateKey the RSA private key
 	 * @return the RSA private key in PKCS #8 format
-	 * @throws IOException wrong key format
+	 * @throws IOException if the key format is wrong
 	 */
 	public static byte[] getPrivateKeyAsPkcs1(PrivateKey privateKey) throws IOException
 	{
@@ -173,9 +173,9 @@ public final class RSA
 	 *
 	 * @param data the DER encoded PKCS #1 byte array
 	 * @return an RSA private key
-	 * @throws IOException              wrong key format
-	 * @throws NoSuchAlgorithmException wrong key format
-	 * @throws InvalidKeySpecException  wrong encoding
+	 * @throws IOException              if the key format is wrong
+	 * @throws NoSuchAlgorithmException if the key format is wrong
+	 * @throws InvalidKeySpecException  if the encoding is wrong
 	 */
 	public static PrivateKey getPrivateKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{
@@ -193,7 +193,7 @@ public final class RSA
 	 *
 	 * @param publicKey the RSA public key
 	 * @return the RSA public key in PKCS #1 format
-	 * @throws IOException wrong key format
+	 * @throws IOException if the key format is wrong
 	 */
 	public static byte[] getPublicKeyAsPkcs1(PublicKey publicKey) throws IOException
 	{
@@ -208,9 +208,9 @@ public final class RSA
 	 *
 	 * @param data the DER encoded PKCS #1 byte array
 	 * @return an RSA public key
-	 * @throws IOException              wrong key format
-	 * @throws NoSuchAlgorithmException wrong key format
-	 * @throws InvalidKeySpecException  wrong encoding
+	 * @throws IOException              if the key format is wrong
+	 * @throws NoSuchAlgorithmException if the key format is wrong
+	 * @throws InvalidKeySpecException  if the encoding is wrong
 	 */
 	public static PublicKey getPublicKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{

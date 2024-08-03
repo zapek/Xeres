@@ -58,12 +58,12 @@ public final class X509
 	 * @param rsaPublicKey an RSA public key
 	 * @param issuer       the issuer
 	 * @param subject      the subject
-	 * @param dateOfIssue  date of certificate validity
-	 * @param dateOfExpiry date of certificate expiration
-	 * @param serial       serial number
-	 * @return a X509Certificate
-	 * @throws IOException          I/O error
-	 * @throws CertificateException Certificate error
+	 * @param dateOfIssue  the date of certificate validity
+	 * @param dateOfExpiry the date of certificate expiration
+	 * @param serial       the serial number
+	 * @return a {@link X509Certificate}
+	 * @throws IOException          if there's an I/O error
+	 * @throws CertificateException if there's a certificate error
 	 */
 	public static X509Certificate generateCertificate(PGPSecretKey pgpSecretKey, PublicKey rsaPublicKey, String issuer, String subject, Date dateOfIssue, Date dateOfExpiry, BigInteger serial) throws IOException, CertificateException
 	{
@@ -87,7 +87,7 @@ public final class X509
 	 *
 	 * @param data a byte array with the encoded certificate
 	 * @return a X509 certificate
-	 * @throws CertificateException parse error
+	 * @throws CertificateException if there's a parse error
 	 */
 	public static X509Certificate getCertificate(byte[] data) throws CertificateException
 	{

@@ -179,20 +179,20 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public boolean handleTunnelRequest(PeerConnection sender, Sha1Sum encryptedHash)
+	public boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash)
 	{
 		//
 		// - find file by encrypted hash (and get its real hash)
 		// - the correspondence can be put in the encryptedHashes, because the tunnel will likely be established
 
-		var file = fileService.findFileByEncryptedHash(encryptedHash);
+		var file = fileService.findFileByEncryptedHash(hash);
 		if (file.isPresent())
 		{
 			log.debug("Found file {}", file.get());
 
 			// Add it to the encrypted hashes because it's going to be used soon
 			// to establish the tunnels
-			encryptedHashes.put(encryptedHash, file.get().getHash());
+			encryptedHashes.put(hash, file.get().getHash());
 
 			// XXX: don't forget to handle files currently being swarmed and tons of other things
 			// XXX: sender might not necessarily be needed (it's for the permissions)

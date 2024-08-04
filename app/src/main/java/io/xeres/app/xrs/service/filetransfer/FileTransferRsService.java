@@ -204,17 +204,17 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum encryptedHash, Location virtualLocation, TunnelDirection tunnelDirection)
 	{
+		var hash = encryptedHashes.get(encryptedHash);
+		if (hash == null)
+		{
+			log.error("Cannot find the real hash of hash {}", encryptedHash);
+			return;
+		}
+
 		switch (item)
 		{
 			case TurtleGenericDataItem turtleGenericDataItem ->
 			{
-				var hash = encryptedHashes.get(encryptedHash);
-				if (hash == null)
-				{
-					log.error("Cannot find the real hash of hash {}", encryptedHash);
-					return;
-				}
-
 				var decryptedItem = decryptItem(turtleGenericDataItem, hash);
 				if (decryptedItem instanceof TurtleGenericDataItem)
 				{
@@ -224,11 +224,11 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 				{
 					receiveTurtleData(decryptedItem, hash, virtualLocation, tunnelDirection);
 				}
-				decryptedItem.dispose();
+				// No need to dispose decryptedItem as it doesn't come from netty
 			}
 			case TurtleFileRequestItem turtleFileRequestItem -> log.debug("TurtleFileRequestItem received"); // XXX: implement
 
-			case TurtleFileDataItem turtleFileDataItem -> log.debug("TurtleFileDataItem received!"); // XXX: implement
+			case TurtleFileDataItem turtleFileDataItem -> handleReceiveTurtleFileDataItem(virtualLocation, hash, turtleFileDataItem, tunnelDirection);
 
 			case TurtleFileMapItem turtleFileMapItem -> log.debug("TurtleFileMapItem received!"); // XXX: implement
 
@@ -242,6 +242,11 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 			default -> log.warn("Unknown packet type received: {}", item.getSubType());
 		}
+	}
+
+	private void handleReceiveTurtleFileDataItem(Location virtualLocation, Sha1Sum hash, TurtleFileDataItem turtleFileDataItem, TunnelDirection tunnelDirection)
+	{
+
 	}
 
 	@Override
@@ -480,17 +485,17 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	 *
 	 * @param location  the location to send to (can be virtual too)
 	 * @param hash  the hash related to it
-	 * @param size  the size of the data
+	 * @param totalSize  the total size of the file
 	 * @param baseOffset the base offset
 	 * @param data the data to send
 	 */
-	void sendData(Location location, Sha1Sum hash, long size, long baseOffset, byte[] data)
+	void sendData(Location location, Sha1Sum hash, long totalSize, long baseOffset, byte[] data)
 	{
 		if (data.length > 0)
 		{
 			if (data.length > BLOCK_SIZE)
 			{
-				throw new IllegalArgumentException("Maximum send size must be " + BLOCK_SIZE + ", not " + data.length);
+				throw new IllegalArgumentException("Maximum send totalSize must be " + BLOCK_SIZE + ", not " + data.length);
 			}
 
 			if (turtleRouter.isVirtualPeer(location))
@@ -500,7 +505,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			}
 			else
 			{
-				var item = new FileTransferDataItem(baseOffset, size, hash, data);
+				var item = new FileTransferDataItem(baseOffset, totalSize, hash, data);
 				peerConnectionManager.writeItem(location, item, this);
 			}
 		}

@@ -27,10 +27,7 @@ import static io.xeres.app.xrs.service.turtle.item.TunnelDirection.CLIENT;
 public class TurtleFileDataItem extends TurtleGenericTunnelItem
 {
 	@RsSerialized
-	private long chunkOffset;
-
-	@RsSerialized
-	private int chunkSize;
+	private long chunkOffset; // always zero
 
 	@RsSerialized
 	private byte[] chunkData;
@@ -44,7 +41,6 @@ public class TurtleFileDataItem extends TurtleGenericTunnelItem
 	{
 		super();
 		this.chunkOffset = chunkOffset;
-		this.chunkSize = chunkData.length;
 		this.chunkData = chunkData;
 	}
 
@@ -63,11 +59,6 @@ public class TurtleFileDataItem extends TurtleGenericTunnelItem
 	public long getChunkOffset()
 	{
 		return chunkOffset;
-	}
-
-	public int getChunkSize()
-	{
-		return chunkSize;
 	}
 
 	public byte[] getChunkData()

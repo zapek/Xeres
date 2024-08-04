@@ -33,6 +33,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Responsible for sending/receiving a file.
+ */
 class FileTransferAgent
 {
 	private static final Logger log = LoggerFactory.getLogger(FileTransferAgent.class);

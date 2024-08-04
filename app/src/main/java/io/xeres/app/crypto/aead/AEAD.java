@@ -19,7 +19,7 @@
 
 package io.xeres.app.crypto.aead;
 
-import io.xeres.app.crypto.hash.sha256.Sha256MessageDigest;
+import io.xeres.app.crypto.hmac.sha256.Sha256HMac;
 
 import javax.crypto.*;
 import javax.crypto.spec.ChaCha20ParameterSpec;
@@ -162,17 +162,17 @@ public final class AEAD
 		{
 			var tag = new byte[TAG_SIZE];
 			var cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION_CHACHA20);
-			var chaCha20ParameterSpec = new ChaCha20ParameterSpec(nonce, 1); // XXX: RS uses 1 as counter, make sure it's correct
+			var chaCha20ParameterSpec = new ChaCha20ParameterSpec(nonce, 1);
 			var keySpec = new SecretKeySpec(key.getEncoded(), ENCRYPTION_ALGORITHM_CHACHA20);
 			cipher.init(ENCRYPT_MODE, keySpec, chaCha20ParameterSpec);
 			var encryptedData = cipher.doFinal(plainText);
 
-			var digest = new Sha256MessageDigest();
-			digest.update(additionalAuthenticatedData);
-			digest.update(encryptedData);
-			System.arraycopy(digest.getBytes(), 0, tag, 0, TAG_SIZE);
+			var hmac = new Sha256HMac(key);
+			hmac.update(additionalAuthenticatedData);
+			hmac.update(encryptedData);
+			System.arraycopy(hmac.getBytes(), 0, tag, 0, TAG_SIZE);
 
-			return ByteBuffer.allocate(plainText.length + TAG_SIZE)
+			return ByteBuffer.allocate(encryptedData.length + TAG_SIZE)
 					.put(encryptedData)
 					.put(tag)
 					.array();
@@ -215,16 +215,17 @@ public final class AEAD
 		try
 		{
 			var cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION_CHACHA20);
-			var chaCha20ParameterSpecs = new ChaCha20ParameterSpec(nonce, 1); // XXX: same
+			var chaCha20ParameterSpecs = new ChaCha20ParameterSpec(nonce, 1);
 			var keySpec = new SecretKeySpec(key.getEncoded(), ENCRYPTION_ALGORITHM_CHACHA20);
 			cipher.init(DECRYPT_MODE, keySpec, chaCha20ParameterSpecs);
 			var decryptedData = cipher.doFinal(encryptedData);
 
 			// Verify the SHA256 tag, performed after the decryption to avoid timing attacks.
-			var digest = new Sha256MessageDigest();
-			digest.update(additionalAuthenticatedData);
-			digest.update(encryptedData);
-			System.arraycopy(digest.getBytes(), 0, resultingTag, 0, TAG_SIZE);
+			var hmac = new Sha256HMac(key);
+			hmac.update(additionalAuthenticatedData);
+			hmac.update(encryptedData);
+			System.arraycopy(hmac.getBytes(), 0, resultingTag, 0, TAG_SIZE);
+
 			if (!MessageDigest.isEqual(tag, resultingTag))
 			{
 				throw new IllegalArgumentException("ChaCha20 SHA-256: Authentication failed");

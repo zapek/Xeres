@@ -282,7 +282,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public void startMonitoringTunnels(Sha1Sum hash, TurtleRsClient client, boolean allowMultiTunnels)
 	{
-		log.debug("Start monitoring tunnels for hash {}", hash);
+		log.debug("Start monitoring tunnels for (encrypted) hash {}", hash);
 		hashesToRemove.remove(hash); // if the file hash was scheduled for removal, cancel it
 
 		incomingHashes.putIfAbsent(hash, new HashInfo(allowMultiTunnels, client));
@@ -291,7 +291,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public void stopMonitoringTunnels(Sha1Sum hash)
 	{
-		log.debug("Stop monitoring tunnels for hash {}", hash);
+		log.debug("Stop monitoring tunnels for (encrypted) hash {}", hash);
 		hashesToRemove.add(hash);
 	}
 

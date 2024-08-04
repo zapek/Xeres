@@ -61,8 +61,22 @@ class ChunkDistributor
 		givenChunks.removeIf(chunkMap::get);
 		if (fileTransferStrategy == LINEAR && beforeSize != givenChunks.size())
 		{
-			minChunk = chunkMap.nextClearBit(0);
+			minChunk = findMinChunk();
 		}
+	}
+
+	private int findMinChunk()
+	{
+		minChunk = chunkMap.nextClearBit(0);
+		while (givenChunks.contains(minChunk))
+		{
+			minChunk++;
+		}
+		if (minChunk > maxChunk)
+		{
+			minChunk = -1;
+		}
+		return minChunk;
 	}
 
 	/**
@@ -77,7 +91,7 @@ class ChunkDistributor
 		// When maxChunk is -1, there's no free chunk left.
 		// minChunk has a wrong value in that case because BitSet has no
 		// concept of maximum bits, so it will always find a "free" bit.
-		if (maxChunk == -1 || chunkMap.cardinality() + givenChunks.size() == totalChunks)
+		if (maxChunk == -1 || minChunk == -1 || chunkMap.cardinality() + givenChunks.size() == totalChunks)
 		{
 			return Optional.empty();
 		}

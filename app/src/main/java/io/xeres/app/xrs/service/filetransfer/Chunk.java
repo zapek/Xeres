@@ -25,7 +25,6 @@ class Chunk
 	public Chunk(long size)
 	{
 		totalBlocks = (int) (size / BLOCK_SIZE + (size % BLOCK_SIZE != 0 ? 1 : 0));
-		log.debug("totalBlocks: {}", totalBlocks);
 	}
 
 	/**

@@ -19,7 +19,6 @@
 
 package io.xeres.ui.controller.file;
 
-import io.xeres.ui.client.FileClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
 import javafx.application.Platform;
@@ -44,13 +43,6 @@ public class FileMainController implements Controller
 	@FXML
 	private FileUploadViewController fileUploadViewController;
 
-	private final FileClient fileClient;
-
-	public FileMainController(FileClient fileClient)
-	{
-		this.fileClient = fileClient;
-	}
-
 	@Override
 	public void initialize()
 	{
@@ -59,10 +51,6 @@ public class FileMainController implements Controller
 					idToController(oldValue.getId()).deactivate();
 					idToController(newValue.getId()).activate();
 				}));
-
-		// The following is done at an attempt to populate the download list
-		// so that it's ready when the user navigates to it.
-		fileClient.getDownloads().subscribe();
 	}
 
 	private TabActivation idToController(String id)

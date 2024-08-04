@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -122,11 +123,12 @@ class FileTransferAgent
 						}
 						else
 						{
-							var chunkNumber = getNextChunk();
-							log.debug("Requesting chunk number {} to peer {}", chunkNumber, entry.getKey());
-							fileTransferRsService.sendDataRequest(entry.getKey(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
-							entry.getValue().setChunkNumber(chunkNumber);
-							entry.getValue().setReceiving(true);
+							getNextChunk().ifPresent(chunkNumber -> {
+								log.debug("Requesting chunk number {} to peer {}", chunkNumber, entry.getKey());
+								fileTransferRsService.sendDataRequest(entry.getKey(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
+								entry.getValue().setChunkNumber(chunkNumber);
+								entry.getValue().setReceiving(true);
+							});
 						}
 					}
 				});
@@ -188,8 +190,8 @@ class FileTransferAgent
 	 *
 	 * @return the chunk number
 	 */
-	private int getNextChunk()
+	private Optional<Integer> getNextChunk()
 	{
-		return fileProvider.getNeededChunk().orElseThrow(() -> new IllegalStateException("Cannot find the next chunk of a complete file"));
+		return fileProvider.getNeededChunk();
 	}
 }

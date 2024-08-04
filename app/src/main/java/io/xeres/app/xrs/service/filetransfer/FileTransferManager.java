@@ -154,7 +154,6 @@ class FileTransferManager implements Runnable
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			log.debug("Processing item {}", commandItem.item());
 			if (commandItem.item() instanceof FileTransferDataRequestItem item)
 			{
 				handleReceiveDataRequest(commandItem.location(), item);
@@ -179,7 +178,6 @@ class FileTransferManager implements Runnable
 
 	private void processAction(FileTransferCommandAction commandAction)
 	{
-		log.debug("Processing action {}", commandAction.action());
 		if (commandAction.action() instanceof ActionReceiveData action)
 		{
 			actionReceiveData(action);
@@ -335,7 +333,7 @@ class FileTransferManager implements Runnable
 
 		try
 		{
-			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileProvider(), action.offset(), action.data().length);
+			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileName(), action.offset(), action.data().length);
 			// XXX: update location stats for writing (see how RS does it)
 			var fileProvider = agent.getFileProvider();
 			fileProvider.write(action.offset(), action.data());

@@ -25,7 +25,6 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.xrs.service.filetransfer.item.FileTransferChunkMapRequestItem;
-import io.xeres.app.xrs.service.filetransfer.item.FileTransferDataItem;
 import io.xeres.app.xrs.service.filetransfer.item.FileTransferDataRequestItem;
 import io.xeres.app.xrs.service.filetransfer.item.FileTransferSingleChunkCrcRequestItem;
 import io.xeres.common.id.Sha1Sum;
@@ -52,6 +51,8 @@ import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_
 class FileTransferManager implements Runnable
 {
 	private static final Logger log = LoggerFactory.getLogger(FileTransferManager.class);
+
+	private static final int DEFAULT_TICK = 250;
 
 	private final FileTransferRsService fileTransferRsService;
 	private final FileService fileService;
@@ -87,7 +88,7 @@ class FileTransferManager implements Runnable
 		{
 			try
 			{
-				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(500, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
+				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(DEFAULT_TICK, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
 				processCommand(command);
 				processLeechers();
 				processSeeders();
@@ -158,10 +159,6 @@ class FileTransferManager implements Runnable
 			{
 				handleReceiveDataRequest(commandItem.location(), item);
 			}
-			else if (commandItem.item() instanceof FileTransferDataItem item)
-			{
-				handleReceiveData(commandItem.location(), item);
-			}
 			else if (commandItem.item() instanceof FileTransferChunkMapRequestItem item)
 			{
 				if (item.isLeecher())
@@ -183,9 +180,13 @@ class FileTransferManager implements Runnable
 	private void processAction(FileTransferCommandAction commandAction)
 	{
 		log.debug("Processing action {}", commandAction.action());
-		if (commandAction.action() instanceof ActionDownload actionDownload)
+		if (commandAction.action() instanceof ActionReceiveData action)
 		{
-			actionDownloadFile(actionDownload);
+			actionReceiveData(action);
+		}
+		else if (commandAction.action() instanceof ActionDownload action)
+		{
+			actionDownloadFile(action);
 		}
 		else if (commandAction.action() instanceof ActionGetDownloadsProgress)
 		{
@@ -323,21 +324,21 @@ class FileTransferManager implements Runnable
 				.orElse(null));
 	}
 
-	private void handleReceiveData(Location location, FileTransferDataItem item)
+	private void actionReceiveData(ActionReceiveData action)
 	{
-		var agent = leechers.get(item.getFileData().fileItem().hash());
+		var agent = leechers.get(action.hash());
 		if (agent == null)
 		{
-			log.error("No matching agent for hash {} for receiving data", item.getFileData().fileItem().hash());
+			log.error("No matching agent for hash {} for receiving data", action.hash());
 			return;
 		}
 
 		try
 		{
-			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileProvider(), item.getFileData().offset(), item.getFileData().data().length);
+			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileProvider(), action.offset(), action.data().length);
 			// XXX: update location stats for writing (see how RS does it)
 			var fileProvider = agent.getFileProvider();
-			fileProvider.write(item.getFileData().offset(), item.getFileData().data());
+			fileProvider.write(action.offset(), action.data());
 		}
 		catch (IOException e)
 		{

@@ -95,7 +95,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 								if (incomingProgress != null)
 								{
 									var newProgress = (double) incomingProgress.currentSize() / incomingProgress.totalSize();
-									currentProgress.setState(newProgress != currentProgress.getProgress() ? TRANSFERRING : SEARCHING);
+									currentProgress.setState(getState(currentProgress, incomingProgress, newProgress));
 									currentProgress.setProgress(newProgress);
 									incomingProgresses.remove(incomingProgress.hash());
 								}
@@ -105,6 +105,19 @@ public class FileDownloadViewController implements Controller, TabActivation
 						.subscribe(),
 				0,
 				UPDATE_IN_SECONDS);
+	}
+
+	private FileProgressDisplay.State getState(FileProgressDisplay currentProgress, FileProgress incomingProgress, double newProgress)
+	{
+		if (newProgress != currentProgress.getProgress())
+		{
+			return TRANSFERRING;
+		}
+		if (incomingProgress.currentSize() == incomingProgress.totalSize())
+		{
+			return DONE;
+		}
+		return SEARCHING;
 	}
 
 	public void stop()

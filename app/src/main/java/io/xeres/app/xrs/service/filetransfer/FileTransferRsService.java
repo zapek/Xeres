@@ -171,11 +171,19 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		if (item instanceof FileTransferDataRequestItem fileTransferDataRequestItem)
-		{
+		//if (item instanceof FileTransferDataRequestItem fileTransferDataRequestItem)
+		//{
 			// XXX: check for upload limit for this peer and drop it if exceeded!
+		//}
+		if (item instanceof FileTransferDataItem fileTransferDataItem)
+		{
+			fileCommandQueue.add(new FileTransferCommandAction(new ActionReceiveData(sender.getLocation(), fileTransferDataItem.getFileData().fileItem().hash(), fileTransferDataItem.getFileData().offset(), fileTransferDataItem.getFileData().data())));
 		}
-		fileCommandQueue.add(new FileTransferCommandItem(sender.getLocation(), item));
+		else
+		{
+			// XXX: try to remove this one... we should have as less item related login in the FileTransferManager...
+			fileCommandQueue.add(new FileTransferCommandItem(sender.getLocation(), item));
+		}
 	}
 
 	@Override
@@ -202,27 +210,27 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum encryptedHash, Location virtualLocation, TunnelDirection tunnelDirection)
+	public void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hash, Location virtualLocation, TunnelDirection tunnelDirection)
 	{
-		var hash = encryptedHashes.get(encryptedHash);
-		if (hash == null)
-		{
-			log.error("Cannot find the real hash of hash {}", encryptedHash);
-			return;
-		}
-
 		switch (item)
 		{
 			case TurtleGenericDataItem turtleGenericDataItem ->
 			{
-				var decryptedItem = decryptItem(turtleGenericDataItem, hash);
+				var realHash = encryptedHashes.get(hash);
+				if (realHash == null)
+				{
+					log.error("Cannot find the real hash of hash {}", hash);
+					return;
+				}
+
+				var decryptedItem = decryptItem(turtleGenericDataItem, realHash);
 				if (decryptedItem instanceof TurtleGenericDataItem)
 				{
 					log.error("Decrypted item is a recursive bomb, dropping");
 				}
 				else
 				{
-					receiveTurtleData(decryptedItem, hash, virtualLocation, tunnelDirection);
+					receiveTurtleData(decryptedItem, realHash, virtualLocation, tunnelDirection);
 				}
 				// No need to dispose decryptedItem as it doesn't come from netty
 			}
@@ -246,7 +254,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private void handleReceiveTurtleFileDataItem(Location virtualLocation, Sha1Sum hash, TurtleFileDataItem turtleFileDataItem, TunnelDirection tunnelDirection)
 	{
-
+		fileCommandQueue.add(new FileTransferCommandAction(new ActionReceiveData(virtualLocation, hash, turtleFileDataItem.getChunkOffset(), turtleFileDataItem.getChunkData())));
 	}
 
 	@Override

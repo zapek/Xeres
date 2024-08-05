@@ -23,6 +23,7 @@ import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
 import jakarta.annotation.PreDestroy;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.stereotype.Service;
 
@@ -99,7 +100,7 @@ public class ShellService implements Shell
 	 */
 	public static String[] translateCommandline(String toProcess)
 	{
-		if (toProcess == null || toProcess.isEmpty())
+		if (StringUtils.isEmpty(toProcess))
 		{
 			//no command? no string
 			return new String[0];

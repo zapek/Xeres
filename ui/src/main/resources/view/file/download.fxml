@@ -27,6 +27,9 @@
         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
     </padding>
     <TableView fx:id="downloadTableView" VBox.vgrow="ALWAYS">
+        <placeholder>
+            <Label text="No downloads"/>
+        </placeholder>
         <columns>
             <TableColumn fx:id="tableName" prefWidth="180.0" text="Name"/>
             <TableColumn fx:id="tableState" prefWidth="120.0" text="State"/>

@@ -134,7 +134,7 @@ public class PeerConnectionManager
 		return null; // XXX: use executor.newFailedFuture()? but where do I get the executor from?
 	}
 
-	private ChannelFuture setOutgoingAndWriteItem(PeerConnection peerConnection, Item item, RsService rsService)
+	private static ChannelFuture setOutgoingAndWriteItem(PeerConnection peerConnection, Item item, RsService rsService)
 	{
 		item.setOutgoing(peerConnection.getCtx().alloc(), rsService);
 		return writeItem(peerConnection.getCtx(), item);

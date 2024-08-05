@@ -103,7 +103,7 @@ public class DataSourceConfiguration
 				.build();
 	}
 
-	private void upgradeIfNeeded(String url)
+	private static void upgradeIfNeeded(String url)
 	{
 		if (!url.startsWith(H2_URL_PREFIX))
 		{

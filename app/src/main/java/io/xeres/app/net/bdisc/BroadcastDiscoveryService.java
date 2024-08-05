@@ -52,7 +52,7 @@ public class BroadcastDiscoveryService implements Runnable
 	private static final Logger log = LoggerFactory.getLogger(BroadcastDiscoveryService.class);
 
 	private static final int PORT = 36405;
-	private static final int APP_ID = 904571;
+	private static final int APP_ID = 904_571;
 	private static final int BROADCAST_BUFFER_SEND_SIZE_MAX = 512;
 	private static final int BROADCAST_BUFFER_RECV_SIZE = 512;
 
@@ -131,7 +131,7 @@ public class BroadcastDiscoveryService implements Runnable
 		}
 	}
 
-	private String getBroadcastAddress(String ipAddress)
+	private static String getBroadcastAddress(String ipAddress)
 	{
 		List<InetAddress> broadcastList = new ArrayList<>();
 
@@ -144,11 +144,11 @@ public class BroadcastDiscoveryService implements Runnable
 				var networkInterface = interfaces.next();
 				if (networkInterface.isUp() && !networkInterface.isLoopback())
 				{
-					networkInterface.getInterfaceAddresses().stream()
+					broadcastList.addAll(networkInterface.getInterfaceAddresses().stream()
 							.filter(interfaceAddress -> interfaceAddress.getAddress().getHostAddress().equals(ipAddress))
 							.map(InterfaceAddress::getBroadcast)
 							.filter(Objects::nonNull)
-							.forEach(broadcastList::add);
+							.toList());
 				}
 			}
 		}

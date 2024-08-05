@@ -113,7 +113,7 @@ class ChunkDistributor
 	private int getRandomChunk()
 	{
 		int chunk;
-		int attempt = 0;
+		var attempt = 0;
 
 		do
 		{

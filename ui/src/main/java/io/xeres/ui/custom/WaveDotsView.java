@@ -70,7 +70,7 @@ public class WaveDotsView extends HBox
 		t3.play();
 	}
 
-	private Animation createAnimation(Circle circle, Duration initialDelay)
+	private static Animation createAnimation(Circle circle, Duration initialDelay)
 	{
 		var translate = new TranslateTransition(Duration.millis(300), circle);
 		translate.setToY(5.0f);

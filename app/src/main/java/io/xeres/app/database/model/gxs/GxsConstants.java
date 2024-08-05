@@ -21,7 +21,7 @@ package io.xeres.app.database.model.gxs;
 
 final class GxsConstants
 {
-	static final int GXS_ITEM_MAX_SIZE = 1572864; // 1.5 MB
+	static final int GXS_ITEM_MAX_SIZE = 1_572_864; // 1.5 MB
 
 	private GxsConstants()
 	{

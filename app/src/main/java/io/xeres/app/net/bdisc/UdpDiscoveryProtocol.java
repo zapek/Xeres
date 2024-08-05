@@ -55,25 +55,29 @@ public final class UdpDiscoveryProtocol
 		var magicHeader = buffer.getInt();
 		ProtocolVersion protocolVersion;
 
-		if (magicHeader == MAGIC_HEADER_OLD)
+		switch (magicHeader)
 		{
-			buffer.get(); // reserved
-			protocolVersion = VERSION_0;
-		}
-		else if (magicHeader == MAGIC_HEADER_VERSIONED)
-		{
-			var versionNum = buffer.get();
-			if (versionNum > VERSION_1.ordinal())
+			case MAGIC_HEADER_OLD ->
 			{
-				log.warn("Unsupported protocol version: {}", versionNum);
+				buffer.get(); // reserved
+
+				protocolVersion = VERSION_0;
+			}
+			case MAGIC_HEADER_VERSIONED ->
+			{
+				var versionNum = buffer.get();
+				if (versionNum > VERSION_1.ordinal())
+				{
+					log.warn("Unsupported protocol version: {}", versionNum);
+					return null;
+				}
+				protocolVersion = ProtocolVersion.values()[versionNum];
+			}
+			default ->
+			{
+				log.warn("Unsupported magic header: {}", magicHeader);
 				return null;
 			}
-			protocolVersion = ProtocolVersion.values()[versionNum];
-		}
-		else
-		{
-			log.warn("Unsupported magic header: {}", magicHeader);
-			return null;
 		}
 		buffer.get(); // reserved
 		buffer.get(); // reserved

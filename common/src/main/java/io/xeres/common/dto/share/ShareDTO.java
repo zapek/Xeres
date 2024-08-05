@@ -50,9 +50,15 @@ public record ShareDTO(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ShareDTO shareDTO = (ShareDTO) o;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		var shareDTO = (ShareDTO) o;
 		return id == shareDTO.id && searchable == shareDTO.searchable && Objects.equals(name, shareDTO.name) && Objects.equals(path, shareDTO.path) && browsable == shareDTO.browsable;
 	}
 

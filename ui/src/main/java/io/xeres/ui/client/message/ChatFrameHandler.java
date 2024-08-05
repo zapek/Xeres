@@ -96,14 +96,14 @@ public class ChatFrameHandler implements StompFrameHandler
 		);
 	}
 
-	private ChatRoomMessage getChatRoomMessage(StompHeaders headers, Object payload)
+	private static ChatRoomMessage getChatRoomMessage(StompHeaders headers, Object payload)
 	{
 		var chatRoomMessage = (ChatRoomMessage) payload;
 		chatRoomMessage.setRoomId(Long.parseLong(Objects.requireNonNull(headers.getFirst(DESTINATION_ID))));
 		return chatRoomMessage;
 	}
 
-	private long getRoomId(StompHeaders headers)
+	private static long getRoomId(StompHeaders headers)
 	{
 		return Long.parseLong(Objects.requireNonNull(headers.getFirst(DESTINATION_ID)));
 	}

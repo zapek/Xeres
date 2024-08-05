@@ -32,7 +32,7 @@ public class MultiPacket extends Packet
 	/**
 	 * Maximum packet ID. Wraps around.
 	 */
-	public static final int MAXIMUM_ID = 16777216;
+	public static final int MAXIMUM_ID = 16_777_216;
 
 	/**
 	 * Flag set for starting packets and full packets

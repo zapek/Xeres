@@ -517,9 +517,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		var buf = hash.toString() + ownLocation.toString();
 		int result = bias;
-		int decal = 0;
+		var decal = 0;
 
-		for (int i = 0; i < buf.length(); i++)
+		for (var i = 0; i < buf.length(); i++)
 		{
 			result += (int) (7 * buf.charAt(i) + Integer.toUnsignedLong(decal));
 
@@ -638,11 +638,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		return results;
 	}
 
-	private List<TurtleSearchResultItem> mapResults(List<TurtleFileInfo> fileInfos)
+	private static List<TurtleSearchResultItem> mapResults(List<TurtleFileInfo> fileInfos)
 	{
 		List<TurtleSearchResultItem> results = new ArrayList<>();
 		TurtleFileSearchResultItem item = null;
-		int fileInfoSize = 0;
+		var fileInfoSize = 0;
 
 		for (TurtleFileInfo fileInfo : fileInfos)
 		{
@@ -715,7 +715,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		peerConnectionManager.writeItem(searchRequest.getSource(), item.clone(), this);
 	}
 
-	private boolean isBanned(Sha1Sum hash)
+	private static boolean isBanned(Sha1Sum hash)
 	{
 		return false; // TODO: implement
 	}

@@ -128,7 +128,7 @@ public class AccountCreationWindowController implements WindowController
 	 * @param hostname a hostname
 	 * @return a hostname without the domain part
 	 */
-	private String sanitizeHostname(String hostname)
+	private static String sanitizeHostname(String hostname)
 	{
 		return hostname.split("\\.")[0];
 	}

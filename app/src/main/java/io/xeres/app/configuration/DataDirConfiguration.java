@@ -103,12 +103,12 @@ public class DataDirConfiguration
 		return dataDir;
 	}
 
-	private String getDataDirFromArgs()
+	private static String getDataDirFromArgs()
 	{
 		return StartupProperties.getString(DATA_DIR);
 	}
 
-	private String getDataDirFromPortableFileLocation()
+	private static String getDataDirFromPortableFileLocation()
 	{
 		var portable = Path.of("portable");
 		if (Files.exists(portable))
@@ -118,13 +118,13 @@ public class DataDirConfiguration
 		return null;
 	}
 
-	private String getDataDirFromNativePlatform()
+	private static String getDataDirFromNativePlatform()
 	{
 		var appDirs = AppDirsFactory.getInstance();
 		return appDirs.getUserDataDir(AppName.NAME, null, null, true);
 	}
 
-	private String getDataDirFromDevelopmentSetup()
+	private static String getDataDirFromDevelopmentSetup()
 	{
 		// Find out if we're running from rootProject, which means
 		// we have an 'app' folder in there.

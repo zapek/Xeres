@@ -72,7 +72,7 @@ public class LedControl extends Control
 		color = new SimpleStyleableObjectProperty<>(COLOR, this, "color");
 	}
 
-	public boolean getState()
+	public boolean hasState()
 	{
 		return state.get();
 	}

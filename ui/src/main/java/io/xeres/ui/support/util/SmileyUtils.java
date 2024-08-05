@@ -121,7 +121,7 @@ public final class SmileyUtils
 		{
 			for (var e : smileys.entrySet())
 			{
-				int index = 0;
+				var index = 0;
 
 				while ((index = s.indexOf(e.getKey(), index)) != -1)
 				{

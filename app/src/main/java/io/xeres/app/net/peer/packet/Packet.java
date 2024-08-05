@@ -48,7 +48,7 @@ public abstract class Packet implements Comparable<Packet>
 	 * The maximum packet size, which is the buffer size per connection
 	 * used by Retroshare, actually.
 	 */
-	public static final int MAXIMUM_PACKET_SIZE = 262143;
+	public static final int MAXIMUM_PACKET_SIZE = 262_143;
 
 	protected int priority = 3;
 	private int sequence;
@@ -126,8 +126,14 @@ public abstract class Packet implements Comparable<Packet>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var packet = (Packet) o;
 		return priority == packet.priority && sequence == packet.sequence && buf.equals(packet.buf);
 	}

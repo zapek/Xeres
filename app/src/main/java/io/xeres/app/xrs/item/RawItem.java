@@ -129,7 +129,7 @@ public class RawItem
 	public String toString()
 	{
 		String bufOut = null;
-		int size = 0;
+		var size = 0;
 		if (buf != null)
 		{
 			buf.markReaderIndex();

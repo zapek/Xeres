@@ -88,7 +88,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 	{
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getDownloads().collectMap(FileProgress::hash)
 						.doOnSuccess(incomingProgresses -> Platform.runLater(() -> {
-							for (int i = 0; i < downloadTableView.getItems().size(); i++)
+							for (var i = 0; i < downloadTableView.getItems().size(); i++)
 							{
 								var currentProgress = downloadTableView.getItems().get(i);
 								var incomingProgress = incomingProgresses.get(currentProgress.getHash());
@@ -107,7 +107,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 				UPDATE_IN_SECONDS);
 	}
 
-	private FileProgressDisplay.State getState(FileProgressDisplay currentProgress, FileProgress incomingProgress, double newProgress)
+	private static FileProgressDisplay.State getState(FileProgressDisplay currentProgress, FileProgress incomingProgress, double newProgress)
 	{
 		if (newProgress != currentProgress.getProgress())
 		{

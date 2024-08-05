@@ -181,7 +181,7 @@ public class ProfileService
 		return profile;
 	}
 
-	private Profile createNewProfile(RSId rsId)
+	private static Profile createNewProfile(RSId rsId)
 	{
 		if (rsId.getPgpPublicKey().isPresent())
 		{

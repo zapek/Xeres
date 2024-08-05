@@ -52,7 +52,7 @@ public final class UiBorders
 		}
 	}
 
-	public static class WindowHandle
+	public static final class WindowHandle
 	{
 		private final WinDef.HWND value;
 

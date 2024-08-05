@@ -379,7 +379,7 @@ class FileTransferManager implements Runnable
 		// XXX: not sure what to do yet, complicated (look at the list of seeders first, etc...)
 	}
 
-	private void handleSeederRequest(Location location, FileTransferAgent agent, Sha1Sum hash, long size, long offset, int chunkSize)
+	private static void handleSeederRequest(Location location, FileTransferAgent agent, Sha1Sum hash, long size, long offset, int chunkSize)
 	{
 		if (chunkSize > CHUNK_SIZE)
 		{
@@ -418,7 +418,7 @@ class FileTransferManager implements Runnable
 	{
 		if (src.length % 4 != 0)
 		{
-			byte[] dst = new byte[src.length + (4 - src.length % 4)];
+			var dst = new byte[src.length + (4 - src.length % 4)];
 			System.arraycopy(src, 0, dst, 0, src.length);
 			return dst;
 		}

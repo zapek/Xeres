@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Embeddable
-public class Sha1Sum implements Identifier, Cloneable
+public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 {
 	public static final int LENGTH = 20;
 
@@ -61,8 +61,14 @@ public class Sha1Sum implements Identifier, Cloneable
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var that = (Sha1Sum) o;
 		return Arrays.equals(identifier, that.identifier);
 	}
@@ -90,5 +96,11 @@ public class Sha1Sum implements Identifier, Cloneable
 		{
 			throw new AssertionError();
 		}
+	}
+
+	@Override
+	public int compareTo(Sha1Sum o)
+	{
+		return Arrays.compare(identifier, o.identifier);
 	}
 }

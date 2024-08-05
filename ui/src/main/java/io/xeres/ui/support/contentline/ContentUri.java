@@ -48,7 +48,7 @@ public class ContentUri implements Content
 		node.setOnAction(event -> action.accept(uri));
 	}
 
-	private String appendMailToIfNeeded(String uri)
+	private static String appendMailToIfNeeded(String uri)
 	{
 		if (uri.contains("@") && !uri.contains("://"))
 		{

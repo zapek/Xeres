@@ -62,7 +62,7 @@ class DnsResponse
 		int recordCount;
 		while ((recordCount = input.readByte()) > 0)
 		{
-			for (int i = 0; i < recordCount; i++)
+			for (var i = 0; i < recordCount; i++)
 			{
 				input.readByte();
 			}
@@ -85,7 +85,7 @@ class DnsResponse
 		}
 
 		var buf = new byte[4];
-		for (int i = 0; i < 4; i++)
+		for (var i = 0; i < 4; i++)
 		{
 			buf[i] = input.readByte();
 		}

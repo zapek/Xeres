@@ -198,7 +198,7 @@ public class Startup implements ApplicationRunner
 				environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "prod");
 	}
 
-	private void showCapabilities()
+	private static void showCapabilities()
 	{
 		var totalMemory = Runtime.getRuntime().totalMemory();
 		log.info("OS: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
@@ -219,7 +219,7 @@ public class Startup implements ApplicationRunner
 		}
 	}
 
-	private void showDebug()
+	private static void showDebug()
 	{
 		if (ResourceLeakDetector.isEnabled())
 		{
@@ -231,7 +231,7 @@ public class Startup implements ApplicationRunner
 		}
 	}
 
-	private void checkRequirements()
+	private static void checkRequirements()
 	{
 		if (Charset.defaultCharset() != StandardCharsets.UTF_8)
 		{

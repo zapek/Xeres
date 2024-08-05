@@ -259,18 +259,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 		else
 		{
-			if (item instanceof GxsSyncGroupStatsItem gxsSyncGroupStatsItem)
+			switch (item)
 			{
-				log.debug("Would handle group statistics item (not implemented yet)");
-				// XXX:
-			}
-			else if (item instanceof GxsSyncNotifyItem gxsSyncNotifyItem)
-			{
-				handleGxsSyncNotifyItem(sender, gxsSyncNotifyItem);
-			}
-			else
-			{
-				log.error("Not a GxsExchange item: {}, ignoring", item);
+				case GxsSyncGroupStatsItem gxsSyncGroupStatsItem -> log.debug("Would handle group statistics item (not implemented yet)"); // XXX:
+				case GxsSyncNotifyItem gxsSyncNotifyItem -> handleGxsSyncNotifyItem(sender, gxsSyncNotifyItem);
+				case null, default -> log.error("Not a GxsExchange item: {}, ignoring", item);
 			}
 		}
 	}
@@ -815,7 +808,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		// Clear messageId and possibly originalMessageId because they're created after the signature
 		// is made (they depend on the content)
 		var savedMessageId = gxsMessageItem.getMessageId();
-		var savedOriginalMessageId = savedMessageId == gxsMessageItem.getOriginalMessageId() ? gxsMessageItem.getOriginalMessageId() : null;
+		var savedOriginalMessageId = savedMessageId.equals(gxsMessageItem.getOriginalMessageId()) ? gxsMessageItem.getOriginalMessageId() : null;
 		gxsMessageItem.setMessageId(null);
 		gxsMessageItem.setOriginalMessageId(null);
 

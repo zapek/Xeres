@@ -344,12 +344,12 @@ final class Device implements DeviceSpecs
 		return ControlPoint.getExternalIpAddress(getControlUrl(), getServiceType());
 	}
 
-	private URI parseUrl(String url)
+	private static URI parseUrl(String url)
 	{
 		return parseUrl(null, url);
 	}
 
-	private URI parseUrl(URI baseUrl, String url)
+	private static URI parseUrl(URI baseUrl, String url)
 	{
 		try
 		{
@@ -372,7 +372,7 @@ final class Device implements DeviceSpecs
 	 * @param url the url
 	 * @return an url with the protocol prepended
 	 */
-	private String addProtocolIfMissing(String url)
+	private static String addProtocolIfMissing(String url)
 	{
 		if (url != null && url.toLowerCase(Locale.ROOT).startsWith("www."))
 		{

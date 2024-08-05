@@ -177,7 +177,7 @@ public class FileService
 				.collect(Collectors.toMap(Share::getId, share -> toPath(getFullPath(share.getFile()))));
 	}
 
-	private String toPath(List<File> files)
+	private static String toPath(List<File> files)
 	{
 		return files.stream()
 				.map(file -> file.getName().endsWith(":\\") ? file.getName().substring(0, file.getName().length() - 1) : file.getName()) // On Windows, C:\ -> C: to avoid double file separators
@@ -296,7 +296,7 @@ public class FileService
 		{
 			var ioBuffer = new byte[SMALL_FILE_SIZE];
 			fileNotificationService.startScanning(share);
-			File directory = share.getFile();
+			var directory = share.getFile();
 			var directoryPath = getFilePath(directory);
 			var visitor = new TrackingFileVisitor(fileRepository, directory)
 			{
@@ -424,7 +424,7 @@ public class FileService
 		return false;
 	}
 
-	private boolean isIgnoredFile(String fileName)
+	private static boolean isIgnoredFile(String fileName)
 	{
 		fileName = fileName.toLowerCase(Locale.ROOT);
 
@@ -446,7 +446,7 @@ public class FileService
 		return false;
 	}
 
-	private boolean isIgnoredDirectory(String dirName)
+	private static boolean isIgnoredDirectory(String dirName)
 	{
 		return dirName.startsWith(".");
 	}

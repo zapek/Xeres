@@ -31,12 +31,12 @@ public class NetworkProperties
 	 * Enables the slicing of packets. This is only available on new Retroshare packets and only if both ends
 	 * of the connection agree to use them. Note that Xeres always accepts sliced packets.
 	 */
-	private boolean packetSlicing = false;
+	private boolean packetSlicing;
 
 	/**
 	 * Enables the grouping of packets. Only works if packet slicing is enabled.
 	 */
-	private boolean packetGrouping = false;
+	private boolean packetGrouping;
 
 	/**
 	 * Sets the encrypted tunnel format.

@@ -94,6 +94,7 @@ abstract class PeerServer
 		}
 		catch (InterruptedException e)
 		{
+			Thread.currentThread().interrupt();
 			throw new IllegalStateException("Interrupted: " + e.getMessage(), e);
 		}
 	}

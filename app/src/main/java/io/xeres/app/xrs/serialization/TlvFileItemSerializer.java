@@ -104,9 +104,9 @@ final class TlvFileItemSerializer
 		TlvType tlvType;
 		String name = null;
 		String path = null;
-		int popularity = 0;
-		int age = 0;
-		int pieceSize = 0;
+		var popularity = 0;
+		var age = 0;
+		var pieceSize = 0;
 		Set<Sha1Sum> chunkHashes = Set.of();
 		while (buf.readerIndex() < index + totalSize && (tlvType = TlvUtils.peekTlvType(buf)) != null) // XXX: how to detect when we are done??
 		{

@@ -28,7 +28,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 
 @Embeddable
-public class LocationId implements Identifier
+public class LocationId implements Identifier, Comparable<LocationId>
 {
 	public static final int LENGTH = 16;
 
@@ -77,8 +77,14 @@ public class LocationId implements Identifier
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var that = (LocationId) o;
 		return Arrays.equals(identifier, that.identifier);
 	}
@@ -93,5 +99,11 @@ public class LocationId implements Identifier
 	public String toString()
 	{
 		return Id.toString(identifier);
+	}
+
+	@Override
+	public int compareTo(LocationId o)
+	{
+		return Arrays.compare(identifier, o.identifier);
 	}
 }

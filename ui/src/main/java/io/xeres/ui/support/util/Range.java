@@ -37,7 +37,7 @@ public class Range
 	{
 		if (matcher.groupCount() > 0)
 		{
-			for (int i = 1; i <= matcher.groupCount(); i++)
+			for (var i = 1; i <= matcher.groupCount(); i++)
 			{
 				start = matcher.start(i);
 				if (start != -1)

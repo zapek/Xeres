@@ -201,7 +201,7 @@ public class ChatViewController implements Controller
 		{
 			if (isRoomSelected())
 			{
-				if (event.getCode().equals(KeyCode.ENTER) && isNotBlank(send.getText()))
+				if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
 				{
 					sendChatMessage(send.getText());
 					lastTypingNotification = Instant.EPOCH;
@@ -449,7 +449,7 @@ public class ChatViewController implements Controller
 	}
 
 	// right now I use a simple implementation. It also has a drawback that it doesn't update the counter
-	private void addOrUpdate(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
+	private static void addOrUpdate(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
 	{
 		if (tree.stream()
 				.map(TreeItem::getValue)
@@ -460,7 +460,7 @@ public class ChatViewController implements Controller
 		}
 	}
 
-	private boolean isInside(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
+	private static boolean isInside(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
 	{
 		return tree.stream()
 				.map(TreeItem::getValue)

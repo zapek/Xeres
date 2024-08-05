@@ -75,7 +75,7 @@ public class MessagingWindowController implements WindowController
 
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
-	private static final int MESSAGE_MAXIMUM_SIZE = 196000; // XXX: maximum size for normal messages? check if correct
+	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 
@@ -130,7 +130,7 @@ public class MessagingWindowController implements WindowController
 
 		send.setOnKeyPressed(event ->
 		{
-			if (event.getCode().equals(KeyCode.ENTER) && isNotBlank(send.getText()))
+			if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
 			{
 				sendMessage(send.getText());
 				lastTypingNotification = Instant.EPOCH;
@@ -187,7 +187,7 @@ public class MessagingWindowController implements WindowController
 		});
 	}
 
-	private long getFileSize(Path path)
+	private static long getFileSize(Path path)
 	{
 		try
 		{

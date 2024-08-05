@@ -340,8 +340,14 @@ public class Location
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var location = (Location) o;
 		return locationId.equals(location.locationId);
 	}

@@ -141,7 +141,7 @@ public final class RsCrypto
 		System.arraycopy(initializationVector, 0, aad, 0, INITIALIZATION_VECTOR_SIZE);
 		System.arraycopy(eDataArray, 0, aad, INITIALIZATION_VECTOR_SIZE, EDATA_SIZE);
 
-		int eDataSize = Byte.toUnsignedInt(eDataArray[0]);
+		var eDataSize = Byte.toUnsignedInt(eDataArray[0]);
 		eDataSize += Byte.toUnsignedInt(eDataArray[1]) << 8;
 		eDataSize += Byte.toUnsignedInt(eDataArray[2]) << 16;
 		eDataSize += Byte.toUnsignedInt(eDataArray[3]) << 24;

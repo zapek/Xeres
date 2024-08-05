@@ -90,9 +90,15 @@ public final class Signature implements Comparable<Signature>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Signature signature = (Signature) o;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		var signature = (Signature) o;
 		return Objects.equals(gxsId, signature.gxsId);
 	}
 

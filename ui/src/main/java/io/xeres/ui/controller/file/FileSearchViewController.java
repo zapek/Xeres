@@ -64,7 +64,7 @@ public class FileSearchViewController implements Controller, TabActivation
 	public void initialize()
 	{
 		search.setOnKeyPressed(event -> {
-			if (event.getCode().equals(KeyCode.ENTER))
+			if (event.getCode() == KeyCode.ENTER)
 			{
 				var searchText = search.getText();
 				log.debug("Searching for: {}", searchText);

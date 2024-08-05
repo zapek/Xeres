@@ -320,7 +320,7 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 		}
 	}
 
-	private void traceDhtStats(DHTStats dhtStats)
+	private static void traceDhtStats(DHTStats dhtStats)
 	{
 		if (log.isTraceEnabled())
 		{

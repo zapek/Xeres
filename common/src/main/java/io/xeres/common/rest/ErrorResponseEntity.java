@@ -49,9 +49,18 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		if (!super.equals(o))
+		{
+			return false;
+		}
 		var that = (ErrorResponseEntity) o;
 		return Objects.equals(error, that.error);
 	}

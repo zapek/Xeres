@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Embeddable
-public class MessageId implements Identifier
+public class MessageId implements Identifier, Comparable<MessageId>
 {
 	public static final int LENGTH = 20;
 
@@ -61,8 +61,14 @@ public class MessageId implements Identifier
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var messageId = (MessageId) o;
 		return Arrays.equals(identifier, messageId.identifier);
 	}
@@ -77,5 +83,11 @@ public class MessageId implements Identifier
 	public String toString()
 	{
 		return Id.toString(identifier);
+	}
+
+	@Override
+	public int compareTo(MessageId o)
+	{
+		return Arrays.compare(identifier, o.identifier);
 	}
 }

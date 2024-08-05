@@ -154,8 +154,14 @@ public final class SecurityKey implements Comparable<SecurityKey>
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj == this) return true;
-		if (obj == null || obj.getClass() != getClass()) return false;
+		if (obj == this)
+		{
+			return true;
+		}
+		if (obj == null || obj.getClass() != getClass())
+		{
+			return false;
+		}
 		var that = (SecurityKey) obj;
 		return Objects.equals(keyId, that.keyId);
 	}

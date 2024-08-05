@@ -66,24 +66,24 @@ public class ShellService implements Shell
 		return new ShellResult(NO_OP);
 	}
 
-	private ShellResult getMemorySpecs()
+	private static ShellResult getMemorySpecs()
 	{
 		return new ShellResult(SUCCESS,
 				"Memory allocated for the JVM: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + " MB\n" +
 						"Maximum allocatable memory: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + " MB");
 	}
 
-	private ShellResult getWorkingDirectory()
+	private static ShellResult getWorkingDirectory()
 	{
 		return new ShellResult(SUCCESS, System.getProperty("user.dir"));
 	}
 
-	private ShellResult getOperatingSystem()
+	private static ShellResult getOperatingSystem()
 	{
 		return new ShellResult(SUCCESS, System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")");
 	}
 
-	private ShellResult runGc()
+	private static ShellResult runGc()
 	{
 		System.gc();
 		return new ShellResult(SUCCESS, "Done");
@@ -106,14 +106,14 @@ public class ShellService implements Shell
 		}
 		// parse with a simple finite state machine
 
-		final int normal = 0;
-		final int inQuote = 1;
-		final int inDoubleQuote = 2;
+		final var normal = 0;
+		final var inQuote = 1;
+		final var inDoubleQuote = 2;
 		int state = normal;
-		final StringTokenizer tok = new StringTokenizer(toProcess, "\"' ", true);
+		final var tok = new StringTokenizer(toProcess, "\"' ", true);
+		final var current = new StringBuilder();
 		final ArrayList<String> result = new ArrayList<>();
-		final StringBuilder current = new StringBuilder();
-		boolean lastTokenHasBeenQuoted = false;
+		var lastTokenHasBeenQuoted = false;
 
 		while (tok.hasMoreTokens())
 		{

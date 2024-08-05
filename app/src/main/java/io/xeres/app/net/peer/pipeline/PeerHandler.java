@@ -220,7 +220,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		}
 	}
 
-	private void sendSliceProbe(ChannelHandlerContext ctx)
+	private static void sendSliceProbe(ChannelHandlerContext ctx)
 	{
 		var sliceProbeItem = SliceProbeItem.from(ctx);
 		PeerConnectionManager.writeItem(ctx, sliceProbeItem); // this makes the remote RS send packets in the new format

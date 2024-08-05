@@ -33,7 +33,7 @@ class HeaderDetector implements MarkdownDetector
 	@Override
 	public void process(Context context, String line)
 	{
-		char space = '#';
+		var space = '#';
 		int size;
 
 		for (size = 0; size < line.length(); size++)

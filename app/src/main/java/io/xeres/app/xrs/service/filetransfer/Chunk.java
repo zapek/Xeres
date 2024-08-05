@@ -58,9 +58,9 @@ class Chunk
 	 */
 	public boolean isComplete()
 	{
-		int total = 0;
+		var total = 0;
 
-		for (int blockIndex = 0; blockIndex < 64; blockIndex++)
+		for (var blockIndex = 0; blockIndex < 64; blockIndex++)
 		{
 			if ((lowBlocks & 1L << blockIndex) != 0)
 			{
@@ -68,7 +68,7 @@ class Chunk
 			}
 		}
 
-		for (int blockIndex = 0; blockIndex < 64; blockIndex++)
+		for (var blockIndex = 0; blockIndex < 64; blockIndex++)
 		{
 			if ((hiBlocks & 1L << blockIndex) != 0)
 			{

@@ -197,7 +197,7 @@ public class LocationService
 		location.setConnected(true);
 	}
 
-	private void updateConnection(Location location, SocketAddress socketAddress)
+	private static void updateConnection(Location location, SocketAddress socketAddress)
 	{
 		var inetSocketAddress = (InetSocketAddress) socketAddress;
 
@@ -279,7 +279,7 @@ public class LocationService
 		}
 	}
 
-	private void updateOwnConnection(Location location, PeerAddress peerAddress)
+	private static void updateOwnConnection(Location location, PeerAddress peerAddress)
 	{
 		var updated = false;
 
@@ -298,7 +298,7 @@ public class LocationService
 		}
 	}
 
-	private void updateOtherConnection(Location location, PeerAddress peerAddress)
+	private static void updateOtherConnection(Location location, PeerAddress peerAddress)
 	{
 		location.addConnection(Connection.from(peerAddress));
 	}
@@ -318,7 +318,7 @@ public class LocationService
 		return username;
 	}
 
-	private boolean updateAddressIfSameType(PeerAddress from, Connection to)
+	private static boolean updateAddressIfSameType(PeerAddress from, Connection to)
 	{
 		if ((from.isExternal() && to.isExternal())
 				|| (!from.isExternal() && !to.isExternal()))

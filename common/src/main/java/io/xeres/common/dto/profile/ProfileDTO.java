@@ -71,8 +71,14 @@ public record ProfileDTO(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var that = (ProfileDTO) o;
 		return name.equals(that.name) && Objects.equals(pgpIdentifier, that.pgpIdentifier) && Arrays.equals(pgpFingerprint, that.pgpFingerprint) && Arrays.equals(pgpPublicKeyData, that.pgpPublicKeyData);
 	}

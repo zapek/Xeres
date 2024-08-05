@@ -24,8 +24,14 @@ record PortMapping(int port, Protocol protocol)
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var that = (PortMapping) o;
 		return port == that.port &&
 				protocol == that.protocol;

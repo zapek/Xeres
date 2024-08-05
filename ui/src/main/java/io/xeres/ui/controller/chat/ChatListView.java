@@ -163,7 +163,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	 * @param message the message
 	 * @return the cleaned up message
 	 */
-	private String removeEmtpyImageTag(String message)
+	private static String removeEmtpyImageTag(String message)
 	{
 		if (message.startsWith("<img>") && message.length() > 5)
 		{
@@ -187,7 +187,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		}
 	}
 
-	private ImageView buildImageView(byte[] imageData)
+	private static ImageView buildImageView(byte[] imageData)
 	{
 		if (imageData != null)
 		{

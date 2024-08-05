@@ -20,18 +20,20 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <VBox spacing="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.file.FileUploadViewController">
     <padding>
         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
     </padding>
     <TableView fx:id="uploadTableView" VBox.vgrow="ALWAYS">
+        <placeholder>
+            <Label text="No files being uploaded"/>
+        </placeholder>
         <columns>
             <TableColumn fx:id="tableName" prefWidth="180.0" text="Name"/>
             <TableColumn fx:id="tableTotalSize" prefWidth="100.0" text="Total Size"/>
-            <TableColumn fx:id="tableHash" prefWidth="280.0" text="Hash"/>
+            <TableColumn fx:id="tableHash" prefWidth="320.0" text="Hash"/>
         </columns>
     </TableView>
 </VBox>

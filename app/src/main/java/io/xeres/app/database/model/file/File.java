@@ -96,7 +96,7 @@ public class File
 	public static File createFile(Path path)
 	{
 		path = getCanonicalPath(path);
-		File file = createFile(path.getRoot().toString(), null);
+		var file = createFile(path.getRoot().toString(), null);
 		file.setType(FileType.DIRECTORY);
 
 		for (Path component : path)

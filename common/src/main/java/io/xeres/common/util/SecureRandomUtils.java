@@ -106,7 +106,7 @@ public final class SecureRandomUtils
 
 		Collections.shuffle(passwordList);
 
-		for (int i = 0; i < passwordList.size(); i++)
+		for (var i = 0; i < passwordList.size(); i++)
 		{
 			password[i] = passwordList.get(i);
 		}

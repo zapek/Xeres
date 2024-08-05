@@ -563,7 +563,7 @@ public class ChatRsService extends RsService
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
 	}
 
-	private byte[] getImageData(IdentityGroupItem identityGroupItem)
+	private static byte[] getImageData(IdentityGroupItem identityGroupItem)
 	{
 		if (identityGroupItem != null)
 		{
@@ -900,7 +900,7 @@ public class ChatRsService extends RsService
 		return true; // if we don't have the identity yet, we let the item pass because it could be valid, and it's impossible to impersonate an identity this way
 	}
 
-	private boolean isBanned(GxsId gxsId)
+	private static boolean isBanned(GxsId gxsId)
 	{
 		// XXX: implement by using the reputation level
 		return false;
@@ -918,7 +918,7 @@ public class ChatRsService extends RsService
 	 * @return true if within bounds
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	private boolean validateExpiration(int sendTime)
+	private static boolean validateExpiration(int sendTime)
 	{
 		var now = Instant.now();
 		if (sendTime < now.getEpochSecond() + TIME_DRIFT_PAST_MAX.toSeconds() - KEEP_MESSAGE_RECORD_MAX.toSeconds())
@@ -1170,7 +1170,7 @@ public class ChatRsService extends RsService
 		bounce(chatRoomEvent);
 	}
 
-	private String parseIncomingText(String text)
+	private static String parseIncomingText(String text)
 	{
 		return UnHtml.cleanupChat(text);
 	}

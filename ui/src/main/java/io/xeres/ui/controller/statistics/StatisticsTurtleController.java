@@ -117,7 +117,7 @@ public class StatisticsTurtleController implements Controller
 		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
-	private void updateData(XYChart.Series<Number, Number> series, float value)
+	private static void updateData(XYChart.Series<Number, Number> series, float value)
 	{
 		series.getData().forEach(numberNumberData -> numberNumberData.setXValue(numberNumberData.getXValue().intValue() - UPDATE_IN_SECONDS));
 		series.getData().addFirst(new XYChart.Data<>(0, value));

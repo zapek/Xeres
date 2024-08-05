@@ -106,27 +106,27 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 
 		var length = validateTokenLimit(Serializer.deserializeInt(buf));
 		tokens = new ArrayList<>(length);
-		for (int i = 0; i < length; i++)
+		for (var i = 0; i < length; i++)
 		{
 			tokens.add(Serializer.deserializeByte(buf));
 		}
 
 		length = validateTokenLimit(Serializer.deserializeInt(buf));
 		ints = new ArrayList<>(length);
-		for (int i = 0; i < length; i++)
+		for (var i = 0; i < length; i++)
 		{
 			ints.add(Serializer.deserializeInt(buf));
 		}
 
 		length = validateTokenLimit(Serializer.deserializeInt(buf));
 		strings = new ArrayList<>(length);
-		for (int i = 0; i < length; i++)
+		for (var i = 0; i < length; i++)
 		{
 			strings.add((String) Serializer.deserialize(buf, TlvType.STR_VALUE));
 		}
 	}
 
-	private int validateTokenLimit(int size)
+	private static int validateTokenLimit(int size)
 	{
 		if (size >= MAX_TOKENS_LIMIT)
 		{

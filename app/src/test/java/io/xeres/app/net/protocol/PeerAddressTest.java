@@ -40,10 +40,10 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromIpAndPort_OK()
 	{
-		var IP_AND_PORT = "85.123.33.21:21232";
-		var peerAddress = PeerAddress.fromIpAndPort(IP_AND_PORT);
+		var ipAndPort = "85.123.33.21:21232";
+		var peerAddress = PeerAddress.fromIpAndPort(ipAndPort);
 
-		assertEquals(Optional.of(IP_AND_PORT), peerAddress.getAddress());
+		assertEquals(Optional.of(ipAndPort), peerAddress.getAddress());
 		assertTrue(peerAddress.isValid());
 		assertTrue(peerAddress.isExternal());
 		assertFalse(peerAddress.isHidden());
@@ -90,10 +90,10 @@ class PeerAddressTest
 	@Test
 	void PeerAddress_FromUrl_OK()
 	{
-		var URL = "ipv4://194.28.22.1:2233";
-		var peerAddress = PeerAddress.fromUrl(URL);
+		var url = "ipv4://194.28.22.1:2233";
+		var peerAddress = PeerAddress.fromUrl(url);
 
-		assertEquals(URL, peerAddress.getUrl());
+		assertEquals(url, peerAddress.getUrl());
 		assertTrue(peerAddress.isValid());
 		assertFalse(peerAddress.isHidden());
 		assertFalse(peerAddress.isHostname());

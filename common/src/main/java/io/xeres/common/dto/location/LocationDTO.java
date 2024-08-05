@@ -67,8 +67,14 @@ public record LocationDTO(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var that = (LocationDTO) o;
 		return name.equals(that.name) && Arrays.equals(locationIdentifier, that.locationIdentifier);
 	}

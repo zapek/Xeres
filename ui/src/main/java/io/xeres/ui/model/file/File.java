@@ -35,9 +35,15 @@ public record File(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		File file = (File) o;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		var file = (File) o;
 		return id == file.id;
 	}
 

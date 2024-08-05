@@ -19,13 +19,9 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
-
-import static io.xeres.app.xrs.service.turtle.TurtleRsService.EMPTY_TUNNELS_DIGGING_TIME;
 
 /**
  * Keeps track of the activity for the file hashes that the turtle router is asked to monitor.
@@ -46,7 +42,7 @@ class HashInfo
 	 */
 	public HashInfo(boolean aggressiveMode, TurtleRsClient client)
 	{
-		lastDiggTime = Instant.now().plus(Duration.ofSeconds(ThreadLocalRandom.current().nextLong(EMPTY_TUNNELS_DIGGING_TIME.toSeconds())));
+		lastDiggTime = Instant.EPOCH;
 		this.client = client;
 		this.aggressiveMode = aggressiveMode;
 	}

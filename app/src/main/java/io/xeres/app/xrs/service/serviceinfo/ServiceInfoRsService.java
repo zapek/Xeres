@@ -117,7 +117,7 @@ public class ServiceInfoRsService extends RsService
 		peerConnectionManager.writeItem(peerConnection, new ServiceListItem(services), this);
 	}
 
-	private void initializeServices(PeerConnection peerConnection, PriorityQueue<RsService> services)
+	private static void initializeServices(PeerConnection peerConnection, PriorityQueue<RsService> services)
 	{
 		RsService rsService;
 

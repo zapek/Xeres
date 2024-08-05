@@ -57,6 +57,9 @@
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
                 <ProgressPane fx:id="forumMessagesProgress">
                     <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0" styleClass="dense">
+                        <placeholder>
+                            <Label/>
+                        </placeholder>
                         <columns>
                             <!--
                             <TreeTableColumn minWidth="24" prefWidth="24">

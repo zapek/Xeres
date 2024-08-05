@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Embeddable
-public class GxsId implements Identifier
+public class GxsId implements Identifier, Comparable<GxsId>
 {
 	public static final int LENGTH = 16;
 
@@ -69,8 +69,14 @@ public class GxsId implements Identifier
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var gxsId = (GxsId) o;
 		return Arrays.equals(identifier, gxsId.identifier);
 	}
@@ -85,5 +91,11 @@ public class GxsId implements Identifier
 	public String toString()
 	{
 		return Id.toString(identifier);
+	}
+
+	@Override
+	public int compareTo(GxsId o)
+	{
+		return Arrays.compare(identifier, o.identifier);
 	}
 }

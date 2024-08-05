@@ -83,7 +83,7 @@ public final class UiUtils
 
 	private static ErrorResponseEntity getErrorResponseEntity(WebClientResponseException e)
 	{
-		ErrorResponseEntity.Builder builder = new ErrorResponseEntity.Builder(e.getStatusCode());
+		var builder = new ErrorResponseEntity.Builder(e.getStatusCode());
 		return builder.fromJson(e.getResponseBodyAsString());
 	}
 
@@ -290,21 +290,21 @@ public final class UiUtils
 	{
 		var target = Objects.requireNonNull(event.getTarget(), "event has no target");
 
-		if (target instanceof MenuItem menuItem)
+		switch (target)
 		{
-			if (menuItem.getParentMenu() != null)
+			case MenuItem menuItem ->
 			{
-				return menuItem.getParentMenu().getParentPopup().getOwnerWindow();
+				if (menuItem.getParentMenu() != null)
+				{
+					return menuItem.getParentMenu().getParentPopup().getOwnerWindow();
+				}
+				return menuItem.getParentPopup().getOwnerWindow();
 			}
-			return menuItem.getParentPopup().getOwnerWindow();
-		}
-		else if (target instanceof Node node)
-		{
-			return getWindow(node);
-		}
-		else
-		{
-			throw new IllegalStateException("Cannot find a window from the event " + event);
+			case Node node ->
+			{
+				return getWindow(node);
+			}
+			default -> throw new IllegalStateException("Cannot find a window from the event " + event);
 		}
 	}
 

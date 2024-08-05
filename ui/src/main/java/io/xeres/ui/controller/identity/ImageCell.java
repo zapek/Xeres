@@ -41,7 +41,7 @@ public class ImageCell extends TableCell<Identity, Long>
 		setGraphic(empty ? null : getAvatarImage(item));
 	}
 
-	private ImageView getAvatarImage(Long id)
+	private static ImageView getAvatarImage(Long id)
 	{
 		var imageView = new ImageView();
 		imageView.setFitWidth(128);

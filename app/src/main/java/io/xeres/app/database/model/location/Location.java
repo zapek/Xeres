@@ -50,7 +50,7 @@ import static java.util.Comparator.*;
 
 @Entity
 @XmlAccessorType(XmlAccessType.NONE)
-public class Location
+public class Location implements Comparable<Location>
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -340,8 +340,14 @@ public class Location
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var location = (Location) o;
 		return locationId.equals(location.locationId);
 	}
@@ -365,6 +371,12 @@ public class Location
 			return connection.getIp();
 		}
 		return "";
+	}
+
+	@Override
+	public int compareTo(Location o)
+	{
+		return locationId.compareTo(o.locationId);
 	}
 
 	/**

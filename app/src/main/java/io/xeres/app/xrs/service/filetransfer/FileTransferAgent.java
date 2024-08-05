@@ -97,6 +97,14 @@ class FileTransferAgent
 		return !(senders.isEmpty() && receivers.isEmpty());
 	}
 
+	public void cancel()
+	{
+		if (!fileProvider.isComplete())
+		{
+			fileProvider.closeAndDelete();
+		}
+	}
+
 	private void processDownloads()
 	{
 		receivers.entrySet().stream()
@@ -106,7 +114,7 @@ class FileTransferAgent
 					{
 						if (fileProvider.hasChunk(entry.getValue().getChunkNumber()))
 						{
-							log.debug("Chunk {} fully received", entry.getValue().getChunkNumber());
+							log.debug("Chunk {} is complete", entry.getValue().getChunkNumber());
 							entry.getValue().setReceiving(false);
 						}
 					}

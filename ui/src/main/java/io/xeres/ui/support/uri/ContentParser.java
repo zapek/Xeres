@@ -39,8 +39,8 @@ public interface ContentParser
 
 	static String buildUri(String protocol, String authority, String... args)
 	{
-		StringBuilder sb = new StringBuilder(protocol);
-		boolean firstArg = true;
+		var sb = new StringBuilder(protocol);
+		var firstArg = true;
 
 		if (args.length % 2 != 0)
 		{
@@ -49,7 +49,7 @@ public interface ContentParser
 		sb.append("://");
 		sb.append(authority);
 
-		for (int i = 0; i < args.length; i += 2)
+		for (var i = 0; i < args.length; i += 2)
 		{
 			if (StringUtils.isNotBlank(args[i + 1]))
 			{

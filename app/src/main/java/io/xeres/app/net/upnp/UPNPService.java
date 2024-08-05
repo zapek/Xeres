@@ -172,7 +172,7 @@ public class UPNPService implements Runnable
 		}
 	}
 
-	private String getMSearch(String device)
+	private static String getMSearch(String device)
 	{
 		return "M-SEARCH * HTTP/1.1\r\nHost: " + MULTICAST_IP + ":" + MULTICAST_PORT + "\r\nST: " + device + "\r\nMan: \"ssdp:discover\"\r\nMX: " + MULTICAST_DELAY_HINT + "\r\n\r\n";
 	}

@@ -497,7 +497,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		{
 			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
 		}
-		int size = deserializeInt(buf); // the size
+		var size = deserializeInt(buf); // the size
 		if (size > GXS_ITEM_MAX_SIZE)
 		{
 			throw new IllegalArgumentException("Gxs group meta size " + size + " is bigger than the maximum of " + GXS_ITEM_MAX_SIZE);
@@ -580,8 +580,14 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		GxsGroupItem that = (GxsGroupItem) o;
 		return Objects.equals(gxsId, that.gxsId);
 	}

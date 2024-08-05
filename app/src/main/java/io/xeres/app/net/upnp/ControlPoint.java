@@ -64,7 +64,7 @@ final class ControlPoint
 
 			var services = xPath.evaluateExpression("//service[serviceType[contains(text(), 'WANIPConnection') or contains(text(), 'WANPPPConnection')]]", document, XPathNodes.class);
 
-			controlPointFound = getServices(upnpDevice, services);
+			controlPointFound = hasServices(upnpDevice, services);
 		}
 		catch (FileNotFoundException e)
 		{
@@ -112,7 +112,7 @@ final class ControlPoint
 		}
 	}
 
-	private static boolean getServices(DeviceSpecs upnpDevice, XPathNodes services) throws XPathException
+	private static boolean hasServices(DeviceSpecs upnpDevice, XPathNodes services) throws XPathException
 	{
 		var controlUrlFound = false;
 

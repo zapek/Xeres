@@ -92,7 +92,7 @@ public class EmojiService
 			return s;
 		}
 
-		int start = 0;
+		var start = 0;
 		while ((start = s.indexOf(':', start)) != -1 && s.length() >= start + 2)
 		{
 			int end = s.indexOf(':', start + 2);
@@ -132,7 +132,7 @@ public class EmojiService
 		return s;
 	}
 
-	private String getCodepoints(String unicode)
+	private static String getCodepoints(String unicode)
 	{
 		return Arrays.stream(unicode.split("-"))
 				.map(s -> Character.toString(Integer.parseUnsignedInt(s, 16)))

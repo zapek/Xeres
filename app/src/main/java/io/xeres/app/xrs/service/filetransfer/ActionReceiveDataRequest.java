@@ -19,6 +19,9 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-record FileTransferCommandAction(Action action) implements FileTransferCommand
+import io.xeres.app.database.model.location.Location;
+import io.xeres.common.id.Sha1Sum;
+
+public record ActionReceiveDataRequest(Location location, Sha1Sum hash, long fileSize, long offset, int chunkSize) implements Action
 {
 }

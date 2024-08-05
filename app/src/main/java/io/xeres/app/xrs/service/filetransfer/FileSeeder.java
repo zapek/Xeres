@@ -157,6 +157,12 @@ class FileSeeder implements FileProvider
 	}
 
 	@Override
+	public void closeAndDelete()
+	{
+		throw new IllegalStateException("Cannot delete a seeder");
+	}
+
+	@Override
 	public boolean isComplete()
 	{
 		return true;
@@ -184,5 +190,11 @@ class FileSeeder implements FileProvider
 	public long getBytesWritten()
 	{
 		throw new IllegalStateException("FileSeeder doesn't write bytes");
+	}
+
+	@Override
+	public long getId()
+	{
+		throw new IllegalStateException("FileSeeders don't have an id");
 	}
 }

@@ -166,7 +166,7 @@ public abstract class NotificationService
 		}
 	}
 
-	private SseEmitter.SseEventBuilder createEventBuilder(Notification notification)
+	private static SseEmitter.SseEventBuilder createEventBuilder(Notification notification)
 	{
 		var event = SseEmitter.event();
 		event.data(notification);

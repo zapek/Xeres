@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,29 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui;
+package io.xeres.app.xrs.service.filetransfer;
 
-import javafx.application.Platform;
-import org.junit.jupiter.api.BeforeAll;
+import io.xeres.app.database.model.location.Location;
+import io.xeres.common.id.Sha1Sum;
 
-/**
- * Extend your test from this abstract class if you don't use testfx's ApplicationExtension.class
- * (for example you use Spring Boot's SpringExtension.class).<br>
- * Note that depending on how you run the tests, the platform might already be running.
- */
-public abstract class FXTest
+public record ActionReceiveSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber) implements Action
 {
-	@BeforeAll
-	static void initJfxRuntime()
-	{
-		try
-		{
-			Platform.startup(() -> {
-			});
-		}
-		catch (IllegalStateException e)
-		{
-			// Platform already running, just ignore
-		}
-	}
 }

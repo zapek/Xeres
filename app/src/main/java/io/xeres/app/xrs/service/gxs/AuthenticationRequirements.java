@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.gxs;
 
 import java.util.Set;
 
-public class AuthenticationRequirements
+public final class AuthenticationRequirements
 {
 	public enum Flags
 	{

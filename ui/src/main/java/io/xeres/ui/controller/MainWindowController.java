@@ -346,7 +346,7 @@ public class MainWindowController implements WindowController
 		windowManager.openAddPeer(getWindow(titleLabel), rsId);
 	}
 
-	private void openUrl(String url)
+	private static void openUrl(String url)
 	{
 		JavaFxApplication.openUrl(url);
 	}

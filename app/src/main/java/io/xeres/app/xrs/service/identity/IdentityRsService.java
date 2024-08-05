@@ -368,7 +368,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		saveIdentity(identity, true);
 	}
 
-	private Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)
+	private static Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)
 	{
 		var gxsIdAsciiUpper = Id.toAsciiBytesUpperCase(gxsId);
 
@@ -378,7 +378,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return md.getSum();
 	}
 
-	private byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, Sha1Sum hashToSign) throws PGPException, IOException
+	private static byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, Sha1Sum hashToSign) throws PGPException, IOException
 	{
 		var out = new ByteArrayOutputStream();
 		PGP.sign(pgpSecretKey, new ByteArrayInputStream(hashToSign.getBytes()), out, PGP.Armor.NONE);

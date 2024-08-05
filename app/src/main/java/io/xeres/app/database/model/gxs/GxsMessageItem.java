@@ -243,7 +243,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		{
 			throw new IllegalArgumentException("Unsupported API version " + apiVersion);
 		}
-		int size = deserializeInt(buf); // the size
+		var size = deserializeInt(buf); // the size
 		if (size > GXS_ITEM_MAX_SIZE)
 		{
 			throw new IllegalArgumentException("Gxs message meta size " + size + " is bigger than the maximum of " + GXS_ITEM_MAX_SIZE);

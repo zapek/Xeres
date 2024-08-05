@@ -167,8 +167,14 @@ public class Connection
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 		var that = (Connection) o;
 		return external == that.external && type == that.type && address.equals(that.address);
 	}

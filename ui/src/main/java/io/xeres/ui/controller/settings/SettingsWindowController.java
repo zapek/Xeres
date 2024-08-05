@@ -132,7 +132,7 @@ public class SettingsWindowController implements WindowController
 		}
 	}
 
-	private Node createPreferenceGraphic(String iconCode)
+	private static Node createPreferenceGraphic(String iconCode)
 	{
 		var pane = new StackPane(new FontIcon(iconCode));
 		pane.setPrefWidth(PREFERENCE_ICON_SIZE);

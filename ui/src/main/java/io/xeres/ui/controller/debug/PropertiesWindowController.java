@@ -78,7 +78,7 @@ public class PropertiesWindowController implements WindowController
 		});
 	}
 
-	private LinkedHashMap<String, String> getSortedProperties()
+	private static LinkedHashMap<String, String> getSortedProperties()
 	{
 		var properties = System.getProperties();
 
@@ -90,7 +90,7 @@ public class PropertiesWindowController implements WindowController
 						(oldValue, newValue) -> oldValue, LinkedHashMap::new));
 	}
 
-	private String showLineSeparator(String in)
+	private static String showLineSeparator(String in)
 	{
 		in = in.replace("\n", "\\n");
 		in = in.replace("\r", "\\r");

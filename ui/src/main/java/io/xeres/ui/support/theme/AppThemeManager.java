@@ -71,7 +71,7 @@ public class AppThemeManager
 		saveCurrentTheme(appTheme);
 	}
 
-	private AppTheme getDefaultTheme()
+	private static AppTheme getDefaultTheme()
 	{
 		// If we start without a UI, the toolkit won't run,
 		// and we can't use getPreferences().
@@ -86,7 +86,7 @@ public class AppThemeManager
 		};
 	}
 
-	private void applyTheme(AppTheme appTheme)
+	private static void applyTheme(AppTheme appTheme)
 	{
 		try
 		{

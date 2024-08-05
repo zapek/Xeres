@@ -47,7 +47,7 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 		setGraphic(empty ? null : getAvatarImage(item));
 	}
 
-	private ImageView getAvatarImage(ChatRoomUser item)
+	private static ImageView getAvatarImage(ChatRoomUser item)
 	{
 		ImageView image;
 

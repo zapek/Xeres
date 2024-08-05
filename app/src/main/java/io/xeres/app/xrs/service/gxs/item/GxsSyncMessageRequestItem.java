@@ -43,7 +43,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 		createSince = (int) getMostRecent(lastUpdated, limit).getEpochSecond();
 	}
 
-	private Instant getMostRecent(Instant last, Duration limit)
+	private static Instant getMostRecent(Instant last, Duration limit)
 	{
 		return Stream.of(Instant.now().minus(limit), last)
 				.max(Instant::compareTo)

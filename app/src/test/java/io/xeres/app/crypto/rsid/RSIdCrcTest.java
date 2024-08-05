@@ -36,7 +36,7 @@ class RSIdCrcTest
 	@Test
 	void RSIdCrc_CalculateCrc_OK()
 	{
-		var INPUT = "The quick brown fox jumps over the lazy dog".getBytes();
-		assertEquals(10641804, calculate24bitsCrc(INPUT, INPUT.length));
+		var input = "The quick brown fox jumps over the lazy dog".getBytes();
+		assertEquals(10641804, calculate24bitsCrc(input, input.length));
 	}
 }

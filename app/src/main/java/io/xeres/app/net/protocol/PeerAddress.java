@@ -363,26 +363,26 @@ public final class PeerAddress
 		{
 			var port = inetSocketAddress.getPort();
 
-			if (type == HOSTNAME)
+			switch (type)
 			{
-				var hostname = inetSocketAddress.getHostName().getBytes(StandardCharsets.US_ASCII);
-				var bytes = new byte[hostname.length + 2];
-				System.arraycopy(hostname, 0, bytes, 0, hostname.length);
-				bytes[bytes.length - 2] = (byte) (port >> 8);
-				bytes[bytes.length - 1] = (byte) (port & 0xff);
-				return Optional.of(bytes);
-			}
-			else if (type == IPV4)
-			{
-				var bytes = new byte[6];
-				System.arraycopy(inetSocketAddress.getAddress().getAddress(), 0, bytes, 0, 4);
-				bytes[4] = (byte) (port >> 8);
-				bytes[5] = (byte) (port & 0xff);
-				return Optional.of(bytes);
-			}
-			else
-			{
-				throw new UnsupportedOperationException("Can't get address for type " + type);
+				case HOSTNAME ->
+				{
+					var hostname = inetSocketAddress.getHostName().getBytes(StandardCharsets.US_ASCII);
+					var bytes = new byte[hostname.length + 2];
+					System.arraycopy(hostname, 0, bytes, 0, hostname.length);
+					bytes[bytes.length - 2] = (byte) (port >> 8);
+					bytes[bytes.length - 1] = (byte) (port & 0xff);
+					return Optional.of(bytes);
+				}
+				case IPV4 ->
+				{
+					var bytes = new byte[6];
+					System.arraycopy(inetSocketAddress.getAddress().getAddress(), 0, bytes, 0, 4);
+					bytes[4] = (byte) (port >> 8);
+					bytes[5] = (byte) (port & 0xff);
+					return Optional.of(bytes);
+				}
+				case null, default -> throw new UnsupportedOperationException("Can't get address for type " + type);
 			}
 		}
 		else if (socketAddress instanceof DomainNameSocketAddress)

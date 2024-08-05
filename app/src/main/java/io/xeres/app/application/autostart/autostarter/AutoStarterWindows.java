@@ -98,7 +98,7 @@ public class AutoStarterWindows implements AutoStarter
 			return applicationPath.toString();
 		}
 
-		Path basePath = Paths.get(getClass().getProtectionDomain().getPermissions().elements().nextElement().getName()).toAbsolutePath();
+		var basePath = Paths.get(getClass().getProtectionDomain().getPermissions().elements().nextElement().getName()).toAbsolutePath();
 
 		// We are located in 'app/something.jar', get the parent directory of 'app'
 		if (basePath.getParent() == null || basePath.getParent().getParent() == null)

@@ -39,6 +39,8 @@ interface FileProvider
 
 	void close();
 
+	void closeAndDelete();
+
 	BitSet getChunkMap();
 
 	Optional<Integer> getNeededChunk();
@@ -50,4 +52,6 @@ interface FileProvider
 	Path getPath();
 
 	long getBytesWritten();
+
+	long getId();
 }

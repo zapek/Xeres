@@ -30,7 +30,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 class ServiceRulesTest
 {
 	@ArchTest
-	private final ArchRule services_should_have_suffix = classes()
+	private final ArchRule servicesShouldHaveSuffix = classes()
 			.that().resideInAPackage("..service..")
 			.and().areAnnotatedWith(Service.class)
 			.should().haveSimpleNameEndingWith("Service");

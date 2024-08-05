@@ -24,13 +24,17 @@ import io.xeres.common.util.ExecutorUtils;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,7 +45,11 @@ import static io.xeres.ui.controller.file.FileProgressDisplay.State.*;
 @FxmlView(value = "/view/file/download.fxml")
 public class FileDownloadViewController implements Controller, TabActivation
 {
+	private static final Logger log = LoggerFactory.getLogger(FileDownloadViewController.class);
+
 	private static final int UPDATE_IN_SECONDS = 2;
+
+	private static final String CANCEL_MENU_ID = "cancel";
 
 	private final FileClient fileClient;
 
@@ -75,6 +83,8 @@ public class FileDownloadViewController implements Controller, TabActivation
 	@Override
 	public void initialize()
 	{
+		createContextMenu();
+
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableState.setCellValueFactory(new PropertyValueFactory<>("state"));
 		tableProgress.setCellFactory(ProgressBarTableCell.forTableColumn());
@@ -88,9 +98,10 @@ public class FileDownloadViewController implements Controller, TabActivation
 	{
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getDownloads().collectMap(FileProgress::hash)
 						.doOnSuccess(incomingProgresses -> Platform.runLater(() -> {
-							for (int i = 0; i < downloadTableView.getItems().size(); i++)
+							var it = downloadTableView.getItems().iterator();
+							while (it.hasNext())
 							{
-								var currentProgress = downloadTableView.getItems().get(i);
+								var currentProgress = it.next();
 								var incomingProgress = incomingProgresses.get(currentProgress.getHash());
 								if (incomingProgress != null)
 								{
@@ -99,15 +110,19 @@ public class FileDownloadViewController implements Controller, TabActivation
 									currentProgress.setProgress(newProgress);
 									incomingProgresses.remove(incomingProgress.hash());
 								}
+								else
+								{
+									it.remove();
+								}
 							}
-							incomingProgresses.forEach((s, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.name(), fileProgress.currentSize() == fileProgress.totalSize() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
+							incomingProgresses.forEach((s, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), fileProgress.currentSize() == fileProgress.totalSize() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
-				0,
+				1,
 				UPDATE_IN_SECONDS);
 	}
 
-	private FileProgressDisplay.State getState(FileProgressDisplay currentProgress, FileProgress incomingProgress, double newProgress)
+	private static FileProgressDisplay.State getState(FileProgressDisplay currentProgress, FileProgress incomingProgress, double newProgress)
 	{
 		if (newProgress != currentProgress.getProgress())
 		{
@@ -145,5 +160,22 @@ public class FileDownloadViewController implements Controller, TabActivation
 	{
 		stop();
 		wasRunning = false;
+	}
+
+	private void createContextMenu()
+	{
+		var removeItem = new MenuItem("Remove");
+		removeItem.setId(CANCEL_MENU_ID);
+		removeItem.setOnAction(event -> {
+			if (event.getSource() instanceof FileProgressDisplay file)
+			{
+				log.debug("Removing download of file {}", file.getName());
+				fileClient.removeDownload(file.getId())
+						.subscribe();
+			}
+		});
+
+		var fileXContextMenu = new XContextMenu<FileProgressDisplay>(downloadTableView, removeItem);
+		fileXContextMenu.setOnShowing((contextMenu, file) -> file != null);
 	}
 }

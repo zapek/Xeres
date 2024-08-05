@@ -55,55 +55,55 @@ class IdentityManagerTest
 	@Test
 	void GxsIdManager_AddOneAndRequest_OK()
 	{
-		var GXSID = IdentityGroupItemFakes.createIdentityGroupItem();
-		var PEER_CONNECTION = PeerConnectionFakes.createPeerConnection();
+		var gxsId = IdentityGroupItemFakes.createIdentityGroupItem();
+		var peerConnection = PeerConnectionFakes.createPeerConnection();
 
-		when(identityRsService.findByGxsId(GXSID.getGxsId())).thenReturn(Optional.empty());
-		when(peerConnectionManager.getPeerByLocationId(PEER_CONNECTION.getLocation().getId())).thenReturn(PEER_CONNECTION);
+		when(identityRsService.findByGxsId(gxsId.getGxsId())).thenReturn(Optional.empty());
+		when(peerConnectionManager.getPeerByLocationId(peerConnection.getLocation().getId())).thenReturn(peerConnection);
 
-		identityManager.getGxsGroup(PEER_CONNECTION, GXSID.getGxsId());
+		identityManager.getGxsGroup(peerConnection, gxsId.getGxsId());
 
 		identityManager.requestGxsIds();
 
-		verify(identityRsService).requestGxsGroups(PEER_CONNECTION, List.of(GXSID.getGxsId()));
+		verify(identityRsService).requestGxsGroups(peerConnection, List.of(gxsId.getGxsId()));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	void GxsIdManager_AddSixAndRequest_OK()
 	{
-		var GXSID1 = IdentityGroupItemFakes.createIdentityGroupItem();
-		var GXSID2 = IdentityGroupItemFakes.createIdentityGroupItem();
-		var GXSID3 = IdentityGroupItemFakes.createIdentityGroupItem();
-		var GXSID4 = IdentityGroupItemFakes.createIdentityGroupItem();
-		var GXSID5 = IdentityGroupItemFakes.createIdentityGroupItem();
-		var GXSID6 = IdentityGroupItemFakes.createIdentityGroupItem();
-		var PEER_CONNECTION = PeerConnectionFakes.createPeerConnection();
+		var gxsId1 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var gxsId2 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var gxsId3 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var gxsId4 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var gxsId5 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var gxsId6 = IdentityGroupItemFakes.createIdentityGroupItem();
+		var peerConnection = PeerConnectionFakes.createPeerConnection();
 
 		when(identityRsService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
-		when(peerConnectionManager.getPeerByLocationId(anyLong())).thenReturn(PEER_CONNECTION);
+		when(peerConnectionManager.getPeerByLocationId(anyLong())).thenReturn(peerConnection);
 
-		identityManager.getGxsGroup(PEER_CONNECTION, GXSID1.getGxsId());
-		identityManager.getGxsGroup(PEER_CONNECTION, GXSID2.getGxsId());
-		identityManager.getGxsGroup(PEER_CONNECTION, GXSID3.getGxsId());
-		identityManager.getGxsGroup(PEER_CONNECTION, GXSID4.getGxsId());
-		identityManager.getGxsGroup(PEER_CONNECTION, GXSID5.getGxsId());
-		identityManager.getGxsGroup(PEER_CONNECTION, GXSID6.getGxsId());
+		identityManager.getGxsGroup(peerConnection, gxsId1.getGxsId());
+		identityManager.getGxsGroup(peerConnection, gxsId2.getGxsId());
+		identityManager.getGxsGroup(peerConnection, gxsId3.getGxsId());
+		identityManager.getGxsGroup(peerConnection, gxsId4.getGxsId());
+		identityManager.getGxsGroup(peerConnection, gxsId5.getGxsId());
+		identityManager.getGxsGroup(peerConnection, gxsId6.getGxsId());
 
 		identityManager.requestGxsIds();
 
 		ArgumentCaptor<List<GxsId>> ids = ArgumentCaptor.forClass(List.class);
-		verify(identityRsService).requestGxsGroups(eq(PEER_CONNECTION), ids.capture());
+		verify(identityRsService).requestGxsGroups(eq(peerConnection), ids.capture());
 
 		assertEquals(5, ids.getValue().size());
 
 		Set<GxsId> allGxsIds = new HashSet<>();
-		allGxsIds.add(GXSID1.getGxsId());
-		allGxsIds.add(GXSID2.getGxsId());
-		allGxsIds.add(GXSID3.getGxsId());
-		allGxsIds.add(GXSID4.getGxsId());
-		allGxsIds.add(GXSID5.getGxsId());
-		allGxsIds.add(GXSID6.getGxsId());
+		allGxsIds.add(gxsId1.getGxsId());
+		allGxsIds.add(gxsId2.getGxsId());
+		allGxsIds.add(gxsId3.getGxsId());
+		allGxsIds.add(gxsId4.getGxsId());
+		allGxsIds.add(gxsId5.getGxsId());
+		allGxsIds.add(gxsId6.getGxsId());
 		ids.getValue().forEach(allGxsIds::remove);
 		assertEquals(1, allGxsIds.size());
 	}

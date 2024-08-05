@@ -19,9 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.database.model.location.Location;
-import io.xeres.app.xrs.item.Item;
-
-record FileTransferCommandItem(Location location, Item item) implements FileTransferCommand
+public record ActionRemoveDownload(long id) implements Action
 {
 }

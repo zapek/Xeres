@@ -33,9 +33,15 @@ public record FileResult(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		FileResult file = (FileResult) o;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		var file = (FileResult) o;
 		return Objects.equals(hash, file.hash);
 	}
 

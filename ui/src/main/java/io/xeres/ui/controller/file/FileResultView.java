@@ -127,7 +127,7 @@ public class FileResultView extends Tab
 		return pane;
 	}
 
-	private String getIconCodeForType(FileType type)
+	private static String getIconCodeForType(FileType type)
 	{
 		return switch (type)
 		{

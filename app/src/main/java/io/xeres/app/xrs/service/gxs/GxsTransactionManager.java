@@ -255,7 +255,7 @@ public class GxsTransactionManager
 		addTransaction(peerConnection, transaction, incomingTransactions);
 	}
 
-	private void addTransaction(PeerConnection peerConnection, Transaction<?> transaction, Map<LocationId, Map<Integer, Transaction<?>>> transactionList)
+	private static void addTransaction(PeerConnection peerConnection, Transaction<?> transaction, Map<LocationId, Map<Integer, Transaction<?>>> transactionList)
 	{
 		var transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationId(), key -> new HashMap<>());
 		if (transactionMap.putIfAbsent(transaction.getId(), transaction) != null)

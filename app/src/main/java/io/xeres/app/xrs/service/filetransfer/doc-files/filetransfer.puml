@@ -6,15 +6,15 @@ package "File Transfer" {
   [FileTransferManager] --> [FileTransferRsService]
 }
 
-[FileTransferManager] <-> FileProviders
+[FileTransferManager] <-> FileTransferAgent
 
-package "FileProviders" {
-	[FileCreator] <<FileProvider>>
-	[FileProvider]
+package "FileTransferAgent" {
+	[FileLeecher] <<FileProvider>>
+	[FileSeeder] <<FileProvider>>
 }
 
-[FileProvider] <--> [FileSystem]
-[FileCreator] <--> [FileSystem]
+[FileLeecher] <--> [FileSystem]
+[FileSeeder] <--> [FileSystem]
 
 [FileSystem]
 

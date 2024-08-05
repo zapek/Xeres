@@ -24,6 +24,6 @@ import io.xeres.common.id.Sha1Sum;
 
 import java.util.BitSet;
 
-record ActionDownload(String name, Sha1Sum hash, long size, Location from, BitSet chunkMap) implements Action
+record ActionDownload(long id, String name, Sha1Sum hash, long size, Location from, BitSet chunkMap) implements Action
 {
 }

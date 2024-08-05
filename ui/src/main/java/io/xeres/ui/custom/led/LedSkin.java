@@ -146,7 +146,7 @@ public class LedSkin extends SkinBase<LedControl> implements Skin<LedControl>
 		}
 		else if (STATE_PROPERTY.equals(property))
 		{
-			main.setEffect(control.getState() ? glow : innerShadow);
+			main.setEffect(control.hasState() ? glow : innerShadow);
 		}
 	}
 
@@ -176,7 +176,7 @@ public class LedSkin extends SkinBase<LedControl> implements Skin<LedControl>
 
 			main.setMaxSize(0.72 * size, 0.72 * size);
 			main.relocate(0.14 * size, 0.14 * size);
-			main.setEffect(control.getState() ? glow : innerShadow);
+			main.setEffect(control.hasState() ? glow : innerShadow);
 
 			highlight.setMaxSize(0.58 * size, 0.58 * size);
 			highlight.relocate(0.21 * size, 0.21 * size);

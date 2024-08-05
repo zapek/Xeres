@@ -30,7 +30,6 @@ import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
@@ -50,7 +49,7 @@ public class AsynchronousEventsConfiguration
 			public void multicastEvent(ApplicationEvent event, ResolvableType eventType)
 			{
 				var type = eventType != null ? eventType : ResolvableType.forInstance(event);
-				Executor executor = getTaskExecutor();
+				var executor = getTaskExecutor();
 
 				for (ApplicationListener<?> listener : getApplicationListeners(event, type))
 				{
@@ -76,7 +75,7 @@ public class AsynchronousEventsConfiguration
 		return eventMulticaster;
 	}
 
-	private boolean isSynchronousEvent(ApplicationEvent event)
+	private static boolean isSynchronousEvent(ApplicationEvent event)
 	{
 		if (event instanceof SynchronousEvent)
 		{

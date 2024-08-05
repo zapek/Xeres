@@ -42,14 +42,14 @@ class RSSerialVersionTest
 	@Test
 	void RSSerialVersion_GetFromSerialNumber_OK()
 	{
-		var RS_Old = new BigInteger(Integer.toString(ThreadLocalRandom.current().nextInt(100000, 2000000000)), 16);
-		var RS_6_4 = new BigInteger("60000", 16);
-		var RS_6_5 = new BigInteger("60001", 16);
-		var RS_7 = new BigInteger("70001", 16);
+		var rsOld = new BigInteger(Integer.toString(ThreadLocalRandom.current().nextInt(100000, 2000000000)), 16);
+		var rs6_4 = new BigInteger("60000", 16);
+		var rs6_5 = new BigInteger("60001", 16);
+		var rs7 = new BigInteger("70001", 16);
 
-		assertEquals(V06_0000, RSSerialVersion.getFromSerialNumber(RS_6_4));
-		assertEquals(RSSerialVersion.V06_0001, RSSerialVersion.getFromSerialNumber(RS_6_5));
-		assertEquals(RSSerialVersion.V07_0001, RSSerialVersion.getFromSerialNumber(RS_7));
-		assertEquals(V06_0000, RSSerialVersion.getFromSerialNumber(RS_Old));
+		assertEquals(V06_0000, RSSerialVersion.getFromSerialNumber(rs6_4));
+		assertEquals(RSSerialVersion.V06_0001, RSSerialVersion.getFromSerialNumber(rs6_5));
+		assertEquals(RSSerialVersion.V07_0001, RSSerialVersion.getFromSerialNumber(rs7));
+		assertEquals(V06_0000, RSSerialVersion.getFromSerialNumber(rsOld));
 	}
 }

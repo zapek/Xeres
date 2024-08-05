@@ -91,7 +91,7 @@ class RSCertificate extends RSId
 
 			while (in.available() > 0)
 			{
-				var ptag = in.read();
+				var pTag = in.read();
 				var size = getPacketSize(in);
 				if (size == 0)
 				{
@@ -100,58 +100,42 @@ class RSCertificate extends RSId
 				var buf = new byte[size];
 				if (in.readNBytes(buf, 0, size) != size)
 				{
-					throw new IllegalArgumentException("Packet " + ptag + " is shorter than its advertised size");
+					throw new IllegalArgumentException("Packet " + pTag + " is shorter than its advertised size");
 				}
 
-				switch (ptag)
+				switch (pTag)
 				{
-					case VERSION:
-						version = buf[0];
-						break;
+					case VERSION -> version = buf[0];
 
-					case PGP_KEY:
-						setPgpPublicKey(buf);
-						break;
+					case PGP_KEY -> setPgpPublicKey(buf);
 
-					case NAME:
-						setLocationName(buf);
-						break;
+					case NAME -> setLocationName(buf);
 
-					case SSL_ID:
-						setLocationId(new LocationId(buf));
-						break;
+					case SSL_ID -> setLocationId(new LocationId(buf));
 
-					case DNS:
-						setDnsName(buf);
-						break;
+					case DNS -> setDnsName(buf);
 
-					case HIDDEN_NODE:
-						setHiddenNodeAddress(buf);
-						break;
+					case HIDDEN_NODE -> setHiddenNodeAddress(buf);
 
-					case INTERNAL_IP_AND_PORT:
-						setInternalIp(buf);
-						break;
+					case INTERNAL_IP_AND_PORT -> setInternalIp(buf);
 
-					case EXTERNAL_IP_AND_PORT:
-						setExternalIp(buf);
-						break;
+					case EXTERNAL_IP_AND_PORT -> setExternalIp(buf);
 
-					case CHECKSUM:
+					case CHECKSUM ->
+					{
 						if (buf.length != 3)
 						{
 							throw new IllegalArgumentException("Checksum corrupted");
 						}
 						checksumPassed = checksum == (Byte.toUnsignedInt(buf[2]) << 16 | Byte.toUnsignedInt(buf[1]) << 8 | Byte.toUnsignedInt(buf[0])); // little endian
-						break;
+					}
 
-					case EXTRA_LOCATOR:
+					case EXTRA_LOCATOR ->
+					{
 						// XXX: insert the URLs (I probably need a RsUrl object...
-						break;
+					}
 
-					default:
-						log.warn("Unhandled tag {}, ignoring.", ptag);
-						break;
+					default -> log.warn("Unhandled tag {}, ignoring.", pTag);
 				}
 			}
 
@@ -425,7 +409,7 @@ class RSCertificate extends RSId
 		return wrapWithBase64(out.toByteArray(), RSIdArmor.WrapMode.SLICED);
 	}
 
-	private byte[] getPgpPublicKeyData(PGPPublicKey pgpPublicKey)
+	private static byte[] getPgpPublicKeyData(PGPPublicKey pgpPublicKey)
 	{
 		try
 		{

@@ -276,7 +276,7 @@ public class DiscoveryRsService extends RsService
 		}
 	}
 
-	private void updateOwnContactLocation(DiscoveryContactItem discoveryContactItem)
+	private static void updateOwnContactLocation(DiscoveryContactItem discoveryContactItem)
 	{
 		log.debug("Peer is sending our own location: {}", discoveryContactItem);
 		// XXX: process the IP in case we don't find our external address and it could help

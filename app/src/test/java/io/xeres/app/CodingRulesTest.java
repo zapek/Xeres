@@ -43,18 +43,18 @@ import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_
 class CodingRulesTest
 {
 	@ArchTest
-	private final ArchRule no_access_to_standard_streams = noClasses()
+	private final ArchRule noAccessToStandardStreams = noClasses()
 			.should(ACCESS_STANDARD_STREAMS)
 			.andShould()
 			.notBe(CommandArgument.class)
 			.because("We use loggers");
 
 	@ArchTest
-	private final ArchRule no_field_injection = NO_CLASSES_SHOULD_USE_FIELD_INJECTION
+	private final ArchRule noFieldInjection = NO_CLASSES_SHOULD_USE_FIELD_INJECTION
 			.because("Constructor injection allow detection of cyclic dependencies");
 
 	@ArchTest
-	private final ArchRule rs_service_naming = classes()
+	private final ArchRule rsServiceNaming = classes()
 			.that().areAssignableTo(RsService.class)
 			.should().haveSimpleNameEndingWith("RsService");
 
@@ -62,7 +62,7 @@ class CodingRulesTest
 	 * Items should have a public no-arg constructor.
 	 */
 	@ArchTest
-	private final ArchRule rs_item_empty_constructor = classes()
+	private final ArchRule rsItemEmptyConstructor = classes()
 			.that().areAssignableTo(Item.class)
 			.and().doNotBelongToAnyOf(Item.class)
 			.should(new ArchCondition<>("have a public constructor without parameters")
@@ -85,7 +85,7 @@ class CodingRulesTest
 	 * JPA entities should have a public or protected no-arg constructor.
 	 */
 	@ArchTest
-	private final ArchRule jpa_entities_empty_constructor = classes()
+	private final ArchRule jpaEntitiesEmptyConstructor = classes()
 			.that().areAnnotatedWith(Entity.class)
 			.should(new ArchCondition<>("have a public constructor without parameters")
 			{
@@ -108,7 +108,7 @@ class CodingRulesTest
 	 * server notifications, message queues and, if strictly necessary, UiBridgeService.
 	 */
 	@ArchTest
-	private final ArchRule no_ui_access = noClasses()
+	private final ArchRule noUiAccess = noClasses()
 			.that().resideInAPackage("..app..")
 			.and().doNotBelongToAnyOf(XeresApplication.class, UiBridgeService.class)
 			.should().accessClassesThat().resideInAPackage("..ui..");

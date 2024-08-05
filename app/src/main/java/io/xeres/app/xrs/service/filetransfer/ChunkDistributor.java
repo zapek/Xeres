@@ -68,7 +68,7 @@ class ChunkDistributor
 	private int findMinChunk()
 	{
 		minChunk = chunkMap.nextClearBit(0);
-		while (givenChunks.contains(minChunk))
+		while (givenChunks.contains(minChunk) || chunkMap.get(minChunk))
 		{
 			minChunk++;
 		}

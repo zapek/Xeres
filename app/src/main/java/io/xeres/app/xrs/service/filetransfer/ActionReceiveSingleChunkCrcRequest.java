@@ -20,8 +20,8 @@
 package io.xeres.app.xrs.service.filetransfer;
 
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.xrs.item.Item;
+import io.xeres.common.id.Sha1Sum;
 
-record FileTransferCommandItem(Location location, Item item) implements FileTransferCommand
+public record ActionReceiveSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber) implements Action
 {
 }

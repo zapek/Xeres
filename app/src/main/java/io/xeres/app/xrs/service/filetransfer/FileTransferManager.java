@@ -24,9 +24,6 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.file.FileService;
-import io.xeres.app.xrs.service.filetransfer.item.FileTransferChunkMapRequestItem;
-import io.xeres.app.xrs.service.filetransfer.item.FileTransferDataRequestItem;
-import io.xeres.app.xrs.service.filetransfer.item.FileTransferSingleChunkCrcRequestItem;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.file.FileProgress;
 import org.slf4j.Logger;
@@ -59,7 +56,7 @@ class FileTransferManager implements Runnable
 	private final SettingsService settingsService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final Location ownLocation;
-	private final BlockingQueue<FileTransferCommand> queue;
+	private final BlockingQueue<Action> queue;
 	private final FileTransferStrategy fileTransferStrategy;
 
 	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
@@ -68,7 +65,7 @@ class FileTransferManager implements Runnable
 	private final List<FileProgress> downloadsProgress = new ArrayList<>();
 	private final List<FileProgress> uploadsProgress = new ArrayList<>();
 
-	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<FileTransferCommand> queue, FileTransferStrategy fileTransferStrategy)
+	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<Action> queue, FileTransferStrategy fileTransferStrategy)
 	{
 		this.fileTransferRsService = fileTransferRsService;
 		this.fileService = fileService;
@@ -88,8 +85,8 @@ class FileTransferManager implements Runnable
 		{
 			try
 			{
-				FileTransferCommand command = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(DEFAULT_TICK, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
-				processCommand(command);
+				var action = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(DEFAULT_TICK, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
+				processAction(action);
 				processLeechers();
 				processSeeders();
 			}
@@ -126,20 +123,6 @@ class FileTransferManager implements Runnable
 		}
 	}
 
-	private void processCommand(FileTransferCommand command)
-	{
-		switch (command)
-		{
-			case FileTransferCommandItem commandItem -> processItem(commandItem);
-			case FileTransferCommandAction commandAction -> processAction(commandAction);
-			case null, default ->
-			{
-				// Nothing to do
-			}
-		}
-
-	}
-
 	private void processLeechers()
 	{
 		leechers.forEach((hash, agent) -> agent.process());
@@ -150,83 +133,60 @@ class FileTransferManager implements Runnable
 		seeders.entrySet().removeIf(agent -> !agent.getValue().process());
 	}
 
-	private void processItem(FileTransferCommandItem commandItem)
+	private void processAction(Action action)
 	{
-		try (var ignored = new DatabaseSession(databaseSessionManager))
+		switch (action)
 		{
-			if (commandItem.item() instanceof FileTransferDataRequestItem item)
+			case ActionReceiveDataRequest(Location location, Sha1Sum hash, long fileSize, long offset, int chunkSize) -> actionReceiveDataRequest(location, hash, fileSize, offset, chunkSize);
+			case ActionReceiveData(Location location, Sha1Sum hash, long offset, byte[] data) -> actionReceiveData(location, hash, offset, data);
+			case ActionDownload(long id, String name, Sha1Sum hash, long size, Location from, BitSet chunkMap) -> actionDownload(id, name, hash, size, from, chunkMap);
+			case ActionGetDownloadsProgress() -> actionComputeDownloadsProgress();
+			case ActionGetUploadsProgress() -> actionComputeUploadsProgress();
+			case ActionAddPeer(Sha1Sum hash, Location location) -> actionAddPeer(hash, location);
+			case ActionRemovePeer(Sha1Sum hash, Location location) -> actionRemovePeer(hash, location);
+			case ActionRemoveDownload(long id) ->
 			{
-				handleReceiveDataRequest(commandItem.location(), item);
-			}
-			else if (commandItem.item() instanceof FileTransferChunkMapRequestItem item)
-			{
-				if (item.isLeecher())
+				try (var ignored = new DatabaseSession(databaseSessionManager))
 				{
-					handleReceiveLeecherChunkMapRequest(commandItem.location(), item);
+					actionRemoveDownload(id);
+				}
+			}
+			case ActionReceiveChunkMapRequest(Location location, Sha1Sum hash, boolean isLeecher) ->
+			{
+				if (isLeecher)
+				{
+					actionReceiveLeecherChunkMapRequest(location, hash);
 				}
 				else
 				{
-					handleReceiveSeederChunkMapRequest(commandItem.location(), item);
+					actionReceiveSeederChunkMapRequest(location, hash);
 				}
 			}
-			else if (commandItem.item() instanceof FileTransferSingleChunkCrcRequestItem item)
+			case ActionReceiveSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber) -> actionReceiveChunkCrcRequest(location, hash, chunkNumber);
+			case null ->
 			{
-				handleReceiveChunkCrcRequest(commandItem.location(), item);
+				// This is the return from a timeout. Nothing to do.
 			}
+			default -> throw new IllegalStateException("Unexpected action: " + action);
 		}
 	}
 
-	private void processAction(FileTransferCommandAction commandAction)
+	private void actionDownload(long id, String name, Sha1Sum hash, long size, Location from, BitSet chunkMap)
 	{
-		if (commandAction.action() instanceof ActionReceiveData action)
-		{
-			actionReceiveData(action);
-		}
-		else if (commandAction.action() instanceof ActionDownload action)
-		{
-			actionDownloadFile(action);
-		}
-		else if (commandAction.action() instanceof ActionGetDownloadsProgress)
-		{
-			actionComputeDownloadsProgress();
-		}
-		else if (commandAction.action() instanceof ActionGetUploadsProgress)
-		{
-			actionComputeUploadsProgress();
-		}
-		else if (commandAction.action() instanceof ActionAddPeer(Sha1Sum hash, Location location))
-		{
-			actionAddPeer(hash, location);
-		}
-		else if (commandAction.action() instanceof ActionRemovePeer(Sha1Sum hash, Location location))
-		{
-			actionRemovePeer(hash, location);
-		}
-		else if (commandAction.action() instanceof ActionRemoveDownload(long id))
-		{
-			try (var ignored = new DatabaseSession(databaseSessionManager))
-			{
-				actionRemoveDownload(id);
-			}
-		}
-	}
-
-	private void actionDownloadFile(ActionDownload actionDownload)
-	{
-		leechers.computeIfAbsent(actionDownload.hash(), hash -> {
-			var file = Paths.get(settingsService.getIncomingDirectory(), hash + FileService.DOWNLOAD_EXTENSION).toFile();
-			log.debug("Downloading file {}, size: {}", file, actionDownload.size());
-			var fileLeecher = new FileLeecher(actionDownload.id(), file, actionDownload.size(), actionDownload.chunkMap(), actionDownload.from() != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
+		leechers.computeIfAbsent(hash, sha1Sum -> {
+			var file = Paths.get(settingsService.getIncomingDirectory(), sha1Sum + FileService.DOWNLOAD_EXTENSION).toFile();
+			log.debug("Downloading file {}, size: {}", file, size);
+			var fileLeecher = new FileLeecher(id, file, size, chunkMap, from != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
 			if (fileLeecher.open())
 			{
-				var agent = new FileTransferAgent(fileTransferRsService, actionDownload.name(), hash, fileLeecher);
-				if (actionDownload.from() != null)
+				var agent = new FileTransferAgent(fileTransferRsService, name, sha1Sum, fileLeecher);
+				if (from != null)
 				{
-					agent.addPeerForReceiving(actionDownload.from());
+					agent.addPeerForReceiving(from);
 				}
 				else
 				{
-					fileTransferRsService.activateTunnels(actionDownload.hash());
+					fileTransferRsService.activateTunnels(sha1Sum);
 				}
 				return agent;
 			}
@@ -305,9 +265,9 @@ class FileTransferManager implements Runnable
 		}
 	}
 
-	private void handleReceiveDataRequest(Location location, FileTransferDataRequestItem item)
+	private void actionReceiveDataRequest(Location location, Sha1Sum hash, long fileSize, long offset, int chunkSize)
 	{
-		log.debug("Received data request from {}: {}", location, item);
+		log.debug("Received data request from {}, hash: {}", location, hash);
 		FileTransferAgent agent;
 
 		if (location.equals(ownLocation))
@@ -316,14 +276,14 @@ class FileTransferManager implements Runnable
 		}
 		else
 		{
-			agent = leechers.get(item.getFileItem().hash());
+			agent = leechers.get(hash);
 			if (agent == null)
 			{
-				agent = localSearch(item.getFileItem().hash());
+				agent = localSearch(hash);
 			}
 			if (agent != null)
 			{
-				handleSeederRequest(location, agent, item.getFileItem().hash(), item.getFileItem().size(), item.getFileOffset(), item.getChunkSize());
+				handleSeederRequest(location, agent, hash, fileSize, offset, chunkSize);
 			}
 		}
 	}
@@ -345,21 +305,21 @@ class FileTransferManager implements Runnable
 				.orElse(null));
 	}
 
-	private void actionReceiveData(ActionReceiveData action)
+	private void actionReceiveData(Location location, Sha1Sum hash, long offset, byte[] data)
 	{
-		var agent = leechers.get(action.hash());
+		var agent = leechers.get(hash);
 		if (agent == null)
 		{
-			log.error("No matching agent for hash {} for receiving data", action.hash());
+			log.error("No matching agent for hash {} for receiving data", hash);
 			return;
 		}
 
 		try
 		{
-			log.trace("Writing file {}, offset: {}, length: {}", agent.getFileName(), action.offset(), action.data().length);
+			log.trace("Writing file {}, offset: {}, length: {}", agent.getFileName(), offset, data.length);
 			// XXX: update location stats for writing (see how RS does it)
 			var fileProvider = agent.getFileProvider();
-			fileProvider.write(action.offset(), action.data());
+			fileProvider.write(offset, data);
 		}
 		catch (IOException e)
 		{
@@ -367,24 +327,24 @@ class FileTransferManager implements Runnable
 		}
 	}
 
-	private void handleReceiveLeecherChunkMapRequest(Location location, FileTransferChunkMapRequestItem item)
+	private void actionReceiveLeecherChunkMapRequest(Location location, Sha1Sum hash)
 	{
-		var agent = leechers.get(item.getHash());
+		var agent = leechers.get(hash);
 		if (agent == null)
 		{
-			log.error("No matching agent for hash {} for chunk map request", item.getHash());
+			log.error("No matching agent for hash {} for chunk map request", hash);
 			return;
 		}
 		var compressedChunkMap = toCompressedChunkMap(agent.getFileProvider().getChunkMap());
-		fileTransferRsService.sendChunkMap(location, item.getHash(), false, compressedChunkMap);
+		fileTransferRsService.sendChunkMap(location, hash, false, compressedChunkMap);
 	}
 
-	private void handleReceiveSeederChunkMapRequest(Location location, FileTransferChunkMapRequestItem item)
+	private void actionReceiveSeederChunkMapRequest(Location location, Sha1Sum hash)
 	{
-		var agent = seeders.get(item.getHash());
+		var agent = seeders.get(hash);
 		if (agent == null)
 		{
-			agent = localSearch(item.getHash());
+			agent = localSearch(hash);
 		}
 
 		if (agent == null)
@@ -394,10 +354,10 @@ class FileTransferManager implements Runnable
 		}
 
 		var compressedChunkMap = toCompressedChunkMap(agent.getFileProvider().getChunkMap());
-		fileTransferRsService.sendChunkMap(location, item.getHash(), true, compressedChunkMap);
+		fileTransferRsService.sendChunkMap(location, hash, true, compressedChunkMap);
 	}
 
-	private void handleReceiveChunkCrcRequest(Location location, FileTransferSingleChunkCrcRequestItem item)
+	private void actionReceiveChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber)
 	{
 		// XXX: not sure what to do yet, complicated (look at the list of seeders first, etc...)
 	}

@@ -19,6 +19,9 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-interface FileTransferCommand
+import io.xeres.app.database.model.location.Location;
+import io.xeres.common.id.Sha1Sum;
+
+public record ActionReceiveChunkMapRequest(Location location, Sha1Sum hash, boolean isLeecher) implements Action
 {
 }

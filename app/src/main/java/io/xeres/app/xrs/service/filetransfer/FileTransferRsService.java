@@ -80,7 +80,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private FileTransferManager fileTransferManager;
 	private Thread fileTransferManagerThread;
 
-	private final BlockingQueue<FileTransferCommand> fileCommandQueue = new LinkedBlockingQueue<>();
+	private final BlockingQueue<Action> fileCommandQueue = new LinkedBlockingQueue<>();
 
 	private Location ownLocation;
 
@@ -140,7 +140,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		{
 			ownLocation = locationService.findOwnLocation().orElseThrow();
 			fileDownloadRepository.findAllByCompletedFalse()
-					.forEach(file -> fileCommandQueue.add(new FileTransferCommandAction(new ActionDownload(file.getId(), file.getName(), file.getHash(), file.getSize(), null, file.getChunkMap()))));
+					.forEach(file -> fileCommandQueue.add(new ActionDownload(file.getId(), file.getName(), file.getHash(), file.getSize(), null, file.getChunkMap())));
 		}
 
 		fileTransferManager = new FileTransferManager(this, fileService, settingsService, databaseSessionManager, ownLocation, fileCommandQueue, fileTransferStrategy);
@@ -171,18 +171,14 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		//if (item instanceof FileTransferDataRequestItem fileTransferDataRequestItem)
-		//{
-			// XXX: check for upload limit for this peer and drop it if exceeded!
-		//}
-		if (item instanceof FileTransferDataItem fileTransferDataItem)
+		switch (item)
 		{
-			fileCommandQueue.add(new FileTransferCommandAction(new ActionReceiveData(sender.getLocation(), fileTransferDataItem.getFileData().fileItem().hash(), fileTransferDataItem.getFileData().offset(), fileTransferDataItem.getFileData().data())));
-		}
-		else
-		{
-			// XXX: try to remove this one... we should have as less item related login in the FileTransferManager...
-			fileCommandQueue.add(new FileTransferCommandItem(sender.getLocation(), item));
+			case FileTransferDataRequestItem ftItem -> // XXX: check for upload limit for this peer and drop it if exceeded!
+					fileCommandQueue.add(new ActionReceiveDataRequest(sender.getLocation(), ftItem.getFileItem().hash(), ftItem.getFileItem().size(), ftItem.getFileOffset(), ftItem.getChunkSize()));
+			case FileTransferDataItem ftItem -> fileCommandQueue.add(new ActionReceiveData(sender.getLocation(), ftItem.getFileData().fileItem().hash(), ftItem.getFileData().offset(), ftItem.getFileData().data()));
+			case FileTransferChunkMapRequestItem ftItem -> fileCommandQueue.add(new ActionReceiveChunkMapRequest(sender.getLocation(), ftItem.getHash(), ftItem.isLeecher()));
+			case FileTransferSingleChunkCrcRequestItem ftItem -> fileCommandQueue.add(new ActionReceiveSingleChunkCrcRequest(sender.getLocation(), ftItem.getHash(), ftItem.getChunkNumber()));
+			default -> log.debug("Unhandled item {}", item);
 		}
 	}
 
@@ -254,7 +250,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private void handleReceiveTurtleFileDataItem(Location virtualLocation, Sha1Sum hash, TurtleFileDataItem turtleFileDataItem, TunnelDirection tunnelDirection)
 	{
-		fileCommandQueue.add(new FileTransferCommandAction(new ActionReceiveData(virtualLocation, hash, turtleFileDataItem.getChunkOffset(), turtleFileDataItem.getChunkData())));
+		fileCommandQueue.add(new ActionReceiveData(virtualLocation, hash, turtleFileDataItem.getChunkOffset(), turtleFileDataItem.getChunkData()));
 	}
 
 	@Override
@@ -284,8 +280,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 		if (direction == TunnelDirection.SERVER)
 		{
-			var action = new ActionAddPeer(hash, virtualLocation);
-			fileCommandQueue.add(new FileTransferCommandAction(action));
+			fileCommandQueue.add(new ActionAddPeer(hash, virtualLocation));
 		}
 	}
 
@@ -298,8 +293,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			log.warn("Couldn't remove virtual peer, not an encrypted hash");
 			return;
 		}
-		var action = new ActionRemovePeer(hash, virtualLocation);
-		fileCommandQueue.add(new FileTransferCommandAction(action));
+		fileCommandQueue.add(new ActionRemovePeer(hash, virtualLocation));
 	}
 
 	public int turtleSearch(String search) // XXX: maybe make a generic version or so...
@@ -318,8 +312,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		if (id != 0L)
 		{
 			var location = locationService.findLocationByLocationId(locationId);
-			var action = new ActionDownload(id, name, hash, size, location.orElse(null), null);
-			fileCommandQueue.add(new FileTransferCommandAction(action));
+			fileCommandQueue.add(new ActionDownload(id, name, hash, size, location.orElse(null), null));
 		}
 		return id;
 	}
@@ -331,24 +324,19 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	public List<FileProgress> getDownloadStatistics()
 	{
-		var action = new ActionGetDownloadsProgress();
-		fileCommandQueue.add(new FileTransferCommandAction(action));
-
+		fileCommandQueue.add(new ActionGetDownloadsProgress());
 		return fileTransferManager.getDownloadsProgress();
 	}
 
 	public List<FileProgress> getUploadStatistics()
 	{
-		var action = new ActionGetUploadsProgress();
-		fileCommandQueue.add(new FileTransferCommandAction(action));
-
+		fileCommandQueue.add(new ActionGetUploadsProgress());
 		return fileTransferManager.getUploadsProgress();
 	}
 
 	public void removeDownload(long id)
 	{
-		var action = new ActionRemoveDownload(id);
-		fileCommandQueue.add(new FileTransferCommandAction(action));
+		fileCommandQueue.add(new ActionRemoveDownload(id));
 	}
 
 	@Override

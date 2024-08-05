@@ -61,6 +61,30 @@ class ChunkDistributorTest
 	}
 
 	@Test
+	void ChunkDistributor_Linear_GivenAndUsed2()
+	{
+		var chunkMap = new BitSet(8);
+		var chunkDistributor = new ChunkDistributor(chunkMap, 8, LINEAR);
+
+		assertEquals(0, chunkDistributor.getNextChunk().orElseThrow());
+		chunkMap.set(0);
+		assertEquals(1, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(2, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(3, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(4, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(5, chunkDistributor.getNextChunk().orElseThrow());
+		chunkMap.set(1);
+		chunkMap.set(2);
+		chunkMap.set(3);
+		chunkMap.set(4);
+		assertEquals(6, chunkDistributor.getNextChunk().orElseThrow());
+		chunkMap.set(5);
+		chunkMap.set(6);
+		assertEquals(7, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(Optional.empty(), chunkDistributor.getNextChunk());
+	}
+
+	@Test
 	void ChunkDistributor_Random_Given()
 	{
 		var chunkMap = new BitSet(4);

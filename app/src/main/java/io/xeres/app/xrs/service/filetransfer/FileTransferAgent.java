@@ -114,7 +114,7 @@ class FileTransferAgent
 					{
 						if (fileProvider.hasChunk(entry.getValue().getChunkNumber()))
 						{
-							log.debug("Chunk {} fully received", entry.getValue().getChunkNumber());
+							log.debug("Chunk {} is complete", entry.getValue().getChunkNumber());
 							entry.getValue().setReceiving(false);
 						}
 					}

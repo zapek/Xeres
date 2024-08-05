@@ -356,7 +356,7 @@ class FileTransferManager implements Runnable
 
 		try
 		{
-			log.debug("Writing file {}, offset: {}, length: {}", agent.getFileName(), action.offset(), action.data().length);
+			log.trace("Writing file {}, offset: {}, length: {}", agent.getFileName(), action.offset(), action.data().length);
 			// XXX: update location stats for writing (see how RS does it)
 			var fileProvider = agent.getFileProvider();
 			fileProvider.write(action.offset(), action.data());

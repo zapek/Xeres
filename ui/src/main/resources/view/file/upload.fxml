@@ -33,7 +33,7 @@
         <columns>
             <TableColumn fx:id="tableName" prefWidth="180.0" text="Name"/>
             <TableColumn fx:id="tableTotalSize" prefWidth="100.0" text="Total Size"/>
-            <TableColumn fx:id="tableHash" prefWidth="280.0" text="Hash"/>
+            <TableColumn fx:id="tableHash" prefWidth="320.0" text="Hash"/>
         </columns>
     </TableView>
 </VBox>

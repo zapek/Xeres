@@ -218,7 +218,6 @@ class FileLeecher extends FileSeeder
 
 		if (chunk.isComplete())
 		{
-			log.debug("Chunk {} is complete", chunkKey);
 			chunkMap.set(chunkKey);
 			chunks.remove(chunkKey);
 		}

@@ -35,7 +35,7 @@
             <TableColumn fx:id="tableState" prefWidth="120.0" text="State"/>
             <TableColumn fx:id="tableProgress" prefWidth="140.0" text="Progress"/>
             <TableColumn fx:id="tableTotalSize" prefWidth="100.0" text="Total Size"/>
-            <TableColumn fx:id="tableHash" prefWidth="280.0" text="Hash"/>
+            <TableColumn fx:id="tableHash" prefWidth="320.0" text="Hash"/>
         </columns>
     </TableView>
 </VBox>

@@ -86,14 +86,14 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void ProfileController_FindProfileById_NotFound() throws Exception
 	{
-		var ID = 2L;
+		var id = 2L;
 
-		when(profileService.findProfileById(ID)).thenReturn(Optional.empty());
+		when(profileService.findProfileById(id)).thenReturn(Optional.empty());
 
-		mvc.perform(getJson(BASE_URL + "/" + ID))
+		mvc.perform(getJson(BASE_URL + "/" + id))
 				.andExpect(status().isNotFound());
 
-		verify(profileService).findProfileById(ID);
+		verify(profileService).findProfileById(id);
 	}
 
 	@Test
@@ -114,15 +114,15 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void ProfileController_FindProfileByName_NotFound() throws Exception
 	{
-		var NAME = "inexistant";
+		var name = "inexistant";
 
-		when(profileService.findProfilesByName(NAME)).thenReturn(Collections.emptyList());
+		when(profileService.findProfilesByName(name)).thenReturn(Collections.emptyList());
 
-		mvc.perform(getJson(BASE_URL + "?name=" + NAME))
+		mvc.perform(getJson(BASE_URL + "?name=" + name))
 				.andExpect(status().isOk())
 				.andExpect(content().string("[]"));
 
-		verify(profileService).findProfilesByName(NAME);
+		verify(profileService).findProfilesByName(name);
 	}
 
 	@Test
@@ -259,33 +259,33 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void ProfileController_DeleteProfile_OK() throws Exception
 	{
-		long ID = 2;
+		long id = 2;
 
-		mvc.perform(delete(BASE_URL + "/" + ID))
+		mvc.perform(delete(BASE_URL + "/" + id))
 				.andExpect(status().isNoContent());
 
-		verify(profileService).deleteProfile(ID);
+		verify(profileService).deleteProfile(id);
 	}
 
 	@Test
 	void ProfileController_DeleteProfile_NotFound() throws Exception
 	{
-		long ID = 2;
+		long id = 2;
 
-		doThrow(NoSuchElementException.class).when(profileService).deleteProfile(ID);
+		doThrow(NoSuchElementException.class).when(profileService).deleteProfile(id);
 
-		mvc.perform(delete(BASE_URL + "/" + ID))
+		mvc.perform(delete(BASE_URL + "/" + id))
 				.andExpect(status().isNotFound());
 
-		verify(profileService).deleteProfile(ID);
+		verify(profileService).deleteProfile(id);
 	}
 
 	@Test
 	void ProfileController_DeleteProfile_Own() throws Exception
 	{
-		long ID = 1;
+		long id = 1;
 
-		mvc.perform(delete(BASE_URL + "/" + ID))
+		mvc.perform(delete(BASE_URL + "/" + id))
 				.andExpect(status().isUnprocessableEntity());
 	}
 }

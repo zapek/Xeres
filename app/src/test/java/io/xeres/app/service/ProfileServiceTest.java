@@ -63,24 +63,24 @@ class ProfileServiceTest
 	@Test
 	void ProfileService_GenerateProfileKeys_OK()
 	{
-		var NAME = "test";
+		var name = "test";
 
-		assertEquals(ResourceCreationState.CREATED, profileService.generateProfileKeys(NAME));
+		assertEquals(ResourceCreationState.CREATED, profileService.generateProfileKeys(name));
 
 		var profile = ArgumentCaptor.forClass(Profile.class);
 		verify(profileRepository).save(profile.capture());
-		assertTrue(profile.getValue().getName().startsWith(NAME));
+		assertTrue(profile.getValue().getName().startsWith(name));
 		verify(settingsService).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
 	void ProfileService_GenerateProfileKeys_AlreadyExists_Fail()
 	{
-		var NAME = "test";
+		var name = "test";
 
 		when(profileRepository.findById(ProfileConstants.OWN_PROFILE_ID)).thenReturn(Optional.of(ProfileFakes.createProfile()));
 
-		assertEquals(ResourceCreationState.ALREADY_EXISTS, profileService.generateProfileKeys(NAME));
+		assertEquals(ResourceCreationState.ALREADY_EXISTS, profileService.generateProfileKeys(name));
 
 		verify(profileRepository, times(0)).save(any(Profile.class));
 		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
@@ -89,9 +89,9 @@ class ProfileServiceTest
 	@Test
 	void ProfileService_GenerateProfileKeys_KeyIdTooShort_Fail()
 	{
-		var NAME = "";
+		var name = "";
 
-		assertThatThrownBy(() -> profileService.generateProfileKeys(NAME))
+		assertThatThrownBy(() -> profileService.generateProfileKeys(name))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("too short");
 
@@ -102,9 +102,9 @@ class ProfileServiceTest
 	@Test
 	void ProfileService_GenerateProfileKeys_KeyIdTooLong_Fail()
 	{
-		var NAME = "12345678900987654321123456789098765432120987676543432123456798765";
+		var name = "12345678900987654321123456789098765432120987676543432123456798765";
 
-		assertThatThrownBy(() -> profileService.generateProfileKeys(NAME))
+		assertThatThrownBy(() -> profileService.generateProfileKeys(name))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("too long");
 

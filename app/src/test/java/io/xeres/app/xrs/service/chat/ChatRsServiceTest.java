@@ -66,16 +66,16 @@ class ChatRsServiceTest
 	@Test
 	void ChatService_HandleChatMessageItem_OK()
 	{
-		var MESSAGE = "hello";
+		var message = "hello";
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
-		var item = new ChatMessageItem(MESSAGE, EnumSet.of(ChatFlags.PRIVATE));
+		var item = new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE));
 
 		chatRsService.handleItem(peerConnection, item);
 
 		verify(peerConnectionManager).sendToClientSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(privateChatMessage -> {
 			assertNotNull(privateChatMessage);
-			assertEquals(MESSAGE, ((PrivateChatMessage) (privateChatMessage)).getContent());
+			assertEquals(message, ((PrivateChatMessage) (privateChatMessage)).getContent());
 			return true;
 		}));
 	}
@@ -83,19 +83,19 @@ class ChatRsServiceTest
 	@Test
 	void ChatService_HandleChatMessageItem_Partial_OK()
 	{
-		var MESSAGE1 = "hello, ";
-		var MESSAGE2 = "world";
+		var message1 = "hello, ";
+		var message2 = "world";
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
-		var item1 = new ChatMessageItem(MESSAGE1, EnumSet.of(ChatFlags.PRIVATE, ChatFlags.PARTIAL_MESSAGE));
-		var item2 = new ChatMessageItem(MESSAGE2, EnumSet.of(ChatFlags.PRIVATE));
+		var item1 = new ChatMessageItem(message1, EnumSet.of(ChatFlags.PRIVATE, ChatFlags.PARTIAL_MESSAGE));
+		var item2 = new ChatMessageItem(message2, EnumSet.of(ChatFlags.PRIVATE));
 
 		chatRsService.handleItem(peerConnection, item1);
 		chatRsService.handleItem(peerConnection, item2);
 
 		verify(peerConnectionManager).sendToClientSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(privateChatMessage -> {
 			assertNotNull(privateChatMessage);
-			assertEquals(MESSAGE1 + MESSAGE2, ((PrivateChatMessage) (privateChatMessage)).getContent());
+			assertEquals(message1 + message2, ((PrivateChatMessage) (privateChatMessage)).getContent());
 			return true;
 		}));
 	}

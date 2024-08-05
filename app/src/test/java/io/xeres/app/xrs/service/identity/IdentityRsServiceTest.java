@@ -75,23 +75,23 @@ class IdentityRsServiceTest
 	@Test
 	void IdentityService_CreateOwnIdentity_Anonymous_OK()
 	{
-		var NAME = "test";
+		var name = "test";
 
 		when(settingsService.isOwnProfilePresent()).thenReturn(true);
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-		identityRsService.generateOwnIdentity(NAME, false);
+		identityRsService.generateOwnIdentity(name, false);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
-		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
+		assertEquals(name, gxsIdGroupItem.getValue().getName());
 	}
 
 	@Test
 	void IdentityService_CreateOwnIdentity_Signed_OK() throws IOException
 	{
-		var NAME = "test";
+		var name = "test";
 
 		var encodedKey = new byte[]{-107, 1, 30, 4, 96, -83, 89, -119, 1, 2, 0, -124, 36, -16, 89, 77, 70, 111, 82, 42, 104, 115, 27, 52, -67, 56, -116, 80, 71, 109, -9,
 				78, -113, 115, -22, -35, 97, 121, 34, -118, 90, -6, -68, 113, 78, -58, -120, -4, -123, -1, 46, 10, -19, 122, -84, 21, -24, 118, 82, 12, -1, 45, -56, -94, -21, -25, -3, -68, 17, 45,
@@ -109,7 +109,7 @@ class IdentityRsServiceTest
 		var publicKey = secretKey.getPublicKey();
 		var fingerprint = publicKey.getFingerprint();
 
-		var ownProfile = ProfileFakes.createProfile(NAME, PGP.getPGPIdentifierFromFingerprint(fingerprint), fingerprint, publicKey.getEncoded());
+		var ownProfile = ProfileFakes.createProfile(name, PGP.getPGPIdentifierFromFingerprint(fingerprint), fingerprint, publicKey.getEncoded());
 
 		ownProfile.setProfileFingerprint(new ProfileFingerprint(secretKey.getPublicKey().getFingerprint()));
 		ownProfile.setPgpPublicKeyData(secretKey.getPublicKey().getEncoded());
@@ -120,11 +120,11 @@ class IdentityRsServiceTest
 		when(settingsService.getSecretProfileKey()).thenReturn(encodedKey);
 		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-		identityRsService.generateOwnIdentity(NAME, true);
+		identityRsService.generateOwnIdentity(name, true);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
-		assertEquals(NAME, gxsIdGroupItem.getValue().getName());
+		assertEquals(name, gxsIdGroupItem.getValue().getName());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileHash());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileSignature());
 	}

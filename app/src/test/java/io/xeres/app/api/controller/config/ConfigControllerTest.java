@@ -171,12 +171,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_UpdateExternalIpAddress_Create_OK() throws Exception
 	{
-		var IP = "1.1.1.1";
-		var PORT = 6667;
+		var ip = "1.1.1.1";
+		var port = 6667;
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(Location.createLocation("foo")));
 
-		var request = new IpAddressRequest(IP, PORT);
+		var request = new IpAddressRequest(ip, port);
 
 		mvc.perform(putJson(BASE_URL + "/externalIp", request))
 				.andExpect(status().isCreated())
@@ -188,10 +188,10 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_UpdateExternalIpAddress_Update_WrongIp_Fail() throws Exception
 	{
-		var IP = "1.1.1.1.1";
-		var PORT = 6667;
+		var ip = "1.1.1.1.1";
+		var port = 6667;
 
-		var request = new IpAddressRequest(IP, PORT);
+		var request = new IpAddressRequest(ip, port);
 
 		mvc.perform(putJson(BASE_URL + "/externalIp", request))
 				.andExpect(status().isBadRequest());
@@ -200,10 +200,10 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_UpdateExternalIpAddress_Update_InternalIp_Fail() throws Exception
 	{
-		var IP = "192.168.1.38";
-		var PORT = 6667;
+		var ip = "192.168.1.38";
+		var port = 6667;
 
-		var request = new IpAddressRequest(IP, PORT);
+		var request = new IpAddressRequest(ip, port);
 
 		mvc.perform(putJson(BASE_URL + "/externalIp", request))
 				.andExpect(status().isBadRequest());
@@ -212,19 +212,19 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_GetExternalIpAddress_OK() throws Exception
 	{
-		var IP = "1.1.1.1";
-		var PORT = 6667;
+		var ip = "1.1.1.1";
+		var port = 6667;
 
 		var location = Location.createLocation("test");
-		var connection = Connection.from(PeerAddress.from(IP, PORT));
+		var connection = Connection.from(PeerAddress.from(ip, port));
 		location.addConnection(connection);
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(location));
 
 		mvc.perform(getJson(BASE_URL + "/externalIp"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.ip", is(IP)))
-				.andExpect(jsonPath("$.port", is(PORT)));
+				.andExpect(jsonPath("$.ip", is(ip)))
+				.andExpect(jsonPath("$.port", is(port)));
 	}
 
 	@Test
@@ -239,20 +239,20 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_GetInternalIpAddress_OK() throws Exception
 	{
-		var IP = "192.168.1.25";
-		var PORT = 1234;
+		var ip = "192.168.1.25";
+		var port = 1234;
 
 		var location = Location.createLocation("test");
-		var connection = Connection.from(PeerAddress.from(IP, PORT));
+		var connection = Connection.from(PeerAddress.from(ip, port));
 		location.addConnection(connection);
 
-		when(networkService.getLocalIpAddress()).thenReturn(IP);
-		when(networkService.getPort()).thenReturn(PORT);
+		when(networkService.getLocalIpAddress()).thenReturn(ip);
+		when(networkService.getPort()).thenReturn(port);
 
 		mvc.perform(getJson(BASE_URL + "/internalIp"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.ip", is(IP)))
-				.andExpect(jsonPath("$.port", is(PORT)));
+				.andExpect(jsonPath("$.ip", is(ip)))
+				.andExpect(jsonPath("$.port", is(port)));
 	}
 
 	@Test
@@ -267,24 +267,24 @@ class ConfigControllerTest extends AbstractControllerTest
 	@Test
 	void ConfigController_GetHostname_OK() throws Exception
 	{
-		var HOSTNAME = "foo.bar.com";
+		var hostname = "foo.bar.com";
 
-		when(locationService.getHostname()).thenReturn(HOSTNAME);
+		when(locationService.getHostname()).thenReturn(hostname);
 
 		mvc.perform(getJson(BASE_URL + "/hostname"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.hostname", is(HOSTNAME)));
+				.andExpect(jsonPath("$.hostname", is(hostname)));
 	}
 
 	@Test
 	void ConfigController_GetUsername_OK() throws Exception
 	{
-		var USERNAME = "foobar";
-		when(locationService.getUsername()).thenReturn(USERNAME);
+		var username = "foobar";
+		when(locationService.getUsername()).thenReturn(username);
 
 		mvc.perform(getJson(BASE_URL + "/username"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.username", is(USERNAME)));
+				.andExpect(jsonPath("$.username", is(username)));
 	}
 
 	@Test

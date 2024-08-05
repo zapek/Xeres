@@ -54,13 +54,13 @@ class SoapTest
 	@Test
 	void Soap_SendRequest_OK() throws IOException, ParserConfigurationException, SAXException, XPathException
 	{
-		String KEY1 = "NewExternalPort", KEY2 = "NewProtocol";
-		String VALUE1 = "1234", VALUE2 = "TCP";
+		String key1 = "NewExternalPort", key2 = "NewProtocol";
+		String value1 = "1234", value2 = "TCP";
 		var fakeHTTPServer = new FakeHttpServer("/soaptest.xml", HttpURLConnection.HTTP_OK, "OK".getBytes());
 
 		Map<String, String> args = LinkedHashMap.newLinkedHashMap(2);
-		args.put(KEY1, VALUE1);
-		args.put(KEY2, VALUE2);
+		args.put(key1, value1);
+		args.put(key2, value2);
 
 		var responseEntity = Soap.sendRequest(URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/soaptest.xml"), SERVICE_TYPE, ACTION, args);
 		assertEquals("OK", responseEntity.getBody());
@@ -79,10 +79,10 @@ class SoapTest
 
 		assertEquals("u:" + ACTION, nodes.get(0).getNodeName());
 		var childNodes = nodes.get(0).getChildNodes();
-		assertEquals(KEY1, childNodes.item(0).getNodeName());
-		assertEquals(VALUE1, childNodes.item(0).getTextContent());
-		assertEquals(KEY2, childNodes.item(1).getNodeName());
-		assertEquals(VALUE2, childNodes.item(1).getTextContent());
+		assertEquals(key1, childNodes.item(0).getNodeName());
+		assertEquals(value1, childNodes.item(0).getTextContent());
+		assertEquals(key2, childNodes.item(1).getNodeName());
+		assertEquals(value2, childNodes.item(1).getTextContent());
 
 		fakeHTTPServer.shutdown();
 	}

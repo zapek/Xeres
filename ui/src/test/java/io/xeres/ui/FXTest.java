@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeAll;
  * (for example you use Spring Boot's SpringExtension.class).<br>
  * Note that depending on how you run the tests, the platform might already be running.
  */
-abstract public class FXTest
+public abstract class FXTest
 {
 	@BeforeAll
 	static void initJfxRuntime()

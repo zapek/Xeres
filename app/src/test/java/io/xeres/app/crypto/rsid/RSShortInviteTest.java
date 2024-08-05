@@ -52,19 +52,19 @@ class RSShortInviteTest
 	@Test
 	void ShortInviteQuirks_SwapBytes_OK()
 	{
-		var INPUT = new byte[]{1, 2, 3, 4, 5, 6};
-		var OUTPUT = new byte[]{4, 3, 2, 1, 5, 6};
+		var input = new byte[]{1, 2, 3, 4, 5, 6};
+		var output = new byte[]{4, 3, 2, 1, 5, 6};
 
-		assertArrayEquals(OUTPUT, swapBytes(INPUT));
+		assertArrayEquals(output, swapBytes(input));
 	}
 
 	@Test
 	void ShortInviteQuirks_SwapBytes_WrongInput_NoSwap()
 	{
-		var INPUT = new byte[]{1, 2, 3, 4, 5, 6, 7};
-		var OUTPUT = new byte[]{1, 2, 3, 4, 5, 6, 7};
+		var input = new byte[]{1, 2, 3, 4, 5, 6, 7};
+		var output = new byte[]{1, 2, 3, 4, 5, 6, 7};
 
-		assertArrayEquals(OUTPUT, swapBytes(INPUT));
+		assertArrayEquals(output, swapBytes(input));
 	}
 
 	@Test

@@ -194,13 +194,20 @@ class FileTransferManager implements Runnable
 		{
 			actionComputeUploadsProgress();
 		}
-		else if (commandAction.action() instanceof ActionAddPeer addPeer)
+		else if (commandAction.action() instanceof ActionAddPeer(Sha1Sum hash, Location location))
 		{
-			actionAddPeer(addPeer.hash(), addPeer.location());
+			actionAddPeer(hash, location);
 		}
-		else if (commandAction.action() instanceof ActionRemovePeer removePeer)
+		else if (commandAction.action() instanceof ActionRemovePeer(Sha1Sum hash, Location location))
 		{
-			actionRemovePeer(removePeer.hash(), removePeer.location());
+			actionRemovePeer(hash, location);
+		}
+		else if (commandAction.action() instanceof ActionRemoveDownload(long id))
+		{
+			try (var ignored = new DatabaseSession(databaseSessionManager))
+			{
+				actionRemoveDownload(id);
+			}
 		}
 	}
 
@@ -209,7 +216,7 @@ class FileTransferManager implements Runnable
 		leechers.computeIfAbsent(actionDownload.hash(), hash -> {
 			var file = Paths.get(settingsService.getIncomingDirectory(), hash + FileService.DOWNLOAD_EXTENSION).toFile();
 			log.debug("Downloading file {}, size: {}", file, actionDownload.size());
-			var fileLeecher = new FileLeecher(file, actionDownload.size(), actionDownload.chunkMap(), actionDownload.from() != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
+			var fileLeecher = new FileLeecher(actionDownload.id(), file, actionDownload.size(), actionDownload.chunkMap(), actionDownload.from() != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
 			if (fileLeecher.open())
 			{
 				var agent = new FileTransferAgent(fileTransferRsService, actionDownload.name(), hash, fileLeecher);
@@ -231,11 +238,26 @@ class FileTransferManager implements Runnable
 		});
 	}
 
+	public void actionRemoveDownload(long id)
+	{
+		fileService.findById(id).ifPresent(fileDownload -> {
+			fileTransferRsService.deactivateTunnels(fileDownload.getHash());
+			var leecher = leechers.get(fileDownload.getHash());
+			if (leecher != null)
+			{
+				leecher.cancel();
+				leechers.remove(fileDownload.getHash());
+			}
+			fileService.removeDownload(id);
+		});
+	}
+
 	private void actionComputeDownloadsProgress()
 	{
 		List<FileProgress> newDownloadList = new ArrayList<>(leechers.size());
 		leechers.forEach((sha1Sum, fileTransferAgent) -> newDownloadList.add(
-				new FileProgress(fileTransferAgent.getFileName(),
+				new FileProgress(fileTransferAgent.getFileProvider().getId(),
+						fileTransferAgent.getFileName(),
 						fileTransferAgent.getFileProvider().getBytesWritten(),
 						fileTransferAgent.getFileProvider().getFileSize(),
 						sha1Sum.toString())));
@@ -251,8 +273,9 @@ class FileTransferManager implements Runnable
 	{
 		List<FileProgress> newUploadList = new ArrayList<>(seeders.size());
 		seeders.forEach((sha1Sum, fileTransferAgent) -> newUploadList.add(
-				new FileProgress(fileTransferAgent.getFileName(),
-						0,
+				new FileProgress(0L,
+						fileTransferAgent.getFileName(),
+						0L,
 						fileTransferAgent.getFileProvider().getFileSize(),
 						sha1Sum.toString())));
 

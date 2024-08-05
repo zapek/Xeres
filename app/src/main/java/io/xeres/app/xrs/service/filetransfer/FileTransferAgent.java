@@ -97,6 +97,14 @@ class FileTransferAgent
 		return !(senders.isEmpty() && receivers.isEmpty());
 	}
 
+	public void cancel()
+	{
+		if (!fileProvider.isComplete())
+		{
+			fileProvider.closeAndDelete();
+		}
+	}
+
 	private void processDownloads()
 	{
 		receivers.entrySet().stream()

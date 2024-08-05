@@ -244,6 +244,17 @@ public class FileService
 		fileDownloadRepository.findByHash(hash).ifPresent(fileDownload -> fileDownload.setCompleted(true));
 	}
 
+	public Optional<FileDownload> findById(long id)
+	{
+		return fileDownloadRepository.findById(id);
+	}
+
+	@Transactional
+	public void removeDownload(long id)
+	{
+		fileDownloadRepository.deleteById(id);
+	}
+
 	public Optional<Sha1Sum> findByPath(Path path)
 	{
 		var candidates = fileRepository.findAllByName(path.getFileName().toString());

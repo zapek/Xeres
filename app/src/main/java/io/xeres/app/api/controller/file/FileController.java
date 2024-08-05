@@ -33,6 +33,7 @@ import io.xeres.common.rest.file.FileSearchRequest;
 import io.xeres.common.rest.file.FileSearchResponse;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,5 +84,14 @@ public class FileController
 	public List<FileProgress> getUploads()
 	{
 		return fileTransferRsService.getUploadStatistics();
+	}
+
+	@DeleteMapping("/downloads/{id}")
+	@Operation(summary = "Remove/cancel a download")
+	@ApiResponse(responseCode = "200", description = "Download removed successfully")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removeDownload(@PathVariable long id)
+	{
+		fileTransferRsService.removeDownload(id);
 	}
 }

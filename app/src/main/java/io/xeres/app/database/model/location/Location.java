@@ -50,7 +50,7 @@ import static java.util.Comparator.*;
 
 @Entity
 @XmlAccessorType(XmlAccessType.NONE)
-public class Location
+public class Location implements Comparable<Location>
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -371,6 +371,12 @@ public class Location
 			return connection.getIp();
 		}
 		return "";
+	}
+
+	@Override
+	public int compareTo(Location o)
+	{
+		return locationId.compareTo(o.locationId);
 	}
 
 	/**

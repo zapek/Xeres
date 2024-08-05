@@ -52,7 +52,7 @@ class ChunkDistributor
 
 	private void updateChunksInfo()
 	{
-		minChunk = chunkMap.nextClearBit(minChunk);
+		minChunk = chunkMap.nextClearBit(Math.max(minChunk, 0));
 		maxChunk = chunkMap.previousClearBit(totalChunks - 1);
 
 		// The given chunks that were downloaded should be

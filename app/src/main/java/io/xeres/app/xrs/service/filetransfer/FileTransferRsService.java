@@ -140,7 +140,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		{
 			ownLocation = locationService.findOwnLocation().orElseThrow();
 			fileDownloadRepository.findAllByCompletedFalse()
-					.forEach(file -> fileCommandQueue.add(new FileTransferCommandAction(new ActionDownload(file.getName(), file.getHash(), file.getSize(), null, file.getChunkMap()))));
+					.forEach(file -> fileCommandQueue.add(new FileTransferCommandAction(new ActionDownload(file.getId(), file.getName(), file.getHash(), file.getSize(), null, file.getChunkMap()))));
 		}
 
 		fileTransferManager = new FileTransferManager(this, fileService, settingsService, databaseSessionManager, ownLocation, fileCommandQueue, fileTransferStrategy);
@@ -318,7 +318,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		if (id != 0L)
 		{
 			var location = locationService.findLocationByLocationId(locationId);
-			var action = new ActionDownload(name, hash, size, location.orElse(null), null);
+			var action = new ActionDownload(id, name, hash, size, location.orElse(null), null);
 			fileCommandQueue.add(new FileTransferCommandAction(action));
 		}
 		return id;
@@ -343,6 +343,12 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		fileCommandQueue.add(new FileTransferCommandAction(action));
 
 		return fileTransferManager.getUploadsProgress();
+	}
+
+	public void removeDownload(long id)
+	{
+		var action = new ActionRemoveDownload(id);
+		fileCommandQueue.add(new FileTransferCommandAction(action));
 	}
 
 	@Override

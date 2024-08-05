@@ -44,15 +44,17 @@ class FileLeecher extends FileSeeder
 	private static final Logger log = LoggerFactory.getLogger(FileLeecher.class);
 	private RandomAccessFile randomAccessFile;
 
+	private final long id;
 	private final BitSet chunkMap;
 	private final int nBits;
 	private final ChunkDistributor chunkDistributor;
 	private final Map<Integer, Chunk> chunks = new HashMap<>();
 	private long bytesWritten;
 
-	public FileLeecher(File file, long size, BitSet chunkMap, FileTransferStrategy fileTransferStrategy)
+	public FileLeecher(long id, File file, long size, BitSet chunkMap, FileTransferStrategy fileTransferStrategy)
 	{
 		super(file);
+		this.id = id;
 		fileSize = size;
 		nBits = (int) (size / CHUNK_SIZE + (size % CHUNK_SIZE != 0 ? 1 : 0));
 		this.chunkMap = chunkMap != null ? chunkMap : new BitSet(nBits);
@@ -151,6 +153,20 @@ class FileLeecher extends FileSeeder
 	}
 
 	@Override
+	public void closeAndDelete()
+	{
+		close();
+		try
+		{
+			Files.delete(file.toPath());
+		}
+		catch (IOException e)
+		{
+			log.error("Couldn't delete file {} properly: {}", file, e.getMessage());
+		}
+	}
+
+	@Override
 	public BitSet getChunkMap()
 	{
 		return (BitSet) chunkMap.clone();
@@ -212,5 +228,11 @@ class FileLeecher extends FileSeeder
 	public long getBytesWritten()
 	{
 		return bytesWritten;
+	}
+
+	@Override
+	public long getId()
+	{
+		return id;
 	}
 }

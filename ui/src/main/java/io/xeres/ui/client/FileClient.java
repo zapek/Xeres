@@ -46,7 +46,7 @@ public class FileClient
 	}
 
 	@EventListener
-	public void init(StartupEvent event)
+	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + FILES_PATH)
@@ -89,5 +89,15 @@ public class FileClient
 				.uri("/uploads")
 				.retrieve()
 				.bodyToFlux(FileProgress.class);
+	}
+
+	public Mono<Void> removeDownload(long id)
+	{
+		return webClient.delete()
+				.uri(uriBuilder -> uriBuilder
+						.path("/downloads/{id}")
+						.build(id))
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

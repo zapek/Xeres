@@ -32,6 +32,7 @@ public class TurtleFileRequestItem extends TurtleGenericTunnelItem
 	@RsSerialized
 	private int chunkSize;
 
+	@SuppressWarnings("unused")
 	public TurtleFileRequestItem()
 	{
 		setDirection(SERVER);
@@ -54,6 +55,16 @@ public class TurtleFileRequestItem extends TurtleGenericTunnelItem
 	public int getSubType()
 	{
 		return 7;
+	}
+
+	public long getChunkOffset()
+	{
+		return chunkOffset;
+	}
+
+	public int getChunkSize()
+	{
+		return chunkSize;
 	}
 
 	@Override

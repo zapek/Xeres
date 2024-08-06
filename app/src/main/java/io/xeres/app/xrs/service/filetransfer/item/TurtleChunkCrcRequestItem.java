@@ -29,6 +29,7 @@ public class TurtleChunkCrcRequestItem extends TurtleGenericTunnelItem
 	@RsSerialized
 	private int chunkNumber;
 
+	@SuppressWarnings("unused")
 	public TurtleChunkCrcRequestItem()
 	{
 		setDirection(SERVER);
@@ -50,6 +51,11 @@ public class TurtleChunkCrcRequestItem extends TurtleGenericTunnelItem
 	public int getSubType()
 	{
 		return 21;
+	}
+
+	public int getChunkNumber()
+	{
+		return chunkNumber;
 	}
 
 	@Override

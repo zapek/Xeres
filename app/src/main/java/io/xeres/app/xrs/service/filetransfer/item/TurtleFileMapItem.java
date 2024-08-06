@@ -36,9 +36,9 @@ public class TurtleFileMapItem extends TurtleGenericTunnelItem implements RsSeri
 {
 	private List<Integer> compressedChunks;
 
+	@SuppressWarnings("unused")
 	public TurtleFileMapItem()
 	{
-		// Required
 	}
 
 	public TurtleFileMapItem(List<Integer> compressedChunks)
@@ -62,6 +62,11 @@ public class TurtleFileMapItem extends TurtleGenericTunnelItem implements RsSeri
 	public TurtleFileMapItem clone()
 	{
 		return (TurtleFileMapItem) super.clone();
+	}
+
+	public List<Integer> getCompressedChunks()
+	{
+		return compressedChunks;
 	}
 
 	@Override

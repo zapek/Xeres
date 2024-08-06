@@ -174,10 +174,14 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		switch (item)
 		{
 			case FileTransferDataRequestItem ftItem -> // XXX: check for upload limit for this peer and drop it if exceeded!
-					fileCommandQueue.add(new ActionReceiveDataRequest(sender.getLocation(), ftItem.getFileItem().hash(), ftItem.getFileItem().size(), ftItem.getFileOffset(), ftItem.getChunkSize()));
+					fileCommandQueue.add(new ActionReceiveDataRequest(sender.getLocation(), ftItem.getFileItem().hash(), ftItem.getFileOffset(), ftItem.getChunkSize()));
 			case FileTransferDataItem ftItem -> fileCommandQueue.add(new ActionReceiveData(sender.getLocation(), ftItem.getFileData().fileItem().hash(), ftItem.getFileData().offset(), ftItem.getFileData().data()));
+
 			case FileTransferChunkMapRequestItem ftItem -> fileCommandQueue.add(new ActionReceiveChunkMapRequest(sender.getLocation(), ftItem.getHash(), ftItem.isLeecher()));
+			case FileTransferChunkMapItem ftItem -> fileCommandQueue.add(new ActionReceiveChunkMap(sender.getLocation(), ftItem.getHash(), ftItem.getCompressedChunks()));
+
 			case FileTransferSingleChunkCrcRequestItem ftItem -> fileCommandQueue.add(new ActionReceiveSingleChunkCrcRequest(sender.getLocation(), ftItem.getHash(), ftItem.getChunkNumber()));
+			case FileTransferSingleChunkCrcItem ftItem -> fileCommandQueue.add(new ActionReceiveSingleChunkCrc(sender.getLocation(), ftItem.getHash(), ftItem.getChunkNumber(), ftItem.getCheckSum()));
 			default -> log.debug("Unhandled item {}", item);
 		}
 	}
@@ -230,27 +234,19 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 				}
 				// No need to dispose decryptedItem as it doesn't come from netty
 			}
-			case TurtleFileRequestItem turtleFileRequestItem -> log.debug("TurtleFileRequestItem received"); // XXX: implement
 
-			case TurtleFileDataItem turtleFileDataItem -> handleReceiveTurtleFileDataItem(virtualLocation, hash, turtleFileDataItem, tunnelDirection);
+			case TurtleFileRequestItem turtleFileRequestItem -> fileCommandQueue.add(new ActionReceiveDataRequest(virtualLocation, hash, turtleFileRequestItem.getChunkOffset(), turtleFileRequestItem.getChunkSize()));
+			case TurtleFileDataItem turtleFileDataItem -> fileCommandQueue.add(new ActionReceiveData(virtualLocation, hash, turtleFileDataItem.getChunkOffset(), turtleFileDataItem.getChunkData()));
 
-			case TurtleFileMapItem turtleFileMapItem -> log.debug("TurtleFileMapItem received!"); // XXX: implement
+			case TurtleFileMapRequestItem turtleFileMapRequestItem -> fileCommandQueue.add(new ActionReceiveChunkMapRequest(virtualLocation, hash, turtleFileMapRequestItem.getDirection() == TunnelDirection.CLIENT));
+			case TurtleFileMapItem turtleFileMapItem -> fileCommandQueue.add(new ActionReceiveChunkMap(virtualLocation, hash, turtleFileMapItem.getCompressedChunks()));
 
-			case TurtleFileMapRequestItem turtleFileMapRequestItem -> log.debug("TurtleFileMapRequestItem received!"); // XXX: implement
-
-			case TurtleChunkCrcItem turtleChunkCrcItem -> log.debug("TurtleChunkCrcItem received!"); // XXX: implement
-
-			case TurtleChunkCrcRequestItem turtleChunkCrcRequestItem -> log.debug("TurtleChunkCrcRequestItem received!"); // XXX: implement
+			case TurtleChunkCrcRequestItem turtleChunkCrcRequestItem -> fileCommandQueue.add(new ActionReceiveSingleChunkCrcRequest(virtualLocation, hash, turtleChunkCrcRequestItem.getChunkNumber()));
+			case TurtleChunkCrcItem turtleChunkCrcItem -> fileCommandQueue.add(new ActionReceiveSingleChunkCrc(virtualLocation, hash, turtleChunkCrcItem.getChunkNumber(), turtleChunkCrcItem.getChecksum()));
 
 			case null -> throw new IllegalStateException("Null item");
-
 			default -> log.warn("Unknown packet type received: {}", item.getSubType());
 		}
-	}
-
-	private void handleReceiveTurtleFileDataItem(Location virtualLocation, Sha1Sum hash, TurtleFileDataItem turtleFileDataItem, TunnelDirection tunnelDirection)
-	{
-		fileCommandQueue.add(new ActionReceiveData(virtualLocation, hash, turtleFileDataItem.getChunkOffset(), turtleFileDataItem.getChunkData()));
 	}
 
 	@Override

@@ -34,69 +34,92 @@ class ChunkDistributorTest
 	@Test
 	void ChunkDistributor_Linear_Given()
 	{
+		var availableChunkMap = new BitSet(4);
+		availableChunkMap.set(0, 4);
 		var chunkMap = new BitSet(4);
 		var chunkDistributor = new ChunkDistributor(chunkMap, 4, LINEAR);
 
-		assertEquals(0, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(1, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(2, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(3, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(Optional.empty(), chunkDistributor.getNextChunk());
+		assertEquals(0, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(1, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(2, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(3, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(Optional.empty(), chunkDistributor.getNextChunk(availableChunkMap));
 	}
 
 	@Test
 	void ChunkDistributor_Linear_GivenAndUsed()
 	{
+		var availableChunkMap = new BitSet(4);
+		availableChunkMap.set(0, 4);
 		var chunkMap = new BitSet(4);
 		var chunkDistributor = new ChunkDistributor(chunkMap, 4, LINEAR);
 
-		assertEquals(0, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(0, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
 		chunkMap.set(0);
-		assertEquals(1, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(1, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
 		chunkMap.set(1);
 		chunkMap.set(2);
-		assertEquals(3, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(3, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
 		chunkMap.set(3);
-		assertEquals(Optional.empty(), chunkDistributor.getNextChunk());
+		assertEquals(Optional.empty(), chunkDistributor.getNextChunk(availableChunkMap));
 	}
 
 	@Test
 	void ChunkDistributor_Linear_GivenAndUsed2()
 	{
+		var availableChunkMap = new BitSet(8);
+		availableChunkMap.set(0, 8);
 		var chunkMap = new BitSet(8);
 		var chunkDistributor = new ChunkDistributor(chunkMap, 8, LINEAR);
 
-		assertEquals(0, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(0, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
 		chunkMap.set(0);
-		assertEquals(1, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(2, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(3, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(4, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(5, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(1, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(2, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(3, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(4, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(5, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
 		chunkMap.set(1);
 		chunkMap.set(2);
 		chunkMap.set(3);
 		chunkMap.set(4);
-		assertEquals(6, chunkDistributor.getNextChunk().orElseThrow());
+		assertEquals(6, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
 		chunkMap.set(5);
 		chunkMap.set(6);
-		assertEquals(7, chunkDistributor.getNextChunk().orElseThrow());
-		assertEquals(Optional.empty(), chunkDistributor.getNextChunk());
+		assertEquals(7, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(Optional.empty(), chunkDistributor.getNextChunk(availableChunkMap));
 	}
 
 	@Test
 	void ChunkDistributor_Random_Given()
 	{
+		var availableChunkMap = new BitSet(4);
+		availableChunkMap.set(0, 4);
 		var chunkMap = new BitSet(4);
 		var chunkDistributor = new ChunkDistributor(chunkMap, 4, RANDOM);
 
-		var chunk1 = chunkDistributor.getNextChunk().orElseThrow();
-		var chunk2 = chunkDistributor.getNextChunk().orElseThrow();
-		var chunk3 = chunkDistributor.getNextChunk().orElseThrow();
-		var chunk4 = chunkDistributor.getNextChunk().orElseThrow();
+		var chunk1 = chunkDistributor.getNextChunk(availableChunkMap).orElseThrow();
+		var chunk2 = chunkDistributor.getNextChunk(availableChunkMap).orElseThrow();
+		var chunk3 = chunkDistributor.getNextChunk(availableChunkMap).orElseThrow();
+		var chunk4 = chunkDistributor.getNextChunk(availableChunkMap).orElseThrow();
 
-		assertEquals(Optional.empty(), chunkDistributor.getNextChunk());
+		assertEquals(Optional.empty(), chunkDistributor.getNextChunk(availableChunkMap));
 		var all = Set.of(chunk1, chunk2, chunk3, chunk4);
 		assertEquals(4, all.size());
+	}
+
+	@Test
+	void ChunkDistributor_Linear_Given_NotAllAvailable()
+	{
+		var availableChunkMap = new BitSet(4);
+		availableChunkMap.set(0, 2);
+		var chunkMap = new BitSet(4);
+		var chunkDistributor = new ChunkDistributor(chunkMap, 4, LINEAR);
+
+		assertEquals(0, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(1, chunkDistributor.getNextChunk(availableChunkMap).orElseThrow());
+		assertEquals(Optional.empty(), chunkDistributor.getNextChunk(availableChunkMap));
+		assertEquals(Optional.empty(), chunkDistributor.getNextChunk(availableChunkMap));
+		assertEquals(Optional.empty(), chunkDistributor.getNextChunk(availableChunkMap));
 	}
 }

@@ -84,7 +84,7 @@ class ChunkDistributor
 	 *
 	 * @return an empty chunk which needs to be filled in
 	 */
-	public Optional<Integer> getNextChunk()
+	public Optional<Integer> getNextChunk(BitSet availableChunks)
 	{
 		updateChunksInfo();
 
@@ -97,6 +97,10 @@ class ChunkDistributor
 		}
 
 		var chunk = fileTransferStrategy == LINEAR ? getLinearChunk() : getRandomChunk();
+		if (!availableChunks.get(chunk))
+		{
+			return Optional.empty();
+		}
 		givenChunks.add(chunk);
 		return Optional.of(chunk);
 	}

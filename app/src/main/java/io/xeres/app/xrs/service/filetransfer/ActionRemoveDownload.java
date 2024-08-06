@@ -19,6 +19,6 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-public record ActionRemoveDownload(long id) implements Action
+record ActionRemoveDownload(long id) implements Action
 {
 }

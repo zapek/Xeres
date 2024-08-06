@@ -1,9 +1,12 @@
 package io.xeres.app.xrs.service.filetransfer;
 
+import java.util.BitSet;
+
 class ChunkReceiver
 {
 	private boolean receiving;
 	private int chunkNumber;
+	private BitSet chunkMap;
 
 	public boolean isReceiving()
 	{
@@ -23,5 +26,20 @@ class ChunkReceiver
 	public void setChunkNumber(int chunkNumber)
 	{
 		this.chunkNumber = chunkNumber;
+	}
+
+	public boolean hasChunkMap()
+	{
+		return chunkMap != null;
+	}
+
+	public BitSet getChunkMap()
+	{
+		return chunkMap;
+	}
+
+	public void setChunkMap(BitSet chunkMap)
+	{
+		this.chunkMap = chunkMap;
 	}
 }

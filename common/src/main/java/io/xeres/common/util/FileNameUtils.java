@@ -1,5 +1,6 @@
 package io.xeres.common.util;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public final class FileNameUtils
@@ -40,6 +41,16 @@ public final class FileNameUtils
 		{
 			return increment(tokens[0]);
 		}
+	}
+
+	public static Optional<String> getExtension(String fileName)
+	{
+		var tokens = EXTENSION.split(fileName);
+		if (tokens.length == 2)
+		{
+			return Optional.of(tokens[1]);
+		}
+		return Optional.empty();
 	}
 
 	private static String increment(String input)

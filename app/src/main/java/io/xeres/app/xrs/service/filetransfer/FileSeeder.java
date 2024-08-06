@@ -175,7 +175,7 @@ class FileSeeder implements FileProvider
 	}
 
 	@Override
-	public Optional<Integer> getNeededChunk()
+	public Optional<Integer> getNeededChunk(BitSet chunkMap)
 	{
 		return Optional.empty();
 	}

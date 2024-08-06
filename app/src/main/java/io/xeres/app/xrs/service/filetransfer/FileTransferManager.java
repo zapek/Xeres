@@ -30,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -137,32 +135,23 @@ class FileTransferManager implements Runnable
 	{
 		switch (action)
 		{
-			case ActionReceiveDataRequest(Location location, Sha1Sum hash, long fileSize, long offset, int chunkSize) -> actionReceiveDataRequest(location, hash, fileSize, offset, chunkSize);
-			case ActionReceiveData(Location location, Sha1Sum hash, long offset, byte[] data) -> actionReceiveData(location, hash, offset, data);
-			case ActionDownload(long id, String name, Sha1Sum hash, long size, Location from, BitSet chunkMap) -> actionDownload(id, name, hash, size, from, chunkMap);
-			case ActionGetDownloadsProgress() -> actionComputeDownloadsProgress();
-			case ActionGetUploadsProgress() -> actionComputeUploadsProgress();
 			case ActionAddPeer(Sha1Sum hash, Location location) -> actionAddPeer(hash, location);
 			case ActionRemovePeer(Sha1Sum hash, Location location) -> actionRemovePeer(hash, location);
-			case ActionRemoveDownload(long id) ->
-			{
-				try (var ignored = new DatabaseSession(databaseSessionManager))
-				{
-					actionRemoveDownload(id);
-				}
-			}
-			case ActionReceiveChunkMapRequest(Location location, Sha1Sum hash, boolean isLeecher) ->
-			{
-				if (isLeecher)
-				{
-					actionReceiveLeecherChunkMapRequest(location, hash);
-				}
-				else
-				{
-					actionReceiveSeederChunkMapRequest(location, hash);
-				}
-			}
+
+			case ActionReceiveDataRequest(Location location, Sha1Sum hash, long offset, int chunkSize) -> actionReceiveDataRequest(location, hash, offset, chunkSize);
+			case ActionReceiveData(Location location, Sha1Sum hash, long offset, byte[] data) -> actionReceiveData(location, hash, offset, data);
+
+			case ActionDownload(long id, String name, Sha1Sum hash, long size, Location from, BitSet chunkMap) -> actionDownload(id, name, hash, size, from, chunkMap);
+			case ActionRemoveDownload(long id) -> actionRemoveDownload(id);
+
+			case ActionGetDownloadsProgress() -> actionComputeDownloadsProgress();
+			case ActionGetUploadsProgress() -> actionComputeUploadsProgress();
+
+			case ActionReceiveChunkMapRequest(Location location, Sha1Sum hash, boolean isLeecher) -> actionReceiveChunkMapRequest(location, hash, isLeecher);
+			case ActionReceiveChunkMap(Location location, Sha1Sum hash, List<Integer> compressedChunkMap) -> actionReceiveChunkMap(location, hash, compressedChunkMap);
+
 			case ActionReceiveSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber) -> actionReceiveChunkCrcRequest(location, hash, chunkNumber);
+			case ActionReceiveSingleChunkCrc(Location location, Sha1Sum hash, int chunkNumber, Sha1Sum checkSum) -> actionReceiveChunkCrc(location, hash, chunkNumber, checkSum);
 			case null ->
 			{
 				// This is the return from a timeout. Nothing to do.
@@ -182,7 +171,7 @@ class FileTransferManager implements Runnable
 				var agent = new FileTransferAgent(fileTransferRsService, name, sha1Sum, fileLeecher);
 				if (from != null)
 				{
-					agent.addPeerForReceiving(from);
+					agent.addSeeder(from);
 				}
 				else
 				{
@@ -200,16 +189,19 @@ class FileTransferManager implements Runnable
 
 	public void actionRemoveDownload(long id)
 	{
-		fileService.findById(id).ifPresent(fileDownload -> {
-			fileTransferRsService.deactivateTunnels(fileDownload.getHash());
-			var leecher = leechers.get(fileDownload.getHash());
-			if (leecher != null)
-			{
-				leecher.cancel();
-				leechers.remove(fileDownload.getHash());
-			}
-			fileService.removeDownload(id);
-		});
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			fileService.findById(id).ifPresent(fileDownload -> {
+				fileTransferRsService.deactivateTunnels(fileDownload.getHash());
+				var leecher = leechers.get(fileDownload.getHash());
+				if (leecher != null)
+				{
+					leecher.cancel();
+					leechers.remove(fileDownload.getHash());
+				}
+				fileService.removeDownload(id);
+			});
+		}
 	}
 
 	private void actionComputeDownloadsProgress()
@@ -251,8 +243,7 @@ class FileTransferManager implements Runnable
 		var leecher = leechers.get(hash);
 		if (leecher != null)
 		{
-			leecher.addPeerForReceiving(location);
-			//fileTransferRsService.sendChunkMapRequest(location, hash, true); // XXX: this shouldn't be done here but in the download loop (in FileTransferAgent)
+			leecher.addSeeder(location);
 		}
 	}
 
@@ -265,7 +256,7 @@ class FileTransferManager implements Runnable
 		}
 	}
 
-	private void actionReceiveDataRequest(Location location, Sha1Sum hash, long fileSize, long offset, int chunkSize)
+	private void actionReceiveDataRequest(Location location, Sha1Sum hash, long offset, int chunkSize)
 	{
 		log.debug("Received data request from {}, hash: {}", location, hash);
 		FileTransferAgent agent;
@@ -283,7 +274,7 @@ class FileTransferManager implements Runnable
 			}
 			if (agent != null)
 			{
-				handleSeederRequest(location, agent, hash, fileSize, offset, chunkSize);
+				handleSeederRequest(location, agent, hash, offset, chunkSize);
 			}
 		}
 	}
@@ -327,6 +318,32 @@ class FileTransferManager implements Runnable
 		}
 	}
 
+	private void actionReceiveChunkMapRequest(Location location, Sha1Sum hash, boolean isLeecher)
+	{
+		log.debug("Received chunk map request from {}", location);
+		if (isLeecher)
+		{
+			actionReceiveLeecherChunkMapRequest(location, hash);
+		}
+		else
+		{
+			actionReceiveSeederChunkMapRequest(location, hash);
+		}
+	}
+
+	private void actionReceiveChunkMap(Location location, Sha1Sum hash, List<Integer> compressedChunkMap)
+	{
+		log.debug("Received chunk map from {}", location);
+		var agent = leechers.get(hash);
+		if (agent == null)
+		{
+			log.error("No matching agent for hash {} for chunk map", hash);
+			return;
+		}
+		var chunkMap = ChunkMapUtils.toBitSet(compressedChunkMap);
+		agent.addChunkMap(location, chunkMap);
+	}
+
 	private void actionReceiveLeecherChunkMapRequest(Location location, Sha1Sum hash)
 	{
 		var agent = leechers.get(hash);
@@ -335,7 +352,7 @@ class FileTransferManager implements Runnable
 			log.error("No matching agent for hash {} for chunk map request", hash);
 			return;
 		}
-		var compressedChunkMap = toCompressedChunkMap(agent.getFileProvider().getChunkMap());
+		var compressedChunkMap = ChunkMapUtils.toCompressedChunkMap(agent.getFileProvider().getChunkMap());
 		fileTransferRsService.sendChunkMap(location, hash, false, compressedChunkMap);
 	}
 
@@ -353,16 +370,23 @@ class FileTransferManager implements Runnable
 			return;
 		}
 
-		var compressedChunkMap = toCompressedChunkMap(agent.getFileProvider().getChunkMap());
+		var compressedChunkMap = ChunkMapUtils.toCompressedChunkMap(agent.getFileProvider().getChunkMap());
 		fileTransferRsService.sendChunkMap(location, hash, true, compressedChunkMap);
 	}
 
 	private void actionReceiveChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber)
 	{
+		log.debug("Received chunk crc request from {}", location);
 		// XXX: not sure what to do yet, complicated (look at the list of seeders first, etc...)
 	}
 
-	private static void handleSeederRequest(Location location, FileTransferAgent agent, Sha1Sum hash, long size, long offset, int chunkSize)
+	private void actionReceiveChunkCrc(Location location, Sha1Sum hash, int chunkNumber, Sha1Sum checkSum)
+	{
+		log.debug("Received chunk crc from {}", location);
+		// XXX: handle!
+	}
+
+	private static void handleSeederRequest(Location location, FileTransferAgent agent, Sha1Sum hash, long offset, int chunkSize)
 	{
 		if (chunkSize > CHUNK_SIZE)
 		{
@@ -370,41 +394,6 @@ class FileTransferManager implements Runnable
 			return;
 		}
 		// XXX: update location stats for reading, see how RS does it
-		agent.addPeerForSending(location, offset, chunkSize);
-	}
-
-	/**
-	 * Converts the chunkMap to the format used by RS. Note that there might
-	 * be spurious unset chunks at the end. This is normal and RS also does that
-	 * because the file size is taken into account when searching chunks.
-	 *
-	 * @param chunkMap the chunk map
-	 * @return a compressed chunk map
-	 */
-	static List<Integer> toCompressedChunkMap(BitSet chunkMap)
-	{
-		var intBuf = ByteBuffer.wrap(alignArray(chunkMap.toByteArray()))
-				.order(ByteOrder.LITTLE_ENDIAN)
-				.asIntBuffer();
-		var ints = new int[intBuf.remaining()];
-		intBuf.get(ints);
-		return Arrays.stream(ints).boxed().toList();
-	}
-
-	/**
-	 * Aligns the array to an integer (32-bits) boundary.
-	 *
-	 * @param src the source array
-	 * @return the array aligned to an integer boundary
-	 */
-	private static byte[] alignArray(byte[] src)
-	{
-		if (src.length % 4 != 0)
-		{
-			var dst = new byte[src.length + (4 - src.length % 4)];
-			System.arraycopy(src, 0, dst, 0, src.length);
-			return dst;
-		}
-		return src;
+		agent.addLeecher(location, offset, chunkSize);
 	}
 }

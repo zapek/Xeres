@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -46,8 +47,8 @@ class FileTransferAgent
 	private final Sha1Sum hash;
 	private final String fileName;
 
-	private final Map<Location, ChunkSender> senders = new LinkedHashMap<>();
-	private final Map<Location, ChunkReceiver> receivers = new LinkedHashMap<>();
+	private final Map<Location, ChunkSender> leechers = new LinkedHashMap<>();
+	private final Map<Location, ChunkReceiver> seeders = new LinkedHashMap<>();
 
 	public FileTransferAgent(FileTransferRsService fileTransferRsService, String fileName, Sha1Sum hash, FileProvider fileProvider)
 	{
@@ -67,19 +68,20 @@ class FileTransferAgent
 		return fileName;
 	}
 
-	public void addPeerForReceiving(Location peer)
+	public void addSeeder(Location peer)
 	{
-		receivers.computeIfAbsent(peer, k -> new ChunkReceiver());
+		seeders.computeIfAbsent(peer, k -> new ChunkReceiver());
+		fileTransferRsService.sendChunkMapRequest(peer, hash, true);
 	}
 
-	public void addPeerForSending(Location peer, long offset, int size)
+	public void addLeecher(Location peer, long offset, int size)
 	{
-		senders.computeIfAbsent(peer, k -> new ChunkSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
+		leechers.computeIfAbsent(peer, k -> new ChunkSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
 	}
 
 	public void removePeer(Location peer)
 	{
-		if (receivers.remove(peer) == null && senders.remove(peer) == null)
+		if (seeders.remove(peer) == null && leechers.remove(peer) == null)
 		{
 			log.warn("Removal of peer {} failed because it's not in the list. This shouldn't happen.", peer);
 		}
@@ -94,7 +96,7 @@ class FileTransferAgent
 	{
 		processDownloads();
 		processUploads();
-		return !(senders.isEmpty() && receivers.isEmpty());
+		return !(leechers.isEmpty() && seeders.isEmpty());
 	}
 
 	public void cancel()
@@ -105,10 +107,21 @@ class FileTransferAgent
 		}
 	}
 
+	public void addChunkMap(Location peer, BitSet chunkMap)
+	{
+		var seeder = seeders.get(peer);
+		if (seeder == null)
+		{
+			log.error("Seeder not found for adding chunkmap");
+			return;
+		}
+		seeder.setChunkMap(chunkMap);
+	}
+
 	private void processDownloads()
 	{
-		receivers.entrySet().stream()
-				.skip(getRandomStreamSkip(receivers.size()))
+		seeders.entrySet().stream()
+				.skip(getRandomStreamSkip(seeders.size()))
 				.findFirst().ifPresent(entry -> {
 					if (entry.getValue().isReceiving())
 					{
@@ -127,16 +140,19 @@ class FileTransferAgent
 							fileTransferRsService.markDownloadAsCompleted(hash);
 							fileTransferRsService.deactivateTunnels(hash);
 							renameFile(fileProvider.getPath(), fileName);
-							receivers.remove(entry.getKey());
+							seeders.remove(entry.getKey());
 						}
 						else
 						{
-							getNextChunk().ifPresent(chunkNumber -> {
-								log.debug("Requesting chunk number {} to peer {}", chunkNumber, entry.getKey());
-								fileTransferRsService.sendDataRequest(entry.getKey(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
-								entry.getValue().setChunkNumber(chunkNumber);
-								entry.getValue().setReceiving(true);
-							});
+							if (entry.getValue().hasChunkMap())
+							{
+								getNextChunk(entry.getValue().getChunkMap()).ifPresent(chunkNumber -> {
+									log.debug("Requesting chunk number {} to peer {}", chunkNumber, entry.getKey());
+									fileTransferRsService.sendDataRequest(entry.getKey(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
+									entry.getValue().setChunkNumber(chunkNumber);
+									entry.getValue().setReceiving(true);
+								});
+							}
 						}
 					}
 				});
@@ -144,15 +160,15 @@ class FileTransferAgent
 
 	private void processUploads()
 	{
-		senders.entrySet().stream()
-				.skip(getRandomStreamSkip(senders.size()))
+		leechers.entrySet().stream()
+				.skip(getRandomStreamSkip(leechers.size()))
 				.findFirst().ifPresent(entry -> {
 					var chunkSender = entry.getValue();
 					var remaining = chunkSender.send();
 					if (!remaining)
 					{
-						senders.remove(entry.getKey());
-						if (senders.isEmpty())
+						leechers.remove(entry.getKey());
+						if (leechers.isEmpty())
 						{
 							fileProvider.close();
 						}
@@ -198,8 +214,8 @@ class FileTransferAgent
 	 *
 	 * @return the chunk number
 	 */
-	private Optional<Integer> getNextChunk()
+	private Optional<Integer> getNextChunk(BitSet chunkMap)
 	{
-		return fileProvider.getNeededChunk();
+		return fileProvider.getNeededChunk(chunkMap);
 	}
 }

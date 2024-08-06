@@ -22,6 +22,6 @@ package io.xeres.app.xrs.service.filetransfer;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.Sha1Sum;
 
-public record ActionReceiveSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber) implements Action
+record ActionReceiveSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber) implements Action
 {
 }

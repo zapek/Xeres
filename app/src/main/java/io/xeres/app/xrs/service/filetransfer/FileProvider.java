@@ -43,7 +43,7 @@ interface FileProvider
 
 	BitSet getChunkMap();
 
-	Optional<Integer> getNeededChunk();
+	Optional<Integer> getNeededChunk(BitSet chunkMap);
 
 	boolean hasChunk(int index);
 

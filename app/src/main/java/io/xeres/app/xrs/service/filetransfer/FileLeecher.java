@@ -179,9 +179,9 @@ class FileLeecher extends FileSeeder
 	}
 
 	@Override
-	public Optional<Integer> getNeededChunk()
+	public Optional<Integer> getNeededChunk(BitSet chunkMap)
 	{
-		return chunkDistributor.getNextChunk();
+		return chunkDistributor.getNextChunk(chunkMap);
 	}
 
 	@Override

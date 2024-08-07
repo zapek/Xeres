@@ -35,6 +35,6 @@ public class SizeMbExpression extends RelationalExpression<Integer>
 	@Override
 	Integer getValue(FileEntry fileEntry)
 	{
-		return (int) fileEntry.getSize() >> 20; // the max value that this check can handle is (2 ^ 31 - 1) * 2 ^ 20, which is 2.147 TB
+		return (int) (fileEntry.getSize() >> 20); // the max value that this check can handle is (2 ^ 31 - 1) * 2 ^ 20, which is 2.147 TB
 	}
 }

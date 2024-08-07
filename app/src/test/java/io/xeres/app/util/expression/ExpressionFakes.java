@@ -28,7 +28,7 @@ public final class ExpressionFakes
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static FileEntry createFileEntry(String name, int size, int lastModified, int popularity, String parentPath, Sha1Sum hash)
+	public static FileEntry createFileEntry(String name, long size, int lastModified, int popularity, String parentPath, Sha1Sum hash)
 	{
 		return new FakeFileEntry(name, size, lastModified, popularity, parentPath, hash);
 	}

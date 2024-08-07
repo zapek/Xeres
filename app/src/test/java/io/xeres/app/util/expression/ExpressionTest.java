@@ -19,6 +19,7 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.testutils.Sha1SumFakes;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -178,5 +179,120 @@ class ExpressionTest
 		assertTrue(expression.evaluate(fileEntryCorrect3));
 		assertFalse(expression.evaluate(fileEntryWrong1));
 		assertFalse(expression.evaluate(fileEntryWrong2));
+	}
+
+	@Test
+	void Expression_Date_OK()
+	{
+		var expression = new DateExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
+		var fileEntryCorrect = ExpressionFakes.createFileEntry("foo", 0, 1000, 0, null, null);
+		var fileEntryWrong = ExpressionFakes.createFileEntry("foo", 0, 2000, 0, null, null);
+
+		assertTrue(expression.evaluate(fileEntryCorrect));
+		assertFalse(expression.evaluate(fileEntryWrong));
+	}
+
+	@Test
+	void Expression_Popularity_OK()
+	{
+		var expression = new PopularityExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
+		var fileEntryCorrect = ExpressionFakes.createFileEntry("foo", 0, 0, 1000, null, null);
+		var fileEntryWrong = ExpressionFakes.createFileEntry("foo", 0, 0, 2000, null, null);
+
+		assertTrue(expression.evaluate(fileEntryCorrect));
+		assertFalse(expression.evaluate(fileEntryWrong));
+	}
+
+	@Test
+	void Expression_SizeMb_OK()
+	{
+		var expression = new SizeMbExpression(RelationalExpression.Operator.EQUALS, (int) (1_000_000_000_000L >> 20), 0);
+		var fileEntryCorrect1 = ExpressionFakes.createFileEntry("foo", 1_000_000_000_000L, 0, 1000, null, null);
+		var fileEntryCorrect2 = ExpressionFakes.createFileEntry("foo", 1_000_000_000_001L, 0, 1000, null, null);
+		var fileEntryWrong = ExpressionFakes.createFileEntry("foo", 1_000_001_000_000L, 0, 1000, null, null);
+
+		assertTrue(expression.evaluate(fileEntryCorrect1));
+		assertTrue(expression.evaluate(fileEntryCorrect2));
+		assertFalse(expression.evaluate(fileEntryWrong));
+	}
+
+	@Test
+	void Expression_Path_OK()
+	{
+		var expression = new PathExpression(StringExpression.Operator.CONTAINS_ANY, "coolstuff", false);
+		var fileEntryCorrect = ExpressionFakes.createFileEntry("foobar", 0, 0, 0, "C:\\coolstuff\\bla", null);
+		var fileEntryWrong = ExpressionFakes.createFileEntry("foobar", 0, 0, 0, "C:\\nothing\\bla", null);
+
+		assertTrue(expression.evaluate(fileEntryCorrect));
+		assertFalse(expression.evaluate(fileEntryWrong));
+	}
+
+	@Test
+	void Expression_Extension_OK()
+	{
+		var expression = new ExtensionExpression(StringExpression.Operator.CONTAINS_ANY, "exe com", false);
+		var fileEntryCorrect1 = ExpressionFakes.createFileEntry("foobar.exe", 0, 0, 0, null, null);
+		var fileEntryCorrect2 = ExpressionFakes.createFileEntry("foobar.com", 0, 0, 0, null, null);
+		var fileEntryWrong = ExpressionFakes.createFileEntry("foobar.bin", 0, 0, 0, null, null);
+
+		assertTrue(expression.evaluate(fileEntryCorrect1));
+		assertTrue(expression.evaluate(fileEntryCorrect2));
+		assertFalse(expression.evaluate(fileEntryWrong));
+	}
+
+	@Test
+	void Expression_Hash_OK()
+	{
+		var hash1 = Sha1SumFakes.createSha1Sum();
+		var hash2 = Sha1SumFakes.createSha1Sum();
+		var expression = new HashExpression(StringExpression.Operator.EQUALS, hash1.toString());
+		var fileEntryCorrect = ExpressionFakes.createFileEntry("foobar", 0, 0, 0, null, hash1);
+		var fileEntryWrong = ExpressionFakes.createFileEntry("foobar.bin", 0, 0, 0, null, hash2);
+
+		assertTrue(expression.evaluate(fileEntryCorrect));
+		assertFalse(expression.evaluate(fileEntryWrong));
+	}
+
+	@Test
+	void Expression_Compound_AND()
+	{
+		var left = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);
+		var right = new SizeExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
+		var compound = new CompoundExpression(CompoundExpression.Operator.AND, left, right);
+		var fileEntryCorrect = ExpressionFakes.createFileEntry("foo", 1000, 0, 0, null, null);
+		var fileEntryWrong = ExpressionFakes.createFileEntry("foo", 1001, 0, 0, null, null);
+
+		assertTrue(compound.evaluate(fileEntryCorrect));
+		assertFalse(compound.evaluate(fileEntryWrong));
+	}
+
+	@Test
+	void Expression_Compound_OK()
+	{
+		var left = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);
+		var right = new SizeExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
+		var compound = new CompoundExpression(CompoundExpression.Operator.OR, left, right);
+		var fileEntryCorrectAnd = ExpressionFakes.createFileEntry("foo", 1000, 0, 0, null, null);
+		var fileEntryCorrectOr = ExpressionFakes.createFileEntry("foo", 1001, 0, 0, null, null);
+		var fileEntryWrong = ExpressionFakes.createFileEntry("bar", 1001, 0, 0, null, null);
+
+		assertTrue(compound.evaluate(fileEntryCorrectAnd));
+		assertTrue(compound.evaluate(fileEntryCorrectOr));
+		assertFalse(compound.evaluate(fileEntryWrong));
+	}
+
+	@Test
+	void Expression_Compound_XOR()
+	{
+		var left = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);
+		var right = new SizeExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
+		var compound = new CompoundExpression(CompoundExpression.Operator.XOR, left, right);
+		var fileEntryCorrectOr = ExpressionFakes.createFileEntry("foo", 1001, 0, 0, null, null);
+		var fileEntryWrongAnd = ExpressionFakes.createFileEntry("foo", 1000, 0, 0, null, null);
+		var fileEntryWrongBoth = ExpressionFakes.createFileEntry("bar", 1001, 0, 0, null, null);
+
+		assertTrue(compound.evaluate(fileEntryCorrectOr));
+		assertFalse(compound.evaluate(fileEntryWrongAnd));
+		assertFalse(compound.evaluate(fileEntryWrongBoth));
 	}
 }

@@ -19,22 +19,33 @@
 
 package io.xeres.app.util.expression;
 
-public class SizeExpression extends RelationalExpression
+import java.util.Arrays;
+
+enum ExpressionType
 {
-	public SizeExpression(Operator operator, int lowerValue, int higherValue)
+	// The order and value matters
+	DATE(DateExpression.class),
+	POPULARITY(PopularityExpression.class),
+	SIZE(SizeExpression.class),
+	HASH(HashExpression.class),
+	NAME(NameExpression.class),
+	PATH(PathExpression.class),
+	EXTENSION(ExtensionExpression.class),
+	COMPOUND(CompoundExpression.class),
+	SIZE_MB(SizeMbExpression.class);
+
+	private final Class<? extends Expression> javaClass;
+
+	ExpressionType(Class<? extends Expression> javaClass)
 	{
-		super(operator, lowerValue, higherValue);
+		this.javaClass = javaClass;
 	}
 
-	@Override
-	String getType()
+	static byte getTokenValueByClass(Class<? extends Expression> javaClass)
 	{
-		return "SIZE";
-	}
-
-	@Override
-	int getValue(FileEntry fileEntry)
-	{
-		return Math.clamp(fileEntry.getSize(), 0, Integer.MAX_VALUE);
+		return (byte) Arrays.stream(values())
+				.filter(expressionType -> expressionType.javaClass.equals(javaClass))
+				.findFirst().orElseThrow()
+				.ordinal();
 	}
 }

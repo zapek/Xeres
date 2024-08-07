@@ -19,6 +19,8 @@
 
 package io.xeres.app.util.expression;
 
+import java.util.List;
+
 public class CompoundExpression implements Expression
 {
 	public enum Operator
@@ -53,6 +55,15 @@ public class CompoundExpression implements Expression
 			case OR -> left.evaluate(fileEntry) || right.evaluate(fileEntry);
 			case XOR -> left.evaluate(fileEntry) ^ right.evaluate(fileEntry);
 		};
+	}
+
+	@Override
+	public void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings)
+	{
+		tokens.add(ExpressionType.getTokenValueByClass(getClass()));
+		ints.add(operator.ordinal());
+		left.linearize(tokens, ints, strings);
+		right.linearize(tokens, ints, strings);
 	}
 
 	@Override

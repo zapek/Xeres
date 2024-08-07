@@ -37,24 +37,15 @@ public abstract class StringExpression implements Expression
 	abstract String getType();
 
 	private final Operator operator;
-	private final String template;
-	private List<String> words;
+	private final List<String> words;
 	private final boolean caseSensitive;
 
 	protected StringExpression(Operator operator, String template, boolean caseSensitive)
 	{
 		this.operator = operator;
-		this.template = caseSensitive ? template : template.toLowerCase(Locale.ENGLISH);
 		this.caseSensitive = caseSensitive;
-	}
-
-	private List<String> splitWords()
-	{
-		if (words == null)
-		{
-			words = Arrays.stream(template.split(" ")).toList();
-		}
-		return words;
+		template = caseSensitive ? template : template.toLowerCase(Locale.ENGLISH);
+		words = Arrays.stream(template.split(" ")).toList();
 	}
 
 	@Override
@@ -68,10 +59,20 @@ public abstract class StringExpression implements Expression
 
 		return switch (operator)
 		{
-			case EQUALS -> template.equals(value);
-			case CONTAINS_ALL -> splitWords().stream().allMatch(value::contains);
-			case CONTAINS_ANY -> splitWords().stream().anyMatch(value::contains);
+			case EQUALS -> String.join(" ", words).equals(value);
+			case CONTAINS_ALL -> words.stream().allMatch(value::contains);
+			case CONTAINS_ANY -> words.stream().anyMatch(value::contains);
 		};
+	}
+
+	@Override
+	public void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings)
+	{
+		tokens.add(ExpressionType.getTokenValueByClass(getClass()));
+		ints.add(operator.ordinal());
+		ints.add(caseSensitive ? 0 : 1);
+		ints.add(words.size());
+		strings.addAll(words);
 	}
 
 	@Override
@@ -79,27 +80,27 @@ public abstract class StringExpression implements Expression
 	{
 		return switch (operator)
 		{
-			case CONTAINS_ALL -> getType() + " CONTAINS ALL " + template;
+			case CONTAINS_ALL -> getType() + " CONTAINS ALL " + String.join(" ", words);
 			case CONTAINS_ANY ->
 			{
-				if (splitWords().size() == 1)
+				if (words.size() == 1)
 				{
-					yield getType() + " CONTAINS " + template;
+					yield getType() + " CONTAINS " + words.getFirst();
 				}
 				else
 				{
-					yield getType() + " CONTAINS ONE OF " + template;
+					yield getType() + " CONTAINS ONE OF " + String.join(" ", words);
 				}
 			}
 			case EQUALS ->
 			{
-				if (splitWords().size() == 1)
+				if (words.size() == 1)
 				{
-					yield getType() + " IS " + template;
+					yield getType() + " IS " + words.getFirst();
 				}
 				else
 				{
-					yield getType() + " IS ONE OF " + template;
+					yield getType() + " IS ONE OF " + String.join(" ", words);
 				}
 			}
 		};

@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.turtle.item;
 
 import io.netty.buffer.ByteBuf;
+import io.xeres.app.util.expression.ExpressionMapper;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
@@ -28,6 +29,7 @@ import io.xeres.app.xrs.serialization.TlvType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Used to do a regexp search for a file.
@@ -42,9 +44,18 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 
 	private List<String> strings;
 
+	private String keywords; // Not serialized
+
 	@SuppressWarnings("unused")
 	public TurtleRegExpSearchRequestItem()
 	{
+	}
+
+	public TurtleRegExpSearchRequestItem(List<Byte> tokens, List<Integer> ints, List<String> strings)
+	{
+		this.tokens = tokens;
+		this.ints = ints;
+		this.strings = strings;
 	}
 
 	@Override
@@ -53,10 +64,32 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 		return 9;
 	}
 
+	public List<Byte> getTokens()
+	{
+		return tokens;
+	}
+
+	public List<Integer> getInts()
+	{
+		return ints;
+	}
+
+	public List<String> getStrings()
+	{
+		return strings;
+	}
+
 	@Override
 	public String getKeywords()
 	{
-		return "[NI]"; // XXX: implement (there are ops and stuff, etc...)
+		if (keywords == null)
+		{
+			var expressions = ExpressionMapper.toExpressions(this);
+			keywords = expressions.stream()
+					.map(Object::toString)
+					.collect(Collectors.joining(" "));
+		}
+		return keywords;
 	}
 
 	@Override

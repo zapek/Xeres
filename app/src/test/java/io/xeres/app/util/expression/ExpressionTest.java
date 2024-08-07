@@ -267,7 +267,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Compound_OK()
+	void Expression_Compound_OR()
 	{
 		var left = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);
 		var right = new SizeExpression(RelationalExpression.Operator.EQUALS, 1000, 0);

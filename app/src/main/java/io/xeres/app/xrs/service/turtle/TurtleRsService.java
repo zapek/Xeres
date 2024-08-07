@@ -27,6 +27,9 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.file.FileService;
+import io.xeres.app.util.expression.ExpressionMapper;
+import io.xeres.app.util.expression.NameExpression;
+import io.xeres.app.util.expression.StringExpression;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.serialization.SerializerSizeCache;
@@ -597,7 +600,18 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		var id = SecureRandomUtils.nextInt();
 
-		var item = new TurtleStringSearchRequestItem(search);
+		TurtleFileSearchRequestItem item;
+
+		if (search.contains(" "))
+		{
+			var nameExpression = new NameExpression(StringExpression.Operator.CONTAINS_ALL, search, false);
+			item = ExpressionMapper.toItem(List.of(nameExpression));
+		}
+		else
+		{
+			item = new TurtleStringSearchRequestItem(search);
+		}
+
 		item.setRequestId(id);
 
 		var request = new SearchRequest(client, ownLocation, 0, search, 0, MAX_SEARCH_HITS);

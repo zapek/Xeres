@@ -19,7 +19,11 @@
 
 package io.xeres.app.util.expression;
 
+import java.util.List;
+
 public interface Expression
 {
 	boolean evaluate(FileEntry fileEntry);
+
+	void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings);
 }

@@ -19,7 +19,9 @@
 
 package io.xeres.app.util.expression;
 
-public abstract class RelationalExpression<T extends Number> implements Expression
+import java.util.List;
+
+public abstract class RelationalExpression implements Expression
 {
 	public enum Operator
 	{
@@ -31,15 +33,15 @@ public abstract class RelationalExpression<T extends Number> implements Expressi
 		IN_RANGE
 	}
 
-	abstract T getValue(FileEntry fileEntry);
+	abstract int getValue(FileEntry fileEntry);
 
 	abstract String getType();
 
 	private final Operator operator;
-	private final T lowerValue;
-	private final T higherValue;
+	private final int lowerValue;
+	private final int higherValue;
 
-	protected RelationalExpression(Operator operator, T lowerValue, T higherValue)
+	protected RelationalExpression(Operator operator, int lowerValue, int higherValue)
 	{
 		this.operator = operator;
 		this.lowerValue = lowerValue;
@@ -54,13 +56,22 @@ public abstract class RelationalExpression<T extends Number> implements Expressi
 		// Remember: it's the condition that is checked to be true, i.e. greater than means the expression value is greater than the value of the file
 		return switch (operator)
 		{
-			case EQUALS -> lowerValue.longValue() == value.longValue();
-			case GREATER_THAN_OR_EQUALS -> lowerValue.longValue() >= value.longValue();
-			case GREATER_THAN -> lowerValue.longValue() > value.longValue();
-			case LESSER_THAN_OR_EQUALS -> lowerValue.longValue() <= value.longValue();
-			case LESSER_THAN -> lowerValue.longValue() < value.longValue();
-			case IN_RANGE -> (lowerValue.longValue() <= value.longValue()) && (value.longValue() <= higherValue.longValue());
+			case EQUALS -> lowerValue == value;
+			case GREATER_THAN_OR_EQUALS -> lowerValue >= value;
+			case GREATER_THAN -> lowerValue > value;
+			case LESSER_THAN_OR_EQUALS -> lowerValue <= value;
+			case LESSER_THAN -> lowerValue < value;
+			case IN_RANGE -> (lowerValue <= value) && (value <= higherValue);
 		};
+	}
+
+	@Override
+	public void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings)
+	{
+		tokens.add(ExpressionType.getTokenValueByClass(getClass()));
+		ints.add(operator.ordinal());
+		ints.add(lowerValue);
+		ints.add(higherValue);
 	}
 
 	@Override
@@ -68,12 +79,12 @@ public abstract class RelationalExpression<T extends Number> implements Expressi
 	{
 		return switch (operator)
 		{
-			case EQUALS -> getType() + " = " + lowerValue.toString();
-			case GREATER_THAN_OR_EQUALS -> getType() + " <= " + lowerValue.toString();
-			case GREATER_THAN -> getType() + " < " + lowerValue.toString();
-			case LESSER_THAN_OR_EQUALS -> getType() + " >= " + lowerValue.toString();
-			case LESSER_THAN -> getType() + " > " + lowerValue.toString();
-			case IN_RANGE -> lowerValue.toString() + " <= " + getType() + " <= " + higherValue.toString();
+			case EQUALS -> getType() + " = " + lowerValue;
+			case GREATER_THAN_OR_EQUALS -> getType() + " <= " + lowerValue;
+			case GREATER_THAN -> getType() + " < " + lowerValue;
+			case LESSER_THAN_OR_EQUALS -> getType() + " >= " + lowerValue;
+			case LESSER_THAN -> getType() + " > " + lowerValue;
+			case IN_RANGE -> lowerValue + " <= " + getType() + " <= " + higherValue;
 		};
 	}
 }

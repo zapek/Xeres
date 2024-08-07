@@ -19,7 +19,7 @@
 
 package io.xeres.app.util.expression;
 
-public class PopularityExpression extends RelationalExpression<Integer>
+public class PopularityExpression extends RelationalExpression
 {
 	public PopularityExpression(Operator operator, Integer lowerValue, Integer higherValue)
 	{
@@ -33,7 +33,7 @@ public class PopularityExpression extends RelationalExpression<Integer>
 	}
 
 	@Override
-	Integer getValue(FileEntry fileEntry)
+	int getValue(FileEntry fileEntry)
 	{
 		return fileEntry.getPopularity();
 	}

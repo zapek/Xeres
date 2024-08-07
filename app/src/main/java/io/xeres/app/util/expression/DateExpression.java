@@ -19,7 +19,7 @@
 
 package io.xeres.app.util.expression;
 
-public class DateExpression extends RelationalExpression<Integer>
+public class DateExpression extends RelationalExpression
 {
 	public DateExpression(Operator operator, int lowerValue, int higherValue)
 	{
@@ -33,7 +33,7 @@ public class DateExpression extends RelationalExpression<Integer>
 	}
 
 	@Override
-	Integer getValue(FileEntry fileEntry)
+	int getValue(FileEntry fileEntry)
 	{
 		return fileEntry.getLastModified();
 	}

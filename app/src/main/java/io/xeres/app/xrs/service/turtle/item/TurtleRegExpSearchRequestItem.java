@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.turtle.item;
 
 import io.netty.buffer.ByteBuf;
+import io.xeres.app.util.expression.Expression;
 import io.xeres.app.util.expression.ExpressionMapper;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
@@ -45,6 +46,7 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 	private List<String> strings;
 
 	private String keywords; // Not serialized
+	private List<Expression> expressions; // Not serialized
 
 	@SuppressWarnings("unused")
 	public TurtleRegExpSearchRequestItem()
@@ -79,17 +81,31 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 		return strings;
 	}
 
+	public List<Expression> getExpressions()
+	{
+		buildExpressionsIfNeeded();
+		return expressions;
+	}
+
 	@Override
 	public String getKeywords()
 	{
 		if (keywords == null)
 		{
-			var expressions = ExpressionMapper.toExpressions(this);
+			buildExpressionsIfNeeded();
 			keywords = expressions.stream()
 					.map(Object::toString)
 					.collect(Collectors.joining(" "));
 		}
 		return keywords;
+	}
+
+	private void buildExpressionsIfNeeded()
+	{
+		if (expressions == null)
+		{
+			expressions = ExpressionMapper.toExpressions(this);
+		}
 	}
 
 	@Override

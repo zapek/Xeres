@@ -26,6 +26,11 @@ public final class FileFakes
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	public static File createFile(String name)
+	{
+		return createFile(name, null);
+	}
+
 	public static File createFile(String name, File parent)
 	{
 		var file = new File();
@@ -35,6 +40,14 @@ public final class FileFakes
 		{
 			file.setParent(parent);
 		}
+		return file;
+	}
+
+	public static File createFile(String name, long size)
+	{
+		var file = new File();
+		file.setName(name);
+		file.setSize(size);
 		return file;
 	}
 }

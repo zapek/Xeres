@@ -644,7 +644,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		if (item instanceof TurtleFileSearchRequestItem fileSearchItem)
 		{
 			log.debug("Received file search: {}, subclass: {}", fileSearchItem.getKeywords(), fileSearchItem.getClass().getSimpleName());
-			return mapResults(fileService.searchFiles(fileSearchItem.getKeywords()).stream()
+			return mapResults(searchFiles(fileSearchItem).stream()
 					.filter(this::isSearchable)
 					.limit(maxHits)
 					.sorted(Comparator.comparing(File::getModified).reversed()) // Get the most recents first
@@ -656,8 +656,17 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			log.debug("Received generic search: {}", genericSearchRequestItem.getKeywords());
 			// XXX: generic search
 		}
-
 		return results;
+	}
+
+	private List<File> searchFiles(TurtleFileSearchRequestItem turtleFileSearchRequestItem)
+	{
+		return switch (turtleFileSearchRequestItem)
+		{
+			case TurtleStringSearchRequestItem item -> fileService.searchFiles(item.getKeywords());
+			case TurtleRegExpSearchRequestItem item -> fileService.searchFiles(item.getExpressions());
+			default -> throw new IllegalStateException("Unexpected value: " + turtleFileSearchRequestItem);
+		};
 	}
 
 	private boolean isSearchable(File file)

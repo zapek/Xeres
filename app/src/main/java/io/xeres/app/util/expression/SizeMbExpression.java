@@ -19,6 +19,8 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+
 public class SizeMbExpression extends RelationalExpression
 {
 	public SizeMbExpression(Operator operator, int lowerValue, int higherValue)
@@ -33,8 +35,14 @@ public class SizeMbExpression extends RelationalExpression
 	}
 
 	@Override
-	int getValue(FileEntry fileEntry)
+	String getFieldName()
 	{
-		return (int) (fileEntry.getSize() >> 20); // the max value that this check can handle is (2 ^ 31 - 1) * 2 ^ 20, which is 2.147 TB
+		return "size"; // XXX: how to make it compatible with Size??
+	}
+
+	@Override
+	int getValue(File file)
+	{
+		return (int) (file.getSize() >> 20); // the max value that this check can handle is (2 ^ 31 - 1) * 2 ^ 20, which is 2.147 TB
 	}
 }

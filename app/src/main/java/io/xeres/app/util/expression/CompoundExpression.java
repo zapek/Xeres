@@ -19,6 +19,11 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
 import java.util.List;
 
 public class CompoundExpression implements Expression
@@ -42,7 +47,7 @@ public class CompoundExpression implements Expression
 	}
 
 	@Override
-	public boolean evaluate(FileEntry fileEntry)
+	public boolean evaluate(File file)
 	{
 		if (left == null || right == null)
 		{
@@ -51,9 +56,25 @@ public class CompoundExpression implements Expression
 
 		return switch (operator)
 		{
-			case AND -> left.evaluate(fileEntry) && right.evaluate(fileEntry);
-			case OR -> left.evaluate(fileEntry) || right.evaluate(fileEntry);
-			case XOR -> left.evaluate(fileEntry) ^ right.evaluate(fileEntry);
+			case AND -> left.evaluate(file) && right.evaluate(file);
+			case OR -> left.evaluate(file) || right.evaluate(file);
+			case XOR -> left.evaluate(file) ^ right.evaluate(file);
+		};
+	}
+
+	@Override
+	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
+	{
+		return switch (operator)
+		{
+			case AND -> cb.and(left.toPredicate(cb, root), right.toPredicate(cb, root));
+			case OR -> cb.or(left.toPredicate(cb, root), right.toPredicate(cb, root));
+			case XOR ->
+			{
+				var l = left.toPredicate(cb, root);
+				var r = right.toPredicate(cb, root);
+				yield cb.or(cb.and(l, cb.not(r)), cb.and(cb.not(l), r));
+			}
 		};
 	}
 

@@ -61,7 +61,7 @@ public class JavaFxApplication extends Application
 		catch (Exception e)
 		{
 			MinimalUserInterface.showError(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-			throw e;
+			System.exit(1);
 		}
 	}
 

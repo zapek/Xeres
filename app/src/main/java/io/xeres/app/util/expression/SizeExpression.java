@@ -19,6 +19,8 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+
 public class SizeExpression extends RelationalExpression
 {
 	public SizeExpression(Operator operator, int lowerValue, int higherValue)
@@ -33,8 +35,14 @@ public class SizeExpression extends RelationalExpression
 	}
 
 	@Override
-	int getValue(FileEntry fileEntry)
+	String getFieldName()
 	{
-		return Math.clamp(fileEntry.getSize(), 0, Integer.MAX_VALUE);
+		return "size";
+	}
+
+	@Override
+	int getValue(File file)
+	{
+		return Math.clamp(file.getSize(), 0, Integer.MAX_VALUE);
 	}
 }

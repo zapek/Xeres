@@ -19,6 +19,8 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+
 public class PathExpression extends StringExpression
 {
 	public PathExpression(Operator operator, String template, boolean caseSensitive)
@@ -33,8 +35,14 @@ public class PathExpression extends StringExpression
 	}
 
 	@Override
-	String getValue(FileEntry fileEntry)
+	String getFieldName()
 	{
-		return fileEntry.getParentPath();
+		return "parent"; // XXX: won't work...
+	}
+
+	@Override
+	String getValue(File file)
+	{
+		return file.getParent().toString();
 	}
 }

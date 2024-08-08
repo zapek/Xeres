@@ -19,6 +19,12 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -32,9 +38,11 @@ public abstract class StringExpression implements Expression
 		EQUALS
 	}
 
-	abstract String getValue(FileEntry fileEntry);
+	abstract String getValue(File file);
 
 	abstract String getType();
+
+	abstract String getFieldName();
 
 	private final Operator operator;
 	private final List<String> words;
@@ -49,9 +57,9 @@ public abstract class StringExpression implements Expression
 	}
 
 	@Override
-	public boolean evaluate(FileEntry fileEntry)
+	public boolean evaluate(File file)
 	{
-		var value = getValue(fileEntry);
+		var value = getValue(file);
 		if (!caseSensitive)
 		{
 			value = value.toLowerCase(Locale.ENGLISH);
@@ -63,6 +71,49 @@ public abstract class StringExpression implements Expression
 			case CONTAINS_ALL -> words.stream().allMatch(value::contains);
 			case CONTAINS_ANY -> words.stream().anyMatch(value::contains);
 		};
+	}
+
+	@Override
+	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
+	{
+		return switch (operator)
+		{
+			case EQUALS -> equals(cb, root);
+			case CONTAINS_ALL -> contains(cb, root, true);
+			case CONTAINS_ANY -> contains(cb, root, false);
+		};
+	}
+
+	private Predicate equals(CriteriaBuilder cb, Root<File> root)
+	{
+		if (caseSensitive)
+		{
+			return cb.equal(root.get(getFieldName()), String.join(" ", words));
+		}
+		else
+		{
+			return cb.equal(cb.lower(root.get(getFieldName())), String.join(" ", words).toLowerCase(Locale.ROOT));
+		}
+	}
+
+	private Predicate contains(CriteriaBuilder cb, Root<File> root, boolean all)
+	{
+		List<Predicate> predicates = new ArrayList<>();
+		words.forEach(s -> predicates.add(like(cb, root.get(getFieldName()), s)));
+		var array = predicates.toArray(new Predicate[0]);
+		return all ? cb.and(array) : cb.or(array);
+	}
+
+	private Predicate like(CriteriaBuilder cb, jakarta.persistence.criteria.Expression<String> x, String pattern)
+	{
+		if (caseSensitive)
+		{
+			return cb.like(x, "%" + pattern + "%");
+		}
+		else
+		{
+			return cb.like(cb.lower(x), "%" + pattern.toLowerCase(Locale.ROOT) + "%");
+		}
 	}
 
 	@Override

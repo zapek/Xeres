@@ -19,6 +19,8 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+
 public class HashExpression extends StringExpression
 {
 	public HashExpression(Operator operator, String template)
@@ -33,8 +35,14 @@ public class HashExpression extends StringExpression
 	}
 
 	@Override
-	String getValue(FileEntry fileEntry)
+	String getFieldName()
 	{
-		return fileEntry.getHash().toString();
+		return "hash"; // XXX: prolly won't work...
+	}
+
+	@Override
+	String getValue(File file)
+	{
+		return file.getHash().toString();
 	}
 }

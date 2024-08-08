@@ -19,6 +19,10 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+
+import java.time.temporal.ChronoUnit;
+
 public class DateExpression extends RelationalExpression
 {
 	public DateExpression(Operator operator, int lowerValue, int higherValue)
@@ -33,8 +37,14 @@ public class DateExpression extends RelationalExpression
 	}
 
 	@Override
-	int getValue(FileEntry fileEntry)
+	String getFieldName()
 	{
-		return fileEntry.getLastModified();
+		return "modified";
+	}
+
+	@Override
+	int getValue(File file)
+	{
+		return (int) file.getModified().truncatedTo(ChronoUnit.SECONDS).getEpochSecond();
 	}
 }

@@ -19,6 +19,7 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
 import io.xeres.common.util.FileNameUtils;
 
 public class ExtensionExpression extends StringExpression
@@ -35,8 +36,14 @@ public class ExtensionExpression extends StringExpression
 	}
 
 	@Override
-	String getValue(FileEntry fileEntry)
+	String getFieldName()
 	{
-		return FileNameUtils.getExtension(fileEntry.getName()).orElse("");
+		return "extension"; // XXX: won't work...
+	}
+
+	@Override
+	String getValue(File file)
+	{
+		return FileNameUtils.getExtension(file.getName()).orElse("");
 	}
 }

@@ -19,6 +19,11 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
 import java.util.List;
 
 public abstract class RelationalExpression implements Expression
@@ -33,9 +38,11 @@ public abstract class RelationalExpression implements Expression
 		IN_RANGE
 	}
 
-	abstract int getValue(FileEntry fileEntry);
+	abstract int getValue(File file);
 
 	abstract String getType();
+
+	abstract String getFieldName();
 
 	private final Operator operator;
 	private final int lowerValue;
@@ -49,9 +56,9 @@ public abstract class RelationalExpression implements Expression
 	}
 
 	@Override
-	public boolean evaluate(FileEntry fileEntry)
+	public boolean evaluate(File file)
 	{
-		var value = getValue(fileEntry);
+		var value = getValue(file);
 
 		// Remember: it's the condition that is checked to be true, i.e. greater than means the expression value is greater than the value of the file
 		return switch (operator)
@@ -62,6 +69,20 @@ public abstract class RelationalExpression implements Expression
 			case LESSER_THAN_OR_EQUALS -> lowerValue <= value;
 			case LESSER_THAN -> lowerValue < value;
 			case IN_RANGE -> (lowerValue <= value) && (value <= higherValue);
+		};
+	}
+
+	@Override
+	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
+	{
+		return switch (operator)
+		{
+			case EQUALS -> cb.equal(root.get(getFieldName()), lowerValue);
+			case GREATER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getFieldName()), lowerValue);
+			case GREATER_THAN -> cb.greaterThan(root.get(getFieldName()), lowerValue);
+			case LESSER_THAN_OR_EQUALS -> cb.lessThanOrEqualTo(root.get(getFieldName()), lowerValue);
+			case LESSER_THAN -> cb.lessThan(root.get(getFieldName()), lowerValue);
+			case IN_RANGE -> cb.between(root.get(getFieldName()), lowerValue, higherValue);
 		};
 	}
 

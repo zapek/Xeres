@@ -19,11 +19,18 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
 import java.util.List;
 
 public interface Expression
 {
-	boolean evaluate(FileEntry fileEntry);
+	boolean evaluate(File file);
 
 	void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings);
+
+	Predicate toPredicate(CriteriaBuilder cb, Root<File> root);
 }

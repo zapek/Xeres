@@ -28,7 +28,10 @@ import io.xeres.app.database.repository.FileDownloadRepository;
 import io.xeres.app.database.repository.FileRepository;
 import io.xeres.app.database.repository.ShareRepository;
 import io.xeres.app.service.notification.file.FileNotificationService;
+import io.xeres.app.util.expression.Expression;
 import io.xeres.common.id.Sha1Sum;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -72,6 +75,8 @@ public class FileService
 
 	private final HashBloomFilter bloomFilter;
 
+	private final EntityManager entityManager;
+
 	private static final String[] ignoredSuffixes = {
 			".bak",
 			".sys",
@@ -91,13 +96,14 @@ public class FileService
 			"temp."
 	};
 
-	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository, FileDownloadRepository fileDownloadRepository, DataDirConfiguration dataDirConfiguration)
+	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository, FileDownloadRepository fileDownloadRepository, DataDirConfiguration dataDirConfiguration, EntityManager entityManager)
 	{
 		this.fileNotificationService = fileNotificationService;
 		this.shareRepository = shareRepository;
 		this.fileRepository = fileRepository;
 		this.fileDownloadRepository = fileDownloadRepository;
 		bloomFilter = new HashBloomFilter(dataDirConfiguration.getDataDir(), 10_000, 0.01d); // XXX: parameters will need experimenting, especially the max files (yes it can be extended, but not reduced)
+		this.entityManager = entityManager;
 		updateBloomFilter();
 	}
 
@@ -215,6 +221,22 @@ public class FileService
 	public List<File> searchFiles(String name)
 	{
 		return fileRepository.findAllByNameContainingIgnoreCase(name);
+	}
+
+	public List<File> searchFiles(List<Expression> expressions)
+	{
+		var cb = entityManager.getCriteriaBuilder();
+		var query = cb.createQuery(File.class);
+
+		var file = query.from(File.class);
+
+		List<Predicate> predicates = new ArrayList<>();
+		for (Expression expression : expressions)
+		{
+			predicates.add(expression.toPredicate(cb, file));
+		}
+		query.select(file).where(cb.and(predicates.toArray(new Predicate[0])));
+		return entityManager.createQuery(query).getResultList();
 	}
 
 	public Optional<Share> findShareForFile(File file)

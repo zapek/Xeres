@@ -19,6 +19,7 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.FileFakes;
 import io.xeres.app.xrs.service.turtle.item.TurtleRegExpSearchRequestItem;
 import org.junit.jupiter.api.Test;
 
@@ -49,10 +50,10 @@ class ExpressionMapperTest
 		assertEquals(1, expressions.size());
 		var expression = expressions.getFirst();
 		assertInstanceOf(NameExpression.class, expression);
-		var fileEntryValid = ExpressionFakes.createFileEntry("foo bar", 0, 0, 0, null, null);
-		var fileEntryWrong = ExpressionFakes.createFileEntry("foo", 0, 0, 0, null, null);
-		assertTrue(expression.evaluate(fileEntryValid));
-		assertFalse(expression.evaluate(fileEntryWrong));
+		var fileValid = FileFakes.createFile("foo bar");
+		var fileInvalid = FileFakes.createFile("foo");
+		assertTrue(expression.evaluate(fileValid));
+		assertFalse(expression.evaluate(fileInvalid));
 	}
 
 	@Test
@@ -82,14 +83,14 @@ class ExpressionMapperTest
 		assertEquals(1, expressions.size());
 		var expression = expressions.getFirst();
 		assertInstanceOf(CompoundExpression.class, expression);
-		var fileEntryValid = ExpressionFakes.createFileEntry("foo", 1500, 0, 0, null, null);
-		var fileEntryWrong1 = ExpressionFakes.createFileEntry("bar", 1500, 0, 0, null, null);
-		var fileEntryWrong2 = ExpressionFakes.createFileEntry("foo", 3000, 0, 0, null, null);
-		var fileEntryWrong3 = ExpressionFakes.createFileEntry("bar", 3000, 0, 0, null, null);
+		var fileEntryValid = FileFakes.createFile("foo", 1500);
+		var fileEntryInvalid1 = FileFakes.createFile("bar", 1500);
+		var fileEntryInvalid2 = FileFakes.createFile("foo", 3000);
+		var fileEntryInvalid3 = FileFakes.createFile("bar", 3000);
 		assertTrue(expression.evaluate(fileEntryValid));
-		assertFalse(expression.evaluate(fileEntryWrong1));
-		assertFalse(expression.evaluate(fileEntryWrong2));
-		assertFalse(expression.evaluate(fileEntryWrong3));
+		assertFalse(expression.evaluate(fileEntryInvalid1));
+		assertFalse(expression.evaluate(fileEntryInvalid2));
+		assertFalse(expression.evaluate(fileEntryInvalid3));
 	}
 
 	@Test

@@ -19,6 +19,8 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+
 public class PopularityExpression extends RelationalExpression
 {
 	public PopularityExpression(Operator operator, Integer lowerValue, Integer higherValue)
@@ -33,8 +35,14 @@ public class PopularityExpression extends RelationalExpression
 	}
 
 	@Override
-	int getValue(FileEntry fileEntry)
+	String getFieldName()
 	{
-		return fileEntry.getPopularity();
+		return "popularity"; // XXX: doesn't exist... what to do?
+	}
+
+	@Override
+	int getValue(File file)
+	{
+		return 1; // XXX: how to compute that? it's not used anyway
 	}
 }

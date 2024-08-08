@@ -19,6 +19,8 @@
 
 package io.xeres.app.util.expression;
 
+import io.xeres.app.database.model.file.File;
+
 public class NameExpression extends StringExpression
 {
 	public NameExpression(Operator operator, String template, boolean caseSensitive)
@@ -33,8 +35,14 @@ public class NameExpression extends StringExpression
 	}
 
 	@Override
-	String getValue(FileEntry fileEntry)
+	String getFieldName()
 	{
-		return fileEntry.getName();
+		return "name";
+	}
+
+	@Override
+	String getValue(File file)
+	{
+		return file.getName();
 	}
 }

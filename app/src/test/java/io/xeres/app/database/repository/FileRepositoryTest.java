@@ -61,4 +61,16 @@ class FileRepositoryTest
 		var found = fileRepository.findByHash(hash).orElse(null);
 		assertNotNull(found);
 	}
+
+	@Test
+	void FileRepository_FindByEncryptedHash_OK()
+	{
+		var hash = Sha1SumFakes.createSha1Sum();
+		var file = FileFakes.createFile("foo", null);
+		file.setEncryptedHash(hash);
+		fileRepository.save(file);
+
+		var found = fileRepository.findByEncryptedHash(hash).orElse(null);
+		assertNotNull(found);
+	}
 }

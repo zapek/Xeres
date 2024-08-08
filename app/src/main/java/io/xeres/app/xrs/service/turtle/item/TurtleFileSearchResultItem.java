@@ -65,7 +65,7 @@ public class TurtleFileSearchResultItem extends TurtleSearchResultItem
 
 	public void addFileInfo(TurtleFileInfo fileInfo)
 	{
-		results.add(new TurtleFileInfo());
+		results.add(fileInfo);
 	}
 
 	@Override

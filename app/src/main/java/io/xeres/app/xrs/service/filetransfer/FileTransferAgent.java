@@ -170,7 +170,8 @@ class FileTransferAgent
 						leechers.remove(entry.getKey());
 						if (leechers.isEmpty())
 						{
-							fileProvider.close();
+							// XXX: same problem here... when do we close the file? the FileTransferManager has to inform us that there's no leechers anymore and we can close the file
+							//fileProvider.close();
 						}
 					}
 				});

@@ -42,5 +42,5 @@ public interface FileRepository extends JpaRepository<File, Long>
 
 	Optional<File> findByHash(Sha1Sum hash);
 
-	Optional<File> findByEncryptedHash(Sha1Sum hash);
+	Optional<File> findByEncryptedHash(Sha1Sum encryptedHash);
 }

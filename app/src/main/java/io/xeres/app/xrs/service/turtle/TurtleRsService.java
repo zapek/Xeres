@@ -423,13 +423,16 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		{
 			log.debug("Honoring tunnel request from peer {}: {}", sender, item);
 			var tunnelId = item.getPartialTunnelId() ^ generatePersonalFilePrint(item.getHash(), tunnelProbability.getBias(), false);
-			var resultItem = new TurtleTunnelResultItem(item.getRequestId(), tunnelId);
-			peerConnectionManager.writeItem(sender, resultItem, this);
+			var resultItem = new TurtleTunnelResultItem(tunnelId, item.getRequestId());
 
 			var tunnel = new Tunnel(tunnelId, sender.getLocation(), ownLocation, item.getHash());
 			localTunnels.put(tunnelId, tunnel);
 			virtualPeers.put(tunnel.getVirtualLocation().getLocationId(), tunnelId);
 			client.get().addVirtualPeer(item.getHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
+
+			outgoingTunnelClients.put(tunnelId, client.get());
+
+			peerConnectionManager.writeItem(sender, resultItem, this);
 			return;
 		}
 
@@ -641,7 +644,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		if (item instanceof TurtleFileSearchRequestItem fileSearchItem)
 		{
 			log.debug("Received file search: {}, subclass: {}", fileSearchItem.getKeywords(), fileSearchItem.getClass().getSimpleName());
-			// XXX: this doesn't really use "keywords" but the whole string, but I think RS does that too? nah, it does require both keyboards in the title, but probably uses the regexp item for it. yes! it uses NAME CONTAINS ALL the test
 			return mapResults(fileService.searchFiles(fileSearchItem.getKeywords()).stream()
 					.filter(file -> file.getType() != FileType.DIRECTORY)
 					.limit(maxHits)

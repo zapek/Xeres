@@ -233,7 +233,6 @@ public class File
 	{
 		return "File{" +
 				"id=" + id +
-				", parent=" + parent +
 				", name='" + name + '\'' +
 				", type=" + type +
 				", hash=" + hash +

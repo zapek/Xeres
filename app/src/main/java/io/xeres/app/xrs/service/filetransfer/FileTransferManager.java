@@ -128,7 +128,8 @@ class FileTransferManager implements Runnable
 
 	private void processSeeders()
 	{
-		seeders.entrySet().removeIf(agent -> !agent.getValue().process());
+		//seeders.entrySet().removeIf(agent -> !agent.getValue().process()); XXX: how to remove those? we should have a timeout when there's no upload request for a while, then we can remove it... but not before. also see the comment FileTransferAgent for processUploads()
+		seeders.forEach((hash, agent) -> agent.process());
 	}
 
 	private void processAction(Action action)
@@ -281,19 +282,22 @@ class FileTransferManager implements Runnable
 
 	private FileTransferAgent localSearch(Sha1Sum hash)
 	{
-		return seeders.computeIfAbsent(hash, h -> fileService.findFilePathByHash(h)
-				.map(Path::toFile)
-				.map(file -> {
-					log.debug("Serving file {}", file);
-					var fileSeeder = new FileSeeder(file);
-					if (!fileSeeder.open())
-					{
-						log.debug("Failed to open file {} for serving", file);
-						return null;
-					}
-					return new FileTransferAgent(fileTransferRsService, file.getName(), h, fileSeeder);
-				})
-				.orElse(null));
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			return seeders.computeIfAbsent(hash, h -> fileService.findFilePathByHash(h)
+					.map(Path::toFile)
+					.map(file -> {
+						log.debug("Serving file {} for hash {}", file, hash);
+						var fileSeeder = new FileSeeder(file);
+						if (!fileSeeder.open())
+						{
+							log.debug("Failed to open file {} for serving", file);
+							return null;
+						}
+						return new FileTransferAgent(fileTransferRsService, file.getName(), h, fileSeeder);
+					})
+					.orElse(null));
+		}
 	}
 
 	private void actionReceiveData(Location location, Sha1Sum hash, long offset, byte[] data)

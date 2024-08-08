@@ -90,7 +90,9 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 	{
 		try
 		{
-			return (Sha1Sum) super.clone();
+			var clone = (Sha1Sum) super.clone();
+			clone.identifier = identifier.clone();
+			return clone;
 		}
 		catch (CloneNotSupportedException e)
 		{

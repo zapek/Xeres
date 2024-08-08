@@ -602,12 +602,18 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		TurtleFileSearchRequestItem item;
 
-		if (search.contains(" "))
+		// "foobar" -> exact search
+		if (search.startsWith("\"") && search.endsWith("\""))
+		{
+			search = search.substring(1, search.length() - 1);
+			item = new TurtleStringSearchRequestItem(search);
+		}
+		else if (search.contains(" ")) // The Stuff -> search all terms, in this case "Stuff, The" is a match
 		{
 			var nameExpression = new NameExpression(StringExpression.Operator.CONTAINS_ALL, search, false);
 			item = ExpressionMapper.toItem(List.of(nameExpression));
 		}
-		else
+		else // One word is just a string search
 		{
 			item = new TurtleStringSearchRequestItem(search);
 		}

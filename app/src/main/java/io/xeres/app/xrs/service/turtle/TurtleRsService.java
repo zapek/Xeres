@@ -645,7 +645,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		{
 			log.debug("Received file search: {}, subclass: {}", fileSearchItem.getKeywords(), fileSearchItem.getClass().getSimpleName());
 			return mapResults(fileService.searchFiles(fileSearchItem.getKeywords()).stream()
-					.filter(file -> file.getType() != FileType.DIRECTORY)
+					.filter(this::isSearchable)
 					.limit(maxHits)
 					.sorted(Comparator.comparing(File::getModified).reversed()) // Get the most recents first
 					.map(file -> new TurtleFileInfo(file.getName(), file.getHash(), file.getSize()))
@@ -658,6 +658,17 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 
 		return results;
+	}
+
+	private boolean isSearchable(File file)
+	{
+		if (file.getType() == FileType.DIRECTORY)
+		{
+			return false;
+		}
+
+		var share = fileService.findShareForFile(file).orElseThrow(() -> new IllegalStateException("File " + file + " is not in any share. Shouldn't happen."));
+		return share.isSearchable();
 	}
 
 	private static List<TurtleSearchResultItem> mapResults(List<TurtleFileInfo> fileInfos)

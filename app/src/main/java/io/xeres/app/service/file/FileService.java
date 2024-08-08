@@ -217,6 +217,17 @@ public class FileService
 		return fileRepository.findAllByNameContainingIgnoreCase(name);
 	}
 
+	public Optional<Share> findShareForFile(File file)
+	{
+		Set<Long> fileIds = new HashSet<>();
+		while (file.hasParent())
+		{
+			fileIds.add(file.getId());
+			file = file.getParent();
+		}
+		return shareRepository.findShareByFileIdIn(fileIds);
+	}
+
 	public long addDownload(String name, Sha1Sum hash, long size)
 	{
 		if (fileDownloadRepository.findByHash(hash).isPresent())

@@ -40,6 +40,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
+import static io.xeres.common.tray.TrayNotificationType.DISCOVERY;
+
 /**
  * This service periodically sends a UDP broadcast packet to find out
  * if other Retroshare clients are on the LAN. It implements more or
@@ -341,7 +343,7 @@ public class BroadcastDiscoveryService implements Runnable
 									log.debug("Updating friend {} with ip {}", location, lanConnection);
 									location.addConnection(lanConnection);
 								}
-							}, () -> uiBridgeService.showNotification("Detected client on LAN: " + peer.getProfileName() + " at " + peer.getIpAddress()));
+							}, () -> uiBridgeService.showTrayNotification(DISCOVERY, "Detected client on LAN: " + peer.getProfileName() + " at " + peer.getIpAddress()));
 						}
 					}
 				}

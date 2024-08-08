@@ -52,6 +52,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
+import static io.xeres.common.tray.TrayNotificationType.CONNECTION;
 
 public class PeerHandler extends ChannelDuplexHandler
 {
@@ -187,7 +188,7 @@ public class PeerHandler extends ChannelDuplexHandler
 				var message = "Established " + connectionType.getDescription() + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")";
 
 				log.info(message);
-				uiBridgeService.showNotification(message);
+				uiBridgeService.showTrayNotification(CONNECTION, message);
 
 				sendSliceProbe(ctx);
 			}

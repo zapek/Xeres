@@ -20,6 +20,8 @@
 package io.xeres.ui.support.tray;
 
 import io.xeres.common.AppName;
+import io.xeres.common.tray.TrayNotificationType;
+import io.xeres.ui.properties.UiClientProperties;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
@@ -48,11 +50,13 @@ public class TrayService
 	private Image image;
 	private Image eventImage;
 
+	private final UiClientProperties uiClientProperties;
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
 
-	public TrayService(WindowManager windowManager, ResourceBundle bundle)
+	public TrayService(UiClientProperties uiClientProperties, WindowManager windowManager, ResourceBundle bundle)
 	{
+		this.uiClientProperties = uiClientProperties;
 		this.windowManager = windowManager;
 		this.bundle = bundle;
 	}
@@ -176,9 +180,9 @@ public class TrayService
 		return hasSystemTray;
 	}
 
-	public void showNotification(String message)
+	public void showNotification(TrayNotificationType type, String message)
 	{
-		if (hasSystemTray)
+		if (hasSystemTray && isNotificationAllowed(type))
 		{
 			trayIcon.displayMessage(AppName.NAME, message, TrayIcon.MessageType.NONE);
 		}
@@ -200,6 +204,16 @@ public class TrayService
 	public void setEventIfIconified()
 	{
 		trayIcon.setImage(eventImage);
+	}
+
+	private boolean isNotificationAllowed(TrayNotificationType type)
+	{
+		return switch (type)
+		{
+			case BROADCAST -> true;
+			case CONNECTION -> uiClientProperties.isConnectionNotifications();
+			case DISCOVERY -> uiClientProperties.isBroadcastDiscoveryNotifications();
+		};
 	}
 
 	@PreDestroy

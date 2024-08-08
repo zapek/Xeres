@@ -29,6 +29,8 @@ public class UiClientProperties
 	private boolean coloredEmojis = true;
 	private boolean smileyToUnicode = true;
 	private boolean rsEmojisAliases = true;
+	private boolean connectionNotifications = true;
+	private boolean broadcastDiscoveryNotifications = true;
 
 	public boolean isColoredEmojis()
 	{
@@ -58,5 +60,25 @@ public class UiClientProperties
 	public void setRsEmojisAliases(boolean rsEmojisAliases)
 	{
 		this.rsEmojisAliases = rsEmojisAliases;
+	}
+
+	public boolean isConnectionNotifications()
+	{
+		return connectionNotifications;
+	}
+
+	public void setConnectionNotifications(boolean connectionNotifications)
+	{
+		this.connectionNotifications = connectionNotifications;
+	}
+
+	public boolean isBroadcastDiscoveryNotifications()
+	{
+		return broadcastDiscoveryNotifications;
+	}
+
+	public void setBroadcastDiscoveryNotifications(boolean broadcastDiscoveryNotifications)
+	{
+		this.broadcastDiscoveryNotifications = broadcastDiscoveryNotifications;
 	}
 }

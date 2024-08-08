@@ -19,6 +19,7 @@
 
 package io.xeres.app.service;
 
+import io.xeres.common.tray.TrayNotificationType;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.support.splash.SplashService;
 import io.xeres.ui.support.tray.TrayService;
@@ -56,9 +57,9 @@ public class UiBridgeService
 		splashService.close();
 	}
 
-	public void showNotification(String message)
+	public void showTrayNotification(TrayNotificationType type, String message)
 	{
-		trayService.showNotification(message);
+		trayService.showNotification(type, message);
 	}
 
 	public void setTrayStatus(String message)

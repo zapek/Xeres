@@ -62,6 +62,7 @@ import java.util.concurrent.TimeUnit;
 import static io.xeres.app.xrs.service.RsServiceType.CHAT;
 import static io.xeres.common.message.MessageType.*;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
+import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
@@ -721,7 +722,7 @@ public class ChatRsService extends RsService
 		}
 		else if (item.isBroadcast())
 		{
-			uiBridgeService.showNotification("Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName() + ": " + parseIncomingText(item.getMessage()));
+			uiBridgeService.showTrayNotification(BROADCAST, "Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName() + ": " + parseIncomingText(item.getMessage()));
 		}
 	}
 

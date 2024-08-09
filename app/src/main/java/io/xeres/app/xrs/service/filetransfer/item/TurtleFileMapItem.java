@@ -86,7 +86,8 @@ public class TurtleFileMapItem extends TurtleGenericTunnelItem implements RsSeri
 	public void readObject(ByteBuf buf)
 	{
 		setTunnelId(deserializeInt(buf));
-		setDirection(TunnelDirection.values()[deserializeInt(buf) - 1]);
+		var tunnelDirection = deserializeInt(buf);
+		setDirection(tunnelDirection == 2 ? TunnelDirection.SERVER : TunnelDirection.CLIENT);
 		//noinspection unchecked
 		compressedChunks = (List<Integer>) (List<?>) deserializeList(buf, new ParameterizedType()
 		{

@@ -37,7 +37,6 @@ public abstract class TurtleGenericTunnelItem extends Item
 
 	/**
 	 * The direction of the tunnel (client or server).
-	 * This is not serialized.
 	 */
 	private TunnelDirection direction;
 

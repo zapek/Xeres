@@ -46,6 +46,7 @@ class FileTransferAgent
 	private final FileProvider fileProvider;
 	private final Sha1Sum hash;
 	private final String fileName;
+	private boolean isDone;
 
 	private final Map<Location, ChunkSender> leechers = new LinkedHashMap<>();
 	private final Map<Location, ChunkReceiver> seeders = new LinkedHashMap<>();
@@ -133,7 +134,7 @@ class FileTransferAgent
 					}
 					else
 					{
-						if (fileProvider.isComplete())
+						if (fileProvider.isComplete() && !isDone)
 						{
 							log.debug("File is complete, size: {}, renaming to {}", fileProvider.getFileSize(), fileName);
 							fileProvider.close();
@@ -141,6 +142,7 @@ class FileTransferAgent
 							fileTransferRsService.deactivateTunnels(hash);
 							renameFile(fileProvider.getPath(), fileName);
 							seeders.remove(entry.getKey());
+							isDone = true; // Prevents closing the file several times (we might have several seeders)
 						}
 						else
 						{

@@ -94,24 +94,6 @@ class ExpressionMapperTest
 	}
 
 	@Test
-	void ExpressionMapper_Compound_RecursiveProtection()
-	{
-		List<Byte> tokens = new ArrayList<>();
-		List<Integer> ints = new ArrayList<>();
-		List<String> strings = new ArrayList<>();
-
-		tokens.add((byte) 7); // Compound
-		ints.add(0); // And
-
-		tokens.add((byte) 7); // Compound
-		ints.add(0); // And
-
-		var item = new TurtleRegExpSearchRequestItem(tokens, ints, strings);
-
-		assertThrows(IllegalStateException.class, () -> ExpressionMapper.toExpressions(item));
-	}
-
-	@Test
 	void ExpressionMapper_Linearize()
 	{
 		var nameExpression = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);

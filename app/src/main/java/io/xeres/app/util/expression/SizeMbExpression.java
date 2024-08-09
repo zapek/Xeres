@@ -60,23 +60,23 @@ public class SizeMbExpression extends RelationalExpression
 		{
 			case EQUALS ->
 			{
-				lower = (long) lowerValue << 20;
-				higher = (long) lowerValue << 20 | 0xfffff;
+				lower = getPessimisticValue(lowerValue);
+				higher = getOptimisticValue(lowerValue);
 			}
 			case GREATER_THAN_OR_EQUALS, GREATER_THAN ->
 			{
-				lower = (long) lowerValue << 20 | 0xfffff;
-				higher = (long) higherValue << 20 | 0xfffff;
+				lower = getOptimisticValue(lowerValue);
+				higher = getOptimisticValue(lowerValue);
 			}
 			case LESSER_THAN_OR_EQUALS, LESSER_THAN ->
 			{
-				lower = (long) lowerValue << 20;
-				higher = (long) higherValue << 20;
+				lower = getPessimisticValue(lowerValue);
+				higher = getPessimisticValue(lowerValue);
 			}
 			case IN_RANGE ->
 			{
-				lower = (long) lowerValue << 20;
-				higher = (long) higherValue << 20 | 0xfffff;
+				lower = getPessimisticValue(lowerValue);
+				higher = getOptimisticValue(higherValue);
 			}
 			default -> throw new IllegalStateException("Unexpected operator: " + operator);
 		}
@@ -90,6 +90,16 @@ public class SizeMbExpression extends RelationalExpression
 			case LESSER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getFieldName()), lower);
 			case LESSER_THAN -> cb.greaterThan(root.get(getFieldName()), lower);
 		};
+	}
+
+	private static long getPessimisticValue(int value)
+	{
+		return (long) value << 20;
+	}
+
+	private static long getOptimisticValue(int value)
+	{
+		return (long) value << 20 | 0xfffff;
 	}
 
 	@Override

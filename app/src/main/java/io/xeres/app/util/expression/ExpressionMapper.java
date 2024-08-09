@@ -28,8 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static io.xeres.app.util.expression.ExpressionType.COMPOUND;
-
 public final class ExpressionMapper
 {
 	private static final Logger log = LoggerFactory.getLogger(ExpressionMapper.class);
@@ -79,11 +77,6 @@ public final class ExpressionMapper
 		{
 			return strings.get(stringIndex++);
 		}
-
-		public boolean isInCompoundAlready()
-		{
-			return tokenIndex >= 2 && tokens.get(tokenIndex - 2) == COMPOUND.ordinal();
-		}
 	}
 
 	public static List<Expression> toExpressions(TurtleRegExpSearchRequestItem item)
@@ -98,9 +91,10 @@ public final class ExpressionMapper
 				expressions.add(toExpression(context));
 			}
 		}
-		catch (IndexOutOfBoundsException e)
+		catch (IndexOutOfBoundsException | IllegalStateException e)
 		{
-			log.error("Expression error, index out of bound for the following token input: tokens {}, ints {}, strings {}",
+			log.error("Expression error: {} for the following token input: tokens {}, ints {}, strings {}",
+					e.getMessage(),
 					Arrays.toString(item.getTokens().toArray()),
 					Arrays.toString(item.getInts().toArray()),
 					Arrays.toString(item.getStrings().toArray()));
@@ -229,10 +223,6 @@ public final class ExpressionMapper
 
 	private static CompoundExpression toCompoundExpression(Context context)
 	{
-		if (context.isInCompoundAlready())
-		{
-			throw new IllegalStateException("Recursive compound expressions are not supported"); // Deny remote stack overflows
-		}
 		var operator = CompoundExpression.Operator.values()[context.nextIntegerValue()];
 		var leftCompound = toExpression(context);
 		var rightCompound = toExpression(context);

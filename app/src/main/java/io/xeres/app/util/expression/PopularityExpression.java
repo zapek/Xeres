@@ -21,6 +21,12 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
+/**
+ * Matches the popularity of a file. Always returns no match because local files
+ * don't have any metadata indicating the popularity.
+ * <p>
+ * RS does the same.
+ */
 public class PopularityExpression extends RelationalExpression
 {
 	public PopularityExpression(Operator operator, Integer lowerValue, Integer higherValue)
@@ -37,12 +43,12 @@ public class PopularityExpression extends RelationalExpression
 	@Override
 	String getFieldName()
 	{
-		return "popularity"; // XXX: doesn't exist... what to do?
+		return null;
 	}
 
 	@Override
 	int getValue(File file)
 	{
-		return 1; // XXX: how to compute that? it's not used anyway
+		return 0; // Popularity is not used
 	}
 }

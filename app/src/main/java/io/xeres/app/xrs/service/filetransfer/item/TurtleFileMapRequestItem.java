@@ -66,6 +66,6 @@ public class TurtleFileMapRequestItem extends TurtleGenericTunnelItem implements
 	{
 		setTunnelId(deserializeInt(buf));
 		var tunnelDirection = deserializeInt(buf);
-		setDirection(tunnelDirection == 2 ? TunnelDirection.SERVER : TunnelDirection.CLIENT);
+		setDirection(tunnelDirection == 1 ? TunnelDirection.CLIENT : TunnelDirection.SERVER);
 	}
 }

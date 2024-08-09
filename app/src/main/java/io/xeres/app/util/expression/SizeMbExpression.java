@@ -20,7 +20,16 @@
 package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
+/**
+ * Matches the size of the file. Only works for files bigger than 2 GB. Since it also uses a 32-bit integer, the precision
+ * is limited and there's some trickery to make it work but do not expect it to be very precise.
+ * <p>
+ * The maximum file size is 2.147 TB.
+ */
 public class SizeMbExpression extends RelationalExpression
 {
 	public SizeMbExpression(Operator operator, int lowerValue, int higherValue)
@@ -37,7 +46,50 @@ public class SizeMbExpression extends RelationalExpression
 	@Override
 	String getFieldName()
 	{
-		return "size"; // XXX: how to make it compatible with Size??
+		return "size";
+	}
+
+	@Override
+	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
+	{
+		long lower;
+		long higher;
+
+		// We need to restore the value with the most pessimistic loss so that the comparison makes sense
+		switch (operator)
+		{
+			case EQUALS ->
+			{
+				lower = (long) lowerValue << 20;
+				higher = (long) lowerValue << 20 | 0xfffff;
+			}
+			case GREATER_THAN_OR_EQUALS, GREATER_THAN ->
+			{
+				lower = (long) lowerValue << 20 | 0xfffff;
+				higher = (long) higherValue << 20 | 0xfffff;
+			}
+			case LESSER_THAN_OR_EQUALS, LESSER_THAN ->
+			{
+				lower = (long) lowerValue << 20;
+				higher = (long) higherValue << 20;
+			}
+			case IN_RANGE ->
+			{
+				lower = (long) lowerValue << 20;
+				higher = (long) higherValue << 20 | 0xfffff;
+			}
+			default -> throw new IllegalStateException("Unexpected operator: " + operator);
+		}
+
+		// Remember: it's the condition that is checked to be true, i.e. greater than means the expression value is greater than the value of the file
+		return switch (operator)
+		{
+			case EQUALS, IN_RANGE -> cb.between(root.get(getFieldName()), lower, higher);
+			case GREATER_THAN_OR_EQUALS -> cb.lessThanOrEqualTo(root.get(getFieldName()), lower);
+			case GREATER_THAN -> cb.lessThan(root.get(getFieldName()), lower);
+			case LESSER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getFieldName()), lower);
+			case LESSER_THAN -> cb.greaterThan(root.get(getFieldName()), lower);
+		};
 	}
 
 	@Override

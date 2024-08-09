@@ -21,6 +21,9 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
+/**
+ * Matches the name of the file.
+ */
 public class NameExpression extends StringExpression
 {
 	public NameExpression(Operator operator, String template, boolean caseSensitive)

@@ -20,7 +20,10 @@
 package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.FileFakes;
+import io.xeres.testutils.Sha1SumFakes;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -181,27 +184,28 @@ class ExpressionTest
 		assertFalse(expression.evaluate(fileWrong2));
 	}
 
-//	@Test
-//	void Expression_Date_OK()
-//	{
-//		var expression = new DateExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
-//		var fileCorrect = ExpressionFakes.createfile("foo", 0, 1000, 0, null, null);
-//		var fileWrong = ExpressionFakes.createfile("foo", 0, 2000, 0, null, null);
-//
-//		assertTrue(expression.evaluate(fileCorrect));
-//		assertFalse(expression.evaluate(fileWrong));
-//	}
+	@Test
+	void Expression_Date_OK()
+	{
+		var expression = new DateExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
+		var fileCorrect = FileFakes.createFile("foo", 1024, Instant.ofEpochSecond(1000));
+		var fileWrong = FileFakes.createFile("foo", 1024, Instant.ofEpochSecond(2000));
 
-//	@Test
-//	void Expression_Popularity_OK()
-//	{
-//		var expression = new PopularityExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
-//		var fileCorrect = ExpressionFakes.createfile("foo", 0, 0, 1000, null, null);
-//		var fileWrong = ExpressionFakes.createfile("foo", 0, 0, 2000, null, null);
-//
-//		assertTrue(expression.evaluate(fileCorrect));
-//		assertFalse(expression.evaluate(fileWrong));
-//	}
+		assertTrue(expression.evaluate(fileCorrect));
+		assertFalse(expression.evaluate(fileWrong));
+	}
+
+	@Test
+	void Expression_Popularity_OK()
+	{
+		// Popularity is not implemented (there's no "popularity" in a local file), so it's always zero
+		var expression1 = new PopularityExpression(RelationalExpression.Operator.EQUALS, 1, 0);
+		var expression2 = new PopularityExpression(RelationalExpression.Operator.EQUALS, 0, 0);
+		var file = FileFakes.createFile("foo");
+
+		assertFalse(expression1.evaluate(file));
+		assertTrue(expression2.evaluate(file));
+	}
 
 	@Test
 	void Expression_SizeMb_OK()
@@ -216,42 +220,43 @@ class ExpressionTest
 		assertFalse(expression.evaluate(fileWrong));
 	}
 
-//	@Test
-//	void Expression_Path_OK()
-//	{
-//		var expression = new PathExpression(StringExpression.Operator.CONTAINS_ANY, "coolstuff", false);
-//		var fileCorrect = ExpressionFakes.createfile("foobar", 0, 0, 0, "C:\\coolstuff\\bla", null);
-//		var fileWrong = ExpressionFakes.createfile("foobar", 0, 0, 0, "C:\\nothing\\bla", null);
-//
-//		assertTrue(expression.evaluate(fileCorrect));
-//		assertFalse(expression.evaluate(fileWrong));
-//	}
+	@Test
+	void Expression_Path_OK()
+	{
+		// Path is not implemented because it's very difficult to do for no real gain
+		var expression = new PathExpression(StringExpression.Operator.CONTAINS_ANY, "coolstuff", false);
+		var file = FileFakes.createFile("foo");
 
-//	@Test
-//	void Expression_Extension_OK()
-//	{
-//		var expression = new ExtensionExpression(StringExpression.Operator.CONTAINS_ANY, "exe com", false);
-//		var fileCorrect1 = ExpressionFakes.createfile("foobar.exe", 0, 0, 0, null, null);
-//		var fileCorrect2 = ExpressionFakes.createfile("foobar.com", 0, 0, 0, null, null);
-//		var fileWrong = ExpressionFakes.createfile("foobar.bin", 0, 0, 0, null, null);
-//
-//		assertTrue(expression.evaluate(fileCorrect1));
-//		assertTrue(expression.evaluate(fileCorrect2));
-//		assertFalse(expression.evaluate(fileWrong));
-//	}
+		assertFalse(expression.evaluate(file));
+	}
 
-//	@Test
-//	void Expression_Hash_OK()
-//	{
-//		var hash1 = Sha1SumFakes.createSha1Sum();
-//		var hash2 = Sha1SumFakes.createSha1Sum();
-//		var expression = new HashExpression(StringExpression.Operator.EQUALS, hash1.toString());
-//		var fileCorrect = ExpressionFakes.createfile("foobar", 0, 0, 0, null, hash1);
-//		var fileWrong = ExpressionFakes.createfile("foobar.bin", 0, 0, 0, null, hash2);
-//
-//		assertTrue(expression.evaluate(fileCorrect));
-//		assertFalse(expression.evaluate(fileWrong));
-//	}
+	@Test
+	void Expression_Extension_OK()
+	{
+		var expression = new ExtensionExpression(StringExpression.Operator.CONTAINS_ANY, "exe com", false);
+		var fileCorrect1 = FileFakes.createFile("foobar.exe");
+		var fileCorrect2 = FileFakes.createFile("foobar.com");
+		var fileWrong1 = FileFakes.createFile("foobar.bin");
+		var fileWrong2 = FileFakes.createFile("The.Exe.bin");
+
+		assertTrue(expression.evaluate(fileCorrect1));
+		assertTrue(expression.evaluate(fileCorrect2));
+		assertFalse(expression.evaluate(fileWrong1));
+		assertFalse(expression.evaluate(fileWrong2));
+	}
+
+	@Test
+	void Expression_Hash_OK()
+	{
+		var hash1 = Sha1SumFakes.createSha1Sum();
+		var hash2 = Sha1SumFakes.createSha1Sum();
+		var expression = new HashExpression(StringExpression.Operator.EQUALS, hash1.toString());
+		var fileCorrect = FileFakes.createFile("foobar", 0, null, hash1);
+		var fileWrong = FileFakes.createFile("foobar", 0, null, hash2);
+
+		assertTrue(expression.evaluate(fileCorrect));
+		assertFalse(expression.evaluate(fileWrong));
+	}
 
 	@Test
 	void Expression_Compound_AND()

@@ -45,7 +45,7 @@ public abstract class StringExpression implements Expression
 	abstract String getFieldName();
 
 	private final Operator operator;
-	private final List<String> words;
+	protected final List<String> words;
 	private final boolean caseSensitive;
 
 	protected StringExpression(Operator operator, String template, boolean caseSensitive)
@@ -76,6 +76,10 @@ public abstract class StringExpression implements Expression
 	@Override
 	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
 	{
+		if (getFieldName() == null)
+		{
+			return cb.isFalse(cb.literal(true));
+		}
 		return switch (operator)
 		{
 			case EQUALS -> equals(cb, root);
@@ -104,7 +108,7 @@ public abstract class StringExpression implements Expression
 		return all ? cb.and(array) : cb.or(array);
 	}
 
-	private Predicate like(CriteriaBuilder cb, jakarta.persistence.criteria.Expression<String> x, String pattern)
+	protected Predicate like(CriteriaBuilder cb, jakarta.persistence.criteria.Expression<String> x, String pattern)
 	{
 		if (caseSensitive)
 		{

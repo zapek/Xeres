@@ -21,12 +21,22 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 import io.xeres.common.util.FileNameUtils;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Matches the extension of a file. This implementation deviates a little by matching over
+ * the whole name but uses some tricks to make it acceptable in most common cases.
+ */
 public class ExtensionExpression extends StringExpression
 {
 	public ExtensionExpression(Operator operator, String template, boolean caseSensitive)
 	{
-		super(operator, template, caseSensitive);
+		super(Operator.CONTAINS_ANY, template, caseSensitive);
 	}
 
 	@Override
@@ -38,7 +48,25 @@ public class ExtensionExpression extends StringExpression
 	@Override
 	String getFieldName()
 	{
-		return "extension"; // XXX: won't work...
+		return "name";
+	}
+
+	@Override
+	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
+	{
+		if (getFieldName() == null)
+		{
+			return cb.isFalse(cb.literal(true));
+		}
+		return contains(cb, root);
+	}
+
+	private Predicate contains(CriteriaBuilder cb, Root<File> root)
+	{
+		List<Predicate> predicates = new ArrayList<>();
+		words.forEach(s -> predicates.add(like(cb, root.get(getFieldName()), "." + s)));
+		var array = predicates.toArray(new Predicate[0]);
+		return cb.or(array);
 	}
 
 	@Override

@@ -19,6 +19,10 @@
 
 package io.xeres.app.database.model.file;
 
+import io.xeres.common.id.Sha1Sum;
+
+import java.time.Instant;
+
 public final class FileFakes
 {
 	private FileFakes()
@@ -45,9 +49,21 @@ public final class FileFakes
 
 	public static File createFile(String name, long size)
 	{
+		return createFile(name, size, null);
+	}
+
+	public static File createFile(String name, long size, Instant modified)
+	{
+		return createFile(name, size, modified, null);
+	}
+
+	public static File createFile(String name, long size, Instant modified, Sha1Sum hash)
+	{
 		var file = new File();
 		file.setName(name);
 		file.setSize(size);
+		file.setModified(modified);
+		file.setHash(hash);
 		return file;
 	}
 }

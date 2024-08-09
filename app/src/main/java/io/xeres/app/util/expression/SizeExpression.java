@@ -21,6 +21,10 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
+/**
+ * Matches the size of the file. Is limited to a maximum file size of a signed 32-bit integer, which is
+ * around 2 GB. Use {@link SizeMbExpression} for bigger files.
+ */
 public class SizeExpression extends RelationalExpression
 {
 	public SizeExpression(Operator operator, int lowerValue, int higherValue)

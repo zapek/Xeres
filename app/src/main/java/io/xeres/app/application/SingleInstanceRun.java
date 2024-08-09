@@ -54,11 +54,17 @@ public final class SingleInstanceRun
 	/**
 	 * Enforces an application to have a single instance of itself, given a certain directory.
 	 *
-	 * @param dataDir the directory to be used by the application, null if it's the current directory
+	 * @param dataDir the directory to be used by the application. If it's null, no enforcing is performed and
+	 *                true is returned because there's no data dir to conflict with
 	 * @return true if the application can run without conflicts; false if it's already running
 	 */
 	public static boolean enforceSingleInstance(String dataDir)
 	{
+		if (dataDir == null)
+		{
+			return true;
+		}
+
 		file = new File(dataDir, LOCK_FILE_NAME);
 
 		var result = false;

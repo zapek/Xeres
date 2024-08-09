@@ -21,6 +21,10 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
+/**
+ * Matches the path component of a file. Always returns no match because it's difficult to
+ * implement, and it's clumsy anyway (it depends on where the "root" of the share is).
+ */
 public class PathExpression extends StringExpression
 {
 	public PathExpression(Operator operator, String template, boolean caseSensitive)
@@ -37,12 +41,12 @@ public class PathExpression extends StringExpression
 	@Override
 	String getFieldName()
 	{
-		return "parent"; // XXX: won't work...
+		return null;
 	}
 
 	@Override
 	String getValue(File file)
 	{
-		return file.getParent().toString();
+		return "";
 	}
 }

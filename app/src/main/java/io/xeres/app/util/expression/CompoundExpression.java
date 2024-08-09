@@ -26,6 +26,9 @@ import jakarta.persistence.criteria.Root;
 
 import java.util.List;
 
+/**
+ * Matches 2 expressions, ANDed, ORed or XORed together.
+ */
 public class CompoundExpression implements Expression
 {
 	public enum Operator

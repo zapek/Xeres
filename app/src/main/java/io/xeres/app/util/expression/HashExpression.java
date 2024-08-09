@@ -21,11 +21,14 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
+/**
+ * Matches the hash of the file but doesn't work yet.
+ */
 public class HashExpression extends StringExpression
 {
 	public HashExpression(Operator operator, String template)
 	{
-		super(operator, template, false);
+		super(operator, template, true);
 	}
 
 	@Override
@@ -37,7 +40,7 @@ public class HashExpression extends StringExpression
 	@Override
 	String getFieldName()
 	{
-		return "hash"; // XXX: prolly won't work...
+		return null; // Criteria API doesn't seem to support byte arrays so we just fail for now
 	}
 
 	@Override

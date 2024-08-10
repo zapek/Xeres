@@ -129,6 +129,7 @@ public class AsyncImageView extends ImageView
 							catch (InterruptedException e)
 							{
 								onCancel();
+								Thread.currentThread().interrupt();
 							}
 							catch (ExecutionException e)
 							{

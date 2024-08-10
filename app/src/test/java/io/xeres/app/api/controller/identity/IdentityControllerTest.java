@@ -94,7 +94,7 @@ class IdentityControllerTest extends AbstractControllerTest
 
 		when(identityRsService.findById(id)).thenReturn(Optional.of(identity));
 
-		mvc.perform(getJson(BASE_URL + "/" + id + "/image"))
+		mvc.perform(get(BASE_URL + "/" + id + "/image", MediaType.IMAGE_JPEG))
 				.andExpect(status().isNoContent());
 
 		verify(identityRsService).findById(id);
@@ -109,7 +109,7 @@ class IdentityControllerTest extends AbstractControllerTest
 
 		when(identityRsService.findById(id)).thenReturn(Optional.of(identity));
 
-		mvc.perform(getJson(BASE_URL + "/" + id + "/image"))
+		mvc.perform(get(BASE_URL + "/" + id + "/image", MediaType.IMAGE_JPEG))
 				.andExpect(status().isOk())
 				.andExpect(header().string(CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE));
 

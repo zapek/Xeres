@@ -71,7 +71,7 @@ public class IdentityController
 		return toDTO(identityRsService.findById(id).orElseThrow());
 	}
 
-	@GetMapping("/{id}/image")
+	@GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_JPEG_VALUE)
 	@Operation(summary = "Return an identity's avatar image")
 	@ApiResponse(responseCode = "200", description = "Identity's avatar image found")
 	@ApiResponse(responseCode = "204", description = "Identity's avatar image is empty")

@@ -19,19 +19,22 @@
 
 package io.xeres.ui.controller.identity;
 
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.client.GeneralClient;
+import io.xeres.ui.custom.AsyncImageView;
 import io.xeres.ui.model.identity.Identity;
 import javafx.scene.control.TableCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
 public class ImageCell extends TableCell<Identity, Long>
 {
-	public ImageCell()
+	private final GeneralClient generalClient;
+
+	public ImageCell(GeneralClient generalClient)
 	{
 		super();
+		this.generalClient = generalClient;
 	}
 
 	@Override
@@ -41,13 +44,12 @@ public class ImageCell extends TableCell<Identity, Long>
 		setGraphic(empty ? null : getAvatarImage(item));
 	}
 
-	private static ImageView getAvatarImage(Long id)
+	private ImageView getAvatarImage(Long id)
 	{
-		var imageView = new ImageView();
+		var imageView = new AsyncImageView();
 		imageView.setFitWidth(128);
 		imageView.setFitHeight(128);
-		var image = new Image(JavaFxApplication.getControlUrl() + IDENTITIES_PATH + "/" + id + "/image", true);
-		imageView.setImage(image);
+		imageView.loadUrl(IDENTITIES_PATH + "/" + id + "/image", url -> generalClient.getImage(url).block());
 		return imageView;
 	}
 }

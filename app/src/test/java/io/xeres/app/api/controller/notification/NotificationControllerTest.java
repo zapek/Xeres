@@ -65,7 +65,7 @@ class NotificationControllerTest extends AbstractControllerTest
 
 		when(statusNotificationService.addClient()).thenReturn(sseEmitter);
 
-		mvc.perform(getJson(BASE_URL + "/status", MediaType.TEXT_EVENT_STREAM))
+		mvc.perform(get(BASE_URL + "/status", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 
@@ -76,7 +76,7 @@ class NotificationControllerTest extends AbstractControllerTest
 
 		when(forumNotificationService.addClient()).thenReturn(sseEmitter);
 
-		mvc.perform(getJson(BASE_URL + "/forum", MediaType.TEXT_EVENT_STREAM))
+		mvc.perform(get(BASE_URL + "/forum", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 
@@ -87,7 +87,7 @@ class NotificationControllerTest extends AbstractControllerTest
 
 		when(fileNotificationService.addClient()).thenReturn(sseEmitter);
 
-		mvc.perform(getJson(BASE_URL + "/file", MediaType.TEXT_EVENT_STREAM))
+		mvc.perform(get(BASE_URL + "/file", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 }

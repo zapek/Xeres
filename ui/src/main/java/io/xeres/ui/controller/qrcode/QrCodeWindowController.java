@@ -20,8 +20,9 @@
 package io.xeres.ui.controller.qrcode;
 
 import io.xeres.common.rest.location.RSIdResponse;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.custom.ResizeableImageView;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -30,7 +31,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.print.PrinterJob;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.transform.Scale;
@@ -55,7 +55,7 @@ public class QrCodeWindowController implements WindowController
 	public static final double CREDIT_CARD_HEIGHT = 2.125;
 
 	@FXML
-	private ImageView ownQrCode;
+	private ResizeableImageView ownQrCode;
 
 	@FXML
 	private Button printButton;
@@ -71,10 +71,13 @@ public class QrCodeWindowController implements WindowController
 
 	private RSIdResponse rsIdResponse;
 
+	private final GeneralClient generalClient;
+
 	private final ResourceBundle bundle;
 
-	public QrCodeWindowController(ResourceBundle bundle)
+	public QrCodeWindowController(GeneralClient generalClient, ResourceBundle bundle)
 	{
+		this.generalClient = generalClient;
 		this.bundle = bundle;
 	}
 
@@ -99,7 +102,7 @@ public class QrCodeWindowController implements WindowController
 
 		rsIdResponse = (RSIdResponse) userData;
 
-		ownQrCode.setImage(new Image(JavaFxApplication.getControlUrl() + LOCATIONS_PATH + "/" + 1L + "/rsId/qrCode", true));
+		ownQrCode.loadUrl(LOCATIONS_PATH + "/" + 1L + "/rsId/qrCode", url -> generalClient.getImage(url).block());
 	}
 
 	private void showPrintSetupThenPrint(Window window)

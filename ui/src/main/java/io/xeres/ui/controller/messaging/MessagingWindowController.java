@@ -24,13 +24,14 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
-import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.FileClient;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
+import io.xeres.ui.custom.AsyncImageView;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -89,7 +90,7 @@ public class MessagingWindowController implements WindowController
 	private VBox content;
 
 	@FXML
-	private ImageView ownAvatar;
+	private AsyncImageView ownAvatar;
 
 	@FXML
 	private ImageView targetAvatar;
@@ -98,6 +99,7 @@ public class MessagingWindowController implements WindowController
 
 	private final ProfileClient profileClient;
 	private final FileClient fileClient;
+	private final GeneralClient generalClient;
 	private final MarkdownService markdownService;
 	private final ResourceBundle bundle;
 	private final LocationId locationId;
@@ -110,10 +112,11 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
+	public MessagingWindowController(ProfileClient profileClient, FileClient fileClient, GeneralClient generalClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
 		this.fileClient = fileClient;
+		this.generalClient = generalClient;
 		this.messageClient = messageClient;
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
@@ -231,7 +234,7 @@ public class MessagingWindowController implements WindowController
 				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 
-		ownAvatar.setImage(new Image(JavaFxApplication.getControlUrl() + IDENTITIES_PATH + "/" + 1L + "/image", true));
+		ownAvatar.loadUrl(IDENTITIES_PATH + "/" + 1L + "/image", url -> generalClient.getImage(url).block());
 		messageClient.requestAvatar(locationId);
 	}
 

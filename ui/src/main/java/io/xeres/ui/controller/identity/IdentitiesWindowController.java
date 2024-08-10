@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.identity;
 
 import io.xeres.common.id.Id;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.identity.Identity;
@@ -44,6 +45,8 @@ public class IdentitiesWindowController implements WindowController
 {
 	private final IdentityClient identityClient;
 
+	private final GeneralClient generalClient;
+
 	@FXML
 	private TableView<Identity> identitiesTableView;
 
@@ -59,9 +62,10 @@ public class IdentitiesWindowController implements WindowController
 	@FXML
 	private TableColumn<Identity, Long> tableImage;
 
-	public IdentitiesWindowController(IdentityClient identityClient)
+	public IdentitiesWindowController(IdentityClient identityClient, GeneralClient generalClient)
 	{
 		this.identityClient = identityClient;
+		this.generalClient = generalClient;
 	}
 
 	@Override
@@ -74,7 +78,7 @@ public class IdentitiesWindowController implements WindowController
 						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 								.withZone(ZoneId.systemDefault())
 								.format(param.getValue().getUpdated())));
-		tableImage.setCellFactory(param -> new ImageCell());
+		tableImage.setCellFactory(param -> new ImageCell(generalClient));
 		tableImage.setCellValueFactory(new PropertyValueFactory<>("id"));
 
 		identityClient.getIdentities().collectList()

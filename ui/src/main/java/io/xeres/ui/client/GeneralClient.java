@@ -20,27 +20,27 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.rest.file.FileDownloadRequest;
-import io.xeres.common.rest.file.FileProgress;
-import io.xeres.common.rest.file.FileSearchRequest;
-import io.xeres.common.rest.file.FileSearchResponse;
 import io.xeres.ui.JavaFxApplication;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static io.xeres.common.rest.PathConfig.FILES_PATH;
-
+/**
+ * A WebClient that has no specific API root and is not restricted to one domain in
+ * particular.
+ * <p>
+ * You should use domain related web clients when possible.
+ */
 @Component
-public class FileClient
+public class GeneralClient
 {
 	private final WebClient.Builder webClientBuilder;
 
 	private WebClient webClient;
 
-	public FileClient(WebClient.Builder webClientBuilder)
+	public GeneralClient(WebClient.Builder webClientBuilder)
 	{
 		this.webClientBuilder = webClientBuilder;
 	}
@@ -49,53 +49,16 @@ public class FileClient
 	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + FILES_PATH)
+				.baseUrl(JavaFxApplication.getControlUrl())
 				.build();
 	}
 
-	public Mono<FileSearchResponse> search(String name)
-	{
-		var request = new FileSearchRequest(name);
-
-		return webClient.post()
-				.uri("/search")
-				.bodyValue(request)
-				.retrieve()
-				.bodyToMono(FileSearchResponse.class);
-	}
-
-	public Mono<Long> download(String name, String hash, long size, String locationId)
-	{
-		var request = new FileDownloadRequest(name, hash, size, locationId);
-
-		return webClient.post()
-				.uri("/download")
-				.bodyValue(request)
-				.retrieve()
-				.bodyToMono(Long.class);
-	}
-
-	public Flux<FileProgress> getDownloads()
+	public Mono<byte[]> getImage(String path)
 	{
 		return webClient.get()
-				.uri("/downloads")
+				.uri(path)
+				.accept(MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG)
 				.retrieve()
-				.bodyToFlux(FileProgress.class);
-	}
-
-	public Flux<FileProgress> getUploads()
-	{
-		return webClient.get()
-				.uri("/uploads")
-				.retrieve()
-				.bodyToFlux(FileProgress.class);
-	}
-
-	public Mono<Void> removeDownload(long id)
-	{
-		return webClient.delete()
-				.uri("/downloads/{id}", id)
-				.retrieve()
-				.bodyToMono(Void.class);
+				.bodyToMono(byte[].class);
 	}
 }

@@ -52,7 +52,7 @@ public class ChatClient
 	}
 
 	@EventListener
-	public void init(StartupEvent event)
+	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + CHAT_PATH)
@@ -73,9 +73,7 @@ public class ChatClient
 	public Mono<Long> joinChatRoom(long id)
 	{
 		return webClient.put()
-				.uri(uriBuilder -> uriBuilder
-						.path("/rooms/{id}/subscription")
-						.build(id))
+				.uri("/rooms/{id}/subscription", id)
 				.retrieve()
 				.bodyToMono(Long.class);
 	}
@@ -83,9 +81,7 @@ public class ChatClient
 	public Mono<Void> leaveChatRoom(long id)
 	{
 		return webClient.delete()
-				.uri(uriBuilder -> uriBuilder
-						.path("/rooms/{id}/subscription")
-						.build(id))
+				.uri("/rooms/{id}/subscription", id)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}

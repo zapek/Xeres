@@ -1,16 +1,15 @@
 package io.xeres.ui.custom;
 
-import javafx.scene.image.ImageView;
-
 /**
  * Modified image class that allows unlimited up-scaling.
  */
-public class ResizeableImageView extends ImageView
+public class ResizeableImageView extends AsyncImageView
 {
 	private static final double MINIMUM_SIZE = 32.0;
 
 	public ResizeableImageView()
 	{
+		super();
 		setPreserveRatio(false);
 	}
 

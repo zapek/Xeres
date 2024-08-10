@@ -19,6 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.custom.AsyncImageView?>
 <?import io.xeres.ui.custom.TypingNotificationView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TextField?>
@@ -39,7 +40,7 @@
         </StackPane>
         <Region VBox.vgrow="ALWAYS"/>
         <StackPane styleClass="imageview-avatar">
-            <ImageView fx:id="ownAvatar" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER"/>
+            <AsyncImageView fx:id="ownAvatar" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER"/>
         </StackPane>
         <HBox.margin>
             <Insets left="8.0"/>

@@ -101,7 +101,7 @@ class LocationControllerTest extends AbstractControllerTest
 		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
 		when(qrCodeService.generateQrCode(rsId)).thenReturn(ImageIO.read(new ByteArrayInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/image/abitbol.png")).readAllBytes())));
 
-		mvc.perform(getJson(BASE_URL + "/" + location.getId() + "/rsId/qrCode", MediaType.IMAGE_PNG))
+		mvc.perform(get(BASE_URL + "/" + location.getId() + "/rsId/qrCode", MediaType.IMAGE_PNG))
 				.andExpect(status().isOk())
 				.andExpect(header().string(CONTENT_TYPE, "image/png"));
 

@@ -52,7 +52,7 @@ public class ForumClient
 	}
 
 	@EventListener
-	public void init(StartupEvent event)
+	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
 		webClient = webClientBuilder
 				.baseUrl(JavaFxApplication.getControlUrl() + FORUMS_PATH)
@@ -82,9 +82,7 @@ public class ForumClient
 	public Mono<ForumGroup> getForumGroupById(long groupId)
 	{
 		return webClient.get()
-				.uri(uriBuilder -> uriBuilder
-						.path("/groups/{groupId}")
-						.build(groupId))
+				.uri("/groups/{groupId}", groupId)
 				.retrieve()
 				.bodyToMono(ForumGroupDTO.class)
 				.map(ForumMapper::fromDTO);
@@ -93,9 +91,7 @@ public class ForumClient
 	public Mono<Long> subscribeToForumGroup(long groupId)
 	{
 		return webClient.put()
-				.uri(uriBuilder -> uriBuilder
-						.path("/groups/{groupId}/subscription")
-						.build(groupId))
+				.uri("/groups/{groupId}/subscription", groupId)
 				.retrieve()
 				.bodyToMono(Long.class);
 	}
@@ -103,9 +99,7 @@ public class ForumClient
 	public Mono<Void> unsubscribeFromForumGroup(long groupId)
 	{
 		return webClient.delete()
-				.uri(uriBuilder -> uriBuilder
-						.path("/groups/{groupId}/subscription")
-						.build(groupId))
+				.uri("/groups/{groupId}/subscription", groupId)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
@@ -113,9 +107,7 @@ public class ForumClient
 	public Flux<ForumMessage> getForumMessages(long groupId)
 	{
 		return webClient.get()
-				.uri(uriBuilder -> uriBuilder
-						.path("/groups/{groupId}/messages")
-						.build(groupId))
+				.uri("/groups/{groupId}/messages", groupId)
 				.retrieve()
 				.bodyToFlux(ForumMessageDTO.class)
 				.map(ForumMapper::fromDTO);
@@ -124,9 +116,7 @@ public class ForumClient
 	public Mono<ForumMessage> getForumMessage(long messageId)
 	{
 		return webClient.get()
-				.uri(uriBuilder -> uriBuilder
-						.path("/messages/{messageId}")
-						.build(messageId))
+				.uri("/messages/{messageId}", messageId)
 				.retrieve()
 				.bodyToMono(ForumMessageDTO.class)
 				.map(ForumMapper::fromDTO);

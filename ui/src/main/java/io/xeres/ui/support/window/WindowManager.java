@@ -25,6 +25,7 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.client.FileClient;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.client.message.MessageClient;
@@ -97,10 +98,11 @@ public class WindowManager
 	private static double borderBottom;
 	private static double borderLeft;
 	private static double borderRight;
+	private final GeneralClient generalClient;
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager, GeneralClient generalClient)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -111,6 +113,7 @@ public class WindowManager
 		WindowManager.bundle = bundle;
 		WindowManager.preferenceService = preferenceService;
 		WindowManager.appThemeManager = appThemeManager;
+		this.generalClient = generalClient;
 	}
 
 	public void closeAllWindows()
@@ -157,7 +160,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double click)
 							{
-								var messaging = new MessagingWindowController(profileClient, fileClient, messageClient, shareClient, markdownService, locationId, bundle);
+								var messaging = new MessagingWindowController(profileClient, fileClient, generalClient, messageClient, shareClient, markdownService, locationId, bundle);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)

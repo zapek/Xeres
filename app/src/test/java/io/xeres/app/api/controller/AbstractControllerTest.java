@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -39,12 +40,12 @@ public abstract class AbstractControllerTest
 
 	protected MockHttpServletRequestBuilder getJson(String uri)
 	{
-		return getJson(uri, APPLICATION_JSON);
+		return get(uri, APPLICATION_JSON);
 	}
 
-	protected MockHttpServletRequestBuilder getJson(String uri, MediaType mediaType)
+	protected MockHttpServletRequestBuilder get(String uri, MediaType mediaType)
 	{
-		return get(uri)
+		return MockMvcRequestBuilders.get(uri)
 				.accept(mediaType);
 	}
 

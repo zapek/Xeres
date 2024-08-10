@@ -57,7 +57,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
 /**
- * Implementation of the {@link TurtleRouter}. Only supports and requires encrypted hashes.
+ * Implementation of the {@link TurtleRouter}. Only supports encrypted hashes.
  */
 @Component
 public class TurtleRsService extends RsService implements RsServiceMaster<TurtleRsClient>, TurtleRouter

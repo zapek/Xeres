@@ -23,16 +23,15 @@ import io.xeres.common.file.FileType;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
@@ -68,6 +67,8 @@ public class FileResultView extends Tab
 	@FXML
 	private TableColumn<FileResult, String> tableHash;
 
+	@FXML
+	private ProgressBar progressBar;
 
 	public FileResultView(FileClient fileClient, String text, int searchId)
 	{
@@ -101,6 +102,8 @@ public class FileResultView extends Tab
 		tableSize.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().size()));
 		tableType.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().type().toString()));
 		tableHash.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().hash()));
+
+		showProgress();
 	}
 
 	public int getSearchId()
@@ -158,5 +161,25 @@ public class FileResultView extends Tab
 
 		var fileXContextMenu = new XContextMenu<FileResult>(filesTableView, downloadItem);
 		fileXContextMenu.setOnShowing((contextMenu, file) -> file != null);
+	}
+
+	private void showProgress()
+	{
+		var task = new Task<Void>()
+		{
+			@Override
+			protected Void call() throws Exception
+			{
+				for (var d = 0.0; d <= 1.0; d += 0.001)
+				{
+					Thread.sleep(20);
+					double finalD = d;
+					Platform.runLater(() -> progressBar.setProgress(finalD));
+				}
+				Platform.runLater(() -> progressBar.setProgress(1.0));
+				return null;
+			}
+		};
+		Thread.ofVirtual().name("Search Progress Indicator Task").start(task);
 	}
 }

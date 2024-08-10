@@ -22,12 +22,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <fx:root type="Tab" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-    <TableView fx:id="filesTableView" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="tableName" prefWidth="550" text="Name"/>
-            <TableColumn fx:id="tableSize" prefWidth="90" text="Size"/>
-            <TableColumn fx:id="tableType" prefWidth="100" text="Type"/>
-            <TableColumn fx:id="tableHash" prefWidth="320" text="Hash"/>
-        </columns>
-    </TableView>
+    <VBox>
+        <ProgressBar fx:id="progressBar" styleClass="small" prefWidth="Infinity"/>
+        <TableView fx:id="filesTableView" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="tableName" prefWidth="550" text="Name"/>
+                <TableColumn fx:id="tableSize" prefWidth="90" text="Size"/>
+                <TableColumn fx:id="tableType" prefWidth="100" text="Type"/>
+                <TableColumn fx:id="tableHash" prefWidth="320" text="Hash"/>
+            </columns>
+        </TableView>
+    </VBox>
 </fx:root>

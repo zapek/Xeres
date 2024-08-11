@@ -35,13 +35,13 @@
         <Label text="%account.profile"/>
         <TextField fx:id="profileName" promptText="%account.profile.prompt" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" text="%account.profile.tip"/>
+                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%account.profile.tip"/>
             </tooltip>
         </TextField>
         <Label text="%account.location" GridPane.rowIndex="1"/>
         <TextField fx:id="locationName" promptText="%account.location.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" text="%account.location.tip"/>
+                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%account.location.tip"/>
             </tooltip>
         </TextField>
     </GridPane>

@@ -36,7 +36,7 @@
             <Insets top="8.0"/>
         </VBox.margin>
         <tooltip>
-            <Tooltip showDuration="1m" text="%rsid.add.textarea.tip"/>
+            <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%rsid.add.textarea.tip"/>
         </tooltip>
     </TextArea>
     <Label fx:id="status"/>
@@ -57,32 +57,32 @@
             <Label text="%rsid.add.name"/>
             <ReadOnlyTextField fx:id="certName" GridPane.columnIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="%rsid.add.name.tip"/>
+                    <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%rsid.add.name.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.profile" GridPane.rowIndex="1"/>
             <ReadOnlyTextField fx:id="certId" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="%rsid.add.profile.tip"/>
+                    <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%rsid.add.profile.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.fingerprint" GridPane.rowIndex="2"/>
             <ReadOnlyTextField fx:id="certFingerprint" GridPane.columnIndex="1" GridPane.rowIndex="2">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="%rsid.add.fingerprint.tip"/>
+                    <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%rsid.add.fingerprint.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.location" GridPane.rowIndex="3"/>
             <ReadOnlyTextField fx:id="certLocId" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="%rsid.add.location.tip"/>
+                    <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%rsid.add.location.tip"/>
                 </tooltip>
             </ReadOnlyTextField>
             <Label text="%rsid.add.addresses" GridPane.rowIndex="4"/>
             <HBox GridPane.columnIndex="1" GridPane.rowIndex="4">
                 <ComboBox fx:id="certIps" minWidth="150.0">
                     <tooltip>
-                        <Tooltip showDuration="1m" text="%rsid.add.addresses.tip"/>
+                        <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%rsid.add.addresses.tip"/>
                     </tooltip>
                 </ComboBox>
                 <ImageView fx:id="imageFlag"/>
@@ -90,7 +90,7 @@
             <Label text="%rsid.add.trust" GridPane.rowIndex="5"/>
             <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5" minWidth="150.0">
                 <tooltip>
-                    <Tooltip showDuration="1m" text="%rsid.add.trust.tip"/>
+                    <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%rsid.add.trust.tip"/>
                 </tooltip>
             </ChoiceBox>
         </GridPane>

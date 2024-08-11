@@ -37,7 +37,7 @@
                         <FontIcon iconLiteral="fas-plus"/>
                     </graphic>
                     <tooltip>
-                        <Tooltip showDuration="1m" text="%forum.view.create.tip"/>
+                        <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%forum.view.create.tip"/>
                     </tooltip>
                 </Button>
             </HBox>

@@ -32,7 +32,7 @@ class Tunnel
 	private final Location source;
 	private final Location destination;
 	private final Location virtualLocation;
-	private final Sha1Sum hash;
+	private Sha1Sum hash;
 	private Instant lastUsed;
 	private long transferredBytes;
 	private double speedBps;
@@ -72,6 +72,11 @@ class Tunnel
 	public Sha1Sum getHash()
 	{
 		return hash;
+	}
+
+	public void setHash(Sha1Sum hash)
+	{
+		this.hash = hash;
 	}
 
 	public double getSpeedBps()

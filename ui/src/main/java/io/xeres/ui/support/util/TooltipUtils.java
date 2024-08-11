@@ -59,6 +59,7 @@ public final class TooltipUtils
 			{
 				tooltip.setGraphic(graphicSupplier.get());
 			}
+			formatTextIfNeeded(tooltip, text);
 			tooltip.setShowDuration(DURATION);
 			Tooltip.install(cell, tooltip);
 		});
@@ -75,11 +76,21 @@ public final class TooltipUtils
 	{
 		var tooltip = new Tooltip(text);
 		tooltip.setShowDuration(DURATION);
+		formatTextIfNeeded(tooltip, text);
 		Tooltip.install(node, tooltip);
 	}
 
 	public static void uninstall(Node node)
 	{
 		Tooltip.uninstall(node, null);
+	}
+
+	private static void formatTextIfNeeded(Tooltip tooltip, String text)
+	{
+		if (text.length() > 100 && !text.contains("\n"))
+		{
+			tooltip.setPrefWidth(300.0);
+			tooltip.setWrapText(true);
+		}
 	}
 }

@@ -24,6 +24,8 @@ import io.xeres.app.net.peer.bootstrap.PeerTcpClient;
 import io.xeres.app.net.peer.bootstrap.PeerTcpServer;
 import io.xeres.app.net.peer.bootstrap.PeerTorClient;
 import io.xeres.common.properties.StartupProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,6 +36,8 @@ import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 @Service
 public class PeerService
 {
+	private static final Logger log = LoggerFactory.getLogger(PeerService.class);
+
 	private final PeerTcpClient peerTcpClient;
 	private final PeerTorClient peerTorClient;
 	private final PeerI2pClient peerI2pClient;
@@ -53,6 +57,7 @@ public class PeerService
 
 	public void start(int localPort)
 	{
+		log.info("Starting peer services on port {}", localPort);
 		running.lazySet(true);
 
 		peerTcpServer.start(StartupProperties.getString(SERVER_ADDRESS), localPort);

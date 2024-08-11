@@ -150,7 +150,7 @@ public abstract class Item implements Cloneable
 		try
 		{
 			var clone = (Item) super.clone();
-			buf = null;
+			clone.buf = null;
 			return clone;
 		}
 		catch (CloneNotSupportedException e)

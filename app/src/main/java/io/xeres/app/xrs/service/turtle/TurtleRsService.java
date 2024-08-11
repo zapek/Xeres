@@ -331,7 +331,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (sender.getLocation().equals(tunnel.getDestination()) && !tunnel.getSource().equals(ownLocation))
 		{
-			log.debug("Forwarding generic item to {}", tunnel.getSource());
+			log.trace("Forwarding generic item to {}", tunnel.getSource());
 
 			turtleStatisticsBuffer.addToForwardTotal(serializedSize);
 
@@ -341,7 +341,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (sender.getLocation().equals(tunnel.getSource()) && !tunnel.getDestination().equals(ownLocation))
 		{
-			log.debug("Forwarding generic item to {}", tunnel.getDestination());
+			log.trace("Forwarding generic item to {}", tunnel.getDestination());
 
 			turtleStatisticsBuffer.addToForwardTotal(serializedSize);
 
@@ -415,11 +415,18 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		var client = turtleClients.stream()
-				.filter(turtleRsClient -> turtleRsClient.handleTunnelRequest(sender, item.getHash()))
-				.findFirst();
+		Optional<TurtleRsClient> clientWithSearchResult = Optional.empty();
 
-		if (client.isPresent())
+		// If it's not from us, perform a local search.
+		if (!sender.getLocation().equals(ownLocation))
+		{
+			clientWithSearchResult = turtleClients.stream()
+					.filter(turtleRsClient -> turtleRsClient.handleTunnelRequest(sender, item.getHash()))
+					.findFirst();
+		}
+
+		// If a client found something, send the search result back.
+		if (clientWithSearchResult.isPresent())
 		{
 			log.debug("Honoring tunnel request from peer {}: {}", sender, item);
 			var tunnelId = item.getPartialTunnelId() ^ generatePersonalFilePrint(item.getHash(), tunnelProbability.getBias(), false);
@@ -428,9 +435,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			var tunnel = new Tunnel(tunnelId, sender.getLocation(), ownLocation, item.getHash());
 			localTunnels.put(tunnelId, tunnel);
 			virtualPeers.put(tunnel.getVirtualLocation().getLocationId(), tunnelId);
-			client.get().addVirtualPeer(item.getHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
+			clientWithSearchResult.get().addVirtualPeer(item.getHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
 
-			outgoingTunnelClients.put(tunnelId, client.get());
+			outgoingTunnelClients.put(tunnelId, clientWithSearchResult.get());
 
 			peerConnectionManager.writeItem(sender, resultItem, this);
 			return;
@@ -470,7 +477,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		var tunnelRequest = tunnelRequestsOrigins.get(item.getRequestId());
 		if (tunnelRequest == null)
 		{
-			log.warn("Tunnel result has no request");
+			log.warn("Tunnel result has no peer direction.");
 			return;
 		}
 
@@ -484,6 +491,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			tunnelRequest.addResponse(item.getTunnelId());
 		}
 
+		// Transitive tunnel
+		var tunnel = localTunnels.computeIfAbsent(item.getTunnelId(), tunnelId -> new Tunnel(tunnelId, tunnelRequest.getSource(), sender.getLocation(), null));
+
 		if (Duration.between(tunnelRequest.getLastUsed(), Instant.now()).compareTo(TUNNEL_REQUEST_TIMEOUT) > 0)
 		{
 			log.warn("Tunnel request is known but the tunnel result arrived too late, dropping");
@@ -494,15 +504,14 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		if (tunnelRequest.getSource().equals(ownLocation))
 		{
 			var hashInfo = findHashInfoByRequest(item.getRequestId());
-			if (hashInfo != null)
-			{
-				hashInfo.getValue().addTunnel(item.getTunnelId());
+			hashInfo.ifPresent(hInfo -> {
+				hInfo.getValue().addTunnel(item.getTunnelId());
 
 				// Local tunnel
-				var tunnel = localTunnels.computeIfAbsent(item.getTunnelId(), tunnelId -> new Tunnel(item.getTunnelId(), tunnelRequest.getSource(), sender.getLocation(), hashInfo.getKey()));
+				tunnel.setHash(hInfo.getKey());
 				virtualPeers.put(tunnel.getVirtualLocation().getLocationId(), item.getTunnelId());
-				hashInfo.getValue().getClient().addVirtualPeer(hashInfo.getKey(), tunnel.getVirtualLocation(), TunnelDirection.SERVER);
-			}
+				hInfo.getValue().getClient().addVirtualPeer(hInfo.getKey(), tunnel.getVirtualLocation(), TunnelDirection.SERVER);
+			});
 		}
 		else
 		{
@@ -511,12 +520,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 	}
 
-	private Map.Entry<Sha1Sum, HashInfo> findHashInfoByRequest(int requestId)
+	private Optional<Map.Entry<Sha1Sum, HashInfo>> findHashInfoByRequest(int requestId)
 	{
 		return incomingHashes.entrySet().stream()
 				.filter(entry -> entry.getValue().getLastRequest() == requestId)
-				.findFirst()
-				.orElse(null);
+				.findFirst();
 	}
 
 	int generatePersonalFilePrint(Sha1Sum hash, int bias, boolean symmetrical)
@@ -722,7 +730,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		if (Duration.between(searchRequest.getLastUsed(), Instant.now()).compareTo(SEARCH_REQUEST_TIMEOUT) > 0) // XXX: put that timeout somewhere in the UI (like a spinning, or something that indicates the search is ongoing
+		if (Duration.between(searchRequest.getLastUsed(), Instant.now()).compareTo(SEARCH_REQUEST_TIMEOUT) > 0)
 		{
 			log.debug("Search result arrived too late, dropping...");
 			return;
@@ -788,7 +796,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				})
 				.sorted(Comparator.comparing(entry -> entry.getValue().getLastDiggTime()))
 				.map(Map.Entry::getKey)
-				.findFirst()
+				.findFirst() // Digg at most 1 tunnel each 2 seconds
 				.ifPresent(this::diggTunnel);
 	}
 
@@ -891,7 +899,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				sourcesToRemove.put(client, new AbstractMap.SimpleEntry<>(tunnel.getHash(), tunnel.getVirtualLocation()));
 
 				// Remove associated virtual peers
-				virtualPeers.entrySet().removeIf(entry -> entry.getValue().equals(id));
+				virtualPeers.remove(tunnel.getVirtualLocation().getLocationId());
 			}
 		}
 		localTunnels.remove(id);

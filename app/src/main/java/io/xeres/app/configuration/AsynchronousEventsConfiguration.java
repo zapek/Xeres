@@ -20,6 +20,7 @@
 package io.xeres.app.configuration;
 
 import io.xeres.common.events.SynchronousEvent;
+import jakarta.annotation.Nonnull;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.PayloadApplicationEvent;
@@ -46,7 +47,7 @@ public class AsynchronousEventsConfiguration
 		var eventMulticaster = new SimpleApplicationEventMulticaster()
 		{
 			@Override
-			public void multicastEvent(ApplicationEvent event, ResolvableType eventType)
+			public void multicastEvent(@Nonnull ApplicationEvent event, ResolvableType eventType)
 			{
 				var type = eventType != null ? eventType : ResolvableType.forInstance(event);
 				var executor = getTaskExecutor();

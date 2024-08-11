@@ -29,251 +29,253 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
-<VBox minWidth="640.0" minHeight="460.0" prefWidth="780.0" prefHeight="500.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
-    <AnchorPane VBox.vgrow="ALWAYS">
-        <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
-            <Tab text="%main.home">
-                <graphic>
-                    <FontIcon iconLiteral="fas-home"/>
-                </graphic>
-                <VBox alignment="CENTER">
-                    <HBox alignment="CENTER">
-                        <opaqueInsets>
-                            <Insets/>
-                        </opaqueInsets>
-                        <VBox.margin>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
-                        </VBox.margin>
-                        <ImageView fitHeight="59.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true">
-                            <Image url="@../image/icon.png"/>
-                        </ImageView>
-                        <Label fx:id="titleLabel" text="Xeres" styleClass="title-1"/>
-                    </HBox>
-                    <Label text="%main.home.slogan" styleClass="text-caption">
-                        <VBox.margin>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
-                        </VBox.margin>
-                    </Label>
-                    <Label text="%main.home.share-id">
-                        <VBox.margin>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
-                        </VBox.margin>
-                    </Label>
-                    <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
-                        <ReadOnlyTextField fx:id="shortId" prefWidth="540.0" styleClass="left-pill"/>
-                        <Button fx:id="copyShortIdButton" styleClass="right-pill, button-icon">
+<StackPane fx:id="stackPane" minWidth="640.0" minHeight="460.0" prefWidth="780.0" prefHeight="500.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
+    <VBox>
+        <AnchorPane VBox.vgrow="ALWAYS">
+            <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+                <Tab text="%main.home">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-home"/>
+                    </graphic>
+                    <VBox alignment="CENTER">
+                        <HBox alignment="CENTER">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                            <VBox.margin>
+                                <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
+                            </VBox.margin>
+                            <ImageView fitHeight="59.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true">
+                                <Image url="@../image/icon.png"/>
+                            </ImageView>
+                            <Label fx:id="titleLabel" text="Xeres" styleClass="title-1"/>
+                        </HBox>
+                        <Label text="%main.home.slogan" styleClass="text-caption">
+                            <VBox.margin>
+                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <Label text="%main.home.share-id">
+                            <VBox.margin>
+                                <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
+                            <ReadOnlyTextField fx:id="shortId" prefWidth="540.0" styleClass="left-pill"/>
+                            <Button fx:id="copyShortIdButton" styleClass="right-pill, button-icon">
+                                <graphic>
+                                    <FontIcon iconLiteral="fas-clipboard"/>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.copy-id.tip"/>
+                                </tooltip>
+                            </Button>
+                            <Button fx:id="showQrCodeButton">
+                                <HBox.margin>
+                                    <Insets left="8.0"/>
+                                </HBox.margin>
+                                <graphic>
+                                    <FontIcon iconLiteral="fas-qrcode"/>
+                                </graphic>
+                            </Button>
+                        </HBox>
+                        <Label text="%main.home.received-id">
+                            <VBox.margin>
+                                <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <Button fx:id="addFriendButton" mnemonicParsing="false" text="%main.home.add-peer">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-user"/>
+                            </graphic>
+                        </Button>
+                        <Label text="%main.home.need-help">
+                            <VBox.margin>
+                                <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <Button fx:id="webHelpButton" mnemonicParsing="false" text="%main.home.online-help">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-globe-europe"/>
+                            </graphic>
+                        </Button>
+                        <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+                <Tab text="%main.chats">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-comments"/>
+                    </graphic>
+                    <!--suppress Annotator -->
+                    <fx:include fx:id="chatView" source="chat/chatview.fxml"/>
+                </Tab>
+                <Tab text="%main.forums">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-bullhorn"/>
+                    </graphic>
+                    <!--suppress Annotator -->
+                    <fx:include fx:id="forumsView" source="forum/forumview.fxml"/>
+                </Tab>
+                <Tab text="Files">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-exchange-alt"/>
+                    </graphic>
+                    <fx:include fx:id="fileMain" source="file/main.fxml"/>
+                </Tab>
+            </TabPane>
+            <MenuBar AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" styleClass="hamburger-menu-bar">
+                <Menu>
+                    <graphic>
+                        <FontIcon iconLiteral="fas-bars"/>
+                    </graphic>
+                    <Menu text="%main.menu.peers">
+                        <MenuItem fx:id="addPeer" text="%main.menu.peers.add-peer">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-user"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="showProfilesWindow" text="%main.menu.peers.profiles">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-users"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="showPeersWindow" text="%main.menu.peers.peers">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-people-arrows"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="showBroadcastWindow" text="%main.menu.peers.broadcast">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-broadcast-tower"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="copyOwnId" text="%main.menu.peers.copy-own-id">
                             <graphic>
                                 <FontIcon iconLiteral="fas-clipboard"/>
                             </graphic>
-                            <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.copy-id.tip"/>
-                            </tooltip>
-                        </Button>
-                        <Button fx:id="showQrCodeButton">
-                            <HBox.margin>
-                                <Insets left="8.0"/>
-                            </HBox.margin>
+                        </MenuItem>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="exitApplication" text="%main.menu.peers.exit">
                             <graphic>
-                                <FontIcon iconLiteral="fas-qrcode"/>
+                                <FontIcon iconLiteral="fas-window-close"/>
                             </graphic>
-                        </Button>
-                    </HBox>
-                    <Label text="%main.home.received-id">
-                        <VBox.margin>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
-                        </VBox.margin>
-                    </Label>
-                    <Button fx:id="addFriendButton" mnemonicParsing="false" text="%main.home.add-peer">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-user"/>
-                        </graphic>
-                    </Button>
-                    <Label text="%main.home.need-help">
-                        <VBox.margin>
-                            <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
-                        </VBox.margin>
-                    </Label>
-                    <Button fx:id="webHelpButton" mnemonicParsing="false" text="%main.home.online-help">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-globe-europe"/>
-                        </graphic>
-                    </Button>
-                    <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
-                </VBox>
-            </Tab>
-            <Tab text="%main.chats">
-                <graphic>
-                    <FontIcon iconLiteral="fas-comments"/>
-                </graphic>
-                <!--suppress Annotator -->
-                <fx:include fx:id="chatView" source="chat/chatview.fxml"/>
-            </Tab>
-            <Tab text="%main.forums">
-                <graphic>
-                    <FontIcon iconLiteral="fas-bullhorn"/>
-                </graphic>
-                <!--suppress Annotator -->
-                <fx:include fx:id="forumsView" source="forum/forumview.fxml"/>
-            </Tab>
-            <Tab text="Files">
-                <graphic>
-                    <FontIcon iconLiteral="fas-exchange-alt"/>
-                </graphic>
-                <fx:include fx:id="fileMain" source="file/main.fxml"/>
-            </Tab>
-        </TabPane>
-        <MenuBar AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" styleClass="hamburger-menu-bar">
-            <Menu>
-                <graphic>
-                    <FontIcon iconLiteral="fas-bars"/>
-                </graphic>
-                <Menu text="%main.menu.peers">
-                    <MenuItem fx:id="addPeer" text="%main.menu.peers.add-peer">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-user"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="showProfilesWindow" text="%main.menu.peers.profiles">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-users"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="showPeersWindow" text="%main.menu.peers.peers">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-people-arrows"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="showBroadcastWindow" text="%main.menu.peers.broadcast">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-broadcast-tower"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="copyOwnId" text="%main.menu.peers.copy-own-id">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-clipboard"/>
-                        </graphic>
-                    </MenuItem>
-                    <SeparatorMenuItem mnemonicParsing="false"/>
-                    <MenuItem fx:id="exitApplication" text="%main.menu.peers.exit">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-window-close"/>
-                        </graphic>
-                    </MenuItem>
+                        </MenuItem>
+                    </Menu>
+                    <Menu text="%main.menu.identities">
+                        <MenuItem fx:id="showIdentitiesWindow" text="%main.menu.identities.identities">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-user-friends"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="changeOwnIdentityPicture" text="%main.menu.identities.change-picture">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-image"/>
+                            </graphic>
+                        </MenuItem>
+                    </Menu>
+                    <Menu text="%main.menu.tools">
+                        <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-globe-europe"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="showSharesWindow" text="Shares...">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-hdd"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="%main.menu.tools.export">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-save"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="statistics" mnemonicParsing="false" text="Statistics">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-chart-bar"/>
+                            </graphic>
+                        </MenuItem>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="showSettingsWindow" text="%main.menu.tools.settings">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-cogs"/>
+                            </graphic>
+                            <accelerator>
+                                <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                            </accelerator>
+                        </MenuItem>
+                    </Menu>
+                    <Menu text="%main.menu.help">
+                        <MenuItem fx:id="showHelp" text="%main.menu.help.online-help">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-life-ring"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="reportBug" mnemonicParsing="false" text="%main.menu.help.report-bug">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-bug"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="forums" mnemonicParsing="false" text="%main.menu.help.forums">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-bullhorn"/>
+                            </graphic>
+                        </MenuItem>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="showAboutWindow" text="%main.menu.help.about"/>
+                    </Menu>
+                    <Menu fx:id="debug" text="_Debug" visible="false">
+                        <MenuItem fx:id="runGc" text="_Run GC">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-trash"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="h2Console" text="H2 Console">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-database"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="systemProperties" text="System Properties">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-list"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="openShell" text="Shell">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-terminal"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="openUiCheck" text="Ui Check">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-window-maximize"/>
+                            </graphic>
+                        </MenuItem>
+                    </Menu>
                 </Menu>
-                <Menu text="%main.menu.identities">
-                    <MenuItem fx:id="showIdentitiesWindow" text="%main.menu.identities.identities">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-user-friends"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="changeOwnIdentityPicture" text="%main.menu.identities.change-picture">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-image"/>
-                        </graphic>
-                    </MenuItem>
-                </Menu>
-                <Menu text="%main.menu.tools">
-                    <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-globe-europe"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="showSharesWindow" text="Shares...">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-hdd"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="%main.menu.tools.export">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-save"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="statistics" mnemonicParsing="false" text="Statistics">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-chart-bar"/>
-                        </graphic>
-                    </MenuItem>
-                    <SeparatorMenuItem mnemonicParsing="false"/>
-                    <MenuItem fx:id="showSettingsWindow" text="%main.menu.tools.settings">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-cogs"/>
-                        </graphic>
-                        <accelerator>
-                            <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                        </accelerator>
-                    </MenuItem>
-                </Menu>
-                <Menu text="%main.menu.help">
-                    <MenuItem fx:id="showHelp" text="%main.menu.help.online-help">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-life-ring"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="reportBug" mnemonicParsing="false" text="%main.menu.help.report-bug">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-bug"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="forums" mnemonicParsing="false" text="%main.menu.help.forums">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-bullhorn"/>
-                        </graphic>
-                    </MenuItem>
-                    <SeparatorMenuItem mnemonicParsing="false"/>
-                    <MenuItem fx:id="showAboutWindow" text="%main.menu.help.about"/>
-                </Menu>
-                <Menu fx:id="debug" text="_Debug" visible="false">
-                    <MenuItem fx:id="runGc" text="_Run GC">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-trash"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="h2Console" text="H2 Console">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-database"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="systemProperties" text="System Properties">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-list"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="openShell" text="Shell">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-terminal"/>
-                        </graphic>
-                    </MenuItem>
-                    <MenuItem fx:id="openUiCheck" text="Ui Check">
-                        <graphic>
-                            <FontIcon iconLiteral="fas-window-maximize"/>
-                        </graphic>
-                    </MenuItem>
-                </Menu>
-            </Menu>
-        </MenuBar>
-    </AnchorPane>
-    <HBox alignment="BOTTOM_LEFT">
-        <VBox.margin>
-            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
-        </VBox.margin>
-        <Label text="%main.status.connections"/>
-        <Label fx:id="numberOfConnections" prefWidth="40.0"/>
-        <Label text="NAT: "/>
-        <LedControl fx:id="natStatus" prefHeight="16.0" prefWidth="16.0"/>
-        <Label text="DHT: ">
-            <HBox.margin>
-                <Insets left="8.0"/>
-            </HBox.margin>
-        </Label>
-        <LedControl fx:id="dhtStatus" prefHeight="16.0" prefWidth="16.0"/>
-        <Spacer HBox.hgrow="ALWAYS"/>
-        <HBox fx:id="hashingStatus" visible="false">
-            <ProgressIndicator prefWidth="16.0" prefHeight="16.0"/>
-            <Label fx:id="hashingName" prefWidth="320">
+            </MenuBar>
+        </AnchorPane>
+        <HBox alignment="BOTTOM_LEFT">
+            <VBox.margin>
+                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+            </VBox.margin>
+            <Label text="%main.status.connections"/>
+            <Label fx:id="numberOfConnections" prefWidth="40.0"/>
+            <Label text="NAT: "/>
+            <LedControl fx:id="natStatus" prefHeight="16.0" prefWidth="16.0"/>
+            <Label text="DHT: ">
                 <HBox.margin>
                     <Insets left="8.0"/>
                 </HBox.margin>
             </Label>
+            <LedControl fx:id="dhtStatus" prefHeight="16.0" prefWidth="16.0"/>
+            <Spacer HBox.hgrow="ALWAYS"/>
+            <HBox fx:id="hashingStatus" visible="false">
+                <ProgressIndicator prefWidth="16.0" prefHeight="16.0"/>
+                <Label fx:id="hashingName" prefWidth="320">
+                    <HBox.margin>
+                        <Insets left="8.0"/>
+                    </HBox.margin>
+                </Label>
+            </HBox>
         </HBox>
-    </HBox>
-</VBox>
+    </VBox>
+</StackPane>

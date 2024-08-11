@@ -19,6 +19,9 @@
 
 package io.xeres.ui.controller;
 
+import atlantafx.base.controls.Notification;
+import atlantafx.base.theme.Styles;
+import atlantafx.base.util.Animations;
 import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.rest.notification.status.DhtInfo;
@@ -42,6 +45,8 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -49,11 +54,15 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -79,6 +88,10 @@ public class MainWindowController implements WindowController
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
 	private static final String XERES_FORUMS_URL = "https://github.com/zapek/Xeres/discussions";
+
+	@FXML
+	private StackPane stackPane;
+
 	@FXML
 	private Label titleLabel;
 
@@ -344,6 +357,25 @@ public class MainWindowController implements WindowController
 	public void addPeer(String rsId)
 	{
 		windowManager.openAddPeer(getWindow(titleLabel), rsId);
+	}
+
+	public void showPopup(String message)
+	{
+		var msg = new Notification(message, new FontIcon(FontAwesomeSolid.INFO_CIRCLE));
+		msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_1);
+		msg.setPrefHeight(Region.USE_PREF_SIZE);
+		msg.setMaxHeight(Region.USE_PREF_SIZE);
+		StackPane.setAlignment(msg, Pos.BOTTOM_RIGHT);
+		StackPane.setMargin(msg, new Insets(0, 10, 10, 0));
+		msg.setOnClose(event -> {
+			var out = Animations.slideOutDown(msg, javafx.util.Duration.millis(250));
+			out.setOnFinished(f -> stackPane.getChildren().remove(msg));
+			out.playFromStart();
+		});
+
+		var in = Animations.slideInUp(msg, javafx.util.Duration.millis(250));
+		stackPane.getChildren().add(msg);
+		in.playFromStart();
 	}
 
 	private static void openUrl(String url)

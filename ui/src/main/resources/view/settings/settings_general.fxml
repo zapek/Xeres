@@ -48,7 +48,7 @@
                 </rowConstraints>
                 <CheckBox fx:id="autoStartEnabled" disable="true" mnemonicParsing="false" text="%settings.general.startup" GridPane.columnSpan="2147483647">
                     <tooltip>
-                        <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%settings.general.startup.tip"/>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.general.startup.tip"/>
                     </tooltip>
                 </CheckBox>
                 <Label fx:id="autoStartNotAvailable" text="%settings.general.startup.not-available" visible="false" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="text-small"/>

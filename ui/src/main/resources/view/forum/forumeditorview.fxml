@@ -35,13 +35,13 @@
         <Label text="%forum.editor.name"/>
         <ReadOnlyTextField fx:id="forumName" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%forum.editor.name.prompt"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.editor.name.prompt"/>
             </tooltip>
         </ReadOnlyTextField>
         <Label text="%forum.editor.thread.title" GridPane.rowIndex="1"/>
         <TextField fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%forum.editor.thread.description"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.editor.thread.description"/>
             </tooltip>
         </TextField>
     </GridPane>

@@ -37,7 +37,7 @@
                         <FontIcon iconLiteral="fas-plus"/>
                     </graphic>
                     <tooltip>
-                        <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%chat.room.create.tooltip"/>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%chat.room.create.tooltip"/>
                     </tooltip>
                 </Button>
             </HBox>

@@ -38,25 +38,25 @@
         <Label text="%chat.room.name"/>
         <TextField fx:id="roomName" promptText="%chat.room.create.name.prompt" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%chat.room.create.name.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%chat.room.create.name.tip"/>
             </tooltip>
         </TextField>
         <Label text="%chat.room.topic" GridPane.rowIndex="1"/>
         <TextField fx:id="topic" promptText="%chat.room.create.topic.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%chat.room.create.topic.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%chat.room.create.topic.tip"/>
             </tooltip>
         </TextField>
         <Label text="%chat.room.create.visibility" GridPane.rowIndex="2"/>
         <ChoiceBox fx:id="visibility" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%chat.room.create.visibility.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%chat.room.create.visibility.tip"/>
             </tooltip>
         </ChoiceBox>
         <Label text="%chat.room.security" GridPane.rowIndex="3"/>
         <CheckBox fx:id="security" mnemonicParsing="false" text="%chat.room.create.security.checkbox" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%chat.room.create.security.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%chat.room.create.security.tip"/>
             </tooltip>
         </CheckBox>
     </GridPane>

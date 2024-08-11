@@ -66,7 +66,7 @@
                                 <FontIcon iconLiteral="fas-clipboard"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%main.home.copy-id.tip"/>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.copy-id.tip"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="showQrCodeButton">

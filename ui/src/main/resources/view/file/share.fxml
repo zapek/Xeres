@@ -40,7 +40,7 @@
                 <FontIcon iconLiteral="fas-plus"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="Create a new share"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Create a new share"/>
             </tooltip>
         </Button>
         <Spacer HBox.hgrow="ALWAYS"/>

@@ -36,13 +36,13 @@
         <Label text="%forum.create.name"/>
         <TextField fx:id="forumName" promptText="%forum.create.name.prompt" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%forum.create.name.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.create.name.tip"/>
             </tooltip>
         </TextField>
         <Label text="%forum.create.description" GridPane.rowIndex="1"/>
         <TextField fx:id="forumDescription" promptText="%forum.create.description.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" prefWidth="300" wrapText="true" text="%forum.create.description.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.create.description.tip"/>
             </tooltip>
         </TextField>
     </GridPane>

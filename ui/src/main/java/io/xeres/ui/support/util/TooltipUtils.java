@@ -89,7 +89,7 @@ public final class TooltipUtils
 	{
 		if (text.length() > 100 && !text.contains("\n"))
 		{
-			tooltip.setPrefWidth(300.0);
+			tooltip.setMaxWidth(300.0);
 			tooltip.setWrapText(true);
 		}
 	}

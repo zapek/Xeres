@@ -42,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import static io.xeres.common.dto.share.ShareConstants.INCOMING_SHARE;
@@ -57,6 +58,8 @@ public class ShareWindowController implements WindowController
 	private static final String REMOVE_MENU_ID = "remove";
 
 	private final ShareClient shareClient;
+
+	private final ResourceBundle bundle;
 
 	@FXML
 	private TableView<Share> shareTableView;
@@ -84,9 +87,10 @@ public class ShareWindowController implements WindowController
 
 	private boolean refreshHack;
 
-	public ShareWindowController(ShareClient shareClient)
+	public ShareWindowController(ShareClient shareClient, ResourceBundle bundle)
 	{
 		this.shareClient = shareClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -103,11 +107,11 @@ public class ShareWindowController implements WindowController
 			}
 			if (JavaFxApplication.isRemoteUiClient())
 			{
-				UiUtils.alert(INFORMATION, "Cannot chose a directory in remote mode");
+				UiUtils.alert(INFORMATION, bundle.getString("settings.directory.no-remote"));
 				return;
 			}
 			var directoryChooser = new DirectoryChooser();
-			directoryChooser.setTitle("Select directory to share");
+			directoryChooser.setTitle(bundle.getString("share.select-directory"));
 			if (!isEmpty(param.getOldValue()))
 			{
 				var previousPath = Path.of(param.getOldValue());
@@ -188,7 +192,7 @@ public class ShareWindowController implements WindowController
 
 	private void createShareTableViewContextMenu()
 	{
-		var removeItem = new MenuItem("Remove share");
+		var removeItem = new MenuItem(bundle.getString("share.remove"));
 		removeItem.setId(REMOVE_MENU_ID);
 		removeItem.setOnAction(event -> {
 			var share = (Share) event.getSource();
@@ -209,15 +213,15 @@ public class ShareWindowController implements WindowController
 			{
 				if (isBlank(share.getName()))
 				{
-					throw new IllegalArgumentException("Share name cannot be empty. Set a unique name.");
+					throw new IllegalArgumentException(bundle.getString("share.error.empty-name"));
 				}
 				if (isBlank(share.getPath()))
 				{
-					throw new IllegalArgumentException("Share path cannot be empty. Set a share path.");
+					throw new IllegalArgumentException(bundle.getString("share.error.empty-path"));
 				}
 				if (shareNames.contains(share.getName()))
 				{
-					throw new IllegalArgumentException("Share name already exists. Each share name has to be unique.");
+					throw new IllegalArgumentException(bundle.getString("share.error.not-unique"));
 				}
 				shareNames.add(share.getName());
 			}

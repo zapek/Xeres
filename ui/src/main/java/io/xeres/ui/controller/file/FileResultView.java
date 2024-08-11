@@ -148,7 +148,7 @@ public class FileResultView extends Tab
 
 	private void createFilesTableViewContextMenu()
 	{
-		var downloadItem = new MenuItem("Download");
+		var downloadItem = new MenuItem(bundle.getString("button.download"));
 		downloadItem.setId(DOWNLOAD_MENU_ID);
 		downloadItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileResult file)

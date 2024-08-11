@@ -21,9 +21,23 @@
 
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.Cursor?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.statistics.StatisticsTurtleController">
+    <HBox alignment="BASELINE_RIGHT">
+        <Button styleClass="button-icon, flat, accent">
+            <graphic>
+                <FontIcon iconLiteral="fas-info-circle"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDelay="0ms" showDuration="1m" maxWidth="400" wrapText="true" text="%statistics.turtle.tip"/>
+            </tooltip>
+        </Button>
+    </HBox>
     <LineChart fx:id="lineChart" title="Bandwidth" animated="false" createSymbols="false" VBox.vgrow="ALWAYS">
         <xAxis>
             <NumberAxis fx:id="xAxis" label="Elapsed time (seconds)" animated="false" lowerBound="-120" upperBound="0" autoRanging="false"/>

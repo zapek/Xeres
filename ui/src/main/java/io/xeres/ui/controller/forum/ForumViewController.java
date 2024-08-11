@@ -235,7 +235,7 @@ public class ForumViewController implements Controller
 
 	private void createForumMessageTableViewContextMenu()
 	{
-		var replyItem = new MenuItem("Reply");
+		var replyItem = new MenuItem(bundle.getString("forum.view.reply"));
 		replyItem.setOnAction(event -> newForumPost(UiUtils.getWindow(event), true));
 
 		new XContextMenu<ForumMessage>(forumMessagesTreeTableView, replyItem);

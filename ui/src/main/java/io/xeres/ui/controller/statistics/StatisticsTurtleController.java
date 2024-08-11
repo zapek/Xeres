@@ -22,16 +22,21 @@ package io.xeres.ui.controller.statistics;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.ui.client.StatisticsClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.support.util.TooltipUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Component
@@ -53,6 +58,8 @@ public class StatisticsTurtleController implements Controller
 
 	private final StatisticsClient statisticsClient;
 
+	private final ResourceBundle bundle;
+
 	private final XYChart.Series<Number, Number> dataDownload = new XYChart.Series<>();
 	private final XYChart.Series<Number, Number> dataUpload = new XYChart.Series<>();
 	private final XYChart.Series<Number, Number> forwardTotal = new XYChart.Series<>();
@@ -61,9 +68,10 @@ public class StatisticsTurtleController implements Controller
 	private final XYChart.Series<Number, Number> searchRequestsDownload = new XYChart.Series<>();
 	private final XYChart.Series<Number, Number> searchRequestsUpload = new XYChart.Series<>();
 
-	public StatisticsTurtleController(StatisticsClient statisticsClient)
+	public StatisticsTurtleController(StatisticsClient statisticsClient, ResourceBundle bundle)
 	{
 		this.statisticsClient = statisticsClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -78,13 +86,13 @@ public class StatisticsTurtleController implements Controller
 			}
 		});
 
-		dataDownload.setName("Data in");
-		dataUpload.setName("Data out");
-		forwardTotal.setName("Data forward");
-		tunnelRequestsDownload.setName("Tunnel reqs in");
-		tunnelRequestsUpload.setName("Tunnel reqs out");
-		searchRequestsDownload.setName("Search reqs in");
-		searchRequestsUpload.setName("Search reqs out");
+		dataDownload.setName(bundle.getString("statistics.turtle.data-in"));
+		dataUpload.setName(bundle.getString("statistics.turtle.data-out"));
+		forwardTotal.setName(bundle.getString("statistics.turtle.data-forward"));
+		tunnelRequestsDownload.setName(bundle.getString("statistics.turtle.tunnel-in"));
+		tunnelRequestsUpload.setName(bundle.getString("statistics.turtle.tunnel-out"));
+		searchRequestsDownload.setName(bundle.getString("statistics.turtle.search-in"));
+		searchRequestsUpload.setName(bundle.getString("statistics.turtle.search-out"));
 
 		lineChart.getData().add(dataDownload);
 		lineChart.getData().add(dataUpload);
@@ -93,6 +101,33 @@ public class StatisticsTurtleController implements Controller
 		lineChart.getData().add(tunnelRequestsUpload);
 		lineChart.getData().add(searchRequestsDownload);
 		lineChart.getData().add(searchRequestsUpload);
+
+		var legendTips = Map.of(
+				dataDownload.getName(), bundle.getString("statistics.turtle.data-in.tip"),
+				dataUpload.getName(), bundle.getString("statistics.turtle.data-out.tip"),
+				forwardTotal.getName(), bundle.getString("statistics.turtle.data-forward.tip"),
+				tunnelRequestsDownload.getName(), bundle.getString("statistics.turtle.tunnel-in.tip"),
+				tunnelRequestsUpload.getName(), bundle.getString("statistics.turtle.tunnel-out.tip"),
+				searchRequestsDownload.getName(), bundle.getString("statistics.turtle.search-in.tip"),
+				searchRequestsUpload.getName(), bundle.getString("statistics.turtle.search-out.tip")
+		);
+
+		lineChart.lookupAll("Label.chart-legend-item").forEach(node -> {
+			if (node instanceof Label label)
+			{
+				label.setCursor(Cursor.HAND);
+				TooltipUtils.install(label, legendTips.get(label.getText()));
+				label.setOnMouseClicked(event -> {
+					label.setOpacity(label.getOpacity() > 0.75 ? 0.5 : 1.0);
+					lineChart.getData().forEach(series -> {
+						if (series.getName().equals(label.getText()))
+						{
+							series.getNode().setVisible(!series.getNode().isVisible());
+						}
+					});
+				});
+			}
+		});
 	}
 
 	public void start()

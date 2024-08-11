@@ -22,11 +22,16 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.VBox?>
 <VBox spacing="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.file.FileSearchViewController">
     <padding>
         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
     </padding>
-    <TextField fx:id="search" promptText="Enter file name"/>
+    <TextField fx:id="search" promptText="Enter file name">
+        <tooltip>
+            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%filesearchview.search.tip"/>
+        </tooltip>
+    </TextField>
     <TabPane fx:id="resultTabPane" tabClosingPolicy="ALL_TABS" styleClass="floating" VBox.vgrow="ALWAYS"/>
 </VBox>

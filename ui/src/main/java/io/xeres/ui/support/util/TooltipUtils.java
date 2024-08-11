@@ -74,8 +74,17 @@ public final class TooltipUtils
 
 	public static void install(Node node, String text)
 	{
+		install(node, text, false);
+	}
+
+	public static void install(Node node, String text, boolean immediate)
+	{
 		var tooltip = new Tooltip(text);
 		tooltip.setShowDuration(DURATION);
+		if (immediate)
+		{
+			tooltip.setShowDelay(Duration.ZERO);
+		}
 		formatTextIfNeeded(tooltip, text);
 		Tooltip.install(node, tooltip);
 	}

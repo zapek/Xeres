@@ -31,6 +31,7 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
+import java.util.ResourceBundle;
 
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 
@@ -46,17 +47,24 @@ public class SettingsTransferController implements SettingsController
 
 	private Settings settings;
 
+	private final ResourceBundle bundle;
+
+	public SettingsTransferController(ResourceBundle bundle)
+	{
+		this.bundle = bundle;
+	}
+
 	@Override
 	public void initialize()
 	{
 		incomingDirectorySelector.setOnAction(event -> {
 			if (JavaFxApplication.isRemoteUiClient())
 			{
-				UiUtils.alert(INFORMATION, "Cannot chose a directory in remote mode");
+				UiUtils.alert(INFORMATION, bundle.getString("settings.directory.no-remote"));
 				return;
 			}
 			var directoryChooser = new DirectoryChooser();
-			directoryChooser.setTitle("Select Incoming Directory");
+			directoryChooser.setTitle(bundle.getString("settings.transfer.select-incoming"));
 			if (settings.hasIncomingDirectory())
 			{
 				directoryChooser.setInitialDirectory(Path.of(settings.getIncomingDirectory()).toFile());

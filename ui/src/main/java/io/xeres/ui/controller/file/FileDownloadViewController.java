@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static io.xeres.ui.controller.file.FileProgressDisplay.State.*;
@@ -52,6 +53,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 	private static final String CANCEL_MENU_ID = "cancel";
 
 	private final FileClient fileClient;
+	private final ResourceBundle bundle;
 
 	@FXML
 	private TableView<FileProgressDisplay> downloadTableView;
@@ -75,9 +77,10 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 	private boolean wasRunning;
 
-	public FileDownloadViewController(FileClient fileClient)
+	public FileDownloadViewController(FileClient fileClient, ResourceBundle bundle)
 	{
 		this.fileClient = fileClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -164,7 +167,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 	private void createContextMenu()
 	{
-		var removeItem = new MenuItem("Remove");
+		var removeItem = new MenuItem(bundle.getString("button.remove"));
 		removeItem.setId(CANCEL_MENU_ID);
 		removeItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileProgressDisplay file)

@@ -1,5 +1,6 @@
 package io.xeres.app.util;
 
+import io.xeres.common.util.OsUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Test;
 

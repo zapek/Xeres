@@ -20,6 +20,7 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.file.FileDownload;
+import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.Sha1Sum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,9 @@ public interface FileDownloadRepository extends JpaRepository<FileDownload, Long
 {
 	Optional<FileDownload> findByHash(Sha1Sum hash);
 
-	Optional<FileDownload> findByHashAndCompletedFalse(Sha1Sum hash);
+	List<FileDownload> findAllByLocationIsNull();
 
-	List<FileDownload> findAllByCompletedFalse();
+	List<FileDownload> findAllByLocation(Location location);
+
+	void deleteAllByCompletedTrue();
 }

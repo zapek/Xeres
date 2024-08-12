@@ -33,6 +33,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,6 +151,7 @@ public class FileResultView extends Tab
 	{
 		var downloadItem = new MenuItem(bundle.getString("button.download"));
 		downloadItem.setId(DOWNLOAD_MENU_ID);
+		downloadItem.setGraphic(new FontIcon(FontAwesomeSolid.DOWNLOAD));
 		downloadItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileResult file)
 			{

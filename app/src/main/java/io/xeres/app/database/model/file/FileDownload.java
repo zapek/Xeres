@@ -19,6 +19,7 @@
 
 package io.xeres.app.database.model.file;
 
+import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.Sha1Sum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -45,6 +46,10 @@ public class FileDownload
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "hash"))
 	private Sha1Sum hash;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "location_id")
+	private Location location;
 
 	private BitSet chunkMap = new BitSet();
 
@@ -100,6 +105,21 @@ public class FileDownload
 		this.chunkMap = chunkMap;
 	}
 
+	public boolean hasLocation()
+	{
+		return location != null;
+	}
+
+	public Location getLocation()
+	{
+		return location;
+	}
+
+	public void setLocation(Location location)
+	{
+		this.location = location;
+	}
+
 	public boolean isCompleted()
 	{
 		return completed;
@@ -119,7 +139,7 @@ public class FileDownload
 				", size=" + size +
 				", hash=" + hash +
 				", chunkMap=" + chunkMap +
-				", completed=" + completed +
+				", location=" + location +
 				'}';
 	}
 }

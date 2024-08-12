@@ -33,6 +33,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
@@ -114,6 +116,7 @@ public class PeersWindowController implements WindowController
 	private void createPeersTreeContextMenu()
 	{
 		var directMessage = new MenuItem(bundle.getString("peers.direct-message"));
+		directMessage.setGraphic(new FontIcon(FontAwesomeSolid.COMMENT_DOTS));
 		directMessage.setOnAction(event -> directMessage(((PeerHolder) event.getSource())));
 
 		new XContextMenu<PeerHolder>(peersTree, directMessage);

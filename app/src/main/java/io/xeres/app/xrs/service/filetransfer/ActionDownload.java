@@ -19,11 +19,11 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.database.model.location.Location;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 
 import java.util.BitSet;
 
-record ActionDownload(long id, String name, Sha1Sum hash, long size, Location from, BitSet chunkMap) implements Action
+record ActionDownload(long id, String name, Sha1Sum hash, long size, LocationId locationId, BitSet chunkMap) implements Action
 {
 }

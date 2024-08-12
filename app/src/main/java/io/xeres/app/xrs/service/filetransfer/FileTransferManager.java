@@ -22,8 +22,10 @@ package io.xeres.app.xrs.service.filetransfer;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.file.FileService;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.file.FileProgress;
 import org.slf4j.Logger;
@@ -52,6 +54,7 @@ class FileTransferManager implements Runnable
 	private final FileTransferRsService fileTransferRsService;
 	private final FileService fileService;
 	private final SettingsService settingsService;
+	private final LocationService locationService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final Location ownLocation;
 	private final BlockingQueue<Action> queue;
@@ -63,11 +66,12 @@ class FileTransferManager implements Runnable
 	private final List<FileProgress> downloadsProgress = new ArrayList<>();
 	private final List<FileProgress> uploadsProgress = new ArrayList<>();
 
-	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<Action> queue, FileTransferStrategy fileTransferStrategy)
+	public FileTransferManager(FileTransferRsService fileTransferRsService, FileService fileService, SettingsService settingsService, LocationService locationService, DatabaseSessionManager databaseSessionManager, Location ownLocation, BlockingQueue<Action> queue, FileTransferStrategy fileTransferStrategy)
 	{
 		this.fileTransferRsService = fileTransferRsService;
 		this.fileService = fileService;
 		this.settingsService = settingsService;
+		this.locationService = locationService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.ownLocation = ownLocation;
 		this.queue = queue;
@@ -142,7 +146,7 @@ class FileTransferManager implements Runnable
 			case ActionReceiveDataRequest(Location location, Sha1Sum hash, long offset, int chunkSize) -> actionReceiveDataRequest(location, hash, offset, chunkSize);
 			case ActionReceiveData(Location location, Sha1Sum hash, long offset, byte[] data) -> actionReceiveData(location, hash, offset, data);
 
-			case ActionDownload(long id, String name, Sha1Sum hash, long size, Location from, BitSet chunkMap) -> actionDownload(id, name, hash, size, from, chunkMap);
+			case ActionDownload(long id, String name, Sha1Sum hash, long size, LocationId from, BitSet chunkMap) -> actionDownload(id, name, hash, size, from, chunkMap);
 			case ActionRemoveDownload(long id) -> actionRemoveDownload(id);
 
 			case ActionGetDownloadsProgress() -> actionComputeDownloadsProgress();
@@ -161,31 +165,34 @@ class FileTransferManager implements Runnable
 		}
 	}
 
-	private void actionDownload(long id, String name, Sha1Sum hash, long size, Location from, BitSet chunkMap)
+	public void actionDownload(long id, String name, Sha1Sum hash, long size, LocationId from, BitSet chunkMap)
 	{
-		leechers.computeIfAbsent(hash, sha1Sum -> {
-			var file = Paths.get(settingsService.getIncomingDirectory(), sha1Sum + FileService.DOWNLOAD_EXTENSION).toFile();
-			log.debug("Downloading file {}, size: {}, from: {}", file, size, from);
-			var fileLeecher = new FileLeecher(id, file, size, chunkMap, from != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
-			if (fileLeecher.open())
-			{
-				var agent = new FileTransferAgent(fileTransferRsService, name, sha1Sum, fileLeecher);
-				if (from != null)
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			leechers.computeIfAbsent(hash, sha1Sum -> {
+				var file = Paths.get(settingsService.getIncomingDirectory(), sha1Sum + FileService.DOWNLOAD_EXTENSION).toFile();
+				log.debug("Downloading file {}, size: {}, from: {}", file, size, from);
+				var fileLeecher = new FileLeecher(id, file, size, chunkMap, from != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
+				if (fileLeecher.open())
 				{
-					agent.addSeeder(from);
+					var agent = new FileTransferAgent(fileTransferRsService, name, sha1Sum, fileLeecher);
+					if (from != null)
+					{
+						locationService.findLocationByLocationId(from).ifPresent(agent::addSeeder);
+					}
+					else
+					{
+						fileTransferRsService.activateTunnels(sha1Sum);
+					}
+					return agent;
 				}
 				else
 				{
-					fileTransferRsService.activateTunnels(sha1Sum);
+					log.error("Couldn't create file {} for download", file);
+					return null;
 				}
-				return agent;
-			}
-			else
-			{
-				log.error("Couldn't create file {} for download", file);
-				return null;
-			}
-		});
+			});
+		}
 	}
 
 	public void actionRemoveDownload(long id)

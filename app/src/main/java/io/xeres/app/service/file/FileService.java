@@ -23,6 +23,7 @@ import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.file.FileDownload;
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.share.Share;
 import io.xeres.app.database.repository.FileDownloadRepository;
 import io.xeres.app.database.repository.FileRepository;
@@ -257,17 +258,19 @@ public class FileService
 		return shareRepository.findShareByFileIdIn(fileIds);
 	}
 
-	public long addDownload(String name, Sha1Sum hash, long size)
+	public long addDownload(String name, Sha1Sum hash, long size, Location location)
 	{
-		if (fileDownloadRepository.findByHash(hash).isPresent())
+		var download = fileDownloadRepository.findByHash(hash);
+		if (download.isPresent())
 		{
-			return 0L;
+			return download.get().getId();
 		}
 
 		var fileDownload = new FileDownload();
 		fileDownload.setName(name);
 		fileDownload.setHash(hash);
 		fileDownload.setSize(size);
+		fileDownload.setLocation(location);
 		var saved = fileDownloadRepository.save(fileDownload);
 		return saved.getId();
 	}
@@ -275,7 +278,7 @@ public class FileService
 	@Transactional
 	public void suspendDownload(Sha1Sum hash, BitSet chunkMap)
 	{
-		fileDownloadRepository.findByHashAndCompletedFalse(hash).ifPresent(fileDownload -> fileDownload.setChunkMap(chunkMap));
+		fileDownloadRepository.findByHash(hash).ifPresent(fileDownload -> fileDownload.setChunkMap(chunkMap));
 	}
 
 	@Transactional

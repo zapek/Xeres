@@ -58,6 +58,7 @@ class FileLeecher extends FileSeeder
 		fileSize = size;
 		nBits = (int) (size / CHUNK_SIZE + (size % CHUNK_SIZE != 0 ? 1 : 0));
 		this.chunkMap = chunkMap != null ? chunkMap : new BitSet(nBits);
+		bytesWritten = (long) this.chunkMap.cardinality() * CHUNK_SIZE;
 		chunkDistributor = new ChunkDistributor(this.chunkMap, nBits, fileTransferStrategy);
 	}
 

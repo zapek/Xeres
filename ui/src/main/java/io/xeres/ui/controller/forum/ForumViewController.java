@@ -48,6 +48,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -236,6 +238,7 @@ public class ForumViewController implements Controller
 	private void createForumMessageTableViewContextMenu()
 	{
 		var replyItem = new MenuItem(bundle.getString("forum.view.reply"));
+		replyItem.setGraphic(new FontIcon(FontAwesomeSolid.REPLY));
 		replyItem.setOnAction(event -> newForumPost(UiUtils.getWindow(event), true));
 
 		new XContextMenu<ForumMessage>(forumMessagesTreeTableView, replyItem);

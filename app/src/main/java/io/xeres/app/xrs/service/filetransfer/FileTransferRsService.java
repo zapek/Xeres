@@ -34,6 +34,7 @@ import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.filetransfer.item.*;
@@ -139,11 +140,12 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			ownLocation = locationService.findOwnLocation().orElseThrow();
-			fileDownloadRepository.findAllByCompletedFalse()
+			fileDownloadRepository.deleteAllByCompletedTrue();
+			fileDownloadRepository.findAllByLocationIsNull()
 					.forEach(file -> fileCommandQueue.add(new ActionDownload(file.getId(), file.getName(), file.getHash(), file.getSize(), null, file.getChunkMap())));
 		}
 
-		fileTransferManager = new FileTransferManager(this, fileService, settingsService, databaseSessionManager, ownLocation, fileCommandQueue, fileTransferStrategy);
+		fileTransferManager = new FileTransferManager(this, fileService, settingsService, locationService, databaseSessionManager, ownLocation, fileCommandQueue, fileTransferStrategy);
 
 		fileTransferManagerThread = Thread.ofVirtual()
 				.name("File Transfer Manager")
@@ -163,9 +165,25 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
+	public RsServiceInitPriority getInitPriority()
+	{
+		return RsServiceInitPriority.NORMAL;
+	}
+
+	@Override
 	public void initializeTurtle(TurtleRouter turtleRouter)
 	{
 		this.turtleRouter = turtleRouter;
+	}
+
+	@Override
+	public void initialize(PeerConnection peerConnection)
+	{
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			fileDownloadRepository.findAllByLocation(peerConnection.getLocation())
+					.forEach(file -> fileCommandQueue.add(new ActionDownload(file.getId(), file.getName(), file.getHash(), file.getSize(), file.getLocation().getLocationId(), file.getChunkMap())));
+		}
 	}
 
 	@Override
@@ -238,7 +256,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			case TurtleFileRequestItem turtleFileRequestItem -> fileCommandQueue.add(new ActionReceiveDataRequest(virtualLocation, hash, turtleFileRequestItem.getChunkOffset(), turtleFileRequestItem.getChunkSize()));
 			case TurtleFileDataItem turtleFileDataItem -> fileCommandQueue.add(new ActionReceiveData(virtualLocation, hash, turtleFileDataItem.getChunkOffset(), turtleFileDataItem.getChunkData()));
 
-			case TurtleFileMapRequestItem turtleFileMapRequestItem -> fileCommandQueue.add(new ActionReceiveChunkMapRequest(virtualLocation, hash, turtleFileMapRequestItem.getDirection() == TunnelDirection.CLIENT));
+			case TurtleFileMapRequestItem turtleFileMapRequestItem -> fileCommandQueue.add(new ActionReceiveChunkMapRequest(virtualLocation, hash, turtleFileMapRequestItem.getDirection() == TunnelDirection.SERVER));
 			case TurtleFileMapItem turtleFileMapItem -> fileCommandQueue.add(new ActionReceiveChunkMap(virtualLocation, hash, turtleFileMapItem.getCompressedChunks()));
 
 			case TurtleChunkCrcRequestItem turtleChunkCrcRequestItem -> fileCommandQueue.add(new ActionReceiveSingleChunkCrcRequest(virtualLocation, hash, turtleChunkCrcRequestItem.getChunkNumber()));
@@ -304,11 +322,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Transactional
 	public long download(String name, Sha1Sum hash, long size, LocationId locationId)
 	{
-		var id = fileService.addDownload(name, hash, size);
+		var id = fileService.addDownload(name, hash, size, locationService.findLocationByLocationId(locationId).orElse(null));
 		if (id != 0L)
 		{
-			var location = locationService.findLocationByLocationId(locationId);
-			fileCommandQueue.add(new ActionDownload(id, name, hash, size, location.orElse(null), null));
+			fileCommandQueue.add(new ActionDownload(id, name, hash, size, locationId, null));
 		}
 		return id;
 	}

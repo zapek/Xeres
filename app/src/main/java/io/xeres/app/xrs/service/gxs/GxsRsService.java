@@ -77,8 +77,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static final int GXS_KEY_SIZE = 2048; // The RSA size of Gxs keys. Do not change unless you want everything to break.
-	private static final int KEY_TRANSACTION_ID = 1;
-	private static final int KEY_LAST_SYNC = 2;
+	private static final int KEY_TRANSACTION_ID = 1; // This is stored per peer
+	private static final int KEY_LAST_SYNC = 2; // This is stored per peer and per service
 
 	/**
 	 * When to perform synchronization run with a peer.
@@ -330,7 +330,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		log.debug("{} sent {}", peerConnection, item);
 
-		var transactionId = getTransactionId(peerConnection);
+		var transactionId = getNextTransactionId(peerConnection);
 		var since = Instant.ofEpochSecond(item.getLastUpdated());
 		if (areGxsUpdatesAvailableForPeer(since))
 		{
@@ -374,7 +374,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		log.debug("{} sent {}", peerConnection, item);
 
-		var transactionId = getTransactionId(peerConnection);
+		var transactionId = getNextTransactionId(peerConnection);
 		var lastUpdated = Instant.ofEpochSecond(item.getLastUpdated());
 		var since = Instant.ofEpochSecond(item.getCreateSince());
 		if (areMessageUpdatesAvailableForPeer(item.getGroupId(), lastUpdated, since))
@@ -421,10 +421,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	protected int getTransactionId(PeerConnection peerConnection)
+	protected int getNextTransactionId(PeerConnection peerConnection)
 	{
-		var transactionId = (int) peerConnection.getServiceData(this, KEY_TRANSACTION_ID).orElse(1);
-		peerConnection.putServiceData(this, KEY_TRANSACTION_ID, ++transactionId);
+		var transactionId = (int) peerConnection.getData(KEY_TRANSACTION_ID).orElse(0) + 1;
+		peerConnection.putData(KEY_TRANSACTION_ID, transactionId);
 		return transactionId;
 	}
 
@@ -688,7 +688,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void sendGxsGroups(PeerConnection peerConnection, List<G> gxsGroupItems)
 	{
-		var transactionId = getTransactionId(peerConnection);
+		var transactionId = getNextTransactionId(peerConnection);
 		List<GxsTransferGroupItem> items = new ArrayList<>();
 		gxsGroupItems.forEach(gxsGroupItem -> items.add(new GxsTransferGroupItem(gxsGroupItem, transactionId, getServiceType())));
 
@@ -707,7 +707,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			return;
 		}
-		var transactionId = getTransactionId(peerConnection);
+		var transactionId = getNextTransactionId(peerConnection);
 		List<GxsSyncGroupItem> items = new ArrayList<>();
 
 		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(REQUEST, gxsId, transactionId)));
@@ -823,7 +823,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	public void sendGxsMessages(PeerConnection peerConnection, List<M> gxsMessageItems)
 	{
-		var transactionId = getTransactionId(peerConnection);
+		var transactionId = getNextTransactionId(peerConnection);
 		List<GxsTransferMessageItem> items = new ArrayList<>();
 		gxsMessageItems.forEach(gxsMessageItem -> items.add(new GxsTransferMessageItem(gxsMessageItem, transactionId, getServiceType())));
 
@@ -842,7 +842,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			return;
 		}
-		var transactionId = getTransactionId(peerConnection);
+		var transactionId = getNextTransactionId(peerConnection);
 		List<GxsSyncMessageItem> items = new ArrayList<>();
 
 		messageIds.forEach(messageId -> items.add(new GxsSyncMessageItem(GxsSyncMessageItem.REQUEST, groupId, messageId, transactionId)));

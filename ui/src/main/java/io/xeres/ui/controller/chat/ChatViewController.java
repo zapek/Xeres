@@ -53,6 +53,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -254,10 +256,12 @@ public class ChatViewController implements Controller
 	{
 		var subscribeItem = new MenuItem(I18nUtils.getString("chat.room.join"));
 		subscribeItem.setId(SUBSCRIBED_MENU_ID);
+		subscribeItem.setGraphic(new FontIcon(FontAwesomeSolid.ARROW_RIGHT));
 		subscribeItem.setOnAction(event -> joinChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
 		var unsubscribeItem = new MenuItem(I18nUtils.getString("chat.room.leave"));
 		unsubscribeItem.setId(UNSUBSCRIBED_MENU_ID);
+		unsubscribeItem.setGraphic(new FontIcon(FontAwesomeSolid.ARROW_LEFT));
 		unsubscribeItem.setOnAction(event -> leaveChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
 		var roomHolderXContextMenu = new XContextMenu<RoomHolder>(roomTree, subscribeItem, unsubscribeItem);

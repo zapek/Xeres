@@ -1,10 +1,31 @@
-package io.xeres.app.util;
+/*
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.common.util;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
@@ -88,7 +109,7 @@ public final class OsUtils
 	 * </p>
 	 *
 	 * @param args the command and its arguments
-	 * @return the resulting output, line by line (with a {@code \n} separator at the end of each line).
+	 * @return the resulting output, line by line (with a {@code \n} separator at the end of each line), or a string starting with "Error: " and the message.
 	 */
 	public static String shellExecute(String... args)
 	{
@@ -109,6 +130,66 @@ public final class OsUtils
 			return "Error: " + e.getMessage();
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Opens a file like if it was launched from a graphical shell (for example by double-clicking on it).
+	 *
+	 * @param file the file to open
+	 * @throws IllegalStateException if the file doesn't exist or the OS has troubles launching it
+	 */
+	public static void shellOpen(File file)
+	{
+		if (!file.exists())
+		{
+			throw new IllegalStateException("Couldn't open the file " + file + " because it doesn't exist");
+		}
+
+		try
+		{
+			Desktop.getDesktop().open(file);
+		}
+		catch (IOException | UnsupportedOperationException e)
+		{
+			throw new IllegalStateException("Couldn't open the file " + file + ": " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Opens the folder with the file selected.
+	 *
+	 * @param file the file to show in the folderr
+	 * @throws IllegalStateException if the file doesn't exist or the OS has troubles launching a file browser
+	 */
+	public static void showInFolder(File file)
+	{
+		if (!file.exists())
+		{
+			throw new IllegalStateException("Couldn't show the folder of the file " + file + " because the later doesn't exist");
+		}
+
+		try
+		{
+			Desktop.getDesktop().browseFileDirectory(file);
+		}
+		catch (UnsupportedOperationException e)
+		{
+			if (SystemUtils.IS_OS_WINDOWS)
+			{
+				try
+				{
+					new ProcessBuilder("explorer.exe", "/select,", file.getCanonicalPath()).start();
+				}
+				catch (IOException ex)
+				{
+					throw new IllegalStateException("Couldn't show the folder of the file " + file + ": " + ex.getMessage());
+				}
+			}
+			else
+			{
+				throw new IllegalStateException("Couldn't show the folder of the file " + file + ": " + e.getMessage());
+			}
+		}
 	}
 
 	private static Path createFileSystemDetectionFile(Path path, boolean upperCase) throws IOException

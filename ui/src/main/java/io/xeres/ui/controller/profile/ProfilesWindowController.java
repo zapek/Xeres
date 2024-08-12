@@ -35,6 +35,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
@@ -101,6 +103,7 @@ public class ProfilesWindowController implements WindowController
 	{
 		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
 		deleteItem.setId(DELETE_MENU_ID);
+		deleteItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
 		deleteItem.setOnAction(event -> {
 			var profile = (Profile) event.getSource();
 			if (profile.getId() != OWN_PROFILE_ID)

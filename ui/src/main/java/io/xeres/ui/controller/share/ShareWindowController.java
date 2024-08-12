@@ -36,6 +36,8 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.DirectoryChooser;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -194,6 +196,7 @@ public class ShareWindowController implements WindowController
 	{
 		var removeItem = new MenuItem(bundle.getString("share.remove"));
 		removeItem.setId(REMOVE_MENU_ID);
+		removeItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
 		removeItem.setOnAction(event -> {
 			var share = (Share) event.getSource();
 			shareTableView.getItems().remove(share);

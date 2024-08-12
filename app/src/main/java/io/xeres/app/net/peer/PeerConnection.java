@@ -35,6 +35,7 @@ public class PeerConnection
 	private final ChannelHandlerContext ctx;
 	private final Set<RsService> services = new HashSet<>();
 	private final AtomicBoolean servicesSent = new AtomicBoolean(false);
+	private final Map<Integer, Object> data = new HashMap<>();
 	private final Map<Integer, Map<Integer, Object>> serviceData = new HashMap<>();
 	private final List<ScheduledFuture<?>> schedules = new ArrayList<>();
 
@@ -77,13 +78,57 @@ public class PeerConnection
 		return servicesSent.compareAndSet(false, true);
 	}
 
-	public void putServiceData(RsService service, int key, Object data)
+	/**
+	 * Puts data into a peer.
+	 *
+	 * @param key  the key
+	 * @param data the data
+	 */
+	public void putData(int key, Object data)
 	{
-		var map = serviceData.getOrDefault(service.getServiceType().getType(), new HashMap<>());
-		map.put(key, data);
-		serviceData.put(service.getServiceType().getType(), map);
+		this.data.put(key, data);
 	}
 
+	/**
+	 * Gets data from a peer.
+	 *
+	 * @param key the key
+	 * @return the data
+	 */
+	public Optional<Object> getData(int key)
+	{
+		return Optional.ofNullable(data.get(key));
+	}
+
+	/**
+	 * Removes data from a peer.
+	 *
+	 * @param key the key
+	 */
+	public void removeData(int key)
+	{
+		data.remove(key);
+	}
+
+	/**
+	 * Adds data specific to a service.
+	 *
+	 * @param service the service to add data to
+	 * @param key     the key
+	 * @param data    the data
+	 */
+	public void putServiceData(RsService service, int key, Object data)
+	{
+		serviceData.computeIfAbsent(service.getServiceType().getType(), k -> new HashMap<>()).put(key, data);
+	}
+
+	/**
+	 * Gets data specific to a service.
+	 *
+	 * @param service the service to get data from
+	 * @param key the key
+	 * @return the data or an empty optional if there was none
+	 */
 	public Optional<Object> getServiceData(RsService service, int key)
 	{
 		var serviceMap = serviceData.get(service.getServiceType().getType());
@@ -94,6 +139,12 @@ public class PeerConnection
 		return Optional.ofNullable(serviceMap.get(key));
 	}
 
+	/**
+	 * Removes data associated with the service.
+	 *
+	 * @param service the service to remove data from
+	 * @param key the key
+	 */
 	public void removeServiceData(RsService service, int key)
 	{
 		var serviceMap = serviceData.get(service.getServiceType().getType());

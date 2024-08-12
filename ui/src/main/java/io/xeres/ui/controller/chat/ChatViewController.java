@@ -22,6 +22,7 @@ package io.xeres.ui.controller.chat;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.client.ChatClient;
+import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
@@ -32,6 +33,8 @@ import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.uri.ContentParser;
+import io.xeres.ui.support.uri.FileContentParser;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -57,6 +60,7 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -136,6 +140,7 @@ public class ChatViewController implements Controller
 	private final TrayService trayService;
 	private final ResourceBundle bundle;
 	private final MarkdownService markdownService;
+	private final FileClient fileClient;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -155,7 +160,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, FileClient fileClient)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -165,6 +170,7 @@ public class ChatViewController implements Controller
 		this.trayService = trayService;
 		this.bundle = bundle;
 		this.markdownService = markdownService;
+		this.fileClient = fileClient;
 
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
@@ -561,12 +567,23 @@ public class ChatViewController implements Controller
 		var chatListView = roomInfoTreeItem.getValue().getChatListView();
 		if (chatListView == null)
 		{
-			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId(), markdownService, (contentParser, args) -> {
-				// XXX: implement!
-			});
+			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId(), markdownService, this::handleLinkAction);
 			roomInfoTreeItem.getValue().setChatListView(chatListView);
 		}
 		return chatListView;
+	}
+
+	private void handleLinkAction(ContentParser contentParser, Map<String, String> args)
+	{
+		if (contentParser instanceof FileContentParser)
+		{
+			fileClient.download(args.get(FileContentParser.PARAMETER_NAME),
+							args.get(FileContentParser.PARAMETER_HASH),
+							Long.parseLong(args.get(FileContentParser.PARAMETER_SIZE)),
+							null)
+					.subscribe();
+			// XXX: add some visible action?
+		}
 	}
 
 	private void handleInputKeys(KeyEvent event)

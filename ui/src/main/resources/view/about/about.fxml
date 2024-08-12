@@ -55,14 +55,18 @@
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
                     <Text text="%about.slogan" styleClass="text-caption"/>
-                    <Text text="&#10;&#10;©2019-2024 by David Gerber, All Rights Reserved&#10;&#10;"/>
-                    <DisclosedHyperlink text="Report bugs or suggest improvements." uri="https://github.com/zapek/Xeres/issues/new/choose"/>
+                    <Text text="&#10;&#10;©2019-2024 "/>
+                    <Text text="%about.author-by"/>
+                    <Text text=" David Gerber, "/>
+                    <Text text="%about.all-rights-reserved"/>
                     <Text text="&#10;&#10;"/>
-                    <DisclosedHyperlink text="Website" uri="https://xeres.io"/>
+                    <DisclosedHyperlink text="%about.report-bugs" uri="https://github.com/zapek/Xeres/issues/new/choose"/>
+                    <Text text="&#10;&#10;"/>
+                    <DisclosedHyperlink text="%about.website" uri="https://xeres.io"/>
                     <Text text="&#10;"/>
-                    <DisclosedHyperlink text="Wiki" uri="https://github.com/zapek/Xeres/wiki"/>
+                    <DisclosedHyperlink text="%about.wiki" uri="https://github.com/zapek/Xeres/wiki"/>
                     <Text text="&#10;"/>
-                    <DisclosedHyperlink text="Source code" uri="https://github.com/zapek/Xeres"/>
+                    <DisclosedHyperlink text="%about.source-code" uri="https://github.com/zapek/Xeres"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>
@@ -98,7 +102,7 @@
                 </TextFlow>
             </ScrollPane>
         </Tab>
-        <Tab text="Additional Licenses">
+        <Tab text="%about.additional-licenses">
             <ScrollPane fitToWidth="true">
                 <TextFlow>
                     <padding>

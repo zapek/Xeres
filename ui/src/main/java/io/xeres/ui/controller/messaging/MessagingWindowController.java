@@ -205,12 +205,15 @@ public class MessagingWindowController implements WindowController
 
 	private void handleLinkAction(ContentParser contentParser, Map<String, String> args)
 	{
-		fileClient.download(args.get(FileContentParser.PARAMETER_NAME),
-						args.get(FileContentParser.PARAMETER_HASH),
-						Long.parseLong(args.get(FileContentParser.PARAMETER_SIZE)),
-						String.valueOf(locationId))
-				.subscribe();
-		// XXX: add some visible action? like a toast or switch to download file. see what RS does
+		if (contentParser instanceof FileContentParser)
+		{
+			fileClient.download(args.get(FileContentParser.PARAMETER_NAME),
+							args.get(FileContentParser.PARAMETER_HASH),
+							Long.parseLong(args.get(FileContentParser.PARAMETER_SIZE)),
+							String.valueOf(locationId))
+					.subscribe();
+			// XXX: add some visible action? like a toast or switch to download file. see what RS does
+		}
 	}
 
 	@Override

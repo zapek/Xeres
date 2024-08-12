@@ -28,7 +28,7 @@
             <TableColumn fx:id="tableName" editable="false" prefWidth="117.0" text="%identities.name"/>
             <TableColumn fx:id="tableImage" prefWidth="132.0" text="%identities.avatar"/>
             <TableColumn fx:id="tableGxsId" prefWidth="210.0" text="%identities.gxsid"/>
-            <TableColumn fx:id="tableUpdated" minWidth="0.0" prefWidth="120.0" text="%identities.update"/>
+            <TableColumn fx:id="tableUpdated" minWidth="0.0" prefWidth="130.0" text="%identities.update"/>
         </columns>
     </TableView>
 </VBox>

@@ -26,19 +26,19 @@
 <VBox xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.file.FileMainController">
     <AnchorPane VBox.vgrow="ALWAYS">
         <TabPane fx:id="tabPane" side="LEFT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
-            <Tab fx:id="search" text="Search">
+            <Tab fx:id="search" text="%search.main.search">
                 <graphic>
                     <FontIcon iconLiteral="fas-search"/>
                 </graphic>
                 <fx:include fx:id="fileSearchView" source="search.fxml"/>
             </Tab>
-            <Tab fx:id="downloads" text="Downloads">
+            <Tab fx:id="downloads" text="%search.main.downloads">
                 <graphic>
                     <FontIcon iconLiteral="fas-download"/>
                 </graphic>
                 <fx:include fx:id="fileDownloadView" source="download.fxml"/>
             </Tab>
-            <Tab fx:id="uploads" text="Uploads">
+            <Tab fx:id="uploads" text="%search.main.uploads">
                 <graphic>
                     <FontIcon iconLiteral="fas-upload"/>
                 </graphic>

@@ -25,14 +25,14 @@
 <VBox minWidth="800.0" minHeight="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.share.ShareWindowController" styleClass="base-spacing">
     <TableView fx:id="shareTableView" VBox.vgrow="ALWAYS" editable="true">
         <columns>
-            <TableColumn fx:id="tableDirectory" prefWidth="350.0" text="Shared directory"/>
-            <TableColumn fx:id="tableName" prefWidth="130.0" text="Visible name"/>
-            <TableColumn fx:id="tableSearchable" prefWidth="100.0" text="Searchable"/>
-            <TableColumn fx:id="tableBrowsable" prefWidth="140.0" text="Browsable"/>
+            <TableColumn fx:id="tableDirectory" prefWidth="350.0" text="%share.list.directory"/>
+            <TableColumn fx:id="tableName" prefWidth="130.0" text="%share.list.visible-name"/>
+            <TableColumn fx:id="tableSearchable" prefWidth="100.0" text="%share.list.searchable"/>
+            <TableColumn fx:id="tableBrowsable" prefWidth="140.0" text="%share.list.browsable"/>
         </columns>
     </TableView>
     <HBox>
-        <Button fx:id="addButton" text="Add">
+        <Button fx:id="addButton" text="%button.add">
             <HBox.margin>
                 <Insets top="12.0"/>
             </HBox.margin>
@@ -40,11 +40,11 @@
                 <FontIcon iconLiteral="fas-plus"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Create a new share"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%share.create"/>
             </tooltip>
         </Button>
         <Spacer HBox.hgrow="ALWAYS"/>
-        <Button fx:id="applyButton" defaultButton="true" minWidth="72.0" mnemonicParsing="false" text="Apply and close">
+        <Button fx:id="applyButton" defaultButton="true" minWidth="72.0" mnemonicParsing="false" text="%share.apply">
             <HBox.margin>
                 <Insets right="4.0" top="12.0"/>
             </HBox.margin>

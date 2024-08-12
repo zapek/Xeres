@@ -33,7 +33,7 @@
                 <FontIcon iconLiteral="fas-bold"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="%editorview.action.bold"/>
+                <Tooltip showDuration="1m" text="%editor.action.bold"/>
             </tooltip>
         </Button>
         <Button fx:id="italic" focusTraversable="false" styleClass="button-icon">
@@ -41,7 +41,7 @@
                 <FontIcon iconLiteral="fas-italic"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="%editorview.action.italic"/>
+                <Tooltip showDuration="1m" text="%editor.action.italic"/>
             </tooltip>
         </Button>
         <Separator orientation="VERTICAL"/>
@@ -50,7 +50,7 @@
                 <FontIcon iconLiteral="fas-link"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="%editorview.action.hyperlink"/>
+                <Tooltip showDuration="1m" text="%editor.action.hyperlink"/>
             </tooltip>
         </Button>
         <Button fx:id="quote" focusTraversable="false" styleClass="button-icon">
@@ -58,7 +58,7 @@
                 <FontIcon iconLiteral="fas-quote-left"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="%editorview.action.quote"/>
+                <Tooltip showDuration="1m" text="%editor.action.quote"/>
             </tooltip>
         </Button>
         <Button fx:id="code" focusTraversable="false" styleClass="button-icon">
@@ -66,7 +66,7 @@
                 <FontIcon iconLiteral="fas-code"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="%editorview.action.code"/>
+                <Tooltip showDuration="1m" text="%editor.action.code"/>
             </tooltip>
         </Button>
         <Separator orientation="VERTICAL"/>
@@ -75,7 +75,7 @@
                 <FontIcon iconLiteral="fas-list-ul"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="%editorview.action.list"/>
+                <Tooltip showDuration="1m" text="%editor.action.list"/>
             </tooltip>
         </Button>
         <Button fx:id="heading" focusTraversable="false" styleClass="button-icon">
@@ -83,7 +83,7 @@
                 <FontIcon iconLiteral="fas-heading"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="%editorview.action.header"/>
+                <Tooltip showDuration="1m" text="%editor.action.header"/>
             </tooltip>
         </Button>
     </ToolBar>

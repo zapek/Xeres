@@ -38,12 +38,12 @@
             </tooltip>
         </Button>
     </HBox>
-    <LineChart fx:id="lineChart" title="Bandwidth" animated="false" createSymbols="false" VBox.vgrow="ALWAYS">
+    <LineChart fx:id="lineChart" title="%statistics.turtle.bandwidth" animated="false" createSymbols="false" VBox.vgrow="ALWAYS">
         <xAxis>
-            <NumberAxis fx:id="xAxis" label="Elapsed time (seconds)" animated="false" lowerBound="-120" upperBound="0" autoRanging="false"/>
+            <NumberAxis fx:id="xAxis" label="%statistics.turtle.elapsed-time" animated="false" lowerBound="-120" upperBound="0" autoRanging="false"/>
         </xAxis>
         <yAxis>
-            <NumberAxis label="Speed (KB/s)" animated="false"/>
+            <NumberAxis label="%statistics.turtle.speed" animated="false"/>
         </yAxis>
         <cursor>
             <Cursor fx:constant="CROSSHAIR"/>

@@ -248,9 +248,9 @@ public class EditorView extends VBox
 		var selection = editor.getSelection();
 
 		var dialog = new TextInputDialog();
-		dialog.setTitle(bundle.getString("editorview.hyperlink.insert"));
+		dialog.setTitle(bundle.getString("editor.hyperlink.insert"));
 		dialog.setGraphic(null);
-		dialog.setHeaderText(bundle.getString("editorview.hyperlink.enter"));
+		dialog.setHeaderText(bundle.getString("editor.hyperlink.enter"));
 		dialog.initOwner(parent);
 
 		dialog.showAndWait().ifPresent(link -> {

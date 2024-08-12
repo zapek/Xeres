@@ -30,7 +30,7 @@
       fx:controller="io.xeres.ui.controller.settings.SettingsRemoteController">
     <Card>
         <header>
-            <Label text="Authentication"/>
+            <Label text="%settings.remote.auth"/>
         </header>
         <body>
             <GridPane hgap="8" vgap="8">
@@ -42,28 +42,27 @@
                     <RowConstraints vgrow="ALWAYS"/>
                     <RowConstraints vgrow="ALWAYS"/>
                 </rowConstraints>
-                <Label text="Port">
+                <Label text="%settings.network.port">
                     <GridPane.margin>
                         <Insets right="4.0"/>
                     </GridPane.margin>
                 </Label>
                 <ReadOnlyTextField fx:id="port" GridPane.columnIndex="1"/>
-                <Label text="Username" GridPane.rowIndex="1">
+                <Label text="%settings.remote.username" GridPane.rowIndex="1">
                     <GridPane.margin>
                         <Insets right="4.0"/>
                     </GridPane.margin>
                 </Label>
                 <ReadOnlyTextField text="user" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <Label text="Password" GridPane.rowIndex="2">
+                <Label text="%settings.remote.password" GridPane.rowIndex="2">
                     <GridPane.margin>
                         <Insets right="4.0"/>
                     </GridPane.margin>
                 </Label>
                 <PasswordTextField fx:id="password" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-                <Label wrapText="true" GridPane.rowIndex="3" GridPane.columnSpan="2" styleClass="text-small" text="Changing the password requires a restart to be effective. Setting an empty password disables authentication."/>
+                <Label wrapText="true" GridPane.rowIndex="3" GridPane.columnSpan="2" styleClass="text-small" text="%settings.remote.note"/>
             </GridPane>
         </body>
     </Card>
-
 </VBox>

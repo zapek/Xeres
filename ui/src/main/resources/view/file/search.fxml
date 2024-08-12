@@ -30,7 +30,7 @@
     </padding>
     <TextField fx:id="search" promptText="Enter file name">
         <tooltip>
-            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%filesearchview.search.tip"/>
+            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%search.input.search.tip"/>
         </tooltip>
     </TextField>
     <TabPane fx:id="resultTabPane" tabClosingPolicy="ALL_TABS" styleClass="floating" VBox.vgrow="ALWAYS"/>

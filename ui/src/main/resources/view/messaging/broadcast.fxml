@@ -26,11 +26,11 @@
 <?import javafx.scene.text.*?>
 <VBox minHeight="220.0" minWidth="320.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.messaging.BroadcastWindowController" styleClass="base-spacing">
     <TextFlow>
-        <Text text="Send a message to "/>
-        <Text style="-fx-font-weight: bold" text="all"/>
-        <Text text=" currently connected peers.&#10;"/>
-        <Text fill="red" style="-fx-font-weight: bold;" text="Warning:"/>
-        <Text text=" do not abuse this function. Only use it for emergencies or exceptional situations."/>
+        <Text text="%broadcast.send.explanation"/>
+        <Text text="&#10;"/>
+        <Text fill="red" style="-fx-font-weight: bold;" text="%broadcast.send.warning-header"/>
+        <Text text=" "/>
+        <Text text="%broadcast.send.warning"/>
     </TextFlow>
     <TextArea fx:id="textArea" prefHeight="88.0" prefWidth="384.0" VBox.vgrow="ALWAYS">
         <VBox.margin>

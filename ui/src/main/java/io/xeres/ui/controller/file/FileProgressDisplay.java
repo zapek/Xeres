@@ -13,6 +13,7 @@ public class FileProgressDisplay
 	{
 		SEARCHING,
 		TRANSFERRING,
+		REMOVING,
 		DONE;
 
 		@Override

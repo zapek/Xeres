@@ -53,7 +53,7 @@ public class DelayedAction
 		{
 			cleanup();
 			var newTimeline = new Timeline(new KeyFrame(delay, event -> {
-				if (shouldRun.get())
+				if (start != null && shouldRun.get())
 				{
 					start.run();
 				}
@@ -71,7 +71,10 @@ public class DelayedAction
 		if (shouldRun.compareAndSet(true, false))
 		{
 			cleanup();
-			stop.run();
+			if (stop != null)
+			{
+				stop.run();
+			}
 		}
 	}
 

@@ -417,6 +417,10 @@ public class MainWindowController implements WindowController
 							}
 							case START_HASHING ->
 							{
+								if (hashingDelayedDisplayAction == null) // Can happen when scanning temporary files
+								{
+									hashingDelayedDisplayAction = new DelayedAction(null, () -> hashingName.setText(null), Duration.ofMillis(2000));
+								}
 								hashingDelayedDisplayAction.abort();
 								hashingName.setText("Hashing " + Path.of(sse.data().scannedFile()).getFileName());
 								TooltipUtils.install(hashingStatus, "Share: " + sse.data().shareName() + ", file: " + sse.data().scannedFile());

@@ -109,7 +109,11 @@ public class FileDownloadViewController implements Controller, TabActivation
 								if (incomingProgress != null)
 								{
 									var newProgress = (double) incomingProgress.currentSize() / incomingProgress.totalSize();
-									currentProgress.setState(getState(currentProgress, incomingProgress, newProgress));
+									var newState = getState(currentProgress, incomingProgress, newProgress);
+									if (currentProgress.getState() != REMOVING)
+									{
+										currentProgress.setState(newState);
+									}
 									currentProgress.setProgress(newProgress);
 									incomingProgresses.remove(incomingProgress.hash());
 								}
@@ -174,6 +178,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 			{
 				log.debug("Removing download of file {}", file.getName());
 				fileClient.removeDownload(file.getId())
+						.doOnSuccess(unused -> file.setState(REMOVING))
 						.subscribe();
 			}
 		});

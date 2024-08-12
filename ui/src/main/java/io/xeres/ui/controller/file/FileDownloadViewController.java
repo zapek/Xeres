@@ -131,13 +131,13 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 	private static FileProgressDisplay.State getState(FileProgressDisplay currentProgress, FileProgress incomingProgress, double newProgress)
 	{
-		if (newProgress != currentProgress.getProgress())
-		{
-			return TRANSFERRING;
-		}
 		if (incomingProgress.currentSize() == incomingProgress.totalSize())
 		{
 			return DONE;
+		}
+		if (newProgress != currentProgress.getProgress())
+		{
+			return TRANSFERRING;
 		}
 		return SEARCHING;
 	}

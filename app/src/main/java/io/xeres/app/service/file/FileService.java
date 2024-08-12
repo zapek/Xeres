@@ -50,6 +50,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
@@ -62,6 +63,8 @@ public class FileService
 	public static final String DOWNLOAD_EXTENSION = ".xrsdownload";
 
 	private static final TemporalAmount SCAN_DELAY = Duration.ofMinutes(10); // Delay between shares scan
+
+	private static final Map<Sha1Sum, Path> temporaryHashes = new ConcurrentHashMap<>();
 
 	static final int SMALL_FILE_SIZE = 1024 * 16; // 16 KB
 
@@ -207,7 +210,11 @@ public class FileService
 	public Optional<Path> findFilePathByHash(Sha1Sum hash)
 	{
 		Objects.requireNonNull(hash);
-
+		var tempPath = temporaryHashes.get(hash);
+		if (tempPath != null)
+		{
+			return Optional.of(tempPath);
+		}
 		return findFileByHash(hash).map(this::getFilePath);
 	}
 
@@ -495,10 +502,20 @@ public class FileService
 		return dirName.startsWith(".");
 	}
 
-	public Sha1Sum calculateFileHash(Path path)
+	public Sha1Sum calculateTemporaryFileHash(Path path)
 	{
+		var byPath = findByPath(path);
+		if (byPath.isPresent())
+		{
+			return byPath.get();
+		}
 		var ioBuffer = new byte[SMALL_FILE_SIZE];
-		return calculateFileHash(path, ioBuffer);
+		var hash = calculateFileHash(path, ioBuffer);
+		if (hash != null)
+		{
+			temporaryHashes.put(hash, path);
+		}
+		return hash;
 	}
 
 	Sha1Sum calculateFileHash(Path path, byte[] ioBuffer)

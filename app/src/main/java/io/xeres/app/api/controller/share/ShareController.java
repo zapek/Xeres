@@ -81,8 +81,7 @@ public class ShareController
 	public String shareTemporarily(@Valid @RequestBody String filePath) throws IOException
 	{
 		var path = Paths.get(filePath);
-		var hash = fileService.findByPath(path)
-				.orElseGet(() -> fileService.calculateFileHash(path));
+		var hash = fileService.calculateTemporaryFileHash(path);
 
 		if (hash == null)
 		{

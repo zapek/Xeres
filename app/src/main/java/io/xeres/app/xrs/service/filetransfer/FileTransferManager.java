@@ -165,7 +165,7 @@ class FileTransferManager implements Runnable
 	{
 		leechers.computeIfAbsent(hash, sha1Sum -> {
 			var file = Paths.get(settingsService.getIncomingDirectory(), sha1Sum + FileService.DOWNLOAD_EXTENSION).toFile();
-			log.debug("Downloading file {}, size: {}", file, size);
+			log.debug("Downloading file {}, size: {}, from: {}", file, size, from);
 			var fileLeecher = new FileLeecher(id, file, size, chunkMap, from != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
 			if (fileLeecher.open())
 			{

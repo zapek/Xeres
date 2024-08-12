@@ -72,7 +72,7 @@ class FileTransferAgent
 	public void addSeeder(Location peer)
 	{
 		seeders.computeIfAbsent(peer, k -> new ChunkReceiver());
-		fileTransferRsService.sendChunkMapRequest(peer, hash, true);
+		fileTransferRsService.sendChunkMapRequest(peer, hash, false);
 	}
 
 	public void addLeecher(Location peer, long offset, int size)

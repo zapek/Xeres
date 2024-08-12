@@ -420,7 +420,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	 *
 	 * @param location the location to send to (can be virtual)
 	 * @param hash the hash related to
-	 * @param isClient if true, means that the message is for a client (download) instead of a server
+	 * @param isClient if true, means that the message is for a client (that is, one that is currently downloading the file) instead of a server
 	 */
 	public void sendChunkMapRequest(Location location, Sha1Sum hash, boolean isClient)
 	{

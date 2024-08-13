@@ -50,6 +50,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
@@ -58,6 +59,8 @@ import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 public class AddRsIdWindowController implements WindowController
 {
 	private static final Logger log = LoggerFactory.getLogger(AddRsIdWindowController.class);
+
+	private static final Pattern RSID_CLEANER = Pattern.compile("([\r\n\t])");
 
 	@FXML
 	private Button cancelButton;
@@ -172,7 +175,7 @@ public class AddRsIdWindowController implements WindowController
 
 	private void checkRsId(String rsId)
 	{
-		profileClient.checkRsId(rsId.replaceAll("([\r\n\t])", ""))
+		profileClient.checkRsId(RSID_CLEANER.matcher(rsId).replaceAll(""))
 				.doOnSuccess(profile -> Platform.runLater(() ->
 				{
 					if (profile.getId() == ownProfile.getId())

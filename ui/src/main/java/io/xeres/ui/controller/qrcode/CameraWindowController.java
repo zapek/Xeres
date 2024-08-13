@@ -136,10 +136,6 @@ public class CameraWindowController implements WindowController
 					{
 						// No QR code was found on the image
 					}
-					catch (Exception e)
-					{
-						log.error("Exception: {}", e.getMessage(), e);
-					}
 				}
 				camera.close();
 				imageProperty.set(null);

@@ -49,7 +49,7 @@ public final class OsUtils
 	/**
 	 * Checks if a file system is case-sensitive.
 	 *
-	 * @param path the path where to write the file to check, obviously used by the file system we want to check
+	 * @param path the directory path in the filesystem hierarchy. The location must be writable.
 	 * @return true if case-sensitive
 	 */
 	public static boolean isFileSystemCaseSensitive(Path path)
@@ -125,7 +125,7 @@ public final class OsUtils
 				sb.append(line).append("\n");
 			}
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
 			return "Error: " + e.getMessage();
 		}

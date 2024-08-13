@@ -25,6 +25,7 @@ import com.sangupta.bloomfilter.core.JavaBitSetArray;
 import com.sangupta.bloomfilter.core.MMapFileBackedBitArray;
 import io.xeres.common.id.Sha1Sum;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 
@@ -64,7 +65,7 @@ public class HashBloomFilter
 						bArray = new MMapFileBackedBitArray(Path.of(baseDir, PERSISTENT_FILE).toFile(), numBits);
 						return bArray;
 					}
-					catch (Exception e)
+					catch (IOException e)
 					{
 						throw new RuntimeException(e);
 					}

@@ -195,6 +195,9 @@ public class LocationService
 		updateConnection(location, socketAddress); // XXX: is this the right place? maybe it should be done in discovery service
 
 		location.setConnected(true);
+		// @Transactional should save it automatically, but I'm not sure when exactly. To detect simultaneous connections,
+		// we need to make sure that this method has an updated location.
+		locationRepository.save(location);
 	}
 
 	private static void updateConnection(Location location, SocketAddress socketAddress)

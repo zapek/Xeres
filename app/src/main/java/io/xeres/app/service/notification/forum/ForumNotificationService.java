@@ -55,7 +55,8 @@ public class ForumNotificationService extends NotificationService
 	{
 		var action = new AddForumMessages(toForumMessageDTOs(forumMessages,
 				forumMessageService.getAuthorsMapFromMessages(forumMessages),
-				forumMessageService.getMessagesMapFromMessages(forumMessages)));
+				forumMessageService.getMessagesMapFromMessages(forumMessages),
+				false));
 
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
 	}

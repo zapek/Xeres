@@ -97,7 +97,7 @@ public final class ForumMapper
 				.toList();
 	}
 
-	public static ForumMessageDTO toDTO(ForumMessageItem forumMessageItem, String authorName, long originalId, long parentId)
+	public static ForumMessageDTO toDTO(ForumMessageItem forumMessageItem, String authorName, long originalId, long parentId, boolean withMessageContent)
 	{
 		if (forumMessageItem == null)
 		{
@@ -114,18 +114,19 @@ public final class ForumMapper
 				authorName,
 				forumMessageItem.getName(),
 				forumMessageItem.getPublished(),
-				UnHtml.cleanupMessage(forumMessageItem.getContent()),
+				withMessageContent ? UnHtml.cleanupMessage(forumMessageItem.getContent()) : "",
 				forumMessageItem.isRead()
 		);
 	}
 
-	public static List<ForumMessageDTO> toForumMessageDTOs(List<ForumMessageItem> forumMessageItems, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ForumMessageItem> messagesMap)
+	public static List<ForumMessageDTO> toForumMessageDTOs(List<ForumMessageItem> forumMessageItems, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ForumMessageItem> messagesMap, boolean withMessageContent)
 	{
 		return emptyIfNull(forumMessageItems).stream()
 				.map(forumMessageItem -> toDTO(forumMessageItem,
 						authorsMap.getOrDefault(forumMessageItem.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
 						messagesMap.getOrDefault(forumMessageItem.getOriginalMessageId(), ForumMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(forumMessageItem.getParentId(), ForumMessageItem.EMPTY).getId()
+						messagesMap.getOrDefault(forumMessageItem.getParentId(), ForumMessageItem.EMPTY).getId(),
+						withMessageContent
 				))
 				.toList();
 	}

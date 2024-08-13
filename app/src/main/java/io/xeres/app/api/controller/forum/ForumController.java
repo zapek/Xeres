@@ -144,7 +144,8 @@ public class ForumController
 		return toDTO(forumMessage,
 				author.map(GxsGroupItem::getName).orElse(null),
 				messages.getOrDefault(forumMessage.getOriginalMessageId(), 0L),
-				messages.getOrDefault(forumMessage.getParentId(), 0L)
+				messages.getOrDefault(forumMessage.getParentId(), 0L),
+				true
 		);
 	}
 

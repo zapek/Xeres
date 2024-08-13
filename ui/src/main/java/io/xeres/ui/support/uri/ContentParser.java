@@ -19,8 +19,9 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.ui.support.contentline.Content;
-import io.xeres.ui.support.markdown.LinkAction;
+import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriUtils;
@@ -35,7 +36,7 @@ public interface ContentParser
 
 	String getAuthority();
 
-	Content parse(UriComponents uriComponents, String text, LinkAction linkAction);
+	Content parse(UriComponents uriComponents, String text, UriAction uriAction);
 
 	static String buildUri(String protocol, String authority, String... args)
 	{
@@ -68,5 +69,22 @@ public interface ContentParser
 			}
 		}
 		return sb.toString();
+	}
+
+	default long getLong(String s)
+	{
+		try
+		{
+			return Long.parseLong(s);
+		}
+		catch (NumberFormatException e)
+		{
+			return 0L;
+		}
+	}
+
+	default Sha1Sum getHash(String s)
+	{
+		return Sha1Sum.fromString(s);
 	}
 }

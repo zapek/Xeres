@@ -21,9 +21,7 @@ package io.xeres.ui.support.markdown;
 
 import io.xeres.ui.support.uri.ContentParser;
 
-import java.util.Map;
-
-public interface LinkAction
+public interface UriAction
 {
-	void openLink(ContentParser contentParser, Map<String, String> args);
+	void openUri(ContentParser contentParser);
 }

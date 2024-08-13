@@ -20,11 +20,10 @@
 package io.xeres.ui.support.uri;
 
 import io.xeres.common.AppName;
-import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.markdown.LinkAction;
+import io.xeres.ui.support.markdown.UriAction;
 import org.springframework.web.util.UriComponents;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
@@ -32,11 +31,15 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class CertificateContentParser implements ContentParser
 {
-	public static final String PARAMETER_RADIX = "radix";
-	public static final String PARAMETER_NAME = "name";
-	public static final String PARAMETER_LOCATION = "location";
+	private static final String PARAMETER_RADIX = "radix";
+	private static final String PARAMETER_NAME = "name";
+	private static final String PARAMETER_LOCATION = "location";
 
 	private static final String AUTHORITY = "certificate";
+
+	private String radix;
+	private String name;
+	private String location;
 
 	@Override
 	public String getProtocol()
@@ -51,18 +54,18 @@ public class CertificateContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
+	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
-		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var location = uriComponents.getQueryParams().getFirst(PARAMETER_LOCATION);
+		radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
+		name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		location = uriComponents.getQueryParams().getFirst(PARAMETER_LOCATION);
 
 		if (isBlank(radix))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(defaultString(radix), text, JavaFxApplication::addPeer);
+		return new ContentUri(defaultString(radix), text, uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String radix, String name, String location)
@@ -73,5 +76,20 @@ public class CertificateContentParser implements ContentParser
 				PARAMETER_LOCATION, location);
 
 		return "<a href=\"" + uri + "\">" + AppName.NAME + " Certificate (" + name + ", @" + location + ")</a>";
+	}
+
+	public String getRadix()
+	{
+		return radix;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public String getLocation()
+	{
+		return location;
 	}
 }

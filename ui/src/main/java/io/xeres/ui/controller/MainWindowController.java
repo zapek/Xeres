@@ -40,6 +40,7 @@ import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -58,7 +59,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Window;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
@@ -231,34 +231,34 @@ public class MainWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		addPeer.setOnAction(event -> addPeer(null));
-		addFriendButton.setOnAction(event -> addPeer(null));
+		addPeer.setOnAction(event -> windowManager.openAddPeer());
+		addFriendButton.setOnAction(event -> windowManager.openAddPeer());
 
 		copyOwnId.setOnAction(event -> copyOwnId());
 		copyShortIdButton.setOnAction(event -> copyOwnId());
 
-		showQrCodeButton.setOnAction(event -> showQrCode(getWindow(event)));
+		showQrCodeButton.setOnAction(event -> showQrCode());
 
-		launchWebInterface.setOnAction(event -> openUrl(JavaFxApplication.getControlUrl()));
+		launchWebInterface.setOnAction(event -> UriService.openUri(JavaFxApplication.getControlUrl()));
 
-		showHelp.setOnAction(event -> openUrl(XERES_DOCS_URL));
-		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));
+		showHelp.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
+		webHelpButton.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
 
-		reportBug.setOnAction(event -> openUrl(XERES_BUGS_URL));
+		reportBug.setOnAction(event -> UriService.openUri(XERES_BUGS_URL));
 
-		forums.setOnAction(event -> openUrl(XERES_FORUMS_URL));
+		forums.setOnAction(event -> UriService.openUri(XERES_FORUMS_URL));
 
-		showAboutWindow.setOnAction(event -> windowManager.openAbout(getWindow(event)));
+		showAboutWindow.setOnAction(event -> windowManager.openAbout());
 
-		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast(getWindow(event)));
+		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast());
 
-		showProfilesWindow.setOnAction(event -> windowManager.openProfiles(getWindow(event)));
+		showProfilesWindow.setOnAction(event -> windowManager.openProfiles());
 
-		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities(getWindow(event)));
+		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities());
 
-		showSettingsWindow.setOnAction(event -> windowManager.openSettings(getWindow(event)));
+		showSettingsWindow.setOnAction(event -> windowManager.openSettings());
 
-		showSharesWindow.setOnAction(event -> windowManager.openShare(getWindow(event)));
+		showSharesWindow.setOnAction(event -> windowManager.openShare());
 
 		changeOwnIdentityPicture.setOnAction(event -> {
 			var fileChooser = new FileChooser();
@@ -293,10 +293,10 @@ public class MainWindowController implements WindowController
 		{
 			debug.setVisible(true);
 			runGc.setOnAction(event -> System.gc());
-			h2Console.setOnAction(event -> JavaFxApplication.openUrl(JavaFxApplication.getControlUrl() + "/h2-console"));
-			systemProperties.setOnAction(event -> windowManager.openSystemProperties(getWindow(event)));
+			h2Console.setOnAction(event -> UriService.openUri(JavaFxApplication.getControlUrl() + "/h2-console"));
+			systemProperties.setOnAction(event -> windowManager.openSystemProperties());
 			openShell.setOnAction(event -> MinimalUserInterface.openShell());
-			openUiCheck.setOnAction(event -> windowManager.openUiCheck(getWindow(event)));
+			openUiCheck.setOnAction(event -> windowManager.openUiCheck());
 		}
 
 		exitApplication.setOnAction(event -> trayService.exitApplication());
@@ -319,6 +319,7 @@ public class MainWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
+		windowManager.setRootWindow(getWindow(titleLabel));
 		chatViewController.jumpToBottom();
 	}
 
@@ -348,15 +349,10 @@ public class MainWindowController implements WindowController
 		}));
 	}
 
-	private void showQrCode(Window window)
+	private void showQrCode()
 	{
 		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID, Type.ANY);
-		rsIdResponse.subscribe(reply -> Platform.runLater(() -> windowManager.openQrCode(window, reply)));
-	}
-
-	public void addPeer(String rsId)
-	{
-		windowManager.openAddPeer(getWindow(titleLabel), rsId);
+		rsIdResponse.subscribe(reply -> Platform.runLater(() -> windowManager.openQrCode(reply)));
 	}
 
 	public void showPopup(String message)
@@ -376,11 +372,6 @@ public class MainWindowController implements WindowController
 		var in = Animations.slideInUp(msg, javafx.util.Duration.millis(250));
 		stackPane.getChildren().add(msg);
 		in.playFromStart();
-	}
-
-	private static void openUrl(String url)
-	{
-		JavaFxApplication.openUrl(url);
 	}
 
 	private void setupNotifications()

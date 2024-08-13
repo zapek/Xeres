@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.filetransfer.FileTransferRsService;
-import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.file.FileDownloadRequest;
@@ -67,7 +66,7 @@ public class FileController
 	public long download(@RequestBody FileDownloadRequest fileDownloadRequest)
 	{
 		var locationId = StringUtils.isNotBlank(fileDownloadRequest.locationId()) ? new LocationId(fileDownloadRequest.locationId()) : null;
-		return fileTransferRsService.download(fileDownloadRequest.name(), new Sha1Sum(Id.toBytes(fileDownloadRequest.hash())), fileDownloadRequest.size(), locationId);
+		return fileTransferRsService.download(fileDownloadRequest.name(), Sha1Sum.fromString(fileDownloadRequest.hash()), fileDownloadRequest.size(), locationId);
 	}
 
 	@GetMapping("/downloads")

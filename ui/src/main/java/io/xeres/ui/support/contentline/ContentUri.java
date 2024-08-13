@@ -19,8 +19,8 @@
 
 package io.xeres.ui.support.contentline;
 
-import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.custom.DisclosedHyperlink;
+import io.xeres.ui.support.uri.UriService;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 
@@ -33,13 +33,13 @@ public class ContentUri implements Content
 	public ContentUri(String uri)
 	{
 		node = new Hyperlink(uri);
-		node.setOnAction(event -> JavaFxApplication.openUrl(appendMailToIfNeeded(node.getText())));
+		node.setOnAction(event -> UriService.openUri(appendMailToIfNeeded(node.getText())));
 	}
 
 	public ContentUri(String uri, String description)
 	{
 		node = new DisclosedHyperlink(description, uri);
-		node.setOnAction(event -> JavaFxApplication.openUrl(appendMailToIfNeeded(uri)));
+		node.setOnAction(event -> UriService.openUri(appendMailToIfNeeded(uri)));
 	}
 
 	public ContentUri(String uri, String description, Consumer<String> action)

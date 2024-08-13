@@ -44,9 +44,9 @@ public class MarkdownService
 		}
 	}
 
-	public List<Content> parse(String input, Set<ParsingMode> modes, LinkAction linkAction)
+	public List<Content> parse(String input, Set<ParsingMode> modes, UriAction uriAction)
 	{
-		var context = new Context(input, emojiService, modes, linkAction);
+		var context = new Context(input, emojiService, modes, uriAction);
 		return getContent(context);
 	}
 

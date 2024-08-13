@@ -20,8 +20,8 @@
 package io.xeres.ui.support.util;
 
 import io.xeres.common.rest.ErrorResponseEntity;
-import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.custom.DisclosedHyperlink;
+import io.xeres.ui.support.uri.UriService;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
@@ -271,12 +271,12 @@ public final class UiUtils
 		{
 			if (disclosedHyperlink.getOnAction() == null)
 			{
-				disclosedHyperlink.setOnAction(event -> JavaFxApplication.openUrl(disclosedHyperlink.getUri()));
+				disclosedHyperlink.setOnAction(event -> UriService.openUri(disclosedHyperlink.getUri()));
 			}
 		}
 		else if (rootNode instanceof Hyperlink hyperlink && hyperlink.getOnAction() == null)
 		{
-			hyperlink.setOnAction(event -> JavaFxApplication.openUrl(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
+			hyperlink.setOnAction(event -> UriService.openUri(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
 		}
 	}
 

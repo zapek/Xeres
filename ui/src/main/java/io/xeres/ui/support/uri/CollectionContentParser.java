@@ -22,9 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.markdown.LinkAction;
-import io.xeres.ui.support.util.UiUtils;
-import javafx.scene.control.Alert;
+import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
@@ -33,10 +31,10 @@ import java.util.stream.Stream;
 
 public class CollectionContentParser implements ContentParser
 {
-	public static final String PARAMETER_NAME = "name";
-	public static final String PARAMETER_SIZE = "size";
-	public static final String PARAMETER_RADIX = "radix";
-	public static final String PARAMETER_FILES = "files";
+	private static final String PARAMETER_NAME = "name";
+	private static final String PARAMETER_SIZE = "size";
+	private static final String PARAMETER_RADIX = "radix";
+	private static final String PARAMETER_FILES = "files";
 
 	private static final String AUTHORITY = "collection";
 
@@ -53,7 +51,7 @@ public class CollectionContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
+	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
@@ -66,7 +64,7 @@ public class CollectionContentParser implements ContentParser
 		}
 
 		//noinspection ConstantConditions
-		return new ContentUri(radix, name + " (" + count + "files, " + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Browsing collections is not supported yet."));
+		return new ContentUri(radix, name + " (" + count + "files, " + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String name, int size, String radix, String files)

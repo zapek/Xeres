@@ -22,16 +22,14 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.markdown.LinkAction;
-import io.xeres.ui.support.util.UiUtils;
-import javafx.scene.control.Alert;
+import io.xeres.ui.support.markdown.UriAction;
 import org.springframework.web.util.UriComponents;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SearchContentParser implements ContentParser
 {
-	public static final String PARAMETER_KEYWORDS = "keywords";
+	private static final String PARAMETER_KEYWORDS = "keywords";
 
 	private static final String AUTHORITY = "search";
 
@@ -48,7 +46,7 @@ public class SearchContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
+	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var keywords = uriComponents.getQueryParams().getFirst(PARAMETER_KEYWORDS);
 
@@ -57,7 +55,7 @@ public class SearchContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(keywords, keywords, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Searching is not supported yet."));
+		return new ContentUri(keywords, keywords, uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String name, String keywords)

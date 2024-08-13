@@ -22,9 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.markdown.LinkAction;
-import io.xeres.ui.support.util.UiUtils;
-import javafx.scene.control.Alert;
+import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
@@ -32,9 +30,9 @@ import java.util.stream.Stream;
 
 public class IdentityContentParser implements ContentParser
 {
-	public static final String PARAMETER_GXSID = "gxsid";
-	public static final String PARAMETER_NAME = "name";
-	public static final String PARAMETER_GROUPDATA = "groupdata";
+	private static final String PARAMETER_GXSID = "gxsid";
+	private static final String PARAMETER_NAME = "name";
+	private static final String PARAMETER_GROUPDATA = "groupdata";
 
 	private static final String AUTHORITY = "identity";
 
@@ -51,7 +49,7 @@ public class IdentityContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
+	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var gxsId = uriComponents.getQueryParams().getFirst(PARAMETER_GXSID);
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
@@ -61,7 +59,7 @@ public class IdentityContentParser implements ContentParser
 		{
 			return ContentText.EMPTY;
 		}
-		return new ContentUri(groupData, "Identity (name=" + name + ", ID=" + gxsId + ")", data -> UiUtils.alert(Alert.AlertType.INFORMATION, "Adding identities is not supported yet."));
+		return new ContentUri(groupData, "Identity (name=" + name + ", ID=" + gxsId + ")", uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String gxsId, String name, String groupData)

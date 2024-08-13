@@ -38,7 +38,7 @@ class Context
 
 	private final EmojiService emojiService;
 	private final Set<ParsingMode> options;
-	private final LinkAction linkAction;
+	private final UriAction uriAction;
 	private final Scanner scanner;
 	private final List<Content> content = new ArrayList<>();
 	private int insertIndex;
@@ -48,11 +48,11 @@ class Context
 	private final Set<MarkdownDetector> usedDetectors = new HashSet<>();
 	private int previousDetectorNum;
 
-	public Context(String input, EmojiService emojiService, Set<ParsingMode> options, LinkAction linkAction)
+	public Context(String input, EmojiService emojiService, Set<ParsingMode> options, UriAction uriAction)
 	{
 		this.options = options;
 		this.emojiService = emojiService;
-		this.linkAction = linkAction;
+		this.uriAction = uriAction;
 		scanner = new Scanner(sanitize(input));
 	}
 
@@ -71,9 +71,9 @@ class Context
 		return emojiService;
 	}
 
-	public LinkAction getLinkAction()
+	public UriAction getUriAction()
 	{
-		return linkAction;
+		return uriAction;
 	}
 
 	/**

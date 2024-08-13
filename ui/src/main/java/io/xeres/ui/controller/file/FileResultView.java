@@ -21,6 +21,7 @@ package io.xeres.ui.controller.file;
 
 import io.xeres.common.file.FileType;
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import javafx.application.Platform;
@@ -156,7 +157,7 @@ public class FileResultView extends Tab
 			if (event.getSource() instanceof FileResult file)
 			{
 				log.debug("Downloading file {}", file.name());
-				fileClient.download(file.name(), file.hash(), file.size(), null)
+				fileClient.download(file.name(), Sha1Sum.fromString(file.hash()), file.size(), null)
 						.subscribe();
 			}
 		});

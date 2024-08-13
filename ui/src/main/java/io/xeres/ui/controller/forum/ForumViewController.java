@@ -36,6 +36,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
+import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -46,7 +47,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -131,6 +131,7 @@ public class ForumViewController implements Controller
 	private final WindowManager windowManager;
 	private final ObjectMapper objectMapper;
 	private final MarkdownService markdownService;
+	private final UriService uriService;
 
 	private ForumGroup selectedForumGroup;
 	private ForumMessage selectedForumMessage;
@@ -144,7 +145,7 @@ public class ForumViewController implements Controller
 	private final TreeItem<ForumGroup> popularForums;
 	private final TreeItem<ForumGroup> otherForums;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -157,6 +158,7 @@ public class ForumViewController implements Controller
 		this.windowManager = windowManager;
 		this.objectMapper = objectMapper;
 		this.markdownService = markdownService;
+		this.uriService = uriService;
 	}
 
 	@Override
@@ -202,9 +204,9 @@ public class ForumViewController implements Controller
 		forumMessagesTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue != null ? newValue.getValue() : null));
 
-		createForum.setOnAction(event -> windowManager.openForumCreation(UiUtils.getWindow(event)));
+		createForum.setOnAction(event -> windowManager.openForumCreation());
 
-		newThread.setOnAction(event -> newForumPost(UiUtils.getWindow(event), false));
+		newThread.setOnAction(event -> newForumPost(false));
 
 		setupForumNotifications();
 
@@ -239,12 +241,12 @@ public class ForumViewController implements Controller
 	{
 		var replyItem = new MenuItem(bundle.getString("forum.view.reply"));
 		replyItem.setGraphic(new FontIcon(FontAwesomeSolid.REPLY));
-		replyItem.setOnAction(event -> newForumPost(UiUtils.getWindow(event), true));
+		replyItem.setOnAction(event -> newForumPost(true));
 
 		new XContextMenu<ForumMessage>(forumMessagesTreeTableView, replyItem);
 	}
 
-	private void newForumPost(Window window, boolean replyTo)
+	private void newForumPost(boolean replyTo)
 	{
 		var replyToId = 0L;
 		var originalId = 0L;
@@ -256,7 +258,7 @@ public class ForumViewController implements Controller
 		}
 
 		var postRequest = new PostRequest(selectedForumGroup.getId(), originalId, replyToId);
-		windowManager.openForumEditor(window, postRequest);
+		windowManager.openForumEditor(postRequest);
 	}
 
 	private boolean isForumSelected()
@@ -451,9 +453,7 @@ public class ForumViewController implements Controller
 		{
 			forumClient.getForumMessage(forumMessage.getId())
 					.doOnSuccess(message -> Platform.runLater(() -> {
-						var contents = markdownService.parse(message.getContent(), EnumSet.noneOf(ParsingMode.class), (contentParser, args) -> {
-							// XXX: implement
-						});
+						var contents = markdownService.parse(message.getContent(), EnumSet.noneOf(ParsingMode.class), uriService);
 						messageContent.getChildren().clear();
 						messagePane.setVvalue(messagePane.getVmin());
 						messageContent.getChildren().addAll(contents.stream()

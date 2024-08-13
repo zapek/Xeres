@@ -29,9 +29,9 @@ import io.xeres.ui.support.chat.ChatParser;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentImage;
-import io.xeres.ui.support.markdown.LinkAction;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
+import io.xeres.ui.support.markdown.UriAction;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -69,7 +69,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> chatView;
 	private final ListView<ChatRoomUser> userListView;
 	private final MarkdownService markdownService;
-	private final LinkAction linkAction;
+	private final UriAction uriAction;
 
 	public enum AddUserOrigin
 	{
@@ -77,12 +77,12 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		KEEP_ALIVE
 	}
 
-	public ChatListView(String nickname, long id, MarkdownService markdownService, LinkAction linkAction)
+	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction)
 	{
 		this.nickname = nickname;
 		this.id = id;
 		this.markdownService = markdownService;
-		this.linkAction = linkAction;
+		this.uriAction = uriAction;
 
 		chatView = createChatView();
 		userListView = createUserListView();
@@ -151,7 +151,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				message = ChatParser.parseActionMe(message, chatAction.getNickname());
 				chatAction.setType(ACTION);
 			}
-			var content = markdownService.parse(message, EnumSet.of(ParsingMode.ONE_LINER), linkAction);
+			var content = markdownService.parse(message, EnumSet.of(ParsingMode.ONE_LINER), uriAction);
 			var chatLine = new ChatLine(Instant.now(), chatAction, content.toArray(new Content[0]));
 			addMessageLine(chatLine);
 		}

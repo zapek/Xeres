@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.file.FileDownloadRequest;
 import io.xeres.common.rest.file.FileProgress;
 import io.xeres.common.rest.file.FileSearchRequest;
@@ -64,9 +65,9 @@ public class FileClient
 				.bodyToMono(FileSearchResponse.class);
 	}
 
-	public Mono<Long> download(String name, String hash, long size, String locationId)
+	public Mono<Long> download(String name, Sha1Sum hash, long size, String locationId)
 	{
-		var request = new FileDownloadRequest(name, hash, size, locationId);
+		var request = new FileDownloadRequest(name, hash.toString(), size, locationId);
 
 		return webClient.post()
 				.uri("/download")

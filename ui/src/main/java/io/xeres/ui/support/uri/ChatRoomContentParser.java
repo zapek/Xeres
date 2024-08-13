@@ -22,9 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.markdown.LinkAction;
-import io.xeres.ui.support.util.UiUtils;
-import javafx.scene.control.Alert;
+import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
@@ -32,8 +30,8 @@ import java.util.stream.Stream;
 
 public class ChatRoomContentParser implements ContentParser
 {
-	public static final String PARAMETER_NAME = "name";
-	public static final String PARAMETER_ID = "id";
+	private static final String PARAMETER_NAME = "name";
+	private static final String PARAMETER_ID = "id";
 
 	private static final String AUTHORITY = "chat_room";
 
@@ -50,7 +48,7 @@ public class ChatRoomContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
+	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
@@ -60,7 +58,7 @@ public class ChatRoomContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(id, name, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Chat rooms are not supported yet.")); // XXX: support! ask to join or focus?
+		return new ContentUri(id, name, uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String name, String id, String msgid)

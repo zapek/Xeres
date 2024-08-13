@@ -46,6 +46,20 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 		identifier = sum;
 	}
 
+	public static Sha1Sum fromString(String s)
+	{
+		byte[] bytes;
+		if (s == null || s.length() != LENGTH * 2)
+		{
+			bytes = new byte[0];
+		}
+		else
+		{
+			bytes = Id.toBytes(s);
+		}
+		return new Sha1Sum(bytes);
+	}
+
 	@Override
 	public byte[] getBytes()
 	{

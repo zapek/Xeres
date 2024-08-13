@@ -23,20 +23,22 @@ import io.xeres.common.id.Sha1Sum;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.markdown.LinkAction;
+import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 public class FileContentParser implements ContentParser
 {
-	public static final String PARAMETER_NAME = "name";
-	public static final String PARAMETER_SIZE = "size";
-	public static final String PARAMETER_HASH = "hash";
+	private static final String PARAMETER_NAME = "name";
+	private static final String PARAMETER_SIZE = "size";
+	private static final String PARAMETER_HASH = "hash";
+
+	private String name;
+	private long size;
+	private Sha1Sum hash;
 
 	private static final String AUTHORITY = "file";
 
@@ -53,24 +55,22 @@ public class FileContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
+	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
-		var hash = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
+		var nameParameter = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var sizeParameter = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
+		var hashParameter = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
 
-		if (Stream.of(name, size, hash).anyMatch(StringUtils::isBlank))
+		if (Stream.of(nameParameter, sizeParameter, hashParameter).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(hash, name + " (" + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", uri -> {
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put(PARAMETER_NAME, name);
-			parameters.put(PARAMETER_SIZE, size);
-			parameters.put(PARAMETER_HASH, hash);
-			linkAction.openLink(this, parameters);
-		});
+		name = nameParameter;
+		size = getLong(sizeParameter);
+		hash = getHash(hashParameter);
+
+		return new ContentUri(hash.toString(), name + " (" + FileUtils.byteCountToDisplaySize(size) + ")", uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String name, long size, Sha1Sum hash)
@@ -81,5 +81,20 @@ public class FileContentParser implements ContentParser
 				PARAMETER_HASH, hash.toString());
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public long getSize()
+	{
+		return size;
+	}
+
+	public Sha1Sum getHash()
+	{
+		return hash;
 	}
 }

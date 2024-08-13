@@ -37,6 +37,7 @@ import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.ContentParser;
 import io.xeres.ui.support.uri.FileContentParser;
+import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.animation.KeyFrame;
@@ -61,7 +62,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
@@ -101,6 +101,7 @@ public class MessagingWindowController implements WindowController
 	private final FileClient fileClient;
 	private final GeneralClient generalClient;
 	private final MarkdownService markdownService;
+	private final UriService uriService;
 	private final ResourceBundle bundle;
 	private final LocationId locationId;
 	private Profile targetProfile;
@@ -112,11 +113,12 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, FileClient fileClient, GeneralClient generalClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
+	public MessagingWindowController(ProfileClient profileClient, FileClient fileClient, GeneralClient generalClient, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
 		this.fileClient = fileClient;
 		this.generalClient = generalClient;
+		this.uriService = uriService;
 		this.messageClient = messageClient;
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
@@ -168,7 +170,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, markdownService, this::handleLinkAction);
+		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction);
 		content.getChildren().addFirst(receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
@@ -203,16 +205,20 @@ public class MessagingWindowController implements WindowController
 		}
 	}
 
-	private void handleLinkAction(ContentParser contentParser, Map<String, String> args)
+	private void handleUriAction(ContentParser contentParser)
 	{
-		if (contentParser instanceof FileContentParser)
+		if (contentParser instanceof FileContentParser fileContentParser)
 		{
-			fileClient.download(args.get(FileContentParser.PARAMETER_NAME),
-							args.get(FileContentParser.PARAMETER_HASH),
-							Long.parseLong(args.get(FileContentParser.PARAMETER_SIZE)),
+			fileClient.download(fileContentParser.getName(),
+							fileContentParser.getHash(),
+							fileContentParser.getSize(),
 							String.valueOf(locationId))
 					.subscribe();
 			// XXX: add some visible action? like a toast or switch to download file. see what RS does
+		}
+		else
+		{
+			uriService.openUri(contentParser);
 		}
 	}
 

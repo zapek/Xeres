@@ -22,9 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.markdown.LinkAction;
-import io.xeres.ui.support.util.UiUtils;
-import javafx.scene.control.Alert;
+import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
@@ -32,8 +30,8 @@ import java.util.stream.Stream;
 
 public class ProfileContentParser implements ContentParser
 {
-	public static final String PARAMETER_NAME = "name";
-	public static final String PARAMETER_HASH = "hash";
+	private static final String PARAMETER_NAME = "name";
+	private static final String PARAMETER_HASH = "hash";
 
 	private static final String AUTHORITY = "person";
 
@@ -50,7 +48,7 @@ public class ProfileContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
+	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var hash = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
@@ -60,7 +58,7 @@ public class ProfileContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(hash, name + "@" + hash, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Adding profiles is not supported yet"));
+		return new ContentUri(hash, name + "@" + hash, uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String name, String hash)

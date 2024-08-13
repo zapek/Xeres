@@ -54,6 +54,7 @@ import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.theme.AppThemeManager;
+import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -90,6 +91,7 @@ public class WindowManager
 	private final MessageClient messageClient;
 	private final ShareClient shareClient;
 	private final MarkdownService markdownService;
+	private final UriService uriService;
 	private static ResourceBundle bundle;
 	private static PreferenceService preferenceService;
 	private static AppThemeManager appThemeManager;
@@ -99,10 +101,11 @@ public class WindowManager
 	private static double borderLeft;
 	private static double borderRight;
 	private final GeneralClient generalClient;
+	private Window rootWindow;
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager, GeneralClient generalClient)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager, GeneralClient generalClient)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -110,10 +113,16 @@ public class WindowManager
 		this.messageClient = messageClient;
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
+		this.uriService = uriService;
 		WindowManager.bundle = bundle;
 		WindowManager.preferenceService = preferenceService;
 		WindowManager.appThemeManager = appThemeManager;
 		this.generalClient = generalClient;
+	}
+
+	public void setRootWindow(Window window)
+	{
+		rootWindow = window;
 	}
 
 	public void closeAllWindows()
@@ -160,7 +169,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double click)
 							{
-								var messaging = new MessagingWindowController(profileClient, fileClient, generalClient, messageClient, shareClient, markdownService, locationId, bundle);
+								var messaging = new MessagingWindowController(profileClient, fileClient, generalClient, uriService, messageClient, shareClient, markdownService, locationId, bundle);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
@@ -180,62 +189,62 @@ public class WindowManager
 		);
 	}
 
-	public void openAbout(Window parent)
+	public void openAbout()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(AboutWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
 						.build()
 						.open());
 	}
 
-	public void openShare(Window parent)
+	public void openShare()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(ShareWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle("Shares")
 						.build()
 						.open());
 	}
 
-	public void openSystemProperties(Window parent)
+	public void openSystemProperties()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(PropertiesWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle("System Properties")
 						.build()
 						.open());
 	}
 
-	public void openUiCheck(Window parent)
+	public void openUiCheck()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(UiCheckWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle("Custom UI")
 						.build()
 						.open());
 	}
 
-	public void openQrCode(Window parent, RSIdResponse rsIdResponse)
+	public void openQrCode(RSIdResponse rsIdResponse)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(QrCodeWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("qrcode.window-title"))
 						.setUserData(rsIdResponse)
 						.build()
 						.open());
 	}
 
-	public void openCamera(Window parent, AddRsIdWindowController parentController)
+	public void openCamera(AddRsIdWindowController parentController)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(CameraWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("camera.window-title"))
 						.setResizeable(false)
 						.setUserData(parentController)
@@ -243,41 +252,41 @@ public class WindowManager
 						.open());
 	}
 
-	public void openChatRoomCreation(Window parent)
+	public void openChatRoomCreation()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(ChatRoomCreationWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("chat.room.create.window-title"))
 						.build()
 						.open());
 	}
 
-	public void openBroadcast(Window parent)
+	public void openBroadcast()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(BroadcastWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("broadcast.window-title"))
 						.build()
 						.open());
 	}
 
-	public void openProfiles(Window parent)
+	public void openProfiles()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(ProfilesWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("profiles.window-title"))
 						.build()
 						.open());
 	}
 
-	public void openIdentities(Window parent)
+	public void openIdentities()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(IdentitiesWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("identities.window-title"))
 						.build()
 						.open());
@@ -302,54 +311,59 @@ public class WindowManager
 		});
 	}
 
-	public void openSettings(Window parent)
+	public void openSettings()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(SettingsWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("settings.window-title"))
 						.build()
 						.open());
 	}
 
-	public void openAddPeer(Window parent, String rsId)
+	public void openAddPeer()
+	{
+		openAddPeer(null);
+	}
+
+	public void openAddPeer(String rsId)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(AddRsIdWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("rsid.add.window-title"))
 						.setUserData(rsId)
 						.build()
 						.open());
 	}
 
-	public void openInvite(Window parent, long chatRoom)
+	public void openInvite(long chatRoom)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(ChatRoomInvitationWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("chat.room.invite.window-title"))
 						.setUserData(chatRoom)
 						.build()
 						.open());
 	}
 
-	public void openForumEditor(Window parent, PostRequest postRequest)
+	public void openForumEditor(PostRequest postRequest)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(ForumEditorViewController.class)
-						.setParent(parent) // XXX: needs to become multi modal to avoid blocking (useful to browse other posts while we write)
+						.setParent(rootWindow) // XXX: needs to become multi modal to avoid blocking (useful to browse other posts while we write)
 						.setTitle(bundle.getString("forum.new-message.window-title"))
 						.setUserData(postRequest)
 						.build()
 						.open());
 	}
 
-	public void openForumCreation(Window parent)
+	public void openForumCreation()
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(ForumCreationWindowController.class)
-						.setParent(parent)
+						.setParent(rootWindow)
 						.setTitle(bundle.getString("forum.create.window-title"))
 						.build()
 						.open());

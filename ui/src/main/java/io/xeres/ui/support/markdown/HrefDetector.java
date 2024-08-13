@@ -49,7 +49,7 @@ class HrefDetector implements MarkdownDetector
 		{
 			var href = link.attr("href");
 			var text = link.text();
-			context.addContent(UriParser.parse(href, text, context.getLinkAction()));
+			context.addContent(UriParser.parse(href, text, context.getUriAction()));
 		}
 	}
 }

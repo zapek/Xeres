@@ -22,17 +22,15 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.markdown.LinkAction;
-import io.xeres.ui.support.util.UiUtils;
-import javafx.scene.control.Alert;
+import io.xeres.ui.support.markdown.UriAction;
 import org.springframework.web.util.UriComponents;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class MessageContentParser implements ContentParser
 {
-	public static final String PARAMETER_ID = "id";
-	public static final String PARAMETER_SUBJECT = "subject";
+	private static final String PARAMETER_ID = "id";
+	private static final String PARAMETER_SUBJECT = "subject";
 
 	private static final String AUTHORITY = "message";
 
@@ -49,7 +47,7 @@ public class MessageContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, LinkAction linkAction)
+	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID); // warning: it can be of different type (gxsId, sslId, etc...)
 		var subject = uriComponents.getQueryParams().getFirst(PARAMETER_SUBJECT);
@@ -59,7 +57,7 @@ public class MessageContentParser implements ContentParser
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(id, id, s -> UiUtils.alert(Alert.AlertType.INFORMATION, "Messages are not supported yet."));
+		return new ContentUri(id, id, uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String id, String subject)

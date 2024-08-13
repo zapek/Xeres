@@ -96,7 +96,7 @@ public final class TooltipUtils
 
 	private static void formatTextIfNeeded(Tooltip tooltip, String text)
 	{
-		if (text.length() > 100 && !text.contains("\n"))
+		if (text != null && text.length() > 100 && !text.contains("\n"))
 		{
 			tooltip.setMaxWidth(300.0);
 			tooltip.setWrapText(true);

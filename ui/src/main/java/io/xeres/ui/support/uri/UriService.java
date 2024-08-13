@@ -19,7 +19,7 @@
 
 package io.xeres.ui.support.uri;
 
-import io.xeres.ui.client.FileClient;
+import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -33,14 +33,12 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 public class UriService implements UriAction
 {
 	private final WindowManager windowManager;
-	private final FileClient fileClient;
 
 	private static HostServices hostServices;
 
-	public UriService(@Lazy WindowManager windowManager, FileClient fileClient)
+	public UriService(@Lazy WindowManager windowManager)
 	{
 		this.windowManager = windowManager;
-		this.fileClient = fileClient;
 	}
 
 	public void setHostServices(HostServices hostServices)
@@ -54,11 +52,11 @@ public class UriService implements UriAction
 		switch (contentParser)
 		{
 			case CertificateContentParser certificateContentParser -> windowManager.openAddPeer(certificateContentParser.getRadix());
-			case FileContentParser fileContentParser -> fileClient.download(fileContentParser.getName(),
-							fileContentParser.getHash(),
+			case FileContentParser fileContentParser -> windowManager.openAddDownload(
+					new AddDownloadRequest(fileContentParser.getName(),
 							fileContentParser.getSize(),
-							null)
-					.subscribe();
+							fileContentParser.getHash(),
+							null));
 			default -> UiUtils.alert(WARNING, "The link '" + contentParser.getAuthority() + "' is not supported yet.");
 		}
 	}

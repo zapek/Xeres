@@ -20,12 +20,12 @@
 package io.xeres.common.rest.file;
 
 import io.xeres.common.id.LocationId;
-import jakarta.validation.constraints.NotNull;
+import io.xeres.common.id.Sha1Sum;
 
-public record FileDownloadRequest(
-		@NotNull String name,
-		@NotNull String hash,
+public record AddDownloadRequest(
+		String name,
 		long size,
+		Sha1Sum hash,
 		LocationId locationId
 )
 {

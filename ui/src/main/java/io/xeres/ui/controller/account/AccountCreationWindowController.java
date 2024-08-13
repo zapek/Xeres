@@ -26,7 +26,10 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import net.harawata.appdirs.AppDirsFactory;
@@ -38,6 +41,7 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import static io.xeres.ui.support.util.UiUtils.getWindow;
+import static javafx.scene.control.Alert.AlertType.ERROR;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
@@ -109,7 +113,7 @@ public class AccountCreationWindowController implements WindowController
 			{
 				configClient.sendBackup(selectedFile)
 						.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
-						.doOnError(e -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("account.generation.profile-load.error"), e.getMessage()))))
+						.doOnError(e -> Platform.runLater(() -> UiUtils.alert(ERROR, MessageFormat.format(bundle.getString("account.generation.profile-load.error"), e.getMessage()))))
 						.subscribe();
 			}
 		});
@@ -168,7 +172,7 @@ public class AccountCreationWindowController implements WindowController
 
 		result.doOnSuccess(unused -> Platform.runLater(() -> generateIdentity(profileName)))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.alert(Alert.AlertType.ERROR, e.getMessage());
+					UiUtils.alert(ERROR, e.getMessage());
 					setInProgress(false);
 				}))
 				.subscribe();
@@ -184,7 +188,7 @@ public class AccountCreationWindowController implements WindowController
 
 		result.doOnSuccess(identityResponse -> Platform.runLater(this::openDashboard))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.alert(Alert.AlertType.ERROR, e.getMessage());
+					UiUtils.alert(ERROR, e.getMessage());
 					setInProgress(false);
 				}))
 				.subscribe();

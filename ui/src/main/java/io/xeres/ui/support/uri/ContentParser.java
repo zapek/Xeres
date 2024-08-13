@@ -71,7 +71,7 @@ public interface ContentParser
 		return sb.toString();
 	}
 
-	default long getLong(String s)
+	static long getLong(String s)
 	{
 		try
 		{
@@ -83,7 +83,7 @@ public interface ContentParser
 		}
 	}
 
-	default Sha1Sum getHash(String s)
+	static Sha1Sum getHash(String s)
 	{
 		return Sha1Sum.fromString(s);
 	}

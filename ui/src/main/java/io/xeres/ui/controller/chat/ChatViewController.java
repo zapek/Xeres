@@ -266,11 +266,11 @@ public class ChatViewController implements Controller
 			var chatRoomInfo = roomHolder.getRoomInfo();
 
 			contextMenu.getItems().stream()
-					.filter(menuItem -> menuItem.getId().equals(SUBSCRIBED_MENU_ID))
+					.filter(menuItem -> SUBSCRIBED_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(isAlreadyJoined(chatRoomInfo)));
 
 			contextMenu.getItems().stream()
-					.filter(menuItem -> menuItem.getId().equals(UNSUBSCRIBED_MENU_ID))
+					.filter(menuItem -> UNSUBSCRIBED_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(!isAlreadyJoined(chatRoomInfo)));
 
 			return chatRoomInfo.isReal();

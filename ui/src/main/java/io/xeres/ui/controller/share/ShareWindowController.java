@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.share;
 
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.util.OsUtils;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.controller.WindowController;
@@ -58,6 +59,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class ShareWindowController implements WindowController
 {
 	private static final String REMOVE_MENU_ID = "remove";
+	private static final String SHOW_IN_FOLDER_MENU_ID = "showInFolder";
 
 	private final ShareClient shareClient;
 
@@ -202,8 +204,23 @@ public class ShareWindowController implements WindowController
 			shareTableView.getItems().remove(share);
 		});
 
-		var tableShareXContextMenu = new XContextMenu<Share>(shareTableView, removeItem);
-		tableShareXContextMenu.setOnShowing((contextMenu, share) -> share.getId() != INCOMING_SHARE); // This prevents removing the incoming directory
+		var showInExplorerItem = new MenuItem(bundle.getString("download.view.show-in-folder"));
+		showInExplorerItem.setId(SHOW_IN_FOLDER_MENU_ID);
+		showInExplorerItem.setGraphic(new FontIcon(FontAwesomeSolid.FOLDER_OPEN));
+		showInExplorerItem.setOnAction(event -> {
+			if (event.getSource() instanceof Share share)
+			{
+				OsUtils.showFolder(Paths.get(share.getPath()).toFile());
+			}
+		});
+
+		var tableShareXContextMenu = new XContextMenu<Share>(shareTableView, showInExplorerItem, new SeparatorMenuItem(), removeItem);
+		tableShareXContextMenu.setOnShowing((contextMenu, share) -> {
+			contextMenu.getItems().stream()
+					.filter(menuItem -> REMOVE_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(share.getId() == INCOMING_SHARE));
+			return share != null;
+		});
 	}
 
 	private boolean validateShares()

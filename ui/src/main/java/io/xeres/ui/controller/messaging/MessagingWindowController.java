@@ -24,7 +24,7 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
-import io.xeres.ui.client.FileClient;
+import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.ShareClient;
@@ -40,6 +40,7 @@ import io.xeres.ui.support.uri.FileContentParser;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -98,9 +99,9 @@ public class MessagingWindowController implements WindowController
 	private ChatListView receive;
 
 	private final ProfileClient profileClient;
-	private final FileClient fileClient;
 	private final GeneralClient generalClient;
 	private final MarkdownService markdownService;
+	private final WindowManager windowManager;
 	private final UriService uriService;
 	private final ResourceBundle bundle;
 	private final LocationId locationId;
@@ -113,11 +114,11 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, FileClient fileClient, GeneralClient generalClient, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
+	public MessagingWindowController(ProfileClient profileClient, GeneralClient generalClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
-		this.fileClient = fileClient;
 		this.generalClient = generalClient;
+		this.windowManager = windowManager;
 		this.uriService = uriService;
 		this.messageClient = messageClient;
 		this.shareClient = shareClient;
@@ -209,12 +210,11 @@ public class MessagingWindowController implements WindowController
 	{
 		if (contentParser instanceof FileContentParser fileContentParser)
 		{
-			fileClient.download(fileContentParser.getName(),
-							fileContentParser.getHash(),
+			windowManager.openAddDownload(
+					new AddDownloadRequest(fileContentParser.getName(),
 							fileContentParser.getSize(),
-							String.valueOf(locationId))
-					.subscribe();
-			// XXX: add some visible action? like a toast or switch to download file. see what RS does
+							fileContentParser.getHash(),
+							locationId));
 		}
 		else
 		{

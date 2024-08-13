@@ -22,6 +22,7 @@ package io.xeres.ui.support.window;
 import io.xeres.common.AppName;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.client.FileClient;
@@ -37,6 +38,7 @@ import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.debug.PropertiesWindowController;
 import io.xeres.ui.controller.debug.UiCheckWindowController;
+import io.xeres.ui.controller.file.FileAddDownloadViewController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorViewController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
@@ -169,7 +171,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double click)
 							{
-								var messaging = new MessagingWindowController(profileClient, fileClient, generalClient, uriService, messageClient, shareClient, markdownService, locationId, bundle);
+								var messaging = new MessagingWindowController(profileClient, generalClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
@@ -333,6 +335,17 @@ public class WindowManager
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("rsid.add.window-title"))
 						.setUserData(rsId)
+						.build()
+						.open());
+	}
+
+	public void openAddDownload(AddDownloadRequest addDownloadRequest)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(FileAddDownloadViewController.class)
+						.setParent(rootWindow)
+						.setTitle(bundle.getString("download.add.window-title"))
+						.setUserData(addDownloadRequest)
 						.build()
 						.open());
 	}

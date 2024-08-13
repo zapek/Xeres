@@ -226,11 +226,11 @@ public class ForumViewController implements Controller
 		var forumGroupXContextMenu = new XContextMenu<ForumGroup>(forumTree, subscribeItem, unsubscribeItem);
 		forumGroupXContextMenu.setOnShowing((contextMenu, forumGroup) -> {
 			contextMenu.getItems().stream()
-					.filter(menuItem -> menuItem.getId().equals(SUBSCRIBE_MENU_ID))
+					.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(forumGroup.isSubscribed()));
 
 			contextMenu.getItems().stream()
-					.filter(menuItem -> menuItem.getId().equals(UNSUBSCRIBE_MENU_ID))
+					.filter(menuItem -> UNSUBSCRIBE_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(!forumGroup.isSubscribed()));
 
 			return forumGroup.isReal() && forumGroup.isExternal();

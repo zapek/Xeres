@@ -49,6 +49,9 @@ import java.io.InputStreamReader;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static javafx.scene.control.Alert.AlertType.ERROR;
+import static javafx.scene.control.Alert.AlertType.WARNING;
+
 public final class UiUtils
 {
 	private UiUtils()
@@ -72,11 +75,11 @@ public final class UiUtils
 			if (t instanceof WebClientResponseException e)
 			{
 				var error = getErrorResponseEntity(e);
-				alert(error.getStatusCode().isError() ? AlertType.ERROR : AlertType.WARNING, error.getMessage());
+				alert(error.getStatusCode().isError() ? ERROR : WARNING, error.getMessage());
 			}
 			else
 			{
-				alert(AlertType.ERROR, t.getMessage());
+				alert(ERROR, t.getMessage());
 			}
 		});
 	}

@@ -24,14 +24,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.filetransfer.FileTransferRsService;
-import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.file.FileDownloadRequest;
 import io.xeres.common.rest.file.FileProgress;
 import io.xeres.common.rest.file.FileSearchRequest;
 import io.xeres.common.rest.file.FileSearchResponse;
 import jakarta.validation.Valid;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -65,8 +63,7 @@ public class FileController
 	@ApiResponse(responseCode = "200", description = "Download created successfully")
 	public long download(@RequestBody FileDownloadRequest fileDownloadRequest)
 	{
-		var locationId = StringUtils.isNotBlank(fileDownloadRequest.locationId()) ? new LocationId(fileDownloadRequest.locationId()) : null;
-		return fileTransferRsService.download(fileDownloadRequest.name(), Sha1Sum.fromString(fileDownloadRequest.hash()), fileDownloadRequest.size(), locationId);
+		return fileTransferRsService.download(fileDownloadRequest.name(), Sha1Sum.fromString(fileDownloadRequest.hash()), fileDownloadRequest.size(), fileDownloadRequest.locationId());
 	}
 
 	@GetMapping("/downloads")

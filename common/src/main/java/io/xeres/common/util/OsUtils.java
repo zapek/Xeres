@@ -192,6 +192,42 @@ public final class OsUtils
 		}
 	}
 
+	public static void showFolder(File directory)
+	{
+		if (!directory.exists())
+		{
+			throw new IllegalStateException("Couldn't show the folder " + directory + " because it doesn't exist");
+		}
+
+		if (!directory.isDirectory())
+		{
+			throw new IllegalStateException("Couldn't show the folder " + directory + " because it is not a directory");
+		}
+
+		try
+		{
+			Desktop.getDesktop().browseFileDirectory(directory); // This is not exactly what we want
+		}
+		catch (UnsupportedOperationException e)
+		{
+			if (SystemUtils.IS_OS_WINDOWS)
+			{
+				try
+				{
+					new ProcessBuilder("explorer.exe", directory.getCanonicalPath()).start();
+				}
+				catch (IOException ex)
+				{
+					throw new IllegalStateException("Couldn't show the folder " + directory + ": " + ex.getMessage());
+				}
+			}
+			else
+			{
+				throw new IllegalStateException("Couldn't show the folder " + directory + ": " + e.getMessage());
+			}
+		}
+	}
+
 	private static Path createFileSystemDetectionFile(Path path, boolean upperCase) throws IOException
 	{
 		var file = path.toFile();

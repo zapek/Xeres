@@ -67,8 +67,8 @@ public class FileContentParser implements ContentParser
 		}
 
 		name = nameParameter;
-		size = ContentParser.getLong(sizeParameter);
-		hash = ContentParser.getHash(hashParameter);
+		size = ContentParser.getLongArgument(sizeParameter);
+		hash = ContentParser.getHashArgument(hashParameter);
 
 		return new ContentUri(hash.toString(), name + " (" + FileUtils.byteCountToDisplaySize(size) + ")", uri -> uriAction.openUri(this));
 	}

@@ -47,6 +47,17 @@ public class GxsId implements Identifier, Comparable<GxsId>
 		this.identifier = identifier;
 	}
 
+	/**
+	 * Creates a {@link GxsId} from a string.
+	 *
+	 * @param from a string representing the GxsId in hexadecimal form (lowercase, no prefix)
+	 * @return the GxsId or an empty GxsId if the string was invalid
+	 */
+	public static GxsId fromString(String from)
+	{
+		return new GxsId(Identifier.parseString(from, LENGTH));
+	}
+
 	@Override
 	public byte[] getBytes()
 	{

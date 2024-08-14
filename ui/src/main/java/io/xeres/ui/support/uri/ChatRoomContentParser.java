@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.Id;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
@@ -30,10 +31,18 @@ import java.util.stream.Stream;
 
 public class ChatRoomContentParser implements ContentParser
 {
+	private static final String AUTHORITY = "chat_room";
+
 	private static final String PARAMETER_NAME = "name";
 	private static final String PARAMETER_ID = "id";
 
-	private static final String AUTHORITY = "chat_room";
+	private static final String CHAT_ROOM_PREFIX = "L";
+	private static final String PRIVATE_MESSAGE_PREFIX = "P";
+	private static final String DISTANT_CHAT_PREFIX = "D";
+	private static final String BROADCAST_PREFIX = "L";
+
+	private String name;
+	private long chatRoomId;
 
 	@Override
 	public String getProtocol()
@@ -50,23 +59,39 @@ public class ChatRoomContentParser implements ContentParser
 	@Override
 	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var nameParameter = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
 
-		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
+		if (Stream.of(nameParameter, id).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(id, name, uri -> uriAction.openUri(this));
+		name = nameParameter;
+		if (id.length() > 1 && id.startsWith(CHAT_ROOM_PREFIX))
+		{
+			chatRoomId = ContentParser.getLongArgument(id.substring(1));
+		}
+
+		return new ContentUri(id, nameParameter, uri -> uriAction.openUri(this));
 	}
 
-	public static String generate(String name, String id, String msgid)
+	public static String generate(String name, long chatRoomId)
 	{
 		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_NAME, name,
-				PARAMETER_ID, id);
+				PARAMETER_ID, CHAT_ROOM_PREFIX + Id.toString(chatRoomId));
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public long getChatRoomId()
+	{
+		return chatRoomId;
 	}
 }

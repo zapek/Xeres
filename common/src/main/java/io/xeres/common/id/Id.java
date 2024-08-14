@@ -65,12 +65,18 @@ public final class Id
 	 *
 	 * @param id the values as a lowercase hexadecimal series of bytes, without prefix
 	 * @return an array of bytes containing those values or an empty array if the id is null or empty
+	 * @throws NumberFormatException if this is not a hexadecimal number
 	 */
 	public static byte[] toBytes(String id)
 	{
 		if (isEmpty(id))
 		{
 			return new byte[0];
+		}
+
+		if (id.length() % 2 != 0)
+		{
+			throw new NumberFormatException("Odd number of bytes");
 		}
 
 		var out = new byte[id.length() / 2];

@@ -19,6 +19,7 @@
 
 package io.xeres.common.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Embeddable;
 
 import java.util.Arrays;
@@ -46,12 +47,30 @@ public class MessageId implements Identifier, Comparable<MessageId>
 		this.identifier = identifier;
 	}
 
+	/**
+	 * Creates a {@link MessageId} from a string.
+	 *
+	 * @param from a string representing the MessageId in hexadecimal form (lowercase, no prefix)
+	 * @return the MessageId or an empty MessageId if the string was invalid
+	 */
+	public static MessageId fromString(String from)
+	{
+		return new MessageId(Identifier.parseString(from, LENGTH));
+	}
+
 	@Override
 	public byte[] getBytes()
 	{
 		return identifier;
 	}
 
+	// This is used for serialization (for example passing a GxsId in a STOMP message)
+	public void setBytes(byte[] identifier)
+	{
+		this.identifier = identifier;
+	}
+
+	@JsonIgnore
 	@Override
 	public int getLength()
 	{

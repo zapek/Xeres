@@ -19,6 +19,7 @@
 
 package io.xeres.common.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Embeddable;
 
 import java.util.Arrays;
@@ -46,10 +47,17 @@ public class ProfileFingerprint implements Identifier
 		this.identifier = identifier;
 	}
 
+	@JsonIgnore
 	@Override
 	public byte[] getBytes()
 	{
 		return identifier;
+	}
+
+	// This is used for serialization (for example passing a GxsId in a STOMP message)
+	public void setBytes(byte[] identifier)
+	{
+		this.identifier = identifier;
 	}
 
 	@Override

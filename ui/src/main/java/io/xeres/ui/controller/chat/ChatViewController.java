@@ -32,6 +32,7 @@ import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.uri.ChatRoomContentParser;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
@@ -80,8 +81,9 @@ public class ChatViewController implements Controller
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination ENTER_KEY = new KeyCodeCombination(KeyCode.ENTER);
 	private static final KeyCodeCombination BACKSPACE_KEY = new KeyCodeCombination(KeyCode.BACK_SPACE);
-	public static final String SUBSCRIBED_MENU_ID = "subscribed";
-	public static final String UNSUBSCRIBED_MENU_ID = "unsubscribed";
+	private static final String SUBSCRIBED_MENU_ID = "subscribed";
+	private static final String UNSUBSCRIBED_MENU_ID = "unsubscribed";
+	private static final String COPY_LINK_MENU_ID = "copyLink";
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -261,7 +263,17 @@ public class ChatViewController implements Controller
 		unsubscribeItem.setGraphic(new FontIcon(FontAwesomeSolid.ARROW_LEFT));
 		unsubscribeItem.setOnAction(event -> leaveChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
-		var roomHolderXContextMenu = new XContextMenu<RoomHolder>(roomTree, subscribeItem, unsubscribeItem);
+		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		copyLinkItem.setId(COPY_LINK_MENU_ID);
+		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		copyLinkItem.setOnAction(event -> {
+			var clipboardContent = new ClipboardContent();
+			var chatRoomInfo = ((RoomHolder) event.getSource()).getRoomInfo();
+			clipboardContent.putString(ChatRoomContentParser.generate(chatRoomInfo.getName(), chatRoomInfo.getId()));
+			Clipboard.getSystemClipboard().setContent(clipboardContent);
+		});
+
+		var roomHolderXContextMenu = new XContextMenu<RoomHolder>(roomTree, subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
 		roomHolderXContextMenu.setOnShowing((contextMenu, roomHolder) -> {
 			var chatRoomInfo = roomHolder.getRoomInfo();
 

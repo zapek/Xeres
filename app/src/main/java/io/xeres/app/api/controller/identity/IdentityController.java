@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.Id;
 import io.xeres.common.identity.Type;
 import io.xeres.common.rest.Error;
 import io.xeres.common.util.ImageDetectionUtils;
@@ -126,7 +125,7 @@ public class IdentityController
 		}
 		else if (isNotBlank(gxsId))
 		{
-			var identity = identityRsService.findByGxsId(new GxsId(Id.toBytes(gxsId)));
+			var identity = identityRsService.findByGxsId(GxsId.fromString(gxsId));
 			return identity.map(id -> List.of(toDTO(id))).orElse(Collections.emptyList());
 		}
 		else if (type != null)

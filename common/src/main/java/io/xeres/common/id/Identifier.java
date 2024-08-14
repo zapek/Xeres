@@ -56,8 +56,39 @@ public interface Identifier
 	@JsonIgnore
 	default byte[] getNullIdentifier()
 	{
-		var identifier = new byte[getLength()];
-		Arrays.fill(identifier, (byte) 0);
-		return identifier;
+		return createNullIdentifier(getLength());
+	}
+
+	default boolean isNullIdentifier()
+	{
+		return Arrays.equals(getNullIdentifier(), getBytes()); // XXX: improve?
+	}
+
+	static byte[] createNullIdentifier(int length)
+	{
+		var a = new byte[length];
+		Arrays.fill(a, (byte) 0);
+		return a;
+	}
+
+	static byte[] parseString(String s, int length)
+	{
+		byte[] bytes;
+		if (s == null || s.length() != length * 2)
+		{
+			bytes = createNullIdentifier(length);
+		}
+		else
+		{
+			try
+			{
+				bytes = Id.toBytes(s);
+			}
+			catch (NumberFormatException e)
+			{
+				bytes = createNullIdentifier(length);
+			}
+		}
+		return bytes;
 	}
 }

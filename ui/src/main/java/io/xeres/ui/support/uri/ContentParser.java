@@ -71,11 +71,11 @@ public interface ContentParser
 		return sb.toString();
 	}
 
-	static long getLong(String s)
+	static long getLongArgument(String s)
 	{
 		try
 		{
-			return Long.parseLong(s);
+			return Long.parseUnsignedLong(s);
 		}
 		catch (NumberFormatException e)
 		{
@@ -83,7 +83,7 @@ public interface ContentParser
 		}
 	}
 
-	static Sha1Sum getHash(String s)
+	static Sha1Sum getHashArgument(String s)
 	{
 		return Sha1Sum.fromString(s);
 	}

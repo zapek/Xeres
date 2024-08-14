@@ -36,6 +36,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
+import io.xeres.ui.support.uri.ForumContentParser;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -45,6 +46,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -70,8 +73,10 @@ import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 public class ForumViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);
-	public static final String SUBSCRIBE_MENU_ID = "subscribe";
-	public static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
+
+	private static final String SUBSCRIBE_MENU_ID = "subscribe";
+	private static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
+	private static final String COPY_LINK_MENU_ID = "copyLink";
 
 	private static final DateTimeFormatter messageDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 			.withZone(ZoneId.systemDefault());
@@ -223,7 +228,17 @@ public class ForumViewController implements Controller
 		unsubscribeItem.setId(UNSUBSCRIBE_MENU_ID);
 		unsubscribeItem.setOnAction(event -> unsubscribeFromForumGroups((ForumGroup) event.getSource()));
 
-		var forumGroupXContextMenu = new XContextMenu<ForumGroup>(forumTree, subscribeItem, unsubscribeItem);
+		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		copyLinkItem.setId(COPY_LINK_MENU_ID);
+		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		copyLinkItem.setOnAction(event -> {
+			var clipboardContent = new ClipboardContent();
+			var forumGroup = ((ForumGroup) event.getSource());
+			clipboardContent.putString(ForumContentParser.generate(forumGroup.getName(), forumGroup.getGxsId()));
+			Clipboard.getSystemClipboard().setContent(clipboardContent);
+		});
+
+		var forumGroupXContextMenu = new XContextMenu<ForumGroup>(forumTree, subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
 		forumGroupXContextMenu.setOnShowing((contextMenu, forumGroup) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
@@ -243,7 +258,17 @@ public class ForumViewController implements Controller
 		replyItem.setGraphic(new FontIcon(FontAwesomeSolid.REPLY));
 		replyItem.setOnAction(event -> newForumPost(true));
 
-		new XContextMenu<ForumMessage>(forumMessagesTreeTableView, replyItem);
+		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		copyLinkItem.setId(COPY_LINK_MENU_ID);
+		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		copyLinkItem.setOnAction(event -> {
+			var clipboardContent = new ClipboardContent();
+			@SuppressWarnings("unchecked") var forumMessage = ((TreeItem<ForumMessage>) event.getSource()).getValue();
+			clipboardContent.putString(ForumContentParser.generate(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId()));
+			Clipboard.getSystemClipboard().setContent(clipboardContent);
+		});
+
+		new XContextMenu<ForumMessage>(forumMessagesTreeTableView, replyItem, new SeparatorMenuItem(), copyLinkItem);
 	}
 
 	private void newForumPost(boolean replyTo)

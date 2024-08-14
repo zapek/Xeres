@@ -61,9 +61,15 @@ public class FileController
 	@PostMapping("/download")
 	@Operation(summary = "Download a file")
 	@ApiResponse(responseCode = "200", description = "Download created successfully")
+	@ApiResponse(responseCode = "400", description = "Invalid hash")
 	public long download(@RequestBody FileDownloadRequest fileDownloadRequest)
 	{
-		return fileTransferRsService.download(fileDownloadRequest.name(), Sha1Sum.fromString(fileDownloadRequest.hash()), fileDownloadRequest.size(), fileDownloadRequest.locationId());
+		var hash = Sha1Sum.fromString(fileDownloadRequest.hash());
+		if (hash.isNullIdentifier())
+		{
+			throw new IllegalArgumentException("Invalid hash");
+		}
+		return fileTransferRsService.download(fileDownloadRequest.name(), hash, fileDownloadRequest.size(), fileDownloadRequest.locationId());
 	}
 
 	@GetMapping("/downloads")

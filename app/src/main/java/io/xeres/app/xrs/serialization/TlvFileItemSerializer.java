@@ -52,11 +52,11 @@ final class TlvFileItemSerializer
 		buf.writeLong(fileItem.size());
 		Serializer.serialize(buf, fileItem.hash());
 		// XXX: the following are optional if empty... (length = 0, "" or 0)
-		if (!StringUtils.isEmpty(fileItem.name()))
+		if (StringUtils.isNotEmpty(fileItem.name()))
 		{
 			TlvSerializer.serialize(buf, STR_NAME, fileItem.name());
 		}
-		if (!StringUtils.isEmpty(fileItem.path()))
+		if (StringUtils.isNotEmpty(fileItem.path()))
 		{
 			TlvSerializer.serialize(buf, STR_PATH, fileItem.path());
 		}

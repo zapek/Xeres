@@ -19,6 +19,7 @@
 
 package io.xeres.common.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Embeddable;
 
 import java.util.Arrays;
@@ -46,18 +47,15 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 		identifier = sum;
 	}
 
-	public static Sha1Sum fromString(String s)
+	/**
+	 * Creates a {@link Sha1Sum} from a string.
+	 *
+	 * @param from a string representing the Sha1Sum in hexadecimal form (lowercase, no prefix)
+	 * @return the Sha1Sum or an empty Sha1Sum if the string was invalid
+	 */
+	public static Sha1Sum fromString(String from)
 	{
-		byte[] bytes;
-		if (s == null || s.length() != LENGTH * 2)
-		{
-			bytes = new byte[0];
-		}
-		else
-		{
-			bytes = Id.toBytes(s);
-		}
-		return new Sha1Sum(bytes);
+		return new Sha1Sum(Identifier.parseString(from, LENGTH));
 	}
 
 	@Override
@@ -66,6 +64,13 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 		return identifier;
 	}
 
+	// This is used for serialization (for example passing a GxsId in a STOMP message)
+	public void setBytes(byte[] identifier)
+	{
+		this.identifier = identifier;
+	}
+
+	@JsonIgnore
 	@Override
 	public int getLength()
 	{

@@ -34,9 +34,10 @@ import java.util.function.BiPredicate;
  *     <li>TreeView</li>
  *     <li>TableView</li>
  *     <li>TreeTableView</li>
+ *     <li>TabPane</li>
  * </ul>
  *
- * @param <T> the item of the *View class
+ * @param <T> the item of the class
  */
 public class XContextMenu<T>
 {
@@ -123,6 +124,11 @@ public class XContextMenu<T>
 			{
 				@SuppressWarnings("unchecked") var listViewItem = (T) listView.getSelectionModel().getSelectedItem();
 				return listViewItem;
+			}
+			case TabPane tabPane ->
+			{
+				//noinspection unchecked
+				return (T) tabPane.getSelectionModel().getSelectedItem();
 			}
 			case null, default -> throw new IllegalArgumentException("Unrecognized node in context menu creation: " + ownerNode);
 		}

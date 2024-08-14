@@ -23,15 +23,16 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
-
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SearchContentParser implements ContentParser
 {
 	private static final String PARAMETER_KEYWORDS = "keywords";
 
 	private static final String AUTHORITY = "search";
+
+	private String keywords;
 
 	@Override
 	public String getProtocol()
@@ -48,12 +49,14 @@ public class SearchContentParser implements ContentParser
 	@Override
 	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var keywords = uriComponents.getQueryParams().getFirst(PARAMETER_KEYWORDS);
+		var keywordsParameters = uriComponents.getQueryParams().getFirst(PARAMETER_KEYWORDS);
 
-		if (isBlank(keywords))
+		if (StringUtils.isBlank(keywordsParameters))
 		{
 			return ContentText.EMPTY;
 		}
+
+		keywords = keywordsParameters.trim();
 
 		return new ContentUri(keywords, keywords, uri -> uriAction.openUri(this));
 	}
@@ -64,5 +67,10 @@ public class SearchContentParser implements ContentParser
 				PARAMETER_KEYWORDS, name);
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
+	}
+
+	public String getKeywords()
+	{
+		return keywords;
 	}
 }

@@ -19,17 +19,28 @@
 
 package io.xeres.ui.controller.file;
 
+import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
+import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.uri.SearchContentParser;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.apache.commons.lang3.StringUtils;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -42,6 +53,8 @@ import reactor.core.Disposable;
 public class FileSearchViewController implements Controller, TabActivation
 {
 	private static final Logger log = LoggerFactory.getLogger(FileSearchViewController.class);
+
+	private static final String COPY_LINK_MENU_ID = "copyLink";
 
 	private final FileClient fileClient;
 
@@ -78,6 +91,7 @@ public class FileSearchViewController implements Controller, TabActivation
 			}
 		});
 
+		createContextMenu();
 		setupFileSearchNotifications();
 	}
 
@@ -111,6 +125,15 @@ public class FileSearchViewController implements Controller, TabActivation
 		}
 	}
 
+	@EventListener
+	public void handleOpenUriEvents(OpenUriEvent event)
+	{
+		if (event.contentParser() instanceof SearchContentParser searchContentParser)
+		{
+			search.setText(searchContentParser.getKeywords());
+		}
+	}
+
 	@Override
 	public void activate()
 	{
@@ -121,5 +144,20 @@ public class FileSearchViewController implements Controller, TabActivation
 	public void deactivate()
 	{
 
+	}
+
+	private void createContextMenu()
+	{
+		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		copyLinkItem.setId(COPY_LINK_MENU_ID);
+		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		copyLinkItem.setOnAction(event -> {
+			var clipboardContent = new ClipboardContent();
+			var fileResultView = (FileResultView) event.getSource();
+			clipboardContent.putString(SearchContentParser.generate(StringUtils.left(fileResultView.getText(), 50), fileResultView.getText()));
+			Clipboard.getSystemClipboard().setContent(clipboardContent);
+		});
+
+		var xContextMenu = new XContextMenu<Tab>(resultTabPane, copyLinkItem);
 	}
 }

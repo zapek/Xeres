@@ -43,6 +43,7 @@ import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.ChatRoomContentParser;
 import io.xeres.ui.support.uri.ForumContentParser;
+import io.xeres.ui.support.uri.SearchContentParser;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -92,8 +93,10 @@ public class MainWindowController implements WindowController
 	private static final String XERES_FORUMS_URL = "https://github.com/zapek/Xeres/discussions";
 	private static final Logger log = LoggerFactory.getLogger(MainWindowController.class);
 
+	// The indexes must be kept in sync with their order in main.fxml
 	private static final int CHAT_TAB_INDEX = 1;
 	private static final int FORUM_TAB_INDEX = 2;
+	private static final int FILES_TAB_INDEX = 3;
 
 	@FXML
 	private StackPane stackPane;
@@ -534,6 +537,7 @@ public class MainWindowController implements WindowController
 		{
 			case ChatRoomContentParser chatRoomContentParser -> tabPane.getSelectionModel().select(CHAT_TAB_INDEX);
 			case ForumContentParser forumContentParser -> tabPane.getSelectionModel().select(FORUM_TAB_INDEX);
+			case SearchContentParser searchContentParser -> tabPane.getSelectionModel().select(FILES_TAB_INDEX);
 			default ->
 			{
 				// Nothing to do

@@ -160,7 +160,11 @@ public class WindowManager
 			}
 			case ForumContentParser forumContentParser ->
 			{
-				// Nothing to do. This is handled in ForumContentParser
+				// Nothing to do. This is handled in ForumViewController
+			}
+			case SearchContentParser searchContentParser ->
+			{
+				// Nothing to do. This is handled in SearchViewController
 			}
 			default -> UiUtils.alert(WARNING, "The link '" + event.contentParser().getAuthority() + "' is not supported yet.");
 		}

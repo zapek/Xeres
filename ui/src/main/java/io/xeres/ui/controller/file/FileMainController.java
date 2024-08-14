@@ -19,12 +19,15 @@
 
 package io.xeres.ui.controller.file;
 
+import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
+import io.xeres.ui.support.uri.SearchContentParser;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -51,6 +54,15 @@ public class FileMainController implements Controller
 					idToController(oldValue.getId()).deactivate();
 					idToController(newValue.getId()).activate();
 				}));
+	}
+
+	@EventListener
+	public void handleOpenUriEvents(OpenUriEvent event)
+	{
+		if (event.contentParser() instanceof SearchContentParser searchContentParser)
+		{
+			tabPane.getSelectionModel().select(0);
+		}
 	}
 
 	private TabActivation idToController(String id)

@@ -288,7 +288,7 @@ public class MainWindowController implements WindowController
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle("Select the output profile");
 			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
-			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.images"), "*.xml"));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
 			fileChooser.setInitialFileName("xeres_backup.xml");
 			var selectedFile = fileChooser.showSaveDialog(getWindow(event));
 			if (selectedFile != null)

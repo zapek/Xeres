@@ -19,7 +19,6 @@
 
 package io.xeres.ui.controller.messaging;
 
-import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.ChatAvatar;
@@ -45,11 +44,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -58,12 +60,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
@@ -95,6 +100,12 @@ public class MessagingWindowController implements WindowController
 
 	@FXML
 	private ImageView targetAvatar;
+
+	@FXML
+	private Button addImage;
+
+	@FXML
+	private Button addFile;
 
 	private ChatListView receive;
 
@@ -155,6 +166,37 @@ public class MessagingWindowController implements WindowController
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 
+		addImage.setOnAction(event -> {
+			var fileChooser = new FileChooser();
+			fileChooser.setTitle("Select Picture to Send Inline");
+			fileChooser.getExtensionFilters().addAll(new ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
+			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
+			if (selectedFile != null && selectedFile.canRead())
+			{
+				CompletableFuture.runAsync(() -> {
+					try (var inputStream = new FileInputStream(selectedFile))
+					{
+						var imageView = new ImageView(new Image(inputStream));
+						Platform.runLater(() -> sendImageViewToMessage(imageView));
+					}
+					catch (IOException e)
+					{
+						log.error("Error with file {}: {}", selectedFile, e.getMessage());
+					}
+				});
+			}
+		});
+
+		addFile.setOnAction(event -> {
+			var fileChooser = new FileChooser();
+			fileChooser.setTitle("Select File to Send");
+			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
+			if (selectedFile != null && selectedFile.canRead())
+			{
+				sendFile(selectedFile);
+			}
+		});
+
 		lastTypingTimeline = new Timeline(
 				new KeyFrame(Duration.ZERO, event -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), targetProfile.getName()))),
 				new KeyFrame(Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
@@ -184,13 +226,18 @@ public class MessagingWindowController implements WindowController
 			var files = event.getDragboard().getFiles();
 			CollectionUtils.emptyIfNull(files).forEach(file -> {
 				log.debug("File dropped: {}", file.getName());
-				shareClient.createTemporaryShare(file.getAbsolutePath())
-						.doOnSuccess(result -> sendMessage(FileContentParser.generate(file.getName(), getFileSize(file.toPath()), new Sha1Sum(Id.toBytes(result)))))
-						.subscribe();
+				sendFile(file);
 			});
 			event.setDropCompleted(true);
 			event.consume();
 		});
+	}
+
+	private void sendFile(File file)
+	{
+		shareClient.createTemporaryShare(file.getAbsolutePath())
+				.doOnSuccess(result -> sendMessage(FileContentParser.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result))))
+				.subscribe();
 	}
 
 	private static long getFileSize(Path path)
@@ -278,12 +325,16 @@ public class MessagingWindowController implements WindowController
 			var image = Clipboard.getSystemClipboard().getImage();
 			if (image != null)
 			{
-				var imageView = new ImageView(image);
-				ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX, IMAGE_HEIGHT_MAX);
-				sendMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
-				imageView.setImage(null);
+				sendImageViewToMessage(new ImageView(image));
 				event.consume();
 			}
 		}
+	}
+
+	private void sendImageViewToMessage(ImageView imageView)
+	{
+		ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX, IMAGE_HEIGHT_MAX);
+		sendMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		imageView.setImage(null);
 	}
 }

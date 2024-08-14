@@ -135,7 +135,7 @@ class RSCertificate extends RSId
 						// XXX: insert the URLs (I probably need a RsUrl object...
 					}
 
-					default -> log.warn("Unhandled tag {}, ignoring.", pTag);
+					default -> log.trace("Unhandled tag {}, ignoring.", pTag);
 				}
 			}
 

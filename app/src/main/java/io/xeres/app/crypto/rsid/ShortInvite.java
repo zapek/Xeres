@@ -78,7 +78,7 @@ class ShortInvite extends RSId
 
 			while (in.available() > 0)
 			{
-				var ptag = in.read();
+				var pTag = in.read();
 				var size = getPacketSize(in);
 				if (size == 0)
 				{
@@ -87,10 +87,10 @@ class ShortInvite extends RSId
 				var buf = new byte[size];
 				if (in.readNBytes(buf, 0, size) != size)
 				{
-					throw new IllegalArgumentException("Packet " + ptag + " is shorter than its advertised size");
+					throw new IllegalArgumentException("Packet " + pTag + " is shorter than its advertised size");
 				}
 
-				switch (ptag)
+				switch (pTag)
 				{
 					case PGP_FINGERPRINT -> setPgpFingerprint(buf);
 					case NAME -> setName(buf);
@@ -107,7 +107,7 @@ class ShortInvite extends RSId
 						}
 						checksumPassed = checksum == (Byte.toUnsignedInt(buf[2]) << 16 | Byte.toUnsignedInt(buf[1]) << 8 | Byte.toUnsignedInt(buf[0])); // little endian
 					}
-					default -> log.warn("Unhandled tag {}, ignoring.", ptag);
+					default -> log.trace("Unhandled tag {}, ignoring.", pTag);
 				}
 			}
 

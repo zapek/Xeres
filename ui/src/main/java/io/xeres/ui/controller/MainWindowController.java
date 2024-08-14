@@ -29,6 +29,7 @@ import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.JavaFxApplication;
+import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
@@ -40,6 +41,8 @@ import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.uri.ChatRoomContentParser;
+import io.xeres.ui.support.uri.ForumContentParser;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -48,10 +51,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
@@ -63,6 +63,8 @@ import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -88,9 +90,16 @@ public class MainWindowController implements WindowController
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
 	private static final String XERES_FORUMS_URL = "https://github.com/zapek/Xeres/discussions";
+	private static final Logger log = LoggerFactory.getLogger(MainWindowController.class);
+
+	private static final int CHAT_TAB_INDEX = 1;
+	private static final int FORUM_TAB_INDEX = 2;
 
 	@FXML
 	private StackPane stackPane;
+
+	@FXML
+	private TabPane tabPane;
 
 	@FXML
 	private Label titleLabel;
@@ -278,7 +287,7 @@ public class MainWindowController implements WindowController
 			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.images"), "*.xml"));
 			fileChooser.setInitialFileName("xeres_backup.xml");
-			var selectedFile = fileChooser.showSaveDialog(UiUtils.getWindow(event));
+			var selectedFile = fileChooser.showSaveDialog(getWindow(event));
 			if (selectedFile != null)
 			{
 				DataBufferUtils.write(configClient.getBackup(), selectedFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING).subscribe();
@@ -514,6 +523,20 @@ public class MainWindowController implements WindowController
 										newDhtInfo.itemCount()));
 					}
 				}
+			}
+		}
+	}
+
+	@EventListener
+	public void handleOpenUriEvents(OpenUriEvent event)
+	{
+		switch (event.contentParser())
+		{
+			case ChatRoomContentParser chatRoomContentParser -> tabPane.getSelectionModel().select(CHAT_TAB_INDEX);
+			case ForumContentParser forumContentParser -> tabPane.getSelectionModel().select(FORUM_TAB_INDEX);
+			default ->
+			{
+				// Nothing to do
 			}
 		}
 	}

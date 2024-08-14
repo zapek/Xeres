@@ -19,26 +19,22 @@
 
 package io.xeres.ui.support.uri;
 
-import io.xeres.common.rest.file.AddDownloadRequest;
+import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.support.markdown.UriAction;
-import io.xeres.ui.support.util.UiUtils;
-import io.xeres.ui.support.window.WindowManager;
 import javafx.application.HostServices;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-
-import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Service
 public class UriService implements UriAction
 {
-	private final WindowManager windowManager;
+	private final ApplicationEventPublisher eventPublisher;
 
 	private static HostServices hostServices;
 
-	public UriService(@Lazy WindowManager windowManager)
+	public UriService(ApplicationEventPublisher eventPublisher)
 	{
-		this.windowManager = windowManager;
+		this.eventPublisher = eventPublisher;
 	}
 
 	public void setHostServices(HostServices hostServices)
@@ -49,16 +45,7 @@ public class UriService implements UriAction
 	@Override
 	public void openUri(ContentParser contentParser)
 	{
-		switch (contentParser)
-		{
-			case CertificateContentParser certificateContentParser -> windowManager.openAddPeer(certificateContentParser.getRadix());
-			case FileContentParser fileContentParser -> windowManager.openAddDownload(
-					new AddDownloadRequest(fileContentParser.getName(),
-							fileContentParser.getSize(),
-							fileContentParser.getHash(),
-							null));
-			default -> UiUtils.alert(WARNING, "The link '" + contentParser.getAuthority() + "' is not supported yet.");
-		}
+		eventPublisher.publishEvent(new OpenUriEvent(contentParser));
 	}
 
 	/**

@@ -22,11 +22,13 @@ package io.xeres.ui.controller.forum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
+import io.xeres.common.id.MessageId;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
+import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
@@ -66,6 +68,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static javafx.scene.control.Alert.AlertType.WARNING;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
@@ -150,6 +153,8 @@ public class ForumViewController implements Controller
 	private final TreeItem<ForumGroup> popularForums;
 	private final TreeItem<ForumGroup> otherForums;
 
+	private MessageId messageIdToSelect;
+
 	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService)
 	{
 		this.forumClient = forumClient;
@@ -216,6 +221,57 @@ public class ForumViewController implements Controller
 		setupForumNotifications();
 
 		getForumGroups();
+	}
+
+	@EventListener
+	public void handleOpenUriEvent(OpenUriEvent event)
+	{
+		if (event.contentParser() instanceof ForumContentParser forumContentParser)
+		{
+			var group = forumContentParser.getId();
+			var message = forumContentParser.getMsgId();
+
+			Stream.concat(Stream.concat(Stream.concat(ownForums.getChildren().stream(), subscribedForums.getChildren().stream()), popularForums.getChildren().stream()), otherForums.getChildren().stream())
+					.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getGxsId().equals(group))
+					.findFirst()
+					.ifPresentOrElse(forumGroupTreeItem -> {
+						setMessageToSelect(message);
+						Platform.runLater(() -> {
+							if (forumGroupTreeItem.equals(forumTree.getSelectionModel().getSelectedItem()))
+							{
+								// We need to select the message now if we're already on the right group
+								// because it won't be selected for us automatically.
+								selectMessageIfNeeded();
+							}
+							else
+							{
+								forumTree.getSelectionModel().select(forumGroupTreeItem);
+							}
+						});
+					}, () -> UiUtils.alert(WARNING, bundle.getString("forum.view.group.not-found")));
+		}
+	}
+
+	private void setMessageToSelect(MessageId message)
+	{
+		if (message != null)
+		{
+			messageIdToSelect = message;
+		}
+	}
+
+	private void selectMessageIfNeeded()
+	{
+		if (messageIdToSelect != null)
+		{
+			forumMessagesRoot.getChildren().stream()
+					.filter(forumMessageTreeItem -> forumMessageTreeItem.getValue().getMessageId().equals(messageIdToSelect))
+					.findFirst()
+					.ifPresentOrElse(forumMessageTreeItem -> Platform.runLater(() -> forumMessagesTreeTableView.getSelectionModel().select(forumMessageTreeItem)),
+							() -> UiUtils.alert(WARNING, bundle.getString("forum.view.message.not-found")));
+
+			messageIdToSelect = null;
+		}
 	}
 
 	private void createForumTreeContextMenu()
@@ -427,6 +483,7 @@ public class ForumViewController implements Controller
 					forumMessagesTreeTableView.sort();
 					clearMessage();
 					newThread.setDisable(false);
+					selectMessageIfNeeded();
 				}))
 				.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
 				.doFinally(signalType -> forumMessagesState(false))

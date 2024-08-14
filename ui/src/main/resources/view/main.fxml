@@ -32,7 +32,7 @@
 <StackPane fx:id="stackPane" minWidth="640.0" minHeight="460.0" prefWidth="780.0" prefHeight="500.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.MainWindowController">
     <VBox>
         <AnchorPane VBox.vgrow="ALWAYS">
-            <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+            <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
                 <Tab text="%main.home">
                     <graphic>
                         <FontIcon iconLiteral="fas-home"/>
@@ -116,7 +116,7 @@
                     <!--suppress Annotator -->
                     <fx:include fx:id="forumsView" source="forum/forumview.fxml"/>
                 </Tab>
-                <Tab text="Files">
+                <Tab text="%main.files">
                     <graphic>
                         <FontIcon iconLiteral="fas-exchange-alt"/>
                     </graphic>

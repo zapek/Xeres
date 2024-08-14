@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriUtils;
 
+import java.util.Locale;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface ContentParser
@@ -75,7 +77,7 @@ public interface ContentParser
 	{
 		try
 		{
-			return Long.parseUnsignedLong(s);
+			return Long.parseUnsignedLong(s.toLowerCase(Locale.ROOT), 16);
 		}
 		catch (NumberFormatException e)
 		{

@@ -21,6 +21,7 @@ package io.xeres.ui.controller.chat;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.message.chat.*;
+import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ProfileClient;
@@ -54,6 +55,9 @@ import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -65,8 +69,10 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static javafx.scene.control.Alert.AlertType.WARNING;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -84,6 +90,7 @@ public class ChatViewController implements Controller
 	private static final String SUBSCRIBED_MENU_ID = "subscribed";
 	private static final String UNSUBSCRIBED_MENU_ID = "unsubscribed";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
+	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -249,6 +256,18 @@ public class ChatViewController implements Controller
 		getChatRoomContext();
 
 		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation());
+	}
+
+	@EventListener
+	public void handleOpenUriEvents(OpenUriEvent event)
+	{
+		if (event.contentParser() instanceof ChatRoomContentParser chatRoomContentParser)
+		{
+			var chatRoomId = chatRoomContentParser.getChatRoomId();
+
+			getAllTreeItem(chatRoomId).ifPresentOrElse(treeItem -> Platform.runLater(() -> roomTree.getSelectionModel().select(treeItem)),
+					() -> UiUtils.alert(WARNING, bundle.getString("chat.room.not-found")));
+		}
 	}
 
 	private void createRoomTreeContextMenu()
@@ -519,6 +538,13 @@ public class ChatViewController implements Controller
 	private Optional<TreeItem<RoomHolder>> getSubscribedTreeItem(long roomId)
 	{
 		return subscribedRooms.getChildren().stream()
+				.filter(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().getId() == roomId)
+				.findFirst();
+	}
+
+	private Optional<TreeItem<RoomHolder>> getAllTreeItem(long roomId)
+	{
+		return Stream.concat(subscribedRooms.getChildren().stream(), Stream.concat(publicRooms.getChildren().stream(), privateRooms.getChildren().stream()))
 				.filter(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().getId() == roomId)
 				.findFirst();
 	}

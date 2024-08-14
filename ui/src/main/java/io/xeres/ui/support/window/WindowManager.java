@@ -25,6 +25,7 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
+import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.ProfileClient;
@@ -56,7 +57,7 @@ import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.theme.AppThemeManager;
-import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -72,6 +73,7 @@ import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxWeaver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -79,6 +81,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.prefs.BackingStoreException;
 
+import static javafx.scene.control.Alert.AlertType.WARNING;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
@@ -138,6 +141,29 @@ public class WindowManager
 			var copyOfWindows = new ArrayList<>(windows);
 			copyOfWindows.forEach(Window::hide);
 		});
+	}
+
+	@EventListener
+	public void handleOpenUriEvents(OpenUriEvent event)
+	{
+		switch (event.contentParser())
+		{
+			case CertificateContentParser certificateContentParser -> openAddPeer(certificateContentParser.getRadix());
+			case FileContentParser fileContentParser -> openAddDownload(
+					new AddDownloadRequest(fileContentParser.getName(),
+							fileContentParser.getSize(),
+							fileContentParser.getHash(),
+							null));
+			case ChatRoomContentParser chatRoomContentParser ->
+			{
+				// Nothing to do. This is handled in ChatViewController
+			}
+			case ForumContentParser forumContentParser ->
+			{
+				// Nothing to do. This is handled in ForumContentParser
+			}
+			default -> UiUtils.alert(WARNING, "The link '" + event.contentParser().getAuthority() + "' is not supported yet.");
+		}
 	}
 
 	public void openPeers()

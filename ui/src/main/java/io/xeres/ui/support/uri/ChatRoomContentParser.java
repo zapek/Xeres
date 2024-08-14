@@ -60,20 +60,20 @@ public class ChatRoomContentParser implements ContentParser
 	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var nameParameter = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
+		var idParameter = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
 
-		if (Stream.of(nameParameter, id).anyMatch(StringUtils::isBlank))
+		if (Stream.of(nameParameter, idParameter).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
 		name = nameParameter;
-		if (id.length() > 1 && id.startsWith(CHAT_ROOM_PREFIX))
+		if (idParameter.length() > 1 && idParameter.startsWith(CHAT_ROOM_PREFIX))
 		{
-			chatRoomId = ContentParser.getLongArgument(id.substring(1));
+			chatRoomId = ContentParser.getLongArgument(idParameter.substring(1));
 		}
 
-		return new ContentUri(id, nameParameter, uri -> uriAction.openUri(this));
+		return new ContentUri(idParameter, nameParameter, uri -> uriAction.openUri(this));
 	}
 
 	public static String generate(String name, long chatRoomId)

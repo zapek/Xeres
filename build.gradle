@@ -40,7 +40,7 @@ plugins {
 
 // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
 wrapper {
-    gradleVersion = '8.9'
+    gradleVersion = '8.10'
 }
 
 subprojects {

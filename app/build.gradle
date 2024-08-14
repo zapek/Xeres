@@ -94,6 +94,7 @@ tasks.register('copyInstaller', Copy) {
     doNotTrackState("Copying installation file need to re-run every time")
 }
 
+// needed to avoid duplicate jars in 'libs' when changing versions
 tasks.register('deleteLibs', Delete) {
     delete "${project.buildDir}/${project.libsDirName}/"
 }
@@ -103,8 +104,14 @@ bootBuildImage {
     imageName = "zapek/${rootProject.name.toLowerCase(Locale.ROOT)}:${project.version}"
 }
 
+// This is needed to have jpackage work with the configuration cache, see https://github.com/petr-panteleyev/jpackage-gradle-plugin/issues/29
+def jpackageWorkdir = layout.buildDirectory.file('jpackage')
+tasks.register('cleanJpackageWorkdir', Delete) {
+    delete jpackageWorkdir
+}
+
 jpackage {
-    dependsOn "deleteLibs" // needed to avoid duplicate jars in 'libs' when changing versions
+    dependsOn deleteLibs, cleanJpackageWorkdir
     mustRunAfter "deleteLibs"
     dependsOn "bootJar"
     dependsOn "copyInstaller"

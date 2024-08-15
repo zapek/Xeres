@@ -106,7 +106,7 @@ final class TlvAddressSerializer
 				}
 				else
 				{
-					log.debug("Skipping unsupported address type {}, size: {}", addressType, addressSize);
+					log.trace("Skipping unsupported address type {}, size: {}", addressType, addressSize);
 					buf.skipBytes(addressSize - TLV_HEADER_SIZE);
 					return PeerAddress.fromInvalid();
 				}

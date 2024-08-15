@@ -87,7 +87,7 @@ class FileTransferManager implements Runnable
 		{
 			try
 			{
-				var action = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(DEFAULT_TICK, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one
+				var action = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(DEFAULT_TICK, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one.
 				processAction(action);
 				processLeechers();
 				processSeeders();
@@ -132,7 +132,14 @@ class FileTransferManager implements Runnable
 
 	private void processSeeders()
 	{
-		//seeders.entrySet().removeIf(agent -> !agent.getValue().process()); XXX: how to remove those? we should have a timeout when there's no upload request for a while, then we can remove it... but not before. also see the comment FileTransferAgent for processUploads()
+		seeders.entrySet().removeIf(agent -> {
+			if (agent.getValue().isIdle())
+			{
+				agent.getValue().stop();
+				return true;
+			}
+			return false;
+		});
 		seeders.forEach((hash, agent) -> agent.process());
 	}
 

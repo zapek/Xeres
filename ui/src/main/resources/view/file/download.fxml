@@ -31,7 +31,7 @@
             <Label text="%download.view.list.none"/>
         </placeholder>
         <columns>
-            <TableColumn fx:id="tableName" prefWidth="180.0" text="%download.view.list.name"/>
+            <TableColumn fx:id="tableName" prefWidth="200.0" text="%download.view.list.name"/>
             <TableColumn fx:id="tableState" prefWidth="120.0" text="%download.view.list.state"/>
             <TableColumn fx:id="tableProgress" prefWidth="140.0" text="%download.view.list.progress"/>
             <TableColumn fx:id="tableTotalSize" prefWidth="100.0" text="%download.view.list.total-size"/>

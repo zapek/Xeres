@@ -31,19 +31,19 @@ import static io.xeres.app.xrs.serialization.TlvType.STR_VALUE;
 public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem
 {
 	/**
-	 * The string to search for.
+	 * The keywords to search for. Separated by spaces.
 	 */
 	@RsSerialized(tlvType = STR_VALUE)
-	private String search;
+	private String keywords;
 
 	@SuppressWarnings("unused")
 	public TurtleStringSearchRequestItem()
 	{
 	}
 
-	public TurtleStringSearchRequestItem(String search)
+	public TurtleStringSearchRequestItem(String keywords)
 	{
-		this.search = search;
+		this.keywords = keywords;
 	}
 
 	@Override
@@ -52,22 +52,17 @@ public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem
 		return 1;
 	}
 
-	public String getSearch()
-	{
-		return search;
-	}
-
 	@Override
 	public String getKeywords()
 	{
-		return search;
+		return keywords;
 	}
 
 	@Override
 	public String toString()
 	{
 		return "TurtleStringSearchRequestItem{" +
-				"search='" + search + '\'' +
+				"search='" + keywords + '\'' +
 				", requestId=" + getRequestId() +
 				", depth=" + getDepth() +
 				'}';

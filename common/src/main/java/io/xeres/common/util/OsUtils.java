@@ -33,6 +33,9 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public final class OsUtils
 {
@@ -40,6 +43,10 @@ public final class OsUtils
 
 	private static final String CASE_FILE_PREFIX = "XeresFileSystemCaseDetectorFile";
 	private static final String CASE_FILE_EXTENSION = "tmp";
+
+	private static final Pattern INVALID_WINDOWS_FILE_CHARS = Pattern.compile("([\\\\/:*?\"<>|\\p{Cntrl}]|^nul$)", CASE_INSENSITIVE);
+	private static final Pattern INVALID_LINUX_FILE_CHARS = Pattern.compile("[\\x00/]");
+	private static final Pattern INVALID_MACOS_FILE_CHARS = Pattern.compile("[:/]");
 
 	private OsUtils()
 	{
@@ -225,6 +232,28 @@ public final class OsUtils
 			{
 				throw new IllegalStateException("Couldn't show the folder " + directory + ": " + e.getMessage());
 			}
+		}
+	}
+
+	public static String sanitizeFileName(String fileName)
+	{
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			// Any Unicode except control characters, \, /, :, *, ?, ", <, >, | and no spaces at the beginning
+			// or the end. A single period at the end is automatically removed by the Win32 API.
+			// Forget about the "invalids" CON, AUX, COM1...9, LPT1...9. Those are only restricted in a cmd.exe or by explorer.exe, but they are valid
+			// file names (you can create then with PowerShell for example). Only NUL is restricted.
+			return INVALID_WINDOWS_FILE_CHARS.matcher(fileName).replaceAll("_").trim();
+		}
+		else if (SystemUtils.IS_OS_MAC)
+		{
+			// MacOS is : and /
+			return INVALID_MACOS_FILE_CHARS.matcher(fileName).replaceAll("_");
+		}
+		else // Assume the rest is Linux
+		{
+			// Linux is NUL and /
+			return INVALID_LINUX_FILE_CHARS.matcher(fileName).replaceAll("_");
 		}
 	}
 

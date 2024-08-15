@@ -22,13 +22,16 @@ package io.xeres.app.xrs.service.filetransfer;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.util.FileNameUtils;
+import io.xeres.common.util.OsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,11 +45,14 @@ class FileTransferAgent
 {
 	private static final Logger log = LoggerFactory.getLogger(FileTransferAgent.class);
 
+	private static final long IDLE_TIME = Duration.ofMinutes(5).toNanos();
+
 	private final FileTransferRsService fileTransferRsService;
 	private final FileProvider fileProvider;
 	private final Sha1Sum hash;
 	private final String fileName;
 	private boolean isDone;
+	private long lastActivity;
 
 	private final Map<Location, ChunkSender> leechers = new LinkedHashMap<>();
 	private final Map<Location, ChunkReceiver> seeders = new LinkedHashMap<>();
@@ -57,6 +63,7 @@ class FileTransferAgent
 		this.hash = hash;
 		this.fileProvider = fileProvider;
 		this.fileName = fileName;
+		lastActivity = System.nanoTime();
 	}
 
 	public FileProvider getFileProvider()
@@ -108,6 +115,11 @@ class FileTransferAgent
 		}
 	}
 
+	public void stop()
+	{
+		fileProvider.close();
+	}
+
 	public void addChunkMap(Location peer, BitSet chunkMap)
 	{
 		var seeder = seeders.get(peer);
@@ -117,6 +129,12 @@ class FileTransferAgent
 			return;
 		}
 		seeder.setChunkMap(chunkMap);
+	}
+
+	public boolean isIdle()
+	{
+		// XXX: only works for uploads (seeders). Should also work for downloads but that's on the side of file provider.
+		return System.nanoTime() - lastActivity > IDLE_TIME;
 	}
 
 	private void processDownloads()
@@ -137,7 +155,7 @@ class FileTransferAgent
 						if (fileProvider.isComplete() && !isDone)
 						{
 							log.debug("File is complete, size: {}, renaming to {}", fileProvider.getFileSize(), fileName);
-							fileProvider.close();
+							stop();
 							fileTransferRsService.markDownloadAsCompleted(hash);
 							fileTransferRsService.deactivateTunnels(hash);
 							renameFile(fileProvider.getPath(), fileName);
@@ -167,14 +185,13 @@ class FileTransferAgent
 				.findFirst().ifPresent(entry -> {
 					var chunkSender = entry.getValue();
 					var remaining = chunkSender.send();
+					lastActivity = System.nanoTime();
 					if (!remaining)
 					{
+						// We just remove the leecher here and nothing else. The fileTransferManager will close the file
+						// when it's idle for some time otherwise it would need to be reopened immediately for the
+						// next chunk.
 						leechers.remove(entry.getKey());
-						if (leechers.isEmpty())
-						{
-							// XXX: same problem here... when do we close the file? the FileTransferManager has to inform us that there's no leechers anymore and we can close the file
-							//fileProvider.close();
-						}
 					}
 				});
 	}
@@ -203,6 +220,20 @@ class FileTransferAgent
 			{
 				log.warn("File name {} already exists, renaming...", fileName);
 				fileName = FileNameUtils.rename(fileName);
+			}
+			catch (InvalidPathException e)
+			{
+				log.warn("File name {} is invalid, trying to fix the characters...", fileName);
+				var newFileName = OsUtils.sanitizeFileName(fileName);
+				if (newFileName.equals(fileName))
+				{
+					fileName = "InvalidFileName_RenameMe";
+					log.error("Couldn't find a proper name for file {}, using: {}. Rename by hand and report", filePath, fileName);
+				}
+				else
+				{
+					fileName = newFileName;
+				}
 			}
 			catch (IOException e)
 			{

@@ -76,7 +76,8 @@
                     <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
-                    <Text text="David Gerber (Zapek)&#10;" styleClass="text-caption"/>
+                    <DisclosedHyperlink text="David Gerber (Zapek)" uri="https://zapek.com/"/>
+                    <Text text="&#10;"/>
                     <DisclosedHyperlink text="dg@zapek.com" uri="mailto:dg@zapek.com"/>
                     <Text text="&#10;Benevolent dictator, lead developer" styleClass="text-italic"/>
                 </TextFlow>
@@ -119,75 +120,91 @@
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Apache Commons Collections" uri="https://commons.apache.org/proper/commons-collections/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © The Apache Software Foundation. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Apache Commons IO" uri="https://commons.apache.org/proper/commons-lang/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © The Apache Software Foundation. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Apache Commons Lang" uri="https://commons.apache.org/proper/commons-lang/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © The Apache Software Foundation. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="AppDirs" uri="https://github.com/harawata/appdirs"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Iwao Ave. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="AtlantaFX" uri="https://mkpaz.github.io/atlantafx"/>
+                    <Text text="&#10;"/>
                     <Text text=" © mkpaz. Licensed under the "/>
                     <DisclosedHyperlink text="MIT license." uri="https://github.com/mkpaz/atlantafx?tab=MIT-1-ov-file#readme"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Bloomfilter" uri="https://github.com/sangupta/bloomfilter"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Sandeep Gupta. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Bouncy Castle" uri="https://www.bouncycastle.org/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © The Legion of the Bouncy Castle Inc. Licensed under the "/>
                     <DisclosedHyperlink text="MIT license." uri="https://www.bouncycastle.org/about/license/#License"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Flowless" uri="https://github.com/FXMisc/Flowless"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Tomas Mikula. Licensed under the "/>
                     <DisclosedHyperlink text="BSD 2-Clause license." uri="https://github.com/FXMisc/Flowless/blob/master/LICENSE"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="FontAwesome 5" uri="https://fontawesome.com/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Fonticons, Inc. Licensed under the "/>
                     <DisclosedHyperlink text="SIL OFL 1.1 license." uri="https://openfontlicense.org/"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Flyway" uri="https://www.red-gate.com/products/flyway/community/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © RedGate. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="GeoLite2 Country" uri="https://www.maxmind.com/en/geoip-databases"/>
+                    <Text text="&#10;"/>
                     <Text text=" © MaxMind. Licensed under the "/>
                     <DisclosedHyperlink text="GeoLite 2 End User License Agreement" uri="https://www.maxmind.com/en/geolite2/eula"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="H2 Database Engine" uri="https://h2database.com/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © H2 Group. Dual licensed under the "/>
                     <DisclosedHyperlink text="MPL 2.0 or EPL 1.0." uri="https://h2database.com/html/license.html"/>
+                    <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Ikonli" uri="https://github.com/kordamp/ikonli"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Andres Almiray. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="JavaFX-Weaver" uri="https://github.com/rgielen/javafx-weaver"/>
+                    <Text text="&#10;"/>
                     <Text text=" © René Gielen. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Java Native Access" uri="https://github.com/java-native-access/jna"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Timothy Wall and others. Dual licensed under the "/>
                     <DisclosedHyperlink text="LGPL" uri="https://www.gnu.org/licenses/lgpl-3.0.en.html"/>
                     <Text text=" or "/>
@@ -195,11 +212,13 @@
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="JPackage Gradle Plugin" uri="https://github.com/petr-panteleyev/jpackage-gradle-plugin"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Petr Panteleyev. Licensed under the "/>
                     <DisclosedHyperlink text="BSD-2-Clause license." uri="https://github.com/petr-panteleyev/jpackage-gradle-plugin?tab=BSD-2-Clause-1-ov-file#readme"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="JSON Patch" uri="https://github.com/java-json-tools/json-patch"/>
+                    <Text text="&#10;"/>
                     <Text text=" © the original authors. Dual licensed under the "/>
                     <DisclosedHyperlink text="GPLv3" uri="https://www.gnu.org/licenses/lgpl-3.0.txt"/>
                     <Text text=" or "/>
@@ -207,51 +226,61 @@
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="jsoup" uri="https://jsoup.org/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Jonathan Hedley. Licensed under the "/>
                     <DisclosedHyperlink text="MIT license." uri="https://github.com/jhy/jsoup?tab=MIT-1-ov-file#readme"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Material Design 2" uri="https://m2.material.io/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Google. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="mldht" uri="https://github.com/the8472/mldht"/>
+                    <Text text="&#10;"/>
                     <Text text=" © the8472. Licensed under the "/>
                     <DisclosedHyperlink text="MPL 2.0." uri="https://www.mozilla.org/en-US/MPL/"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Netty" uri="https://netty.io/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © The Netty project. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Spring Boot" uri="https://spring.io/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Broadcom. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="springdoc-openapi" uri="https://springdoc.org/"/>
+                    <Text text="&#10;"/>
                     <Text text=" © the original authors. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://github.com/springdoc/springdoc-openapi/blob/main/LICENSE"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Thumbnailator" uri="https://github.com/coobird/thumbnailator"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Chris Kroells. Licensed under the "/>
                     <DisclosedHyperlink text="MIT license" uri="https://github.com/coobird/thumbnailator?tab=MIT-1-ov-file#readme"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Twemoji" uri="https://github.com/jdecked/twemoji"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Twitter, Inc and other contributors. Graphics licensed under "/>
                     <DisclosedHyperlink text="CC-BY 4.0." uri="https://creativecommons.org/licenses/by/4.0/"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Webcam Capture API" uri="https://github.com/sarxos/webcam-capture/tree/master"/>
+                    <Text text="&#10;"/>
                     <Text text=" © Bartosz Firyn and Contributors. Licensed under the "/>
                     <DisclosedHyperlink text="MIT license." uri="https://github.com/sarxos/webcam-capture/blob/master/LICENSE.txt"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="ZXing (Zebra Crossing)" uri="https://github.com/zxing/zxing"/>
+                    <Text text="&#10;"/>
                     <Text text=" © the original authors. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>

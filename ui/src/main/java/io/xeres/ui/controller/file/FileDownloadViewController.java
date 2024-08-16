@@ -134,7 +134,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 									it.remove();
 								}
 							}
-							incomingProgresses.forEach((s, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), fileProgress.currentSize() == fileProgress.totalSize() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
+							incomingProgresses.forEach((s, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), fileProgress.completed() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				1,
@@ -143,7 +143,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 	private static FileProgressDisplay.State getState(FileProgressDisplay currentProgress, FileProgress incomingProgress, double newProgress)
 	{
-		if (incomingProgress.currentSize() == incomingProgress.totalSize())
+		if (incomingProgress.completed())
 		{
 			return DONE;
 		}

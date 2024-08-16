@@ -227,7 +227,8 @@ class FileTransferManager implements Runnable
 						fileTransferAgent.getFileName(),
 						fileTransferAgent.getFileProvider().getBytesWritten(),
 						fileTransferAgent.getFileProvider().getFileSize(),
-						sha1Sum.toString())));
+						sha1Sum.toString(),
+						fileTransferAgent.isDone())));
 
 		synchronized (downloadsProgress)
 		{
@@ -244,7 +245,8 @@ class FileTransferManager implements Runnable
 						fileTransferAgent.getFileName(),
 						0L,
 						fileTransferAgent.getFileProvider().getFileSize(),
-						sha1Sum.toString())));
+						sha1Sum.toString(),
+						fileTransferAgent.isDone())));
 
 		synchronized (uploadsProgress)
 		{

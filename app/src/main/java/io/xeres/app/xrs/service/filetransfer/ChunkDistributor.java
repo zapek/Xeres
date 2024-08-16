@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -31,8 +33,14 @@ class ChunkDistributor
 {
 	private static final int MAX_RANDOM_TRY = 10;
 
+	/**
+	 * Time to consider a given chunk as "lost".
+	 * XXX: add a way to update that value when a write for that chunk is received. if possible, make the timeout shorter then
+	 */
+	private static final Duration GIVEN_CHUNK_TIMEOUT = Duration.ofMinutes(10);
+
 	private final BitSet chunkMap; // This is updated externally
-	private final Set<Integer> givenChunks = new HashSet<>();
+	private final Map<Integer, Instant> givenChunks = new HashMap<>();
 	private final int totalChunks;
 	private final FileTransferStrategy fileTransferStrategy;
 	private int minChunk;
@@ -58,17 +66,22 @@ class ChunkDistributor
 		// The given chunks that were downloaded should be
 		// removed to consolidate the set.
 		var beforeSize = givenChunks.size();
-		givenChunks.removeIf(chunkMap::get);
+		givenChunks.entrySet().removeIf(entry -> chunkMap.get(entry.getKey()) || givenChunkIsTooOld(entry.getValue()));
 		if (fileTransferStrategy == LINEAR && beforeSize != givenChunks.size())
 		{
 			minChunk = findMinChunk();
 		}
 	}
 
+	private boolean givenChunkIsTooOld(Instant given)
+	{
+		return given.isBefore(Instant.now().minus(GIVEN_CHUNK_TIMEOUT));
+	}
+
 	private int findMinChunk()
 	{
 		minChunk = chunkMap.nextClearBit(0);
-		while (givenChunks.contains(minChunk) || chunkMap.get(minChunk))
+		while (givenChunks.containsKey(minChunk) || chunkMap.get(minChunk))
 		{
 			minChunk++;
 		}
@@ -101,13 +114,13 @@ class ChunkDistributor
 		{
 			return Optional.empty();
 		}
-		givenChunks.add(chunk);
+		givenChunks.put(chunk, Instant.now());
 		return Optional.of(chunk);
 	}
 
 	private int getLinearChunk()
 	{
-		if (givenChunks.contains(minChunk) || chunkMap.get(minChunk))
+		if (givenChunks.containsKey(minChunk) || chunkMap.get(minChunk))
 		{
 			minChunk++;
 		}
@@ -123,13 +136,13 @@ class ChunkDistributor
 		{
 			chunk = ThreadLocalRandom.current().nextInt(minChunk, maxChunk + 1);
 		}
-		while (givenChunks.contains(chunk) && attempt++ < MAX_RANDOM_TRY);
+		while (givenChunks.containsKey(chunk) && attempt++ < MAX_RANDOM_TRY);
 
-		if (givenChunks.contains(chunk))
+		if (givenChunks.containsKey(chunk))
 		{
 			for (int i = minChunk; i < maxChunk; i++)
 			{
-				if (!givenChunks.contains(i))
+				if (!givenChunks.containsKey(i))
 				{
 					return i;
 				}

@@ -242,7 +242,7 @@ public final class OsUtils
 			// Any Unicode except control characters, \, /, :, *, ?, ", <, >, | and no spaces at the beginning
 			// or the end. A single period at the end is automatically removed by the Win32 API.
 			// Forget about the "invalids" CON, AUX, COM1...9, LPT1...9. Those are only restricted in a cmd.exe or by explorer.exe, but they are valid
-			// file names (you can create then with PowerShell for example). Only NUL is restricted.
+			// file names (you can create them with PowerShell for example). Only NUL is restricted.
 			return INVALID_WINDOWS_FILE_CHARS.matcher(fileName).replaceAll("_").trim();
 		}
 		else if (SystemUtils.IS_OS_MAC)

@@ -60,14 +60,9 @@ import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -104,10 +99,7 @@ public class WindowManager
 	private static PreferenceService preferenceService;
 	private static AppThemeManager appThemeManager;
 
-	private static double borderTop;
-	private static double borderBottom;
-	private static double borderLeft;
-	private static double borderRight;
+	private static WindowBorder windowBorder;
 	private final GeneralClient generalClient;
 	private Window rootWindow;
 
@@ -468,65 +460,7 @@ public class WindowManager
 	 */
 	public void calculateWindowDecorationSizes(Stage stage)
 	{
-		if (Platform.isImplicitExit())
-		{
-			throw new IllegalStateException("implicit exit must not be set for window decoration calculation to work");
-		}
-
-		var root = new Region();
-		stage.setScene(new Scene(root));
-		stage.setOpacity(0.0);
-		stage.show();
-
-		var parentRoot = stage.getScene().getRoot();
-		var localRootBounds = parentRoot.getBoundsInLocal();
-		var localRootTopLeft = new Point2D(localRootBounds.getMinX(), localRootBounds.getMinY());
-		var localRootTopRight = new Point2D(localRootBounds.getMaxX(), localRootBounds.getMaxY());
-		var localRootBottomLeft = new Point2D(localRootBounds.getMinX(), localRootBounds.getMaxY());
-		var screenRootTopLeft = parentRoot.localToScreen(localRootTopLeft);
-		var screenRootTopRight = parentRoot.localToScreen(localRootTopRight);
-		var screenRootBottomLeft = parentRoot.localToScreen(localRootBottomLeft);
-		var stageTopBorderThickness = screenRootTopLeft.getY() - stage.getY();
-		var stageLeftBorderThickness = screenRootTopLeft.getX() - stage.getX();
-		var stageRightBorderThickness = (stage.getX() + stage.getWidth()) - screenRootTopRight.getX();
-		var stageBottomBorderThickness = (stage.getY() + stage.getHeight()) - screenRootBottomLeft.getY();
-		log.debug("top border thickness: {}, bottom border thickness: {}, left border thickness: {}, right border thickness: {}",
-				stageTopBorderThickness,
-				stageBottomBorderThickness,
-				stageLeftBorderThickness,
-				stageRightBorderThickness);
-
-		var insets = getInsets(stage);
-
-		stage.hide();
-		stage.setOpacity(1.0);
-
-//		borderTop = insets.get().getTop();
-//		borderBottom = insets.get().getBottom();
-//		borderLeft = insets.get().getLeft();
-//		borderRight = insets.get().getRight();
-		borderTop = stageTopBorderThickness;
-		borderBottom = stageBottomBorderThickness;
-		borderLeft = stageLeftBorderThickness;
-		borderRight = stageRightBorderThickness;
-
-		log.debug("Top: {}, Bottom: {}, Left: {}, Right: {}", borderTop, borderBottom, borderLeft, borderRight);
-	}
-
-	private static ObjectBinding<Insets> getInsets(Stage stage)
-	{
-		var scene = stage.getScene();
-
-		return Bindings.createObjectBinding(() -> new Insets(scene.getY(),
-						stage.getWidth() - scene.getWidth() - scene.getX(),
-						stage.getHeight() - scene.getHeight() - scene.getY(),
-						scene.getX()),
-				scene.xProperty(),
-				scene.yProperty(),
-				scene.widthProperty(),
-				scene.heightProperty(),
-				stage.widthProperty(),
-				stage.heightProperty());
+		windowBorder = UiBorders.calculateWindowDecorationSizes(stage);
 	}
 
 	static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass)
@@ -596,8 +530,8 @@ public class WindowManager
 			}
 
 			// Set the minimums to the root's minimums + decorations.
-			stage.setMinWidth(builder.root.minWidth(-1) + (int) borderLeft + (int) borderRight); // There's some rounding errors in JavaFX somewhere. int is a bit better
-			stage.setMinHeight(builder.root.minHeight(-1) + (int) borderTop + (int) borderBottom);
+			stage.setMinWidth(builder.root.minWidth(-1) + (int) windowBorder.leftSize() + (int) windowBorder.rightSize()); // There's some rounding errors in JavaFX somewhere. int is a bit better
+			stage.setMinHeight(builder.root.minHeight(-1) + (int) windowBorder.topSize() + (int) windowBorder.bottomSize());
 
 			stage.setTitle(builder.title);
 			stage.setScene(scene);

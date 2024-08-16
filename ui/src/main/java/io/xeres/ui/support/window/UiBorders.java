@@ -23,15 +23,35 @@ import com.sun.jna.*;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import io.micrometer.common.util.StringUtils;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
+import javafx.scene.Scene;
+import javafx.scene.layout.Region;
+import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+
 
 /**
  * Class to handle the color of window borders for dark themes. Currently only works on Windows.
  */
 public final class UiBorders
 {
+	private static final Logger log = LoggerFactory.getLogger(UiBorders.class);
+
+	private static final BorderCalculationMethod BORDER_CALCULATION_METHOD = BorderCalculationMethod.LOCAL_BOUNDS;
+
+	private enum BorderCalculationMethod
+	{
+		LOCAL_BOUNDS,
+		INSETS
+	}
+
 	private UiBorders()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -120,5 +140,83 @@ public final class UiBorders
 		return com.sun.glass.ui.Window.getWindows().stream()
 				.map(window -> new WindowHandle(new WinDef.HWND(new Pointer(window.getNativeWindow()))))
 				.toList();
+	}
+
+	/**
+	 * Calculates the window's decoration sizes (aka the windows borders). To do that, a dummy scene is created and put on an invisible
+	 * window, which is opened, the insets are calculated then the window is closed.<br>
+	 * This only works if Platform.setExplicitExit() is false.
+	 *
+	 * @param stage the primary stage
+	 */
+	public static WindowBorder calculateWindowDecorationSizes(Stage stage)
+	{
+		if (javafx.application.Platform.isImplicitExit())
+		{
+			throw new IllegalStateException("implicit exit must not be set for window decoration calculation to work");
+		}
+
+		// An dummy scene with an invisible window is created then opened.
+		var root = new Region();
+		stage.setScene(new Scene(root));
+		stage.setOpacity(0.0);
+		stage.show();
+
+		var windowBorder = switch (BORDER_CALCULATION_METHOD)
+		{
+			case LOCAL_BOUNDS ->
+			{
+				// This method uses local root bounds and screen bounds.
+				var parentRoot = stage.getScene().getRoot();
+				var localRootBounds = parentRoot.getBoundsInLocal();
+				var localRootTopLeft = new Point2D(localRootBounds.getMinX(), localRootBounds.getMinY());
+				var localRootTopRight = new Point2D(localRootBounds.getMaxX(), localRootBounds.getMaxY());
+				var localRootBottomLeft = new Point2D(localRootBounds.getMinX(), localRootBounds.getMaxY());
+				var screenRootTopLeft = parentRoot.localToScreen(localRootTopLeft);
+				var screenRootTopRight = parentRoot.localToScreen(localRootTopRight);
+				var screenRootBottomLeft = parentRoot.localToScreen(localRootBottomLeft);
+
+				// The invisible stage is closed.
+				stage.hide();
+				stage.setOpacity(1.0);
+
+				yield new WindowBorder(screenRootTopLeft.getX() - stage.getX(),
+						screenRootTopLeft.getY() - stage.getY(),
+						stage.getX() + stage.getWidth() - screenRootTopRight.getX(),
+						stage.getY() + stage.getHeight() - screenRootBottomLeft.getY());
+			}
+			case INSETS ->
+			{
+				var insets = getInsets(stage);
+
+				// Here we close the invisible stage before performing the calculations.
+				stage.hide();
+				stage.setOpacity(1.0);
+
+				yield new WindowBorder(insets.get().getLeft(),
+						insets.get().getTop(),
+						insets.get().getRight(),
+						insets.get().getBottom());
+			}
+		};
+
+		log.debug("Calculated window borders: {}", windowBorder);
+		return windowBorder.isEmpty() ? WindowBorder.DEFAULT : windowBorder; // Workaround for Linux where border calculation doesn't work somehow
+	}
+
+	private static ObjectBinding<Insets> getInsets(Stage stage)
+	{
+		var scene = stage.getScene();
+
+		return Bindings.createObjectBinding(() -> new Insets(scene.getY(),
+						stage.getWidth() - scene.getWidth() - scene.getX(),
+						stage.getHeight() - scene.getHeight() - scene.getY(),
+						scene.getX()),
+				scene.xProperty(),
+				scene.yProperty(),
+				scene.widthProperty(),
+				scene.heightProperty(),
+				stage.widthProperty(),
+				stage.heightProperty());
 	}
 }

@@ -61,6 +61,7 @@ public class FileService
 {
 	private static final Logger log = LoggerFactory.getLogger(FileService.class);
 
+	public static final String DOWNLOAD_PREFIX = ".";
 	public static final String DOWNLOAD_EXTENSION = ".xrsdownload";
 
 	private static final TemporalAmount SCAN_DELAY = Duration.ofMinutes(10); // Delay between shares scan

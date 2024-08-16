@@ -38,6 +38,8 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static io.xeres.app.service.file.FileService.DOWNLOAD_EXTENSION;
+import static io.xeres.app.service.file.FileService.DOWNLOAD_PREFIX;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
 /**
@@ -177,7 +179,7 @@ class FileTransferManager implements Runnable
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			leechers.computeIfAbsent(hash, sha1Sum -> {
-				var file = Paths.get(settingsService.getIncomingDirectory(), sha1Sum + FileService.DOWNLOAD_EXTENSION).toFile();
+				var file = Paths.get(settingsService.getIncomingDirectory(), DOWNLOAD_PREFIX + sha1Sum + DOWNLOAD_EXTENSION).toFile();
 				log.debug("Downloading file {}, size: {}, from: {}", file, size, from);
 				var fileLeecher = new FileLeecher(id, file, size, chunkMap, from != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
 				if (fileLeecher.open())

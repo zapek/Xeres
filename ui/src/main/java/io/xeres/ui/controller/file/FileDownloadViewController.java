@@ -58,7 +58,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 	private static final int UPDATE_IN_SECONDS = 2;
 
-	private static final String CANCEL_MENU_ID = "cancel";
+	private static final String REMOVE_MENU_ID = "remove";
 	private static final String OPEN_MENU_ID = "open";
 	private static final String SHOW_IN_FOLDER_MENU_ID = "showInFolder";
 
@@ -147,7 +147,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 		{
 			return DONE;
 		}
-		if (newProgress != currentProgress.getProgress())
+		if (currentProgress.getProgress() != 0 && newProgress != currentProgress.getProgress()) // First check is to not show transferring when resuming after a restart
 		{
 			return TRANSFERRING;
 		}
@@ -184,7 +184,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 	private void createContextMenu()
 	{
 		var removeItem = new MenuItem(bundle.getString("button.remove"));
-		removeItem.setId(CANCEL_MENU_ID);
+		removeItem.setId(REMOVE_MENU_ID);
 		removeItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
 		removeItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileProgressDisplay fileProgressDisplay)
@@ -249,6 +249,23 @@ public class FileDownloadViewController implements Controller, TabActivation
 		});
 
 		var fileXContextMenu = new XContextMenu<FileProgressDisplay>(downloadTableView, openItem, showInExplorerItem, new SeparatorMenuItem(), removeItem);
-		fileXContextMenu.setOnShowing((contextMenu, file) -> file != null);
+		fileXContextMenu.setOnShowing((contextMenu, file) -> {
+			if (file == null)
+			{
+				return false;
+			}
+
+			// Disable "Remove" if the file is already being removed
+			contextMenu.getItems().stream()
+					.filter(menuItem -> REMOVE_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(file.getState() == REMOVING));
+
+			// Disable Open and Show in Folder unless the file is fully downloaded
+			contextMenu.getItems().stream()
+					.filter(menuItem -> SHOW_IN_FOLDER_MENU_ID.equals(menuItem.getId()) || OPEN_MENU_ID.equals(menuItem.getId()))
+					.forEach(menuItem -> menuItem.setDisable(file.getState() != DONE));
+
+			return true;
+		});
 	}
 }

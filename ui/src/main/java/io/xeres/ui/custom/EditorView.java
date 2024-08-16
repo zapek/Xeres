@@ -35,8 +35,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -249,13 +252,17 @@ public class EditorView extends VBox
 
 		var dialog = new TextInputDialog();
 		dialog.setTitle(bundle.getString("editor.hyperlink.insert"));
-		dialog.setGraphic(null);
+		dialog.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
 		dialog.setHeaderText(bundle.getString("editor.hyperlink.enter"));
 		dialog.initOwner(parent);
 
 		dialog.showAndWait().ifPresent(link -> {
 			if (isNotBlank(link))
 			{
+				if (!link.toLowerCase(Locale.ROOT).startsWith("https://"))
+				{
+					link = "https://" + link;
+				}
 				if (selection.getLength() <= 0)
 				{
 					var pos = editor.getCaretPosition();

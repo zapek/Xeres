@@ -452,9 +452,8 @@ public class WindowManager
 	}
 
 	/**
-	 * Calculates the window's decoration sizes (aka the windows borders). To do that, a dummy scene is created and put on an invisible
-	 * window, which is opened, the insets are calculated then the window is closed.<br>
-	 * This only works if Platform.setExplicitExit() is false.
+	 * Calculates the window's decoration. This must be performed on the first stage so
+	 * that the next opened windows will have the correct sizes.
 	 *
 	 * @param stage the primary stage
 	 */

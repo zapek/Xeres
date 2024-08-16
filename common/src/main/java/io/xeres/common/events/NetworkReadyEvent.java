@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.application.events;
+package io.xeres.common.events;
 
 /**
  * Event that is sent once the network is ready (aka the peer service is started).

@@ -159,6 +159,7 @@ public class MessageClient
 
 	private void performPendingSubscriptions(StompSession session)
 	{
+		log.debug("Performing subscriptions...");
 		while (!pendingSubscriptions.isEmpty())
 		{
 			var pendingSubscription = pendingSubscriptions.removeFirst();

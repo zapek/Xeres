@@ -19,6 +19,7 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.app.service.SettingsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -32,8 +33,15 @@ import org.springframework.security.messaging.access.intercept.MessageMatcherDel
 public class WebSocketSecurityConfiguration
 {
 	@Bean
-	AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages)
+	AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages, SettingsService settingsService)
 	{
-		return AuthorityAuthorizationManager.hasRole("USER");
+		if (settingsService.hasRemotePassword())
+		{
+			return AuthorityAuthorizationManager.hasRole("USER");
+		}
+		else
+		{
+			return AuthorityAuthorizationManager.hasRole("ANONYMOUS");
+		}
 	}
 }

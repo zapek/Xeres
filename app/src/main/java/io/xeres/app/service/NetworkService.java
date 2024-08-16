@@ -21,7 +21,6 @@ package io.xeres.app.service;
 
 import io.xeres.app.application.events.IpChangedEvent;
 import io.xeres.app.application.events.LocationReadyEvent;
-import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.application.events.UpnpEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
@@ -29,6 +28,7 @@ import io.xeres.app.net.dht.DhtService;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.upnp.UPNPService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.common.events.NetworkReadyEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
 import org.apache.commons.lang3.StringUtils;

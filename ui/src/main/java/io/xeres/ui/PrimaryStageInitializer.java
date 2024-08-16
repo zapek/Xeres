@@ -19,6 +19,7 @@
 
 package io.xeres.ui;
 
+import io.xeres.common.events.NetworkReadyEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.ChatFrameHandler;
@@ -73,7 +74,11 @@ public class PrimaryStageInitializer
 					}
 				})
 				.subscribe();
+	}
 
+	@EventListener
+	public void onNetworkReadyEvent(NetworkReadyEvent event)
+	{
 		messageClient.subscribe(CHAT_PATH, new ChatFrameHandler(windowManager, chatViewController))
 				.connect();
 	}

@@ -48,13 +48,16 @@ import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -105,7 +108,16 @@ public class MainWindowController implements WindowController
 	private TabPane tabPane;
 
 	@FXML
+	private ImageView logo;
+
+	@FXML
 	private Label titleLabel;
+
+	@FXML
+	private Label shareId;
+
+	@FXML
+	private Label slogan;
 
 	@FXML
 	private MenuItem addPeer;
@@ -320,6 +332,8 @@ public class MainWindowController implements WindowController
 		locationClient.getRSId(OWN_LOCATION_ID, Type.SHORT_INVITE)
 				.doOnSuccess(rsIdResponse -> Platform.runLater(() -> shortId.setText(rsIdResponse.rsId())))
 				.subscribe();
+
+		setupAnimations();
 	}
 
 	@Override
@@ -557,5 +571,71 @@ public class MainWindowController implements WindowController
 		{
 			fileNotificationDisposable.dispose();
 		}
+	}
+
+	private void setupAnimations()
+	{
+		var rotateTransition = new RotateTransition(javafx.util.Duration.millis(2000), logo);
+		rotateTransition.setByAngle(360);
+		rotateTransition.setCycleCount(Animation.INDEFINITE);
+		rotateTransition.setInterpolator(Interpolator.LINEAR);
+
+		var scaleTransition = new ScaleTransition(javafx.util.Duration.millis(200), titleLabel);
+		scaleTransition.setByX(0.2);
+		scaleTransition.setByY(0.2);
+		scaleTransition.setAutoReverse(true);
+		scaleTransition.setCycleCount(Animation.INDEFINITE);
+		scaleTransition.setInterpolator(Interpolator.EASE_BOTH);
+
+		var fadeTransition = new FadeTransition(javafx.util.Duration.millis(100), slogan);
+		fadeTransition.setByValue(-1.0);
+		fadeTransition.setAutoReverse(true);
+		fadeTransition.setCycleCount(Animation.INDEFINITE);
+		fadeTransition.setInterpolator(Interpolator.EASE_BOTH);
+
+		var translateTransitionLeft = new TranslateTransition(javafx.util.Duration.millis(300));
+		translateTransitionLeft.setFromX(0.0);
+		translateTransitionLeft.setToX(-80.0);
+		translateTransitionLeft.setAutoReverse(true);
+		translateTransitionLeft.setCycleCount(2);
+		translateTransitionLeft.setInterpolator(Interpolator.LINEAR);
+
+		var translateTransitionRight = new TranslateTransition(javafx.util.Duration.millis(300));
+		translateTransitionRight.setFromX(0.0);
+		translateTransitionRight.setToX(+80.0);
+		translateTransitionRight.setAutoReverse(true);
+		translateTransitionRight.setCycleCount(2);
+		translateTransitionRight.setInterpolator(Interpolator.LINEAR);
+
+		var sequentialTransition = new SequentialTransition(translateTransitionLeft, translateTransitionRight);
+		sequentialTransition.setNode(shareId);
+		sequentialTransition.setCycleCount(Animation.INDEFINITE);
+
+		logo.setOnMouseClicked(event -> {
+			if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY)
+			{
+				if (rotateTransition.getStatus() == Animation.Status.RUNNING)
+				{
+					rotateTransition.jumpTo(javafx.util.Duration.millis(0));
+					rotateTransition.stop();
+
+					scaleTransition.jumpTo(javafx.util.Duration.millis(0));
+					scaleTransition.stop();
+
+					fadeTransition.jumpTo(javafx.util.Duration.millis(0));
+					fadeTransition.stop();
+
+					sequentialTransition.jumpTo(javafx.util.Duration.millis(0));
+					sequentialTransition.stop();
+				}
+				else
+				{
+					rotateTransition.play();
+					scaleTransition.play();
+					fadeTransition.play();
+					sequentialTransition.play();
+				}
+			}
+		});
 	}
 }

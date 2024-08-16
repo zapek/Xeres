@@ -37,5 +37,6 @@ public interface FileDownloadRepository extends JpaRepository<FileDownload, Long
 
 	List<FileDownload> findAllByLocation(Location location);
 
+	@Transactional
 	void deleteAllByCompletedTrue();
 }

@@ -444,7 +444,7 @@ class SerializerTest
 	void Serializer_Serialize_TlvKeySignature()
 	{
 		var buf = Unpooled.buffer();
-		var key = new byte[1];
+		var key = RandomUtils.nextBytes(30);
 
 		var input = new Signature(IdFakes.createGxsId(), key);
 

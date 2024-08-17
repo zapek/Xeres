@@ -439,6 +439,10 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	public void setAdminSignature(byte[] adminSignature)
 	{
+		Objects.requireNonNull(gxsId);
+		signatures.stream()
+				.filter(signature -> signature.getType() == Signature.Type.ADMIN)
+				.findFirst().ifPresent(signatures::remove); // XXX: hack! This is caused because it shouldn't be a set to begin with!
 		var signature = new Signature(Signature.Type.ADMIN, gxsId, adminSignature);
 		signatures.add(signature);
 	}
@@ -453,12 +457,11 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	public void setAuthorSignature(byte[] authorSignature)
 	{
-		var signature = new Signature(Signature.Type.AUTHOR, author, authorSignature); // XXX: make sure author is not null
-		signatures.add(signature);
-	}
-
-	public void addSignature(Signature signature)
-	{
+		Objects.requireNonNull(authorSignature);
+		signatures.stream()
+				.filter(signature -> signature.getType() == Signature.Type.AUTHOR)
+				.findFirst().ifPresent(signatures::remove); // XXX: hack! This is caused because it shouldn't be a set to begin with!
+		var signature = new Signature(Signature.Type.AUTHOR, author, authorSignature);
 		signatures.add(signature);
 	}
 
@@ -539,10 +542,11 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	private void deserializeSignatures(ByteBuf buf)
 	{
 		@SuppressWarnings("unchecked") var signatureSet = (Set<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		signatures.clear();
 		signatureSet.forEach(signature -> {
 			if (signature.getType() == Signature.Type.ADMIN || signature.getType() == Signature.Type.AUTHOR)
 			{
-				addSignature(signature);
+				signatures.add(signature);
 			}
 			else
 			{

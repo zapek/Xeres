@@ -99,13 +99,13 @@ public final class Signature implements Comparable<Signature>
 			return false;
 		}
 		var signature = (Signature) o;
-		return Objects.equals(gxsId, signature.gxsId);
+		return type == signature.type && Objects.equals(gxsId, signature.gxsId) && Objects.deepEquals(data, signature.data);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(gxsId);
+		return Objects.hash(type, gxsId, Arrays.hashCode(data));
 	}
 
 	@Override

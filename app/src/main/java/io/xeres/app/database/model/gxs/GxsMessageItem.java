@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static io.xeres.app.database.model.gxs.GxsConstants.GXS_ITEM_MAX_SIZE;
@@ -190,6 +191,9 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 
 	public void setPublishSignature(byte[] publishSignature)
 	{
+		signatures.stream()
+				.filter(signature -> signature.getType() == Signature.Type.PUBLISH)
+				.findFirst().ifPresent(signatures::remove); // XXX: hack! This is caused because it shouldn't be a set to begin with!
 		var signature = new Signature(Signature.Type.PUBLISH, gxsId, publishSignature);
 		signatures.add(signature);
 	}
@@ -203,12 +207,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 
 	public void setAuthorSignature(byte[] authorSignature)
 	{
-		var signature = new Signature(Signature.Type.AUTHOR, authorId, authorSignature); // XXX: make sure authorId is not null
-		signatures.add(signature);
-	}
-
-	public void addSignature(Signature signature)
-	{
+		Objects.requireNonNull(authorId);
+		signatures.stream()
+				.filter(signature -> signature.getType() == Signature.Type.AUTHOR)
+				.findFirst().ifPresent(signatures::remove); // XXX: hack! This is caused because it shouldn't be a set to begin with!
+		var signature = new Signature(Signature.Type.AUTHOR, authorId, authorSignature);
 		signatures.add(signature);
 	}
 
@@ -263,10 +266,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	private void deserializeSignature(ByteBuf buf)
 	{
 		@SuppressWarnings("unchecked") var signatureSet = (Set<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		signatures.clear();
 		signatureSet.forEach(signature -> {
 			if (signature.getType() == Signature.Type.PUBLISH || signature.getType() == Signature.Type.AUTHOR)
 			{
-				addSignature(signature);
+				signatures.add(signature);
 			}
 			else
 			{

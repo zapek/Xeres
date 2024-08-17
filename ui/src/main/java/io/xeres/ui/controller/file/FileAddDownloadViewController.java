@@ -55,8 +55,6 @@ public class FileAddDownloadViewController implements WindowController
 	@FXML
 	private Button cancelButton;
 
-	private AddDownloadRequest args;
-
 	private final FileClient fileClient;
 	private final ResourceBundle bundle;
 
@@ -76,7 +74,7 @@ public class FileAddDownloadViewController implements WindowController
 
 	private void handleArgument()
 	{
-		args = (AddDownloadRequest) name.getScene().getRoot().getUserData();
+		var args = (AddDownloadRequest) name.getScene().getRoot().getUserData();
 		if (args == null)
 		{
 			throw new IllegalArgumentException("Missing user data");

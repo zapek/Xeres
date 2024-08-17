@@ -19,30 +19,24 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
-public class CollectionContentParser implements ContentParser
+public class ChannelUriFactory extends AbstractUriFactory
 {
+	private static final String AUTHORITY = "channel";
+
 	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_SIZE = "size";
-	private static final String PARAMETER_RADIX = "radix";
-	private static final String PARAMETER_FILES = "files";
-
-	private static final String AUTHORITY = "collection";
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
+	private static final String PARAMETER_ID = "id";
+	private static final String PARAMETER_MSGID = "msgid";
 
 	@Override
 	public String getAuthority()
@@ -51,29 +45,28 @@ public class CollectionContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
-		var radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
-		var count = uriComponents.getQueryParams().getFirst(PARAMETER_FILES);
+		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
+		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
 
-		if (Stream.of(name, size, radix, count).anyMatch(StringUtils::isBlank))
+		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		//noinspection ConstantConditions
-		return new ContentUri(radix, name + " (" + count + "files, " + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", uri -> uriAction.openUri(this));
+		var channelUri = new ChannelUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
+
+		return new ContentUri(msgId, name, uri -> uriAction.openUri(channelUri));
 	}
 
-	public static String generate(String name, int size, String radix, String files)
+	public static String generate(String name, String id, String msgId)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_NAME, name,
-				PARAMETER_SIZE, String.valueOf(size),
-				PARAMETER_RADIX, radix,
-				PARAMETER_FILES, files);
+				PARAMETER_ID, id,
+				PARAMETER_MSGID, msgId);
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}

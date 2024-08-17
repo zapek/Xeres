@@ -30,23 +30,13 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
-public class FileContentParser implements ContentParser
+public class FileUriFactory extends AbstractUriFactory
 {
+	private static final String AUTHORITY = "file";
+
 	private static final String PARAMETER_NAME = "name";
 	private static final String PARAMETER_SIZE = "size";
 	private static final String PARAMETER_HASH = "hash";
-
-	private String name;
-	private long size;
-	private Sha1Sum hash;
-
-	private static final String AUTHORITY = "file";
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
 
 	@Override
 	public String getAuthority()
@@ -55,46 +45,29 @@ public class FileContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var nameParameter = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var sizeParameter = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
-		var hashParameter = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
+		var hash = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
 
-		if (Stream.of(nameParameter, sizeParameter, hashParameter).anyMatch(StringUtils::isBlank))
+		if (Stream.of(name, size, hash).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		name = nameParameter;
-		size = ContentParser.getLongArgument(sizeParameter);
-		hash = ContentParser.getHashArgument(hashParameter);
+		var fileUri = new FileUri(name, getLongArgument(size), getHashArgument(hash));
 
-		return new ContentUri(hash.toString(), name + " (" + FileUtils.byteCountToDisplaySize(size) + ")", uri -> uriAction.openUri(this));
+		return new ContentUri(fileUri.hash().toString(), fileUri.name() + " (" + FileUtils.byteCountToDisplaySize(fileUri.size()) + ")", uri -> uriAction.openUri(fileUri));
 	}
 
 	public static String generate(String name, long size, Sha1Sum hash)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_SIZE, String.valueOf(size),
 				PARAMETER_HASH, hash.toString());
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
-	public long getSize()
-	{
-		return size;
-	}
-
-	public Sha1Sum getHash()
-	{
-		return hash;
 	}
 }

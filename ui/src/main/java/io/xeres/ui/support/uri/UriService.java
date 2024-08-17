@@ -43,9 +43,9 @@ public class UriService implements UriAction
 	}
 
 	@Override
-	public void openUri(ContentParser contentParser)
+	public void openUri(Uri uri)
 	{
-		eventPublisher.publishEvent(new OpenUriEvent(contentParser));
+		eventPublisher.publishEvent(new OpenUriEvent(uri));
 	}
 
 	/**

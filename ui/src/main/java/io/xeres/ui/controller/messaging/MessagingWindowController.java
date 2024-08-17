@@ -34,8 +34,9 @@ import io.xeres.ui.custom.AsyncImageView;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
-import io.xeres.ui.support.uri.ContentParser;
-import io.xeres.ui.support.uri.FileContentParser;
+import io.xeres.ui.support.uri.FileUri;
+import io.xeres.ui.support.uri.FileUriFactory;
+import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -236,7 +237,7 @@ public class MessagingWindowController implements WindowController
 	private void sendFile(File file)
 	{
 		shareClient.createTemporaryShare(file.getAbsolutePath())
-				.doOnSuccess(result -> sendMessage(FileContentParser.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result))))
+				.doOnSuccess(result -> sendMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result))))
 				.subscribe();
 	}
 
@@ -253,19 +254,16 @@ public class MessagingWindowController implements WindowController
 		}
 	}
 
-	private void handleUriAction(ContentParser contentParser)
+	private void handleUriAction(Uri uri)
 	{
-		if (contentParser instanceof FileContentParser fileContentParser)
+		if (uri instanceof FileUri(String name, long size, Sha1Sum hash))
 		{
 			windowManager.openAddDownload(
-					new AddDownloadRequest(fileContentParser.getName(),
-							fileContentParser.getSize(),
-							fileContentParser.getHash(),
-							locationId));
+					new AddDownloadRequest(name, size, hash, locationId));
 		}
 		else
 		{
-			uriService.openUri(contentParser);
+			uriService.openUri(uri);
 		}
 	}
 

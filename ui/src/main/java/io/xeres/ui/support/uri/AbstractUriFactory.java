@@ -30,17 +30,20 @@ import java.util.Locale;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public interface ContentParser
+public abstract class AbstractUriFactory
 {
-	String PROTOCOL_RETROSHARE = "retroshare";
+	protected static final String PROTOCOL_RETROSHARE = "retroshare";
 
-	String getProtocol();
+	public abstract String getAuthority();
 
-	String getAuthority();
+	abstract Content create(UriComponents uriComponents, String text, UriAction uriAction);
 
-	Content parse(UriComponents uriComponents, String text, UriAction uriAction);
+	public String getProtocol()
+	{
+		return PROTOCOL_RETROSHARE;
+	}
 
-	static String buildUri(String protocol, String authority, String... args)
+	protected static String buildUri(String protocol, String authority, String... args)
 	{
 		var sb = new StringBuilder(protocol);
 		var firstArg = true;
@@ -73,7 +76,7 @@ public interface ContentParser
 		return sb.toString();
 	}
 
-	static long getLongArgument(String s)
+	protected static long getLongArgument(String s)
 	{
 		try
 		{
@@ -85,7 +88,19 @@ public interface ContentParser
 		}
 	}
 
-	static Sha1Sum getHashArgument(String s)
+	protected static int getIntArgument(String s)
+	{
+		try
+		{
+			return Integer.parseInt(s.toLowerCase(Locale.ROOT), 16);
+		}
+		catch (NumberFormatException e)
+		{
+			return 0;
+		}
+	}
+
+	protected static Sha1Sum getHashArgument(String s)
 	{
 		return Sha1Sum.fromString(s);
 	}

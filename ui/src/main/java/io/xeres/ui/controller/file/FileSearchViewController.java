@@ -26,7 +26,8 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
 import io.xeres.ui.support.contextmenu.XContextMenu;
-import io.xeres.ui.support.uri.SearchContentParser;
+import io.xeres.ui.support.uri.SearchUri;
+import io.xeres.ui.support.uri.SearchUriFactory;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -128,9 +129,9 @@ public class FileSearchViewController implements Controller, TabActivation
 	@EventListener
 	public void handleOpenUriEvents(OpenUriEvent event)
 	{
-		if (event.contentParser() instanceof SearchContentParser searchContentParser)
+		if (event.uri() instanceof SearchUri(String keywords))
 		{
-			search.setText(searchContentParser.getKeywords());
+			search.setText(keywords);
 		}
 	}
 
@@ -154,7 +155,7 @@ public class FileSearchViewController implements Controller, TabActivation
 		copyLinkItem.setOnAction(event -> {
 			var clipboardContent = new ClipboardContent();
 			var fileResultView = (FileResultView) event.getSource();
-			clipboardContent.putString(SearchContentParser.generate(StringUtils.left(fileResultView.getText(), 50), fileResultView.getText()));
+			clipboardContent.putString(SearchUriFactory.generate(StringUtils.left(fileResultView.getText(), 50), fileResultView.getText()));
 			Clipboard.getSystemClipboard().setContent(clipboardContent);
 		});
 

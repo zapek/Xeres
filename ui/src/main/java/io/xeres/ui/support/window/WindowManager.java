@@ -20,13 +20,13 @@
 package io.xeres.ui.support.window;
 
 import io.xeres.common.AppName;
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.OpenUriEvent;
-import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.ShareClient;
@@ -86,11 +86,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Component
 public class WindowManager
 {
-	private static final Logger log = LoggerFactory.getLogger(WindowManager.class);
-
 	private static FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
-	private final FileClient fileClient;
 	private final MessageClient messageClient;
 	private final ShareClient shareClient;
 	private final MarkdownService markdownService;
@@ -105,11 +102,10 @@ public class WindowManager
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, FileClient fileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager, GeneralClient generalClient)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager, GeneralClient generalClient)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
-		this.fileClient = fileClient;
 		this.messageClient = messageClient;
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
@@ -141,27 +137,23 @@ public class WindowManager
 	@EventListener
 	public void handleOpenUriEvents(OpenUriEvent event)
 	{
-		switch (event.contentParser())
+		switch (event.uri())
 		{
-			case CertificateContentParser certificateContentParser -> openAddPeer(certificateContentParser.getRadix());
-			case FileContentParser fileContentParser -> openAddDownload(
-					new AddDownloadRequest(fileContentParser.getName(),
-							fileContentParser.getSize(),
-							fileContentParser.getHash(),
-							null));
-			case ChatRoomContentParser chatRoomContentParser ->
+			case CertificateUri certificateUri -> openAddPeer(certificateUri.radix());
+			case FileUri(String name, long size, Sha1Sum hash) -> openAddDownload(new AddDownloadRequest(name, size, hash, null));
+			case ChatRoomUri ignored ->
 			{
 				// Nothing to do. This is handled in ChatViewController
 			}
-			case ForumContentParser forumContentParser ->
+			case ForumUri ignored ->
 			{
 				// Nothing to do. This is handled in ForumViewController
 			}
-			case SearchContentParser searchContentParser ->
+			case SearchUri ignored ->
 			{
 				// Nothing to do. This is handled in SearchViewController
 			}
-			default -> UiUtils.alert(WARNING, "The link '" + event.contentParser().getAuthority() + "' is not supported yet.");
+			default -> UiUtils.alert(WARNING, "The link for '" + event.uri().getClass().getSimpleName().replace("Uri", "") + "' is not supported yet.");
 		}
 	}
 

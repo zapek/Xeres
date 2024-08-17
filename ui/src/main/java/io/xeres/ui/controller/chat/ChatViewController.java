@@ -33,7 +33,8 @@ import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.tray.TrayService;
-import io.xeres.ui.support.uri.ChatRoomContentParser;
+import io.xeres.ui.support.uri.ChatRoomUri;
+import io.xeres.ui.support.uri.ChatRoomUriFactory;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
@@ -55,8 +56,6 @@ import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -90,7 +89,6 @@ public class ChatViewController implements Controller
 	private static final String SUBSCRIBED_MENU_ID = "subscribed";
 	private static final String UNSUBSCRIBED_MENU_ID = "unsubscribed";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
-	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -261,9 +259,9 @@ public class ChatViewController implements Controller
 	@EventListener
 	public void handleOpenUriEvents(OpenUriEvent event)
 	{
-		if (event.contentParser() instanceof ChatRoomContentParser chatRoomContentParser)
+		if (event.uri() instanceof ChatRoomUri chatRoomUri)
 		{
-			var chatRoomId = chatRoomContentParser.getChatRoomId();
+			var chatRoomId = chatRoomUri.id();
 
 			getAllTreeItem(chatRoomId).ifPresentOrElse(treeItem -> Platform.runLater(() -> roomTree.getSelectionModel().select(treeItem)),
 					() -> UiUtils.alert(WARNING, bundle.getString("chat.room.not-found")));
@@ -288,7 +286,7 @@ public class ChatViewController implements Controller
 		copyLinkItem.setOnAction(event -> {
 			var clipboardContent = new ClipboardContent();
 			var chatRoomInfo = ((RoomHolder) event.getSource()).getRoomInfo();
-			clipboardContent.putString(ChatRoomContentParser.generate(chatRoomInfo.getName(), chatRoomInfo.getId()));
+			clipboardContent.putString(ChatRoomUriFactory.generate(chatRoomInfo.getName(), chatRoomInfo.getId()));
 			Clipboard.getSystemClipboard().setContent(clipboardContent);
 		});
 

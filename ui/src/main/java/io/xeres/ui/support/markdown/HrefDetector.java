@@ -19,7 +19,7 @@
 
 package io.xeres.ui.support.markdown;
 
-import io.xeres.ui.support.uri.UriParser;
+import io.xeres.ui.support.uri.UriFactory;
 import org.jsoup.Jsoup;
 
 import java.util.regex.Pattern;
@@ -49,7 +49,7 @@ class HrefDetector implements MarkdownDetector
 		{
 			var href = link.attr("href");
 			var text = link.text();
-			context.addContent(UriParser.parse(href, text, context.getUriAction()));
+			context.addContent(UriFactory.createContent(href, text, context.getUriAction()));
 		}
 	}
 }

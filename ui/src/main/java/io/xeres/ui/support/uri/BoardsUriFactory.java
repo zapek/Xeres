@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
@@ -28,18 +30,13 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
-public class ProfileContentParser implements ContentParser
+public class BoardsUriFactory extends AbstractUriFactory
 {
+	private static final String AUTHORITY = "posted";
+
 	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_HASH = "hash";
-
-	private static final String AUTHORITY = "person";
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
+	private static final String PARAMETER_ID = "id";
+	private static final String PARAMETER_MSGID = "msgid";
 
 	@Override
 	public String getAuthority()
@@ -48,24 +45,28 @@ public class ProfileContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var hash = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
+		var boardId = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
+		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
 
-		if (Stream.of(name, hash).anyMatch(StringUtils::isBlank))
+		if (Stream.of(name, boardId).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(hash, name + "@" + hash, uri -> uriAction.openUri(this));
+		var boardsUri = new BoardsUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
+
+		return new ContentUri(boardId, name, uri -> uriAction.openUri(boardsUri));
 	}
 
-	public static String generate(String name, String hash)
+	public static String generate(String name, String id, String msgId)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_NAME, name,
-				PARAMETER_HASH, hash);
+				PARAMETER_ID, id,
+				PARAMETER_MSGID, msgId);
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}

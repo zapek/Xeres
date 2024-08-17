@@ -19,9 +19,9 @@
 
 package io.xeres.ui.support.markdown;
 
-import io.xeres.ui.support.uri.ContentParser;
+import io.xeres.ui.support.uri.Uri;
 
 public interface UriAction
 {
-	void openUri(ContentParser contentParser);
+	void openUri(Uri uri);
 }

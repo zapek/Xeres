@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.Id;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
@@ -28,19 +29,17 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
-public class BoardsContentParser implements ContentParser
+public class ChatRoomUriFactory extends AbstractUriFactory
 {
+	private static final String AUTHORITY = "chat_room";
+
 	private static final String PARAMETER_NAME = "name";
 	private static final String PARAMETER_ID = "id";
-	private static final String PARAMETER_MSGID = "msgid";
 
-	private static final String AUTHORITY = "posted";
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
+	private static final String CHAT_ROOM_PREFIX = "L";
+	private static final String PRIVATE_MESSAGE_PREFIX = "P";
+	private static final String DISTANT_CHAT_PREFIX = "D";
+	private static final String BROADCAST_PREFIX = "L";
 
 	@Override
 	public String getAuthority()
@@ -49,26 +48,26 @@ public class BoardsContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var boardId = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
-		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
+		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
 
-		if (Stream.of(name, boardId).anyMatch(StringUtils::isBlank))
+		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(boardId, name, uri -> uriAction.openUri(this));
+		var chatRoomUri = new ChatRoomUri(name, id.length() > 1 && id.startsWith(CHAT_ROOM_PREFIX) ? getLongArgument(id.substring(1)) : 0);
+
+		return new ContentUri(id, name, uri -> uriAction.openUri(chatRoomUri));
 	}
 
-	public static String generate(String name, String id, String msgid)
+	public static String generate(String name, long chatRoomId)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_NAME, name,
-				PARAMETER_ID, id,
-				PARAMETER_MSGID, msgid);
+				PARAMETER_ID, CHAT_ROOM_PREFIX + Id.toString(chatRoomId));
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}

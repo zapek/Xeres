@@ -17,11 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui;
+package io.xeres.ui.support.uri;
 
-import io.xeres.common.events.SynchronousEvent;
-import io.xeres.ui.support.uri.Uri;
+import io.xeres.common.id.GxsId;
 
-public record OpenUriEvent(Uri uri) implements SynchronousEvent
+public record IdentityUri(String name, GxsId id, String groupData) implements Uri
 {
 }

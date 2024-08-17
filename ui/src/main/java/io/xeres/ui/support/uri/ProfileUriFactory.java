@@ -23,22 +23,17 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import java.util.stream.Stream;
 
-public class MessageContentParser implements ContentParser
+public class ProfileUriFactory extends AbstractUriFactory
 {
-	private static final String PARAMETER_ID = "id";
-	private static final String PARAMETER_SUBJECT = "subject";
+	private static final String AUTHORITY = "person";
 
-	private static final String AUTHORITY = "message";
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
+	private static final String PARAMETER_NAME = "name";
+	private static final String PARAMETER_HASH = "hash";
 
 	@Override
 	public String getAuthority()
@@ -47,25 +42,27 @@ public class MessageContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID); // warning: it can be of different type (gxsId, sslId, etc...)
-		var subject = uriComponents.getQueryParams().getFirst(PARAMETER_SUBJECT);
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var hash = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
 
-		if (isBlank(id))
+		if (Stream.of(name, hash).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(id, id, uri -> uriAction.openUri(this));
+		var profileUri = new ProfileUri(name, getLongArgument(hash));
+
+		return new ContentUri(hash, name + "@" + hash, uri -> uriAction.openUri(profileUri));
 	}
 
-	public static String generate(String id, String subject)
+	public static String generate(String name, String hash)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_ID, id,
-				PARAMETER_SUBJECT, subject);
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_HASH, hash);
 
-		return "<a href=\"" + uri + "\">" + subject + "</a>";
+		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 }

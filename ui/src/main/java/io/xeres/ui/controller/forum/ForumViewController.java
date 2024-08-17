@@ -38,7 +38,8 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
-import io.xeres.ui.support.uri.ForumContentParser;
+import io.xeres.ui.support.uri.ForumUri;
+import io.xeres.ui.support.uri.ForumUriFactory;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -226,10 +227,10 @@ public class ForumViewController implements Controller
 	@EventListener
 	public void handleOpenUriEvent(OpenUriEvent event)
 	{
-		if (event.contentParser() instanceof ForumContentParser forumContentParser)
+		if (event.uri() instanceof ForumUri forumUri)
 		{
-			var group = forumContentParser.getId();
-			var message = forumContentParser.getMsgId();
+			var group = forumUri.id();
+			var message = forumUri.messageId();
 
 			Stream.concat(Stream.concat(Stream.concat(ownForums.getChildren().stream(), subscribedForums.getChildren().stream()), popularForums.getChildren().stream()), otherForums.getChildren().stream())
 					.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getGxsId().equals(group))
@@ -290,7 +291,7 @@ public class ForumViewController implements Controller
 		copyLinkItem.setOnAction(event -> {
 			var clipboardContent = new ClipboardContent();
 			var forumGroup = ((ForumGroup) event.getSource());
-			clipboardContent.putString(ForumContentParser.generate(forumGroup.getName(), forumGroup.getGxsId()));
+			clipboardContent.putString(ForumUriFactory.generate(forumGroup.getName(), forumGroup.getGxsId()));
 			Clipboard.getSystemClipboard().setContent(clipboardContent);
 		});
 
@@ -320,7 +321,7 @@ public class ForumViewController implements Controller
 		copyLinkItem.setOnAction(event -> {
 			var clipboardContent = new ClipboardContent();
 			@SuppressWarnings("unchecked") var forumMessage = ((TreeItem<ForumMessage>) event.getSource()).getValue();
-			clipboardContent.putString(ForumContentParser.generate(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId()));
+			clipboardContent.putString(ForumUriFactory.generate(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId()));
 			Clipboard.getSystemClipboard().setContent(clipboardContent);
 		});
 

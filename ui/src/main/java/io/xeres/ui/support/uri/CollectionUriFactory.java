@@ -23,24 +23,20 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
-public class IdentityContentParser implements ContentParser
+public class CollectionUriFactory extends AbstractUriFactory
 {
-	private static final String PARAMETER_GXSID = "gxsid";
+	private static final String AUTHORITY = "collection";
+
 	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_GROUPDATA = "groupdata";
-
-	private static final String AUTHORITY = "identity";
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
+	private static final String PARAMETER_SIZE = "size";
+	private static final String PARAMETER_RADIX = "radix";
+	private static final String PARAMETER_FILES = "files";
 
 	@Override
 	public String getAuthority()
@@ -49,25 +45,31 @@ public class IdentityContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var gxsId = uriComponents.getQueryParams().getFirst(PARAMETER_GXSID);
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var groupData = uriComponents.getQueryParams().getFirst(PARAMETER_GROUPDATA);
+		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
+		var radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
+		var count = uriComponents.getQueryParams().getFirst(PARAMETER_FILES);
 
-		if (Stream.of(gxsId, name, groupData).anyMatch(StringUtils::isBlank))
+		if (Stream.of(name, size, radix, count).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
-		return new ContentUri(groupData, "Identity (name=" + name + ", ID=" + gxsId + ")", uri -> uriAction.openUri(this));
+
+		var collectionUri = new CollectionUri(name, getLongArgument(size), radix, getIntArgument(count));
+
+		//noinspection ConstantConditions
+		return new ContentUri(radix, name + " (" + count + "files, " + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", uri -> uriAction.openUri(collectionUri));
 	}
 
-	public static String generate(String gxsId, String name, String groupData)
+	public static String generate(String name, int size, String radix, String files)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_GXSID, gxsId,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_NAME, name,
-				PARAMETER_GROUPDATA, groupData);
+				PARAMETER_SIZE, String.valueOf(size),
+				PARAMETER_RADIX, radix,
+				PARAMETER_FILES, files);
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}

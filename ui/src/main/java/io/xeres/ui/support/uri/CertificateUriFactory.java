@@ -24,28 +24,16 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
-import static org.apache.commons.lang3.StringUtils.defaultString;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
-public class CertificateContentParser implements ContentParser
+public class CertificateUriFactory extends AbstractUriFactory
 {
+	private static final String AUTHORITY = "certificate";
+
 	private static final String PARAMETER_RADIX = "radix";
 	private static final String PARAMETER_NAME = "name";
 	private static final String PARAMETER_LOCATION = "location";
-
-	private static final String AUTHORITY = "certificate";
-
-	private String radix;
-	private String name;
-	private String location;
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
 
 	@Override
 	public String getAuthority()
@@ -54,42 +42,29 @@ public class CertificateContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
-		name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		location = uriComponents.getQueryParams().getFirst(PARAMETER_LOCATION);
+		var radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var location = uriComponents.getQueryParams().getFirst(PARAMETER_LOCATION);
 
-		if (isBlank(radix))
+		if (StringUtils.isBlank(radix))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(defaultString(radix), text, uri -> uriAction.openUri(this));
+		var certificateUri = new CertificateUri(radix, name, location);
+
+		return new ContentUri(StringUtils.defaultString(certificateUri.radix()), text, uri -> uriAction.openUri(certificateUri));
 	}
 
 	public static String generate(String radix, String name, String location)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_RADIX, radix,
 				PARAMETER_NAME, name,
 				PARAMETER_LOCATION, location);
 
 		return "<a href=\"" + uri + "\">" + AppName.NAME + " Certificate (" + name + ", @" + location + ")</a>";
-	}
-
-	public String getRadix()
-	{
-		return radix;
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
-	public String getLocation()
-	{
-		return location;
 	}
 }

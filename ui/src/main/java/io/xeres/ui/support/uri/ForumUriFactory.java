@@ -30,23 +30,13 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
-public class ForumContentParser implements ContentParser
+public class ForumUriFactory extends AbstractUriFactory
 {
 	private static final String AUTHORITY = "forum";
 
 	private static final String PARAMETER_NAME = "name";
 	private static final String PARAMETER_ID = "id";
 	private static final String PARAMETER_MSGID = "msgid";
-
-	private String name;
-	private GxsId id;
-	private MessageId msgId;
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
 
 	@Override
 	public String getAuthority()
@@ -55,58 +45,38 @@ public class ForumContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var nameParameter = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var idParameter = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
-		var msgIdParameter = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
+		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
+		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
+		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
 
-		if (Stream.of(nameParameter, idParameter).anyMatch(StringUtils::isBlank))
+		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		name = nameParameter;
-		id = GxsId.fromString(idParameter);
-		if (StringUtils.isNotBlank(msgIdParameter))
-		{
-			msgId = MessageId.fromString(msgIdParameter);
-		}
+		var forumUri = new ForumUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
 
-		return new ContentUri(msgIdParameter, nameParameter, uri -> uriAction.openUri(this));
+		return new ContentUri(msgId, name, uri -> uriAction.openUri(forumUri));
 	}
 
-	public static String generate(String name, GxsId id, MessageId msgid)
+	public static String generate(String name, GxsId id, MessageId msgId)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_ID, id.toString(),
-				PARAMETER_MSGID, msgid.toString());
+				PARAMETER_MSGID, msgId.toString());
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}
 
 	public static String generate(String name, GxsId id)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_ID, id.toString());
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
-	public GxsId getId()
-	{
-		return id;
-	}
-
-	public MessageId getMsgId()
-	{
-		return msgId;
 	}
 }

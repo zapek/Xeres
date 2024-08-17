@@ -23,7 +23,7 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
 import io.xeres.ui.client.LocationClient;
-import io.xeres.ui.support.uri.CertificateContentParser;
+import io.xeres.ui.support.uri.CertificateUriFactory;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.ContextMenu;
@@ -62,7 +62,7 @@ public final class TextInputControlUtils
 	private static String buildRetroshareUrl(RSIdResponse rsIdResponse)
 	{
 		var cleanCert = rsIdResponse.rsId().replace("\n", ""); // Removing the '\n' is in case this is a certificate which is sliced for presentation
-		return CertificateContentParser.generate(cleanCert, rsIdResponse.name(), rsIdResponse.location());
+		return CertificateUriFactory.generate(cleanCert, rsIdResponse.name(), rsIdResponse.location());
 	}
 
 	private static List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)

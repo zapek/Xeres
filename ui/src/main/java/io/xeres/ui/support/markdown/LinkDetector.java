@@ -19,7 +19,7 @@
 
 package io.xeres.ui.support.markdown;
 
-import io.xeres.ui.support.uri.UriParser;
+import io.xeres.ui.support.uri.UriFactory;
 
 import java.util.regex.Pattern;
 
@@ -37,7 +37,7 @@ class LinkDetector implements MarkdownDetector
 	public void process(Context context, String line)
 	{
 		MarkdownService.processPattern(LINK_PATTERN, context, line,
-				(s, groupName) -> context.addContent(UriParser.parse(getUrl(s), getDescription(s), context.getUriAction())));
+				(s, groupName) -> context.addContent(UriFactory.createContent(getUrl(s), getDescription(s), context.getUriAction())));
 	}
 
 	private static String getUrl(String s)

@@ -32,38 +32,38 @@ import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public final class UriParser
+public final class UriFactory
 {
-	private static final Map<String, Map<String, ContentParser>> contentParsers = new HashMap<>();
+	private static final Map<String, Map<String, AbstractUriFactory>> contentParsers = new HashMap<>();
 
 	static
 	{
-		addContentParser(new BoardsContentParser());
-		addContentParser(new CertificateContentParser());
-		addContentParser(new ChannelContentParser());
-		addContentParser(new ChatRoomContentParser());
-		addContentParser(new FileContentParser());
-		addContentParser(new ForumContentParser());
-		addContentParser(new IdentityContentParser());
-		addContentParser(new MessageContentParser());
-		addContentParser(new ProfileContentParser());
-		addContentParser(new SearchContentParser());
-		addContentParser(new CollectionContentParser());
+		addContentParser(new BoardsUriFactory());
+		addContentParser(new CertificateUriFactory());
+		addContentParser(new ChannelUriFactory());
+		addContentParser(new ChatRoomUriFactory());
+		addContentParser(new FileUriFactory());
+		addContentParser(new ForumUriFactory());
+		addContentParser(new IdentityUriFactory());
+		addContentParser(new MessageUriFactory());
+		addContentParser(new ProfileUriFactory());
+		addContentParser(new SearchUriFactory());
+		addContentParser(new CollectionUriFactory());
 	}
 
-	private UriParser()
+	private UriFactory()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	private static void addContentParser(ContentParser contentParser)
+	private static void addContentParser(AbstractUriFactory contentParser)
 	{
 		var map = contentParsers.getOrDefault(contentParser.getProtocol(), new HashMap<>());
 		map.put(contentParser.getAuthority(), contentParser);
 		contentParsers.put(contentParser.getProtocol(), map);
 	}
 
-	public static Content parse(String href, String text, UriAction uriAction)
+	public static Content createContent(String href, String text, UriAction uriAction)
 	{
 		if (isBlank(href))
 		{
@@ -84,7 +84,7 @@ public final class UriParser
 							.query(uri.getQuery())
 							.build();
 
-					return contentParser.parse(uriComponents, text, uriAction);
+					return contentParser.create(uriComponents, text, uriAction);
 				}
 			}
 

@@ -41,9 +41,9 @@ import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
-import io.xeres.ui.support.uri.ChatRoomContentParser;
-import io.xeres.ui.support.uri.ForumContentParser;
-import io.xeres.ui.support.uri.SearchContentParser;
+import io.xeres.ui.support.uri.ChatRoomUri;
+import io.xeres.ui.support.uri.ForumUri;
+import io.xeres.ui.support.uri.SearchUri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -67,8 +67,6 @@ import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -94,7 +92,6 @@ public class MainWindowController implements WindowController
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
 	private static final String XERES_FORUMS_URL = "https://github.com/zapek/Xeres/discussions";
-	private static final Logger log = LoggerFactory.getLogger(MainWindowController.class);
 
 	// The indexes must be kept in sync with their order in main.fxml
 	private static final int CHAT_TAB_INDEX = 1;
@@ -547,11 +544,11 @@ public class MainWindowController implements WindowController
 	@EventListener
 	public void handleOpenUriEvents(OpenUriEvent event)
 	{
-		switch (event.contentParser())
+		switch (event.uri())
 		{
-			case ChatRoomContentParser chatRoomContentParser -> tabPane.getSelectionModel().select(CHAT_TAB_INDEX);
-			case ForumContentParser forumContentParser -> tabPane.getSelectionModel().select(FORUM_TAB_INDEX);
-			case SearchContentParser searchContentParser -> tabPane.getSelectionModel().select(FILES_TAB_INDEX);
+			case ChatRoomUri ignored -> tabPane.getSelectionModel().select(CHAT_TAB_INDEX);
+			case ForumUri ignored -> tabPane.getSelectionModel().select(FORUM_TAB_INDEX);
+			case SearchUri ignored -> tabPane.getSelectionModel().select(FILES_TAB_INDEX);
 			default ->
 			{
 				// Nothing to do

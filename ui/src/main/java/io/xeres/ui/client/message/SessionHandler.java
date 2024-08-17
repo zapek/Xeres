@@ -22,10 +22,7 @@ package io.xeres.ui.client.message;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaders;
-import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.messaging.simp.stomp.*;
 
 public class SessionHandler extends StompSessionHandlerAdapter
 {
@@ -59,6 +56,13 @@ public class SessionHandler extends StompSessionHandlerAdapter
 	@Override
 	public void handleTransportError(@Nonnull StompSession session, @Nonnull Throwable exception)
 	{
-		log.warn("StompSessionHandler Transport Exception for session {}", session, exception);
+		if (exception instanceof ConnectionLostException)
+		{
+			log.debug("Connection closed");
+		}
+		else
+		{
+			log.warn("StompSessionHandler Transport Exception for session {}", session, exception);
+		}
 	}
 }

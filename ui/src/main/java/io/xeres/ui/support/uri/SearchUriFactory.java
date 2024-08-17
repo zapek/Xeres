@@ -26,19 +26,11 @@ import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
-public class SearchContentParser implements ContentParser
+public class SearchUriFactory extends AbstractUriFactory
 {
-	private static final String PARAMETER_KEYWORDS = "keywords";
-
 	private static final String AUTHORITY = "search";
 
-	private String keywords;
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
+	private static final String PARAMETER_KEYWORDS = "keywords";
 
 	@Override
 	public String getAuthority()
@@ -47,30 +39,25 @@ public class SearchContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var keywordsParameters = uriComponents.getQueryParams().getFirst(PARAMETER_KEYWORDS);
+		var keywords = uriComponents.getQueryParams().getFirst(PARAMETER_KEYWORDS);
 
-		if (StringUtils.isBlank(keywordsParameters))
+		if (StringUtils.isBlank(keywords))
 		{
 			return ContentText.EMPTY;
 		}
 
-		keywords = keywordsParameters.trim();
+		var searchUri = new SearchUri(keywords.trim());
 
-		return new ContentUri(keywords, keywords, uri -> uriAction.openUri(this));
+		return new ContentUri(keywords, keywords, uri -> uriAction.openUri(searchUri));
 	}
 
 	public static String generate(String name, String keywords)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_KEYWORDS, name);
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_KEYWORDS, keywords);
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
-	}
-
-	public String getKeywords()
-	{
-		return keywords;
 	}
 }

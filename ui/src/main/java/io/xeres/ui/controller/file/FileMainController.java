@@ -22,7 +22,7 @@ package io.xeres.ui.controller.file;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
-import io.xeres.ui.support.uri.SearchContentParser;
+import io.xeres.ui.support.uri.SearchUri;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
@@ -59,7 +59,7 @@ public class FileMainController implements Controller
 	@EventListener
 	public void handleOpenUriEvents(OpenUriEvent event)
 	{
-		if (event.contentParser() instanceof SearchContentParser searchContentParser)
+		if (event.uri() instanceof SearchUri ignored)
 		{
 			tabPane.getSelectionModel().select(0);
 		}

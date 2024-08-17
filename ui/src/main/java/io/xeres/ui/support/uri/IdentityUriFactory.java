@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.GxsId;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
@@ -28,19 +29,13 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
-public class ChannelContentParser implements ContentParser
+public class IdentityUriFactory extends AbstractUriFactory
 {
+	private static final String AUTHORITY = "identity";
+
+	private static final String PARAMETER_GXSID = "gxsid";
 	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_ID = "id";
-	private static final String PARAMETER_MSGID = "msgid";
-
-	private static final String AUTHORITY = "channel";
-
-	@Override
-	public String getProtocol()
-	{
-		return PROTOCOL_RETROSHARE;
-	}
+	private static final String PARAMETER_GROUPDATA = "groupdata";
 
 	@Override
 	public String getAuthority()
@@ -49,26 +44,28 @@ public class ChannelContentParser implements ContentParser
 	}
 
 	@Override
-	public Content parse(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
+		var gxsId = uriComponents.getQueryParams().getFirst(PARAMETER_GXSID);
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var channelId = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
-		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
+		var groupData = uriComponents.getQueryParams().getFirst(PARAMETER_GROUPDATA);
 
-		if (Stream.of(name, channelId).anyMatch(StringUtils::isBlank))
+		if (Stream.of(gxsId, name, groupData).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		return new ContentUri(msgId, name, uri -> uriAction.openUri(this));
+		var identityUri = new IdentityUri(name, GxsId.fromString(gxsId), groupData); // XXX: groupData is probably something else...
+
+		return new ContentUri(groupData, "Identity (name=" + name + ", ID=" + gxsId + ")", uri -> uriAction.openUri(identityUri));
 	}
 
-	public static String generate(String name, String id, String msgid)
+	public static String generate(String gxsId, String name, String groupData)
 	{
-		var uri = ContentParser.buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
+				PARAMETER_GXSID, gxsId,
 				PARAMETER_NAME, name,
-				PARAMETER_ID, id,
-				PARAMETER_MSGID, msgid);
+				PARAMETER_GROUPDATA, groupData);
 
 		return "<a href=\"" + uri + "\">" + name + "</a>";
 	}

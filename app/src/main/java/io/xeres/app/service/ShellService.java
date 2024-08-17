@@ -100,6 +100,13 @@ public class ShellService implements Shell
 	 */
 	public static String[] translateCommandline(String toProcess)
 	{
+		enum State
+		{
+			NORMAL,
+			IN_QUOTE,
+			IN_DOUBLE_QUOTE
+		}
+
 		if (StringUtils.isEmpty(toProcess))
 		{
 			//no command? no string
@@ -107,10 +114,7 @@ public class ShellService implements Shell
 		}
 		// parse with a simple finite state machine
 
-		final var normal = 0;
-		final var inQuote = 1;
-		final var inDoubleQuote = 2;
-		int state = normal;
+		var state = State.NORMAL;
 		final var tok = new StringTokenizer(toProcess, "\"' ", true);
 		final var current = new StringBuilder();
 		final ArrayList<String> result = new ArrayList<>();
@@ -121,58 +125,55 @@ public class ShellService implements Shell
 			String nextTok = tok.nextToken();
 			switch (state)
 			{
-				case inQuote:
+				case State.IN_QUOTE ->
+				{
 					if ("'".equals(nextTok))
 					{
 						lastTokenHasBeenQuoted = true;
-						state = normal;
+						state = State.NORMAL;
 					}
 					else
 					{
 						current.append(nextTok);
 					}
-					break;
-				case inDoubleQuote:
+				}
+				case State.IN_DOUBLE_QUOTE ->
+				{
 					if ("\"".equals(nextTok))
 					{
 						lastTokenHasBeenQuoted = true;
-						state = normal;
+						state = State.NORMAL;
 					}
 					else
 					{
 						current.append(nextTok);
 					}
-					break;
-				default:
-					if ("'".equals(nextTok))
+				}
+				default ->
+				{
+					switch (nextTok)
 					{
-						state = inQuote;
-					}
-					else if ("\"".equals(nextTok))
-					{
-						state = inDoubleQuote;
-					}
-					else if (" ".equals(nextTok))
-					{
-						if (lastTokenHasBeenQuoted || !current.isEmpty())
+						case "'" -> state = State.IN_QUOTE;
+						case "\"" -> state = State.IN_DOUBLE_QUOTE;
+						case " " ->
 						{
-							result.add(current.toString());
-							current.setLength(0);
+							if (lastTokenHasBeenQuoted || !current.isEmpty())
+							{
+								result.add(current.toString());
+								current.setLength(0);
+							}
 						}
-					}
-					else
-					{
-						current.append(nextTok);
+						case null, default -> current.append(nextTok);
 					}
 					lastTokenHasBeenQuoted = false;
-					break;
+				}
 			}
 		}
 		if (lastTokenHasBeenQuoted || !current.isEmpty())
 		{
 			result.add(current.toString());
 		}
-		if (state == inQuote || state == inDoubleQuote)
+		if (state == State.IN_QUOTE || state == State.IN_DOUBLE_QUOTE)
 		{
 			throw new RuntimeException("unbalanced quotes in " + toProcess);
 		}

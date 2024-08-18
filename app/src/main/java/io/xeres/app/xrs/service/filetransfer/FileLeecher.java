@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import io.xeres.common.id.Sha1Sum;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,6 +232,12 @@ class FileLeecher extends FileSeeder
 			chunkMap.set(chunkKey);
 			chunks.remove(chunkKey);
 		}
+	}
+
+	@Override
+	public Sha1Sum computeHash(long offset)
+	{
+		throw new IllegalStateException("Cannot compute hashes of file leechers");
 	}
 
 	@Override

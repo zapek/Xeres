@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import io.xeres.common.id.Sha1Sum;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.BitSet;
@@ -54,4 +56,6 @@ interface FileProvider
 	long getBytesWritten();
 
 	long getId();
+
+	Sha1Sum computeHash(long offset);
 }

@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
+import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,11 +96,37 @@ class FileSeeder implements FileProvider
 		allocateBufferIfNeeded();
 
 		buf.clear();
+		buf.limit(size);
+
 		channel.read(buf, offset);
 		var a = new byte[buf.position()];
 		buf.flip();
 		buf.get(a);
 		return a;
+	}
+
+	@Override
+	public Sha1Sum computeHash(long offset)
+	{
+		var hashBuf = ByteBuffer.allocate(CHUNK_SIZE);
+
+		try
+		{
+			channel.read(hashBuf, offset);
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to compute hash: {}", e.getMessage());
+			return null;
+		}
+
+		var a = new byte[hashBuf.position()];
+		hashBuf.flip();
+		hashBuf.get(a);
+
+		var digest = new Sha1MessageDigest();
+		digest.update(a);
+		return digest.getSum();
 	}
 
 	private void allocateBufferIfNeeded()

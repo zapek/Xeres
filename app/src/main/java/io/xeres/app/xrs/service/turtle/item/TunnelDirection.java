@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.turtle.item;
 
 /**
  * The direction of the tunnel. Either {@link #CLIENT} or {@link #SERVER}.
+ * If for example a packet has "client" set, then it means whoever sent it is a client.
  */
 public enum TunnelDirection
 {

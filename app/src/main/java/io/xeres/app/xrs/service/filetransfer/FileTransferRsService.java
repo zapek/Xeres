@@ -210,7 +210,6 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		//
 		// - find file by encrypted hash (and get its real hash)
 		// - the correspondence can be put in the encryptedHashes, because the tunnel will likely be established
-
 		var file = fileService.findFileByEncryptedHash(hash);
 		if (file.isPresent())
 		{
@@ -256,7 +255,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 			case TurtleFileRequestItem turtleFileRequestItem -> fileCommandQueue.add(new ActionReceiveDataRequest(virtualLocation, hash, turtleFileRequestItem.getChunkOffset(), turtleFileRequestItem.getChunkSize()));
 			case TurtleFileDataItem turtleFileDataItem -> fileCommandQueue.add(new ActionReceiveData(virtualLocation, hash, turtleFileDataItem.getChunkOffset(), turtleFileDataItem.getChunkData()));
 
-			case TurtleFileMapRequestItem turtleFileMapRequestItem -> fileCommandQueue.add(new ActionReceiveChunkMapRequest(virtualLocation, hash, turtleFileMapRequestItem.getDirection() == TunnelDirection.SERVER));
+			case TurtleFileMapRequestItem turtleFileMapRequestItem -> fileCommandQueue.add(new ActionReceiveChunkMapRequest(virtualLocation, hash, turtleFileMapRequestItem.getDirection() == TunnelDirection.CLIENT));
 			case TurtleFileMapItem turtleFileMapItem -> fileCommandQueue.add(new ActionReceiveChunkMap(virtualLocation, hash, turtleFileMapItem.getCompressedChunks()));
 
 			case TurtleChunkCrcRequestItem turtleChunkCrcRequestItem -> fileCommandQueue.add(new ActionReceiveSingleChunkCrcRequest(virtualLocation, hash, turtleChunkCrcRequestItem.getChunkNumber()));
@@ -481,7 +480,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 	}
 
-	private void sendSingleChunkCrc(Location location, Sha1Sum hash, int chunkNumber, Sha1Sum checkSum)
+	public void sendSingleChunkCrc(Location location, Sha1Sum hash, int chunkNumber, Sha1Sum checkSum)
 	{
 		if (turtleRouter.isVirtualPeer(location))
 		{
@@ -501,10 +500,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	 * @param location  the location to send to (can be virtual too)
 	 * @param hash  the hash related to it
 	 * @param totalSize  the total size of the file
-	 * @param baseOffset the base offset
+	 * @param offset the offset within the file
 	 * @param data the data to send
 	 */
-	void sendData(Location location, Sha1Sum hash, long totalSize, long baseOffset, byte[] data)
+	void sendData(Location location, Sha1Sum hash, long totalSize, long offset, byte[] data)
 	{
 		if (data.length > 0)
 		{
@@ -515,12 +514,12 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 			if (turtleRouter.isVirtualPeer(location))
 			{
-				var item = new TurtleFileDataItem(baseOffset, data);
+				var item = new TurtleFileDataItem(offset, data);
 				sendTurtleItem(location, hash, item);
 			}
 			else
 			{
-				var item = new FileTransferDataItem(baseOffset, totalSize, hash, data);
+				var item = new FileTransferDataItem(offset, totalSize, hash, data);
 				peerConnectionManager.writeItem(location, item, this);
 			}
 		}

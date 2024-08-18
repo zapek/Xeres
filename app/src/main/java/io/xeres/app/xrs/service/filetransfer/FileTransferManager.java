@@ -62,8 +62,8 @@ class FileTransferManager implements Runnable
 	private final BlockingQueue<Action> queue;
 	private final FileTransferStrategy fileTransferStrategy;
 
-	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>();
-	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>();
+	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>(); // aka clients in RS (people who are leeching from us)
+	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>(); // aka servers in RS (people who are seeding to us)
 
 	private final List<FileProgress> downloadsProgress = new ArrayList<>();
 	private final List<FileProgress> uploadsProgress = new ArrayList<>();
@@ -277,7 +277,7 @@ class FileTransferManager implements Runnable
 
 	private void actionReceiveDataRequest(Location location, Sha1Sum hash, long offset, int chunkSize)
 	{
-		log.debug("Received data request from {}, hash: {}", location, hash);
+		log.debug("Received data request from {}, hash: {}, offset: {}, chunkSize: {}", location, hash, offset, chunkSize);
 		FileTransferAgent agent;
 
 		if (location.equals(ownLocation))
@@ -342,7 +342,7 @@ class FileTransferManager implements Runnable
 
 	private void actionReceiveChunkMapRequest(Location location, Sha1Sum hash, boolean isLeecher)
 	{
-		log.debug("Received chunk map request from {}", location);
+		log.debug("Received {} chunk map request from {}, hash: {}", isLeecher ? "client (leecher)" : "server (seeder)", location, hash);
 		if (isLeecher)
 		{
 			actionReceiveLeecherChunkMapRequest(location, hash);
@@ -380,7 +380,7 @@ class FileTransferManager implements Runnable
 
 	private void actionReceiveSeederChunkMapRequest(Location location, Sha1Sum hash)
 	{
-		var agent = seeders.get(hash);
+		var agent = seeders.get(hash); // XXX: is this really seeder? isn't this asked from leechers only??
 		if (agent == null)
 		{
 			agent = localSearch(hash);
@@ -399,7 +399,24 @@ class FileTransferManager implements Runnable
 	private void actionReceiveChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber)
 	{
 		log.debug("Received chunk crc request from {}", location);
-		// XXX: not sure what to do yet, complicated (look at the list of seeders first, etc...)
+		var agent = seeders.get(hash);
+		if (agent == null)
+		{
+			agent = localSearch(hash);
+		}
+
+		if (agent == null)
+		{
+			log.error("No matching agent for hash {} for chunk number {}", hash, chunkNumber);
+			return;
+		}
+
+		// XXX: add a cache, queue for serving them later, etc...
+		var checkSum = agent.getFileProvider().computeHash((long) chunkNumber * CHUNK_SIZE);
+		if (checkSum != null)
+		{
+			fileTransferRsService.sendSingleChunkCrc(location, hash, chunkNumber, checkSum);
+		}
 	}
 
 	private void actionReceiveChunkCrc(Location location, Sha1Sum hash, int chunkNumber, Sha1Sum checkSum)

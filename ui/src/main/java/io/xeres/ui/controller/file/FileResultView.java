@@ -24,6 +24,7 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.uri.FileUriFactory;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -33,6 +34,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -47,6 +50,8 @@ public class FileResultView extends Tab
 	private static final Logger log = LoggerFactory.getLogger(FileResultView.class);
 
 	private static final String DOWNLOAD_MENU_ID = "download";
+	private static final String COPY_LINK_MENU_ID = "copyLink";
+
 	public static final int FILE_ICON_SIZE = 24;
 
 	private final FileClient fileClient;
@@ -162,7 +167,19 @@ public class FileResultView extends Tab
 			}
 		});
 
-		var fileXContextMenu = new XContextMenu<FileResult>(filesTableView, downloadItem);
+		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		copyLinkItem.setId(COPY_LINK_MENU_ID);
+		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		copyLinkItem.setOnAction(event -> {
+			if (event.getSource() instanceof FileResult file)
+			{
+				var clipboardContent = new ClipboardContent();
+				clipboardContent.putString(FileUriFactory.generate(file.name(), file.size(), Sha1Sum.fromString(file.hash())));
+				Clipboard.getSystemClipboard().setContent(clipboardContent);
+			}
+		});
+
+		var fileXContextMenu = new XContextMenu<FileResult>(filesTableView, downloadItem, new SeparatorMenuItem(), copyLinkItem);
 		fileXContextMenu.setOnShowing((contextMenu, file) -> file != null);
 	}
 

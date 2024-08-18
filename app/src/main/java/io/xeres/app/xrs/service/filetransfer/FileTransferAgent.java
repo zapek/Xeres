@@ -32,10 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.BitSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -54,7 +51,7 @@ class FileTransferAgent
 	private boolean done;
 	private long lastActivity;
 
-	private final Map<Location, ChunkSender> leechers = new LinkedHashMap<>();
+	private final Map<Location, List<ChunkSender>> leechers = new LinkedHashMap<>();
 	private final Map<Location, ChunkReceiver> seeders = new LinkedHashMap<>();
 
 	public FileTransferAgent(FileTransferRsService fileTransferRsService, String fileName, Sha1Sum hash, FileProvider fileProvider)
@@ -84,7 +81,8 @@ class FileTransferAgent
 
 	public void addLeecher(Location peer, long offset, int size)
 	{
-		leechers.computeIfAbsent(peer, k -> new ChunkSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
+		leechers.computeIfAbsent(peer, k -> new LinkedList<>())
+				.add(new ChunkSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
 	}
 
 	public void removePeer(Location peer)
@@ -188,7 +186,8 @@ class FileTransferAgent
 		leechers.entrySet().stream()
 				.skip(getRandomStreamSkip(leechers.size()))
 				.findFirst().ifPresent(entry -> {
-					var chunkSender = entry.getValue();
+					var chunkList = entry.getValue();
+					var chunkSender = chunkList.getFirst();
 					var remaining = chunkSender.send();
 					lastActivity = System.nanoTime();
 					if (!remaining)
@@ -196,7 +195,11 @@ class FileTransferAgent
 						// We just remove the leecher here and nothing else. The fileTransferManager will close the file
 						// when it's idle for some time otherwise it would need to be reopened immediately for the
 						// next chunk.
-						leechers.remove(entry.getKey());
+						chunkList.remove(chunkSender);
+						if (chunkList.isEmpty())
+						{
+							leechers.remove(entry.getKey());
+						}
 					}
 				});
 	}

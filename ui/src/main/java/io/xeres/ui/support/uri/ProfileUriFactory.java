@@ -52,7 +52,7 @@ public class ProfileUriFactory extends AbstractUriFactory
 			return ContentText.EMPTY;
 		}
 
-		var profileUri = new ProfileUri(name, getLongArgument(hash));
+		var profileUri = new ProfileUri(name, getLongHexArgument(hash));
 
 		return new ContentUri(hash, name + "@" + hash, uri -> uriAction.openUri(profileUri));
 	}

@@ -76,7 +76,7 @@ public abstract class AbstractUriFactory
 		return sb.toString();
 	}
 
-	protected static long getLongArgument(String s)
+	protected static long getLongHexArgument(String s)
 	{
 		try
 		{
@@ -88,11 +88,23 @@ public abstract class AbstractUriFactory
 		}
 	}
 
+	protected static long getLongArgument(String s)
+	{
+		try
+		{
+			return Long.parseUnsignedLong(s);
+		}
+		catch (NumberFormatException e)
+		{
+			return 0L;
+		}
+	}
+
 	protected static int getIntArgument(String s)
 	{
 		try
 		{
-			return Integer.parseInt(s.toLowerCase(Locale.ROOT), 16);
+			return Integer.parseInt(s);
 		}
 		catch (NumberFormatException e)
 		{

@@ -20,11 +20,11 @@
 package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
@@ -58,7 +58,7 @@ public class FileUriFactory extends AbstractUriFactory
 
 		var fileUri = new FileUri(name, getLongArgument(size), getHashArgument(hash));
 
-		return new ContentUri(fileUri.hash().toString(), fileUri.name() + " (" + FileUtils.byteCountToDisplaySize(fileUri.size()) + ")", uri -> uriAction.openUri(fileUri));
+		return new ContentUri(fileUri.hash().toString(), fileUri.name() + " (" + ByteUnitUtils.fromBytes(fileUri.size()) + ")", uri -> uriAction.openUri(fileUri));
 	}
 
 	public static String generate(String name, long size, Sha1Sum hash)

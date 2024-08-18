@@ -19,11 +19,11 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
@@ -60,7 +60,7 @@ public class CollectionUriFactory extends AbstractUriFactory
 		var collectionUri = new CollectionUri(name, getLongArgument(size), radix, getIntArgument(count));
 
 		//noinspection ConstantConditions
-		return new ContentUri(radix, name + " (" + count + "files, " + FileUtils.byteCountToDisplaySize(Long.parseLong(size)) + ")", uri -> uriAction.openUri(collectionUri));
+		return new ContentUri(radix, name + " (" + count + "files, " + ByteUnitUtils.fromBytes(Long.parseLong(size)) + ")", uri -> uriAction.openUri(collectionUri));
 	}
 
 	public static String generate(String name, int size, String radix, String files)

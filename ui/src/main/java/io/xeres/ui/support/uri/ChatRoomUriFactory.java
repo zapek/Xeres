@@ -58,7 +58,7 @@ public class ChatRoomUriFactory extends AbstractUriFactory
 			return ContentText.EMPTY;
 		}
 
-		var chatRoomUri = new ChatRoomUri(name, id.length() > 1 && id.startsWith(CHAT_ROOM_PREFIX) ? getLongArgument(id.substring(1)) : 0);
+		var chatRoomUri = new ChatRoomUri(name, id.length() > 1 && id.startsWith(CHAT_ROOM_PREFIX) ? getLongHexArgument(id.substring(1)) : 0);
 
 		return new ContentUri(id, name, uri -> uriAction.openUri(chatRoomUri));
 	}

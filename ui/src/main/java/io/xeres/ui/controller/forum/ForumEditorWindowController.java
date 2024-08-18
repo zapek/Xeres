@@ -33,11 +33,13 @@ import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
+import java.util.ResourceBundle;
+
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 @FxmlView(value = "/view/forum/forumeditorview.fxml")
-public class ForumEditorViewController implements WindowController
+public class ForumEditorWindowController implements WindowController
 {
 	@FXML
 	private TextField forumName;
@@ -55,11 +57,13 @@ public class ForumEditorViewController implements WindowController
 
 	private final ForumClient forumClient;
 	private final LocationClient locationClient;
+	private final ResourceBundle bundle;
 
-	public ForumEditorViewController(ForumClient forumClient, LocationClient locationClient)
+	public ForumEditorWindowController(ForumClient forumClient, LocationClient locationClient, ResourceBundle bundle)
 	{
 		this.forumClient = forumClient;
 		this.locationClient = locationClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -96,6 +100,15 @@ public class ForumEditorViewController implements WindowController
 					.doOnSuccess(forumMessage -> Platform.runLater(() -> addReply(forumMessage)))
 					.subscribe();
 		}
+
+		// Prevent the message from being discarded by mistake
+		UiUtils.getWindow(send).setOnCloseRequest(event -> {
+			if (editorView.isModified())
+			{
+				UiUtils.alertConfirm(bundle.getString("forum.editor.cancel"), () -> UiUtils.getWindow(send).hide());
+				event.consume();
+			}
+		});
 	}
 
 	private void checkSendable(int editorLength)

@@ -62,8 +62,8 @@ class FileTransferManager implements Runnable
 	private final BlockingQueue<Action> queue;
 	private final FileTransferStrategy fileTransferStrategy;
 
-	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>(); // aka clients in RS (people who are leeching from us)
-	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>(); // aka servers in RS (people who are seeding to us)
+	private final Map<Sha1Sum, FileTransferAgent> leechers = new HashMap<>(); // files that we are downloading (client)
+	private final Map<Sha1Sum, FileTransferAgent> seeders = new HashMap<>(); // files that we are uploading (serving)
 
 	private final List<FileProgress> downloadsProgress = new ArrayList<>();
 	private final List<FileProgress> uploadsProgress = new ArrayList<>();
@@ -257,6 +257,12 @@ class FileTransferManager implements Runnable
 		}
 	}
 
+	/**
+	 * Add a peer to one of our downloads.
+	 *
+	 * @param hash     the hash
+	 * @param location the source location to add for the file we're downloading
+	 */
 	private void actionAddPeer(Sha1Sum hash, Location location)
 	{
 		var leecher = leechers.get(hash);
@@ -286,7 +292,7 @@ class FileTransferManager implements Runnable
 		}
 		else
 		{
-			agent = leechers.get(hash);
+			agent = seeders.get(hash);
 			if (agent == null)
 			{
 				agent = localSearch(hash);
@@ -342,7 +348,7 @@ class FileTransferManager implements Runnable
 
 	private void actionReceiveChunkMapRequest(Location location, Sha1Sum hash, boolean isLeecher)
 	{
-		log.debug("Received {} chunk map request from {}, hash: {}", isLeecher ? "client (leecher)" : "server (seeder)", location, hash);
+		log.debug("Received {} chunk map request from {}, hash: {}", isLeecher ? "leecher (client)" : "seeder (server)", location, hash);
 		if (isLeecher)
 		{
 			actionReceiveLeecherChunkMapRequest(location, hash);
@@ -380,7 +386,7 @@ class FileTransferManager implements Runnable
 
 	private void actionReceiveSeederChunkMapRequest(Location location, Sha1Sum hash)
 	{
-		var agent = seeders.get(hash); // XXX: is this really seeder? isn't this asked from leechers only??
+		var agent = seeders.get(hash);
 		if (agent == null)
 		{
 			agent = localSearch(hash);
@@ -422,7 +428,7 @@ class FileTransferManager implements Runnable
 	private void actionReceiveChunkCrc(Location location, Sha1Sum hash, int chunkNumber, Sha1Sum checkSum)
 	{
 		log.debug("Received chunk crc from {}", location);
-		// XXX: handle!
+		// XXX: handle! need to check leecher...
 	}
 
 	private static void handleSeederRequest(Location location, FileTransferAgent agent, Sha1Sum hash, long offset, int chunkSize)

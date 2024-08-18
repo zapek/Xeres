@@ -30,7 +30,7 @@
     <HBox VBox.vgrow="NEVER">
         <ImageView fitHeight="78.0" fitWidth="71.0" pickOnBounds="true" preserveRatio="true">
             <HBox.margin>
-                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+                <Insets bottom="8.0" left="8.0" right="16.0" top="8.0"/>
             </HBox.margin>
             <Image url="@../../image/icon.png"/>
         </ImageView>
@@ -55,7 +55,7 @@
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
                     <Text text="%about.slogan" styleClass="text-caption"/>
-                    <Text text="&#10;&#10;©2019-2024 "/>
+                    <Text text="&#10;&#10;© 2019-2024 "/>
                     <Text text="%about.author-by"/>
                     <Text text=" David Gerber, "/>
                     <Text text="%about.all-rights-reserved"/>
@@ -209,12 +209,6 @@
                     <DisclosedHyperlink text="LGPL" uri="https://www.gnu.org/licenses/lgpl-3.0.en.html"/>
                     <Text text=" or "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
-                    <Text text="&#10;&#10;"/>
-
-                    <DisclosedHyperlink text="JPackage Gradle Plugin" uri="https://github.com/petr-panteleyev/jpackage-gradle-plugin"/>
-                    <Text text="&#10;"/>
-                    <Text text=" © Petr Panteleyev. Licensed under the "/>
-                    <DisclosedHyperlink text="BSD-2-Clause license." uri="https://github.com/petr-panteleyev/jpackage-gradle-plugin?tab=BSD-2-Clause-1-ov-file#readme"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="JSON Patch" uri="https://github.com/java-json-tools/json-patch"/>

@@ -56,7 +56,6 @@ class ChunkSender
 		}
 		if (data.length > 0)
 		{
-			log.debug("Sending data, totalSize: {}, offset: {}, data.length: {}", totalSize, offset, data.length);
 			fileTransferRsService.sendData(location, hash, totalSize, offset, data);
 		}
 

@@ -120,9 +120,6 @@ public class MainWindowController implements WindowController
 	private MenuItem addPeer;
 
 	@FXML
-	private MenuItem copyOwnId;
-
-	@FXML
 	private MenuItem launchWebInterface;
 
 	@FXML
@@ -255,7 +252,6 @@ public class MainWindowController implements WindowController
 		addPeer.setOnAction(event -> windowManager.openAddPeer());
 		addFriendButton.setOnAction(event -> windowManager.openAddPeer());
 
-		copyOwnId.setOnAction(event -> copyOwnId());
 		copyShortIdButton.setOnAction(event -> copyOwnId());
 
 		showQrCodeButton.setOnAction(event -> showQrCode());
@@ -295,7 +291,7 @@ public class MainWindowController implements WindowController
 
 		exportBackup.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle("Select the output profile");
+			fileChooser.setTitle(bundle.getString("main.export-profile"));
 			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
 			fileChooser.setInitialFileName("xeres_backup.xml");
@@ -424,7 +420,7 @@ public class MainWindowController implements WindowController
 						{
 							case START_SCANNING ->
 							{
-								var defaultText = "Scanning " + sse.data().shareName() + "...";
+								var defaultText = MessageFormat.format(bundle.getString("main.scanning"), sse.data().shareName());
 								hashingStatus.setVisible(true);
 								hashingDelayedDisplayAction = new DelayedAction(() -> hashingName.setText(defaultText), () -> hashingName.setText(null), Duration.ofMillis(2000));
 								hashingDelayedDisplayAction.run();
@@ -436,8 +432,8 @@ public class MainWindowController implements WindowController
 									hashingDelayedDisplayAction = new DelayedAction(null, () -> hashingName.setText(null), Duration.ofMillis(2000));
 								}
 								hashingDelayedDisplayAction.abort();
-								hashingName.setText("Hashing " + Path.of(sse.data().scannedFile()).getFileName());
-								TooltipUtils.install(hashingStatus, "Share: " + sse.data().shareName() + ", file: " + sse.data().scannedFile());
+								hashingName.setText(MessageFormat.format(bundle.getString("main.hashing"), Path.of(sse.data().scannedFile()).getFileName()));
+								TooltipUtils.install(hashingStatus, MessageFormat.format(bundle.getString("main.scanning.tip"), sse.data().shareName(), sse.data().scannedFile()));
 							}
 							case STOP_HASHING ->
 							{

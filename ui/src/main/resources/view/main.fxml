@@ -153,11 +153,6 @@
                                 <FontIcon iconLiteral="fas-broadcast-tower"/>
                             </graphic>
                         </MenuItem>
-                        <MenuItem fx:id="copyOwnId" text="%main.menu.peers.copy-own-id">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-clipboard"/>
-                            </graphic>
-                        </MenuItem>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem fx:id="exitApplication" text="%main.menu.peers.exit">
                             <graphic>
@@ -178,11 +173,6 @@
                         </MenuItem>
                     </Menu>
                     <Menu text="%main.menu.tools">
-                        <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-globe-europe"/>
-                            </graphic>
-                        </MenuItem>
                         <MenuItem fx:id="showSharesWindow" text="Shares...">
                             <graphic>
                                 <FontIcon iconLiteral="fas-hdd"/>
@@ -228,9 +218,9 @@
                         <MenuItem fx:id="showAboutWindow" text="%main.menu.help.about"/>
                     </Menu>
                     <Menu fx:id="debug" text="_Debug" visible="false">
-                        <MenuItem fx:id="runGc" text="_Run GC">
+                        <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">
                             <graphic>
-                                <FontIcon iconLiteral="fas-trash"/>
+                                <FontIcon iconLiteral="fas-globe-europe"/>
                             </graphic>
                         </MenuItem>
                         <MenuItem fx:id="h2Console" text="H2 Console">
@@ -251,6 +241,11 @@
                         <MenuItem fx:id="openUiCheck" text="Ui Check">
                             <graphic>
                                 <FontIcon iconLiteral="fas-window-maximize"/>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="runGc" text="_Run GC">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-trash"/>
                             </graphic>
                         </MenuItem>
                     </Menu>

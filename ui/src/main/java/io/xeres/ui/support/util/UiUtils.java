@@ -174,6 +174,7 @@ public final class UiUtils
 		textArea.setEditable(false);
 		textArea.setText(message);
 		textArea.getStyleClass().add("alert-textarea");
+		textArea.setPrefHeight(message.length() < 120 ? 60 : 100); // Should be good enough
 		vbox.setPadding(new Insets(14.0));
 		vbox.getChildren().add(textArea);
 		alert.getDialogPane().setContent(vbox);

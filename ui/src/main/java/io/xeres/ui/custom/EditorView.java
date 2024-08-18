@@ -76,6 +76,8 @@ public class EditorView extends VBox
 	@FXML
 	private TextArea editor;
 
+	private int typingCount;
+
 	private final ResourceBundle bundle;
 
 	public final ReadOnlyIntegerWrapper lengthProperty = new ReadOnlyIntegerWrapper();
@@ -136,6 +138,11 @@ public class EditorView extends VBox
 	public void setInputContextMenu(LocationClient locationClient)
 	{
 		editor.setContextMenu(TextInputControlUtils.createInputContextMenu(editor, locationClient));
+	}
+
+	public boolean isModified()
+	{
+		return typingCount >= 2;
 	}
 
 	private void surround(String text)
@@ -314,6 +321,8 @@ public class EditorView extends VBox
 
 	private void handleInputKeys(KeyEvent event)
 	{
+		typingCount++;
+
 		if (PASTE_KEY.match(event))
 		{
 			var image = Clipboard.getSystemClipboard().getImage();

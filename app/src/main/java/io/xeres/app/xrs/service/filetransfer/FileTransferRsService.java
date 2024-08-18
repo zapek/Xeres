@@ -466,7 +466,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 	}
 
-	private void sendSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber)
+	public void sendSingleChunkCrcRequest(Location location, Sha1Sum hash, int chunkNumber)
 	{
 		if (turtleRouter.isVirtualPeer(location))
 		{

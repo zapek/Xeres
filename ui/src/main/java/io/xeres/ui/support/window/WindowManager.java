@@ -27,9 +27,7 @@ import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.OpenUriEvent;
-import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.client.ProfileClient;
-import io.xeres.ui.client.ShareClient;
+import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.controller.WindowController;
@@ -41,7 +39,7 @@ import io.xeres.ui.controller.debug.PropertiesWindowController;
 import io.xeres.ui.controller.debug.UiCheckWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
-import io.xeres.ui.controller.forum.ForumEditorViewController;
+import io.xeres.ui.controller.forum.ForumEditorWindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.identity.IdentitiesWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
@@ -89,6 +87,8 @@ public class WindowManager
 	private static FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
+	private final ForumClient forumClient;
+	private final LocationClient locationClient;
 	private final ShareClient shareClient;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
@@ -102,11 +102,13 @@ public class WindowManager
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager, GeneralClient generalClient)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager, GeneralClient generalClient)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
+		this.forumClient = forumClient;
+		this.locationClient = locationClient;
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
@@ -186,7 +188,7 @@ public class WindowManager
 						},
 						() ->
 						{
-							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double click)
+							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double-click)
 							{
 								var messaging = new MessagingWindowController(profileClient, generalClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle);
 
@@ -196,6 +198,22 @@ public class WindowManager
 										.build()
 										.open();
 							}
+						}));
+	}
+
+	public void openForumEditor(PostRequest postRequest)
+	{
+		Platform.runLater(() ->
+				getOpenedWindow(ForumEditorWindowController.class, postRequest.toString()).ifPresentOrElse(Window::requestFocus,
+						() -> {
+							var forumEditor = new ForumEditorWindowController(forumClient, locationClient, bundle);
+
+							UiWindow.builder("/view/forum/forumeditorview.fxml", forumEditor)
+									.setLocalId(postRequest.toString())
+									.setTitle(bundle.getString("forum.new-message.window-title"))
+									.setUserData(postRequest)
+									.build()
+									.open();
 						}));
 	}
 
@@ -374,17 +392,6 @@ public class WindowManager
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("chat.room.invite.window-title"))
 						.setUserData(chatRoom)
-						.build()
-						.open());
-	}
-
-	public void openForumEditor(PostRequest postRequest)
-	{
-		Platform.runLater(() ->
-				UiWindow.builder(ForumEditorViewController.class)
-						.setParent(rootWindow) // XXX: needs to become multi modal to avoid blocking (useful to browse other posts while we write)
-						.setTitle(bundle.getString("forum.new-message.window-title"))
-						.setUserData(postRequest)
 						.build()
 						.open());
 	}

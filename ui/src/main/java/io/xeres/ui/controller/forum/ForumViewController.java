@@ -495,6 +495,7 @@ public class ForumViewController implements Controller
 			clearMessage();
 			newThread.setDisable(true);
 			forumMessagesState(false);
+			messageIdToSelect = null;
 		}));
 	}
 

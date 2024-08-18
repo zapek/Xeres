@@ -39,18 +39,21 @@ import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class EditorView extends VBox
 {
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination ENTER_INSERT_KEY = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
 	private static final int IMAGE_MAXIMUM_SIZE = 31000; // Same as the one in chat
+
+	private static final Pattern URL_DETECTOR = Pattern.compile("(^mailto:.*$|^\\p{Ll}.+://.*$)");
 
 	@FXML
 	private Button bold;
@@ -266,7 +269,7 @@ public class EditorView extends VBox
 		dialog.showAndWait().ifPresent(link -> {
 			if (isNotBlank(link))
 			{
-				if (!link.toLowerCase(Locale.ROOT).startsWith("https://"))
+				if (!URL_DETECTOR.matcher(link).matches())
 				{
 					link = "https://" + link;
 				}
@@ -337,5 +340,23 @@ public class EditorView extends VBox
 				event.consume();
 			}
 		}
+		else if (ENTER_INSERT_KEY.match(event))
+		{
+			completeStatement();
+		}
+	}
+
+	/**
+	 * Inserts a new line without cutting the current line.
+	 */
+	private void completeStatement()
+	{
+		var s = editor.getText(editor.getCaretPosition(), editor.getLength());
+		var eol = s.indexOf('\n');
+		if (eol == -1)
+		{
+			eol = s.length();
+		}
+		editor.insertText(editor.getCaretPosition() + eol, "\n");
 	}
 }

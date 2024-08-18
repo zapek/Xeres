@@ -58,7 +58,7 @@ public class ChannelUriFactory extends AbstractUriFactory
 
 		var channelUri = new ChannelUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
 
-		return new ContentUri(msgId, name, uri -> uriAction.openUri(channelUri));
+		return new ContentUri(msgId != null ? msgId : id, name, uri -> uriAction.openUri(channelUri));
 	}
 
 	public static String generate(String name, String id, String msgId)

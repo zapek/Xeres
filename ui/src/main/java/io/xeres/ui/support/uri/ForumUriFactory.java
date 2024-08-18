@@ -58,7 +58,7 @@ public class ForumUriFactory extends AbstractUriFactory
 
 		var forumUri = new ForumUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
 
-		return new ContentUri(msgId, name, uri -> uriAction.openUri(forumUri));
+		return new ContentUri(msgId != null ? msgId : id, name, uri -> uriAction.openUri(forumUri));
 	}
 
 	public static String generate(String name, GxsId id, MessageId msgId)

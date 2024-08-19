@@ -33,13 +33,18 @@ public final class ShareFakes
 
 	public static Share createShare(Path path)
 	{
-		var share = new Share();
 		File file = FileFakes.createFile(path.getRoot().toString(), null);
 
 		for (Path component : path)
 		{
 			file = FileFakes.createFile(component.getFileName().toString(), file);
 		}
+		return createShare(file);
+	}
+
+	public static Share createShare(File file)
+	{
+		var share = new Share();
 		share.setFile(file);
 		return share;
 	}

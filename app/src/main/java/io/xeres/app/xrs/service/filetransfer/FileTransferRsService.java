@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -207,13 +208,19 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash)
 	{
-		//
 		// - find file by encrypted hash (and get its real hash)
 		// - the correspondence can be put in the encryptedHashes, because the tunnel will likely be established
 		var file = fileService.findFileByEncryptedHash(hash);
 		if (file.isPresent())
 		{
 			log.debug("Found file {}", file.get());
+			var path = fileService.getFilePath(file.get());
+			if (!Files.isRegularFile(path))
+			{
+				log.debug("File {} doesn't exist on disk, not serving it and removing", file.get());
+				fileService.deleteFile(file.get());
+				return false;
+			}
 
 			// Add it to the encrypted hashes because it's going to be used soon
 			// to establish the tunnels
@@ -435,7 +442,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	 * Sends a chunk map request.
 	 *
 	 * @param location the location to send to (can be virtual)
-	 * @param hash the hash related to
+	 * @param hash     the hash related to
 	 * @param isClient if true, means that the message is for a client (that is, one that is currently downloading the file) instead of a server
 	 */
 	public void sendChunkMapRequest(Location location, Sha1Sum hash, boolean isClient)
@@ -498,10 +505,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	 * Sends data as a server.
 	 *
 	 * @param location  the location to send to (can be virtual too)
-	 * @param hash  the hash related to it
-	 * @param totalSize  the total size of the file
-	 * @param offset the offset within the file
-	 * @param data the data to send
+	 * @param hash      the hash related to it
+	 * @param totalSize the total size of the file
+	 * @param offset    the offset within the file
+	 * @param data      the data to send
 	 */
 	void sendData(Location location, Sha1Sum hash, long totalSize, long offset, byte[] data)
 	{

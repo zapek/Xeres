@@ -19,6 +19,7 @@
 
 package io.xeres.app.database.repository;
 
+import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.share.Share;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,4 +33,6 @@ public interface ShareRepository extends JpaRepository<Share, Long>
 	Optional<Share> findByName(String name);
 
 	Optional<Share> findShareByFileIdIn(Set<Long> fileId);
+
+	Optional<Share> findShareByFile(File file);
 }

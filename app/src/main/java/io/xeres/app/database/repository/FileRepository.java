@@ -40,6 +40,8 @@ public interface FileRepository extends JpaRepository<File, Long>
 
 	Optional<File> findByNameAndParentName(String name, String parentName);
 
+	int countByParent(File parent);
+
 	Optional<File> findByHash(Sha1Sum hash);
 
 	Optional<File> findByEncryptedHash(Sha1Sum encryptedHash);

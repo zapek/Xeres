@@ -20,8 +20,10 @@
 package io.xeres.app.service.file;
 
 import io.xeres.app.configuration.DataDirConfiguration;
+import io.xeres.app.database.model.file.FileFakes;
 import io.xeres.app.database.model.share.ShareFakes;
 import io.xeres.app.database.repository.FileRepository;
+import io.xeres.app.database.repository.ShareRepository;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.common.id.Id;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,12 +38,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class FileServiceTest
@@ -57,6 +59,9 @@ class FileServiceTest
 
 	@Mock
 	private FileRepository fileRepository;
+
+	@Mock
+	private ShareRepository shareRepository;
 
 	@InjectMocks
 	private FileService fileService;
@@ -93,4 +98,186 @@ class FileServiceTest
 		verify(fileNotificationService, times(2)).stopScanningFile();
 		verify(fileNotificationService).stopScanning();
 	}
+
+	@Test
+	void FileService_DeleteFile_SingleFile_OK()
+	{
+		// Root
+		var fileRoot = FileFakes.createFile("C:\\", null);
+
+		// Share
+		var fileGreatGrandParent = FileFakes.createFile("share", fileRoot);
+		var share = ShareFakes.createShare(fileGreatGrandParent);
+
+		var fileGrandParent = FileFakes.createFile("media", fileGreatGrandParent);
+
+		var fileParent = FileFakes.createFile("images", fileGrandParent);
+
+		var file = FileFakes.createFile("foobar.jpg", fileParent);
+
+		// C:\share\media\images\foobar.jpg
+
+		when(fileRepository.countByParent(fileParent)).thenReturn(1);
+		when(shareRepository.findShareByFile(fileParent)).thenReturn(Optional.empty());
+
+		when(fileRepository.countByParent(fileGrandParent)).thenReturn(1);
+		when(shareRepository.findShareByFile(fileGrandParent)).thenReturn(Optional.empty());
+
+		when(fileRepository.countByParent(fileGreatGrandParent)).thenReturn(1);
+		when(shareRepository.findShareByFile(fileGreatGrandParent)).thenReturn(Optional.of(share));
+
+		when(fileRepository.countByParent(fileRoot)).thenReturn(0);
+		when(shareRepository.findShareByFile(fileRoot)).thenReturn(Optional.empty());
+
+		fileService.deleteFile(file);
+
+		verify(fileRepository, times(0)).countByParent(file);
+		verify(shareRepository, times(0)).findShareByFile(file);
+
+		verify(fileRepository, times(1)).countByParent(fileParent);
+		verify(shareRepository, times(1)).findShareByFile(fileParent);
+
+		verify(fileRepository, times(1)).countByParent(fileGrandParent);
+		verify(shareRepository, times(1)).findShareByFile(fileGrandParent);
+
+		verify(fileRepository, times(1)).countByParent(fileGreatGrandParent);
+		verify(shareRepository, times(1)).findShareByFile(fileGreatGrandParent);
+
+		verify(fileRepository, times(0)).countByParent(fileRoot);
+		verify(shareRepository, times(0)).findShareByFile(fileRoot);
+
+		verify(fileRepository, times(0)).delete(file);
+		verify(fileRepository, times(1)).delete(fileGrandParent);
+	}
+
+	@Test
+	void FileService_DeleteFile_TwoFiles_OK()
+	{
+		// Root
+		var fileRoot = FileFakes.createFile("C:\\", null);
+
+		// Share
+		var fileGreatGrandParent = FileFakes.createFile("share", fileRoot);
+		var share = ShareFakes.createShare(fileGreatGrandParent);
+
+		var fileGrandParent = FileFakes.createFile("media", fileGreatGrandParent);
+
+		var fileParent = FileFakes.createFile("images", fileGrandParent);
+
+		var file = FileFakes.createFile("foobar.jpg", fileParent);
+		var file2 = FileFakes.createFile("plop.jpg", fileParent);
+
+		// C:\share\media\images\foobar.jpg and plop.jpg
+
+		when(fileRepository.countByParent(fileParent)).thenReturn(2);
+		when(shareRepository.findShareByFile(fileParent)).thenReturn(Optional.empty());
+
+		when(fileRepository.countByParent(fileGrandParent)).thenReturn(1);
+		when(shareRepository.findShareByFile(fileGrandParent)).thenReturn(Optional.empty());
+
+		fileService.deleteFile(file);
+
+		verify(fileRepository, times(0)).countByParent(file);
+		verify(shareRepository, times(0)).findShareByFile(file);
+
+		verify(fileRepository, times(1)).countByParent(fileParent);
+		verify(shareRepository, times(0)).findShareByFile(fileParent);
+
+		verify(fileRepository, times(0)).countByParent(fileGrandParent);
+		verify(shareRepository, times(0)).findShareByFile(fileGrandParent);
+
+		verify(fileRepository, times(0)).countByParent(fileGreatGrandParent);
+		verify(shareRepository, times(0)).findShareByFile(fileGreatGrandParent);
+
+		verify(fileRepository, times(0)).countByParent(fileRoot);
+		verify(shareRepository, times(0)).findShareByFile(fileRoot);
+
+		verify(fileRepository, times(1)).delete(file);
+		verify(fileRepository, times(0)).delete(fileGrandParent);
+	}
+
+	@Test
+	void FileService_DeleteFile_SingleFileButAnotherUpper_OK()
+	{
+		// Root
+		var fileRoot = FileFakes.createFile("C:\\", null);
+
+		// Share
+		var fileGreatGrandParent = FileFakes.createFile("share", fileRoot);
+		var share = ShareFakes.createShare(fileGreatGrandParent);
+
+		var fileGrandParent = FileFakes.createFile("media", fileGreatGrandParent);
+
+		var fileParent = FileFakes.createFile("images", fileGrandParent);
+		var fileParent2 = FileFakes.createFile("videos", fileGrandParent);
+
+		var file = FileFakes.createFile("foobar.jpg", fileParent);
+		var file2 = FileFakes.createFile("plop.avi", fileParent2);
+
+		// C:\share\media\images\foobar.jpg and plop.avi is in media\videos
+
+		when(fileRepository.countByParent(fileParent)).thenReturn(1);
+		when(shareRepository.findShareByFile(fileParent)).thenReturn(Optional.empty());
+
+		when(fileRepository.countByParent(fileGrandParent)).thenReturn(2);
+		when(shareRepository.findShareByFile(fileGrandParent)).thenReturn(Optional.empty());
+
+		fileService.deleteFile(file);
+
+		verify(fileRepository, times(0)).countByParent(file);
+		verify(shareRepository, times(0)).findShareByFile(file);
+
+		verify(fileRepository, times(1)).countByParent(fileParent);
+		verify(shareRepository, times(1)).findShareByFile(fileParent);
+
+		verify(fileRepository, times(1)).countByParent(fileGrandParent);
+		verify(shareRepository, times(0)).findShareByFile(fileGrandParent);
+
+		verify(fileRepository, times(0)).countByParent(fileGreatGrandParent);
+		verify(shareRepository, times(0)).findShareByFile(fileGreatGrandParent);
+
+		verify(fileRepository, times(0)).countByParent(fileRoot);
+		verify(shareRepository, times(0)).findShareByFile(fileRoot);
+
+		verify(fileRepository, times(0)).delete(file);
+		verify(fileRepository, times(1)).delete(fileParent);
+		verify(fileRepository, times(0)).delete(fileGrandParent);
+	}
+
+	@Test
+	void FileService_DeleteFile_SingleFileButNotShare_OK()
+	{
+		// Root
+		var fileRoot = FileFakes.createFile("C:\\", null);
+
+		// Share
+		var fileParent = FileFakes.createFile("share", fileRoot);
+		var share = ShareFakes.createShare(fileParent);
+
+		var file = FileFakes.createFile("foobar.jpg", fileParent);
+
+		// C:\share\foobar.jpg
+
+		when(fileRepository.countByParent(fileParent)).thenReturn(1);
+		when(shareRepository.findShareByFile(fileParent)).thenReturn(Optional.of(share));
+
+		when(fileRepository.countByParent(fileRoot)).thenReturn(1);
+		when(shareRepository.findShareByFile(fileRoot)).thenReturn(Optional.empty());
+
+		fileService.deleteFile(file);
+
+		verify(fileRepository, times(0)).countByParent(file);
+		verify(shareRepository, times(0)).findShareByFile(file);
+
+		verify(fileRepository, times(1)).countByParent(fileParent);
+		verify(shareRepository, times(1)).findShareByFile(fileParent);
+
+		verify(fileRepository, times(0)).countByParent(fileRoot);
+		verify(shareRepository, times(0)).findShareByFile(fileRoot);
+
+		verify(fileRepository, times(1)).delete(file);
+		verify(fileRepository, times(0)).delete(fileParent);
+		verify(fileRepository, times(0)).delete(fileRoot);
+	}
+
 }

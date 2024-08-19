@@ -112,13 +112,18 @@ public class FileService
 		updateBloomFilter();
 	}
 
+	/**
+	 * Adds a share.
+	 *
+	 * @param share the share, the name must be unique otherwise nothing is added
+	 */
 	public void addShare(Share share)
 	{
-		saveFullPath(share.getFile());
 		if (shareRepository.findByName(share.getName()).isPresent())
 		{
 			return;
 		}
+		saveFullPath(share.getFile());
 		shareRepository.save(share);
 	}
 
@@ -136,6 +141,12 @@ public class FileService
 		});
 	}
 
+	/**
+	 * Checks shares and scans the oldest one.
+	 * <p>
+	 * Note that the user might expect at most each {@link #SCAN_DELAY} for a new file to be picked up, that's why
+	 * the time spent while scanning is included.
+	 */
 	@Transactional
 	public void checkForSharesToScan()
 	{
@@ -153,12 +164,17 @@ public class FileService
 				});
 	}
 
+	/**
+	 * Synchronizes the list of shares.
+	 *
+	 * @param shares the list of shares to synchronize the database to.
+	 */
 	@Transactional
 	public void synchronize(List<Share> shares)
 	{
 		emptyIfNull(shares).forEach(share -> {
 			saveFullPath(share.getFile());
-			shareRepository.save(share); // XXX: not needed I think... it's a transactional
+			shareRepository.save(share);
 		});
 
 		var ids = shares.stream()
@@ -169,7 +185,7 @@ public class FileService
 		emptyIfNull(getShares()).forEach(share -> {
 			if (!ids.contains(share.getId()))
 			{
-				// XXX: make sure no indexing process is handling this, it will have to be aborted first then
+				// XXX: make sure no indexing process is handling this, it will have to be aborted first then. we need to store it in a list
 				var sharedDirectory = share.getFile();
 				shareRepository.delete(share);
 				fileRepository.delete(sharedDirectory);
@@ -177,11 +193,22 @@ public class FileService
 		});
 	}
 
+	/**
+	 * Gets the shares.
+	 *
+	 * @return the list of shares
+	 */
 	public List<Share> getShares()
 	{
 		return shareRepository.findAll();
 	}
 
+	/**
+	 * Gets a map that allows to find the path of a share.
+	 *
+	 * @param shares the list of shares
+	 * @return a map that can be used to find the path of the list of shares
+	 */
 	public Map<Long, String> getFilesMapFromShares(List<Share> shares)
 	{
 		return shares.stream()
@@ -225,6 +252,31 @@ public class FileService
 		Objects.requireNonNull(encryptedHash);
 
 		return findFileByEncryptedHash(encryptedHash).map(this::getFilePath);
+	}
+
+	/**
+	 * Deletes a file and its parents (if they're not the parent of other files, and they're not a share).
+	 *
+	 * @param file the file to delete
+	 */
+	public void deleteFile(File file)
+	{
+		var parents = getFullPath(file);
+		for (int i = parents.size() - 2; i >= 0; i--) // File is included in the path so -2 and we go up
+		{
+			var parent = parents.get(i);
+			if (fileRepository.countByParent(parent) != 1)
+			{
+				break;
+			}
+
+			if (shareRepository.findShareByFile(parent).isPresent())
+			{
+				break;
+			}
+			file = parent;
+		}
+		fileRepository.delete(file);
 	}
 
 	public List<File> searchFiles(String name)
@@ -450,7 +502,7 @@ public class FileService
 		}
 	}
 
-	private Path getFilePath(File file)
+	public Path getFilePath(File file)
 	{
 		if (file.hasParent())
 		{

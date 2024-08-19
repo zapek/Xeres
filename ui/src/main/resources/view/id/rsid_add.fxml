@@ -20,7 +20,7 @@
   -->
 
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
@@ -85,7 +85,11 @@
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rsid.add.addresses.tip"/>
                     </tooltip>
                 </ComboBox>
-                <ImageView fx:id="imageFlag"/>
+                <ImageView fx:id="imageFlag">
+                    <HBox.margin>
+                        <Insets left="8.0"/>
+                    </HBox.margin>
+                </ImageView>
             </HBox>
             <Label text="%rsid.add.trust" GridPane.rowIndex="5"/>
             <ChoiceBox fx:id="trust" GridPane.columnIndex="1" GridPane.rowIndex="5" minWidth="150.0">

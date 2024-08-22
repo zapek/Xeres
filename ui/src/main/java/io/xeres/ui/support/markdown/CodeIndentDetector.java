@@ -40,6 +40,6 @@ class CodeIndentDetector implements MarkdownDetector
 		{
 			line = line.substring(4);
 		}
-		context.addContent(new ContentCode(line.stripTrailing() + context.getLn()));
+		context.addContent(new ContentCode(line.stripTrailing() + "\n"));
 	}
 }

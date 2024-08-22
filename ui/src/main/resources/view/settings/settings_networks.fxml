@@ -49,12 +49,12 @@
                     <InputGroup GridPane.columnIndex="1">
                         <TextField fx:id="torSocksHost" promptText="%settings.network.tor-proxy.prompt" HBox.hgrow="ALWAYS">
                             <tooltip>
-                                <Tooltip prefWidth="300" wrapText="true" showDuration="1m" text="%settings.network.tor-proxy.tip"/>
+                                <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="%settings.network.tor-proxy.tip"/>
                             </tooltip>
                         </TextField>
                         <TextField fx:id="torSocksPort" promptText="%settings.network.port" minWidth="65.0" prefWidth="70.0">
                             <tooltip>
-                                <Tooltip prefWidth="300" wrapText="true" showDuration="1m" text="%settings.network.tor-port.tip"/>
+                                <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="%settings.network.tor-port.tip"/>
                             </tooltip>
                         </TextField>
                     </InputGroup>

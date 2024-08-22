@@ -5,7 +5,7 @@ import javafx.scene.text.Text;
 
 public class ContentHeader implements Content
 {
-	private final Text node;
+	private Text node;
 
 	public ContentHeader(String text, int size)
 	{
@@ -17,6 +17,18 @@ public class ContentHeader implements Content
 	public Node getNode()
 	{
 		return node;
+	}
+
+	@Override
+	public void stripTrailingLn()
+	{
+		var text = node.getText();
+		if (text.endsWith("\n"))
+		{
+			var styleBackup = node.getStyle();
+			node = new Text(text.substring(0, text.length() - 1));
+			node.setStyle(styleBackup);
+		}
 	}
 
 	private static int getHeaderFontSize(int size)

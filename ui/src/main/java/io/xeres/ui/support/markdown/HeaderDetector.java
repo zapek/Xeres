@@ -56,6 +56,6 @@ class HeaderDetector implements MarkdownDetector
 		{
 			size = 6;
 		}
-		context.addContent(new ContentHeader(line.substring(size).trim() + context.getLn(), size));
+		context.addContent(new ContentHeader(line.substring(size).trim() + "\n", size));
 	}
 }

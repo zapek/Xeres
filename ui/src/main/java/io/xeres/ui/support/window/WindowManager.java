@@ -28,7 +28,10 @@ import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.OpenUriEvent;
-import io.xeres.ui.client.*;
+import io.xeres.ui.client.ForumClient;
+import io.xeres.ui.client.LocationClient;
+import io.xeres.ui.client.ProfileClient;
+import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.controller.WindowController;
@@ -98,12 +101,11 @@ public class WindowManager
 	private static AppThemeManager appThemeManager;
 
 	private static WindowBorder windowBorder;
-	private final GeneralClient generalClient;
 	private Window rootWindow;
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager, GeneralClient generalClient)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -116,7 +118,6 @@ public class WindowManager
 		WindowManager.bundle = bundle;
 		WindowManager.preferenceService = preferenceService;
 		WindowManager.appThemeManager = appThemeManager;
-		this.generalClient = generalClient;
 	}
 
 	public void setRootWindow(Window window)
@@ -184,14 +185,27 @@ public class WindowManager
 		Platform.runLater(() ->
 				getOpenedWindow(MessagingWindowController.class, locationId).ifPresentOrElse(window ->
 						{
-							window.requestFocus();
+							if (chatMessage == null)
+							{
+								// The user opened the window, and it's already open somewhere. Focus it.
+								window.requestFocus();
+							}
+							else
+							{
+								// If there's an incoming message, and we aren't working in another part of the
+								// app, this will make the taskbar blink if the window is in there.
+								if (!chatMessage.isEmpty() && !isAnyWindowFocused())
+								{
+									window.requestFocus();
+								}
+							}
 							((MessagingWindowController) window.getUserData()).showMessage(chatMessage);
 						},
 						() ->
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double-click)
 							{
-								var messaging = new MessagingWindowController(profileClient, generalClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle);
+								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
@@ -491,6 +505,12 @@ public class WindowManager
 		return Window.getWindows();
 	}
 
+	static boolean isAnyWindowFocused()
+	{
+		return Window.getWindows().stream()
+				.filter(Window::isFocused)
+				.findFirst().orElse(null) != null;
+	}
 
 	static final class UiWindow
 	{

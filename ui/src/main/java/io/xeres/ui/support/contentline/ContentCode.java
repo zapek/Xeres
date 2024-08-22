@@ -24,17 +24,30 @@ import javafx.scene.text.Text;
 
 public class ContentCode implements Content
 {
-	private final Text node;
+	private static final String STYLE = "-fx-font-family: \"monospace\"";
+
+	private Text node;
 
 	public ContentCode(String text)
 	{
 		node = new Text(text);
-		node.setStyle("-fx-font-family: \"monospace\"");
+		node.setStyle(STYLE);
 	}
 
 	@Override
 	public Node getNode()
 	{
 		return node;
+	}
+
+	@Override
+	public void stripTrailingLn()
+	{
+		var text = node.getText();
+		if (text.endsWith("\n"))
+		{
+			node = new Text(text.substring(0, text.length() - 1));
+			node.setStyle(STYLE);
+		}
 	}
 }

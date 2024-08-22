@@ -47,12 +47,17 @@ class Context
 	private boolean isLine;
 	private final Set<MarkdownDetector> usedDetectors = new HashSet<>();
 	private int previousDetectorNum;
+	private String finalChar = "";
 
 	public Context(String input, EmojiService emojiService, Set<ParsingMode> options, UriAction uriAction)
 	{
 		this.options = options;
 		this.emojiService = emojiService;
 		this.uriAction = uriAction;
+		if (input.endsWith("\n"))
+		{
+			finalChar = "\n"; // Do not strip any final \n
+		}
 		scanner = new Scanner(sanitize(input));
 	}
 
@@ -63,6 +68,11 @@ class Context
 
 	public List<Content> getContent()
 	{
+		// Remove useless trailing \n, if any
+		if (options.contains(ParsingMode.ONE_LINER) && !isEmpty())
+		{
+			content.getLast().stripTrailingLn();
+		}
 		return content;
 	}
 
@@ -120,7 +130,7 @@ class Context
 			}
 		}
 		isLine = true;
-		return scanner.nextLine() + getLn();
+		return scanner.nextLine() + (scanner.hasNextLine() ? "\n" : finalChar);
 	}
 
 	public boolean isLine()
@@ -161,11 +171,6 @@ class Context
 			usedDetectors.clear(); // We're done here
 			previousDetectorNum = 0;
 		}
-	}
-
-	public String getLn()
-	{
-		return options.contains(ParsingMode.ONE_LINER) ? "" : "\n";
 	}
 
 	/**

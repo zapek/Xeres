@@ -149,7 +149,12 @@ class MarkdownServiceTest extends FXTest
 				""";
 
 		var wanted = """
-				Line1Line2 with trailsLine3Line4""";
+				Line1
+				
+				Line2 with trails
+				
+				Line3
+				Line4""";
 
 		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
 

@@ -25,13 +25,11 @@ import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
-import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
-import io.xeres.ui.custom.AsyncImageView;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -47,7 +45,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -73,8 +71,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
-import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @FxmlView(value = "/view/messaging/messaging.fxml")
@@ -87,21 +85,16 @@ public class MessagingWindowController implements WindowController
 	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination CTRL_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN);
 
 	@FXML
-	private TextField send;
+	private TextArea send;
 
 	@FXML
 	private TypingNotificationView notification;
 
 	@FXML
 	private VBox content;
-
-	@FXML
-	private AsyncImageView ownAvatar;
-
-	@FXML
-	private ImageView targetAvatar;
 
 	@FXML
 	private Button addImage;
@@ -114,7 +107,6 @@ public class MessagingWindowController implements WindowController
 	private ChatListView receive;
 
 	private final ProfileClient profileClient;
-	private final GeneralClient generalClient;
 	private final MarkdownService markdownService;
 	private final WindowManager windowManager;
 	private final UriService uriService;
@@ -129,10 +121,9 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, GeneralClient generalClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
+	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
 	{
 		this.profileClient = profileClient;
-		this.generalClient = generalClient;
 		this.windowManager = windowManager;
 		this.uriService = uriService;
 		this.messageClient = messageClient;
@@ -151,20 +142,19 @@ public class MessagingWindowController implements WindowController
 
 		send.setOnKeyPressed(event ->
 		{
-			if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
+			if (CTRL_ENTER.match(event) && isNotBlank(send.getText()))
+			{
+				send.insertText(send.getCaretPosition(), "\n");
+				sendTypingNotificationIfNeeded();
+			}
+			else if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
 			{
 				sendMessage(send.getText());
 				lastTypingNotification = Instant.EPOCH;
 			}
 			else
 			{
-				var now = Instant.now();
-				if (java.time.Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
-				{
-					var message = new ChatMessage();
-					messageClient.sendToLocation(locationId, message);
-					lastTypingNotification = now;
-				}
+				sendTypingNotificationIfNeeded();
 			}
 		});
 
@@ -209,10 +199,29 @@ public class MessagingWindowController implements WindowController
 
 	private void sendMessage(String message)
 	{
+		if (isEmpty(message))
+		{
+			return;
+		}
+		if (message.endsWith("\n")) // TextArea ends all messages with \n so we need to strip
+		{
+			message = message.substring(0, message.length() - 1);
+		}
 		var chatMessage = new ChatMessage(message);
 		messageClient.sendToLocation(locationId, chatMessage);
 		receive.addOwnMessage(message);
 		send.clear();
+	}
+
+	private void sendTypingNotificationIfNeeded()
+	{
+		var now = Instant.now();
+		if (java.time.Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
+		{
+			var message = new ChatMessage();
+			messageClient.sendToLocation(locationId, message);
+			lastTypingNotification = now;
+		}
 	}
 
 	private void setupChatListView(String nickname, long id)
@@ -291,7 +300,6 @@ public class MessagingWindowController implements WindowController
 				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 
-		ownAvatar.loadUrl(IDENTITIES_PATH + "/" + 1L + "/image", url -> generalClient.getImage(url).block());
 		messageClient.requestAvatar(locationId);
 	}
 
@@ -315,7 +323,9 @@ public class MessagingWindowController implements WindowController
 	{
 		if (chatAvatar.getImage() != null)
 		{
-			targetAvatar.setImage(new Image(new ByteArrayInputStream(chatAvatar.getImage())));
+			var avatarImage = new Image(new ByteArrayInputStream(chatAvatar.getImage()));
+			var stage = (Stage) getWindow(send);
+			stage.getIcons().add(avatarImage);
 		}
 	}
 

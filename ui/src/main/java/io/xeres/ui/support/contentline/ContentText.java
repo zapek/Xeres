@@ -24,7 +24,7 @@ import javafx.scene.text.Text;
 
 public class ContentText implements Content
 {
-	private final Text node;
+	private Text node;
 	private boolean complete;
 
 	public ContentText(String text)
@@ -53,6 +53,16 @@ public class ContentText implements Content
 	public String asText()
 	{
 		return node.getText();
+	}
+
+	@Override
+	public void stripTrailingLn()
+	{
+		var text = node.getText();
+		if (text.endsWith("\n"))
+		{
+			node = new Text(text.substring(0, text.length() - 1));
+		}
 	}
 
 	public static final ContentText EMPTY = new ContentText("");

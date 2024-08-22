@@ -17,7 +17,12 @@ public class MarkdownService
 {
 	public enum ParsingMode
 	{
-		ONE_LINER, // don't add a \n at the end of the last line (for 1 line chats)
+		/**
+		 * Tries to avoid spurious \n. This is mostly useful for chats where
+		 * you want to try to keep it on one line while still allowing to
+		 * write multiple lines.
+		 */
+		ONE_LINER, // try to avoid spurious \n (for chats)
 		PARAGRAPH, // convert \n at end of lines to spaces
 	}
 

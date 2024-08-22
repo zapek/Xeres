@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,22 +19,13 @@
 
 package io.xeres.app.xrs.service.status;
 
-import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.xrs.service.status.ChatStatus.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class StatusTest
+public enum ChatStatus
 {
-	@Test
-	void Status_Enum_Order()
-	{
-		assertEquals(0, OFFLINE.ordinal());
-		assertEquals(1, AWAY.ordinal());
-		assertEquals(2, BUSY.ordinal());
-		assertEquals(3, ONLINE.ordinal());
-		assertEquals(4, INACTIVE.ordinal());
-
-		assertEquals(5, values().length);
-	}
+	// Order and values matter
+	OFFLINE,
+	AWAY,
+	BUSY,
+	ONLINE,
+	INACTIVE // RS uses that like "Away" except it's automatic. We don't use it.
 }

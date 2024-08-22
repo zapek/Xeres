@@ -20,6 +20,7 @@
 package io.xeres.common.dto.location;
 
 import io.xeres.common.dto.connection.ConnectionDTOFakes;
+import io.xeres.common.location.Availability;
 import io.xeres.testutils.BooleanFakes;
 import io.xeres.testutils.IdFakes;
 import io.xeres.testutils.StringFakes;
@@ -36,6 +37,6 @@ public final class LocationDTOFakes
 
 	public static LocationDTO create()
 	{
-		return new LocationDTO(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createLocationId().getBytes(), StringFakes.createNickname(), List.of(ConnectionDTOFakes.createConnectionDTO()), BooleanFakes.create(), TimeFakes.createInstant());
+		return new LocationDTO(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createLocationId().getBytes(), StringFakes.createNickname(), List.of(ConnectionDTOFakes.createConnectionDTO()), BooleanFakes.create(), TimeFakes.createInstant(), Availability.AVAILABLE);
 	}
 }

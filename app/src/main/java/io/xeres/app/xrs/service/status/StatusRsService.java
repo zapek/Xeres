@@ -21,34 +21,40 @@ package io.xeres.app.xrs.service.status;
 
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.status.item.StatusItem;
+import io.xeres.common.location.Availability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.STATUS;
-import static io.xeres.app.xrs.service.status.item.StatusItem.Status.ONLINE;
+import static io.xeres.common.message.MessageType.CHAT_AVAILABILITY;
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Component
 public class StatusRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(StatusRsService.class);
 
-	private StatusItem.Status status = ONLINE;
+	private Availability availability = Availability.AVAILABLE;
 
 	private final PeerConnectionManager peerConnectionManager;
+	private final LocationService locationService;
 
-	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager)
+	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
+		this.locationService = locationService;
 	}
 
 	@Override
@@ -67,27 +73,51 @@ public class StatusRsService extends RsService
 	public void initialize(PeerConnection peerConnection)
 	{
 		peerConnection.schedule(
-				() -> peerConnectionManager.writeItem(peerConnection, new StatusItem(status), this),
+				() -> peerConnectionManager.writeItem(peerConnection, new StatusItem(ChatStatus.ONLINE), this),
 				0,
 				TimeUnit.SECONDS);
 	}
 
+	@Transactional
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
-		// XXX: print peer's status (ideally refresh a list)
 		if (item instanceof StatusItem statusItem)
 		{
 			log.debug("Got status {} from peer {}", statusItem.getStatus(), sender);
+			var newStatus = toAvailability(statusItem.getStatus());
+			locationService.setAvailability(sender.getLocation(), newStatus);
+			peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, sender.getLocation().getLocationId(), newStatus);
 		}
 	}
 
-	public void changeStatus(StatusItem.Status status)
+	private Availability toAvailability(ChatStatus status)
 	{
-		if (status != this.status)
+		return switch (status)
 		{
-			this.status = status;
-			peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new StatusItem(status), this), this);
+			case ONLINE -> Availability.AVAILABLE;
+			case AWAY, INACTIVE, OFFLINE -> Availability.AWAY;
+			case BUSY -> Availability.BUSY;
+		};
+	}
+
+	private ChatStatus toChatStatus(Availability availability)
+	{
+		return switch (availability)
+		{
+			case AVAILABLE -> ChatStatus.ONLINE;
+			case AWAY -> ChatStatus.AWAY;
+			case BUSY -> ChatStatus.BUSY;
+		};
+	}
+
+	public void changeAvailability(Availability availability)
+	{
+		if (availability != this.availability)
+		{
+			this.availability = availability;
+			locationService.setAvailability(locationService.findOwnLocation().orElseThrow(), availability);
+			peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new StatusItem(toChatStatus(availability)), this), this);
 		}
 	}
 }

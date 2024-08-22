@@ -21,6 +21,7 @@ package io.xeres.ui.support.window;
 
 import io.xeres.common.AppName;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
@@ -226,8 +227,18 @@ public class WindowManager
 		);
 	}
 
+	public void sendMessaging(String locationId, Availability availability)
+	{
+		Platform.runLater(() ->
+				getOpenedWindow(MessagingWindowController.class, locationId).ifPresent(window ->
+						((MessagingWindowController) window.getUserData()).setAvailability(availability)
+				)
+		);
+	}
+
 	public void openAbout()
 	{
+
 		Platform.runLater(() ->
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(rootWindow)

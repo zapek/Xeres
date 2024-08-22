@@ -21,6 +21,7 @@ package io.xeres.ui.controller.messaging;
 
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
@@ -107,6 +108,8 @@ public class MessagingWindowController implements WindowController
 
 	@FXML
 	private Button addFile;
+
+	private Availability availability = Availability.AVAILABLE;
 
 	private ChatListView receive;
 
@@ -270,13 +273,13 @@ public class MessagingWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
-		profileClient.findByLocationId(locationId).collectList()
+		profileClient.findByLocationId(locationId, true).collectList()
 				.doOnSuccess(profiles -> {
 					targetProfile = profiles.stream().findFirst().orElseThrow();
-					var stage = (Stage) getWindow(send);
 					Platform.runLater(() ->
 					{
-						stage.setTitle(targetProfile.getName()); // XXX: add the location name? yes but we need to retrieve the location then
+						setAvailability(targetProfile.getLocations().getFirst().getAvailability());
+						updateTitle();
 						var chatMessage = (ChatMessage) send.getScene().getRoot().getUserData();
 						if (chatMessage != null)
 						{
@@ -314,6 +317,28 @@ public class MessagingWindowController implements WindowController
 		{
 			targetAvatar.setImage(new Image(new ByteArrayInputStream(chatAvatar.getImage())));
 		}
+	}
+
+	public void setAvailability(Availability availability)
+	{
+		this.availability = availability;
+		updateTitle();
+	}
+
+	private void updateTitle()
+	{
+		var stage = (Stage) getWindow(send);
+		stage.setTitle(targetProfile.getName() + " @ " + targetProfile.getLocations().getFirst().getName() + getAvailability());
+	}
+
+	private String getAvailability()
+	{
+		return switch (availability)
+		{
+			case AVAILABLE -> "";
+			case AWAY -> " (Away)";
+			case BUSY -> " (Busy)";
+		};
 	}
 
 	private void handleInputKeys(KeyEvent event)

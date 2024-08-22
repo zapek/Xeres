@@ -19,6 +19,7 @@
 
 package io.xeres.app.job;
 
+import io.xeres.app.service.PeerService;
 import io.xeres.app.xrs.service.status.IdleChecker;
 import io.xeres.app.xrs.service.status.StatusRsService;
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static io.xeres.app.xrs.service.status.item.StatusItem.Status.AWAY;
-import static io.xeres.app.xrs.service.status.item.StatusItem.Status.ONLINE;
+import static io.xeres.common.location.Availability.AVAILABLE;
+import static io.xeres.common.location.Availability.AWAY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -37,6 +38,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 class IdleDetectionJobTest
 {
+	@Mock
+	private PeerService peerService;
+
 	@Mock
 	private StatusRsService statusRsService;
 
@@ -49,12 +53,13 @@ class IdleDetectionJobTest
 	@Test
 	void IdleDetectionJob_IsOnline()
 	{
+		when(peerService.isRunning()).thenReturn(true);
 		when(idleChecker.getIdleTime()).thenReturn(0);
 
 		idleDetectionJob.checkIdle();
 
-		verify(statusRsService).changeStatus(argThat(status -> {
-			assertEquals(ONLINE, status);
+		verify(statusRsService).changeAvailability(argThat(status -> {
+			assertEquals(AVAILABLE, status);
 			return true;
 		}));
 	}
@@ -62,11 +67,12 @@ class IdleDetectionJobTest
 	@Test
 	void IdleDetectionJob_IsAway()
 	{
+		when(peerService.isRunning()).thenReturn(true);
 		when(idleChecker.getIdleTime()).thenReturn(60 * 5 + 1);
 
 		idleDetectionJob.checkIdle();
 
-		verify(statusRsService).changeStatus(argThat(status -> {
+		verify(statusRsService).changeAvailability(argThat(status -> {
 			assertEquals(AWAY, status);
 			return true;
 		}));

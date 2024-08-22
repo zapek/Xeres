@@ -130,6 +130,7 @@ public class NetworkService
 			var localPort = configureLocalPort();
 
 			locationService.markAllConnectionsAsDisconnected();
+			locationService.markAsAvailable();
 
 			log.info("Starting network services...");
 			var ownAddress = PeerAddress.from(localIpAddress, localPort);

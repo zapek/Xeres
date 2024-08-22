@@ -19,6 +19,7 @@
 
 package io.xeres.ui.client.message;
 
+import io.xeres.common.location.Availability;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.controller.chat.ChatViewController;
@@ -70,6 +71,7 @@ public class ChatFrameHandler implements StompFrameHandler
 					case CHAT_ROOM_USER_TIMEOUT -> ChatRoomTimeoutEvent.class;
 					case CHAT_ROOM_INVITE -> ChatRoomInviteEvent.class;
 					case CHAT_BROADCAST_MESSAGE -> Void.class;
+					case CHAT_AVAILABILITY -> Availability.class;
 				};
 	}
 
@@ -82,6 +84,7 @@ public class ChatFrameHandler implements StompFrameHandler
 					{
 						case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(headers.getFirst(DESTINATION_ID), (ChatMessage) payload);
 						case CHAT_AVATAR -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (ChatAvatar) payload);
+						case CHAT_AVAILABILITY -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (Availability) payload);
 						case CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
 						case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
 						case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));

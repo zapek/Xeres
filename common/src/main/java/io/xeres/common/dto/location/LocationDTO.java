@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.xeres.common.dto.connection.ConnectionDTO;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.location.Availability;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -53,7 +54,9 @@ public record LocationDTO(
 
 		boolean connected,
 
-		Instant lastConnected
+		Instant lastConnected,
+
+		Availability availability
 )
 {
 	public LocationDTO

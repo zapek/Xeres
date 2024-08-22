@@ -29,6 +29,7 @@ import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.util.NetworkMode;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.location.Availability;
 import io.xeres.common.protocol.NetMode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -189,6 +190,13 @@ public class LocationService
 		locationRepository.putAllConnectedToFalse();
 	}
 
+	public void markAsAvailable()
+	{
+		var ownLocation = findOwnLocation().orElseThrow();
+		ownLocation.setAvailability(Availability.AVAILABLE);
+		locationRepository.save(ownLocation);
+	}
+
 	@Transactional
 	public void setConnected(Location location, SocketAddress socketAddress)
 	{
@@ -215,6 +223,13 @@ public class LocationService
 	{
 		location.setConnected(false);
 		locationRepository.save(location); // This is needed because PeerHandler calls it from a non managed context
+	}
+
+	@Transactional
+	public void setAvailability(Location location, Availability availability)
+	{
+		location.setAvailability(availability);
+		locationRepository.save(location);
 	}
 
 	@Transactional

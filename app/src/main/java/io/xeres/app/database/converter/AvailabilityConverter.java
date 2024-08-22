@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,24 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.status;
+package io.xeres.app.database.converter;
 
-import org.junit.jupiter.api.Test;
+import io.xeres.common.location.Availability;
+import jakarta.persistence.Converter;
 
-import static io.xeres.app.xrs.service.status.ChatStatus.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class StatusTest
+@Converter
+public class AvailabilityConverter extends EnumConverter<Availability>
 {
-	@Test
-	void Status_Enum_Order()
+	@Override
+	Class<Availability> getEnumClass()
 	{
-		assertEquals(0, OFFLINE.ordinal());
-		assertEquals(1, AWAY.ordinal());
-		assertEquals(2, BUSY.ordinal());
-		assertEquals(3, ONLINE.ordinal());
-		assertEquals(4, INACTIVE.ordinal());
-
-		assertEquals(5, values().length);
+		return Availability.class;
 	}
 }

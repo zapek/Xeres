@@ -20,6 +20,7 @@
 package io.xeres.ui.model.location;
 
 import io.xeres.common.id.LocationId;
+import io.xeres.common.location.Availability;
 import io.xeres.ui.model.connection.Connection;
 
 import java.time.Instant;
@@ -35,6 +36,7 @@ public class Location
 	private final List<Connection> connections = new ArrayList<>();
 	private boolean connected;
 	private Instant lastConnected;
+	private Availability availability;
 
 	public long getId()
 	{
@@ -99,5 +101,15 @@ public class Location
 	public void setLastConnected(Instant lastConnected)
 	{
 		this.lastConnected = lastConnected;
+	}
+
+	public Availability getAvailability()
+	{
+		return availability;
+	}
+
+	public void setAvailability(Availability availability)
+	{
+		this.availability = availability;
 	}
 }

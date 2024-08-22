@@ -106,12 +106,13 @@ public class ProfileClient
 				.map(ProfileMapper::fromDeepDTO);
 	}
 
-	public Flux<Profile> findByLocationId(LocationId locationId)
+	public Flux<Profile> findByLocationId(LocationId locationId, boolean withLocations)
 	{
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
 						.path("")
 						.queryParam("locationId", locationId.toString())
+						.queryParam("withLocations", withLocations)
 						.build())
 				.retrieve()
 				.bodyToFlux(ProfileDTO.class)

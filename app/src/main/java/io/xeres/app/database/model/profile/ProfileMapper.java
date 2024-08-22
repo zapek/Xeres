@@ -21,6 +21,7 @@ package io.xeres.app.database.model.profile;
 
 import io.xeres.app.database.model.location.LocationMapper;
 import io.xeres.common.dto.profile.ProfileDTO;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.id.ProfileFingerprint;
 
 import java.util.ArrayList;
@@ -56,18 +57,38 @@ public final class ProfileMapper
 
 	public static ProfileDTO toDeepDTO(Profile profile)
 	{
+		return toDeepDTO(profile, null);
+	}
+
+	public static ProfileDTO toDeepDTO(Profile profile, LocationId locationId)
+	{
 		if (profile == null)
 		{
 			return null;
 		}
-		var profileDTO = toDTO(profile);
 
+		var profileDTO = toDTO(profile);
 		profileDTO.locations().addAll(profile.getLocations().stream()
+				.sorted((o1, o2) -> {
+					// Return the passed locationId as first. We don't care about the rest
+					if (locationId != null)
+					{
+						if (o1.getLocationId().equals(locationId))
+						{
+							return -1;
+						}
+						else if (o2.getLocationId().equals(locationId))
+						{
+							return 1;
+						}
+					}
+					return 0;
+				})
 				.map(LocationMapper::toDeepDTO)
 				.toList());
-
 		return profileDTO;
 	}
+
 
 	public static List<ProfileDTO> toDTOs(List<Profile> profiles)
 	{

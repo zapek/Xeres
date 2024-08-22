@@ -40,7 +40,7 @@ public abstract class RsService implements Comparable<RsService>
 	public abstract RsServiceType getServiceType();
 
 	/**
-	 * Handle incoming items. You can use JPA calls in there.
+	 * Handle incoming items. You can use JPA calls in there if your implementation is annotated with @Transactional.
 	 *
 	 * @param sender the peer sending the item
 	 * @param item   the item
@@ -111,7 +111,7 @@ public abstract class RsService implements Comparable<RsService>
 	}
 
 	@EventListener
-	public void init(NetworkReadyEvent event)
+	public void init(NetworkReadyEvent unused)
 	{
 		if (enabled && !initialized)
 		{
@@ -131,7 +131,7 @@ public abstract class RsService implements Comparable<RsService>
 	}
 
 	@EventListener
-	public void onApplicationEvent(ContextClosedEvent event)
+	public void onApplicationEvent(ContextClosedEvent unused)
 	{
 		if (enabled)
 		{

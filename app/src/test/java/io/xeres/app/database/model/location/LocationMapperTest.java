@@ -22,6 +22,7 @@ package io.xeres.app.database.model.location;
 import io.xeres.app.database.model.connection.ConnectionFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.common.dto.location.LocationDTO;
+import io.xeres.common.location.Availability;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
@@ -73,7 +74,8 @@ class LocationMapperTest
 				"foo",
 				null,
 				true,
-				Instant.now()
+				Instant.now(),
+				Availability.AVAILABLE
 		);
 
 		var location = LocationMapper.fromDTO(locationDTO);

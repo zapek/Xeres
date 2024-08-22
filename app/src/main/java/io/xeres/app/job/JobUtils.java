@@ -21,9 +21,6 @@ package io.xeres.app.job;
 
 import io.xeres.app.XeresApplication;
 import io.xeres.app.service.PeerService;
-import io.xeres.common.properties.StartupProperties;
-
-import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 
 public final class JobUtils
 {
@@ -35,12 +32,6 @@ public final class JobUtils
 	@SuppressWarnings("RedundantIfStatement")
 	static boolean canRun(PeerService peerService)
 	{
-		// Do not execute if we're in server mode (i.e. only accepting connections)
-		if (StartupProperties.getBoolean(SERVER_ONLY, false))
-		{
-			return false;
-		}
-
 		// Do not execute if we're only a remote UI client
 		if (XeresApplication.isRemoteUiClient())
 		{

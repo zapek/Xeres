@@ -21,6 +21,7 @@ package io.xeres.app.database.model.location;
 
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdBuilder;
+import io.xeres.app.database.converter.AvailabilityConverter;
 import io.xeres.app.database.converter.NetModeConverter;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.gxs.GxsClientUpdate;
@@ -29,6 +30,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.backup.LocationIdXmlAdapter;
 import io.xeres.app.service.backup.RSIdXmlAdapter;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.location.Availability;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.common.rsid.Type;
 import jakarta.persistence.*;
@@ -87,6 +89,9 @@ public class Location implements Comparable<Location>
 
 	@Convert(converter = NetModeConverter.class)
 	private NetMode netMode = NetMode.UNKNOWN;
+
+	@Convert(converter = AvailabilityConverter.class)
+	private Availability availability = Availability.AVAILABLE;
 
 	protected Location()
 	{
@@ -276,6 +281,16 @@ public class Location implements Comparable<Location>
 	public void setNetMode(NetMode netMode)
 	{
 		this.netMode = netMode;
+	}
+
+	public Availability getAvailability()
+	{
+		return availability;
+	}
+
+	public void setAvailability(Availability availability)
+	{
+		this.availability = availability;
 	}
 
 	public void setLocationId(LocationId locationId)

@@ -22,32 +22,24 @@ package io.xeres.app.xrs.service.status.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.status.ChatStatus;
 
 import java.time.Instant;
 
 public class StatusItem extends Item
 {
-	public enum Status
-	{
-		OFFLINE,
-		AWAY,
-		BUSY,
-		ONLINE,
-		INACTIVE
-	}
-
 	@RsSerialized
 	private int sendTime;
 
 	@RsSerialized
-	private Status status;
+	private ChatStatus status;
 
 	@SuppressWarnings("unused")
 	public StatusItem()
 	{
 	}
 
-	public StatusItem(Status status)
+	public StatusItem(ChatStatus status)
 	{
 		sendTime = (int) Instant.now().getEpochSecond();
 		this.status = status;
@@ -70,7 +62,7 @@ public class StatusItem extends Item
 		return sendTime;
 	}
 
-	public Enum<Status> getStatus()
+	public ChatStatus getStatus()
 	{
 		return status;
 	}

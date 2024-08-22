@@ -27,6 +27,7 @@ import io.xeres.app.net.peer.bootstrap.PeerTorClient;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.PeerService;
+import io.xeres.common.properties.StartupProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,6 +35,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
+
+import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 
 /**
  * Handles automatic outgoing connections to peers.
@@ -66,9 +69,15 @@ public class PeerConnectionJob
 		connectToPeers();
 	}
 
+	private boolean canRun()
+	{
+		// Also do not execute if we're in server mode (i.e. only accepting connections)
+		return JobUtils.canRun(peerService) && !StartupProperties.getBoolean(SERVER_ONLY, false);
+	}
+
 	private void connectToPeers()
 	{
-		if (!JobUtils.canRun(peerService))
+		if (!canRun())
 		{
 			return;
 		}
@@ -85,7 +94,7 @@ public class PeerConnectionJob
 
 	public void connectImmediately(Location location, int connectionIndex)
 	{
-		if (!JobUtils.canRun(peerService))
+		if (!canRun())
 		{
 			return;
 		}

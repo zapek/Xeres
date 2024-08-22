@@ -81,7 +81,9 @@ public class ProfileController
 	@GetMapping
 	@Operation(summary = "Search all profiles", description = "If no search parameters are provided, return all profiles")
 	@ApiResponse(responseCode = "200", description = "All matched profiles")
-	public List<ProfileDTO> findProfiles(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "locationId", required = false) String locationId)
+	public List<ProfileDTO> findProfiles(@RequestParam(value = "name", required = false) String name,
+	                                     @RequestParam(value = "locationId", required = false) String locationId,
+	                                     @RequestParam(value = "withLocations", required = false) Boolean withLocations)
 	{
 		if (isNotBlank(name))
 		{
@@ -89,8 +91,9 @@ public class ProfileController
 		}
 		else if (isNotBlank(locationId))
 		{
-			var profile = profileService.findProfileByLocationId(new LocationId(locationId));
-			return profile.map(p -> List.of(toDTO(p))).orElse(Collections.emptyList());
+			var locationIdentifier = new LocationId(locationId);
+			var profile = profileService.findProfileByLocationId(locationIdentifier);
+			return profile.map(p -> List.of(Boolean.TRUE.equals(withLocations) ? toDeepDTO(p, locationIdentifier) : toDTO(p))).orElse(Collections.emptyList());
 		}
 		return toDTOs(profileService.getAllProfiles());
 	}

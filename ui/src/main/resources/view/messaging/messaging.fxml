@@ -30,7 +30,7 @@
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>
-        <TextArea fx:id="send" promptText="%messaging.prompt" wrapText="true" prefRowCount="2" VBox.vgrow="NEVER"/>
+        <TextArea fx:id="send" promptText="%messaging.prompt" wrapText="true" prefRowCount="2" VBox.vgrow="NEVER" HBox.hgrow="ALWAYS"/>
         <GridPane>
             <HBox.margin>
                 <Insets left="4.0"/>

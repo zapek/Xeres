@@ -125,7 +125,7 @@ public class WindowManager
 		rootWindow = window;
 	}
 
-	public void closeAllWindows()
+	public void closeAllWindowsAndExit()
 	{
 		Platform.runLater(() ->
 		{
@@ -135,6 +135,7 @@ public class WindowManager
 			// we make a copy.
 			var copyOfWindows = new ArrayList<>(windows);
 			copyOfWindows.forEach(Window::hide);
+			Platform.exit();
 		});
 	}
 

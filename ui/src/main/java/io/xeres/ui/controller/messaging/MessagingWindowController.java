@@ -86,6 +86,7 @@ public class MessagingWindowController implements WindowController
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination CTRL_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN);
+	private static final KeyCodeCombination SHIFT_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN);
 
 	@FXML
 	private TextArea send;
@@ -142,7 +143,7 @@ public class MessagingWindowController implements WindowController
 
 		send.setOnKeyPressed(event ->
 		{
-			if (CTRL_ENTER.match(event) && isNotBlank(send.getText()))
+			if (CTRL_ENTER.match(event) || SHIFT_ENTER.match(event) && isNotBlank(send.getText()))
 			{
 				send.insertText(send.getCaretPosition(), "\n");
 				sendTypingNotificationIfNeeded();
@@ -162,7 +163,7 @@ public class MessagingWindowController implements WindowController
 
 		addImage.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle("Select Picture to Send Inline");
+			fileChooser.setTitle(bundle.getString("messaging.send-picture"));
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
 			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
@@ -183,7 +184,7 @@ public class MessagingWindowController implements WindowController
 
 		addFile.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle("Select File to Send");
+			fileChooser.setTitle(bundle.getString("messaging.send-file"));
 			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
 			{

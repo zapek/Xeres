@@ -121,8 +121,7 @@ public class TrayService
 	 */
 	public void exitApplication()
 	{
-		windowManager.closeAllWindows();
-		Platform.exit();
+		windowManager.closeAllWindowsAndExit();
 	}
 
 	private MouseAdapter createContextMenuMouseAdapter()

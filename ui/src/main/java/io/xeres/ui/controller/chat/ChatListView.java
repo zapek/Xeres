@@ -158,7 +158,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	}
 
 	/**
-	 * Removes the empty <img> tag that is added by Retroshare when sending a file URL.
+	 * Removes the empty img tag that is added by Retroshare when sending a file URL.
 	 *
 	 * @param message the message
 	 * @return the cleaned up message

@@ -59,6 +59,9 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ChatListView implements NicknameCompleter.UsernameFinder
 {
+	private static final int SCROLL_BACK_MAX_LINES = 2000;
+	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
+
 	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
 	private final ObservableList<ChatRoomUser> users = FXCollections.observableArrayList();
@@ -291,6 +294,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	{
 		messages.add(line);
 		jumpToBottom(false);
+		trimScrollBackIfNeeded();
 	}
 
 	private void addMessageLine(ChatAction action, Image image)
@@ -311,6 +315,14 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		if (force || chatView.getContent().getLastVisibleIndex() == lastIndex - 1) // XXX: why -1?!
 		{
 			chatView.getContent().showAsFirst(lastIndex);
+		}
+	}
+
+	private void trimScrollBackIfNeeded()
+	{
+		if (messages.size() >= SCROLL_BACK_MAX_LINES)
+		{
+			messages.remove(0, SCROLL_BACK_CLEANUP_THRESHOLD);
 		}
 	}
 }

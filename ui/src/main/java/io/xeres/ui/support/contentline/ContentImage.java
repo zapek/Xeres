@@ -22,6 +22,7 @@ package io.xeres.ui.support.contentline;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Screen;
 
 public class ContentImage implements Content
 {
@@ -30,6 +31,11 @@ public class ContentImage implements Content
 	public ContentImage(Image image)
 	{
 		node = new ImageView();
+
+		// Remove ImageView's output scaling so that it's not zoomed in on 4K monitors.
+		node.setFitWidth(image.getWidth() / Screen.getPrimary().getOutputScaleX());
+		node.setFitHeight(image.getHeight() / Screen.getPrimary().getOutputScaleY());
+
 		node.setImage(image);
 	}
 

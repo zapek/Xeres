@@ -103,6 +103,8 @@ public class WindowManager
 	private static WindowBorder windowBorder;
 	private Window rootWindow;
 
+	private String fullTitle;
+
 	private UiWindow mainWindow;
 
 	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
@@ -432,6 +434,11 @@ public class WindowManager
 						.open());
 	}
 
+	public String getFullTitle()
+	{
+		return fullTitle;
+	}
+
 	public void openMain(Stage stage, Profile profile, boolean iconified)
 	{
 		Platform.runLater(() -> {
@@ -447,10 +454,12 @@ public class WindowManager
 
 				appThemeManager.applyCurrentTheme();
 
+				fullTitle = AppName.NAME + ": " + profile.getName() + " @ " + location.getName();
+
 				mainWindow = UiWindow.builder(MainWindowController.class)
 						.setStage(stage)
 						.setRememberEnvironment(true)
-						.setTitle(AppName.NAME + " - " + profile.getName() + " @ " + location.getName())
+						.setTitle(fullTitle)
 						.build();
 
 				if (!iconified)

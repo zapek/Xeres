@@ -28,6 +28,9 @@ import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rest.notification.status.StatusNotification;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
+
 @Service
 public class StatusNotificationService extends NotificationService
 {
@@ -40,18 +43,20 @@ public class StatusNotificationService extends NotificationService
 	private DhtInfo dhtInfo = DhtInfo.fromStatus(DhtStatus.OFF);
 
 	private final UiBridgeService uiBridgeService;
+	private final ResourceBundle bundle;
 
-	public StatusNotificationService(UiBridgeService uiBridgeService)
+	public StatusNotificationService(UiBridgeService uiBridgeService, ResourceBundle bundle)
 	{
 		super();
 		this.uiBridgeService = uiBridgeService;
+		this.bundle = bundle;
 	}
 
 	public void setCurrentUsersCount(int value)
 	{
 		currentUserCount = value;
 		sendNotification();
-		uiBridgeService.setTrayStatus(value + " peers connected");
+		uiBridgeService.setTrayStatus(MessageFormat.format(bundle.getString("main.systray.peers"), value));
 	}
 
 	public void setTotalUsers(int value)

@@ -320,7 +320,7 @@ public class MainWindowController implements WindowController
 
 		setupNotifications();
 
-		trayService.addSystemTray();
+		trayService.addSystemTray(windowManager.getFullTitle());
 
 		locationClient.getRSId(OWN_LOCATION_ID, Type.SHORT_INVITE)
 				.doOnSuccess(rsIdResponse -> Platform.runLater(() -> shortId.setText(rsIdResponse.rsId())))

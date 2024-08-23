@@ -45,6 +45,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -177,7 +178,7 @@ public class MessagingWindowController implements WindowController
 					}
 					catch (IOException e)
 					{
-						log.error("Error with file {}: {}", selectedFile, e.getMessage());
+						UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), selectedFile, e.getMessage()));
 					}
 				});
 			}
@@ -239,10 +240,7 @@ public class MessagingWindowController implements WindowController
 		});
 		content.setOnDragDropped(event -> {
 			var files = event.getDragboard().getFiles();
-			CollectionUtils.emptyIfNull(files).forEach(file -> {
-				log.debug("File dropped: {}", file.getName());
-				sendFile(file);
-			});
+			CollectionUtils.emptyIfNull(files).forEach(this::sendFile);
 			event.setDropCompleted(true);
 			event.consume();
 		});
@@ -348,8 +346,8 @@ public class MessagingWindowController implements WindowController
 		return switch (availability)
 		{
 			case AVAILABLE -> "";
-			case AWAY -> " (Away)";
-			case BUSY -> " (Busy)";
+			case AWAY -> " (" + bundle.getString("messaging.status.away") + ")";
+			case BUSY -> " (" + bundle.getString("messaging.status.busy") + ")";
 		};
 	}
 

@@ -80,8 +80,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @FxmlView(value = "/view/chat/chatview.fxml")
 public class ChatViewController implements Controller
 {
-	private static final int IMAGE_WIDTH_MAX = 640;
-	private static final int IMAGE_HEIGHT_MAX = 480;
+	private static final int PREVIEW_IMAGE_WIDTH_MAX = 320;
+	private static final int PREVIEW_IMAGE_HEIGHT_MAX = 240;
 	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats
 	private static final KeyCodeCombination TAB_KEY = new KeyCodeCombination(KeyCode.TAB);
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
@@ -217,6 +217,7 @@ public class ChatViewController implements Controller
 				if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
 				{
 					sendChatMessage(send.getText());
+					send.clear();
 					lastTypingNotification = Instant.EPOCH;
 				}
 				else
@@ -632,7 +633,7 @@ public class ChatViewController implements Controller
 			{
 				imagePreview.setImage(image);
 
-				ImageUtils.limitMaximumImageSize(imagePreview, IMAGE_WIDTH_MAX, IMAGE_HEIGHT_MAX);
+				ImageUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX, PREVIEW_IMAGE_HEIGHT_MAX);
 
 				setPreviewGroupVisibility(true);
 				event.consume();
@@ -654,19 +655,24 @@ public class ChatViewController implements Controller
 	{
 		sendChatMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imagePreview.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 
-		imagePreview.setImage(null);
-		setPreviewGroupVisibility(false);
-
-		// Reset the size so that smaller images aren't magnified
-		imagePreview.setFitWidth(0);
-		imagePreview.setFitHeight(0);
+		resetPreviewImage();
 		jumpToBottom();
 	}
 
 	private void cancelImage()
 	{
+		resetPreviewImage();
+	}
+
+	/**
+	 * Resets the size so that smaller images aren't magnified.
+	 */
+	private void resetPreviewImage()
+	{
 		imagePreview.setImage(null);
 		setPreviewGroupVisibility(false);
+		imagePreview.setFitWidth(0);
+		imagePreview.setFitHeight(0);
 	}
 
 	private void sendChatMessage(String message)
@@ -674,7 +680,6 @@ public class ChatViewController implements Controller
 		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
 		messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
 		selectedChatListView.addOwnMessage(chatMessage);
-		send.clear();
 	}
 
 	private void setPreviewGroupVisibility(boolean visible)

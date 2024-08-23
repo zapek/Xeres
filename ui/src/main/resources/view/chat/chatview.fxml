@@ -71,7 +71,7 @@
                         <VBox.margin>
                             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
                         </VBox.margin>
-                        <ImageView fx:id="imagePreview" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true"/>
+                        <ImageView fx:id="imagePreview" pickOnBounds="true" preserveRatio="true"/>
                         <VBox>
                             <Button fx:id="previewCancel" mnemonicParsing="false" text="%button.cancel"/>
                             <Region VBox.vgrow="ALWAYS"/>

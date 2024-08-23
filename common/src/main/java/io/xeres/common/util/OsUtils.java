@@ -24,15 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
@@ -294,6 +292,32 @@ public final class OsUtils
 		else
 		{
 			throw new IllegalArgumentException("OS is unsupported");
+		}
+	}
+
+	/**
+	 * Sets the security level of the file. This currently only works on Windows.
+	 *
+	 * @param path    the path of the file
+	 * @param trusted if true, the security zone is set to Trusted Site Zone, otherwise it's set to Internet Zone
+	 */
+	public static void setFileSecurity(Path path, boolean trusted)
+	{
+		Objects.requireNonNull(path);
+
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			try
+			{
+				var ads = new RandomAccessFile(path + ":Zone.Identifier", "rw"); // We can't use Path.of() here as it won't accept the ':'
+				byte[] data = ("[ZoneTransfer]\r\nZoneId=" + (trusted ? "2" : "3") + "\r\nHostUrl=about:internet\r\n").getBytes();
+				ads.write(data);
+				ads.close();
+			}
+			catch (IOException e)
+			{
+				log.warn("Couldn't set security zone of file {}: {}", path, e.getMessage());
+			}
 		}
 	}
 }

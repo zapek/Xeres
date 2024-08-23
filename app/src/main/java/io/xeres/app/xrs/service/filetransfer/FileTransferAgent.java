@@ -50,6 +50,7 @@ class FileTransferAgent
 	private final String fileName;
 	private boolean done;
 	private long lastActivity;
+	private boolean trusted;
 
 	private final Map<Location, List<ChunkSender>> leechers = new LinkedHashMap<>();
 	private final Map<Location, ChunkReceiver> seeders = new LinkedHashMap<>();
@@ -61,6 +62,16 @@ class FileTransferAgent
 		this.fileProvider = fileProvider;
 		this.fileName = fileName;
 		lastActivity = System.nanoTime();
+	}
+
+	public boolean isTrusted()
+	{
+		return trusted;
+	}
+
+	public void setTrusted(boolean trusted)
+	{
+		this.trusted = trusted;
 	}
 
 	public FileProvider getFileProvider()
@@ -161,7 +172,8 @@ class FileTransferAgent
 							stop();
 							fileTransferRsService.markDownloadAsCompleted(hash);
 							fileTransferRsService.deactivateTunnels(hash);
-							renameFile(fileProvider.getPath(), fileName);
+							var newPath = renameFile(fileProvider.getPath(), fileName);
+							setFileSecurity(newPath);
 							seeders.remove(entry.getKey());
 							done = true; // Prevents closing the file several times (we might have several seeders)
 						}
@@ -179,6 +191,14 @@ class FileTransferAgent
 						}
 					}
 				});
+	}
+
+	private void setFileSecurity(Path path)
+	{
+		if (path != null)
+		{
+			OsUtils.setFileSecurity(path, trusted);
+		}
 	}
 
 	private void processUploads()
@@ -213,16 +233,19 @@ class FileTransferAgent
 		return ThreadLocalRandom.current().nextInt(size);
 	}
 
-	private static void renameFile(Path filePath, String fileName)
+	private static Path renameFile(Path filePath, String fileName)
 	{
 		var success = false;
+		Path path = null;
 
 		while (!success)
 		{
 			try
 			{
-				Files.move(filePath, filePath.resolveSibling(fileName));
+				var newPath = filePath.resolveSibling(fileName);
+				Files.move(filePath, newPath);
 				success = true;
+				path = newPath;
 			}
 			catch (FileAlreadyExistsException e)
 			{
@@ -249,6 +272,7 @@ class FileTransferAgent
 				success = true; // This is really a failure but there's nothing else we can do
 			}
 		}
+		return path;
 	}
 
 	/**

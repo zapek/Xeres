@@ -187,6 +187,7 @@ class FileTransferManager implements Runnable
 					var agent = new FileTransferAgent(fileTransferRsService, name, sha1Sum, fileLeecher);
 					if (from != null)
 					{
+						agent.setTrusted(true);
 						locationService.findLocationByLocationId(from).ifPresent(agent::addSeeder);
 					}
 					else

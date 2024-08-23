@@ -43,6 +43,12 @@ public final class FileNameUtils
 		}
 	}
 
+	/**
+	 * Gets the extension of a file name.
+	 *
+	 * @param fileName the file name
+	 * @return the extension, without its dot (for example "exe") or an empty optional if there's no extension
+	 */
 	public static Optional<String> getExtension(String fileName)
 	{
 		var tokens = EXTENSION.split(fileName);

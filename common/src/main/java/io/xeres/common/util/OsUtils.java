@@ -59,6 +59,7 @@ public final class OsUtils
 	 */
 	public static boolean isFileSystemCaseSensitive(Path path)
 	{
+		Objects.requireNonNull(path);
 		Path lowerFile;
 		Path upperFile = null;
 		try
@@ -145,6 +146,7 @@ public final class OsUtils
 	 */
 	public static void shellOpen(File file)
 	{
+		Objects.requireNonNull(file);
 		if (!file.exists())
 		{
 			throw new IllegalStateException("Couldn't open the file " + file + " because it doesn't exist");
@@ -163,11 +165,12 @@ public final class OsUtils
 	/**
 	 * Opens the folder with the file selected.
 	 *
-	 * @param file the file to show in the folderr
+	 * @param file the file to show in the folder
 	 * @throws IllegalStateException if the file doesn't exist or the OS has troubles launching a file browser
 	 */
 	public static void showInFolder(File file)
 	{
+		Objects.requireNonNull(file);
 		if (!file.exists())
 		{
 			throw new IllegalStateException("Couldn't show the folder of the file " + file + " because the later doesn't exist");
@@ -197,8 +200,14 @@ public final class OsUtils
 		}
 	}
 
+	/**
+	 * Opens the directory in the file explorer and lists its content
+	 *
+	 * @param directory the directory
+	 */
 	public static void showFolder(File directory)
 	{
+		Objects.requireNonNull(directory);
 		if (!directory.exists())
 		{
 			throw new IllegalStateException("Couldn't show the folder " + directory + " because it doesn't exist");
@@ -233,8 +242,15 @@ public final class OsUtils
 		}
 	}
 
+	/**
+	 * Sanitizes a file name. Replaces non-valid characters by '_'.
+	 *
+	 * @param fileName the file name to sanitize
+	 * @return a sanitized version of the file name, or the original one if there's nothing to sanitize
+	 */
 	public static String sanitizeFileName(String fileName)
 	{
+		Objects.requireNonNull(fileName);
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			// Any Unicode except control characters, \, /, :, *, ?, ", <, >, | and no spaces at the beginning
@@ -304,7 +320,6 @@ public final class OsUtils
 	public static void setFileSecurity(Path path, boolean trusted)
 	{
 		Objects.requireNonNull(path);
-
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			try

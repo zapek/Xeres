@@ -81,6 +81,11 @@ public final class SecureRandomUtils
 		return lowerChars.mapToObj(data -> (char) data);
 	}
 
+	/**
+	 * Creates a secure password consisting of alphanumerical characters in upper and lower case.
+	 *
+	 * @param password the byte array that will be filled in with a password. Between 1 and 512 bytes.
+	 */
 	public static void nextPassword(char[] password)
 	{
 		Objects.requireNonNull(password);

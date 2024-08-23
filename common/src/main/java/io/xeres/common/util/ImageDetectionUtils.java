@@ -33,6 +33,18 @@ public final class ImageDetectionUtils
 	private static final byte[] JPEG_HEADER = new byte[]{(byte) 0xff, (byte) 0xd8, (byte) 0xff};
 	private static final byte[] PNG_HEADER = new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a};
 
+	/**
+	 * Detects the type of the image.
+	 * <p>
+	 * Currently supported:
+	 * <ul>
+	 *     <li>PNG</li>
+	 *     <li>JPEG</li>
+	 * </ul>
+	 *
+	 * @param image the byte array containing the image data
+	 * @return the {@link MediaType} of the image
+	 */
 	public static MediaType getImageMimeType(byte[] image)
 	{
 		if (image == null)

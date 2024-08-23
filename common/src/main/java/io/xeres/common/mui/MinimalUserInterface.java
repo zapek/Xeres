@@ -23,6 +23,8 @@ import io.xeres.common.AppName;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Objects;
 
 /**
@@ -52,6 +54,27 @@ public final class MinimalUserInterface
 	public static void showInformation(String message)
 	{
 		JOptionPane.showMessageDialog(null, message, AppName.NAME + " Output", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	public static void showError(Exception e)
+	{
+		Throwable exception = e;
+
+		while (exception.getCause() != null)
+		{
+			exception = exception.getCause();
+		}
+		showError(exception.getMessage());
+
+	}
+
+	private String getStackTrace(Exception e)
+	{
+		var sw = new StringWriter();
+		var pw = new PrintWriter(sw);
+
+		e.printStackTrace(pw);
+		return sw.toString();
 	}
 
 	public static void showError(String message)

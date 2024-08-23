@@ -224,14 +224,23 @@ public class FileService
 
 	public Optional<File> findFileByHash(Sha1Sum hash)
 	{
-		return fileRepository.findByHash(hash);
+		var files = fileRepository.findByHash(hash);
+		if (files.isEmpty())
+		{
+			return Optional.empty();
+		}
+		return Optional.of(files.getFirst());
 	}
 
 	public Optional<File> findFileByEncryptedHash(Sha1Sum encryptedHash)
 	{
 		if (bloomFilter.mightContain(encryptedHash))
 		{
-			return fileRepository.findByEncryptedHash(encryptedHash);
+			var files = fileRepository.findByEncryptedHash(encryptedHash);
+			if (!files.isEmpty())
+			{
+				return Optional.of(files.getFirst());
+			}
 		}
 		return Optional.empty();
 	}
@@ -245,13 +254,6 @@ public class FileService
 			return Optional.of(tempPath);
 		}
 		return findFileByHash(hash).map(this::getFilePath);
-	}
-
-	public Optional<Path> findFilePathByEncryptedHash(Sha1Sum encryptedHash)
-	{
-		Objects.requireNonNull(encryptedHash);
-
-		return findFileByEncryptedHash(encryptedHash).map(this::getFilePath);
 	}
 
 	/**
@@ -388,7 +390,7 @@ public class FileService
 			file = file.getParent();
 		}
 		Collections.reverse(tree);
-		tree.forEach(fileToUpdate -> fileRepository.findByNameAndParentName(fileToUpdate.getName(), fileToUpdate.getParent() != null ? fileToUpdate.getParent().getName() : null).ifPresent(fileFound -> fileToUpdate.setId(fileFound.getId())));
+		tree.forEach(fileToUpdate -> fileRepository.findByNameAndParent(fileToUpdate.getName(), fileToUpdate.getParent()).ifPresent(fileFound -> fileToUpdate.setId(fileFound.getId())));
 		return tree;
 	}
 

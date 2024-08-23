@@ -58,7 +58,7 @@ class FileRepositoryTest
 		file.setHash(hash);
 		fileRepository.save(file);
 
-		var found = fileRepository.findByHash(hash).orElse(null);
+		var found = fileRepository.findByHash(hash).getFirst();
 		assertNotNull(found);
 	}
 
@@ -70,7 +70,7 @@ class FileRepositoryTest
 		file.setEncryptedHash(hash);
 		fileRepository.save(file);
 
-		var found = fileRepository.findByEncryptedHash(hash).orElse(null);
+		var found = fileRepository.findByEncryptedHash(hash).getFirst();
 		assertNotNull(found);
 	}
 }

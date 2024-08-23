@@ -34,15 +34,11 @@ public interface FileRepository extends JpaRepository<File, Long>
 
 	List<File> findAllByNameContainingIgnoreCase(String name);
 
-	Optional<File> findByNameIgnoreCase(String name);
-
 	Optional<File> findByNameAndParent(String name, File parent);
-
-	Optional<File> findByNameAndParentName(String name, String parentName);
 
 	int countByParent(File parent);
 
-	Optional<File> findByHash(Sha1Sum hash);
+	List<File> findByHash(Sha1Sum hash);
 
-	Optional<File> findByEncryptedHash(Sha1Sum encryptedHash);
+	List<File> findByEncryptedHash(Sha1Sum encryptedHash);
 }

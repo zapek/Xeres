@@ -50,6 +50,8 @@ public class TrayService
 	private Image image;
 	private Image eventImage;
 
+	private String tooltipTitle;
+
 	private final UiClientProperties uiClientProperties;
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
@@ -61,7 +63,7 @@ public class TrayService
 		this.bundle = bundle;
 	}
 
-	public void addSystemTray()
+	public void addSystemTray(String title)
 	{
 		if (hasSystemTray)
 		{
@@ -98,7 +100,8 @@ public class TrayService
 		image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon.png"));
 		eventImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon_event.png"));
 
-		trayIcon = new TrayIcon(image, AppName.NAME, popupMenu);
+		tooltipTitle = title;
+		trayIcon = new TrayIcon(image, tooltipTitle, popupMenu);
 		trayIcon.setImageAutoSize(true);
 
 		systemTray = SystemTray.getSystemTray();
@@ -191,7 +194,7 @@ public class TrayService
 	{
 		if (hasSystemTray)
 		{
-			trayIcon.setToolTip(isNotBlank(message) ? (AppName.NAME + " - " + message) : AppName.NAME);
+			trayIcon.setToolTip(isNotBlank(message) ? (tooltipTitle + "\n" + message) : tooltipTitle);
 		}
 	}
 

@@ -29,6 +29,7 @@ import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
 import io.xeres.ui.custom.TypingNotificationView;
+import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -670,9 +671,9 @@ public class ChatViewController implements Controller
 
 	private void sendChatMessage(String message)
 	{
-		var chatMessage = new ChatMessage(message);
+		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
 		messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
-		selectedChatListView.addOwnMessage(message);
+		selectedChatListView.addOwnMessage(chatMessage);
 		send.clear();
 	}
 

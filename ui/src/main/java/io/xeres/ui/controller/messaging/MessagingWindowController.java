@@ -32,6 +32,7 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.FileUri;
 import io.xeres.ui.support.uri.FileUriFactory;
@@ -208,9 +209,9 @@ public class MessagingWindowController implements WindowController
 		{
 			message = message.substring(0, message.length() - 1);
 		}
-		var chatMessage = new ChatMessage(message);
+		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
 		messageClient.sendToLocation(locationId, chatMessage);
-		receive.addOwnMessage(message);
+		receive.addOwnMessage(chatMessage);
 		send.clear();
 	}
 

@@ -22,6 +22,7 @@ package io.xeres.ui.controller.messaging;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -54,7 +55,7 @@ public class BroadcastWindowController implements WindowController
 	{
 		send.setOnAction(event ->
 		{
-			var message = new ChatMessage(textArea.getText());
+			var message = new ChatMessage(ChatCommand.parseCommands(textArea.getText()));
 			messageClient.sendBroadcast(message);
 			cancel.fire();
 		});

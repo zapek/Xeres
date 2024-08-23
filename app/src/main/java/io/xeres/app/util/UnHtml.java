@@ -21,6 +21,7 @@ package io.xeres.app.util;
 
 import io.xeres.app.util.markdown.Markdown;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Entities;
 import org.jsoup.nodes.TextNode;
@@ -34,6 +35,13 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public final class UnHtml
 {
+	private static final Document.OutputSettings CHAT_OUTPUT_SETTINGS = new Document.OutputSettings();
+
+	static
+	{
+		CHAT_OUTPUT_SETTINGS.prettyPrint(false);
+	}
+
 	private UnHtml()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -42,12 +50,13 @@ public final class UnHtml
 	public static String cleanupChat(String text)
 	{
 		return Entities.unescape( // &lt; -> <
-				Jsoup.clean(text, Safelist.none() // <span> -> nothing
+				Jsoup.clean(text, "", Safelist.none() // <span> -> nothing
 						.addAttributes("img", "src")
 						.addProtocols("img", "src", "data")
 						.addAttributes("a", "href")
 						.addProtocols("a", "href", "retroshare")
-						.preserveRelativeLinks(true))
+								.preserveRelativeLinks(true),
+						CHAT_OUTPUT_SETTINGS)
 		);
 	}
 

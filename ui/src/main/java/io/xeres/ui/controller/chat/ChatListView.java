@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.custom.ChatListCell;
@@ -111,10 +112,10 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		return view;
 	}
 
-	public void addOwnMessage(String message)
+	public void addOwnMessage(ChatMessage chatMessage)
 	{
 		var chatAction = new ChatAction(SAY_OWN, nickname, null);
-		addMessage(chatAction, message);
+		addMessage(chatAction, chatMessage.getContent());
 	}
 
 	public void addUserMessage(String from, String message)

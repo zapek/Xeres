@@ -28,7 +28,7 @@ import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.common.util.ByteUnitUtils;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.IdentityClient;
@@ -256,7 +256,7 @@ public class MainWindowController implements WindowController
 
 		showQrCodeButton.setOnAction(event -> showQrCode());
 
-		launchWebInterface.setOnAction(event -> UriService.openUri(JavaFxApplication.getControlUrl()));
+		launchWebInterface.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl()));
 
 		showHelp.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
 		webHelpButton.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
@@ -310,7 +310,7 @@ public class MainWindowController implements WindowController
 		{
 			debug.setVisible(true);
 			runGc.setOnAction(event -> System.gc());
-			h2Console.setOnAction(event -> UriService.openUri(JavaFxApplication.getControlUrl() + "/h2-console"));
+			h2Console.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl() + "/h2-console"));
 			systemProperties.setOnAction(event -> windowManager.openSystemProperties());
 			openShell.setOnAction(event -> MinimalUserInterface.openShell());
 			openUiCheck.setOnAction(event -> windowManager.openUiCheck());

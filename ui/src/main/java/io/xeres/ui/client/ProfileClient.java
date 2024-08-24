@@ -24,7 +24,7 @@ import io.xeres.common.events.StartupEvent;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.profile.RsIdRequest;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.model.profile.ProfileMapper;
 import org.springframework.context.event.EventListener;
@@ -52,7 +52,7 @@ public class ProfileClient
 	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + PROFILES_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + PROFILES_PATH)
 				.build();
 	}
 

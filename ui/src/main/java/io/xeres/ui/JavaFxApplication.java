@@ -76,30 +76,4 @@ public class JavaFxApplication extends Application
 	{
 		springContext.close();
 	}
-
-	public static String getHostnameAndPort()
-	{
-		return getHostname() + ":" + getControlPort();
-	}
-
-	private static String getHostname()
-	{
-		return System.getProperty("xrs.ui.address", "localhost");
-	}
-
-	private static int getControlPort()
-	{
-		return Integer.parseInt(System.getProperty("xrs.ui.port", "1066"));
-	}
-
-	public static String getControlUrl() // XXX: get rid of that thing, just use a properties
-	{
-		//noinspection HttpUrlsUsage
-		return "http://" + getHostnameAndPort();
-	}
-
-	public static boolean isRemoteUiClient()
-	{
-		return "none".equals(System.getProperty("spring.main.web-application-type"));
-	}
 }

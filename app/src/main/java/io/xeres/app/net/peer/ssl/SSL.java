@@ -101,7 +101,6 @@ public final class SSL
 			throw new CertificateException("Already connected");
 		}
 
-		// XXX: make sure everything is allright and there's no way to fool the system with shortInvites
 		if (location.getProfile().isComplete())
 		{
 			try

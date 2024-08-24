@@ -21,7 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.geoip.CountryResponse;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -45,7 +45,7 @@ public class GeoIpClient
 	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + GEOIP_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + GEOIP_PATH)
 				.build();
 	}
 

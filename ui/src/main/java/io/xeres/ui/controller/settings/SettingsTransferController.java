@@ -19,7 +19,7 @@
 
 package io.xeres.ui.controller.settings;
 
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -58,7 +58,7 @@ public class SettingsTransferController implements SettingsController
 	public void initialize()
 	{
 		incomingDirectorySelector.setOnAction(event -> {
-			if (JavaFxApplication.isRemoteUiClient())
+			if (RemoteUtils.isRemoteUiClient())
 			{
 				UiUtils.alert(INFORMATION, bundle.getString("settings.directory.no-remote"));
 				return;

@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.diff.JsonDiff;
 import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.model.settings.SettingsMapper;
 import org.springframework.context.event.EventListener;
@@ -53,7 +53,7 @@ public class SettingsClient
 	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + SETTINGS_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + SETTINGS_PATH)
 				.build();
 	}
 

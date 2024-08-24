@@ -108,7 +108,7 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 			}
 			catch (JsonProcessingException e)
 			{
-				return new ErrorResponseEntity(new Error(null, null), httpStatusCode); // XXX: not sure those defaults are the best
+				return new ErrorResponseEntity(new Error(null, null), httpStatusCode);
 			}
 		}
 	}

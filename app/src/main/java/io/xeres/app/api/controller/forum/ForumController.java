@@ -128,7 +128,6 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
-		// XXX: too complex! should be moved to forumRsService... though, it's almost OK...
 		var forumMessage = forumRsService.findMessageById(messageId);
 		Objects.requireNonNull(forumMessage, "MessageId " + messageId + " not found");
 

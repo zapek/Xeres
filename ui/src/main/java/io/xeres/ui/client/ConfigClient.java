@@ -21,7 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.config.*;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -54,7 +54,7 @@ public class ConfigClient
 	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + CONFIG_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + CONFIG_PATH)
 				.build();
 	}
 

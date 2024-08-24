@@ -24,7 +24,7 @@ import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
 import io.xeres.common.rest.notification.forum.ForumNotification;
 import io.xeres.common.rest.notification.status.StatusNotification;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.codec.ServerSentEvent;
@@ -50,7 +50,7 @@ public class NotificationClient
 	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + NOTIFICATIONS_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + NOTIFICATIONS_PATH)
 				.build();
 	}
 

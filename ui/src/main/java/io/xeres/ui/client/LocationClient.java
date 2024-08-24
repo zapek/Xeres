@@ -23,7 +23,7 @@ import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.location.LocationMapper;
 import org.springframework.context.event.EventListener;
@@ -49,7 +49,7 @@ public class LocationClient
 	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + LOCATIONS_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + LOCATIONS_PATH)
 				.build();
 	}
 

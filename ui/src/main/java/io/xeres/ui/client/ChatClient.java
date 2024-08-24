@@ -26,7 +26,7 @@ import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.chat.ChatMapper;
 import io.xeres.ui.model.location.Location;
 import org.springframework.context.event.EventListener;
@@ -55,7 +55,7 @@ public class ChatClient
 	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + CHAT_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + CHAT_PATH)
 				.build();
 	}
 

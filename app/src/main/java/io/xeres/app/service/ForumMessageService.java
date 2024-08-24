@@ -37,7 +37,9 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-// XXX: experimental message helper because they're hard to retrieve
+/**
+ * Message helper service because they're hard to retrieve otherwise.
+ */
 @Service
 public class ForumMessageService
 {

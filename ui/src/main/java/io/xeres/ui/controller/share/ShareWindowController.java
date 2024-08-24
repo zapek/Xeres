@@ -21,7 +21,7 @@ package io.xeres.ui.controller.share;
 
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.util.OsUtils;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.share.Share;
@@ -109,7 +109,7 @@ public class ShareWindowController implements WindowController
 				refreshHack = false;
 				return;
 			}
-			if (JavaFxApplication.isRemoteUiClient())
+			if (RemoteUtils.isRemoteUiClient())
 			{
 				UiUtils.alert(INFORMATION, bundle.getString("settings.directory.no-remote"));
 				return;

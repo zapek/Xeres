@@ -27,7 +27,7 @@ import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.forum.ForumMapper;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -55,7 +55,7 @@ public class ForumClient
 	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + FORUMS_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + FORUMS_PATH)
 				.build();
 	}
 

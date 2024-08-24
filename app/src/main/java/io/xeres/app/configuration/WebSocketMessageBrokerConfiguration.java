@@ -32,6 +32,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
+import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZE;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 /**
@@ -78,7 +79,7 @@ public class WebSocketMessageBrokerConfiguration implements WebSocketMessageBrok
 	@Override
 	public void configureWebSocketTransport(WebSocketTransportRegistration registry)
 	{
-		registry.setMessageSizeLimit(WebSocketConfiguration.BUFFER_SIZE);
-		registry.setSendBufferSizeLimit(WebSocketConfiguration.BUFFER_SIZE);
+		registry.setMessageSizeLimit(MAXIMUM_MESSAGE_SIZE);
+		registry.setSendBufferSizeLimit(MAXIMUM_MESSAGE_SIZE);
 	}
 }

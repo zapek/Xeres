@@ -43,16 +43,12 @@ public final class ImageUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static String writeImageAsPngData(Image image, int maximumSize)
+	public static String writeImageAsPngData(Image image)
 	{
 		var out = new ByteArrayOutputStream();
 		try
 		{
 			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", out);
-			if (out.size() > maximumSize) // XXX: this size might be exceeded frequently. also we don't check for the maximum size. do like the jpeg version
-			{
-				log.warn("PNG size too big: {}, expect problems", out.size());
-			}
 		}
 		catch (IOException e)
 		{

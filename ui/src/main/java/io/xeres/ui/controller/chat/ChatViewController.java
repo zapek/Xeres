@@ -433,7 +433,7 @@ public class ChatViewController implements Controller
 
 	public void userKeepAlive(long roomId, ChatRoomUserEvent event)
 	{
-		performOnChatListView(roomId, chatListView -> chatListView.addUser(event, AddUserOrigin.KEEP_ALIVE)); // XXX: use this to know if a user is "idle"
+		performOnChatListView(roomId, chatListView -> chatListView.addUser(event, AddUserOrigin.KEEP_ALIVE));
 	}
 
 	public void userTimeout(long roomId, ChatRoomTimeoutEvent event)
@@ -620,7 +620,7 @@ public class ChatViewController implements Controller
 				send.setText(s);
 				send.positionCaret(s.length());
 			});
-			event.consume(); // XXX: find a way to tab into another field (shift + tab currently does)
+			event.consume();
 			return;
 		}
 

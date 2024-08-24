@@ -22,7 +22,7 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.share.ShareDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.share.UpdateShareRequest;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.share.Share;
 import io.xeres.ui.model.share.ShareMapper;
 import org.springframework.context.event.EventListener;
@@ -52,7 +52,7 @@ public class ShareClient
 	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + SHARES_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + SHARES_PATH)
 				.build();
 	}
 

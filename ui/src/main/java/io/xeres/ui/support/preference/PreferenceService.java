@@ -20,6 +20,7 @@
 package io.xeres.ui.support.preference;
 
 import io.xeres.common.id.LocationId;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.location.Location;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class PreferenceService
 	{
 		var rootNode = Preferences.userNodeForPackage(JavaFxApplication.class);
 
-		if (JavaFxApplication.isRemoteUiClient())
+		if (RemoteUtils.isRemoteUiClient())
 		{
 			return rootNode.node("0");
 		}

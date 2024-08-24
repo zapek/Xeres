@@ -61,7 +61,7 @@ public interface Identifier
 
 	default boolean isNullIdentifier()
 	{
-		return Arrays.equals(getNullIdentifier(), getBytes()); // XXX: improve?
+		return Arrays.equals(getNullIdentifier(), getBytes());
 	}
 
 	static byte[] createNullIdentifier(int length)

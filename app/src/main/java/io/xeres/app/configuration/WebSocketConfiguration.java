@@ -26,18 +26,18 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
+import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZE;
+
 @Configuration
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer
 {
-	public static final int BUFFER_SIZE = 1024 * 1024; // 1MB
-
 	@Bean
 	public ServletServerContainerFactoryBean createWebSocketContainer()
 	{
 		var container = new ServletServerContainerFactoryBean();
-		container.setMaxTextMessageBufferSize(BUFFER_SIZE);
-		container.setMaxBinaryMessageBufferSize(BUFFER_SIZE);
+		container.setMaxTextMessageBufferSize(MAXIMUM_MESSAGE_SIZE);
+		container.setMaxBinaryMessageBufferSize(MAXIMUM_MESSAGE_SIZE);
 		return container;
 	}
 

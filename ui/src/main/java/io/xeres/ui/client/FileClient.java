@@ -26,7 +26,7 @@ import io.xeres.common.rest.file.FileDownloadRequest;
 import io.xeres.common.rest.file.FileProgress;
 import io.xeres.common.rest.file.FileSearchRequest;
 import io.xeres.common.rest.file.FileSearchResponse;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -51,7 +51,7 @@ public class FileClient
 	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + FILES_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + FILES_PATH)
 				.build();
 	}
 

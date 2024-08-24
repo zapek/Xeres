@@ -21,7 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.model.profile.ProfileMapper;
 import org.springframework.context.event.EventListener;
@@ -47,7 +47,7 @@ public class ConnectionClient
 	public void init(StartupEvent event)
 	{
 		webClient = webClientBuilder
-				.baseUrl(JavaFxApplication.getControlUrl() + CONNECTIONS_PATH)
+				.baseUrl(RemoteUtils.getControlUrl() + CONNECTIONS_PATH)
 				.build();
 	}
 

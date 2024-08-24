@@ -221,11 +221,10 @@ public class ChatRsService extends RsService
 		{
 			handleChatAvatarItem(sender, chatAvatarItem);
 		}
-		else //noinspection deprecation
-			if (item instanceof ChatRoomInviteOldItem chatRoomInviteOldItem)
-			{
-				handleChatRoomInviteOldItem(sender, chatRoomInviteOldItem);
-			}
+		else if (item instanceof ChatRoomInviteOldItem chatRoomInviteOldItem)
+		{
+			handleChatRoomInviteOldItem(sender, chatRoomInviteOldItem);
+		}
 	}
 
 	@Override
@@ -635,7 +634,6 @@ public class ChatRsService extends RsService
 		chatRoom.recordPreviouslyKnownLocation(peerConnection.getLocation());
 	}
 
-	@SuppressWarnings("deprecation")
 	private void handleChatRoomInviteOldItem(PeerConnection peerConnection, ChatRoomInviteOldItem item)
 	{
 		log.debug("Received deprecated invite from {}: {}", peerConnection, item);

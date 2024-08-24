@@ -21,7 +21,7 @@ package io.xeres.ui.client.message;
 
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatMessage;
-import io.xeres.ui.JavaFxApplication;
+import io.xeres.common.util.RemoteUtils;
 import jakarta.websocket.ContainerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 import static io.xeres.common.message.MessageType.*;
+import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZE;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 /**
@@ -68,16 +69,16 @@ public class MessageClient
 
 	public MessageClient connect()
 	{
-		var url = "ws://" + JavaFxApplication.getHostnameAndPort() + "/ws";
+		var url = "ws://" + RemoteUtils.getHostnameAndPort() + "/ws";
 
 		var container = ContainerProvider.getWebSocketContainer();
-		container.setDefaultMaxTextMessageBufferSize(1024 * 1024); // 1 MB XXX: adjust maybe!
-		container.setDefaultMaxBinaryMessageBufferSize(1024 * 1024);
+		container.setDefaultMaxTextMessageBufferSize(MAXIMUM_MESSAGE_SIZE);
+		container.setDefaultMaxBinaryMessageBufferSize(MAXIMUM_MESSAGE_SIZE);
 
 		WebSocketClient client = new StandardWebSocketClient(container);
 		var stompClient = new WebSocketStompClient(client);
 		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-		stompClient.setInboundMessageSizeLimit(1024 * 1024); // 1 MB
+		stompClient.setInboundMessageSizeLimit(MAXIMUM_MESSAGE_SIZE);
 
 		var sessionHandler = new SessionHandler(session ->
 		{
@@ -174,7 +175,7 @@ public class MessageClient
 	{
 		// Only disconnects gracefully on the remote scenario because on the local
 		// one, the WebSocket will already be closed anyway.
-		if (future != null && JavaFxApplication.isRemoteUiClient())
+		if (future != null && RemoteUtils.isRemoteUiClient())
 		{
 			try
 			{

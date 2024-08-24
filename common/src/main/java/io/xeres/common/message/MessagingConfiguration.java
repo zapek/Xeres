@@ -17,39 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.model.file;
+package io.xeres.common.message;
 
-import io.xeres.common.file.FileType;
-
-import java.util.Objects;
-
-// XXX: missing children, parent?
-public record File(
-		long id,
-		String name,
-		long size,
-		FileType type,
-		String hash
-)
+public final class MessagingConfiguration
 {
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var file = (File) o;
-		return id == file.id;
-	}
+	/**
+	 * The maximum size of a message (1 MB).
+	 */
+	public static final int MAXIMUM_MESSAGE_SIZE = 1024 * 1024;
 
-	@Override
-	public int hashCode()
+	private MessagingConfiguration()
 	{
-		return Objects.hashCode(id);
+		throw new UnsupportedOperationException("Utility class");
 	}
 }

@@ -32,12 +32,10 @@ import static io.xeres.app.xrs.serialization.TlvType.STR_NAME;
 import static io.xeres.app.xrs.service.chat.RoomFlags.*;
 
 /**
- * @deprecated Since Retroshare 0.6.5, ChatRoomInviteItem is used instead and provides the missing 'topic' parameter.
+ * Since Retroshare 0.6.5, ChatRoomInviteItem is used instead and provides the missing 'topic' parameter.
  * Note that Retroshare still sends it for compatibility reasons. We don't do it, though.
  * This class solely exists to avoid warnings in the logs.
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
-@Deprecated(since = "Retroshare 0.6.5")
 public class ChatRoomInviteOldItem extends Item
 {
 	@RsSerialized

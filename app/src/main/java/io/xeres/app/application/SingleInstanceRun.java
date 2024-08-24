@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -101,13 +100,9 @@ public final class SingleInstanceRun
 				randomAccessFile.close();
 				Files.delete(file.toPath());
 			}
-			catch (NoSuchFileException e)
-			{
-				log.warn("Lockfile missing. Was it deleted manually?");
-			}
 			catch (IOException | SecurityException e)
 			{
-				log.warn("Failed to delete lockfile: {}. Is it locked by some external process?", e.getClass());
+				// No logging in the shutdown hook because logback also uses one to clean up
 			}
 		}
 	}

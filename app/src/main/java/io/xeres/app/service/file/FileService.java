@@ -390,7 +390,10 @@ public class FileService
 			file = file.getParent();
 		}
 		Collections.reverse(tree);
-		tree.forEach(fileToUpdate -> fileRepository.findByNameAndParent(fileToUpdate.getName(), fileToUpdate.getParent()).ifPresent(fileFound -> fileToUpdate.setId(fileFound.getId())));
+
+		// We need to use findByNameAndParent*Name*() here because the parents are built on the fly and not taken from the database.
+		// Otherwise, hibernate would complain about unsaved transient references.
+		tree.forEach(fileToUpdate -> fileRepository.findByNameAndParentName(fileToUpdate.getName(), fileToUpdate.getParent() != null ? fileToUpdate.getParent().getName() : null).ifPresent(fileFound -> fileToUpdate.setId(fileFound.getId())));
 		return tree;
 	}
 

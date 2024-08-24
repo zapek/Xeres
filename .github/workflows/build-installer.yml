@@ -9,8 +9,8 @@ on:
 # When setting the java version, always use x.y.z even if there's more numbers, otherwise @setup-java will fail.
 
 jobs:
-  build-windows-installer-exe:
-    name: Build Windows installer (EXE)
+  build-windows-installer-msi:
+    name: Build Windows installer (MSI)
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -35,8 +35,38 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ./app/build/dist/Xeres-*.exe
-          name: windows-installer-exe
+          path: ./app/build/dist/Xeres-*.msi
+          name: windows-installer-msi
+          retention-days: 1
+
+  build-windows-installer-portable:
+    name: Build Windows installer (Portable)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Setup JDK 21
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: .\gradlew.bat jpackage -Pjpackage.portable=true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./app/build/dist/Xeres-*.zip
+          name: windows-installer-portable
           retention-days: 1
 
   build-linux-installer-deb:
@@ -96,12 +126,17 @@ jobs:
   create-release:
     name: Create release
     runs-on: ubuntu-latest
-    needs: [ build-windows-installer-exe, build-linux-installer-deb ]
+    needs: [ build-windows-installer-msi, build-windows-installer-portable, build-linux-installer-deb ]
     steps:
-      - name: Download Windows installer (EXE)
+      - name: Download Windows installer (MSI)
         uses: actions/download-artifact@v4
         with:
-          name: windows-installer-exe
+          name: windows-installer-msi
+
+      - name: Download Windows installer (Portable)
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer-portable
 
       - name: Download Linux installer (DEB)
         uses: actions/download-artifact@v4
@@ -121,6 +156,7 @@ jobs:
             *.deb
             *.rpm
             *.dmg
+            *.zip
 
       - name: Create Github release
         uses: marvinpinto/action-automatic-releases@v1.2.1
@@ -135,5 +171,6 @@ jobs:
             *.deb
             *.rpm
             *.dmg
+            *.zip
 
 # For manual builds, add automatic_release_tag: "Nightly" above

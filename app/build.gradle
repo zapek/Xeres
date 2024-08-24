@@ -110,6 +110,10 @@ tasks.register('cleanJpackageWorkdir', Delete) {
     delete jpackageWorkdir
 }
 
+tasks.register('deletePortable', Delete) {
+    delete layout.buildDirectory.dir("dist/${rootProject.name}")
+}
+
 jpackage {
     dependsOn deleteLibs, cleanJpackageWorkdir
     mustRunAfter "deleteLibs"
@@ -124,8 +128,12 @@ jpackage {
     mainClass = "org.springframework.boot.loader.launch.JarLauncher"
     macPackageName = bootJar.archiveBaseName.get()
     mainJar = bootJar.archiveFileName.get()
-    licenseFile = "${parent.rootDir}/LICENSE"
-    aboutUrl = "https://xeres.io"
+    if (project.hasProperty("jpackage.portable")) {
+        type = ImageType.APP_IMAGE
+    } else {
+        licenseFile = "${parent.rootDir}/LICENSE"
+        aboutUrl = "https://xeres.io"
+    }
     javaOptions = ['-Djava.net.preferIPv4Stack=true',
                    '-Dfile.encoding=UTF-8',
                    '-splash:$APPDIR/startup.jpg',
@@ -135,17 +143,15 @@ jpackage {
                    '-Dlogging.logback.rollingpolicy.max-file-size=1MB',
                    '-Dlogging.logback.rollingpolicy.max-history=3',
                    '-Dspring.output.ansi.enabled=never']
-    if (project.hasProperty("jpackage.msi")) {
-        type = ImageType.MSI
-    } else if (project.hasProperty("jpackage.rpm")) {
-        type = ImageType.RPM
-    }
     windows {
-        winMenu = true
-        winPerUserInstall = true
-        winDirChooser = true
-        winMenuGroup = parent.project.name
-        winUpgradeUuid = "97a4aaa5-0a3f-47f9-b0a2-f91876d9e7dd"
+        if (!project.hasProperty("jpackage.portable")) {
+            type = ImageType.MSI
+            winMenu = true
+            winPerUserInstall = true
+            winDirChooser = true
+            winMenuGroup = parent.project.name
+            winUpgradeUuid = "97a4aaa5-0a3f-47f9-b0a2-f91876d9e7dd"
+        }
         icon = "${parent.rootDir}/icon.ico"
     }
     linux {
@@ -156,6 +162,18 @@ jpackage {
         appVersion = "6.6.6" // MacOS sucks, it wants no more than 3 numbers and the first one != 0
         icon = "${parent.rootDir}/icon.icns"
     }
+    doLast {
+        if (project.hasProperty("jpackage.portable")) {
+            new File("${project.buildDir}/dist/${rootProject.name}", "Portable").text = ""
+        }
+    }
+    finalizedBy("packagePortable", "deletePortable")
+}
+
+tasks.register('packagePortable', Zip) {
+    archiveFileName = "${rootProject.name}-${project.version}.zip"
+    destinationDirectory = layout.buildDirectory.dir('dist')
+    from layout.buildDirectory.dir("dist/${rootProject.name}")
 }
 
 jacocoTestReport {

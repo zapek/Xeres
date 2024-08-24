@@ -185,7 +185,7 @@ public class GxsTransactionManager
 
 			var transaction = new Transaction<>(item.getTransactionId(), transactionFlags, new ArrayList<>(), item.getItemCount(), gxsRsService, INCOMING);
 			transaction.setUpdated(Instant.ofEpochSecond(item.getUpdateTimestamp()));
-			addIncomingTransaction(peerConnection, transaction);
+			addTransaction(peerConnection, transaction, INCOMING);
 
 			var readyTransactionItem = new GxsTransactionItem(
 					transactionFlags,
@@ -247,22 +247,18 @@ public class GxsTransactionManager
 		}
 	}
 
-	private void addOutgoingTransaction(PeerConnection peerConnection, Transaction<?> transaction)
+	private void addTransaction(PeerConnection peerConnection, Transaction<?> transaction, Direction direction)
 	{
-		addTransaction(peerConnection, transaction, outgoingTransactions);
-	}
-
-	private void addIncomingTransaction(PeerConnection peerConnection, Transaction<?> transaction)
-	{
-		addTransaction(peerConnection, transaction, incomingTransactions);
-	}
-
-	private static void addTransaction(PeerConnection peerConnection, Transaction<?> transaction, Map<LocationId, Map<Integer, Transaction<?>>> transactionList)
-	{
-		var transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationId(), key -> new HashMap<>());
-		if (transactionMap.putIfAbsent(transaction.getId(), transaction) != null)
+		Map<LocationId, Map<Integer, Transaction<?>>> transactionList = switch (direction)
 		{
-			throw new IllegalStateException("Transaction " + transaction.getId() + " for peer " + peerConnection + " already exists. Should not happen (tm)");
+			case OUTGOING -> outgoingTransactions;
+			case INCOMING -> incomingTransactions;
+		};
+
+		var transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationId(), key -> new HashMap<>());
+		if (transactionMap.put(transaction.getId(), transaction) != null && direction == OUTGOING)
+		{
+			throw new IllegalStateException("Transaction " + transaction.getId() + " (OUTGOING) for peer " + peerConnection + " already exists. Should not happen (tm)");
 		}
 	}
 
@@ -306,7 +302,7 @@ public class GxsTransactionManager
 	private void startOutgoingTransaction(PeerConnection peerConnection, Transaction<? extends GxsExchange> transaction, Instant update)
 	{
 		log.debug("Starting outgoing transaction {} with peer {}", transaction, peerConnection);
-		addOutgoingTransaction(peerConnection, transaction);
+		addTransaction(peerConnection, transaction, OUTGOING);
 
 		var startTransactionItem = new GxsTransactionItem(
 				transaction.getTransactionFlags(),

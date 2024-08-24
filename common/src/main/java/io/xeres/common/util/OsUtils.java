@@ -322,12 +322,10 @@ public final class OsUtils
 		Objects.requireNonNull(path);
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
-			try
+			try (var ads = new RandomAccessFile(path + ":Zone.Identifier", "rw")) // We can't use Path.of() here as it won't accept the ':'
 			{
-				var ads = new RandomAccessFile(path + ":Zone.Identifier", "rw"); // We can't use Path.of() here as it won't accept the ':'
 				byte[] data = ("[ZoneTransfer]\r\nZoneId=" + (trusted ? "2" : "3") + "\r\nHostUrl=about:internet\r\n").getBytes();
 				ads.write(data);
-				ads.close();
 			}
 			catch (IOException e)
 			{

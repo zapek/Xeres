@@ -27,10 +27,7 @@ import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.IndexRange;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
@@ -53,7 +50,7 @@ public class EditorView extends VBox
 	private static final int IMAGE_HEIGHT_MAX = 480;
 	private static final int IMAGE_MAXIMUM_SIZE = 31000; // Same as the one in chat
 
-	private static final Pattern URL_DETECTOR = Pattern.compile("(^mailto:.*$|^\\p{Ll}.+://.*$)");
+	private static final Pattern URL_DETECTOR = Pattern.compile("(^mailto:.*$|^\\p{Ll}.{1,30}://.*$)");
 
 	@FXML
 	private Button bold;
@@ -74,7 +71,25 @@ public class EditorView extends VBox
 	private Button list;
 
 	@FXML
-	private Button heading;
+	private MenuButton heading;
+
+	@FXML
+	private MenuItem header1;
+
+	@FXML
+	private MenuItem header2;
+
+	@FXML
+	private MenuItem header3;
+
+	@FXML
+	private MenuItem header4;
+
+	@FXML
+	private MenuItem header5;
+
+	@FXML
+	private MenuItem header6;
 
 	@FXML
 	private TextArea editor;
@@ -110,7 +125,12 @@ public class EditorView extends VBox
 		code.setOnAction(event -> selection(() -> prefixLines("\t"), () -> surround("`")));
 		quote.setOnAction(event -> prefixLines(">"));
 		list.setOnAction(event -> insertNextLine("-"));
-		heading.setOnAction(event -> insertNextLine("##"));
+		header1.setOnAction(event -> insertNextLine("#"));
+		header2.setOnAction(event -> insertNextLine("##"));
+		header3.setOnAction(event -> insertNextLine("###"));
+		header4.setOnAction(event -> insertNextLine("####"));
+		header5.setOnAction(event -> insertNextLine("#####"));
+		header6.setOnAction(event -> insertNextLine("######"));
 		hyperlink.setOnAction(event -> insertUrl(UiUtils.getWindow(event)));
 
 		editor.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);

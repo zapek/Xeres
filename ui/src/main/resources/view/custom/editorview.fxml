@@ -78,14 +78,22 @@
                 <Tooltip showDuration="1m" text="%editor.action.list"/>
             </tooltip>
         </Button>
-        <Button fx:id="heading" focusTraversable="false" styleClass="button-icon">
+        <MenuButton fx:id="heading" focusTraversable="false" styleClass="button-icon, button-outlined">
             <graphic>
                 <FontIcon iconLiteral="fas-heading"/>
             </graphic>
+            <items>
+                <MenuItem fx:id="header1" text="H1"/>
+                <MenuItem fx:id="header2" text="H2"/>
+                <MenuItem fx:id="header3" text="H3"/>
+                <MenuItem fx:id="header4" text="H4"/>
+                <MenuItem fx:id="header5" text="H5"/>
+                <MenuItem fx:id="header6" text="H6"/>
+            </items>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.header"/>
             </tooltip>
-        </Button>
+        </MenuButton>
     </ToolBar>
     <TextArea fx:id="editor" wrapText="true" VBox.vgrow="SOMETIMES"/>
 </fx:root>

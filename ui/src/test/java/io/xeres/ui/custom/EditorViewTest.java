@@ -163,6 +163,7 @@ class EditorViewTest
 	void EditorView_Content_Heading(FxRobot robot)
 	{
 		robot.clickOn("#heading");
+		robot.clickOn("#header2");
 		assertEquals("## ", editorView.getText());
 	}
 
@@ -173,6 +174,7 @@ class EditorViewTest
 		robot.press(KeyCode.CONTROL, KeyCode.A);
 		robot.release(KeyCode.CONTROL, KeyCode.A);
 		robot.clickOn("#heading");
+		robot.clickOn("#header2");
 		assertEquals("\n## hello", editorView.getText());
 	}
 }

@@ -38,6 +38,7 @@
             <Label text="Xeres" styleClass="title-2"/>
             <HBox>
                 <Label text="%about.version"/>
+                <Label text=" "/>
                 <Label fx:id="version"/>
             </HBox>
             <Label fx:id="profile">

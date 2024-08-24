@@ -257,6 +257,7 @@
                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
             </VBox.margin>
             <Label text="%main.status.connections"/>
+            <Label text=" "/>
             <Label fx:id="numberOfConnections" prefWidth="40.0"/>
             <Label text="NAT: "/>
             <LedControl fx:id="natStatus" prefHeight="16.0" prefWidth="16.0"/>

@@ -29,6 +29,7 @@
 <VBox prefWidth="560.0" prefHeight="540.0" minWidth="400.0" minHeight="500.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
     <TextFlow fx:id="instructions">
         <Text text="%rsid.add.textarea.instruction"/>
+        <Text text=" "/>
         <Hyperlink fx:id="scanQrCode" text="%rsid.add.textarea.instruction2"/>
     </TextFlow>
     <TextArea fx:id="rsIdTextArea" promptText="%rsid.add.textarea.prompt" VBox.vgrow="SOMETIMES" styleClass="fixed-font">

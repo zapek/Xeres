@@ -19,11 +19,14 @@
 
 package io.xeres.ui.support.contentline;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 
+import java.text.MessageFormat;
 import java.util.function.Consumer;
 
 public class ContentUri implements Content
@@ -39,13 +42,25 @@ public class ContentUri implements Content
 	public ContentUri(String uri, String description)
 	{
 		node = new DisclosedHyperlink(description, uri);
-		node.setOnAction(event -> UriService.openUri(appendMailToIfNeeded(uri)));
+		node.setOnAction(event -> askBeforeOpeningIfNeeded(() -> UriService.openUri(appendMailToIfNeeded(uri))));
 	}
 
 	public ContentUri(String uri, String description, Consumer<String> action)
 	{
 		node = new DisclosedHyperlink(description, uri);
-		node.setOnAction(event -> action.accept(uri));
+		node.setOnAction(event -> askBeforeOpeningIfNeeded(() -> action.accept(uri)));
+	}
+
+	private void askBeforeOpeningIfNeeded(Runnable action)
+	{
+		if (((DisclosedHyperlink) node).isMalicious())
+		{
+			UiUtils.alertConfirm(MessageFormat.format(I18nUtils.getString("uri.malicious-link.confirm"), ((DisclosedHyperlink) node).getUri()), action);
+		}
+		else
+		{
+			action.run();
+		}
 	}
 
 	private static String appendMailToIfNeeded(String uri)

@@ -19,8 +19,11 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.Hyperlink;
+
+import java.text.MessageFormat;
 
 /**
  * A class that displays a tooltip over hyperlinks so that one knows what he's going to click on.
@@ -28,6 +31,7 @@ import javafx.scene.control.Hyperlink;
 public class DisclosedHyperlink extends Hyperlink
 {
 	private String uri;
+	private boolean malicious;
 
 	public DisclosedHyperlink()
 	{
@@ -47,6 +51,20 @@ public class DisclosedHyperlink extends Hyperlink
 	public void setUri(String uri)
 	{
 		this.uri = uri;
-		TooltipUtils.install(this, uri);
+		if (getText().contains("://") && !getText().equals(uri))
+		{
+			setStyle("-fx-text-fill: red;");
+			TooltipUtils.install(this, MessageFormat.format(I18nUtils.getString("uri.malicious-link"), uri));
+			malicious = true;
+		}
+		else
+		{
+			TooltipUtils.install(this, uri);
+		}
+	}
+
+	public boolean isMalicious()
+	{
+		return malicious;
 	}
 }

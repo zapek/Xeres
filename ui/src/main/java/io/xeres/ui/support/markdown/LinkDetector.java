@@ -49,6 +49,6 @@ class LinkDetector implements MarkdownDetector
 	private static String getDescription(String s)
 	{
 		var index = s.indexOf("]");
-		return s.substring(1, index - 1);
+		return s.substring(1, index);
 	}
 }

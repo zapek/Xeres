@@ -154,6 +154,9 @@ jpackage {
         icon = "${parent.rootDir}/icon.ico"
     }
     linux {
+        if (project.hasProperty("jpackage.rpm")) {
+            type = ImageType.RPM
+        }
         linuxShortcut = true
         icon = "${parent.rootDir}/icon.png"
     }

@@ -15,6 +15,9 @@
 
 - 🤝 Peer-to-Peer (Friend-to-Friend), fully decentralized
 - 🚫 No censorship. Cannot be censored
+- 💬 Chat directly with your friends or in chat rooms
+- 📢 Participate in forums and discuss any topic
+- 📂 Share files anonymously
 - 👋 Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
 - 🛠️ Hardware accelerated encryption
 - 🖥️ Modern looking desktop user interface with several themes including dark mode

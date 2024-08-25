@@ -173,7 +173,7 @@ jpackage {
 }
 
 tasks.register('packagePortable', Zip) {
-    archiveFileName = "${rootProject.name}-${project.version}.zip"
+    archiveFileName = "${rootProject.name}-${project.version}-portable.zip"
     destinationDirectory = layout.buildDirectory.dir('dist')
     from layout.buildDirectory.dir("dist/${rootProject.name}")
 }

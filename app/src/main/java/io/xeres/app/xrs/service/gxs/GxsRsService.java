@@ -421,7 +421,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	protected int getNextTransactionId(PeerConnection peerConnection)
+	protected synchronized int getNextTransactionId(PeerConnection peerConnection)
 	{
 		var transactionId = (int) peerConnection.getData(KEY_TRANSACTION_ID).orElse(0) + 1;
 		peerConnection.putData(KEY_TRANSACTION_ID, transactionId);

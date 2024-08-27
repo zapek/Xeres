@@ -25,6 +25,7 @@ import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.EditorView;
+import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -57,12 +58,14 @@ public class ForumEditorWindowController implements WindowController
 
 	private final ForumClient forumClient;
 	private final LocationClient locationClient;
+	private final MarkdownService markdownService;
 	private final ResourceBundle bundle;
 
-	public ForumEditorWindowController(ForumClient forumClient, LocationClient locationClient, ResourceBundle bundle)
+	public ForumEditorWindowController(ForumClient forumClient, LocationClient locationClient, MarkdownService markdownService, ResourceBundle bundle)
 	{
 		this.forumClient = forumClient;
 		this.locationClient = locationClient;
+		this.markdownService = markdownService;
 		this.bundle = bundle;
 	}
 
@@ -73,6 +76,7 @@ public class ForumEditorWindowController implements WindowController
 
 		editorView.lengthProperty.addListener((observable, oldValue, newValue) -> checkSendable((Integer) newValue));
 		editorView.setInputContextMenu(locationClient);
+		editorView.setMarkdownService(markdownService);
 		title.setOnKeyTyped(event -> checkSendable(editorView.lengthProperty.getValue()));
 
 		send.setOnAction(event -> postMessage());

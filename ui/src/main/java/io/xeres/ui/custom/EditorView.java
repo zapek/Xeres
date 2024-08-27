@@ -21,6 +21,8 @@ package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.client.LocationClient;
+import io.xeres.ui.support.contentline.Content;
+import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -31,11 +33,13 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -92,9 +96,20 @@ public class EditorView extends VBox
 	private MenuItem header6;
 
 	@FXML
+	private ToggleButton preview;
+
+	@FXML
 	private TextArea editor;
 
+	@FXML
+	private ScrollPane previewPane;
+
+	@FXML
+	private TextFlow previewContent;
+
 	private int typingCount;
+
+	private MarkdownService markdownService;
 
 	private final ResourceBundle bundle;
 
@@ -135,7 +150,37 @@ public class EditorView extends VBox
 
 		editor.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 
+		preview.setOnAction(event -> {
+			if (preview.isSelected())
+			{
+				editor.setVisible(false);
+				var contents = markdownService.parse(editor.getText(), EnumSet.noneOf(MarkdownService.ParsingMode.class), null);
+				previewContent.getChildren().addAll(contents.stream()
+						.map(Content::getNode).toList());
+				previewPane.setVisible(true);
+			}
+			else
+			{
+				editor.setVisible(true);
+				previewPane.setVisible(false);
+				previewContent.getChildren().clear();
+			}
+		});
+
 		lengthProperty.bind(editor.lengthProperty());
+	}
+
+	/**
+	 * Sets the markdown service. If it is set, then the EditorView automatically gets a preview button.
+	 *
+	 * @param markdownService the markdown service
+	 */
+	public void setMarkdownService(MarkdownService markdownService)
+	{
+		this.markdownService = markdownService;
+
+		preview.setManaged(true);
+		preview.setVisible(true);
 	}
 
 	public String getText()

@@ -21,7 +21,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.*?>
 <fx:root prefHeight="480" prefWidth="640" type="VBox" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
     <ToolBar>
@@ -94,6 +95,19 @@
                 <Tooltip showDuration="1m" text="%editor.action.header"/>
             </tooltip>
         </MenuButton>
+        <ToggleButton fx:id="preview" focusTraversable="false" styleClass="button-icon" visible="false" managed="false">
+            <graphic>
+                <FontIcon iconLiteral="fas-eye"/>
+            </graphic>
+        </ToggleButton>
     </ToolBar>
-    <TextArea fx:id="editor" wrapText="true" VBox.vgrow="SOMETIMES"/>
+    <StackPane>
+        <TextArea fx:id="editor" wrapText="true" VBox.vgrow="SOMETIMES"/>
+        <ScrollPane fx:id="previewPane" fitToWidth="true" VBox.vgrow="ALWAYS" visible="false">
+            <padding>
+                <Insets top="10.0" left="14.0" bottom="10.0" right="14.0"/>
+            </padding>
+            <TextFlow fx:id="previewContent" tabSize="4" styleClass="forum-content"/>
+        </ScrollPane>
+    </StackPane>
 </fx:root>

@@ -224,7 +224,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				getOpenedWindow(ForumEditorWindowController.class, postRequest.toString()).ifPresentOrElse(Window::requestFocus,
 						() -> {
-							var forumEditor = new ForumEditorWindowController(forumClient, locationClient, bundle);
+							var forumEditor = new ForumEditorWindowController(forumClient, locationClient, markdownService, bundle);
 
 							UiWindow.builder("/view/forum/forumeditorview.fxml", forumEditor)
 									.setLocalId(postRequest.toString())

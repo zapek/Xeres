@@ -29,7 +29,10 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
 /**
@@ -149,9 +152,7 @@ public class AsyncImageView extends ImageView
 
 		private static ExecutorService createExecutor()
 		{
-			var executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-			executor.setKeepAliveTime(1, TimeUnit.SECONDS);
-			return executor;
+			return Executors.newVirtualThreadPerTaskExecutor();
 		}
 
 		private void cycleTasks()

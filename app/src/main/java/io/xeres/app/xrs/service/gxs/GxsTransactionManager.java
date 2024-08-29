@@ -26,6 +26,9 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.service.gxs.Transaction.Direction;
 import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.util.ExecutorUtils;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static io.xeres.app.xrs.service.gxs.Transaction.Direction.INCOMING;
 import static io.xeres.app.xrs.service.gxs.Transaction.Direction.OUTGOING;
@@ -72,9 +76,34 @@ public class GxsTransactionManager
 	private final Map<LocationId, Map<Integer, Transaction<?>>> incomingTransactions = new ConcurrentHashMap<>();
 	private final Map<LocationId, Map<Integer, Transaction<?>>> outgoingTransactions = new ConcurrentHashMap<>();
 
+	private ScheduledExecutorService executorService;
+
 	public GxsTransactionManager(PeerConnectionManager peerConnectionManager)
 	{
 		this.peerConnectionManager = peerConnectionManager;
+	}
+
+	@PostConstruct
+	private void init()
+	{
+		executorService = ExecutorUtils.createFixedRateExecutor(this::cleanupTransactions,
+				Transaction.TRANSACTION_TIMEOUT.toSeconds() + 30,
+				Transaction.TRANSACTION_TIMEOUT.toSeconds());
+	}
+
+	@PreDestroy
+	private void cleanup()
+	{
+		ExecutorUtils.cleanupExecutor(executorService);
+	}
+
+	/**
+	 * Removes all transactions that have a timeout.
+	 */
+	private void cleanupTransactions()
+	{
+		incomingTransactions.forEach((locationId, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimeout()));
+		outgoingTransactions.forEach((locationId, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimeout()));
 	}
 
 	/**
@@ -296,7 +325,6 @@ public class GxsTransactionManager
 		{
 			throw new IllegalStateException("No existing transaction for removal for peer " + peerConnection);
 		}
-		// XXX: remove, and possible check if the state is right before doing so (ie. COMPLETED, etc...)
 	}
 
 	private void startOutgoingTransaction(PeerConnection peerConnection, Transaction<? extends GxsExchange> transaction, Instant update)
@@ -311,7 +339,5 @@ public class GxsTransactionManager
 				transaction.getId());
 
 		peerConnectionManager.writeItem(peerConnection, startTransactionItem, transaction.getService());
-
-		// XXX: periodically check for the timeout in case the peer doesn't answer anymore
 	}
 }

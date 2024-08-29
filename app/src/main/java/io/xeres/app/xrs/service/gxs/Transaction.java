@@ -59,7 +59,7 @@ public class Transaction<T extends GxsExchange>
 		OUTGOING
 	}
 
-	private static final Duration TRANSACTION_TIMEOUT = Duration.ofSeconds(2000);
+	public static final Duration TRANSACTION_TIMEOUT = Duration.ofSeconds(2000);
 
 	private final int id;
 	private State state;

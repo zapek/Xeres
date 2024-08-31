@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class HashBloomFilterTest
 {
 	@Test
-	void TurtleBloomFilter_OK()
+	void Add_Success()
 	{
 		var filter = new HashBloomFilter(null, 10_000, 0.01d);
 
@@ -51,7 +51,7 @@ class HashBloomFilterTest
 	}
 
 	@Test
-	void TurtleBloomFilter_Multiple_OK()
+	void Add_Multiple_Success()
 	{
 		var filter = new HashBloomFilter(null, 10_000, 0.01d);
 

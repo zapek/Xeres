@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TrustTest
 {
 	@Test
-	void Trust_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, UNKNOWN.ordinal());
 		assertEquals(1, NEVER.ordinal());

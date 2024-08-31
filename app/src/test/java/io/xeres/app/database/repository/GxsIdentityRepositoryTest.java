@@ -33,7 +33,7 @@ class GxsIdentityRepositoryTest
 	private GxsIdentityRepository gxsIdentityRepository;
 
 	@Test
-	void GxsIdentityRepository_CRUD_OK()
+	void CRUD_Success()
 	{
 		var gxsIdGroupItem1 = IdentityGroupItemFakes.createIdentityGroupItem();
 		var gxsIdGroupItem2 = IdentityGroupItemFakes.createIdentityGroupItem();

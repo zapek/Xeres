@@ -37,7 +37,7 @@ class DNSTest
 	 */
 	@Test
 	@EnabledIfEnvironmentVariable(named = "COMPUTERNAME", matches = "B650")
-	void DNS_OK() throws IOException
+	void Resolve_Success() throws IOException
 	{
 		var ip1 = DNS.resolve("myip.opendns.com", "208.67.222.222"); // resolver1.opendns.com
 		var ip2 = DNS.resolve("myip.opendns.com", "208.67.220.220"); // resolver2.opendns.com

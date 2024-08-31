@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ChatFlagsTest
 {
 	@Test
-	void ChatFlags_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, PRIVATE.ordinal());
 		assertEquals(1, REQUEST_AVATAR.ordinal());

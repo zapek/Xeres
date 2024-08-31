@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ChatActionTest
 {
 	@Test
-	void ChatAction_HasMessageLine_OK()
+	void HasMessageLine_Success()
 	{
 		var gxsId = IdFakes.createGxsId();
 		var nickname = StringFakes.createNickname();
@@ -39,7 +39,7 @@ class ChatActionTest
 	}
 
 	@Test
-	void ChatAction_HasMessageLine_None()
+	void HasMessageLine_None()
 	{
 		var action = new ChatAction(ChatAction.Type.SAY, StringFakes.createNickname(), IdFakes.createGxsId());
 

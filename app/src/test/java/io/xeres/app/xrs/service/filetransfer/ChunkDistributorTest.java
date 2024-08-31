@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ChunkDistributorTest
 {
 	@Test
-	void ChunkDistributor_Linear_Given()
+	void Linear_Given()
 	{
 		var availableChunkMap = new BitSet(4);
 		availableChunkMap.set(0, 4);
@@ -47,7 +47,7 @@ class ChunkDistributorTest
 	}
 
 	@Test
-	void ChunkDistributor_Linear_GivenAndUsed()
+	void Linear_GivenAndUsed()
 	{
 		var availableChunkMap = new BitSet(4);
 		availableChunkMap.set(0, 4);
@@ -65,7 +65,7 @@ class ChunkDistributorTest
 	}
 
 	@Test
-	void ChunkDistributor_Linear_GivenAndUsed2()
+	void GivenAndUsed2()
 	{
 		var availableChunkMap = new BitSet(8);
 		availableChunkMap.set(0, 8);
@@ -91,7 +91,7 @@ class ChunkDistributorTest
 	}
 
 	@Test
-	void ChunkDistributor_Random_Given()
+	void Random_Given()
 	{
 		var availableChunkMap = new BitSet(4);
 		availableChunkMap.set(0, 4);
@@ -109,7 +109,7 @@ class ChunkDistributorTest
 	}
 
 	@Test
-	void ChunkDistributor_Linear_Given_NotAllAvailable()
+	void Linear_Given_NotAllAvailable()
 	{
 		var availableChunkMap = new BitSet(4);
 		availableChunkMap.set(0, 2);

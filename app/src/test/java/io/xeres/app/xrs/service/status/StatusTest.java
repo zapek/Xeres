@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StatusTest
 {
 	@Test
-	void Status_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, OFFLINE.ordinal());
 		assertEquals(1, AWAY.ordinal());

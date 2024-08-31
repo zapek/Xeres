@@ -27,13 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ChatMapperTest
 {
 	@Test
-	void ChatMapper_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ChatMapper.class);
 	}
 
 	@Test
-	void ChatMapper_toDTO_OK()
+	void toDTO_Success()
 	{
 		var chatRoom = ChatRoomFakes.createChatRoom();
 		var chatRoomDTO = ChatMapper.toDTO(chatRoom.getAsRoomInfo());

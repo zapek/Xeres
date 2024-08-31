@@ -61,7 +61,7 @@ class ForumControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void ForumController_GetForumsGroups() throws Exception
+	void GetForumsGroups_Success() throws Exception
 	{
 		var forumGroups = List.of(ForumGroupItemFakes.createForumGroupItem(), ForumGroupItemFakes.createForumGroupItem());
 
@@ -77,7 +77,7 @@ class ForumControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ForumController_UpdateMessagesReadFlag_OK() throws Exception
+	void UpdateMessagesReadFlag_Success() throws Exception
 	{
 		var ids = Map.of(1L, true, 2L, true, 3L, false);
 		var request = new UpdateForumMessagesReadRequest(ids);

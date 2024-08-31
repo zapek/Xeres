@@ -57,7 +57,7 @@ class X509Test
 	}
 
 	@Test
-	void X509_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(X509.class);
 	}
@@ -66,19 +66,19 @@ class X509Test
 	 * Generates an X509 certificate.
 	 */
 	@Test
-	void X509_GenerateCertificate_OK() throws PGPException, IOException, CertificateException, SignatureException
+	void GenerateCertificate_Success() throws PGPException, IOException, CertificateException, SignatureException
 	{
 		generateCertificate(RSSerialVersion.V07_0001.serialNumber());
 	}
 
 	@Test
-	void X509_GenerateCertificate_OldRS_0_6_5_OK() throws PGPException, IOException, CertificateException, SignatureException
+	void GenerateCertificate_OldRS_0_6_5_Success() throws PGPException, IOException, CertificateException, SignatureException
 	{
 		generateCertificate(RSSerialVersion.V06_0001.serialNumber());
 	}
 
 	@Test
-	void X509_GenerateCertificate_OldestRS_OK() throws PGPException, IOException, CertificateException, SignatureException
+	void GenerateCertificate_OldestRS_Success() throws PGPException, IOException, CertificateException, SignatureException
 	{
 		generateCertificate(new BigInteger("123456", 16));
 	}

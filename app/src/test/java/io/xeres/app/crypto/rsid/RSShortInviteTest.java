@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RSShortInviteTest
 {
 	@Test
-	void ShortInviteTags_Values()
+	void Values()
 	{
 		assertEquals(0x0, SSL_ID);
 		assertEquals(0x1, NAME);
@@ -50,7 +50,7 @@ class RSShortInviteTest
 	}
 
 	@Test
-	void ShortInviteQuirks_SwapBytes_OK()
+	void SwapBytes_Success()
 	{
 		var input = new byte[]{1, 2, 3, 4, 5, 6};
 		var output = new byte[]{4, 3, 2, 1, 5, 6};
@@ -59,7 +59,7 @@ class RSShortInviteTest
 	}
 
 	@Test
-	void ShortInviteQuirks_SwapBytes_WrongInput_NoSwap()
+	void SwapBytes_WrongInput_NoSwap()
 	{
 		var input = new byte[]{1, 2, 3, 4, 5, 6, 7};
 		var output = new byte[]{1, 2, 3, 4, 5, 6, 7};
@@ -68,7 +68,7 @@ class RSShortInviteTest
 	}
 
 	@Test
-	void ShortInvite_Build_OK()
+	void Build_Success()
 	{
 		var profile = ProfileFakes.createProfile("Nemesis", 0x792b20ca657e2706L, Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), new byte[]{1});
 		var location = LocationFakes.createLocation("Home", profile, new LocationId("738ea192064e3f20e766438cc9305bd5"));
@@ -89,7 +89,7 @@ class RSShortInviteTest
 	}
 
 	@Test
-	void ShortInvite_Parse_OK()
+	void Parse_Success()
 	{
 		var string = "\nABBzjqGSBk4/IOdmQ4zJMFvVAQdOZW1lc2lzAxQG1LRG0gnnUvpxGjl5KyDKZX4nBpENBNJmb28uYmFyLmNvbZIGAwIBVQTSkwYyAajABNICFGlwdjQ6Ly84NS4xLjIuNDoxMjM0BAOiD+U=\n";
 
@@ -124,7 +124,7 @@ class RSShortInviteTest
 	}
 
 	@Test
-	void ShortInvite_Parse_Empty()
+	void Parse_Empty()
 	{
 		var string = "";
 
@@ -152,7 +152,7 @@ class RSShortInviteTest
 			// Missing PGP fingerprint
 			"ABCE1fl2NmWv3Ri9EjwzgIHAAQpaYXBla1hlcmVzkgb+2cNVQbOTBk4BqMBBswQDXfgj"
 	})
-	void ShortInvite_Parse_Error(String string)
+	void Parse_Error(String string)
 	{
 		var rsId = RSId.parse(string, SHORT_INVITE);
 

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 class UiUtilsTest
 {
 	@Test
-	void UiUtils_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(UiUtils.class);
 	}

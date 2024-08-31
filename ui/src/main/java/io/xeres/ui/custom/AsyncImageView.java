@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,11 @@ public class AsyncImageView extends ImageView
 
 	public void loadUrl(String url, Function<String, byte[]> loader)
 	{
+		if (StringUtils.isBlank(url))
+		{
+			throw new IllegalArgumentException("Url cannot be empty");
+		}
+
 		backgroundTask = new ImageTask(url, loader);
 
 		synchronized (pendingTasks)

@@ -45,7 +45,7 @@ class RSATest
 	}
 
 	@Test
-	void RSA_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(RSA.class);
 	}
@@ -54,7 +54,7 @@ class RSATest
 	 * Generates an RSA secret key.
 	 */
 	@Test
-	void RSA_GenerateKeys_OK()
+	void GenerateKeys_Success()
 	{
 		assertNotNull(keyPair);
 		assertEquals("RSA", keyPair.getPrivate().getAlgorithm());
@@ -62,19 +62,19 @@ class RSATest
 	}
 
 	@Test
-	void RSA_GetPrivateKey_OK() throws InvalidKeySpecException, NoSuchAlgorithmException
+	void GetPrivateKey_Success() throws InvalidKeySpecException, NoSuchAlgorithmException
 	{
 		assertEquals(keyPair.getPrivate(), RSA.getPrivateKey(keyPair.getPrivate().getEncoded()));
 	}
 
 	@Test
-	void RSA_GetPublicKey_OK() throws InvalidKeySpecException, NoSuchAlgorithmException
+	void GetPublicKey_Success() throws InvalidKeySpecException, NoSuchAlgorithmException
 	{
 		assertEquals(keyPair.getPublic(), RSA.getPublicKey(keyPair.getPublic().getEncoded()));
 	}
 
 	@Test
-	void RSA_Sign_OK()
+	void Sign_Success()
 	{
 		byte[] data = {1, 2, 3};
 
@@ -88,7 +88,7 @@ class RSATest
 	}
 
 	@Test
-	void RSA_Sign_TemperedData()
+	void Sign_TemperedData_Failure()
 	{
 		byte[] data = {1, 2, 3};
 
@@ -104,7 +104,7 @@ class RSATest
 	}
 
 	@Test
-	void RSA_Sign_InvalidKeyException()
+	void Sign_InvalidKey_ThrowsException()
 	{
 		byte[] data = {1, 2, 3};
 		var privateKey = new PrivateKey()
@@ -135,7 +135,7 @@ class RSATest
 	}
 
 	@Test
-	void RSA_Convert_Private_Pkcs8_To_Pkcs1_And_Back() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
+	void Convert_Private_Pkcs8_To_Pkcs1_And_Back_Success() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{
 		var pkcs1 = RSA.getPrivateKeyAsPkcs1(keyPair.getPrivate());
 		var privateKey = RSA.getPrivateKeyFromPkcs1(pkcs1);
@@ -144,7 +144,7 @@ class RSATest
 	}
 
 	@Test
-	void RSA_Convert_Public_X509_To_Pkcs1_And_Back() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
+	void Convert_Public_X509_To_Pkcs1_And_Back_Success() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{
 		var pkcs1 = RSA.getPublicKeyAsPkcs1(keyPair.getPublic());
 		var publicKey = RSA.getPublicKeyFromPkcs1(pkcs1);

@@ -63,7 +63,7 @@ class LocationControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void LocationController_FindLocationById_OK() throws Exception
+	void FindLocationById_Success() throws Exception
 	{
 		var location = LocationFakes.createLocation();
 
@@ -77,7 +77,7 @@ class LocationControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void LocationController_getRSIdOfLocation_OK() throws Exception
+	void GetRSIdOfLocation_Success() throws Exception
 	{
 		var location = LocationFakes.createLocation();
 
@@ -93,7 +93,7 @@ class LocationControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void LocationController_getRSIdOfLocation_QrCode_OK() throws Exception
+	void GetRSIdOfLocation_QrCode_Success() throws Exception
 	{
 		var location = LocationFakes.createLocation();
 		var rsId = location.getRsId(Type.SHORT_INVITE).getArmored();

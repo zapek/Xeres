@@ -64,7 +64,7 @@ class ChatRsServiceTest
 	private ChatRsService chatRsService;
 
 	@Test
-	void ChatService_HandleChatMessageItem_OK()
+	void HandleChatMessageItem_Success()
 	{
 		var message = "hello";
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
@@ -81,7 +81,7 @@ class ChatRsServiceTest
 	}
 
 	@Test
-	void ChatService_HandleChatMessageItem_Partial_OK()
+	void HandleChatMessageItem_Partial_Success()
 	{
 		var message1 = "hello, ";
 		var message2 = "world";
@@ -101,7 +101,7 @@ class ChatRsServiceTest
 	}
 
 	@Test
-	void ChatService_HandleChatRoomListRequestItem_Empty_OK()
+	void HandleChatRoomListRequestItem_Empty_Success()
 	{
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
@@ -117,7 +117,7 @@ class ChatRsServiceTest
 	}
 
 	@Test
-	void ChatService_HandleChatRoomListRequestItem_OK()
+	void HandleChatRoomListRequestItem_Success()
 	{
 		var roomName = "test";
 		var roomTopic = "test topic";

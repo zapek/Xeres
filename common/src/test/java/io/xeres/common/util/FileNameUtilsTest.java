@@ -1,9 +1,11 @@
 package io.xeres.common.util;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FileNameUtilsTest
 {
@@ -21,9 +23,15 @@ class FileNameUtilsTest
 			"foo (1)(2).jpg,foo (1)(3).jpg",
 			"foo ().jpg,foo () (1).jpg"
 	})
-	void FileNameUtils_Rename(String input, String expected)
+	void Rename_Various_Success(String input, String expected)
 	{
 		var result = FileNameUtils.rename(input);
 		assertEquals(expected, result);
+	}
+
+	@Test
+	void Rename_Empty_ThrowsException()
+	{
+		assertThrows(IllegalArgumentException.class, () -> FileNameUtils.rename(""));
 	}
 }

@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SecureRandomUtilsTest
 {
 	@Test
-	void SecureRandomUtils_NextPassword_Empty()
+	void NextPassword_Empty_ThrowsException()
 	{
 		char[] password = new char[0];
 
@@ -35,7 +35,7 @@ class SecureRandomUtilsTest
 	}
 
 	@Test
-	void SecureRandomUtils_NextPassword_Short()
+	void NextPassword_Short_Success()
 	{
 		char[] password = new char[1];
 		SecureRandomUtils.nextPassword(password);
@@ -44,7 +44,7 @@ class SecureRandomUtilsTest
 	}
 
 	@Test
-	void SecureRandomUtils_NextPassword_Small()
+	void NextPassword_Small_Success()
 	{
 		char[] password = new char[2];
 		SecureRandomUtils.nextPassword(password);
@@ -53,7 +53,7 @@ class SecureRandomUtilsTest
 	}
 
 	@Test
-	void SecureRandomUtils_NextPassword_Minimal()
+	void NextPassword_Minimal_Success()
 	{
 		char[] password = new char[3];
 		SecureRandomUtils.nextPassword(password);
@@ -64,7 +64,7 @@ class SecureRandomUtilsTest
 	}
 
 	@Test
-	void SecureRandomUtils_NextPassword_Normal()
+	void NextPassword_Normal_Success()
 	{
 		var password = new char[20];
 		SecureRandomUtils.nextPassword(password);

@@ -46,7 +46,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Parse_Sanitize_Default_OK()
+	void Parse_Sanitize_Default_Success()
 	{
 		var markdownService = createMarkdownService();
 
@@ -83,7 +83,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Parse_Sanitize_Default_Verbatim_OK()
+	void Parse_Sanitize_Default_Verbatim_Success()
 	{
 		var markdownService = createMarkdownService();
 
@@ -107,7 +107,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Parse_Sanitize_Quoted_OK()
+	void Parse_Sanitize_Quoted_Success()
 	{
 		var markdownService = createMarkdownService();
 
@@ -133,7 +133,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Sanitize_NoEndOfLine_OK()
+	void Sanitize_NoEndOfLine_Success()
 	{
 		var markdownService = createMarkdownService();
 
@@ -164,7 +164,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Sanitize_Paragraph_OK()
+	void Sanitize_Paragraph_Success()
 	{
 		var markdownService = createMarkdownService();
 
@@ -197,7 +197,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_ParseInlineUrls_OK()
+	void ParseInlineUrls_Success()
 	{
 		var markdownService = createMarkdownService();
 
@@ -218,7 +218,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_ParseInlineUrls_WeirdChars_OK()
+	void ParseInlineUrls_WeirdChars_Success()
 	{
 		var markdownService = createMarkdownService();
 
@@ -240,7 +240,7 @@ class MarkdownServiceTest extends FXTest
 			"\tfoo();, foo();",
 			"        foo();,     foo();"
 	})
-	void MarkdownService_RemoveFirstStartingSpacesCode(String input, String expected)
+	void RemoveFirstStartingSpacesCode(String input, String expected)
 	{
 		var markdownService = createMarkdownService();
 
@@ -252,7 +252,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Parse_Empty()
+	void Parse_Empty()
 	{
 		var markdownService = createMarkdownService();
 
@@ -266,7 +266,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Parse_Empty_Too()
+	void Parse_Empty_Too()
 	{
 		var markdownService = createMarkdownService();
 
@@ -280,7 +280,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Parse_Simple_Text()
+	void Parse_Simple_Text()
 	{
 		var markdownService = createMarkdownService();
 
@@ -297,7 +297,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Parse_OneLine_Several()
+	void Parse_OneLine_Several()
 	{
 		var markdownService = createMarkdownService();
 
@@ -322,7 +322,7 @@ class MarkdownServiceTest extends FXTest
 	}
 
 	@Test
-	void MarkdownService_Parse_Multiline_Several()
+	void Parse_Multiline_Several()
 	{
 		var markdownService = createMarkdownService();
 

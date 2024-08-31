@@ -50,7 +50,7 @@ class GeoIpControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void GeoIpController_GetIsoCountry_OK() throws Exception
+	void GetIsoCountry_Success() throws Exception
 	{
 		var address = "1.1.1.1";
 
@@ -64,7 +64,7 @@ class GeoIpControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void GeoIpController_GetIsoCountry_Fail() throws Exception
+	void GetIsoCountry_Failure() throws Exception
 	{
 		var address = "1.1.1.1";
 

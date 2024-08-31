@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class HostPortTest
 {
 	@Test
-	void HostPort_Parse_OK()
+	void Parse_Success()
 	{
 		var host = "hey.foobar.com";
 		var port = 1234;
@@ -41,7 +41,7 @@ class HostPortTest
 	}
 
 	@Test
-	void HostPort_Parse_WrongFormat()
+	void Parse_WrongFormat_ThrowsException()
 	{
 		var host = "hey.foobar.com";
 
@@ -49,7 +49,7 @@ class HostPortTest
 	}
 
 	@Test
-	void HostPort_Parse_MissingHost()
+	void Parse_MissingHost_ThrowsException()
 	{
 		var host = "";
 
@@ -57,7 +57,7 @@ class HostPortTest
 	}
 
 	@Test
-	void HostPort_Parse_MissingPort()
+	void Parse_MissingPort_ThrowsException()
 	{
 		var host = "hey.foobar.com";
 
@@ -65,7 +65,7 @@ class HostPortTest
 	}
 
 	@Test
-	void HostPort_Parse_PortNotANumber()
+	void Parse_PortNotANumber_ThrowsException()
 	{
 		var host = "hey.foobar.com";
 		var port = "plop";
@@ -75,7 +75,7 @@ class HostPortTest
 
 	@ParameterizedTest
 	@ValueSource(ints = {-1, 65536})
-	void HostPort_Parse_PortOutOfRange(int port)
+	void Parse_PortOutOfRange_ThrowsException(int port)
 	{
 		var host = "hey.foobar.com";
 

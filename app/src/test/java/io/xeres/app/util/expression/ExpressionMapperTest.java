@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ExpressionMapperTest
 {
 	@Test
-	void ExpressionMapper_Name()
+	void Name()
 	{
 		List<Byte> tokens = new ArrayList<>();
 		List<Integer> ints = new ArrayList<>();
@@ -57,7 +57,7 @@ class ExpressionMapperTest
 	}
 
 	@Test
-	void ExpressionMapper_Compound_NameAndSize()
+	void Compound_NameAndSize()
 	{
 		List<Byte> tokens = new ArrayList<>();
 		List<Integer> ints = new ArrayList<>();
@@ -94,7 +94,7 @@ class ExpressionMapperTest
 	}
 
 	@Test
-	void ExpressionMapper_Linearize()
+	void Linearize()
 	{
 		var nameExpression = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);
 		var sizeExpression = new SizeExpression(RelationalExpression.Operator.IN_RANGE, 1024, 2048);

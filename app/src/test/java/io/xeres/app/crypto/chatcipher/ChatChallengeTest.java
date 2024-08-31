@@ -30,13 +30,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ChatChallengeTest
 {
 	@Test
-	void ChatChallenge_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ChatChallenge.class);
 	}
 
 	@Test
-	void ChatChallenge_Code_OK()
+	void Code_Various_Success()
 	{
 		var gxsId = new GxsId(Id.toBytes("01dc22f128d9495541f780a254b89630"));
 		var code = ChatChallenge.code(gxsId, Long.parseUnsignedLong("10949563242187165295"), Long.parseUnsignedLong("140257447151802099"));

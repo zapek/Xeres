@@ -30,19 +30,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FileTypeTest
 {
 	@Test
-	void FileType_GetByExtension_NoExtension_OK()
+	void GetTypeByExtension_MissingExtension_Success()
 	{
 		assertEquals(ANY, getTypeByExtension("foobar."));
 	}
 
 	@Test
-	void FileType_GetByExtension_NoExtension2_OK()
+	void GetTypeByExtension_NoExtension_Success()
 	{
 		assertEquals(ANY, getTypeByExtension("foobar"));
 	}
 
 	@Test
-	void FileType_GetByExtension_Found_OK()
+	void GetTypeByExtension_Variants_Success()
 	{
 		assertEquals(AUDIO, getTypeByExtension("foobar.aac"));
 		assertEquals(AUDIO, getTypeByExtension("foobar.mp3"));
@@ -56,13 +56,16 @@ class FileTypeTest
 	}
 
 	@Test
-	void FileType_GetByExtension_NotFound_OK()
+	void GetTypeByExtension_NotFound_Success()
 	{
 		assertEquals(ANY, getTypeByExtension("foobar.dtc"));
 	}
 
+	/**
+	 * Makes sure that no extension is in more than one group.
+	 */
 	@Test
-	void FileType_NoCrossMatches()
+	void GetExtensions_NoCrossMatches()
 	{
 		Set<String> all = new HashSet<>();
 		all.addAll(AUDIO.getExtensions());

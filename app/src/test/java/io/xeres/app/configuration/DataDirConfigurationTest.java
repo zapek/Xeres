@@ -39,7 +39,7 @@ class DataDirConfigurationTest
 	private DataDirConfiguration dataDirConfiguration;
 
 	@Test
-	void DataDirConfiguration_GetDataDir_DataSourceAlreadySet_OK()
+	void GetDataDir_DataSourceAlreadySet_Success()
 	{
 		when(environment.getProperty("spring.datasource.url")).thenReturn("something");
 

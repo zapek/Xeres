@@ -73,7 +73,7 @@ class FileServiceTest
 	}
 
 	@Test
-	void FileService_HashFile_OK() throws URISyntaxException
+	void HashFile_Success() throws URISyntaxException
 	{
 		var ioBuffer = new byte[FileService.SMALL_FILE_SIZE];
 
@@ -89,7 +89,7 @@ class FileServiceTest
 	}
 
 	@Test
-	void FileService_ScanShare_OK() throws URISyntaxException
+	void ScanShare_Success() throws URISyntaxException
 	{
 		var share = ShareFakes.createShare(Path.of(Objects.requireNonNull(getClass().getResource("/image")).toURI()));
 		fileService.scanShare(share);
@@ -100,7 +100,7 @@ class FileServiceTest
 	}
 
 	@Test
-	void FileService_DeleteFile_SingleFile_OK()
+	void DeleteFile_SingleFile_Success()
 	{
 		// Root
 		var fileRoot = FileFakes.createFile("C:\\", null);
@@ -151,7 +151,7 @@ class FileServiceTest
 	}
 
 	@Test
-	void FileService_DeleteFile_TwoFiles_OK()
+	void DeleteFile_TwoFiles_Success()
 	{
 		// Root
 		var fileRoot = FileFakes.createFile("C:\\", null);
@@ -197,7 +197,7 @@ class FileServiceTest
 	}
 
 	@Test
-	void FileService_DeleteFile_SingleFileButAnotherUpper_OK()
+	void DeleteFile_SingleFileButAnotherUpper_Success()
 	{
 		// Root
 		var fileRoot = FileFakes.createFile("C:\\", null);
@@ -245,7 +245,7 @@ class FileServiceTest
 	}
 
 	@Test
-	void FileService_DeleteFile_SingleFileButNotShare_OK()
+	void DeleteFile_SingleFileButNotShare_Success()
 	{
 		// Root
 		var fileRoot = FileFakes.createFile("C:\\", null);

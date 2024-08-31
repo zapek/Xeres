@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RSIdCrcTest
 {
 	@Test
-	void RSIdCrc_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(RSIdCrc.class);
 	}
 
 	@Test
-	void RSIdCrc_CalculateCrc_OK()
+	void Calculate24BitsCrc_Success()
 	{
 		var input = "The quick brown fox jumps over the lazy dog".getBytes();
 		assertEquals(10641804, calculate24bitsCrc(input, input.length));

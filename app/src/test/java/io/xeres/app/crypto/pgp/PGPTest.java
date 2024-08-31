@@ -54,7 +54,7 @@ class PGPTest
 	}
 
 	@Test
-	void PGP_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(PGP.class);
 	}
@@ -63,7 +63,7 @@ class PGPTest
 	 * Generates a PGP secret key.
 	 */
 	@Test
-	void PGP_GenerateSecretKey_OK() throws PGPException
+	void GenerateSecretKey_Success() throws PGPException
 	{
 		assertNotNull(pgpSecretKey);
 		assertTrue(pgpSecretKey.isMasterKey());
@@ -78,7 +78,7 @@ class PGPTest
 	 * Signs using a PGP secret key then verifies.
 	 */
 	@Test
-	void PGP_Sign_OK() throws PGPException, IOException, SignatureException
+	void Sign_Success() throws PGPException, IOException, SignatureException
 	{
 		var in = "The lazy dog jumps over the drunk fox".getBytes();
 
@@ -90,7 +90,7 @@ class PGPTest
 	}
 
 	@Test
-	void PGP_Sign_Armored_OK() throws PGPException, IOException, SignatureException
+	void Sign_Armored_Success() throws PGPException, IOException, SignatureException
 	{
 		var in = "The lazy dog jumps over the drunk fox".getBytes();
 
@@ -105,7 +105,7 @@ class PGPTest
 	 * Signs using a PGP secret key then verifies with another.
 	 */
 	@Test
-	void PGP_Sign_Fail() throws PGPException, IOException
+	void Sign_WrongKey_Failure() throws PGPException, IOException
 	{
 		var in = "The lazy dog jumps over the drunk fox".getBytes();
 
@@ -120,13 +120,13 @@ class PGPTest
 	}
 
 	@Test
-	void PGP_GetSecretKey_OK() throws IOException
+	void GetSecretKey_Success() throws IOException
 	{
 		assertEquals(pgpSecretKey.getKeyID(), getPGPSecretKey(pgpSecretKey.getEncoded()).getKeyID());
 	}
 
 	@Test
-	void PGP_GetSecretKey_Corrupted_Fail()
+	void GetSecretKey_Corrupted_Failure()
 	{
 		assertThatThrownBy(() -> getPGPSecretKey(new byte[]{1, 2, 3}))
 				.isInstanceOf(IllegalArgumentException.class)
@@ -134,13 +134,13 @@ class PGPTest
 	}
 
 	@Test
-	void PGP_GetPublicKey_OK() throws IOException, InvalidKeyException
+	void GetPublicKey_Success() throws IOException, InvalidKeyException
 	{
 		assertEquals(pgpSecretKey.getPublicKey().getKeyID(), getPGPPublicKey(pgpSecretKey.getPublicKey().getEncoded()).getKeyID());
 	}
 
 	@Test
-	void PGP_GetPublicKey_Corrupted_Fail()
+	void GetPublicKey_Corrupted_Failure()
 	{
 		assertThatThrownBy(() -> getPGPPublicKey(new byte[]{1, 2, 3}))
 				.isInstanceOf(InvalidKeyException.class)
@@ -148,7 +148,7 @@ class PGPTest
 	}
 
 	@Test
-	void PGP_GetPublicKeyArmored_OK() throws IOException
+	void GetPublicKeyArmored_Success() throws IOException
 	{
 		var out = new ByteArrayOutputStream();
 		getPublicKeyArmored(pgpSecretKey.getPublicKey(), out);

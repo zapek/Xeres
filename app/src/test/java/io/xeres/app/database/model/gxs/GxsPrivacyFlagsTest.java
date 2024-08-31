@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GxsPrivacyFlagsTest
 {
 	@Test
-	void GxsPrivacyFlagsTest_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, PRIVATE.ordinal());
 		assertEquals(1, RESTRICTED.ordinal());

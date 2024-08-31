@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class GxsSignatureTest
 {
 	@Test
-	void GxsSignature_Create_And_Verify_OK()
+	void Create_And_Verify_Success()
 	{
 		var gxsIdGroupItem = IdentityGroupItemFakes.createIdentityGroupItem();
 

@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
@@ -30,7 +31,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ChunkMapUtilsTest
 {
 	@Test
-	void ChunkMapUtils_toCompressedChunkMap()
+	void Instance_ThrowException() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(ChunkMapUtils.class);
+	}
+
+	@Test
+	void ToCompressedChunkMap()
 	{
 		var input = new BitSet(4);
 		input.set(0);
@@ -48,7 +55,7 @@ class ChunkMapUtilsTest
 	}
 
 	@Test
-	void ChunkMapUtils_Transform()
+	void Transform()
 	{
 		List<Integer> input = List.of(0x1, 0xaabbccdd, 0x8844aa23);
 

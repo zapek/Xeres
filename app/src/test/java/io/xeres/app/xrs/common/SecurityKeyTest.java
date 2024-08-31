@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SecurityKeyTest
 {
 	@Test
-	void SecurityKey_CompareTo_OK()
+	void CompareTo_Success()
 	{
 		var securityKey1 = new SecurityKey(new GxsId(Id.toBytes("11111111111111111111111111111111")), EnumSet.of(TYPE_PUBLIC_ONLY, DISTRIBUTION_ADMIN), 0, 1, new byte[1]);
 		var securityKey2 = new SecurityKey(new GxsId(Id.toBytes("22222222222222222222222222222222")), EnumSet.of(TYPE_PUBLIC_ONLY, DISTRIBUTION_ADMIN), 0, 1, new byte[1]);

@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TlvTypeTest
 {
 	@Test
-	void TlvType_Enum_Value()
+	void Enum_Value()
 	{
 		assertEquals(0, NONE.getValue());
 		assertEquals(0x30, INT_SIZE.getValue());

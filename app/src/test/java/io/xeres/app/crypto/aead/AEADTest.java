@@ -20,6 +20,7 @@
 package io.xeres.app.crypto.aead;
 
 import io.xeres.testutils.RandomUtils;
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,13 @@ class AEADTest
 	}
 
 	@Test
-	void AEAD_EncryptChaCha20Poly1305_DecryptChaCha20Poly1305_OK()
+	void Instance_ThrowsException() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(AEAD.class);
+	}
+
+	@Test
+	void EncryptChaCha20Poly1305_DecryptChaCha20Poly1305_Success()
 	{
 		var nonce = RandomUtils.nextBytes(12);
 		var plainText = "hello world".getBytes(StandardCharsets.UTF_8);
@@ -52,7 +59,7 @@ class AEADTest
 	}
 
 	@Test
-	void AEAD_EncryptChaCha20Aes256_DecryptChaCha20Aes256_OK()
+	void EncryptChaCha20Aes256_DecryptChaCha20Aes256_Success()
 	{
 		var nonce = RandomUtils.nextBytes(12);
 		var plainText = "hello world".getBytes(StandardCharsets.UTF_8);

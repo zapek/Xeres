@@ -39,7 +39,7 @@ class RsCryptoTest
 	}
 
 	@Test
-	void RsCrypto_ChaCha20Sha256_Encrypt_Decrypt_OK()
+	void ChaCha20Sha256_Encrypt_Decrypt_Success()
 	{
 		var plainText = "hello, world".getBytes(StandardCharsets.UTF_8);
 
@@ -50,7 +50,7 @@ class RsCryptoTest
 	}
 
 	@Test
-	void RsCrypto_ChaCha20Poly1305_Encrypt_Decrypt_OK()
+	void ChaCha20Poly1305_Encrypt_Decrypt_Success()
 	{
 		var plainText = "bye, cruel world".getBytes(StandardCharsets.UTF_8);
 

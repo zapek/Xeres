@@ -27,14 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PacketTest
 {
 	@Test
-	void Packet_IsSimple_OK()
+	void IsSimple_Success()
 	{
 		var packet = SimplePacketBuilder.builder().buildPacket();
 		assertFalse(packet.isMulti());
 	}
 
 	@Test
-	void Packet_IsMulti_OK()
+	void IsMulti_Success()
 	{
 		var packet = MultiPacketBuilder.builder().buildPacket();
 		assertTrue(packet.isMulti());

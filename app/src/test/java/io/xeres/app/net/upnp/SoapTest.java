@@ -46,13 +46,13 @@ class SoapTest
 	private static final String ACTION = "AddPortMapping";
 
 	@Test
-	void Soap_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(Soap.class);
 	}
 
 	@Test
-	void Soap_SendRequest_OK() throws IOException, ParserConfigurationException, SAXException, XPathException
+	void SendRequest_Success() throws IOException, ParserConfigurationException, SAXException, XPathException
 	{
 		String key1 = "NewExternalPort", key2 = "NewProtocol";
 		String value1 = "1234", value2 = "TCP";

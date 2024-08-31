@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class RawItemDecoderPipelineTest extends AbstractPipelineTest
 {
 	@Test
-	void RsItemDecoder_NewPacket_Decode_OK()
+	void NewPacket_Decode_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -62,7 +62,7 @@ class RawItemDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsItemDecoder_OldPacket_Decode_OK()
+	void OldPacket_Decode_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 

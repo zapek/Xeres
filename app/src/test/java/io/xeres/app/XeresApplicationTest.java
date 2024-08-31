@@ -28,7 +28,7 @@ class XeresApplicationTest
 {
 	@Test
 	@SuppressWarnings("java:S2699")
-	void XeresApplication_ContextLoads_OK()
+	void Main_Success()
 	{
 		XeresApplication.main(new String[]{"--no-gui"});
 	}

@@ -30,13 +30,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConnectionMapperTest
 {
 	@Test
-	void ConnectionMapper_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ConnectionMapper.class);
 	}
 
 	@Test
-	void ConnectionMapper_toDTO_OK()
+	void toDTO_Success()
 	{
 		var connection = ConnectionFakes.createConnection();
 		var connectionDTO = ConnectionMapper.toDTO(connection);
@@ -48,7 +48,7 @@ class ConnectionMapperTest
 	}
 
 	@Test
-	void ConnectionMapper_fromDTO_OK()
+	void fromDTO_Success()
 	{
 		var connectionDTO = new ConnectionDTO(
 				1L,

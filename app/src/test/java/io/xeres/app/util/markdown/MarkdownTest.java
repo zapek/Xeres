@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class MarkdownTest
 {
 	@Test
-	void Markdown_AddParagraph_OK()
+	void AddParagraph_Success()
 	{
 		var md = new Markdown();
 		md.addParagraph("The lazy dog is sleeping");
@@ -37,7 +37,7 @@ class MarkdownTest
 	}
 
 	@Test
-	void Markdown_AddText_OK()
+	void AddText_Success()
 	{
 		var md = new Markdown();
 		md.addText("hello");
@@ -47,7 +47,7 @@ class MarkdownTest
 	}
 
 	@Test
-	void Markdown_AddTextWithBreakline_OK()
+	void AddTextWithBreakline_Success()
 	{
 		var md = new Markdown();
 		md.addText("hello");
@@ -58,7 +58,7 @@ class MarkdownTest
 	}
 
 	@Test
-	void Markdown_AddTextWithDoubleBreakline_OK()
+	void AddTextWithDoubleBreakline_Success()
 	{
 		var md = new Markdown();
 		md.addText("hello");
@@ -70,7 +70,7 @@ class MarkdownTest
 	}
 
 	@Test
-	void Markdown_AddHeaders_OK()
+	void AddHeaders_Success()
 	{
 		var md = new Markdown();
 		md.addHeader("Header 1", H1);
@@ -96,7 +96,7 @@ class MarkdownTest
 	}
 
 	@Test
-	void Markdown_AddListItems_OK()
+	void AddListItems_Success()
 	{
 		var md = new Markdown();
 		md.addListItem("foo");

@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TlvImageSerializerTest
 {
 	@Test
-	void ImageType_Enum_order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, AUTO_DETECT.ordinal());
 		assertEquals(1, PNG.ordinal());

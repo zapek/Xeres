@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GxsSignatureFlagsTest
 {
 	@Test
-	void GxsSignatureFlags_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, ENCRYPTED.ordinal());
 		assertEquals(1, ALL_SIGNED.ordinal());

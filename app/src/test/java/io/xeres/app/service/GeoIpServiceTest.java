@@ -47,7 +47,7 @@ class GeoIpServiceTest
 	private GeoIpService geoIpService;
 
 	@Test
-	void GeoIpService_GetCountry_OK() throws IOException, GeoIp2Exception
+	void GetCountry_Success() throws IOException, GeoIp2Exception
 	{
 		var address = "1.1.1.1";
 		var inetAddress = InetAddress.getByName(address);
@@ -62,7 +62,7 @@ class GeoIpServiceTest
 	}
 
 	@Test
-	void GeoIpService_GetCountry_Fail() throws IOException, GeoIp2Exception
+	void GetCountry_Failure() throws IOException, GeoIp2Exception
 	{
 		var address = "1.1.1.1";
 		var inetAddress = InetAddress.getByName(address);

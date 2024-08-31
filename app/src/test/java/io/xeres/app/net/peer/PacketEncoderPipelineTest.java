@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class PacketEncoderPipelineTest extends AbstractPipelineTest
 {
 	@Test
-	void RsOldPacketEncoder_OK()
+	void RsOldPacketEncoder_Success()
 	{
 		var channel = new EmbeddedChannel(new SimplePacketEncoder());
 

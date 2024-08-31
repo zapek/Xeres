@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FileUriFactoryTest
 {
 	@Test
-	void FileContentParser_generate_OK()
+	void Generate_Success()
 	{
 		var hash = Sha1SumFakes.createSha1Sum();
 

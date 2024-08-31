@@ -39,7 +39,7 @@ class AutoStartTest
 	private AutoStart autoStart;
 
 	@Test
-	void AutoStart_Enable_Supported_OK()
+	void Enable_Supported_Success()
 	{
 		when(autoStarter.isSupported()).thenReturn(true);
 
@@ -49,7 +49,7 @@ class AutoStartTest
 	}
 
 	@Test
-	void AutoStart_Enable_NotSupported_NoOp()
+	void Enable_NotSupported_NoOp()
 	{
 		when(autoStarter.isSupported()).thenReturn(false);
 
@@ -59,7 +59,7 @@ class AutoStartTest
 	}
 
 	@Test
-	void AutoStart_Disable_Supported_OK()
+	void Disable_Supported_Success()
 	{
 		when(autoStarter.isSupported()).thenReturn(true);
 
@@ -69,7 +69,7 @@ class AutoStartTest
 	}
 
 	@Test
-	void AutoStart_Disable_NotSupported_NoOp()
+	void Disable_NotSupported_NoOp()
 	{
 		when(autoStarter.isSupported()).thenReturn(false);
 
@@ -79,7 +79,7 @@ class AutoStartTest
 	}
 
 	@Test
-	void AutoStart_IsEnabled_Supported_OK()
+	void IsEnabled_Supported_Success()
 	{
 		when(autoStarter.isSupported()).thenReturn(true);
 		when(autoStarter.isEnabled()).thenReturn(true);
@@ -92,7 +92,7 @@ class AutoStartTest
 	}
 
 	@Test
-	void AutoStart_IsEnabled_NotSupported_False()
+	void IsEnabled_NotSupported_False()
 	{
 		when(autoStarter.isSupported()).thenReturn(false);
 		when(autoStarter.isEnabled()).thenReturn(true);

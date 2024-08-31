@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TransactionFlagsTest
 {
 	@Test
-	void TransactionFlags_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, START.ordinal());
 		assertEquals(1, START_ACKNOWLEDGE.ordinal());

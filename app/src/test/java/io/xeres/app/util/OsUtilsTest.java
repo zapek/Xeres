@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class OsUtilsTest
 {
 	@Test
-	void OsUtils_IsFileSystemCaseSensitive_OK()
+	void IsFileSystemCaseSensitive_Success()
 	{
 		var tempDir = System.getProperty("java.io.tmpdir");
 

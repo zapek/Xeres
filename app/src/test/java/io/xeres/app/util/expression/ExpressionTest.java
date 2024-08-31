@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ExpressionTest
 {
 	@Test
-	void Expression_Name_Equals()
+	void Name_Equals()
 	{
 		var expression = new NameExpression(StringExpression.Operator.EQUALS, "foobar", false);
 		var fileCorrect = FileFakes.createFile("foobar");
@@ -42,7 +42,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Name_Equals_CaseSensitive()
+	void Name_Equals_CaseSensitive()
 	{
 		var expression = new NameExpression(StringExpression.Operator.EQUALS, "foobar", true);
 		var fileCorrect = FileFakes.createFile("foobar");
@@ -53,7 +53,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Name_ContainsAll()
+	void Name_ContainsAll()
 	{
 		var expression = new NameExpression(StringExpression.Operator.CONTAINS_ALL, "foo bar plop", false);
 		var fileCorrect = FileFakes.createFile("foo bar plop");
@@ -64,7 +64,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Name_ContainsAll_CaseSensitive()
+	void Name_ContainsAll_CaseSensitive()
 	{
 		var expression = new NameExpression(StringExpression.Operator.CONTAINS_ALL, "foo bar plop", true);
 		var fileCorrect = FileFakes.createFile("foo bar plop");
@@ -75,7 +75,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Name_ContainsAny()
+	void Name_ContainsAny()
 	{
 		var expression = new NameExpression(StringExpression.Operator.CONTAINS_ANY, "foo bar plop", false);
 		var fileCorrect1 = FileFakes.createFile("foo");
@@ -90,7 +90,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Name_ContainsAny_CaseSensitive()
+	void Name_ContainsAny_CaseSensitive()
 	{
 		var expression = new NameExpression(StringExpression.Operator.CONTAINS_ANY, "foo bar plop", true);
 		var fileCorrect1 = FileFakes.createFile("foo");
@@ -105,7 +105,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Size_Equals()
+	void Size_Equals()
 	{
 		var expression = new SizeExpression(RelationalExpression.Operator.EQUALS, 1024, 0);
 		var fileCorrect = FileFakes.createFile("foo", 1024);
@@ -116,7 +116,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Size_GreaterThanOrEquals()
+	void Size_GreaterThanOrEquals()
 	{
 		var expression = new SizeExpression(RelationalExpression.Operator.GREATER_THAN_OR_EQUALS, 1024, 0);
 		var fileCorrect1 = FileFakes.createFile("foo", 1024);
@@ -129,7 +129,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Size_GreaterThan()
+	void Size_GreaterThan()
 	{
 		var expression = new SizeExpression(RelationalExpression.Operator.GREATER_THAN, 1024, 0);
 		var fileCorrect1 = FileFakes.createFile("foo", 1023);
@@ -142,7 +142,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Size_LesserThanOrEquals()
+	void Size_LesserThanOrEquals()
 	{
 		var expression = new SizeExpression(RelationalExpression.Operator.LESSER_THAN_OR_EQUALS, 1024, 0);
 		var fileCorrect1 = FileFakes.createFile("foo", 1024);
@@ -155,7 +155,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Size_LesserThan()
+	void Size_LesserThan()
 	{
 		var expression = new SizeExpression(RelationalExpression.Operator.LESSER_THAN, 1024, 0);
 		var fileCorrect1 = FileFakes.createFile("foo", 1025);
@@ -168,7 +168,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Size_InRange()
+	void Size_InRange()
 	{
 		var expression = new SizeExpression(RelationalExpression.Operator.IN_RANGE, 1024, 2048);
 		var fileCorrect1 = FileFakes.createFile("foo", 1024);
@@ -185,7 +185,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Date_OK()
+	void Date()
 	{
 		var expression = new DateExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
 		var fileCorrect = FileFakes.createFile("foo", 1024, Instant.ofEpochSecond(1000));
@@ -196,7 +196,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Popularity_OK()
+	void Popularity()
 	{
 		// Popularity is not implemented (there's no "popularity" in a local file), so it's always zero
 		var expression1 = new PopularityExpression(RelationalExpression.Operator.EQUALS, 1, 0);
@@ -208,7 +208,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_SizeMb_OK()
+	void SizeMb()
 	{
 		var expression = new SizeMbExpression(RelationalExpression.Operator.EQUALS, (int) (1_000_000_000_000L >> 20), 0);
 		var fileCorrect1 = FileFakes.createFile("foo", 1_000_000_000_000L);
@@ -221,7 +221,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Path_OK()
+	void Path()
 	{
 		// Path is not implemented because it's very difficult to do for no real gain
 		var expression = new PathExpression(StringExpression.Operator.CONTAINS_ANY, "coolstuff", false);
@@ -231,7 +231,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Extension_OK()
+	void Extension()
 	{
 		var expression = new ExtensionExpression(StringExpression.Operator.CONTAINS_ANY, "exe com", false);
 		var fileCorrect1 = FileFakes.createFile("foobar.exe");
@@ -246,7 +246,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Hash_OK()
+	void Hash()
 	{
 		var hash1 = Sha1SumFakes.createSha1Sum();
 		var hash2 = Sha1SumFakes.createSha1Sum();
@@ -259,7 +259,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Compound_AND()
+	void Compound_AND()
 	{
 		var left = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);
 		var right = new SizeExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
@@ -272,7 +272,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Compound_OR()
+	void Compound_OR()
 	{
 		var left = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);
 		var right = new SizeExpression(RelationalExpression.Operator.EQUALS, 1000, 0);
@@ -287,7 +287,7 @@ class ExpressionTest
 	}
 
 	@Test
-	void Expression_Compound_XOR()
+	void Compound_XOR()
 	{
 		var left = new NameExpression(StringExpression.Operator.EQUALS, "foo", false);
 		var right = new SizeExpression(RelationalExpression.Operator.EQUALS, 1000, 0);

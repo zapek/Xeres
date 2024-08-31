@@ -73,7 +73,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_CreateOwnIdentity_Anonymous_OK()
+	void CreateOwnIdentity_Anonymous_Success()
 	{
 		var name = "test";
 
@@ -89,7 +89,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_CreateOwnIdentity_Signed_OK() throws IOException
+	void CreateOwnIdentity_Signed_Success() throws IOException
 	{
 		var name = "test";
 
@@ -130,7 +130,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_SaveIdentityImage_OK() throws IOException
+	void SaveIdentityImage_Success() throws IOException
 	{
 		var id = 1L;
 		var identity = IdentityFakes.createOwn();
@@ -147,7 +147,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_SaveIdentityImage_NotOwn_Error()
+	void SaveIdentityImage_NotOwn_Error()
 	{
 		var id = 2L;
 		var file = mock(MultipartFile.class);
@@ -156,7 +156,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_SaveIdentityImage_EmptyImage_Error()
+	void SaveIdentityImage_EmptyImage_Error()
 	{
 		var id = 1L;
 
@@ -164,7 +164,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_SaveIdentityImage_ImageTooBig_Error()
+	void SaveIdentityImage_ImageTooBig_Error()
 	{
 		var id = 1L;
 		var file = mock(MultipartFile.class);
@@ -174,7 +174,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_DeleteIdentityImage_OK()
+	void DeleteIdentityImage_Success()
 	{
 		var id = 1L;
 		var identity = IdentityFakes.createOwn();
@@ -191,7 +191,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void IdentityService_DeleteIdentityImage_NotOwn_Error()
+	void DeleteIdentityImage_NotOwn_Error()
 	{
 		var id = 2L;
 

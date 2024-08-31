@@ -41,7 +41,7 @@ class NicknameCompleterTest
 	private NicknameCompleter nicknameCompleter;
 
 	@Test
-	void NicknameCompleter_Complete_Empty_Start()
+	void Complete_Empty_Start()
 	{
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
@@ -52,7 +52,7 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	void NicknameCompleter_Complete_Empty()
+	void Complete_Empty()
 	{
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
@@ -63,7 +63,7 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	void NicknameCompleter_Complete_Single_Start()
+	void Complete_Single_Start()
 	{
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
@@ -75,7 +75,7 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	void NicknameCompleter_Complete_Multiple_Start()
+	void Complete_Multiple_Start()
 	{
 		Consumer<String> action1 = Mockito.mock(Consumer.class);
 		Consumer<String> action2 = Mockito.mock(Consumer.class);
@@ -91,7 +91,7 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	void NicknameCompleter_Complete_MultipleWithPrefix_Start()
+	void Complete_MultipleWithPrefix_Start()
 	{
 		Consumer<String> action1 = Mockito.mock(Consumer.class);
 		Consumer<String> action2 = Mockito.mock(Consumer.class);
@@ -107,7 +107,7 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	void NicknameCompleter_Complete_Single()
+	void Complete_Single()
 	{
 		Consumer<String> action = Mockito.mock(Consumer.class);
 
@@ -119,7 +119,7 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	void NicknameCompleter_Complete_Multiple()
+	void Complete_Multiple()
 	{
 		Consumer<String> action1 = Mockito.mock(Consumer.class);
 		Consumer<String> action2 = Mockito.mock(Consumer.class);
@@ -135,7 +135,7 @@ class NicknameCompleterTest
 	}
 
 	@Test
-	void NicknameCompleter_Complete_MultipleWithPrefix()
+	void Complete_MultipleWithPrefix()
 	{
 		Consumer<String> action1 = Mockito.mock(Consumer.class);
 		Consumer<String> action2 = Mockito.mock(Consumer.class);

@@ -41,7 +41,7 @@ class FileLeecherTest
 	}
 
 	@Test
-	void FileLeecher_Sparse_OK()
+	void Sparse_Success()
 	{
 		var file = Paths.get(tempDir, "sparsefile.tmp").toFile();
 		var fileLeecher = new FileLeecher(0L, file, 16384, null, LINEAR);
@@ -67,7 +67,7 @@ class FileLeecherTest
 	}
 
 	@Test
-	void FileLeecher_Read_NotAvailable()
+	void Read_NotAvailable()
 	{
 		var file = Paths.get(tempDir, "filesize.tmp").toFile();
 		var fileLeecher = new FileLeecher(0L, file, 256, null, LINEAR);

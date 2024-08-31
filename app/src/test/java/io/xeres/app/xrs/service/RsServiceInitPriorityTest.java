@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RsServiceInitPriorityTest
 {
 	@Test
-	void RsServiceInitPriority_NoTimeOverlap_OK()
+	void NoTimeOverlap_Success()
 	{
 		assertTrue(IMMEDIATE.getMaxTime() < HIGH.getMinTime());
 		assertTrue(HIGH.getMaxTime() < NORMAL.getMinTime());
@@ -38,7 +38,7 @@ class RsServiceInitPriorityTest
 	}
 
 	@Test
-	void RsServiceInitPriority_MinMax_OK()
+	void MinMax_Success()
 	{
 		assertTrue(IMMEDIATE.getMinTime() <= IMMEDIATE.getMaxTime());
 		assertTrue(HIGH.getMinTime() <= HIGH.getMaxTime());

@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RSSerialVersionTest
 {
 	@Test
-	void RSSerialVersion_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, V06_0000.ordinal());
 		assertEquals(1, V06_0001.ordinal());
@@ -40,7 +40,7 @@ class RSSerialVersionTest
 	}
 
 	@Test
-	void RSSerialVersion_GetFromSerialNumber_OK()
+	void GetFromSerialNumber_Success()
 	{
 		var rsOld = new BigInteger(Integer.toString(ThreadLocalRandom.current().nextInt(100000, 2000000000)), 16);
 		var rs6_4 = new BigInteger("60000", 16);

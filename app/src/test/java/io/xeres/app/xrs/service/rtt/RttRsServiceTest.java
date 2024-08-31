@@ -48,7 +48,7 @@ class RttRsServiceTest
 	private RttRsService rttRsService;
 
 	@Test
-	void RttService_handlePing_OK()
+	void HandlePing_Success()
 	{
 		var sequence = 1;
 		var timestamp = 2L;

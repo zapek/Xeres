@@ -77,7 +77,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void ConfigController_CreateProfile_OK() throws Exception
+	void CreateProfile_Success() throws Exception
 	{
 		var profileRequest = new OwnProfileRequest("test node");
 
@@ -91,7 +91,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_CreateProfile_Fail() throws Exception
+	void CreateProfile_Failure() throws Exception
 	{
 		var ownProfileRequest = new OwnProfileRequest("test node");
 
@@ -104,7 +104,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_CreateProfile_AlreadyExists() throws Exception
+	void CreateProfile_AlreadyExists_Failure() throws Exception
 	{
 		var profileRequest = new OwnProfileRequest("test node");
 
@@ -121,7 +121,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@ValueSource(strings = {
 			"This name is way too long and there's no chance it ever gets created as a profile"
 	})
-	void ConfigController_CreateProfile_BadName(String name) throws Exception
+	void CreateProfile_BadName_Failure(String name) throws Exception
 	{
 		var ownProfileRequest = new OwnProfileRequest(name);
 
@@ -132,7 +132,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_CreateLocation_OK() throws Exception
+	void CreateLocation_Success() throws Exception
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
@@ -143,7 +143,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_CreateLocation_Fail() throws Exception
+	void CreateLocation_Failure() throws Exception
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
@@ -158,7 +158,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	@ValueSource(strings = {
 			"This name is way too long and there's no chance it ever gets created as a location"
 	})
-	void ConfigController_CreateLocation_BadName(String name) throws Exception
+	void CreateLocation_BadName_Failure(String name) throws Exception
 	{
 		var ownLocationRequest = new OwnLocationRequest(name);
 
@@ -169,7 +169,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_UpdateExternalIpAddress_Create_OK() throws Exception
+	void UpdateExternalIpAddress_Create_Success() throws Exception
 	{
 		var ip = "1.1.1.1";
 		var port = 6667;
@@ -186,7 +186,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_UpdateExternalIpAddress_Update_WrongIp_Fail() throws Exception
+	void UpdateExternalIpAddress_Update_WrongIp_Failure() throws Exception
 	{
 		var ip = "1.1.1.1.1";
 		var port = 6667;
@@ -198,7 +198,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_UpdateExternalIpAddress_Update_InternalIp_Fail() throws Exception
+	void UpdateExternalIpAddress_Update_InternalIp_Failure() throws Exception
 	{
 		var ip = "192.168.1.38";
 		var port = 6667;
@@ -210,7 +210,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_GetExternalIpAddress_OK() throws Exception
+	void GetExternalIpAddress_Success() throws Exception
 	{
 		var ip = "1.1.1.1";
 		var port = 6667;
@@ -228,7 +228,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_GetExternalIpAddress_NoLocationOrIpAddress_OK() throws Exception
+	void GetExternalIpAddress_NoLocationOrIpAddress_Success() throws Exception
 	{
 		when(locationService.findOwnLocation()).thenReturn(Optional.empty());
 
@@ -237,7 +237,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_GetInternalIpAddress_OK() throws Exception
+	void GetInternalIpAddress_Success() throws Exception
 	{
 		var ip = "192.168.1.25";
 		var port = 1234;
@@ -256,7 +256,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_GetInternalIpAddress_NoLocationOrIpAddress_OK() throws Exception
+	void GetInternalIpAddress_NoLocationOrIpAddress_Success() throws Exception
 	{
 		when(locationService.findOwnLocation()).thenReturn(Optional.empty());
 
@@ -265,7 +265,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_GetHostname_OK() throws Exception
+	void GetHostname_Success() throws Exception
 	{
 		var hostname = "foo.bar.com";
 
@@ -277,7 +277,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_GetUsername_OK() throws Exception
+	void GetUsername_Success() throws Exception
 	{
 		var username = "foobar";
 		when(locationService.getUsername()).thenReturn(username);
@@ -288,7 +288,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_CreateIdentity_Signed_OK() throws Exception
+	void CreateIdentity_Signed_Success() throws Exception
 	{
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
@@ -303,7 +303,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_CreateIdentity_Anonymous_OK() throws Exception
+	void CreateIdentity_Anonymous_Success() throws Exception
 	{
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
@@ -318,7 +318,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ConfigController_GetCapabilities_OK() throws Exception
+	void GetCapabilities_Success() throws Exception
 	{
 		var capability = "autostart";
 		when(capabilityService.getCapabilities()).thenReturn(Set.of(capability));

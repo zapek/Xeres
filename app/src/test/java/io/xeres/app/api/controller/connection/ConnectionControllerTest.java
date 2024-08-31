@@ -51,7 +51,7 @@ class ConnectionControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void ConnectionController_GetConnectedProfiles_OK() throws Exception
+	void GetConnectedProfiles_Success() throws Exception
 	{
 		var location = LocationFakes.createLocation();
 		var locations = List.of(LocationFakes.createOwnLocation(),

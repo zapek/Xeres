@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TypeTest
 {
 	@Test
-	void Type_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, OTHER.ordinal());
 		assertEquals(1, OWN.ordinal());

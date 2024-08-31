@@ -29,13 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ProfileMapperTest
 {
 	@Test
-	void ProfileMapper_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ProfileMapper.class);
 	}
 
 	@Test
-	void ProfileMapper_fromDTO_OK()
+	void FromDTO_Success()
 	{
 		var dto = ProfileDTOFakes.create();
 
@@ -51,7 +51,7 @@ class ProfileMapperTest
 	}
 
 	@Test
-	void ProfileMapper_fromDeepDTO_OK()
+	void FromDeepDTO_Success()
 	{
 		var dto = ProfileDTOFakes.create();
 

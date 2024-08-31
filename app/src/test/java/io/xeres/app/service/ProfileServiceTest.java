@@ -61,7 +61,7 @@ class ProfileServiceTest
 	}
 
 	@Test
-	void ProfileService_GenerateProfileKeys_OK()
+	void GenerateProfileKeys_Success()
 	{
 		var name = "test";
 
@@ -74,7 +74,7 @@ class ProfileServiceTest
 	}
 
 	@Test
-	void ProfileService_GenerateProfileKeys_AlreadyExists_Fail()
+	void GenerateProfileKeys_AlreadyExists_Failure()
 	{
 		var name = "test";
 
@@ -87,7 +87,7 @@ class ProfileServiceTest
 	}
 
 	@Test
-	void ProfileService_GenerateProfileKeys_KeyIdTooShort_Fail()
+	void GenerateProfileKeys_KeyIdTooShort_Failure()
 	{
 		var name = "";
 
@@ -100,7 +100,7 @@ class ProfileServiceTest
 	}
 
 	@Test
-	void ProfileService_GenerateProfileKeys_KeyIdTooLong_Fail()
+	void GenerateProfileKeys_KeyIdTooLong_Failure()
 	{
 		var name = "12345678900987654321123456789098765432120987676543432123456798765";
 
@@ -113,7 +113,7 @@ class ProfileServiceTest
 	}
 
 	@Test
-	void ProfileService_CreateOrUpdateProfile_Update_OK()
+	void CreateOrUpdateProfile_Update_Success()
 	{
 		var first = ProfileFakes.createProfile("first", 1);
 		first.addLocation(LocationFakes.createLocation("first location", first));

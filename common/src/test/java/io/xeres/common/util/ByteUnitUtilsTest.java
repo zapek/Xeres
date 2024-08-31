@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ByteUnitUtilsTest
 {
 	@Test
-	void ByteUnitUtils_FromBytes_OK()
+	void FromBytes_Various_Success()
 	{
 		assertEquals("invalid", fromBytes(-1));
 		assertEquals("0 bytes", fromBytes(0));
@@ -40,6 +40,6 @@ class ByteUnitUtilsTest
 		assertEquals("1 GB", fromBytes(1024 * 1024 * 1024));
 		assertEquals("1 TB", fromBytes(1024L * 1024 * 1024 * 1024));
 		assertEquals("1 PB", fromBytes(1024L * 1024 * 1024 * 1024 * 1024));
-		assertEquals("???", fromBytes(1024L * 1024 * 1024 * 1024 * 1024 * 1024));
+		assertEquals("1 EB", fromBytes(1024L * 1024 * 1024 * 1024 * 1024 * 1024));
 	}
 }

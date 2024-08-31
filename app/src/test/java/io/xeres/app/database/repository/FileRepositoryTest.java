@@ -16,7 +16,7 @@ class FileRepositoryTest
 	private FileRepository fileRepository;
 
 	@Test
-	void FileRepository_CRUD_OK()
+	void CRUD_Success()
 	{
 		var file1 = FileFakes.createFile("foo", null);
 		var file2 = FileFakes.createFile("bar", null);
@@ -51,7 +51,7 @@ class FileRepositoryTest
 	}
 
 	@Test
-	void FileRepository_FindByHash_OK()
+	void FindByHash_Success()
 	{
 		var hash = Sha1SumFakes.createSha1Sum();
 		var file = FileFakes.createFile("foo", null);
@@ -63,7 +63,7 @@ class FileRepositoryTest
 	}
 
 	@Test
-	void FileRepository_FindByEncryptedHash_OK()
+	void FindByEncryptedHash_Success()
 	{
 		var hash = Sha1SumFakes.createSha1Sum();
 		var file = FileFakes.createFile("foo", null);

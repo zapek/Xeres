@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ChatRoomEventTest
 {
 	@Test
-	void ChatRoomEventTest_Enum_Values()
+	void Enum_Values()
 	{
 		assertEquals(1, PEER_LEFT.getCode());
 		assertEquals(2, PEER_STATUS.getCode());

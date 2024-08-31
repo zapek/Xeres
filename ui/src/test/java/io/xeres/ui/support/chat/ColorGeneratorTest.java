@@ -27,14 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ColorGeneratorTest
 {
 	@Test
-	void ColorGenerator_GenerateColor_OK()
+	void GenerateColor_Success()
 	{
 		var color = ColorGenerator.generateColor("abc");
 		assertEquals("color-02", color);
 	}
 
 	@Test
-	void ColorGenerator_GenerateColor_Fail()
+	void GenerateColor_Failure()
 	{
 		assertThrows(NullPointerException.class, () -> ColorGenerator.generateColor(null));
 	}

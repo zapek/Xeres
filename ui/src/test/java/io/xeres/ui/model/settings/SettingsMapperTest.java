@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SettingsMapperTest
 {
 	@Test
-	void SettingsMapper_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(SettingsMapper.class);
 	}
 
 	@Test
-	void SettingsMapper_fromDTO_OK()
+	void FromDTO_Success()
 	{
 		var dto = SettingsDTOFakes.create();
 

@@ -74,13 +74,13 @@ class SSLTest
 	}
 
 	@Test
-	void SSL_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(SSL.class);
 	}
 
 	@Test
-	void SSL_CreateClientContext_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
+	void CreateClientContext_Success() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
 		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, TCP_OUTGOING);
 
@@ -89,7 +89,7 @@ class SSLTest
 	}
 
 	@Test
-	void SSL_CreateServerContext_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
+	void CreateServerContext_Success() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
 		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, TCP_INCOMING);
 
@@ -98,7 +98,7 @@ class SSLTest
 	}
 
 	@Test
-	void SSL_CreateServerContext_Tor_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
+	void CreateServerContext_Tor_Success() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
 		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, TOR_OUTGOING);
 
@@ -107,7 +107,7 @@ class SSLTest
 	}
 
 	@Test
-	void SSL_CreateServerContext_I2P_OK() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
+	void CreateServerContext_I2P_Success() throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
 		var sslContext = SSL.createSslContext(rsaKey.getPrivate().getEncoded(), certificate, I2P_OUTGOING);
 
@@ -116,7 +116,7 @@ class SSLTest
 	}
 
 	@Test
-	void SSL_CheckPeerCertificate_OK() throws CertificateException, IOException
+	void CheckPeerCertificate_Success() throws CertificateException, IOException
 	{
 		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
@@ -130,7 +130,7 @@ class SSLTest
 	}
 
 	@Test
-	void SSL_CheckPeerCertificate_EmptyCertificate_Fail()
+	void CheckPeerCertificate_EmptyCertificate_Failure()
 	{
 		assertThatThrownBy(() -> SSL.checkPeerCertificate(locationService, new X509Certificate[]{}))
 				.isInstanceOf(CertificateException.class)
@@ -140,7 +140,7 @@ class SSLTest
 	}
 
 	@Test
-	void SSL_CheckPeerCertificate_AlreadyConnected_Fail() throws IOException
+	void CheckPeerCertificate_AlreadyConnected_Failure() throws IOException
 	{
 		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
@@ -156,7 +156,7 @@ class SSLTest
 	}
 
 	@Test
-	void SSL_CheckPeerCertificate_WrongCertificate_Fail() throws CertificateException, IOException, PGPException
+	void CheckPeerCertificate_WrongCertificate_Failure() throws CertificateException, IOException, PGPException
 	{
 		var wrongPgpKey = PGP.generateSecretKey("notFoo", "", 512);
 		var wrongCertificate = X509.generateCertificate(wrongPgpKey, rsaKey.getPublic(), "CN=me", "CN=foobar", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());

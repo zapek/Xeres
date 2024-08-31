@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class PathConfigTest
 {
 	@Test
-	void PathConfig_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(PathConfig.class);
 	}

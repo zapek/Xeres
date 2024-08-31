@@ -39,7 +39,7 @@ class IdleCheckerTest
 	IdleChecker idleChecker;
 
 	@Test
-	void IdleChecker_GetIdleTime()
+	void GetIdleTime()
 	{
 		var idleTime = 1;
 

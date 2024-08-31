@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ItemPriorityTest
 {
 	@Test
-	void ItemPriority_Enum_Value()
+	void Enum_Value_Fixed()
 	{
 		assertEquals(2, BACKGROUND.getPriority());
 		assertEquals(3, DEFAULT.getPriority());

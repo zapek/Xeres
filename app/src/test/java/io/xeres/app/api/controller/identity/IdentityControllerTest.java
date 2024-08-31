@@ -59,7 +59,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void IdentityController_FindIdentityById_OK() throws Exception
+	void FindIdentityById_Success() throws Exception
 	{
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
@@ -74,7 +74,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_FindIdentityById_NotFound() throws Exception
+	void FindIdentityById_NotFound_Failure() throws Exception
 	{
 		var id = 1L;
 
@@ -87,7 +87,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_DownloadIdentityImage_Empty() throws Exception
+	void DownloadIdentityImage_Empty_Success() throws Exception
 	{
 		var id = 1L;
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
@@ -101,7 +101,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_DownloadIdentityImage_OK() throws Exception
+	void DownloadIdentityImage_Success() throws Exception
 	{
 		var id = 1L;
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
@@ -117,7 +117,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_UploadIdentityImage_OK() throws Exception
+	void UploadIdentityImage_Success() throws Exception
 	{
 		var id = 1L;
 
@@ -132,7 +132,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_DeleteIdentityImage_OK() throws Exception
+	void DeleteIdentityImage_Success() throws Exception
 	{
 		var id = 1L;
 
@@ -143,7 +143,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_FindIdentities_ByName() throws Exception
+	void FindIdentities_ByName_Success() throws Exception
 	{
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
@@ -158,7 +158,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_FindIdentities_ByGxsId() throws Exception
+	void FindIdentities_ByGxsId_Success() throws Exception
 	{
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
@@ -173,7 +173,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_FindIdentities_ByType() throws Exception
+	void FindIdentities_ByType_Success() throws Exception
 	{
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
@@ -188,7 +188,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void IdentityController_FindIdentities_All() throws Exception
+	void FindIdentities_All_Success() throws Exception
 	{
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);

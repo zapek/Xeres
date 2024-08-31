@@ -33,7 +33,7 @@ class SettingsRepositoryTest
 	private SettingsRepository settingsRepository;
 
 	@Test
-	void PrefsRepository_CRUD_OK()
+	void CRUD_Success()
 	{
 		var prefs = SettingsFakes.createSettings();
 		var unwantedPrefs = SettingsFakes.createSettings();

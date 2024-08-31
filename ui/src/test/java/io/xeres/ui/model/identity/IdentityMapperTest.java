@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class IdentityMapperTest
 {
 	@Test
-	void IdentityMapper_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(IdentityMapper.class);
 	}
 
 	@Test
-	void IdentityMapper_fromDTO_OK()
+	void FromDTO_Success()
 	{
 		var dto = IdentityDTOFakes.createIdentityDTO();
 

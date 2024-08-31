@@ -30,13 +30,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class IdTest
 {
 	@Test
-	void Id_NoInstance_OK() throws NoSuchMethodException
+	void Instance_Throws() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(Id.class);
 	}
 
 	@Test
-	void Id_ToString_FromBytes_OK()
+	void ToString_FromBytes_Success()
 	{
 		var value = "13352839ab34093f";
 		var id = new BigInteger(value, 16);
@@ -47,7 +47,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_ToString_FromBytes_Null()
+	void ToString_FromBytes_Null_Success()
 	{
 		var result = Id.toString((byte[]) null);
 
@@ -55,7 +55,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_ToString_FromBytes_Empty()
+	void ToString_FromBytes_Empty_Success()
 	{
 		var result = Id.toString(new byte[0]);
 
@@ -63,7 +63,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_ToBytes_FromString_OK()
+	void ToBytes_FromString_Success()
 	{
 		var id = "e40f238ecb395023";
 
@@ -73,7 +73,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_ToBytes_FromString_Null()
+	void ToBytes_FromString_Null_Success()
 	{
 		var result = Id.toBytes(null);
 
@@ -81,7 +81,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_ToBytes_FromString_Empty()
+	void ToBytes_FromString_Empty_Success()
 	{
 		var result = Id.toBytes("");
 
@@ -89,7 +89,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_ToString_FromLong_OK()
+	void ToString_FromLong_Success()
 	{
 		var id = 0x2344ab38L;
 
@@ -99,7 +99,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_ToString_FromIdentifier_OK()
+	void ToString_FromIdentifier_Success()
 	{
 		var gxsId = new GxsId(new byte[]{0x32, 0x5e, 0x38, 0x1, (byte) 0x98, (byte) 0x8a, 0x34, 0x73, 0x47, (byte) 0xef, 0x3e, 0x5a, (byte) 0xe2, 0x4a, 0x63, (byte) 0xba});
 
@@ -109,7 +109,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_AsciiToBytes_OK()
+	void AsciiToBytes_Success()
 	{
 		byte[] id = {0x30, 0x30, 0x35, 0x36, 0x33, 0x65, 0x38, 0x36, 0x61, 0x31, 0x64, 0x62, 0x36, 0x61, 0x61, 0x30, 0x32, 0x64, 0x36, 0x62, 0x36, 0x65, 0x38, 0x66, 0x37, 0x64, 0x61, 0x32, 0x62, 0x36, 0x39, 0x35};
 
@@ -119,7 +119,7 @@ class IdTest
 	}
 
 	@Test
-	void Id_IdentifierToAscii_OK()
+	void IdentifierToAscii_Success()
 	{
 		var gxsId = new GxsId(new byte[]{0x32, 0x5e, 0x38, 0x1, (byte) 0x98, (byte) 0x8a, 0x34, 0x73, 0x47, (byte) 0xef, 0x3e, 0x5a, (byte) 0xe2, 0x4a, 0x63, (byte) 0xba});
 

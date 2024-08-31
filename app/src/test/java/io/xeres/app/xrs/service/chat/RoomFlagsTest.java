@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RoomFlagsTest
 {
 	@Test
-	void RoomFlags_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, AUTO_SUBSCRIBE.ordinal());
 		assertEquals(1, DEPRECATED.ordinal());

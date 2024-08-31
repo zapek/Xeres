@@ -36,7 +36,7 @@ class GxsServiceSettingRepositoryTest
 	private GxsServiceSettingRepository gxsServiceSettingRepository;
 
 	@Test
-	void GxsServiceSettingRepository_CRUD_OK()
+	void CRUD_Success()
 	{
 		var instantEpoch = Instant.EPOCH;
 		var instantNow = Instant.now();

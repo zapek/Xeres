@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AppNameTest
 {
 	@Test
-	void AppName_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(AppName.class);
 	}
 
 	@Test
-	void AppName_Name_NotBlank()
+	void Name_NotBlank()
 	{
 		assertTrue(StringUtils.isNotBlank(AppName.NAME));
 	}

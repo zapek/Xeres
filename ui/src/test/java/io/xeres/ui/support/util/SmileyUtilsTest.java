@@ -36,20 +36,20 @@ class SmileyUtilsTest
 			":-) :-) :-), \uD83D\uDE42 \uD83D\uDE42 \uD83D\uDE42",
 			":-) :-( :-D :-) :-( :-( :-D, \uD83D\uDE42 \uD83D\uDE41 \uD83D\uDE03 \uD83D\uDE42 \uD83D\uDE41 \uD83D\uDE41 \uD83D\uDE03",
 	})
-	void SmileyUtils_SmileysToUnicode_Replace(String input, String expected)
+	void SmileysToUnicode_Replace(String input, String expected)
 	{
 		var actualValue = SmileyUtils.smileysToUnicode(input);
 		assertEquals(expected, actualValue);
 	}
 
 	@Test
-	void SmileyUtils_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(SmileyUtils.class);
 	}
 
 	@Test
-	void SmileyUtils_SmileysToUnicode_NoReplace()
+	void SmileysToUnicode_NoReplace()
 	{
 		var value = SmileyUtils.smileysToUnicode("hello:-)");
 		assertEquals("hello:-)", value);

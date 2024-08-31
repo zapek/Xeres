@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 class TlvUtilsTest
 {
 	@Test
-	void TlvUtils_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(TlvUtils.class);
 	}

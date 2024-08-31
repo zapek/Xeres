@@ -1,5 +1,7 @@
 package io.xeres.common.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -21,6 +23,11 @@ public final class FileNameUtils
 	 */
 	public static String rename(String fileName)
 	{
+		if (StringUtils.isEmpty(fileName))
+		{
+			throw new IllegalArgumentException("File name cannot be empty");
+		}
+
 		var tokens = EXTENSION.split(fileName);
 		if (tokens.length == 2)
 		{

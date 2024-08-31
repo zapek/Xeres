@@ -33,7 +33,7 @@ class ProfileRepositoryTest
 	private ProfileRepository profileRepository;
 
 	@Test
-	void ProfileRepository_CRUD_OK()
+	void CRUD_Success()
 	{
 		var profile1 = ProfileFakes.createProfile("test1", 1);
 		var profile2 = ProfileFakes.createProfile("test2", 2);

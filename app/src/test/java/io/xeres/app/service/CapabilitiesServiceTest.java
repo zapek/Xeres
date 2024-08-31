@@ -41,7 +41,7 @@ class CapabilitiesServiceTest
 	private CapabilityService capabilityService;
 
 	@Test
-	void CapabilitiesService_GetCapabilities_OK()
+	void GetCapabilities_Success()
 	{
 		when(autoStart.isSupported()).thenReturn(true);
 

@@ -44,7 +44,7 @@ class SerializerTest
 {
 	@ParameterizedTest
 	@ValueSource(ints = {Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 5})
-	void Serializer_Serialize_Int(int input)
+	void Serialize_Int(int input)
 	{
 		var buf = Unpooled.buffer();
 
@@ -59,7 +59,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Int_Null()
+	void Serialize_Int_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -69,7 +69,7 @@ class SerializerTest
 
 	@ParameterizedTest
 	@ValueSource(shorts = {Short.MIN_VALUE, Short.MAX_VALUE, 0, 5})
-	void Serializer_Serialize_Short(short input)
+	void Serialize_Short(short input)
 	{
 		var buf = Unpooled.buffer();
 
@@ -84,7 +84,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Short_Null()
+	void Serialize_Short_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -94,7 +94,7 @@ class SerializerTest
 
 	@ParameterizedTest
 	@ValueSource(bytes = {Byte.MIN_VALUE, Byte.MAX_VALUE, 0, 5})
-	void Serializer_Serialize_Byte(byte input)
+	void Serialize_Byte(byte input)
 	{
 		var buf = Unpooled.buffer();
 
@@ -109,7 +109,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Byte_Null()
+	void Serialize_Byte_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -119,7 +119,7 @@ class SerializerTest
 
 	@ParameterizedTest
 	@ValueSource(longs = {Long.MIN_VALUE, Long.MAX_VALUE, 0L, 5L})
-	void Serializer_Serialize_Long(long input)
+	void Serialize_Long(long input)
 	{
 		var buf = Unpooled.buffer();
 
@@ -134,7 +134,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Long_Null()
+	void Serialize_Long_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -144,7 +144,7 @@ class SerializerTest
 
 	@ParameterizedTest
 	@ValueSource(floats = {Float.MIN_VALUE, Float.MAX_VALUE, 0f, 5f})
-	void Serializer_Serialize_Float(float input)
+	void Serialize_Float(float input)
 	{
 		var buf = Unpooled.buffer();
 
@@ -159,7 +159,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Float_Null()
+	void Serialize_Float_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -169,7 +169,7 @@ class SerializerTest
 
 	@ParameterizedTest
 	@ValueSource(doubles = {Double.MIN_VALUE, Double.MAX_VALUE, 0.0, 5.0})
-	void Serializer_Serialize_Double(double input)
+	void Serialize_Double(double input)
 	{
 		var buf = Unpooled.buffer();
 
@@ -184,7 +184,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Double_Null()
+	void Serialize_Double_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -194,7 +194,7 @@ class SerializerTest
 
 	@ParameterizedTest
 	@ValueSource(booleans = {true, false})
-	void Serializer_Serialize_Boolean(boolean input)
+	void Serialize_Boolean(boolean input)
 	{
 		var buf = Unpooled.buffer();
 
@@ -209,7 +209,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Boolean_Null()
+	void Serialize_Boolean_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -219,7 +219,7 @@ class SerializerTest
 
 	@ParameterizedTest
 	@ValueSource(strings = {"", "hello", "hello world", " "})
-	void Serializer_Serialize_String(String input)
+	void Serialize_String(String input)
 	{
 		var buf = Unpooled.buffer();
 
@@ -238,7 +238,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_String_Null()
+	void Serialize_String_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -248,7 +248,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_ByteArray()
+	void Serialize_ByteArray()
 	{
 		var buf = Unpooled.buffer();
 
@@ -267,7 +267,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_ByteArray_Null()
+	void Serialize_ByteArray_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -277,7 +277,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Identifier()
+	void Serialize_Identifier()
 	{
 		var buf = Unpooled.buffer();
 
@@ -297,7 +297,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Identifier_Null()
+	void Serialize_Identifier_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -310,7 +310,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_List()
+	void Serialize_List()
 	{
 		var buf = Unpooled.buffer();
 
@@ -331,7 +331,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_List_Null()
+	void Serialize_List_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -342,7 +342,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Map()
+	void Serialize_Map()
 	{
 		var buf = Unpooled.buffer();
 
@@ -362,7 +362,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Map_Null()
+	void Serialize_Map_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -373,7 +373,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Enum()
+	void Serialize_Enum()
 	{
 		var buf = Unpooled.buffer();
 
@@ -390,7 +390,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_Enum_Null()
+	void Serialize_Enum_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -399,7 +399,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_EnumSet()
+	void Serialize_EnumSet()
 	{
 		var buf = Unpooled.buffer();
 
@@ -416,7 +416,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_EnumSet_Null()
+	void Serialize_EnumSet_Null()
 	{
 		var buf = Unpooled.buffer();
 
@@ -425,7 +425,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvString()
+	void Serialize_TlvString()
 	{
 		var buf = Unpooled.buffer();
 
@@ -441,7 +441,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvKeySignature()
+	void Serialize_TlvKeySignature()
 	{
 		var buf = Unpooled.buffer();
 		var key = RandomUtils.nextBytes(30);
@@ -459,7 +459,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvKeySignatureSet()
+	void Serialize_TlvKeySignatureSet()
 	{
 		var buf = Unpooled.buffer();
 		Set<Signature> input = new HashSet<>();
@@ -479,7 +479,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvImage()
+	void Serialize_TlvImage()
 	{
 		var buf = Unpooled.buffer();
 		var input = new byte[2];
@@ -494,7 +494,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvImage_Empty_Array()
+	void Serialize_TlvImage_Empty_Array()
 	{
 		var buf = Unpooled.buffer();
 		var input = new byte[0];
@@ -509,7 +509,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvSet_GxsId()
+	void Serialize_TlvSet_GxsId()
 	{
 		var buf = Unpooled.buffer();
 		var gxsId1 = IdFakes.createGxsId();
@@ -530,7 +530,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvSet_MessageId()
+	void Serialize_TlvSet_MessageId()
 	{
 		var buf = Unpooled.buffer();
 		var messageId1 = new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));
@@ -551,7 +551,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_TlvAddress()
+	void Serialize_TlvAddress()
 	{
 		var buf = Unpooled.buffer();
 		var peerAddress = PeerAddress.fromAddress("192.168.1.1:1234");
@@ -569,7 +569,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_IdentityGroupItem()
+	void Serialize_IdentityGroupItem()
 	{
 		var buf = Unpooled.buffer();
 		var identityGroupItem = IdentityGroupItemFakes.createIdentityGroupItem();
@@ -582,7 +582,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_ForumGroupItem()
+	void Serialize_ForumGroupItem()
 	{
 		var buf = Unpooled.buffer();
 		var forumGroupItem = ForumGroupItemFakes.createForumGroupItem();
@@ -595,7 +595,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_ForumMessageItem()
+	void Serialize_ForumMessageItem()
 	{
 		var buf = Unpooled.buffer();
 		var forumMessageItem = ForumMessageItemFakes.createForumMessageItem();
@@ -608,7 +608,7 @@ class SerializerTest
 	}
 
 	@Test
-	void Serializer_Serialize_ComplexObject()
+	void Serialize_ComplexObject()
 	{
 		var buf = Unpooled.buffer();
 

@@ -51,7 +51,7 @@ class TurtleRsServiceTest
 	private TurtleRsService turtleRsService;
 
 	@Test
-	void TurtleRsService_GeneratePersonalFilePrint_OK()
+	void GeneratePersonalFilePrint_Success()
 	{
 		// Values have been taken directly from Retroshare to make sure there's no signed/unsigned bugs
 		var ownLocation = LocationFakes.createLocation("Test", null, new LocationId("d3b9c7ceb75c7c68b5e3c6446259c8e7"));

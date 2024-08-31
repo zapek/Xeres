@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConnectionTest
 {
 	@Test
-	void Connection_From_PeerAddress()
+	void From_PeerAddress()
 	{
 		var ip = "1.1.1.1";
 		var port = 1234;

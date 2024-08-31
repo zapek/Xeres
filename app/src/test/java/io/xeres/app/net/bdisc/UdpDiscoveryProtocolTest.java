@@ -47,13 +47,13 @@ class UdpDiscoveryProtocolTest
 	private static final String DATA_NEW = "534f37560100000000000dcd7b6729a83d0000000000008099003754b7c121b73e434539dc3e0ba87461b115390f34ec65a805a3faa6d4b88e7a2ee5a45f3321980000000d726574726f73686172652e6368";
 
 	@Test
-	void UdpDiscoveryProtocol_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(UdpDiscoveryProtocol.class);
 	}
 
 	@Test
-	void UdpDiscoveryProtocol_ParsePacket_OK()
+	void ParsePacket_Success()
 	{
 		var peer = UdpDiscoveryProtocol.parsePacket(ByteBuffer.wrap(Id.toBytes(DATA)), new InetSocketAddress(LOCAL_IP, 6666));
 
@@ -70,7 +70,7 @@ class UdpDiscoveryProtocolTest
 	}
 
 	@Test
-	void UdpDiscoveryProtocol_CreatePacket_OK()
+	void CreatePacket_Success()
 	{
 		var data = UdpDiscoveryProtocol.createPacket(
 				512,

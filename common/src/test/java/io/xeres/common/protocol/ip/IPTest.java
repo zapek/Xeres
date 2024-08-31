@@ -27,13 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class IPTest
 {
 	@Test
-	void IP_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(IP.class);
 	}
 
 	@Test
-	void IP_GetFreeLocalPort_OK()
+	void GetFreeLocalPort_Success()
 	{
 		var port = IP.getFreeLocalPort();
 
@@ -41,7 +41,7 @@ class IPTest
 	}
 
 	@Test
-	void IP_GetLocalIPAddress_OK()
+	void GetLocalIPAddress_Success()
 	{
 		var ip = IP.getLocalIpAddress();
 
@@ -49,7 +49,7 @@ class IPTest
 	}
 
 	@Test
-	void IP_IsLanIP_OK()
+	void IsLanIP_Various_Success()
 	{
 		assertTrue(IP.isLanIp("10.0.0.0"));
 		assertTrue(IP.isLanIp("10.255.255.255"));
@@ -66,43 +66,43 @@ class IPTest
 	}
 
 	@Test
-	void IP_IsLanIP_Fail()
+	void IsLanIP_WAN_Failure()
 	{
 		assertFalse(IP.isLanIp("85.1.2.78"));
 	}
 
 	@Test
-	void IP_IsLanIP_Empty_Fail()
+	void IsLanIP_Empty_Failure()
 	{
 		assertFalse(IP.isLanIp(""));
 	}
 
 	@Test
-	void IP_IsLanIP_Null_Fail()
+	void IsLanIP_Null_Failure()
 	{
 		assertFalse(IP.isLanIp(null));
 	}
 
 	@Test
-	void IP_IsPublicIP_OK()
+	void IsPublicIP_WAN_Success()
 	{
 		assertTrue(IP.isPublicIp("85.1.2.78"));
 	}
 
 	@Test
-	void IP_IsPublicIP_Fail()
+	void IsPublicIP_LAN_Failure()
 	{
 		assertFalse(IP.isPublicIp("192.168.1.5"));
 	}
 
 	@Test
-	void IP_IsPublicIP_Empty_Fail()
+	void IsPublicIP_Empty_Failure()
 	{
 		assertFalse(IP.isPublicIp(""));
 	}
 
 	@Test
-	void IP_IsPublicIP_Null_Fail()
+	void IsPublicIP_Null_Failure()
 	{
 		assertFalse(IP.isPublicIp(null));
 	}

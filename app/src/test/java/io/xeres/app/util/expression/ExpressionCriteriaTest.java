@@ -46,7 +46,7 @@ class ExpressionCriteriaTest
 	private FileRepository fileRepository;
 
 	@Test
-	void ExpressionCriteria_Name()
+	void Name()
 	{
 		var file = FileFakes.createFile("The Great Race.mkv");
 		fileRepository.save(file);
@@ -85,7 +85,7 @@ class ExpressionCriteriaTest
 	}
 
 	@Test
-	void ExpressionCriteria_Path()
+	void Path()
 	{
 		var parent = FileFakes.createFile("Movies");
 		fileRepository.save(parent);
@@ -101,7 +101,7 @@ class ExpressionCriteriaTest
 	}
 
 	@Test
-	void ExpressionCriteria_Extension()
+	void Extension()
 	{
 		var file = FileFakes.createFile("The Empty Bin.EXE");
 		fileRepository.save(file);
@@ -133,7 +133,7 @@ class ExpressionCriteriaTest
 //	}
 
 	@Test
-	void ExpressionCriteria_Date()
+	void Date()
 	{
 		var file = FileFakes.createFile("Foobar", 1024, Instant.now().truncatedTo(ChronoUnit.SECONDS));
 		fileRepository.save(file);
@@ -148,7 +148,7 @@ class ExpressionCriteriaTest
 	}
 
 	@Test
-	void ExpressionCriteria_Size()
+	void Size()
 	{
 		var file = FileFakes.createFile("foobar", 1024);
 		fileRepository.save(file);
@@ -193,7 +193,7 @@ class ExpressionCriteriaTest
 	}
 
 	@Test
-	void ExpressionCriteria_SizeMb_OK()
+	void SizeMb()
 	{
 		var file = FileFakes.createFile("foobar", 1_000_000_000_000L);
 		fileRepository.save(file);
@@ -238,7 +238,7 @@ class ExpressionCriteriaTest
 	}
 
 	@Test
-	void ExpressionCriteria_Popularity_NotSupported()
+	void Popularity_NotSupported()
 	{
 		var file = FileFakes.createFile("foobar");
 		fileRepository.save(file);

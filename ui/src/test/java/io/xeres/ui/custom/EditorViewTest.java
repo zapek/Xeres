@@ -52,27 +52,27 @@ class EditorViewTest
 	@Test
 	@Order(1)
 		// this method must be first, possibly related to the above workaround
-	void EditorView_Content_Empty()
+	void Content_Empty()
 	{
 		assertEquals("", editorView.getText());
 	}
 
 	@Test
-	void EditorView_Content_Type(FxRobot robot)
+	void Content_Type_Echoed(FxRobot robot)
 	{
 		robot.write("hello, world");
 		assertEquals("hello, world", editorView.getText());
 	}
 
 	@Test
-	void EditorView_Content_Bold(FxRobot robot)
+	void Content_Bold_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#bold");
 		assertEquals("****", editorView.getText());
 	}
 
 	@Test
-	void EditorView_Content_Bold_Selected(FxRobot robot)
+	void Content_Bold_Selected_Transformed(FxRobot robot)
 	{
 		robot.write("hello");
 		robot.press(KeyCode.CONTROL, KeyCode.A);
@@ -82,14 +82,14 @@ class EditorViewTest
 	}
 
 	@Test
-	void EditorView_Content_Italic(FxRobot robot)
+	void Content_Italic_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#italic");
 		assertEquals("__", editorView.getText());
 	}
 
 	@Test
-	void EditorView_Content_Italic_Selected(FxRobot robot)
+	void Content_Italic_Selected_Transformed(FxRobot robot)
 	{
 		robot.write("hello");
 		robot.press(KeyCode.CONTROL, KeyCode.A);
@@ -99,14 +99,14 @@ class EditorViewTest
 	}
 
 	@Test
-	void EditorView_Content_Code(FxRobot robot)
+	void Content_Code_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#code");
 		assertEquals("``", editorView.getText());
 	}
 
 	@Test
-	void EditorView_Content_Code_Selected(FxRobot robot)
+	void Content_Code_Selected_Transformed(FxRobot robot)
 	{
 		robot.write("hello");
 		robot.press(KeyCode.CONTROL, KeyCode.A);
@@ -116,14 +116,14 @@ class EditorViewTest
 	}
 
 	@Test
-	void EditorView_Content_Quote(FxRobot robot)
+	void Content_Quote_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#quote");
 		assertEquals("> ", editorView.getText());
 	}
 
 	@Test
-	void EditorView_Content_Quote_Selected(FxRobot robot)
+	void Content_Quote_Selected_Transformed(FxRobot robot)
 	{
 		robot.write("hello");
 		robot.press(KeyCode.CONTROL, KeyCode.A);
@@ -133,7 +133,7 @@ class EditorViewTest
 	}
 
 	@Test
-	void EditorView_Content_Quote_Selected_Multiples(FxRobot robot)
+	void Content_Quote_Selected_Multiples_Transformed(FxRobot robot)
 	{
 		robot.write("hello\nworld\nhere");
 		robot.press(KeyCode.CONTROL, KeyCode.A);
@@ -143,14 +143,14 @@ class EditorViewTest
 	}
 
 	@Test
-	void EditorView_Content_List(FxRobot robot)
+	void Content_List_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#list");
 		assertEquals("- ", editorView.getText());
 	}
 
 	@Test
-	void EditorView_Content_List_Selected(FxRobot robot)
+	void Content_List_Selected_Transformed(FxRobot robot)
 	{
 		robot.write("hello");
 		robot.press(KeyCode.CONTROL, KeyCode.A);
@@ -160,7 +160,7 @@ class EditorViewTest
 	}
 
 	@Test
-	void EditorView_Content_Heading(FxRobot robot)
+	void Content_Heading_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#heading");
 		robot.clickOn("#header2");
@@ -168,7 +168,7 @@ class EditorViewTest
 	}
 
 	@Test
-	void EditorView_Content_Heading_Selected(FxRobot robot)
+	void Content_Heading_Selected_Transformed(FxRobot robot)
 	{
 		robot.write("hello");
 		robot.press(KeyCode.CONTROL, KeyCode.A);

@@ -71,7 +71,7 @@ class DiscoveryRsServiceTest
 	 * We ignore it, just in case.
 	 */
 	@Test
-	void DiscoveryService_handleDiscoveryContactItem_NewLocation_FriendOfFriend_Known_Ignore()
+	void HandleDiscoveryContactItem_NewLocation_FriendOfFriend_Known_Ignore()
 	{
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
@@ -87,7 +87,7 @@ class DiscoveryRsServiceTest
 	 * This is a case that shouldn't happen either.
 	 */
 	@Test
-	void DiscoveryService_handleDiscoveryContactItem_NewLocation_FriendOfFriend_Unknown_Ignore()
+	void HandleDiscoveryContactItem_NewLocation_FriendOfFriend_Unknown_Ignore()
 	{
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
@@ -103,7 +103,7 @@ class DiscoveryRsServiceTest
 	 * The peer sends the new location of a common friend. We keep that new location.
 	 */
 	@Test
-	void DiscoveryService_handleDiscoveryContactItem_NewLocation_Friend_OK()
+	void HandleDiscoveryContactItem_NewLocation_Friend_Success()
 	{
 		var peerLocation = LocationFakes.createLocation();
 		var peerConnection = new PeerConnection(peerLocation, null);
@@ -125,7 +125,7 @@ class DiscoveryRsServiceTest
 	 * the location.
 	 */
 	@Test
-	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Friend_OK()
+	void HandleDiscoveryContactItem_UpdateLocation_Friend_Success()
 	{
 		var peerLocation = LocationFakes.createLocation();
 		var peerConnection = new PeerConnection(peerLocation, null);
@@ -147,7 +147,7 @@ class DiscoveryRsServiceTest
 	 * IP address).
 	 */
 	@Test
-	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Own_Ignore()
+	void HandleDiscoveryContactItem_UpdateLocation_Own_Ignore()
 	{
 		var peerLocation = LocationFakes.createLocation();
 		var peerConnection = new PeerConnection(peerLocation, null);
@@ -168,7 +168,7 @@ class DiscoveryRsServiceTest
 	 * of friends.
 	 */
 	@Test
-	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Peer_OK()
+	void HandleDiscoveryContactItem_UpdateLocation_Peer_Success()
 	{
 		var peerLocation = LocationFakes.createLocation();
 		var peerConnection = new PeerConnection(peerLocation, null);
@@ -195,7 +195,7 @@ class DiscoveryRsServiceTest
 	 * friends because we're not discoverable.
 	 */
 	@Test
-	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Peer_OurLocation_NotDiscoverable_OK()
+	void HandleDiscoveryContactItem_UpdateLocation_Peer_OurLocation_NotDiscoverable_Success()
 	{
 		var peerLocation = LocationFakes.createLocation();
 		var peerConnection = new PeerConnection(peerLocation, null);
@@ -218,7 +218,7 @@ class DiscoveryRsServiceTest
 	 * ShortInvites) we ask for its PGP key.
 	 */
 	@Test
-	void DiscoveryService_handleDiscoveryContactItem_UpdateLocation_Peer_Partial_OK()
+	void HandleDiscoveryContactItem_UpdateLocation_Peer_Partial_Success()
 	{
 		var peerLocation = LocationFakes.createLocation();
 		var peerConnection = new PeerConnection(peerLocation, null);

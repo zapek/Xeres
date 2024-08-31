@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class NetModeTest
 {
 	@Test
-	void NetMode_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, UNKNOWN.ordinal());
 		assertEquals(1, UDP.ordinal());
@@ -35,5 +35,6 @@ class NetModeTest
 		assertEquals(3, EXT.ordinal());
 		assertEquals(4, HIDDEN.ordinal());
 		assertEquals(5, UNREACHABLE.ordinal());
+		assertEquals(6, values().length);
 	}
 }

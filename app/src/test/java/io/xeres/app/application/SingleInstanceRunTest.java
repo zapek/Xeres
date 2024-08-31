@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 class SingleInstanceRunTest
 {
 	@Test
-	void SingleInstanceRun_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(SingleInstanceRun.class);
 	}

@@ -38,7 +38,7 @@ class PeerAddressTest
 	 * Builds a PeerAddress from a string like "85.123.33.21:21232"
 	 */
 	@Test
-	void PeerAddress_FromIpAndPort_OK()
+	void FromIpAndPort_Success()
 	{
 		var ipAndPort = "85.123.33.21:21232";
 		var peerAddress = PeerAddress.fromIpAndPort(ipAndPort);
@@ -72,7 +72,7 @@ class PeerAddressTest
 			"255.255.255.255:21232", // "broadcast" address
 			"0.1.1.1:21232", // non routable
 	})
-	void PeerAddress_FromIpAndPort_Fail(String source)
+	void FromIpAndPort_Fail(String source)
 	{
 		var peerAddress = PeerAddress.fromIpAndPort(source);
 
@@ -88,7 +88,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromUrl_OK()
+	void FromUrl_Success()
 	{
 		var url = "ipv4://194.28.22.1:2233";
 		var peerAddress = PeerAddress.fromUrl(url);
@@ -106,7 +106,7 @@ class PeerAddressTest
 			"ipv5://194.28.22.1:1234", // bad protocol
 			"ipv666://23sd.2343.2487.asdk" // nonsense
 	})
-	void PeerAddress_FromUrl_Fail(String url)
+	void FromUrl_Failure(String url)
 	{
 		var peerAddress = PeerAddress.fromUrl(url);
 
@@ -119,7 +119,7 @@ class PeerAddressTest
 			"194.28.22.1:1026",
 			"1.0.0.1:1026"
 	})
-	void PeerAddress_FromAddress_OK(String source)
+	void FromAddress_Success(String source)
 	{
 		var peerAddress = PeerAddress.fromAddress(source);
 
@@ -129,7 +129,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromAddress_MissingPort_Fail()
+	void FromAddress_MissingPort_Failure()
 	{
 		var peerAddress = PeerAddress.fromAddress("194.28.22.1");
 
@@ -137,7 +137,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromIpAndPort_NotPublicButPrivateLan_OK()
+	void FromIpAndPort_NotPublicButPrivateLan_Success()
 	{
 		var peerAddress = PeerAddress.fromIpAndPort("192.168.1.5:21232");
 
@@ -150,7 +150,7 @@ class PeerAddressTest
 			"1.1.1.255:21232", // broadcast convention
 			"1.1.1.0:21232" // network convention
 	})
-	void PeerAddress_FromIpAndPort_ConventionButRoutable_OK(String source)
+	void FromIpAndPort_ConventionButRoutable_Success(String source)
 	{
 		var peerAddress = PeerAddress.fromIpAndPort(source);
 
@@ -163,7 +163,7 @@ class PeerAddressTest
 	 * Tor v2 is not supported anymore
 	 */
 	@Test
-	void PeerAddress_FromTor_v2_Fail()
+	void FromTor_v2_Failure()
 	{
 		var peerAddress = PeerAddress.fromOnion("expyuzz4wqqyqhjn.onion");
 
@@ -171,7 +171,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromTor_v3_OK()
+	void FromTor_v3_Success()
 	{
 		var peerAddress = PeerAddress.fromOnion("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion:1234");
 
@@ -180,7 +180,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromI2p_OK()
+	void FromI2p_Success()
 	{
 		var peerAddress = PeerAddress.fromI2p("g6u4vqiuy6bdc3dbu6a7gmi3ip45sqwgtbgrr6uupqaaqfyztrka.b32.i2p:1234");
 
@@ -189,7 +189,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromTor_WrongAddress_Fail()
+	void FromTor_WrongAddress_Failure()
 	{
 		var peerAddress = PeerAddress.fromOnion("192.168.1.2:8080");
 
@@ -198,7 +198,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromHidden_OK()
+	void FromHidden_Success()
 	{
 		var peerAddress = PeerAddress.fromHidden("xpxduj55x2j27l2qytu2tcetykyfxbjbafin3x4i3ywddzphkbrd3jyd.onion:1234");
 
@@ -207,7 +207,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromHidden_WrongAddress_Fail()
+	void FromHidden_WrongAddress_Failure()
 	{
 		var peerAddress = PeerAddress.fromHidden("192.168.1.2:8080");
 
@@ -216,7 +216,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromHostname_OK()
+	void FromHostname_Success()
 	{
 		var peerAddress = PeerAddress.fromHostname("foo.bar.com");
 
@@ -226,7 +226,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromHostName_Invalid()
+	void FromHostName_Invalid()
 	{
 		var peerAddress = PeerAddress.fromHostname("verylonghostnamethatismorethan63charsandislikelyinvalidandwillfailspectacularly.com");
 
@@ -234,7 +234,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromHostNameAndPort_OK()
+	void FromHostNameAndPort_Success()
 	{
 		var peerAddress = PeerAddress.fromHostname("foo.bar.com", 8080);
 
@@ -246,7 +246,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromSocketAddress_OK()
+	void FromSocketAddress_Success()
 	{
 		var peerAddress = PeerAddress.fromSocketAddress(InetSocketAddress.createUnresolved("foobar.com", 1234));
 
@@ -258,7 +258,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_FromHostNameAndPortString_OK()
+	void FromHostNameAndPortString_Success()
 	{
 		var peerAddress = PeerAddress.fromHostnameAndPort("foo.bar.com:8080");
 
@@ -270,7 +270,7 @@ class PeerAddressTest
 	}
 
 	@Test
-	void PeerAddress_Type_Enum_Order()
+	void Type_Enum_Order()
 	{
 		assertEquals(0, INVALID.ordinal());
 		assertEquals(1, IPV4.ordinal());

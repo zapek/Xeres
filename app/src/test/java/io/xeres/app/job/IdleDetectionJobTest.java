@@ -51,7 +51,7 @@ class IdleDetectionJobTest
 	private IdleDetectionJob idleDetectionJob;
 
 	@Test
-	void IdleDetectionJob_IsOnline()
+	void IsOnline_Success()
 	{
 		when(peerService.isRunning()).thenReturn(true);
 		when(idleChecker.getIdleTime()).thenReturn(0);
@@ -65,7 +65,7 @@ class IdleDetectionJobTest
 	}
 
 	@Test
-	void IdleDetectionJob_IsAway()
+	void IsAway_Success()
 	{
 		when(peerService.isRunning()).thenReturn(true);
 		when(idleChecker.getIdleTime()).thenReturn(60 * 5 + 1);

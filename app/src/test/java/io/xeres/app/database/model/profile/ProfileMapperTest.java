@@ -31,13 +31,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ProfileMapperTest
 {
 	@Test
-	void ProfileMapper_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ProfileMapper.class);
 	}
 
 	@Test
-	void ProfileMapper_toDTO_OK()
+	void toDTO_Success()
 	{
 		var profile = ProfileFakes.createProfile("test", 1);
 		var profileDTO = ProfileMapper.toDTO(profile);
@@ -52,7 +52,7 @@ class ProfileMapperTest
 	}
 
 	@Test
-	void ProfileMapper_toDeepDTO_OK()
+	void toDeepDTO_Success()
 	{
 		var profile = ProfileFakes.createProfile("test", 1);
 		profile.addLocation(LocationFakes.createLocation("foo", profile));
@@ -64,7 +64,7 @@ class ProfileMapperTest
 	}
 
 	@Test
-	void ProfileMapper_fromDTO_OK()
+	void fromDTO_Success()
 	{
 		var profileDTO = new ProfileDTO(
 				1L,

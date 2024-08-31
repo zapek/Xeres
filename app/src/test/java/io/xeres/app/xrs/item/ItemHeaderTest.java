@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ItemHeaderTest
 {
 	@Test
-	void ItemHeader_ReadHeader_OK()
+	void ReadHeader_Success()
 	{
 		var buf = Unpooled.wrappedBuffer(new byte[]{2, 8, 8, 3, 0, 0, 0, 1});
 
@@ -17,7 +17,7 @@ class ItemHeaderTest
 	}
 
 	@Test
-	void ItemHeader_ReadHeader_WrongVersion()
+	void ReadHeader_WrongVersion()
 	{
 		var buf = Unpooled.wrappedBuffer(new byte[]{1, 8, 8, 3, 0, 0, 0, 1});
 
@@ -27,7 +27,7 @@ class ItemHeaderTest
 	}
 
 	@Test
-	void ItemHeader_ReadHeader_WrongType()
+	void ReadHeader_WrongType()
 	{
 		var buf = Unpooled.wrappedBuffer(new byte[]{2, 8, 8, 3, 0, 0, 0, 1});
 
@@ -37,7 +37,7 @@ class ItemHeaderTest
 	}
 
 	@Test
-	void ItemHeader_ReadHeader_WrongSubtype()
+	void ReadHeader_WrongSubtype()
 	{
 		var buf = Unpooled.wrappedBuffer(new byte[]{2, 8, 8, 3, 0, 0, 0, 1});
 

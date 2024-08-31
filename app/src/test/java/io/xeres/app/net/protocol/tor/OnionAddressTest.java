@@ -30,19 +30,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class OnionAddressTest
 {
 	@Test
-	void OnionAddress_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(OnionAddress.class);
 	}
 
 	@Test
-	void OnionAddress_IsValidAddress_OK()
+	void IsValidAddress_Success()
 	{
 		assertTrue(isValidAddress("answerszuvs3gg2l64e6hmnryudl5zgrmwm3vh65hzszdghblddvfiqd.onion:1234"));
 	}
 
 	@Test
-	void OnionAddress_IsValidAddress_Fail()
+	void IsValidAddress_Failure()
 	{
 		assertFalse(isValidAddress("3g2upl4pq6kufc4m.onion:1234"));
 	}

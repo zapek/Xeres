@@ -30,15 +30,25 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class StatusNotificationTest
 {
-	@Test
-	void StatusNotificationResponse_Equals()
-	{
-		var response1 = new StatusNotification(0, 1, NatStatus.UPNP, DhtInfo.fromStatus(DhtStatus.OFF));
-		var response2 = new StatusNotification(0, 1, NatStatus.UPNP, DhtInfo.fromStatus(DhtStatus.OFF));
-		var response3 = new StatusNotification(0, 1, NatStatus.FIREWALLED, DhtInfo.fromStatus(DhtStatus.OFF));
+	private final StatusNotification response1 = new StatusNotification(0, 1, NatStatus.UPNP, DhtInfo.fromStatus(DhtStatus.OFF));
+	private final StatusNotification response2 = new StatusNotification(0, 1, NatStatus.UPNP, DhtInfo.fromStatus(DhtStatus.OFF));
+	private final StatusNotification response3 = new StatusNotification(0, 1, NatStatus.FIREWALLED, DhtInfo.fromStatus(DhtStatus.OFF));
 
+	@Test
+	void Equals_Success()
+	{
 		assertEquals(response1, response2);
+	}
+
+	@Test
+	void Equals_Variant1_Failure()
+	{
 		assertNotEquals(response1, response3);
+	}
+
+	@Test
+	void Equals_Variant2_Failure()
+	{
 		assertNotEquals(response2, response3);
 	}
 }

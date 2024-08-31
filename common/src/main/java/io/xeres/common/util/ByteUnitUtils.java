@@ -37,10 +37,10 @@ public final class ByteUnitUtils
 	}
 
 	/**
-	 * Returns the number of bytes in their proper unit, with up to 2 decimals, except for KBs.
+	 * Returns the number of bytes in their proper unit, from bytes to exabytes, with up to 2 decimals, except for KBs.
 	 *
-	 * @param bytes the number of bytes
-	 * @return the bytes in their proper unit
+	 * @param bytes the number of bytes, must be a positive number
+	 * @return the bytes in their proper unit or "invalid" if a negative number was given as input
 	 */
 	public static String fromBytes(long bytes)
 	{
@@ -72,6 +72,6 @@ public final class ByteUnitUtils
 		{
 			return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " PB";
 		}
-		return "???";
+		return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " EB";
 	}
 }

@@ -29,14 +29,14 @@ class ChatRoomServiceTest
 	private ChatRoomService chatRoomService;
 
 	@Test
-	void ChatRoomService_CreateChatRoom_OK()
+	void CreateChatRoom_Success()
 	{
 		chatRoomService.createChatRoom(createSignedChatRoom(), IdentityFakes.createOwn());
 		verify(chatRoomRepository).save(any(ChatRoom.class));
 	}
 
 	@Test
-	void ChatRoomService_SubscribeToChatRoomAndJoin_OK()
+	void SubscribeToChatRoomAndJoin_Success()
 	{
 		var serviceChatRoom = createSignedChatRoom();
 		var identity = IdentityFakes.createOwn();
@@ -54,7 +54,7 @@ class ChatRoomServiceTest
 	}
 
 	@Test
-	void ChatRoomService_UnsubscribeFromChatRoomAndLeave_OK()
+	void UnsubscribeFromChatRoomAndLeave_Success()
 	{
 		var serviceChatRoom = createSignedChatRoom();
 		var identity = IdentityFakes.createOwn();

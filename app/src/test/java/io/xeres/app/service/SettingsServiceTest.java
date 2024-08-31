@@ -46,7 +46,7 @@ class SettingsServiceTest
 	private SettingsService settingsService;
 
 	@Test
-	void PrefsService_SaveSecretProfileKey_OK()
+	void SaveSecretProfileKey_Success()
 	{
 		when(settingsRepository.findById((byte) 1)).thenReturn(Optional.of(settings));
 		settingsService.init();

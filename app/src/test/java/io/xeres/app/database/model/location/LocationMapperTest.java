@@ -34,13 +34,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class LocationMapperTest
 {
 	@Test
-	void LocationMapper_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(LocationMapper.class);
 	}
 
 	@Test
-	void LocationMapper_toDTO_OK()
+	void toDTO_Success()
 	{
 		var location = LocationFakes.createLocation("test", ProfileFakes.createProfile("test", 1));
 		var locationDTO = LocationMapper.toDTO(location);
@@ -53,7 +53,7 @@ class LocationMapperTest
 	}
 
 	@Test
-	void LocationMapper_toDeepDTO_OK()
+	void toDeepDTO_Success()
 	{
 		var location = LocationFakes.createLocation("test", ProfileFakes.createProfile("test", 1));
 		location.addConnection(ConnectionFakes.createConnection());
@@ -65,7 +65,7 @@ class LocationMapperTest
 	}
 
 	@Test
-	void LocationMapper_fromDTO_OK()
+	void fromDTO_Success()
 	{
 		var locationDTO = new LocationDTO(
 				1L,

@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class PortMappingTest
 {
 	@Test
-	void PortMapping_Compare_OK()
+	void Compare_Success()
 	{
 		var mapping1 = new PortMapping(1025, TCP);
 		var mapping2 = new PortMapping(1025, TCP);
@@ -38,7 +38,7 @@ class PortMappingTest
 	}
 
 	@Test
-	void PortMapping_Compare_InequalPort_Fail()
+	void Compare_UnequalPort_Failure()
 	{
 		var mapping1 = new PortMapping(1025, TCP);
 		var mapping2 = new PortMapping(1026, TCP);
@@ -47,7 +47,7 @@ class PortMappingTest
 	}
 
 	@Test
-	void PortMapping_Compare_InequalProtocols_Fail()
+	void Compare_UnequalProtocols_Failure()
 	{
 		var mapping1 = new PortMapping(1025, TCP);
 		var mapping2 = new PortMapping(1025, UDP);

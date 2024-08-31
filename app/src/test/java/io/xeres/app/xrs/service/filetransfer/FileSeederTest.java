@@ -29,7 +29,7 @@ class FileSeederTest
 	}
 
 	@Test
-	void FileSeeder_GetFileSize_NotInitialized() throws IOException
+	void GetFileSize_NotInitialized() throws IOException
 	{
 		var tempFile = createTempFile(0);
 		var fileSeeder = new FileSeeder(tempFile);
@@ -38,7 +38,7 @@ class FileSeederTest
 	}
 
 	@Test
-	void FileSeeder_GetFileSize_OK() throws IOException
+	void GetFileSize_Success() throws IOException
 	{
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
 		var fileSeeder = new FileSeeder(tempFile);
@@ -49,7 +49,7 @@ class FileSeederTest
 	}
 
 	@Test
-	void FileSeeder_Write_Illegal() throws IOException
+	void Write_Illegal() throws IOException
 	{
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
 		var fileSeeder = new FileSeeder(tempFile);
@@ -60,7 +60,7 @@ class FileSeederTest
 	}
 
 	@Test
-	void FileSeeder_Read_OK() throws IOException
+	void Read_Success() throws IOException
 	{
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
 		var fileSeeder = new FileSeeder(tempFile);
@@ -71,7 +71,7 @@ class FileSeederTest
 	}
 
 	@Test
-	void FileSeeder_GetCompressedChunkMap_OK() throws IOException
+	void GetCompressedChunkMap_Success() throws IOException
 	{
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
 		var fileSeeder = new FileSeeder(tempFile);
@@ -82,7 +82,7 @@ class FileSeederTest
 	}
 
 	@Test
-	void FileSeeder_IsComplete_OK() throws IOException
+	void IsComplete_Success() throws IOException
 	{
 		var tempFile = createTempFile(0);
 		var fileSeeder = new FileSeeder(tempFile);

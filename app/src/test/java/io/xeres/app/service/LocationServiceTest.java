@@ -91,7 +91,7 @@ class LocationServiceTest
 	}
 
 	@Test
-	void LocationService_GenerateLocationKeys_OK()
+	void LocationService_GenerateLocationKeys_Success()
 	{
 		when(settingsService.getLocationPrivateKeyData()).thenReturn(null);
 
@@ -101,7 +101,7 @@ class LocationServiceTest
 	}
 
 	@Test
-	void LocationService_GenerateLocationKeys_LocationAlreadyExists_OK()
+	void GenerateLocationKeys_LocationAlreadyExists_Success()
 	{
 		when(settingsService.getLocationPrivateKeyData()).thenReturn(new byte[]{1});
 
@@ -109,7 +109,7 @@ class LocationServiceTest
 	}
 
 	@Test
-	void LocationService_GenerateLocationCertificate_OK() throws NoSuchAlgorithmException, CertificateException, InvalidKeySpecException, IOException
+	void GenerateLocationCertificate_Success() throws NoSuchAlgorithmException, CertificateException, InvalidKeySpecException, IOException
 	{
 		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
@@ -119,7 +119,7 @@ class LocationServiceTest
 	}
 
 	@Test
-	void LocationService_CreateLocation_OK() throws IOException
+	void CreateLocation_Success() throws IOException
 	{
 		when(settingsService.isOwnProfilePresent()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
@@ -135,7 +135,7 @@ class LocationServiceTest
 	}
 
 	@Test
-	void LocationService_GetConnectionsToConnectTo_OK()
+	void GetConnectionsToConnectTo_Success()
 	{
 		var now = Instant.now();
 
@@ -184,7 +184,7 @@ class LocationServiceTest
 	}
 
 	@Test
-	void LocationService_GetConnectionsToConnectTo_PreferLAN()
+	void GetConnectionsToConnectTo_PreferLAN()
 	{
 		var now = Instant.now();
 
@@ -225,7 +225,7 @@ class LocationServiceTest
 	}
 
 	@Test
-	void LocationService_SetConnected_OK()
+	void SetConnected_Success()
 	{
 		var location = LocationFakes.createLocation("foo", ProfileFakes.createProfile("foo", 1));
 
@@ -235,7 +235,7 @@ class LocationServiceTest
 	}
 
 	@Test
-	void LocationService_SetDisconnected_OK()
+	void SetDisconnected_Success()
 	{
 		var location = LocationFakes.createLocation("foo", ProfileFakes.createProfile("foo", 1));
 		location.setConnected(true);

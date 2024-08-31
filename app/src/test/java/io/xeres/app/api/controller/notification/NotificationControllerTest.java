@@ -59,7 +59,7 @@ class NotificationControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void NotificationController_SetupStatusNotification_OK() throws Exception
+	void SetupStatusNotification_Success() throws Exception
 	{
 		var sseEmitter = new SseEmitter();
 
@@ -70,7 +70,7 @@ class NotificationControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void NotificationController_SetupForumNotification_OK() throws Exception
+	void SetupForumNotification_Success() throws Exception
 	{
 		var sseEmitter = new SseEmitter();
 
@@ -81,7 +81,7 @@ class NotificationControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void NotificationController_SetupFileNotification_OK() throws Exception
+	void SetupFileNotification_Successs() throws Exception
 	{
 		var sseEmitter = new SseEmitter();
 

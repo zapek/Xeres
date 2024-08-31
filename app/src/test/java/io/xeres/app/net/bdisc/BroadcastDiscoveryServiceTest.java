@@ -52,7 +52,7 @@ class BroadcastDiscoveryServiceTest
 	private BroadcastDiscoveryService broadcastDiscoveryService;
 
 	@Test
-	void BroadcastDiscoveryService_StartStop_OK()
+	void StartStop_Success()
 	{
 		var ownLocation = LocationFakes.createOwnLocation();
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));

@@ -31,13 +31,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ControlPointTest
 {
 	@Test
-	void ControlPoint_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ControlPoint.class);
 	}
 
 	@Test
-	void ControlPoint_AddPortMapping_OK()
+	void AddPortMapping_Success()
 	{
 		var fakeHTTPServer = new FakeHttpServer("/control", 200, null);
 
@@ -56,7 +56,7 @@ class ControlPointTest
 	}
 
 	@Test
-	void ControlPoint_RemovePortMapping_OK()
+	void RemovePortMapping_Success()
 	{
 		var fakeHTTPServer = new FakeHttpServer("/control", 200, null);
 
@@ -72,7 +72,7 @@ class ControlPointTest
 	}
 
 	@Test
-	void ControlPoint_GetExternalIPAddress_OK()
+	void GetExternalIPAddress_Success()
 	{
 		var responseBody = "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
 				"<s:Body>" +

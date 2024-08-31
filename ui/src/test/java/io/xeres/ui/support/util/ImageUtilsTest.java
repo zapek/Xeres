@@ -39,13 +39,13 @@ class ImageUtilsTest
 	}
 
 	@Test
-	void ImageUtils_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ImageUtils.class);
 	}
 
 	@Test
-	void ImageUtils_WriteImageAsPngData_OK()
+	void WriteImageAsPngData_Success()
 	{
 		var pngImage = ImageUtils.writeImageAsPngData(image);
 
@@ -54,7 +54,7 @@ class ImageUtilsTest
 	}
 
 	@Test
-	void ImageUtils_WriteImageAsJpegData_OK()
+	void WriteImageAsJpegData_Success()
 	{
 		var jpegImage = ImageUtils.writeImageAsJpegData(image, 2048);
 
@@ -63,7 +63,7 @@ class ImageUtilsTest
 	}
 
 	@Test
-	void ImageUtils_WriteImageAsJpegDataWithLimit_OK()
+	void WriteImageAsJpegDataWithLimit_Success()
 	{
 		var jpegImage = ImageUtils.writeImageAsJpegData(image, 256);
 

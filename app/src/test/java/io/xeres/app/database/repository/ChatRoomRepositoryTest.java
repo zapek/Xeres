@@ -34,7 +34,7 @@ class ChatRoomRepositoryTest
 	private ChatRoomRepository chatRoomRepository;
 
 	@Test
-	void ChatRoomRepository_CRUD_OK()
+	void CRUD_Success()
 	{
 		var identity = IdentityFakes.createOwn();
 

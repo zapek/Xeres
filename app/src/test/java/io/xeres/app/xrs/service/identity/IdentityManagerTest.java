@@ -53,7 +53,7 @@ class IdentityManagerTest
 	private IdentityManager identityManager;
 
 	@Test
-	void GxsIdManager_AddOneAndRequest_OK()
+	void AddOneAndRequest_Success()
 	{
 		var gxsId = IdentityGroupItemFakes.createIdentityGroupItem();
 		var peerConnection = PeerConnectionFakes.createPeerConnection();
@@ -70,7 +70,7 @@ class IdentityManagerTest
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void GxsIdManager_AddSixAndRequest_OK()
+	void AddSixAndRequest_Success()
 	{
 		var gxsId1 = IdentityGroupItemFakes.createIdentityGroupItem();
 		var gxsId2 = IdentityGroupItemFakes.createIdentityGroupItem();

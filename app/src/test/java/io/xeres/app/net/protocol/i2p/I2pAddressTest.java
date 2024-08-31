@@ -30,19 +30,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class I2pAddressTest
 {
 	@Test
-	void I2pAddress_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(I2pAddress.class);
 	}
 
 	@Test
-	void I2pAddress_isValidAddress_OK()
+	void IsValidAddress_Success()
 	{
 		assertTrue(isValidAddress("g6u4vqiuy6bdc3dbu6a7gmi3ip45sqwgtbgrr6uupqaaqfyztrka.b32.i2p:1234"));
 	}
 
 	@Test
-	void I2PAddress_IsValidAddress_Fail()
+	void IsValidAddress_Failure()
 	{
 		assertFalse(isValidAddress("foobar.b32.i2p:1234"));
 	}

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 class RSIdArmorTest
 {
 	@Test
-	void RSIdArmor_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(RSIdArmor.class);
 	}

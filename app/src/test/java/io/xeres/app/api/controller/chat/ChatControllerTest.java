@@ -65,7 +65,7 @@ class ChatControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void ChatController_CreateChatRoom_OK() throws Exception
+	void CreateChatRoom_Success() throws Exception
 	{
 		var chatRoomRequest = new CreateChatRoomRequest("The Elephant Room", "Nothing to see here", ChatRoomVisibility.PUBLIC, false);
 
@@ -79,7 +79,7 @@ class ChatControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ChatRoomController_InviteToChatRoom_OK() throws Exception
+	void InviteToChatRoom_Success() throws Exception
 	{
 		var chatRoomId = 1L;
 		var locations = Set.of(LocationFakes.createLocation().getLocationId(), LocationFakes.createLocation().getLocationId());
@@ -95,7 +95,7 @@ class ChatControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ChatController_SubscribeToChatRoom_OK() throws Exception
+	void SubscribeToChatRoom_Success() throws Exception
 	{
 		var id = 1L;
 
@@ -107,7 +107,7 @@ class ChatControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ChatController_UnsubscribeFromChatRoom_OK() throws Exception
+	void UnsubscribeFromChatRoom_Success() throws Exception
 	{
 		var id = 1L;
 
@@ -118,7 +118,7 @@ class ChatControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ChatController_GetChatRoomContext_OK() throws Exception
+	void GetChatRoomContext_Success() throws Exception
 	{
 		var subscribedChatRoom = new ChatRoomInfo("SubscribedRoom");
 		var availableChatRoom = new ChatRoomInfo("AvailableRoom");

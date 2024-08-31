@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DiscoveryPgpListItemTest
 {
 	@Test
-	void DiscoveryPgpListItem_Mode_Enum_Order()
+	void Mode_Enum_Order_Fixed()
 	{
 		assertEquals(0, NONE.ordinal());
 		assertEquals(1, FRIENDS.ordinal());

@@ -53,7 +53,7 @@ class SettingsControllerTest extends AbstractControllerTest
 	public MockMvc mvc;
 
 	@Test
-	void SettingsController_GetSettings_OK() throws Exception
+	void GetSettings_Success() throws Exception
 	{
 		var settings = SettingsFakes.createSettings();
 
@@ -65,7 +65,7 @@ class SettingsControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void SettingsController_UpdateSettings_OK() throws Exception
+	void UpdateSettings_Success() throws Exception
 	{
 		var settings = SettingsFakes.createSettings();
 

@@ -35,7 +35,7 @@ class HeartbeatTest
 
 	@Test
 	@SuppressWarnings("java:S2699")
-	void RttService_handleHeartbeat_OK()
+	void HandleHeartbeat_Success()
 	{
 		var peerConnection = new PeerConnection(Location.createLocation("foo"), null);
 

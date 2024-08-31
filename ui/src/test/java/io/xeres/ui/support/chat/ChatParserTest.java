@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ChatParserTest
 {
 	@Test
-	void ChatParser_ParseActionMe_OK()
+	void ParseActionMe_Success()
 	{
 		var nickname = "foobar";
 		var input = "/me is hungry";
@@ -37,7 +37,7 @@ class ChatParserTest
 	}
 
 	@Test
-	void ChatParser_IsActionMe_OK()
+	void IsActionMe_Success()
 	{
 		assertTrue(ChatParser.isActionMe("/me is happy"));
 		assertFalse(ChatParser.isActionMe("and wants to use Xeres"));

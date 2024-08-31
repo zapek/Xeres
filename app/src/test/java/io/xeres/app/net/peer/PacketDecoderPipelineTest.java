@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PacketDecoderPipelineTest extends AbstractPipelineTest
 {
 	@Test
-	void RsFrameDecoder_NewPacket_OK()
+	void NewPacket_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder());
 
@@ -61,7 +61,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsFrameDecoder_NewPacket_ZeroSize()
+	void NewPacket_ZeroSize()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -76,7 +76,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsFrameDecoder_OldPacket_OK()
+	void OldPacket_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder());
 
@@ -91,7 +91,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsFrameDecoder_OldPacket_TooSmall()
+	void OldPacket_TooSmall()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -111,7 +111,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	 * The old packets can be oversized, the new ones can't.
 	 */
 	@Test
-	void RsFrameDecoder_OldPacket_Oversized()
+	void OldPacket_Oversized()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -127,7 +127,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsPacketDecoder_OldPacket_Empty_OK()
+	void OldPacket_Empty_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -142,7 +142,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsPacketDecoder_NewPacket_Empty_DoubleStartPacket()
+	void NewPacket_Empty_DoubleStartPacket()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -160,7 +160,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsPacketDecoder_NewPacket_Empty_MiddlePacketWithoutStartPacket()
+	void NewPacket_Empty_MiddlePacketWithoutStartPacket()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -176,7 +176,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsPacketDecoder_NewPacket_Empty_EndPacketWithoutStartPacket()
+	void NewPacket_Empty_EndPacketWithoutStartPacket()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -192,7 +192,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsPacketDecoder_NewPacket_Empty_OK()
+	void NewPacket_Empty_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -209,7 +209,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsPacketDecoder_NewPacket_Slicing_SizesWithHeaders_OK()
+	void NewPacket_Slicing_SizesWithHeaders_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -247,7 +247,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	 * Creates 3 sliced buffers and tests if they're reassembled properly.
 	 */
 	@Test
-	void RsPacketDecoder_NewPacket_Slicing_DataIntegrity_OK()
+	void NewPacket_Slicing_DataIntegrity_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 
@@ -293,7 +293,7 @@ class PacketDecoderPipelineTest extends AbstractPipelineTest
 	}
 
 	@Test
-	void RsPacketDecoder_NewPacket_Slicing_DataIntegrity_Intermixed_OK()
+	void NewPacket_Slicing_DataIntegrity_Intermixed_Success()
 	{
 		var channel = new EmbeddedChannel(new PacketDecoder(), new ItemDecoder());
 

@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ItemTest
 {
 	@Test
-	void Item_Bounce_Clone()
+	void Bounce_Clone()
 	{
 		var bounce = new ChatRoomMessageItem("Test");
 		var bounceClone = bounce.clone();
@@ -41,7 +41,7 @@ class ItemTest
 	}
 
 	@Test
-	void Item_TurtleChunkCrcItem_Clone()
+	void TurtleChunkCrcItem_Clone()
 	{
 		var sha1Sum = Sha1SumFakes.createSha1Sum();
 
@@ -53,7 +53,7 @@ class ItemTest
 	}
 
 	@Test
-	void Item_TurtleFileDataItem_Clone()
+	void TurtleFileDataItem_Clone()
 	{
 		byte[] data = {1, 2, 3};
 

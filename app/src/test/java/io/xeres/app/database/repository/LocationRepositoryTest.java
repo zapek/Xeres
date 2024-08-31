@@ -36,7 +36,7 @@ class LocationRepositoryTest
 	private LocationRepository locationRepository;
 
 	@Test
-	void LocationRepository_CRUD_OK()
+	void CRUD_Success()
 	{
 		var profile = ProfileFakes.createProfile("test", 1);
 

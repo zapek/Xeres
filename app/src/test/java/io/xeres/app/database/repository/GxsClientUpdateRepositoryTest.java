@@ -41,7 +41,7 @@ class GxsClientUpdateRepositoryTest
 	private GxsClientUpdateRepository gxsClientUpdateRepository;
 
 	@Test
-	void GxsClientUpdateRepository_CRUD_OK()
+	void CRUD_Success()
 	{
 		var profile = ProfileFakes.createProfile("profile1", 1);
 		profile = profileRepository.save(profile);
@@ -87,7 +87,7 @@ class GxsClientUpdateRepositoryTest
 	}
 
 	@Test
-	void GxsClientUpdateRepository_CRUD_Messages_OK()
+	void CRUD_Messages_Success()
 	{
 		var profile = ProfileFakes.createProfile("profile1", 1);
 		profile = profileRepository.save(profile);

@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TransactionTest
 {
 	@Test
-	void Transaction_AddItems_OK()
+	void AddItems_Success()
 	{
 		var transaction = new Transaction<GxsSyncGroupItem>(1, EnumSet.noneOf(TransactionFlags.class), new ArrayList<>(), 2, null, Transaction.Direction.INCOMING);
 

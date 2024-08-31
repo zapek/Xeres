@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeviceTest
 {
 	@Test
-	void Device_From_OK() throws IOException
+	void From_Success() throws IOException
 	{
 		var routerReply = Files.readAllBytes(ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "upnp/routers/RT-AC87U.xml").toPath());
 		var fakeHTTPServer = new FakeHttpServer("/rootDesc.xml", 200, routerReply);

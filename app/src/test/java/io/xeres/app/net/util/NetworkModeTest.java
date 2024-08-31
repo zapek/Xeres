@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class NetworkModeTest
 {
 	@Test
-	void NetworkMode_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, PUBLIC.ordinal());
 		assertEquals(1, PRIVATE.ordinal());
@@ -38,7 +38,7 @@ class NetworkModeTest
 	}
 
 	@Test
-	void NetworkMode_IsDiscoverable()
+	void IsDiscoverable()
 	{
 		assertTrue(isDiscoverable(PUBLIC));
 		assertTrue(isDiscoverable(PRIVATE));
@@ -47,7 +47,7 @@ class NetworkModeTest
 	}
 
 	@Test
-	void NetworkMode_HasDht()
+	void HasDht()
 	{
 		assertTrue(hasDht(PUBLIC));
 		assertTrue(hasDht(INVERTED));
@@ -56,7 +56,7 @@ class NetworkModeTest
 	}
 
 	@Test
-	void NetworkMode_GetNetworkMode()
+	void GetNetworkMode()
 	{
 		assertEquals(PUBLIC, getNetworkMode(2, 2));
 		assertEquals(PRIVATE, getNetworkMode(2, 0));

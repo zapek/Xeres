@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ShareMapperTest
 {
 	@Test
-	void ShareMapper_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ShareMapper.class);
 	}
 
 	@Test
-	void ShareMapper_fromDTO_OK()
+	void FromDTO_Success()
 	{
 		var dto = ShareDTOFakes.createShareDTO();
 

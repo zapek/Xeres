@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GxsRequestTypeTest
 {
 	@Test
-	void RequestType_Enum_Order()
+	void Enum_Order_Fixed()
 	{
 		assertEquals(0, NONE.ordinal());
 		assertEquals(1, REQUEST.ordinal());

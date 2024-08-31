@@ -19,7 +19,7 @@ class QrCodeServiceTest
 	private QrCodeService qrCodeService;
 
 	@Test
-	void QrCodeService_GenerateQrCode_OK() throws NotFoundException
+	void GenerateQrCode_Success() throws NotFoundException
 	{
 		var message = "hello world";
 

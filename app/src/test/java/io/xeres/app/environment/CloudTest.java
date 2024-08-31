@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class CloudTest
 {
 	@Test
-	void Cloud_NoInstance_OK() throws NoSuchMethodException
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(Cloud.class);
 	}

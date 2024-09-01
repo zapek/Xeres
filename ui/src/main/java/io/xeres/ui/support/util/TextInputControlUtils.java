@@ -76,7 +76,7 @@ public final class TextInputControlUtils
 		var cut = new MenuItem(I18nUtils.getString("chat.room.input.cut"));
 		cut.setOnAction(event -> textInputControl.cut());
 
-		var copy = new MenuItem(I18nUtils.getString("chat.room.input.copy"));
+		var copy = new MenuItem(I18nUtils.getString("button.copy"));
 		copy.setOnAction(event -> textInputControl.copy());
 
 		var paste = new MenuItem(I18nUtils.getString("chat.room.input.paste"));

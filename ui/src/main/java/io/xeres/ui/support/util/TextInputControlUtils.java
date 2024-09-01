@@ -30,6 +30,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputControl;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.List;
 
@@ -48,6 +50,7 @@ public final class TextInputControlUtils
 
 		contextMenu.getItems().addAll(createDefaultChatInputMenuItems(textInputControl));
 		var pasteId = new MenuItem(I18nUtils.getString("chat.room.input.paste-id"));
+		pasteId.setGraphic(new FontIcon(FontAwesomeSolid.ID_CARD));
 		pasteId.setOnAction(event -> appendOwnId(textInputControl, locationClient));
 		contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
 		return contextMenu;
@@ -68,24 +71,31 @@ public final class TextInputControlUtils
 	private static List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
 	{
 		var undo = new MenuItem(I18nUtils.getString("chat.room.input.undo"));
+		undo.setGraphic(new FontIcon(FontAwesomeSolid.UNDO_ALT));
 		undo.setOnAction(event -> textInputControl.undo());
 
 		var redo = new MenuItem(I18nUtils.getString("chat.room.input.redo"));
+		redo.setGraphic(new FontIcon(FontAwesomeSolid.REDO_ALT));
 		redo.setOnAction(event -> textInputControl.redo());
 
 		var cut = new MenuItem(I18nUtils.getString("chat.room.input.cut"));
+		cut.setGraphic(new FontIcon(FontAwesomeSolid.CUT));
 		cut.setOnAction(event -> textInputControl.cut());
 
 		var copy = new MenuItem(I18nUtils.getString("button.copy"));
+		copy.setGraphic(new FontIcon(FontAwesomeSolid.COPY));
 		copy.setOnAction(event -> textInputControl.copy());
 
 		var paste = new MenuItem(I18nUtils.getString("chat.room.input.paste"));
+		paste.setGraphic(new FontIcon(FontAwesomeSolid.PASTE));
 		paste.setOnAction(event -> textInputControl.paste());
 
 		var delete = new MenuItem(I18nUtils.getString("chat.room.input.delete"));
+		delete.setGraphic(new FontIcon(FontAwesomeSolid.TRASH_ALT));
 		delete.setOnAction(event -> textInputControl.deleteText(textInputControl.getSelection()));
 
 		var selectAll = new MenuItem(I18nUtils.getString("chat.room.input.select-all"));
+		selectAll.setGraphic(new FontIcon(FontAwesomeSolid.BORDER_ALL));
 		selectAll.setOnAction(event -> textInputControl.selectAll());
 
 		var emptySelection = Bindings.createBooleanBinding(() -> textInputControl.getSelection().getLength() == 0, textInputControl.selectionProperty());
@@ -93,6 +103,10 @@ public final class TextInputControlUtils
 		cut.disableProperty().bind(emptySelection);
 		copy.disableProperty().bind(emptySelection);
 		delete.disableProperty().bind(emptySelection);
+
+		var emptyText = Bindings.createBooleanBinding(() -> textInputControl.getLength() == 0, textInputControl.textProperty());
+
+		selectAll.disableProperty().bind(emptyText);
 
 		var canUndo = Bindings.createBooleanBinding(() -> !textInputControl.isUndoable(), textInputControl.undoableProperty());
 		var canRedo = Bindings.createBooleanBinding(() -> !textInputControl.isRedoable(), textInputControl.redoableProperty());

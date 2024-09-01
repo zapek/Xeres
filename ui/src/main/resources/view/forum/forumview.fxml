@@ -84,10 +84,10 @@
                             <RowConstraints vgrow="ALWAYS"/>
                             <RowConstraints vgrow="ALWAYS"/>
                         </rowConstraints>
-                        <Label text="%forum.view.from"/>
+                        <Label text="%forum.view.from" styleClass="forum-header-title"/>
                         <Label fx:id="messageAuthor" GridPane.columnIndex="1"/>
                         <Label fx:id="messageDate" GridPane.columnIndex="2"/>
-                        <Label text="%forum.view.subject" GridPane.rowIndex="1"/>
+                        <Label text="%forum.view.subject" GridPane.rowIndex="1" styleClass="forum-header-title"/>
                         <Label fx:id="messageSubject" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
                     </GridPane>
                     <ScrollPane fx:id="messagePane" fitToWidth="true" VBox.vgrow="ALWAYS">

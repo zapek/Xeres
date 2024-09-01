@@ -67,6 +67,10 @@
     -fx-fill: -color-fg-default;
 }
 
+.forum-header-title {
+    -fx-text-fill: -color-fg-subtle;
+}
+
 .alert-textarea {
     -fx-background-color: transparent;
     -fx-background-insets: 0px;

@@ -22,7 +22,11 @@ public class MarkdownService
 		 * you want to try to keep it on one line while still allowing to
 		 * write multiple lines.
 		 */
-		ONE_LINER, // try to avoid spurious \n (for chats)
+		ONE_LINER,
+
+		/**
+		 * Convert \n at end of lines to spaces.
+		 */
 		PARAGRAPH, // convert \n at end of lines to spaces
 	}
 
@@ -49,9 +53,17 @@ public class MarkdownService
 		}
 	}
 
+	/**
+	 * Parses text and generates a markdown content from it.
+	 *
+	 * @param input the incoming text, possibly annotated with markdown
+	 * @param modes the parsing mode
+	 * @param uriAction the action to perform when clicking on an url, can be null
+	 * @return a list of content nodes
+	 */
 	public List<Content> parse(String input, Set<ParsingMode> modes, UriAction uriAction)
 	{
-		var context = new Context(input, emojiService, modes, uriAction);
+		var context = new Context(input, emojiService, modes, uriAction != null ? uriAction : uri -> {});
 		return getContent(context);
 	}
 

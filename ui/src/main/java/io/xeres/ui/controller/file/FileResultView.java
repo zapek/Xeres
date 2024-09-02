@@ -155,7 +155,7 @@ public class FileResultView extends Tab
 
 	private void createFilesTableViewContextMenu()
 	{
-		var downloadItem = new MenuItem(bundle.getString("button.download"));
+		var downloadItem = new MenuItem(bundle.getString("download"));
 		downloadItem.setId(DOWNLOAD_MENU_ID);
 		downloadItem.setGraphic(new FontIcon(FontAwesomeSolid.DOWNLOAD));
 		downloadItem.setOnAction(event -> {
@@ -167,7 +167,7 @@ public class FileResultView extends Tab
 			}
 		});
 
-		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
 		copyLinkItem.setOnAction(event -> {

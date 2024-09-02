@@ -32,7 +32,7 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="createChatRoom" text="%button.create">
+                <Button fx:id="createChatRoom" text="%create">
                     <graphic>
                         <FontIcon iconLiteral="fas-plus"/>
                     </graphic>
@@ -73,9 +73,9 @@
                         </VBox.margin>
                         <ImageView fx:id="imagePreview" pickOnBounds="true" preserveRatio="true"/>
                         <VBox>
-                            <Button fx:id="previewCancel" mnemonicParsing="false" text="%button.cancel"/>
+                            <Button fx:id="previewCancel" mnemonicParsing="false" text="%cancel"/>
                             <Region VBox.vgrow="ALWAYS"/>
-                            <Button fx:id="previewSend" mnemonicParsing="false" text="%button.send"/>
+                            <Button fx:id="previewSend" mnemonicParsing="false" text="%send"/>
                             <HBox.margin>
                                 <Insets left="8.0"/>
                             </HBox.margin>

@@ -57,11 +57,11 @@ public class ContentImage implements Content
 
 	static
 	{
-		var copyMenuItem = new MenuItem(I18nUtils.getString("button.copy"));
+		var copyMenuItem = new MenuItem(I18nUtils.getString("copy"));
 		copyMenuItem.setGraphic(new FontIcon(FontAwesomeSolid.COPY));
 		copyMenuItem.setOnAction(ContentImage::copyToClipboard);
 
-		var saveAsMenuItem = new MenuItem(I18nUtils.getString("button.save-as"));
+		var saveAsMenuItem = new MenuItem(I18nUtils.getString("save-as"));
 		saveAsMenuItem.setGraphic(new FontIcon(FontAwesomeSolid.SAVE));
 		saveAsMenuItem.setOnAction(ContentImage::saveAs);
 

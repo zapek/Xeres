@@ -183,7 +183,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 	private void createContextMenu()
 	{
-		var removeItem = new MenuItem(bundle.getString("button.remove"));
+		var removeItem = new MenuItem(bundle.getString("remove"));
 		removeItem.setId(REMOVE_MENU_ID);
 		removeItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
 		removeItem.setOnAction(event -> {
@@ -196,7 +196,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 			}
 		});
 
-		var openItem = new MenuItem(bundle.getString("button.open"));
+		var openItem = new MenuItem(bundle.getString("open"));
 		openItem.setId(OPEN_MENU_ID);
 		openItem.setGraphic(new FontIcon(FontAwesomeSolid.FILE));
 		openItem.setOnAction(event -> {

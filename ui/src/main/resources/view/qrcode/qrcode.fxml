@@ -34,12 +34,12 @@
                 <Insets right="4.0"/>
             </HBox.margin>
         </Button>
-        <Button fx:id="saveButton" minWidth="72.0" mnemonicParsing="false" text="%button.save-as">
+        <Button fx:id="saveButton" minWidth="72.0" mnemonicParsing="false" text="%save-as">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>
         </Button>
-        <Button fx:id="closeButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%button.close">
+        <Button fx:id="closeButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%close">
             <HBox.margin>
                 <Insets left="4.0"/>
             </HBox.margin>

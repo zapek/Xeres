@@ -62,12 +62,12 @@
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="createButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%button.create">
+        <Button fx:id="createButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>
         </Button>
-        <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%button.cancel">
+        <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%cancel">
             <HBox.margin>
                 <Insets left="4.0"/>
             </HBox.margin>

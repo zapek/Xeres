@@ -285,7 +285,7 @@ public class ForumViewController implements Controller
 		unsubscribeItem.setId(UNSUBSCRIBE_MENU_ID);
 		unsubscribeItem.setOnAction(event -> unsubscribeFromForumGroups((ForumGroup) event.getSource()));
 
-		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
 		copyLinkItem.setOnAction(event -> {
@@ -315,7 +315,7 @@ public class ForumViewController implements Controller
 		replyItem.setGraphic(new FontIcon(FontAwesomeSolid.REPLY));
 		replyItem.setOnAction(event -> newForumPost(true));
 
-		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
 		copyLinkItem.setOnAction(event -> {

@@ -59,6 +59,6 @@
     <Label fx:id="status"/>
     <Region VBox.vgrow="ALWAYS"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="okButton" disable="true" minWidth="72.0" mnemonicParsing="false" text="%button.ok"/>
+        <Button fx:id="okButton" disable="true" minWidth="72.0" mnemonicParsing="false" text="%ok"/>
     </HBox>
 </VBox>

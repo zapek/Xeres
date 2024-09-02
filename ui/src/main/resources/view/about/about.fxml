@@ -288,6 +288,6 @@
         <VBox.margin>
             <Insets top="8.0"/>
         </VBox.margin>
-        <Button fx:id="closeWindow" minWidth="72.0" mnemonicParsing="false" text="%button.close"/>
+        <Button fx:id="closeWindow" minWidth="72.0" mnemonicParsing="false" text="%close"/>
     </HBox>
 </VBox>

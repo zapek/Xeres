@@ -205,7 +205,7 @@ public class EditorView extends VBox
 
 	public void setInputContextMenu(LocationClient locationClient)
 	{
-		editor.setContextMenu(TextInputControlUtils.createInputContextMenu(editor, locationClient));
+		TextInputControlUtils.addEnhancedInputContextMenu(editor, locationClient);
 	}
 
 	public boolean isModified()

@@ -249,7 +249,7 @@ public class ChatViewController implements Controller
 		previewCancel.setOnAction(event -> cancelImage());
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
-		send.setContextMenu(TextInputControlUtils.createInputContextMenu(send, locationClient));
+		TextInputControlUtils.addEnhancedInputContextMenu(send, locationClient);
 
 		invite.setOnAction(event -> windowManager.openInvite(selectedRoom.getId()));
 
@@ -282,7 +282,7 @@ public class ChatViewController implements Controller
 		unsubscribeItem.setGraphic(new FontIcon(FontAwesomeSolid.ARROW_LEFT));
 		unsubscribeItem.setOnAction(event -> leaveChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
-		var copyLinkItem = new MenuItem(I18nUtils.getString("button.copy-link"));
+		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
 		copyLinkItem.setOnAction(event -> {

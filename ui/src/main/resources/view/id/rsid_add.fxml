@@ -109,7 +109,7 @@
                 <Insets right="4.0"/>
             </HBox.margin>
         </Button>
-        <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%button.cancel">
+        <Button fx:id="cancelButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%cancel">
             <HBox.margin>
                 <Insets left="4.0"/>
             </HBox.margin>

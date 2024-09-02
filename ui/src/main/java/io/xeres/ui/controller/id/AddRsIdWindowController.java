@@ -31,6 +31,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.connection.Connection;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.PauseTransition;
@@ -131,6 +132,7 @@ public class AddRsIdWindowController implements WindowController
 			debouncer.setOnFinished(event -> checkRsId(newValue));
 			debouncer.playFromStart();
 		});
+		TextInputControlUtils.addEnhancedInputContextMenu(rsIdTextArea, null);
 
 		profileClient.getOwn()
 				.doOnSuccess(profile -> ownProfile = profile)

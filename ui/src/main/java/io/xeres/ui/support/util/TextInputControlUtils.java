@@ -44,16 +44,26 @@ public final class TextInputControlUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static ContextMenu createInputContextMenu(TextInputControl textInputControl, LocationClient locationClient)
+	/**
+	 * Adds an enhanced input context menu to TextField or TextArea. It features icons and an optional
+	 * "Paste own ID" menu item.
+	 *
+	 * @param textInputControl the text input control
+	 * @param locationClient   the location client, if null, then there will be no "Paste own ID" menu item
+	 */
+	public static void addEnhancedInputContextMenu(TextInputControl textInputControl, LocationClient locationClient)
 	{
 		var contextMenu = new ContextMenu();
 
 		contextMenu.getItems().addAll(createDefaultChatInputMenuItems(textInputControl));
-		var pasteId = new MenuItem(I18nUtils.getString("chat.room.input.paste-id"));
-		pasteId.setGraphic(new FontIcon(FontAwesomeSolid.ID_CARD));
-		pasteId.setOnAction(event -> appendOwnId(textInputControl, locationClient));
-		contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
-		return contextMenu;
+		if (locationClient != null)
+		{
+			var pasteId = new MenuItem(I18nUtils.getString("paste-id"));
+			pasteId.setGraphic(new FontIcon(FontAwesomeSolid.ID_CARD));
+			pasteId.setOnAction(event -> appendOwnId(textInputControl, locationClient));
+			contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
+		}
+		textInputControl.setContextMenu(contextMenu);
 	}
 
 	private static void appendOwnId(TextInputControl textInputControl, LocationClient locationClient)
@@ -70,31 +80,31 @@ public final class TextInputControlUtils
 
 	private static List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
 	{
-		var undo = new MenuItem(I18nUtils.getString("chat.room.input.undo"));
+		var undo = new MenuItem(I18nUtils.getString("undo"));
 		undo.setGraphic(new FontIcon(FontAwesomeSolid.UNDO_ALT));
 		undo.setOnAction(event -> textInputControl.undo());
 
-		var redo = new MenuItem(I18nUtils.getString("chat.room.input.redo"));
+		var redo = new MenuItem(I18nUtils.getString("redo"));
 		redo.setGraphic(new FontIcon(FontAwesomeSolid.REDO_ALT));
 		redo.setOnAction(event -> textInputControl.redo());
 
-		var cut = new MenuItem(I18nUtils.getString("chat.room.input.cut"));
+		var cut = new MenuItem(I18nUtils.getString("cut"));
 		cut.setGraphic(new FontIcon(FontAwesomeSolid.CUT));
 		cut.setOnAction(event -> textInputControl.cut());
 
-		var copy = new MenuItem(I18nUtils.getString("button.copy"));
+		var copy = new MenuItem(I18nUtils.getString("copy"));
 		copy.setGraphic(new FontIcon(FontAwesomeSolid.COPY));
 		copy.setOnAction(event -> textInputControl.copy());
 
-		var paste = new MenuItem(I18nUtils.getString("chat.room.input.paste"));
+		var paste = new MenuItem(I18nUtils.getString("paste"));
 		paste.setGraphic(new FontIcon(FontAwesomeSolid.PASTE));
 		paste.setOnAction(event -> textInputControl.paste());
 
-		var delete = new MenuItem(I18nUtils.getString("chat.room.input.delete"));
+		var delete = new MenuItem(I18nUtils.getString("delete"));
 		delete.setGraphic(new FontIcon(FontAwesomeSolid.TRASH_ALT));
 		delete.setOnAction(event -> textInputControl.deleteText(textInputControl.getSelection()));
 
-		var selectAll = new MenuItem(I18nUtils.getString("chat.room.input.select-all"));
+		var selectAll = new MenuItem(I18nUtils.getString("select-all"));
 		selectAll.setGraphic(new FontIcon(FontAwesomeSolid.BORDER_ALL));
 		selectAll.setOnAction(event -> textInputControl.selectAll());
 

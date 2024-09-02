@@ -32,7 +32,7 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="createForum" text="%button.create">
+                <Button fx:id="createForum" text="%create">
                     <graphic>
                         <FontIcon iconLiteral="fas-plus"/>
                     </graphic>

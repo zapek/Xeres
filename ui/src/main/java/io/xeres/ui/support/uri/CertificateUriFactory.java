@@ -55,7 +55,8 @@ public class CertificateUriFactory extends AbstractUriFactory
 
 		var certificateUri = new CertificateUri(radix, name, location);
 
-		return new ContentUri(StringUtils.defaultString(certificateUri.radix()), text, uri -> uriAction.openUri(certificateUri));
+		return new ContentUri(StringUtils.defaultString(certificateUri.radix()), text, uriAction != null ? uri -> uriAction.openUri(certificateUri) : uri -> {
+		});
 	}
 
 	public static String generate(String radix, String name, String location)

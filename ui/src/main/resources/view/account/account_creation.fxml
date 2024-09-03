@@ -46,7 +46,7 @@
             </tooltip>
         </TextField>
     </GridPane>
-    <TitledPane style="-fx-padding: 8 0 0 0" styleClass="dense" expanded="false" text="Options" VBox.vgrow="ALWAYS">
+    <TitledPane fx:id="titledPane" style="-fx-padding: 8 0 0 0" styleClass="dense" expanded="false" text="Options" VBox.vgrow="ALWAYS">
         <HBox>
             <Button fx:id="importBackup" text="%account.generation.import"/>
         </HBox>

@@ -26,10 +26,7 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import net.harawata.appdirs.AppDirsFactory;
@@ -62,6 +59,9 @@ public class AccountCreationWindowController implements WindowController
 
 	@FXML
 	private Label status;
+
+	@FXML
+	private TitledPane titledPane;
 
 	@FXML
 	private Button importBackup;
@@ -144,6 +144,7 @@ public class AccountCreationWindowController implements WindowController
 		locationName.setDisable(inProgress);
 		importBackup.setDisable(inProgress);
 		progress.setVisible(inProgress);
+		titledPane.setExpanded(!inProgress);
 	}
 
 	public void generateProfileAndLocation(String profileName, String locationName)

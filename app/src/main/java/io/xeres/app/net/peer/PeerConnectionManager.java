@@ -41,7 +41,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 import static io.xeres.app.net.peer.PeerAttribute.PEER_CONNECTION;
+import static io.xeres.common.location.Availability.AVAILABLE;
+import static io.xeres.common.location.Availability.OFFLINE;
 import static io.xeres.common.message.MessageHeaders.buildMessageHeaders;
+import static io.xeres.common.message.MessageType.CHAT_AVAILABILITY;
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Component
 public class PeerConnectionManager
@@ -69,6 +73,7 @@ public class PeerConnectionManager
 		peers.put(location.getId(), peerConnection);
 		ctx.channel().attr(PEER_CONNECTION).set(peerConnection);
 		updateCurrentUsersCount();
+		sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, location.getLocationId(), AVAILABLE);
 		return peerConnection;
 	}
 
@@ -105,6 +110,7 @@ public class PeerConnectionManager
 		}
 		peers.remove(location.getId());
 		updateCurrentUsersCount();
+		sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, location.getLocationId(), OFFLINE);
 	}
 
 	public void shutdown()

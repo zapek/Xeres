@@ -108,6 +108,7 @@ public class StatusRsService extends RsService
 			case AVAILABLE -> ChatStatus.ONLINE;
 			case AWAY -> ChatStatus.AWAY;
 			case BUSY -> ChatStatus.BUSY;
+			case OFFLINE -> ChatStatus.OFFLINE;
 		};
 	}
 

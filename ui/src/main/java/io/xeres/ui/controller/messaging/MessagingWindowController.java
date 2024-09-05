@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.messaging;
 
+import atlantafx.base.controls.Message;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.location.Availability;
@@ -98,6 +99,9 @@ public class MessagingWindowController implements WindowController
 
 	@FXML
 	private VBox content;
+
+	@FXML
+	private Message notice;
 
 	@FXML
 	private Button addImage;
@@ -230,7 +234,7 @@ public class MessagingWindowController implements WindowController
 	private void setupChatListView(String nickname, long id)
 	{
 		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction);
-		content.getChildren().addFirst(receive.getChatView());
+		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
 			{
@@ -345,10 +349,28 @@ public class MessagingWindowController implements WindowController
 	{
 		return switch (availability)
 		{
-			case AVAILABLE -> "";
+			case AVAILABLE ->
+			{
+				setUserOnline(true);
+				yield "";
+			}
 			case AWAY -> " (" + bundle.getString("messaging.status.away") + ")";
 			case BUSY -> " (" + bundle.getString("messaging.status.busy") + ")";
+			case OFFLINE ->
+			{
+				setUserOnline(false);
+				yield " (" + bundle.getString("messaging.status.offline") + ")";
+			}
 		};
+	}
+
+	private void setUserOnline(boolean online)
+	{
+		notice.setManaged(!online);
+		notice.setVisible(!online);
+		send.setDisable(!online);
+		addImage.setDisable(!online);
+		addFile.setDisable(!online);
 	}
 
 	private void handleInputKeys(KeyEvent event)

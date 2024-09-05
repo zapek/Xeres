@@ -23,5 +23,6 @@ public enum Availability
 {
 	AVAILABLE,
 	BUSY,
-	AWAY
+	AWAY,
+	OFFLINE
 }

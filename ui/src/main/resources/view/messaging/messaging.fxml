@@ -19,12 +19,18 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import atlantafx.base.controls.Message?>
 <?import io.xeres.ui.custom.TypingNotificationView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox fx:id="content" minHeight="300.0" minWidth="300.0" prefHeight="650.0" prefWidth="500.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <Message fx:id="notice" title="%messaging.warning.title" description="%messaging.warning.description" managed="false" visible="false" styleClass="warning">
+        <graphic>
+            <FontIcon iconLiteral="fas-flag"/>
+        </graphic>
+    </Message>
     <TypingNotificationView fx:id="notification" VBox.vgrow="NEVER"/>
     <HBox>
         <VBox.margin>

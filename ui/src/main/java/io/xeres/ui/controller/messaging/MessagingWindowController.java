@@ -40,6 +40,7 @@ import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
+import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
@@ -166,6 +167,7 @@ public class MessagingWindowController implements WindowController
 		});
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+		TextInputControlUtils.addEnhancedInputContextMenu(send, null);
 
 		addImage.setOnAction(event -> {
 			var fileChooser = new FileChooser();

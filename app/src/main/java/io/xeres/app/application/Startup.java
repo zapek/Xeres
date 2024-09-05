@@ -19,9 +19,9 @@
 
 package io.xeres.app.application;
 
-import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.XeresApplication;
 import io.xeres.app.application.autostart.AutoStart;
+import io.xeres.app.application.environment.TemporaryFiles;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
@@ -31,12 +31,10 @@ import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.share.Share;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.*;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
-import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
 import io.xeres.common.events.StartupEvent;
@@ -47,11 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -60,7 +56,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @Component
 public class Startup implements ApplicationRunner
@@ -69,9 +64,6 @@ public class Startup implements ApplicationRunner
 
 	private final LocationService locationService;
 	private final SettingsService settingsService;
-	private final BuildProperties buildProperties;
-	private final Environment environment;
-	private final NetworkProperties networkProperties;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final DataDirConfiguration dataDirConfiguration;
 	private final NetworkService networkService;
@@ -80,19 +72,16 @@ public class Startup implements ApplicationRunner
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
 	private final AutoStart autoStart;
-	private final RsServiceRegistry rsServiceRegistry;
 	private final FileService fileService;
 	private final ShellService shellService;
 	private final FileNotificationService fileNotificationService;
+	private final InfoService infoService;
 	private final ApplicationEventPublisher publisher;
 
-	public Startup(LocationService locationService, SettingsService settingsService, BuildProperties buildProperties, Environment environment, NetworkProperties networkProperties, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, RsServiceRegistry rsServiceRegistry, FileService fileService, ShellService shellService, FileNotificationService fileNotificationService, ApplicationEventPublisher publisher)
+	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, FileService fileService, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
-		this.buildProperties = buildProperties;
-		this.environment = environment;
-		this.networkProperties = networkProperties;
 		this.databaseSessionManager = databaseSessionManager;
 		this.dataDirConfiguration = dataDirConfiguration;
 		this.networkService = networkService;
@@ -101,10 +90,10 @@ public class Startup implements ApplicationRunner
 		this.identityManager = identityManager;
 		this.statusNotificationService = statusNotificationService;
 		this.autoStart = autoStart;
-		this.rsServiceRegistry = rsServiceRegistry;
 		this.fileService = fileService;
 		this.shellService = shellService;
 		this.fileNotificationService = fileNotificationService;
+		this.infoService = infoService;
 		this.publisher = publisher;
 	}
 
@@ -113,14 +102,12 @@ public class Startup implements ApplicationRunner
 	{
 		// This is a convenient place to start code as it works in both UI and non-UI mode
 		checkSingleInstance();
-		showStartupInfo();
+		infoService.showStartupInfo();
 		checkRequirements();
-		showCapabilities();
-		showFeatures();
-		if (log.isDebugEnabled())
-		{
-			showDebug();
-		}
+		TemporaryFiles.cleanup();
+		infoService.showCapabilities();
+		infoService.showFeatures();
+		infoService.showDebug();
 
 		publisher.publishEvent(new StartupEvent());    // This is synchronous and allows WebClients to configure themselves.
 
@@ -187,47 +174,6 @@ public class Startup implements ApplicationRunner
 		if (dataDirConfiguration.getDataDir() != null) // Don't back up the database when running unit tests
 		{
 			settingsService.backup(dataDirConfiguration.getDataDir());
-		}
-	}
-
-	private void showStartupInfo()
-	{
-		log.info("Startup sequence ({}, {}, {})",
-				buildProperties.getName(),
-				buildProperties.getVersion(),
-				environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "prod");
-	}
-
-	private static void showCapabilities()
-	{
-		var totalMemory = Runtime.getRuntime().totalMemory();
-		log.info("OS: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
-		log.info("JRE: {} {} ({})", System.getProperty("java.vendor"), System.getProperty("java.version"), System.getProperty("java.home"));
-		log.info("Charset: {}", Charset.defaultCharset());
-		log.debug("Working directory: {}", log.isDebugEnabled() ? System.getProperty("user.dir") : "");
-		log.info("Number of processor threads: {}", Runtime.getRuntime().availableProcessors());
-		log.info("Memory allocated for the JVM: {} MB", totalMemory / 1024 / 1024);
-		log.info("Maximum allocatable memory: {} MB", Runtime.getRuntime().maxMemory() / 1024 / 1024);
-	}
-
-	private void showFeatures()
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("Network features: {}", networkProperties.getFeatures());
-			log.debug("Services: {}", rsServiceRegistry.getServices().stream().map(rsService -> rsService.getServiceType().getName()).collect(Collectors.joining(", ")));
-		}
-	}
-
-	private static void showDebug()
-	{
-		if (ResourceLeakDetector.isEnabled())
-		{
-			log.debug("Netty leak detector level: {}", ResourceLeakDetector.getLevel());
-		}
-		else
-		{
-			log.debug("Netty leak detector disabled");
 		}
 	}
 

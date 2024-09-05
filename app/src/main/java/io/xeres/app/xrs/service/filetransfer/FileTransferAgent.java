@@ -64,11 +64,6 @@ class FileTransferAgent
 		lastActivity = System.nanoTime();
 	}
 
-	public boolean isTrusted()
-	{
-		return trusted;
-	}
-
 	public void setTrusted(boolean trusted)
 	{
 		this.trusted = trusted;
@@ -244,6 +239,7 @@ class FileTransferAgent
 			{
 				var newPath = filePath.resolveSibling(fileName);
 				Files.move(filePath, newPath);
+				OsUtils.setFileVisible(newPath, true);
 				success = true;
 				path = newPath;
 			}

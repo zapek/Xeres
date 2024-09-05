@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.filetransfer;
 
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.util.OsUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ class FileLeecher extends FileSeeder
 		{
 			createSparseFile();
 			randomAccessFile = new RandomAccessFile(file, "rw");
-			ensureHiddenFile();
+			OsUtils.setFileVisible(file.toPath(), false);
 			ensureSparseFile();
 			channel = randomAccessFile.getChannel();
 			lock = channel.lock(); // Exclusive lock
@@ -114,14 +115,6 @@ class FileLeecher extends FileSeeder
 		if (!SystemUtils.IS_OS_WINDOWS)
 		{
 			randomAccessFile.setLength(fileSize);
-		}
-	}
-
-	private void ensureHiddenFile() throws IOException
-	{
-		if (SystemUtils.IS_OS_WINDOWS)
-		{
-			Files.setAttribute(file.toPath(), "dos:hidden", true);
 		}
 	}
 

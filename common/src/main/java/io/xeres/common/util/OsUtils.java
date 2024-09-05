@@ -333,5 +333,28 @@ public final class OsUtils
 			}
 		}
 	}
+
+	/**
+	 * Sets the visibility of the file.
+	 * <p>
+	 * Note: only works on Windows.
+	 *
+	 * @param path    the path of the file
+	 * @param visible true if the file must be visible (default when creating new files), false otherwise
+	 */
+	public static void setFileVisible(Path path, boolean visible)
+	{
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			try
+			{
+				Files.setAttribute(path, "dos:hidden", !visible);
+			}
+			catch (IOException e)
+			{
+				log.warn("Couldn't set the visibility of file at {}: {}", path, e.getMessage());
+			}
+		}
+	}
 }
 

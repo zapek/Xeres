@@ -65,7 +65,11 @@ public final class ChatCommand
 		{
 			pre = true;
 
-			s = s.substring(4);
+			s = s.substring(5);
+		}
+		else if (s.startsWith("/quote "))
+		{
+			s = "\"" + s.substring(7) + "\"";
 		}
 
 		if (pre)

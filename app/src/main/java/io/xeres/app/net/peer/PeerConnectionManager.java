@@ -21,6 +21,7 @@ package io.xeres.app.net.peer;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
@@ -30,6 +31,7 @@ import io.xeres.common.id.Identifier;
 import io.xeres.common.message.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
@@ -41,11 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 import static io.xeres.app.net.peer.PeerAttribute.PEER_CONNECTION;
-import static io.xeres.common.location.Availability.AVAILABLE;
-import static io.xeres.common.location.Availability.OFFLINE;
 import static io.xeres.common.message.MessageHeaders.buildMessageHeaders;
-import static io.xeres.common.message.MessageType.CHAT_AVAILABILITY;
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Component
 public class PeerConnectionManager
@@ -54,13 +52,15 @@ public class PeerConnectionManager
 
 	private final SimpMessageSendingOperations messagingTemplate;
 	private final StatusNotificationService statusNotificationService;
+	private final ApplicationEventPublisher publisher;
 
 	private final Map<Long, PeerConnection> peers = new ConcurrentHashMap<>();
 
-	public PeerConnectionManager(SimpMessageSendingOperations messagingTemplate, StatusNotificationService statusNotificationService)
+	public PeerConnectionManager(SimpMessageSendingOperations messagingTemplate, StatusNotificationService statusNotificationService, ApplicationEventPublisher publisher)
 	{
 		this.messagingTemplate = messagingTemplate;
 		this.statusNotificationService = statusNotificationService;
+		this.publisher = publisher;
 	}
 
 	public PeerConnection addPeer(Location location, ChannelHandlerContext ctx)
@@ -73,8 +73,19 @@ public class PeerConnectionManager
 		peers.put(location.getId(), peerConnection);
 		ctx.channel().attr(PEER_CONNECTION).set(peerConnection);
 		updateCurrentUsersCount();
-		sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, location.getLocationId(), AVAILABLE);
+		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationId()));
 		return peerConnection;
+	}
+
+	public void removePeer(Location location)
+	{
+		if (!peers.containsKey(location.getId()))
+		{
+			throw new IllegalStateException("Location " + location + " is not in the list of peers");
+		}
+		peers.remove(location.getId());
+		updateCurrentUsersCount();
+		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationId()));
 	}
 
 	public void updatePeer(Location location)
@@ -100,17 +111,6 @@ public class PeerConnectionManager
 		return peers.values().stream()
 				.skip(ThreadLocalRandom.current().nextInt(peers.size()))
 				.findFirst().orElse(null);
-	}
-
-	public void removePeer(Location location)
-	{
-		if (!peers.containsKey(location.getId()))
-		{
-			throw new IllegalStateException("Location " + location + " is not in the list of peers");
-		}
-		peers.remove(location.getId());
-		updateCurrentUsersCount();
-		sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, location.getLocationId(), OFFLINE);
 	}
 
 	public void shutdown()

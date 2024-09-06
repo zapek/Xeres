@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.chat;
 
+import io.xeres.app.application.events.PeerConnectedEvent;
+import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -48,6 +50,7 @@ import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +63,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.CHAT;
+import static io.xeres.common.location.Availability.AVAILABLE;
+import static io.xeres.common.location.Availability.OFFLINE;
 import static io.xeres.common.message.MessageType.*;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
@@ -1127,6 +1132,18 @@ public class ChatRsService extends RsService
 				inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.PLAIN);
 			}
 		}, this);
+	}
+
+	@EventListener
+	public void onPeerConnectedEvent(PeerConnectedEvent event)
+	{
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, event.locationId(), AVAILABLE);
+	}
+
+	@EventListener
+	public void onPeerDisconnectedEvent(PeerDisconnectedEvent event)
+	{
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, event.locationId(), OFFLINE);
 	}
 
 	private long createUniqueRoomId()

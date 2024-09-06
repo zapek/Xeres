@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.gxs;
 
+import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
@@ -31,6 +32,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -274,6 +276,12 @@ public class GxsTransactionManager
 			removeTransaction(peerConnection, transaction);
 			// XXX: in the case that interest us, GxsIdService would call requestGxsGroups()
 		}
+	}
+
+	@EventListener
+	public void onPeerDisconnectedEvent(PeerDisconnectedEvent event)
+	{
+		outgoingTransactions.remove(event.locationId());
 	}
 
 	private void addTransaction(PeerConnection peerConnection, Transaction<?> transaction, Direction direction)

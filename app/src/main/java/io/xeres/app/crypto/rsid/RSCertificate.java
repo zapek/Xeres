@@ -256,7 +256,7 @@ class RSCertificate extends RSId
 
 	private void setLocationName(byte[] name) throws CertificateParsingException
 	{
-		if (name.length > 255) // XXX: find out RS' limit or put something
+		if (name.length > 255) // RS has no limit but let's enforce a sensible value
 		{
 			throw new CertificateParsingException("Certificate name too long: " + name.length);
 		}

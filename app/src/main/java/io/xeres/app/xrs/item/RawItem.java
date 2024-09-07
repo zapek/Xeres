@@ -122,6 +122,7 @@ public class RawItem
 
 	public void dispose()
 	{
+		assert buf.refCnt() == 1 : "buffer refCount is " + buf.refCnt();
 		ReferenceCountUtil.release(buf);
 	}
 

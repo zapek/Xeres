@@ -395,7 +395,7 @@ class FileTransferManager implements Runnable
 
 		if (agent == null)
 		{
-			log.error("Search request succeeded but no seeder available");
+			log.error("Chunk map request succeeded but no seeder available");
 			return;
 		}
 

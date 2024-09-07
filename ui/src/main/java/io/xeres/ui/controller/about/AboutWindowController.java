@@ -20,12 +20,16 @@
 package io.xeres.ui.controller.about;
 
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.text.Text;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.boot.info.BuildProperties;
@@ -33,7 +37,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
@@ -55,6 +61,9 @@ public class AboutWindowController implements WindowController
 
 	@FXML
 	private Label profile;
+
+	@FXML
+	private ImageView logo;
 
 	private final BuildProperties buildProperties;
 	private final Environment environment;
@@ -83,6 +92,14 @@ public class AboutWindowController implements WindowController
 
 		closeWindow.setOnAction(UiUtils::closeWindow);
 		UiUtils.linkify(infoPane);
+
+		logo.setOnMouseClicked(event -> {
+			if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY)
+			{
+				logo.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/egg.png"))));
+				TooltipUtils.install(logo, "Qrqvpngrq gb Nyvan".chars().mapToObj(v -> (char) v).map(c -> (char) ((c < 'a') ? ((c - 'A' + 13) % 26) + 'A' : ((c - 'a' + 13) % 26) + 'a')).map(String::valueOf).collect(Collectors.joining()).replace("-", " "));
+			}
+		});
 
 		Platform.runLater(() -> closeWindow.requestFocus());
 	}

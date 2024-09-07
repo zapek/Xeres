@@ -19,11 +19,13 @@
 
 package io.xeres.app.service;
 
+import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.repository.ProfileRepository;
+import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.common.AppName;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.Id;
@@ -35,15 +37,14 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.Security;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.xeres.app.service.ResourceCreationState.*;
 
@@ -59,11 +60,15 @@ public class ProfileService
 
 	private final ProfileRepository profileRepository;
 	private final SettingsService settingsService;
+	private final PeerConnectionManager peerConnectionManager;
 
-	public ProfileService(ProfileRepository profileRepository, SettingsService settingsService)
+	private final Map<Profile, Set<LocationId>> profilesToDelete = HashMap.newHashMap(2);
+
+	public ProfileService(ProfileRepository profileRepository, SettingsService settingsService, PeerConnectionManager peerConnectionManager)
 	{
 		this.profileRepository = profileRepository;
 		this.settingsService = settingsService;
+		this.peerConnectionManager = peerConnectionManager;
 
 		Security.addProvider(new BouncyCastleProvider());
 	}
@@ -195,7 +200,50 @@ public class ProfileService
 	public void deleteProfile(long id)
 	{
 		var profile = profileRepository.findById(id).orElseThrow();
-		profileRepository.delete(profile);
+		profile.setAccepted(false);
+		var connectedLocations = profile.getLocations().stream()
+				.filter(Location::isConnected)
+				.toList();
+
+		// If there's no connected locations, just delete the profile
+		// and we're done. Otherwise, we need to disconnect the locations
+		// and wait until that's done before deleting the profile.
+		if (connectedLocations.isEmpty())
+		{
+			profileRepository.delete(profile);
+		}
+		else
+		{
+			profilesToDelete.put(profile, connectedLocations.stream().map(Location::getLocationId).collect(Collectors.toSet()));
+			var ids = connectedLocations.stream().map(Location::getId).toList();
+			ids.forEach(location -> {
+				var peer = peerConnectionManager.getPeerByLocation(location);
+				if (peer != null)
+				{
+					peer.getCtx().close();
+				}
+			});
+		}
+	}
+
+	@EventListener
+	public void onPeerDisconnectedEvent(PeerDisconnectedEvent event)
+	{
+		if (profilesToDelete.isEmpty())
+		{
+			return;
+		}
+		profilesToDelete.forEach((profile, locationIds) -> locationIds.removeIf(locationId -> locationId.equals(event.locationId())));
+		var it = profilesToDelete.entrySet().iterator();
+		while (it.hasNext())
+		{
+			var profileSetEntry = it.next();
+			if (profileSetEntry.getValue().isEmpty())
+			{
+				profileRepository.delete(profileSetEntry.getKey());
+				it.remove();
+			}
+		}
 	}
 
 	public List<Profile> getAllProfiles()

@@ -185,9 +185,7 @@ public class PeerConnection
 	@Override
 	public String toString()
 	{
-		return "PeerConnection{" +
-				location +
-				"@" + (ctx != null ? ctx.channel().remoteAddress() : "<unknown>") +
-				'}';
+		return location +
+				"@" + (ctx != null ? ctx.channel().remoteAddress() : "<unknown>");
 	}
 }

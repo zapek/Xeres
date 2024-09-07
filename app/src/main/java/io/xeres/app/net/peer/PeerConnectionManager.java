@@ -97,7 +97,7 @@ public class PeerConnectionManager
 		peers.get(location.getId()).updateLocation(location);
 	}
 
-	public PeerConnection getPeerByLocationId(long id)
+	public PeerConnection getPeerByLocation(long id)
 	{
 		return peers.get(id);
 	}

@@ -138,7 +138,7 @@ public class IdentityManager
 		{
 			pendingGxsIds.forEach((locationId, gxsIds) -> {
 				var gxsIdsToGet = gxsIds.stream().limit(MAXIMUM_IDS_PER_LOCATION).toList();
-				var peerConnection = peerConnectionManager.getPeerByLocationId(locationId);
+				var peerConnection = peerConnectionManager.getPeerByLocation(locationId);
 				if (peerConnection != null)
 				{
 					identityRsService.requestGxsGroups(peerConnection, gxsIdsToGet);

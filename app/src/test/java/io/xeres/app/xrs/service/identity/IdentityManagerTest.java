@@ -59,7 +59,7 @@ class IdentityManagerTest
 		var peerConnection = PeerConnectionFakes.createPeerConnection();
 
 		when(identityRsService.findByGxsId(gxsId.getGxsId())).thenReturn(Optional.empty());
-		when(peerConnectionManager.getPeerByLocationId(peerConnection.getLocation().getId())).thenReturn(peerConnection);
+		when(peerConnectionManager.getPeerByLocation(peerConnection.getLocation().getId())).thenReturn(peerConnection);
 
 		identityManager.getGxsGroup(peerConnection, gxsId.getGxsId());
 
@@ -81,7 +81,7 @@ class IdentityManagerTest
 		var peerConnection = PeerConnectionFakes.createPeerConnection();
 
 		when(identityRsService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
-		when(peerConnectionManager.getPeerByLocationId(anyLong())).thenReturn(peerConnection);
+		when(peerConnectionManager.getPeerByLocation(anyLong())).thenReturn(peerConnection);
 
 		identityManager.getGxsGroup(peerConnection, gxsId1.getGxsId());
 		identityManager.getGxsGroup(peerConnection, gxsId2.getGxsId());

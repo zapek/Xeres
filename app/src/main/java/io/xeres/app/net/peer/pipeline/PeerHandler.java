@@ -87,6 +87,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		if (peerConnection == null)
 		{
 			log.warn("Dropping message as SSL not validated");
+			((RawItem) msg).dispose();
 			ReferenceCountUtil.release(msg);
 			return;
 		}
@@ -168,7 +169,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		{
 			if (!sslHandshakeCompletionEvent.isSuccess())
 			{
-				log.error("SSL handshake failed: {}", sslHandshakeCompletionEvent.cause().getMessage());
+				log.error("SSL handshake failed"); // There doesn't seem to ever be a useful message in the even so we don't display any
 				ctx.close();
 				return;
 			}
@@ -204,11 +205,8 @@ public class PeerHandler extends ChannelDuplexHandler
 	public void channelInactive(ChannelHandlerContext ctx)
 	{
 		var peerConnection = ctx.channel().attr(PeerAttribute.PEER_CONNECTION).get();
-		if (log.isDebugEnabled())
-		{
-			var remote = peerConnection != null ? peerConnection : ctx.channel().remoteAddress();
-			log.warn("Closing connection with {} (channel inactive)", remote);
-		}
+		var remote = peerConnection != null ? peerConnection : ctx.channel().remoteAddress();
+		log.warn("Closing connection with {}", remote);
 
 		if (peerConnection != null)
 		{

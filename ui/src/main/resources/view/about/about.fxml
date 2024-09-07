@@ -28,7 +28,7 @@
 <?import javafx.scene.text.*?>
 <VBox minWidth="320.0" minHeight="260.0" prefWidth="700.0" prefHeight="480.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.about.AboutWindowController">
     <HBox VBox.vgrow="NEVER">
-        <ImageView fitHeight="78.0" fitWidth="71.0" pickOnBounds="true" preserveRatio="true">
+        <ImageView fx:id="logo" fitHeight="78.0" fitWidth="71.0" pickOnBounds="true" preserveRatio="true">
             <HBox.margin>
                 <Insets bottom="8.0" left="8.0" right="16.0" top="8.0"/>
             </HBox.margin>

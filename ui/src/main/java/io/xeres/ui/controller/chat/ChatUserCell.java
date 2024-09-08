@@ -21,15 +21,19 @@ package io.xeres.ui.controller.chat;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.text.MessageFormat;
 
 public class ChatUserCell extends ListCell<ChatRoomUser>
 {
 	private static final int DEFAULT_AVATAR_SIZE = 32;
-	private static final ImageView defaultImage = new ImageView("/image/avatar_" + DEFAULT_AVATAR_SIZE + ".png");
 
 	public ChatUserCell()
 	{
@@ -44,23 +48,26 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.nickname());
-		setGraphic(empty ? null : getAvatarImage(item));
+		setGraphic(empty ? null : getAvatar(item));
 	}
 
-	private static ImageView getAvatarImage(ChatRoomUser item)
+	private static Node getAvatar(ChatRoomUser item)
 	{
-		ImageView image;
-
 		if (item.image() != null)
 		{
-			image = new ImageView(item.image().getImage());
+			var image = new ImageView(item.image().getImage());
 			image.setFitWidth(DEFAULT_AVATAR_SIZE);
 			image.setFitHeight(DEFAULT_AVATAR_SIZE);
+			return image;
 		}
 		else
 		{
-			image = new ImageView(defaultImage.getImage());
+			var font = new FontIcon(FontAwesomeSolid.USER);
+			var pane = new StackPane(font);
+			pane.setPrefWidth(DEFAULT_AVATAR_SIZE);
+			pane.setPrefHeight(DEFAULT_AVATAR_SIZE);
+			pane.setAlignment(Pos.CENTER);
+			return pane;
 		}
-		return image;
 	}
 }

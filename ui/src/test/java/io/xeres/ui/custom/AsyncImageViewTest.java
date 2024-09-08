@@ -59,7 +59,7 @@ class AsyncImageViewTest
 	void LoadUrl_Success() throws IOException
 	{
 		var url = "/foo/bar.jpg";
-		var data = Objects.requireNonNull(AsyncImageViewTest.class.getResourceAsStream("/image/avatar_32.png")).readAllBytes();
+		var data = Objects.requireNonNull(AsyncImageViewTest.class.getResourceAsStream("/image/icon.png")).readAllBytes();
 
 		when(generalClient.getImage(url)).thenReturn(Mono.just(data));
 

@@ -218,7 +218,13 @@
                             </graphic>
                         </MenuItem>
                         <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem fx:id="showAboutWindow" text="%main.menu.help.about"/>
+                        <MenuItem fx:id="showAboutWindow" text="%main.menu.help.about">
+                            <graphic>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                    <Image url="@../image/trayicon.png"/>
+                                </ImageView>
+                            </graphic>
+                        </MenuItem>
                     </Menu>
                     <Menu fx:id="debug" text="_Debug" visible="false">
                         <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">

@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
@@ -47,78 +48,100 @@ public class AsyncImageView extends ImageView
 
 	private static final int MAX_RUNNING_TASKS = 4; // same default values as Image's background task loader
 	private static int runningTasks;
-	private static final Queue<ImageTask> pendingTasks = new LinkedList<>();
-	private ImageTask backgroundTask;
+	private static final Queue<LoaderTask> pendingTasks = new LinkedList<>();
 
-	public void loadUrl(String url, Function<String, byte[]> loader)
+	private WeakReference<LoaderTask> taskReference;
+	private String url;
+
+	public void setUrl(String url, Function<String, byte[]> loader)
 	{
 		if (StringUtils.isBlank(url))
 		{
-			throw new IllegalArgumentException("Url cannot be empty");
+			cancel();
+			this.url = null;
+			setImage(null);
 		}
-
-		backgroundTask = new ImageTask(url, loader);
-
-		synchronized (pendingTasks)
+		else
 		{
-			if (runningTasks >= MAX_RUNNING_TASKS)
+			if (getImage() != null)
 			{
-				pendingTasks.offer(backgroundTask);
+				if (this.url != null && this.url.equals(url))
+				{
+					// Do not load again, if it's already loaded/being loaded.
+					return;
+				}
+				setImage(null);
 			}
-			else
-			{
-				runningTasks++;
-				backgroundTask.start();
-			}
+			this.url = url;
+			LoaderTask.loadImage(this, url, loader);
 		}
 	}
 
-	public void cancelLoad()
+	public void cancel()
 	{
-		if (backgroundTask != null)
+		var task = getLoaderTask();
+		if (task != null)
 		{
-			backgroundTask.cancel();
+			task.cancel();
 		}
 	}
 
-	private final class ImageTask
+	private void setLoaderTask(LoaderTask task)
+	{
+		taskReference = new WeakReference<>(task);
+	}
+
+	private LoaderTask getLoaderTask()
+	{
+		if (taskReference != null)
+		{
+			return taskReference.get();
+		}
+		return null;
+	}
+
+	private static final class LoaderTask
 	{
 		private static final ExecutorService BACKGROUND_EXECUTOR = createExecutor();
 
+		private final WeakReference<AsyncImageView> imageViewReference;
 		private final String url;
-		private final Function<String, byte[]> loader;
 
-		private FutureTask<byte[]> future;
+		private final FutureTask<byte[]> future;
 
-		public ImageTask(String url, Function<String, byte[]> loader)
+		public static void loadImage(AsyncImageView imageView, String url, Function<String, byte[]> loader)
 		{
-			this.url = url;
-			this.loader = loader;
-		}
-
-		public void onCompletion(byte[] data)
-		{
-			if (!ArrayUtils.isEmpty(data))
+			if (canDoWork(url, imageView))
 			{
-				setImage(new Image(new ByteArrayInputStream(data)));
+				var task = new LoaderTask(imageView, url, loader);
+				imageView.setLoaderTask(task);
+				runTask(task);
 			}
-			cycleTasks();
 		}
 
-		public void onCancel()
+		private static boolean canDoWork(String url, AsyncImageView imageView)
 		{
-			log.debug("Loading canceled");
-			cycleTasks();
+			var task = getLoaderTask(imageView);
+
+			if (task != null)
+			{
+				if (url.equals(task.url))
+				{
+					// Same work already in progress
+					return false;
+				}
+				else
+				{
+					task.cancel();
+				}
+			}
+			return true;
 		}
 
-		public void onException(Exception e)
+		private LoaderTask(AsyncImageView imageViewReference, String url, Function<String, byte[]> loader)
 		{
-			log.error("Couldn't load image: {}", e.getMessage());
-			cycleTasks();
-		}
-
-		public void start()
-		{
+			this.imageViewReference = new WeakReference<>(imageViewReference);
+			this.url = url;
 			future = new FutureTask<>(() -> loader.apply(url))
 			{
 				@Override
@@ -133,7 +156,8 @@ public class AsyncImageView extends ImageView
 						{
 							try
 							{
-								onCompletion(future.get());
+								// Image can apparently decode outside the main thread, which is exactly what we need.
+								onCompletion(decodeImage(future.get()));
 							}
 							catch (InterruptedException e)
 							{
@@ -148,6 +172,44 @@ public class AsyncImageView extends ImageView
 					});
 				}
 			};
+		}
+
+		private Image decodeImage(byte[] data)
+		{
+			if (ArrayUtils.isEmpty(data))
+			{
+				return null;
+			}
+			return new Image(new ByteArrayInputStream(data));
+		}
+
+		public void onCompletion(Image image)
+		{
+			if (!future.isCancelled())
+			{
+				var imageView = imageViewReference.get();
+				var task = getLoaderTask(imageView);
+				if (this == task)
+				{
+					imageView.setImage(image);
+				}
+			}
+			cycleTasks();
+		}
+
+		public void onCancel()
+		{
+			cycleTasks();
+		}
+
+		public void onException(Exception e)
+		{
+			log.error("Couldn't load image: {}", e.getMessage());
+			cycleTasks();
+		}
+
+		public void start()
+		{
 			BACKGROUND_EXECUTOR.execute(future);
 		}
 
@@ -161,7 +223,32 @@ public class AsyncImageView extends ImageView
 			return Executors.newVirtualThreadPerTaskExecutor();
 		}
 
-		private void cycleTasks()
+		private static LoaderTask getLoaderTask(AsyncImageView imageView)
+		{
+			if (imageView != null)
+			{
+				return imageView.getLoaderTask();
+			}
+			return null;
+		}
+
+		private static void runTask(LoaderTask task)
+		{
+			synchronized (pendingTasks)
+			{
+				if (runningTasks >= MAX_RUNNING_TASKS)
+				{
+					pendingTasks.offer(task);
+				}
+				else
+				{
+					runningTasks++;
+					task.start();
+				}
+			}
+		}
+
+		private static void cycleTasks()
 		{
 			synchronized (pendingTasks)
 			{

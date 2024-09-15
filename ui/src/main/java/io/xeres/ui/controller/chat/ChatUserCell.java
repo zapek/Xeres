@@ -55,10 +55,10 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 	{
 		if (item.image() != null)
 		{
-			var image = new ImageView(item.image().getImage());
-			image.setFitWidth(DEFAULT_AVATAR_SIZE);
-			image.setFitHeight(DEFAULT_AVATAR_SIZE);
-			return image;
+			var imageView = new ImageView(item.image().getImage());
+			imageView.setFitWidth(DEFAULT_AVATAR_SIZE);
+			imageView.setFitHeight(DEFAULT_AVATAR_SIZE);
+			return imageView;
 		}
 		else
 		{

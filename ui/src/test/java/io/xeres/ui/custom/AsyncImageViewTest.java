@@ -36,7 +36,6 @@ import java.time.Duration;
 import java.util.Objects;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({ApplicationExtension.class, SpringExtension.class})
@@ -56,22 +55,16 @@ class AsyncImageViewTest
 	private GeneralClient generalClient;
 
 	@Test
-	void LoadUrl_Success() throws IOException
+	void setUrl_Success() throws IOException
 	{
 		var url = "/foo/bar.jpg";
 		var data = Objects.requireNonNull(AsyncImageViewTest.class.getResourceAsStream("/image/icon.png")).readAllBytes();
 
 		when(generalClient.getImage(url)).thenReturn(Mono.just(data));
 
-		asyncImageView.loadUrl(url, path -> generalClient.getImage(path)
+		asyncImageView.setUrl(url, path -> generalClient.getImage(path)
 				.block());
 
 		await().atMost(Duration.ofSeconds(1)).until(() -> asyncImageView.getImage() != null);
-	}
-
-	@Test
-	void LoadUrl_Null_ThrowsException()
-	{
-		assertThrows(IllegalArgumentException.class, () -> asyncImageView.loadUrl("", path -> null));
 	}
 }

@@ -41,15 +41,18 @@ public class ImageCell extends TableCell<Identity, Long>
 	protected void updateItem(Long item, boolean empty)
 	{
 		super.updateItem(item, empty);
-		setGraphic(empty ? null : getAvatarImage(item));
+		setGraphic(empty ? null : updateAvatarImage((AsyncImageView) getGraphic(), item));
 	}
 
-	private ImageView getAvatarImage(Long id)
+	private ImageView updateAvatarImage(AsyncImageView imageView, Long id)
 	{
-		var imageView = new AsyncImageView();
-		imageView.setFitWidth(128);
-		imageView.setFitHeight(128);
-		imageView.loadUrl(IDENTITIES_PATH + "/" + id + "/image", url -> generalClient.getImage(url).block());
+		if (imageView == null)
+		{
+			imageView = new AsyncImageView();
+			imageView.setFitWidth(128);
+			imageView.setFitHeight(128);
+		}
+		imageView.setUrl(IDENTITIES_PATH + "/" + id + "/image", url -> generalClient.getImage(url).block());
 		return imageView;
 	}
 }

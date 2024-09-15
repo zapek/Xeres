@@ -34,6 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import java.net.UnknownHostException;
 import java.util.NoSuchElementException;
@@ -90,5 +91,11 @@ public class DefaultHandler
 		return new ErrorResponseEntity.Builder(HttpStatus.INTERNAL_SERVER_ERROR)
 				.setError(e.getMessage())
 				.build();
+	}
+
+	@ExceptionHandler(AsyncRequestNotUsableException.class)
+	public void handleAsyncRequestNotUsableException(AsyncRequestNotUsableException ignored)
+	{
+		// We ignore those because they happen when scrolling images (we abort useless loads when scrolling quickly).
 	}
 }

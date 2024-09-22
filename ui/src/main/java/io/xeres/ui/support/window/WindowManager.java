@@ -28,10 +28,7 @@ import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.OpenUriEvent;
-import io.xeres.ui.client.ForumClient;
-import io.xeres.ui.client.LocationClient;
-import io.xeres.ui.client.ProfileClient;
-import io.xeres.ui.client.ShareClient;
+import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.controller.WindowController;
@@ -96,6 +93,7 @@ public class WindowManager
 	private final ShareClient shareClient;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
+	private final ChatClient chatClient;
 	private static ResourceBundle bundle;
 	private static PreferenceService preferenceService;
 	private static AppThemeManager appThemeManager;
@@ -107,7 +105,7 @@ public class WindowManager
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -117,6 +115,7 @@ public class WindowManager
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
+		this.chatClient = chatClient;
 		WindowManager.bundle = bundle;
 		WindowManager.preferenceService = preferenceService;
 		WindowManager.appThemeManager = appThemeManager;
@@ -208,7 +207,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double-click)
 							{
-								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle);
+								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle, chatClient);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)

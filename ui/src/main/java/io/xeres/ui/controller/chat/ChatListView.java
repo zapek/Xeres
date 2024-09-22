@@ -114,23 +114,33 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	public void addOwnMessage(ChatMessage chatMessage)
 	{
+		addOwnMessage(Instant.now(), chatMessage.getContent());
+	}
+
+	public void addOwnMessage(Instant when, String message)
+	{
 		var chatAction = new ChatAction(SAY_OWN, nickname, null);
-		addMessage(chatAction, chatMessage.getContent());
+		addMessage(when, chatAction, message);
 	}
 
 	public void addUserMessage(String from, String message)
 	{
+		addUserMessage(Instant.now(), from, message);
+	}
+
+	public void addUserMessage(Instant when, String from, String message)
+	{
 		var chatAction = new ChatAction(SAY, from, null);
-		addMessage(chatAction, message);
+		addMessage(when, chatAction, message);
 	}
 
 	public void addUserMessage(String from, GxsId gxsId, String message)
 	{
 		var chatAction = new ChatAction(SAY, from, gxsId);
-		addMessage(chatAction, message);
+		addMessage(Instant.now(), chatAction, message);
 	}
 
-	private void addMessage(ChatAction chatAction, String message)
+	private void addMessage(Instant time, ChatAction chatAction, String message)
 	{
 		message = removeEmtpyImageTag(message);
 
@@ -156,7 +166,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				chatAction.setType(ACTION);
 			}
 			var content = markdownService.parse(message, EnumSet.of(ParsingMode.ONE_LINER), uriAction);
-			var chatLine = new ChatLine(Instant.now(), chatAction, content.toArray(new Content[0]));
+			var chatLine = new ChatLine(time, chatAction, content.toArray(new Content[0]));
 			addMessageLine(chatLine);
 		}
 	}

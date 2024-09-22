@@ -19,14 +19,8 @@
 
 package io.xeres.ui.model.chat;
 
-import io.xeres.common.dto.chat.ChatIdentityDTO;
-import io.xeres.common.dto.chat.ChatRoomContextDTO;
-import io.xeres.common.dto.chat.ChatRoomDTO;
-import io.xeres.common.dto.chat.ChatRoomsDTO;
-import io.xeres.common.message.chat.ChatRoomContext;
-import io.xeres.common.message.chat.ChatRoomInfo;
-import io.xeres.common.message.chat.ChatRoomLists;
-import io.xeres.common.message.chat.ChatRoomUser;
+import io.xeres.common.dto.chat.*;
+import io.xeres.common.message.chat.*;
 
 public final class ChatMapper
 {
@@ -82,5 +76,34 @@ public final class ChatMapper
 				dto.topic(),
 				dto.count(),
 				dto.isSigned());
+	}
+
+	public static ChatRoomBacklog fromDTO(ChatRoomBacklogDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		return new ChatRoomBacklog(
+				dto.created(),
+				dto.gxsId(),
+				dto.nickname(),
+				dto.message()
+		);
+	}
+
+	public static ChatBacklog fromDTO(ChatBacklogDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		return new ChatBacklog(
+				dto.created(),
+				dto.own(),
+				dto.message()
+		);
 	}
 }

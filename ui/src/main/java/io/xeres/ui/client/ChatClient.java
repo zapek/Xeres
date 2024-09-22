@@ -19,9 +19,13 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.dto.chat.ChatBacklogDTO;
+import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.id.LocationId;
+import io.xeres.common.message.chat.ChatBacklog;
+import io.xeres.common.message.chat.ChatRoomBacklog;
 import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
@@ -32,6 +36,7 @@ import io.xeres.ui.model.location.Location;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -107,5 +112,23 @@ public class ChatClient
 				.bodyValue(request)
 				.retrieve()
 				.bodyToMono(Void.class);
+	}
+
+	public Flux<ChatRoomBacklog> getChatRoomBacklog(long id)
+	{
+		return webClient.get()
+				.uri("/rooms/{roomId}/messages", id)
+				.retrieve()
+				.bodyToFlux(ChatRoomBacklogDTO.class)
+				.map(ChatMapper::fromDTO);
+	}
+
+	public Flux<ChatBacklog> getChatBacklog(long id)
+	{
+		return webClient.get()
+				.uri("/chats/{locationId}/messages", id)
+				.retrieve()
+				.bodyToFlux(ChatBacklogDTO.class)
+				.map(ChatMapper::fromDTO);
 	}
 }

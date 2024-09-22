@@ -11,7 +11,7 @@ import java.util.List;
  * Helper service to manage chat room subscriptions and so on.
  */
 @Service
-public class ChatRoomService
+class ChatRoomService
 {
 	private final ChatRoomRepository chatRoomRepository;
 

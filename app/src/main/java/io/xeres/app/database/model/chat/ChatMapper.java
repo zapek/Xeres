@@ -19,10 +19,7 @@
 
 package io.xeres.app.database.model.chat;
 
-import io.xeres.common.dto.chat.ChatIdentityDTO;
-import io.xeres.common.dto.chat.ChatRoomContextDTO;
-import io.xeres.common.dto.chat.ChatRoomDTO;
-import io.xeres.common.dto.chat.ChatRoomsDTO;
+import io.xeres.common.dto.chat.*;
 import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.message.chat.ChatRoomInfo;
 
@@ -65,6 +62,39 @@ public final class ChatMapper
 				chatRoomInfo.getTopic(),
 				chatRoomInfo.getCount(),
 				chatRoomInfo.isSigned()
+		);
+	}
+
+	public static List<ChatRoomBacklogDTO> toChatRoomBacklogDTOs(List<ChatRoomBacklog> chatRoomBacklogList)
+	{
+		return emptyIfNull(chatRoomBacklogList).stream()
+				.map(ChatMapper::toDTO)
+				.toList();
+	}
+
+	public static ChatRoomBacklogDTO toDTO(ChatRoomBacklog chatRoomBackLog)
+	{
+		return new ChatRoomBacklogDTO(
+				chatRoomBackLog.getCreated(),
+				chatRoomBackLog.getGxsId(),
+				chatRoomBackLog.getNickname(),
+				chatRoomBackLog.getMessage()
+		);
+	}
+
+	public static List<ChatBacklogDTO> toChatBacklogDTOs(List<ChatBacklog> chatBacklogList)
+	{
+		return emptyIfNull(chatBacklogList).stream()
+				.map(ChatMapper::toDTO)
+				.toList();
+	}
+
+	public static ChatBacklogDTO toDTO(ChatBacklog chatBacklog)
+	{
+		return new ChatBacklogDTO(
+				chatBacklog.getCreated(),
+				chatBacklog.isOwn(),
+				chatBacklog.getMessage()
 		);
 	}
 }

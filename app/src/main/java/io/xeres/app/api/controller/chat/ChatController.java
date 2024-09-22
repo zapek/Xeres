@@ -25,8 +25,12 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.service.LocationService;
+import io.xeres.app.xrs.service.chat.ChatBacklogService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
+import io.xeres.common.dto.chat.ChatBacklogDTO;
+import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
@@ -39,10 +43,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
+import static io.xeres.app.database.model.chat.ChatMapper.*;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Tag(name = "Chat", description = "Chat service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/chat", description = "Chat documentation"))
@@ -51,10 +58,14 @@ import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 public class ChatController
 {
 	private final ChatRsService chatRsService;
+	private final ChatBacklogService chatBacklogService;
+	private final LocationService locationService;
 
-	public ChatController(ChatRsService chatRsService)
+	public ChatController(ChatRsService chatRsService, ChatBacklogService chatBacklogService, LocationService locationService)
 	{
 		this.chatRsService = chatRsService;
+		this.chatBacklogService = chatBacklogService;
+		this.locationService = locationService;
 	}
 
 	@PostMapping("/rooms")
@@ -102,5 +113,22 @@ public class ChatController
 	public ChatRoomContextDTO getChatRoomContext()
 	{
 		return toDTO(chatRsService.getChatRoomContext());
+	}
+
+	@GetMapping("/rooms/{roomId}/messages")
+	@Operation(summary = "Get the chat room messages backlog")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public List<ChatRoomBacklogDTO> getChatRoomMessages(@PathVariable long roomId)
+	{
+		return toChatRoomBacklogDTOs(chatBacklogService.getChatRoomMessages(roomId, Instant.now().minus(Duration.ofDays(7))));
+	}
+
+	@GetMapping("/chats/{locationId}/messages")
+	@Operation(summary = "Get the chat messages backlog")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public List<ChatBacklogDTO> getChatMessages(@PathVariable long locationId)
+	{
+		var location = locationService.findLocationById(locationId).orElseThrow();
+		return toChatBacklogDTOs(chatBacklogService.getMessages(location, Instant.now().minus(Duration.ofDays(7))));
 	}
 }

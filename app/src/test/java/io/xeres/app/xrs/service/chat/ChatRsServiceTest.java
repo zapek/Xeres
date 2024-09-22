@@ -60,6 +60,9 @@ class ChatRsServiceTest
 	@Mock
 	private ChatRoomService chatRoomService;
 
+	@Mock
+	private ChatBacklogService chatBacklogService;
+
 	@InjectMocks
 	private ChatRsService chatRsService;
 

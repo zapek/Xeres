@@ -22,7 +22,10 @@ import org.panteleyev.jpackage.ImageType
 buildscript {
     def osName = System.getProperty('os.name').toLowerCase(Locale.ROOT)
     def osArch = System.getProperty('os.arch')
-    if (osName.contains('win')) {
+    def imagePlatform = System.getProperty('image.platform')
+    if (imagePlatform != null) {
+        ext.tcnative_classifier = imagePlatform
+    } else if (osName.contains('win')) {
         if (osArch != 'amd64') {
             throw new GradleException("Only x86_64 is supported on Windows, you're using $osArch")
         }
@@ -53,8 +56,6 @@ plugins {
     id 'org.flywaydb.flyway'
     id 'org.panteleyev.jpackageplugin'
 }
-
-def all_arch = false
 
 flyway {
     url = "jdbc:h2:file:${project.rootDir}/data/userdata"
@@ -100,7 +101,7 @@ tasks.register('deleteLibs', Delete) {
 }
 
 bootBuildImage {
-    all_arch = true
+    // Don't forget to set the image platform, for example: -Dimage.platform=linux-x86_64 or -Dimage.platform=linux-aarch_64
     imageName = "zapek/${rootProject.name.toLowerCase(Locale.ROOT)}:${project.version}"
 }
 
@@ -193,8 +194,9 @@ dependencies {
     implementation 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux' // to bring in netty
+    implementation('org.springframework.boot:spring-boot-starter-webflux') { // to bring in netty
+        exclude group: 'io.netty', module: 'netty-transport-native-epoll'
+    }
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-messaging' // seems to be missing from spring-boot-starter-security
     implementation "org.flywaydb:flyway-core"
@@ -205,22 +207,16 @@ dependencies {
     implementation 'com.github.atomashpolskiy:bt-dht:1.10'
     implementation 'org.apache.commons:commons-lang3'
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:$springOpenApiVersion"
     implementation 'net.coobird:thumbnailator:0.4.20'
     implementation 'net.java.dev.jna:jna-platform:5.15.0'
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"
     implementation 'com.maxmind.geoip2:geoip2:4.2.0'
     implementation "com.google.zxing:javase:$zxingVersion"
     implementation 'com.sangupta:bloomfilter:0.9.0'
-    if (all_arch == true) {
-        implementation 'io.netty:netty-tcnative-boringssl-static::windows-x86_64'
-        implementation 'io.netty:netty-tcnative-boringssl-static::linux-x86_64'
-        implementation 'io.netty:netty-tcnative-boringssl-static::osx-x86_64'
-        implementation 'io.netty:netty-tcnative-boringssl-static::linux-aarch_64'
-        implementation 'io.netty:netty-tcnative-boringssl-static::osx-aarch_64'
-    } else {
-        implementation "io.netty:netty-tcnative-boringssl-static::$tcnative_classifier"
-    }
+    implementation "io.netty:netty-tcnative-boringssl-static::$tcnative_classifier"
+    developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
+    developmentOnly "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"

@@ -24,8 +24,10 @@ import io.xeres.common.id.LocationId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
+import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
+import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.client.message.MessageClient;
@@ -71,6 +73,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
@@ -124,12 +127,13 @@ public class MessagingWindowController implements WindowController
 
 	private final MessageClient messageClient;
 	private final ShareClient shareClient;
+	private final ChatClient chatClient;
 
 	private Instant lastTypingNotification = Instant.EPOCH;
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle)
+	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle, ChatClient chatClient)
 	{
 		this.profileClient = profileClient;
 		this.windowManager = windowManager;
@@ -137,6 +141,7 @@ public class MessagingWindowController implements WindowController
 		this.messageClient = messageClient;
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
+		this.chatClient = chatClient;
 		this.bundle = bundle;
 		this.locationId = new LocationId(locationId);
 	}
@@ -293,14 +298,22 @@ public class MessagingWindowController implements WindowController
 					targetProfile = profiles.stream().findFirst().orElseThrow();
 					Platform.runLater(() ->
 					{
-						setAvailability(targetProfile.getLocations().getFirst().getAvailability());
+						var location = targetProfile.getLocations().getFirst();
+						setAvailability(location.getAvailability());
 						updateTitle();
-						var chatMessage = (ChatMessage) send.getScene().getRoot().getUserData();
-						if (chatMessage != null)
-						{
-							showMessage(chatMessage);
-							send.getScene().getRoot().setUserData(null);
-						}
+						chatClient.getChatBacklog(location.getId()).collectList()
+								.doOnSuccess(backlogs -> Platform.runLater(() -> {
+									fillBacklog(backlogs);
+									var chatMessage = (ChatMessage) send.getScene().getRoot().getUserData();
+									if (chatMessage != null)
+									{
+										showMessage(chatMessage);
+										send.getScene().getRoot().setUserData(null);
+									}
+								}))
+								.subscribe();
+
+
 					});
 				})
 				.doOnError(UiUtils::showAlertError)
@@ -323,6 +336,20 @@ public class MessagingWindowController implements WindowController
 				lastTypingTimeline.jumpTo(Duration.INDEFINITE);
 			}
 		}
+	}
+
+	private void fillBacklog(List<ChatBacklog> messages)
+	{
+		messages.forEach(message -> {
+			if (message.own())
+			{
+				receive.addOwnMessage(message.created(), message.message());
+			}
+			else
+			{
+				receive.addUserMessage(message.created(), targetProfile.getName(), message.message());
+			}
+		});
 	}
 
 	public void showAvatar(ChatAvatar chatAvatar)

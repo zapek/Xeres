@@ -161,10 +161,11 @@ public class ChatRsService extends RsService
 	private final IdentityManager identityManager;
 	private final UiBridgeService uiBridgeService;
 	private final ChatRoomService chatRoomService;
+	private final ChatBacklogService chatBacklogService;
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityRsService identityRsService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService)
+	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityRsService identityRsService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
@@ -174,6 +175,7 @@ public class ChatRsService extends RsService
 		this.identityManager = identityManager;
 		this.uiBridgeService = uiBridgeService;
 		this.chatRoomService = chatRoomService;
+		this.chatBacklogService = chatBacklogService;
 	}
 
 	@Override
@@ -511,7 +513,9 @@ public class ChatRsService extends RsService
 		// And display the message for us
 		var user = item.getSignature().getGxsId();
 		chatRoom.userActivity(user);
-		sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_MESSAGE, user, item.getSenderNickname(), parseIncomingText(item.getMessage()));
+		var message = parseIncomingText(item.getMessage());
+		chatBacklogService.storeIncomingChatRoomMessage(item.getRoomId(), user, item.getSenderNickname(), message);
+		sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_MESSAGE, user, item.getSenderNickname(), message);
 
 		chatRoom.incrementConnectionChallengeCount();
 	}
@@ -750,8 +754,10 @@ public class ChatRsService extends RsService
 			message = String.join("", existingList);
 			peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
 		}
+		var from = peerConnection.getLocation().getLocationId();
 		var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, peerConnection.getLocation().getLocationId(), privateChatMessage);
+		chatBacklogService.storeIncomingMessage(from, privateChatMessage.getContent());
+		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, from, privateChatMessage);
 	}
 
 	private void handlePartialMessage(PeerConnection peerConnection, ChatMessageItem item)
@@ -959,6 +965,7 @@ public class ChatRsService extends RsService
 	public void sendPrivateMessage(LocationId locationId, String message)
 	{
 		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
+		chatBacklogService.storeOutgoingMessage(location.getLocationId(), message);
 		peerConnectionManager.writeItem(location, new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 
@@ -1008,6 +1015,7 @@ public class ChatRsService extends RsService
 		}
 
 		initializeBounce(chatRoom, chatRoomMessageItem);
+		chatBacklogService.storeOutgoingChatRoomMessage(chatRoomId, message);
 		bounce(chatRoomMessageItem);
 	}
 

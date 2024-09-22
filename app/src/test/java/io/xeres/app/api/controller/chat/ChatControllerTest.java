@@ -22,6 +22,8 @@ package io.xeres.app.api.controller.chat;
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.service.LocationService;
+import io.xeres.app.xrs.service.chat.ChatBacklogService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.id.LocationId;
@@ -60,6 +62,12 @@ class ChatControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private ChatRsService chatRsService;
+
+	@MockBean
+	private ChatBacklogService chatBacklogService;
+
+	@MockBean
+	private LocationService locationService;
 
 	@Autowired
 	public MockMvc mvc;

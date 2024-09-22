@@ -22,7 +22,7 @@ plugins {
 }
 
 javafx {
-    version = "22.0.1"
+    version = "23"
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']
 }
 
@@ -40,7 +40,9 @@ jacocoTestReport {
 
 dependencies {
     implementation project(':common')
-    implementation 'org.springframework.boot:spring-boot-starter-webflux' // for the client
+    implementation('org.springframework.boot:spring-boot-starter-webflux') { // for the client
+        exclude group: 'io.netty', module: 'netty-transport-native-epoll'
+    }
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'commons-io:commons-io:2.17.0'
     implementation 'net.rgielen:javafx-weaver-spring-boot-starter:2.0.1'

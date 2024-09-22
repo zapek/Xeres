@@ -93,16 +93,23 @@ public class MainWindowController implements WindowController
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
 	private static final String XERES_FORUMS_URL = "https://github.com/zapek/Xeres/discussions";
 
-	// The indexes must be kept in sync with their order in main.fxml
-	private static final int CHAT_TAB_INDEX = 1;
-	private static final int FORUM_TAB_INDEX = 2;
-	private static final int FILES_TAB_INDEX = 3;
-
 	@FXML
 	private StackPane stackPane;
 
 	@FXML
 	private TabPane tabPane;
+
+	@FXML
+	private Tab homeTab;
+
+	@FXML
+	private Tab chatTab;
+
+	@FXML
+	private Tab forumTab;
+
+	@FXML
+	private Tab fileTab;
 
 	@FXML
 	private ImageView logo;
@@ -542,9 +549,9 @@ public class MainWindowController implements WindowController
 	{
 		switch (event.uri())
 		{
-			case ChatRoomUri ignored -> tabPane.getSelectionModel().select(CHAT_TAB_INDEX);
-			case ForumUri ignored -> tabPane.getSelectionModel().select(FORUM_TAB_INDEX);
-			case SearchUri ignored -> tabPane.getSelectionModel().select(FILES_TAB_INDEX);
+			case ChatRoomUri ignored -> tabPane.getSelectionModel().select(chatTab);
+			case ForumUri ignored -> tabPane.getSelectionModel().select(forumTab);
+			case SearchUri ignored -> tabPane.getSelectionModel().select(fileTab);
 			default ->
 			{
 				// Nothing to do

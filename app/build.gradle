@@ -211,7 +211,7 @@ dependencies {
     implementation 'net.coobird:thumbnailator:0.4.20'
     implementation 'net.java.dev.jna:jna-platform:5.15.0'
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"
-    implementation 'com.maxmind.geoip2:geoip2:4.2.0'
+    implementation 'com.maxmind.geoip2:geoip2:4.2.1'
     implementation "com.google.zxing:javase:$zxingVersion"
     implementation 'com.sangupta:bloomfilter:0.9.0'
     implementation "io.netty:netty-tcnative-boringssl-static::$tcnative_classifier"

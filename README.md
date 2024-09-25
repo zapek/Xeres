@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/zapek/Xeres.svg?logo=gnu)](https://github.com/zapek/Xeres/blob/master/LICENSE)
 [![CodeQL](https://github.com/zapek/Xeres/actions/workflows/analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/analysis.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zapek_Xeres&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zapek_Xeres)
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9469/badge?foo)](https://www.bestpractices.dev/projects/9469)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9469/badge)](https://www.bestpractices.dev/projects/9469)
 [![GitHub Discussions](https://img.shields.io/badge/chat-Discussions-green?logo=github)](https://github.com/zapek/Xeres/discussions)
 
 [Xeres](https://xeres.io) is a decentralized and secure application designed for communication and sharing.

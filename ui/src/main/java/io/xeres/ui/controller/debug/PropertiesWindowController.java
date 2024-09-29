@@ -22,7 +22,6 @@ package io.xeres.ui.controller.debug;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -64,7 +63,7 @@ public class PropertiesWindowController implements WindowController
 		tableName.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getKey()));
 		tableValue.setCellValueFactory(param -> new SimpleStringProperty(showLineSeparator(param.getValue().getValue())));
 
-		propertiesTableView.getItems().addAll(FXCollections.observableArrayList(getSortedProperties().entrySet()));
+		propertiesTableView.getItems().addAll(getSortedProperties().entrySet());
 
 		propertiesTableView.getSortOrder().add(tableName);
 		tableName.setSortType(ASCENDING);

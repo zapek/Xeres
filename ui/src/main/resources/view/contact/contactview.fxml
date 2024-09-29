@@ -17,7 +17,41 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.layout.VBox?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
-
+<?import atlantafx.base.controls.Card?>
+<?import atlantafx.base.controls.Tile?>
+<?import io.xeres.ui.custom.AsyncImageView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.contact.ContactViewController">
+    <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
+        <VBox SplitPane.resizableWithParent="false" VBox.vgrow="NEVER">
+            <HBox alignment="CENTER_LEFT" minHeight="-Infinity" VBox.vgrow="NEVER">
+                <VBox.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </VBox.margin>
+                <TextField fx:id="searchTextField" promptText="Search people" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <TableView fx:id="contactTableView" minWidth="-Infinity" prefWidth="200" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="contactTableNameColumn" prefWidth="180.0" text="Name"/>
+                    <TableColumn fx:id="contactTablePresenceColumn" prefWidth="40.0"/>
+                </columns>
+            </TableView>
+        </VBox>
+        <VBox>
+            <Card>
+                <header>
+                    <Tile fx:id="tileView">
+                        <graphic>
+                            <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
+                        </graphic>
+                    </Tile>
+                </header>
+                <body>
+                    <Label fx:id="type"/>
+                </body>
+            </Card>
+        </VBox>
+    </SplitPane>
 </VBox>

@@ -39,4 +39,5 @@ public final class PathConfig
 	public static final String SHARES_PATH = "/api/v1/shares";
 	public static final String FILES_PATH = "/api/v1/files";
 	public static final String STATISTICS_PATH = "/api/v1/statistics";
+	public static final String CONTACT_PATH = "/api/v1/contacts";
 }

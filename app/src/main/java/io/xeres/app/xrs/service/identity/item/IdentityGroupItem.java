@@ -37,7 +37,7 @@ import java.util.Set;
 import static io.xeres.app.xrs.serialization.Serializer.*;
 
 @Entity(name = "identity_group")
-public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we need to be able to serialize just the group data (here) and the group metadata (superclass)
+public class IdentityGroupItem extends GxsGroupItem
 {
 	@Transient
 	public static final IdentityGroupItem EMPTY = new IdentityGroupItem();
@@ -45,7 +45,7 @@ public class IdentityGroupItem extends GxsGroupItem // XXX: beware because we ne
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "profile_hash"))
 	private Sha1Sum profileHash; // hash of the gxsId + public key
-	private byte[] profileSignature; // XXX: warning, RS puts this in a string! we might have to do some serialization trickery... see p3idservice.cc in service_createGroup(), but I think my system's flexibility makes up for it
+	private byte[] profileSignature;
 
 	@Transient
 	private List<String> recognitionTags = new ArrayList<>(); // not used (but serialized)

@@ -19,10 +19,12 @@
 
 package io.xeres.ui.controller.contact;
 
-import atlantafx.base.controls.Tile;
+import io.xeres.common.id.Id;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.ui.client.ContactClient;
 import io.xeres.ui.client.GeneralClient;
+import io.xeres.ui.client.IdentityClient;
+import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.AsyncImageView;
 import javafx.application.Platform;
@@ -40,6 +42,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
@@ -49,6 +53,9 @@ import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 public class ContactViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
+
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm") // XXX: put that in some utility class. has to be used everywhere
+			.withZone(ZoneId.systemDefault());
 
 	@FXML
 	private TableView<Contact> contactTableView;
@@ -63,21 +70,31 @@ public class ContactViewController implements Controller
 	private TextField searchTextField;
 
 	@FXML
-	private Tile tileView;
-
-	@FXML
 	private AsyncImageView contactImageView;
 
 	@FXML
-	private Label type;
+	private Label nameLabel;
+
+	@FXML
+	private Label idLabel;
+
+	@FXML
+	private Label typeLabel;
+
+	@FXML
+	private Label updatedLabel;
 
 	private final ContactClient contactClient;
 	private final GeneralClient generalClient;
+	private final ProfileClient profileClient;
+	private final IdentityClient identityClient;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
+		this.profileClient = profileClient;
+		this.identityClient = identityClient;
 	}
 
 	@Override
@@ -124,17 +141,37 @@ public class ContactViewController implements Controller
 	{
 		if (contact == null)
 		{
-			tileView.setTitle(null);
-			tileView.setDescription(null);
+			nameLabel.setText(null);
+			idLabel.setText(null);
+			typeLabel.setText(null);
+			updatedLabel.setText(null);
 			contactImageView.setImage(null);
 			return;
 		}
 
 		log.debug("Set contact to {}", contact);
-		tileView.setTitle(contact.name());
-		tileView.setDescription(contact.name());
-		// XXX: use a default avatar when it's not here! pretty much like in chat... need to use a stackpane or so...
+		nameLabel.setText(contact.name());
+		if (contact.profileId() != 0L)
+		{
+			profileClient.findById(contact.profileId())
+					.doOnSuccess(profile -> Platform.runLater(() -> {
+						idLabel.setText(Id.toString(profile.getPgpIdentifier()));
+						updatedLabel.setText(null); // XXX: for now...
+					}))
+					.subscribe();
+		}
+		else if (contact.identityId() != 0L)
+		{
+			identityClient.findById(contact.identityId())
+					.doOnSuccess(identity -> Platform.runLater(() -> {
+						idLabel.setText(Id.toString(identity.getGxsId()));
+						updatedLabel.setText(DATE_TIME_FORMATTER.format(identity.getUpdated()));
+					}))
+					.subscribe();
+
+		}
+		// XXX: use a default avatar when it's not here! pretty much like in chat... need to use a stackpane or so... can we turn it into an image instead?
 		contactImageView.setUrl(contact.identityId() != 0L ? (IDENTITIES_PATH + "/" + contact.identityId() + "/image") : null, url -> generalClient.getImage(url).block());
-		type.setText(contact.identityId() != 0L ? "Contact" : "Profile");
+		typeLabel.setText(contact.identityId() != 0L ? "Contact" : "Profile");
 	}
 }

@@ -21,6 +21,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.contact.ContactViewController">
     <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
         <VBox SplitPane.resizableWithParent="false" VBox.vgrow="NEVER">
@@ -42,7 +43,10 @@
                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
             </padding>
             <HBox>
-                <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
+                <StackPane fx:id="contactImagePane">
+                    <FontIcon iconLiteral="fas-user" visible="false"/>
+                    <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
+                </StackPane>
                 <GridPane>
                     <padding>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>

@@ -52,14 +52,34 @@ public class AsyncImageView extends ImageView
 
 	private WeakReference<LoaderTask> taskReference;
 	private String url;
+	private Function<String, byte[]> loader;
+	private Runnable onFailure;
 
-	public void setUrl(String url, Function<String, byte[]> loader)
+	public AsyncImageView()
+	{
+		super();
+	}
+
+	public AsyncImageView(Function<String, byte[]> loader)
+	{
+		super();
+		setLoader(loader);
+	}
+
+	public AsyncImageView(Function<String, byte[]> loader, Runnable failure)
+	{
+		super();
+		setLoader(loader);
+		setOnFailure(failure);
+	}
+
+	public void setUrl(String url)
 	{
 		if (StringUtils.isBlank(url))
 		{
 			cancel();
 			this.url = null;
-			setImage(null);
+			setImageProper(null);
 		}
 		else
 		{
@@ -70,11 +90,27 @@ public class AsyncImageView extends ImageView
 					// Do not load again, if it's already loaded/being loaded.
 					return;
 				}
-				setImage(null);
+				setImageProper(null);
 			}
 			this.url = url;
-			LoaderTask.loadImage(this, url, loader);
+			LoaderTask.loadImage(this, url, loader, onFailure);
 		}
+	}
+
+	public void setImageProper(Image image)
+	{
+		setLoaderTask(null);
+		setImage(image);
+	}
+
+	public void setLoader(Function<String, byte[]> loader)
+	{
+		this.loader = loader;
+	}
+
+	public void setOnFailure(Runnable onFailure)
+	{
+		this.onFailure = onFailure;
 	}
 
 	public void cancel()
@@ -106,14 +142,15 @@ public class AsyncImageView extends ImageView
 
 		private final WeakReference<AsyncImageView> imageViewReference;
 		private final String url;
+		private final Runnable onFailure;
 
 		private final FutureTask<byte[]> future;
 
-		public static void loadImage(AsyncImageView imageView, String url, Function<String, byte[]> loader)
+		public static void loadImage(AsyncImageView imageView, String url, Function<String, byte[]> loader, Runnable onFailure)
 		{
 			if (canDoWork(url, imageView))
 			{
-				var task = new LoaderTask(imageView, url, loader);
+				var task = new LoaderTask(imageView, url, loader, onFailure);
 				imageView.setLoaderTask(task);
 				runTask(task);
 			}
@@ -138,61 +175,75 @@ public class AsyncImageView extends ImageView
 			return true;
 		}
 
-		private LoaderTask(AsyncImageView imageViewReference, String url, Function<String, byte[]> loader)
+		private LoaderTask(AsyncImageView imageViewReference, String url, Function<String, byte[]> loader, Runnable onFailure)
 		{
 			this.imageViewReference = new WeakReference<>(imageViewReference);
 			this.url = url;
+			this.onFailure = onFailure;
 			future = new FutureTask<>(() -> loader.apply(url))
 			{
 				@Override
 				protected void done()
 				{
-					Platform.runLater(() -> {
-						if (future.isCancelled())
+					if (future.isCancelled())
+					{
+						onCancel();
+					}
+					else
+					{
+						try
 						{
-							onCancel();
-						}
-						else
-						{
-							try
+							var data = future.get();
+							if (ArrayUtils.isEmpty(data))
+							{
+								onFailure();
+							}
+							else
 							{
 								// Image can apparently decode outside the main thread, which is exactly what we need.
-								onCompletion(decodeImage(future.get()));
-							}
-							catch (InterruptedException e)
-							{
-								onCancel();
-								Thread.currentThread().interrupt();
-							}
-							catch (ExecutionException e)
-							{
-								onException(e);
+								onCompletion(decodeImage(data));
 							}
 						}
-					});
+						catch (InterruptedException e)
+						{
+							onCancel();
+							Thread.currentThread().interrupt();
+						}
+						catch (ExecutionException e)
+						{
+							onException(e);
+						}
+					}
 				}
 			};
 		}
 
 		private Image decodeImage(byte[] data)
 		{
-			if (ArrayUtils.isEmpty(data))
-			{
-				return null;
-			}
 			return new Image(new ByteArrayInputStream(data));
 		}
 
-		public void onCompletion(Image image)
+		private void onCompletion(Image image)
 		{
 			if (!future.isCancelled())
 			{
-				var imageView = imageViewReference.get();
-				var task = getLoaderTask(imageView);
-				if (this == task)
-				{
-					imageView.setImage(image);
-				}
+				Platform.runLater(() -> {
+					var imageView = imageViewReference.get();
+					var task = getLoaderTask(imageView);
+					if (this == task)
+					{
+						imageView.setImageProper(image);
+					}
+					cycleTasks();
+				});
+			}
+		}
+
+		private void onFailure()
+		{
+			if (onFailure != null)
+			{
+				Platform.runLater(onFailure);
 			}
 			cycleTasks();
 		}
@@ -205,6 +256,10 @@ public class AsyncImageView extends ImageView
 		public void onException(Exception e)
 		{
 			log.error("Couldn't load image: {}", e.getMessage());
+			if (onFailure != null)
+			{
+				Platform.runLater(onFailure);
+			}
 			cycleTasks();
 		}
 

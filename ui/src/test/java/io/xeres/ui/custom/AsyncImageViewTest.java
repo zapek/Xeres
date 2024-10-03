@@ -46,7 +46,7 @@ class AsyncImageViewTest
 	@Start
 	private void start(Stage stage)
 	{
-		asyncImageView = new AsyncImageView();
+		asyncImageView = new AsyncImageView(url -> generalClient.getImage(url).block());
 		stage.setScene(new Scene(new VBox(asyncImageView), 256, 256));
 		stage.show();
 	}
@@ -62,8 +62,7 @@ class AsyncImageViewTest
 
 		when(generalClient.getImage(url)).thenReturn(Mono.just(data));
 
-		asyncImageView.setUrl(url, path -> generalClient.getImage(path)
-				.block());
+		asyncImageView.setUrl(url);
 
 		await().atMost(Duration.ofSeconds(1)).until(() -> asyncImageView.getImage() != null);
 	}

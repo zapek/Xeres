@@ -87,6 +87,7 @@ public class QrCodeWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
+		ownQrCode.setLoader(url -> generalClient.getImage(url).block());
 		printButton.setOnAction(event -> showPrintSetupThenPrint(UiUtils.getWindow(event)));
 		saveButton.setOnAction(event -> saveAsPng(UiUtils.getWindow(event)));
 		closeButton.setOnAction(UiUtils::closeWindow);
@@ -105,7 +106,7 @@ public class QrCodeWindowController implements WindowController
 
 		rsIdResponse = (RSIdResponse) userData;
 
-		ownQrCode.setUrl(LOCATIONS_PATH + "/" + 1L + "/rsId/qrCode", url -> generalClient.getImage(url).block());
+		ownQrCode.setUrl(LOCATIONS_PATH + "/" + 1L + "/rsId/qrCode");
 	}
 
 	private void showPrintSetupThenPrint(Window window)

@@ -21,7 +21,6 @@ package io.xeres.ui.controller.chat;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
@@ -66,7 +65,6 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 			var pane = new StackPane(font);
 			pane.setPrefWidth(DEFAULT_AVATAR_SIZE);
 			pane.setPrefHeight(DEFAULT_AVATAR_SIZE);
-			pane.setAlignment(Pos.CENTER);
 			return pane;
 		}
 	}

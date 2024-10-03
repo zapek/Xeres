@@ -23,12 +23,17 @@ import io.xeres.common.rest.contact.Contact;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.AsyncImageView;
 import javafx.scene.control.TableCell;
-import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
 public class ContactCell extends TableCell<Contact, Contact>
 {
+	private static final int CONTACT_WIDTH = 32;
+	private static final int CONTACT_HEIGHT = 32;
+
 	private final GeneralClient generalClient;
 
 	public ContactCell(GeneralClient generalClient)
@@ -42,18 +47,33 @@ public class ContactCell extends TableCell<Contact, Contact>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.name());
-		setGraphic(empty ? null : updateContactImage((AsyncImageView) getGraphic(), item));
+		setGraphic(empty ? null : updateContact((StackPane) getGraphic(), item));
 	}
 
-	private ImageView updateContactImage(AsyncImageView imageView, Contact contact)
+	private StackPane updateContact(StackPane stackPane, Contact contact)
 	{
-		if (imageView == null)
+		if (stackPane == null)
 		{
-			imageView = new AsyncImageView();
-			imageView.setFitWidth(32);
-			imageView.setFitHeight(32);
+			stackPane = new StackPane();
+			stackPane.setPrefWidth(CONTACT_WIDTH);
+			stackPane.setPrefHeight(CONTACT_HEIGHT);
+			stackPane.getChildren().add(new FontIcon(FontAwesomeSolid.USER));
+			var finalStackPane = stackPane;
+			var imageView = new AsyncImageView(url -> generalClient.getImage(url).block(), () -> finalStackPane.getChildren().getFirst().setVisible(true));
+			imageView.setFitWidth(CONTACT_WIDTH);
+			imageView.setFitHeight(CONTACT_HEIGHT);
+			stackPane.getChildren().add(imageView);
 		}
-		imageView.setUrl(contact.identityId() != 0 ? (IDENTITIES_PATH + "/" + contact.identityId() + "/image") : null, url -> generalClient.getImage(url).block());
-		return imageView;
+		if (contact.identityId() != 0L)
+		{
+			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(IDENTITIES_PATH + "/" + contact.identityId() + "/image");
+			stackPane.getChildren().getFirst().setVisible(false);
+		}
+		else
+		{
+			stackPane.getChildren().getFirst().setVisible(true);
+			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(null);
+		}
+		return stackPane;
 	}
 }

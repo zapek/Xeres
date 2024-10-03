@@ -36,6 +36,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +71,9 @@ public class ContactViewController implements Controller
 	private TextField searchTextField;
 
 	@FXML
+	private StackPane contactImagePane;
+
+	@FXML
 	private AsyncImageView contactImageView;
 
 	@FXML
@@ -100,6 +104,9 @@ public class ContactViewController implements Controller
 	@Override
 	public void initialize() throws IOException
 	{
+		contactImageView.setLoader(url -> generalClient.getImage(url).block());
+		contactImageView.setOnFailure(() -> contactImagePane.getChildren().getFirst().setVisible(true));
+
 		contactTableNameColumn.setCellFactory(param -> new ContactCell(generalClient));
 		contactTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
 
@@ -146,6 +153,7 @@ public class ContactViewController implements Controller
 			typeLabel.setText(null);
 			updatedLabel.setText(null);
 			contactImageView.setImage(null);
+			contactImagePane.getChildren().getFirst().setVisible(true);
 			return;
 		}
 
@@ -159,6 +167,10 @@ public class ContactViewController implements Controller
 						updatedLabel.setText(null); // XXX: for now...
 					}))
 					.subscribe();
+
+			contactImagePane.getChildren().getFirst().setVisible(true);
+			contactImageView.setUrl(null);
+			typeLabel.setText("Profile");
 		}
 		else if (contact.identityId() != 0L)
 		{
@@ -169,9 +181,9 @@ public class ContactViewController implements Controller
 					}))
 					.subscribe();
 
+			contactImagePane.getChildren().getFirst().setVisible(false);
+			contactImageView.setUrl(IDENTITIES_PATH + "/" + contact.identityId() + "/image");
+			typeLabel.setText("Contact");
 		}
-		// XXX: use a default avatar when it's not here! pretty much like in chat... need to use a stackpane or so... can we turn it into an image instead?
-		contactImageView.setUrl(contact.identityId() != 0L ? (IDENTITIES_PATH + "/" + contact.identityId() + "/image") : null, url -> generalClient.getImage(url).block());
-		typeLabel.setText(contact.identityId() != 0L ? "Contact" : "Profile");
 	}
 }

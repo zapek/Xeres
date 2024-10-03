@@ -48,11 +48,11 @@ public class ImageCell extends TableCell<Identity, Long>
 	{
 		if (imageView == null)
 		{
-			imageView = new AsyncImageView();
+			imageView = new AsyncImageView(url -> generalClient.getImage(url).block());
 			imageView.setFitWidth(128);
 			imageView.setFitHeight(128);
 		}
-		imageView.setUrl(IDENTITIES_PATH + "/" + id + "/image", url -> generalClient.getImage(url).block());
+		imageView.setUrl(IDENTITIES_PATH + "/" + id + "/image");
 		return imageView;
 	}
 }

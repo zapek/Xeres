@@ -43,33 +43,49 @@
                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
             </padding>
             <HBox>
-                <StackPane fx:id="contactImagePane">
-                    <FontIcon iconLiteral="fas-user" visible="false"/>
+                <StackPane fx:id="contactImagePane" alignment="TOP_LEFT">
+                    <FontIcon fx:id="contactIcon" iconLiteral="fas-user:128" visible="false"/>
                     <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
                 </StackPane>
-                <GridPane>
+                <VBox>
                     <padding>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
                     </padding>
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="240.0"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                    </rowConstraints>
-                    <Label text="Name"/>
-                    <Label fx:id="nameLabel" GridPane.columnIndex="1"/>
-                    <Label text="ID" GridPane.rowIndex="1"/>
-                    <Label fx:id="idLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                    <Label text="Type" GridPane.rowIndex="2"/>
-                    <Label fx:id="typeLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-                    <Label text="Created" GridPane.rowIndex="3"/>
-                    <Label fx:id="updatedLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-                </GridPane>
+                    <GridPane>
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        </rowConstraints>
+                        <Label text="Name"/>
+                        <Label fx:id="nameLabel" GridPane.columnIndex="1"/>
+                        <Label text="ID" GridPane.rowIndex="1"/>
+                        <Label fx:id="idLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Type" GridPane.rowIndex="2"/>
+                        <Label fx:id="typeLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="Created" GridPane.rowIndex="3"/>
+                        <Label fx:id="updatedLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <GridPane fx:id="profilePane" visible="false">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="240.0"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        </rowConstraints>
+                        <Label text="Accepted"/>
+                        <Label fx:id="acceptedLabel" GridPane.columnIndex="1"/>
+                        <Label text="Trust" GridPane.rowIndex="1"/>
+                        <Label fx:id="trustLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    </GridPane>
+                </VBox>
             </HBox>
         </VBox>
     </SplitPane>

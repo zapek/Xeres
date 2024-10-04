@@ -36,8 +36,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -87,6 +89,18 @@ public class ContactViewController implements Controller
 
 	@FXML
 	private Label updatedLabel;
+
+	@FXML
+	private FontIcon contactIcon;
+
+	@FXML
+	private Label acceptedLabel;
+
+	@FXML
+	private Label trustLabel;
+
+	@FXML
+	private GridPane profilePane;
 
 	private final ContactClient contactClient;
 	private final GeneralClient generalClient;
@@ -142,6 +156,10 @@ public class ContactViewController implements Controller
 
 		contactTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue));
+
+		// Workaround for https://github.com/mkpaz/atlantafx/issues/31
+		contactIcon.iconSizeProperty()
+				.addListener((observable, oldValue, newValue) -> contactIcon.setIconSize(128));
 	}
 
 	private void changeSelectedContact(Contact contact)
@@ -154,6 +172,7 @@ public class ContactViewController implements Controller
 			updatedLabel.setText(null);
 			contactImageView.setImage(null);
 			contactImagePane.getChildren().getFirst().setVisible(true);
+			profilePane.setVisible(false);
 			return;
 		}
 
@@ -165,6 +184,9 @@ public class ContactViewController implements Controller
 					.doOnSuccess(profile -> Platform.runLater(() -> {
 						idLabel.setText(Id.toString(profile.getPgpIdentifier()));
 						updatedLabel.setText(null); // XXX: for now...
+						acceptedLabel.setText(profile.isAccepted() ? "yes" : "no");
+						trustLabel.setText(profile.getTrust().toString());
+						profilePane.setVisible(true);
 					}))
 					.subscribe();
 
@@ -174,6 +196,7 @@ public class ContactViewController implements Controller
 		}
 		else if (contact.identityId() != 0L)
 		{
+			profilePane.setVisible(false);
 			identityClient.findById(contact.identityId())
 					.doOnSuccess(identity -> Platform.runLater(() -> {
 						idLabel.setText(Id.toString(identity.getGxsId()));

@@ -154,7 +154,13 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 		log.debug("Searching LocationId {} -> node id: {}", locationId, key);
 		searchedKeys.put(key, locationId);
 
-		var nodeLookupTask = new NodeLookup(key, dht.getServerManager().getRandomActiveServer(false), dht.getNode(), false);
+		var rpcServer = dht.getServerManager().getRandomActiveServer(false);
+		if (rpcServer == null)
+		{
+			log.debug("No RPC server, cannot perform DHT search");
+			return;
+		}
+		var nodeLookupTask = new NodeLookup(key, rpcServer, dht.getNode(), false);
 		nodeLookupTask.setInfo(locationId.toString());
 		nodeLookupTask.addListener(task -> log.debug("Task finished: {}", task.getInfo()));
 		dht.getTaskManager().addTask(nodeLookupTask);

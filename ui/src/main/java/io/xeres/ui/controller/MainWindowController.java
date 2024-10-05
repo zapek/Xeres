@@ -106,6 +106,9 @@ public class MainWindowController implements WindowController
 	private Tab chatTab;
 
 	@FXML
+	private Tab contactTab;
+
+	@FXML
 	private Tab forumTab;
 
 	@FXML
@@ -149,9 +152,6 @@ public class MainWindowController implements WindowController
 
 	@FXML
 	private MenuItem showPeersWindow;
-
-	@FXML
-	private MenuItem showIdentitiesWindow;
 
 	@FXML
 	private MenuItem changeOwnIdentityPicture;
@@ -277,8 +277,6 @@ public class MainWindowController implements WindowController
 		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast());
 
 		showProfilesWindow.setOnAction(event -> windowManager.openProfiles());
-
-		showIdentitiesWindow.setOnAction(event -> windowManager.openIdentities());
 
 		showSettingsWindow.setOnAction(event -> windowManager.openSettings());
 

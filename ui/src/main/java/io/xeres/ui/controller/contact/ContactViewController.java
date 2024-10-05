@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.contact;
 
 import io.xeres.common.id.Id;
+import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.ui.client.ContactClient;
 import io.xeres.ui.client.GeneralClient;
@@ -27,8 +28,10 @@ import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.AsyncImageView;
+import io.xeres.ui.model.location.Location;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -36,6 +39,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -47,6 +51,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
@@ -101,6 +106,21 @@ public class ContactViewController implements Controller
 
 	@FXML
 	private GridPane profilePane;
+
+	@FXML
+	private TableView<Location> locationTableView;
+
+	@FXML
+	private TableColumn<Location, String> locationTableNameColumn;
+
+	@FXML
+	private TableColumn<Location, String> locationTableIPColumn;
+
+	@FXML
+	private TableColumn<Location, String> locationTablePortColumn;
+
+	@FXML
+	private TableColumn<Location, String> locationTableLastConnectedColumn;
 
 	private final ContactClient contactClient;
 	private final GeneralClient generalClient;
@@ -157,9 +177,52 @@ public class ContactViewController implements Controller
 		contactTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue));
 
+		locationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+		locationTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+		locationTableIPColumn.setCellValueFactory(param -> {
+			var hostPort = getConnectedAddress(param.getValue());
+			return new SimpleStringProperty(hostPort != null ? hostPort.host() : "-");
+		});
+		locationTablePortColumn.setCellValueFactory(param -> {
+			var hostPort = getConnectedAddress(param.getValue());
+			return new SimpleStringProperty(hostPort != null ? String.valueOf(hostPort.port()) : "-");
+		});
+		locationTableLastConnectedColumn.setCellValueFactory(param -> new SimpleStringProperty(getLastConnection(param.getValue())));
+
 		// Workaround for https://github.com/mkpaz/atlantafx/issues/31
 		contactIcon.iconSizeProperty()
 				.addListener((observable, oldValue, newValue) -> contactIcon.setIconSize(128));
+	}
+
+	private HostPort getConnectedAddress(Location location)
+	{
+		if (location.isConnected() && !location.getConnections().isEmpty())
+		{
+			var connection = location.getConnections().getFirst();
+			return HostPort.parse(connection.getAddress());
+		}
+		return null;
+	}
+
+	private String getLastConnection(Location location)
+	{
+		if (location.isConnected())
+		{
+			return "Now";
+		}
+		else
+		{
+			var lastConnected = location.getLastConnected();
+			if (lastConnected == null)
+			{
+				return "Never";
+			}
+			else
+			{
+				return DATE_TIME_FORMATTER.format(lastConnected);
+			}
+		}
 	}
 
 	private void changeSelectedContact(Contact contact)
@@ -173,6 +236,7 @@ public class ContactViewController implements Controller
 			contactImageView.setImage(null);
 			contactImagePane.getChildren().getFirst().setVisible(true);
 			profilePane.setVisible(false);
+			hideTableLocations();
 			return;
 		}
 
@@ -187,6 +251,7 @@ public class ContactViewController implements Controller
 						acceptedLabel.setText(profile.isAccepted() ? "yes" : "no");
 						trustLabel.setText(profile.getTrust().toString());
 						profilePane.setVisible(true);
+						showTableLocations(profile.getLocations());
 					}))
 					.subscribe();
 
@@ -207,6 +272,26 @@ public class ContactViewController implements Controller
 			contactImagePane.getChildren().getFirst().setVisible(false);
 			contactImageView.setUrl(IDENTITIES_PATH + "/" + contact.identityId() + "/image");
 			typeLabel.setText("Contact");
+			hideTableLocations();
 		}
+	}
+
+	private void showTableLocations(List<Location> locations)
+	{
+		if (locations.isEmpty())
+		{
+			hideTableLocations();
+		}
+		else
+		{
+			locationTableView.getItems().setAll(locations);
+			locationTableView.setVisible(true);
+		}
+	}
+
+	private void hideTableLocations()
+	{
+		locationTableView.getItems().clear();
+		locationTableView.setVisible(false);
 	}
 }

@@ -170,11 +170,6 @@
                         </MenuItem>
                     </Menu>
                     <Menu text="%main.menu.identities">
-                        <MenuItem fx:id="showIdentitiesWindow" text="%main.menu.identities.identities">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-user-friends"/>
-                            </graphic>
-                        </MenuItem>
                         <MenuItem fx:id="changeOwnIdentityPicture" text="%main.menu.identities.change-picture">
                             <graphic>
                                 <FontIcon iconLiteral="fas-image"/>

@@ -42,7 +42,6 @@ import io.xeres.ui.controller.file.FileAddDownloadViewController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
-import io.xeres.ui.controller.identity.IdentitiesWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.messaging.PeersWindowController;
@@ -342,16 +341,6 @@ public class WindowManager
 				UiWindow.builder(ProfilesWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("profiles.window-title"))
-						.build()
-						.open());
-	}
-
-	public void openIdentities()
-	{
-		Platform.runLater(() ->
-				UiWindow.builder(IdentitiesWindowController.class)
-						.setParent(rootWindow)
-						.setTitle(bundle.getString("identities.window-title"))
 						.build()
 						.open());
 	}

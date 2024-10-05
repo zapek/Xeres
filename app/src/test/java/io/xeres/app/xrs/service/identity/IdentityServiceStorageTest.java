@@ -21,8 +21,7 @@ package io.xeres.app.xrs.service.identity;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class IdentityServiceStorageTest
 {
@@ -33,6 +32,15 @@ class IdentityServiceStorageTest
 
 		var identityServiceStorage = new IdentityServiceStorage(input);
 		assertTrue(identityServiceStorage.isSuccess());
+	}
+
+	@Test
+	void ParseIdentityString_Input_Output_Success()
+	{
+		var input = "v2 {P:K:1 I:133E525084DE5D4D}{T:F:4096 P:1614029822 T:1614029841}{R:50 50 0 0}";
+
+		var identityServiceStorage = new IdentityServiceStorage(input);
+		assertEquals(input, identityServiceStorage.out());
 	}
 
 	@Test

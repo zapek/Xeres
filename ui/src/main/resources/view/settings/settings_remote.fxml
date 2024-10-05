@@ -30,7 +30,7 @@
       fx:controller="io.xeres.ui.controller.settings.SettingsRemoteController">
     <Card>
         <header>
-            <Label text="%settings.remote.auth"/>
+            <Label text="%settings.remote.auth" styleClass="title-4"/>
         </header>
         <body>
             <GridPane hgap="8" vgap="8">

@@ -29,7 +29,7 @@
     <VBox spacing="12.0">
         <Card>
             <header>
-                <Label text="%settings.network.hidden-services"/>
+                <Label text="%settings.network.hidden-services" styleClass="title-4"/>
             </header>
             <body>
                 <GridPane hgap="8" vgap="8">
@@ -81,7 +81,7 @@
         </Card>
         <Card>
             <header>
-                <Label text="LAN"/>
+                <Label text="LAN" styleClass="title-4"/>
             </header>
             <body>
                 <GridPane hgap="8" vgap="8">
@@ -116,7 +116,7 @@
         </Card>
         <Card>
             <header>
-                <Label text="NAT"/>
+                <Label text="NAT" styleClass="title-4"/>
             </header>
             <body>
                 <GridPane hgap="8" vgap="8">
@@ -151,7 +151,7 @@
         </Card>
         <Card>
             <header>
-                <Label text="DHT"/>
+                <Label text="DHT" styleClass="title-4"/>
             </header>
             <body>
                 <GridPane hgap="8" vgap="8">

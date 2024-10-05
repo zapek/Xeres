@@ -32,7 +32,7 @@
       fx:controller="io.xeres.ui.controller.settings.SettingsTransferController">
     <Card>
         <header>
-            <Label text="%settings.transfer.incoming"/>
+            <Label text="%settings.transfer.incoming" styleClass="title-4"/>
         </header>
         <body>
             <InputGroup>

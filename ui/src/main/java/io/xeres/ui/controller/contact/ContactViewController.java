@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.contact;
 
+import atlantafx.base.controls.Card;
 import io.xeres.common.id.Id;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
@@ -103,6 +104,9 @@ public class ContactViewController implements Controller
 
 	@FXML
 	private Label trustLabel;
+
+	@FXML
+	private Card detailsView;
 
 	@FXML
 	private GridPane profilePane;
@@ -229,6 +233,7 @@ public class ContactViewController implements Controller
 	{
 		if (contact == null)
 		{
+			detailsView.setVisible(false);
 			nameLabel.setText(null);
 			idLabel.setText(null);
 			typeLabel.setText(null);
@@ -241,6 +246,7 @@ public class ContactViewController implements Controller
 		}
 
 		log.debug("Set contact to {}", contact);
+		detailsView.setVisible(true);
 		nameLabel.setText(contact.name());
 		if (contact.profileId() != 0L)
 		{

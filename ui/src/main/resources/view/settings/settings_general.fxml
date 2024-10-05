@@ -25,7 +25,7 @@
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="12.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsGeneralController">
     <Card>
         <header>
-            <Label text="%settings.general.theme"/>
+            <Label text="%settings.general.theme" styleClass="title-4"/>
         </header>
         <body>
             <ChoiceBox fx:id="themeSelector">
@@ -34,7 +34,7 @@
     </Card>
     <Card>
         <header>
-            <Label text="%settings.general.system"/>
+            <Label text="%settings.general.system" styleClass="title-4"/>
         </header>
         <body>
             <GridPane hgap="8" vgap="8">

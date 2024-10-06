@@ -40,19 +40,15 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FILENAME;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class ContentImage implements Content
 {
-	private static final DateTimeFormatter SAVE_IMAGE_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss")
-			.withZone(ZoneId.systemDefault());
-
 	private static final ContextMenu contextMenu;
 
 	static
@@ -116,7 +112,7 @@ public class ContentImage implements Content
 		fileChooser.setTitle(I18nUtils.getString("file-requester.save-image-title"));
 		fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(saveFormat.format(), saveFormat.extensions()));
-		fileChooser.setInitialFileName("Image_" + SAVE_IMAGE_FILE_FORMATTER.format(Instant.now()) + saveFormat.getPrimaryExtension());
+		fileChooser.setInitialFileName("Image_" + DATE_TIME_FILENAME.format(Instant.now()) + saveFormat.getPrimaryExtension());
 
 		var selectedFile = fileChooser.showSaveDialog(getWindow(event));
 		if (selectedFile != null)

@@ -45,27 +45,19 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 
 @Component
 @FxmlView(value = "/view/contact/contactview.fxml")
 public class ContactViewController implements Controller
 {
-	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
-
-	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm") // XXX: put that in some utility class. has to be used everywhere
-			.withZone(ZoneId.systemDefault());
-
 	@FXML
 	private TableView<Contact> contactTableView;
 
@@ -224,7 +216,7 @@ public class ContactViewController implements Controller
 			}
 			else
 			{
-				return DATE_TIME_FORMATTER.format(lastConnected);
+				return DATE_TIME_DISPLAY.format(lastConnected);
 			}
 		}
 	}
@@ -245,7 +237,6 @@ public class ContactViewController implements Controller
 			return;
 		}
 
-		log.debug("Set contact to {}", contact);
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.name());
 		if (contact.profileId() != 0L)
@@ -271,7 +262,7 @@ public class ContactViewController implements Controller
 			identityClient.findById(contact.identityId())
 					.doOnSuccess(identity -> Platform.runLater(() -> {
 						idLabel.setText(Id.toString(identity.getGxsId()));
-						updatedLabel.setText(DATE_TIME_FORMATTER.format(identity.getUpdated()));
+						updatedLabel.setText(DATE_TIME_DISPLAY.format(identity.getUpdated()));
 					}))
 					.subscribe();
 

@@ -64,11 +64,10 @@ import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_DISPLAY;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
@@ -81,9 +80,6 @@ public class ForumViewController implements Controller
 	private static final String SUBSCRIBE_MENU_ID = "subscribe";
 	private static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
-
-	private static final DateTimeFormatter messageDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-			.withZone(ZoneId.systemDefault());
 
 	@FXML
 	private TreeView<ForumGroup> forumTree;
@@ -543,7 +539,7 @@ public class ForumViewController implements Controller
 						messageContent.getChildren().addAll(contents.stream()
 								.map(Content::getNode).toList());
 						messageAuthor.setText(forumMessage.getAuthorName());
-						messageDate.setText(messageDateFormatter.format(forumMessage.getPublished()));
+						messageDate.setText(DATE_TIME_PRECISE_DISPLAY.format(forumMessage.getPublished()));
 						messageSubject.setText(forumMessage.getName());
 						messageHeader.setVisible(true);
 						forumClient.updateForumMessagesRead(Map.of(message.getId(), true))

@@ -23,14 +23,11 @@ import io.xeres.common.message.forum.ForumMessage;
 import javafx.scene.control.TreeTableCell;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 
 public class DateCell extends TreeTableCell<ForumMessage, Instant>
 {
-	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-			.withZone(ZoneId.systemDefault());
-
 	public DateCell()
 	{
 		super();
@@ -46,7 +43,7 @@ public class DateCell extends TreeTableCell<ForumMessage, Instant>
 		}
 		else
 		{
-			setText(formatter.format(item));
+			setText(DATE_TIME_DISPLAY.format(item));
 		}
 	}
 }

@@ -27,18 +27,12 @@ import javafx.scene.control.Label;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.List;
-import java.util.Locale;
+
+import static io.xeres.ui.support.util.DateUtils.TIME_DISPLAY;
 
 public class ChatListCell implements Cell<ChatLine, TextFlow>
 {
-	private static final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-			.withLocale(Locale.ROOT)
-			.withZone(ZoneId.systemDefault());
-
 	private static final PseudoClass passivePseudoClass = PseudoClass.getPseudoClass("passive");
 
 	private static final List<String> allColors = ColorGenerator.getAllColors();
@@ -90,7 +84,7 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	{
 		isRich = line.isRich();
 
-		time.setText(formatter.format(line.getInstant()));
+		time.setText(TIME_DISPLAY.format(line.getInstant()));
 
 		action.setText(line.getAction());
 		action.getStyleClass().removeAll(allColors);

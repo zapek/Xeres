@@ -37,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.ByteArrayInputStream;
@@ -77,7 +78,7 @@ public class IdentityController
 	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<InputStreamResource> downloadIdentityImage(@PathVariable long id)
 	{
-		var identity = identityRsService.findById(id).orElseThrow();
+		var identity = identityRsService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
 		var imageType = ImageDetectionUtils.getImageMimeType(identity.getImage());
 		if (imageType == null)
 		{

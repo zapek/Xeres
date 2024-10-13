@@ -28,6 +28,8 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import jakarta.persistence.EntityNotFoundException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -196,5 +198,12 @@ class IdentityRsServiceTest
 		var id = 2L;
 
 		assertThrows(EntityNotFoundException.class, () -> identityRsService.deleteOwnIdentityImage(id));
+	}
+
+	@Test
+	void MakeProfileHash_Success()
+	{
+		var computedHash = IdentityRsService.makeProfileHash(GxsId.fromString("bb3851c00134a29f921cb3643a4525a9"), new ProfileFingerprint(Id.toBytes("C984CC1237437B5983A2031070DC1676FA60F825")));
+		assertEquals("778db3511ba29027dd85f324c58717d05c4e3f30", computedHash.toString());
 	}
 }

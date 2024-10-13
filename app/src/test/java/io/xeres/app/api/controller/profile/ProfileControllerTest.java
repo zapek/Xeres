@@ -166,7 +166,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		var profileRequest = new RsIdRequest(RSIdFakes.createShortInvite().getArmored());
 
 		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
-		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));
+		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(expected);
 
 		mvc.perform(postJson(BASE_URL + "?trust=FULL&connectionIndex=1", profileRequest))
 				.andExpect(status().isCreated())
@@ -184,7 +184,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		var profileRequest = new RsIdRequest(RSIdFakes.createShortInvite().getArmored());
 
 		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
-		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));
+		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(expected);
 
 		mvc.perform(postJson(BASE_URL + "?trust=Full&connectionIndex=1", profileRequest))
 				.andExpect(status().isCreated())
@@ -201,7 +201,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		var profileRequest = new RsIdRequest(RSIdFakes.createShortInvite().getArmored());
 
 		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
-		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));
+		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(expected);
 
 		mvc.perform(postJson(BASE_URL, profileRequest))
 				.andExpect(status().isCreated())
@@ -217,7 +217,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		var profileRequest = new RsIdRequest(RSIdFakes.createRsCertificate(expected).getArmored());
 
 		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
-		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(Optional.of(expected));
+		when(profileService.createOrUpdateProfile(any(Profile.class))).thenReturn(expected);
 
 		mvc.perform(postJson(BASE_URL, profileRequest))
 				.andExpect(status().isCreated())

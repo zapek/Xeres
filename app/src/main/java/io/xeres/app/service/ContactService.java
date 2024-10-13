@@ -19,38 +19,60 @@
 
 package io.xeres.app.service;
 
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.app.xrs.service.identity.IdentityServiceStorage;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.rest.contact.Contact;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ContactService
 {
 	private final ProfileService profileService;
-	private final LocationService locationService;
 	private final IdentityRsService identityRsService;
 
-	public ContactService(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService)
+	public ContactService(@Lazy ProfileService profileService, @Lazy IdentityRsService identityRsService)
 	{
 		this.profileService = profileService;
-		this.locationService = locationService;
 		this.identityRsService = identityRsService;
 	}
 
 	@Transactional(readOnly = true)
 	public List<Contact> getContacts()
 	{
-		var profiles = profileService.getAllProfiles();
+		// XXX: this merges probably a bit too much (what if several identities point to the same profile? what if the identity name is different from the profile name?)
+		var profiles = profileService.getAllProfiles().stream()
+				.collect(Collectors.toMap(Profile::getId, profile -> profile));
 		var identities = identityRsService.getAll();
+		var profilesIdsToRemove = identities.stream()
+				.filter(identity -> identity.getProfile() != null)
+				.map(identity -> identity.getProfile().getId())
+				.collect(Collectors.toSet());
 
-		// XXX: for now return all of them, in the future it would be possible to merge the identity to the profile (if the name is the same)
+		profiles.entrySet().removeIf(entry -> profilesIdsToRemove.contains(entry.getKey()));
+
 		List<Contact> contacts = new ArrayList<>(profiles.size() + identities.size());
-		profiles.forEach(profile -> contacts.add(new Contact(profile.getName(), profile.getId(), 0L)));
-		identities.forEach(identity -> contacts.add(new Contact(identity.getName(), 0L, identity.getId()))); // XXX: put the profile too
+		profiles.forEach((key, value) -> contacts.add(new Contact(value.getName(), key, 0L)));
+		identities.forEach(identity -> contacts.add(new Contact(identity.getName(), identity.getProfile() != null ? identity.getProfile().getId() : 0L, identity.getId())));
 		return contacts;
+	}
+
+	public List<Contact> toContacts(List<IdentityGroupItem> identities)
+	{
+		List<Contact> contacts = new ArrayList<>(identities.size());
+		identities.forEach(identity -> contacts.add(new Contact(identity.getName(), identity.getProfile() != null ? identity.getProfile().getId() : new IdentityServiceStorage(identity.getServiceString()).getPgpIdentifier(), identity.getId())));
+		return contacts;
+	}
+
+	public Contact toContact(Profile profile)
+	{
+		return new Contact(profile.getName(), profile.getId(), 0L);
 	}
 }

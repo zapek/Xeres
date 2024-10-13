@@ -160,7 +160,7 @@ public class BackupService
 			{
 				var pgpPublicKey = PGP.getPGPPublicKey(profile.getPgpPublicKeyData());
 				var createdProfile = io.xeres.app.database.model.profile.Profile.createProfile(
-						profile.getName(), profile.getPgpIdentifier(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey);
+						profile.getName(), profile.getPgpIdentifier(), pgpPublicKey.getCreationTime().toInstant(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey);
 				profile.getLocations().forEach(createdProfile::addLocation);
 				createdProfile.setAccepted(true);
 				profileService.createOrUpdateProfile(createdProfile);

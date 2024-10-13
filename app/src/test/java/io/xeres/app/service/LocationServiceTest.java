@@ -27,6 +27,7 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.LocationRepository;
+import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
@@ -81,13 +82,13 @@ class LocationServiceTest
 	private static Profile ownProfile;
 
 	@BeforeAll
-	static void setup() throws PGPException, IOException
+	static void setup() throws PGPException
 	{
 		Security.addProvider(new BouncyCastleProvider());
 
 		pgpSecretKey = PGP.generateSecretKey("test", "", 512);
 		keyPair = RSA.generateKeys(512);
-		ownProfile = Profile.createProfile("test", pgpSecretKey.getKeyID(), pgpSecretKey.getPublicKey().getFingerprint(), pgpSecretKey.getPublicKey().getEncoded());
+		ownProfile = Profile.createProfile("test", pgpSecretKey.getKeyID(), pgpSecretKey.getPublicKey().getCreationTime().toInstant(), new ProfileFingerprint(pgpSecretKey.getPublicKey().getFingerprint()), pgpSecretKey.getPublicKey());
 	}
 
 	@Test

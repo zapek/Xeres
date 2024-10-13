@@ -91,11 +91,41 @@ class IdTest
 	@Test
 	void ToString_FromLong_Success()
 	{
-		var id = 0x2344ab38L;
+		var id = 0x843303842344ab38L;
 
 		var result = Id.toString(id);
 
-		assertEquals("2344AB38", result);
+		assertEquals("843303842344AB38", result);
+	}
+
+	@Test
+	void ToString_FromLong_Negative_LowerCase_Success()
+	{
+		var id = 0xf43303842344ab38L;
+
+		var result = Id.toStringLowerCase(id);
+
+		assertEquals("f43303842344ab38", result);
+	}
+
+	@Test
+	void ToString_FromLong_Negative_Success()
+	{
+		var id = 0xf43303842344ab38L;
+
+		var result = Id.toString(id);
+
+		assertEquals("F43303842344AB38", result);
+	}
+
+	@Test
+	void ToString_FromLong_ZeroPrefix_Success()
+	{
+		var id = 0x0344ab38L;
+
+		var result = Id.toString(id);
+
+		assertEquals("000000000344AB38", result);
 	}
 
 	@Test

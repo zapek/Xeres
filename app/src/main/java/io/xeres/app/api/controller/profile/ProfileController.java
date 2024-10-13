@@ -119,7 +119,7 @@ public class ProfileController
 			profile.setTrust(trust);
 		}
 
-		var savedProfile = profileService.createOrUpdateProfile(profile).orElseThrow(() -> new UnprocessableEntityException("Failed to save profile"));
+		var savedProfile = profileService.createOrUpdateProfile(profile);
 
 		statusNotificationService.incrementTotalUsers(); // not correct if a certificate is used to update an existing profile (XXX: put a created date? or age? that would detect it)
 

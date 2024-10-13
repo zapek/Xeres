@@ -22,6 +22,7 @@ package io.xeres.app.database.model.profile;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.testutils.StringFakes;
 
+import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
@@ -52,12 +53,12 @@ public final class ProfileFakes
 
 	public static Profile createProfile(String name, long pgpIdentifier, byte[] pgpFingerprint, byte[] data)
 	{
-		return new Profile(getUniqueId(), name, pgpIdentifier, new ProfileFingerprint(pgpFingerprint), data);
+		return new Profile(getUniqueId(), name, pgpIdentifier, Instant.now(), new ProfileFingerprint(pgpFingerprint), data);
 	}
 
 	public static Profile createProfile(String name, long pgpIdentifier, ProfileFingerprint profileFingerprint, byte[] data)
 	{
-		return new Profile(getUniqueId(), name, pgpIdentifier, profileFingerprint, data);
+		return new Profile(getUniqueId(), name, pgpIdentifier, Instant.now(), profileFingerprint, data);
 	}
 
 	private static byte[] getRandomArray(int size)

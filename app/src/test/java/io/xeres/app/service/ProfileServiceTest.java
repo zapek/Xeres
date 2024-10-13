@@ -23,6 +23,7 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.ProfileRepository;
+import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -50,6 +51,9 @@ class ProfileServiceTest
 
 	@Mock
 	private ProfileRepository profileRepository;
+
+	@Mock
+	private ContactNotificationService contactNotificationService;
 
 	@InjectMocks
 	private ProfileService profileService;
@@ -124,7 +128,7 @@ class ProfileServiceTest
 		when(profileRepository.findByProfileFingerprint(any(ProfileFingerprint.class))).thenReturn(Optional.of(first));
 		when(profileRepository.save(any(Profile.class))).thenAnswer(mock -> mock.getArguments()[0]);
 
-		var updated = profileService.createOrUpdateProfile(second).orElseThrow();
+		var updated = profileService.createOrUpdateProfile(second);
 
 		assertEquals(2, updated.getLocations().size());
 

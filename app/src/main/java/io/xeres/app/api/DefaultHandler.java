@@ -35,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.UnknownHostException;
 import java.util.NoSuchElementException;
@@ -91,6 +92,19 @@ public class DefaultHandler
 		return new ErrorResponseEntity.Builder(HttpStatus.INTERNAL_SERVER_ERROR)
 				.setError(e.getMessage())
 				.build();
+	}
+
+	/**
+	 * Generates a ResponseStatusException. Those are typically done from media endpoints
+	 * and there's no way to put JSON error messages in there, so just ignore them.
+	 *
+	 * @param e the exception
+	 * @return a ResponseEntity with just the status code and no message
+	 */
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<Void> handleResponseStatusException(ResponseStatusException e)
+	{
+		return new ResponseEntity<>(e.getStatusCode());
 	}
 
 	@ExceptionHandler(AsyncRequestNotUsableException.class)

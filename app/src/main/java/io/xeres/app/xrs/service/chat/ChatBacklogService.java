@@ -62,10 +62,10 @@ public class ChatBacklogService
 	}
 
 	@Transactional
-	public void storeOutgoingChatRoomMessage(long chatRoomId, String message)
+	public void storeOutgoingChatRoomMessage(long chatRoomId, String nickname, String message)
 	{
 		var chatRoom = chatRoomRepository.findByRoomId(chatRoomId).orElseThrow();
-		chatRoomBacklogRepository.save(new ChatRoomBacklog(chatRoom, message));
+		chatRoomBacklogRepository.save(new ChatRoomBacklog(chatRoom, nickname, message));
 	}
 
 	@Transactional(readOnly = true)

@@ -48,6 +48,7 @@ public final class ProfileMapper
 				profile.getId(),
 				profile.getName(),
 				Long.toString(profile.getPgpIdentifier()),
+				profile.getCreated(),
 				profile.getProfileFingerprint().getBytes(),
 				profile.getPgpPublicKeyData(),
 				profile.isAccepted(),
@@ -115,6 +116,7 @@ public final class ProfileMapper
 		profile.setId(dto.id());
 		profile.setName(dto.name());
 		profile.setPgpIdentifier(Long.parseLong(dto.pgpIdentifier()));
+		profile.setCreated(dto.created());
 		profile.setProfileFingerprint(new ProfileFingerprint(dto.pgpFingerprint()));
 		profile.setPgpPublicKeyData(dto.pgpPublicKeyData());
 		profile.setAccepted(dto.accepted());

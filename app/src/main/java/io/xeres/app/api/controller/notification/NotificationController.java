@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
@@ -44,13 +45,15 @@ public class NotificationController
 	private final ForumNotificationService forumNotificationService;
 	private final FileNotificationService fileNotificationService;
 	private final FileSearchNotificationService fileSearchNotificationService;
+	private final ContactNotificationService contactNotificationService;
 
-	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService)
+	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, ContactNotificationService contactNotificationService)
 	{
 		this.statusNotificationService = statusNotificationService;
 		this.forumNotificationService = forumNotificationService;
 		this.fileNotificationService = fileNotificationService;
 		this.fileSearchNotificationService = fileSearchNotificationService;
+		this.contactNotificationService = contactNotificationService;
 	}
 
 	@GetMapping("/status")
@@ -83,5 +86,13 @@ public class NotificationController
 	public SseEmitter setupFileSearchNotification()
 	{
 		return fileSearchNotificationService.addClient();
+	}
+
+	@GetMapping("/contact")
+	@Operation(summary = "Subscribe to contact notifications")
+	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	public SseEmitter setupContactNotification()
+	{
+		return contactNotificationService.addClient();
 	}
 }

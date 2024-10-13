@@ -1015,7 +1015,7 @@ public class ChatRsService extends RsService
 		}
 
 		initializeBounce(chatRoom, chatRoomMessageItem);
-		chatBacklogService.storeOutgoingChatRoomMessage(chatRoomId, message);
+		chatBacklogService.storeOutgoingChatRoomMessage(chatRoomId, chatRoomMessageItem.getSenderNickname(), message);
 		bounce(chatRoomMessageItem);
 	}
 

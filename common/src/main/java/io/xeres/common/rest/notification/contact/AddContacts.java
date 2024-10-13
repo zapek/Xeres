@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,12 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-.fixed-font {
-    -fx-font-family: "Consolas";
-}
+package io.xeres.common.rest.notification.contact;
 
-/* this is needed to display emojis before sending them */
-.chat-send {
-    -fx-font-family: "Segoe UI Emoji";
-    -fx-pref-height: 36px; /* and this is needed otherwise the widget is too small */
+import io.xeres.common.rest.contact.Contact;
+
+import java.util.List;
+
+/**
+ * Adds or update contacts.
+ *
+ * @param contacts the list of contacts
+ */
+public record AddContacts(List<Contact> contacts)
+{
 }

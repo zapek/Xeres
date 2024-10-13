@@ -60,9 +60,10 @@ public class ChatRoomBacklog
 		this.message = message;
 	}
 
-	public ChatRoomBacklog(ChatRoom room, String message)
+	public ChatRoomBacklog(ChatRoom room, String nickname, String message)
 	{
 		this.room = room;
+		this.nickname = nickname;
 		this.message = message;
 	}
 

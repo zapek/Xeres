@@ -27,20 +27,15 @@ import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
-import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.settings.Settings;
-import io.xeres.app.database.model.share.Share;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.*;
-import io.xeres.app.service.file.FileService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.mui.MinimalUserInterface;
-import io.xeres.common.pgp.Trust;
-import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -50,12 +45,8 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 
 @Component
 public class Startup implements ApplicationRunner
@@ -72,13 +63,13 @@ public class Startup implements ApplicationRunner
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
 	private final AutoStart autoStart;
-	private final FileService fileService;
 	private final ShellService shellService;
 	private final FileNotificationService fileNotificationService;
 	private final InfoService infoService;
+	private final UpgradeService upgradeService;
 	private final ApplicationEventPublisher publisher;
 
-	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, FileService fileService, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, ApplicationEventPublisher publisher)
+	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, UpgradeService upgradeService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -90,10 +81,10 @@ public class Startup implements ApplicationRunner
 		this.identityManager = identityManager;
 		this.statusNotificationService = statusNotificationService;
 		this.autoStart = autoStart;
-		this.fileService = fileService;
 		this.shellService = shellService;
 		this.fileNotificationService = fileNotificationService;
 		this.infoService = infoService;
+		this.upgradeService = upgradeService;
 		this.publisher = publisher;
 	}
 
@@ -117,7 +108,7 @@ public class Startup implements ApplicationRunner
 			return;
 		}
 
-		configureDefaults();
+		upgradeService.upgrade();
 
 		if (networkService.checkReadiness())
 		{
@@ -228,56 +219,5 @@ public class Startup implements ApplicationRunner
 				autoStart.disable();
 			}
 		}
-	}
-
-	/**
-	 * Configures defaults that cannot be done on the database definition because
-	 * they depend on some runtime parameters. This is not called in UI client
-	 * only mode.
-	 */
-	private void configureDefaults()
-	{
-		var version = 2; // Increment this number when needing to add new defaults
-
-		// Don't do this stuff when running tests
-		if (dataDirConfiguration.getDataDir() == null)
-		{
-			return;
-		}
-
-		if (!settingsService.hasIncomingDirectory())
-		{
-			var incomingDirectory = Path.of(dataDirConfiguration.getDataDir(), "Incoming");
-			if (Files.notExists(incomingDirectory))
-			{
-				try
-				{
-					Files.createDirectory(incomingDirectory);
-				}
-				catch (IOException e)
-				{
-					throw new IllegalStateException("Couldn't create incoming directory: " + incomingDirectory + ", :" + e.getMessage());
-				}
-			}
-			settingsService.setIncomingDirectory(incomingDirectory.toString());
-			fileService.addShare(Share.createShare("Incoming", File.createFile(incomingDirectory), false, Trust.UNKNOWN));
-		}
-
-		if (settingsService.getVersion() < 1)
-		{
-			var password = new char[20];
-			SecureRandomUtils.nextPassword(password);
-			settingsService.setRemotePassword(String.valueOf(password));
-			Arrays.fill(password, (char) 0);
-		}
-
-		if (settingsService.getVersion() < 2)
-		{
-			fileService.encryptAllHashes();
-		}
-
-		// [Add new defaults here]
-
-		settingsService.setVersion(version);
 	}
 }

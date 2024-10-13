@@ -22,6 +22,7 @@ package io.xeres.app.database.repository;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,4 +43,6 @@ public interface GxsIdentityRepository extends JpaRepository<IdentityGroupItem, 
 	List<IdentityGroupItem> findAllByType(Type type);
 
 	List<IdentityGroupItem> findAllBySubscribedIsTrueAndPublishedAfter(Instant since);
+
+	List<IdentityGroupItem> findAllByNextValidationNotNullAndNextValidationBeforeOrderByNextValidationDesc(Instant now, Limit limit);
 }

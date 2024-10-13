@@ -26,7 +26,7 @@
 - 🖥️ Modern looking desktop user interface with several themes including dark mode
 - 📶 Remote access
 - 📖 Free software ([GPL](https://www.gnu.org/licenses/quick-guide-gplv3.html))
-- 😃 Available for Windows, Linux and MacOS
+- 😃 Available for Windows and Linux
 
 ## Releases
 

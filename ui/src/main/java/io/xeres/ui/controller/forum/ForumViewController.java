@@ -373,7 +373,6 @@ public class ForumViewController implements Controller
 						{
 							log.debug("Unknown forum notification");
 						}
-						// XXX: add message, etc... but only if the group is already selected
 					}
 				}))
 				.subscribe();

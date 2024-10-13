@@ -19,20 +19,22 @@
 
 package io.xeres.app.xrs.service.identity;
 
+import java.time.Instant;
 import java.util.regex.Pattern;
 
 public class IdentityServiceStorage
 {
 	private static final Pattern SERVICE_STRING = Pattern.compile("^v2 \\{P:(.{1,1024}?)}\\{T:(.{1,1024}?)}\\{R:(.{1,1024}?)}$");
 
-	private Pgp pgp;
-	private Recognition recognition;
-	private Reputation reputation;
+	private final Pgp pgp = new Pgp();
+	private final Recognition recognition = new Recognition();
+	private final Reputation reputation = new Reputation();
 
 	private boolean success;
 
 	public IdentityServiceStorage(long pgpIdentifier)
 	{
+		pgp.setPgpIdentifier(pgpIdentifier);
 	}
 
 	public IdentityServiceStorage(String storage)
@@ -49,19 +51,19 @@ public class IdentityServiceStorage
 			return false;
 		}
 
-		pgp = new Pgp(matcher.group(1));
+		pgp.load(matcher.group(1));
 		if (!pgp.isSuccessful())
 		{
 			return false;
 		}
 
-		recognition = new Recognition(matcher.group(2));
+		recognition.load(matcher.group(2));
 		if (!recognition.isSuccessful())
 		{
 			return false;
 		}
 
-		reputation = new Reputation(matcher.group(3));
+		reputation.load(matcher.group(3));
 		if (!reputation.isSuccessful())
 		{
 			return false;
@@ -71,21 +73,31 @@ public class IdentityServiceStorage
 
 	public String out()
 	{
-
-		return "v2 " + "{P:" +
-				pgp.out() +
-				"}" +
-				"{T:" +
-				recognition.out() +
-				"}" +
-				"{R:" +
-				reputation.out() +
-				"}";
+		return String.format("v2 {P:%s}{T:%s}{R:%s}", pgp.out(), recognition.out(), reputation.out());
 	}
 
-	public boolean isSuccess()
+	public boolean isSuccessful()
 	{
 		return success;
 	}
 
+	public long getPgpIdentifier()
+	{
+		return pgp.getPgpIdentifier();
+	}
+
+	public void setPgpIdentifier(long pgpIdentifier)
+	{
+		pgp.setPgpIdentifier(pgpIdentifier);
+	}
+
+	public void updateIdScore(boolean pgpLinked, boolean pgpKnown)
+	{
+		reputation.updateIdScore(pgpLinked, pgpKnown);
+	}
+
+	public Instant computeNextValidationAttempt()
+	{
+		return pgp.computeNextValidationAttempt();
+	}
 }

@@ -32,16 +32,17 @@ class Recognition
 
 	private boolean success;
 
-	public Recognition(int flags, Instant publish, Instant lastCheck)
+	public Recognition()
 	{
-		this.flags = flags;
-		this.publish = publish;
-		this.lastCheck = lastCheck;
+		flags = 0;
+		publish = Instant.EPOCH;
+		lastCheck = Instant.EPOCH;
 	}
 
-	public Recognition(String input)
+	public boolean load(String input)
 	{
 		success = in(input);
+		return success;
 	}
 
 	private boolean in(String input)
@@ -59,12 +60,7 @@ class Recognition
 
 	public String out()
 	{
-		return "F:" +
-				flags +
-				" P:" +
-				publish.getEpochSecond() +
-				" T:" +
-				lastCheck.getEpochSecond();
+		return String.format("F:%d P:%d T:%d", flags, publish.getEpochSecond(), lastCheck.getEpochSecond());
 	}
 
 	public boolean isSuccessful()

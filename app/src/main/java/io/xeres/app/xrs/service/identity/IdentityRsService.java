@@ -22,17 +22,20 @@ package io.xeres.app.xrs.service.identity;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.repository.GxsIdentityRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.ResourceCreationState;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -44,10 +47,12 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.id.*;
 import io.xeres.common.identity.Type;
+import io.xeres.common.util.ExecutorUtils;
 import jakarta.persistence.EntityNotFoundException;
 import net.coobird.thumbnailator.Thumbnails;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,10 +61,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
+import java.security.SignatureException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.service.ResourceCreationState.*;
@@ -74,18 +83,39 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private static final int IMAGE_WIDTH = 128;
 	private static final int IMAGE_HEIGHT = 128;
 
+	private static final Duration PENDING_VALIDATION_START = Duration.ofSeconds(60);
+	private static final Duration PENDING_VALIDATION_DELAY = Duration.ofSeconds(2);
+	private static final Duration PENDING_VALIDATION_FULL_QUERY_DELAY = Duration.ofSeconds(60);
+
+	private static final int PENDING_IDENTITIES_MAX = 32;
+
+	private ScheduledExecutorService executorService;
+	private final DatabaseSessionManager databaseSessionManager;
+	private final Queue<IdentityGroupItem> pendingIdentities = new ArrayDeque<>(PENDING_IDENTITIES_MAX);
+	private Instant lastFullQuery = Instant.EPOCH;
+
 	private final GxsIdentityRepository gxsIdentityRepository;
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
 	private final GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
+	private final ContactNotificationService contactNotificationService;
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService)
+	private enum ValidationResult
+	{
+		VALID,
+		INVALID,
+		NOT_FOUND
+	}
+
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService, ContactNotificationService contactNotificationService)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
+		this.databaseSessionManager = databaseSessionManager;
 		this.gxsIdentityRepository = gxsIdentityRepository;
 		this.settingsService = settingsService;
 		this.profileService = profileService;
 		this.gxsUpdateService = gxsUpdateService;
+		this.contactNotificationService = contactNotificationService;
 	}
 
 	@Override
@@ -102,6 +132,114 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 				.withRestricted(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
 				.withPrivate(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
 				.build();
+	}
+
+	@Override
+	public void initialize()
+	{
+		super.initialize();
+
+		executorService = ExecutorUtils.createFixedRateExecutor(this::checkForProfileValidation,
+				getInitPriority().getMaxTime() + PENDING_VALIDATION_START.toSeconds(),
+				PENDING_VALIDATION_DELAY.toSeconds());
+	}
+
+	@Override
+	public void cleanup()
+	{
+		super.cleanup();
+		ExecutorUtils.cleanupExecutor(executorService);
+	}
+
+	private void checkForProfileValidation()
+	{
+		var identity = pendingIdentities.poll();
+		if (identity == null)
+		{
+			// Search for identities not validated yet
+			var now = Instant.now();
+			if (lastFullQuery.isBefore(now))
+			{
+				try (var ignored = new DatabaseSession(databaseSessionManager))
+				{
+					pendingIdentities.addAll(gxsIdentityRepository.findAllByNextValidationNotNullAndNextValidationBeforeOrderByNextValidationDesc(Instant.now(), Limit.of(PENDING_IDENTITIES_MAX)));
+					lastFullQuery = now.plus(PENDING_VALIDATION_FULL_QUERY_DELAY);
+				}
+			}
+		}
+		else
+		{
+			var identityServiceStorage = new IdentityServiceStorage(identity.getServiceString()); // We allow wrong service strings
+
+			try (var ignored = new DatabaseSession(databaseSessionManager))
+			{
+				switch (validate(identity, identityServiceStorage))
+				{
+					case VALID ->
+					{
+						identityServiceStorage.updateIdScore(true, true);
+						identity.setNextValidation(null);
+						identity.setServiceString(identityServiceStorage.out());
+						linkWithProfileIfFound(identity, identityServiceStorage.getPgpIdentifier());
+						gxsIdentityRepository.save(identity);
+					}
+					case INVALID ->
+					{
+						gxsIdentityRepository.delete(identity);
+						contactNotificationService.removeIdentities(List.of(identity)); // This might be re-added immediately by discovery if it's on a friend. RS has the same problem
+					}
+					case NOT_FOUND ->
+					{
+						identityServiceStorage.updateIdScore(true, false);
+						identity.setNextValidation(identityServiceStorage.computeNextValidationAttempt());
+						identity.setServiceString(identityServiceStorage.out());
+						gxsIdentityRepository.save(identity);
+					}
+				}
+			}
+		}
+	}
+
+	private ValidationResult validate(IdentityGroupItem identity, IdentityServiceStorage identityServiceStorage)
+	{
+		var pgpId = PGP.getIssuer(identity.getProfileSignature());
+		if (pgpId == 0)
+		{
+			log.error("Found anonymous signature. Brute forcing it is not supported.");
+			return ValidationResult.INVALID;
+		}
+		identityServiceStorage.setPgpIdentifier(pgpId);
+
+		var profile = profileService.findProfileByPgpIdentifier(pgpId).orElse(null);
+		if (profile == null)
+		{
+			log.debug("PGP profile not found for identity {}, retrying later", identity);
+			return ValidationResult.NOT_FOUND;
+		}
+
+		var computedHash = makeProfileHash(identity.getGxsId(), profile.getProfileFingerprint());
+		if (!identity.getProfileHash().equals(computedHash))
+		{
+			log.error("Wrong profile hash for identity {}", identity);
+			return ValidationResult.INVALID;
+		}
+
+		try
+		{
+			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), identity.getProfileSignature(), new ByteArrayInputStream(computedHash.getBytes()));
+			log.debug("Successful PGP profile validation for identity {}", identity);
+		}
+		catch (IOException | SignatureException | PGPException | InvalidKeyException e)
+		{
+			log.error("Profile signature verification failed for identity {}: {}", identity, e.getMessage());
+			return ValidationResult.INVALID;
+		}
+		return ValidationResult.VALID;
+	}
+
+	private void linkWithProfileIfFound(IdentityGroupItem identity, long pgpId)
+	{
+		profileService.findProfileByPgpIdentifier(pgpId).ifPresent(identity::setProfile);
 	}
 
 	@Transactional
@@ -144,13 +282,17 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		log.debug("Saving id {}", identityGroupItem.getGxsId());
 		// XXX: important! there should be some checks to make sure there's no malicious overwrite (probably a simple validation should do as id == fingerprint of key)
 		identityGroupItem.setSubscribed(true);
+		if (identityGroupItem.getDiffusionFlags().contains(GxsPrivacyFlags.SIGNED_ID))
+		{
+			identityGroupItem.setNextValidation(Instant.now());
+		}
 		return true;
 	}
 
 	@Override
 	protected void onGroupsSaved(List<IdentityGroupItem> items)
 	{
-		// XXX: notify?
+		contactNotificationService.addIdentities(items);
 	}
 
 	@Override
@@ -233,14 +375,14 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		if (signed)
 		{
 			var ownProfile = profileService.getOwnProfile();
-			var hash = makeProfileHash(gxsIdGroupItem.getGxsId(), ownProfile.getProfileFingerprint());
-			gxsIdGroupItem.setProfileHash(hash);
-			gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(settingsService.getSecretProfileKey()), hash));
+			computeHashAndSignature(gxsIdGroupItem, ownProfile);
+			gxsIdGroupItem.setProfile(ownProfile);
 
 			// This is because of some backward compatibility, ideally it should be PUBLIC | REAL_ID
 			// PRIVATE is equal to REAL_ID_deprecated
 			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PRIVATE, GxsPrivacyFlags.SIGNED_ID));
-			gxsIdGroupItem.setServiceString(String.format("v2 {P:K:1 I:%s}{T:F:0 P:0 T:0}{R:5 5 0 0}", Id.toString(ownProfile.getPgpIdentifier())));
+			var identityServiceStorage = new IdentityServiceStorage(ownProfile.getPgpIdentifier());
+			gxsIdGroupItem.setServiceString(identityServiceStorage.out());
 		}
 		else
 		{
@@ -251,6 +393,31 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		gxsIdGroupItem.setSubscribed(true);
 
 		return saveIdentity(gxsIdGroupItem, true).getId();
+	}
+
+	/**
+	 * Fixes a profile signature. Xeres used to generate bugged signatures because of a mistake (upper case GxsId instead of lowercase).
+	 * While RS will apparently accept them normally, Xeres will delete them.
+	 */
+	@Transactional
+	public void fixOwnProfile() throws PGPException, IOException
+	{
+		if (!profileService.hasOwnProfile() || hasOwnIdentity())
+		{
+			return; // Nothing to do. There's no profile/identity yet.
+		}
+		var ownProfile = profileService.getOwnProfile();
+		var ownIdentity = getOwnIdentity();
+		ownIdentity.setProfile(ownProfile);
+		computeHashAndSignature(ownIdentity, ownProfile);
+		saveIdentity(ownIdentity, true);
+	}
+
+	private void computeHashAndSignature(IdentityGroupItem gxsIdGroupItem, Profile profile) throws PGPException, IOException
+	{
+		var hash = makeProfileHash(gxsIdGroupItem.getGxsId(), profile.getProfileFingerprint());
+		gxsIdGroupItem.setProfileHash(hash);
+		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(settingsService.getSecretProfileKey()), hash));
 	}
 
 	public IdentityGroupItem getOwnIdentity() // XXX: temporary, we'll have several identities later
@@ -368,9 +535,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		saveIdentity(identity, true);
 	}
 
-	private static Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)
+	static Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)
 	{
-		var gxsIdAsciiUpper = Id.toAsciiBytesUpperCase(gxsId);
+		var gxsIdAsciiUpper = Id.toAsciiBytes(gxsId);
 
 		var md = new Sha1MessageDigest();
 		md.update(gxsIdAsciiUpper);

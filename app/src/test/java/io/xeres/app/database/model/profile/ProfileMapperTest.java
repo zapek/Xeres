@@ -25,6 +25,8 @@ import io.xeres.common.pgp.Trust;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -70,6 +72,7 @@ class ProfileMapperTest
 				1L,
 				"prout",
 				"2",
+				Instant.now(),
 				new byte[20],
 				new byte[4],
 				true,

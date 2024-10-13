@@ -27,6 +27,7 @@ import io.xeres.common.pgp.Trust;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +46,8 @@ public record ProfileDTO(
 		String name,
 
 		String pgpIdentifier,
+
+		Instant created,
 
 		@Size(min = ProfileFingerprint.LENGTH, max = ProfileFingerprint.LENGTH)
 		@Schema(example = "nhgF6ITwm/LLqchhpwJ91KFfAxg=")

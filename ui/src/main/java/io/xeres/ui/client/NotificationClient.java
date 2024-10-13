@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.notification.contact.ContactNotification;
 import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
 import io.xeres.common.rest.notification.forum.ForumNotification;
@@ -88,6 +89,16 @@ public class NotificationClient
 	{
 		return webClient.get()
 				.uri("/fileSearch")
+				.retrieve()
+				.bodyToFlux(new ParameterizedTypeReference<>()
+				{
+				});
+	}
+
+	public Flux<ServerSentEvent<ContactNotification>> getContactNotifications()
+	{
+		return webClient.get()
+				.uri("/contact")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

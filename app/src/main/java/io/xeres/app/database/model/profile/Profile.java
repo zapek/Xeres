@@ -34,6 +34,7 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.util.encoders.Hex;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +54,8 @@ public class Profile
 
 	@NotNull
 	private long pgpIdentifier;
+
+	private Instant created;
 
 	@Embedded
 	@NotNull
@@ -74,25 +77,25 @@ public class Profile
 	}
 
 	// This is only used for unit tests
-	protected Profile(long id, String name, long pgpIdentifier, ProfileFingerprint profileFingerprint, byte[] pgpPublicKeyData)
+	protected Profile(long id, String name, long pgpIdentifier, Instant created, ProfileFingerprint profileFingerprint, byte[] pgpPublicKeyData)
 	{
-		this(name, pgpIdentifier, profileFingerprint, pgpPublicKeyData);
+		this(name, pgpIdentifier, created, profileFingerprint, pgpPublicKeyData);
 		this.id = id;
 	}
 
-	public static Profile createOwnProfile(String name, long pgpIdentifier, ProfileFingerprint profileFingerprint, byte[] pgpPublicKeyData)
+	public static Profile createOwnProfile(String name, long pgpIdentifier, Instant created, ProfileFingerprint profileFingerprint, byte[] pgpPublicKeyData)
 	{
-		var profile = new Profile(name, pgpIdentifier, profileFingerprint, pgpPublicKeyData);
+		var profile = new Profile(name, pgpIdentifier, created, profileFingerprint, pgpPublicKeyData);
 		profile.setTrust(Trust.ULTIMATE);
 		profile.setAccepted(true);
 		return profile;
 	}
 
-	public static Profile createProfile(String name, long pgpIdentifier, ProfileFingerprint pgpFingerprint, PGPPublicKey pgpPublicKey)
+	public static Profile createProfile(String name, long pgpIdentifier, Instant created, ProfileFingerprint pgpFingerprint, PGPPublicKey pgpPublicKey)
 	{
 		try
 		{
-			return createProfile(name, pgpIdentifier, pgpFingerprint, pgpPublicKey.getEncoded());
+			return createProfile(name, pgpIdentifier, created, pgpFingerprint, pgpPublicKey.getEncoded());
 		}
 		catch (IOException e)
 		{
@@ -100,25 +103,21 @@ public class Profile
 		}
 	}
 
-	public static Profile createProfile(String name, long pgpIdentifier, byte[] pgpFingerprint, byte[] pgpPublicKeyData)
+	public static Profile createProfile(String name, long pgpIdentifier, Instant created, ProfileFingerprint profileFingerprint, byte[] pgpPublicKeyData)
 	{
-		return new Profile(name, pgpIdentifier, new ProfileFingerprint(pgpFingerprint), pgpPublicKeyData);
-	}
-
-	public static Profile createProfile(String name, long pgpIdentifier, ProfileFingerprint profileFingerprint, byte[] pgpPublicKeyData)
-	{
-		return new Profile(name, pgpIdentifier, profileFingerprint, pgpPublicKeyData);
+		return new Profile(name, pgpIdentifier, created, profileFingerprint, pgpPublicKeyData);
 	}
 
 	public static Profile createEmptyProfile(String name, long pgpIdentifier, ProfileFingerprint profileFingerprint)
 	{
-		return new Profile(name, pgpIdentifier, profileFingerprint, null);
+		return new Profile(name, pgpIdentifier, null, profileFingerprint, null);
 	}
 
-	private Profile(String name, long pgpIdentifier, ProfileFingerprint profileFingerprint, byte[] pgpPublicKeyData)
+	private Profile(String name, long pgpIdentifier, Instant created, ProfileFingerprint profileFingerprint, byte[] pgpPublicKeyData)
 	{
 		this.name = sanitizeProfileName(name);
 		this.pgpIdentifier = pgpIdentifier;
+		this.created = created;
 		this.profileFingerprint = profileFingerprint;
 		this.pgpPublicKeyData = pgpPublicKeyData;
 	}
@@ -183,6 +182,16 @@ public class Profile
 	void setPgpIdentifier(long pgpIdentifier)
 	{
 		this.pgpIdentifier = pgpIdentifier;
+	}
+
+	public Instant getCreated()
+	{
+		return created;
+	}
+
+	public void setCreated(Instant created)
+	{
+		this.created = created;
 	}
 
 	public ProfileFingerprint getProfileFingerprint()

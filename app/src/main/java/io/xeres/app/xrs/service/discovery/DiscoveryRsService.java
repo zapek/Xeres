@@ -428,6 +428,7 @@ public class DiscoveryRsService extends RsService
 							{
 								// We can save its PGP key and promote it to full profile.
 								profile.setPgpPublicKeyData(discoveryPgpKeyItem.getKeyData());
+								profile.setCreated(pgpPublicKey.getCreationTime().toInstant());
 								profileService.createOrUpdateProfile(profile);
 
 								sendOwnContacts(peerConnection);
@@ -454,7 +455,7 @@ public class DiscoveryRsService extends RsService
 	{
 		try
 		{
-			return Profile.createProfile(pgpPublicKey.getUserIDs().next(), pgpPublicKey.getKeyID(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
+			return Profile.createProfile(pgpPublicKey.getUserIDs().next(), pgpPublicKey.getKeyID(), pgpPublicKey.getCreationTime().toInstant(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
 		}
 		catch (IOException e)
 		{

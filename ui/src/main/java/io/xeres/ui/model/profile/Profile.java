@@ -23,6 +23,7 @@ import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
 import io.xeres.ui.model.location.Location;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class Profile
 	private long id;
 	private String name;
 	private long pgpIdentifier;
+	private Instant created;
 	private ProfileFingerprint profileFingerprint;
 	private byte[] pgpPublicKeyData;
 	private boolean accepted;
@@ -65,6 +67,16 @@ public class Profile
 	public void setPgpIdentifier(long pgpIdentifier)
 	{
 		this.pgpIdentifier = pgpIdentifier;
+	}
+
+	public Instant getCreated()
+	{
+		return created;
+	}
+
+	public void setCreated(Instant created)
+	{
+		this.created = created;
 	}
 
 	public ProfileFingerprint getProfileFingerprint()

@@ -26,6 +26,7 @@ import io.xeres.testutils.EnumFakes;
 import io.xeres.testutils.IdFakes;
 import io.xeres.testutils.StringFakes;
 
+import java.time.Instant;
 import java.util.List;
 
 public final class ProfileDTOFakes
@@ -37,6 +38,6 @@ public final class ProfileDTOFakes
 
 	public static ProfileDTO create()
 	{
-		return new ProfileDTO(IdFakes.createLong(), StringFakes.createNickname(), Long.toString(IdFakes.createLong()), new byte[20], new byte[1], BooleanFakes.create(), EnumFakes.create(Trust.class), List.of(LocationDTOFakes.create()));
+		return new ProfileDTO(IdFakes.createLong(), StringFakes.createNickname(), Long.toString(IdFakes.createLong()), Instant.now(), new byte[20], new byte[1], BooleanFakes.create(), EnumFakes.create(Trust.class), List.of(LocationDTOFakes.create()));
 	}
 }

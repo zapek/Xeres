@@ -97,7 +97,7 @@ public final class Id
 	 */
 	public static String toString(long id)
 	{
-		return Long.toHexString(id).toUpperCase(Locale.ROOT);
+		return toStringLowerCase(id).toUpperCase(Locale.ROOT);
 	}
 
 	/**
@@ -108,7 +108,7 @@ public final class Id
 	 */
 	public static String toStringLowerCase(long id)
 	{
-		return Long.toHexString(id);
+		return HexFormat.of().toHexDigits(id, 16);
 	}
 
 	/**

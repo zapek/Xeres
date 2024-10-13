@@ -31,7 +31,7 @@ class IdentityServiceStorageTest
 		var input = "v2 {P:K:1 I:133E525084DE5D4D}{T:F:4096 P:1614029822 T:1614029841}{R:50 50 0 0}";
 
 		var identityServiceStorage = new IdentityServiceStorage(input);
-		assertTrue(identityServiceStorage.isSuccess());
+		assertTrue(identityServiceStorage.isSuccessful());
 	}
 
 	@Test
@@ -49,7 +49,7 @@ class IdentityServiceStorageTest
 		var input = "v2 {P:K:1 I:133E525084DE5D4D}{T:F:4096 P:1614029822 T:1614029841}{R:50 -50 0 0}";
 
 		var identityServiceStorage = new IdentityServiceStorage(input);
-		assertTrue(identityServiceStorage.isSuccess());
+		assertTrue(identityServiceStorage.isSuccessful());
 	}
 
 	@Test
@@ -58,7 +58,7 @@ class IdentityServiceStorageTest
 		var input = "v1 {P:K:1 I:133E525084DE5D4D}{T:F:4096 P:1614029822 T:1614029841}{R:50 50 0 0}";
 
 		var identityServiceStorage = new IdentityServiceStorage(input);
-		assertFalse(identityServiceStorage.isSuccess());
+		assertFalse(identityServiceStorage.isSuccessful());
 	}
 
 	@Test
@@ -67,6 +67,20 @@ class IdentityServiceStorageTest
 		var input = "v2 {P:K:1 I:133E525084DE5D4D}{T:F:4096 P:-1 T:1614029841}{R:50 50 0 0}";
 
 		var identityServiceStorage = new IdentityServiceStorage(input);
-		assertFalse(identityServiceStorage.isSuccess());
+		assertFalse(identityServiceStorage.isSuccessful());
+	}
+
+	@Test
+	void DefaultIdentity_Success()
+	{
+		var identityServiceStorage = new IdentityServiceStorage(0x12345678abcdefdaL);
+		assertEquals("v2 {P:K:1 I:12345678ABCDEFDA}{T:F:0 P:0 T:0}{R:5 5 0 0}", identityServiceStorage.out());
+	}
+
+	@Test
+	void DefaultIdentity_ZeroPrefix_Success()
+	{
+		var identityServiceStorage = new IdentityServiceStorage(0x2345678abcdefdaL);
+		assertEquals("v2 {P:K:1 I:02345678ABCDEFDA}{T:F:0 P:0 T:0}{R:5 5 0 0}", identityServiceStorage.out());
 	}
 }

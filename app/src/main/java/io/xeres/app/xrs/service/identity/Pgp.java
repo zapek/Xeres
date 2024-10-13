@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.identity;
 
 import io.xeres.common.id.Id;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.regex.Pattern;
 
@@ -38,15 +39,14 @@ class Pgp
 
 	private boolean success;
 
-	public Pgp(long pgpIdentifier)
+	public Pgp()
 	{
-		this.pgpIdentifier = pgpIdentifier;
-		validated = true;
 	}
 
-	public Pgp(String input)
+	public boolean load(String input)
 	{
 		success = in(input);
+		return success;
 	}
 
 	private boolean in(String input)
@@ -107,5 +107,23 @@ class Pgp
 	public boolean isSuccessful()
 	{
 		return success;
+	}
+
+	public long getPgpIdentifier()
+	{
+		return pgpIdentifier;
+	}
+
+	public void setPgpIdentifier(long pgpIdentifier)
+	{
+		this.pgpIdentifier = pgpIdentifier;
+		validated = true;
+	}
+
+	public Instant computeNextValidationAttempt()
+	{
+		checkAttempt++;
+		lastCheck = Instant.now();
+		return lastCheck.plus(Duration.ofDays(Math.min(checkAttempt, 30)));
 	}
 }

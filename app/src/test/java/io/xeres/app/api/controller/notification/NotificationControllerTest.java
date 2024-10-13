@@ -20,6 +20,7 @@
 package io.xeres.app.api.controller.notification;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
+import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
@@ -54,6 +55,9 @@ class NotificationControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private FileSearchNotificationService fileSearchNotificationService;
+
+	@MockBean
+	private ContactNotificationService contactNotificationService;
 
 	@Autowired
 	public MockMvc mvc;

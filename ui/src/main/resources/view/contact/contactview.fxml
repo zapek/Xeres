@@ -17,9 +17,8 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import atlantafx.base.controls.Card?>
 <?import io.xeres.ui.custom.AsyncImageView?>
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
@@ -40,9 +39,12 @@
             </TableView>
         </VBox>
         <VBox>
+            <padding>
+                <Insets right="4.0" top="4.0"/>
+            </padding>
             <HBox>
                 <VBox.margin>
-                    <Insets bottom="4.0" right="4.0" top="4.0"/>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
                 <StackPane fx:id="contactImagePane" alignment="TOP_LEFT">
                     <FontIcon fx:id="contactIcon" iconLiteral="fas-user:128" visible="false"/>
@@ -55,57 +57,53 @@
                     <Label fx:id="nameLabel" style="-fx-font-size: 2.5em"/>
                 </VBox>
             </HBox>
-            <Card fx:id="detailsView" visible="false" VBox.vgrow="ALWAYS">
-                <header>
-                    <Label text="Details" styleClass="title-4"/>
-                </header>
-                <body>
-                    <VBox>
-                        <GridPane>
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="280.0"/>
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                            </rowConstraints>
-                            <Label text="ID"/>
-                            <Label fx:id="idLabel" GridPane.columnIndex="1"/>
-                            <Label text="Type" GridPane.rowIndex="1"/>
-                            <Label fx:id="typeLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                            <Label text="Created" GridPane.rowIndex="2"/>
-                            <Label fx:id="updatedLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-                        </GridPane>
-                        <GridPane fx:id="profilePane" visible="false">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="280.0"/>
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                            </rowConstraints>
-                            <Label text="Accepted"/>
-                            <Label fx:id="acceptedLabel" GridPane.columnIndex="1"/>
-                            <Label text="Trust" GridPane.rowIndex="1"/>
-                            <Label fx:id="trustLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                        </GridPane>
-                        <TableView fx:id="locationTableView" prefHeight="130.0" visible="false">
-                            <VBox.margin>
-                                <Insets top="16.0"/>
-                            </VBox.margin>
-                            <columns>
-                                <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="Name"/>
-                                <TableColumn fx:id="locationTableIPColumn" prefWidth="120.0" text="IP"/>
-                                <TableColumn fx:id="locationTablePortColumn" prefWidth="60.0" text="Port"/>
-                                <TableColumn fx:id="locationTableLastConnectedColumn" prefWidth="140" text="Last Connected"/>
-                            </columns>
-                        </TableView>
-                    </VBox>
-                </body>
-            </Card>
+            <VBox fx:id="detailsView" visible="false" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets right="4.0" top="4.0" left="12.0" bottom="4.0"/>
+                </padding>
+                <GridPane>
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="280.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <Label text="ID"/>
+                    <Label fx:id="idLabel" GridPane.columnIndex="1"/>
+                    <Label text="Type" GridPane.rowIndex="1"/>
+                    <Label fx:id="typeLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label fx:id="createdOrUpdated" text="Created" GridPane.rowIndex="2"/>
+                    <Label fx:id="createdLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                </GridPane>
+                <GridPane fx:id="profilePane" visible="false">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="280.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <Label text="Accepted"/>
+                    <Label fx:id="acceptedLabel" GridPane.columnIndex="1"/>
+                    <Label text="Trust" GridPane.rowIndex="1"/>
+                    <Label fx:id="trustLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                </GridPane>
+                <TableView fx:id="locationTableView" prefHeight="130.0" visible="false">
+                    <VBox.margin>
+                        <Insets top="16.0"/>
+                    </VBox.margin>
+                    <columns>
+                        <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="Name"/>
+                        <TableColumn fx:id="locationTableIPColumn" prefWidth="120.0" text="IP"/>
+                        <TableColumn fx:id="locationTablePortColumn" prefWidth="60.0" text="Port"/>
+                        <TableColumn fx:id="locationTableLastConnectedColumn" prefWidth="140" text="Last Connected"/>
+                    </columns>
+                </TableView>
+            </VBox>
         </VBox>
     </SplitPane>
 </VBox>

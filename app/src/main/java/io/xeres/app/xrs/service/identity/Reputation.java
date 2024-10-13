@@ -25,6 +25,10 @@ class Reputation
 {
 	private static final Pattern REPUTATION_PATTERN = Pattern.compile("^(-?\\d{1,10}) (-?\\d{1,10}) (-?\\d{1,10}) (-?\\d{1,10})$");
 
+	private static final int PGP_KNOWN_SCORE = 50;
+	private static final int PGP_UNKNOWN_SCORE = 20;
+	private static final int ANON_SCORE = 5;
+
 	private int overallScore;
 	private int idScore;
 	private int ownOpinion;
@@ -32,17 +36,18 @@ class Reputation
 
 	private boolean success;
 
-	public Reputation(int overallScore, int idScore, int ownOpinion, int peerOpinion)
+	public Reputation()
 	{
-		this.overallScore = overallScore;
-		this.idScore = idScore;
-		this.ownOpinion = ownOpinion;
-		this.peerOpinion = peerOpinion;
+		overallScore = 5;
+		idScore = 5;
+		ownOpinion = 0;
+		peerOpinion = 0;
 	}
 
-	public Reputation(String input)
+	public boolean load(String input)
 	{
 		success = in(input);
+		return success;
 	}
 
 	private boolean in(String input)
@@ -67,5 +72,25 @@ class Reputation
 	public boolean isSuccessful()
 	{
 		return success;
+	}
+
+	public void updateIdScore(boolean pgpLinked, boolean pgpKnown)
+	{
+		if (pgpLinked)
+		{
+			if (pgpKnown)
+			{
+				idScore = PGP_KNOWN_SCORE;
+			}
+			else
+			{
+				idScore = PGP_UNKNOWN_SCORE;
+			}
+		}
+		else
+		{
+			idScore = ANON_SCORE;
+		}
+		overallScore = idScore + ownOpinion + peerOpinion;
 	}
 }

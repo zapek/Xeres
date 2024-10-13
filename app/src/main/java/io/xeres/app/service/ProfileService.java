@@ -26,6 +26,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.repository.ProfileRepository;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.common.AppName;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.Id;
@@ -42,6 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.Security;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,14 +65,16 @@ public class ProfileService
 	private final PeerConnectionManager peerConnectionManager;
 
 	private final Map<Profile, Set<LocationId>> profilesToDelete = HashMap.newHashMap(2);
+	private final ContactNotificationService contactNotificationService;
 
-	public ProfileService(ProfileRepository profileRepository, SettingsService settingsService, PeerConnectionManager peerConnectionManager)
+	public ProfileService(ProfileRepository profileRepository, SettingsService settingsService, PeerConnectionManager peerConnectionManager, ContactNotificationService contactNotificationService)
 	{
 		this.profileRepository = profileRepository;
 		this.settingsService = settingsService;
 		this.peerConnectionManager = peerConnectionManager;
 
 		Security.addProvider(new BouncyCastleProvider());
+		this.contactNotificationService = contactNotificationService;
 	}
 
 	@Transactional
@@ -113,7 +117,7 @@ public class ProfileService
 	@Transactional
 	public void createOwnProfile(String name, PGPSecretKey pgpSecretKey, PGPPublicKey pgpPublicKey) throws IOException
 	{
-		var ownProfile = Profile.createOwnProfile(name, pgpPublicKey.getKeyID(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
+		var ownProfile = Profile.createOwnProfile(name, pgpPublicKey.getKeyID(), pgpPublicKey.getCreationTime().toInstant(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
 		profileRepository.save(ownProfile);
 		settingsService.saveSecretProfileKey(pgpSecretKey.getEncoded());
 	}
@@ -169,13 +173,19 @@ public class ProfileService
 	}
 
 	@Transactional
-	public Optional<Profile> createOrUpdateProfile(final Profile profile)
+	public Profile createOrUpdateProfile(final Profile profile)
 	{
 		Objects.requireNonNull(profile);
 
-		return Optional.of(profileRepository.save(findProfileByPgpFingerprint(profile.getProfileFingerprint())
+		var savedProfile = profileRepository.save(
+				findProfileByPgpFingerprint(profile.getProfileFingerprint())
 				.map(foundProfile -> foundProfile.updateWith(profile))
-				.orElse(profile)));
+						.orElse(profile)
+		);
+
+		contactNotificationService.addProfile(savedProfile);
+
+		return savedProfile;
 	}
 
 	public Profile getProfileFromRSId(RSId rsId)
@@ -191,7 +201,7 @@ public class ProfileService
 		if (rsId.getPgpPublicKey().isPresent())
 		{
 			var pgpPublicKey = rsId.getPgpPublicKey().get();
-			return Profile.createProfile(pgpPublicKey.getUserIDs().next(), pgpPublicKey.getKeyID(), rsId.getPgpFingerprint(), pgpPublicKey);
+			return Profile.createProfile(pgpPublicKey.getUserIDs().next(), pgpPublicKey.getKeyID(), pgpPublicKey.getCreationTime().toInstant(), rsId.getPgpFingerprint(), pgpPublicKey);
 		}
 		return Profile.createEmptyProfile(rsId.getName(), rsId.getPgpIdentifier(), rsId.getPgpFingerprint());
 	}
@@ -211,6 +221,7 @@ public class ProfileService
 		if (connectedLocations.isEmpty())
 		{
 			profileRepository.delete(profile);
+			contactNotificationService.removeProfile(profile);
 		}
 		else
 		{
@@ -241,6 +252,7 @@ public class ProfileService
 			if (profileSetEntry.getValue().isEmpty())
 			{
 				profileRepository.delete(profileSetEntry.getKey());
+				contactNotificationService.removeProfile(profileSetEntry.getKey());
 				it.remove();
 			}
 		}
@@ -254,5 +266,30 @@ public class ProfileService
 	public List<Profile> getAllDiscoverableProfiles()
 	{
 		return profileRepository.getAllDiscoverableProfiles();
+	}
+
+	public List<Profile> getAllProfilesIn(Set<Long> profileIds)
+	{
+		return profileRepository.findAllById(profileIds);
+	}
+
+	@Transactional
+	public void fixAllProfiles()
+	{
+		profileRepository.findAll().forEach(profile -> {
+			var pgpPublicKeyData = profile.getPgpPublicKeyData();
+			if (pgpPublicKeyData != null)
+			{
+				try
+				{
+					var pgpPublicKey = PGP.getPGPPublicKey(pgpPublicKeyData);
+					profile.setCreated(pgpPublicKey.getCreationTime().toInstant());
+				}
+				catch (InvalidKeyException e)
+				{
+					// Skip
+				}
+			}
+		});
 	}
 }

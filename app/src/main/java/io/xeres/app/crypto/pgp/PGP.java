@@ -251,6 +251,32 @@ public final class PGP
 	 */
 	public static void verify(PGPPublicKey pgpPublicKey, byte[] signature, InputStream in) throws IOException, SignatureException, PGPException
 	{
+		var pgpSignature = getSignature(signature);
+
+		pgpSignature.init(new BcPGPContentVerifierBuilderProvider(), pgpPublicKey);
+		pgpSignature.update(in.readAllBytes());
+		in.close();
+		if (!pgpSignature.verify())
+		{
+			throw new SignatureException("Wrong signature");
+		}
+	}
+
+	public static long getIssuer(byte[] signature)
+	{
+		try
+		{
+			var pgpSignature = getSignature(signature);
+			return pgpSignature.getKeyID();
+		}
+		catch (SignatureException | IOException e)
+		{
+			return 0L;
+		}
+	}
+
+	private static PGPSignature getSignature(byte[] signature) throws SignatureException, IOException
+	{
 		var pgpObjectFactory = new PGPObjectFactory(signature, new BcKeyFingerprintCalculator());
 
 		var object = pgpObjectFactory.nextObject();
@@ -284,14 +310,7 @@ public final class PGP
 		{
 			throw new SignatureException("Signature hash algorithm is not of SHA family (" + pgpSignature.getHashAlgorithm() + ")");
 		}
-
-		pgpSignature.init(new BcPGPContentVerifierBuilderProvider(), pgpPublicKey);
-		pgpSignature.update(in.readAllBytes());
-		in.close();
-		if (!pgpSignature.verify())
-		{
-			throw new SignatureException("Wrong signature");
-		}
+		return pgpSignature;
 	}
 
 	/**

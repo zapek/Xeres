@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.identity.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.converter.IdentityTypeConverter;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
@@ -30,6 +31,7 @@ import io.xeres.common.identity.Type;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -42,10 +44,16 @@ public class IdentityGroupItem extends GxsGroupItem
 	@Transient
 	public static final IdentityGroupItem EMPTY = new IdentityGroupItem();
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "profile_id")
+	private Profile profile;
+
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "profile_hash"))
 	private Sha1Sum profileHash; // hash of the gxsId + public key
 	private byte[] profileSignature;
+
+	private Instant nextValidation;
 
 	@Transient
 	private List<String> recognitionTags = new ArrayList<>(); // not used (but serialized)
@@ -75,6 +83,16 @@ public class IdentityGroupItem extends GxsGroupItem
 		return 2;
 	}
 
+	public Profile getProfile()
+	{
+		return profile;
+	}
+
+	public void setProfile(Profile profile)
+	{
+		this.profile = profile;
+	}
+
 	public Sha1Sum getProfileHash()
 	{
 		return profileHash;
@@ -93,6 +111,16 @@ public class IdentityGroupItem extends GxsGroupItem
 	public void setProfileSignature(byte[] profileSignature)
 	{
 		this.profileSignature = ArrayUtils.isNotEmpty(profileSignature) ? profileSignature : null;
+	}
+
+	public Instant getNextValidation()
+	{
+		return nextValidation;
+	}
+
+	public void setNextValidation(Instant nextValidation)
+	{
+		this.nextValidation = nextValidation;
 	}
 
 	public boolean hasImage()

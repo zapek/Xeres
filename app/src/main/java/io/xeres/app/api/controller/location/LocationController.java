@@ -31,9 +31,11 @@ import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.rest.Error;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.awt.image.BufferedImage;
 
@@ -81,7 +83,7 @@ public class LocationController
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<BufferedImage> getRSIdOfLocationAsQrCode(@PathVariable long id)
 	{
-		var location = locationService.findLocationById(id).orElseThrow();
+		var location = locationService.findLocationById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
 
 		return ResponseEntity.ok(qrCodeService.generateQrCode(location.getRsId(Type.SHORT_INVITE).getArmored()));
 	}

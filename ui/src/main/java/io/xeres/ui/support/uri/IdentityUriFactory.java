@@ -50,12 +50,12 @@ public class IdentityUriFactory extends AbstractUriFactory
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var groupData = uriComponents.getQueryParams().getFirst(PARAMETER_GROUPDATA);
 
-		if (Stream.of(gxsId, name, groupData).anyMatch(StringUtils::isBlank))
+		if (Stream.of(gxsId, name).anyMatch(StringUtils::isBlank))
 		{
 			return ContentText.EMPTY;
 		}
 
-		var identityUri = new IdentityUri(name, GxsId.fromString(gxsId), groupData); // XXX: groupData is probably something else...
+		var identityUri = new IdentityUri(name, GxsId.fromString(gxsId), groupData); // groupData contains the gxs group's data so that the peer can do something with it even if it doesn't have the group yet
 
 		return new ContentUri(groupData, "Identity (name=" + name + ", ID=" + gxsId + ")", uri -> uriAction.openUri(identityUri));
 	}

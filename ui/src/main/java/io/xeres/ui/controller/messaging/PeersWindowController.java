@@ -119,7 +119,8 @@ public class PeersWindowController implements WindowController
 		directMessage.setGraphic(new FontIcon(FontAwesomeSolid.COMMENT_DOTS));
 		directMessage.setOnAction(event -> directMessage(((PeerHolder) event.getSource())));
 
-		new XContextMenu<PeerHolder>(peersTree, directMessage);
+		var xContextMenu = new XContextMenu<PeerHolder>(directMessage);
+		xContextMenu.addToNode(peersTree);
 	}
 
 	private void directMessage(PeerHolder peerHolder)

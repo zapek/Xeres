@@ -214,8 +214,9 @@ public class ShareWindowController implements WindowController
 			}
 		});
 
-		var tableShareXContextMenu = new XContextMenu<Share>(shareTableView, showInExplorerItem, new SeparatorMenuItem(), removeItem);
-		tableShareXContextMenu.setOnShowing((contextMenu, share) -> {
+		var xContextMenu = new XContextMenu<Share>(showInExplorerItem, new SeparatorMenuItem(), removeItem);
+		xContextMenu.addToNode(shareTableView);
+		xContextMenu.setOnShowing((contextMenu, share) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> REMOVE_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(share.getId() == INCOMING_SHARE));

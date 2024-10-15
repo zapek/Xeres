@@ -535,6 +535,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		saveIdentity(identity, true);
 	}
 
+	@Override
+	public void shutdown()
+	{
+		contactNotificationService.shutdown();
+	}
+
 	static Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)
 	{
 		var gxsIdAsciiUpper = Id.toAsciiBytes(gxsId);

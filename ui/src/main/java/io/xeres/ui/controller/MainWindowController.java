@@ -41,10 +41,7 @@ import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.tray.TrayService;
-import io.xeres.ui.support.uri.ChatRoomUri;
-import io.xeres.ui.support.uri.ForumUri;
-import io.xeres.ui.support.uri.SearchUri;
-import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -550,6 +547,7 @@ public class MainWindowController implements WindowController
 			case ChatRoomUri ignored -> tabPane.getSelectionModel().select(chatTab);
 			case ForumUri ignored -> tabPane.getSelectionModel().select(forumTab);
 			case SearchUri ignored -> tabPane.getSelectionModel().select(fileTab);
+			case IdentityUri ignored -> tabPane.getSelectionModel().select(contactTab);
 			default ->
 			{
 				// Nothing to do

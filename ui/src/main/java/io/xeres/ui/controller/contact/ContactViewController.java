@@ -25,10 +25,12 @@ import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.notification.contact.AddContacts;
 import io.xeres.common.rest.notification.contact.RemoveContacts;
+import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.AsyncImageView;
 import io.xeres.ui.model.location.Location;
+import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
@@ -61,6 +63,7 @@ import java.util.Objects;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
+import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
 @FxmlView(value = "/view/contact/contactview.fxml")
@@ -450,6 +453,28 @@ public class ContactViewController implements Controller
 		if (notificationDisposable != null && !notificationDisposable.isDisposed())
 		{
 			notificationDisposable.dispose();
+		}
+	}
+
+	@EventListener
+	public void handleOpenUriEvent(OpenUriEvent event)
+	{
+		if (event.uri() instanceof IdentityUri identityUri)
+		{
+			identityClient.findByGxsId(identityUri.id()).collectList()
+					.doOnSuccess(identities -> {
+						if (!identities.isEmpty())
+						{
+							Platform.runLater(() -> contactTableView.getItems().stream()
+									.filter(contact -> contact.identityId() == identities.getFirst().getId())
+									.findFirst()
+									.ifPresentOrElse(contact -> {
+										contactTableView.getSelectionModel().select(contact);
+										contactTableView.scrollTo(contact);
+									}, () -> UiUtils.alert(WARNING, "Contact not found")));
+						}
+					})
+					.subscribe();
 		}
 	}
 }

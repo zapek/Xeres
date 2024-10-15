@@ -30,13 +30,16 @@ import io.xeres.ui.support.chat.ChatParser;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentImage;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.markdown.UriAction;
+import io.xeres.ui.support.uri.IdentityUri;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -45,6 +48,8 @@ import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.jsoup.Jsoup;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
@@ -62,6 +67,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 {
 	private static final int SCROLL_BACK_MAX_LINES = 2000;
 	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
+
+	private static final String INFO_MENU_ID = "info";
 
 	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
@@ -109,6 +116,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 		view.setCellFactory(param -> new ChatUserCell());
 		view.setItems(users);
+
+		createUsersListViewContextMenu(view);
 		return view;
 	}
 
@@ -335,5 +344,22 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		{
 			messages.remove(0, SCROLL_BACK_CLEANUP_THRESHOLD);
 		}
+	}
+
+	private void createUsersListViewContextMenu(Node view)
+	{
+		var infoItem = new MenuItem("Information");
+		infoItem.setId(INFO_MENU_ID);
+		infoItem.setGraphic(new FontIcon(FontAwesomeSolid.INFO_CIRCLE));
+		infoItem.setOnAction(event -> {
+			var user = (ChatRoomUser) event.getSource();
+			if (user.gxsId() != null)
+			{
+				uriAction.openUri(new IdentityUri(user.nickname(), user.gxsId(), null));
+			}
+		});
+
+		var xContextMenu = new XContextMenu<ChatRoomUser>(infoItem);
+		xContextMenu.addToNode(view);
 	}
 }

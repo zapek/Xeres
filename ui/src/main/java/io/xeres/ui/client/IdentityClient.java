@@ -21,6 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.id.GxsId;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.identity.Identity;
 import io.xeres.ui.model.identity.IdentityMapper;
@@ -72,6 +73,18 @@ public class IdentityClient
 				.uri("/{id}", id)
 				.retrieve()
 				.bodyToMono(IdentityDTO.class)
+				.map(IdentityMapper::fromDTO);
+	}
+
+	public Flux<Identity> findByGxsId(GxsId gxsId)
+	{
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path("")
+						.queryParam("gxsId", gxsId.toString())
+						.build())
+				.retrieve()
+				.bodyToFlux(IdentityDTO.class)
 				.map(IdentityMapper::fromDTO);
 	}
 

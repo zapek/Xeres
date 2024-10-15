@@ -159,6 +159,7 @@ public class FileSearchViewController implements Controller, TabActivation
 			Clipboard.getSystemClipboard().setContent(clipboardContent);
 		});
 
-		var xContextMenu = new XContextMenu<Tab>(resultTabPane, copyLinkItem);
+		var xContextMenu = new XContextMenu<Tab>(copyLinkItem);
+		xContextMenu.addToNode(resultTabPane);
 	}
 }

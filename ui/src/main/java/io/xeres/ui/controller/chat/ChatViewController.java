@@ -292,8 +292,9 @@ public class ChatViewController implements Controller
 			Clipboard.getSystemClipboard().setContent(clipboardContent);
 		});
 
-		var roomHolderXContextMenu = new XContextMenu<RoomHolder>(roomTree, subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
-		roomHolderXContextMenu.setOnShowing((contextMenu, roomHolder) -> {
+		var xContextMenu = new XContextMenu<RoomHolder>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
+		xContextMenu.addToNode(roomTree);
+		xContextMenu.setOnShowing((contextMenu, roomHolder) -> {
 			var chatRoomInfo = roomHolder.getRoomInfo();
 
 			contextMenu.getItems().stream()

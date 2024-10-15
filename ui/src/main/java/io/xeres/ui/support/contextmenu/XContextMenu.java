@@ -44,7 +44,7 @@ public class XContextMenu<T>
 	private final ContextMenu contextMenu;
 	private boolean showContextMenu = true;
 
-	public XContextMenu(Control node, MenuItem... menuItems)
+	public XContextMenu(MenuItem... menuItems)
 	{
 		EventHandler<ActionEvent> action = event -> {
 			var selectedMenuItem = (MenuItem) event.getTarget();
@@ -67,6 +67,16 @@ public class XContextMenu<T>
 		}
 
 		contextMenu = new ContextMenu(menuItems);
+	}
+
+	/**
+	 * Attaches the context menu to a node. Must be called otherwise there's not
+	 * much point in creating a context menu.
+	 *
+	 * @param node the node to attach the context menu to
+	 */
+	public void addToNode(Node node)
+	{
 		node.setOnContextMenuRequested(event -> {
 			// Using event.getSource() instead of the context menu itself (the default with setContextMenu())
 			// allows to find out on which node the context menu was activated.

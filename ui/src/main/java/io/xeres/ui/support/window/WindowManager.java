@@ -158,6 +158,10 @@ public class WindowManager
 			{
 				// Nothing to do. This is handled in SearchViewController
 			}
+			case IdentityUri ignored ->
+			{
+				// Nothing to do. This is handled in ContactViewController
+			}
 			default -> UiUtils.alert(WARNING, "The link for '" + event.uri().getClass().getSimpleName().replace("Uri", "") + "' is not supported yet.");
 		}
 	}

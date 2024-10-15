@@ -248,8 +248,9 @@ public class FileDownloadViewController implements Controller, TabActivation
 			}
 		});
 
-		var fileXContextMenu = new XContextMenu<FileProgressDisplay>(downloadTableView, openItem, showInExplorerItem, new SeparatorMenuItem(), removeItem);
-		fileXContextMenu.setOnShowing((contextMenu, file) -> {
+		var xContextMenu = new XContextMenu<FileProgressDisplay>(openItem, showInExplorerItem, new SeparatorMenuItem(), removeItem);
+		xContextMenu.addToNode(downloadTableView);
+		xContextMenu.setOnShowing((contextMenu, file) -> {
 			if (file == null)
 			{
 				return false;

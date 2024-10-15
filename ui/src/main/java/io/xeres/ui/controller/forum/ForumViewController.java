@@ -21,6 +21,7 @@ package io.xeres.ui.controller.forum;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.message.forum.ForumGroup;
@@ -40,6 +41,7 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.ForumUriFactory;
+import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -291,8 +293,9 @@ public class ForumViewController implements Controller
 			Clipboard.getSystemClipboard().setContent(clipboardContent);
 		});
 
-		var forumGroupXContextMenu = new XContextMenu<ForumGroup>(forumTree, subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
-		forumGroupXContextMenu.setOnShowing((contextMenu, forumGroup) -> {
+		var xContextMenu = new XContextMenu<ForumGroup>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
+		xContextMenu.addToNode(forumTree);
+		xContextMenu.setOnShowing((contextMenu, forumGroup) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(forumGroup.isSubscribed()));
@@ -321,7 +324,8 @@ public class ForumViewController implements Controller
 			Clipboard.getSystemClipboard().setContent(clipboardContent);
 		});
 
-		new XContextMenu<ForumMessage>(forumMessagesTreeTableView, replyItem, new SeparatorMenuItem(), copyLinkItem);
+		var xContextMenu = new XContextMenu<ForumMessage>(replyItem, new SeparatorMenuItem(), copyLinkItem);
+		xContextMenu.addToNode(forumMessagesTreeTableView);
 	}
 
 	private void newForumPost(boolean replyTo)
@@ -538,6 +542,7 @@ public class ForumViewController implements Controller
 						messageContent.getChildren().addAll(contents.stream()
 								.map(Content::getNode).toList());
 						messageAuthor.setText(forumMessage.getAuthorName());
+						createAuthorContextMenu(forumMessage.getAuthorName(), forumMessage.getAuthorId());
 						messageDate.setText(DATE_TIME_PRECISE_DISPLAY.format(forumMessage.getPublished()));
 						messageSubject.setText(forumMessage.getName());
 						messageHeader.setVisible(true);
@@ -560,6 +565,7 @@ public class ForumViewController implements Controller
 	{
 		messageHeader.setVisible(false);
 		messageAuthor.setText(null);
+		messageAuthor.setContextMenu(null);
 		messageDate.setText(null);
 		messageSubject.setText(null);
 		messageContent.getChildren().clear();
@@ -588,5 +594,13 @@ public class ForumViewController implements Controller
 		{
 			notificationDisposable.dispose();
 		}
+	}
+
+	private void createAuthorContextMenu(String name, GxsId gxsId)
+	{
+		var infoItem = new MenuItem("Information");
+		infoItem.setGraphic(new FontIcon(FontAwesomeSolid.INFO_CIRCLE));
+		infoItem.setOnAction(event -> uriService.openUri(new IdentityUri(name, gxsId, null)));
+		messageAuthor.setContextMenu(new ContextMenu(infoItem));
 	}
 }

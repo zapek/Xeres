@@ -179,8 +179,9 @@ public class FileResultView extends Tab
 			}
 		});
 
-		var fileXContextMenu = new XContextMenu<FileResult>(filesTableView, downloadItem, new SeparatorMenuItem(), copyLinkItem);
-		fileXContextMenu.setOnShowing((contextMenu, file) -> file != null);
+		var xContextMenu = new XContextMenu<FileResult>(downloadItem, new SeparatorMenuItem(), copyLinkItem);
+		xContextMenu.addToNode(filesTableView);
+		xContextMenu.setOnShowing((contextMenu, file) -> file != null);
 	}
 
 	private void showProgress()

@@ -109,6 +109,7 @@ public class PropertiesWindowController implements WindowController
 				Clipboard.getSystemClipboard().setContent(clipboardContent);
 			}
 		});
-		new XContextMenu<Map.Entry<String, String>>(propertiesTableView, copyItem);
+		var xContextMenu = new XContextMenu<Map.Entry<String, String>>(copyItem);
+		xContextMenu.addToNode(propertiesTableView);
 	}
 }

@@ -27,9 +27,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.service.ForumMessageService;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.id.MessageId;
@@ -58,13 +58,13 @@ import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 public class ForumController
 {
 	private final ForumRsService forumRsService;
-	private final IdentityRsService identityRsService;
+	private final IdentityService identityService;
 	private final ForumMessageService forumMessageService;
 
-	public ForumController(ForumRsService forumRsService, IdentityRsService identityRsService, ForumMessageService forumMessageService)
+	public ForumController(ForumRsService forumRsService, IdentityService identityService, ForumMessageService forumMessageService)
 	{
 		this.forumRsService = forumRsService;
-		this.identityRsService = identityRsService;
+		this.identityService = identityService;
 		this.forumMessageService = forumMessageService;
 	}
 
@@ -81,7 +81,7 @@ public class ForumController
 	@ApiResponse(responseCode = "201", description = "Forum created successfully", headers = @Header(name = "Forum", description = "The location of the created forum", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateForumGroupRequest createForumGroupRequest)
 	{
-		var ownIdentity = identityRsService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity();
 		var id = forumRsService.createForumGroup(ownIdentity.getGxsId(), createForumGroupRequest.name(), createForumGroupRequest.description());
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
@@ -131,7 +131,7 @@ public class ForumController
 		var forumMessage = forumRsService.findMessageById(messageId);
 		Objects.requireNonNull(forumMessage, "MessageId " + messageId + " not found");
 
-		var author = identityRsService.findByGxsId(forumMessage.getAuthorId());
+		var author = identityService.findByGxsId(forumMessage.getAuthorId());
 
 		HashSet<MessageId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
 		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getOriginalMessageId());
@@ -153,7 +153,7 @@ public class ForumController
 	@ApiResponse(responseCode = "201", description = "Forum message created successfully", headers = @Header(name = "Message", description = "The location of the created message", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createForumMessage(@Valid @RequestBody CreateForumMessageRequest createMessageRequest)
 	{
-		var ownIdentity = identityRsService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity();
 		var id = forumRsService.createForumMessage(
 				ownIdentity,
 				createMessageRequest.forumId(),

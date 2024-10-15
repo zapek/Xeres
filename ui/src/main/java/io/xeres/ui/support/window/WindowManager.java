@@ -45,7 +45,6 @@ import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.messaging.PeersWindowController;
-import io.xeres.ui.controller.profile.ProfilesWindowController;
 import io.xeres.ui.controller.qrcode.CameraWindowController;
 import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
@@ -335,16 +334,6 @@ public class WindowManager
 				UiWindow.builder(BroadcastWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("broadcast.window-title"))
-						.build()
-						.open());
-	}
-
-	public void openProfiles()
-	{
-		Platform.runLater(() ->
-				UiWindow.builder(ProfilesWindowController.class)
-						.setParent(rootWindow)
-						.setTitle(bundle.getString("profiles.window-title"))
 						.build()
 						.open());
 	}

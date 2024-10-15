@@ -23,7 +23,7 @@ import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
-import io.xeres.app.database.repository.GxsIdentityRepository;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
@@ -60,7 +60,7 @@ class IdentityRsServiceTest
 	private ProfileService profileService;
 
 	@Mock
-	private GxsIdentityRepository gxsIdentityRepository;
+	private IdentityService identityService;
 
 	@Mock
 	private GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
@@ -81,12 +81,12 @@ class IdentityRsServiceTest
 
 		when(settingsService.isOwnProfilePresent()).thenReturn(true);
 		when(settingsService.hasOwnLocation()).thenReturn(true);
-		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
+		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
 		identityRsService.generateOwnIdentity(name, false);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
-		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
+		verify(identityService).save(gxsIdGroupItem.capture());
 		assertEquals(name, gxsIdGroupItem.getValue().getName());
 	}
 
@@ -120,12 +120,12 @@ class IdentityRsServiceTest
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 		when(settingsService.getSecretProfileKey()).thenReturn(encodedKey);
-		when(gxsIdentityRepository.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
+		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
 		identityRsService.generateOwnIdentity(name, true);
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
-		verify(gxsIdentityRepository).save(gxsIdGroupItem.capture());
+		verify(identityService).save(gxsIdGroupItem.capture());
 		assertEquals(name, gxsIdGroupItem.getValue().getName());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileHash());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileSignature());
@@ -138,14 +138,14 @@ class IdentityRsServiceTest
 		var identity = IdentityFakes.createOwn();
 		var file = new MockMultipartFile("file", getClass().getResourceAsStream("/image/leguman.jpg"));
 
-		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
+		when(identityService.findById(id)).thenReturn(Optional.of(identity));
 
 		identityRsService.saveOwnIdentityImage(id, file);
 
 		assertNotNull(identity.getImage());
 
-		verify(gxsIdentityRepository).findById(id);
-		verify(gxsIdentityRepository).save(identity);
+		verify(identityService).findById(id);
+		verify(identityService).save(identity);
 	}
 
 	@Test
@@ -182,14 +182,14 @@ class IdentityRsServiceTest
 		var identity = IdentityFakes.createOwn();
 		identity.setImage(new byte[1]);
 
-		when(gxsIdentityRepository.findById(id)).thenReturn(Optional.of(identity));
+		when(identityService.findById(id)).thenReturn(Optional.of(identity));
 
 		identityRsService.deleteOwnIdentityImage(id);
 
 		assertNull(identity.getImage());
 
-		verify(gxsIdentityRepository).findById(id);
-		verify(gxsIdentityRepository).save(identity);
+		verify(identityService).findById(id);
+		verify(identityService).save(identity);
 	}
 
 	@Test

@@ -45,4 +45,6 @@ public interface GxsIdentityRepository extends JpaRepository<IdentityGroupItem, 
 	List<IdentityGroupItem> findAllBySubscribedIsTrueAndPublishedAfter(Instant since);
 
 	List<IdentityGroupItem> findAllByNextValidationNotNullAndNextValidationBeforeOrderByNextValidationDesc(Instant now, Limit limit);
+
+	List<IdentityGroupItem> findAllByProfileId(long profileId);
 }

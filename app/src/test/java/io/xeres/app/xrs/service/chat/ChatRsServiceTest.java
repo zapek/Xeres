@@ -24,11 +24,11 @@ import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.chat.item.ChatMessageItem;
 import io.xeres.app.xrs.service.chat.item.ChatRoomListItem;
 import io.xeres.app.xrs.service.chat.item.ChatRoomListRequestItem;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.PrivateChatMessage;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ class ChatRsServiceTest
 	private DatabaseSessionManager databaseSessionManager;
 
 	@Mock
-	private IdentityRsService identityRsService;
+	private IdentityService identityService;
 
 	@Mock
 	private ChatRoomService chatRoomService;
@@ -132,7 +132,7 @@ class ChatRsServiceTest
 
 		var item = new ChatRoomListRequestItem();
 
-		when(identityRsService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
 
 		var roomId = chatRsService.createChatRoom(roomName, roomTopic, roomFlags, false);
 		chatRsService.handleItem(peerConnection, item);

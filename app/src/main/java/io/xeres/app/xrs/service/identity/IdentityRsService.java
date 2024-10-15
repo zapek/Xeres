@@ -21,7 +21,6 @@ package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.pgp.PGP;
-import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.GxsCircleType;
@@ -29,9 +28,9 @@ import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
 import io.xeres.app.database.model.profile.Profile;
-import io.xeres.app.database.repository.GxsIdentityRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.ResourceCreationState;
 import io.xeres.app.service.SettingsService;
@@ -52,9 +51,7 @@ import jakarta.persistence.EntityNotFoundException;
 import net.coobird.thumbnailator.Thumbnails;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
-import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -94,7 +91,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final Queue<IdentityGroupItem> pendingIdentities = new ArrayDeque<>(PENDING_IDENTITIES_MAX);
 	private Instant lastFullQuery = Instant.EPOCH;
 
-	private final GxsIdentityRepository gxsIdentityRepository;
+	private final IdentityService identityService;
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
 	private final GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
@@ -107,11 +104,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		NOT_FOUND
 	}
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, GxsIdentityRepository gxsIdentityRepository, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService, ContactNotificationService contactNotificationService)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService, ContactNotificationService contactNotificationService)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.databaseSessionManager = databaseSessionManager;
-		this.gxsIdentityRepository = gxsIdentityRepository;
+		this.identityService = identityService;
 		this.settingsService = settingsService;
 		this.profileService = profileService;
 		this.gxsUpdateService = gxsUpdateService;
@@ -162,7 +159,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			{
 				try (var ignored = new DatabaseSession(databaseSessionManager))
 				{
-					pendingIdentities.addAll(gxsIdentityRepository.findAllByNextValidationNotNullAndNextValidationBeforeOrderByNextValidationDesc(Instant.now(), Limit.of(PENDING_IDENTITIES_MAX)));
+					pendingIdentities.addAll(identityService.findIdentitiesToValidate(PENDING_IDENTITIES_MAX));
 					lastFullQuery = now.plus(PENDING_VALIDATION_FULL_QUERY_DELAY);
 				}
 			}
@@ -181,11 +178,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 						identity.setNextValidation(null);
 						identity.setServiceString(identityServiceStorage.out());
 						linkWithProfileIfFound(identity, identityServiceStorage.getPgpIdentifier());
-						gxsIdentityRepository.save(identity);
+						identityService.save(identity);
 					}
 					case INVALID ->
 					{
-						gxsIdentityRepository.delete(identity);
+						identityService.delete(identity);
 						contactNotificationService.removeIdentities(List.of(identity)); // This might be re-added immediately by discovery if it's on a friend. RS has the same problem
 					}
 					case NOT_FOUND ->
@@ -193,7 +190,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 						identityServiceStorage.updateIdScore(true, false);
 						identity.setNextValidation(identityServiceStorage.computeNextValidationAttempt());
 						identity.setServiceString(identityServiceStorage.out());
-						gxsIdentityRepository.save(identity);
+						identityService.save(identity);
 					}
 				}
 			}
@@ -252,7 +249,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Override
 	protected List<IdentityGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
 	{
-		return findAllSubscribedAndPublishedSince(since);
+		return identityService.findAllSubscribedAndPublishedSince(since);
 	}
 
 	@Override
@@ -260,7 +257,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	{
 		// From the received list, we keep all identities that have a more recent publishing date than those
 		// we already have. If it's a new identity, we don't want it.
-		var existingMap = findAll(ids.keySet()).stream()
+		var existingMap = identityService.findAll(ids.keySet()).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, identityGroupItem -> identityGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
 
 		ids.entrySet().removeIf(gxsIdInstantEntry -> {
@@ -273,7 +270,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Override
 	protected List<IdentityGroupItem> onGroupListRequest(Set<GxsId> ids)
 	{
-		return findAll(ids);
+		return identityService.findAll(ids);
 	}
 
 	@Override
@@ -339,7 +336,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			return FAILED;
 		}
 
-		if (gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).isPresent())
+		if (identityService.hasOwnIdentity())
 		{
 			return ALREADY_EXISTS;
 		}
@@ -402,12 +399,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Transactional
 	public void fixOwnProfile() throws PGPException, IOException
 	{
-		if (!profileService.hasOwnProfile() || hasOwnIdentity())
+		if (!profileService.hasOwnProfile() || !identityService.hasOwnIdentity())
 		{
 			return; // Nothing to do. There's no profile/identity yet.
 		}
 		var ownProfile = profileService.getOwnProfile();
-		var ownIdentity = getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity();
 		ownIdentity.setProfile(ownProfile);
 		computeHashAndSignature(ownIdentity, ownProfile);
 		saveIdentity(ownIdentity, true);
@@ -420,21 +417,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(settingsService.getSecretProfileKey()), hash));
 	}
 
-	public IdentityGroupItem getOwnIdentity() // XXX: temporary, we'll have several identities later
-	{
-		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own gxsId"));
-	}
-
-	public boolean hasOwnIdentity()
-	{
-		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).isPresent();
-	}
-
-	public Optional<IdentityGroupItem> findById(long id)
-	{
-		return gxsIdentityRepository.findById(id);
-	}
-
 	@Transactional
 	public IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem)
 	{
@@ -444,48 +426,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private IdentityGroupItem saveIdentity(IdentityGroupItem identityGroupItem, boolean updateGroup)
 	{
 		signGroupIfNeeded(identityGroupItem);
-		var savedIdentity = gxsIdentityRepository.save(identityGroupItem);
+		var savedIdentity = identityService.save(identityGroupItem);
 		if (updateGroup)
 		{
 			gxsUpdateService.setLastServiceGroupsUpdateNow(RsServiceType.GXSID);
 		}
 		return savedIdentity;
-	}
-
-	public List<IdentityGroupItem> findAllByName(String name)
-	{
-		return gxsIdentityRepository.findAllByName(name);
-	}
-
-	public Optional<IdentityGroupItem> findByGxsId(GxsId gxsId)
-	{
-		return gxsIdentityRepository.findByGxsId(gxsId);
-	}
-
-	public List<IdentityGroupItem> findAllByType(Type type)
-	{
-		return gxsIdentityRepository.findAllByType(type);
-	}
-
-	public List<IdentityGroupItem> getAll()
-	{
-		return gxsIdentityRepository.findAll();
-	}
-
-	public List<IdentityGroupItem> findAll(Set<GxsId> gxsIds)
-	{
-		return gxsIdentityRepository.findAllByGxsIdIn(gxsIds);
-	}
-
-	public List<IdentityGroupItem> findAllSubscribedAndPublishedSince(Instant since)
-	{
-		return gxsIdentityRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
-	}
-
-	@Transactional(propagation = Propagation.NEVER)
-	public byte[] signData(IdentityGroupItem identityGroupItem, byte[] data)
-	{
-		return RSA.sign(data, identityGroupItem.getAdminPrivateKey());
 	}
 
 	@Transactional
@@ -506,7 +452,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
 		}
 
-		var identity = findById(id).orElseThrow();
+		var identity = identityService.findById(id).orElseThrow();
 
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
@@ -528,7 +474,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			throw new EntityNotFoundException("Identity " + id + " is not our own");
 		}
 
-		var identity = findById(id).orElseThrow();
+		var identity = identityService.findById(id).orElseThrow();
 		identity.setImage(null);
 		identity.updatePublished();
 

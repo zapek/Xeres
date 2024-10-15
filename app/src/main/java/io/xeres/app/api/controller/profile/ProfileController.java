@@ -30,6 +30,7 @@ import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.job.PeerConnectionJob;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.dto.profile.ProfileDTO;
@@ -58,13 +59,15 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class ProfileController
 {
 	private final ProfileService profileService;
+	private final IdentityService identityService;
 
 	private final PeerConnectionJob peerConnectionJob;
 	private final StatusNotificationService statusNotificationService;
 
-	public ProfileController(ProfileService profileService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService)
+	public ProfileController(ProfileService profileService, IdentityService identityService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService)
 	{
 		this.profileService = profileService;
+		this.identityService = identityService;
 		this.peerConnectionJob = peerConnectionJob;
 		this.statusNotificationService = statusNotificationService;
 	}
@@ -160,8 +163,9 @@ public class ProfileController
 		{
 			throw new UnprocessableEntityException("The main profile cannot be deleted");
 		}
+		identityService.removeAllLinksToProfile(id);
 		profileService.deleteProfile(id);
 
-		statusNotificationService.decrementTotalUsers();
+		statusNotificationService.decrementTotalUsers(); // XXX: wrong, a profile can have many locations
 	}
 }

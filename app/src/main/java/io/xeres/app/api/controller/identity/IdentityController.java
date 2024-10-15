@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
@@ -55,10 +56,12 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @RequestMapping(value = IDENTITIES_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class IdentityController
 {
+	private final IdentityService identityService;
 	private final IdentityRsService identityRsService;
 
-	public IdentityController(IdentityRsService identityRsService)
+	public IdentityController(IdentityService identityService, IdentityRsService identityRsService)
 	{
+		this.identityService = identityService;
 		this.identityRsService = identityRsService;
 	}
 
@@ -68,7 +71,7 @@ public class IdentityController
 	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
 	public IdentityDTO findIdentityById(@PathVariable long id)
 	{
-		return toDTO(identityRsService.findById(id).orElseThrow());
+		return toDTO(identityService.findById(id).orElseThrow());
 	}
 
 	@GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -78,7 +81,7 @@ public class IdentityController
 	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<InputStreamResource> downloadIdentityImage(@PathVariable long id)
 	{
-		var identity = identityRsService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
+		var identity = identityService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
 		var imageType = ImageDetectionUtils.getImageMimeType(identity.getImage());
 		if (imageType == null)
 		{
@@ -122,17 +125,17 @@ public class IdentityController
 	{
 		if (isNotBlank(name))
 		{
-			return toDTOs(identityRsService.findAllByName(name));
+			return toDTOs(identityService.findAllByName(name));
 		}
 		else if (isNotBlank(gxsId))
 		{
-			var identity = identityRsService.findByGxsId(GxsId.fromString(gxsId));
+			var identity = identityService.findByGxsId(GxsId.fromString(gxsId));
 			return identity.map(id -> List.of(toDTO(id))).orElse(Collections.emptyList());
 		}
 		else if (type != null)
 		{
-			return toDTOs(identityRsService.findAllByType(type));
+			return toDTOs(identityService.findAllByType(type));
 		}
-		return toDTOs(identityRsService.getAll());
+		return toDTOs(identityService.getAll());
 	}
 }

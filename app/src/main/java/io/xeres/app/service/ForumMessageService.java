@@ -23,7 +23,6 @@ import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
@@ -44,13 +43,13 @@ import java.util.stream.Collectors;
 public class ForumMessageService
 {
 	private final ForumRsService forumRsService;
-	private final IdentityRsService identityRsService;
+	private final IdentityService identityService;
 
 	// XXX: try to fix the circular dependency injection
-	public ForumMessageService(@Lazy ForumRsService forumRsService, IdentityRsService identityRsService)
+	public ForumMessageService(@Lazy ForumRsService forumRsService, IdentityService identityService)
 	{
 		this.forumRsService = forumRsService;
-		this.identityRsService = identityRsService;
+		this.identityService = identityService;
 	}
 
 	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromSummaries(List<ForumMessageItemSummary> forumMessages)
@@ -59,7 +58,7 @@ public class ForumMessageService
 				.map(ForumMessageItemSummary::getAuthorId)
 				.collect(Collectors.toSet());
 
-		return identityRsService.findAll(authors).stream()
+		return identityService.findAll(authors).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
@@ -69,7 +68,7 @@ public class ForumMessageService
 				.map(ForumMessageItem::getAuthorId)
 				.collect(Collectors.toSet());
 
-		return identityRsService.findAll(authors).stream()
+		return identityService.findAll(authors).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 

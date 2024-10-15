@@ -20,7 +20,6 @@
 package io.xeres.app.service;
 
 import io.xeres.app.database.model.profile.Profile;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.IdentityServiceStorage;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.rest.contact.Contact;
@@ -36,12 +35,12 @@ import java.util.stream.Collectors;
 public class ContactService
 {
 	private final ProfileService profileService;
-	private final IdentityRsService identityRsService;
+	private final IdentityService identityService;
 
-	public ContactService(@Lazy ProfileService profileService, @Lazy IdentityRsService identityRsService)
+	public ContactService(@Lazy ProfileService profileService, IdentityService identityService)
 	{
 		this.profileService = profileService;
-		this.identityRsService = identityRsService;
+		this.identityService = identityService;
 	}
 
 	@Transactional(readOnly = true)
@@ -50,7 +49,7 @@ public class ContactService
 		// XXX: this merges probably a bit too much (what if several identities point to the same profile? what if the identity name is different from the profile name?)
 		var profiles = profileService.getAllProfiles().stream()
 				.collect(Collectors.toMap(Profile::getId, profile -> profile));
-		var identities = identityRsService.getAll();
+		var identities = identityService.getAll();
 		var profilesIdsToRemove = identities.stream()
 				.filter(identity -> identity.getProfile() != null)
 				.map(identity -> identity.getProfile().getId())

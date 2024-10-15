@@ -27,6 +27,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.util.UnHtml;
@@ -39,7 +40,6 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
@@ -156,7 +156,7 @@ public class ChatRsService extends RsService
 
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
-	private final IdentityRsService identityRsService;
+	private final IdentityService identityService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final IdentityManager identityManager;
 	private final UiBridgeService uiBridgeService;
@@ -165,12 +165,12 @@ public class ChatRsService extends RsService
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityRsService identityRsService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
+	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
-		this.identityRsService = identityRsService;
+		this.identityService = identityService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
 		this.uiBridgeService = uiBridgeService;
@@ -424,7 +424,7 @@ public class ChatRsService extends RsService
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			var ownIdentity = identityRsService.getOwnIdentity();
+			var ownIdentity = identityService.getOwnIdentity();
 			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage()));
 		}
 	}
@@ -735,7 +735,7 @@ public class ChatRsService extends RsService
 
 	private void handleAvatarRequest(PeerConnection peerConnection)
 	{
-		var ownImage = identityRsService.getOwnIdentity().getImage();
+		var ownImage = identityService.getOwnIdentity().getImage();
 		if (ownImage != null && ownImage.length <= AVATAR_SIZE_MAX)
 		{
 			peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
@@ -832,13 +832,13 @@ public class ChatRsService extends RsService
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			var ownIdentity = identityRsService.getOwnIdentity();
+			var ownIdentity = identityService.getOwnIdentity();
 
 			bounce.setRoomId(chatRoom.getId());
 			bounce.setMessageId(chatRoom.getNewMessageId());
 			bounce.setSenderNickname(ownIdentity.getName()); // XXX: we should use the identity in chatRoom.getGxsId() once we have multiple identities support done properly
 
-			var signature = identityRsService.signData(ownIdentity, getBounceData(bounce));
+			var signature = identityService.signData(ownIdentity, getBounceData(bounce));
 
 			bounce.setSignature(new Signature(ownIdentity.getGxsId(), signature));
 		}
@@ -1054,7 +1054,7 @@ public class ChatRsService extends RsService
 
 		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: ugly, it's because we can be called from a lambda.. make it take the arguments later (needed for multi identity support)
 		{
-			var ownIdentity = identityRsService.getOwnIdentity();
+			var ownIdentity = identityService.getOwnIdentity();
 			chatRoom.setOwnGxsId(ownIdentity.getGxsId());
 			chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
@@ -1098,7 +1098,7 @@ public class ChatRsService extends RsService
 		sendChatRoomEvent(chatRoomToRemove, ChatRoomEvent.PEER_LEFT);
 		chatRooms.remove(chatRoomId);
 		chatRoomToRemove.setJoinedRoomPacketSent(false); // in the case we rejoin immediately
-		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityRsService.getOwnIdentity()); // XXX: allow multiple identities
+		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities
 
 		chatRoomToRemove.getParticipatingLocations().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));
 		sendUserEventToClient(chatRoomToRemove.getId(), CHAT_ROOM_LEAVE);

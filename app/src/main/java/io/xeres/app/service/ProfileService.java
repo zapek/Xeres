@@ -209,8 +209,11 @@ public class ProfileService
 	@Transactional
 	public void deleteProfile(long id)
 	{
+		// Make sure we don't automatically connect again while
+		// the profile is being deleted
 		var profile = profileRepository.findById(id).orElseThrow();
 		profile.setAccepted(false);
+
 		var connectedLocations = profile.getLocations().stream()
 				.filter(Location::isConnected)
 				.toList();

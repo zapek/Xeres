@@ -21,6 +21,7 @@ package io.xeres.app.api.controller.identity;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,9 @@ class IdentityControllerTest extends AbstractControllerTest
 	private static final String BASE_URL = IDENTITIES_PATH;
 
 	@MockBean
+	private IdentityService identityService;
+
+	@MockBean
 	private IdentityRsService identityRsService;
 
 	@Autowired
@@ -64,13 +68,13 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
-		when(identityRsService.findById(identity.getId())).thenReturn(Optional.of(identity));
+		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
 
 		mvc.perform(getJson(BASE_URL + "/" + identity.getId()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(is(identity.getId()), Long.class));
 
-		verify(identityRsService).findById(identity.getId());
+		verify(identityService).findById(identity.getId());
 	}
 
 	@Test
@@ -78,12 +82,12 @@ class IdentityControllerTest extends AbstractControllerTest
 	{
 		var id = 1L;
 
-		when(identityRsService.findById(id)).thenThrow(new NoSuchElementException());
+		when(identityService.findById(id)).thenThrow(new NoSuchElementException());
 
 		mvc.perform(getJson(BASE_URL + "/" + id))
 				.andExpect(status().isNotFound());
 
-		verify(identityRsService).findById(id);
+		verify(identityService).findById(id);
 	}
 
 	@Test
@@ -92,12 +96,12 @@ class IdentityControllerTest extends AbstractControllerTest
 		var id = 1L;
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 
-		when(identityRsService.findById(id)).thenReturn(Optional.of(identity));
+		when(identityService.findById(id)).thenReturn(Optional.of(identity));
 
 		mvc.perform(get(BASE_URL + "/" + id + "/image", MediaType.IMAGE_JPEG))
 				.andExpect(status().isNoContent());
 
-		verify(identityRsService).findById(id);
+		verify(identityService).findById(id);
 	}
 
 	@Test
@@ -107,13 +111,13 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setImage(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
-		when(identityRsService.findById(id)).thenReturn(Optional.of(identity));
+		when(identityService.findById(id)).thenReturn(Optional.of(identity));
 
 		mvc.perform(get(BASE_URL + "/" + id + "/image", MediaType.IMAGE_JPEG))
 				.andExpect(status().isOk())
 				.andExpect(header().string(CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE));
 
-		verify(identityRsService).findById(id);
+		verify(identityService).findById(id);
 	}
 
 	@Test
@@ -148,13 +152,13 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
-		when(identityRsService.findAllByName(identity.getName())).thenReturn(List.of(identity));
+		when(identityService.findAllByName(identity.getName())).thenReturn(List.of(identity));
 
 		mvc.perform(getJson(BASE_URL + "?name=" + identity.getName()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(is(identity.getId()), Long.class));
 
-		verify(identityRsService).findAllByName(identity.getName());
+		verify(identityService).findAllByName(identity.getName());
 	}
 
 	@Test
@@ -163,13 +167,13 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
-		when(identityRsService.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
+		when(identityService.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
 
 		mvc.perform(getJson(BASE_URL + "?gxsId=" + identity.getGxsId()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(is(identity.getId()), Long.class));
 
-		verify(identityRsService).findByGxsId(identity.getGxsId());
+		verify(identityService).findByGxsId(identity.getGxsId());
 	}
 
 	@Test
@@ -178,13 +182,13 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
-		when(identityRsService.findAllByType(identity.getType())).thenReturn(List.of(identity));
+		when(identityService.findAllByType(identity.getType())).thenReturn(List.of(identity));
 
 		mvc.perform(getJson(BASE_URL + "?type=" + identity.getType()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(is(identity.getId()), Long.class));
 
-		verify(identityRsService).findAllByType(identity.getType());
+		verify(identityService).findAllByType(identity.getType());
 	}
 
 	@Test
@@ -193,12 +197,12 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
-		when(identityRsService.getAll()).thenReturn(List.of(identity));
+		when(identityService.getAll()).thenReturn(List.of(identity));
 
 		mvc.perform(getJson(BASE_URL))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(is(identity.getId()), Long.class));
 
-		verify(identityRsService).getAll();
+		verify(identityService).getAll();
 	}
 }

@@ -26,6 +26,7 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.job.PeerConnectionJob;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.id.Id;
@@ -59,6 +60,9 @@ class ProfileControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private ProfileService profileService;
+
+	@MockBean
+	private IdentityService identityService;
 
 	@SuppressWarnings("unused")
 	@MockBean

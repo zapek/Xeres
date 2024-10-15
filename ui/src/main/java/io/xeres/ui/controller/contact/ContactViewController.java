@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.contact;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
@@ -30,6 +31,7 @@ import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.AsyncImageView;
 import io.xeres.ui.model.location.Location;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -39,15 +41,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 import static javafx.scene.control.Alert.AlertType.WARNING;
@@ -189,6 +190,8 @@ public class ContactViewController implements Controller
 
 		contactTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue));
+
+		createContactTableViewContextMenu();
 
 		locationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -390,6 +393,7 @@ public class ContactViewController implements Controller
 	{
 		profileClient.findById(profileId)
 				.doOnSuccess(profile -> Platform.runLater(() -> {
+					// XXX: display is partial/isComplete status...
 					if (information == Information.PROFILE)
 					{
 						idLabel.setText(Id.toString(profile.getPgpIdentifier()));
@@ -445,6 +449,25 @@ public class ContactViewController implements Controller
 	{
 		locationTableView.getItems().clear();
 		locationTableView.setVisible(false);
+	}
+
+	private void createContactTableViewContextMenu()
+	{
+		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
+		deleteItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
+		deleteItem.setOnAction(event -> {
+			var contact = (Contact) event.getSource();
+			if (contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID)
+			{
+				profileClient.delete(contact.profileId())
+						.doOnSuccess(unused -> Platform.runLater(() -> contactTableView.getItems().remove(contact)))
+						.subscribe();
+			}
+		});
+
+		var xContextMenu = new XContextMenu<Contact>(deleteItem);
+		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID);
+		xContextMenu.addToNode(contactTableView);
 	}
 
 	@EventListener

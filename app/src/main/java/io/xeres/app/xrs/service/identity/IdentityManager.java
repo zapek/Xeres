@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.identity;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
@@ -60,14 +61,16 @@ public class IdentityManager
 	private static final int MAXIMUM_IDS_PER_LOCATION = 5;
 
 	private final IdentityRsService identityRsService;
+	private final IdentityService identityService;
 	private final PeerConnectionManager peerConnectionManager;
 
 	private final ScheduledExecutorService executorService;
 
 	// XXX: try to fix the circular dependency injection
-	public IdentityManager(@Lazy IdentityRsService identityRsService, PeerConnectionManager peerConnectionManager)
+	public IdentityManager(@Lazy IdentityRsService identityRsService, IdentityService identityService, PeerConnectionManager peerConnectionManager)
 	{
 		this.identityRsService = identityRsService;
+		this.identityService = identityService;
 		this.peerConnectionManager = peerConnectionManager;
 
 		executorService = ExecutorUtils.createFixedRateExecutor(this::requestGxsIds,
@@ -90,7 +93,7 @@ public class IdentityManager
 	{
 		synchronized (pendingGxsIds)
 		{
-			return identityRsService.findByGxsId(gxsId).orElseGet(() -> {
+			return identityService.findByGxsId(gxsId).orElseGet(() -> {
 				var gxsIds = pendingGxsIds.getOrDefault(peerConnection.getLocation().getId(), ConcurrentHashMap.newKeySet());
 				gxsIds.add(gxsId);
 				pendingGxsIds.put(peerConnection.getLocation().getId(), gxsIds);
@@ -101,14 +104,14 @@ public class IdentityManager
 
 	public IdentityGroupItem getGxsGroup(GxsId gxsId)
 	{
-		return identityRsService.findByGxsId(gxsId).orElse(null);
+		return identityService.findByGxsId(gxsId).orElse(null);
 	}
 
 	public void fetchGxsGroups(PeerConnection peerConnection, Set<GxsId> gxsIds)
 	{
 		synchronized (pendingGxsIds)
 		{
-			var existing = identityRsService.findAll(gxsIds).stream()
+			var existing = identityService.findAll(gxsIds).stream()
 					.map(GxsGroupItem::getGxsId)
 					.collect(Collectors.toSet());
 			var remaining = gxsIds.stream()
@@ -157,7 +160,7 @@ public class IdentityManager
 
 	private Set<GxsId> setExistingAsFriend(Set<GxsId> gxsIds)
 	{
-		var existing = identityRsService.findAll(gxsIds);
+		var existing = identityService.findAll(gxsIds);
 		var convertible = existing.stream()
 				.filter(identityGroupItem -> identityGroupItem.getType() == Type.OTHER)
 				.collect(Collectors.toSet());

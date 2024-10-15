@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.identity;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.net.peer.PeerConnectionFakes;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.IdentityService;
 import io.xeres.common.id.GxsId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +48,9 @@ class IdentityManagerTest
 	private IdentityRsService identityRsService;
 
 	@Mock
+	private IdentityService identityService;
+
+	@Mock
 	private PeerConnectionManager peerConnectionManager;
 
 	@InjectMocks
@@ -58,7 +62,7 @@ class IdentityManagerTest
 		var gxsId = IdentityGroupItemFakes.createIdentityGroupItem();
 		var peerConnection = PeerConnectionFakes.createPeerConnection();
 
-		when(identityRsService.findByGxsId(gxsId.getGxsId())).thenReturn(Optional.empty());
+		when(identityService.findByGxsId(gxsId.getGxsId())).thenReturn(Optional.empty());
 		when(peerConnectionManager.getPeerByLocation(peerConnection.getLocation().getId())).thenReturn(peerConnection);
 
 		identityManager.getGxsGroup(peerConnection, gxsId.getGxsId());
@@ -80,7 +84,7 @@ class IdentityManagerTest
 		var gxsId6 = IdentityGroupItemFakes.createIdentityGroupItem();
 		var peerConnection = PeerConnectionFakes.createPeerConnection();
 
-		when(identityRsService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
+		when(identityService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
 		when(peerConnectionManager.getPeerByLocation(anyLong())).thenReturn(peerConnection);
 
 		identityManager.getGxsGroup(peerConnection, gxsId1.getGxsId());

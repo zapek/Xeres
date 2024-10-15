@@ -21,6 +21,7 @@ package io.xeres.app.service.backup;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
@@ -55,13 +56,15 @@ public class BackupService
 
 	private final ProfileService profileService;
 	private final LocationService locationService;
+	private final IdentityService identityService;
 	private final IdentityRsService identityRsService;
 	private final SettingsService settingsService;
 
-	public BackupService(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, SettingsService settingsService)
+	public BackupService(ProfileService profileService, LocationService locationService, IdentityService identityService, IdentityRsService identityRsService, SettingsService settingsService)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
+		this.identityService = identityService;
 		this.identityRsService = identityRsService;
 		this.settingsService = settingsService;
 	}
@@ -79,7 +82,7 @@ public class BackupService
 				settingsService.getLocationCertificate(),
 				settingsService.getLocalPort()));
 
-		var identityGroupItem = identityRsService.getOwnIdentity();
+		var identityGroupItem = identityService.getOwnIdentity();
 		local.setIdentity(new Identity(identityGroupItem.getName(), identityGroupItem.getAdminPrivateKey().getEncoded(), identityGroupItem.getAdminPublicKey().getEncoded()));
 
 		export.setProfiles(profileService.getAllDiscoverableProfiles());

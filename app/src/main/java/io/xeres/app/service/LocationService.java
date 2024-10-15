@@ -190,6 +190,7 @@ public class LocationService
 		locationRepository.putAllConnectedToFalse();
 	}
 
+	@Transactional
 	public void markAsAvailable()
 	{
 		var ownLocation = findOwnLocation().orElseThrow();

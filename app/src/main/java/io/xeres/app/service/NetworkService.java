@@ -27,7 +27,6 @@ import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
 import io.xeres.app.net.dht.DhtService;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.upnp.UPNPService;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.events.NetworkReadyEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
@@ -54,7 +53,7 @@ public class NetworkService
 
 	private final ProfileService profileService;
 	private final LocationService locationService;
-	private final IdentityRsService identityRsService;
+	private final IdentityService identityService;
 	private final PeerService peerService;
 	private final UPNPService upnpService;
 	private final BroadcastDiscoveryService broadcastDiscoveryService;
@@ -65,11 +64,11 @@ public class NetworkService
 	private final AtomicBoolean running = new AtomicBoolean();
 	private boolean startWhenPossible;
 
-	public NetworkService(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, SettingsService settingsService, ApplicationEventPublisher publisher)
+	public NetworkService(ProfileService profileService, LocationService locationService, IdentityService identityService, PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, SettingsService settingsService, ApplicationEventPublisher publisher)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
-		this.identityRsService = identityRsService;
+		this.identityService = identityService;
 		this.peerService = peerService;
 		this.upnpService = upnpService;
 		this.broadcastDiscoveryService = broadcastDiscoveryService;
@@ -80,7 +79,7 @@ public class NetworkService
 
 	public boolean checkReadiness()
 	{
-		if (profileService.hasOwnProfile() && locationService.hasOwnLocation() && identityRsService.hasOwnIdentity())
+		if (profileService.hasOwnProfile() && locationService.hasOwnLocation() && identityService.hasOwnIdentity())
 		{
 			configure();
 			return true;

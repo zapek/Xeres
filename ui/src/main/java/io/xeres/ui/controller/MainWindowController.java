@@ -145,9 +145,6 @@ public class MainWindowController implements WindowController
 	private MenuItem showAboutWindow;
 
 	@FXML
-	private MenuItem showProfilesWindow;
-
-	@FXML
 	private MenuItem showPeersWindow;
 
 	@FXML
@@ -272,8 +269,6 @@ public class MainWindowController implements WindowController
 		showAboutWindow.setOnAction(event -> windowManager.openAbout());
 
 		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast());
-
-		showProfilesWindow.setOnAction(event -> windowManager.openProfiles());
 
 		showSettingsWindow.setOnAction(event -> windowManager.openSettings());
 

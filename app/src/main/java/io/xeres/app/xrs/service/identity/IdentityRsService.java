@@ -463,7 +463,8 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		identity.setImage(out.toByteArray());
 		identity.updatePublished();
 
-		saveIdentity(identity, true);
+		var savedIdentity = saveIdentity(identity, true);
+		contactNotificationService.addIdentities(List.of(savedIdentity));
 	}
 
 	@Transactional
@@ -478,7 +479,8 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		identity.setImage(null);
 		identity.updatePublished();
 
-		saveIdentity(identity, true);
+		var savedIdentity = saveIdentity(identity, true);
+		contactNotificationService.addIdentities(List.of(savedIdentity));
 	}
 
 	@Override

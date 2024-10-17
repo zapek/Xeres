@@ -51,6 +51,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
+import net.rgielen.fxweaver.spring.InjectionPointLazyFxControllerAndViewResolver;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
@@ -79,6 +80,7 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 public class ContactViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
+	private final InjectionPointLazyFxControllerAndViewResolver injectionPointLazyFxControllerAndViewResolver;
 
 	private enum Information
 	{
@@ -172,7 +174,7 @@ public class ContactViewController implements Controller
 
 	private Disposable notificationDisposable;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ObjectMapper objectMapper, ResourceBundle bundle)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ObjectMapper objectMapper, ResourceBundle bundle, InjectionPointLazyFxControllerAndViewResolver injectionPointLazyFxControllerAndViewResolver)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
@@ -181,6 +183,7 @@ public class ContactViewController implements Controller
 		this.notificationClient = notificationClient;
 		this.objectMapper = objectMapper;
 		this.bundle = bundle;
+		this.injectionPointLazyFxControllerAndViewResolver = injectionPointLazyFxControllerAndViewResolver;
 	}
 
 	@Override
@@ -310,27 +313,43 @@ public class ContactViewController implements Controller
 		// XXX: should we have a map to speed up all this?
 		if (contact.identityId() != 0L)
 		{
-			if (contactTableView.getItems().stream()
-					.noneMatch(existingContact -> existingContact.identityId() == contact.identityId()))
-			{
-				contactTableView.getItems().add(contact);
-				return true;
-			}
+			var existing = contactTableView.getItems().stream()
+					.filter(existingContact -> existingContact.identityId() == contact.identityId())
+					.findFirst().orElse(null);
+			removeIfFound(existing);
+
+			contactTableView.getItems().add(contact);
+
+			return contactChanged(existing, contact);
 		}
 		else if (contact.profileId() != 0L)
 		{
-			if (contactTableView.getItems().stream()
-					.noneMatch(existingContact -> existingContact.profileId() == contact.profileId() && existingContact.name().equals(contact.name())))
-			{
-				contactTableView.getItems().add(contact);
-				return true;
-			}
+			var existing = contactTableView.getItems().stream()
+					.filter(existingContact -> existingContact.profileId() == contact.profileId() && existingContact.name().equals(contact.name()))
+					.findFirst().orElse(null);
+			removeIfFound(existing);
+
+			contactTableView.getItems().add(contact);
+
+			return contactChanged(existing, contact);
 		}
 		else
 		{
 			throw new IllegalStateException("Empty contact (identity == 0L and profile == 0L). Shouldn't happen.");
 		}
-		return false;
+	}
+
+	private void removeIfFound(Contact contact)
+	{
+		if (contact != null)
+		{
+			contactTableView.getItems().remove(contact);
+		}
+	}
+
+	private boolean contactChanged(Contact existing, Contact incoming)
+	{
+		return existing == null || !existing.name().equals(incoming.name());
 	}
 
 	private void removeContact(Contact contact)

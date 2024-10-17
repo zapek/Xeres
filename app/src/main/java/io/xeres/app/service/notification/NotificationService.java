@@ -63,12 +63,12 @@ public abstract class NotificationService
 		emitter.onCompletion(() -> removeEmitter(emitter));
 		emitter.onTimeout(() -> removeEmitter(emitter));
 
-		CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(() -> sendNotification(null, emitter)); // send a notification to the client that just connected to "sync" it
+		CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(() -> sendNotification(null, emitter, true)); // send a notification to the client that just connected to "sync" it
 
 		return emitter;
 	}
 
-	private void sendNotification(Notification notification, SseEmitter specificEmitter)
+	private void sendNotification(Notification notification, SseEmitter specificEmitter, boolean preventDuplicates)
 	{
 		if (!running.get())
 		{
@@ -91,7 +91,7 @@ public abstract class NotificationService
 		}
 		else
 		{
-			if (notification.equals(previousNotification))
+			if (preventDuplicates && notification.equals(previousNotification))
 			{
 				return;
 			}
@@ -108,12 +108,18 @@ public abstract class NotificationService
 	 */
 	public void sendNotification()
 	{
-		sendNotification(null, null);
+		sendNotification(null, null, true);
 	}
 
 	public void sendNotification(Notification notification)
 	{
-		sendNotification(notification, null);
+		sendNotification(notification, null, true);
+	}
+
+	// XXX: this is annoying... check again about that previousNotification stuff... maybe it's the caller that should take care of it
+	public void sendNotificationAlways(Notification notification)
+	{
+		sendNotification(notification, null, false);
 	}
 
 	/**

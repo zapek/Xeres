@@ -65,13 +65,13 @@ public class ContactNotificationService extends NotificationService
 	private void addContacts(List<Contact> contacts)
 	{
 		var action = new AddContacts(contacts);
-		sendNotification(new ContactNotification(action.getClass().getSimpleName(), action));
+		sendNotificationAlways(new ContactNotification(action.getClass().getSimpleName(), action));
 	}
 
 	private void removeContacts(List<Contact> contacts)
 	{
 		var action = new RemoveContacts(contacts);
-		sendNotification(new ContactNotification(action.getClass().getSimpleName(), action));
+		sendNotificationAlways(new ContactNotification(action.getClass().getSimpleName(), action));
 	}
 
 	@Override

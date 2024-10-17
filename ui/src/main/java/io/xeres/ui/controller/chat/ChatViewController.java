@@ -685,8 +685,7 @@ public class ChatViewController implements Controller
 
 	private void setPreviewGroupVisibility(boolean visible)
 	{
-		previewGroup.setVisible(visible);
-		previewGroup.setManaged(visible);
+		UiUtils.setPresent(previewGroup, visible);
 	}
 
 	public void openInvite(long chatRoomId, ChatRoomInviteEvent event)

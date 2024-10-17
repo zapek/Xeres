@@ -27,6 +27,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
+
 public class Profile
 {
 	private long id;
@@ -122,5 +124,15 @@ public class Profile
 	public List<Location> getLocations()
 	{
 		return locations;
+	}
+
+	public boolean isPartial()
+	{
+		return pgpPublicKeyData == null;
+	}
+
+	public boolean isOwn()
+	{
+		return id == OWN_PROFILE_ID;
 	}
 }

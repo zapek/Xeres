@@ -22,7 +22,6 @@ package io.xeres.ui.controller;
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
-import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.NatStatus;
@@ -148,9 +147,6 @@ public class MainWindowController implements WindowController
 	private MenuItem showPeersWindow;
 
 	@FXML
-	private MenuItem changeOwnIdentityPicture;
-
-	@FXML
 	private MenuItem showBroadcastWindow;
 
 	@FXML
@@ -273,18 +269,6 @@ public class MainWindowController implements WindowController
 		showSettingsWindow.setOnAction(event -> windowManager.openSettings());
 
 		showSharesWindow.setOnAction(event -> windowManager.openShare());
-
-		changeOwnIdentityPicture.setOnAction(event -> {
-			var fileChooser = new FileChooser();
-			fileChooser.setTitle(bundle.getString("main.select-avatar"));
-			fileChooser.getExtensionFilters().addAll(new ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
-			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
-			if (selectedFile != null && selectedFile.canRead())
-			{
-				identityClient.uploadIdentityImage(IdentityConstants.OWN_IDENTITY_ID, selectedFile)
-						.subscribe();
-			}
-		});
 
 		exportBackup.setOnAction(event -> {
 			var fileChooser = new FileChooser();

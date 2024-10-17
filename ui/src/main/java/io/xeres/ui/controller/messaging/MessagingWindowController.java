@@ -395,8 +395,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setUserOnline(boolean online)
 	{
-		notice.setManaged(!online);
-		notice.setVisible(!online);
+		UiUtils.setPresent(notice, !online);
 		send.setDisable(!online);
 		addImage.setDisable(!online);
 		addFile.setDisable(!online);

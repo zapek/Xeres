@@ -151,8 +151,7 @@ public class AddRsIdWindowController implements WindowController
 		{
 			setRsId((String) userData);
 			rsIdTextArea.setEditable(false);
-			instructions.setVisible(false);
-			instructions.setManaged(false);
+			UiUtils.setAbsent(instructions);
 		}
 		else
 		{

@@ -316,4 +316,20 @@ public final class UiUtils
 	{
 		return node.getScene().getWindow();
 	}
+
+	public static void setPresent(Node node, boolean present)
+	{
+		node.setManaged(present);
+		node.setVisible(present);
+	}
+
+	public static void setPresent(Node node)
+	{
+		setPresent(node, true);
+	}
+
+	public static void setAbsent(Node node)
+	{
+		setPresent(node, false);
+	}
 }

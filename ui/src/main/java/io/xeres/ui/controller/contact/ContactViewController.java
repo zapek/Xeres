@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.contact;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.protocol.HostPort;
@@ -31,6 +32,7 @@ import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.AsyncImageView;
 import io.xeres.ui.model.location.Location;
+import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.DateUtils;
@@ -40,12 +42,14 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -53,17 +57,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Disposable;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
+import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
@@ -92,7 +100,10 @@ public class ContactViewController implements Controller
 	private TextField searchTextField;
 
 	@FXML
-	private StackPane contactImagePane;
+	private Button contactImageSelectButton;
+
+	@FXML
+	private FontIcon contactIcon;
 
 	@FXML
 	private AsyncImageView contactImageView;
@@ -113,19 +124,28 @@ public class ContactViewController implements Controller
 	private Label createdLabel;
 
 	@FXML
-	private FontIcon contactIcon;
-
-	@FXML
-	private Label acceptedLabel;
-
-	@FXML
 	private Label trustLabel;
+
+	@FXML
+	private HBox detailsHeader;
 
 	@FXML
 	private VBox detailsView;
 
 	@FXML
 	private GridPane profilePane;
+
+	@FXML
+	private Label badgeOwn;
+
+	@FXML
+	private Label badgePartial;
+
+	@FXML
+	private Label badgeAccepted;
+
+	@FXML
+	private Label badgeUnvalidated;
 
 	@FXML
 	private TableView<Location> locationTableView;
@@ -148,10 +168,11 @@ public class ContactViewController implements Controller
 	private final IdentityClient identityClient;
 	private final NotificationClient notificationClient;
 	private final ObjectMapper objectMapper;
+	private final ResourceBundle bundle;
 
 	private Disposable notificationDisposable;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ObjectMapper objectMapper)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ObjectMapper objectMapper, ResourceBundle bundle)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
@@ -159,13 +180,14 @@ public class ContactViewController implements Controller
 		this.identityClient = identityClient;
 		this.notificationClient = notificationClient;
 		this.objectMapper = objectMapper;
+		this.bundle = bundle;
 	}
 
 	@Override
 	public void initialize() throws IOException
 	{
 		contactImageView.setLoader(url -> generalClient.getImage(url).block());
-		contactImageView.setOnFailure(() -> contactImagePane.getChildren().getFirst().setVisible(true));
+		contactImageView.setOnFailure(() -> contactIcon.setVisible(true));
 
 		contactTableNameColumn.setCellFactory(param -> new ContactCell(generalClient));
 		contactTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
@@ -209,6 +231,12 @@ public class ContactViewController implements Controller
 		// Workaround for https://github.com/mkpaz/atlantafx/issues/31
 		contactIcon.iconSizeProperty()
 				.addListener((observable, oldValue, newValue) -> contactIcon.setIconSize(128));
+
+		contactImageView.setOnMouseEntered(event -> contactImageSelectButton.setOpacity(0.8));
+		contactImageView.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
+		contactImageSelectButton.setOnMouseEntered(event -> contactImageSelectButton.setOpacity(0.8));
+		contactImageSelectButton.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
+		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
 
 		setupContactNotifications();
 
@@ -345,23 +373,18 @@ public class ContactViewController implements Controller
 	{
 		if (contact == null)
 		{
-			detailsView.setVisible(false);
-			nameLabel.setText(null);
-			idLabel.setText(null);
-			typeLabel.setText(null);
-			createdLabel.setText(null);
-			contactImageView.setImage(null);
-			contactImagePane.getChildren().getFirst().setVisible(true);
-			profilePane.setVisible(false);
-			hideTableLocations();
+			clearSelection();
 			return;
 		}
 
+		hideBadges();
+		contactImageSelectButton.setVisible(false);
+		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.name());
 		if (contact.profileId() != 0L && contact.identityId() != 0L)
 		{
-			contactImagePane.getChildren().getFirst().setVisible(false);
+			contactIcon.setVisible(false);
 			contactImageView.setUrl(IDENTITIES_PATH + "/" + contact.identityId() + "/image");
 			typeLabel.setText("Contact linked to profile");
 
@@ -370,7 +393,7 @@ public class ContactViewController implements Controller
 		}
 		else if (contact.profileId() != 0L)
 		{
-			contactImagePane.getChildren().getFirst().setVisible(true);
+			contactIcon.setVisible(true);
 			contactImageView.setUrl(null);
 			typeLabel.setText("Profile");
 
@@ -380,7 +403,7 @@ public class ContactViewController implements Controller
 		{
 			profilePane.setVisible(false);
 
-			contactImagePane.getChildren().getFirst().setVisible(false);
+			contactIcon.setVisible(false);
 			contactImageView.setUrl(IDENTITIES_PATH + "/" + contact.identityId() + "/image");
 			typeLabel.setText("Contact");
 			hideTableLocations();
@@ -389,11 +412,25 @@ public class ContactViewController implements Controller
 		}
 	}
 
+	private void clearSelection()
+	{
+		contactImageSelectButton.setVisible(false);
+		detailsHeader.setVisible(false);
+		detailsView.setVisible(false);
+		nameLabel.setText(null);
+		idLabel.setText(null);
+		typeLabel.setText(null);
+		createdLabel.setText(null);
+		contactImageView.setImage(null);
+		contactIcon.setVisible(true);
+		profilePane.setVisible(false);
+		hideTableLocations();
+	}
+
 	private void fetchProfile(long profileId, Information information)
 	{
 		profileClient.findById(profileId)
 				.doOnSuccess(profile -> Platform.runLater(() -> {
-					// XXX: display is partial/isComplete status...
 					if (information == Information.PROFILE)
 					{
 						idLabel.setText(Id.toString(profile.getPgpIdentifier()));
@@ -407,12 +444,38 @@ public class ContactViewController implements Controller
 							typeLabel.setText("Contact linked to profile " + Id.toString(profile.getPgpIdentifier()));
 						}
 					}
-					acceptedLabel.setText(profile.isAccepted() ? "yes" : "no");
+					showBadges(profile);
 					trustLabel.setText(profile.getTrust().toString());
 					profilePane.setVisible(true);
 					showTableLocations(profile.getLocations());
+					if (profile.isOwn())
+					{
+						contactImageSelectButton.setVisible(true);
+					}
 				}))
+				.doOnError(throwable -> {
+					if (throwable instanceof WebClientResponseException wEx && wEx.getStatusCode() == HttpStatus.NOT_FOUND)
+					{
+						Platform.runLater(() -> UiUtils.setPresent(badgeUnvalidated, true));
+					}
+				})
 				.subscribe();
+	}
+
+	private void showBadges(Profile profile)
+	{
+		UiUtils.setPresent(badgeOwn, profile.isOwn());
+		UiUtils.setPresent(badgePartial, profile.isPartial());
+		UiUtils.setPresent(badgeAccepted, profile.isAccepted());
+		UiUtils.setAbsent(badgeUnvalidated);
+	}
+
+	private void hideBadges()
+	{
+		UiUtils.setAbsent(badgeOwn);
+		UiUtils.setAbsent(badgePartial);
+		UiUtils.setAbsent(badgeAccepted);
+		UiUtils.setAbsent(badgeUnvalidated);
 	}
 
 	private void fetchContact(long identityId, Information information)
@@ -429,6 +492,7 @@ public class ContactViewController implements Controller
 						createdLabel.setText(DATE_TIME_DISPLAY.format(identity.getUpdated()));
 					}
 				}))
+				.doOnError(throwable -> Platform.runLater(this::clearSelection))
 				.subscribe();
 	}
 
@@ -468,6 +532,19 @@ public class ContactViewController implements Controller
 		var xContextMenu = new XContextMenu<Contact>(deleteItem);
 		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID);
 		xContextMenu.addToNode(contactTableView);
+	}
+
+	private void selectOwnContactImage(ActionEvent event)
+	{
+		var fileChooser = new FileChooser();
+		fileChooser.setTitle(bundle.getString("main.select-avatar"));
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
+		var selectedFile = fileChooser.showOpenDialog(getWindow(event));
+		if (selectedFile != null && selectedFile.canRead())
+		{
+			identityClient.uploadIdentityImage(IdentityConstants.OWN_IDENTITY_ID, selectedFile)
+					.subscribe();
+		}
 	}
 
 	@EventListener

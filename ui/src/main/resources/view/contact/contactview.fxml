@@ -21,7 +21,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import org.kordamp.ikonli.javafx.*?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.contact.ContactViewController">
     <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
         <VBox SplitPane.resizableWithParent="false" VBox.vgrow="NEVER">
@@ -42,19 +42,53 @@
             <padding>
                 <Insets right="4.0" top="4.0"/>
             </padding>
-            <HBox>
+            <HBox fx:id="detailsHeader" visible="false">
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <StackPane fx:id="contactImagePane" alignment="TOP_LEFT">
+                <StackPane alignment="TOP_LEFT">
                     <FontIcon fx:id="contactIcon" iconLiteral="fas-user:128" visible="false"/>
                     <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
+                    <Button fx:id="contactImageSelectButton" text="Change..." visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
                 </StackPane>
                 <VBox>
                     <HBox.margin>
                         <Insets left="8.0"/>
                     </HBox.margin>
                     <Label fx:id="nameLabel" style="-fx-font-size: 2.5em"/>
+                    <Label fx:id="badgeOwn" text="Own" managed="false" visible="false">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2l-label"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This is yourself."/>
+                        </tooltip>
+                    </Label>
+                    <Label fx:id="badgePartial" text="Partial" styleClass="warning" managed="false" visible="false">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2l-label"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="A partial contact is not backed by a full profile yet. It needs to be connected to at least once, then it will be checked and, if successful, promoted to a full profile."/>
+                        </tooltip>
+                    </Label>
+                    <Label fx:id="badgeAccepted" text="Accepted" styleClass="success" managed="false" visible="false">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2l-label"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This contact is accepted for incoming connections and outgoing connections are to it are attempted as well."/>
+                        </tooltip>
+                    </Label>
+                    <Label fx:id="badgeUnvalidated" text="Not validated yet" styleClass="warning" managed="false" visible="false">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2l-label"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
+                                     text="The contact has not been validated yet. Its profile signature will be verified shortly and, if successful, will be marked as valid. If unsuccessful, it will be deleted (but might be transferred again, if so, try to inform its owner)."/>
+                        </tooltip>
+                    </Label>
                 </VBox>
             </HBox>
             <VBox fx:id="detailsView" visible="false" VBox.vgrow="ALWAYS">
@@ -85,12 +119,9 @@
                     </columnConstraints>
                     <rowConstraints>
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
-                    <Label text="Accepted"/>
-                    <Label fx:id="acceptedLabel" GridPane.columnIndex="1"/>
-                    <Label text="Trust" GridPane.rowIndex="1"/>
-                    <Label fx:id="trustLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label text="Trust"/>
+                    <Label fx:id="trustLabel" GridPane.columnIndex="1"/>
                 </GridPane>
                 <TableView fx:id="locationTableView" prefHeight="130.0" visible="false">
                     <VBox.margin>

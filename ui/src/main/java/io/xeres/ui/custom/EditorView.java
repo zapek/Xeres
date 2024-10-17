@@ -179,8 +179,7 @@ public class EditorView extends VBox
 	{
 		this.markdownService = markdownService;
 
-		preview.setManaged(true);
-		preview.setVisible(true);
+		UiUtils.setPresent(preview);
 	}
 
 	public String getText()

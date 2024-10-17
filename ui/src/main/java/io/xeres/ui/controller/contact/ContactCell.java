@@ -74,6 +74,14 @@ public class ContactCell extends TableCell<Contact, Contact>
 			stackPane.getChildren().getFirst().setVisible(true);
 			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(null);
 		}
+		if (contact.profileId() == 1L)
+		{
+			setStyle("-fx-font-weight: bold");
+		}
+		else
+		{
+			setStyle("");
+		}
 		return stackPane;
 	}
 }

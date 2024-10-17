@@ -164,13 +164,6 @@
                             </graphic>
                         </MenuItem>
                     </Menu>
-                    <Menu text="%main.menu.identities">
-                        <MenuItem fx:id="changeOwnIdentityPicture" text="%main.menu.identities.change-picture">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-image"/>
-                            </graphic>
-                        </MenuItem>
-                    </Menu>
                     <Menu text="%main.menu.tools">
                         <MenuItem fx:id="showSharesWindow" text="Shares...">
                             <graphic>

@@ -49,7 +49,7 @@
                 <StackPane alignment="TOP_LEFT">
                     <FontIcon fx:id="contactIcon" iconLiteral="fas-user:128" visible="false"/>
                     <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
-                    <Button fx:id="contactImageSelectButton" text="Change..." visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
+                    <Button fx:id="contactImageSelectButton" text="Change image..." visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
                 </StackPane>
                 <VBox>
                     <HBox.margin>
@@ -77,7 +77,7 @@
                             <FontIcon iconLiteral="mdi2l-label"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This contact is accepted for incoming connections and outgoing connections are to it are attempted as well."/>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This contact is accepted for incoming connections and outgoing connections to it are attempted as well."/>
                         </tooltip>
                     </Label>
                     <Label fx:id="badgeUnvalidated" text="Not validated yet" styleClass="warning" managed="false" visible="false">
@@ -86,7 +86,7 @@
                         </graphic>
                         <tooltip>
                             <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
-                                     text="The contact has not been validated yet. Its profile signature will be verified shortly and, if successful, will be marked as valid. If unsuccessful, it will be deleted (but might be transferred again, if so, try to inform its owner)."/>
+                                     text="The contact has not been validated yet. Its profile signature will be verified shortly and, if successful, will be marked as valid. If unsuccessful, it will be deleted (but might be transferred again, if so, try to inform its owner about the problem)."/>
                         </tooltip>
                     </Label>
                 </VBox>

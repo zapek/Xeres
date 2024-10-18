@@ -26,6 +26,7 @@ import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
@@ -64,6 +65,9 @@ class IdentityRsServiceTest
 
 	@Mock
 	private GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
+
+	@Mock
+	private ContactNotificationService contactNotificationService;
 
 	@InjectMocks
 	private IdentityRsService identityRsService;
@@ -139,6 +143,7 @@ class IdentityRsServiceTest
 		var file = new MockMultipartFile("file", getClass().getResourceAsStream("/image/leguman.jpg"));
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
+		when(identityService.save(identity)).thenReturn(identity);
 
 		identityRsService.saveOwnIdentityImage(id, file);
 
@@ -183,6 +188,7 @@ class IdentityRsServiceTest
 		identity.setImage(new byte[1]);
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
+		when(identityService.save(identity)).thenReturn(identity);
 
 		identityRsService.deleteOwnIdentityImage(id);
 

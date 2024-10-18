@@ -26,7 +26,7 @@ develocity {
             System.getenv("CI") != null
         }
         termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
-        termsOfUseUrl = "yes"
+        termsOfUseAgree = "yes"
         tag "CI"
         uploadInBackground = false
     }

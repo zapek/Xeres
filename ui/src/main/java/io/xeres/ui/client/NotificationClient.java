@@ -106,7 +106,7 @@ public class NotificationClient
 				});
 	}
 
-	public Flux<ServerSentEvent<AvailabilityNotification>> getConnectionNotifications()
+	public Flux<ServerSentEvent<AvailabilityNotification>> getAvailabilityNotifications()
 	{
 		return webClient.get()
 				.uri("/availability")

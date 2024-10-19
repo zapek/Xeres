@@ -82,10 +82,6 @@ public class TrayService
 		launchItem.addActionListener(e ->
 				windowManager.openMain(null, null, false));
 
-		var peersItem = new MenuItem(bundle.getString("tray.peers"));
-		peersItem.addActionListener(e ->
-				windowManager.openPeers());
-
 		var separator = new MenuItem("-");
 
 		var exitItem = new MenuItem(bundle.getString("tray.exit"));
@@ -93,7 +89,6 @@ public class TrayService
 
 		var popupMenu = new PopupMenu();
 		popupMenu.add(launchItem);
-		popupMenu.add(peersItem);
 		popupMenu.add(separator);
 		popupMenu.add(exitItem);
 

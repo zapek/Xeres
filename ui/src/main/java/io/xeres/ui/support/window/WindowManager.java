@@ -44,7 +44,6 @@ import io.xeres.ui.controller.forum.ForumEditorWindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
-import io.xeres.ui.controller.messaging.PeersWindowController;
 import io.xeres.ui.controller.qrcode.CameraWindowController;
 import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
@@ -163,25 +162,6 @@ public class WindowManager
 			}
 			default -> UiUtils.alert(WARNING, "The link for '" + event.uri().getClass().getSimpleName().replace("Uri", "") + "' is not supported yet.");
 		}
-	}
-
-	public void openPeers()
-	{
-		Platform.runLater(() ->
-		{
-			var peers = getOpenedWindow(PeersWindowController.class).orElse(null);
-			if (peers != null)
-			{
-				peers.requestFocus();
-			}
-			else
-			{
-				UiWindow.builder(PeersWindowController.class)
-						.setRememberEnvironment(true)
-						.build()
-						.open();
-			}
-		});
 	}
 
 	public void openMessaging(String locationId, ChatMessage chatMessage)

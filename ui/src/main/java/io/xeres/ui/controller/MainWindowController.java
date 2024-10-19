@@ -143,9 +143,6 @@ public class MainWindowController implements WindowController
 	private MenuItem showAboutWindow;
 
 	@FXML
-	private MenuItem showPeersWindow;
-
-	@FXML
 	private MenuItem showBroadcastWindow;
 
 	@FXML
@@ -281,8 +278,6 @@ public class MainWindowController implements WindowController
 		});
 
 		statistics.setOnAction(event -> windowManager.openStatistics());
-
-		showPeersWindow.setOnAction(event -> windowManager.openPeers());
 
 		if (environment.acceptsProfiles(Profiles.of("dev")))
 		{

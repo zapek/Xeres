@@ -147,11 +147,6 @@
                                 <FontIcon iconLiteral="fas-user"/>
                             </graphic>
                         </MenuItem>
-                        <MenuItem fx:id="showPeersWindow" text="%main.menu.peers.peers">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-people-arrows"/>
-                            </graphic>
-                        </MenuItem>
                         <MenuItem fx:id="showBroadcastWindow" text="%main.menu.peers.broadcast">
                             <graphic>
                                 <FontIcon iconLiteral="fas-broadcast-tower"/>

@@ -17,6 +17,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import atlantafx.base.controls.Spacer?>
 <?import io.xeres.ui.custom.AsyncImageView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -51,45 +52,55 @@
                     <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
                     <Button fx:id="contactImageSelectButton" text="Change image..." visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
                 </StackPane>
-                <VBox>
+                <HBox HBox.hgrow="ALWAYS">
                     <HBox.margin>
                         <Insets left="8.0"/>
                     </HBox.margin>
-                    <Label fx:id="nameLabel" style="-fx-font-size: 2.5em"/>
-                    <Label fx:id="badgeOwn" text="Own" managed="false" visible="false">
-                        <graphic>
-                            <FontIcon iconLiteral="mdi2l-label"/>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This is yourself."/>
-                        </tooltip>
-                    </Label>
-                    <Label fx:id="badgePartial" text="Partial" styleClass="warning" managed="false" visible="false">
-                        <graphic>
-                            <FontIcon iconLiteral="mdi2l-label"/>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="A partial contact is not backed by a full profile yet. It needs to be connected to at least once, then it will be checked and, if successful, promoted to a full profile."/>
-                        </tooltip>
-                    </Label>
-                    <Label fx:id="badgeAccepted" text="Accepted" styleClass="success" managed="false" visible="false">
-                        <graphic>
-                            <FontIcon iconLiteral="mdi2l-label"/>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This contact is accepted for incoming connections and outgoing connections to it are attempted as well."/>
-                        </tooltip>
-                    </Label>
-                    <Label fx:id="badgeUnvalidated" text="Not validated yet" styleClass="warning" managed="false" visible="false">
-                        <graphic>
-                            <FontIcon iconLiteral="mdi2l-label"/>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
-                                     text="The contact has not been validated yet. Its profile signature will be verified shortly and, if successful, will be marked as valid. If unsuccessful, it will be deleted (but might be transferred again, if so, try to inform its owner about the problem)."/>
-                        </tooltip>
-                    </Label>
-                </VBox>
+                    <VBox>
+                        <Label fx:id="nameLabel" style="-fx-font-size: 2.5em"/>
+                        <Label fx:id="badgeOwn" text="Own" managed="false" visible="false">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2l-label"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This is yourself."/>
+                            </tooltip>
+                        </Label>
+                        <Label fx:id="badgePartial" text="Partial" styleClass="warning" managed="false" visible="false">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2l-label"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="A partial contact is not backed by a full profile yet. It needs to be connected to at least once, then it will be checked and, if successful, promoted to a full profile."/>
+                            </tooltip>
+                        </Label>
+                        <Label fx:id="badgeAccepted" text="Accepted" styleClass="success" managed="false" visible="false">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2l-label"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This contact is accepted for incoming connections and outgoing connections to it are attempted as well."/>
+                            </tooltip>
+                        </Label>
+                        <Label fx:id="badgeUnvalidated" text="Not validated yet" styleClass="warning" managed="false" visible="false">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2l-label"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
+                                         text="The contact has not been validated yet. Its profile signature will be verified shortly and, if successful, will be marked as valid. If unsuccessful, it will be deleted (but might be transferred again, if so, try to inform its owner about the problem)."/>
+                            </tooltip>
+                        </Label>
+                    </VBox>
+                    <Spacer HBox.hgrow="ALWAYS"/>
+                    <VBox>
+                        <Button fx:id="chatButton" text="Chat" disable="true">
+                            <graphic>
+                                <FontIcon iconLiteral="fas-comment-alt"/>
+                            </graphic>
+                        </Button>
+                    </VBox>
+                </HBox>
             </HBox>
             <VBox fx:id="detailsView" visible="false" VBox.vgrow="ALWAYS">
                 <padding>

@@ -34,6 +34,7 @@ import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -150,6 +151,9 @@ public class ContactViewController implements Controller
 	private VBox locationsView;
 
 	@FXML
+	private Button chatButton;
+
+	@FXML
 	private TableView<Location> locationTableView;
 
 	@FXML
@@ -169,12 +173,13 @@ public class ContactViewController implements Controller
 	private final ProfileClient profileClient;
 	private final IdentityClient identityClient;
 	private final NotificationClient notificationClient;
+	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
 
 	private Disposable contactNotificationDisposable;
-	private Disposable connectionNotificationDisposable;
+	private Disposable availabilityNotificationDisposable;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle, InjectionPointLazyFxControllerAndViewResolver injectionPointLazyFxControllerAndViewResolver)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle, InjectionPointLazyFxControllerAndViewResolver injectionPointLazyFxControllerAndViewResolver, WindowManager windowManager)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
@@ -183,6 +188,7 @@ public class ContactViewController implements Controller
 		this.notificationClient = notificationClient;
 		this.bundle = bundle;
 		this.injectionPointLazyFxControllerAndViewResolver = injectionPointLazyFxControllerAndViewResolver;
+		this.windowManager = windowManager;
 	}
 
 	@Override
@@ -243,6 +249,8 @@ public class ContactViewController implements Controller
 		contactImageSelectButton.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
 		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
 
+		chatButton.setOnAction(event -> startChat());
+
 		setupContactNotifications();
 		setupConnectionNotifications();
 
@@ -282,7 +290,7 @@ public class ContactViewController implements Controller
 
 	private void setupConnectionNotifications()
 	{
-		connectionNotificationDisposable = notificationClient.getConnectionNotifications()
+		availabilityNotificationDisposable = notificationClient.getAvailabilityNotifications()
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					Objects.requireNonNull(sse.data());
@@ -432,6 +440,7 @@ public class ContactViewController implements Controller
 		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.name());
+		chatButton.setDisable(contact.availability() == Availability.OFFLINE);
 		if (contact.profileId() != 0L && contact.identityId() != 0L)
 		{
 			contactIcon.setVisible(false);
@@ -481,19 +490,7 @@ public class ContactViewController implements Controller
 	{
 		profileClient.findById(profileId)
 				.doOnSuccess(profile -> Platform.runLater(() -> {
-					if (information == Information.PROFILE)
-					{
-						idLabel.setText(Id.toString(profile.getPgpIdentifier()));
-					}
-					if (information == Information.PROFILE || information == Information.MERGED)
-					{
-						createdOrUpdated.setText("Created");
-						createdLabel.setText(profile.getCreated() != null ? DATE_TIME_DISPLAY.format(profile.getCreated()) : "unknown");
-						if (information == Information.MERGED)
-						{
-							typeLabel.setText("Contact linked to profile " + Id.toString(profile.getPgpIdentifier()));
-						}
-					}
+					showProfileInformation(profile, information);
 					showBadges(profile);
 					trustLabel.setText(profile.getTrust().toString());
 					profilePane.setVisible(true);
@@ -510,6 +507,23 @@ public class ContactViewController implements Controller
 					}
 				})
 				.subscribe();
+	}
+
+	private void showProfileInformation(Profile profile, Information information)
+	{
+		if (information == Information.PROFILE)
+		{
+			idLabel.setText(Id.toString(profile.getPgpIdentifier()));
+		}
+		if (information == Information.PROFILE || information == Information.MERGED)
+		{
+			createdOrUpdated.setText("Created");
+			createdLabel.setText(profile.getCreated() != null ? DATE_TIME_DISPLAY.format(profile.getCreated()) : "unknown");
+			if (information == Information.MERGED)
+			{
+				typeLabel.setText("Contact linked to profile " + Id.toString(profile.getPgpIdentifier()));
+			}
+		}
 	}
 
 	private void showBadges(Profile profile)
@@ -597,6 +611,14 @@ public class ContactViewController implements Controller
 		}
 	}
 
+	private void startChat()
+	{
+		locationTableView.getItems().stream()
+				.filter(Location::isConnected)
+				.findFirst()
+				.ifPresent(location -> windowManager.openMessaging(location.getLocationId().toString(), null));
+	}
+
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
@@ -604,9 +626,9 @@ public class ContactViewController implements Controller
 		{
 			contactNotificationDisposable.dispose();
 		}
-		if (connectionNotificationDisposable != null && !connectionNotificationDisposable.isDisposed())
+		if (availabilityNotificationDisposable != null && !availabilityNotificationDisposable.isDisposed())
 		{
-			contactNotificationDisposable.dispose();
+			availabilityNotificationDisposable.dispose();
 		}
 	}
 

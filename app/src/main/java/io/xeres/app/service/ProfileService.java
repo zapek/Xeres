@@ -183,7 +183,7 @@ public class ProfileService
 						.orElse(profile)
 		);
 
-		contactNotificationService.addProfile(savedProfile);
+		contactNotificationService.addOrUpdateProfile(savedProfile);
 
 		return savedProfile;
 	}

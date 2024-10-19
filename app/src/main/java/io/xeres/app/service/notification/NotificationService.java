@@ -165,7 +165,7 @@ public abstract class NotificationService
 	private static SseEmitter.SseEventBuilder createEventBuilder(Notification notification)
 	{
 		var event = SseEmitter.event();
-		event.data(notification);
+		event.data(notification); // There's no way to serialize subclasses or classes implementing an interface without tricking with the id and doing it manually
 		event.id(notification.id());
 		return event;
 	}

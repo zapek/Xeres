@@ -19,15 +19,8 @@
 
 package io.xeres.common.rest.notification.contact;
 
-import io.xeres.common.rest.contact.Contact;
-
-import java.util.List;
-
-/**
- * Adds or update contacts.
- *
- * @param contacts the list of contacts
- */
-public record AddContacts(List<Contact> contacts)
+public enum ContactOperation
 {
+	ADD_OR_UPDATE,
+	REMOVE
 }

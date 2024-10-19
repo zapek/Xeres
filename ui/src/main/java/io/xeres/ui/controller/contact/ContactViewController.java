@@ -25,8 +25,6 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
-import io.xeres.common.rest.notification.contact.AddContacts;
-import io.xeres.common.rest.notification.contact.RemoveContacts;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
@@ -35,7 +33,6 @@ import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.uri.IdentityUri;
-import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -266,24 +263,12 @@ public class ContactViewController implements Controller
 		notificationDisposable = notificationClient.getContactNotifications()
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
-					if (sse.data() != null)
-					{
-						var idName = Objects.requireNonNull(sse.id());
+					Objects.requireNonNull(sse.data());
 
-						if (idName.equals(AddContacts.class.getSimpleName()))
-						{
-							var action = objectMapper.convertValue(sse.data().action(), AddContacts.class);
-							addContacts(action.contacts());
-						}
-						else if (idName.equals(RemoveContacts.class.getSimpleName()))
-						{
-							var action = objectMapper.convertValue(sse.data().action(), RemoveContacts.class);
-							action.contacts().forEach(this::removeContact);
-						}
-						else
-						{
-							log.debug("Unknown contact notification");
-						}
+					switch (sse.data().operation())
+					{
+						case ADD_OR_UPDATE -> addContacts(sse.data().contacts());
+						case REMOVE -> sse.data().contacts().forEach(this::removeContact);
 					}
 				}))
 				.subscribe();
@@ -457,7 +442,7 @@ public class ContactViewController implements Controller
 					if (information == Information.PROFILE || information == Information.MERGED)
 					{
 						createdOrUpdated.setText("Created");
-						createdLabel.setText(profile.getCreated() != null ? DateUtils.DATE_TIME_DISPLAY.format(profile.getCreated()) : "unknown");
+						createdLabel.setText(profile.getCreated() != null ? DATE_TIME_DISPLAY.format(profile.getCreated()) : "unknown");
 						if (information == Information.MERGED)
 						{
 							typeLabel.setText("Contact linked to profile " + Id.toString(profile.getPgpIdentifier()));

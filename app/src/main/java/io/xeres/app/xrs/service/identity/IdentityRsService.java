@@ -289,7 +289,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Override
 	protected void onGroupsSaved(List<IdentityGroupItem> items)
 	{
-		contactNotificationService.addIdentities(items);
+		contactNotificationService.addOrUpdateIdentities(items);
 	}
 
 	@Override
@@ -464,7 +464,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		identity.updatePublished();
 
 		var savedIdentity = saveIdentity(identity, true);
-		contactNotificationService.addIdentities(List.of(savedIdentity));
+		contactNotificationService.addOrUpdateIdentities(List.of(savedIdentity));
 	}
 
 	@Transactional
@@ -480,7 +480,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		identity.updatePublished();
 
 		var savedIdentity = saveIdentity(identity, true);
-		contactNotificationService.addIdentities(List.of(savedIdentity));
+		contactNotificationService.addOrUpdateIdentities(List.of(savedIdentity));
 	}
 
 	@Override

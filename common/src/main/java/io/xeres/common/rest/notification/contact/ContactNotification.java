@@ -19,8 +19,11 @@
 
 package io.xeres.common.rest.notification.contact;
 
+import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.notification.Notification;
 
-public record ContactNotification(String id, Object action) implements Notification
+import java.util.List;
+
+public record ContactNotification(ContactOperation operation, List<Contact> contacts) implements Notification
 {
 }

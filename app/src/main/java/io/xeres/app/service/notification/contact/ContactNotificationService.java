@@ -24,12 +24,13 @@ import io.xeres.app.service.ContactService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.rest.contact.Contact;
-import io.xeres.common.rest.notification.contact.AddContacts;
 import io.xeres.common.rest.notification.contact.ContactNotification;
-import io.xeres.common.rest.notification.contact.RemoveContacts;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static io.xeres.common.rest.notification.contact.ContactOperation.ADD_OR_UPDATE;
+import static io.xeres.common.rest.notification.contact.ContactOperation.REMOVE;
 
 @Service
 public class ContactNotificationService extends NotificationService
@@ -41,9 +42,9 @@ public class ContactNotificationService extends NotificationService
 		this.contactService = contactService;
 	}
 
-	public void addIdentities(List<IdentityGroupItem> identities)
+	public void addOrUpdateIdentities(List<IdentityGroupItem> identities)
 	{
-		addContacts(contactService.toContacts(identities));
+		addOrUpdateContacts(contactService.toContacts(identities));
 	}
 
 	public void removeIdentities(List<IdentityGroupItem> identities)
@@ -51,9 +52,9 @@ public class ContactNotificationService extends NotificationService
 		removeContacts(contactService.toContacts(identities));
 	}
 
-	public void addProfile(Profile profile)
+	public void addOrUpdateProfile(Profile profile)
 	{
-		addContacts(List.of(contactService.toContact(profile)));
+		addOrUpdateContacts(List.of(contactService.toContact(profile)));
 	}
 
 	public void removeProfile(Profile profile)
@@ -61,15 +62,13 @@ public class ContactNotificationService extends NotificationService
 		removeContacts(List.of(contactService.toContact(profile)));
 	}
 
-	private void addContacts(List<Contact> contacts)
+	private void addOrUpdateContacts(List<Contact> contacts)
 	{
-		var action = new AddContacts(contacts);
-		sendNotification(new ContactNotification(action.getClass().getSimpleName(), action));
+		sendNotification(new ContactNotification(ADD_OR_UPDATE, contacts));
 	}
 
 	private void removeContacts(List<Contact> contacts)
 	{
-		var action = new RemoveContacts(contacts);
-		sendNotification(new ContactNotification(action.getClass().getSimpleName(), action));
+		sendNotification(new ContactNotification(REMOVE, contacts));
 	}
 }

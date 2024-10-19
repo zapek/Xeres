@@ -40,6 +40,8 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.apache.commons.lang3.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.BufferedReader;
@@ -54,6 +56,8 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 
 public final class UiUtils
 {
+	private static final Logger log = LoggerFactory.getLogger(UiUtils.class);
+
 	private UiUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -81,6 +85,7 @@ public final class UiUtils
 			{
 				alert(ERROR, t.getMessage());
 			}
+			log.error("Error: {}", t.getMessage(), t);
 		});
 	}
 

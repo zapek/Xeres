@@ -30,7 +30,6 @@ import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ConfigClient;
-import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
@@ -218,7 +217,6 @@ public class MainWindowController implements WindowController
 	private final TrayService trayService;
 	private final WindowManager windowManager;
 	private final Environment environment;
-	private final IdentityClient identityClient;
 	private final ConfigClient configClient;
 	private final NotificationClient notificationClient;
 	private final ResourceBundle bundle;
@@ -230,14 +228,13 @@ public class MainWindowController implements WindowController
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, IdentityClient identityClient, ConfigClient configClient, NotificationClient notificationClient, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
 		this.trayService = trayService;
 		this.windowManager = windowManager;
 		this.environment = environment;
-		this.identityClient = identityClient;
 		this.configClient = configClient;
 		this.notificationClient = notificationClient;
 		this.bundle = bundle;

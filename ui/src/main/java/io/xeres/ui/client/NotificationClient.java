@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.notification.availability.AvailabilityNotification;
 import io.xeres.common.rest.notification.contact.ContactNotification;
 import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
@@ -99,6 +100,16 @@ public class NotificationClient
 	{
 		return webClient.get()
 				.uri("/contact")
+				.retrieve()
+				.bodyToFlux(new ParameterizedTypeReference<>()
+				{
+				});
+	}
+
+	public Flux<ServerSentEvent<AvailabilityNotification>> getConnectionNotifications()
+	{
+		return webClient.get()
+				.uri("/availability")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

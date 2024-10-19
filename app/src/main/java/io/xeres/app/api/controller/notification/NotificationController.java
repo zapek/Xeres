@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.service.notification.availability.AvailabilityNotificationService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
@@ -46,14 +47,16 @@ public class NotificationController
 	private final FileNotificationService fileNotificationService;
 	private final FileSearchNotificationService fileSearchNotificationService;
 	private final ContactNotificationService contactNotificationService;
+	private final AvailabilityNotificationService availabilityNotificationService;
 
-	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, ContactNotificationService contactNotificationService)
+	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, ContactNotificationService contactNotificationService, AvailabilityNotificationService availabilityNotificationService)
 	{
 		this.statusNotificationService = statusNotificationService;
 		this.forumNotificationService = forumNotificationService;
 		this.fileNotificationService = fileNotificationService;
 		this.fileSearchNotificationService = fileSearchNotificationService;
 		this.contactNotificationService = contactNotificationService;
+		this.availabilityNotificationService = availabilityNotificationService;
 	}
 
 	@GetMapping("/status")
@@ -94,5 +97,13 @@ public class NotificationController
 	public SseEmitter setupContactNotification()
 	{
 		return contactNotificationService.addClient();
+	}
+
+	@GetMapping("/availability")
+	@Operation(summary = "Subscribe to connection notifications")
+	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	public SseEmitter setupConnectionNotification()
+	{
+		return availabilityNotificationService.addClient();
 	}
 }

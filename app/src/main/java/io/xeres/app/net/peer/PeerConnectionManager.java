@@ -21,13 +21,16 @@ package io.xeres.app.net.peer;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.xeres.app.application.events.PeerConnectedEvent;
 import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.service.notification.availability.AvailabilityNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.common.id.Identifier;
+import io.xeres.common.location.Availability;
 import io.xeres.common.message.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +55,16 @@ public class PeerConnectionManager
 
 	private final SimpMessageSendingOperations messagingTemplate;
 	private final StatusNotificationService statusNotificationService;
+	private final AvailabilityNotificationService availabilityNotificationService;
 	private final ApplicationEventPublisher publisher;
 
 	private final Map<Long, PeerConnection> peers = new ConcurrentHashMap<>();
 
-	public PeerConnectionManager(SimpMessageSendingOperations messagingTemplate, StatusNotificationService statusNotificationService, ApplicationEventPublisher publisher)
+	public PeerConnectionManager(SimpMessageSendingOperations messagingTemplate, StatusNotificationService statusNotificationService, AvailabilityNotificationService availabilityNotificationService, ApplicationEventPublisher publisher)
 	{
 		this.messagingTemplate = messagingTemplate;
 		this.statusNotificationService = statusNotificationService;
+		this.availabilityNotificationService = availabilityNotificationService;
 		this.publisher = publisher;
 	}
 
@@ -72,8 +77,9 @@ public class PeerConnectionManager
 		var peerConnection = new PeerConnection(location, ctx);
 		peers.put(location.getId(), peerConnection);
 		ctx.channel().attr(PEER_CONNECTION).set(peerConnection);
+		availabilityNotificationService.changeAvailability(location, Availability.AVAILABLE);
 		updateCurrentUsersCount();
-		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationId()));
+		publisher.publishEvent(new PeerConnectedEvent(location.getLocationId()));
 		return peerConnection;
 	}
 
@@ -84,6 +90,7 @@ public class PeerConnectionManager
 			throw new IllegalStateException("Location " + location + " is not in the list of peers");
 		}
 		peers.remove(location.getId());
+		availabilityNotificationService.changeAvailability(location, Availability.OFFLINE);
 		updateCurrentUsersCount();
 		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationId()));
 	}
@@ -116,6 +123,7 @@ public class PeerConnectionManager
 	public void shutdown()
 	{
 		peers.forEach((id, peerConnection) -> peerConnection.shutdown());
+		availabilityNotificationService.shutdown();
 	}
 
 	public ChannelFuture writeItem(Location location, Item item, RsService rsService)

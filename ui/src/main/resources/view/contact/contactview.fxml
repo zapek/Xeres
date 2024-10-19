@@ -123,17 +123,24 @@
                     <Label text="Trust"/>
                     <Label fx:id="trustLabel" GridPane.columnIndex="1"/>
                 </GridPane>
-                <TableView fx:id="locationTableView" prefHeight="130.0" visible="false">
+                <VBox fx:id="locationsView" visible="false">
                     <VBox.margin>
                         <Insets top="16.0"/>
                     </VBox.margin>
-                    <columns>
-                        <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="Name"/>
-                        <TableColumn fx:id="locationTableIPColumn" prefWidth="120.0" text="IP"/>
-                        <TableColumn fx:id="locationTablePortColumn" prefWidth="60.0" text="Port"/>
-                        <TableColumn fx:id="locationTableLastConnectedColumn" prefWidth="140" text="Last Connected"/>
-                    </columns>
-                </TableView>
+                    <Label text="Locations" styleClass="title-4"/>
+                    <TableView fx:id="locationTableView" prefHeight="130.0">
+                        <VBox.margin>
+                            <Insets top="8.0"/>
+                        </VBox.margin>
+                        <columns>
+                            <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="Name"/>
+                            <TableColumn fx:id="locationTableIPColumn" prefWidth="120.0" text="IP"/>
+                            <TableColumn fx:id="locationTablePortColumn" prefWidth="60.0" text="Port"/>
+                            <TableColumn fx:id="locationTableLastConnectedColumn" prefWidth="140" text="Last Connected"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
             </VBox>
         </VBox>
     </SplitPane>

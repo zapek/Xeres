@@ -262,6 +262,11 @@ public class Profile
 		return pgpPublicKeyData == null;
 	}
 
+	public boolean isConnected()
+	{
+		return getLocations().stream().anyMatch(Location::isConnected);
+	}
+
 	@Override
 	public String toString()
 	{

@@ -17,10 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.contact;
+package io.xeres.common.rest.notification.availability;
 
 import io.xeres.common.location.Availability;
+import io.xeres.common.rest.notification.Notification;
 
-public record Contact(String name, long profileId, long identityId, Availability availability)
+public record AvailabilityNotification(Availability availability, long profileId, long locationId) implements Notification
 {
 }

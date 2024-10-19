@@ -29,14 +29,14 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
-public class ContactCell extends TableCell<Contact, Contact>
+public class ContactCellName extends TableCell<Contact, Contact>
 {
 	private static final int CONTACT_WIDTH = 32;
 	private static final int CONTACT_HEIGHT = 32;
 
 	private final GeneralClient generalClient;
 
-	public ContactCell(GeneralClient generalClient)
+	public ContactCellName(GeneralClient generalClient)
 	{
 		super();
 		this.generalClient = generalClient;

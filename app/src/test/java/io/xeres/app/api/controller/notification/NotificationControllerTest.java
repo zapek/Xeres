@@ -20,6 +20,7 @@
 package io.xeres.app.api.controller.notification;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
+import io.xeres.app.service.notification.availability.AvailabilityNotificationService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
@@ -59,6 +60,9 @@ class NotificationControllerTest extends AbstractControllerTest
 	@MockBean
 	private ContactNotificationService contactNotificationService;
 
+	@MockBean
+	private AvailabilityNotificationService availabilityNotificationService;
+
 	@Autowired
 	public MockMvc mvc;
 
@@ -92,6 +96,39 @@ class NotificationControllerTest extends AbstractControllerTest
 		when(fileNotificationService.addClient()).thenReturn(sseEmitter);
 
 		mvc.perform(get(BASE_URL + "/file", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void SetupFileSearchNotification_Successs() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(fileSearchNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(get(BASE_URL + "/fileSearch", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void SetupContactNotification_Successs() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(contactNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(get(BASE_URL + "/contact", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void SetupAvailabilityNotification_Successs() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(availabilityNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(get(BASE_URL + "/availability", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 }

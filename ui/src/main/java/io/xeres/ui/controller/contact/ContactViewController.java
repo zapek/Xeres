@@ -19,10 +19,10 @@
 
 package io.xeres.ui.controller.contact;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
+import io.xeres.common.location.Availability;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.ui.OpenUriEvent;
@@ -93,7 +93,7 @@ public class ContactViewController implements Controller
 	private TableColumn<Contact, Contact> contactTableNameColumn;
 
 	@FXML
-	private TableColumn<Contact, String> contactTablePresenceColumn;
+	private TableColumn<Contact, Availability> contactTablePresenceColumn;
 
 	@FXML
 	private TextField searchTextField;
@@ -147,6 +147,9 @@ public class ContactViewController implements Controller
 	private Label badgeUnvalidated;
 
 	@FXML
+	private VBox locationsView;
+
+	@FXML
 	private TableView<Location> locationTableView;
 
 	@FXML
@@ -166,19 +169,18 @@ public class ContactViewController implements Controller
 	private final ProfileClient profileClient;
 	private final IdentityClient identityClient;
 	private final NotificationClient notificationClient;
-	private final ObjectMapper objectMapper;
 	private final ResourceBundle bundle;
 
-	private Disposable notificationDisposable;
+	private Disposable contactNotificationDisposable;
+	private Disposable connectionNotificationDisposable;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ObjectMapper objectMapper, ResourceBundle bundle, InjectionPointLazyFxControllerAndViewResolver injectionPointLazyFxControllerAndViewResolver)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle, InjectionPointLazyFxControllerAndViewResolver injectionPointLazyFxControllerAndViewResolver)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
 		this.notificationClient = notificationClient;
-		this.objectMapper = objectMapper;
 		this.bundle = bundle;
 		this.injectionPointLazyFxControllerAndViewResolver = injectionPointLazyFxControllerAndViewResolver;
 	}
@@ -189,8 +191,11 @@ public class ContactViewController implements Controller
 		contactImageView.setLoader(url -> generalClient.getImage(url).block());
 		contactImageView.setOnFailure(() -> contactIcon.setVisible(true));
 
-		contactTableNameColumn.setCellFactory(param -> new ContactCell(generalClient));
+		contactTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient));
 		contactTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+
+		contactTablePresenceColumn.setCellFactory(param -> new ContactCellStatus());
+		contactTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().availability()));
 
 		var filteredList = new FilteredList<>(contactTableView.getItems());
 
@@ -239,6 +244,7 @@ public class ContactViewController implements Controller
 		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
 
 		setupContactNotifications();
+		setupConnectionNotifications();
 
 		getContacts();
 	}
@@ -260,7 +266,7 @@ public class ContactViewController implements Controller
 
 	private void setupContactNotifications()
 	{
-		notificationDisposable = notificationClient.getContactNotifications()
+		contactNotificationDisposable = notificationClient.getContactNotifications()
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					Objects.requireNonNull(sse.data());
@@ -270,6 +276,17 @@ public class ContactViewController implements Controller
 						case ADD_OR_UPDATE -> addContacts(sse.data().contacts());
 						case REMOVE -> sse.data().contacts().forEach(this::removeContact);
 					}
+				}))
+				.subscribe();
+	}
+
+	private void setupConnectionNotifications()
+	{
+		connectionNotificationDisposable = notificationClient.getConnectionNotifications()
+				.doOnError(UiUtils::showAlertError)
+				.doOnNext(sse -> Platform.runLater(() -> {
+					Objects.requireNonNull(sse.data());
+					updateContactConnection(sse.data().profileId(), sse.data().availability());
 				}))
 				.subscribe();
 	}
@@ -304,6 +321,7 @@ public class ContactViewController implements Controller
 			removeIfFound(existing);
 
 			contactTableView.getItems().add(contact);
+			selectAgainIfPreviouslySelected(existing, contact);
 
 			return contactChanged(existing, contact);
 		}
@@ -315,6 +333,7 @@ public class ContactViewController implements Controller
 			removeIfFound(existing);
 
 			contactTableView.getItems().add(contact);
+			selectAgainIfPreviouslySelected(existing, contact);
 
 			return contactChanged(existing, contact);
 		}
@@ -332,6 +351,14 @@ public class ContactViewController implements Controller
 		}
 	}
 
+	private void selectAgainIfPreviouslySelected(Contact previous, Contact current)
+	{
+		if (previous != null)
+		{
+			contactTableView.getSelectionModel().select(current);
+		}
+	}
+
 	private boolean contactChanged(Contact existing, Contact incoming)
 	{
 		return existing == null || !existing.name().equals(incoming.name());
@@ -341,6 +368,25 @@ public class ContactViewController implements Controller
 	{
 		log.debug("Removing contact {}", contact);
 		contactTableView.getItems().removeIf(existingContact -> existingContact.identityId() == contact.identityId());
+	}
+
+	private void updateContactConnection(long profileId, Availability availability)
+	{
+		var existing = contactTableView.getItems().stream()
+				.filter(existingContact -> existingContact.profileId() == profileId)
+				.findFirst().orElse(null);
+
+		if (existing == null)
+		{
+			log.debug("Contact for profile {} not found. Removed then disconnected?", profileId);
+			return;
+		}
+
+		var updated = new Contact(existing.name(), existing.profileId(), existing.identityId(), availability);
+		contactTableView.getItems().remove(existing);
+		contactTableView.getItems().add(updated);
+		selectAgainIfPreviouslySelected(existing, updated);
+		contactTableView.sort();
 	}
 
 	private HostPort getConnectedAddress(Location location)
@@ -509,14 +555,14 @@ public class ContactViewController implements Controller
 		else
 		{
 			locationTableView.getItems().setAll(locations);
-			locationTableView.setVisible(true);
+			locationsView.setVisible(true);
 		}
 	}
 
 	private void hideTableLocations()
 	{
 		locationTableView.getItems().clear();
-		locationTableView.setVisible(false);
+		locationsView.setVisible(false);
 	}
 
 	private void createContactTableViewContextMenu()
@@ -554,9 +600,13 @@ public class ContactViewController implements Controller
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
-		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		if (contactNotificationDisposable != null && !contactNotificationDisposable.isDisposed())
 		{
-			notificationDisposable.dispose();
+			contactNotificationDisposable.dispose();
+		}
+		if (connectionNotificationDisposable != null && !connectionNotificationDisposable.isDisposed())
+		{
+			contactNotificationDisposable.dispose();
 		}
 	}
 

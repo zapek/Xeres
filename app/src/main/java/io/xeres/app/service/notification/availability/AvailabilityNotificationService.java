@@ -17,10 +17,19 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.contact;
+package io.xeres.app.service.notification.availability;
 
+import io.xeres.app.database.model.location.Location;
+import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.location.Availability;
+import io.xeres.common.rest.notification.availability.AvailabilityNotification;
+import org.springframework.stereotype.Service;
 
-public record Contact(String name, long profileId, long identityId, Availability availability)
+@Service
+public class AvailabilityNotificationService extends NotificationService
 {
+	public void changeAvailability(Location location, Availability availability)
+	{
+		sendNotification(new AvailabilityNotification(availability, location.getProfile().getId(), location.getId()));
+	}
 }

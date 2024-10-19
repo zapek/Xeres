@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.status;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.notification.availability.AvailabilityNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
@@ -49,12 +50,14 @@ public class StatusRsService extends RsService
 
 	private final PeerConnectionManager peerConnectionManager;
 	private final LocationService locationService;
+	private final AvailabilityNotificationService availabilityNotificationService;
 
-	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService)
+	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, AvailabilityNotificationService availabilityNotificationService)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
 		this.locationService = locationService;
+		this.availabilityNotificationService = availabilityNotificationService;
 	}
 
 	@Override
@@ -87,6 +90,7 @@ public class StatusRsService extends RsService
 			log.debug("Got status {} from peer {}", statusItem.getStatus(), sender);
 			var newStatus = toAvailability(statusItem.getStatus());
 			locationService.setAvailability(sender.getLocation(), newStatus);
+			availabilityNotificationService.changeAvailability(sender.getLocation(), newStatus);
 			peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, sender.getLocation().getLocationId(), newStatus);
 		}
 	}

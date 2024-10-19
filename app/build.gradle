@@ -1,4 +1,5 @@
 import org.panteleyev.jpackage.ImageType
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 /*
  * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
@@ -91,13 +92,13 @@ test {
 tasks.register('copyInstaller', Copy) {
     from "${parent.rootDir}/installer"
     include "*"
-    into "${project.buildDir}/${project.libsDirName}"
+    into "${base.libsDirectory.get()}"
     doNotTrackState("Copying installation file need to re-run every time")
 }
 
 // needed to avoid duplicate jars in 'libs' when changing versions
 tasks.register('deleteLibs', Delete) {
-    delete "${project.buildDir}/${project.libsDirName}/"
+    delete "${base.libsDirectory.get()}"
 }
 
 bootBuildImage {
@@ -112,7 +113,7 @@ tasks.register('cleanJpackageWorkdir', Delete) {
 }
 
 tasks.register('deletePortable', Delete) {
-    delete layout.buildDirectory.dir("dist/${rootProject.name}")
+    delete base.distsDirectory.get().dir(rootProject.name)
 }
 
 jpackage {
@@ -124,8 +125,8 @@ jpackage {
     vendor = "David Gerber"
     copyright = "Copyright 2019-2024 by David Gerber. All Rights Reserved"
     appDescription = parent.project.name
-    input = "${project.buildDir}/${project.libsDirName}"
-    destination = "${project.buildDir}/dist"
+    input = "${base.libsDirectory.get()}"
+    destination = "${base.distsDirectory.get()}"
     mainJar = bootJar.archiveFileName.get()
     if (project.hasProperty("jpackage.portable")) {
         type = ImageType.APP_IMAGE
@@ -165,7 +166,7 @@ jpackage {
     }
     doLast {
         if (project.hasProperty("jpackage.portable")) {
-            new File("${project.buildDir}/dist/${rootProject.name}", "Portable").text = ""
+            new File("${base.distsDirectory.get().dir(rootProject.name)}", "Portable").text = ""
         }
     }
     finalizedBy("packagePortable", "deletePortable")
@@ -173,8 +174,8 @@ jpackage {
 
 tasks.register('packagePortable', Zip) {
     archiveFileName = "${rootProject.name}-${project.version}-portable.zip"
-    destinationDirectory = layout.buildDirectory.dir('dist')
-    from layout.buildDirectory.dir("dist/${rootProject.name}")
+    destinationDirectory = base.distsDirectory.get()
+    from base.distsDirectory.get().dir(rootProject.name)
 }
 
 jacocoTestReport {
@@ -185,6 +186,9 @@ jacocoTestReport {
 }
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
+    annotationProcessor(platform(SpringBootPlugin.BOM_COORDINATES))
+    developmentOnly(platform(SpringBootPlugin.BOM_COORDINATES))
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor' // handles @ConfigurationProperties
     implementation project(':common')
     implementation project(':ui')
@@ -218,6 +222,8 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }

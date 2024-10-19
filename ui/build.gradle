@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 /*
  * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
  *
@@ -39,6 +41,7 @@ jacocoTestReport {
 }
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation project(':common')
     implementation('org.springframework.boot:spring-boot-starter-webflux') { // for the client
         exclude group: 'io.netty', module: 'netty-transport-native-epoll'
@@ -59,6 +62,8 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-javafx'
     implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack'
     implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack' // fallback for missing icons in fontawesome
+    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }

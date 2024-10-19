@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 /*
  * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
  *
@@ -28,26 +26,26 @@ buildscript {
         jsonPatchVersion = "1.13"
         zxingVersion = "3.5.3"
         appDirsVersion = "1.2.2"
+        junitVersion = "5.11.2"
     }
 }
 
 plugins {
     id 'org.springframework.boot' version '3.3.4' apply false
-    id 'org.flywaydb.flyway' version '10.0.0' apply false // Keep the version in sync with spring-boot from time to time
+    id 'org.flywaydb.flyway' version '10.10.0' apply false // Keep the version in sync with spring-boot from time to time
     id 'org.panteleyev.jpackageplugin' version '1.6.0' apply false
     id 'org.sonarqube' version '5.1.0.4882'
 }
 
 // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
 wrapper {
-    gradleVersion = '8.10'
+    gradleVersion = '8.10.2'
 }
 
 subprojects {
     group = 'io.xeres'
     version = '0.7.2'
 
-    apply plugin: 'io.spring.dependency-management'
     apply plugin: 'java'
     apply plugin: 'jacoco'
 
@@ -65,12 +63,6 @@ subprojects {
 
     repositories {
         mavenCentral()
-    }
-
-    dependencyManagement {
-        imports {
-            mavenBom SpringBootPlugin.BOM_COORDINATES
-        }
     }
 }
 

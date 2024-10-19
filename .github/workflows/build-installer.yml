@@ -35,7 +35,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ./app/build/dist/Xeres-*.msi
+          path: ./app/build/distributions/Xeres-*.msi
           name: windows-installer-msi
           retention-days: 1
 
@@ -65,7 +65,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ./app/build/dist/Xeres-*.zip
+          path: ./app/build/distributions/Xeres-*.zip
           name: windows-installer-portable
           retention-days: 1
 
@@ -95,33 +95,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ./app/build/dist/xeres_*.deb
+          path: ./app/build/distributions/xeres_*.deb
           name: linux-installer-deb
           retention-days: 1
-
-  #  build-macos-installer: (needs updating... see above)
-  #    name: Build MacOS installer
-  #    runs-on: macos-latest
-  #    steps:
-  #      - name: Checkout
-  #        uses: actions/checkout@v4
-  #      - name: Validate Gradle
-  #        uses: gradle/wrapper-validation-action@v3
-  #      - name: Set up JDK 21
-  #        uses: actions/setup-java@v4
-  #        with:
-  #          java-version: '21'
-  #          distribution: 'temurin'
-  #      - name: Build
-  #        uses: gradle/actions/setup-gradle@v4
-  #        with:
-  #          arguments: jpackage --no-configuration-cache
-  #      - name: Upload artifact
-  #        uses: actions/upload-artifact@v4
-  #        with:
-  #          path: ./app/build/dist/Xeres-*.dmg
-  #          name: macos-installer
-  #          retention-days: 1
 
   create-release:
     name: Create release
@@ -142,10 +118,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-installer-deb
-      #      - name: Download MacOS installer
-      #        uses: actions/download-artifact@v4
-      #        with:
-      #          name: macos-installer
 
       - name: Generate checksum
         uses: jmgilman/actions-generate-checksum@v1

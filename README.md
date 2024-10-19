@@ -32,6 +32,10 @@
 
 Latest release always available [here](https://github.com/zapek/Xeres/releases/latest).
 
+## Quick try
+
+Install then use a [ChatServer](https://retroshare.ch).
+
 ## Getting Help
 
 - [User Documentation & FAQ](https://xeres.io/docs/)

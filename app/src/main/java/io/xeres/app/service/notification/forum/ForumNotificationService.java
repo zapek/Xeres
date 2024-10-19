@@ -23,7 +23,6 @@ import io.xeres.app.service.ForumMessageService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
-import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.common.rest.notification.forum.ForumNotification;
@@ -59,11 +58,5 @@ public class ForumNotificationService extends NotificationService
 				false));
 
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
-	}
-
-	@Override
-	protected Notification createNotification()
-	{
-		return null;
 	}
 }

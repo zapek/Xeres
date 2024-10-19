@@ -38,7 +38,12 @@ public class FileNotificationService extends NotificationService
 	private String scannedFile;
 
 	@Override
-	protected Notification createNotification()
+	protected Notification initialNotification()
+	{
+		return createNotification();
+	}
+
+	private Notification createNotification()
 	{
 		return new FileNotification(action, shareName, scannedFile);
 	}
@@ -47,21 +52,21 @@ public class FileNotificationService extends NotificationService
 	{
 		action = START_SCANNING;
 		shareName = share.getName();
-		sendNotification();
+		sendNotification(createNotification());
 	}
 
 	public void startScanningFile(Path scannedFile)
 	{
 		action = START_HASHING;
 		this.scannedFile = scannedFile.toString();
-		sendNotification();
+		sendNotification(createNotification());
 	}
 
 	public void stopScanningFile()
 	{
 		action = STOP_HASHING;
 		scannedFile = null;
-		sendNotification();
+		sendNotification(createNotification());
 	}
 
 	public void stopScanning()
@@ -69,6 +74,6 @@ public class FileNotificationService extends NotificationService
 		action = STOP_SCANNING;
 		shareName = null;
 		scannedFile = null;
-		sendNotification();
+		sendNotification(createNotification());
 	}
 }

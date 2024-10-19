@@ -26,6 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -35,20 +36,23 @@ public abstract class NotificationService
 {
 	final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
-	/**
-	 * Creates the notification that will be sent by sendNotification().
-	 * Return 'null' if there's nothing to send.
-	 *
-	 * @return the notification or null if there's nothing to send
-	 */
-	protected abstract Notification createNotification();
-
 	private Notification previousNotification;
 	private final AtomicBoolean running = new AtomicBoolean();
 
 	protected NotificationService()
 	{
 		running.lazySet(true);
+	}
+
+	/**
+	 * Sends that notification to all connecting clients. It's a kind of "sync" notification so that we
+	 * get immediate data available. Use it for notifications that report a "state".
+	 *
+	 * @return the initial notification to send
+	 */
+	protected Notification initialNotification()
+	{
+		return null;
 	}
 
 	public SseEmitter addClient()
@@ -63,63 +67,14 @@ public abstract class NotificationService
 		emitter.onCompletion(() -> removeEmitter(emitter));
 		emitter.onTimeout(() -> removeEmitter(emitter));
 
-		CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(() -> sendNotification(null, emitter, true)); // send a notification to the client that just connected to "sync" it
+		CompletableFuture.delayedExecutor(1, TimeUnit.MILLISECONDS).execute(() -> sendInitialNotificationIfNeeded(emitter)); // send a notification to the client that just connected to "sync" it (XXX: remove? what happens if the event is sent immediately? test it... I don't like that delay stuff...)
 
 		return emitter;
 	}
 
-	private void sendNotification(Notification notification, SseEmitter specificEmitter, boolean preventDuplicates)
-	{
-		if (!running.get())
-		{
-			return;
-		}
-
-		if (notification == null)
-		{
-			notification = createNotification();
-		}
-
-		if (notification == null)
-		{
-			return;
-		}
-
-		if (specificEmitter != null)
-		{
-			sendSseNotification(specificEmitter, notification);
-		}
-		else
-		{
-			if (preventDuplicates && notification.equals(previousNotification))
-			{
-				return;
-			}
-
-			previousNotification = notification;
-
-			sendSseNotification(notification);
-		}
-	}
-
-	/**
-	 * Send a notification. Optimizations are done automatically to avoid sending duplicates so
-	 * there's no need to do it yourself.
-	 */
-	public void sendNotification()
-	{
-		sendNotification(null, null, true);
-	}
-
 	public void sendNotification(Notification notification)
 	{
-		sendNotification(notification, null, true);
-	}
-
-	// XXX: this is annoying... check again about that previousNotification stuff... maybe it's the caller that should take care of it
-	public void sendNotificationAlways(Notification notification)
-	{
-		sendNotification(notification, null, false);
+		sendNotification(notification, null);
 	}
 
 	/**
@@ -130,6 +85,41 @@ public abstract class NotificationService
 	{
 		running.set(false);
 		emitters.forEach(ResponseBodyEmitter::complete);
+	}
+
+	private void sendInitialNotificationIfNeeded(SseEmitter emitter)
+	{
+		var notification = initialNotification();
+		if (notification != null)
+		{
+			sendNotification(notification, emitter);
+		}
+	}
+
+	private void sendNotification(Notification notification, SseEmitter specificEmitter)
+	{
+		Objects.requireNonNull(notification);
+
+		if (!running.get())
+		{
+			return;
+		}
+
+		if (specificEmitter != null)
+		{
+			sendSseNotification(specificEmitter, notification);
+		}
+		else
+		{
+			if (notification.ignoreDuplicates() && notification.equals(previousNotification))
+			{
+				return;
+			}
+
+			previousNotification = notification;
+
+			sendSseNotification(notification);
+		}
 	}
 
 	private void addEmitter(SseEmitter emitter)

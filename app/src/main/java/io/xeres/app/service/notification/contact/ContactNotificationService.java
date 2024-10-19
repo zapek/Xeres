@@ -24,7 +24,6 @@ import io.xeres.app.service.ContactService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.rest.contact.Contact;
-import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.contact.AddContacts;
 import io.xeres.common.rest.notification.contact.ContactNotification;
 import io.xeres.common.rest.notification.contact.RemoveContacts;
@@ -65,18 +64,12 @@ public class ContactNotificationService extends NotificationService
 	private void addContacts(List<Contact> contacts)
 	{
 		var action = new AddContacts(contacts);
-		sendNotificationAlways(new ContactNotification(action.getClass().getSimpleName(), action));
+		sendNotification(new ContactNotification(action.getClass().getSimpleName(), action));
 	}
 
 	private void removeContacts(List<Contact> contacts)
 	{
 		var action = new RemoveContacts(contacts);
-		sendNotificationAlways(new ContactNotification(action.getClass().getSimpleName(), action));
-	}
-
-	@Override
-	protected Notification createNotification()
-	{
-		return null;
+		sendNotification(new ContactNotification(action.getClass().getSimpleName(), action));
 	}
 }

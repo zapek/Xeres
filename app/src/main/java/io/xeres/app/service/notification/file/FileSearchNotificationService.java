@@ -22,30 +22,14 @@ package io.xeres.app.service.notification.file;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.Sha1Sum;
-import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FileSearchNotificationService extends NotificationService
 {
-	private int requestId;
-	private String name;
-	private long size;
-	private String hash;
-
-	@Override
-	protected Notification createNotification()
-	{
-		return new FileSearchNotification(requestId, name, size, hash);
-	}
-
 	public void foundFile(int requestId, String name, long size, Sha1Sum hash)
 	{
-		this.requestId = requestId;
-		this.name = name;
-		this.size = size;
-		this.hash = Id.toString(hash);
-		sendNotification();
+		sendNotification(new FileSearchNotification(requestId, name, size, Id.toString(hash)));
 	}
 }

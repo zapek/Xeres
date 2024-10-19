@@ -25,4 +25,9 @@ public interface Notification
 	{
 		return "";
 	}
+
+	default boolean ignoreDuplicates()
+	{
+		return false;
+	}
 }

@@ -55,20 +55,20 @@ public class StatusNotificationService extends NotificationService
 	public void setCurrentUsersCount(int value)
 	{
 		currentUserCount = value;
-		sendNotification();
+		sendNotification(createNotification());
 		uiBridgeService.setTrayStatus(MessageFormat.format(bundle.getString("main.systray.peers"), value));
 	}
 
 	public void setTotalUsers(int value)
 	{
 		totalUsers = value;
-		sendNotification();
+		sendNotification(createNotification());
 	}
 
 	public void incrementTotalUsers()
 	{
 		totalUsers++;
-		sendNotification();
+		sendNotification(createNotification());
 	}
 
 	public void decrementTotalUsers()
@@ -76,24 +76,29 @@ public class StatusNotificationService extends NotificationService
 		if (totalUsers > 0)
 		{
 			totalUsers--;
-			sendNotification();
+			sendNotification(createNotification());
 		}
 	}
 
 	public void setNatStatus(NatStatus value)
 	{
 		natStatus = value;
-		sendNotification();
+		sendNotification(createNotification());
 	}
 
 	public void setDhtInfo(DhtInfo value)
 	{
 		dhtInfo = value;
-		sendNotification();
+		sendNotification(createNotification());
 	}
 
 	@Override
-	protected Notification createNotification()
+	protected Notification initialNotification()
+	{
+		return createNotification();
+	}
+
+	private Notification createNotification()
 	{
 		return new StatusNotification(
 				currentUserCount,

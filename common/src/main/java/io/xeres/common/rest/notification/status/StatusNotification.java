@@ -23,4 +23,9 @@ import io.xeres.common.rest.notification.Notification;
 
 public record StatusNotification(int currentUsers, int totalUsers, NatStatus natStatus, DhtInfo dhtInfo) implements Notification
 {
+	@Override
+	public boolean ignoreDuplicates()
+	{
+		return true;
+	}
 }

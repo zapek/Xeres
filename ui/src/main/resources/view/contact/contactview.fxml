@@ -132,7 +132,11 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
                     <Label text="Trust"/>
-                    <Label fx:id="trustLabel" GridPane.columnIndex="1"/>
+                    <ChoiceBox fx:id="trust" GridPane.columnIndex="1" minWidth="150.0">
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rsid.add.trust.tip"/>
+                        </tooltip>
+                    </ChoiceBox>
                 </GridPane>
                 <VBox fx:id="locationsView" visible="false">
                     <VBox.margin>

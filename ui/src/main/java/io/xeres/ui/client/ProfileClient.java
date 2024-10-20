@@ -119,6 +119,15 @@ public class ProfileClient
 				.map(ProfileMapper::fromDeepDTO);
 	}
 
+	public Mono<Void> setTrust(long id, Trust trust)
+	{
+		return webClient.put()
+				.uri("/{id}/trust", id)
+				.bodyValue(trust)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
 	public Mono<Void> delete(long id)
 	{
 		return webClient.delete()

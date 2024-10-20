@@ -142,7 +142,7 @@ public class Profile
 		{
 			setPgpPublicKeyData(other.getPgpPublicKeyData()); // Promote to full profile
 		}
-		Location.addOrUpdateLocations(this, other.getLocations().stream().findFirst().orElseThrow(() -> new IllegalStateException("Missing location")));
+		Location.addOrUpdateLocations(this, other.getLocations().stream().findFirst().orElse(null));
 		return this;
 	}
 

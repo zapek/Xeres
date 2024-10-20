@@ -142,6 +142,10 @@ public class Location implements Comparable<Location>
 
 	public static void addOrUpdateLocations(Profile profile, Location newLocation)
 	{
+		if (newLocation == null)
+		{
+			return;
+		}
 		profile.getLocations().removeIf(oldLocation -> oldLocation.getLocationId().equals(newLocation.getLocationId())); // XXX: don't remove but update if there are additional fields that were gathered before an update (ie. additional IPs)
 		profile.addLocation(newLocation);
 	}

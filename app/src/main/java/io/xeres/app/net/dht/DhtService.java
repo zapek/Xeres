@@ -138,7 +138,17 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 	{
 		if (dht != null && dht.isRunning())
 		{
-			dht.stop();
+			try
+			{
+				dht.stop();
+			}
+			catch (RuntimeException e)
+			{
+				// Sometimes DHT fails to shut down cleanly, but
+				// it shouldn't disrupt the rest of the shutdown
+				// process.
+				log.error("DHT error: {}", e.getMessage(), e);
+			}
 		}
 	}
 

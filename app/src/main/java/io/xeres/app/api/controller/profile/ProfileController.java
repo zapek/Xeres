@@ -152,6 +152,25 @@ public class ProfileController
 		return toDeepDTO(profileService.getProfileFromRSId(rsId));
 	}
 
+	@PutMapping("/{id}/trust")
+	@Operation(summary = "Set the trust of a profile")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void setTrust(@PathVariable long id, @RequestBody Trust trust)
+	{
+		var profile = profileService.findProfileById(id).orElseThrow(() -> new UnprocessableEntityException("Profile not found"));
+		if (profile.isOwn())
+		{
+			throw new IllegalArgumentException("Cannot change the trust of own profile");
+		}
+		if (trust == Trust.ULTIMATE)
+		{
+			throw new IllegalArgumentException("ULTIMATE trust cannot be set");
+		}
+		profile.setTrust(trust);
+
+		profileService.createOrUpdateProfile(profile);
+	}
+
 	@DeleteMapping("/{id}")
 	@Operation(summary = "Delete a profile")
 	@ApiResponse(responseCode = "200", description = "Profile successfully deleted")

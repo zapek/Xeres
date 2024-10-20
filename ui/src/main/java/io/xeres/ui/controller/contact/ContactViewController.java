@@ -23,6 +23,7 @@ import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.location.Availability;
+import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.ui.OpenUriEvent;
@@ -62,10 +63,7 @@ import reactor.core.Disposable;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
@@ -124,7 +122,7 @@ public class ContactViewController implements Controller
 	private Label createdLabel;
 
 	@FXML
-	private Label trustLabel;
+	private ChoiceBox<Trust> trust;
 
 	@FXML
 	private HBox detailsHeader;
@@ -331,26 +329,24 @@ public class ContactViewController implements Controller
 			var existing = contactTableView.getItems().stream()
 					.filter(existingContact -> existingContact.identityId() == contact.identityId())
 					.findFirst().orElse(null);
-			removeIfFound(existing);
-
 			saveSelection();
+			var changed = removeIfFound(existing);
 			contactTableView.getItems().add(contact);
 			selectAgainIfPreviouslySelected(existing, contact);
 
-			return contactChanged(existing, contact);
+			return changed;
 		}
 		else if (contact.profileId() != 0L)
 		{
 			var existing = contactTableView.getItems().stream()
 					.filter(existingContact -> existingContact.profileId() == contact.profileId() && existingContact.name().equals(contact.name()))
 					.findFirst().orElse(null);
-			removeIfFound(existing);
-
 			saveSelection();
+			var changed = removeIfFound(existing);
 			contactTableView.getItems().add(contact);
 			selectAgainIfPreviouslySelected(existing, contact);
 
-			return contactChanged(existing, contact);
+			return changed;
 		}
 		else
 		{
@@ -358,12 +354,13 @@ public class ContactViewController implements Controller
 		}
 	}
 
-	private void removeIfFound(Contact contact)
+	private boolean removeIfFound(Contact contact)
 	{
 		if (contact != null)
 		{
-			contactTableView.getItems().remove(contact);
+			return contactTableView.getItems().remove(contact);
 		}
+		return false;
 	}
 
 	private void saveSelection()
@@ -377,11 +374,6 @@ public class ContactViewController implements Controller
 		{
 			contactTableView.getSelectionModel().select(current);
 		}
-	}
-
-	private boolean contactChanged(Contact existing, Contact incoming)
-	{
-		return existing == null || !existing.name().equals(incoming.name());
 	}
 
 	private void removeContact(Contact contact)
@@ -440,6 +432,22 @@ public class ContactViewController implements Controller
 		}
 	}
 
+	private void setTrust(Profile profile)
+	{
+		clearTrust();
+
+		trust.getItems().addAll(Arrays.stream(Trust.values()).filter(t -> profile.isOwn() == (t == Trust.ULTIMATE)).toList());
+		trust.getSelectionModel().select(profile.getTrust());
+		trust.setDisable(profile.isOwn());
+		trust.setOnAction(event -> profileClient.setTrust(profile.getId(), trust.getSelectionModel().getSelectedItem()).subscribe());
+	}
+
+	private void clearTrust()
+	{
+		trust.setOnAction(null);
+		trust.getItems().clear();
+	}
+
 	private void changeSelectedContact(Contact contact)
 	{
 		if (contact == null)
@@ -449,6 +457,8 @@ public class ContactViewController implements Controller
 		}
 
 		hideBadges();
+		hideTableLocations();
+		clearTrust();
 		contactImageSelectButton.setVisible(false);
 		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
@@ -505,7 +515,7 @@ public class ContactViewController implements Controller
 				.doOnSuccess(profile -> Platform.runLater(() -> {
 					showProfileInformation(profile, information);
 					showBadges(profile);
-					trustLabel.setText(profile.getTrust().toString());
+					setTrust(profile);
 					profilePane.setVisible(true);
 					showTableLocations(profile.getLocations());
 					if (profile.isOwn())

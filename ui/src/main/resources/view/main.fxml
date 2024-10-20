@@ -33,7 +33,6 @@
     <VBox>
         <AnchorPane VBox.vgrow="ALWAYS">
             <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
-                <!-- Tab indexes must be kept in sync with the _INDEX defines at the top of the controller -->
                 <Tab fx:id="homeTab" text="%main.home">
                     <graphic>
                         <FontIcon iconLiteral="fas-home"/>

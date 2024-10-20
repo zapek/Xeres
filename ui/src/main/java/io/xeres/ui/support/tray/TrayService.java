@@ -20,7 +20,9 @@
 package io.xeres.ui.support.tray;
 
 import io.xeres.common.AppName;
+import io.xeres.common.location.Availability;
 import io.xeres.common.tray.TrayNotificationType;
+import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.properties.UiClientProperties;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.PreDestroy;
@@ -29,11 +31,13 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.core.Disposable;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -54,12 +58,16 @@ public class TrayService
 
 	private final UiClientProperties uiClientProperties;
 	private final WindowManager windowManager;
+	private final NotificationClient notificationClient;
 	private final ResourceBundle bundle;
 
-	public TrayService(UiClientProperties uiClientProperties, WindowManager windowManager, ResourceBundle bundle)
+	private Disposable availabilityNotificationDisposable;
+
+	public TrayService(UiClientProperties uiClientProperties, WindowManager windowManager, NotificationClient notificationClient, ResourceBundle bundle)
 	{
 		this.uiClientProperties = uiClientProperties;
 		this.windowManager = windowManager;
+		this.notificationClient = notificationClient;
 		this.bundle = bundle;
 	}
 
@@ -82,14 +90,16 @@ public class TrayService
 		launchItem.addActionListener(e ->
 				windowManager.openMain(null, null, false));
 
-		var separator = new MenuItem("-");
+		var peersMenu = new Menu("Peers >");
+		peersMenu.setEnabled(false);
 
 		var exitItem = new MenuItem(bundle.getString("tray.exit"));
 		exitItem.addActionListener(e -> exitApplication());
 
 		var popupMenu = new PopupMenu();
 		popupMenu.add(launchItem);
-		popupMenu.add(separator);
+		popupMenu.add(peersMenu);
+		popupMenu.addSeparator();
 		popupMenu.add(exitItem);
 
 		image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon.png"));
@@ -102,6 +112,8 @@ public class TrayService
 		systemTray = SystemTray.getSystemTray();
 
 		trayIcon.addMouseListener(createContextMenuMouseAdapter());
+
+		setupAvailabilityNotifications();
 
 		try
 		{
@@ -120,6 +132,79 @@ public class TrayService
 	public void exitApplication()
 	{
 		windowManager.closeAllWindowsAndExit();
+	}
+
+	private void setupAvailabilityNotifications()
+	{
+		availabilityNotificationDisposable = notificationClient.getAvailabilityNotifications()
+				.doOnNext(sse -> {
+					Objects.requireNonNull(sse.data());
+
+					if (sse.data().availability() == Availability.AVAILABLE)
+					{
+						addPeer(sse.data().locationId(), sse.data().profileName(), sse.data().locationName());
+					}
+					else
+					{
+						removePeer(sse.data().locationId());
+					}
+				})
+				.subscribe();
+	}
+
+	private int findPeerItemIndex(Menu peersMenu, long locationId)
+	{
+		for (var i = 0; i < peersMenu.getItemCount(); i++)
+		{
+			if (peersMenu.getItem(i).getName().equals(String.valueOf(locationId)))
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private int findInsertionPoint(Menu peersMenu, String name)
+	{
+		for (var i = 0; i < peersMenu.getItemCount(); i++)
+		{
+			if (peersMenu.getItem(i).getName().compareTo(name) > 0)
+			{
+				return i;
+			}
+		}
+		return 0;
+	}
+
+	private void addPeer(long locationId, String profileName, String locationName)
+	{
+		var peersMenu = (Menu) trayIcon.getPopupMenu().getItem(1);
+		peersMenu.setEnabled(true);
+
+		if (findPeerItemIndex(peersMenu, locationId) != -1)
+		{
+			return; // Already present
+		}
+
+		var peerItem = new MenuItem(String.format("%s (%s)", profileName, locationName));
+		peerItem.setName(String.valueOf(locationId));
+		peerItem.addActionListener(e -> windowManager.openMessaging(locationId));
+		peersMenu.insert(peerItem, findInsertionPoint(peersMenu, peerItem.getName()));
+	}
+
+	private void removePeer(long locationId)
+	{
+		var peersMenu = (Menu) trayIcon.getPopupMenu().getItem(1);
+
+		var index = findPeerItemIndex(peersMenu, locationId);
+		if (index != -1)
+		{
+			peersMenu.remove(index);
+		}
+		if (peersMenu.getItemCount() == 0)
+		{
+			peersMenu.setEnabled(false);
+		}
 	}
 
 	private MouseAdapter createContextMenuMouseAdapter()
@@ -218,6 +303,7 @@ public class TrayService
 	{
 		if (hasSystemTray)
 		{
+			availabilityNotificationDisposable.dispose();
 			systemTray.remove(trayIcon);
 			hasSystemTray = false;
 		}

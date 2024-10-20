@@ -22,6 +22,6 @@ package io.xeres.common.rest.notification.availability;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.notification.Notification;
 
-public record AvailabilityNotification(Availability availability, long profileId, long locationId) implements Notification
+public record AvailabilityNotification(Availability availability, long profileId, String profileName, long locationId, String locationName) implements Notification
 {
 }

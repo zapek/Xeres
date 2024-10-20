@@ -629,7 +629,7 @@ public class ContactViewController implements Controller
 		locationTableView.getItems().stream()
 				.filter(Location::isConnected)
 				.findFirst()
-				.ifPresent(location -> windowManager.openMessaging(location.getLocationId().toString(), null));
+				.ifPresent(location -> windowManager.openMessaging(location.getLocationId().toString()));
 	}
 
 	@EventListener

@@ -30,6 +30,6 @@ public class AvailabilityNotificationService extends NotificationService
 {
 	public void changeAvailability(Location location, Availability availability)
 	{
-		sendNotification(new AvailabilityNotification(availability, location.getProfile().getId(), location.getId()));
+		sendNotification(new AvailabilityNotification(availability, location.getProfile().getId(), location.getProfile().getName(), location.getId(), location.getName()));
 	}
 }

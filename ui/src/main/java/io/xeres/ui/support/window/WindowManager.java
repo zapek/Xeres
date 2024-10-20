@@ -164,6 +164,18 @@ public class WindowManager
 		}
 	}
 
+	public void openMessaging(long locationId)
+	{
+		locationClient.findById(locationId)
+				.doOnSuccess(location -> openMessaging(location.getLocationId().toString()))
+				.subscribe();
+	}
+
+	public void openMessaging(String locationId)
+	{
+		openMessaging(locationId, null);
+	}
+
 	public void openMessaging(String locationId, ChatMessage chatMessage)
 	{
 		Platform.runLater(() ->

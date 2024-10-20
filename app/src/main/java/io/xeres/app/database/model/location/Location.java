@@ -84,7 +84,6 @@ public class Location implements Comparable<Location>
 
 	private boolean dht = true;
 
-	@Transient
 	private String version;
 
 	@Convert(converter = NetModeConverter.class)

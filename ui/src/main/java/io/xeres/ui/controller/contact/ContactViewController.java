@@ -227,6 +227,8 @@ public class ContactViewController implements Controller
 
 		locationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
+		locationTableView.setRowFactory(param -> new LocationRow());
+
 		locationTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 		locationTableIPColumn.setCellValueFactory(param -> {
 			var hostPort = getConnectedAddress(param.getValue());

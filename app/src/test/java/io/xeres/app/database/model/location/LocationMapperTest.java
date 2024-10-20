@@ -75,7 +75,8 @@ class LocationMapperTest
 				null,
 				true,
 				Instant.now(),
-				Availability.AVAILABLE
+				Availability.AVAILABLE,
+				"Xeres 2.3.2"
 		);
 
 		var location = LocationMapper.fromDTO(locationDTO);

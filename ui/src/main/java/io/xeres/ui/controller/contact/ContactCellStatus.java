@@ -24,7 +24,7 @@ import io.xeres.common.rest.contact.Contact;
 import javafx.scene.control.TableCell;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-public class ContactCellStatus extends TableCell<Contact, Availability>
+class ContactCellStatus extends TableCell<Contact, Availability>
 {
 	@Override
 	protected void updateItem(Availability item, boolean empty)

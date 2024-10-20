@@ -48,7 +48,8 @@ public final class LocationMapper
 				new ArrayList<>(),
 				location.isConnected(),
 				location.getLastConnected(),
-				location.getAvailability()
+				location.getAvailability(),
+				location.getVersion()
 		);
 	}
 
@@ -81,6 +82,7 @@ public final class LocationMapper
 		location.setConnected(dto.connected());
 		location.setLastConnected(dto.lastConnected());
 		location.setAvailability(dto.availability());
+		location.setVersion(dto.version());
 		return location;
 	}
 }

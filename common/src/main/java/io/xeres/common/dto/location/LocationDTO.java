@@ -56,7 +56,9 @@ public record LocationDTO(
 
 		Instant lastConnected,
 
-		Availability availability
+		Availability availability,
+
+		String version
 )
 {
 	public LocationDTO

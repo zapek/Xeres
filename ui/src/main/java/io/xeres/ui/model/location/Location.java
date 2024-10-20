@@ -22,6 +22,7 @@ package io.xeres.ui.model.location;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.location.Availability;
 import io.xeres.ui.model.connection.Connection;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class Location
 	private boolean connected;
 	private Instant lastConnected;
 	private Availability availability;
+	private String version;
 
 	public long getId()
 	{
@@ -111,5 +113,20 @@ public class Location
 	public void setAvailability(Availability availability)
 	{
 		this.availability = availability;
+	}
+
+	public String getVersion()
+	{
+		return version;
+	}
+
+	public void setVersion(String version)
+	{
+		this.version = version;
+	}
+
+	public boolean hasVersion()
+	{
+		return StringUtils.isNotBlank(version);
 	}
 }

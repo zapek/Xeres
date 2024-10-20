@@ -45,6 +45,7 @@ public final class LocationMapper
 		location.setConnected(dto.connected());
 		location.setLastConnected(dto.lastConnected());
 		location.setAvailability(dto.availability());
+		location.setVersion(dto.version());
 
 		return location;
 	}

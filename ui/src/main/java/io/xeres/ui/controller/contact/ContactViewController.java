@@ -49,7 +49,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
-import net.rgielen.fxweaver.spring.InjectionPointLazyFxControllerAndViewResolver;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
@@ -62,6 +61,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.Disposable;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -72,13 +72,13 @@ import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.WARNING;
+import static javafx.scene.control.TableColumn.SortType.ASCENDING;
 
 @Component
 @FxmlView(value = "/view/contact/contactview.fxml")
 public class ContactViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
-	private final InjectionPointLazyFxControllerAndViewResolver injectionPointLazyFxControllerAndViewResolver;
 
 	private enum Information
 	{
@@ -179,7 +179,9 @@ public class ContactViewController implements Controller
 	private Disposable contactNotificationDisposable;
 	private Disposable availabilityNotificationDisposable;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle, InjectionPointLazyFxControllerAndViewResolver injectionPointLazyFxControllerAndViewResolver, WindowManager windowManager)
+	private Contact savedSelection;
+
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle, WindowManager windowManager)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
@@ -187,7 +189,6 @@ public class ContactViewController implements Controller
 		this.identityClient = identityClient;
 		this.notificationClient = notificationClient;
 		this.bundle = bundle;
-		this.injectionPointLazyFxControllerAndViewResolver = injectionPointLazyFxControllerAndViewResolver;
 		this.windowManager = windowManager;
 	}
 
@@ -264,9 +265,13 @@ public class ContactViewController implements Controller
 					// Add all contacts
 					contactTableView.getItems().addAll(contacts);
 
-					// Sort by name
+					// Sort by connected first then name
+					contactTableView.getSortOrder().add(contactTablePresenceColumn);
+					contactTablePresenceColumn.setSortType(ASCENDING);
+					contactTablePresenceColumn.setSortable(true);
+
 					contactTableView.getSortOrder().add(contactTableNameColumn);
-					contactTableNameColumn.setSortType(TableColumn.SortType.ASCENDING);
+					contactTableNameColumn.setSortType(ASCENDING);
 					contactTableNameColumn.setSortable(true);
 				}))
 				.subscribe();
@@ -328,6 +333,7 @@ public class ContactViewController implements Controller
 					.findFirst().orElse(null);
 			removeIfFound(existing);
 
+			saveSelection();
 			contactTableView.getItems().add(contact);
 			selectAgainIfPreviouslySelected(existing, contact);
 
@@ -340,6 +346,7 @@ public class ContactViewController implements Controller
 					.findFirst().orElse(null);
 			removeIfFound(existing);
 
+			saveSelection();
 			contactTableView.getItems().add(contact);
 			selectAgainIfPreviouslySelected(existing, contact);
 
@@ -359,9 +366,14 @@ public class ContactViewController implements Controller
 		}
 	}
 
+	private void saveSelection()
+	{
+		savedSelection = contactTableView.getSelectionModel().getSelectedItem();
+	}
+
 	private void selectAgainIfPreviouslySelected(Contact previous, Contact current)
 	{
-		if (previous != null)
+		if (previous != null && previous == savedSelection)
 		{
 			contactTableView.getSelectionModel().select(current);
 		}
@@ -391,6 +403,7 @@ public class ContactViewController implements Controller
 		}
 
 		var updated = new Contact(existing.name(), existing.profileId(), existing.identityId(), availability);
+		saveSelection();
 		contactTableView.getItems().remove(existing);
 		contactTableView.getItems().add(updated);
 		selectAgainIfPreviouslySelected(existing, updated);
@@ -587,9 +600,9 @@ public class ContactViewController implements Controller
 			var contact = (Contact) event.getSource();
 			if (contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID)
 			{
-				profileClient.delete(contact.profileId())
+				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.name()), () -> profileClient.delete(contact.profileId())
 						.doOnSuccess(unused -> Platform.runLater(() -> contactTableView.getItems().remove(contact)))
-						.subscribe();
+						.subscribe());
 			}
 		});
 

@@ -158,6 +158,9 @@ public class ContactViewController implements Controller
 	private TableColumn<Location, String> locationTableNameColumn;
 
 	@FXML
+	private TableColumn<Location, Availability> locationTablePresenceColumn;
+
+	@FXML
 	private TableColumn<Location, String> locationTableIPColumn;
 
 	@FXML
@@ -178,6 +181,7 @@ public class ContactViewController implements Controller
 	private Disposable availabilityNotificationDisposable;
 
 	private Contact savedSelection;
+	private boolean refreshContactTableView = true; // Prevent multiple refreshes when adding/removing entries
 
 	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle, WindowManager windowManager)
 	{
@@ -196,10 +200,34 @@ public class ContactViewController implements Controller
 		contactImageView.setLoader(url -> generalClient.getImage(url).block());
 		contactImageView.setOnFailure(() -> contactIcon.setVisible(true));
 
+		setupContactTableView();
+
+		setupLocationTableView();
+
+		// Workaround for https://github.com/mkpaz/atlantafx/issues/31
+		contactIcon.iconSizeProperty()
+				.addListener((observable, oldValue, newValue) -> contactIcon.setIconSize(128));
+
+		contactImageView.setOnMouseEntered(event -> contactImageSelectButton.setOpacity(0.8));
+		contactImageView.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
+		contactImageSelectButton.setOnMouseEntered(event -> contactImageSelectButton.setOpacity(0.8));
+		contactImageSelectButton.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
+		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
+
+		chatButton.setOnAction(event -> startChat());
+
+		setupContactNotifications();
+		setupConnectionNotifications();
+
+		getContacts();
+	}
+
+	private void setupContactTableView()
+	{
 		contactTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient));
 		contactTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
 
-		contactTablePresenceColumn.setCellFactory(param -> new ContactCellStatus());
+		contactTablePresenceColumn.setCellFactory(param -> new AvailabilityCellStatus<>());
 		contactTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().availability()));
 
 		var filteredList = new FilteredList<>(contactTableView.getItems());
@@ -224,12 +252,18 @@ public class ContactViewController implements Controller
 				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue));
 
 		createContactTableViewContextMenu();
+	}
 
+	private void setupLocationTableView()
+	{
 		locationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
 		locationTableView.setRowFactory(param -> new LocationRow());
 
 		locationTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+		locationTablePresenceColumn.setCellFactory(param -> new AvailabilityCellStatus<>());
+		// The following is needed because location has no concept of offline presence
+		locationTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().isConnected() ? param.getValue().getAvailability() : Availability.OFFLINE));
 		locationTableIPColumn.setCellValueFactory(param -> {
 			var hostPort = getConnectedAddress(param.getValue());
 			return new SimpleStringProperty(hostPort != null ? hostPort.host() : "-");
@@ -239,23 +273,6 @@ public class ContactViewController implements Controller
 			return new SimpleStringProperty(hostPort != null ? String.valueOf(hostPort.port()) : "-");
 		});
 		locationTableLastConnectedColumn.setCellValueFactory(param -> new SimpleStringProperty(getLastConnection(param.getValue())));
-
-		// Workaround for https://github.com/mkpaz/atlantafx/issues/31
-		contactIcon.iconSizeProperty()
-				.addListener((observable, oldValue, newValue) -> contactIcon.setIconSize(128));
-
-		contactImageView.setOnMouseEntered(event -> contactImageSelectButton.setOpacity(0.8));
-		contactImageView.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
-		contactImageSelectButton.setOnMouseEntered(event -> contactImageSelectButton.setOpacity(0.8));
-		contactImageSelectButton.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
-		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
-
-		chatButton.setOnAction(event -> startChat());
-
-		setupContactNotifications();
-		setupConnectionNotifications();
-
-		getContacts();
 	}
 
 	private void getContacts()
@@ -367,11 +384,13 @@ public class ContactViewController implements Controller
 
 	private void saveSelection()
 	{
+		refreshContactTableView = false;
 		savedSelection = contactTableView.getSelectionModel().getSelectedItem();
 	}
 
 	private void selectAgainIfPreviouslySelected(Contact previous, Contact current)
 	{
+		refreshContactTableView = true;
 		if (previous != null && previous == savedSelection)
 		{
 			contactTableView.getSelectionModel().select(current);
@@ -452,6 +471,11 @@ public class ContactViewController implements Controller
 
 	private void changeSelectedContact(Contact contact)
 	{
+		if (!refreshContactTableView)
+		{
+			return;
+		}
+
 		if (contact == null)
 		{
 			clearSelection();

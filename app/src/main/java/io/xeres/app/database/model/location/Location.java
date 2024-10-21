@@ -90,7 +90,7 @@ public class Location implements Comparable<Location>
 	private NetMode netMode = NetMode.UNKNOWN;
 
 	@Convert(converter = AvailabilityConverter.class)
-	private Availability availability = Availability.AVAILABLE;
+	private Availability availability = Availability.AVAILABLE; // Do NOT use Availability.OFFLINE, use isConnected() for that
 
 	protected Location()
 	{

@@ -20,20 +20,19 @@
 package io.xeres.ui.controller.contact;
 
 import io.xeres.common.location.Availability;
-import io.xeres.common.rest.contact.Contact;
 import javafx.scene.control.TableCell;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-class ContactCellStatus extends TableCell<Contact, Availability>
+class AvailabilityCellStatus<T> extends TableCell<T, Availability>
 {
 	@Override
 	protected void updateItem(Availability item, boolean empty)
 	{
 		super.updateItem(item, empty);
-		setGraphic(empty ? null : updateContact((FontIcon) getGraphic(), item));
+		setGraphic(empty ? null : updateAvailability((FontIcon) getGraphic(), item));
 	}
 
-	private FontIcon updateContact(FontIcon icon, Availability availability)
+	private FontIcon updateAvailability(FontIcon icon, Availability availability)
 	{
 		if (icon == null)
 		{

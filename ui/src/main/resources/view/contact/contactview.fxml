@@ -149,6 +149,7 @@
                         </VBox.margin>
                         <columns>
                             <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="Name"/>
+                            <TableColumn fx:id="locationTablePresenceColumn" prefWidth="25.0"/>
                             <TableColumn fx:id="locationTableIPColumn" prefWidth="120.0" text="IP"/>
                             <TableColumn fx:id="locationTablePortColumn" prefWidth="60.0" text="Port"/>
                             <TableColumn fx:id="locationTableLastConnectedColumn" prefWidth="140" text="Last Connected"/>

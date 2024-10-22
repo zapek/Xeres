@@ -107,20 +107,24 @@ bootBuildImage {
 }
 
 // This is needed to have jpackage work with the configuration cache, see https://github.com/petr-panteleyev/jpackage-gradle-plugin/issues/29
-def jpackageWorkdir = layout.buildDirectory.file('jpackage')
 tasks.register('cleanJpackageWorkdir', Delete) {
-    delete jpackageWorkdir
+    delete layout.buildDirectory.file('jpackage')
 }
 
 tasks.register('deletePortable', Delete) {
     delete base.distsDirectory.get().dir(rootProject.name)
 }
 
+tasks.register('packagePortable', Zip) {
+    archiveFileName = "${rootProject.name}-${project.version}-portable.zip"
+    destinationDirectory = base.distsDirectory.get()
+    from base.distsDirectory.get().dir(rootProject.name)
+}
+
 jpackage {
-    dependsOn deleteLibs, cleanJpackageWorkdir
-    mustRunAfter "deleteLibs"
-    dependsOn "bootJar"
-    dependsOn "copyInstaller"
+    dependsOn deleteLibs, cleanJpackageWorkdir, bootJar, copyInstaller
+    mustRunAfter deleteLibs
+    finalizedBy packagePortable, deletePortable
     appName = parent.project.name
     vendor = "David Gerber"
     copyright = "Copyright 2019-2024 by David Gerber. All Rights Reserved"
@@ -128,6 +132,26 @@ jpackage {
     input = "${base.libsDirectory.get()}"
     destination = "${base.distsDirectory.get()}"
     mainJar = bootJar.archiveFileName.get()
+    // The following saves around 27 MB
+    addModules = ['java.base',
+                  'java.desktop',
+                  'java.sql',
+                  'java.xml',
+                  'java.management',
+                  'java.datatransfer',
+                  'java.prefs',
+                  'java.naming',
+                  'java.security.jgss',
+                  'java.instrument',
+                  'java.logging',
+                  'java.compiler',
+                  'java.scripting',
+                  'java.transaction.xa',
+                  'jdk.net',
+                  'java.rmi',
+                  'jdk.unsupported',
+                  'java.sql.rowset',
+                  'java.net.http']
     if (project.hasProperty("jpackage.portable")) {
         type = ImageType.APP_IMAGE
     } else {
@@ -169,13 +193,7 @@ jpackage {
             new File("${base.distsDirectory.get().dir(rootProject.name)}", "Portable").text = ""
         }
     }
-    finalizedBy("packagePortable", "deletePortable")
-}
 
-tasks.register('packagePortable', Zip) {
-    archiveFileName = "${rootProject.name}-${project.version}-portable.zip"
-    destinationDirectory = base.distsDirectory.get()
-    from base.distsDirectory.get().dir(rootProject.name)
 }
 
 jacocoTestReport {

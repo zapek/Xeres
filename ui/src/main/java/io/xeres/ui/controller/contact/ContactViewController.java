@@ -39,8 +39,10 @@ import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -63,7 +65,10 @@ import reactor.core.Disposable;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.ResourceBundle;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
@@ -152,6 +157,15 @@ public class ContactViewController implements Controller
 	private Button chatButton;
 
 	@FXML
+	private CheckMenuItem showOtherContacts;
+
+	@FXML
+	private CheckMenuItem showOtherProfiles;
+
+	@FXML
+	private MenuItem jumpToOwn;
+
+	@FXML
 	private TableView<Location> locationTableView;
 
 	@FXML
@@ -180,6 +194,10 @@ public class ContactViewController implements Controller
 	private Disposable contactNotificationDisposable;
 	private Disposable availabilityNotificationDisposable;
 
+	private final ObservableList<Contact> contactObservableList = FXCollections.observableArrayList();
+	private final FilteredList<Contact> filteredList = new FilteredList<>(contactObservableList);
+	private final ContactTableFilter contactTableFilter = new ContactTableFilter(filteredList);
+
 	private Contact savedSelection;
 	private boolean refreshContactTableView = true; // Prevent multiple refreshes when adding/removing entries
 
@@ -201,8 +219,9 @@ public class ContactViewController implements Controller
 		contactImageView.setOnFailure(() -> contactIcon.setVisible(true));
 
 		setupContactTableView();
-
 		setupLocationTableView();
+
+		setupMenuFilters();
 
 		// Workaround for https://github.com/mkpaz/atlantafx/issues/31
 		contactIcon.iconSizeProperty()
@@ -224,29 +243,17 @@ public class ContactViewController implements Controller
 
 	private void setupContactTableView()
 	{
+		SortedList<Contact> sortedList = new SortedList<>(filteredList);
+		contactTableView.setItems(sortedList);
+		sortedList.comparatorProperty().bind(contactTableView.comparatorProperty());
+
+		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactTableFilter.setNameFilter(newValue));
+
 		contactTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient));
 		contactTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
 
 		contactTablePresenceColumn.setCellFactory(param -> new AvailabilityCellStatus<>());
 		contactTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().availability()));
-
-		var filteredList = new FilteredList<>(contactTableView.getItems());
-
-		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue.isEmpty())
-			{
-				//noinspection unchecked
-				contactTableView.setItems((ObservableList<Contact>) filteredList.getSource());
-			}
-			else
-			{
-				if (!(contactTableView.getItems() instanceof FilteredList<?>))
-				{
-					contactTableView.setItems(filteredList);
-				}
-				filteredList.setPredicate(s -> s.name().toLowerCase(Locale.ROOT).contains(newValue.toLowerCase(Locale.ROOT)));
-			}
-		});
 
 		contactTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue));
@@ -275,12 +282,30 @@ public class ContactViewController implements Controller
 		locationTableLastConnectedColumn.setCellValueFactory(param -> new SimpleStringProperty(getLastConnection(param.getValue())));
 	}
 
+	private void setupMenuFilters()
+	{
+		showOtherContacts.selectedProperty().addListener((observable, oldValue, newValue) -> log.debug("selected: {}", newValue));
+
+		jumpToOwn.setOnAction(event -> selectOwnContact());
+	}
+
+	private void selectOwnContact()
+	{
+		contactObservableList.stream()
+				.filter(contact -> contact.profileId() == 1L)
+				.findFirst()
+				.ifPresent(contact -> {
+					contactTableView.getSelectionModel().select(contact);
+					contactTableView.scrollTo(contact);
+				});
+	}
+
 	private void getContacts()
 	{
 		contactClient.getContacts().collectList()
 				.doOnSuccess(contacts -> Platform.runLater(() -> {
 					// Add all contacts
-					contactTableView.getItems().addAll(contacts);
+					contactObservableList.addAll(contacts);
 
 					// Sort by connected first then name
 					contactTableView.getSortOrder().add(contactTablePresenceColumn);
@@ -345,24 +370,24 @@ public class ContactViewController implements Controller
 		// XXX: should we have a map to speed up all this?
 		if (contact.identityId() != 0L)
 		{
-			var existing = contactTableView.getItems().stream()
+			var existing = contactObservableList.stream()
 					.filter(existingContact -> existingContact.identityId() == contact.identityId())
 					.findFirst().orElse(null);
 			saveSelection();
 			var changed = removeIfFound(existing);
-			contactTableView.getItems().add(contact);
+			contactObservableList.add(contact);
 			selectAgainIfPreviouslySelected(existing, contact);
 
 			return changed;
 		}
 		else if (contact.profileId() != 0L)
 		{
-			var existing = contactTableView.getItems().stream()
+			var existing = contactObservableList.stream()
 					.filter(existingContact -> existingContact.profileId() == contact.profileId() && existingContact.name().equals(contact.name()))
 					.findFirst().orElse(null);
 			saveSelection();
 			var changed = removeIfFound(existing);
-			contactTableView.getItems().add(contact);
+			contactObservableList.add(contact);
 			selectAgainIfPreviouslySelected(existing, contact);
 
 			return changed;
@@ -377,7 +402,7 @@ public class ContactViewController implements Controller
 	{
 		if (contact != null)
 		{
-			return contactTableView.getItems().remove(contact);
+			return contactObservableList.remove(contact);
 		}
 		return false;
 	}
@@ -400,12 +425,12 @@ public class ContactViewController implements Controller
 	private void removeContact(Contact contact)
 	{
 		log.debug("Removing contact {}", contact);
-		contactTableView.getItems().removeIf(existingContact -> existingContact.identityId() == contact.identityId());
+		contactObservableList.removeIf(existingContact -> existingContact.identityId() == contact.identityId());
 	}
 
 	private void updateContactConnection(long profileId, Availability availability)
 	{
-		var existing = contactTableView.getItems().stream()
+		var existing = contactObservableList.stream()
 				.filter(existingContact -> existingContact.profileId() == profileId)
 				.findFirst().orElse(null);
 
@@ -417,8 +442,8 @@ public class ContactViewController implements Controller
 
 		var updated = new Contact(existing.name(), existing.profileId(), existing.identityId(), availability);
 		saveSelection();
-		contactTableView.getItems().remove(existing);
-		contactTableView.getItems().add(updated);
+		contactObservableList.remove(existing);
+		contactObservableList.add(updated);
 		selectAgainIfPreviouslySelected(existing, updated);
 		contactTableView.sort();
 	}
@@ -637,7 +662,7 @@ public class ContactViewController implements Controller
 			if (contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID)
 			{
 				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.name()), () -> profileClient.delete(contact.profileId())
-						.doOnSuccess(unused -> Platform.runLater(() -> contactTableView.getItems().remove(contact)))
+						.doOnSuccess(unused -> Platform.runLater(() -> contactObservableList.remove(contact)))
 						.subscribe());
 			}
 		});
@@ -690,7 +715,7 @@ public class ContactViewController implements Controller
 					.doOnSuccess(identities -> {
 						if (!identities.isEmpty())
 						{
-							Platform.runLater(() -> contactTableView.getItems().stream()
+							Platform.runLater(() -> contactObservableList.stream()
 									.filter(contact -> contact.identityId() == identities.getFirst().getId())
 									.findFirst()
 									.ifPresentOrElse(contact -> {

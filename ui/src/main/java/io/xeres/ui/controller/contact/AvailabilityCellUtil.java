@@ -20,15 +20,44 @@
 package io.xeres.ui.controller.contact;
 
 import io.xeres.common.location.Availability;
-import javafx.scene.control.TableCell;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-class AvailabilityCellStatus<T> extends TableCell<T, Availability>
+final class AvailabilityCellUtil
 {
-	@Override
-	protected void updateItem(Availability item, boolean empty)
+	private AvailabilityCellUtil()
 	{
-		super.updateItem(item, empty);
-		setGraphic(empty ? null : AvailabilityCellUtil.updateAvailability((FontIcon) getGraphic(), item));
+		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static FontIcon updateAvailability(FontIcon icon, Availability availability)
+	{
+		if (icon == null)
+		{
+			icon = new FontIcon();
+		}
+		icon.getStyleClass().removeAll("success", "warning", "danger");
+		switch (availability)
+		{
+			case AVAILABLE ->
+			{
+				icon.setIconLiteral("fas-circle");
+				icon.getStyleClass().add("success");
+				icon.setVisible(true);
+			}
+			case AWAY ->
+			{
+				icon.setIconLiteral("fas-clock");
+				icon.getStyleClass().add("warning");
+				icon.setVisible(true);
+			}
+			case BUSY ->
+			{
+				icon.setIconLiteral("fas-minus-circle");
+				icon.getStyleClass().add("danger");
+				icon.setVisible(true);
+			}
+			case OFFLINE -> icon.setVisible(false);
+		}
+		return icon;
 	}
 }

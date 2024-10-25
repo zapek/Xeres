@@ -42,12 +42,12 @@
                     </items>
                 </MenuButton>
             </HBox>
-            <TableView fx:id="contactTableView" minWidth="-Infinity" prefWidth="200" VBox.vgrow="ALWAYS">
+            <TreeTableView fx:id="contactTreeTableView" minWidth="-Infinity" prefWidth="200" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="contactTableNameColumn" prefWidth="180.0" text="Name"/>
-                    <TableColumn fx:id="contactTablePresenceColumn" prefWidth="40.0"/>
+                    <TreeTableColumn fx:id="contactTreeTableNameColumn" prefWidth="180.0" text="Name"/>
+                    <TreeTableColumn fx:id="contactTreeTablePresenceColumn" prefWidth="40.0"/>
                 </columns>
-            </TableView>
+            </TreeTableView>
         </VBox>
         <VBox>
             <padding>

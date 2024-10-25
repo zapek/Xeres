@@ -21,20 +21,21 @@ package io.xeres.ui.controller.contact;
 
 import io.xeres.common.rest.contact.Contact;
 import javafx.collections.transformation.FilteredList;
+import javafx.scene.control.TreeItem;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Locale;
 import java.util.function.Predicate;
 
-class ContactTableFilter implements Predicate<Contact>
+class ContactFilter implements Predicate<TreeItem<Contact>>
 {
-	private final FilteredList<Contact> filteredList;
+	private final FilteredList<TreeItem<Contact>> filteredList;
 
 	private boolean hideOtherContacts;
 	private boolean hideOtherProfiles;
 	private String nameFilter;
 
-	public ContactTableFilter(FilteredList<Contact> filteredList)
+	public ContactFilter(FilteredList<TreeItem<Contact>> filteredList)
 	{
 		this.filteredList = filteredList;
 	}
@@ -57,7 +58,7 @@ class ContactTableFilter implements Predicate<Contact>
 	}
 
 	@Override
-	public boolean test(Contact contact)
+	public boolean test(TreeItem<Contact> contact)
 	{
 		if (hideOtherContacts)
 		{
@@ -69,7 +70,7 @@ class ContactTableFilter implements Predicate<Contact>
 		}
 		if (StringUtils.isNotEmpty(nameFilter))
 		{
-			return contact.name().toLowerCase(Locale.ROOT).contains(nameFilter.toLowerCase(Locale.ROOT));
+			return contact.getValue().name().toLowerCase(Locale.ROOT).contains(nameFilter.toLowerCase(Locale.ROOT));
 		}
 		return true;
 	}

@@ -37,12 +37,13 @@ import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -65,17 +66,13 @@ import reactor.core.Disposable;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.WARNING;
-import static javafx.scene.control.TableColumn.SortType.ASCENDING;
 
 @Component
 @FxmlView(value = "/view/contact/contactview.fxml")
@@ -91,13 +88,13 @@ public class ContactViewController implements Controller
 	}
 
 	@FXML
-	private TableView<Contact> contactTableView;
+	private TreeTableView<Contact> contactTreeTableView;
 
 	@FXML
-	private TableColumn<Contact, Contact> contactTableNameColumn;
+	private TreeTableColumn<Contact, Contact> contactTreeTableNameColumn;
 
 	@FXML
-	private TableColumn<Contact, Availability> contactTablePresenceColumn;
+	private TreeTableColumn<Contact, Availability> contactTreeTablePresenceColumn;
 
 	@FXML
 	private TextField searchTextField;
@@ -194,11 +191,12 @@ public class ContactViewController implements Controller
 	private Disposable contactNotificationDisposable;
 	private Disposable availabilityNotificationDisposable;
 
-	private final ObservableList<Contact> contactObservableList = FXCollections.observableArrayList();
-	private final FilteredList<Contact> filteredList = new FilteredList<>(contactObservableList);
-	private final ContactTableFilter contactTableFilter = new ContactTableFilter(filteredList);
+	private final ObservableList<TreeItem<Contact>> contactObservableList = FXCollections.observableArrayList(p -> new Observable[]{p.valueProperty()}); // XXX: no need to add/remove to perform an update with that... try to just setValue() instead?
+	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(contactObservableList);
+	private final ContactFilter contactFilter = new ContactFilter(filteredList);
+	private Comparator<TreeItem<Contact>> treeItemComparator;
 
-	private Contact savedSelection;
+	private TreeItem<Contact> savedSelection;
 	private boolean refreshContactTableView = true; // Prevent multiple refreshes when adding/removing entries
 
 	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle, WindowManager windowManager)
@@ -218,7 +216,7 @@ public class ContactViewController implements Controller
 		contactImageView.setLoader(url -> generalClient.getImage(url).block());
 		contactImageView.setOnFailure(() -> contactIcon.setVisible(true));
 
-		setupContactTableView();
+		setupContactTreeTableView();
 		setupLocationTableView();
 
 		setupMenuFilters();
@@ -241,24 +239,49 @@ public class ContactViewController implements Controller
 		getContacts();
 	}
 
-	private void setupContactTableView()
+	private void setupContactTreeTableView()
 	{
-		SortedList<Contact> sortedList = new SortedList<>(filteredList);
-		contactTableView.setItems(sortedList);
-		sortedList.comparatorProperty().bind(contactTableView.comparatorProperty());
+		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
 
-		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactTableFilter.setNameFilter(newValue));
+		contactTreeTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient));
+		contactTreeTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
 
-		contactTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient));
-		contactTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+		contactTreeTablePresenceColumn.setCellFactory(param -> new AvailabilityTreeCellStatus<>());
+		contactTreeTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue().availability()));
 
-		contactTablePresenceColumn.setCellFactory(param -> new AvailabilityCellStatus<>());
-		contactTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().availability()));
+		contactTreeTableView.getSelectionModel().selectedItemProperty()
+				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue != null ? newValue.getValue() : null));
 
-		contactTableView.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue));
+		var treeRoot = new TreeItem<>(new Contact(null, 0L, 0L, Availability.OFFLINE));
+		treeRoot.setExpanded(true);
+
+		Bindings.bindContent(treeRoot.getChildren(), filteredList);
+		contactTreeTableView.comparatorProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null)
+			{
+				treeItemComparator = newValue;
+				sortContacts();
+			}
+		});
+
+		contactTreeTableView.setRoot(treeRoot);
+		contactTreeTableView.setShowRoot(false);
 
 		createContactTableViewContextMenu();
+	}
+
+	private void sortContacts()
+	{
+		FXCollections.sort(contactObservableList, treeItemComparator);
+	}
+
+	private void scrollToContact(TreeItem<Contact> contact)
+	{
+		var index = contactTreeTableView.getSelectionModel().getSelectedIndex();
+		if (index != -1)
+		{
+			contactTreeTableView.scrollTo(index);
+		}
 	}
 
 	private void setupLocationTableView()
@@ -292,31 +315,110 @@ public class ContactViewController implements Controller
 	private void selectOwnContact()
 	{
 		contactObservableList.stream()
-				.filter(contact -> contact.profileId() == 1L)
+				.filter(contact -> contact.getValue().profileId() == 1L)
 				.findFirst()
 				.ifPresent(contact -> {
-					contactTableView.getSelectionModel().select(contact);
-					contactTableView.scrollTo(contact);
+					contactTreeTableView.getSelectionModel().select(contact);
+					scrollToContact(contact);
 				});
 	}
 
 	private void getContacts()
 	{
-		contactClient.getContacts().collectList()
-				.doOnSuccess(contacts -> Platform.runLater(() -> {
+		Map<Long, TreeItem<Contact>> contacts = new HashMap<>();
+		List<TreeItem<Contact>> identities = new ArrayList<>();
+
+		contactClient.getContacts()
+				.doOnNext(contact -> {
+					if (contact.profileId() != 0L)
+					{
+						if (contact.identityId() != 0L)
+						{
+							if (contacts.containsKey(contact.profileId()))
+							{
+								var profile = contacts.get(contact.profileId());
+								updateProfileWithIdentity(profile, new TreeItem<>(contact));
+							}
+							else
+							{
+								contacts.put(contact.profileId(), new TreeItem<>(contact));
+							}
+						}
+						else
+						{
+							if (contacts.put(contact.profileId(), new TreeItem<>(contact)) != null)
+							{
+								throw new IllegalStateException("Profile overwritten");
+							}
+						}
+					}
+					else
+					{
+						identities.add(new TreeItem<>(contact));
+					}
+				})
+				.doOnComplete(() -> Platform.runLater(() -> {
 					// Add all contacts
-					contactObservableList.addAll(contacts);
+					contactObservableList.addAll(contacts.values());
+					contactObservableList.addAll(identities);
 
 					// Sort by connected first then name
-					contactTableView.getSortOrder().add(contactTablePresenceColumn);
-					contactTablePresenceColumn.setSortType(ASCENDING);
-					contactTablePresenceColumn.setSortable(true);
-
-					contactTableView.getSortOrder().add(contactTableNameColumn);
-					contactTableNameColumn.setSortType(ASCENDING);
-					contactTableNameColumn.setSortable(true);
+					contactTreeTableView.setSortPolicy(table -> true); // XXX: the magic thing?
+					contactTreeTablePresenceColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
+					contactTreeTablePresenceColumn.setSortable(true);
+					contactTreeTableNameColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
+					contactTreeTableNameColumn.setSortable(true);
+					contactTreeTableView.getSortOrder().setAll(contactTreeTablePresenceColumn, contactTreeTableNameColumn);
 				}))
 				.subscribe();
+	}
+
+	private void updateProfileWithIdentity(TreeItem<Contact> profile, TreeItem<Contact> identity)
+	{
+		if (profile.getValue().identityId() != 0L)
+		{
+			// Profile with an identity already
+			if (profile.getValue().identityId() == identity.getValue().identityId())
+			{
+				// Same identity, we replace it
+				profile.setValue(new Contact(identity.getValue().name(), identity.getValue().profileId(), identity.getValue().identityId(), identity.getValue().availability()));
+			}
+			else
+			{
+				if (profile.getChildren().isEmpty())
+				{
+					// Not the same, we replace if we have a matching name
+					if (!replaceIfSameName(profile, identity))
+					{
+						profile.getChildren().add(identity);
+					}
+				}
+				else
+				{
+					replaceIfSameName(profile, identity);
+					profile.getChildren().remove(identity);
+					profile.getChildren().add(identity);
+				}
+			}
+		}
+		else
+		{
+			// Lone profile that gets an identity added
+			if (!replaceIfSameName(profile, identity))
+			{
+				profile.getChildren().add(identity);
+			}
+		}
+	}
+
+	private boolean replaceIfSameName(TreeItem<Contact> profile, TreeItem<Contact> identity)
+	{
+		if (profile.getValue().name().equals(identity.getValue().name()))
+		{
+			profile.setValue(new Contact(identity.getValue().name(), identity.getValue().profileId(), identity.getValue().identityId(), identity.getValue().availability()));
+			return true;
+		}
+		return false;
 	}
 
 	private void setupContactNotifications()
@@ -360,35 +462,68 @@ public class ContactViewController implements Controller
 
 		if (added)
 		{
-			contactTableView.sort();
+			sortContacts();
 		}
+	}
+
+	private TreeItem<Contact> findProfile(long profileId)
+	{
+		return contactObservableList.stream()
+				.filter(existingContact -> existingContact.getValue().profileId() == profileId)
+				.findFirst().orElse(null);
 	}
 
 	private boolean addContact(Contact contact)
 	{
 		log.debug("Adding contact {}", contact);
-		// XXX: should we have a map to speed up all this?
-		if (contact.identityId() != 0L)
+
+		if (contact.profileId() != 0L && contact.identityId() != 0L)
 		{
-			var existing = contactObservableList.stream()
-					.filter(existingContact -> existingContact.identityId() == contact.identityId())
-					.findFirst().orElse(null);
+			// Add full contact
+			var existing = findProfile(contact.profileId());
+			var changed = false;
+			var item = new TreeItem<>(contact);
+
 			saveSelection();
-			var changed = removeIfFound(existing);
-			contactObservableList.add(contact);
-			selectAgainIfPreviouslySelected(existing, contact);
+
+			if (existing != null)
+			{
+				updateProfileWithIdentity(existing, item);
+				contactObservableList.remove(existing);
+				contactObservableList.add(item);
+				changed = true;
+			}
+			else
+			{
+				contactObservableList.add(item);
+			}
+			selectAgainIfPreviouslySelected(existing, item);
 
 			return changed;
 		}
 		else if (contact.profileId() != 0L)
 		{
+			// Add lone profile
+			var existing = findProfile(contact.profileId());
+			saveSelection();
+			var changed = removeIfFound(existing);
+			var item = new TreeItem<>(contact);
+			contactObservableList.add(item);
+			selectAgainIfPreviouslySelected(existing, item);
+
+			return changed;
+		}
+		else if (contact.identityId() != 0L)
+		{
+			// Add lone identity
 			var existing = contactObservableList.stream()
-					.filter(existingContact -> existingContact.profileId() == contact.profileId() && existingContact.name().equals(contact.name()))
+					.filter(existingContact -> existingContact.getValue().identityId() == contact.identityId())
 					.findFirst().orElse(null);
 			saveSelection();
 			var changed = removeIfFound(existing);
-			contactObservableList.add(contact);
-			selectAgainIfPreviouslySelected(existing, contact);
+			var item = new TreeItem<>(contact);
+			contactObservableList.add(item);
+			selectAgainIfPreviouslySelected(existing, item);
 
 			return changed;
 		}
@@ -398,7 +533,7 @@ public class ContactViewController implements Controller
 		}
 	}
 
-	private boolean removeIfFound(Contact contact)
+	private boolean removeIfFound(TreeItem<Contact> contact)
 	{
 		if (contact != null)
 		{
@@ -410,28 +545,29 @@ public class ContactViewController implements Controller
 	private void saveSelection()
 	{
 		refreshContactTableView = false;
-		savedSelection = contactTableView.getSelectionModel().getSelectedItem();
+		savedSelection = contactTreeTableView.getSelectionModel().getSelectedItem();
 	}
 
-	private void selectAgainIfPreviouslySelected(Contact previous, Contact current)
+	private void selectAgainIfPreviouslySelected(TreeItem<Contact> previous, TreeItem<Contact> current)
 	{
 		refreshContactTableView = true;
 		if (previous != null && previous == savedSelection)
 		{
-			contactTableView.getSelectionModel().select(current);
+			contactTreeTableView.getSelectionModel().select(current);
 		}
 	}
 
 	private void removeContact(Contact contact)
 	{
 		log.debug("Removing contact {}", contact);
-		contactObservableList.removeIf(existingContact -> existingContact.identityId() == contact.identityId());
+		contactObservableList.removeIf(existingContact -> existingContact.getValue().identityId() == contact.identityId());
 	}
 
 	private void updateContactConnection(long profileId, Availability availability)
 	{
+		log.debug("Updating contact connection {} with availability {}", profileId, availability);
 		var existing = contactObservableList.stream()
-				.filter(existingContact -> existingContact.profileId() == profileId)
+				.filter(existingContact -> existingContact.getValue().profileId() == profileId)
 				.findFirst().orElse(null);
 
 		if (existing == null)
@@ -440,12 +576,13 @@ public class ContactViewController implements Controller
 			return;
 		}
 
-		var updated = new Contact(existing.name(), existing.profileId(), existing.identityId(), availability);
+		var updated = new TreeItem<>(new Contact(existing.getValue().name(), existing.getValue().profileId(), existing.getValue().identityId(), availability));
+		updated.getChildren().addAll(existing.getChildren());
 		saveSelection();
 		contactObservableList.remove(existing);
 		contactObservableList.add(updated);
 		selectAgainIfPreviouslySelected(existing, updated);
-		contactTableView.sort();
+		sortContacts();
 	}
 
 	private HostPort getConnectedAddress(Location location)
@@ -662,14 +799,14 @@ public class ContactViewController implements Controller
 			if (contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID)
 			{
 				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.name()), () -> profileClient.delete(contact.profileId())
-						.doOnSuccess(unused -> Platform.runLater(() -> contactObservableList.remove(contact)))
+						.doOnSuccess(unused -> Platform.runLater(() -> contactObservableList.remove(new TreeItem<>(contact))))
 						.subscribe());
 			}
 		});
 
 		var xContextMenu = new XContextMenu<Contact>(deleteItem);
 		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID);
-		xContextMenu.addToNode(contactTableView);
+		xContextMenu.addToNode(contactTreeTableView);
 	}
 
 	private void selectOwnContactImage(ActionEvent event)
@@ -716,11 +853,11 @@ public class ContactViewController implements Controller
 						if (!identities.isEmpty())
 						{
 							Platform.runLater(() -> contactObservableList.stream()
-									.filter(contact -> contact.identityId() == identities.getFirst().getId())
+									.filter(contact -> contact.getValue().identityId() == identities.getFirst().getId())
 									.findFirst()
 									.ifPresentOrElse(contact -> {
-										contactTableView.getSelectionModel().select(contact);
-										contactTableView.scrollTo(contact);
+										contactTreeTableView.getSelectionModel().select(contact);
+										scrollToContact(contact);
 									}, () -> UiUtils.alert(WARNING, "Contact not found")));
 						}
 					})

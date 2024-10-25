@@ -47,7 +47,8 @@ public class ContactService
 	@Transactional(readOnly = true)
 	public List<Contact> getContacts()
 	{
-		// XXX: this merges probably a bit too much (what if several identities point to the same profile? what if the identity name is different from the profile name?)
+		// Send identities and profiles but make sure we don't send
+		// an empty profile if it has already identities linked to it.
 		var profiles = profileService.getAllProfiles().stream()
 				.collect(Collectors.toMap(Profile::getId, profile -> profile));
 		var identities = identityService.getAll();

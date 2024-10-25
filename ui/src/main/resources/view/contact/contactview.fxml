@@ -36,13 +36,15 @@
                         <FontIcon iconLiteral="fas-filter"/>
                     </graphic>
                     <items>
-                        <CheckMenuItem fx:id="showOtherContacts" text="Other contacts" selected="true"/>
-                        <CheckMenuItem fx:id="showOtherProfiles" text="Other profiles" selected="true"/>
+                        <CheckMenuItem fx:id="showAllContacts" text="All contacts" selected="true"/>
                         <MenuItem fx:id="jumpToOwn" text="Go to own"/>
                     </items>
                 </MenuButton>
             </HBox>
             <TreeTableView fx:id="contactTreeTableView" minWidth="-Infinity" prefWidth="200" VBox.vgrow="ALWAYS">
+                <placeholder>
+                    <Label text="No contacts"/>
+                </placeholder>
                 <columns>
                     <TreeTableColumn fx:id="contactTreeTableNameColumn" prefWidth="180.0" text="Name"/>
                     <TreeTableColumn fx:id="contactTreeTablePresenceColumn" prefWidth="40.0"/>

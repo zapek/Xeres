@@ -154,10 +154,7 @@ public class ContactViewController implements Controller
 	private Button chatButton;
 
 	@FXML
-	private CheckMenuItem showOtherContacts;
-
-	@FXML
-	private CheckMenuItem showOtherProfiles;
+	private CheckMenuItem showAllContacts;
 
 	@FXML
 	private MenuItem jumpToOwn;
@@ -191,7 +188,7 @@ public class ContactViewController implements Controller
 	private Disposable contactNotificationDisposable;
 	private Disposable availabilityNotificationDisposable;
 
-	private final ObservableList<TreeItem<Contact>> contactObservableList = FXCollections.observableArrayList(p -> new Observable[]{p.valueProperty()}); // XXX: no need to add/remove to perform an update with that... try to just setValue() instead?
+	private final ObservableList<TreeItem<Contact>> contactObservableList = FXCollections.observableArrayList(p -> new Observable[]{p.valueProperty()}); // Changing the value will mark the list as changed
 	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(contactObservableList);
 	private final ContactFilter contactFilter = new ContactFilter(filteredList);
 	private Comparator<TreeItem<Contact>> treeItemComparator;
@@ -252,10 +249,13 @@ public class ContactViewController implements Controller
 		contactTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue != null ? newValue.getValue() : null));
 
-		var treeRoot = new TreeItem<>(new Contact(null, 0L, 0L, Availability.OFFLINE));
+		var treeRoot = new TreeItem<>(Contact.EMPTY);
 		treeRoot.setExpanded(true);
 
 		Bindings.bindContent(treeRoot.getChildren(), filteredList);
+
+		// We need that to support sorting because a SortedList derived
+		// from a FilteredList doesn't work for a TreeTableView somehow.
 		contactTreeTableView.comparatorProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue != null)
 			{
@@ -307,7 +307,7 @@ public class ContactViewController implements Controller
 
 	private void setupMenuFilters()
 	{
-		showOtherContacts.selectedProperty().addListener((observable, oldValue, newValue) -> log.debug("selected: {}", newValue));
+		showAllContacts.selectedProperty().addListener((observable, oldValue, newValue) -> contactFilter.setShowAllContacts(newValue));
 
 		jumpToOwn.setOnAction(event -> selectOwnContact());
 	}
@@ -363,11 +363,12 @@ public class ContactViewController implements Controller
 					contactObservableList.addAll(identities);
 
 					// Sort by connected first then name
-					contactTreeTableView.setSortPolicy(table -> true); // XXX: the magic thing?
+					contactTreeTableView.setSortPolicy(table -> true); // This is needed otherwise the default sorting will break everything
 					contactTreeTablePresenceColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
 					contactTreeTablePresenceColumn.setSortable(true);
 					contactTreeTableNameColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
 					contactTreeTableNameColumn.setSortable(true);
+					//noinspection unchecked
 					contactTreeTableView.getSortOrder().setAll(contactTreeTablePresenceColumn, contactTreeTableNameColumn);
 				}))
 				.subscribe();
@@ -381,7 +382,7 @@ public class ContactViewController implements Controller
 			if (profile.getValue().identityId() == identity.getValue().identityId())
 			{
 				// Same identity, we replace it
-				profile.setValue(new Contact(identity.getValue().name(), identity.getValue().profileId(), identity.getValue().identityId(), identity.getValue().availability()));
+				profile.setValue(identity.getValue().clone());
 			}
 			else
 			{
@@ -415,7 +416,7 @@ public class ContactViewController implements Controller
 	{
 		if (profile.getValue().name().equals(identity.getValue().name()))
 		{
-			profile.setValue(new Contact(identity.getValue().name(), identity.getValue().profileId(), identity.getValue().identityId(), identity.getValue().availability()));
+			profile.setValue(identity.getValue().clone());
 			return true;
 		}
 		return false;
@@ -481,7 +482,6 @@ public class ContactViewController implements Controller
 		{
 			// Add full contact
 			var existing = findProfile(contact.profileId());
-			var changed = false;
 			var item = new TreeItem<>(contact);
 
 			saveSelection();
@@ -489,9 +489,7 @@ public class ContactViewController implements Controller
 			if (existing != null)
 			{
 				updateProfileWithIdentity(existing, item);
-				contactObservableList.remove(existing);
-				contactObservableList.add(item);
-				changed = true;
+				contactObservableList.set(contactObservableList.indexOf(existing), existing);
 			}
 			else
 			{
@@ -499,7 +497,7 @@ public class ContactViewController implements Controller
 			}
 			selectAgainIfPreviouslySelected(existing, item);
 
-			return changed;
+			return false;
 		}
 		else if (contact.profileId() != 0L)
 		{
@@ -576,11 +574,10 @@ public class ContactViewController implements Controller
 			return;
 		}
 
-		var updated = new TreeItem<>(new Contact(existing.getValue().name(), existing.getValue().profileId(), existing.getValue().identityId(), availability));
+		var updated = new TreeItem<>(Contact.withAvailability(existing.getValue(), availability));
 		updated.getChildren().addAll(existing.getChildren());
 		saveSelection();
-		contactObservableList.remove(existing);
-		contactObservableList.add(updated);
+		contactObservableList.set(contactObservableList.indexOf(existing), updated);
 		selectAgainIfPreviouslySelected(existing, updated);
 		sortContacts();
 	}
@@ -804,8 +801,8 @@ public class ContactViewController implements Controller
 			}
 		});
 
-		var xContextMenu = new XContextMenu<Contact>(deleteItem);
-		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID);
+		var xContextMenu = new XContextMenu<TreeItem<Contact>>(deleteItem);
+		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && contact.getValue().profileId() != 0L && contact.getValue().profileId() != OWN_PROFILE_ID);
 		xContextMenu.addToNode(contactTreeTableView);
 	}
 

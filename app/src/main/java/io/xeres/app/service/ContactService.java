@@ -60,9 +60,31 @@ public class ContactService
 		profiles.entrySet().removeIf(entry -> profilesIdsToRemove.contains(entry.getKey()));
 
 		List<Contact> contacts = new ArrayList<>(profiles.size() + identities.size());
-		profiles.forEach((key, value) -> contacts.add(new Contact(value.getName(), key, 0L, getAvailability(value))));
-		identities.forEach(identity -> contacts.add(new Contact(identity.getName(), identity.getProfile() != null ? identity.getProfile().getId() : 0L, identity.getId(), getAvailability(identity.getProfile()))));
+		profiles.forEach((key, value) -> contacts.add(new Contact(value.getName(), key, 0L, getAvailability(value), value.isAccepted())));
+		identities.forEach(identity -> contacts.add(new Contact(
+				identity.getName(),
+				identity.getProfile() != null ? identity.getProfile().getId() : 0L,
+				identity.getId(),
+				getAvailability(identity.getProfile()),
+				isAccepted(identity.getProfile()))));
 		return contacts;
+	}
+
+	public List<Contact> toContacts(List<IdentityGroupItem> identities)
+	{
+		List<Contact> contacts = new ArrayList<>(identities.size());
+		identities.forEach(identity -> contacts.add(new Contact(
+				identity.getName(),
+				identity.getProfile() != null ? identity.getProfile().getId() : new IdentityServiceStorage(identity.getServiceString()).getPgpIdentifier(),
+				identity.getId(),
+				getAvailability(identity.getProfile()),
+				isAccepted(identity.getProfile()))));
+		return contacts;
+	}
+
+	public Contact toContact(Profile profile)
+	{
+		return new Contact(profile.getName(), profile.getId(), 0L, getAvailability(profile), isAccepted(profile));
 	}
 
 	private Availability getAvailability(Profile profile)
@@ -74,15 +96,8 @@ public class ContactService
 		return Availability.OFFLINE;
 	}
 
-	public List<Contact> toContacts(List<IdentityGroupItem> identities)
+	private boolean isAccepted(Profile profile)
 	{
-		List<Contact> contacts = new ArrayList<>(identities.size());
-		identities.forEach(identity -> contacts.add(new Contact(identity.getName(), identity.getProfile() != null ? identity.getProfile().getId() : new IdentityServiceStorage(identity.getServiceString()).getPgpIdentifier(), identity.getId(), getAvailability(identity.getProfile()))));
-		return contacts;
-	}
-
-	public Contact toContact(Profile profile)
-	{
-		return new Contact(profile.getName(), profile.getId(), 0L, getAvailability(profile));
+		return profile != null && profile.isAccepted();
 	}
 }

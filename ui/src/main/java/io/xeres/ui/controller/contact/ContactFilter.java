@@ -31,8 +31,7 @@ class ContactFilter implements Predicate<TreeItem<Contact>>
 {
 	private final FilteredList<TreeItem<Contact>> filteredList;
 
-	private boolean hideOtherContacts;
-	private boolean hideOtherProfiles;
+	private boolean showAllContacts = true;
 	private String nameFilter;
 
 	public ContactFilter(FilteredList<TreeItem<Contact>> filteredList)
@@ -40,38 +39,34 @@ class ContactFilter implements Predicate<TreeItem<Contact>>
 		this.filteredList = filteredList;
 	}
 
-	public void setHideOtherContacts(boolean hideOtherContacts)
+	public void setShowAllContacts(boolean showAllContacts)
 	{
-		this.hideOtherContacts = hideOtherContacts;
-	}
-
-	public void setHideOtherProfiles(boolean hideOtherProfiles)
-	{
-		this.hideOtherProfiles = hideOtherProfiles;
+		this.showAllContacts = showAllContacts;
+		changePredicate();
 	}
 
 	public void setNameFilter(String filter)
 	{
 		nameFilter = filter;
-		filteredList.setPredicate(null); // Force a change otherwise the property will think we're the same predicate
+		changePredicate();
+	}
+
+	/**
+	 * Forces a change of predicate, otherwise the property will think we're the same.
+	 */
+	private void changePredicate()
+	{
+		filteredList.setPredicate(null);
 		filteredList.setPredicate(this);
 	}
 
 	@Override
 	public boolean test(TreeItem<Contact> contact)
 	{
-		if (hideOtherContacts)
-		{
-			// XXX: needs to know if other...
-		}
-		if (hideOtherProfiles)
-		{
-			// XXX: needs to know if not accepted
-		}
 		if (StringUtils.isNotEmpty(nameFilter))
 		{
-			return contact.getValue().name().toLowerCase(Locale.ROOT).contains(nameFilter.toLowerCase(Locale.ROOT));
+			return contact.getValue().name().toLowerCase(Locale.ROOT).contains(nameFilter.toLowerCase(Locale.ROOT)) && (showAllContacts || contact.getValue().accepted());
 		}
-		return true;
+		return showAllContacts || contact.getValue().accepted();
 	}
 }

@@ -78,6 +78,10 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 		{
 			setStyle("-fx-font-weight: bold");
 		}
+		else if (!contact.accepted())
+		{
+			setStyle("-fx-text-fill: -color-fg-subtle");
+		}
 		else
 		{
 			setStyle("");

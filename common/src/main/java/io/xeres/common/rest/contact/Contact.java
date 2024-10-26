@@ -21,6 +21,25 @@ package io.xeres.common.rest.contact;
 
 import io.xeres.common.location.Availability;
 
-public record Contact(String name, long profileId, long identityId, Availability availability)
+public record Contact(String name, long profileId, long identityId, Availability availability, boolean accepted) implements Cloneable
 {
+	public static final Contact EMPTY = new Contact(null, 0L, 0L, Availability.OFFLINE, false);
+
+	public static Contact withAvailability(Contact contact, Availability availability)
+	{
+		return new Contact(contact.name(), contact.profileId(), contact.identityId(), availability, contact.accepted());
+	}
+
+	@Override
+	public Contact clone()
+	{
+		try
+		{
+			return (Contact) super.clone();
+		}
+		catch (CloneNotSupportedException e)
+		{
+			throw new AssertionError(e);
+		}
+	}
 }

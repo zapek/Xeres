@@ -22,14 +22,14 @@ package io.xeres.ui.controller.contact;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.AsyncImageView;
-import javafx.scene.control.TableCell;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
-class ContactCellName extends TableCell<Contact, Contact>
+class ContactCellName extends TreeTableCell<Contact, Contact>
 {
 	private static final int CONTACT_WIDTH = 32;
 	private static final int CONTACT_HEIGHT = 32;
@@ -77,6 +77,10 @@ class ContactCellName extends TableCell<Contact, Contact>
 		if (contact.profileId() == 1L)
 		{
 			setStyle("-fx-font-weight: bold");
+		}
+		else if (!contact.accepted())
+		{
+			setStyle("-fx-text-fill: -color-fg-subtle");
 		}
 		else
 		{

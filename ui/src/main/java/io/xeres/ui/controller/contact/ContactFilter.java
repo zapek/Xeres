@@ -21,56 +21,52 @@ package io.xeres.ui.controller.contact;
 
 import io.xeres.common.rest.contact.Contact;
 import javafx.collections.transformation.FilteredList;
+import javafx.scene.control.TreeItem;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Locale;
 import java.util.function.Predicate;
 
-class ContactTableFilter implements Predicate<Contact>
+class ContactFilter implements Predicate<TreeItem<Contact>>
 {
-	private final FilteredList<Contact> filteredList;
+	private final FilteredList<TreeItem<Contact>> filteredList;
 
-	private boolean hideOtherContacts;
-	private boolean hideOtherProfiles;
+	private boolean showAllContacts = true;
 	private String nameFilter;
 
-	public ContactTableFilter(FilteredList<Contact> filteredList)
+	public ContactFilter(FilteredList<TreeItem<Contact>> filteredList)
 	{
 		this.filteredList = filteredList;
 	}
 
-	public void setHideOtherContacts(boolean hideOtherContacts)
+	public void setShowAllContacts(boolean showAllContacts)
 	{
-		this.hideOtherContacts = hideOtherContacts;
-	}
-
-	public void setHideOtherProfiles(boolean hideOtherProfiles)
-	{
-		this.hideOtherProfiles = hideOtherProfiles;
+		this.showAllContacts = showAllContacts;
+		changePredicate();
 	}
 
 	public void setNameFilter(String filter)
 	{
 		nameFilter = filter;
-		filteredList.setPredicate(null); // Force a change otherwise the property will think we're the same predicate
+		changePredicate();
+	}
+
+	/**
+	 * Forces a change of predicate, otherwise the property will think we're the same.
+	 */
+	private void changePredicate()
+	{
+		filteredList.setPredicate(null);
 		filteredList.setPredicate(this);
 	}
 
 	@Override
-	public boolean test(Contact contact)
+	public boolean test(TreeItem<Contact> contact)
 	{
-		if (hideOtherContacts)
-		{
-			// XXX: needs to know if other...
-		}
-		if (hideOtherProfiles)
-		{
-			// XXX: needs to know if not accepted
-		}
 		if (StringUtils.isNotEmpty(nameFilter))
 		{
-			return contact.name().toLowerCase(Locale.ROOT).contains(nameFilter.toLowerCase(Locale.ROOT));
+			return contact.getValue().name().toLowerCase(Locale.ROOT).contains(nameFilter.toLowerCase(Locale.ROOT)) && (showAllContacts || contact.getValue().accepted());
 		}
-		return true;
+		return showAllContacts || contact.getValue().accepted();
 	}
 }

@@ -20,10 +20,10 @@
 package io.xeres.ui.controller.contact;
 
 import io.xeres.common.location.Availability;
-import javafx.scene.control.TableCell;
+import javafx.scene.control.TreeTableCell;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-class AvailabilityCellStatus<T> extends TableCell<T, Availability>
+class AvailabilityTreeCellStatus<T> extends TreeTableCell<T, Availability>
 {
 	@Override
 	protected void updateItem(Availability item, boolean empty)

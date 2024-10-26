@@ -205,7 +205,6 @@ public class WindowManager
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
-										.setUserData(chatMessage)
 										.build()
 										.open();
 							}

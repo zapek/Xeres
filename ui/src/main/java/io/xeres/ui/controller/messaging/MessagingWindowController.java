@@ -303,13 +303,7 @@ public class MessagingWindowController implements WindowController
 						updateTitle();
 						chatClient.getChatBacklog(location.getId()).collectList()
 								.doOnSuccess(backlogs -> Platform.runLater(() -> {
-									fillBacklog(backlogs);
-									var chatMessage = (ChatMessage) send.getScene().getRoot().getUserData();
-									if (chatMessage != null)
-									{
-										showMessage(chatMessage);
-										send.getScene().getRoot().setUserData(null);
-									}
+									fillBacklog(backlogs); // No need to use userData to pass the incoming message, it's already in the backlog
 								}))
 								.subscribe();
 

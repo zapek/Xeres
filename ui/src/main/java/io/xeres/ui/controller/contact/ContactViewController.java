@@ -386,7 +386,7 @@ public class ContactViewController implements Controller
 			if (profile.getValue().identityId() == identity.getValue().identityId())
 			{
 				// Same identity, we replace it
-				profile.setValue(identity.getValue().clone());
+				profile.setValue(identity.getValue());
 			}
 			else
 			{
@@ -400,9 +400,11 @@ public class ContactViewController implements Controller
 				}
 				else
 				{
-					replaceIfSameName(profile, identity);
-					profile.getChildren().remove(identity);
-					profile.getChildren().add(identity);
+					if (!replaceIfSameName(profile, identity))
+					{
+						profile.getChildren().remove(identity);
+						profile.getChildren().add(identity);
+					}
 				}
 			}
 		}
@@ -420,7 +422,7 @@ public class ContactViewController implements Controller
 	{
 		if (profile.getValue().name().equals(identity.getValue().name()))
 		{
-			profile.setValue(identity.getValue().clone());
+			profile.setValue(identity.getValue());
 			return true;
 		}
 		return false;
@@ -488,10 +490,9 @@ public class ContactViewController implements Controller
 			var existing = findProfile(contact.profileId());
 			var item = new TreeItem<>(contact);
 
-			saveSelection();
-
 			if (existing != null)
 			{
+				saveSelection();
 				updateProfileWithIdentity(existing, item);
 				contactObservableList.set(contactObservableList.indexOf(existing), existing);
 				selectAgainIfPreviouslySelected(existing, existing, true);

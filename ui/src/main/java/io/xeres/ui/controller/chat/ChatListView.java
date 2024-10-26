@@ -65,7 +65,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ChatListView implements NicknameCompleter.UsernameFinder
 {
-	private static final int SCROLL_BACK_MAX_LINES = 2000;
+	private static final int SCROLL_BACK_MAX_LINES = 1000;
 	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
 
 	private static final String INFO_MENU_ID = "info";

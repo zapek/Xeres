@@ -18,7 +18,7 @@
   -->
 
 <?import atlantafx.base.controls.Spacer?>
-<?import io.xeres.ui.custom.AsyncImageView?>
+<?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>

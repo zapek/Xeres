@@ -31,6 +31,7 @@ public class UiClientProperties
 	private boolean rsEmojisAliases = true;
 	private boolean connectionNotifications = true;
 	private boolean broadcastDiscoveryNotifications = true;
+	private int imageCacheSize;
 
 	public boolean isColoredEmojis()
 	{
@@ -80,5 +81,15 @@ public class UiClientProperties
 	public void setBroadcastDiscoveryNotifications(boolean broadcastDiscoveryNotifications)
 	{
 		this.broadcastDiscoveryNotifications = broadcastDiscoveryNotifications;
+	}
+
+	public int getImageCacheSize()
+	{
+		return imageCacheSize;
+	}
+
+	public void setImageCacheSize(int imageCacheSize)
+	{
+		this.imageCacheSize = imageCacheSize;
 	}
 }

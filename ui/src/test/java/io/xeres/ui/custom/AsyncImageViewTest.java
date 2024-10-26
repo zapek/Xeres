@@ -20,6 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.client.GeneralClient;
+import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;

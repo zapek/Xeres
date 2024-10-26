@@ -1,5 +1,7 @@
 package io.xeres.ui.custom;
 
+import io.xeres.ui.custom.asyncimage.AsyncImageView;
+
 /**
  * Modified image class that allows unlimited up-scaling.
  */

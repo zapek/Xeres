@@ -21,7 +21,8 @@ package io.xeres.ui.controller.contact;
 
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.custom.AsyncImageView;
+import io.xeres.ui.custom.asyncimage.AsyncImageView;
+import io.xeres.ui.custom.asyncimage.ImageCache;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
@@ -35,11 +36,13 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 	private static final int CONTACT_HEIGHT = 32;
 
 	private final GeneralClient generalClient;
+	private final ImageCache imageCache;
 
-	public ContactCellName(GeneralClient generalClient)
+	public ContactCellName(GeneralClient generalClient, ImageCache imageCache)
 	{
 		super();
 		this.generalClient = generalClient;
+		this.imageCache = imageCache;
 	}
 
 	@Override
@@ -59,7 +62,10 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 			stackPane.setPrefHeight(CONTACT_HEIGHT);
 			stackPane.getChildren().add(new FontIcon(FontAwesomeSolid.USER));
 			var finalStackPane = stackPane;
-			var imageView = new AsyncImageView(url -> generalClient.getImage(url).block(), () -> finalStackPane.getChildren().getFirst().setVisible(true));
+			var imageView = new AsyncImageView(
+					url -> generalClient.getImage(url).block(),
+					() -> finalStackPane.getChildren().getFirst().setVisible(true),
+					imageCache);
 			imageView.setFitWidth(CONTACT_WIDTH);
 			imageView.setFitHeight(CONTACT_HEIGHT);
 			stackPane.getChildren().add(imageView);

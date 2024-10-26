@@ -29,7 +29,8 @@ import io.xeres.common.rest.contact.Contact;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
-import io.xeres.ui.custom.AsyncImageView;
+import io.xeres.ui.custom.asyncimage.AsyncImageView;
+import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
@@ -182,6 +183,7 @@ public class ContactViewController implements Controller
 	private final ProfileClient profileClient;
 	private final IdentityClient identityClient;
 	private final NotificationClient notificationClient;
+	private final ImageCache imageCacheService;
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
 
@@ -196,13 +198,14 @@ public class ContactViewController implements Controller
 	private TreeItem<Contact> savedSelection;
 	private boolean refreshContactTableView = true; // Prevent multiple refreshes when adding/removing entries
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ResourceBundle bundle, WindowManager windowManager)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
 		this.notificationClient = notificationClient;
+		this.imageCacheService = imageCacheService;
 		this.bundle = bundle;
 		this.windowManager = windowManager;
 	}
@@ -212,6 +215,7 @@ public class ContactViewController implements Controller
 	{
 		contactImageView.setLoader(url -> generalClient.getImage(url).block());
 		contactImageView.setOnFailure(() -> contactIcon.setVisible(true));
+		contactImageView.setImageCache(imageCacheService);
 
 		setupContactTreeTableView();
 		setupLocationTableView();
@@ -240,7 +244,7 @@ public class ContactViewController implements Controller
 	{
 		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
 
-		contactTreeTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient));
+		contactTreeTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient, imageCacheService));
 		contactTreeTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
 
 		contactTreeTablePresenceColumn.setCellFactory(param -> new AvailabilityTreeCellStatus<>());

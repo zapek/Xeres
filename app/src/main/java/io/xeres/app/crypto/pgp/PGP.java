@@ -196,7 +196,7 @@ public final class PGP
 		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(RSA_GENERAL, keyPair, new Date());
 
 		return new PGPSecretKey(DEFAULT_CERTIFICATION, pgpKeyPair, suffix != null ? (id + " " + suffix) : id, sha1Calc, null, null,
-				new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA1),
+				new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256),
 				new JcePBESecretKeyEncryptorBuilder(CAST5, sha1Calc)
 						.setProvider("BC").build("".toCharArray()));
 	}

@@ -435,7 +435,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Transactional
-	public void saveOwnIdentityImage(long id, MultipartFile file) throws IOException
+	public IdentityGroupItem saveOwnIdentityImage(long id, MultipartFile file) throws IOException
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)
 		{
@@ -463,12 +463,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		identity.setImage(out.toByteArray());
 		identity.updatePublished();
 
-		var savedIdentity = saveIdentity(identity, true);
-		contactNotificationService.addOrUpdateIdentities(List.of(savedIdentity));
+		return saveIdentity(identity, true);
 	}
 
 	@Transactional
-	public void deleteOwnIdentityImage(long id)
+	public IdentityGroupItem deleteOwnIdentityImage(long id)
 	{
 		if (id != IdentityConstants.OWN_IDENTITY_ID)
 		{
@@ -479,8 +478,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		identity.setImage(null);
 		identity.updatePublished();
 
-		var savedIdentity = saveIdentity(identity, true);
-		contactNotificationService.addOrUpdateIdentities(List.of(savedIdentity));
+		return saveIdentity(identity, true);
 	}
 
 	@Override

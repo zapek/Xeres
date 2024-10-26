@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
@@ -58,11 +59,13 @@ public class IdentityController
 {
 	private final IdentityService identityService;
 	private final IdentityRsService identityRsService;
+	private final ContactNotificationService contactNotificationService;
 
-	public IdentityController(IdentityService identityService, IdentityRsService identityRsService)
+	public IdentityController(IdentityService identityService, IdentityRsService identityRsService, ContactNotificationService contactNotificationService)
 	{
 		this.identityService = identityService;
 		this.identityRsService = identityRsService;
+		this.contactNotificationService = contactNotificationService;
 	}
 
 	@GetMapping("/{id}")
@@ -102,7 +105,8 @@ public class IdentityController
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = Error.class)))
 	public ResponseEntity<Void> uploadIdentityImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
 	{
-		identityRsService.saveOwnIdentityImage(id, file);
+		var identity = identityRsService.saveOwnIdentityImage(id, file);
+		contactNotificationService.addOrUpdateIdentities(List.of(identity));
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -112,7 +116,8 @@ public class IdentityController
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteIdentityImage(@PathVariable long id)
 	{
-		identityRsService.deleteOwnIdentityImage(id);
+		var identity = identityRsService.deleteOwnIdentityImage(id);
+		contactNotificationService.addOrUpdateIdentities(List.of(identity));
 	}
 
 	@GetMapping

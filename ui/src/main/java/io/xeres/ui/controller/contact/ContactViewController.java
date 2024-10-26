@@ -279,7 +279,7 @@ public class ContactViewController implements Controller
 		FXCollections.sort(contactObservableList, treeItemComparator);
 	}
 
-	private void scrollToContact(TreeItem<Contact> contact)
+	private void scrollToSelectedContact()
 	{
 		var index = contactTreeTableView.getSelectionModel().getSelectedIndex();
 		if (index != -1)
@@ -323,7 +323,7 @@ public class ContactViewController implements Controller
 				.findFirst()
 				.ifPresent(contact -> {
 					contactTreeTableView.getSelectionModel().select(contact);
-					scrollToContact(contact);
+					scrollToSelectedContact();
 				});
 	}
 
@@ -494,13 +494,12 @@ public class ContactViewController implements Controller
 			{
 				updateProfileWithIdentity(existing, item);
 				contactObservableList.set(contactObservableList.indexOf(existing), existing);
+				selectAgainIfPreviouslySelected(existing, existing, true);
 			}
 			else
 			{
 				contactObservableList.add(item);
 			}
-			selectAgainIfPreviouslySelected(existing, item);
-
 			return false;
 		}
 		else if (contact.profileId() != 0L)
@@ -511,7 +510,7 @@ public class ContactViewController implements Controller
 			var changed = removeIfFound(existing);
 			var item = new TreeItem<>(contact);
 			contactObservableList.add(item);
-			selectAgainIfPreviouslySelected(existing, item);
+			selectAgainIfPreviouslySelected(existing, item, changed);
 
 			return changed;
 		}
@@ -525,7 +524,7 @@ public class ContactViewController implements Controller
 			var changed = removeIfFound(existing);
 			var item = new TreeItem<>(contact);
 			contactObservableList.add(item);
-			selectAgainIfPreviouslySelected(existing, item);
+			selectAgainIfPreviouslySelected(existing, item, changed);
 
 			return changed;
 		}
@@ -550,11 +549,15 @@ public class ContactViewController implements Controller
 		savedSelection = contactTreeTableView.getSelectionModel().getSelectedItem();
 	}
 
-	private void selectAgainIfPreviouslySelected(TreeItem<Contact> previous, TreeItem<Contact> current)
+	private void selectAgainIfPreviouslySelected(TreeItem<Contact> previous, TreeItem<Contact> current, boolean forceRefresh)
 	{
 		refreshContactTableView = true;
 		if (previous != null && previous == savedSelection)
 		{
+			if (forceRefresh)
+			{
+				contactTreeTableView.getSelectionModel().clearSelection();
+			}
 			contactTreeTableView.getSelectionModel().select(current);
 		}
 	}
@@ -582,7 +585,7 @@ public class ContactViewController implements Controller
 		updated.getChildren().addAll(existing.getChildren());
 		saveSelection();
 		contactObservableList.set(contactObservableList.indexOf(existing), updated);
-		selectAgainIfPreviouslySelected(existing, updated);
+		selectAgainIfPreviouslySelected(existing, updated, true);
 		sortContacts();
 	}
 
@@ -858,7 +861,7 @@ public class ContactViewController implements Controller
 									.findFirst()
 									.ifPresentOrElse(contact -> {
 										contactTreeTableView.getSelectionModel().select(contact);
-										scrollToContact(contact);
+										scrollToSelectedContact();
 									}, () -> UiUtils.alert(WARNING, "Contact not found")));
 						}
 					})

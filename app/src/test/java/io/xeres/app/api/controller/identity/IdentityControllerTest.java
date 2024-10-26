@@ -22,6 +22,7 @@ package io.xeres.app.api.controller.identity;
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,9 @@ class IdentityControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private IdentityRsService identityRsService;
+
+	@MockBean
+	private ContactNotificationService contactNotificationService;
 
 	@Autowired
 	public MockMvc mvc;
@@ -123,27 +127,33 @@ class IdentityControllerTest extends AbstractControllerTest
 	@Test
 	void UploadIdentityImage_Success() throws Exception
 	{
-		var id = 1L;
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
+		identity.setId(1L);
 
-		mvc.perform(post(BASE_URL + "/" + id + "/image")
+		when(identityRsService.saveOwnIdentityImage(eq(identity.getId()), any())).thenReturn(identity);
+
+		mvc.perform(post(BASE_URL + "/" + identity.getId() + "/image")
 						.contentType(MediaType.MULTIPART_FORM_DATA)
 						.accept(MediaType.APPLICATION_JSON)
 						.content(""))
 				.andExpect(status().isCreated())
-				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + id + "/image"));
+				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId() + "/image"));
 
-		verify(identityRsService).saveOwnIdentityImage(eq(id), any());
+		verify(identityRsService).saveOwnIdentityImage(eq(identity.getId()), any());
 	}
 
 	@Test
 	void DeleteIdentityImage_Success() throws Exception
 	{
-		var id = 1L;
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
+		identity.setId(1L);
 
-		mvc.perform(delete(BASE_URL + "/" + id + "/image"))
+		when(identityRsService.deleteOwnIdentityImage(identity.getId())).thenReturn(identity);
+
+		mvc.perform(delete(BASE_URL + "/" + identity.getId() + "/image"))
 				.andExpect(status().isNoContent());
 
-		verify(identityRsService).deleteOwnIdentityImage(id);
+		verify(identityRsService).deleteOwnIdentityImage(identity.getId());
 	}
 
 	@Test

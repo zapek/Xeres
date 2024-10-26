@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.contact;
 
 import io.xeres.common.rest.contact.Contact;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
@@ -72,7 +73,7 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 		}
 		if (contact.identityId() != 0L)
 		{
-			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(IDENTITIES_PATH + "/" + contact.identityId() + "/image");
+			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(getIdentityImageUrl(contact));
 			stackPane.getChildren().getFirst().setVisible(false);
 		}
 		else
@@ -93,5 +94,10 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 			setStyle("");
 		}
 		return stackPane;
+	}
+
+	public static String getIdentityImageUrl(Contact contact)
+	{
+		return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + contact.identityId() + "/image";
 	}
 }

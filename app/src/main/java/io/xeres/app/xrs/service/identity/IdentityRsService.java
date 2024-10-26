@@ -179,6 +179,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 						identity.setServiceString(identityServiceStorage.out());
 						linkWithProfileIfFound(identity, identityServiceStorage.getPgpIdentifier());
 						identityService.save(identity);
+						contactNotificationService.addOrUpdateIdentities(List.of(identity));
 					}
 					case INVALID ->
 					{
@@ -191,6 +192,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 						identity.setNextValidation(identityServiceStorage.computeNextValidationAttempt());
 						identity.setServiceString(identityServiceStorage.out());
 						identityService.save(identity);
+						contactNotificationService.addOrUpdateIdentities(List.of(identity));
 					}
 				}
 			}
@@ -289,7 +291,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Override
 	protected void onGroupsSaved(List<IdentityGroupItem> items)
 	{
-		contactNotificationService.addOrUpdateIdentities(items);
+		// We only send the notification for contacts that don't require a validation.
+		// The others will appear upon validation (or be deleted if they're not validated).
+		var itemsToNotify = items.stream()
+				.filter(identityGroupItem -> !identityGroupItem.getDiffusionFlags().contains(GxsPrivacyFlags.SIGNED_ID))
+				.toList();
+		contactNotificationService.addOrUpdateIdentities(itemsToNotify);
 	}
 
 	@Override

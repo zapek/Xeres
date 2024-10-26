@@ -20,7 +20,6 @@
 package io.xeres.app.service;
 
 import io.xeres.app.database.model.profile.Profile;
-import io.xeres.app.xrs.service.identity.IdentityServiceStorage;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.contact.Contact;
@@ -75,7 +74,7 @@ public class ContactService
 		List<Contact> contacts = new ArrayList<>(identities.size());
 		identities.forEach(identity -> contacts.add(new Contact(
 				identity.getName(),
-				identity.getProfile() != null ? identity.getProfile().getId() : new IdentityServiceStorage(identity.getServiceString()).getPgpIdentifier(),
+				identity.getProfile() != null ? identity.getProfile().getId() : 0L,
 				identity.getId(),
 				getAvailability(identity.getProfile()),
 				isAccepted(identity.getProfile()))));

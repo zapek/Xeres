@@ -70,7 +70,6 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
-import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.WARNING;
@@ -494,6 +493,7 @@ public class ContactViewController implements Controller
 			{
 				saveSelection();
 				updateProfileWithIdentity(existing, item);
+				imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(existing.getValue()));
 				contactObservableList.set(contactObservableList.indexOf(existing), existing);
 				selectAgainIfPreviouslySelected(existing, existing, true);
 			}
@@ -524,6 +524,10 @@ public class ContactViewController implements Controller
 			saveSelection();
 			var changed = removeIfFound(existing);
 			var item = new TreeItem<>(contact);
+			if (changed)
+			{
+				imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(contact));
+			}
 			contactObservableList.add(item);
 			selectAgainIfPreviouslySelected(existing, item, changed);
 
@@ -553,7 +557,7 @@ public class ContactViewController implements Controller
 	private void selectAgainIfPreviouslySelected(TreeItem<Contact> previous, TreeItem<Contact> current, boolean forceRefresh)
 	{
 		refreshContactTableView = true;
-		if (previous != null && previous == savedSelection)
+		if (isForSameContact(previous, savedSelection))
 		{
 			if (forceRefresh)
 			{
@@ -561,6 +565,11 @@ public class ContactViewController implements Controller
 			}
 			contactTreeTableView.getSelectionModel().select(current);
 		}
+	}
+
+	private boolean isForSameContact(TreeItem<Contact> first, TreeItem<Contact> second)
+	{
+		return first != null && second != null && first.getValue().identityId() == second.getValue().identityId() && first.getValue().profileId() == second.getValue().profileId();
 	}
 
 	private void removeContact(Contact contact)
@@ -582,12 +591,12 @@ public class ContactViewController implements Controller
 			return;
 		}
 
+		saveSelection();
 		var updated = new TreeItem<>(Contact.withAvailability(existing.getValue(), availability));
 		updated.getChildren().addAll(existing.getChildren());
-		saveSelection();
 		contactObservableList.set(contactObservableList.indexOf(existing), updated);
-		selectAgainIfPreviouslySelected(existing, updated, true);
 		sortContacts();
+		selectAgainIfPreviouslySelected(existing, updated, true);
 	}
 
 	private HostPort getConnectedAddress(Location location)
@@ -660,7 +669,7 @@ public class ContactViewController implements Controller
 		if (contact.profileId() != 0L && contact.identityId() != 0L)
 		{
 			contactIcon.setVisible(false);
-			contactImageView.setUrl(IDENTITIES_PATH + "/" + contact.identityId() + "/image");
+			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact));
 			typeLabel.setText("Contact linked to profile");
 
 			fetchProfile(contact.profileId(), Information.MERGED);
@@ -679,7 +688,7 @@ public class ContactViewController implements Controller
 			profilePane.setVisible(false);
 
 			contactIcon.setVisible(false);
-			contactImageView.setUrl(IDENTITIES_PATH + "/" + contact.identityId() + "/image");
+			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact));
 			typeLabel.setText("Contact");
 			hideTableLocations();
 

@@ -862,7 +862,7 @@ public class ContactViewController implements Controller
 		});
 
 		var xContextMenu = new XContextMenu<TreeItem<Contact>>(deleteItem);
-		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && contact.getValue().profileId() != 0L && contact.getValue().profileId() != OWN_PROFILE_ID);
+		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && !contact.isLeaf() && contact.getValue().profileId() != 0L && contact.getValue().profileId() != OWN_PROFILE_ID);
 		xContextMenu.addToNode(contactTreeTableView);
 	}
 

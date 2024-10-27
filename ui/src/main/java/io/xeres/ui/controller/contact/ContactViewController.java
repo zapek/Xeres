@@ -45,6 +45,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -190,9 +191,9 @@ public class ContactViewController implements Controller
 	private Disposable availabilityNotificationDisposable;
 
 	private final ObservableList<TreeItem<Contact>> contactObservableList = FXCollections.observableArrayList(p -> new Observable[]{p.valueProperty()}); // Changing the value will mark the list as changed
-	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(contactObservableList);
+	private final SortedList<TreeItem<Contact>> sortedList = new SortedList<>(contactObservableList);
+	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(sortedList);
 	private final ContactFilter contactFilter = new ContactFilter(filteredList);
-	private Comparator<TreeItem<Contact>> treeItemComparator;
 
 	private TreeItem<Contact> savedSelection;
 	private boolean refreshContactTableView = true; // Prevent multiple refreshes when adding/removing entries
@@ -257,25 +258,12 @@ public class ContactViewController implements Controller
 
 		Bindings.bindContent(treeRoot.getChildren(), filteredList);
 
-		// We need that to support sorting because a SortedList derived
-		// from a FilteredList doesn't work for a TreeTableView somehow.
-		contactTreeTableView.comparatorProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue != null)
-			{
-				treeItemComparator = newValue;
-				sortContacts();
-			}
-		});
+		sortedList.comparatorProperty().bind(contactTreeTableView.comparatorProperty());
 
 		contactTreeTableView.setRoot(treeRoot);
 		contactTreeTableView.setShowRoot(false);
 
 		createContactTableViewContextMenu();
-	}
-
-	private void sortContacts()
-	{
-		FXCollections.sort(contactObservableList, treeItemComparator);
 	}
 
 	private void scrollToSelectedContact()
@@ -468,7 +456,7 @@ public class ContactViewController implements Controller
 
 		if (added)
 		{
-			sortContacts();
+			// XXX: use or remove?
 		}
 	}
 
@@ -590,10 +578,9 @@ public class ContactViewController implements Controller
 
 		if (existing.getValue().availability() != availability) // Avoid useless refreshes
 		{
-			saveSelection();
+			//saveSelection();
 			existing.setValue(Contact.withAvailability(existing.getValue(), availability));
-			sortContacts();
-			restoreSelection(existing, true);
+			//restoreSelection(existing, true);
 		}
 	}
 

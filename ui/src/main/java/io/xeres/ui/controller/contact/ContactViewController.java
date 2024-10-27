@@ -216,7 +216,7 @@ public class ContactViewController implements Controller
 	public void initialize() throws IOException
 	{
 		contactImageView.setLoader(url -> generalClient.getImage(url).block());
-		contactImageView.setOnFailure(() -> contactIcon.setVisible(true));
+		contactImageView.setOnSuccess(() -> contactIcon.setVisible(false));
 		contactImageView.setImageCache(imageCacheService);
 
 		setupContactTreeTableView();
@@ -646,7 +646,7 @@ public class ContactViewController implements Controller
 		chatButton.setDisable(contact.getValue().availability() == Availability.OFFLINE);
 		if (contact.getValue().profileId() != 0L && contact.getValue().identityId() != 0L)
 		{
-			contactIcon.setVisible(false);
+			contactIcon.setVisible(true);
 			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 			typeLabel.setText("Contact linked to profile");
 
@@ -665,7 +665,7 @@ public class ContactViewController implements Controller
 		{
 			profilePane.setVisible(false);
 
-			contactIcon.setVisible(false);
+			contactIcon.setVisible(true);
 			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 			typeLabel.setText("Contact");
 			hideTableLocations();

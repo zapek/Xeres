@@ -65,20 +65,20 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 			var finalStackPane = stackPane;
 			var imageView = new AsyncImageView(
 					url -> generalClient.getImage(url).block(),
-					() -> finalStackPane.getChildren().getFirst().setVisible(true),
+					() -> finalStackPane.getChildren().getFirst().setVisible(false),
 					imageCache);
 			imageView.setFitWidth(CONTACT_WIDTH);
 			imageView.setFitHeight(CONTACT_HEIGHT);
 			stackPane.getChildren().add(imageView);
 		}
+		stackPane.getChildren().getFirst().setVisible(true);
+
 		if (contact.identityId() != 0L)
 		{
 			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(getIdentityImageUrl(contact));
-			stackPane.getChildren().getFirst().setVisible(false);
 		}
 		else
 		{
-			stackPane.getChildren().getFirst().setVisible(true);
 			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(null);
 		}
 		if (contact.profileId() == 1L)

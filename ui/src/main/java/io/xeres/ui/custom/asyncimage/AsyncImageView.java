@@ -53,7 +53,7 @@ public class AsyncImageView extends ImageView
 	private WeakReference<LoaderTask> taskReference;
 	private String url;
 	private Function<String, byte[]> loader;
-	private Runnable onFailure;
+	private Runnable onSuccess;
 	private ImageCache imageCache;
 
 	public AsyncImageView()
@@ -67,18 +67,11 @@ public class AsyncImageView extends ImageView
 		setLoader(loader);
 	}
 
-	public AsyncImageView(Function<String, byte[]> loader, Runnable failure)
+	public AsyncImageView(Function<String, byte[]> loader, Runnable success, ImageCache imageCache)
 	{
 		super();
 		setLoader(loader);
-		setOnFailure(failure);
-	}
-
-	public AsyncImageView(Function<String, byte[]> loader, Runnable failure, ImageCache imageCache)
-	{
-		super();
-		setLoader(loader);
-		setOnFailure(failure);
+		setOnSuccess(success);
 		setImageCache(imageCache);
 	}
 
@@ -97,12 +90,16 @@ public class AsyncImageView extends ImageView
 				if (this.url != null && this.url.equals(url))
 				{
 					// Do not load again, if it's already loaded/being loaded.
+					if (onSuccess != null)
+					{
+						onSuccess.run();
+					}
 					return;
 				}
 				setImageProper(null);
 			}
 			this.url = url;
-			LoaderTask.loadImage(this, url, loader, onFailure, imageCache);
+			LoaderTask.loadImage(this, url, loader, onSuccess, imageCache);
 		}
 	}
 
@@ -117,9 +114,9 @@ public class AsyncImageView extends ImageView
 		this.loader = loader;
 	}
 
-	public void setOnFailure(Runnable onFailure)
+	public void setOnSuccess(Runnable onSuccess)
 	{
-		this.onFailure = onFailure;
+		this.onSuccess = onSuccess;
 	}
 
 	public void setImageCache(ImageCache imageCache)
@@ -156,20 +153,24 @@ public class AsyncImageView extends ImageView
 
 		private final WeakReference<AsyncImageView> imageViewReference;
 		private final String url;
-		private final Runnable onFailure;
+		private final Runnable onSuccess;
 		private final ImageCache imageCache;
 
 		private final FutureTask<byte[]> future;
 
-		public static void loadImage(AsyncImageView imageView, String url, Function<String, byte[]> loader, Runnable onFailure, ImageCache imageCache)
+		public static void loadImage(AsyncImageView imageView, String url, Function<String, byte[]> loader, Runnable onSuccess, ImageCache imageCache)
 		{
 			if (useFromCache(url, imageView, imageCache))
 			{
+				if (onSuccess != null)
+				{
+					onSuccess.run();
+				}
 				return;
 			}
 			if (canDoWork(url, imageView))
 			{
-				var task = new LoaderTask(imageView, url, loader, onFailure, imageCache);
+				var task = new LoaderTask(imageView, url, loader, onSuccess, imageCache);
 				imageView.setLoaderTask(task);
 				runTask(task);
 			}
@@ -208,11 +209,11 @@ public class AsyncImageView extends ImageView
 			return false;
 		}
 
-		private LoaderTask(AsyncImageView imageViewReference, String url, Function<String, byte[]> loader, Runnable onFailure, ImageCache imageCache)
+		private LoaderTask(AsyncImageView imageViewReference, String url, Function<String, byte[]> loader, Runnable onSuccess, ImageCache imageCache)
 		{
 			this.imageViewReference = new WeakReference<>(imageViewReference);
 			this.url = url;
-			this.onFailure = onFailure;
+			this.onSuccess = onSuccess;
 			this.imageCache = imageCache;
 			future = new FutureTask<>(() -> loader.apply(url))
 			{
@@ -270,6 +271,10 @@ public class AsyncImageView extends ImageView
 					runIfSameTask(imageView, () -> {
 						assert imageView != null;
 						imageView.setImageProper(image);
+						if (onSuccess != null)
+						{
+							onSuccess.run();
+						}
 					});
 					cycleTasks();
 				});
@@ -278,10 +283,10 @@ public class AsyncImageView extends ImageView
 
 		private void onFailure()
 		{
-			if (onFailure != null)
-			{
-				Platform.runLater(() -> runIfSameTask(imageViewReference.get(), onFailure));
-			}
+//			if (onFailure != null)
+//			{
+//				Platform.runLater(() -> runIfSameTask(imageViewReference.get(), onFailure));
+//			}
 			cycleTasks();
 		}
 
@@ -293,9 +298,9 @@ public class AsyncImageView extends ImageView
 		public void onException(Exception e)
 		{
 			log.error("Couldn't load image: {}", e.getMessage());
-			if (onFailure != null)
+			if (onSuccess != null)
 			{
-				Platform.runLater(() -> runIfSameTask(imageViewReference.get(), onFailure));
+				Platform.runLater(() -> runIfSameTask(imageViewReference.get(), onSuccess));
 			}
 			cycleTasks();
 		}

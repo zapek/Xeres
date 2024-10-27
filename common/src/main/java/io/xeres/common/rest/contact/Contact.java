@@ -24,6 +24,7 @@ import io.xeres.common.location.Availability;
 public record Contact(String name, long profileId, long identityId, Availability availability, boolean accepted)
 {
 	public static final Contact EMPTY = new Contact(null, 0L, 0L, Availability.OFFLINE, false);
+	public static final Contact OWN = new Contact(null, 1L, 1L, Availability.OFFLINE, true);
 
 	public static Contact withAvailability(Contact contact, Availability availability)
 	{

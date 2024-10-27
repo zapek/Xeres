@@ -262,8 +262,7 @@ public class ContactViewController implements Controller
 		// Do not allow selection of multiple entries
 		contactTreeTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-		contactTreeTableView.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> displayContact(newValue != null ? newValue.getValue() : null));
+		contactTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> displayContact(newValue));
 
 		var treeRoot = new TreeItem<>(Contact.EMPTY);
 		treeRoot.setExpanded(true);
@@ -519,7 +518,16 @@ public class ContactViewController implements Controller
 
 			if (existing != null)
 			{
-				existing.setValue(contact);
+				// This is a profile update (eg. different trust). We need to restore
+				// the identity otherwise it won't display its image
+				if (existing.getValue().identityId() != 0L)
+				{
+					existing.setValue(Contact.withIdentityId(contact, existing.getValue().identityId()));
+				}
+				else
+				{
+					existing.setValue(contact);
+				}
 			}
 			else
 			{
@@ -620,7 +628,7 @@ public class ContactViewController implements Controller
 		trust.getItems().clear();
 	}
 
-	private void displayContact(Contact contact)
+	private void displayContact(TreeItem<Contact> contact)
 	{
 		if (contact == null)
 		{
@@ -634,35 +642,35 @@ public class ContactViewController implements Controller
 		contactImageSelectButton.setVisible(false);
 		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
-		nameLabel.setText(contact.name());
-		chatButton.setDisable(contact.availability() == Availability.OFFLINE);
-		if (contact.profileId() != 0L && contact.identityId() != 0L)
+		nameLabel.setText(contact.getValue().name());
+		chatButton.setDisable(contact.getValue().availability() == Availability.OFFLINE);
+		if (contact.getValue().profileId() != 0L && contact.getValue().identityId() != 0L)
 		{
 			contactIcon.setVisible(false);
-			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact));
+			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 			typeLabel.setText("Contact linked to profile");
 
-			fetchProfile(contact.profileId(), Information.MERGED);
-			fetchContact(contact.identityId(), Information.MERGED);
+			fetchProfile(contact.getValue().profileId(), Information.MERGED, contact.isLeaf());
+			fetchContact(contact.getValue().identityId(), Information.MERGED);
 		}
-		else if (contact.profileId() != 0L)
+		else if (contact.getValue().profileId() != 0L)
 		{
 			contactIcon.setVisible(true);
 			contactImageView.setUrl(null);
 			typeLabel.setText("Profile");
 
-			fetchProfile(contact.profileId(), Information.PROFILE);
+			fetchProfile(contact.getValue().profileId(), Information.PROFILE, false);
 		}
-		else if (contact.identityId() != 0L)
+		else if (contact.getValue().identityId() != 0L)
 		{
 			profilePane.setVisible(false);
 
 			contactIcon.setVisible(false);
-			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact));
+			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 			typeLabel.setText("Contact");
 			hideTableLocations();
 
-			fetchContact(contact.identityId(), Information.IDENTITY);
+			fetchContact(contact.getValue().identityId(), Information.IDENTITY);
 		}
 	}
 
@@ -681,13 +689,14 @@ public class ContactViewController implements Controller
 		hideTableLocations();
 	}
 
-	private void fetchProfile(long profileId, Information information)
+	private void fetchProfile(long profileId, Information information, boolean isLeaf)
 	{
 		profileClient.findById(profileId)
 				.doOnSuccess(profile -> Platform.runLater(() -> {
 					showProfileInformation(profile, information);
 					showBadges(profile);
 					setTrust(profile);
+					trust.setDisable(isLeaf);
 					profilePane.setVisible(true);
 					showTableLocations(profile.getLocations());
 					if (profile.isOwn())

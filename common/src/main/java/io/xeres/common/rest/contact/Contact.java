@@ -29,4 +29,9 @@ public record Contact(String name, long profileId, long identityId, Availability
 	{
 		return new Contact(contact.name(), contact.profileId(), contact.identityId(), availability, contact.accepted());
 	}
+
+	public static Contact withIdentityId(Contact contact, long identityId)
+	{
+		return new Contact(contact.name(), contact.profileId(), identityId, contact.availability(), contact.accepted());
+	}
 }

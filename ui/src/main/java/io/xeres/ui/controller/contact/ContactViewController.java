@@ -250,7 +250,7 @@ public class ContactViewController implements Controller
 		contactTreeTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue().availability()));
 
 		contactTreeTableView.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> changeSelectedContact(newValue != null ? newValue.getValue() : null));
+				.addListener((observable, oldValue, newValue) -> displayContact(newValue != null ? newValue.getValue() : null));
 
 		var treeRoot = new TreeItem<>(Contact.EMPTY);
 		treeRoot.setExpanded(true);
@@ -485,67 +485,62 @@ public class ContactViewController implements Controller
 
 		if (contact.profileId() != 0L && contact.identityId() != 0L)
 		{
-			// Add full contact
+			// Full contact
 			var existing = findProfile(contact.profileId());
 			var item = new TreeItem<>(contact);
 
 			if (existing != null)
 			{
-				saveSelection();
+				imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(contact));
 				updateProfileWithIdentity(existing, item);
-				imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(existing.getValue()));
-				contactObservableList.set(contactObservableList.indexOf(existing), existing);
-				selectAgainIfPreviouslySelected(existing, existing, true);
+				return false;
 			}
 			else
 			{
 				contactObservableList.add(item);
+				return true;
 			}
-			return false;
 		}
 		else if (contact.profileId() != 0L)
 		{
-			// Add lone profile
+			// Lone profile
 			var existing = findProfile(contact.profileId());
-			saveSelection();
-			var changed = removeIfFound(existing);
 			var item = new TreeItem<>(contact);
-			contactObservableList.add(item);
-			selectAgainIfPreviouslySelected(existing, item, changed);
 
-			return changed;
+			if (existing != null)
+			{
+				existing.setValue(contact);
+				return false;
+			}
+			else
+			{
+				contactObservableList.add(item);
+				return true;
+			}
 		}
 		else if (contact.identityId() != 0L)
 		{
-			// Add lone identity
+			// Lone identity
 			var existing = contactObservableList.stream()
 					.filter(existingContact -> existingContact.getValue().identityId() == contact.identityId())
 					.findFirst().orElse(null);
-			saveSelection();
-			var changed = removeIfFound(existing);
-			var item = new TreeItem<>(contact);
-			if (changed)
+
+			if (existing != null)
 			{
 				imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(contact));
+				existing.setValue(contact);
+				return false;
 			}
-			contactObservableList.add(item);
-			selectAgainIfPreviouslySelected(existing, item, changed);
-
-			return changed;
+			else
+			{
+				contactObservableList.add(new TreeItem<>(contact));
+				return true;
+			}
 		}
 		else
 		{
 			throw new IllegalStateException("Empty contact (identity == 0L and profile == 0L). Shouldn't happen.");
 		}
-	}
-
-	private boolean removeIfFound(TreeItem<Contact> contact)
-	{
-		if (contact != null)
-		{
-			return contactObservableList.remove(contact);
-		}
-		return false;
 	}
 
 	private void saveSelection()
@@ -554,16 +549,18 @@ public class ContactViewController implements Controller
 		savedSelection = contactTreeTableView.getSelectionModel().getSelectedItem();
 	}
 
-	private void selectAgainIfPreviouslySelected(TreeItem<Contact> previous, TreeItem<Contact> current, boolean forceRefresh)
+	private void restoreSelection(TreeItem<Contact> contact, boolean forceRefresh)
 	{
 		refreshContactTableView = true;
-		if (isForSameContact(previous, savedSelection))
+		if (isForSameContact(contact, savedSelection))
 		{
+			TreeItem<Contact> selectedItem = null;
+
 			if (forceRefresh)
 			{
-				contactTreeTableView.getSelectionModel().clearSelection();
+				selectedItem = contactTreeTableView.getSelectionModel().getSelectedItem();
 			}
-			contactTreeTableView.getSelectionModel().select(current);
+			contactTreeTableView.getSelectionModel().select(contact);
 		}
 	}
 
@@ -591,12 +588,13 @@ public class ContactViewController implements Controller
 			return;
 		}
 
-		saveSelection();
-		var updated = new TreeItem<>(Contact.withAvailability(existing.getValue(), availability));
-		updated.getChildren().addAll(existing.getChildren());
-		contactObservableList.set(contactObservableList.indexOf(existing), updated);
-		sortContacts();
-		selectAgainIfPreviouslySelected(existing, updated, true);
+		if (existing.getValue().availability() != availability) // Avoid useless refreshes
+		{
+			saveSelection();
+			existing.setValue(Contact.withAvailability(existing.getValue(), availability));
+			sortContacts();
+			restoreSelection(existing, true);
+		}
 	}
 
 	private HostPort getConnectedAddress(Location location)
@@ -645,7 +643,7 @@ public class ContactViewController implements Controller
 		trust.getItems().clear();
 	}
 
-	private void changeSelectedContact(Contact contact)
+	private void displayContact(Contact contact)
 	{
 		if (!refreshContactTableView)
 		{

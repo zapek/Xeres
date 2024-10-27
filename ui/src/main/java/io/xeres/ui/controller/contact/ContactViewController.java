@@ -38,11 +38,13 @@ import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -190,13 +192,13 @@ public class ContactViewController implements Controller
 	private Disposable contactNotificationDisposable;
 	private Disposable availabilityNotificationDisposable;
 
-	private final ObservableList<TreeItem<Contact>> contactObservableList = FXCollections.observableArrayList(p -> new Observable[]{p.valueProperty()}); // Changing the value will mark the list as changed
+	private final ObservableList<TreeItem<Contact>> contactObservableList = FXCollections.observableArrayList(p -> new Observable[]{p.valueProperty()}); // Changing the value will mark the list as changed so that sorting works, etc...
 	private final SortedList<TreeItem<Contact>> sortedList = new SortedList<>(contactObservableList);
 	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(sortedList);
 	private final ContactFilter contactFilter = new ContactFilter(filteredList);
 
-	private TreeItem<Contact> savedSelection;
-	private boolean refreshContactTableView = true; // Prevent multiple refreshes when adding/removing entries
+	// Workaround for https://bugs.openjdk.org/browse/JDK-8090563
+	private TreeItem<Contact> selectedItem;
 
 	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager)
 	{
@@ -250,6 +252,16 @@ public class ContactViewController implements Controller
 		contactTreeTablePresenceColumn.setCellFactory(param -> new AvailabilityTreeCellStatus<>());
 		contactTreeTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue().availability()));
 
+		// Sort by connected first then name
+		contactTreeTableView.setSortPolicy(table -> true); // This is needed otherwise the default sorting will break everything
+		contactTreeTablePresenceColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
+		contactTreeTablePresenceColumn.setSortable(true);
+		contactTreeTableNameColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
+		contactTreeTableNameColumn.setSortable(true);
+
+		// Do not allow selection of multiple entries
+		contactTreeTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
 		contactTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> displayContact(newValue != null ? newValue.getValue() : null));
 
@@ -259,6 +271,20 @@ public class ContactViewController implements Controller
 		Bindings.bindContent(treeRoot.getChildren(), filteredList);
 
 		sortedList.comparatorProperty().bind(contactTreeTableView.comparatorProperty());
+
+		// Because of JDK-8248217 (and others), we have
+		// to save the selection before the sortedList (and then filteredList) are
+		// updated.
+		sortedList.addListener((InvalidationListener) c -> selectedItem = contactTreeTableView.getSelectionModel().getSelectedItem());
+
+		// Then we restore the selection after filteredList has been
+		// updated.
+		filteredList.addListener((ListChangeListener<? super TreeItem<Contact>>) c -> {
+			if (contactTreeTableView.getSelectionModel().getSelectedItem() == null && selectedItem != null)
+			{
+				contactTreeTableView.getSelectionModel().select(selectedItem);
+			}
+		});
 
 		contactTreeTableView.setRoot(treeRoot);
 		contactTreeTableView.setShowRoot(false);
@@ -353,12 +379,6 @@ public class ContactViewController implements Controller
 					contactObservableList.addAll(contacts.values());
 					contactObservableList.addAll(identities);
 
-					// Sort by connected first then name
-					contactTreeTableView.setSortPolicy(table -> true); // This is needed otherwise the default sorting will break everything
-					contactTreeTablePresenceColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
-					contactTreeTablePresenceColumn.setSortable(true);
-					contactTreeTableNameColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
-					contactTreeTableNameColumn.setSortable(true);
 					//noinspection unchecked
 					contactTreeTableView.getSortOrder().setAll(contactTreeTablePresenceColumn, contactTreeTableNameColumn);
 				}))
@@ -389,8 +409,7 @@ public class ContactViewController implements Controller
 				{
 					if (!replaceIfSameName(profile, identity))
 					{
-						profile.getChildren().remove(identity);
-						profile.getChildren().add(identity);
+						replaceOrAddChildren(profile, identity);
 					}
 				}
 			}
@@ -415,6 +434,19 @@ public class ContactViewController implements Controller
 		return false;
 	}
 
+	private void replaceOrAddChildren(TreeItem<Contact> parent, TreeItem<Contact> identity)
+	{
+		for (TreeItem<Contact> child : parent.getChildren())
+		{
+			if (child.getValue().identityId() == identity.getValue().identityId())
+			{
+				child.setValue(identity.getValue());
+				return;
+			}
+		}
+		parent.getChildren().add(identity);
+	}
+
 	private void setupContactNotifications()
 	{
 		contactNotificationDisposable = notificationClient.getContactNotifications()
@@ -424,7 +456,7 @@ public class ContactViewController implements Controller
 
 					switch (sse.data().operation())
 					{
-						case ADD_OR_UPDATE -> addContacts(sse.data().contacts());
+						case ADD_OR_UPDATE -> sse.data().contacts().forEach(this::addContact);
 						case REMOVE -> sse.data().contacts().forEach(this::removeContact);
 					}
 				}))
@@ -442,24 +474,6 @@ public class ContactViewController implements Controller
 				.subscribe();
 	}
 
-	private void addContacts(List<Contact> contacts)
-	{
-		var added = false;
-
-		for (Contact contact : contacts)
-		{
-			if (addContact(contact))
-			{
-				added = true;
-			}
-		}
-
-		if (added)
-		{
-			// XXX: use or remove?
-		}
-	}
-
 	private TreeItem<Contact> findProfile(long profileId)
 	{
 		return contactObservableList.stream()
@@ -467,10 +481,20 @@ public class ContactViewController implements Controller
 				.findFirst().orElse(null);
 	}
 
-	private boolean addContact(Contact contact)
+	private void clearCachedImages(TreeItem<Contact> contact)
 	{
-		log.debug("Adding contact {}", contact);
+		imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(contact.getValue()));
 
+		// Make sure AsyncImageView doesn't refuse to load the
+		// url because it thinks it's already loaded.
+		if (Objects.equals(contactTreeTableView.getSelectionModel().getSelectedItem(), contact))
+		{
+			contactImageView.setImage(null);
+		}
+	}
+
+	private void addContact(Contact contact)
+	{
 		if (contact.profileId() != 0L && contact.identityId() != 0L)
 		{
 			// Full contact
@@ -479,14 +503,12 @@ public class ContactViewController implements Controller
 
 			if (existing != null)
 			{
-				imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(contact));
+				clearCachedImages(existing);
 				updateProfileWithIdentity(existing, item);
-				return false;
 			}
 			else
 			{
 				contactObservableList.add(item);
-				return true;
 			}
 		}
 		else if (contact.profileId() != 0L)
@@ -498,12 +520,10 @@ public class ContactViewController implements Controller
 			if (existing != null)
 			{
 				existing.setValue(contact);
-				return false;
 			}
 			else
 			{
 				contactObservableList.add(item);
-				return true;
 			}
 		}
 		else if (contact.identityId() != 0L)
@@ -515,46 +535,18 @@ public class ContactViewController implements Controller
 
 			if (existing != null)
 			{
-				imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(contact));
+				clearCachedImages(existing);
 				existing.setValue(contact);
-				return false;
 			}
 			else
 			{
 				contactObservableList.add(new TreeItem<>(contact));
-				return true;
 			}
 		}
 		else
 		{
 			throw new IllegalStateException("Empty contact (identity == 0L and profile == 0L). Shouldn't happen.");
 		}
-	}
-
-	private void saveSelection()
-	{
-		refreshContactTableView = false;
-		savedSelection = contactTreeTableView.getSelectionModel().getSelectedItem();
-	}
-
-	private void restoreSelection(TreeItem<Contact> contact, boolean forceRefresh)
-	{
-		refreshContactTableView = true;
-		if (isForSameContact(contact, savedSelection))
-		{
-			TreeItem<Contact> selectedItem = null;
-
-			if (forceRefresh)
-			{
-				selectedItem = contactTreeTableView.getSelectionModel().getSelectedItem();
-			}
-			contactTreeTableView.getSelectionModel().select(contact);
-		}
-	}
-
-	private boolean isForSameContact(TreeItem<Contact> first, TreeItem<Contact> second)
-	{
-		return first != null && second != null && first.getValue().identityId() == second.getValue().identityId() && first.getValue().profileId() == second.getValue().profileId();
 	}
 
 	private void removeContact(Contact contact)
@@ -578,9 +570,7 @@ public class ContactViewController implements Controller
 
 		if (existing.getValue().availability() != availability) // Avoid useless refreshes
 		{
-			//saveSelection();
 			existing.setValue(Contact.withAvailability(existing.getValue(), availability));
-			//restoreSelection(existing, true);
 		}
 	}
 
@@ -632,11 +622,6 @@ public class ContactViewController implements Controller
 
 	private void displayContact(Contact contact)
 	{
-		if (!refreshContactTableView)
-		{
-			return;
-		}
-
 		if (contact == null)
 		{
 			clearSelection();
@@ -798,7 +783,6 @@ public class ContactViewController implements Controller
 			if (contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID)
 			{
 				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.name()), () -> profileClient.delete(contact.profileId())
-						.doOnSuccess(unused -> Platform.runLater(() -> contactObservableList.remove(new TreeItem<>(contact))))
 						.subscribe());
 			}
 		});

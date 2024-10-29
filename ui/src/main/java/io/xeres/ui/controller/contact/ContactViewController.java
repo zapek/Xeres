@@ -212,6 +212,7 @@ public class ContactViewController implements Controller
 	// Workaround for https://bugs.openjdk.org/browse/JDK-8090563
 	private TreeItem<Contact> selectedItem;
 	private TreeItem<Contact> displayedContact;
+	private Contact addedContact;
 
 	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager)
 	{
@@ -544,6 +545,9 @@ public class ContactViewController implements Controller
 
 	private void addContact(Contact contact)
 	{
+		log.debug("Adding contact {}", contact);
+		addedContact = contact;
+
 		if (contact.profileId() != 0L && contact.identityId() != 0L)
 		{
 			if (contact.identityId() == 1L)
@@ -699,7 +703,15 @@ public class ContactViewController implements Controller
 		displayedContact = contact;
 		if (contact == null)
 		{
-			clearSelection();
+			// Prevent flickering when a contact is added/modified
+			if (addedContact != null)
+			{
+				addedContact = null;
+			}
+			else
+			{
+				clearSelection();
+			}
 			return;
 		}
 

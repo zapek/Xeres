@@ -38,6 +38,8 @@ import java.util.prefs.Preferences;
 @Service
 public class PreferenceService
 {
+	public static final String CONTACTS = "Contacts";
+
 	private LocationId locationId;
 
 	public void setLocation(Location location)

@@ -97,4 +97,12 @@ public class IdentityClient
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
+
+	public Mono<Void> deleteIdentityImage(long id)
+	{
+		return webClient.delete()
+				.uri("/{id}/image", id)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
 }

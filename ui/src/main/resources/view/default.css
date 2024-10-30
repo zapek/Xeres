@@ -228,3 +228,11 @@
 .chart-line-symbol {
     -fx-background-insets: 0, 5; /* remove the white dot in the legend */
 }
+
+.group-emphasis:hover {
+    -fx-background-color: -color-neutral-emphasis;
+}
+
+.group-frame {
+    -fx-border-color: -color-neutral-emphasis;
+}

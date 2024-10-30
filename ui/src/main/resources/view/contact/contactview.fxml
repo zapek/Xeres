@@ -22,23 +22,11 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
 <?import org.kordamp.ikonli.javafx.*?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.contact.ContactViewController">
     <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
         <VBox SplitPane.resizableWithParent="false" VBox.vgrow="NEVER">
-            <HBox fx:id="ownContactGroup">
-                <VBox.margin>
-                    <Insets left="4.0" right="4.0" top="4.0"/>
-                </VBox.margin>
-                <StackPane alignment="TOP_LEFT">
-                    <HBox.margin>
-                        <Insets right="8.0"/>
-                    </HBox.margin>
-                    <FontIcon fx:id="ownContactIcon" iconLiteral="fas-user:64"/>
-                    <AsyncImageView fx:id="ownContactImageView" fitWidth="64" fitHeight="64"/>
-                </StackPane>
-                <Label fx:id="ownContactName" styleClass="title-4"/>
-            </HBox>
             <HBox alignment="CENTER_LEFT" minHeight="-Infinity" VBox.vgrow="NEVER">
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
@@ -49,7 +37,7 @@
                         <FontIcon iconLiteral="fas-filter"/>
                     </graphic>
                     <items>
-                        <CheckMenuItem fx:id="showAllContacts" text="All contacts" selected="true"/>
+                        <CheckMenuItem fx:id="showAllContacts" text="Show all contacts" selected="true"/>
                     </items>
                 </MenuButton>
             </HBox>
@@ -62,6 +50,20 @@
                     <TreeTableColumn fx:id="contactTreeTablePresenceColumn" prefWidth="40.0"/>
                 </columns>
             </TreeTableView>
+            <HBox fx:id="ownContactGroup" styleClass="group-emphasis, group-frame" alignment="CENTER_LEFT">
+                <padding>
+                    <Insets top="8.0" bottom="8.0" left="8.0"/>
+                </padding>
+                <StackPane alignment="TOP_LEFT">
+                    <HBox.margin>
+                        <Insets right="8.0"/>
+                    </HBox.margin>
+                    <FontIcon fx:id="ownContactIcon" iconLiteral="fas-user:48"/>
+                    <Circle fx:id="ownContactCircle" radius="24" StackPane.alignment="CENTER_LEFT" visible="false"/>
+                    <AsyncImageView fx:id="ownContactImageView" fitWidth="48" fitHeight="48" visible="false"/>
+                </StackPane>
+                <Label fx:id="ownContactName" styleClass="title-4"/>
+            </HBox>
         </VBox>
         <VBox>
             <padding>
@@ -75,6 +77,11 @@
                     <FontIcon fx:id="contactIcon" iconLiteral="fas-user:128" visible="false"/>
                     <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
                     <Button fx:id="contactImageSelectButton" text="Change image..." visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
+                    <Button fx:id="contactImageDeleteButton" opacity="0.0" styleClass="flat, small, danger, button-circle" StackPane.alignment="TOP_RIGHT">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-times-circle"/>
+                        </graphic>
+                    </Button>
                 </StackPane>
                 <HBox HBox.hgrow="ALWAYS">
                     <HBox.margin>

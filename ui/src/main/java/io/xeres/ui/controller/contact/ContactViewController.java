@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.contact;
 
+import atlantafx.base.controls.CustomTextField;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.location.Availability;
@@ -51,6 +52,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.DropShadow;
@@ -114,7 +116,7 @@ public class ContactViewController implements Controller
 	private TreeTableColumn<Contact, Availability> contactTreeTablePresenceColumn;
 
 	@FXML
-	private TextField searchTextField;
+	private CustomTextField searchTextField;
 
 	@FXML
 	private Button contactImageSelectButton;
@@ -226,6 +228,7 @@ public class ContactViewController implements Controller
 	private final SortedList<TreeItem<Contact>> sortedList = new SortedList<>(contactObservableList);
 	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(sortedList);
 	private final ContactFilter contactFilter = new ContactFilter(filteredList);
+	private final FontIcon searchClear = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
 
 	private final TreeItem<Contact> treeRoot = new TreeItem<>(Contact.EMPTY);
 
@@ -257,6 +260,7 @@ public class ContactViewController implements Controller
 		contactImageView.setOnSuccess(() -> contactIcon.setVisible(false));
 		contactImageView.setImageCache(imageCacheService);
 
+		setupContactSearch();
 		setupContactTreeTableView();
 		setupLocationTableView();
 
@@ -343,10 +347,26 @@ public class ContactViewController implements Controller
 		ownContactImageView.setUrl(ContactCellName.getIdentityImageUrl(Contact.OWN));
 	}
 
+	private void setupContactSearch()
+	{
+		searchClear.setCursor(Cursor.HAND);
+		searchClear.setOnMouseClicked(event -> searchTextField.clear());
+
+		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
+		searchTextField.lengthProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue.intValue() > 0)
+			{
+				searchTextField.setRight(searchClear);
+			}
+			else
+			{
+				searchTextField.setRight(null);
+			}
+		});
+	}
+
 	private void setupContactTreeTableView()
 	{
-		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
-
 		contactTreeTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient, imageCacheService));
 		contactTreeTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
 
@@ -596,7 +616,7 @@ public class ContactViewController implements Controller
 		// url because it thinks it's already loaded.
 		if (displayedContact != null && displayedContact.getValue().equals(contact.getValue()))
 		{
-			contactImageView.setImage(null);
+			contactImageView.setImageProper(null);
 		}
 	}
 
@@ -831,7 +851,7 @@ public class ContactViewController implements Controller
 		idLabel.setText(null);
 		typeLabel.setText(null);
 		createdLabel.setText(null);
-		contactImageView.setImage(null);
+		contactImageView.setImageProper(null);
 		contactIcon.setVisible(true);
 		profilePane.setVisible(false);
 		hideTableLocations();
@@ -936,10 +956,10 @@ public class ContactViewController implements Controller
 		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
 		deleteItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
 		deleteItem.setOnAction(event -> {
-			var contact = (Contact) event.getSource();
-			if (contact.profileId() != NO_PROFILE_ID && contact.profileId() != OWN_PROFILE_ID)
+			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
+			if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID)
 			{
-				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.name()), () -> profileClient.delete(contact.profileId())
+				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.getValue().name()), () -> profileClient.delete(contact.getValue().profileId())
 						.subscribe());
 			}
 		});

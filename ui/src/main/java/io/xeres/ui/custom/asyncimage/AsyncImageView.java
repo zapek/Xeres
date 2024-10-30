@@ -41,6 +41,8 @@ import java.util.function.Function;
  * An {@link ImageView} subclass that can load images asynchronously like {@link Image} does with
  * its argument constructor. The difference is that this class can use any function for doing so
  * and not just load from a public URL.
+ * <p>
+ * Important: always use {@link #setImageProper} instead of {@link #setImage}.
  */
 public class AsyncImageView extends ImageView
 {
@@ -55,16 +57,16 @@ public class AsyncImageView extends ImageView
 	private Function<String, byte[]> loader;
 	private Runnable onSuccess;
 	private ImageCache imageCache;
+	private boolean canCallSetImage;
 
 	public AsyncImageView()
 	{
-		super();
+		this(null, null, null);
 	}
 
 	public AsyncImageView(Function<String, byte[]> loader)
 	{
-		super();
-		setLoader(loader);
+		this(loader, null, null);
 	}
 
 	public AsyncImageView(Function<String, byte[]> loader, Runnable success, ImageCache imageCache)
@@ -73,6 +75,21 @@ public class AsyncImageView extends ImageView
 		setLoader(loader);
 		setOnSuccess(success);
 		setImageCache(imageCache);
+		// setImage() is final and the listener is called *after* the
+		// property is set (and acted upon by ImageView) so this is the
+		// next best thing we can do.
+		imageProperty().addListener((observable, oldValue, newValue) -> {
+			if (!canCallSetImage)
+			{
+				var sb = new StringBuilder("setImage() has been called! This can cause problems like images being empty or having a wrong image. Use setImageProper() instead!\n");
+				var trace = Thread.currentThread().getStackTrace();
+				for (var stackTraceElement : trace)
+				{
+					sb.append("\tat ").append(stackTraceElement).append("\n");
+				}
+				log.error(sb.toString());
+			}
+		});
 	}
 
 	public void setUrl(String url)
@@ -103,10 +120,18 @@ public class AsyncImageView extends ImageView
 		}
 	}
 
+	/**
+	 * Sets the image. <b>HAS</b> to be used instead of {@link #setImage} otherwise there
+	 * might be side effects like missing images or wrong image.
+	 *
+	 * @param image the image, can be null
+	 */
 	public void setImageProper(Image image)
 	{
 		setLoaderTask(null);
+		canCallSetImage = true;
 		setImage(image);
+		canCallSetImage = false;
 	}
 
 	public void setLoader(Function<String, byte[]> loader)
@@ -135,7 +160,17 @@ public class AsyncImageView extends ImageView
 
 	private void setLoaderTask(LoaderTask task)
 	{
-		taskReference = new WeakReference<>(task);
+		if (task == null)
+		{
+			if (taskReference != null)
+			{
+				taskReference.clear();
+			}
+		}
+		else
+		{
+			taskReference = new WeakReference<>(task);
+		}
 	}
 
 	private LoaderTask getLoaderTask()
@@ -276,8 +311,8 @@ public class AsyncImageView extends ImageView
 							onSuccess.run();
 						}
 					});
-					cycleTasks();
 				});
+				cycleTasks();
 			}
 		}
 

@@ -32,4 +32,6 @@ import java.util.List;
 public interface ChatBacklogRepository extends JpaRepository<ChatBacklog, Long>
 {
 	List<ChatBacklog> findAllByLocationAndCreatedAfterOrderByCreatedDesc(Location location, Instant from, Limit limit);
+
+	void deleteAllByCreatedBefore(Instant before);
 }

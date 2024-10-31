@@ -32,6 +32,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class ChatBacklogService
 {
 	private static final int LAST_LINES_CHAT = 20;
 	private static final int LAST_LINES_CHAT_ROOMS = 50;
+	private static final Duration MAXIMUM_DURATION = Duration.ofDays(31);
 
 	private final ChatBacklogRepository chatBacklogRepository;
 	private final ChatRoomBacklogRepository chatRoomBacklogRepository;
@@ -102,5 +104,12 @@ public class ChatBacklogService
 	public void storeOutgoingDistantMessage(GxsId to, String message)
 	{
 
+	}
+
+	@Transactional
+	public void cleanup()
+	{
+		chatBacklogRepository.deleteAllByCreatedBefore(Instant.now().minus(MAXIMUM_DURATION));
+		chatRoomBacklogRepository.deleteAllByCreatedBefore(Instant.now().minus(MAXIMUM_DURATION));
 	}
 }

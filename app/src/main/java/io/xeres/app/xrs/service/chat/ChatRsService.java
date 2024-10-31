@@ -259,6 +259,7 @@ public class ChatRsService extends RsService
 	public void shutdown(PeerConnection peerConnection)
 	{
 		chatRooms.forEach((id, chatRoom) -> sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_LEFT));
+		chatBacklogService.cleanup();
 	}
 
 	@Override

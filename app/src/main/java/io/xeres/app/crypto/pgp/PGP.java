@@ -22,6 +22,8 @@ package io.xeres.app.crypto.pgp;
 import io.xeres.app.crypto.rsa.RSA;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
+import org.bouncycastle.bcpg.PublicKeyPacket;
+import org.bouncycastle.bcpg.SignaturePacket;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
@@ -194,7 +196,7 @@ public final class PGP
 
 		var sha1Calc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
 
-		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(RSA_GENERAL, keyPair, new Date());
+		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(PublicKeyPacket.VERSION_4, RSA_GENERAL, keyPair, new Date());
 
 		return new PGPSecretKey(DEFAULT_CERTIFICATION, pgpKeyPair, suffix != null ? (id + " " + suffix) : id, sha1Calc, null, null,
 				new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256),
@@ -221,7 +223,7 @@ public final class PGP
 
 		var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder().setProvider("BC").build("".toCharArray()));
 
-		var signatureGenerator = new PGPSignatureGenerator(new BcPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256));
+		var signatureGenerator = new PGPSignatureGenerator(new BcPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), SignaturePacket.VERSION_4);
 
 		signatureGenerator.init(BINARY_DOCUMENT, pgpPrivateKey);
 

@@ -29,6 +29,8 @@ import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
+import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
 class ContactCellName extends TreeTableCell<Contact, Contact>
@@ -73,7 +75,7 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 		}
 		stackPane.getChildren().getFirst().setVisible(true);
 
-		if (contact.identityId() != 0L)
+		if (contact.identityId() != NO_IDENTITY_ID)
 		{
 			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(getIdentityImageUrl(contact));
 		}
@@ -81,7 +83,7 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 		{
 			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(null);
 		}
-		if (contact.profileId() == 1L)
+		if (contact.profileId() == OWN_PROFILE_ID)
 		{
 			setStyle("-fx-font-weight: bold");
 		}

@@ -26,6 +26,11 @@ public record Contact(String name, long profileId, long identityId, Availability
 	public static final Contact EMPTY = new Contact(null, 0L, 0L, Availability.OFFLINE, false);
 	public static final Contact OWN = new Contact(null, 1L, 1L, Availability.OFFLINE, true);
 
+	public static Contact withName(Contact contact, String name)
+	{
+		return new Contact(name, contact.profileId(), contact.identityId(), contact.availability(), contact.accepted());
+	}
+
 	public static Contact withAvailability(Contact contact, Availability availability)
 	{
 		return new Contact(contact.name(), contact.profileId(), contact.identityId(), availability, contact.accepted());

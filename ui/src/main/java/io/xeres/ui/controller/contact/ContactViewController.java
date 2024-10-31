@@ -19,7 +19,7 @@
 
 package io.xeres.ui.controller.contact;
 
-import io.xeres.common.dto.identity.IdentityConstants;
+import atlantafx.base.controls.CustomTextField;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.location.Availability;
@@ -34,9 +34,11 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -50,12 +52,17 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -75,7 +82,11 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 
+import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
+import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
+import static io.xeres.common.dto.profile.ProfileConstants.NO_PROFILE_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
+import static io.xeres.ui.support.preference.PreferenceService.CONTACTS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.WARNING;
@@ -85,6 +96,8 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 public class ContactViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
+
+	private static final String SHOW_ALL_CONTACTS = "ShowAllContacts";
 
 	private enum Information
 	{
@@ -103,10 +116,13 @@ public class ContactViewController implements Controller
 	private TreeTableColumn<Contact, Availability> contactTreeTablePresenceColumn;
 
 	@FXML
-	private TextField searchTextField;
+	private CustomTextField searchTextField;
 
 	@FXML
 	private Button contactImageSelectButton;
+
+	@FXML
+	private Button contactImageDeleteButton;
 
 	@FXML
 	private FontIcon contactIcon;
@@ -119,6 +135,9 @@ public class ContactViewController implements Controller
 
 	@FXML
 	private AsyncImageView ownContactImageView;
+
+	@FXML
+	private Circle ownContactCircle;
 
 	@FXML
 	private Label ownContactName;
@@ -197,6 +216,7 @@ public class ContactViewController implements Controller
 	private final ProfileClient profileClient;
 	private final IdentityClient identityClient;
 	private final NotificationClient notificationClient;
+	private final PreferenceService preferenceService;
 	private final ImageCache imageCacheService;
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
@@ -208,19 +228,26 @@ public class ContactViewController implements Controller
 	private final SortedList<TreeItem<Contact>> sortedList = new SortedList<>(contactObservableList);
 	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(sortedList);
 	private final ContactFilter contactFilter = new ContactFilter(filteredList);
+	private final FontIcon searchClear = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
+
+	private final TreeItem<Contact> treeRoot = new TreeItem<>(Contact.EMPTY);
+
+	private TreeItem<Contact> ownContact;
 
 	// Workaround for https://bugs.openjdk.org/browse/JDK-8090563
 	private TreeItem<Contact> selectedItem;
 	private TreeItem<Contact> displayedContact;
 	private Contact addedContact;
+	private boolean eatNextDisplay;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, PreferenceService preferenceService, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
 		this.notificationClient = notificationClient;
+		this.preferenceService = preferenceService;
 		this.imageCacheService = imageCacheService;
 		this.bundle = bundle;
 		this.windowManager = windowManager;
@@ -233,6 +260,7 @@ public class ContactViewController implements Controller
 		contactImageView.setOnSuccess(() -> contactIcon.setVisible(false));
 		contactImageView.setImageCache(imageCacheService);
 
+		setupContactSearch();
 		setupContactTreeTableView();
 		setupLocationTableView();
 
@@ -241,11 +269,16 @@ public class ContactViewController implements Controller
 		// Workaround for https://github.com/mkpaz/atlantafx/issues/31
 		contactIcon.iconSizeProperty().addListener((observable, oldValue, newValue) -> contactIcon.setIconSize(128));
 
-		contactImageView.setOnMouseEntered(event -> contactImageSelectButton.setOpacity(0.8));
-		contactImageView.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
-		contactImageSelectButton.setOnMouseEntered(event -> contactImageSelectButton.setOpacity(0.8));
-		contactImageSelectButton.setOnMouseExited(event -> contactImageSelectButton.setOpacity(0.0));
+		contactImageView.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
+		contactImageView.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
+		contactIcon.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
+		contactIcon.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
+		contactImageSelectButton.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
+		contactImageSelectButton.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
+		contactImageDeleteButton.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
+		contactImageDeleteButton.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
 		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
+		contactImageDeleteButton.setOnAction(event -> UiUtils.alertConfirm("Do you really want to remove your avatar image?", () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
 		chatButton.setOnAction(event -> startChat());
 
@@ -257,16 +290,36 @@ public class ContactViewController implements Controller
 		getContacts();
 	}
 
+	private void setContactActionImagesOpacity(double opacity)
+	{
+		contactImageSelectButton.setOpacity(opacity);
+		if (contactImageView.getImage() != null)
+		{
+			contactImageDeleteButton.setOpacity(opacity);
+		}
+	}
+
 	private void setupOwnContact()
 	{
 		ownContactImageView.setLoader(url -> generalClient.getImage(url).block());
-		ownContactImageView.setOnSuccess(() -> ownContactIcon.setVisible(false));
+		ownContactImageView.setOnSuccess(() -> {
+			ownContactIcon.setVisible(false);
+			ownContactCircle.setVisible(true);
+			ownContactCircle.setFill(new ImagePattern(ownContactImageView.getImage()));
+		});
+		if (Platform.isSupported(ConditionalFeature.EFFECT))
+		{
+			ownContactCircle.setEffect(new DropShadow(6, Color.rgb(0, 0, 0, 0.7)));
+		}
 		ownContactImageView.setImageCache(imageCacheService);
 
-		ownContactIcon.iconSizeProperty().addListener((observable, oldValue, newValue) -> ownContactIcon.setIconSize(64));
+		ownContactIcon.iconSizeProperty().addListener((observable, oldValue, newValue) -> ownContactIcon.setIconSize(48));
 
 		profileClient.getOwn()
-				.doOnSuccess(profile -> ownContactName.setText(profile.getName()))
+				.doOnSuccess(profile -> {
+					ownContactName.setText(profile.getName());
+					ownContact = new TreeItem<>(Contact.withName(Contact.OWN, profile.getName()));
+				})
 				.subscribe();
 		displayOwnContactImage();
 
@@ -280,8 +333,13 @@ public class ContactViewController implements Controller
 
 	private void displayOwnContact()
 	{
+		if (ownContact == null)
+		{
+			log.error("Failure to load own contact, can't display");
+			return;
+		}
 		contactTreeTableView.getSelectionModel().clearSelection();
-		displayContact(new TreeItem<>(Contact.OWN));
+		displayContact(ownContact);
 	}
 
 	private void displayOwnContactImage()
@@ -289,10 +347,26 @@ public class ContactViewController implements Controller
 		ownContactImageView.setUrl(ContactCellName.getIdentityImageUrl(Contact.OWN));
 	}
 
+	private void setupContactSearch()
+	{
+		searchClear.setCursor(Cursor.HAND);
+		searchClear.setOnMouseClicked(event -> searchTextField.clear());
+
+		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
+		searchTextField.lengthProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue.intValue() > 0)
+			{
+				searchTextField.setRight(searchClear);
+			}
+			else
+			{
+				searchTextField.setRight(null);
+			}
+		});
+	}
+
 	private void setupContactTreeTableView()
 	{
-		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
-
 		contactTreeTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient, imageCacheService));
 		contactTreeTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
 
@@ -311,7 +385,6 @@ public class ContactViewController implements Controller
 
 		contactTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> displayContact(newValue));
 
-		var treeRoot = new TreeItem<>(Contact.EMPTY);
 		treeRoot.setExpanded(true);
 
 		Bindings.bindContent(treeRoot.getChildren(), filteredList);
@@ -370,13 +443,17 @@ public class ContactViewController implements Controller
 
 	private void setupMenuFilters()
 	{
-		showAllContacts.selectedProperty().addListener((observable, oldValue, newValue) -> contactFilter.setShowAllContacts(newValue));
+		showAllContacts.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			contactFilter.setShowAllContacts(newValue);
+			preferenceService.getPreferences().node(CONTACTS).putBoolean(SHOW_ALL_CONTACTS, newValue);
+		});
+		showAllContacts.selectedProperty().set(preferenceService.getPreferences().node(CONTACTS).getBoolean(SHOW_ALL_CONTACTS, false));
 	}
 
 	private void selectOwnContact()
 	{
 		contactObservableList.stream()
-				.filter(contact -> contact.getValue().profileId() == 1L)
+				.filter(contact -> contact.getValue().profileId() == OWN_PROFILE_ID)
 				.findFirst()
 				.ifPresent(contact -> {
 					contactTreeTableView.getSelectionModel().select(contact);
@@ -391,11 +468,11 @@ public class ContactViewController implements Controller
 
 		contactClient.getContacts()
 				.doOnNext(contact -> {
-					if (contact.profileId() != 0L)
+					if (contact.profileId() != NO_PROFILE_ID)
 					{
-						if (contact.identityId() != 0L)
+						if (contact.identityId() != NO_IDENTITY_ID)
 						{
-							if (contact.identityId() == 1L)
+							if (contact.identityId() == OWN_IDENTITY_ID)
 							{
 								// Own profile, we don't add it to the list
 								// because it has its own section above.
@@ -437,7 +514,7 @@ public class ContactViewController implements Controller
 
 	private void updateProfileWithIdentity(TreeItem<Contact> profile, TreeItem<Contact> identity)
 	{
-		if (profile.getValue().identityId() != 0L)
+		if (profile.getValue().identityId() != NO_IDENTITY_ID)
 		{
 			// Profile with an identity already
 			if (profile.getValue().identityId() == identity.getValue().identityId())
@@ -539,7 +616,7 @@ public class ContactViewController implements Controller
 		// url because it thinks it's already loaded.
 		if (displayedContact != null && displayedContact.getValue().equals(contact.getValue()))
 		{
-			contactImageView.setImage(null);
+			contactImageView.setImageProper(null);
 		}
 	}
 
@@ -548,13 +625,16 @@ public class ContactViewController implements Controller
 		log.debug("Adding contact {}", contact);
 		addedContact = contact;
 
-		if (contact.profileId() != 0L && contact.identityId() != 0L)
+		if (contact.profileId() != NO_PROFILE_ID && contact.identityId() != NO_IDENTITY_ID)
 		{
-			if (contact.identityId() == 1L)
+			if (contact.identityId() == OWN_IDENTITY_ID)
 			{
 				// Own identity, special handling
-				clearCachedImages(new TreeItem<>(Contact.OWN));
-				ownContactImageView.setImage(null);
+				Objects.requireNonNull(ownContact);
+				clearCachedImages(ownContact);
+				ownContactImageView.setUrl(null);
+				ownContactCircle.setVisible(false);
+				ownContactIcon.setVisible(true);
 				displayOwnContact();
 				displayOwnContactImage();
 				return;
@@ -574,9 +654,9 @@ public class ContactViewController implements Controller
 				contactObservableList.add(item);
 			}
 		}
-		else if (contact.profileId() != 0L)
+		else if (contact.profileId() != NO_PROFILE_ID)
 		{
-			if (contact.profileId() == 1L)
+			if (contact.profileId() == OWN_PROFILE_ID)
 			{
 				// Own profile, special handling
 				return;
@@ -590,7 +670,7 @@ public class ContactViewController implements Controller
 			{
 				// This is a profile update (eg. different trust). We need to restore
 				// the identity otherwise it won't display its image
-				if (existing.getValue().identityId() != 0L)
+				if (existing.getValue().identityId() != NO_IDENTITY_ID)
 				{
 					existing.setValue(Contact.withIdentityId(contact, existing.getValue().identityId()));
 				}
@@ -604,7 +684,7 @@ public class ContactViewController implements Controller
 				contactObservableList.add(item);
 			}
 		}
-		else if (contact.identityId() != 0L)
+		else if (contact.identityId() != NO_IDENTITY_ID)
 		{
 			// Lone identity
 			var existing = contactObservableList.stream()
@@ -700,20 +780,29 @@ public class ContactViewController implements Controller
 
 	private void displayContact(TreeItem<Contact> contact)
 	{
-		displayedContact = contact;
 		if (contact == null)
 		{
 			// Prevent flickering when a contact is added/modified
 			if (addedContact != null)
 			{
 				addedContact = null;
+				eatNextDisplay = true; // Since we clear the addedContact, the next displayContact() might be a side effect as well
 			}
 			else
 			{
+				displayedContact = null;
 				clearSelection();
 			}
 			return;
 		}
+
+		// Prevent re-displaying the same contact when a different contact was added
+		if (displayedContact != null && displayedContact == contact && (eatNextDisplay || (addedContact != null && !addedContact.equals(contact.getValue()))))
+		{
+			eatNextDisplay = false;
+			return;
+		}
+		displayedContact = contact;
 
 		hideBadges();
 		hideTableLocations();
@@ -723,7 +812,7 @@ public class ContactViewController implements Controller
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.getValue().name());
 		chatButton.setDisable(contact.getValue().availability() == Availability.OFFLINE);
-		if (contact.getValue().profileId() != 0L && contact.getValue().identityId() != 0L)
+		if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
 			contactIcon.setVisible(true);
 			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
@@ -732,7 +821,7 @@ public class ContactViewController implements Controller
 			fetchProfile(contact.getValue().profileId(), Information.MERGED, contact.isLeaf());
 			fetchContact(contact.getValue().identityId(), Information.MERGED);
 		}
-		else if (contact.getValue().profileId() != 0L)
+		else if (contact.getValue().profileId() != NO_PROFILE_ID)
 		{
 			contactIcon.setVisible(true);
 			contactImageView.setUrl(null);
@@ -740,7 +829,7 @@ public class ContactViewController implements Controller
 
 			fetchProfile(contact.getValue().profileId(), Information.PROFILE, false);
 		}
-		else if (contact.getValue().identityId() != 0L)
+		else if (contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
 			profilePane.setVisible(false);
 
@@ -762,7 +851,7 @@ public class ContactViewController implements Controller
 		idLabel.setText(null);
 		typeLabel.setText(null);
 		createdLabel.setText(null);
-		contactImageView.setImage(null);
+		contactImageView.setImageProper(null);
 		contactIcon.setVisible(true);
 		profilePane.setVisible(false);
 		hideTableLocations();
@@ -867,17 +956,22 @@ public class ContactViewController implements Controller
 		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
 		deleteItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
 		deleteItem.setOnAction(event -> {
-			var contact = (Contact) event.getSource();
-			if (contact.profileId() != 0L && contact.profileId() != OWN_PROFILE_ID)
+			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
+			if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID)
 			{
-				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.name()), () -> profileClient.delete(contact.profileId())
+				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.getValue().name()), () -> profileClient.delete(contact.getValue().profileId())
 						.subscribe());
 			}
 		});
 
 		var xContextMenu = new XContextMenu<TreeItem<Contact>>(deleteItem);
-		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && !contact.isLeaf() && contact.getValue().profileId() != 0L && contact.getValue().profileId() != OWN_PROFILE_ID);
+		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && !isSubContact(contact) && contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID);
 		xContextMenu.addToNode(contactTreeTableView);
+	}
+
+	private boolean isSubContact(TreeItem<Contact> contact)
+	{
+		return contact.getParent() != treeRoot && contact.isLeaf();
 	}
 
 	private void selectOwnContactImage(ActionEvent event)
@@ -889,7 +983,7 @@ public class ContactViewController implements Controller
 		var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 		if (selectedFile != null && selectedFile.canRead())
 		{
-			identityClient.uploadIdentityImage(IdentityConstants.OWN_IDENTITY_ID, selectedFile)
+			identityClient.uploadIdentityImage(OWN_IDENTITY_ID, selectedFile)
 					.subscribe();
 		}
 	}
@@ -927,7 +1021,7 @@ public class ContactViewController implements Controller
 							Platform.runLater(() -> {
 								var identity = identities.getFirst();
 
-								if (identity.getId() == 1L)
+								if (identity.getId() == OWN_IDENTITY_ID)
 								{
 									// This is our own identity.
 									displayOwnContact();

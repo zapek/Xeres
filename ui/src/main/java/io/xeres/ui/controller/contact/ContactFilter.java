@@ -65,7 +65,8 @@ class ContactFilter implements Predicate<TreeItem<Contact>>
 	{
 		if (StringUtils.isNotEmpty(nameFilter))
 		{
-			return contact.getValue().name().toLowerCase(Locale.ROOT).contains(nameFilter.toLowerCase(Locale.ROOT)) && (showAllContacts || contact.getValue().accepted());
+			// When searching, show all contacts
+			return contact.getValue().name().toLowerCase(Locale.ROOT).contains(nameFilter.toLowerCase(Locale.ROOT));
 		}
 		return showAllContacts || contact.getValue().accepted();
 	}

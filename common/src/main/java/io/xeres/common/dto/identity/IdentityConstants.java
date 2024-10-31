@@ -24,6 +24,7 @@ public final class IdentityConstants
 	public static final int NAME_LENGTH_MIN = 2;
 	public static final int NAME_LENGTH_MAX = 30;
 
+	public static final long NO_IDENTITY_ID = 0L;
 	public static final long OWN_IDENTITY_ID = 1L;
 
 	private IdentityConstants()

@@ -24,6 +24,7 @@ public final class ProfileConstants
 	public static final int NAME_LENGTH_MIN = 2;
 	public static final int NAME_LENGTH_MAX = 30;
 
+	public static final long NO_PROFILE_ID = 0L;
 	public static final long OWN_PROFILE_ID = 1L;
 
 	private ProfileConstants()

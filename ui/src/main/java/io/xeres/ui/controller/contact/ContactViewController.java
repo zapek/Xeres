@@ -807,7 +807,7 @@ public class ContactViewController implements Controller
 		hideBadges();
 		hideTableLocations();
 		clearTrust();
-		contactImageSelectButton.setVisible(false);
+		setImageEditButtonsVisibility(false);
 		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.getValue().name());
@@ -844,7 +844,7 @@ public class ContactViewController implements Controller
 
 	private void clearSelection()
 	{
-		contactImageSelectButton.setVisible(false);
+		setImageEditButtonsVisibility(false);
 		detailsHeader.setVisible(false);
 		detailsView.setVisible(false);
 		nameLabel.setText(null);
@@ -855,6 +855,12 @@ public class ContactViewController implements Controller
 		contactIcon.setVisible(true);
 		profilePane.setVisible(false);
 		hideTableLocations();
+	}
+
+	private void setImageEditButtonsVisibility(boolean visible)
+	{
+		contactImageSelectButton.setVisible(visible);
+		contactImageDeleteButton.setVisible(visible);
 	}
 
 	private void fetchProfile(long profileId, Information information, boolean isLeaf)
@@ -869,7 +875,7 @@ public class ContactViewController implements Controller
 					showTableLocations(profile.getLocations());
 					if (profile.isOwn())
 					{
-						contactImageSelectButton.setVisible(true);
+						setImageEditButtonsVisibility(true);
 					}
 				}))
 				.doOnError(throwable -> {

@@ -43,7 +43,7 @@ import static org.bouncycastle.bcpg.HashAlgorithmTags.SHA1;
 import static org.bouncycastle.bcpg.HashAlgorithmTags.SHA512;
 import static org.bouncycastle.bcpg.PublicKeyAlgorithmTags.DSA;
 import static org.bouncycastle.bcpg.PublicKeyAlgorithmTags.RSA_SIGN;
-import static org.bouncycastle.openpgp.PGPEncryptedData.CAST5;
+import static org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags.AES_128;
 import static org.bouncycastle.openpgp.PGPPublicKey.RSA_GENERAL;
 import static org.bouncycastle.openpgp.PGPSignature.BINARY_DOCUMENT;
 import static org.bouncycastle.openpgp.PGPSignature.DEFAULT_CERTIFICATION;
@@ -179,10 +179,10 @@ public final class PGP
 	 * Generates a PGP secret key.
 	 * <p>
 	 * The key is a PGP <b>V4</b> format, <b>RSA</b> key with a <b>default certification</b>,
-	 * <b>SHA-256</b> integrity checksum and encrypted with <b>CAST5</b>. The packet sizes are encoded using the original format.
+	 * <b>SHA-256</b> integrity checksum and encrypted with <b>AES-128</b>. The packet sizes are encoded using the original format.
 	 * <p>
 	 * This was changed from the previous key format that used SHA-1 because RNP which will be used by the next Retroshare doesn't
-	 * support those.
+	 * support those. The previous version also used CAST5 as encryption.
 	 *
 	 * @param id     the id of the key
 	 * @param suffix the suffix appended to the id
@@ -200,7 +200,7 @@ public final class PGP
 
 		return new PGPSecretKey(DEFAULT_CERTIFICATION, pgpKeyPair, suffix != null ? (id + " " + suffix) : id, sha1Calc, null, null,
 				new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256),
-				new JcePBESecretKeyEncryptorBuilder(CAST5, sha1Calc)
+				new JcePBESecretKeyEncryptorBuilder(AES_128, sha1Calc)
 						.setProvider("BC").build("".toCharArray()));
 	}
 

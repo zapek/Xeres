@@ -106,7 +106,7 @@ public class QrCodeWindowController implements WindowController
 
 		rsIdResponse = (RSIdResponse) userData;
 
-		ownQrCode.setUrl(LOCATIONS_PATH + "/" + 1L + "/rsId/qrCode");
+		ownQrCode.setUrl(LOCATIONS_PATH + "/" + 1L + "/rs-id/qr-code");
 	}
 
 	private void showPrintSetupThenPrint(Window window)

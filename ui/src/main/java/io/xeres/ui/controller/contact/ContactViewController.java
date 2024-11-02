@@ -26,6 +26,7 @@ import io.xeres.common.location.Availability;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
+import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
@@ -36,6 +37,8 @@ import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.uri.IdentityUri;
+import io.xeres.ui.support.util.PublicKeyUtils;
+import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.ConditionalFeature;
@@ -807,6 +810,8 @@ public class ContactViewController implements Controller
 		hideBadges();
 		hideTableLocations();
 		clearTrust();
+		TooltipUtils.uninstall(idLabel);
+		TooltipUtils.uninstall(typeLabel);
 		setImageEditButtonsVisibility(false);
 		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
@@ -849,7 +854,9 @@ public class ContactViewController implements Controller
 		detailsView.setVisible(false);
 		nameLabel.setText(null);
 		idLabel.setText(null);
+		TooltipUtils.uninstall(idLabel);
 		typeLabel.setText(null);
+		TooltipUtils.uninstall(typeLabel);
 		createdLabel.setText(null);
 		contactImageView.setImageProper(null);
 		contactIcon.setVisible(true);
@@ -892,6 +899,7 @@ public class ContactViewController implements Controller
 		if (information == Information.PROFILE)
 		{
 			idLabel.setText(Id.toString(profile.getPgpIdentifier()));
+			showProfileKeyInformation(profile, idLabel);
 		}
 		if (information == Information.PROFILE || information == Information.MERGED)
 		{
@@ -900,8 +908,35 @@ public class ContactViewController implements Controller
 			if (information == Information.MERGED)
 			{
 				typeLabel.setText("Contact linked to profile " + Id.toString(profile.getPgpIdentifier()));
+				showProfileKeyInformation(profile, typeLabel);
 			}
 		}
+	}
+
+	private void showProfileKeyInformation(Profile profile, Label node)
+	{
+		if (!profile.isPartial())
+		{
+			TooltipUtils.install(node, delayedTooltip -> profileClient.findProfileKeyAttributes(profile.getId())
+					.doOnSuccess(profileKeyAttributes -> Platform.runLater(() -> delayedTooltip.show(getKeyInformation(profileKeyAttributes))))
+					.subscribe());
+		}
+	}
+
+	private String getKeyInformation(ProfileKeyAttributes profileKeyAttributes)
+	{
+		return String.format(
+				"""
+						Key specifications
+						Version: %s
+						Algorithm: %s
+						Length: %s bits
+						Signature hash: %s
+						""",
+				profileKeyAttributes.version(),
+				PublicKeyUtils.getKeyAlgorithmName(profileKeyAttributes.keyAlgorithm()),
+				profileKeyAttributes.keyBits(),
+				PublicKeyUtils.getSignatureHash(profileKeyAttributes.signatureHash()));
 	}
 
 	private void showBadges(Profile profile)

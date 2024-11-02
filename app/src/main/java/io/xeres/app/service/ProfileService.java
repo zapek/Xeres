@@ -32,6 +32,7 @@ import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.id.ProfileFingerprint;
+import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -170,6 +171,31 @@ public class ProfileService
 	public Optional<Profile> findProfileByLocationId(LocationId locationId)
 	{
 		return profileRepository.findProfileByLocationId(locationId);
+	}
+
+	public ProfileKeyAttributes findProfileKeyAttributes(long id)
+	{
+		var profile = findProfileById(id).orElseThrow();
+
+		try
+		{
+			var publicKey = PGP.getPGPPublicKey(profile.getPgpPublicKeyData());
+			if (publicKey.getSignatures().hasNext())
+			{
+				var signature = publicKey.getSignatures().next();
+				return new ProfileKeyAttributes(
+						publicKey.getVersion(),
+						publicKey.getAlgorithm(),
+						publicKey.getBitStrength(),
+						signature.getHashAlgorithm()
+				);
+			}
+			throw new IllegalArgumentException("No signature present in the key");
+		}
+		catch (InvalidKeyException e)
+		{
+			throw new IllegalArgumentException("PGP public key for profile is invalid");
+		}
 	}
 
 	@Transactional

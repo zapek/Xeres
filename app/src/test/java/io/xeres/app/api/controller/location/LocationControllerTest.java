@@ -83,7 +83,7 @@ class LocationControllerTest extends AbstractControllerTest
 
 		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
 
-		mvc.perform(getJson(BASE_URL + "/" + location.getId() + "/rsId"))
+		mvc.perform(getJson(BASE_URL + "/" + location.getId() + "/rs-id"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.name", is(location.getProfile().getName())))
 				.andExpect(jsonPath("$.location", is(location.getName())))
@@ -101,7 +101,7 @@ class LocationControllerTest extends AbstractControllerTest
 		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
 		when(qrCodeService.generateQrCode(rsId)).thenReturn(ImageIO.read(new ByteArrayInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/image/abitbol.png")).readAllBytes())));
 
-		mvc.perform(get(BASE_URL + "/" + location.getId() + "/rsId/qrCode", MediaType.IMAGE_PNG))
+		mvc.perform(get(BASE_URL + "/" + location.getId() + "/rs-id/qr-code", MediaType.IMAGE_PNG))
 				.andExpect(status().isOk())
 				.andExpect(header().string(CONTENT_TYPE, "image/png"));
 

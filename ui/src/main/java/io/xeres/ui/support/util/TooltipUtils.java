@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.ui.custom.DelayedTooltip;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.control.Tooltip;
@@ -27,6 +28,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class TooltipUtils
@@ -86,6 +88,20 @@ public final class TooltipUtils
 			tooltip.setShowDelay(Duration.ZERO);
 		}
 		formatTextIfNeeded(tooltip, text);
+		Tooltip.install(node, tooltip);
+	}
+
+	/**
+	 * Installs a Tooltip that needs to compute what it is going to show only when it's about to
+	 * be shown (for example network call, or heavy computation).
+	 *
+	 * @param node     the node
+	 * @param consumer the consumer that will perform the computation/network call. It has to call {@link DelayedTooltip#show(String)} once it's done to make the tooltip visible
+	 */
+	public static void install(Node node, Consumer<DelayedTooltip> consumer)
+	{
+		var tooltip = new DelayedTooltip(consumer);
+		tooltip.setShowDuration(DURATION);
 		Tooltip.install(node, tooltip);
 	}
 

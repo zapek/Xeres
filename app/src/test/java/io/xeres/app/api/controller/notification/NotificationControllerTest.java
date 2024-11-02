@@ -106,7 +106,7 @@ class NotificationControllerTest extends AbstractControllerTest
 
 		when(fileSearchNotificationService.addClient()).thenReturn(sseEmitter);
 
-		mvc.perform(get(BASE_URL + "/fileSearch", MediaType.TEXT_EVENT_STREAM))
+		mvc.perform(get(BASE_URL + "/file-search", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 

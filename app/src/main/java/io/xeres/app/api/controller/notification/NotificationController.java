@@ -83,7 +83,7 @@ public class NotificationController
 		return fileNotificationService.addClient();
 	}
 
-	@GetMapping("/fileSearch")
+	@GetMapping("/file-search")
 	@Operation(summary = "Subscribe to file search notifications")
 	@ApiResponse(responseCode = "200", description = "Request completed successfully")
 	public SseEmitter setupFileSearchNotification()

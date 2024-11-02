@@ -89,7 +89,7 @@ public class NotificationClient
 	public Flux<ServerSentEvent<FileSearchNotification>> getFileSearchNotifications()
 	{
 		return webClient.get()
-				.uri("/fileSearch")
+				.uri("/file-search")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

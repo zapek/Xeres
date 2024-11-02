@@ -96,7 +96,7 @@ public class ConfigClient
 		var externalIpAddressRequest = new IpAddressRequest(ip, port);
 
 		return webClient.put()
-				.uri("/externalIp")
+				.uri("/external-ip")
 				.bodyValue(externalIpAddressRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
@@ -105,7 +105,7 @@ public class ConfigClient
 	public Mono<IpAddressResponse> getExternalIpAddress()
 	{
 		return webClient.get()
-				.uri("/externalIp")
+				.uri("/external-ip")
 				.retrieve()
 				.bodyToMono(IpAddressResponse.class);
 	}
@@ -113,7 +113,7 @@ public class ConfigClient
 	public Mono<IpAddressResponse> getInternalIpAddress()
 	{
 		return webClient.get()
-				.uri("/internalIp")
+				.uri("/internal-ip")
 				.retrieve()
 				.bodyToMono(IpAddressResponse.class);
 	}

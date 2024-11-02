@@ -42,7 +42,6 @@ import java.util.List;
 import static org.bouncycastle.bcpg.HashAlgorithmTags.SHA1;
 import static org.bouncycastle.bcpg.HashAlgorithmTags.SHA512;
 import static org.bouncycastle.bcpg.PublicKeyAlgorithmTags.DSA;
-import static org.bouncycastle.bcpg.PublicKeyAlgorithmTags.RSA_SIGN;
 import static org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags.AES_128;
 import static org.bouncycastle.openpgp.PGPPublicKey.RSA_GENERAL;
 import static org.bouncycastle.openpgp.PGPSignature.BINARY_DOCUMENT;
@@ -304,7 +303,7 @@ public final class PGP
 			throw new SignatureException("Signature is not PGP version 4 (" + pgpSignature.getVersion() + ")");
 		}
 
-		if (!List.of(RSA_GENERAL, RSA_SIGN, DSA).contains(pgpSignature.getKeyAlgorithm()))
+		if (!List.of(RSA_GENERAL, 3 /* RSA_SIGN */, DSA).contains(pgpSignature.getKeyAlgorithm()))
 		{
 			throw new SignatureException("Signature key algorithm is not of RSA or DSA (" + pgpSignature.getSignatureType() + ")");
 		}

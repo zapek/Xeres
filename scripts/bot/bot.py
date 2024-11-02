@@ -97,7 +97,7 @@ def get_own_location():
 
 
 def get_own_rsid():
-	r = requests.get(XERES_API_URL + XERES_API_PREFIX + "/locations/1/rsId")
+	r = requests.get(XERES_API_URL + XERES_API_PREFIX + "/locations/1/rs-id")
 	if r.status_code != 200:
 		raise RuntimeError(f"Couldn't get own RsId: {r.status_code}")
 	return json.loads(r.text).get("rsId")

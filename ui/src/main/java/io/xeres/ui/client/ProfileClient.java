@@ -23,6 +23,7 @@ import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.profile.Profile;
@@ -104,6 +105,14 @@ public class ProfileClient
 				.retrieve()
 				.bodyToMono(ProfileDTO.class)
 				.map(ProfileMapper::fromDeepDTO);
+	}
+
+	public Mono<ProfileKeyAttributes> findProfileKeyAttributes(long id)
+	{
+		return webClient.get()
+				.uri("/{id}/key-attributes", id)
+				.retrieve()
+				.bodyToMono(ProfileKeyAttributes.class);
 	}
 
 	public Flux<Profile> findByLocationId(LocationId locationId, boolean withLocations)

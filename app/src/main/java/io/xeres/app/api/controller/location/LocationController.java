@@ -66,7 +66,7 @@ public class LocationController
 		return toDTO(locationService.findLocationById(id).orElseThrow());
 	}
 
-	@GetMapping("/{id}/rsId")
+	@GetMapping("/{id}/rs-id")
 	@Operation(summary = "Return a location's RSId")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
@@ -77,7 +77,7 @@ public class LocationController
 		return new RSIdResponse(location.getProfile().getName(), location.getName(), location.getRsId(type == null ? Type.ANY : type).getArmored());
 	}
 
-	@GetMapping(value = "/{id}/rsId/qrCode", produces = MediaType.IMAGE_PNG_VALUE)
+	@GetMapping(value = "/{id}/rs-id/qr-code", produces = MediaType.IMAGE_PNG_VALUE)
 	@Operation(summary = "Return a location's RSId as a QR code")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))

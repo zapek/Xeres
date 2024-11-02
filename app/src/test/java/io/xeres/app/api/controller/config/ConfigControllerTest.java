@@ -178,9 +178,9 @@ class ConfigControllerTest extends AbstractControllerTest
 
 		var request = new IpAddressRequest(ip, port);
 
-		mvc.perform(putJson(BASE_URL + "/externalIp", request))
+		mvc.perform(putJson(BASE_URL + "/external-ip", request))
 				.andExpect(status().isCreated())
-				.andExpect(header().string("Location", "http://localhost" + CONFIG_PATH + "/externalIp"));
+				.andExpect(header().string("Location", "http://localhost" + CONFIG_PATH + "/external-ip"));
 
 		verify(locationService).updateConnection(any(Location.class), any(PeerAddress.class));
 	}
@@ -193,7 +193,7 @@ class ConfigControllerTest extends AbstractControllerTest
 
 		var request = new IpAddressRequest(ip, port);
 
-		mvc.perform(putJson(BASE_URL + "/externalIp", request))
+		mvc.perform(putJson(BASE_URL + "/external-ip", request))
 				.andExpect(status().isBadRequest());
 	}
 
@@ -205,7 +205,7 @@ class ConfigControllerTest extends AbstractControllerTest
 
 		var request = new IpAddressRequest(ip, port);
 
-		mvc.perform(putJson(BASE_URL + "/externalIp", request))
+		mvc.perform(putJson(BASE_URL + "/external-ip", request))
 				.andExpect(status().isBadRequest());
 	}
 
@@ -221,7 +221,7 @@ class ConfigControllerTest extends AbstractControllerTest
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(location));
 
-		mvc.perform(getJson(BASE_URL + "/externalIp"))
+		mvc.perform(getJson(BASE_URL + "/external-ip"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.ip", is(ip)))
 				.andExpect(jsonPath("$.port", is(port)));
@@ -232,7 +232,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		when(locationService.findOwnLocation()).thenReturn(Optional.empty());
 
-		mvc.perform(getJson(BASE_URL + "/externalIp"))
+		mvc.perform(getJson(BASE_URL + "/external-ip"))
 				.andExpect(status().isNotFound());
 	}
 
@@ -249,7 +249,7 @@ class ConfigControllerTest extends AbstractControllerTest
 		when(networkService.getLocalIpAddress()).thenReturn(ip);
 		when(networkService.getPort()).thenReturn(port);
 
-		mvc.perform(getJson(BASE_URL + "/internalIp"))
+		mvc.perform(getJson(BASE_URL + "/internal-ip"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.ip", is(ip)))
 				.andExpect(jsonPath("$.port", is(port)));

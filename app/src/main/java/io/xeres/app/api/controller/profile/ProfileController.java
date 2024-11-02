@@ -37,6 +37,7 @@ import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.Error;
+import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -79,6 +80,16 @@ public class ProfileController
 	public ProfileDTO findProfileById(@PathVariable long id)
 	{
 		return toDeepDTO(profileService.findProfileById(id).orElseThrow());
+	}
+
+	@GetMapping("/{id}/key-attributes")
+	@Operation(summary = "Return the profile's key attributes")
+	@ApiResponse(responseCode = "200", description = "Profile found")
+	@ApiResponse(responseCode = "400", description = "Error in the profile's key")
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	public ProfileKeyAttributes findProfileKeyAttributes(@PathVariable long id)
+	{
+		return profileService.findProfileKeyAttributes(id);
 	}
 
 	@GetMapping

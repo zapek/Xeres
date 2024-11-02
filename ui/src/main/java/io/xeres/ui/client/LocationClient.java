@@ -66,7 +66,7 @@ public class LocationClient
 	{
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
-						.path("/{id}/rsId")
+						.path("/{id}/rs-id")
 						.queryParam("type", type)
 						.build(id))
 				.retrieve()

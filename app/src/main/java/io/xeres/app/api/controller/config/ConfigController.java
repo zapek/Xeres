@@ -153,7 +153,7 @@ public class ConfigController
 		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
 	}
 
-	@PutMapping("/externalIp")
+	@PutMapping("/external-ip")
 	@Operation(summary = "Set or update the external IP address and port.", description = "Note that an external IP address is not strictly required if for example the host is on a public IP already.")
 	@ApiResponse(responseCode = "201", description = "IP address set successfully", headers = @Header(name = "Location", description = "The location of where to get the IP address", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> updateExternalIpAddress(@Valid @RequestBody IpAddressRequest request)
@@ -174,7 +174,7 @@ public class ConfigController
 		return ResponseEntity.created(location).build();
 	}
 
-	@GetMapping("/externalIp")
+	@GetMapping("/external-ip")
 	@Operation(summary = "Get the external IP address and port.", description = "Note that an external IP address is not strictly required if for example the host is on a public IP already.")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	@ApiResponse(responseCode = "404", description = "No location or no external IP address", content = @Content(schema = @Schema(implementation = Error.class)))
@@ -189,7 +189,7 @@ public class ConfigController
 		return new IpAddressResponse(connection.getIp(), connection.getPort());
 	}
 
-	@GetMapping("/internalIp")
+	@GetMapping("/internal-ip")
 	@Operation(summary = "Get the internal IP address and port.")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	@ApiResponse(responseCode = "404", description = "No location or no internal IP address", content = @Content(schema = @Schema(implementation = Error.class)))

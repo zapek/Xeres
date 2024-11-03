@@ -39,6 +39,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,7 +180,7 @@ public final class UiUtils
 		textArea.setEditable(false);
 		textArea.setText(message);
 		textArea.getStyleClass().add("alert-textarea");
-		textArea.setPrefHeight(message.length() < 120 ? 60 : 100); // Should be good enough
+		textArea.setPrefHeight(StringUtils.defaultString(message).length() < 120 ? 60 : 100); // Should be good enough
 		vbox.setPadding(new Insets(14.0));
 		vbox.getChildren().add(textArea);
 		alert.getDialogPane().setContent(vbox);

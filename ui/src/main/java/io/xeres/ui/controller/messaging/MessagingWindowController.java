@@ -153,24 +153,6 @@ public class MessagingWindowController implements WindowController
 		ownProfileResult.doOnSuccess(profile -> Platform.runLater(() -> setupChatListView(profile.getName(), profile.getId())))
 				.subscribe();
 
-		send.setOnKeyPressed(event ->
-		{
-			if (CTRL_ENTER.match(event) || SHIFT_ENTER.match(event) && isNotBlank(send.getText()))
-			{
-				send.insertText(send.getCaretPosition(), "\n");
-				sendTypingNotificationIfNeeded();
-			}
-			else if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
-			{
-				sendMessage(send.getText());
-				lastTypingNotification = Instant.EPOCH;
-			}
-			else
-			{
-				sendTypingNotificationIfNeeded();
-			}
-		});
-
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		TextInputControlUtils.addEnhancedInputContextMenu(send, null);
 
@@ -216,10 +198,6 @@ public class MessagingWindowController implements WindowController
 		if (isEmpty(message))
 		{
 			return;
-		}
-		if (message.endsWith("\n")) // TextArea ends all messages with \n so we need to strip
-		{
-			message = message.substring(0, message.length() - 1);
 		}
 		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
 		messageClient.sendToLocation(locationId, chatMessage);
@@ -405,6 +383,22 @@ public class MessagingWindowController implements WindowController
 				sendImageViewToMessage(new ImageView(image));
 				event.consume();
 			}
+		}
+		else if (CTRL_ENTER.match(event) || SHIFT_ENTER.match(event) && isNotBlank(send.getText()))
+		{
+			send.insertText(send.getCaretPosition(), "\n");
+			sendTypingNotificationIfNeeded();
+			event.consume();
+		}
+		else if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
+		{
+			sendMessage(send.getText());
+			lastTypingNotification = Instant.EPOCH;
+			event.consume();
+		}
+		else
+		{
+			sendTypingNotificationIfNeeded();
 		}
 	}
 

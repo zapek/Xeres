@@ -284,8 +284,6 @@ public class MessagingWindowController implements WindowController
 									fillBacklog(backlogs); // No need to use userData to pass the incoming message, it's already in the backlog
 								}))
 								.subscribe();
-
-
 					});
 				})
 				.doOnError(UiUtils::showAlertError)

@@ -34,6 +34,7 @@ import jakarta.xml.bind.Marshaller;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyPair;
+import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.jcajce.JcaPGPSecretKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPDigestCalculatorProviderBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
@@ -166,9 +167,9 @@ public class BackupService
 
 		String profileName;
 
-		try
+		try (var inputStream = PGPUtil.getDecoderStream(file.getInputStream()))
 		{
-			var secretRingCollection = new JcaPGPSecretKeyRingCollection(file.getInputStream());
+			var secretRingCollection = new JcaPGPSecretKeyRingCollection(inputStream);
 			var secretRing = secretRingCollection.getKeyRings().next();
 			var secretKey = secretRing.getSecretKey();
 
@@ -199,6 +200,7 @@ public class BackupService
 		}
 		catch (PGPException | InvalidKeyException | IOException e)
 		{
+			log.error("Error while parsing PGP data", e);
 			throw new IllegalArgumentException(e);
 		}
 

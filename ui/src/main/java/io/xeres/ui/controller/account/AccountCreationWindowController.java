@@ -113,13 +113,18 @@ public class AccountCreationWindowController implements WindowController
 			{
 				if (selectedFile.getPath().endsWith(".xml"))
 				{
+					setInProgress(true);
 					configClient.sendBackup(selectedFile)
 							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
-							.doOnError(UiUtils::showAlertError)
+							.doOnError(throwable -> {
+								UiUtils.showAlertError(throwable);
+								setInProgress(false);
+							})
 							.subscribe();
 				}
 				else if (selectedFile.getPath().endsWith(".gpg"))
 				{
+					setInProgress(true);
 					var dialog = new TextInputDialog();
 					dialog.setTitle("Retroshare Importer");
 					dialog.setHeaderText(null);
@@ -127,7 +132,10 @@ public class AccountCreationWindowController implements WindowController
 					dialog.initOwner(UiUtils.getWindow(event));
 					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), response)
 							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
-							.doOnError(UiUtils::showAlertError)
+							.doOnError(throwable -> {
+								UiUtils.showAlertError(throwable);
+								setInProgress(false);
+							})
 							.subscribe());
 				}
 				else

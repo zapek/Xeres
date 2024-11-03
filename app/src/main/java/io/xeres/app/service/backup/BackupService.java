@@ -142,7 +142,7 @@ public class BackupService
 	}
 
 	@Transactional
-	public void importFromRs(MultipartFile file, String locationName, String password) throws IOException, PGPException, InvalidKeyException
+	public void importFromRs(MultipartFile file, String locationName, String password)
 	{
 		if (file == null)
 		{
@@ -164,34 +164,43 @@ public class BackupService
 			password = "";
 		}
 
-		var secretRingCollection = new JcaPGPSecretKeyRingCollection(file.getInputStream());
-		var secretRing = secretRingCollection.getKeyRings().next();
-		var secretKey = secretRing.getSecretKey();
+		String profileName;
 
-		var digestCalculator = new JcaPGPDigestCalculatorProviderBuilder().build();
-		var keyDecryptor = new JcePBESecretKeyDecryptorBuilder(digestCalculator);
-
-		var id = secretKey.getPublicKey().getUserIDs().next();
-		var profileName = cleanupProfileName(id);
-
-		PGPKeyPair keyPair;
-
-		// Decrypt
 		try
 		{
-			keyPair = secretKey.extractKeyPair(keyDecryptor.build(password.toCharArray()));
+			var secretRingCollection = new JcaPGPSecretKeyRingCollection(file.getInputStream());
+			var secretRing = secretRingCollection.getKeyRings().next();
+			var secretKey = secretRing.getSecretKey();
+
+			var digestCalculator = new JcaPGPDigestCalculatorProviderBuilder().build();
+			var keyDecryptor = new JcePBESecretKeyDecryptorBuilder(digestCalculator);
+
+			var id = secretKey.getPublicKey().getUserIDs().next();
+			profileName = cleanupProfileName(id);
+
+			PGPKeyPair keyPair;
+
+			// Decrypt
+			try
+			{
+				keyPair = secretKey.extractKeyPair(keyDecryptor.build(password.toCharArray()));
+			}
+			catch (PGPException e)
+			{
+				throw new IllegalArgumentException("Wrong password", e);
+			}
+
+			// End encrypt again with an empty password because we use a different security model
+			var newSecretKey = PGP.encryptKeyPair(keyPair, id);
+
+			createOwnProfile(cleanupProfileName(id),
+					newSecretKey.getEncoded(),
+					newSecretKey.getPublicKey().getEncoded());
 		}
-		catch (PGPException e)
+		catch (PGPException | InvalidKeyException | IOException e)
 		{
-			throw new IllegalArgumentException("Wrong password", e);
+			throw new IllegalArgumentException(e);
 		}
-
-		// End encrypt again with an empty password because we use a different security model
-		var newSecretKey = PGP.encryptKeyPair(keyPair, id);
-
-		createOwnProfile(cleanupProfileName(id),
-				newSecretKey.getEncoded(),
-				newSecretKey.getPublicKey().getEncoded());
 
 		locationService.generateOwnLocation(locationName);
 		identityRsService.generateOwnIdentity(profileName, true);

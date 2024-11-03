@@ -33,6 +33,7 @@ import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.ChatRoomUriFactory;
@@ -72,6 +73,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static io.xeres.ui.support.preference.PreferenceService.CHAT_ROOMS;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -90,6 +92,10 @@ public class ChatViewController implements Controller
 	private static final String SUBSCRIBED_MENU_ID = "subscribed";
 	private static final String UNSUBSCRIBED_MENU_ID = "unsubscribed";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
+
+	private static final String OPEN_SUBSCRIBED = "OpenSubscribed";
+	private static final String OPEN_PRIVATE = "OpenPrivate";
+	private static final String OPEN_PUBLIC = "OpenPublic";
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -148,6 +154,7 @@ public class ChatViewController implements Controller
 	private final ResourceBundle bundle;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
+	private final PreferenceService preferenceService;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -167,7 +174,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -182,6 +189,7 @@ public class ChatViewController implements Controller
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
 		publicRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.public")));
+		this.preferenceService = preferenceService;
 	}
 
 	@Override
@@ -256,6 +264,20 @@ public class ChatViewController implements Controller
 		getChatRoomContext();
 
 		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation());
+
+		setupTrees();
+	}
+
+	private void setupTrees()
+	{
+		var node = preferenceService.getPreferences().node(CHAT_ROOMS);
+		subscribedRooms.setExpanded(node.getBoolean(OPEN_SUBSCRIBED, false));
+		privateRooms.setExpanded(node.getBoolean(OPEN_PRIVATE, false));
+		publicRooms.setExpanded(node.getBoolean(OPEN_PUBLIC, false));
+
+		subscribedRooms.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_SUBSCRIBED, newValue));
+		privateRooms.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_PRIVATE, newValue));
+		publicRooms.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_PUBLIC, newValue));
 	}
 
 	@EventListener

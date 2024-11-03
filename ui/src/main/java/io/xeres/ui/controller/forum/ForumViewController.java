@@ -39,6 +39,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
+import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.ForumUriFactory;
 import io.xeres.ui.support.uri.IdentityUri;
@@ -69,6 +70,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static io.xeres.ui.support.preference.PreferenceService.FORUMS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_DISPLAY;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
@@ -82,6 +84,11 @@ public class ForumViewController implements Controller
 	private static final String SUBSCRIBE_MENU_ID = "subscribe";
 	private static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
+
+	private static final String OPEN_OWN = "OpenOwn";
+	private static final String OPEN_SUBSCRIBED = "OpenSubscribed";
+	private static final String OPEN_POPULAR = "OpenPopular";
+	private static final String OPEN_OTHER = "OpenOther";
 
 	@FXML
 	private TreeView<ForumGroup> forumTree;
@@ -139,6 +146,7 @@ public class ForumViewController implements Controller
 	private final ObjectMapper objectMapper;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
+	private final PreferenceService preferenceService;
 
 	private ForumGroup selectedForumGroup;
 	private ForumMessage selectedForumMessage;
@@ -154,7 +162,7 @@ public class ForumViewController implements Controller
 
 	private MessageId messageIdToSelect;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -168,6 +176,7 @@ public class ForumViewController implements Controller
 		this.objectMapper = objectMapper;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
+		this.preferenceService = preferenceService;
 	}
 
 	@Override
@@ -220,6 +229,22 @@ public class ForumViewController implements Controller
 		setupForumNotifications();
 
 		getForumGroups();
+
+		setupTrees();
+	}
+
+	private void setupTrees()
+	{
+		var node = preferenceService.getPreferences().node(FORUMS);
+		ownForums.setExpanded(node.getBoolean(OPEN_OWN, false));
+		subscribedForums.setExpanded(node.getBoolean(OPEN_SUBSCRIBED, false));
+		popularForums.setExpanded(node.getBoolean(OPEN_POPULAR, false));
+		otherForums.setExpanded(node.getBoolean(OPEN_OTHER, false));
+
+		ownForums.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_OWN, newValue));
+		subscribedForums.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_SUBSCRIBED, newValue));
+		popularForums.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_POPULAR, newValue));
+		otherForums.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_OTHER, newValue));
 	}
 
 	@EventListener

@@ -39,6 +39,8 @@ import java.util.prefs.Preferences;
 public class PreferenceService
 {
 	public static final String CONTACTS = "Contacts";
+	public static final String CHAT_ROOMS = "Chatrooms";
+	public static final String FORUMS = "Forums";
 
 	private LocationId locationId;
 

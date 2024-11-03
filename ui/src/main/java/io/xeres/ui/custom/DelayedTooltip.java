@@ -31,16 +31,6 @@ public class DelayedTooltip extends Tooltip
 {
 	private Consumer<DelayedTooltip> consumer;
 
-	public DelayedTooltip()
-	{
-		super();
-	}
-
-	public DelayedTooltip(String text)
-	{
-		super(text);
-	}
-
 	/**
 	 * Creates a DelayedTooltip that will call the consumer when it's about to show.
 	 * The consumer has to call {@link #show(String)} to make the tooltip visible.
@@ -49,6 +39,7 @@ public class DelayedTooltip extends Tooltip
 	 */
 	public DelayedTooltip(Consumer<DelayedTooltip> consumer)
 	{
+		super();
 		this.consumer = consumer;
 	}
 

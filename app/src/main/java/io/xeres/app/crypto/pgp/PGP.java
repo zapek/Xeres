@@ -20,14 +20,12 @@
 package io.xeres.app.crypto.pgp;
 
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.common.util.SecureRandomUtils;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.PublicKeyPacket;
 import org.bouncycastle.bcpg.SignaturePacket;
 import org.bouncycastle.openpgp.*;
-import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
-import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
-import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.bouncycastle.openpgp.operator.jcajce.*;
 
 import java.io.IOException;
@@ -87,7 +85,7 @@ public final class PGP
 	{
 		var aOut = new ArmoredOutputStream(out);
 
-		var pgpObjectFactory = new PGPObjectFactory(data, new BcKeyFingerprintCalculator());
+		var pgpObjectFactory = new PGPObjectFactory(data, new JcaKeyFingerprintCalculator());
 
 		var object = pgpObjectFactory.nextObject();
 
@@ -115,7 +113,7 @@ public final class PGP
 	 */
 	public static PGPSecretKey getPGPSecretKey(byte[] data)
 	{
-		var pgpObjectFactory = new PGPObjectFactory(data, new BcKeyFingerprintCalculator());
+		var pgpObjectFactory = new PGPObjectFactory(data, new JcaKeyFingerprintCalculator());
 
 		try
 		{
@@ -149,7 +147,7 @@ public final class PGP
 	 */
 	public static PGPPublicKey getPGPPublicKey(byte[] data) throws InvalidKeyException
 	{
-		var pgpObjectFactory = new PGPObjectFactory(data, new BcKeyFingerprintCalculator());
+		var pgpObjectFactory = new PGPObjectFactory(data, new JcaKeyFingerprintCalculator());
 
 		try
 		{
@@ -205,7 +203,8 @@ public final class PGP
 		return new PGPSecretKey(DEFAULT_CERTIFICATION, pgpKeyPair, id, sha1Calc, null, null,
 				new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256),
 				new JcePBESecretKeyEncryptorBuilder(AES_128, sha1Calc)
-						.setProvider("BC").build("".toCharArray()));
+						.setSecureRandom(SecureRandomUtils.getGenerator())
+						.build("".toCharArray()));
 	}
 
 	/**
@@ -225,9 +224,10 @@ public final class PGP
 			out = new ArmoredOutputStream(out);
 		}
 
-		var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder().setProvider("BC").build("".toCharArray()));
+		var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
+				.build("".toCharArray()));
 
-		var signatureGenerator = new PGPSignatureGenerator(new BcPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), SignaturePacket.VERSION_4);
+		var signatureGenerator = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), SignaturePacket.VERSION_4);
 
 		signatureGenerator.init(BINARY_DOCUMENT, pgpPrivateKey);
 
@@ -260,7 +260,7 @@ public final class PGP
 	{
 		var pgpSignature = getSignature(signature);
 
-		pgpSignature.init(new BcPGPContentVerifierBuilderProvider(), pgpPublicKey);
+		pgpSignature.init(new JcaPGPContentVerifierBuilderProvider(), pgpPublicKey);
 		pgpSignature.update(in.readAllBytes());
 		in.close();
 		if (!pgpSignature.verify())
@@ -284,7 +284,7 @@ public final class PGP
 
 	private static PGPSignature getSignature(byte[] signature) throws SignatureException, IOException
 	{
-		var pgpObjectFactory = new PGPObjectFactory(signature, new BcKeyFingerprintCalculator());
+		var pgpObjectFactory = new PGPObjectFactory(signature, new JcaKeyFingerprintCalculator());
 
 		var object = pgpObjectFactory.nextObject();
 		if (!(object instanceof PGPSignatureList pgpSignatures))

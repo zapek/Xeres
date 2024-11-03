@@ -71,7 +71,7 @@ class PGPTest
 		assertFalse(pgpSecretKey.isPrivateKeyEmpty());
 		assertEquals(SymmetricKeyAlgorithmTags.AES_128, pgpSecretKey.getKeyEncryptionAlgorithm());
 		assertNotNull(pgpSecretKey.getPublicKey());
-		assertNotNull(pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder().setProvider("BC").build("".toCharArray())));
+		assertNotNull(pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder().build("".toCharArray())));
 	}
 
 	/**

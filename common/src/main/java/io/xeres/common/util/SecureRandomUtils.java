@@ -63,22 +63,9 @@ public final class SecureRandomUtils
 		SECURE_RANDOM.nextBytes(bytes);
 	}
 
-	private static Stream<Character> getUpperCaseChars(int count)
+	public static SecureRandom getGenerator()
 	{
-		var upperChars = SECURE_RANDOM.ints(count, 65, 91);
-		return upperChars.mapToObj(data -> (char) data);
-	}
-
-	private static Stream<Character> getLowerCaseChars(int count)
-	{
-		var lowerChars = SECURE_RANDOM.ints(count, 97, 123);
-		return lowerChars.mapToObj(data -> (char) data);
-	}
-
-	private static Stream<Character> getNumbers(int count)
-	{
-		var lowerChars = SECURE_RANDOM.ints(count, 48, 58);
-		return lowerChars.mapToObj(data -> (char) data);
+		return SECURE_RANDOM;
 	}
 
 	/**
@@ -115,5 +102,23 @@ public final class SecureRandomUtils
 		{
 			password[i] = passwordList.get(i);
 		}
+	}
+
+	private static Stream<Character> getUpperCaseChars(int count)
+	{
+		var upperChars = SECURE_RANDOM.ints(count, 65, 91);
+		return upperChars.mapToObj(data -> (char) data);
+	}
+
+	private static Stream<Character> getLowerCaseChars(int count)
+	{
+		var lowerChars = SECURE_RANDOM.ints(count, 97, 123);
+		return lowerChars.mapToObj(data -> (char) data);
+	}
+
+	private static Stream<Character> getNumbers(int count)
+	{
+		var lowerChars = SECURE_RANDOM.ints(count, 48, 58);
+		return lowerChars.mapToObj(data -> (char) data);
 	}
 }

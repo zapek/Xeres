@@ -32,6 +32,13 @@ jobs:
       - name: Build
         run: .\gradlew.bat jpackage
 
+      - name: Sign
+        uses: dlemstra/code-sign-action@v1
+        with:
+          certificate: '${{ secrets.CERTIFICATE }}'
+          files: |
+            ./app/build/distributions/Xeres-*.msi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

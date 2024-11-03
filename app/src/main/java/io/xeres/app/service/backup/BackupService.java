@@ -169,7 +169,7 @@ public class BackupService
 		var secretKey = secretRing.getSecretKey();
 
 		var digestCalculator = new JcaPGPDigestCalculatorProviderBuilder().build();
-		var keyDecryptor = new JcePBESecretKeyDecryptorBuilder(digestCalculator).setProvider("BC");
+		var keyDecryptor = new JcePBESecretKeyDecryptorBuilder(digestCalculator);
 
 		var id = secretKey.getPublicKey().getUserIDs().next();
 		var profileName = cleanupProfileName(id);

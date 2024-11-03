@@ -140,7 +140,7 @@ class ChunkDistributor
 
 		if (givenChunks.containsKey(chunk))
 		{
-			for (int i = minChunk; i < maxChunk; i++)
+			for (int i = minChunk; i <= maxChunk; i++)
 			{
 				if (!givenChunks.containsKey(i))
 				{

@@ -244,4 +244,15 @@ public class ConfigController
 
 		return ResponseEntity.ok().build();
 	}
+
+	@PostMapping(value = "/import-from-rs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@Operation(summary = "Import a RS keyring")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public ResponseEntity<Void> importFromRs(@RequestBody MultipartFile file, @RequestParam(value = "locationName") String locationName, @RequestParam(value = "password", required = false) String password) throws IOException, InvalidKeyException, PGPException
+	{
+		backupService.importFromRs(file, locationName, password);
+		networkService.checkReadiness();
+
+		return ResponseEntity.ok().build();
+	}
 }

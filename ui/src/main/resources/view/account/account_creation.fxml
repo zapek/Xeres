@@ -48,7 +48,11 @@
     </GridPane>
     <TitledPane fx:id="titledPane" style="-fx-padding: 8 0 0 0" styleClass="dense" expanded="false" text="Options" VBox.vgrow="ALWAYS">
         <HBox>
-            <Button fx:id="importBackup" text="%account.generation.import"/>
+            <Button fx:id="importBackup" text="%account.generation.import">
+                <tooltip>
+                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%account.generation.import.tip"/>
+                </tooltip>
+            </Button>
         </HBox>
     </TitledPane>
     <ProgressIndicator fx:id="progress" prefWidth="27.0" visible="false">

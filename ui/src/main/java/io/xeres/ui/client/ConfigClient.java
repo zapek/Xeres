@@ -161,4 +161,18 @@ public class ConfigClient
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
+
+	public Mono<Void> sendRsKeyring(File file, String locationName, String password)
+	{
+		return webClient.post()
+				.uri(uriBuilder -> uriBuilder
+						.path("/import-from-rs")
+						.queryParam("locationName", locationName)
+						.queryParam("password", password)
+						.build())
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(fromFile(file)))
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
 }

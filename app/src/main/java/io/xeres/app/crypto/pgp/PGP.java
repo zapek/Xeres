@@ -193,11 +193,16 @@ public final class PGP
 	{
 		var keyPair = RSA.generateKeys(size);
 
-		var sha1Calc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
-
 		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(PublicKeyPacket.VERSION_4, RSA_GENERAL, keyPair, new Date());
 
-		return new PGPSecretKey(DEFAULT_CERTIFICATION, pgpKeyPair, suffix != null ? (id + " " + suffix) : id, sha1Calc, null, null,
+		return encryptKeyPair(pgpKeyPair, suffix != null ? (id + " " + suffix) : id);
+	}
+
+	public static PGPSecretKey encryptKeyPair(PGPKeyPair pgpKeyPair, String id) throws PGPException
+	{
+		var sha1Calc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
+
+		return new PGPSecretKey(DEFAULT_CERTIFICATION, pgpKeyPair, id, sha1Calc, null, null,
 				new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256),
 				new JcePBESecretKeyEncryptorBuilder(AES_128, sha1Calc)
 						.setProvider("BC").build("".toCharArray()));

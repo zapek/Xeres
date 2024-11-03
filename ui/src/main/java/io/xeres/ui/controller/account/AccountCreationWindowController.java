@@ -107,14 +107,33 @@ public class AccountCreationWindowController implements WindowController
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("account.generation.profile-load"));
 			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
-			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.profiles"), "*.xml", "*.gpg"));
 			var selectedFile = fileChooser.showOpenDialog(UiUtils.getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
 			{
-				configClient.sendBackup(selectedFile)
-						.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
-						.doOnError(e -> Platform.runLater(() -> UiUtils.alert(ERROR, MessageFormat.format(bundle.getString("account.generation.profile-load.error"), e.getMessage()))))
-						.subscribe();
+				if (selectedFile.getPath().endsWith(".xml"))
+				{
+					configClient.sendBackup(selectedFile)
+							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
+							.doOnError(UiUtils::showAlertError)
+							.subscribe();
+				}
+				else if (selectedFile.getPath().endsWith(".gpg"))
+				{
+					var dialog = new TextInputDialog();
+					dialog.setTitle("Retroshare Importer");
+					dialog.setHeaderText(null);
+					dialog.setContentText("Enter the Retroshare password");
+					dialog.initOwner(UiUtils.getWindow(event));
+					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), response)
+							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
+							.doOnError(UiUtils::showAlertError)
+							.subscribe());
+				}
+				else
+				{
+					UiUtils.alert(ERROR, "Unknown file format");
+				}
 			}
 		});
 	}

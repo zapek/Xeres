@@ -30,8 +30,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputControl;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.*;
 
 import java.util.List;
 
@@ -59,7 +59,7 @@ public final class TextInputControlUtils
 		if (locationClient != null)
 		{
 			var pasteId = new MenuItem(I18nUtils.getString("paste-id"));
-			pasteId.setGraphic(new FontIcon(FontAwesomeSolid.ID_CARD));
+			pasteId.setGraphic(new FontIcon(MaterialDesignC.CARD_ACCOUNT_DETAILS));
 			pasteId.setOnAction(event -> appendOwnId(textInputControl, locationClient));
 			contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
 		}
@@ -81,31 +81,31 @@ public final class TextInputControlUtils
 	private static List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
 	{
 		var undo = new MenuItem(I18nUtils.getString("undo"));
-		undo.setGraphic(new FontIcon(FontAwesomeSolid.UNDO_ALT));
+		undo.setGraphic(new FontIcon(MaterialDesignU.UNDO_VARIANT));
 		undo.setOnAction(event -> textInputControl.undo());
 
 		var redo = new MenuItem(I18nUtils.getString("redo"));
-		redo.setGraphic(new FontIcon(FontAwesomeSolid.REDO_ALT));
+		redo.setGraphic(new FontIcon(MaterialDesignR.REDO_VARIANT));
 		redo.setOnAction(event -> textInputControl.redo());
 
 		var cut = new MenuItem(I18nUtils.getString("cut"));
-		cut.setGraphic(new FontIcon(FontAwesomeSolid.CUT));
+		cut.setGraphic(new FontIcon(MaterialDesignC.CONTENT_CUT));
 		cut.setOnAction(event -> textInputControl.cut());
 
 		var copy = new MenuItem(I18nUtils.getString("copy"));
-		copy.setGraphic(new FontIcon(FontAwesomeSolid.COPY));
+		copy.setGraphic(new FontIcon(MaterialDesignC.CONTENT_COPY));
 		copy.setOnAction(event -> textInputControl.copy());
 
 		var paste = new MenuItem(I18nUtils.getString("paste"));
-		paste.setGraphic(new FontIcon(FontAwesomeSolid.PASTE));
+		paste.setGraphic(new FontIcon(MaterialDesignC.CONTENT_PASTE));
 		paste.setOnAction(event -> textInputControl.paste());
 
 		var delete = new MenuItem(I18nUtils.getString("delete"));
-		delete.setGraphic(new FontIcon(FontAwesomeSolid.TRASH_ALT));
+		delete.setGraphic(new FontIcon(MaterialDesignT.TRASH_CAN));
 		delete.setOnAction(event -> textInputControl.deleteText(textInputControl.getSelection()));
 
 		var selectAll = new MenuItem(I18nUtils.getString("select-all"));
-		selectAll.setGraphic(new FontIcon(FontAwesomeSolid.BORDER_ALL));
+		selectAll.setGraphic(new FontIcon(MaterialDesignS.SELECT_ALL));
 		selectAll.setOnAction(event -> textInputControl.selectAll());
 
 		var emptySelection = Bindings.createBooleanBinding(() -> textInputControl.getSelection().getLength() == 0, textInputControl.selectionProperty());

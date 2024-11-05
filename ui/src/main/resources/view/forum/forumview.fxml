@@ -32,9 +32,9 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="createForum" text="%create">
+                <Button fx:id="createForum">
                     <graphic>
-                        <FontIcon iconLiteral="fas-plus"/>
+                        <FontIcon iconLiteral="mdi2f-folder-plus"/>
                     </graphic>
                     <tooltip>
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.view.create.tip"/>
@@ -48,10 +48,13 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="newThread" text="%forum.view.thread.create.tip" disable="true">
+                <Button fx:id="newThread" disable="true">
                     <graphic>
-                        <FontIcon iconLiteral="fas-pencil-alt"/>
+                        <FontIcon iconLiteral="mdi2p-pencil-plus"/>
                     </graphic>
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.view.new-message.tip"/>
+                    </tooltip>
                 </Button>
             </HBox>
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">

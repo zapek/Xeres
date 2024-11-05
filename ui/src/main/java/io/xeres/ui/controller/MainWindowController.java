@@ -60,8 +60,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -86,7 +86,6 @@ public class MainWindowController implements WindowController
 {
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
-	private static final String XERES_FORUMS_URL = "https://github.com/zapek/Xeres/discussions";
 
 	@FXML
 	private StackPane stackPane;
@@ -131,13 +130,10 @@ public class MainWindowController implements WindowController
 	private MenuItem exitApplication;
 
 	@FXML
-	private MenuItem showHelp;
+	private MenuItem showDocumentation;
 
 	@FXML
 	private MenuItem reportBug;
-
-	@FXML
-	private MenuItem forums;
 
 	@FXML
 	private MenuItem showAboutWindow;
@@ -159,6 +155,9 @@ public class MainWindowController implements WindowController
 
 	@FXML
 	private Menu debug;
+
+	@FXML
+	private SeparatorMenuItem debugSeparator;
 
 	@FXML
 	private MenuItem runGc;
@@ -249,12 +248,10 @@ public class MainWindowController implements WindowController
 
 		launchWebInterface.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl()));
 
-		showHelp.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
+		showDocumentation.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
 		webHelpButton.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
 
 		reportBug.setOnAction(event -> UriService.openUri(XERES_BUGS_URL));
-
-		forums.setOnAction(event -> UriService.openUri(XERES_FORUMS_URL));
 
 		showAboutWindow.setOnAction(event -> windowManager.openAbout());
 
@@ -281,6 +278,7 @@ public class MainWindowController implements WindowController
 
 		if (environment.acceptsProfiles(Profiles.of("dev")))
 		{
+			debugSeparator.setVisible(true);
 			debug.setVisible(true);
 			runGc.setOnAction(event -> System.gc());
 			h2Console.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl() + "/h2-console"));
@@ -349,7 +347,7 @@ public class MainWindowController implements WindowController
 
 	public void showPopup(String message)
 	{
-		var msg = new Notification(message, new FontIcon(FontAwesomeSolid.INFO_CIRCLE));
+		var msg = new Notification(message, new FontIcon(MaterialDesignI.INFORMATION));
 		msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_1);
 		msg.setPrefHeight(Region.USE_PREF_SIZE);
 		msg.setMaxHeight(Region.USE_PREF_SIZE);

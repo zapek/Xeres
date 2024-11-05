@@ -39,7 +39,7 @@
                 <ReadOnlyTextField fx:id="incomingDirectory" HBox.hgrow="ALWAYS"/>
                 <Button fx:id="incomingDirectorySelector" styleClass="button-icon">
                     <graphic>
-                        <FontIcon iconLiteral="fas-folder-open"/>
+                        <FontIcon iconLiteral="mdi2f-folder-open"/>
                     </graphic>
                 </Button>
             </InputGroup>

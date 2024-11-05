@@ -69,10 +69,10 @@ public class SettingsWindowController implements WindowController
 		listView.setCellFactory(param -> new SettingsCell());
 
 		listView.getItems().addAll(
-				new SettingsGroup(bundle.getString("settings.general"), createPreferenceGraphic("fas-cog"), SettingsGeneralController.class),
-				new SettingsGroup(bundle.getString("settings.network"), createPreferenceGraphic("fas-network-wired"), SettingsNetworksController.class),
-				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("fas-exchange-alt"), SettingsTransferController.class),
-				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("fas-globe"), SettingsRemoteController.class)
+				new SettingsGroup(bundle.getString("settings.general"), createPreferenceGraphic("mdi2c-cog"), SettingsGeneralController.class),
+				new SettingsGroup(bundle.getString("settings.network"), createPreferenceGraphic("mdi2s-server-network"), SettingsNetworksController.class),
+				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("mdi2b-briefcase-download"), SettingsTransferController.class),
+				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("mdi2e-earth"), SettingsRemoteController.class)
 		);
 
 		listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {

@@ -46,11 +46,8 @@ public class DelayedTooltip extends Tooltip
 	@Override
 	protected void show()
 	{
-		if (consumer == null)
-		{
-			super.show();
-		}
-		else
+		super.show();
+		if (consumer != null)
 		{
 			consumer.accept(this);
 		}
@@ -58,8 +55,7 @@ public class DelayedTooltip extends Tooltip
 
 	public void show(String text)
 	{
-		consumer = null; // Now show() must really show
+		consumer = null; // Only fetch once
 		setText(text);
-		show();
 	}
 }

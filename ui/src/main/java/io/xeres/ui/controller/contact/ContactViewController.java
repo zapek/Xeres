@@ -38,6 +38,7 @@ import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.PublicKeyUtils;
+import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -69,8 +70,9 @@ import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -231,7 +233,7 @@ public class ContactViewController implements Controller
 	private final SortedList<TreeItem<Contact>> sortedList = new SortedList<>(contactObservableList);
 	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(sortedList);
 	private final ContactFilter contactFilter = new ContactFilter(filteredList);
-	private final FontIcon searchClear = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
+	private final FontIcon searchClear = new FontIcon(MaterialDesignC.CLOSE_CIRCLE);
 
 	private final TreeItem<Contact> treeRoot = new TreeItem<>(Contact.EMPTY);
 
@@ -355,6 +357,7 @@ public class ContactViewController implements Controller
 		searchClear.setCursor(Cursor.HAND);
 		searchClear.setOnMouseClicked(event -> searchTextField.clear());
 
+		TextInputControlUtils.addEnhancedInputContextMenu(searchTextField, null);
 		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
 		searchTextField.lengthProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue.intValue() > 0)
@@ -995,7 +998,7 @@ public class ContactViewController implements Controller
 	private void createContactTableViewContextMenu()
 	{
 		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
-		deleteItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
+		deleteItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_REMOVE));
 		deleteItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
 			if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID)

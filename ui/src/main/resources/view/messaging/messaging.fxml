@@ -31,7 +31,7 @@
             <Insets bottom="8.0"/>
         </VBox.margin>
         <graphic>
-            <FontIcon iconLiteral="fas-flag"/>
+            <FontIcon iconLiteral="mdi2f-flag-variant"/>
         </graphic>
     </Message>
     <TypingNotificationView fx:id="notification" VBox.vgrow="NEVER"/>
@@ -46,7 +46,7 @@
             </HBox.margin>
             <Button fx:id="addImage" styleClass="button-icon, flat, accent">
                 <graphic>
-                    <FontIcon iconLiteral="fas-image"/>
+                    <FontIcon iconLiteral="mdi2i-image-plus"/>
                 </graphic>
                 <tooltip>
                     <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="Select an image to send inline"/>
@@ -54,7 +54,7 @@
             </Button>
             <Button fx:id="addFile" styleClass="button-icon, flat, accent" GridPane.rowIndex="1">
                 <graphic>
-                    <FontIcon iconLiteral="fas-paperclip"/>
+                    <FontIcon iconLiteral="mdi2p-paperclip"/>
                 </graphic>
                 <tooltip>
                     <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="Select a file to send"/>

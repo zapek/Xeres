@@ -29,81 +29,108 @@
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>
-        <Button fx:id="bold" focusTraversable="false" styleClass="button-icon">
+        <Button fx:id="bold" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="fas-bold"/>
+                <FontIcon iconLiteral="mdi2f-format-bold"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.bold"/>
             </tooltip>
         </Button>
-        <Button fx:id="italic" focusTraversable="false" styleClass="button-icon">
+        <Button fx:id="italic" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="fas-italic"/>
+                <FontIcon iconLiteral="mdi2f-format-italic"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.italic"/>
             </tooltip>
         </Button>
         <Separator orientation="VERTICAL"/>
-        <Button fx:id="hyperlink" focusTraversable="false" styleClass="button-icon">
+        <Button fx:id="hyperlink" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="fas-link"/>
+                <FontIcon iconLiteral="mdi2l-link-variant"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.hyperlink"/>
             </tooltip>
         </Button>
-        <Button fx:id="quote" focusTraversable="false" styleClass="button-icon">
+        <Button fx:id="quote" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="fas-quote-left"/>
+                <FontIcon iconLiteral="mdi2f-format-quote-open"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.quote"/>
             </tooltip>
         </Button>
-        <Button fx:id="code" focusTraversable="false" styleClass="button-icon">
+        <Button fx:id="code" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="fas-code"/>
+                <FontIcon iconLiteral="mdi2c-code-braces"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.code"/>
             </tooltip>
         </Button>
         <Separator orientation="VERTICAL"/>
-        <Button fx:id="list" focusTraversable="false" styleClass="button-icon">
+        <Button fx:id="list" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="fas-list-ul"/>
+                <FontIcon iconLiteral="mdi2f-format-list-bulleted"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.list"/>
             </tooltip>
         </Button>
-        <MenuButton fx:id="heading" focusTraversable="false" styleClass="button-icon, button-outlined">
+        <MenuButton fx:id="heading" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="fas-heading"/>
+                <FontIcon iconLiteral="mdi2f-format-header-pound"/>
             </graphic>
             <items>
-                <MenuItem fx:id="header1" text="H1"/>
-                <MenuItem fx:id="header2" text="H2"/>
-                <MenuItem fx:id="header3" text="H3"/>
-                <MenuItem fx:id="header4" text="H4"/>
-                <MenuItem fx:id="header5" text="H5"/>
-                <MenuItem fx:id="header6" text="H6"/>
+                <MenuItem fx:id="header1">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-format-header-1"/>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="header2">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-format-header-2"/>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="header3">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-format-header-3"/>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="header4">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-format-header-4"/>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="header5">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-format-header-5"/>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="header6">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-format-header-6"/>
+                    </graphic>
+                </MenuItem>
             </items>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.header"/>
             </tooltip>
         </MenuButton>
-        <ToggleButton fx:id="preview" focusTraversable="false" styleClass="button-icon" visible="false" managed="false">
+        <ToggleButton fx:id="preview" focusTraversable="false" visible="false" managed="false">
             <graphic>
-                <FontIcon iconLiteral="fas-eye"/>
+                <FontIcon iconLiteral="mdi2e-eye"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="Show a preview of the message as the recipients are going to see it."/>
+            </tooltip>
         </ToggleButton>
     </ToolBar>
-    <StackPane>
-        <TextArea fx:id="editor" wrapText="true" VBox.vgrow="SOMETIMES"/>
-        <ScrollPane fx:id="previewPane" fitToWidth="true" VBox.vgrow="ALWAYS" visible="false">
+    <StackPane VBox.vgrow="ALWAYS">
+        <TextArea fx:id="editor" wrapText="true"/>
+        <ScrollPane fx:id="previewPane" fitToWidth="true" visible="false">
             <padding>
                 <Insets top="10.0" left="14.0" bottom="10.0" right="14.0"/>
             </padding>

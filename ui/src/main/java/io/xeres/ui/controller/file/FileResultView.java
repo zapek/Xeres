@@ -37,8 +37,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignF;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,15 +142,15 @@ public class FileResultView extends Tab
 	{
 		return switch (type)
 		{
-			case AUDIO -> "fas-music";
-			case VIDEO -> "fas-film";
-			case PICTURE -> "fas-image";
-			case DOCUMENT -> "fas-file-alt";
-			case ARCHIVE -> "fas-archive";
-			case PROGRAM -> "fas-microchip";
-			case COLLECTION -> "fas-layer-group";
-			case SUBTITLES -> "fas-closed-captioning";
-			case DIRECTORY, ANY -> "fas-file";
+			case AUDIO -> "mdi2f-file-music";
+			case VIDEO -> "mdi2f-file-video";
+			case PICTURE -> "mdi2f-file-image";
+			case DOCUMENT -> "mdi2f-file-document";
+			case ARCHIVE -> "mdi2f-file-cabinet";
+			case PROGRAM -> "mdi2a-application";
+			case COLLECTION -> "mdi2l-layers";
+			case SUBTITLES -> "mdi2c-closed-caption";
+			case DIRECTORY, ANY -> "mdi2f-file";
 		};
 	}
 
@@ -157,7 +158,7 @@ public class FileResultView extends Tab
 	{
 		var downloadItem = new MenuItem(bundle.getString("download"));
 		downloadItem.setId(DOWNLOAD_MENU_ID);
-		downloadItem.setGraphic(new FontIcon(FontAwesomeSolid.DOWNLOAD));
+		downloadItem.setGraphic(new FontIcon(MaterialDesignF.FILE_DOWNLOAD));
 		downloadItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileResult file)
 			{
@@ -169,7 +170,7 @@ public class FileResultView extends Tab
 
 		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
-		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileResult file)
 			{

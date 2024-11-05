@@ -32,8 +32,8 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import net.harawata.appdirs.AppDirsFactory;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -54,11 +54,11 @@ public class ContentImage implements Content
 	static
 	{
 		var copyMenuItem = new MenuItem(I18nUtils.getString("copy"));
-		copyMenuItem.setGraphic(new FontIcon(FontAwesomeSolid.COPY));
+		copyMenuItem.setGraphic(new FontIcon(MaterialDesignC.CONTENT_COPY));
 		copyMenuItem.setOnAction(ContentImage::copyToClipboard);
 
 		var saveAsMenuItem = new MenuItem(I18nUtils.getString("save-as"));
-		saveAsMenuItem.setGraphic(new FontIcon(FontAwesomeSolid.SAVE));
+		saveAsMenuItem.setGraphic(new FontIcon(MaterialDesignC.CONTENT_SAVE));
 		saveAsMenuItem.setOnAction(ContentImage::saveAs);
 
 		contextMenu = new ContextMenu(copyMenuItem, saveAsMenuItem);

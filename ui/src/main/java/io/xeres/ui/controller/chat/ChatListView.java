@@ -48,8 +48,8 @@ import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.jsoup.Jsoup;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
@@ -350,7 +350,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	{
 		var infoItem = new MenuItem("Information");
 		infoItem.setId(INFO_MENU_ID);
-		infoItem.setGraphic(new FontIcon(FontAwesomeSolid.INFO_CIRCLE));
+		infoItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_BOX));
 		infoItem.setOnAction(event -> {
 			var user = (ChatRoomUser) event.getSource();
 			if (user.gxsId() != null)

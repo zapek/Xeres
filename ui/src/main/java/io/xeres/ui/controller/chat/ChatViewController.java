@@ -56,8 +56,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -296,17 +296,17 @@ public class ChatViewController implements Controller
 	{
 		var subscribeItem = new MenuItem(I18nUtils.getString("chat.room.join"));
 		subscribeItem.setId(SUBSCRIBED_MENU_ID);
-		subscribeItem.setGraphic(new FontIcon(FontAwesomeSolid.ARROW_RIGHT));
+		subscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_ENTER));
 		subscribeItem.setOnAction(event -> joinChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
 		var unsubscribeItem = new MenuItem(I18nUtils.getString("chat.room.leave"));
 		unsubscribeItem.setId(UNSUBSCRIBED_MENU_ID);
-		unsubscribeItem.setGraphic(new FontIcon(FontAwesomeSolid.ARROW_LEFT));
+		unsubscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_EXIT));
 		unsubscribeItem.setOnAction(event -> leaveChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
 		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
-		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			var clipboardContent = new ClipboardContent();
 			var chatRoomInfo = ((RoomHolder) event.getSource()).getRoomInfo();

@@ -35,7 +35,7 @@
             <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
                 <Tab fx:id="homeTab" text="%main.home">
                     <graphic>
-                        <FontIcon iconLiteral="fas-home"/>
+                        <FontIcon iconLiteral="mdi2h-home"/>
                     </graphic>
                     <VBox alignment="CENTER">
                         <HBox alignment="CENTER">
@@ -67,7 +67,7 @@
                             <ReadOnlyTextField fx:id="shortId" prefWidth="540.0" styleClass="left-pill"/>
                             <Button fx:id="copyShortIdButton" styleClass="right-pill, button-icon">
                                 <graphic>
-                                    <FontIcon iconLiteral="fas-clipboard"/>
+                                    <FontIcon iconLiteral="mdi2c-clipboard"/>
                                 </graphic>
                                 <tooltip>
                                     <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.copy-id.tip"/>
@@ -78,7 +78,7 @@
                                     <Insets left="8.0"/>
                                 </HBox.margin>
                                 <graphic>
-                                    <FontIcon iconLiteral="fas-qrcode"/>
+                                    <FontIcon iconLiteral="mdi2q-qrcode"/>
                                 </graphic>
                                 <tooltip>
                                     <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.qrcode.tip"/>
@@ -92,7 +92,7 @@
                         </Label>
                         <Button fx:id="addFriendButton" mnemonicParsing="false" text="%main.home.add-peer">
                             <graphic>
-                                <FontIcon iconLiteral="fas-user"/>
+                                <FontIcon iconLiteral="mdi2a-account-plus"/>
                             </graphic>
                         </Button>
                         <Label text="%main.home.need-help">
@@ -102,7 +102,7 @@
                         </Label>
                         <Button fx:id="webHelpButton" mnemonicParsing="false" text="%main.home.online-help">
                             <graphic>
-                                <FontIcon iconLiteral="fas-globe-europe"/>
+                                <FontIcon iconLiteral="mdi2e-earth"/>
                             </graphic>
                         </Button>
                         <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
@@ -110,27 +110,27 @@
                 </Tab>
                 <Tab fx:id="contactTab" text="%main.contacts">
                     <graphic>
-                        <FontIcon iconLiteral="fas-users"/>
+                        <FontIcon iconLiteral="mdi2a-account-group"/>
                     </graphic>
                     <fx:include fx:id="contactsView" source="contact/contactview.fxml"/>
                 </Tab>
                 <Tab fx:id="chatTab" text="%main.chats">
                     <graphic>
-                        <FontIcon iconLiteral="fas-comments"/>
+                        <FontIcon iconLiteral="mdi2c-chat"/>
                     </graphic>
                     <!--suppress Annotator -->
                     <fx:include fx:id="chatView" source="chat/chatview.fxml"/>
                 </Tab>
                 <Tab fx:id="forumTab" text="%main.forums">
                     <graphic>
-                        <FontIcon iconLiteral="fas-bullhorn"/>
+                        <FontIcon iconLiteral="mdi2b-bullhorn"/>
                     </graphic>
                     <!--suppress Annotator -->
                     <fx:include fx:id="forumsView" source="forum/forumview.fxml"/>
                 </Tab>
                 <Tab fx:id="fileTab" text="%main.files">
                     <graphic>
-                        <FontIcon iconLiteral="fas-exchange-alt"/>
+                        <FontIcon iconLiteral="mdi2f-folder-network"/>
                     </graphic>
                     <fx:include fx:id="fileMain" source="file/main.fxml"/>
                 </Tab>
@@ -138,69 +138,76 @@
             <MenuBar AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" styleClass="hamburger-menu-bar">
                 <Menu>
                     <graphic>
-                        <FontIcon iconLiteral="fas-bars"/>
+                        <FontIcon iconLiteral="mdi2m-menu"/>
                     </graphic>
-                    <Menu text="%main.menu.peers">
-                        <MenuItem fx:id="addPeer" text="%main.menu.peers.add-peer">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-user"/>
-                            </graphic>
-                        </MenuItem>
-                        <MenuItem fx:id="showBroadcastWindow" text="%main.menu.peers.broadcast">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-broadcast-tower"/>
-                            </graphic>
-                        </MenuItem>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem fx:id="exitApplication" text="%main.menu.peers.exit">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-window-close"/>
-                            </graphic>
-                        </MenuItem>
-                    </Menu>
+                    <MenuItem fx:id="addPeer" text="%main.menu.add-peer">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2a-account-plus"/>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="showBroadcastWindow" text="%main.menu.broadcast">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2r-radio-tower"/>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="showSharesWindow" text="Configure shares">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-folder-multiple"/>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="statistics" mnemonicParsing="false" text="Show statistics">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-chart-line"/>
+                        </graphic>
+                    </MenuItem>
                     <Menu text="%main.menu.tools">
-                        <MenuItem fx:id="showSharesWindow" text="Shares...">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-hdd"/>
-                            </graphic>
-                        </MenuItem>
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2t-tools"/>
+                        </graphic>
                         <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="%main.menu.tools.export">
                             <graphic>
-                                <FontIcon iconLiteral="fas-save"/>
+                                <FontIcon iconLiteral="mdi2e-export"/>
                             </graphic>
                         </MenuItem>
-                        <MenuItem fx:id="statistics" mnemonicParsing="false" text="Statistics">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-chart-bar"/>
-                            </graphic>
-                        </MenuItem>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem fx:id="showSettingsWindow" text="%main.menu.tools.settings">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-cogs"/>
-                            </graphic>
-                            <accelerator>
-                                <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                            </accelerator>
-                        </MenuItem>
+                        <SeparatorMenuItem fx:id="debugSeparator" mnemonicParsing="false" visible="false"/>
+                        <Menu fx:id="debug" text="_Debug" visible="false">
+                            <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2w-web"/>
+                                </graphic>
+                            </MenuItem>
+                            <MenuItem fx:id="h2Console" text="H2 Console">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2d-database"/>
+                                </graphic>
+                            </MenuItem>
+                            <MenuItem fx:id="systemProperties" text="System Properties">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2f-format-list-bulleted-square"/>
+                                </graphic>
+                            </MenuItem>
+                            <MenuItem fx:id="openShell" text="Shell">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2p-powershell"/>
+                                </graphic>
+                            </MenuItem>
+                            <MenuItem fx:id="openUiCheck" text="Ui Check">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2d-dock-window"/>
+                                </graphic>
+                            </MenuItem>
+                            <MenuItem fx:id="runGc" text="_Run GC">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2t-trash-can"/>
+                                </graphic>
+                            </MenuItem>
+                        </Menu>
                     </Menu>
+                    <SeparatorMenuItem mnemonicParsing="false"/>
                     <Menu text="%main.menu.help">
-                        <MenuItem fx:id="showHelp" text="%main.menu.help.online-help">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-life-ring"/>
-                            </graphic>
-                        </MenuItem>
-                        <MenuItem fx:id="reportBug" mnemonicParsing="false" text="%main.menu.help.report-bug">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-bug"/>
-                            </graphic>
-                        </MenuItem>
-                        <MenuItem fx:id="forums" mnemonicParsing="false" text="%main.menu.help.forums">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-bullhorn"/>
-                            </graphic>
-                        </MenuItem>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2h-help-circle-outline"/>
+                        </graphic>
                         <MenuItem fx:id="showAboutWindow" text="%main.menu.help.about">
                             <graphic>
                                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -208,39 +215,30 @@
                                 </ImageView>
                             </graphic>
                         </MenuItem>
-                    </Menu>
-                    <Menu fx:id="debug" text="_Debug" visible="false">
-                        <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">
+                        <MenuItem fx:id="showDocumentation" text="%main.menu.help.documentation">
                             <graphic>
-                                <FontIcon iconLiteral="fas-globe-europe"/>
+                                <FontIcon iconLiteral="mdi2b-book-open-variant"/>
                             </graphic>
                         </MenuItem>
-                        <MenuItem fx:id="h2Console" text="H2 Console">
+                        <MenuItem fx:id="reportBug" mnemonicParsing="false" text="%main.menu.help.report-bug">
                             <graphic>
-                                <FontIcon iconLiteral="fas-database"/>
-                            </graphic>
-                        </MenuItem>
-                        <MenuItem fx:id="systemProperties" text="System Properties">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-list"/>
-                            </graphic>
-                        </MenuItem>
-                        <MenuItem fx:id="openShell" text="Shell">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-terminal"/>
-                            </graphic>
-                        </MenuItem>
-                        <MenuItem fx:id="openUiCheck" text="Ui Check">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-window-maximize"/>
-                            </graphic>
-                        </MenuItem>
-                        <MenuItem fx:id="runGc" text="_Run GC">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-trash"/>
+                                <FontIcon iconLiteral="mdi2b-bug"/>
                             </graphic>
                         </MenuItem>
                     </Menu>
+                    <MenuItem fx:id="showSettingsWindow" text="%main.menu.settings">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-cog-outline"/>
+                        </graphic>
+                        <accelerator>
+                            <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem fx:id="exitApplication" text="%main.menu.exit">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-close"/>
+                        </graphic>
+                    </MenuItem>
                 </Menu>
             </MenuBar>
         </AnchorPane>

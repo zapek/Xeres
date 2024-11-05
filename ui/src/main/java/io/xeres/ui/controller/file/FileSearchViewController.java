@@ -28,6 +28,7 @@ import io.xeres.ui.controller.TabActivation;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.uri.SearchUri;
 import io.xeres.ui.support.uri.SearchUriFactory;
+import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -40,8 +41,8 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -77,6 +78,7 @@ public class FileSearchViewController implements Controller, TabActivation
 	@Override
 	public void initialize()
 	{
+		TextInputControlUtils.addEnhancedInputContextMenu(search, null);
 		search.setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.ENTER)
 			{
@@ -151,7 +153,7 @@ public class FileSearchViewController implements Controller, TabActivation
 	{
 		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
-		copyLinkItem.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			var clipboardContent = new ClipboardContent();
 			var fileResultView = (FileResultView) event.getSource();

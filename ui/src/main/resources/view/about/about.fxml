@@ -168,12 +168,6 @@
                     <DisclosedHyperlink text="BSD 2-Clause license." uri="https://github.com/FXMisc/Flowless/blob/master/LICENSE"/>
                     <Text text="&#10;&#10;"/>
 
-                    <DisclosedHyperlink text="FontAwesome 5" uri="https://fontawesome.com/"/>
-                    <Text text="&#10;"/>
-                    <Text text=" © Fonticons, Inc. Licensed under the "/>
-                    <DisclosedHyperlink text="SIL OFL 1.1 license." uri="https://openfontlicense.org/"/>
-                    <Text text="&#10;&#10;"/>
-
                     <DisclosedHyperlink text="Flyway" uri="https://www.red-gate.com/products/flyway/community/"/>
                     <Text text="&#10;"/>
                     <Text text=" © RedGate. Licensed under the "/>

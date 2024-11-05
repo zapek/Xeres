@@ -31,7 +31,7 @@
     <HBox alignment="BASELINE_RIGHT">
         <Button styleClass="button-icon, flat, accent">
             <graphic>
-                <FontIcon iconLiteral="fas-info-circle"/>
+                <FontIcon iconLiteral="mdi2i-information"/>
             </graphic>
             <tooltip>
                 <Tooltip showDelay="0ms" showDuration="1m" maxWidth="400" wrapText="true" text="%statistics.turtle.tip"/>

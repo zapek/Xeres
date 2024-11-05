@@ -35,8 +35,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -326,7 +326,7 @@ public class EditorView extends VBox
 
 		var dialog = new TextInputDialog();
 		dialog.setTitle(bundle.getString("editor.hyperlink.insert"));
-		dialog.setGraphic(new FontIcon(FontAwesomeSolid.LINK));
+		dialog.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		dialog.setHeaderText(bundle.getString("editor.hyperlink.enter"));
 		dialog.initOwner(parent);
 

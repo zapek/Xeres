@@ -49,10 +49,10 @@ public class SettingsRemoteController implements SettingsController
 	@Override
 	public void initialize() throws IOException
 	{
-		var icon = new FontIcon("fas-eye-slash");
+		var icon = new FontIcon("mdi2e-eye-off");
 		icon.setCursor(Cursor.HAND);
 		icon.setOnMouseClicked(mouseEvent -> {
-			icon.setIconLiteral(password.getRevealPassword() ? "fas-eye-slash" : "fas-eye");
+			icon.setIconLiteral(password.getRevealPassword() ? "mdi2e-eye-off" : "mdi2e-eye");
 			password.setRevealPassword(!password.getRevealPassword());
 		});
 		password.setRight(icon);

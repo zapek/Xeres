@@ -32,9 +32,9 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="createChatRoom" text="%create">
+                <Button fx:id="createChatRoom">
                     <graphic>
-                        <FontIcon iconLiteral="fas-plus"/>
+                        <FontIcon iconLiteral="mdi2c-chat-plus"/>
                     </graphic>
                     <tooltip>
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%chat.room.create.tooltip"/>
@@ -59,10 +59,13 @@
                     </HBox.margin>
                 </Label>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="invite" mnemonicParsing="false" text="%chat.room.invite.button">
+                <Button fx:id="invite" mnemonicParsing="false">
                     <graphic>
-                        <FontIcon iconLiteral="fas-sign-in-alt"/>
+                        <FontIcon iconLiteral="mdi2a-account-multiple-plus"/>
                     </graphic>
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%chat.room.invite.tip"/>
+                    </tooltip>
                 </Button>
             </HBox>
             <VBox fx:id="content" VBox.vgrow="ALWAYS">

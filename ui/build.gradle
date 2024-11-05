@@ -60,8 +60,7 @@ dependencies {
     implementation 'io.github.mkpaz:atlantafx-base:2.0.1'
     implementation platform('org.kordamp.ikonli:ikonli-bom:12.3.1')
     implementation 'org.kordamp.ikonli:ikonli-javafx'
-    implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack'
-    implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack' // fallback for missing icons in fontawesome
+    implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

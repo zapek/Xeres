@@ -40,19 +40,19 @@ final class AvailabilityCellUtil
 		{
 			case AVAILABLE ->
 			{
-				icon.setIconLiteral("fas-circle");
+				icon.setIconLiteral("mdi2c-circle");
 				icon.getStyleClass().add("success");
 				icon.setVisible(true);
 			}
 			case AWAY ->
 			{
-				icon.setIconLiteral("fas-clock");
+				icon.setIconLiteral("mdi2c-clock-time-two");
 				icon.getStyleClass().add("warning");
 				icon.setVisible(true);
 			}
 			case BUSY ->
 			{
-				icon.setIconLiteral("fas-minus-circle");
+				icon.setIconLiteral("mdi2m-minus-circle");
 				icon.getStyleClass().add("danger");
 				icon.setVisible(true);
 			}

@@ -37,8 +37,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -185,7 +185,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 	{
 		var removeItem = new MenuItem(bundle.getString("remove"));
 		removeItem.setId(REMOVE_MENU_ID);
-		removeItem.setGraphic(new FontIcon(FontAwesomeSolid.TIMES));
+		removeItem.setGraphic(new FontIcon(MaterialDesignF.FILE_REMOVE));
 		removeItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileProgressDisplay fileProgressDisplay)
 			{
@@ -198,7 +198,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 		var openItem = new MenuItem(bundle.getString("open"));
 		openItem.setId(OPEN_MENU_ID);
-		openItem.setGraphic(new FontIcon(FontAwesomeSolid.FILE));
+		openItem.setGraphic(new FontIcon(MaterialDesignF.FILE_EYE));
 		openItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileProgressDisplay fileProgressDisplay)
 			{
@@ -224,7 +224,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 		var showInExplorerItem = new MenuItem(bundle.getString("download.view.show-in-folder"));
 		showInExplorerItem.setId(SHOW_IN_FOLDER_MENU_ID);
-		showInExplorerItem.setGraphic(new FontIcon(FontAwesomeSolid.FOLDER_OPEN));
+		showInExplorerItem.setGraphic(new FontIcon(MaterialDesignF.FOLDER_OPEN));
 		showInExplorerItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileProgressDisplay fileProgressDisplay)
 			{

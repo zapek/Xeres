@@ -17,13 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 .base-spacing {
     -fx-padding: 12px;
 }
 
 .ikonli-font-icon {
-    -fx-icon-size: 20px; /* AtlantaFX defaults to 18 px but somehow my text fields are 2 pixels bigger so it needs 20 to be able to group them in input groups */
+    -fx-icon-size: 20px; /* AtlantaFX defaults to 18px but somehow my text fields are 2 pixels bigger so it needs 20 to be able to group them in input groups */
 }
 
 .chat-list-pane {
@@ -35,7 +34,6 @@
     -fx-background-color: -color-bg-default;
 }
 
-/*noinspection CssUnusedSymbol*/
 .chat-list .list-cell {
     -fx-padding: 2px 8px 2px 8px;
 }
@@ -239,5 +237,5 @@
 
 /* PromptText stays visible during focus */
 .text-input, .text-input:focused {
-    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+    -fx-prompt-text-fill: -color-fg-subtle;
 }

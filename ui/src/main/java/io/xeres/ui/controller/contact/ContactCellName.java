@@ -26,8 +26,8 @@ import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.layout.StackPane;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 
 import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
@@ -63,7 +63,7 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 			stackPane = new StackPane();
 			stackPane.setPrefWidth(CONTACT_WIDTH);
 			stackPane.setPrefHeight(CONTACT_HEIGHT);
-			stackPane.getChildren().add(new FontIcon(MaterialDesignA.ACCOUNT));
+			stackPane.getChildren().add(new FontIcon(FontAwesomeSolid.USER));
 			var finalStackPane = stackPane;
 			var imageView = new AsyncImageView(
 					url -> generalClient.getImage(url).block(),
@@ -100,6 +100,11 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 
 	public static String getIdentityImageUrl(Contact contact)
 	{
-		return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + contact.identityId() + "/image";
+		return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + contact.identityId() + "/image" + (contact.profileId() != OWN_PROFILE_ID ? "?fallback=true" : "");
+	}
+
+	public static String getIdenticonImageUrl(String hash)
+	{
+		return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/identicon?hash=" + hash;
 	}
 }

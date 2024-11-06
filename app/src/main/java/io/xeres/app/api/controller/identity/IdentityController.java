@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.identity.IdentityDTO;
@@ -60,12 +61,14 @@ public class IdentityController
 	private final IdentityService identityService;
 	private final IdentityRsService identityRsService;
 	private final ContactNotificationService contactNotificationService;
+	private final IdenticonService identiconService;
 
-	public IdentityController(IdentityService identityService, IdentityRsService identityRsService, ContactNotificationService contactNotificationService)
+	public IdentityController(IdentityService identityService, IdentityRsService identityRsService, ContactNotificationService contactNotificationService, IdenticonService identiconService)
 	{
 		this.identityService = identityService;
 		this.identityRsService = identityRsService;
 		this.contactNotificationService = contactNotificationService;
+		this.identiconService = identiconService;
 	}
 
 	@GetMapping("/{id}")
@@ -82,12 +85,20 @@ public class IdentityController
 	@ApiResponse(responseCode = "200", description = "Identity's avatar image found")
 	@ApiResponse(responseCode = "204", description = "Identity's avatar image is empty")
 	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
-	public ResponseEntity<InputStreamResource> downloadIdentityImage(@PathVariable long id)
+	public ResponseEntity<InputStreamResource> downloadIdentityImage(@PathVariable long id, @RequestParam(value = "fallback", required = false) Boolean fallback)
 	{
 		var identity = identityService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
 		var imageType = ImageDetectionUtils.getImageMimeType(identity.getImage());
 		if (imageType == null)
 		{
+			if (Boolean.TRUE.equals(fallback))
+			{
+				var image = identiconService.getIdenticon(identity.getGxsId().toString());
+				return ResponseEntity.ok()
+						.contentLength(image.length)
+						.contentType(ImageDetectionUtils.getImageMimeType(image))
+						.body(new InputStreamResource(new ByteArrayInputStream(image)));
+			}
 			return ResponseEntity.noContent()
 					.build();
 		}
@@ -95,6 +106,18 @@ public class IdentityController
 				.contentLength(identity.getImage().length)
 				.contentType(imageType)
 				.body(new InputStreamResource(new ByteArrayInputStream(identity.getImage())));
+	}
+
+	@GetMapping(value = "/identicon", produces = MediaType.IMAGE_JPEG_VALUE)
+	@Operation(summary = "Return an identicon")
+	@ApiResponse(responseCode = "200", description = "Identicon generated successfully")
+	public ResponseEntity<InputStreamResource> downloadIdenticon(@RequestParam(value = "hash") String hash)
+	{
+		var image = identiconService.getIdenticon(hash);
+		return ResponseEntity.ok()
+				.contentLength(image.length)
+				.contentType(ImageDetectionUtils.getImageMimeType(image))
+				.body(new InputStreamResource(new ByteArrayInputStream(image)));
 	}
 
 	@PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

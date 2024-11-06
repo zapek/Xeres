@@ -25,8 +25,8 @@ import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 
 import java.text.MessageFormat;
 
@@ -61,7 +61,7 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 		}
 		else
 		{
-			var font = new FontIcon(MaterialDesignA.ACCOUNT);
+			var font = new FontIcon(FontAwesomeSolid.USER);
 			var pane = new StackPane(font);
 			pane.setPrefWidth(DEFAULT_AVATAR_SIZE);
 			pane.setPrefHeight(DEFAULT_AVATAR_SIZE);

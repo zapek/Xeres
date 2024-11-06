@@ -36,7 +36,7 @@
                     <HBox.margin>
                         <Insets right="8.0"/>
                     </HBox.margin>
-                    <FontIcon fx:id="ownContactIcon" iconLiteral="mdi2a-account:48"/>
+                    <FontIcon fx:id="ownContactIcon" iconLiteral="fas-user:48"/>
                     <Circle fx:id="ownContactCircle" radius="24" StackPane.alignment="CENTER_LEFT" visible="false"/>
                     <AsyncImageView fx:id="ownContactImageView" fitWidth="48" fitHeight="48" visible="false"/>
                 </StackPane>
@@ -75,7 +75,7 @@
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
                 <StackPane alignment="TOP_LEFT">
-                    <FontIcon fx:id="contactIcon" iconLiteral="mdi2a-account:128" visible="false"/>
+                    <FontIcon fx:id="contactIcon" iconLiteral="fas-user:128" visible="false"/>
                     <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
                     <Button fx:id="contactImageSelectButton" text="Change image..." visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
                     <Button fx:id="contactImageDeleteButton" opacity="0.0" styleClass="flat, small, danger, button-circle" StackPane.alignment="TOP_RIGHT">

@@ -39,7 +39,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.slf4j.Logger;
@@ -68,9 +67,6 @@ public class AddRsIdWindowController implements WindowController
 
 	@FXML
 	private Button addButton;
-
-	@FXML
-	private TextFlow instructions;
 
 	@FXML
 	private TextArea rsIdTextArea;
@@ -103,7 +99,7 @@ public class AddRsIdWindowController implements WindowController
 	private Label status;
 
 	@FXML
-	private Hyperlink scanQrCode;
+	private Button scanQrCode;
 
 	private final ProfileClient profileClient;
 	private final GeoIpClient geoIpClient;
@@ -151,7 +147,7 @@ public class AddRsIdWindowController implements WindowController
 		{
 			setRsId((String) userData);
 			rsIdTextArea.setEditable(false);
-			UiUtils.setAbsent(instructions);
+			UiUtils.setAbsent(scanQrCode);
 		}
 		else
 		{

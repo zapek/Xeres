@@ -24,18 +24,22 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.text.TextFlow?>
-<VBox prefWidth="560.0" prefHeight="540.0" minWidth="400.0" minHeight="500.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
-    <TextFlow fx:id="instructions">
-        <Text text="%rsid.add.textarea.instruction"/>
-        <Text text=" "/>
-        <Hyperlink fx:id="scanQrCode" text="%rsid.add.textarea.instruction2"/>
-    </TextFlow>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<VBox prefWidth="560.0" prefHeight="540.0" minWidth="400.0" minHeight="500.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.id.AddRsIdWindowController">
+    <padding>
+        <Insets left="12" right="12" bottom="12"/>
+    </padding>
+    <HBox alignment="TOP_RIGHT">
+        <Button fx:id="scanQrCode" styleClass="flat">
+            <graphic>
+                <FontIcon iconLiteral="mdi2q-qrcode-scan"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Scan the QR Code using the camera."/>
+            </tooltip>
+        </Button>
+    </HBox>
     <TextArea fx:id="rsIdTextArea" promptText="%rsid.add.textarea.prompt" VBox.vgrow="SOMETIMES" styleClass="fixed-font">
-        <VBox.margin>
-            <Insets top="8.0"/>
-        </VBox.margin>
         <tooltip>
             <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rsid.add.textarea.tip"/>
         </tooltip>

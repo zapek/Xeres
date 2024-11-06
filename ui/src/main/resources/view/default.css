@@ -236,3 +236,8 @@
 .group-frame {
     -fx-border-color: -color-neutral-emphasis;
 }
+
+/* PromptText stays visible during focus */
+.text-input, .text-input:focused {
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+}

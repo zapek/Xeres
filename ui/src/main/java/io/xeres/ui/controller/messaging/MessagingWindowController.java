@@ -326,6 +326,7 @@ public class MessagingWindowController implements WindowController
 				receive.addUserMessage(message.created(), targetProfile.getName(), message.message());
 			}
 		});
+		receive.jumpToBottom(true);
 	}
 
 	public void showAvatar(ChatAvatar chatAvatar)

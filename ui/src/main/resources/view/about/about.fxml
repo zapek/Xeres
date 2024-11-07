@@ -162,6 +162,12 @@
                     <DisclosedHyperlink text="MIT license." uri="https://www.bouncycastle.org/about/license/#License"/>
                     <Text text="&#10;&#10;"/>
 
+                    <DisclosedHyperlink text="Contact Identicons" uri="https://github.com/davidhampgonsalves/Contact-Identicons"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © David Hamp-Gonsalves. Licensed under the "/>
+                    <DisclosedHyperlink text="MIT license." uri="https://github.com/davidhampgonsalves/Contact-Identicons?tab=MIT-1-ov-file"/>
+                    <Text text="&#10;&#10;"/>
+
                     <DisclosedHyperlink text="Flowless" uri="https://github.com/FXMisc/Flowless"/>
                     <Text text="&#10;"/>
                     <Text text=" © Tomas Mikula. Licensed under the "/>

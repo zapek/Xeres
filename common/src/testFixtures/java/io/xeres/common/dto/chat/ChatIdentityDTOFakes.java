@@ -31,6 +31,6 @@ public final class ChatIdentityDTOFakes
 
 	public static ChatIdentityDTO createChatIdentityDTO()
 	{
-		return new ChatIdentityDTO(StringFakes.createNickname(), IdFakes.createGxsId(), new byte[1]);
+		return new ChatIdentityDTO(StringFakes.createNickname(), IdFakes.createGxsId(), 10L);
 	}
 }

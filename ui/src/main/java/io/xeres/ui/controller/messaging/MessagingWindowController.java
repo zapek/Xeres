@@ -28,12 +28,14 @@ import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.ui.client.ChatClient;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.custom.TypingNotificationView;
+import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -128,12 +130,14 @@ public class MessagingWindowController implements WindowController
 	private final MessageClient messageClient;
 	private final ShareClient shareClient;
 	private final ChatClient chatClient;
+	private final GeneralClient generalClient;
+	private final ImageCache imageCache;
 
 	private Instant lastTypingNotification = Instant.EPOCH;
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle, ChatClient chatClient)
+	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache)
 	{
 		this.profileClient = profileClient;
 		this.windowManager = windowManager;
@@ -144,6 +148,8 @@ public class MessagingWindowController implements WindowController
 		this.chatClient = chatClient;
 		this.bundle = bundle;
 		this.locationId = new LocationId(locationId);
+		this.generalClient = generalClient;
+		this.imageCache = imageCache;
 	}
 
 	@Override
@@ -218,7 +224,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction);
+		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache);
 		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())

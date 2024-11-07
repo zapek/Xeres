@@ -32,14 +32,14 @@ import java.io.IOException;
 @Service
 public class IdenticonService
 {
-	public byte[] getIdenticon(String text)
+	public byte[] getIdenticon(byte[] hash)
 	{
-		var image = generateIdenticon(text, 128, 128);
+		var image = generateIdenticon(hash, 128, 128);
 
 		var output = new ByteArrayOutputStream();
 		try
 		{
-			ImageIO.write(image, "jpg", output);
+			ImageIO.write(image, "png", output);
 		}
 		catch (IOException e)
 		{
@@ -49,42 +49,55 @@ public class IdenticonService
 	}
 
 	// https://stackoverflow.com/questions/40697056/how-can-i-create-identicons-using-java-or-android
-	private BufferedImage generateIdenticon(String text, int imageWidth, int imageHeight)
+
+	/**
+	 * Generates an identicon like the ones from GitHub.
+	 * <a href="https://github.com/davidhampgonsalves/Contact-Identicons">Android version</a> by David Hamp-Gonsalves.
+	 * <a href="https://stackoverflow.com/questions/40697056/how-can-i-create-identicons-using-java-or-android">Java version</a> by Kevin Grandjean.
+	 *
+	 * @param hash        the hash, at least 3 bytes are needed
+	 * @param imageWidth  the width of the images
+	 * @param imageHeight the height of the image
+	 * @return a buffered image
+	 */
+	private BufferedImage generateIdenticon(byte[] hash, int imageWidth, int imageHeight)
 	{
-		int width = 5, height = 5;
+		assert hash != null && hash.length >= 3;
+		var width = 5;
+		var height = 5;
 
-		byte[] hash = text.getBytes();
-
-		BufferedImage identicon = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		var identicon = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		WritableRaster raster = identicon.getRaster();
 
-		//int[] background = new int[]{255, 255, 255, 0};
-		int[] background = new int[]{255 - hash[0] & 255, 255 - hash[1] & 255, 255 - hash[2] & 255, 0};
-		int[] foreground = new int[]{hash[0] & 255, hash[1] & 255, hash[2] & 255, 255};
+		var background = new int[]{255, 255, 255, 0};
+		var foreground = new int[]{hash[0] & 255, hash[1] & 255, hash[2] & 255, 255};
 
-		for (int x = 0; x < width; x++)
+		for (var x = 0; x < width; x++)
 		{
 			//Enforce horizontal symmetry
 			int i = x < 3 ? x : 4 - x;
-			for (int y = 0; y < height; y++)
+			for (var y = 0; y < height; y++)
 			{
 				int[] pixelColor;
 				//toggle pixels based on bit being on/off
 				if ((hash[i] >> y & 1) == 1)
+				{
 					pixelColor = foreground;
+				}
 				else
+				{
 					pixelColor = background;
+				}
 				raster.setPixel(x, y, pixelColor);
 			}
 		}
 
-		//BufferedImage finalImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
-		BufferedImage finalImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+		var finalImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
 
 		//Scale image to the size you want
-		AffineTransform at = new AffineTransform();
+		var at = new AffineTransform();
 		at.scale((double) imageWidth / width, (double) imageHeight / height);
-		AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+		var op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 		finalImage = op.filter(identicon, finalImage);
 
 		return finalImage;

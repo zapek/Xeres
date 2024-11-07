@@ -130,12 +130,6 @@ public class ContactViewController implements Controller
 	private Button contactImageDeleteButton;
 
 	@FXML
-	private FontIcon contactIcon;
-
-	@FXML
-	private FontIcon ownContactIcon;
-
-	@FXML
 	private AsyncImageView contactImageView;
 
 	@FXML
@@ -262,7 +256,6 @@ public class ContactViewController implements Controller
 	public void initialize() throws IOException
 	{
 		contactImageView.setLoader(url -> generalClient.getImage(url).block());
-		contactImageView.setOnSuccess(() -> contactIcon.setVisible(false));
 		contactImageView.setImageCache(imageCacheService);
 
 		setupContactSearch();
@@ -271,13 +264,8 @@ public class ContactViewController implements Controller
 
 		setupMenuFilters();
 
-		// Workaround for https://github.com/mkpaz/atlantafx/issues/31
-		contactIcon.iconSizeProperty().addListener((observable, oldValue, newValue) -> contactIcon.setIconSize(128));
-
 		contactImageView.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
 		contactImageView.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
-		contactIcon.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
-		contactIcon.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
 		contactImageSelectButton.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
 		contactImageSelectButton.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
 		contactImageDeleteButton.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
@@ -308,7 +296,6 @@ public class ContactViewController implements Controller
 	{
 		ownContactImageView.setLoader(url -> generalClient.getImage(url).block());
 		ownContactImageView.setOnSuccess(() -> {
-			ownContactIcon.setVisible(false);
 			ownContactCircle.setVisible(true);
 			ownContactCircle.setFill(new ImagePattern(ownContactImageView.getImage()));
 		});
@@ -317,8 +304,6 @@ public class ContactViewController implements Controller
 			ownContactCircle.setEffect(new DropShadow(6, Color.rgb(0, 0, 0, 0.7)));
 		}
 		ownContactImageView.setImageCache(imageCacheService);
-
-		ownContactIcon.iconSizeProperty().addListener((observable, oldValue, newValue) -> ownContactIcon.setIconSize(48));
 
 		profileClient.getOwn()
 				.doOnSuccess(profile -> {
@@ -640,7 +625,6 @@ public class ContactViewController implements Controller
 				clearCachedImages(ownContact);
 				ownContactImageView.setUrl(null);
 				ownContactCircle.setVisible(false);
-				ownContactIcon.setVisible(true);
 				displayOwnContact();
 				displayOwnContactImage();
 				return;
@@ -820,10 +804,9 @@ public class ContactViewController implements Controller
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.getValue().name());
 		chatButton.setDisable(contact.getValue().availability() == Availability.OFFLINE);
+		contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 		if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
-			contactIcon.setVisible(true);
-			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 			typeLabel.setText("Contact linked to profile");
 
 			fetchProfile(contact.getValue().profileId(), Information.MERGED, contact.isLeaf());
@@ -831,8 +814,6 @@ public class ContactViewController implements Controller
 		}
 		else if (contact.getValue().profileId() != NO_PROFILE_ID)
 		{
-			contactIcon.setVisible(true);
-			contactImageView.setUrl(null);
 			typeLabel.setText("Profile");
 
 			fetchProfile(contact.getValue().profileId(), Information.PROFILE, false);
@@ -841,8 +822,6 @@ public class ContactViewController implements Controller
 		{
 			profilePane.setVisible(false);
 
-			contactIcon.setVisible(true);
-			contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 			typeLabel.setText("Contact");
 			hideTableLocations();
 
@@ -862,7 +841,6 @@ public class ContactViewController implements Controller
 		TooltipUtils.uninstall(typeLabel);
 		createdLabel.setText(null);
 		contactImageView.setImageProper(null);
-		contactIcon.setVisible(true);
 		profilePane.setVisible(false);
 		hideTableLocations();
 	}
@@ -883,10 +861,6 @@ public class ContactViewController implements Controller
 					trust.setDisable(isLeaf);
 					profilePane.setVisible(true);
 					showTableLocations(profile.getLocations());
-					if (profile.isOwn())
-					{
-						setImageEditButtonsVisibility(true);
-					}
 				}))
 				.doOnError(throwable -> {
 					if (throwable instanceof WebClientResponseException wEx && wEx.getStatusCode() == HttpStatus.NOT_FOUND)
@@ -970,6 +944,14 @@ public class ContactViewController implements Controller
 					{
 						createdOrUpdated.setText("Updated");
 						createdLabel.setText(DATE_TIME_DISPLAY.format(identity.getUpdated()));
+					}
+					if (identityId == OWN_IDENTITY_ID)
+					{
+						if (identity.hasImage())
+						{
+							contactImageDeleteButton.setVisible(true);
+						}
+						contactImageSelectButton.setVisible(true);
 					}
 				}))
 				.doOnError(throwable -> Platform.runLater(this::clearSelection))

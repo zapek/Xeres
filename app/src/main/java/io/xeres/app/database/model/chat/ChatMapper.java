@@ -42,7 +42,7 @@ public final class ChatMapper
 		}
 		return new ChatRoomContextDTO(
 				new ChatRoomsDTO(toDTOs(chatRoomContext.chatRoomLists().getSubscribed()), toDTOs(chatRoomContext.chatRoomLists().getAvailable())),
-				new ChatIdentityDTO(chatRoomContext.ownUser().nickname(), chatRoomContext.ownUser().gxsId(), chatRoomContext.ownUser().image())
+				new ChatIdentityDTO(chatRoomContext.ownUser().nickname(), chatRoomContext.ownUser().gxsId(), chatRoomContext.ownUser().identityId())
 		);
 	}
 

@@ -22,6 +22,7 @@ package io.xeres.app.api.controller.identity;
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import org.junit.jupiter.api.Test;
@@ -63,6 +64,9 @@ class IdentityControllerTest extends AbstractControllerTest
 	@MockBean
 	private ContactNotificationService contactNotificationService;
 
+	@MockBean
+	private IdenticonService identiconService;
+
 	@Autowired
 	public MockMvc mvc;
 
@@ -101,9 +105,11 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
+		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
 		mvc.perform(get(BASE_URL + "/" + id + "/image", MediaType.IMAGE_JPEG))
-				.andExpect(status().isNoContent());
+				.andExpect(status().isOk())
+				.andExpect(header().string(CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE));
 
 		verify(identityService).findById(id);
 	}

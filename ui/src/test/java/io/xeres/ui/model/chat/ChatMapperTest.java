@@ -23,7 +23,6 @@ import io.xeres.common.dto.chat.ChatRoomContextDTOFakes;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ChatMapperTest
@@ -56,6 +55,6 @@ class ChatMapperTest
 
 		assertEquals(chatRoomContext.ownUser().nickname(), dto.identity().nickname());
 		assertEquals(chatRoomContext.ownUser().gxsId(), dto.identity().gxsId());
-		assertArrayEquals(chatRoomContext.ownUser().image(), dto.identity().image());
+		assertEquals(chatRoomContext.ownUser().identityId(), dto.identity().identityId());
 	}
 }

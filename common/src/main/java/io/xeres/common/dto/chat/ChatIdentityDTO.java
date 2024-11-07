@@ -24,7 +24,7 @@ import io.xeres.common.id.GxsId;
 public record ChatIdentityDTO(
 		String nickname,
 		GxsId gxsId,
-		byte[] image
+		long identityId
 )
 {
 }

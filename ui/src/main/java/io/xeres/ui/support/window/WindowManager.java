@@ -49,6 +49,7 @@ import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.controller.share.ShareWindowController;
 import io.xeres.ui.controller.statistics.StatisticsMainController;
+import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceService;
@@ -91,6 +92,8 @@ public class WindowManager
 	private final MarkdownService markdownService;
 	private final UriService uriService;
 	private final ChatClient chatClient;
+	private final GeneralClient generalClient;
+	private final ImageCache imageCache;
 	private static ResourceBundle bundle;
 	private static PreferenceService preferenceService;
 	private static AppThemeManager appThemeManager;
@@ -102,7 +105,7 @@ public class WindowManager
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -113,6 +116,8 @@ public class WindowManager
 		this.markdownService = markdownService;
 		this.uriService = uriService;
 		this.chatClient = chatClient;
+		this.generalClient = generalClient;
+		this.imageCache = imageCache;
 		WindowManager.bundle = bundle;
 		WindowManager.preferenceService = preferenceService;
 		WindowManager.appThemeManager = appThemeManager;
@@ -201,7 +206,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || !chatMessage.isEmpty()) // Don't open a window for a typing notification, we're not psychic (but do open when we double-click)
 							{
-								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle, chatClient);
+								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle, chatClient, generalClient, imageCache);
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)

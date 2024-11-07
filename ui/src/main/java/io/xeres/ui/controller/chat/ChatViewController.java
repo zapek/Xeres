@@ -23,12 +23,14 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ChatClient;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
 import io.xeres.ui.custom.TypingNotificationView;
+import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.contextmenu.XContextMenu;
@@ -155,6 +157,8 @@ public class ChatViewController implements Controller
 	private final MarkdownService markdownService;
 	private final UriService uriService;
 	private final PreferenceService preferenceService;
+	private final GeneralClient generalClient;
+	private final ImageCache imageCache;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -174,7 +178,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService, GeneralClient generalClient, ImageCache imageCache)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -190,6 +194,8 @@ public class ChatViewController implements Controller
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
 		publicRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.public")));
 		this.preferenceService = preferenceService;
+		this.generalClient = generalClient;
+		this.imageCache = imageCache;
 	}
 
 	@Override
@@ -360,7 +366,7 @@ public class ChatViewController implements Controller
 		chatClient.getChatRoomContext()
 				.doOnSuccess(context -> {
 					addRooms(context.chatRoomLists());
-					context.chatRoomLists().getSubscribed().forEach(chatRoomInfo -> userJoined(chatRoomInfo.getId(), new ChatRoomUserEvent(context.ownUser().gxsId(), context.ownUser().nickname(), context.ownUser().image())));
+					context.chatRoomLists().getSubscribed().forEach(chatRoomInfo -> userJoined(chatRoomInfo.getId(), new ChatRoomUserEvent(context.ownUser().gxsId(), context.ownUser().nickname(), context.ownUser().identityId())));
 				})
 				.subscribe();
 	}
@@ -629,7 +635,7 @@ public class ChatViewController implements Controller
 		var chatListView = roomInfoTreeItem.getValue().getChatListView();
 		if (chatListView == null)
 		{
-			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId(), markdownService, uriService);
+			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId(), markdownService, uriService, generalClient, imageCache);
 			roomInfoTreeItem.getValue().setChatListView(chatListView);
 		}
 		return chatListView;

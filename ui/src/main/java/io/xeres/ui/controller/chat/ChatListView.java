@@ -23,7 +23,9 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.ChatListCell;
+import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.chat.ChatAction;
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.chat.ChatParser;
@@ -41,7 +43,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -51,7 +52,6 @@ import org.jsoup.Jsoup;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 
-import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
@@ -81,6 +81,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final ListView<ChatRoomUser> userListView;
 	private final MarkdownService markdownService;
 	private final UriAction uriAction;
+	private final GeneralClient generalClient;
+	private final ImageCache imageCache;
 
 	public enum AddUserOrigin
 	{
@@ -88,12 +90,14 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		KEEP_ALIVE
 	}
 
-	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction)
+	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache)
 	{
 		this.nickname = nickname;
 		this.id = id;
 		this.markdownService = markdownService;
 		this.uriAction = uriAction;
+		this.generalClient = generalClient;
+		this.imageCache = imageCache;
 
 		chatView = createChatView();
 		userListView = createUserListView();
@@ -114,7 +118,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		view.getStyleClass().add("chat-user-list");
 		VBox.setVgrow(view, Priority.ALWAYS);
 
-		view.setCellFactory(param -> new ChatUserCell());
+		view.setCellFactory(param -> new ChatUserCell(generalClient, imageCache));
 		view.setItems(users);
 
 		createUsersListViewContextMenu(view);
@@ -199,7 +203,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	{
 		if (!userMap.containsKey(event.getGxsId()))
 		{
-			var chatRoomUser = new ChatRoomUser(event.getGxsId(), event.getNickname(), buildImageView(event.getImage()));
+			var chatRoomUser = new ChatRoomUser(event.getGxsId(), event.getNickname(), event.getIdentityId());
 			users.add(chatRoomUser);
 			userMap.put(event.getGxsId(), chatRoomUser);
 			users.sort((o1, o2) -> o1.nickname().compareToIgnoreCase(o2.nickname()));
@@ -208,15 +212,6 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				addMessageLine(new ChatAction(JOIN, event.getNickname(), event.getGxsId()));
 			}
 		}
-	}
-
-	private static ImageView buildImageView(byte[] imageData)
-	{
-		if (imageData != null)
-		{
-			return new ImageView(new Image(new ByteArrayInputStream(imageData)));
-		}
-		return null;
 	}
 
 	public void removeUser(ChatRoomUserEvent event)

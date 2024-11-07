@@ -134,7 +134,7 @@ class ChatControllerTest extends AbstractControllerTest
 		chatRoomLists.addSubscribed(subscribedChatRoom);
 		chatRoomLists.addAvailable(availableChatRoom);
 		var ownIdentity = IdentityFakes.createOwn();
-		var chatRoomUser = new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage());
+		var chatRoomUser = new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getId());
 		when(chatRsService.getChatRoomContext()).thenReturn(new ChatRoomContext(chatRoomLists, chatRoomUser));
 
 		mvc.perform(getJson(BASE_URL + "/rooms"))

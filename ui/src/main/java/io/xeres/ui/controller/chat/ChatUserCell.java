@@ -20,26 +20,34 @@
 package io.xeres.ui.controller.chat;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.util.RemoteUtils;
+import io.xeres.ui.client.GeneralClient;
+import io.xeres.ui.custom.asyncimage.AsyncImageView;
+import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.util.TooltipUtils;
-import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.text.MessageFormat;
 
-public class ChatUserCell extends ListCell<ChatRoomUser>
-{
-	private static final int DEFAULT_AVATAR_SIZE = 32;
+import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
-	public ChatUserCell()
+class ChatUserCell extends ListCell<ChatRoomUser>
+{
+	private static final int AVATAR_WIDTH = 32;
+	private static final int AVATAR_HEIGHT = 32;
+
+	private final GeneralClient generalClient;
+	private final ImageCache imageCache;
+
+	public ChatUserCell(GeneralClient generalClient, ImageCache imageCache)
 	{
 		super();
+		this.generalClient = generalClient;
+		this.imageCache = imageCache;
 		TooltipUtils.install(this,
 				() -> MessageFormat.format(I18nUtils.getString("chat.room.user-info"), super.getItem().nickname(), super.getItem().gxsId()),
-				() -> super.getItem().image());
+				() -> new ImageView(((ImageView) super.getGraphic()).getImage()));
 	}
 
 	@Override
@@ -47,25 +55,35 @@ public class ChatUserCell extends ListCell<ChatRoomUser>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.nickname());
-		setGraphic(empty ? null : getAvatar(item));
+		setGraphic(empty ? null : updateAvatar((AsyncImageView) getGraphic(), item));
 	}
 
-	private static Node getAvatar(ChatRoomUser item)
+	private AsyncImageView updateAvatar(AsyncImageView asyncImageView, ChatRoomUser item)
 	{
-		if (item.image() != null)
+		if (asyncImageView == null)
 		{
-			var imageView = new ImageView(item.image().getImage());
-			imageView.setFitWidth(DEFAULT_AVATAR_SIZE);
-			imageView.setFitHeight(DEFAULT_AVATAR_SIZE);
-			return imageView;
+			asyncImageView = new AsyncImageView(
+					url -> generalClient.getImage(url).block(),
+					null,
+					imageCache);
+			asyncImageView.setFitWidth(AVATAR_WIDTH);
+			asyncImageView.setFitHeight(AVATAR_HEIGHT);
+		}
+
+		asyncImageView.setUrl(getImageUrl(item));
+
+		return asyncImageView;
+	}
+
+	private String getImageUrl(ChatRoomUser item)
+	{
+		if (item.identityId() != 0L)
+		{
+			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + item.identityId() + "/image";
 		}
 		else
 		{
-			var font = new FontIcon(FontAwesomeSolid.USER);
-			var pane = new StackPane(font);
-			pane.setPrefWidth(DEFAULT_AVATAR_SIZE);
-			pane.setPrefHeight(DEFAULT_AVATAR_SIZE);
-			return pane;
+			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + item.gxsId();
 		}
 	}
 }

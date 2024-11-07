@@ -426,7 +426,7 @@ public class ChatRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownIdentity = identityService.getOwnIdentity();
-			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getImage()));
+			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getId()));
 		}
 	}
 
@@ -569,17 +569,8 @@ public class ChatRsService extends RsService
 
 	private void sendUserEventToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, IdentityGroupItem identityGroupItem)
 	{
-		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname, getImageData(identityGroupItem));
+		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname, identityGroupItem != null ? identityGroupItem.getId() : 0L);
 		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
-	}
-
-	private static byte[] getImageData(IdentityGroupItem identityGroupItem)
-	{
-		if (identityGroupItem != null)
-		{
-			return identityGroupItem.getImage();
-		}
-		return null;
 	}
 
 	private void sendTimeoutEventToClient(long roomId, GxsId gxsId, boolean split)
@@ -1067,7 +1058,7 @@ public class ChatRsService extends RsService
 			sendJoinEventIfNeeded(chatRoom);
 
 			// Add ourselves in the UI so that we're shown as joining
-			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsId(), ownIdentity.getName(), null);
+			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsId(), ownIdentity.getName(), ownIdentity);
 		}
 	}
 

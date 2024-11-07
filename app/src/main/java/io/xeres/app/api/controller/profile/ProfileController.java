@@ -32,6 +32,7 @@ import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
@@ -39,13 +40,17 @@ import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.Error;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
+import io.xeres.common.util.ImageDetectionUtils;
 import jakarta.validation.Valid;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.ByteArrayInputStream;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,13 +69,15 @@ public class ProfileController
 
 	private final PeerConnectionJob peerConnectionJob;
 	private final StatusNotificationService statusNotificationService;
+	private final IdenticonService identiconService;
 
-	public ProfileController(ProfileService profileService, IdentityService identityService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService)
+	public ProfileController(ProfileService profileService, IdentityService identityService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService, IdenticonService identiconService)
 	{
 		this.profileService = profileService;
 		this.identityService = identityService;
 		this.peerConnectionJob = peerConnectionJob;
 		this.statusNotificationService = statusNotificationService;
+		this.identiconService = identiconService;
 	}
 
 	@GetMapping("/{id}")
@@ -90,6 +97,20 @@ public class ProfileController
 	public ProfileKeyAttributes findProfileKeyAttributes(@PathVariable long id)
 	{
 		return profileService.findProfileKeyAttributes(id);
+	}
+
+	@GetMapping(value = "/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+	@Operation(summary = "Return a profile's avatar image (currently an identicon)")
+	@ApiResponse(responseCode = "200", description = "Profile's avatar image found")
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	public ResponseEntity<InputStreamResource> downloadImage(@PathVariable long id)
+	{
+		var profile = profileService.findProfileById(id).orElseThrow();
+		var image = identiconService.getIdenticon(ByteBuffer.wrap(new byte[8]).putLong(profile.getPgpIdentifier()).array());
+		return ResponseEntity.ok()
+				.contentLength(image.length)
+				.contentType(ImageDetectionUtils.getImageMimeType(image))
+				.body(new InputStreamResource(new ByteArrayInputStream(image)));
 	}
 
 	@GetMapping

@@ -25,16 +25,19 @@ import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import javafx.scene.control.TreeTableCell;
-import javafx.scene.layout.StackPane;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
-import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
+import static io.xeres.common.dto.profile.ProfileConstants.NO_PROFILE_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
+import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
 
 class ContactCellName extends TreeTableCell<Contact, Contact>
 {
+	private static final Logger log = LoggerFactory.getLogger(ContactCellName.class);
+
 	private static final int CONTACT_WIDTH = 32;
 	private static final int CONTACT_HEIGHT = 32;
 
@@ -53,36 +56,23 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.name());
-		setGraphic(empty ? null : updateContact((StackPane) getGraphic(), item));
+		setGraphic(empty ? null : updateContact((AsyncImageView) getGraphic(), item));
 	}
 
-	private StackPane updateContact(StackPane stackPane, Contact contact)
+	private AsyncImageView updateContact(AsyncImageView asyncImageView, Contact contact)
 	{
-		if (stackPane == null)
+		if (asyncImageView == null)
 		{
-			stackPane = new StackPane();
-			stackPane.setPrefWidth(CONTACT_WIDTH);
-			stackPane.setPrefHeight(CONTACT_HEIGHT);
-			stackPane.getChildren().add(new FontIcon(FontAwesomeSolid.USER));
-			var finalStackPane = stackPane;
-			var imageView = new AsyncImageView(
+			asyncImageView = new AsyncImageView(
 					url -> generalClient.getImage(url).block(),
-					() -> finalStackPane.getChildren().getFirst().setVisible(false),
+					null,
 					imageCache);
-			imageView.setFitWidth(CONTACT_WIDTH);
-			imageView.setFitHeight(CONTACT_HEIGHT);
-			stackPane.getChildren().add(imageView);
+			asyncImageView.setFitWidth(CONTACT_WIDTH);
+			asyncImageView.setFitHeight(CONTACT_HEIGHT);
 		}
-		stackPane.getChildren().getFirst().setVisible(true);
 
-		if (contact.identityId() != NO_IDENTITY_ID)
-		{
-			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(getIdentityImageUrl(contact));
-		}
-		else
-		{
-			((AsyncImageView) stackPane.getChildren().get(1)).setUrl(null);
-		}
+		asyncImageView.setUrl(getIdentityImageUrl(contact));
+
 		if (contact.profileId() == OWN_PROFILE_ID)
 		{
 			setStyle("-fx-font-weight: bold");
@@ -95,16 +85,20 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 		{
 			setStyle("");
 		}
-		return stackPane;
+		return asyncImageView;
 	}
 
 	public static String getIdentityImageUrl(Contact contact)
 	{
-		return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + contact.identityId() + "/image" + (contact.profileId() != OWN_PROFILE_ID ? "?fallback=true" : "");
-	}
-
-	public static String getIdenticonImageUrl(String hash)
-	{
-		return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/identicon?hash=" + hash;
+		if (contact.identityId() != NO_IDENTITY_ID)
+		{
+			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + contact.identityId() + "/image";
+		}
+		else if (contact.profileId() != NO_PROFILE_ID)
+		{
+			return RemoteUtils.getControlUrl() + PROFILES_PATH + "/" + contact.profileId() + "/image";
+		}
+		log.error("Contact {} is empty", contact);
+		return null;
 	}
 }

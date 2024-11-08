@@ -69,7 +69,7 @@ public class IdenticonService
 		var identicon = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		WritableRaster raster = identicon.getRaster();
 
-		var background = new int[]{255, 255, 255, 0};
+		var background = new int[]{240, 240, 240, 255};
 		var foreground = new int[]{hash[0] & 255, hash[1] & 255, hash[2] & 255, 255};
 
 		for (var x = 0; x < width; x++)

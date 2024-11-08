@@ -140,13 +140,13 @@ public class TrayService
 				.doOnNext(sse -> {
 					Objects.requireNonNull(sse.data());
 
-					if (sse.data().availability() == Availability.AVAILABLE)
+					if (sse.data().availability() == Availability.OFFLINE)
 					{
-						addPeer(sse.data().locationId(), sse.data().profileName(), sse.data().locationName());
+						removePeer(sse.data().locationId());
 					}
 					else
 					{
-						removePeer(sse.data().locationId());
+						addPeer(sse.data().locationId(), sse.data().profileName(), sse.data().locationName());
 					}
 				})
 				.subscribe();

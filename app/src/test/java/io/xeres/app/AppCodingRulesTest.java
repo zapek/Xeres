@@ -40,7 +40,7 @@ import static com.tngtech.archunit.library.GeneralCodingRules.ACCESS_STANDARD_ST
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
 
 @AnalyzeClasses(packagesOf = XeresApplication.class, importOptions = ImportOption.DoNotIncludeTests.class)
-class CodingRulesTest
+class AppCodingRulesTest
 {
 	@ArchTest
 	private final ArchRule noAccessToStandardStreams = noClasses()

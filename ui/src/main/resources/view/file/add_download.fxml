@@ -24,7 +24,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" prefHeight="240.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="io.xeres.ui.controller.file.FileAddDownloadViewController">
+      fx:controller="io.xeres.ui.controller.file.FileAddDownloadViewWindowController">
     <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>

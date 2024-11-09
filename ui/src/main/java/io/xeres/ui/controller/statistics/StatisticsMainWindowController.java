@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @FxmlView(value = "/view/statistics/main.fxml")
-public class StatisticsMainController implements WindowController
+public class StatisticsMainWindowController implements WindowController
 {
 	// This field name to get the controller is some black magic, see last answer at https://stackoverflow.com/questions/40754454/get-controller-instance-from-node
 	@FXML

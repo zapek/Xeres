@@ -38,7 +38,7 @@ import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.debug.PropertiesWindowController;
 import io.xeres.ui.controller.debug.UiCheckWindowController;
-import io.xeres.ui.controller.file.FileAddDownloadViewController;
+import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
@@ -48,7 +48,7 @@ import io.xeres.ui.controller.qrcode.CameraWindowController;
 import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.controller.share.ShareWindowController;
-import io.xeres.ui.controller.statistics.StatisticsMainController;
+import io.xeres.ui.controller.statistics.StatisticsMainWindowController;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -210,6 +210,7 @@ public class WindowManager
 
 								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
+										.setRememberEnvironment(true)
 										.build()
 										.open();
 							}
@@ -337,14 +338,14 @@ public class WindowManager
 	public void openStatistics()
 	{
 		Platform.runLater(() -> {
-			var stats = getOpenedWindow(StatisticsMainController.class).orElse(null);
+			var stats = getOpenedWindow(StatisticsMainWindowController.class).orElse(null);
 			if (stats != null)
 			{
 				stats.requestFocus();
 			}
 			else
 			{
-				UiWindow.builder(StatisticsMainController.class)
+				UiWindow.builder(StatisticsMainWindowController.class)
 						.setRememberEnvironment(true)
 						.setTitle("Statistics")
 						.build()
@@ -382,7 +383,7 @@ public class WindowManager
 	public void openAddDownload(AddDownloadRequest addDownloadRequest)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(FileAddDownloadViewController.class)
+				UiWindow.builder(FileAddDownloadViewWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("download.add.window-title"))
 						.setUserData(addDownloadRequest)
@@ -476,14 +477,14 @@ public class WindowManager
 	static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass)
 	{
 		return Window.getWindows().stream()
-				.filter(window -> Objects.equals(window.getScene().getRoot().getId(), controllerClass.getName()))
+				.filter(window -> Objects.equals(window.getScene().getRoot().getId(), getWindowClassNameForId(controllerClass)))
 				.findFirst();
 	}
 
 	static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass, String localId)
 	{
 		return Window.getWindows().stream()
-				.filter(window -> Objects.equals(window.getScene().getRoot().getId(), controllerClass.getName() + ":" + localId))
+				.filter(window -> Objects.equals(window.getScene().getRoot().getId(), getWindowClassNameForId(controllerClass) + ":" + localId))
 				.findFirst();
 	}
 
@@ -497,6 +498,13 @@ public class WindowManager
 		return Window.getWindows().stream()
 				.filter(Window::isFocused)
 				.findFirst().orElse(null) != null;
+	}
+
+	private static String getWindowClassNameForId(Class<? extends WindowController> javaClass)
+	{
+		assert javaClass.getSimpleName().endsWith("WindowController");
+
+		return javaClass.getSimpleName().replace("WindowController", "");
 	}
 
 	static final class UiWindow
@@ -649,7 +657,7 @@ public class WindowManager
 		static Builder builder(Class<? extends WindowController> controllerClass)
 		{
 			var parent = (Parent) fxWeaver.loadView(controllerClass, bundle);
-			parent.setId(controllerClass.getName());
+			parent.setId(getWindowClassNameForId(controllerClass));
 			return new Builder(parent, fxWeaver.getBean(controllerClass));
 		}
 
@@ -666,7 +674,7 @@ public class WindowManager
 			{
 				throw new IllegalArgumentException("Failed to load FXML: " + e.getMessage(), e);
 			}
-			parent.setId(controller.getClass().getName() + ":" + UUID.randomUUID()); // This is a default ID to enforce uniqueness
+			parent.setId(getWindowClassNameForId(controller.getClass()) + ":" + UUID.randomUUID()); // This is a default ID to enforce uniqueness (if localId is specified, it will be removed)
 			return new Builder(parent, controller);
 		}
 

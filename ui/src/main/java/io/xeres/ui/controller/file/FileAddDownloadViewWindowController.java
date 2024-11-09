@@ -38,7 +38,7 @@ import java.util.ResourceBundle;
 
 @Component
 @FxmlView(value = "/view/file/add_download.fxml")
-public class FileAddDownloadViewController implements WindowController
+public class FileAddDownloadViewWindowController implements WindowController
 {
 	@FXML
 	private ReadOnlyTextField name;
@@ -58,7 +58,7 @@ public class FileAddDownloadViewController implements WindowController
 	private final FileClient fileClient;
 	private final ResourceBundle bundle;
 
-	public FileAddDownloadViewController(FileClient fileClient, ResourceBundle bundle)
+	public FileAddDownloadViewWindowController(FileClient fileClient, ResourceBundle bundle)
 	{
 		this.fileClient = fileClient;
 		this.bundle = bundle;

@@ -107,12 +107,13 @@ public class AccountCreationWindowController implements WindowController
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("account.generation.profile-load"));
 			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
-			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.profiles"), "*.xml", "*.gpg"));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.profiles"), "*.xml", "*.gpg", "*.asc"));
 			var selectedFile = fileChooser.showOpenDialog(UiUtils.getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
 			{
 				if (selectedFile.getPath().endsWith(".xml"))
 				{
+					status.setText("Importing profile...");
 					setInProgress(true);
 					configClient.sendBackup(selectedFile)
 							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
@@ -122,8 +123,9 @@ public class AccountCreationWindowController implements WindowController
 							})
 							.subscribe();
 				}
-				else if (selectedFile.getPath().endsWith(".gpg"))
+				else if (selectedFile.getPath().endsWith(".gpg") || selectedFile.getPath().endsWith(".asc"))
 				{
+					status.setText("Importing profile...");
 					setInProgress(true);
 					var dialog = new TextInputDialog();
 					dialog.setTitle("Retroshare Importer");

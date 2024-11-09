@@ -222,8 +222,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-messaging' // seems to be missing from spring-boot-starter-security
     implementation "org.flywaydb:flyway-core"
-    implementation "org.bouncycastle:bcpg-jdk18on:$bouncycastleVersion"
-    implementation "org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion"
+    implementation "org.bouncycastle:bcpg-jdk18on:$bouncycastleVersion" // use bcpg-debug-jdk18on for debugger support
+    implementation "org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion" // use bcpkix-debug-jkd18on for debugger support
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation "net.harawata:appdirs:$appDirsVersion"
     implementation 'com.github.atomashpolskiy:bt-dht:1.10'

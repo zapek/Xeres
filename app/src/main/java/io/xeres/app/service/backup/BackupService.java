@@ -44,14 +44,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BackupService
@@ -167,7 +167,7 @@ public class BackupService
 
 		String profileName;
 
-		try (var inputStream = PGPUtil.getDecoderStream(file.getInputStream()))
+		try (var inputStream = getInputStream(file))
 		{
 			var secretRingCollection = new JcaPGPSecretKeyRingCollection(inputStream);
 			var secretRing = secretRingCollection.getKeyRings().next();
@@ -206,6 +206,64 @@ public class BackupService
 
 		locationService.generateOwnLocation(locationName);
 		identityRsService.generateOwnIdentity(profileName, true);
+	}
+
+	private static InputStream getInputStream(MultipartFile file) throws IOException
+	{
+		if (Objects.requireNonNull(file.getOriginalFilename()).endsWith(".asc"))
+		{
+			// Skip the PGP public key block because we don't need it, and
+			// it gives problems for Bouncy Castle which can't read it for some reason
+			try (var in = new BufferedReader(new InputStreamReader(file.getInputStream())))
+			{
+				String line;
+				while ((line = readRsLine(in)) != null)
+				{
+					if (line.equals("-----END PGP PUBLIC KEY BLOCK-----"))
+					{
+						readRsLine(in); // Skip the empty line before the next private key block
+						var out = new ByteArrayOutputStream();
+						var writer = new OutputStreamWriter(out);
+						while ((line = readRsLine(in)) != null)
+						{
+							writer.write(line + "\r\n");
+						}
+						writer.close();
+						return PGPUtil.getDecoderStream(new ByteArrayInputStream(out.toByteArray()));
+					}
+				}
+			}
+		}
+		else
+		{
+			return PGPUtil.getDecoderStream(file.getInputStream());
+		}
+		return null;
+	}
+
+	/**
+	 * Retroshare uses \r\r\n (mostly) instead of \r\n for line endings. This makes readLine() read
+	 * an extra line. This method fixes it by returning only one line ending.
+	 *
+	 * @param reader the BufferedReader
+	 * @return one line
+	 * @throws IOException when there's an I/O error
+	 */
+	private static String readRsLine(BufferedReader reader) throws IOException
+	{
+		var line = reader.readLine();
+		reader.mark(512);
+		if (line == null)
+		{
+			return null;
+		}
+
+		var lineToSkip = reader.readLine();
+		if (lineToSkip == null || !lineToSkip.isEmpty())
+		{
+			reader.reset();
+		}
+		return line;
 	}
 
 	private String cleanupProfileName(String profileName)

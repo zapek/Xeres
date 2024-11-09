@@ -21,6 +21,7 @@ package io.xeres.app.service.backup;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
@@ -28,9 +29,11 @@ import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.rsid.Type;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.helpers.DefaultValidationEventHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyPair;
@@ -50,6 +53,7 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,6 +63,8 @@ public class BackupService
 	private static final Logger log = LoggerFactory.getLogger(BackupService.class);
 
 	private static final long BACKUP_MAX_SIZE = 1024 * 1024 * 100L; // 100 MB
+	private static final long RS_PROFILE_MAX_SIZE = (long) 1024 * 1024; // 1 MB
+	private static final long RS_FRIENDS_MAX_SIZE = 1024 * 1024 * 10L; // 10 MB
 
 	private final ProfileService profileService;
 	private final LocationService locationService;
@@ -124,8 +130,6 @@ public class BackupService
 
 		var export = (Export) unmarshaller.unmarshal(file.getInputStream());
 
-		log.debug("Export is {}", export);
-
 		var localProfile = export.getProfiles().stream()
 				.filter(profile -> profile.getTrust() == Trust.ULTIMATE)
 				.findFirst().orElseThrow(() -> new IllegalArgumentException("No local profile in the profile list"));
@@ -143,14 +147,14 @@ public class BackupService
 	}
 
 	@Transactional
-	public void importFromRs(MultipartFile file, String locationName, String password)
+	public void importProfileFromRs(MultipartFile file, String locationName, String password)
 	{
 		if (file == null)
 		{
 			throw new IllegalArgumentException("RS keyring is empty");
 		}
 
-		if (file.getSize() >= BACKUP_MAX_SIZE)
+		if (file.getSize() >= RS_PROFILE_MAX_SIZE)
 		{
 			throw new IllegalArgumentException("RS keyring is too big");
 		}
@@ -208,8 +212,38 @@ public class BackupService
 		identityRsService.generateOwnIdentity(profileName, true);
 	}
 
+	@Transactional
+	public void importFriendsFromRs(MultipartFile file) throws JAXBException, IOException
+	{
+		if (file == null)
+		{
+			throw new IllegalArgumentException("Friends file is empty");
+		}
+
+		if (file.getSize() >= RS_FRIENDS_MAX_SIZE)
+		{
+			throw new IllegalArgumentException("Friends file is too large");
+		}
+
+		JAXBContext context;
+		context = JAXBContext.newInstance(Root.class);
+
+		var unmarshaller = context.createUnmarshaller();
+		unmarshaller.setEventHandler(new DefaultValidationEventHandler()); // Display better error messages
+
+		var root = (Root) unmarshaller.unmarshal(file.getInputStream());
+
+		root.getPgpIDs().stream()
+				.map(PgpId::getSslIDs)
+				.flatMap(Collection::stream)
+				.map(SslId::getCertificate)
+				.filter(Objects::nonNull)
+				.forEach(certificate -> RSId.parse(certificate, Type.CERTIFICATE).ifPresent(rsId -> profileService.createOrUpdateProfile(profileService.getProfileFromRSId(rsId))));
+	}
+
 	private static InputStream getInputStream(MultipartFile file) throws IOException
 	{
+
 		if (Objects.requireNonNull(file.getOriginalFilename()).endsWith(".asc"))
 		{
 			// Skip the PGP public key block because we don't need it, and

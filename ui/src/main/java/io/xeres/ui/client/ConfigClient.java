@@ -166,10 +166,20 @@ public class ConfigClient
 	{
 		return webClient.post()
 				.uri(uriBuilder -> uriBuilder
-						.path("/import-from-rs")
+						.path("/import-profile-from-rs")
 						.queryParam("locationName", locationName)
 						.queryParam("password", password)
 						.build())
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(fromFile(file)))
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> sendRsFriends(File file)
+	{
+		return webClient.post()
+				.uri("/import-friends-from-rs")
 				.contentType(MediaType.MULTIPART_FORM_DATA)
 				.body(BodyInserters.fromMultipartData(fromFile(file)))
 				.retrieve()

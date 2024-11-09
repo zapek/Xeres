@@ -164,6 +164,11 @@
                         <graphic>
                             <FontIcon iconLiteral="mdi2t-tools"/>
                         </graphic>
+                        <MenuItem fx:id="importFriends" mnemonicParsing="false" text="Import friends from Retroshare...">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2i-import"/>
+                            </graphic>
+                        </MenuItem>
                         <MenuItem fx:id="exportBackup" mnemonicParsing="false" text="%main.menu.tools.export">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2e-export"/>

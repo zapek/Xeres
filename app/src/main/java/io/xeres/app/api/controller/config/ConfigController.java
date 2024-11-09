@@ -245,13 +245,23 @@ public class ConfigController
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping(value = "/import-from-rs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/import-profile-from-rs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Import a RS keyring")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<Void> importFromRs(@RequestBody MultipartFile file, @RequestParam(value = "locationName") String locationName, @RequestParam(value = "password", required = false) String password)
+	public ResponseEntity<Void> importProfileFromRs(@RequestBody MultipartFile file, @RequestParam(value = "locationName") String locationName, @RequestParam(value = "password", required = false) String password)
 	{
-		backupService.importFromRs(file, locationName, password);
+		backupService.importProfileFromRs(file, locationName, password);
 		networkService.checkReadiness();
+
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping(value = "/import-friends-from-rs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@Operation(summary = "Import RS friends")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public ResponseEntity<Void> importFriendsFromRs(@RequestBody MultipartFile file) throws JAXBException, IOException
+	{
+		backupService.importFriendsFromRs(file);
 
 		return ResponseEntity.ok().build();
 	}

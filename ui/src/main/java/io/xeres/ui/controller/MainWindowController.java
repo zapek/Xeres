@@ -145,6 +145,9 @@ public class MainWindowController implements WindowController
 	private MenuItem exportBackup;
 
 	@FXML
+	private MenuItem importFriends;
+
+	@FXML
 	private MenuItem statistics;
 
 	@FXML
@@ -271,6 +274,21 @@ public class MainWindowController implements WindowController
 			if (selectedFile != null)
 			{
 				DataBufferUtils.write(configClient.getBackup(), selectedFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING).subscribe();
+			}
+		});
+
+		importFriends.setOnAction(event -> {
+			var fileChooser = new FileChooser();
+			fileChooser.setTitle(bundle.getString("main.import-friends"));
+			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
+			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
+			if (selectedFile != null && selectedFile.canRead())
+			{
+				configClient.sendRsFriends(selectedFile)
+						.doOnSuccess(unused -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.INFORMATION, "Friends imported successfully.")))
+						.doOnError(UiUtils::showAlertError)
+						.subscribe();
 			}
 		});
 

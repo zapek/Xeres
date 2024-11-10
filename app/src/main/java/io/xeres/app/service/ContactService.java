@@ -46,17 +46,10 @@ public class ContactService
 	@Transactional(readOnly = true)
 	public List<Contact> getContacts()
 	{
-		// Send identities and profiles but make sure we don't send
-		// an empty profile if it has already identities linked to it.
+		// Send identities and profiles.
 		var profiles = profileService.getAllProfiles().stream()
 				.collect(Collectors.toMap(Profile::getId, profile -> profile));
 		var identities = identityService.getAll();
-		var profilesIdsToRemove = identities.stream()
-				.filter(identity -> identity.getProfile() != null)
-				.map(identity -> identity.getProfile().getId())
-				.collect(Collectors.toSet());
-
-		profiles.entrySet().removeIf(entry -> profilesIdsToRemove.contains(entry.getKey()));
 
 		List<Contact> contacts = new ArrayList<>(profiles.size() + identities.size());
 		profiles.forEach((key, value) -> contacts.add(new Contact(value.getName(), key, 0L, getAvailability(value), value.isAccepted())));

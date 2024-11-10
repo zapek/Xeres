@@ -544,7 +544,7 @@ public class ContactViewController implements Controller
 
 	private boolean replaceIfSameName(TreeItem<Contact> profile, TreeItem<Contact> identity)
 	{
-		if (profile.getValue().name().equals(identity.getValue().name()))
+		if (profile.getValue().name().equalsIgnoreCase(identity.getValue().name()))
 		{
 			profile.setValue(identity.getValue());
 			return true;

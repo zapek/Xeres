@@ -34,6 +34,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
@@ -80,7 +82,7 @@ public final class UiUtils
 			if (t instanceof WebClientResponseException e)
 			{
 				var error = getErrorResponseEntity(e);
-				alert(error.getStatusCode().isError() ? ERROR : WARNING, error.getMessage());
+				alert(error.getStatusCode().isError() ? ERROR : WARNING, error.getMessage(), error.getStackTrace());
 			}
 			else
 			{
@@ -148,21 +150,27 @@ public final class UiUtils
 		}
 	}
 
+	public static void alert(AlertType alertType, String message, String stackTrace)
+	{
+		var alert = buildAlert(alertType, message, stackTrace);
+		alert.showAndWait();
+	}
+
 	public static void alert(AlertType alertType, String message)
 	{
-		var alert = buildAlert(alertType, message);
+		var alert = buildAlert(alertType, message, null);
 		alert.showAndWait();
 	}
 
 	public static void alertConfirm(String message, Runnable runnable)
 	{
-		var alert = buildAlert(AlertType.CONFIRMATION, message);
+		var alert = buildAlert(AlertType.CONFIRMATION, message, null);
 		alert.showAndWait()
 				.filter(response -> response == ButtonType.OK)
 				.ifPresent(response -> runnable.run());
 	}
 
-	private static Alert buildAlert(AlertType alertType, String message)
+	private static Alert buildAlert(AlertType alertType, String message, String stackTrace)
 	{
 		var alert = new Alert(alertType);
 		var stage = (Stage) alert.getDialogPane().getScene().getWindow();
@@ -184,6 +192,24 @@ public final class UiUtils
 		vbox.setPadding(new Insets(14.0));
 		vbox.getChildren().add(textArea);
 		alert.getDialogPane().setContent(vbox);
+
+		if (stackTrace != null)
+		{
+			var ssTextArea = new TextArea(stackTrace);
+			ssTextArea.setWrapText(false);
+			ssTextArea.setEditable(false);
+			ssTextArea.setMaxWidth(Double.MAX_VALUE);
+			ssTextArea.setMaxHeight(Double.MAX_VALUE);
+			GridPane.setHgrow(ssTextArea, Priority.ALWAYS);
+			GridPane.setVgrow(ssTextArea, Priority.ALWAYS);
+
+			var content = new GridPane();
+			content.setMaxWidth(Double.MAX_VALUE);
+			content.add(new Label("Full stacktrace:"), 0, 0);
+			content.add(ssTextArea, 0, 1);
+
+			alert.getDialogPane().setExpandableContent(content);
+		}
 
 		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
 		return alert;

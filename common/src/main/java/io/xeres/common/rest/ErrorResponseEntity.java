@@ -46,6 +46,11 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 		return error.getMessage();
 	}
 
+	public String getStackTrace()
+	{
+		return error.getStackTrace();
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{
@@ -76,6 +81,7 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 		private final HttpStatusCode httpStatusCode;
 		private String id;
 		private String error;
+		private String stackTrace;
 
 		public Builder(HttpStatusCode httpStatusCode)
 		{
@@ -94,9 +100,15 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 			return this;
 		}
 
+		public Builder setStackTrace(String stackTrace)
+		{
+			this.stackTrace = stackTrace;
+			return this;
+		}
+
 		public ErrorResponseEntity build()
 		{
-			return new ErrorResponseEntity(new Error(id, error), httpStatusCode);
+			return new ErrorResponseEntity(new Error(id, error, stackTrace), httpStatusCode);
 		}
 
 		public ErrorResponseEntity fromJson(String json)
@@ -108,7 +120,7 @@ public final class ErrorResponseEntity extends ResponseEntity<Error>
 			}
 			catch (JsonProcessingException e)
 			{
-				return new ErrorResponseEntity(new Error(null, null), httpStatusCode);
+				return new ErrorResponseEntity(new Error(null, null, null), httpStatusCode);
 			}
 		}
 	}

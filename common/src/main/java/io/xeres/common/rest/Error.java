@@ -28,16 +28,18 @@ public class Error
 	@JsonInclude(NON_NULL)
 	private String contextId;
 	private String message;
+	private String stackTrace;
 
 	public Error()
 	{
 	}
 
-	public Error(String contextId, String message)
+	public Error(String contextId, String message, String stackTrace)
 	{
 		super();
 		this.contextId = contextId;
 		this.message = message;
+		this.stackTrace = stackTrace;
 	}
 
 	@SuppressWarnings("unused")
@@ -50,5 +52,10 @@ public class Error
 	public String getMessage()
 	{
 		return message;
+	}
+
+	public String getStackTrace()
+	{
+		return stackTrace;
 	}
 }

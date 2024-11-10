@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.UnknownHostException;
 import java.util.NoSuchElementException;
 
@@ -62,7 +64,8 @@ public class DefaultHandler
 	{
 		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
 		var builder = new ErrorResponseEntity.Builder(HttpStatus.NOT_FOUND)
-				.setError(e.getMessage());
+				.setError(e.getMessage())
+				.setStackTrace(getStackTrace(e));
 
 		return builder.build();
 	}
@@ -73,6 +76,7 @@ public class DefaultHandler
 		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
 		return new ErrorResponseEntity.Builder(HttpStatus.UNPROCESSABLE_ENTITY)
 				.setError(e.getMessage())
+				.setStackTrace(getStackTrace(e))
 				.build();
 	}
 
@@ -82,6 +86,7 @@ public class DefaultHandler
 		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
 		return new ErrorResponseEntity.Builder(HttpStatus.BAD_REQUEST)
 				.setError(e.getMessage())
+				.setStackTrace(getStackTrace(e))
 				.build();
 	}
 
@@ -91,6 +96,7 @@ public class DefaultHandler
 		log.error("RuntimeException: {}, {}", e.getClass().getCanonicalName(), e.getMessage(), e);
 		return new ErrorResponseEntity.Builder(HttpStatus.INTERNAL_SERVER_ERROR)
 				.setError(e.getMessage())
+				.setStackTrace(getStackTrace(e))
 				.build();
 	}
 
@@ -111,5 +117,13 @@ public class DefaultHandler
 	public void handleAsyncRequestNotUsableException(AsyncRequestNotUsableException ignored)
 	{
 		// We ignore those because they happen when scrolling images (we abort useless loads when scrolling quickly).
+	}
+
+	private String getStackTrace(Exception e)
+	{
+		var sw = new StringWriter();
+		var pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		return sw.toString();
 	}
 }

@@ -163,7 +163,7 @@ jpackage {
                    '-splash:$APPDIR/startup.jpg',
                    '-Dlogging.file.name=xeres.log',
                    '-Dlogging.logback.rollingpolicy.clean-history-on-start=true',
-                   '-Dlogging.logback.rollingpolicy.max-file-size=1MB',
+                   '-Dlogging.logback.rollingpolicy.max-file-size=10MB',
                    '-Dlogging.logback.rollingpolicy.max-history=3',
                    '-Dspring.output.ansi.enabled=never']
     windows {

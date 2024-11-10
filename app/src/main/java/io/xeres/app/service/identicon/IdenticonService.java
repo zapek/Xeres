@@ -19,6 +19,9 @@
 
 package io.xeres.app.service.identicon;
 
+import io.xeres.app.configuration.CacheDirConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -28,13 +31,33 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Service
 public class IdenticonService
 {
+	private static final Logger log = LoggerFactory.getLogger(IdenticonService.class);
+
+	private final CacheDirConfiguration cacheDirConfiguration;
+
+	private static final int IMAGE_WIDTH = 128;
+	private static final int IMAGE_HEIGHT = 128;
+
+	public IdenticonService(CacheDirConfiguration cacheDirConfiguration)
+	{
+		this.cacheDirConfiguration = cacheDirConfiguration;
+	}
+
 	public byte[] getIdenticon(byte[] hash)
 	{
-		var image = generateIdenticon(hash, 128, 128);
+		var data = getIdenticonFromCache(hash);
+		if (data != null)
+		{
+			return data;
+		}
+
+		var image = generateIdenticon(hash, IMAGE_WIDTH, IMAGE_HEIGHT);
 
 		var output = new ByteArrayOutputStream();
 		try
@@ -43,12 +66,62 @@ public class IdenticonService
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException(e);
+			throw new RuntimeException("Could not generate identicon", e);
 		}
-		return output.toByteArray();
+		var outputData = output.toByteArray();
+		putIdenticonToCache(hash, outputData);
+		return outputData;
 	}
 
-	// https://stackoverflow.com/questions/40697056/how-can-i-create-identicons-using-java-or-android
+	private byte[] getIdenticonFromCache(byte[] hash)
+	{
+		var path = getFilePath(hash);
+		if (path == null)
+		{
+			return null;
+		}
+
+		if (path.toFile().canRead())
+		{
+			try
+			{
+				return Files.readAllBytes(path);
+			}
+			catch (IOException e)
+			{
+				log.warn("Couldn't read cached file {}: {}", path, e.getMessage());
+			}
+		}
+		return null;
+	}
+
+	private void putIdenticonToCache(byte[] hash, byte[] data)
+	{
+		var path = getFilePath(hash);
+		if (path == null)
+		{
+			return;
+		}
+
+		try
+		{
+			Files.write(path, data);
+		}
+		catch (IOException e)
+		{
+			log.warn("Couldn't write cached file {}: {}", path, e.getMessage());
+		}
+	}
+
+	private Path getFilePath(byte[] hash)
+	{
+		var cacheDir = cacheDirConfiguration.getCacheDir();
+		if (cacheDir == null)
+		{
+			return null;
+		}
+		return Path.of(cacheDir, String.format("identicon_%02x%02x%02x", Byte.toUnsignedInt(hash[0]), Byte.toUnsignedInt(hash[1]), Byte.toUnsignedInt(hash[2])));
+	}
 
 	/**
 	 * Generates an identicon like the ones from GitHub.

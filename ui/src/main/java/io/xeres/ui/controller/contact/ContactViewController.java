@@ -481,6 +481,12 @@ public class ContactViewController implements Controller
 						}
 						else
 						{
+							if (contact.profileId() == OWN_IDENTITY_ID)
+							{
+								// Own profile, we don't add it to the list
+								// because it has its own section above.
+								return;
+							}
 							if (contacts.put(contact.profileId(), new TreeItem<>(contact)) != null)
 							{
 								throw new IllegalStateException("Profile overwritten");

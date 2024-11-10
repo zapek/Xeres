@@ -213,7 +213,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 							catch (IllegalStateException e)
 							{
 								Platform.runLater(() -> {
-									UiUtils.alert(ERROR, bundle.getString("download.view.open-error") + " " + e.getMessage() + ".");
+									UiUtils.alert(ERROR, bundle.getString("download-view.open-error") + " " + e.getMessage() + ".");
 									log.error("Failed to open the file", e);
 								});
 							}
@@ -222,7 +222,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 			}
 		});
 
-		var showInExplorerItem = new MenuItem(bundle.getString("download.view.show-in-folder"));
+		var showInExplorerItem = new MenuItem(bundle.getString("download-view.show-in-folder"));
 		showInExplorerItem.setId(SHOW_IN_FOLDER_MENU_ID);
 		showInExplorerItem.setGraphic(new FontIcon(MaterialDesignF.FOLDER_OPEN));
 		showInExplorerItem.setOnAction(event -> {
@@ -239,7 +239,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 							catch (IllegalStateException e)
 							{
 								Platform.runLater(() -> {
-									UiUtils.alert(ERROR, bundle.getString("download.view.show-error") + " " + e.getMessage() + ".");
+									UiUtils.alert(ERROR, bundle.getString("download-view.show-error") + " " + e.getMessage() + ".");
 									log.error("Failed to show the file in folder", e);
 								});
 							}

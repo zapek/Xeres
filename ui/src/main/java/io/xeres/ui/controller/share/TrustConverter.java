@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.share;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.pgp.Trust;
 import javafx.util.StringConverter;
 
@@ -28,11 +29,11 @@ public class TrustConverter extends StringConverter<Trust>
 {
 	private enum Permission
 	{
-		NOBODY(Trust.UNKNOWN, "Nobody"),
-		ANYBODY(Trust.NEVER, "Everybody"),
-		MARGINAL(Trust.MARGINAL, "Marginal trustees"),
-		FULL(Trust.FULL, "Full trustees"),
-		ULTIMATE(Trust.ULTIMATE, "Only myself");
+		NOBODY(Trust.UNKNOWN, I18nUtils.getString("trust-converter.nobody")),
+		ANYBODY(Trust.NEVER, I18nUtils.getString("trust-converter.everybody")),
+		MARGINAL(Trust.MARGINAL, I18nUtils.getString("trust-converter.marginal")),
+		FULL(Trust.FULL, I18nUtils.getString("trust-converter.full")),
+		ULTIMATE(Trust.ULTIMATE, I18nUtils.getString("trust-converter.ultimate"));
 
 		private final Trust trust;
 		private final String value;

@@ -271,7 +271,7 @@ public class ContactViewController implements Controller
 		contactImageDeleteButton.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
 		contactImageDeleteButton.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
 		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
-		contactImageDeleteButton.setOnAction(event -> UiUtils.alertConfirm("Do you really want to remove your avatar image?", () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
+		contactImageDeleteButton.setOnAction(event -> UiUtils.alertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
 		chatButton.setOnAction(event -> startChat());
 
@@ -742,14 +742,14 @@ public class ContactViewController implements Controller
 	{
 		if (location.isConnected())
 		{
-			return "Now";
+			return bundle.getString("contact-view.location.last-connected.now");
 		}
 		else
 		{
 			var lastConnected = location.getLastConnected();
 			if (lastConnected == null)
 			{
-				return "Never";
+				return bundle.getString("contact-view.location.last-connected.never");
 			}
 			else
 			{
@@ -813,14 +813,14 @@ public class ContactViewController implements Controller
 		contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 		if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
-			typeLabel.setText("Contact linked to profile");
+			typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile"));
 
 			fetchProfile(contact.getValue().profileId(), Information.MERGED, contact.isLeaf());
-			fetchContact(contact.getValue().identityId(), Information.MERGED);
+			fetchIdentity(contact.getValue().identityId(), Information.MERGED);
 		}
 		else if (contact.getValue().profileId() != NO_PROFILE_ID)
 		{
-			typeLabel.setText("Profile");
+			typeLabel.setText(bundle.getString("contact-view.information.profile"));
 
 			fetchProfile(contact.getValue().profileId(), Information.PROFILE, false);
 		}
@@ -828,10 +828,10 @@ public class ContactViewController implements Controller
 		{
 			profilePane.setVisible(false);
 
-			typeLabel.setText("Contact");
+			typeLabel.setText(bundle.getString("contact-view.information.identity"));
 			hideTableLocations();
 
-			fetchContact(contact.getValue().identityId(), Information.IDENTITY);
+			fetchIdentity(contact.getValue().identityId(), Information.IDENTITY);
 		}
 	}
 
@@ -886,11 +886,11 @@ public class ContactViewController implements Controller
 		}
 		if (information == Information.PROFILE || information == Information.MERGED)
 		{
-			createdOrUpdated.setText("Created");
-			createdLabel.setText(profile.getCreated() != null ? DATE_TIME_DISPLAY.format(profile.getCreated()) : "unknown");
+			createdOrUpdated.setText(bundle.getString("contact-view.information.created"));
+			createdLabel.setText(profile.getCreated() != null ? DATE_TIME_DISPLAY.format(profile.getCreated()) : bundle.getString("contact-view.information.created-unknown"));
 			if (information == Information.MERGED)
 			{
-				typeLabel.setText("Contact linked to profile " + Id.toString(profile.getPgpIdentifier()));
+				typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile") + " " + Id.toString(profile.getPgpIdentifier()));
 				showProfileKeyInformation(profile, typeLabel);
 			}
 		}
@@ -908,14 +908,7 @@ public class ContactViewController implements Controller
 
 	private String getKeyInformation(ProfileKeyAttributes profileKeyAttributes)
 	{
-		return String.format(
-				"""
-						Key specifications
-						Version: %s
-						Algorithm: %s
-						Length: %s bits
-						Signature hash: %s
-						""",
+		return MessageFormat.format(bundle.getString("contact-view.information.key-information"),
 				profileKeyAttributes.version(),
 				PublicKeyUtils.getKeyAlgorithmName(profileKeyAttributes.keyAlgorithm()),
 				profileKeyAttributes.keyBits(),
@@ -938,7 +931,7 @@ public class ContactViewController implements Controller
 		UiUtils.setAbsent(badgeUnvalidated);
 	}
 
-	private void fetchContact(long identityId, Information information)
+	private void fetchIdentity(long identityId, Information information)
 	{
 		identityClient.findById(identityId)
 				.doOnSuccess(identity -> Platform.runLater(() -> {
@@ -948,7 +941,7 @@ public class ContactViewController implements Controller
 					}
 					if (information == Information.IDENTITY)
 					{
-						createdOrUpdated.setText("Updated");
+						createdOrUpdated.setText(bundle.getString("contact-view.information.updated"));
 						createdLabel.setText(DATE_TIME_DISPLAY.format(identity.getUpdated()));
 					}
 					if (identityId == OWN_IDENTITY_ID)
@@ -991,7 +984,7 @@ public class ContactViewController implements Controller
 			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
 			if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID)
 			{
-				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contactview.profile-delete.confirm"), contact.getValue().name()), () -> profileClient.delete(contact.getValue().profileId())
+				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contact-view.profile-delete.confirm"), contact.getValue().name()), () -> profileClient.delete(contact.getValue().profileId())
 						.subscribe());
 			}
 		});
@@ -1066,7 +1059,7 @@ public class ContactViewController implements Controller
 										.ifPresentOrElse(contact -> {
 											contactTreeTableView.getSelectionModel().select(contact);
 											scrollToSelectedContact();
-										}, () -> UiUtils.alert(WARNING, "Contact not found"));
+										}, () -> UiUtils.alert(WARNING, bundle.getString("contact-view.open.identity-not-found")));
 							});
 						}
 					})

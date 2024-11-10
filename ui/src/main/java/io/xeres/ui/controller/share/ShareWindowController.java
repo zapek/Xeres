@@ -204,7 +204,7 @@ public class ShareWindowController implements WindowController
 			shareTableView.getItems().remove(share);
 		});
 
-		var showInExplorerItem = new MenuItem(bundle.getString("download.view.show-in-folder"));
+		var showInExplorerItem = new MenuItem(bundle.getString("download-view.show-in-folder"));
 		showInExplorerItem.setId(SHOW_IN_FOLDER_MENU_ID);
 		showInExplorerItem.setGraphic(new FontIcon(MaterialDesignF.FOLDER_OPEN));
 		showInExplorerItem.setOnAction(event -> {

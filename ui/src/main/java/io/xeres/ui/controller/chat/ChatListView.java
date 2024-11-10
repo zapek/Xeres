@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
@@ -343,7 +344,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private void createUsersListViewContextMenu(Node view)
 	{
-		var infoItem = new MenuItem("Information");
+		var infoItem = new MenuItem(I18nUtils.getString("chat.room.user-menu"));
 		infoItem.setId(INFO_MENU_ID);
 		infoItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_BOX));
 		infoItem.setOnAction(event -> {

@@ -35,11 +35,11 @@
             <RowConstraints vgrow="ALWAYS"/>
             <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="%download.view.list.name"/>
+        <Label text="%download-view.list.name"/>
         <ReadOnlyTextField fx:id="name" GridPane.columnIndex="1"/>
-        <Label text="%download.add.size" GridPane.rowIndex="1"/>
+        <Label text="%download-add.size" GridPane.rowIndex="1"/>
         <ReadOnlyTextField fx:id="size" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Label text="%download.view.list.hash" GridPane.rowIndex="2"/>
+        <Label text="%download-view.list.hash" GridPane.rowIndex="2"/>
         <ReadOnlyTextField fx:id="hash" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>

@@ -113,7 +113,7 @@ public class AccountCreationWindowController implements WindowController
 			{
 				if (selectedFile.getPath().endsWith(".xml"))
 				{
-					status.setText("Importing profile...");
+					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
 					configClient.sendBackup(selectedFile)
 							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
@@ -125,12 +125,12 @@ public class AccountCreationWindowController implements WindowController
 				}
 				else if (selectedFile.getPath().endsWith(".gpg") || selectedFile.getPath().endsWith(".asc"))
 				{
-					status.setText("Importing profile...");
+					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
 					var dialog = new TextInputDialog();
-					dialog.setTitle("Retroshare Importer");
+					dialog.setTitle(bundle.getString("account.generation.import.confirm.title"));
 					dialog.setHeaderText(null);
-					dialog.setContentText("Enter the Retroshare password");
+					dialog.setContentText(bundle.getString("account.generation.import.confirm.prompt"));
 					dialog.initOwner(UiUtils.getWindow(event));
 					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), response)
 							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
@@ -142,7 +142,7 @@ public class AccountCreationWindowController implements WindowController
 				}
 				else
 				{
-					UiUtils.alert(ERROR, "Unknown file format");
+					UiUtils.alert(ERROR, bundle.getString("account.generation.import.unknown"));
 				}
 			}
 		});

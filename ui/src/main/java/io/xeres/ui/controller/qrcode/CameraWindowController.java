@@ -74,7 +74,7 @@ public class CameraWindowController implements WindowController
 		}
 		else
 		{
-			error.setText(I18nUtils.getString("qrcode.camera.error"));
+			error.setText(I18nUtils.getString("qr-code.camera.error"));
 			error.setVisible(true);
 		}
 	}

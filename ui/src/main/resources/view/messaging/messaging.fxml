@@ -49,7 +49,7 @@
                     <FontIcon iconLiteral="mdi2i-image-plus"/>
                 </graphic>
                 <tooltip>
-                    <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="Select an image to send inline"/>
+                    <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="%messaging.send-picture"/>
                 </tooltip>
             </Button>
             <Button fx:id="addFile" styleClass="button-icon, flat, accent" GridPane.rowIndex="1">
@@ -57,7 +57,7 @@
                     <FontIcon iconLiteral="mdi2p-paperclip"/>
                 </graphic>
                 <tooltip>
-                    <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="Select a file to send"/>
+                    <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="%messaging.send.file"/>
                 </tooltip>
             </Button>
         </GridPane>

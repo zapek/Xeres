@@ -164,7 +164,7 @@ public class MessagingWindowController implements WindowController
 
 		addImage.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle(bundle.getString("messaging.send-picture"));
+			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-picture"));
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
 			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
@@ -185,7 +185,7 @@ public class MessagingWindowController implements WindowController
 
 		addFile.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle(bundle.getString("messaging.send-file"));
+			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-file"));
 			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())
 			{

@@ -163,7 +163,7 @@ public class QrCodeWindowController implements WindowController
 	private void saveAsPng(Window window)
 	{
 		var fileChooser = new FileChooser();
-		fileChooser.setTitle(bundle.getString("qrcode.save-as-png"));
+		fileChooser.setTitle(bundle.getString("qr-code.save-as-png"));
 		fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
 		fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.png"), "*.png"));
 		fileChooser.setInitialFileName(AppName.NAME + "ID_" + rsIdResponse.name() + "@" + rsIdResponse.location() + ".png");

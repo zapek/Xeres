@@ -29,7 +29,7 @@
     <Region VBox.vgrow="SOMETIMES"/>
     <Label fx:id="status"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="printButton" minWidth="72.0" mnemonicParsing="false" text="%qrcode.print">
+        <Button fx:id="printButton" minWidth="72.0" mnemonicParsing="false" text="%qr-code.print">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>

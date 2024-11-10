@@ -82,7 +82,7 @@ public class FileAddDownloadViewWindowController implements WindowController
 
 		name.setText(args.name());
 		size.setText(ByteUnitUtils.fromBytes(args.size()));
-		TooltipUtils.install(size, MessageFormat.format(bundle.getString("download.add.bytes"), args.size()));
+		TooltipUtils.install(size, MessageFormat.format(bundle.getString("download-add.bytes"), args.size()));
 		hash.setText(args.hash().toString());
 
 		downloadButton.setOnAction(event -> fileClient.download(args.name(),

@@ -64,7 +64,7 @@ public class ContentImage implements Content
 
 	static
 	{
-		var viewMenuItem = new MenuItem("View");
+		var viewMenuItem = new MenuItem(I18nUtils.getString("view"));
 		viewMenuItem.setGraphic(new FontIcon(MaterialDesignI.IMAGE));
 		viewMenuItem.setOnAction(ContentImage::view);
 

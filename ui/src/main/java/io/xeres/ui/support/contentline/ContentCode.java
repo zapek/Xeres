@@ -20,6 +20,7 @@
 package io.xeres.ui.support.contentline;
 
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 public class ContentCode implements Content
@@ -31,6 +32,7 @@ public class ContentCode implements Content
 	public ContentCode(String text)
 	{
 		node = new Text(text);
+		node.setFill(Color.LIMEGREEN);
 		node.setStyle(STYLE);
 	}
 
@@ -47,6 +49,7 @@ public class ContentCode implements Content
 		if (text.endsWith("\n"))
 		{
 			node = new Text(text.substring(0, text.length() - 1));
+			node.setFill(Color.LIMEGREEN);
 			node.setStyle(STYLE);
 		}
 	}

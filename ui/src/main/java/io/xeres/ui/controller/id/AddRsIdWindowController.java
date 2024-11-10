@@ -177,7 +177,7 @@ public class AddRsIdWindowController implements WindowController
 				{
 					if (profile.getId() == ownProfile.getId())
 					{
-						status.setText(bundle.getString("rsid.add.no-own"));
+						status.setText(bundle.getString("rs-id.add.no-own"));
 						addButton.setDisable(true);
 						UiUtils.showError(rsIdTextArea, status);
 						return;
@@ -222,7 +222,7 @@ public class AddRsIdWindowController implements WindowController
 					}
 					else
 					{
-						status.setText(bundle.getString("rsid.add.invalid"));
+						status.setText(bundle.getString("rs-id.add.invalid"));
 						UiUtils.showError(rsIdTextArea, status);
 					}
 					titledPane.setExpanded(false);

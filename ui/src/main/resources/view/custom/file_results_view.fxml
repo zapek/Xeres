@@ -26,10 +26,10 @@
         <ProgressBar fx:id="progressBar" styleClass="small" prefWidth="Infinity"/>
         <TableView fx:id="filesTableView" VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn fx:id="tableName" prefWidth="550" text="Name"/>
-                <TableColumn fx:id="tableSize" prefWidth="90" text="Size"/>
-                <TableColumn fx:id="tableType" prefWidth="100" text="Type"/>
-                <TableColumn fx:id="tableHash" prefWidth="320" text="Hash"/>
+                <TableColumn fx:id="tableName" prefWidth="550" text="%file-result.column.name"/>
+                <TableColumn fx:id="tableSize" prefWidth="90" text="%file-result.column.size"/>
+                <TableColumn fx:id="tableType" prefWidth="100" text="%file-result.column.type"/>
+                <TableColumn fx:id="tableHash" prefWidth="320" text="%file-result.column.hash"/>
             </columns>
         </TableView>
     </VBox>

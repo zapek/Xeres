@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.contact;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TableRow;
@@ -40,11 +41,14 @@ class LocationRow extends TableRow<Location>
 		else
 		{
 			var sb = new StringBuilder();
-			sb.append("Location ID: ");
+			sb.append(I18nUtils.getString("contact-view.information.location.id"));
+			sb.append(" ");
 			sb.append(item.getLocationId().toString());
 			if (item.hasVersion())
 			{
-				sb.append("\nVersion: ");
+				sb.append("\n");
+				sb.append(I18nUtils.getString("contact-view.information.location.version"));
+				sb.append(" ");
 				// Retroshare only sends the version so we prefix it with its name
 				if (RETROSHARE_VERSION_DETECTOR.matcher(item.getVersion()).matches())
 				{

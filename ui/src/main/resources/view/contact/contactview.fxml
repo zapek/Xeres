@@ -45,22 +45,22 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <CustomTextField fx:id="searchTextField" promptText="Search people" HBox.hgrow="ALWAYS"/>
+                <CustomTextField fx:id="searchTextField" promptText="%contact-view.search.prompt" HBox.hgrow="ALWAYS"/>
                 <MenuButton styleClass="no-arrow, flat">
                     <graphic>
                         <FontIcon iconLiteral="mdi2f-filter-menu"/>
                     </graphic>
                     <items>
-                        <CheckMenuItem fx:id="showAllContacts" text="Show all contacts" selected="true"/>
+                        <CheckMenuItem fx:id="showAllContacts" text="%contact-view.search.show-all" selected="true"/>
                     </items>
                 </MenuButton>
             </HBox>
             <TreeTableView fx:id="contactTreeTableView" minWidth="-Infinity" prefWidth="200" VBox.vgrow="ALWAYS">
                 <placeholder>
-                    <Label text="No contacts"/>
+                    <Label text="%contact-view.search.no-contacts"/>
                 </placeholder>
                 <columns>
-                    <TreeTableColumn fx:id="contactTreeTableNameColumn" prefWidth="180.0" text="Name"/>
+                    <TreeTableColumn fx:id="contactTreeTableNameColumn" prefWidth="180.0" text="%contact-view.column.name"/>
                     <TreeTableColumn fx:id="contactTreeTablePresenceColumn" prefWidth="40.0"/>
                 </columns>
             </TreeTableView>
@@ -75,7 +75,7 @@
                 </VBox.margin>
                 <StackPane alignment="TOP_LEFT">
                     <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
-                    <Button fx:id="contactImageSelectButton" text="Change image..." visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
+                    <Button fx:id="contactImageSelectButton" text="%contact-view.avatar.change-image" visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
                     <Button fx:id="contactImageDeleteButton" opacity="0.0" styleClass="flat, small, danger, button-circle" StackPane.alignment="TOP_RIGHT">
                         <graphic>
                             <FontIcon iconLiteral="mdi2c-close-circle"/>
@@ -93,7 +93,7 @@
                                 <FontIcon iconLiteral="mdi2l-label"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This is yourself."/>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.own"/>
                             </tooltip>
                         </Label>
                         <Label fx:id="badgePartial" text="Partial" styleClass="warning" managed="false" visible="false">
@@ -101,7 +101,7 @@
                                 <FontIcon iconLiteral="mdi2l-label"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="A partial contact is not backed by a full profile yet. It needs to be connected to at least once, then it will be checked and, if successful, promoted to a full profile."/>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.partial"/>
                             </tooltip>
                         </Label>
                         <Label fx:id="badgeAccepted" text="Accepted" styleClass="success" managed="false" visible="false">
@@ -109,7 +109,7 @@
                                 <FontIcon iconLiteral="mdi2l-label"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="This contact is accepted for incoming connections and outgoing connections to it are attempted as well."/>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.accepted"/>
                             </tooltip>
                         </Label>
                         <Label fx:id="badgeUnvalidated" text="Not validated yet" styleClass="warning" managed="false" visible="false">
@@ -118,13 +118,13 @@
                             </graphic>
                             <tooltip>
                                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
-                                         text="The contact has not been validated yet. Its profile signature will be verified shortly and, if successful, will be marked as valid. If unsuccessful, it will be deleted (but might be transferred again, if so, try to inform its owner about the problem)."/>
+                                         text="%contact-view.badge.not-validated"/>
                             </tooltip>
                         </Label>
                     </VBox>
                     <Spacer HBox.hgrow="ALWAYS"/>
                     <VBox>
-                        <Button fx:id="chatButton" text="Chat" disable="true">
+                        <Button fx:id="chatButton" text="%contact-view.action.chat" disable="true">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2c-comment"/>
                             </graphic>
@@ -148,9 +148,9 @@
                     </rowConstraints>
                     <Label text="ID"/>
                     <Label fx:id="idLabel" GridPane.columnIndex="1"/>
-                    <Label text="Type" GridPane.rowIndex="1"/>
+                    <Label text="%contact-view.information.type" GridPane.rowIndex="1"/>
                     <Label fx:id="typeLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                    <Label fx:id="createdOrUpdated" text="Created" GridPane.rowIndex="2"/>
+                    <Label fx:id="createdOrUpdated" text="%contact-view.information.created" GridPane.rowIndex="2"/>
                     <Label fx:id="createdLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                 </GridPane>
                 <GridPane fx:id="profilePane" visible="false">
@@ -161,10 +161,10 @@
                     <rowConstraints>
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
-                    <Label text="Trust"/>
+                    <Label text="%trust"/>
                     <ChoiceBox fx:id="trust" GridPane.columnIndex="1" minWidth="150.0">
                         <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rsid.add.trust.tip"/>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rs-id.add.trust.tip"/>
                         </tooltip>
                     </ChoiceBox>
                 </GridPane>
@@ -172,17 +172,17 @@
                     <VBox.margin>
                         <Insets top="16.0"/>
                     </VBox.margin>
-                    <Label text="Locations" styleClass="title-4"/>
+                    <Label text="%contact-view.information.locations" styleClass="title-4"/>
                     <TableView fx:id="locationTableView" prefHeight="130.0">
                         <VBox.margin>
                             <Insets top="8.0"/>
                         </VBox.margin>
                         <columns>
-                            <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="Name"/>
+                            <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="%contact-view.column.name"/>
                             <TableColumn fx:id="locationTablePresenceColumn" prefWidth="25.0"/>
                             <TableColumn fx:id="locationTableIPColumn" prefWidth="120.0" text="IP"/>
                             <TableColumn fx:id="locationTablePortColumn" prefWidth="60.0" text="Port"/>
-                            <TableColumn fx:id="locationTableLastConnectedColumn" prefWidth="140" text="Last Connected"/>
+                            <TableColumn fx:id="locationTableLastConnectedColumn" prefWidth="140" text="%contact-view.column.last-connected"/>
                         </columns>
                     </TableView>
                 </VBox>

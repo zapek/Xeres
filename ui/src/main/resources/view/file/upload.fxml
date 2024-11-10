@@ -28,12 +28,12 @@
     </padding>
     <TableView fx:id="uploadTableView" VBox.vgrow="ALWAYS">
         <placeholder>
-            <Label text="%upload.view.none"/>
+            <Label text="%upload-view.none"/>
         </placeholder>
         <columns>
-            <TableColumn fx:id="tableName" prefWidth="180.0" text="%download.view.list.name"/>
-            <TableColumn fx:id="tableTotalSize" prefWidth="100.0" text="%download.view.list.total-size"/>
-            <TableColumn fx:id="tableHash" prefWidth="320.0" text="%download.view.list.hash"/>
+            <TableColumn fx:id="tableName" prefWidth="180.0" text="%download-view.list.name"/>
+            <TableColumn fx:id="tableTotalSize" prefWidth="100.0" text="%download-view.list.total-size"/>
+            <TableColumn fx:id="tableHash" prefWidth="320.0" text="%download-view.list.hash"/>
         </columns>
     </TableView>
 </VBox>

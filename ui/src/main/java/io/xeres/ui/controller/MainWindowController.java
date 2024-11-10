@@ -286,7 +286,7 @@ public class MainWindowController implements WindowController
 			if (selectedFile != null && selectedFile.canRead())
 			{
 				configClient.sendRsFriends(selectedFile)
-						.doOnSuccess(unused -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.INFORMATION, "Friends imported successfully.")))
+						.doOnSuccess(unused -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.INFORMATION, bundle.getString("main.friends-import-successful"))))
 						.doOnError(UiUtils::showAlertError)
 						.subscribe();
 			}

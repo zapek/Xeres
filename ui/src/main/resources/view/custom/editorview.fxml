@@ -124,7 +124,7 @@
                 <FontIcon iconLiteral="mdi2e-eye"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="Show a preview of the message as the recipients are going to see it."/>
+                <Tooltip showDuration="1m" text="%editor.action.preview"/>
             </tooltip>
         </ToggleButton>
     </ToolBar>

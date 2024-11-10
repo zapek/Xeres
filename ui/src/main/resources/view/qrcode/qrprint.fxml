@@ -50,7 +50,7 @@
             <Text fx:id="locationText" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="print-value"/>
         </GridPane>
         <Region VBox.vgrow="ALWAYS"/>
-        <Label text="%qrcode.download-client" wrapText="true" styleClass="print-url"/>
+        <Label text="%qr-code.download-client" wrapText="true" styleClass="print-url"/>
     </VBox>
     <Region HBox.hgrow="SOMETIMES"/>
     <ImageView fx:id="qrCode" fitHeight="256.0" fitWidth="256.0" pickOnBounds="true" preserveRatio="true"/>

@@ -90,7 +90,7 @@ public class TrayService
 		launchItem.addActionListener(e ->
 				windowManager.openMain(null, null, false));
 
-		var peersMenu = new Menu("Peers >");
+		var peersMenu = new Menu(bundle.getString("tray.peers") + " >");
 		peersMenu.setEnabled(false);
 
 		var exitItem = new MenuItem(bundle.getString("tray.exit"));

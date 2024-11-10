@@ -19,6 +19,7 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.common.i18n.I18nUtils;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -64,7 +65,7 @@ public class ReadOnlyTextField extends TextField
 		var contextMenu = new ContextMenu();
 
 		contextMenu.getItems().addAll(createDefaultMenuItems());
-		var deselect = new MenuItem("Deselect All");
+		var deselect = new MenuItem(I18nUtils.getString("deselect-all"));
 		deselect.setOnAction(event -> deselect());
 		contextMenu.getItems().addAll(new SeparatorMenuItem(), deselect);
 		return contextMenu;
@@ -72,7 +73,7 @@ public class ReadOnlyTextField extends TextField
 
 	private List<MenuItem> createDefaultMenuItems()
 	{
-		var copy = new MenuItem("Copy");
+		var copy = new MenuItem(I18nUtils.getString("copy"));
 		copy.setOnAction(event -> copy());
 
 		return List.of(copy);

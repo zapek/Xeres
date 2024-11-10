@@ -625,7 +625,7 @@ public class ForumViewController implements Controller
 
 	private void createAuthorContextMenu(String name, GxsId gxsId)
 	{
-		var infoItem = new MenuItem("Information");
+		var infoItem = new MenuItem(bundle.getString("chat.room.user-menu"));
 		infoItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_BOX));
 		infoItem.setOnAction(event -> uriService.openUri(new IdentityUri(name, gxsId, null)));
 		messageAuthor.setContextMenu(new ContextMenu(infoItem));

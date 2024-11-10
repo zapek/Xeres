@@ -270,7 +270,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(ShareWindowController.class)
 						.setParent(rootWindow)
-						.setTitle("Shares")
+						.setTitle(bundle.getString("share.window-title"))
 						.build()
 						.open());
 	}
@@ -300,7 +300,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(QrCodeWindowController.class)
 						.setParent(rootWindow)
-						.setTitle(bundle.getString("qrcode.window-title"))
+						.setTitle(bundle.getString("qr-code.window-title"))
 						.setUserData(rsIdResponse)
 						.build()
 						.open());
@@ -350,7 +350,7 @@ public class WindowManager
 			{
 				UiWindow.builder(StatisticsMainWindowController.class)
 						.setRememberEnvironment(true)
-						.setTitle("Statistics")
+						.setTitle(bundle.getString("statistics.window-title"))
 						.build()
 						.open();
 			}
@@ -377,7 +377,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(AddRsIdWindowController.class)
 						.setParent(rootWindow)
-						.setTitle(bundle.getString("rsid.add.window-title"))
+						.setTitle(bundle.getString("rs-id.add.window-title"))
 						.setUserData(rsId)
 						.build()
 						.open());
@@ -388,7 +388,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(FileAddDownloadViewWindowController.class)
 						.setParent(rootWindow)
-						.setTitle(bundle.getString("download.add.window-title"))
+						.setTitle(bundle.getString("download-add.window-title"))
 						.setUserData(addDownloadRequest)
 						.build()
 						.open());

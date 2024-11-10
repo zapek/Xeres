@@ -55,10 +55,7 @@ public class CacheDirConfiguration
 			return null;
 		}
 
-		if (cacheDir == null)
-		{
-			cacheDir = getCacheDirFromPortableFileLocation();
-		}
+		cacheDir = getCacheDirFromPortableFileLocation();
 		if (cacheDir == null)
 		{
 			cacheDir = getCacheDirFromNativePlatform();

@@ -83,6 +83,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Component
 public class WindowManager
 {
+	private static final Logger log = LoggerFactory.getLogger(WindowManager.class);
+
 	private static FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
@@ -137,6 +139,7 @@ public class WindowManager
 			// There's a strange side effect here when windows are hidden, apparently JavaFX changes the list, so
 			// we make a copy.
 			var copyOfWindows = new ArrayList<>(windows);
+			log.debug("List of opened windows: {}", Arrays.toString(copyOfWindows.toArray()));
 			copyOfWindows.forEach(Window::hide);
 			Platform.exit();
 		});

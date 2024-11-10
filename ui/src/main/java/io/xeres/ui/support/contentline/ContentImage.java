@@ -20,20 +20,31 @@
 package io.xeres.ui.support.contentline;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.custom.ResizeableImageView;
 import io.xeres.ui.support.util.ImageSelection;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import net.harawata.appdirs.AppDirsFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -53,6 +64,10 @@ public class ContentImage implements Content
 
 	static
 	{
+		var viewMenuItem = new MenuItem("View");
+		viewMenuItem.setGraphic(new FontIcon(MaterialDesignI.IMAGE));
+		viewMenuItem.setOnAction(ContentImage::view);
+
 		var copyMenuItem = new MenuItem(I18nUtils.getString("copy"));
 		copyMenuItem.setGraphic(new FontIcon(MaterialDesignC.CONTENT_COPY));
 		copyMenuItem.setOnAction(ContentImage::copyToClipboard);
@@ -61,7 +76,7 @@ public class ContentImage implements Content
 		saveAsMenuItem.setGraphic(new FontIcon(MaterialDesignC.CONTENT_SAVE));
 		saveAsMenuItem.setOnAction(ContentImage::saveAs);
 
-		contextMenu = new ContextMenu(copyMenuItem, saveAsMenuItem);
+		contextMenu = new ContextMenu(viewMenuItem, new SeparatorMenuItem(), copyMenuItem, saveAsMenuItem);
 	}
 
 	private final ImageView node;
@@ -129,6 +144,43 @@ public class ContentImage implements Content
 				UiUtils.alert(ERROR, e.getMessage());
 			}
 		}
+	}
+
+	private static void view(ActionEvent event)
+	{
+		var imageView = getImageViewFromEvent(event);
+
+		var resizeableImageView = new ResizeableImageView();
+		resizeableImageView.setPreserveRatio(true);
+		resizeableImageView.setPickOnBounds(true);
+		resizeableImageView.setImageProper(imageView.getImage());
+
+		var hbox = new HBox(resizeableImageView);
+		HBox.setHgrow(resizeableImageView, Priority.ALWAYS);
+		hbox.setAlignment(Pos.CENTER);
+
+		var vbox = new VBox(hbox);
+		VBox.setVgrow(hbox, Priority.ALWAYS);
+
+		var scene = new Scene(vbox, imageView.getImage().getWidth(), imageView.getImage().getHeight());
+		var stage = new Stage();
+		stage.setTitle("Image Viewer");
+		stage.setScene(scene);
+		stage.setFullScreen(true);
+		stage.setFullScreenExitHint(""); // There's no way to show the hint only once or quickly so...
+		scene.setOnMouseClicked(mouseEvent -> {
+			if (mouseEvent.getButton() == MouseButton.PRIMARY)
+			{
+				stage.hide();
+			}
+		});
+		scene.setOnKeyPressed(keyEvent -> {
+			if (keyEvent.getCode() == KeyCode.ESCAPE)
+			{
+				stage.hide();
+			}
+		});
+		stage.show();
 	}
 
 	private static ImageView getImageViewFromEvent(ActionEvent event)

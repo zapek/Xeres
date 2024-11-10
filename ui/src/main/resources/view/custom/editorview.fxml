@@ -64,7 +64,7 @@
         </Button>
         <Button fx:id="code" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="mdi2c-code-braces"/>
+                <FontIcon iconLiteral="mdi2f-file-code-outline"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.code"/>

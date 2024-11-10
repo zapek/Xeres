@@ -34,7 +34,7 @@ Latest release always available [here](https://github.com/zapek/Xeres/releases/l
 
 ## Quick try
 
-Install then use a [ChatServer](https://retroshare.ch).
+Install Xeres then connect to a [ChatServer](https://retroshare.ch).
 
 ## Getting Help
 

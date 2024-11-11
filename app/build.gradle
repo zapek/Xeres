@@ -126,6 +126,7 @@ jpackage {
     mustRunAfter deleteLibs
     finalizedBy packagePortable, deletePortable
     appName = parent.project.name
+    appVersion = "${project.version}".split("-")[0]
     vendor = "David Gerber"
     copyright = "Copyright 2019-2024 by David Gerber. All Rights Reserved"
     appDescription = parent.project.name

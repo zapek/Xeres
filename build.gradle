@@ -43,9 +43,15 @@ wrapper {
     gradleVersion = '8.10.2'
 }
 
+// This gives a git-like version for git builds but a proper version
+// when the release is built with a tag
+def getVersionName = providers.exec {
+    commandLine("git", "describe", "--tags")
+}.standardOutput.asText.get().substring(1).trim()
+
 subprojects {
     group = 'io.xeres'
-    version = '0.7.2'
+    version = "${getVersionName}"
 
     apply plugin: 'java'
     apply plugin: 'jacoco'

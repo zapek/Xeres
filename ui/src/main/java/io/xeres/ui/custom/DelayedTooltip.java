@@ -19,6 +19,7 @@
 
 package io.xeres.ui.custom;
 
+import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 
 import java.util.function.Consumer;
@@ -57,5 +58,11 @@ public class DelayedTooltip extends Tooltip
 	{
 		consumer = null; // Only fetch once
 		setText(text);
+	}
+
+	public void show(String text, Node graphic)
+	{
+		show(text);
+		setGraphic(graphic);
 	}
 }

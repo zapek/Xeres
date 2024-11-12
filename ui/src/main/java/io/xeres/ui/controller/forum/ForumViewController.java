@@ -22,7 +22,6 @@ package io.xeres.ui.controller.forum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.Id;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.message.forum.ForumGroup;
 import io.xeres.common.message.forum.ForumMessage;
@@ -31,9 +30,11 @@ import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ForumClient;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.ProgressPane;
+import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
@@ -47,7 +48,7 @@ import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -108,7 +109,7 @@ public class ForumViewController implements Controller
 	private TreeTableColumn<ForumMessage, String> treeTableSubject;
 
 	@FXML
-	private TreeTableColumn<ForumMessage, String> treeTableAuthor;
+	private TreeTableColumn<ForumMessage, ForumMessage> treeTableAuthor;
 
 	@FXML
 	private TreeTableColumn<ForumMessage, Instant> treeTableDate;
@@ -149,6 +150,8 @@ public class ForumViewController implements Controller
 	private final MarkdownService markdownService;
 	private final UriService uriService;
 	private final PreferenceService preferenceService;
+	private final GeneralClient generalClient;
+	private final ImageCache imageCacheService;
 
 	private ForumGroup selectedForumGroup;
 	private ForumMessage selectedForumMessage;
@@ -164,7 +167,7 @@ public class ForumViewController implements Controller
 
 	private MessageId messageIdToSelect;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService, GeneralClient generalClient, ImageCache imageCacheService)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -179,6 +182,8 @@ public class ForumViewController implements Controller
 		this.markdownService = markdownService;
 		this.uriService = uriService;
 		this.preferenceService = preferenceService;
+		this.generalClient = generalClient;
+		this.imageCacheService = imageCacheService;
 	}
 
 	@Override
@@ -209,7 +214,9 @@ public class ForumViewController implements Controller
 		forumMessagesTreeTableView.setRowFactory(param -> new ForumMessageCell());
 		createForumMessageTableViewContextMenu();
 		treeTableSubject.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
-		treeTableAuthor.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().getAuthorName() != null ? param.getValue().getValue().getAuthorName() : Id.toString(param.getValue().getValue().getAuthorId())));
+		treeTableAuthor.setCellFactory(param -> new ForumCellAuthor(generalClient, imageCacheService));
+		treeTableAuthor.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
+
 		treeTableDate.setCellFactory(param -> new DateCell());
 		treeTableDate.setCellValueFactory(new TreeItemPropertyValueFactory<>("published"));
 

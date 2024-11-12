@@ -32,6 +32,7 @@ import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.model.connection.Connection;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
@@ -730,10 +731,13 @@ public class ContactViewController implements Controller
 
 	private HostPort getConnectedAddress(Location location)
 	{
-		if (location.isConnected() && !location.getConnections().isEmpty())
+		if (location.isConnected())
 		{
-			var connection = location.getConnections().getFirst();
-			return HostPort.parse(connection.getAddress());
+			var connection = location.getConnections().stream().max(Comparator.comparing(Connection::getLastConnected, Comparator.nullsFirst(Comparator.naturalOrder()))).orElse(null);
+			if (connection != null)
+			{
+				return HostPort.parse(connection.getAddress());
+			}
 		}
 		return null;
 	}

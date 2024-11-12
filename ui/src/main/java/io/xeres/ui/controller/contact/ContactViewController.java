@@ -375,7 +375,10 @@ public class ContactViewController implements Controller
 		// Do not allow selection of multiple entries
 		contactTreeTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-		contactTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> displayContact(newValue));
+		contactTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			selectedItem = newValue;
+			displayContact(newValue);
+		});
 
 		treeRoot.setExpanded(true);
 

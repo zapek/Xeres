@@ -71,7 +71,7 @@
             </padding>
             <HBox fx:id="detailsHeader" visible="false">
                 <VBox.margin>
-                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                    <Insets bottom="4.0" left="8.0" right="4.0" top="4.0"/>
                 </VBox.margin>
                 <StackPane alignment="TOP_LEFT">
                     <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>

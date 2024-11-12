@@ -464,7 +464,7 @@ public class ContactViewController implements Controller
 					{
 						if (contact.identityId() != NO_IDENTITY_ID)
 						{
-							if (contact.identityId() == OWN_IDENTITY_ID)
+							if (contact.identityId() == OWN_IDENTITY_ID || contact.profileId() == OWN_PROFILE_ID)
 							{
 								// Own profile, we don't add it to the list
 								// because it has its own section above.

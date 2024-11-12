@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-tags: true
+          fetch-depth: 0 # We need the tags
 
       - name: Setup JDK 21
         uses: actions/setup-java@v4

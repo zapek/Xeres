@@ -156,6 +156,12 @@ public class TrayService
 				.doOnNext(sse -> {
 					Objects.requireNonNull(sse.data());
 
+					// Don't chat with oneself
+					if (sse.data().locationId() == 1L)
+					{
+						return;
+					}
+
 					if (sse.data().availability() == Availability.OFFLINE)
 					{
 						removePeer(sse.data().locationId());

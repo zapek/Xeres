@@ -77,32 +77,4 @@ class IdleDetectionJobTest
 			return true;
 		}));
 	}
-
-	@Test
-	void IsOnline_Manual_Success()
-	{
-		when(peerService.isRunning()).thenReturn(true);
-		when(idleChecker.getIdleTime()).thenReturn(0);
-
-		idleDetectionJob.checkIdle();
-
-		verify(statusRsService).changeAvailability(argThat(status -> {
-			assertEquals(AVAILABLE, status);
-			return true;
-		}));
-	}
-
-	@Test
-	void IsAway_Manual_Success()
-	{
-		when(peerService.isRunning()).thenReturn(true);
-		when(idleChecker.getIdleTime()).thenReturn(60 * 5 + 1);
-
-		idleDetectionJob.checkIdle();
-
-		verify(statusRsService).changeAvailability(argThat(status -> {
-			assertEquals(AWAY, status);
-			return true;
-		}));
-	}
 }

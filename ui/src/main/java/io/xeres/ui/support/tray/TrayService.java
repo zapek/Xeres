@@ -22,6 +22,7 @@ package io.xeres.ui.support.tray;
 import io.xeres.common.AppName;
 import io.xeres.common.location.Availability;
 import io.xeres.common.tray.TrayNotificationType;
+import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.properties.UiClientProperties;
 import io.xeres.ui.support.window.WindowManager;
@@ -59,15 +60,17 @@ public class TrayService
 	private final UiClientProperties uiClientProperties;
 	private final WindowManager windowManager;
 	private final NotificationClient notificationClient;
+	private final ConfigClient configClient;
 	private final ResourceBundle bundle;
 
 	private Disposable availabilityNotificationDisposable;
 
-	public TrayService(UiClientProperties uiClientProperties, WindowManager windowManager, NotificationClient notificationClient, ResourceBundle bundle)
+	public TrayService(UiClientProperties uiClientProperties, WindowManager windowManager, NotificationClient notificationClient, ConfigClient configClient, ResourceBundle bundle)
 	{
 		this.uiClientProperties = uiClientProperties;
 		this.windowManager = windowManager;
 		this.notificationClient = notificationClient;
+		this.configClient = configClient;
 		this.bundle = bundle;
 	}
 
@@ -93,12 +96,18 @@ public class TrayService
 		var peersMenu = new Menu(bundle.getString("tray.peers") + " >");
 		peersMenu.setEnabled(false);
 
+		var statusMenu = new Menu("Status >");
+		statusMenu.add(createStateMenuItem(Availability.AVAILABLE));
+		statusMenu.add(createStateMenuItem(Availability.AWAY));
+		statusMenu.add(createStateMenuItem(Availability.BUSY));
+
 		var exitItem = new MenuItem(bundle.getString("tray.exit"));
 		exitItem.addActionListener(e -> exitApplication());
 
 		var popupMenu = new PopupMenu();
 		popupMenu.add(launchItem);
 		popupMenu.add(peersMenu);
+		popupMenu.add(statusMenu);
 		popupMenu.addSeparator();
 		popupMenu.add(exitItem);
 
@@ -124,6 +133,13 @@ public class TrayService
 		{
 			log.error("Failed to put system tray: {}", e.getMessage(), e);
 		}
+	}
+
+	private MenuItem createStateMenuItem(Availability availability)
+	{
+		var menuItem = new MenuItem(availability.toString());
+		menuItem.addActionListener(e -> configClient.changeAvailability(availability).subscribe());
+		return menuItem;
 	}
 
 	/**

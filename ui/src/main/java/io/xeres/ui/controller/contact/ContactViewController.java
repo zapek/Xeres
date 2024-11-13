@@ -242,7 +242,6 @@ public class ContactViewController implements Controller
 	private TreeItem<Contact> selectedItem;
 	private TreeItem<Contact> displayedContact;
 	private Contact addedContact;
-	private boolean eatNextDisplay;
 
 	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, PreferenceService preferenceService, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient)
 	{
@@ -820,28 +819,18 @@ public class ContactViewController implements Controller
 	{
 		if (contact == null)
 		{
-			// XXX: maybe this is not needed anymore?
-
-			// Prevent flickering when a contact is added/modified
-			if (addedContact != null)
-			{
-				addedContact = null;
-				eatNextDisplay = true; // Since we clear the addedContact, the next displayContact() might be a side effect as well
-			}
-			else
-			{
-				displayedContact = null;
-				clearSelection();
-			}
+			displayedContact = null;
+			clearSelection();
 			return;
 		}
 
 		// Prevent re-displaying the same contact when a different contact was added
-		if (displayedContact != null && displayedContact == contact && (eatNextDisplay || (addedContact != null && !addedContact.equals(contact.getValue()))))
+		if (displayedContact != null && displayedContact == contact && addedContact != null && !addedContact.equals(contact.getValue()))
 		{
-			eatNextDisplay = false;
+			addedContact = null; // Only once
 			return;
 		}
+		addedContact = null;
 		displayedContact = contact;
 
 		hideBadges();

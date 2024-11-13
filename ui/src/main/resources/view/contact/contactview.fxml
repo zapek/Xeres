@@ -38,6 +38,7 @@
                     </HBox.margin>
                     <Circle fx:id="ownContactCircle" radius="24" StackPane.alignment="CENTER_LEFT" visible="false"/>
                     <AsyncImageView fx:id="ownContactImageView" fitWidth="48" fitHeight="48" visible="false"/>
+                    <Circle fx:id="ownContactState" radius="8" StackPane.alignment="BOTTOM_RIGHT" fill="lawngreen"/>
                 </StackPane>
                 <Label fx:id="ownContactName" styleClass="title-4"/>
             </HBox>

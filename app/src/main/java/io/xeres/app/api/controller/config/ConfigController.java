@@ -35,6 +35,8 @@ import io.xeres.app.service.NetworkService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.app.xrs.service.status.StatusRsService;
+import io.xeres.common.location.Availability;
 import io.xeres.common.rest.Error;
 import io.xeres.common.rest.config.*;
 import jakarta.validation.Valid;
@@ -75,8 +77,9 @@ public class ConfigController
 	private final CapabilityService capabilityService;
 	private final BackupService backupService;
 	private final NetworkService networkService;
+	private final StatusRsService statusRsService;
 
-	public ConfigController(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, CapabilityService capabilityService, BackupService backupService, NetworkService networkService)
+	public ConfigController(ProfileService profileService, LocationService locationService, IdentityRsService identityRsService, CapabilityService capabilityService, BackupService backupService, NetworkService networkService, StatusRsService statusRsService)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
@@ -84,6 +87,7 @@ public class ConfigController
 		this.capabilityService = capabilityService;
 		this.backupService = backupService;
 		this.networkService = networkService;
+		this.statusRsService = statusRsService;
 	}
 
 	@PostMapping("/profile")
@@ -129,6 +133,21 @@ public class ConfigController
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(LOCATIONS_PATH + "/{id}").buildAndExpand(1L).toUri();
 		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
+	}
+
+	@PutMapping("/location/availability")
+	@Operation(summary = "Change our own availability")
+	@ApiResponse(responseCode = "200", description = "Availability changed successfully")
+	public ResponseEntity<Void> changeAvailability(@RequestBody Availability availability)
+	{
+		if (!locationService.hasOwnLocation())
+		{
+			throw new IllegalArgumentException("Location does not exist");
+		}
+
+		statusRsService.changeAvailability(availability);
+
+		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/identity")

@@ -19,10 +19,19 @@
 
 package io.xeres.common.location;
 
-public enum Availability
+import io.xeres.common.i18n.I18nEnum;
+import io.xeres.common.i18n.I18nUtils;
+
+public enum Availability implements I18nEnum
 {
 	AVAILABLE,
 	BUSY,
 	AWAY,
-	OFFLINE
+	OFFLINE;
+
+	@Override
+	public String toString()
+	{
+		return I18nUtils.getString(getMessageKey(this));
+	}
 }

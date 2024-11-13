@@ -104,6 +104,7 @@ public class ContactViewController implements Controller
 	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
 
 	private static final String SHOW_ALL_CONTACTS = "ShowAllContacts";
+	private final ConfigClient configClient;
 
 	private enum Information
 	{
@@ -138,6 +139,9 @@ public class ContactViewController implements Controller
 
 	@FXML
 	private Circle ownContactCircle;
+
+	@FXML
+	private Circle ownContactState;
 
 	@FXML
 	private Label ownContactName;
@@ -240,7 +244,7 @@ public class ContactViewController implements Controller
 	private Contact addedContact;
 	private boolean eatNextDisplay;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, PreferenceService preferenceService, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, PreferenceService preferenceService, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
@@ -251,6 +255,7 @@ public class ContactViewController implements Controller
 		this.imageCacheService = imageCacheService;
 		this.bundle = bundle;
 		this.windowManager = windowManager;
+		this.configClient = configClient;
 	}
 
 	@Override
@@ -303,6 +308,7 @@ public class ContactViewController implements Controller
 		if (Platform.isSupported(ConditionalFeature.EFFECT))
 		{
 			ownContactCircle.setEffect(new DropShadow(6, Color.rgb(0, 0, 0, 0.7)));
+			ownContactState.setEffect(new DropShadow(4, Color.rgb(0, 0, 0, 0.9)));
 		}
 		ownContactImageView.setImageCache(imageCacheService);
 
@@ -320,6 +326,8 @@ public class ContactViewController implements Controller
 				displayOwnContact();
 			}
 		});
+
+		createStateContextMenu();
 	}
 
 	private void displayOwnContact()
@@ -357,6 +365,8 @@ public class ContactViewController implements Controller
 		});
 	}
 
+	private boolean initiatedByListChange;
+
 	private void setupContactTreeTableView()
 	{
 		contactTreeTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient, imageCacheService));
@@ -376,8 +386,11 @@ public class ContactViewController implements Controller
 		contactTreeTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 		contactTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			selectedItem = newValue;
-			displayContact(newValue);
+			if (!initiatedByListChange) // We ignore events initiated by sortedList
+			{
+				selectedItem = newValue;
+				displayContact(newValue);
+			}
 		});
 
 		treeRoot.setExpanded(true);
@@ -389,11 +402,15 @@ public class ContactViewController implements Controller
 		// Because of JDK-8248217 (and others), we have
 		// to save the selection before the sortedList (and then filteredList) are
 		// updated.
-		sortedList.addListener((InvalidationListener) c -> selectedItem = contactTreeTableView.getSelectionModel().getSelectedItem());
+		sortedList.addListener((InvalidationListener) c -> {
+			initiatedByListChange = true;
+			selectedItem = contactTreeTableView.getSelectionModel().getSelectedItem();
+		});
 
 		// Then we restore the selection after filteredList has been
 		// updated.
 		filteredList.addListener((ListChangeListener<? super TreeItem<Contact>>) c -> {
+			initiatedByListChange = false; // Events initiated by sortedList ends up here
 			if (contactTreeTableView.getSelectionModel().getSelectedItem() == null && selectedItem != null)
 			{
 				contactTreeTableView.getSelectionModel().select(selectedItem);
@@ -716,6 +733,13 @@ public class ContactViewController implements Controller
 	private void updateContactConnection(long profileId, Availability availability)
 	{
 		log.debug("Updating contact connection {} with availability {}", profileId, availability);
+
+		if (profileId == OWN_PROFILE_ID)
+		{
+			setOwnContactState(availability);
+			return;
+		}
+
 		var existing = contactObservableList.stream()
 				.filter(existingContact -> existingContact.getValue().profileId() == profileId)
 				.findFirst().orElse(null);
@@ -729,6 +753,17 @@ public class ContactViewController implements Controller
 		if (existing.getValue().availability() != availability) // Avoid useless refreshes
 		{
 			existing.setValue(Contact.withAvailability(existing.getValue(), availability));
+		}
+	}
+
+	private void setOwnContactState(Availability availability)
+	{
+		switch (availability)
+		{
+			case AVAILABLE -> ownContactState.setFill(Color.LIMEGREEN);
+			case AWAY -> ownContactState.setFill(Color.ORANGE);
+			case BUSY -> ownContactState.setFill(Color.RED);
+			case OFFLINE -> ownContactState.setFill(Color.GRAY);
 		}
 	}
 
@@ -785,6 +820,8 @@ public class ContactViewController implements Controller
 	{
 		if (contact == null)
 		{
+			// XXX: maybe this is not needed anymore?
+
 			// Prevent flickering when a contact is added/modified
 			if (addedContact != null)
 			{
@@ -999,6 +1036,31 @@ public class ContactViewController implements Controller
 		var xContextMenu = new XContextMenu<TreeItem<Contact>>(deleteItem);
 		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && !isSubContact(contact) && contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID);
 		xContextMenu.addToNode(contactTreeTableView);
+	}
+
+	private void createStateContextMenu()
+	{
+		var availableItem = createStateMenuItem(Availability.AVAILABLE);
+		var awayItem = createStateMenuItem(Availability.AWAY);
+		var busyItem = createStateMenuItem(Availability.BUSY);
+
+		var contextMenu = new ContextMenu(availableItem, awayItem, busyItem);
+		ownContactState.setOnContextMenuRequested(event -> contextMenu.show(ownContactState, event.getScreenX(), event.getScreenY()));
+		ownContactState.setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY)
+			{
+				contextMenu.show(ownContactState, event.getScreenX(), event.getScreenY());
+				event.consume();
+			}
+		});
+	}
+
+	private MenuItem createStateMenuItem(Availability availability)
+	{
+		var menuItem = new MenuItem(availability.toString());
+		menuItem.setGraphic(AvailabilityCellUtil.updateAvailability(null, availability));
+		menuItem.setOnAction(event -> configClient.changeAvailability(availability).subscribe());
+		return menuItem;
 	}
 
 	private boolean isSubContact(TreeItem<Contact> contact)

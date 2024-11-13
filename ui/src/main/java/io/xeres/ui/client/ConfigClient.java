@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.location.Availability;
 import io.xeres.common.rest.config.*;
 import io.xeres.common.util.RemoteUtils;
 import org.springframework.context.event.EventListener;
@@ -91,6 +92,7 @@ public class ConfigClient
 				.bodyToMono(Void.class);
 	}
 
+	// XXX: remove? what was this for?
 	public Mono<Void> updateExternalIpAddress(String ip, int port)
 	{
 		var externalIpAddressRequest = new IpAddressRequest(ip, port);
@@ -98,6 +100,15 @@ public class ConfigClient
 		return webClient.put()
 				.uri("/external-ip")
 				.bodyValue(externalIpAddressRequest)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> changeAvailability(Availability availability)
+	{
+		return webClient.put()
+				.uri("/location/availability")
+				.bodyValue(availability)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}

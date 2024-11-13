@@ -115,12 +115,9 @@ public class IdentityController
 		if (Boolean.TRUE.equals(find))
 		{
 			var identity = identityService.findByGxsId(gxs).orElse(null);
-			if (identity != null)
+			if (identity != null && ImageDetectionUtils.getImageMimeType(identity.getImage()) != null)
 			{
-				if (ImageDetectionUtils.getImageMimeType(identity.getImage()) != null)
-				{
-					image = identity.getImage();
-				}
+				image = identity.getImage();
 			}
 		}
 		if (image == null)

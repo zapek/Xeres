@@ -52,6 +52,8 @@ public class StatusRsService extends RsService
 	private final LocationService locationService;
 	private final AvailabilityNotificationService availabilityNotificationService;
 
+	private boolean locked;
+
 	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, AvailabilityNotificationService availabilityNotificationService)
 	{
 		super(rsServiceRegistry);
@@ -118,10 +120,19 @@ public class StatusRsService extends RsService
 
 	public void changeAvailability(Availability availability)
 	{
-		if (availability != this.availability)
+		locked = false;
+		changeAvailabilityAutomatically(availability);
+		locked = availability != Availability.AVAILABLE;
+	}
+
+	public void changeAvailabilityAutomatically(Availability availability)
+	{
+		if (!locked && availability != this.availability)
 		{
+			var ownLocation = locationService.findOwnLocation().orElseThrow();
 			this.availability = availability;
-			locationService.setAvailability(locationService.findOwnLocation().orElseThrow(), availability);
+			locationService.setAvailability(ownLocation, availability);
+			availabilityNotificationService.changeAvailability(ownLocation, availability);
 			peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new StatusItem(toChatStatus(availability)), this), this);
 		}
 	}

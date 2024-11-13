@@ -61,11 +61,11 @@ public class IdleDetectionJob
 		var idleTime = idleChecker.getIdleTime();
 		if (idleTime < TimeUnit.MINUTES.toSeconds(IDLE_TIME_MINUTES))
 		{
-			statusRsService.changeAvailability(AVAILABLE);
+			statusRsService.changeAvailabilityAutomatically(AVAILABLE);
 		}
 		else
 		{
-			statusRsService.changeAvailability(AWAY);
+			statusRsService.changeAvailabilityAutomatically(AWAY);
 		}
 	}
 }

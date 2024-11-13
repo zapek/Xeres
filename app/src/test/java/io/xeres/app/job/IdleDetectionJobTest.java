@@ -51,7 +51,35 @@ class IdleDetectionJobTest
 	private IdleDetectionJob idleDetectionJob;
 
 	@Test
-	void IsOnline_Success()
+	void IsOnline_Automatic_Success()
+	{
+		when(peerService.isRunning()).thenReturn(true);
+		when(idleChecker.getIdleTime()).thenReturn(0);
+
+		idleDetectionJob.checkIdle();
+
+		verify(statusRsService).changeAvailabilityAutomatically(argThat(status -> {
+			assertEquals(AVAILABLE, status);
+			return true;
+		}));
+	}
+
+	@Test
+	void IsAway_Automatic_Success()
+	{
+		when(peerService.isRunning()).thenReturn(true);
+		when(idleChecker.getIdleTime()).thenReturn(60 * 5 + 1);
+
+		idleDetectionJob.checkIdle();
+
+		verify(statusRsService).changeAvailabilityAutomatically(argThat(status -> {
+			assertEquals(AWAY, status);
+			return true;
+		}));
+	}
+
+	@Test
+	void IsOnline_Manual_Success()
 	{
 		when(peerService.isRunning()).thenReturn(true);
 		when(idleChecker.getIdleTime()).thenReturn(0);
@@ -65,7 +93,7 @@ class IdleDetectionJobTest
 	}
 
 	@Test
-	void IsAway_Success()
+	void IsAway_Manual_Success()
 	{
 		when(peerService.isRunning()).thenReturn(true);
 		when(idleChecker.getIdleTime()).thenReturn(60 * 5 + 1);

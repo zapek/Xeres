@@ -752,7 +752,18 @@ public class ContactViewController implements Controller
 
 		if (existing.getValue().availability() != availability) // Avoid useless refreshes
 		{
-			existing.setValue(Contact.withAvailability(existing.getValue(), availability));
+			if (existing.isLeaf())
+			{
+				existing.setValue(Contact.withAvailability(existing.getValue(), availability));
+			}
+			else
+			{
+				// There are children, we need to use a different algorithm then.
+				profileClient.findById(profileId)
+						.doOnSuccess(profile -> existing.setValue(Contact.withAvailability(existing.getValue(), profile.getLocations().stream()
+								.anyMatch(Location::isConnected) ? Availability.AVAILABLE : Availability.OFFLINE)))
+						.subscribe();
+			}
 		}
 	}
 

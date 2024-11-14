@@ -146,12 +146,26 @@ public class PeerHandler extends ChannelDuplexHandler
 
 		if (cause instanceof TooLongFrameException || cause instanceof IOException)
 		{
-			log.error("Error in channel of {} (closing connection): ", remote, cause);
+			if (log.isDebugEnabled())
+			{
+				log.debug("Error in channel of {} (closing connection): ", remote, cause);
+			}
+			else
+			{
+				log.error("Error in channel of {} (closing connection): {}", remote, cause.getMessage());
+			}
 			ctx.close();
 		}
 		else
 		{
-			log.error("Error in channel of {}:", remote, cause);
+			if (log.isDebugEnabled())
+			{
+				log.debug("Error in channel of {}:", remote, cause);
+			}
+			else
+			{
+				log.error("Error in channel of {}: {}", remote, cause.getMessage());
+			}
 		}
 	}
 

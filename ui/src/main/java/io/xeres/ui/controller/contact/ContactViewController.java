@@ -90,6 +90,7 @@ import java.util.*;
 
 import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
 import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
+import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.NO_PROFILE_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.ui.support.preference.PreferenceService.CONTACTS;
@@ -613,7 +614,7 @@ public class ContactViewController implements Controller
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					Objects.requireNonNull(sse.data());
-					updateContactConnection(sse.data().profileId(), sse.data().availability());
+					updateContactConnection(sse.data().profileId(), sse.data().locationId(), sse.data().availability());
 				}))
 				.subscribe();
 	}
@@ -729,11 +730,11 @@ public class ContactViewController implements Controller
 		contactObservableList.removeIf(existingContact -> existingContact.getValue().identityId() == contact.identityId());
 	}
 
-	private void updateContactConnection(long profileId, Availability availability)
+	private void updateContactConnection(long profileId, long locationId, Availability availability)
 	{
 		log.debug("Updating contact connection {} with availability {}", profileId, availability);
 
-		if (profileId == OWN_PROFILE_ID)
+		if (locationId == OWN_LOCATION_ID)
 		{
 			setOwnContactState(availability);
 			return;

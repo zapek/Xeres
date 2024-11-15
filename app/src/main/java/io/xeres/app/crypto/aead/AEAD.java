@@ -70,10 +70,10 @@ public final class AEAD
 	/**
 	 * Encrypts using ChaCha20 as an AEAD cipher with Poly1305 as the authenticator.
 	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
-	 * @param key                         the secret key
-	 * @param nonce                       a unique, securely generated nonce
-	 * @param plainText                   the data to encrypt
-	 * @param additionalAuthenticatedData additional authenticated data. Can be used to authenticate the nonce
+	 * @param key                         the secret key, not null
+	 * @param nonce                       a unique, securely generated nonce, not null
+	 * @param plainText                   the data to encrypt, not null
+	 * @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
 	 * @return the encrypted data
 	 */
 	public static byte[] encryptChaCha20Poly1305(SecretKey key, byte[] nonce, byte[] plainText, byte[] additionalAuthenticatedData)
@@ -105,10 +105,10 @@ public final class AEAD
 	/**
 	 * Decrypts using ChaCha20 as an AEAD cipher with Poly1305 as the authenticator.
 	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
-	 * @param key                         the secret key
-	 * @param nonce                       the unique, securely generated nonce that was used for the encryption
-	 * @param cipherText                  the encrypted data
-	 * @param additionalAuthenticatedData additional authenticated data. Can be used to authenticate the nonce
+	 * @param key                         the secret key, not null
+	 * @param nonce                       the unique, securely generated nonce that was used for the encryption, not null
+	 * @param cipherText                  the encrypted data, not null
+	 * @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
 	 * @return the decrypted data
 	 */
 	public static byte[] decryptChaCha20Poly1305(SecretKey key, byte[] nonce, byte[] cipherText, byte[] additionalAuthenticatedData)
@@ -140,10 +140,10 @@ public final class AEAD
 	/**
 	 * Encrypts using ChaCha20 as an AEAD cipher with HMAC SHA-256.
 	 *
-	 * @param key                         the secret key
-	 * @param nonce                       a unique, securely generated nonce
-	 * @param plainText                   the data to encrypt
-	 * @param additionalAuthenticatedData additional authenticated data. Can be used to authenticate the nonce
+	 * @param key                         the secret key, not null
+	 * @param nonce                       a unique, securely generated nonce, not null
+	 * @param plainText                   the data to encrypt, not null
+	 * @param additionalAuthenticatedData additional authenticated data. Can be used to authenticate the nonce, not null
 	 * @return the encrypted data
 	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
 	 */
@@ -186,10 +186,10 @@ public final class AEAD
 	/**
 	 * Decrypts using ChaCha20 as an AEAD cipher with HMAC SHA-256.
 	 *
-	 * @param key                         the secret key
-	 * @param nonce                       the unique, securely generated nonce that was used for the encryption
-	 * @param cipherText                  the encrypted data
-	 * @param additionalAuthenticatedData additional authenticated data. Can be used to authenticate the nonce
+	 * @param key                         the secret key, not null
+	 * @param nonce                       the unique, securely generated nonce that was used for the encryption, not null
+	 * @param cipherText                  the encrypted data, not null
+	 * @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
 	 * @return the decrypted data
 	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
 	 */

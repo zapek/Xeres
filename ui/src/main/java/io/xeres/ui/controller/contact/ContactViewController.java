@@ -105,6 +105,10 @@ public class ContactViewController implements Controller
 	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
 
 	private static final String SHOW_ALL_CONTACTS = "ShowAllContacts";
+
+	private static final String CHAT_MENU_ID = "chat";
+	private static final String DELETE_MENU_ID = "delete";
+
 	private final ConfigClient configClient;
 
 	private enum Information
@@ -279,7 +283,7 @@ public class ContactViewController implements Controller
 		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
 		contactImageDeleteButton.setOnAction(event -> UiUtils.alertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
-		chatButton.setOnAction(event -> startChat());
+		chatButton.setOnAction(event -> startChat(displayedContact.getValue().profileId()));
 
 		setupOwnContact();
 
@@ -1023,7 +1027,16 @@ public class ContactViewController implements Controller
 
 	private void createContactTableViewContextMenu()
 	{
+		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
+		chatItem.setId(CHAT_MENU_ID);
+		chatItem.setGraphic(new FontIcon(MaterialDesignC.COMMENT));
+		chatItem.setOnAction(event -> {
+			@SuppressWarnings("unchecked") var contact = ((TreeItem<Contact>) event.getSource()).getValue();
+			startChat(contact.profileId());
+		});
+
 		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
+		deleteItem.setId(DELETE_MENU_ID);
 		deleteItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_REMOVE));
 		deleteItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
@@ -1034,8 +1047,18 @@ public class ContactViewController implements Controller
 			}
 		});
 
-		var xContextMenu = new XContextMenu<TreeItem<Contact>>(deleteItem);
-		xContextMenu.setOnShowing((contextMenu, contact) -> contact != null && !isSubContact(contact) && contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID);
+		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, new SeparatorMenuItem(), deleteItem);
+		xContextMenu.setOnShowing((contextMenu, contact) -> {
+			contextMenu.getItems().stream()
+					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact != null && contact.getValue().availability() == Availability.OFFLINE));
+
+			contextMenu.getItems().stream()
+					.filter(menuItem -> DELETE_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact != null && !isSubContact(contact) && contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID));
+
+			return contact != null;
+		});
 		xContextMenu.addToNode(contactTreeTableView);
 	}
 
@@ -1083,12 +1106,15 @@ public class ContactViewController implements Controller
 		}
 	}
 
-	private void startChat()
+	private void startChat(long profileId)
 	{
-		locationTableView.getItems().stream()
-				.filter(Location::isConnected)
-				.findFirst()
-				.ifPresent(location -> windowManager.openMessaging(location.getLocationId().toString()));
+		profileClient.findById(profileId)
+				.doOnSuccess(profile -> profile.getLocations().stream()
+						.filter(Location::isConnected)
+						.findFirst()
+						.ifPresent(location -> windowManager.openMessaging(location.getLocationId().toString()))
+				)
+				.subscribe();
 	}
 
 	@EventListener

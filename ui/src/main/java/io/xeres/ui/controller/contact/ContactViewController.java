@@ -249,7 +249,7 @@ public class ContactViewController implements Controller
 	// Workaround for https://bugs.openjdk.org/browse/JDK-8090563
 	private TreeItem<Contact> selectedItem;
 	private TreeItem<Contact> displayedContact;
-	private Contact addedContact;
+	private boolean contactListLocked;
 
 	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, PreferenceService preferenceService, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient, ConnectionClient connectionClient)
 	{
@@ -373,8 +373,6 @@ public class ContactViewController implements Controller
 		});
 	}
 
-	private boolean initiatedByListChange;
-
 	private void setupContactTreeTableView()
 	{
 		contactTreeTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient, imageCacheService));
@@ -394,11 +392,12 @@ public class ContactViewController implements Controller
 		contactTreeTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 		contactTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			if (!initiatedByListChange) // We ignore events initiated by sortedList
+			if (contactListLocked)
 			{
-				selectedItem = newValue;
-				displayContact(newValue);
+				return;
 			}
+			log.debug("Selection property changed, old: {}, new: {}", oldValue, newValue);
+			displayContact(newValue);
 		});
 
 		treeRoot.setExpanded(true);
@@ -411,18 +410,22 @@ public class ContactViewController implements Controller
 		// to save the selection before the sortedList (and then filteredList) are
 		// updated.
 		sortedList.addListener((InvalidationListener) c -> {
-			initiatedByListChange = true;
+			log.debug("Sorting invalidated, selected index: {}", contactTreeTableView.getSelectionModel().getSelectedIndex());
+			contactListLocked = true;
 			selectedItem = contactTreeTableView.getSelectionModel().getSelectedItem();
 		});
 
 		// Then we restore the selection after filteredList has been
 		// updated.
 		filteredList.addListener((ListChangeListener<? super TreeItem<Contact>>) c -> {
-			initiatedByListChange = false; // Events initiated by sortedList ends up here
-			if (contactTreeTableView.getSelectionModel().getSelectedItem() == null && selectedItem != null)
-			{
-				contactTreeTableView.getSelectionModel().select(selectedItem);
-			}
+			// XXX: actually, the selection might be relevant! Check if 'c' changes what is currently being selected?
+
+			log.debug("FilteredList changed, actions: {}", c);
+
+			// XXX: if we don't call this, the selection is lost
+			contactTreeTableView.getSelectionModel().select(selectedItem);
+
+			contactListLocked = false;
 		});
 
 		contactTreeTableView.setRoot(treeRoot);
@@ -480,17 +483,6 @@ public class ContactViewController implements Controller
 			preferenceService.getPreferences().node(CONTACTS).putBoolean(SHOW_ALL_CONTACTS, newValue);
 		});
 		showAllContacts.selectedProperty().set(preferenceService.getPreferences().node(CONTACTS).getBoolean(SHOW_ALL_CONTACTS, false));
-	}
-
-	private void selectOwnContact()
-	{
-		contactObservableList.stream()
-				.filter(contact -> contact.getValue().profileId() == OWN_PROFILE_ID)
-				.findFirst()
-				.ifPresent(contact -> {
-					contactTreeTableView.getSelectionModel().select(contact);
-					scrollToSelectedContact();
-				});
 	}
 
 	private void getContacts()
@@ -559,6 +551,7 @@ public class ContactViewController implements Controller
 			{
 				// Same identity, we replace it
 				profile.setValue(identity.getValue());
+				refreshContactIfNeeded(profile);
 			}
 			else
 			{
@@ -594,6 +587,7 @@ public class ContactViewController implements Controller
 		if (profile.getValue().name().equalsIgnoreCase(identity.getValue().name()))
 		{
 			profile.setValue(identity.getValue());
+			refreshContactIfNeeded(profile);
 			return true;
 		}
 		return false;
@@ -606,6 +600,7 @@ public class ContactViewController implements Controller
 			if (child.getValue().identityId() == identity.getValue().identityId())
 			{
 				child.setValue(identity.getValue());
+				refreshContactIfNeeded(child);
 				return;
 			}
 		}
@@ -661,7 +656,6 @@ public class ContactViewController implements Controller
 	private void addContact(Contact contact)
 	{
 		log.debug("Adding contact {}", contact);
-		addedContact = contact;
 
 		if (contact.profileId() != NO_PROFILE_ID && contact.identityId() != NO_IDENTITY_ID)
 		{
@@ -715,6 +709,7 @@ public class ContactViewController implements Controller
 				{
 					existing.setValue(contact);
 				}
+				refreshContactIfNeeded(existing);
 			}
 			else
 			{
@@ -732,6 +727,7 @@ public class ContactViewController implements Controller
 			{
 				clearCachedImages(existing);
 				existing.setValue(contact);
+				refreshContactIfNeeded(existing);
 			}
 			else
 			{
@@ -748,6 +744,7 @@ public class ContactViewController implements Controller
 	{
 		log.debug("Removing contact {}", contact);
 		contactObservableList.removeIf(existingContact -> existingContact.getValue().identityId() == contact.identityId());
+		// XXX: unselect if it was selected?
 	}
 
 	private void updateContactConnection(long profileId, long locationId, Availability availability)
@@ -775,13 +772,17 @@ public class ContactViewController implements Controller
 			if (existing.isLeaf())
 			{
 				existing.setValue(Contact.withAvailability(existing.getValue(), availability));
+				refreshContactIfNeeded(existing);
 			}
 			else
 			{
 				// There are children, we need to use a different algorithm then.
 				profileClient.findById(profileId)
-						.doOnSuccess(profile -> existing.setValue(Contact.withAvailability(existing.getValue(), profile.getLocations().stream()
-								.anyMatch(Location::isConnected) ? Availability.AVAILABLE : Availability.OFFLINE)))
+						.doOnSuccess(profile -> {
+							existing.setValue(Contact.withAvailability(existing.getValue(), profile.getLocations().stream()
+									.anyMatch(Location::isConnected) ? Availability.AVAILABLE : Availability.OFFLINE));
+							refreshContactIfNeeded(existing);
+						})
 						.subscribe();
 			}
 		}
@@ -847,8 +848,44 @@ public class ContactViewController implements Controller
 		trust.getItems().clear();
 	}
 
+	/**
+	 * Displays the contact. To be called by the list selector or the own contact display.
+	 *
+	 * @param contact the contact to display
+	 */
 	private void displayContact(TreeItem<Contact> contact)
 	{
+		displayContact(contact, false);
+	}
+
+	/**
+	 * Refreshes the contact if needed. To be called after each modification of any contact because the listview
+	 * won't do it by itself.
+	 *
+	 * @param contact the contact
+	 */
+	private void refreshContactIfNeeded(TreeItem<Contact> contact)
+	{
+		if (displayedContact == contact)
+		{
+			displayContact(contact, true);
+		}
+	}
+
+	/**
+	 * Displays the contact. Do not call this method directly! Use {@link #displayContact(TreeItem)} or
+	 * {@link #refreshContactIfNeeded(TreeItem)} instead.
+	 *
+	 * @param contact the contact
+	 * @param force   to force the refresh
+	 */
+	private void displayContact(TreeItem<Contact> contact, boolean force)
+	{
+		if (contactListLocked && !force)
+		{
+			return;
+		}
+
 		if (contact == null)
 		{
 			displayedContact = null;
@@ -857,12 +894,11 @@ public class ContactViewController implements Controller
 		}
 
 		// Prevent re-displaying the same contact when a different contact was added
-		if (displayedContact != null && displayedContact == contact && addedContact != null && !addedContact.equals(contact.getValue()))
-		{
-			addedContact = null; // Only once
-			return;
-		}
-		addedContact = null;
+//		if (displayedContact != null && contact.getValue().equals(displayedContact.getValue()))
+//		{
+//			return;
+//		}
+
 		displayedContact = contact;
 
 		hideBadges();
@@ -880,7 +916,7 @@ public class ContactViewController implements Controller
 		{
 			typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile"));
 
-			fetchProfile(contact.getValue().profileId(), Information.MERGED, contact.isLeaf());
+			fetchProfile(contact.getValue().profileId(), Information.MERGED, isSubContact(contact));
 			fetchIdentity(contact.getValue().identityId(), Information.MERGED);
 		}
 		else if (contact.getValue().profileId() != NO_PROFILE_ID)
@@ -929,7 +965,7 @@ public class ContactViewController implements Controller
 					showProfileInformation(profile, information);
 					showBadges(profile);
 					setTrust(profile);
-					trust.setDisable(isLeaf);
+					trust.setDisable(isLeaf || !profile.isAccepted());
 					profilePane.setVisible(true);
 					showTableLocations(profile.getLocations());
 				}))

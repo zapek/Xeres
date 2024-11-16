@@ -1067,11 +1067,11 @@ public class ContactViewController implements Controller
 		xContextMenu.setOnShowing((contextMenu, contact) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact != null && contact.getValue().availability() == Availability.OFFLINE));
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact.getValue().availability() == Availability.OFFLINE));
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> DELETE_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact != null && !isSubContact(contact) && contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID));
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(isSubContact(contact) || contact.getValue().profileId() == NO_PROFILE_ID || contact.getValue().profileId() == OWN_PROFILE_ID));
 
 			return contact != null;
 		});

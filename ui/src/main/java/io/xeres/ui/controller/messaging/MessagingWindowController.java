@@ -360,12 +360,12 @@ public class MessagingWindowController implements WindowController
 				setUserOnline(true);
 				yield "";
 			}
-			case AWAY -> " (" + bundle.getString("messaging.status.away") + ")";
-			case BUSY -> " (" + bundle.getString("messaging.status.busy") + ")";
+			case AWAY -> " (" + Availability.AWAY + ")";
+			case BUSY -> " (" + Availability.BUSY + ")";
 			case OFFLINE ->
 			{
 				setUserOnline(false);
-				yield " (" + bundle.getString("messaging.status.offline") + ")";
+				yield " (" + Availability.OFFLINE + ")";
 			}
 		};
 	}

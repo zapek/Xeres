@@ -21,7 +21,9 @@ package io.xeres.app.api.controller.connection;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.LocationService;
+import io.xeres.common.rest.connection.ConnectionRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,6 +32,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.xeres.common.rest.PathConfig.CONNECTIONS_PATH;
 import static org.hamcrest.Matchers.is;
@@ -46,6 +49,9 @@ class ConnectionControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private LocationService locationService;
+
+	@MockBean
+	private PeerConnectionJob peerConnectionJob;
 
 	@Autowired
 	public MockMvc mvc;
@@ -64,5 +70,18 @@ class ConnectionControllerTest extends AbstractControllerTest
 				.andExpect(jsonPath("$.[0].id").value(is(location.getProfile().getId()), Long.class));
 
 		verify(locationService).getConnectedLocations();
+	}
+
+	@Test
+	void AttemptToConnect_Success() throws Exception
+	{
+		var location = LocationFakes.createLocation();
+		when(locationService.findLocationByLocationId(location.getLocationId())).thenReturn(Optional.of(location));
+
+		mvc.perform(putJson(BASE_URL + "/connect", new ConnectionRequest(location.getLocationId().toString(), -1)))
+				.andExpect(status().isOk());
+
+		verify(locationService).findLocationByLocationId(location.getLocationId());
+		verify(peerConnectionJob).connectImmediately(location, -1);
 	}
 }

@@ -24,12 +24,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.LocationService;
 import io.xeres.common.dto.profile.ProfileDTO;
+import io.xeres.common.id.LocationId;
+import io.xeres.common.rest.connection.ConnectionRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,10 +46,12 @@ import static java.util.function.Predicate.not;
 public class ConnectionController
 {
 	private final LocationService locationService;
+	private final PeerConnectionJob peerConnectionJob;
 
-	public ConnectionController(LocationService locationService)
+	public ConnectionController(LocationService locationService, PeerConnectionJob peerConnectionJob)
 	{
 		this.locationService = locationService;
+		this.peerConnectionJob = peerConnectionJob;
 	}
 
 	@GetMapping("/profiles")
@@ -58,5 +63,15 @@ public class ConnectionController
 				.filter(not(Location::isOwn))
 				.map(Location::getProfile)
 				.toList());
+	}
+
+	@PutMapping("/connect")
+	@Operation(summary = "Attempt to connect")
+	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	public ResponseEntity<Void> connect(@Valid @RequestBody ConnectionRequest connectionRequest)
+	{
+		var location = locationService.findLocationByLocationId(LocationId.fromString(connectionRequest.locationId())).orElseThrow();
+		peerConnectionJob.connectImmediately(location, connectionRequest.connectionIndex());
+		return ResponseEntity.ok().build();
 	}
 }

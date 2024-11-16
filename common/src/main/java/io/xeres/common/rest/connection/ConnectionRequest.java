@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service.backup;
+package io.xeres.common.rest.connection;
 
-import io.xeres.common.id.LocationId;
-import jakarta.xml.bind.annotation.adapters.XmlAdapter;
-
-public class LocationIdXmlAdapter extends XmlAdapter<String, LocationId>
+public record ConnectionRequest(String locationId, int connectionIndex)
 {
-	@Override
-	public LocationId unmarshal(String v)
-	{
-		return LocationId.fromString(v);
-	}
-
-	@Override
-	public String marshal(LocationId v)
-	{
-		return v.toString();
-	}
 }

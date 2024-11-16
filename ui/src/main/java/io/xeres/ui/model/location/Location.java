@@ -105,6 +105,12 @@ public class Location
 		this.lastConnected = lastConnected;
 	}
 
+	/**
+	 * Returns the availability state. Always make sure to check {@link #isConnected()} first because
+	 * this location has no concept of offline presence.
+	 *
+	 * @return the availability
+	 */
 	public Availability getAvailability()
 	{
 		return availability;

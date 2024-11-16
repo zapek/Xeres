@@ -126,7 +126,7 @@ public class ProfileController
 		}
 		else if (isNotBlank(locationId))
 		{
-			var locationIdentifier = new LocationId(locationId);
+			var locationIdentifier = LocationId.fromString(locationId);
 			var profile = profileService.findProfileByLocationId(locationIdentifier);
 			return profile.map(p -> List.of(Boolean.TRUE.equals(withLocations) ? toDeepDTO(p, locationIdentifier) : toDTO(p))).orElse(Collections.emptyList());
 		}

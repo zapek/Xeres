@@ -25,8 +25,6 @@ import jakarta.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 
 @Embeddable
 public class LocationId implements Identifier, Comparable<LocationId>
@@ -50,17 +48,15 @@ public class LocationId implements Identifier, Comparable<LocationId>
 		this.identifier = identifier;
 	}
 
-	public LocationId(String identifier)
+	/**
+	 * Creates a {@link LocationId} from a string.
+	 *
+	 * @param from the string representing the LocationId in hexadecimal form (lowercase, no prefix)
+	 * @return the LocationId or an empty LocationId if the string was invalid
+	 */
+	public static LocationId fromString(String from)
 	{
-		if (isEmpty(identifier))
-		{
-			throw new IllegalArgumentException("Empty identifier");
-		}
-		if (identifier.length() != LENGTH * 2)
-		{
-			throw new IllegalArgumentException("Bad identifier length, expected " + (LENGTH * 2) + ", got " + identifier.length());
-		}
-		this.identifier = Id.toBytes(identifier);
+		return new LocationId(Identifier.parseString(from, LENGTH));
 	}
 
 	@Override

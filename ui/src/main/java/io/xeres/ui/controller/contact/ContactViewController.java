@@ -22,6 +22,7 @@ package io.xeres.ui.controller.contact;
 import atlantafx.base.controls.CustomTextField;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
+import io.xeres.common.id.LocationId;
 import io.xeres.common.location.Availability;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.HostPort;
@@ -107,9 +108,11 @@ public class ContactViewController implements Controller
 	private static final String SHOW_ALL_CONTACTS = "ShowAllContacts";
 
 	private static final String CHAT_MENU_ID = "chat";
+	private static final String CONNECT_MENU_ID = "connect";
 	private static final String DELETE_MENU_ID = "delete";
 
 	private final ConfigClient configClient;
+	private final ConnectionClient connectionClient;
 
 	private enum Information
 	{
@@ -248,7 +251,7 @@ public class ContactViewController implements Controller
 	private TreeItem<Contact> displayedContact;
 	private Contact addedContact;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, PreferenceService preferenceService, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, PreferenceService preferenceService, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient, ConnectionClient connectionClient)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
@@ -260,6 +263,7 @@ public class ContactViewController implements Controller
 		this.bundle = bundle;
 		this.windowManager = windowManager;
 		this.configClient = configClient;
+		this.connectionClient = connectionClient;
 	}
 
 	@Override
@@ -444,8 +448,7 @@ public class ContactViewController implements Controller
 
 		locationTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 		locationTablePresenceColumn.setCellFactory(param -> new AvailabilityCellStatus<>());
-		// The following is needed because location has no concept of offline presence
-		locationTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().isConnected() ? param.getValue().getAvailability() : Availability.OFFLINE));
+		locationTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(getLocationAvailability(param.getValue())));
 		locationTableIPColumn.setCellValueFactory(param -> {
 			var hostPort = getConnectedAddress(param.getValue());
 			return new SimpleStringProperty(hostPort != null ? hostPort.host() : "-");
@@ -455,6 +458,19 @@ public class ContactViewController implements Controller
 			return new SimpleStringProperty(hostPort != null ? String.valueOf(hostPort.port()) : "-");
 		});
 		locationTableLastConnectedColumn.setCellValueFactory(param -> new SimpleStringProperty(getLastConnection(param.getValue())));
+
+		createLocationTableContextMenu();
+	}
+
+	/**
+	 * Gets the true availability state of a location. Location has no concept of offline presence.
+	 *
+	 * @param location the location
+	 * @return the location's availability state
+	 */
+	private static Availability getLocationAvailability(Location location)
+	{
+		return location.isConnected() ? location.getAvailability() : Availability.OFFLINE;
 	}
 
 	private void setupMenuFilters()
@@ -1079,6 +1095,42 @@ public class ContactViewController implements Controller
 		});
 	}
 
+	private void createLocationTableContextMenu()
+	{
+		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
+		chatItem.setId(CHAT_MENU_ID);
+		chatItem.setGraphic(new FontIcon(MaterialDesignC.COMMENT));
+		chatItem.setOnAction(event -> {
+			var location = (Location) event.getSource();
+			startChat(location.getLocationId());
+		});
+
+		var connectItem = new MenuItem(I18nUtils.getString("contact-view.action.connect"));
+		connectItem.setId(CONNECT_MENU_ID);
+		connectItem.setGraphic(new FontIcon(MaterialDesignC.CONNECTION));
+		connectItem.setOnAction(event -> {
+			var location = (Location) event.getSource();
+			connectionClient.connect(location.getLocationId(), -1)
+					.subscribe();
+		});
+
+		var xContextMenu = new XContextMenu<Location>(chatItem, connectItem);
+		xContextMenu.setOnShowing((contextMenu, location) -> {
+			contextMenu.getItems().stream()
+					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(location != null && getLocationAvailability(location) == Availability.OFFLINE));
+
+			contextMenu.getItems().stream()
+					.filter(menuItem -> CONNECT_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(location != null && location.isConnected()));
+
+			return location != null;
+		});
+		xContextMenu.addToNode(locationTableView);
+
+		// XXX: add connect now?
+	}
+
 	private MenuItem createStateMenuItem(Availability availability)
 	{
 		var menuItem = new MenuItem(availability.toString());
@@ -1110,11 +1162,15 @@ public class ContactViewController implements Controller
 	{
 		profileClient.findById(profileId)
 				.doOnSuccess(profile -> profile.getLocations().stream()
-						.filter(Location::isConnected)
-						.findFirst()
+						.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
 						.ifPresent(location -> windowManager.openMessaging(location.getLocationId().toString()))
 				)
 				.subscribe();
+	}
+
+	private void startChat(LocationId locationId)
+	{
+		windowManager.openMessaging(locationId.toString());
 	}
 
 	@EventListener

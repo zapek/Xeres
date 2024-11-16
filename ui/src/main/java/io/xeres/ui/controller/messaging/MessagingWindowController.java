@@ -147,7 +147,7 @@ public class MessagingWindowController implements WindowController
 		this.markdownService = markdownService;
 		this.chatClient = chatClient;
 		this.bundle = bundle;
-		this.locationId = new LocationId(locationId);
+		this.locationId = LocationId.fromString(locationId);
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 	}

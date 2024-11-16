@@ -34,6 +34,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
@@ -106,7 +107,18 @@ public class PeerConnectionJob
 
 			if (!connections.isEmpty())
 			{
-				connect(connections.get(connectionIndex));
+				if (connectionIndex == -1)
+				{
+					connect(connections.get(ThreadLocalRandom.current().nextInt(connections.size())));
+				}
+				else if (connectionIndex < connections.size())
+				{
+					connect(connections.get(connectionIndex));
+				}
+				else
+				{
+					log.error("Connection index is out of bounds, size: {}, index: {}", connections.size(), connectionIndex);
+				}
 			}
 		}
 	}

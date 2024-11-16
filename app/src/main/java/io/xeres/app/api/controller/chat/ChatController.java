@@ -88,7 +88,7 @@ public class ChatController
 	public void inviteToChatRoom(@Valid @RequestBody InviteToChatRoomRequest inviteToChatRoomRequest)
 	{
 		chatRsService.inviteLocationsToChatRoom(inviteToChatRoomRequest.chatRoomId(), inviteToChatRoomRequest.locationIds().stream()
-				.map(LocationId::new)
+				.map(LocationId::fromString)
 				.collect(Collectors.toSet()));
 	}
 

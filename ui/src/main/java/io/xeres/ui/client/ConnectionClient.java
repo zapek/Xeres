@@ -21,6 +21,8 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.id.LocationId;
+import io.xeres.common.rest.connection.ConnectionRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.model.profile.ProfileMapper;
@@ -28,6 +30,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static io.xeres.common.rest.PathConfig.CONNECTIONS_PATH;
 
@@ -58,5 +61,16 @@ public class ConnectionClient
 				.retrieve()
 				.bodyToFlux(ProfileDTO.class)
 				.map(ProfileMapper::fromDeepDTO);
+	}
+
+	public Mono<Void> connect(LocationId locationId, int connectionIndex)
+	{
+		var connectionRequest = new ConnectionRequest(locationId.toString(), connectionIndex);
+
+		return webClient.put()
+				.uri("/connect")
+				.bodyValue(connectionRequest)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

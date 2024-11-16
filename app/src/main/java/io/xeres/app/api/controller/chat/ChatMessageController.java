@@ -61,7 +61,7 @@ public class ChatMessageController
 		{
 			case CHAT_PRIVATE_MESSAGE -> {
 				log.debug("Received websocket message, sending to peer location: {}, content {}", destinationId, message);
-				chatRsService.sendPrivateMessage(new LocationId(destinationId), message.getContent());
+				chatRsService.sendPrivateMessage(LocationId.fromString(destinationId), message.getContent());
 			}
 			case CHAT_ROOM_MESSAGE ->
 			{
@@ -78,7 +78,7 @@ public class ChatMessageController
 			{
 				log.debug("Sending chat typing notification...");
 				Objects.requireNonNull(destinationId);
-				chatRsService.sendPrivateTypingNotification(new LocationId(destinationId));
+				chatRsService.sendPrivateTypingNotification(LocationId.fromString(destinationId));
 			}
 			case CHAT_ROOM_TYPING_NOTIFICATION ->
 			{
@@ -90,7 +90,7 @@ public class ChatMessageController
 			{
 				log.debug("Requesting avatar...");
 				Objects.requireNonNull(destinationId);
-				chatRsService.sendAvatarRequest(new LocationId(destinationId));
+				chatRsService.sendAvatarRequest(LocationId.fromString(destinationId));
 			}
 			default -> log.error("Couldn't figure out which message to send");
 		}

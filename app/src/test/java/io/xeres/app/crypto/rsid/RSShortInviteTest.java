@@ -71,7 +71,7 @@ class RSShortInviteTest
 	void Build_Success()
 	{
 		var profile = ProfileFakes.createProfile("Nemesis", 0x792b20ca657e2706L, Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), new byte[]{1});
-		var location = LocationFakes.createLocation("Home", profile, new LocationId("738ea192064e3f20e766438cc9305bd5"));
+		var location = LocationFakes.createLocation("Home", profile, LocationId.fromString("738ea192064e3f20e766438cc9305bd5"));
 
 		var rsId = new RSIdBuilder(SHORT_INVITE)
 				.setName(profile.getName().getBytes())

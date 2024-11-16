@@ -38,7 +38,7 @@ class RSCertificateTest
 	void Build_Success()
 	{
 		var profile = ProfileFakes.createProfile("Nemesis", 0x9F00B21277698D8DL, Id.toBytes("60049f670534eab17dda2e6d9f00b21277698d8d"), Id.toBytes("984d0461fd80400102008e20511e623f662693d054e1aeb26a007e17f745d4616a6a647d22313b67111ce5f45db22fb670bb5e05f4846ad6d686224acc22966f28e1a50d99d4afb295fb0011010001b4084e656d6573697320885c041001020006050261fd8040000a09109f00b21277698d8d97e401ff688d2b9b73551587858994309485909a36b5401518716698131e1811d8f8204348392c89e99fcb21651d7490e9877b80ced7e11aabbb7c0538853954d77d047b"));
-		var location = LocationFakes.createLocation("Home", profile, new LocationId("738ea192064e3f20e766438cc9305bd5"));
+		var location = LocationFakes.createLocation("Home", profile, LocationId.fromString("738ea192064e3f20e766438cc9305bd5"));
 
 		var rsId = new RSIdBuilder(CERTIFICATE)
 				.setName(profile.getName().getBytes())

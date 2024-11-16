@@ -54,6 +54,7 @@ public class TrayService
 
 	private Image image;
 	private Image eventImage;
+	private Image busyImage;
 
 	private String tooltipTitle;
 
@@ -113,6 +114,7 @@ public class TrayService
 
 		image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon.png"));
 		eventImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon_event.png"));
+		busyImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon_busy.png"));
 
 		tooltipTitle = title;
 		trayIcon = new TrayIcon(image, tooltipTitle, popupMenu);
@@ -238,6 +240,7 @@ public class TrayService
 		if (availability != Availability.OFFLINE)
 		{
 			setStatusItemDisabled(statusMenu, availability.ordinal());
+			setBusy(availability == Availability.BUSY);
 		}
 	}
 
@@ -269,7 +272,7 @@ public class TrayService
 						if (stage.isIconified())
 						{
 							stage.setIconified(false);
-							setEvent(false);
+							clearEvent();
 						}
 						else
 						{
@@ -287,7 +290,7 @@ public class TrayService
 								stage.setWidth(stage.getWidth());
 								stage.setHeight(stage.getHeight());
 								stage.show();
-								setEvent(false);
+								clearEvent();
 							}
 						}
 					});
@@ -321,14 +324,32 @@ public class TrayService
 		}
 	}
 
-	public void setEvent(boolean pending)
+	private void setBusy(boolean busy)
 	{
-		trayIcon.setImage(pending ? eventImage : image);
+		if (busy && trayIcon.getImage() != busyImage)
+		{
+			trayIcon.setImage(busyImage);
+		}
+		else if (!busy && trayIcon.getImage() != image)
+		{
+			trayIcon.setImage(image);
+		}
+	}
+
+	public void clearEvent()
+	{
+		if (trayIcon.getImage() != busyImage)
+		{
+			trayIcon.setImage(image);
+		}
 	}
 
 	public void setEventIfIconified()
 	{
-		trayIcon.setImage(eventImage);
+		if (trayIcon.getImage() != busyImage)
+		{
+			trayIcon.setImage(eventImage);
+		}
 	}
 
 	private boolean isNotificationAllowed(TrayNotificationType type)

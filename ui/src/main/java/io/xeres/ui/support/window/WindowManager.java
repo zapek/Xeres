@@ -56,6 +56,7 @@ import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.UiUtils;
+import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -68,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import reactor.core.Disposable;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -94,6 +96,7 @@ public class WindowManager
 	private final MarkdownService markdownService;
 	private final UriService uriService;
 	private final ChatClient chatClient;
+	private final NotificationClient notificationClient;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
 	private static ResourceBundle bundle;
@@ -107,7 +110,11 @@ public class WindowManager
 
 	private UiWindow mainWindow;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
+	private Disposable availabilityNotificationDisposable;
+
+	private boolean isBusy;
+
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -118,6 +125,7 @@ public class WindowManager
 		this.markdownService = markdownService;
 		this.uriService = uriService;
 		this.chatClient = chatClient;
+		this.notificationClient = notificationClient;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		WindowManager.bundle = bundle;
@@ -192,13 +200,16 @@ public class WindowManager
 							if (chatMessage == null)
 							{
 								// The user opened the window, and it's already open somewhere. Focus it.
-								window.requestFocus();
+								if (!isBusy)
+								{
+									window.requestFocus();
+								}
 							}
 							else
 							{
 								// If there's an incoming message, and we aren't working in another part of the
 								// app, this will make the taskbar blink if the window is in there.
-								if (!chatMessage.isEmpty() && !isAnyWindowFocused())
+								if (!chatMessage.isEmpty() && !isAnyWindowFocused() && !isBusy)
 								{
 									window.requestFocus();
 								}
@@ -211,11 +222,19 @@ public class WindowManager
 							{
 								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle, chatClient, generalClient, imageCache);
 
-								UiWindow.builder("/view/messaging/messaging.fxml", messaging)
+								var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)
 										.setLocalId(locationId)
 										.setRememberEnvironment(true)
-										.build()
-										.open();
+										.build();
+
+								if (isBusy)
+								{
+									builder.openInTaskbar();
+								}
+								else
+								{
+									builder.open();
+								}
 							}
 						}));
 	}
@@ -443,12 +462,28 @@ public class WindowManager
 						.setTitle(fullTitle)
 						.build();
 
+				setupAvailabilityNotification();
+
 				if (!iconified)
 				{
 					mainWindow.open();
 				}
 			}
 		});
+	}
+
+	private void setupAvailabilityNotification()
+	{
+		availabilityNotificationDisposable = notificationClient.getAvailabilityNotifications()
+				.doOnNext(sse -> {
+					Objects.requireNonNull(sse.data());
+
+					if (sse.data().locationId() == 1L)
+					{
+						isBusy = sse.data().availability() == Availability.BUSY;
+					}
+				})
+				.subscribe();
 	}
 
 	public Stage getMainStage()
@@ -649,6 +684,12 @@ public class WindowManager
 			stage.show();
 		}
 
+		void openInTaskbar()
+		{
+			stage.setIconified(true);
+			stage.show();
+		}
+
 		/**
 		 * Closes the window.
 		 */
@@ -795,6 +836,15 @@ public class WindowManager
 			{
 				return new UiWindow(this);
 			}
+		}
+	}
+
+	@PreDestroy
+	private void removeNotification()
+	{
+		if (availabilityNotificationDisposable != null)
+		{
+			availabilityNotificationDisposable.dispose();
 		}
 	}
 }

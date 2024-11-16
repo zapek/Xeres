@@ -767,7 +767,8 @@ public class ContactViewController implements Controller
 			return;
 		}
 
-		if (existing.getValue().availability() != availability) // Avoid useless refreshes
+		// XXX: we do need to comment out the next one otherwise a new location is not detected! how to filter the double refresh problem though?
+		//if (existing.getValue().availability() != availability) // Avoid useless refreshes
 		{
 			if (existing.isLeaf())
 			{
@@ -778,11 +779,11 @@ public class ContactViewController implements Controller
 			{
 				// There are children, we need to use a different algorithm then.
 				profileClient.findById(profileId)
-						.doOnSuccess(profile -> {
+						.doOnSuccess(profile -> Platform.runLater(() -> {
 							existing.setValue(Contact.withAvailability(existing.getValue(), profile.getLocations().stream()
 									.anyMatch(Location::isConnected) ? Availability.AVAILABLE : Availability.OFFLINE));
 							refreshContactIfNeeded(existing);
-						})
+						}))
 						.subscribe();
 			}
 		}

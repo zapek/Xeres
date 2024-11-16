@@ -98,8 +98,8 @@ public class TrayService
 
 		var statusMenu = new Menu("Status >");
 		statusMenu.add(createStateMenuItem(Availability.AVAILABLE));
-		statusMenu.add(createStateMenuItem(Availability.AWAY));
 		statusMenu.add(createStateMenuItem(Availability.BUSY));
+		statusMenu.add(createStateMenuItem(Availability.AWAY));
 
 		var exitItem = new MenuItem(bundle.getString("tray.exit"));
 		exitItem.addActionListener(e -> exitApplication());
@@ -122,6 +122,7 @@ public class TrayService
 
 		trayIcon.addMouseListener(createContextMenuMouseAdapter());
 
+		setStatus(Availability.AVAILABLE);
 		setupAvailabilityNotifications();
 
 		try
@@ -159,6 +160,7 @@ public class TrayService
 					// Don't chat with oneself
 					if (sse.data().locationId() == 1L)
 					{
+						setStatus(sse.data().availability());
 						return;
 					}
 
@@ -226,6 +228,25 @@ public class TrayService
 		if (peersMenu.getItemCount() == 0)
 		{
 			peersMenu.setEnabled(false);
+		}
+	}
+
+	private void setStatus(Availability availability)
+	{
+		var statusMenu = (Menu) trayIcon.getPopupMenu().getItem(2);
+
+		if (availability != Availability.OFFLINE)
+		{
+			setStatusItemDisabled(statusMenu, availability.ordinal());
+		}
+	}
+
+	private void setStatusItemDisabled(Menu statusMenu, int index)
+	{
+		for (var i = 0; i < statusMenu.getItemCount(); i++)
+		{
+			var statusItem = statusMenu.getItem(i);
+			statusItem.setEnabled(i != index);
 		}
 	}
 

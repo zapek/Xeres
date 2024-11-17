@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.status;
 
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
@@ -51,15 +53,17 @@ public class StatusRsService extends RsService
 	private final PeerConnectionManager peerConnectionManager;
 	private final LocationService locationService;
 	private final AvailabilityNotificationService availabilityNotificationService;
+	private final DatabaseSessionManager databaseSessionManager;
 
 	private boolean locked;
 
-	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, AvailabilityNotificationService availabilityNotificationService)
+	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, AvailabilityNotificationService availabilityNotificationService, DatabaseSessionManager databaseSessionManager)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
 		this.locationService = locationService;
 		this.availabilityNotificationService = availabilityNotificationService;
+		this.databaseSessionManager = databaseSessionManager;
 	}
 
 	@Override
@@ -129,11 +133,14 @@ public class StatusRsService extends RsService
 	{
 		if (!locked && availability != this.availability)
 		{
-			var ownLocation = locationService.findOwnLocation().orElseThrow();
-			this.availability = availability;
-			locationService.setAvailability(ownLocation, availability);
-			availabilityNotificationService.changeAvailability(ownLocation, availability);
-			peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new StatusItem(toChatStatus(availability)), this), this);
+			try (var session = new DatabaseSession(databaseSessionManager))
+			{
+				var ownLocation = locationService.findOwnLocation().orElseThrow();
+				this.availability = availability;
+				locationService.setAvailability(ownLocation, availability);
+				availabilityNotificationService.changeAvailability(ownLocation, availability);
+				peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new StatusItem(toChatStatus(availability)), this), this);
+			}
 		}
 	}
 }

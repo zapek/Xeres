@@ -73,7 +73,7 @@ public interface TurtleRsClient extends RsServiceSlave
 	 */
 	List<byte[]> receiveSearchRequest(byte[] query, int maxHits); // XXX: return a list of results (TurtleFileInfoV2.. actually it's generic stuff so service dependent)
 
-	void receiveSearchRequestString(String keywords); // XXX: experimental for now...
+	void receiveSearchRequestString(PeerConnection sender, String keywords); // XXX: experimental for now...
 
 	/**
 	 * Called when receiving search results.

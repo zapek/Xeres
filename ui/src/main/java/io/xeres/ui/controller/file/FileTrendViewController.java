@@ -49,8 +49,8 @@ public class FileTrendViewController implements Controller, TabActivation
 //	@FXML
 //	private TableColumn<TrendResult, Integer> tableHits;
 //
-//	@FXML
-//	private TableColumn<TrendResult, String> tableFrom;
+@FXML
+private TableColumn<TrendResult, String> tableFrom;
 
 	@FXML
 	private TableColumn<TrendResult, String> tableTerms;
@@ -64,6 +64,7 @@ public class FileTrendViewController implements Controller, TabActivation
 	public void initialize() throws IOException
 	{
 		tableTerms.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().keywords()));
+		tableFrom.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().senderName()));
 
 		setupFileTrendNotifications();
 	}
@@ -74,10 +75,10 @@ public class FileTrendViewController implements Controller, TabActivation
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					assert sse.data() != null;
-					trendTableView.getItems().add(new TrendResult(sse.data().keywords()));
+					trendTableView.getItems().add(new TrendResult(sse.data().keywords(), sse.data().senderName()));
 					if (trendTableView.getItems().size() > 255) // XXX: maybe not optimal...
 					{
-						trendTableView.getItems().removeFirst();
+						trendTableView.getItems().remove(0, 10);
 					}
 				}))
 				.subscribe();

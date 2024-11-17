@@ -588,7 +588,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 
 		// XXX: experimental
-		turtleClients.forEach(turtleRsClient -> turtleRsClient.receiveSearchRequestString(item.getKeywords()));
+		turtleClients.forEach(turtleRsClient -> turtleRsClient.receiveSearchRequestString(sender, item.getKeywords()));
 
 		// Do not search further if enough has been sent back already.
 		if (searchRequest.isFull())

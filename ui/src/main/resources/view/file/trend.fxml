@@ -20,9 +20,7 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <VBox spacing="4.0" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -39,8 +37,8 @@
         </placeholder>
         <columns>
             <!--<TableColumn fx:id="tableHits" prefWidth="60.0" text="Hits"/>-->
-            <!--<TableColumn fx:id="tableFrom" prefWidth="120.0" text="From"/>-->
-            <TableColumn fx:id="tableTerms" text="Terms"/>
+            <TableColumn fx:id="tableTerms" minWidth="100.0" prefWidth="180.0" text="Terms"/>
+            <TableColumn fx:id="tableFrom" prefWidth="120.0" text="From"/>
         </columns>
     </TableView>
 </VBox>

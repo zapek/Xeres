@@ -19,6 +19,6 @@
 
 package io.xeres.ui.controller.file;
 
-public record TrendResult(String keywords)
+public record TrendResult(String keywords, String senderName)
 {
 }

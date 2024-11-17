@@ -26,8 +26,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileTrendNotificationService extends NotificationService
 {
-	public void receivedSearch(String keywords)
+	public void receivedSearch(String senderName, String keywords)
 	{
-		sendNotification(new FileTrendNotification(keywords));
+		sendNotification(new FileTrendNotification(senderName, keywords));
 	}
 }

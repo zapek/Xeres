@@ -283,9 +283,9 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
-	public void receiveSearchRequestString(String keywords)
+	public void receiveSearchRequestString(PeerConnection sender, String keywords)
 	{
-		fileTrendNotificationService.receivedSearch(keywords);
+		fileTrendNotificationService.receivedSearch(sender.getLocation().getProfile().getName(), keywords);
 	}
 
 	@Override

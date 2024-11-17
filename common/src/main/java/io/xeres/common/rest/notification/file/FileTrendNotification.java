@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.file;
 
 import io.xeres.common.rest.notification.Notification;
 
-public record FileTrendNotification(String keywords) implements Notification
+public record FileTrendNotification(String senderName, String keywords) implements Notification
 {
 }

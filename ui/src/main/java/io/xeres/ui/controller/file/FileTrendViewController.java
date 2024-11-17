@@ -24,7 +24,10 @@ import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -35,25 +38,35 @@ import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.LinkedList;
 
 @Component
 @FxmlView(value = "/view/file/trend.fxml")
 public class FileTrendViewController implements Controller, TabActivation
 {
+	private static final String NAME_CONTAINS_ALL = "NAME CONTAINS ALL ";
+	private static final int MAXIMUM_BACKLOG = 300;
+
+
 	private final NotificationClient notificationClient;
 	private Disposable notificationDisposable;
+
+	private final ObservableList<TrendResult> trendResult = FXCollections.observableList(new LinkedList<>());
 
 	@FXML
 	private TableView<TrendResult> trendTableView;
 
-//	@FXML
-//	private TableColumn<TrendResult, Integer> tableHits;
-//
-@FXML
-private TableColumn<TrendResult, String> tableFrom;
+	// XXX: make sure the table is NOT sortable!!
+
+	@FXML
+	private TableColumn<TrendResult, String> tableFrom;
 
 	@FXML
 	private TableColumn<TrendResult, String> tableTerms;
+
+	@FXML
+	private TableColumn<TrendResult, Instant> tableTime;
 
 	public FileTrendViewController(NotificationClient notificationClient)
 	{
@@ -63,8 +76,12 @@ private TableColumn<TrendResult, String> tableFrom;
 	@Override
 	public void initialize() throws IOException
 	{
+		trendTableView.setItems(trendResult);
+
 		tableTerms.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().keywords()));
 		tableFrom.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().senderName()));
+		tableTime.setCellFactory(param -> new TimeCell());
+		tableTime.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().when()));
 
 		setupFileTrendNotifications();
 	}
@@ -75,10 +92,17 @@ private TableColumn<TrendResult, String> tableFrom;
 				.doOnError(UiUtils::showAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					assert sse.data() != null;
-					trendTableView.getItems().add(new TrendResult(sse.data().keywords(), sse.data().senderName()));
-					if (trendTableView.getItems().size() > 255) // XXX: maybe not optimal...
+					var keywords = sse.data().keywords();
+
+					if (keywords.startsWith(NAME_CONTAINS_ALL))
 					{
-						trendTableView.getItems().remove(0, 10);
+						keywords = keywords.substring(NAME_CONTAINS_ALL.length());
+					}
+
+					trendResult.addFirst(new TrendResult(keywords, sse.data().senderName(), Instant.now()));
+					if (trendTableView.getItems().size() > MAXIMUM_BACKLOG)
+					{
+						trendTableView.getItems().removeLast();
 					}
 				}))
 				.subscribe();

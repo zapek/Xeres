@@ -36,6 +36,10 @@ public final class DateUtils
 			.withLocale(Locale.ROOT)
 			.withZone(ZoneId.systemDefault());
 
+	public static final DateTimeFormatter TIME_DISPLAY_WITH_SECONDS = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
+			.withLocale(Locale.ROOT)
+			.withZone(ZoneId.systemDefault());
+
 	public static final DateTimeFormatter DATE_TIME_FILENAME = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss")
 			.withZone(ZoneId.systemDefault());
 

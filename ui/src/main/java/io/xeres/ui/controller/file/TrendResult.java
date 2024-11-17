@@ -19,6 +19,8 @@
 
 package io.xeres.ui.controller.file;
 
-public record TrendResult(String keywords, String senderName)
+import java.time.Instant;
+
+record TrendResult(String keywords, String senderName, Instant when)
 {
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2024 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,16 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.forum;
+package io.xeres.ui.controller.file;
 
-import io.xeres.common.message.forum.ForumMessage;
-import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TableCell;
 
 import java.time.Instant;
 
-import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
+import static io.xeres.ui.support.util.DateUtils.TIME_DISPLAY_WITH_SECONDS;
 
-class DateCell extends TreeTableCell<ForumMessage, Instant>
+class TimeCell extends TableCell<TrendResult, Instant>
 {
-	public DateCell()
-	{
-		super();
-	}
-
 	@Override
 	protected void updateItem(Instant item, boolean empty)
 	{
@@ -43,7 +37,7 @@ class DateCell extends TreeTableCell<ForumMessage, Instant>
 		}
 		else
 		{
-			setText(DATE_TIME_DISPLAY.format(item));
+			setText(TIME_DISPLAY_WITH_SECONDS.format(item));
 		}
 	}
 }

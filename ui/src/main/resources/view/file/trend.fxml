@@ -36,9 +36,9 @@
             <Label text="No trends yet"/>
         </placeholder>
         <columns>
-            <!--<TableColumn fx:id="tableHits" prefWidth="60.0" text="Hits"/>-->
-            <TableColumn fx:id="tableTerms" minWidth="100.0" prefWidth="180.0" text="Terms"/>
-            <TableColumn fx:id="tableFrom" prefWidth="120.0" text="From"/>
+            <TableColumn fx:id="tableTerms" minWidth="100.0" prefWidth="180.0" text="Terms" sortable="false"/>
+            <TableColumn fx:id="tableFrom" prefWidth="120.0" text="From" sortable="false"/>
+            <TableColumn fx:id="tableTime" prefWidth="100.0" text="Time" sortable="false"/>
         </columns>
     </TableView>
 </VBox>

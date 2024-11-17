@@ -22,6 +22,7 @@ package io.xeres.app.xrs.serialization;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMetaAndData;
 import io.xeres.common.id.Identifier;
+import io.xeres.common.id.ProfileFingerprint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -263,6 +264,21 @@ public final class Serializer
 	public static Identifier deserializeIdentifier(ByteBuf buf, Class<?> identifierClass)
 	{
 		return IdentifierSerializer.deserialize(buf, identifierClass);
+	}
+
+	/**
+	 * Deserializes an identifier while specifying its size.
+	 * <p>
+	 * This is required for some identifier that can have a varying size, like {@link ProfileFingerprint}.
+	 *
+	 * @param buf             the buffer
+	 * @param identifierClass the class of the identifier
+	 * @param size            the size to deserialize
+	 * @return the identifier
+	 */
+	public static Identifier deserializeIdentifierWithSize(ByteBuf buf, Class<?> identifierClass, int size)
+	{
+		return IdentifierSerializer.deserializeWithSize(buf, identifierClass, size);
 	}
 
 	/**

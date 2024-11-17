@@ -30,8 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import static io.xeres.app.net.bdisc.ProtocolVersion.VERSION_0;
-import static io.xeres.app.net.bdisc.ProtocolVersion.VERSION_1;
+import static io.xeres.app.net.bdisc.ProtocolVersion.*;
 
 public final class UdpDiscoveryProtocol
 {
@@ -66,7 +65,7 @@ public final class UdpDiscoveryProtocol
 			case MAGIC_HEADER_VERSIONED ->
 			{
 				var versionNum = buffer.get();
-				if (versionNum > VERSION_1.ordinal())
+				if (versionNum > VERSION_2.ordinal())
 				{
 					log.warn("Unsupported protocol version: {}", versionNum);
 					return null;
@@ -116,7 +115,20 @@ public final class UdpDiscoveryProtocol
 		}
 
 		var buf = Unpooled.wrappedBuffer(buffer);
-		peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifier(buf, ProfileFingerprint.class));
+		if (protocolVersion != VERSION_2)
+		{
+			peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.V4_LENGTH));
+		}
+		else
+		{
+			var fingerPrintSize = buffer.get();
+			switch (fingerPrintSize)
+			{
+				case 20 -> peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.V4_LENGTH));
+				case 32 -> peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.LENGTH));
+				default -> throw new IllegalArgumentException("Unknown fingerprint size:" + fingerPrintSize);
+			}
+		}
 		peer.setLocationId((LocationId) Serializer.deserializeIdentifier(buf, LocationId.class));
 		peer.setLocalPort(Serializer.deserializeShort(buf));
 		peer.setProfileName(Serializer.deserializeString(buf));
@@ -129,7 +141,18 @@ public final class UdpDiscoveryProtocol
 		var buffer = ByteBuffer.allocate(maxSize);
 
 		buffer.putInt(MAGIC_HEADER_VERSIONED);
-		buffer.put((byte) VERSION_1.ordinal()); // protocol version
+		if (fingerprint.getLength() == 32)
+		{
+			buffer.put((byte) VERSION_2.ordinal()); // protocol version
+		}
+		else if (fingerprint.getLength() == 20)
+		{
+			buffer.put((byte) VERSION_1.ordinal()); // protocol version
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unknown fingerprint size:" + fingerprint.getLength());
+		}
 		buffer.put((byte) 0);
 		buffer.put((byte) 0);
 		buffer.put((byte) 0);

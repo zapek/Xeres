@@ -79,6 +79,24 @@ final class IdentifierSerializer
 		}
 	}
 
+	static Identifier deserializeWithSize(ByteBuf buf, Class<?> identifierClass, int size)
+	{
+		try
+		{
+			//noinspection PrimitiveArrayArgumentToVarargsMethod
+			var identifier = (Identifier) identifierClass.getDeclaredConstructor(byte[].class).newInstance(ByteArraySerializer.deserialize(buf, size));
+			if (Arrays.equals(identifier.getNullIdentifier(), identifier.getBytes()))
+			{
+				return null;
+			}
+			return identifier;
+		}
+		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+		{
+			throw new IllegalStateException(e.getMessage());
+		}
+	}
+
 	static int getIdentifierLength(Class<?> identifierClass)
 	{
 		try

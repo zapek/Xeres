@@ -22,5 +22,6 @@ package io.xeres.app.net.bdisc;
 enum ProtocolVersion
 {
 	VERSION_0,
-	VERSION_1
+	VERSION_1,
+	VERSION_2
 }

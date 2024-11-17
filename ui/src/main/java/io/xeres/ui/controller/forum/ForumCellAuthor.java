@@ -30,6 +30,7 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.ImageView;
 
 import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
@@ -40,6 +41,7 @@ class ForumCellAuthor extends TreeTableCell<ForumMessage, ForumMessage>
 
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
+	private final ResourceBundle bundle = I18nUtils.getBundle();
 
 	public ForumCellAuthor(GeneralClient generalClient, ImageCache imageCache)
 	{
@@ -47,7 +49,7 @@ class ForumCellAuthor extends TreeTableCell<ForumMessage, ForumMessage>
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		TooltipUtils.install(this,
-				() -> MessageFormat.format(I18nUtils.getString("chat.room.user-info"), super.getItem().getAuthorName(), super.getItem().getAuthorId()),
+				() -> MessageFormat.format(bundle.getString("chat.room.user-info"), super.getItem().getAuthorName(), super.getItem().getAuthorId()),
 				() -> new ImageView(((ImageView) super.getGraphic()).getImage()));
 	}
 

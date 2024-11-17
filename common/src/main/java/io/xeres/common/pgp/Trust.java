@@ -22,6 +22,8 @@ package io.xeres.common.pgp;
 import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
 
+import java.util.ResourceBundle;
+
 /**
  * This is the trust level for a PGP-like "web of trust" feature. Note that
  * 'undefined' is not here because it's confusing.
@@ -59,9 +61,11 @@ public enum Trust implements I18nEnum
 	 */
 	ULTIMATE;
 
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
 	@Override
 	public String toString()
 	{
-		return I18nUtils.getString(getMessageKey(this));
+		return bundle.getString(getMessageKey(this));
 	}
 }

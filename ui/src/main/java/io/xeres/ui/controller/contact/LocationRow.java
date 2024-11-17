@@ -24,11 +24,14 @@ import io.xeres.ui.model.location.Location;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TableRow;
 
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 class LocationRow extends TableRow<Location>
 {
 	private static final Pattern RETROSHARE_VERSION_DETECTOR = Pattern.compile("^\\d.*$");
+
+	private final ResourceBundle bundle = I18nUtils.getBundle();
 
 	@Override
 	protected void updateItem(Location item, boolean empty)
@@ -41,13 +44,13 @@ class LocationRow extends TableRow<Location>
 		else
 		{
 			var sb = new StringBuilder();
-			sb.append(I18nUtils.getString("contact-view.information.location.id"));
+			sb.append(bundle.getString("contact-view.information.location.id"));
 			sb.append(" ");
 			sb.append(item.getLocationId().toString());
 			if (item.hasVersion())
 			{
 				sb.append("\n");
-				sb.append(I18nUtils.getString("contact-view.information.location.version"));
+				sb.append(bundle.getString("contact-view.information.location.version"));
 				sb.append(" ");
 				// Retroshare only sends the version so we prefix it with its name
 				if (RETROSHARE_VERSION_DETECTOR.matcher(item.getVersion()).matches())

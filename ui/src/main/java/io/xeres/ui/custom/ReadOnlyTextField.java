@@ -26,6 +26,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * A TextField that is used for read-only fields (like displaying some informative, yet important value). It features:
@@ -38,6 +39,8 @@ import java.util.List;
  */
 public class ReadOnlyTextField extends TextField
 {
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
 	@SuppressWarnings("unused")
 	public ReadOnlyTextField()
 	{
@@ -65,7 +68,7 @@ public class ReadOnlyTextField extends TextField
 		var contextMenu = new ContextMenu();
 
 		contextMenu.getItems().addAll(createDefaultMenuItems());
-		var deselect = new MenuItem(I18nUtils.getString("deselect-all"));
+		var deselect = new MenuItem(bundle.getString("deselect-all"));
 		deselect.setOnAction(event -> deselect());
 		contextMenu.getItems().addAll(new SeparatorMenuItem(), deselect);
 		return contextMenu;
@@ -73,7 +76,7 @@ public class ReadOnlyTextField extends TextField
 
 	private List<MenuItem> createDefaultMenuItems()
 	{
-		var copy = new MenuItem(I18nUtils.getString("copy"));
+		var copy = new MenuItem(bundle.getString("copy"));
 		copy.setOnAction(event -> copy());
 
 		return List.of(copy);

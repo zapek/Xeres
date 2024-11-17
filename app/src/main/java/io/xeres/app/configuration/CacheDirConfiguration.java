@@ -29,6 +29,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * This configuration handles the cache directory location. This is stored locally and is deleted upon
+ * uninstallation.
+ * <p>
+ * Portable versions use a cache directory alongside the data directory.
+ */
 @Configuration
 public class CacheDirConfiguration
 {

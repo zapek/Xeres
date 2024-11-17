@@ -63,15 +63,12 @@
                         <placeholder>
                             <Label/>
                         </placeholder>
+                        <columnResizePolicy>
+                            <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                        </columnResizePolicy>
                         <columns>
-                            <!--
-                            <TreeTableColumn minWidth="24" prefWidth="24">
-                                <graphic>
-                                    <FontAwesomeIconView glyphName="ENVELOPE" glyphSize="14"/>
-                                </graphic>
-                            </TreeTableColumn>-->
-                            <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="340" text="%forum.view.header.subject"/>
-                            <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="180" text="%forum.view.header.author"/>
+                            <TreeTableColumn fx:id="treeTableSubject" minWidth="80" prefWidth="340" maxWidth="1024" text="%forum.view.header.subject"/>
+                            <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="180" maxWidth="280" text="%forum.view.header.author"/>
                             <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="140" text="%forum.view.header.date"/>
                         </columns>
                     </TreeTableView>

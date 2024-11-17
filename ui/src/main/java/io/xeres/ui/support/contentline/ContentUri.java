@@ -27,11 +27,14 @@ import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 
 import java.text.MessageFormat;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 public class ContentUri implements Content
 {
 	private final Hyperlink node;
+
+	private final ResourceBundle bundle = I18nUtils.getBundle();
 
 	public ContentUri(String uri)
 	{
@@ -55,7 +58,7 @@ public class ContentUri implements Content
 	{
 		if (((DisclosedHyperlink) node).isMalicious())
 		{
-			UiUtils.alertConfirm(MessageFormat.format(I18nUtils.getString("uri.malicious-link.confirm"), ((DisclosedHyperlink) node).getUri()), action);
+			UiUtils.alertConfirm(MessageFormat.format(bundle.getString("uri.malicious-link.confirm"), ((DisclosedHyperlink) node).getUri()), action);
 		}
 		else
 		{

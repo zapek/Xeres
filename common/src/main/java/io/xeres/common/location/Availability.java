@@ -22,6 +22,8 @@ package io.xeres.common.location;
 import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
 
+import java.util.ResourceBundle;
+
 public enum Availability implements I18nEnum
 {
 	AVAILABLE,
@@ -29,9 +31,11 @@ public enum Availability implements I18nEnum
 	AWAY,
 	OFFLINE;
 
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
 	@Override
 	public String toString()
 	{
-		return I18nUtils.getString(getMessageKey(this));
+		return bundle.getString(getMessageKey(this));
 	}
 }

@@ -178,12 +178,15 @@
                         <VBox.margin>
                             <Insets top="8.0"/>
                         </VBox.margin>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                        </columnResizePolicy>
                         <columns>
                             <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="%contact-view.column.name"/>
-                            <TableColumn fx:id="locationTablePresenceColumn" prefWidth="25.0"/>
-                            <TableColumn fx:id="locationTableIPColumn" prefWidth="120.0" text="IP"/>
-                            <TableColumn fx:id="locationTablePortColumn" prefWidth="60.0" text="Port"/>
-                            <TableColumn fx:id="locationTableLastConnectedColumn" prefWidth="140" text="%contact-view.column.last-connected"/>
+                            <TableColumn fx:id="locationTablePresenceColumn" minWidth="35.0" prefWidth="35.0" maxWidth="35.0"/>
+                            <TableColumn fx:id="locationTableIPColumn" minWidth="120.0" prefWidth="120.0" maxWidth="120.0" text="IP"/>
+                            <TableColumn fx:id="locationTablePortColumn" minWidth="60.0" prefWidth="60.0" maxWidth="60.0" text="Port"/>
+                            <TableColumn fx:id="locationTableLastConnectedColumn" minWidth="100.0" prefWidth="140.0" maxWidth="140.0" text="%contact-view.column.last-connected"/>
                         </columns>
                     </TableView>
                 </VBox>

@@ -22,6 +22,8 @@ package io.xeres.common.geoip;
 import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
 
+import java.util.ResourceBundle;
+
 /**
  * The list of country codes.
  * @see <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">Wikipedia ISO-3166-1 Alpha 2</a>
@@ -276,9 +278,11 @@ public enum Country implements I18nEnum
 	TOR,
 	I2P;
 
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
 	@Override
 	public String toString()
 	{
-		return I18nUtils.getString(getMessageKey(this));
+		return bundle.getString(getMessageKey(this));
 	}
 }

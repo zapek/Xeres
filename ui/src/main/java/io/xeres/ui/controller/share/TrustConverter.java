@@ -24,16 +24,19 @@ import io.xeres.common.pgp.Trust;
 import javafx.util.StringConverter;
 
 import java.util.Arrays;
+import java.util.ResourceBundle;
 
 public class TrustConverter extends StringConverter<Trust>
 {
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
+
 	private enum Permission
 	{
-		NOBODY(Trust.UNKNOWN, I18nUtils.getString("trust-converter.nobody")),
-		ANYBODY(Trust.NEVER, I18nUtils.getString("trust-converter.everybody")),
-		MARGINAL(Trust.MARGINAL, I18nUtils.getString("trust-converter.marginal")),
-		FULL(Trust.FULL, I18nUtils.getString("trust-converter.full")),
-		ULTIMATE(Trust.ULTIMATE, I18nUtils.getString("trust-converter.ultimate"));
+		NOBODY(Trust.UNKNOWN, bundle.getString("trust-converter.nobody")),
+		ANYBODY(Trust.NEVER, bundle.getString("trust-converter.everybody")),
+		MARGINAL(Trust.MARGINAL, bundle.getString("trust-converter.marginal")),
+		FULL(Trust.FULL, bundle.getString("trust-converter.full")),
+		ULTIMATE(Trust.ULTIMATE, bundle.getString("trust-converter.ultimate"));
 
 		private final Trust trust;
 		private final String value;

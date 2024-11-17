@@ -20,7 +20,6 @@
 package io.xeres.ui.controller.contact;
 
 import atlantafx.base.controls.CustomTextField;
-import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.location.Availability;
@@ -445,8 +444,6 @@ public class ContactViewController implements Controller
 
 	private void setupLocationTableView()
 	{
-		locationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
-
 		locationTableView.setRowFactory(param -> new LocationRow());
 
 		locationTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -1088,7 +1085,7 @@ public class ContactViewController implements Controller
 			startChat(contact.profileId());
 		});
 
-		var deleteItem = new MenuItem(I18nUtils.getString("profiles.delete"));
+		var deleteItem = new MenuItem(bundle.getString("profiles.delete"));
 		deleteItem.setId(DELETE_MENU_ID);
 		deleteItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_REMOVE));
 		deleteItem.setOnAction(event -> {
@@ -1142,7 +1139,7 @@ public class ContactViewController implements Controller
 			startChat(location.getLocationId());
 		});
 
-		var connectItem = new MenuItem(I18nUtils.getString("contact-view.action.connect"));
+		var connectItem = new MenuItem(bundle.getString("contact-view.action.connect"));
 		connectItem.setId(CONNECT_MENU_ID);
 		connectItem.setGraphic(new FontIcon(MaterialDesignC.CONNECTION));
 		connectItem.setOnAction(event -> {

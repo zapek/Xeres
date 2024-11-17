@@ -19,7 +19,6 @@
 
 package io.xeres.ui.controller.file;
 
-import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.NotificationClient;
@@ -50,6 +49,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
+import java.util.ResourceBundle;
+
 @Component
 @FxmlView(value = "/view/file/search.fxml")
 public class FileSearchViewController implements Controller, TabActivation
@@ -59,6 +60,7 @@ public class FileSearchViewController implements Controller, TabActivation
 	private static final String COPY_LINK_MENU_ID = "copyLink";
 
 	private final FileClient fileClient;
+	private final ResourceBundle bundle;
 
 	@FXML
 	private TextField search;
@@ -69,10 +71,11 @@ public class FileSearchViewController implements Controller, TabActivation
 	private final NotificationClient notificationClient;
 	private Disposable notificationDisposable;
 
-	public FileSearchViewController(FileClient fileClient, NotificationClient notificationClient)
+	public FileSearchViewController(FileClient fileClient, NotificationClient notificationClient, ResourceBundle bundle)
 	{
 		this.fileClient = fileClient;
 		this.notificationClient = notificationClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -151,7 +154,7 @@ public class FileSearchViewController implements Controller, TabActivation
 
 	private void createContextMenu()
 	{
-		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
+		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {

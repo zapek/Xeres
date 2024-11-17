@@ -24,7 +24,6 @@ import com.github.sarxos.webcam.WebcamResolution;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
-import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.support.util.UiUtils;
@@ -44,6 +43,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 @Component
 @FxmlView(value = "/view/qrcode/camera.fxml")
@@ -60,6 +60,12 @@ public class CameraWindowController implements WindowController
 	private boolean stopCamera;
 	private AddRsIdWindowController parentController;
 	private final ObjectProperty<Image> imageProperty = new SimpleObjectProperty<>();
+	private final ResourceBundle bundle;
+
+	public CameraWindowController(ResourceBundle bundle)
+	{
+		this.bundle = bundle;
+	}
 
 	@Override
 	public void initialize()
@@ -74,7 +80,7 @@ public class CameraWindowController implements WindowController
 		}
 		else
 		{
-			error.setText(I18nUtils.getString("qr-code.camera.error"));
+			error.setText(bundle.getString("qr-code.camera.error"));
 			error.setVisible(true);
 		}
 	}

@@ -39,6 +39,12 @@ import static com.sun.jna.platform.win32.Advapi32Util.*;
 import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+/**
+ * Handles the automatic startup of the application by Windows.
+ * <p>
+ * In case of problems, press ctrl-alt-del, launch the Task Manager, go to Startup apps and
+ * make sure the status is set to Enabled.
+ */
 public class AutoStarterWindows implements AutoStarter
 {
 	private static final Logger log = LoggerFactory.getLogger(AutoStarterWindows.class);
@@ -53,12 +59,6 @@ public class AutoStarterWindows implements AutoStarter
 
 	private Path applicationPath;
 
-	/**
-	 * Autostart only works for an installed executable launched normally.
-	 * No portable installations, no local installations.
-	 *
-	 * @return if autostart is supported
-	 */
 	@Override
 	public boolean isSupported()
 	{
@@ -87,6 +87,7 @@ public class AutoStarterWindows implements AutoStarter
 
 	/**
 	 * Gets the application path.
+	 * <p>
 	 * Source: <a href="https://stackoverflow.com/questions/320542/how-to-get-the-path-of-a-running-jar-file">stack overflow</a>
 	 *
 	 * @return the application path

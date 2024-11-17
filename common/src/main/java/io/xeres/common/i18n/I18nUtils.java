@@ -31,18 +31,9 @@ public final class I18nUtils
 	}
 
 	/**
-	 * Gets a translated string. Prefer using the ResourceBundle bean instead as it's faster.
-	 *
-	 * @param messageKey the message key
-	 * @return the translated string
-	 */
-	public static String getString(String messageKey)
-	{
-		return getBundle().getString(messageKey);
-	}
-
-	/**
 	 * Gets the ResourceBundle. Prefer using the ResourceBundle bean instead as it's faster.
+	 * <p>
+	 * This is mostly useful for non-spring components or static utility classes.
 	 *
 	 * @return the resource bundle
 	 */

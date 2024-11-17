@@ -19,7 +19,6 @@
 
 package io.xeres.ui.controller.chat;
 
-import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ChatClient;
@@ -300,17 +299,17 @@ public class ChatViewController implements Controller
 
 	private void createRoomTreeContextMenu()
 	{
-		var subscribeItem = new MenuItem(I18nUtils.getString("chat.room.join"));
+		var subscribeItem = new MenuItem(bundle.getString("chat.room.join"));
 		subscribeItem.setId(SUBSCRIBED_MENU_ID);
 		subscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_ENTER));
 		subscribeItem.setOnAction(event -> joinChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
-		var unsubscribeItem = new MenuItem(I18nUtils.getString("chat.room.leave"));
+		var unsubscribeItem = new MenuItem(bundle.getString("chat.room.leave"));
 		unsubscribeItem.setId(UNSUBSCRIBED_MENU_ID);
 		unsubscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_EXIT));
 		unsubscribeItem.setOnAction(event -> leaveChatRoom(((RoomHolder) event.getSource()).getRoomInfo()));
 
-		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
+		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {

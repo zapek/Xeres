@@ -34,11 +34,14 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
 
 import java.util.List;
+import java.util.ResourceBundle;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 
 public final class TextInputControlUtils
 {
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
+
 	private TextInputControlUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -58,7 +61,7 @@ public final class TextInputControlUtils
 		contextMenu.getItems().addAll(createDefaultChatInputMenuItems(textInputControl));
 		if (locationClient != null)
 		{
-			var pasteId = new MenuItem(I18nUtils.getString("paste-id"));
+			var pasteId = new MenuItem(bundle.getString("paste-id"));
 			pasteId.setGraphic(new FontIcon(MaterialDesignC.CARD_ACCOUNT_DETAILS));
 			pasteId.setOnAction(event -> appendOwnId(textInputControl, locationClient));
 			contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
@@ -80,31 +83,31 @@ public final class TextInputControlUtils
 
 	private static List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
 	{
-		var undo = new MenuItem(I18nUtils.getString("undo"));
+		var undo = new MenuItem(bundle.getString("undo"));
 		undo.setGraphic(new FontIcon(MaterialDesignU.UNDO_VARIANT));
 		undo.setOnAction(event -> textInputControl.undo());
 
-		var redo = new MenuItem(I18nUtils.getString("redo"));
+		var redo = new MenuItem(bundle.getString("redo"));
 		redo.setGraphic(new FontIcon(MaterialDesignR.REDO_VARIANT));
 		redo.setOnAction(event -> textInputControl.redo());
 
-		var cut = new MenuItem(I18nUtils.getString("cut"));
+		var cut = new MenuItem(bundle.getString("cut"));
 		cut.setGraphic(new FontIcon(MaterialDesignC.CONTENT_CUT));
 		cut.setOnAction(event -> textInputControl.cut());
 
-		var copy = new MenuItem(I18nUtils.getString("copy"));
+		var copy = new MenuItem(bundle.getString("copy"));
 		copy.setGraphic(new FontIcon(MaterialDesignC.CONTENT_COPY));
 		copy.setOnAction(event -> textInputControl.copy());
 
-		var paste = new MenuItem(I18nUtils.getString("paste"));
+		var paste = new MenuItem(bundle.getString("paste"));
 		paste.setGraphic(new FontIcon(MaterialDesignC.CONTENT_PASTE));
 		paste.setOnAction(event -> textInputControl.paste());
 
-		var delete = new MenuItem(I18nUtils.getString("delete"));
+		var delete = new MenuItem(bundle.getString("delete"));
 		delete.setGraphic(new FontIcon(MaterialDesignT.TRASH_CAN));
 		delete.setOnAction(event -> textInputControl.deleteText(textInputControl.getSelection()));
 
-		var selectAll = new MenuItem(I18nUtils.getString("select-all"));
+		var selectAll = new MenuItem(bundle.getString("select-all"));
 		selectAll.setGraphic(new FontIcon(MaterialDesignS.SELECT_ALL));
 		selectAll.setOnAction(event -> textInputControl.selectAll());
 

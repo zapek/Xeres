@@ -23,6 +23,7 @@ import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
 
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 public enum FileType implements I18nEnum
@@ -300,6 +301,8 @@ public enum FileType implements I18nEnum
 
 	private final Set<String> extensions;
 
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
 	FileType(Set<String> extensions)
 	{
 		this.extensions = extensions;
@@ -313,7 +316,7 @@ public enum FileType implements I18nEnum
 	@Override
 	public String toString()
 	{
-		return I18nUtils.getString(getMessageKey(this));
+		return bundle.getString(getMessageKey(this));
 	}
 
 	public static FileType getTypeByExtension(String filename)

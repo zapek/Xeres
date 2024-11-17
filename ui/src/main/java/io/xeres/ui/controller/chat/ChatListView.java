@@ -55,10 +55,7 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static io.xeres.ui.support.chat.ChatAction.Type.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -84,6 +81,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final UriAction uriAction;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
+	private final ResourceBundle bundle = I18nUtils.getBundle();
 
 	public enum AddUserOrigin
 	{
@@ -344,7 +342,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private void createUsersListViewContextMenu(Node view)
 	{
-		var infoItem = new MenuItem(I18nUtils.getString("chat.room.user-menu"));
+		var infoItem = new MenuItem(bundle.getString("chat.room.user-menu"));
 		infoItem.setId(INFO_MENU_ID);
 		infoItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_BOX));
 		infoItem.setOnAction(event -> {

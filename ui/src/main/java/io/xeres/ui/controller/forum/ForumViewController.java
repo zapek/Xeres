@@ -20,7 +20,6 @@
 package io.xeres.ui.controller.forum;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.message.forum.ForumGroup;
@@ -309,15 +308,15 @@ public class ForumViewController implements Controller
 
 	private void createForumTreeContextMenu()
 	{
-		var subscribeItem = new MenuItem(I18nUtils.getString("forum.tree.subscribe"));
+		var subscribeItem = new MenuItem(bundle.getString("forum.tree.subscribe"));
 		subscribeItem.setId(SUBSCRIBE_MENU_ID);
 		subscribeItem.setOnAction(event -> subscribeToForumGroup((ForumGroup) event.getSource()));
 
-		var unsubscribeItem = new MenuItem(I18nUtils.getString("forum.tree.unsubscribe"));
+		var unsubscribeItem = new MenuItem(bundle.getString("forum.tree.unsubscribe"));
 		unsubscribeItem.setId(UNSUBSCRIBE_MENU_ID);
 		unsubscribeItem.setOnAction(event -> unsubscribeFromForumGroups((ForumGroup) event.getSource()));
 
-		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
+		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
@@ -348,7 +347,7 @@ public class ForumViewController implements Controller
 		replyItem.setGraphic(new FontIcon(MaterialDesignR.REPLY));
 		replyItem.setOnAction(event -> newForumPost(true));
 
-		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
+		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {

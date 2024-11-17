@@ -29,6 +29,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
 
 import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
@@ -40,13 +41,15 @@ class ChatUserCell extends ListCell<ChatRoomUser>
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
 
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
 	public ChatUserCell(GeneralClient generalClient, ImageCache imageCache)
 	{
 		super();
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		TooltipUtils.install(this,
-				() -> MessageFormat.format(I18nUtils.getString("chat.room.user-info"), super.getItem().nickname(), super.getItem().gxsId()),
+				() -> MessageFormat.format(bundle.getString("chat.room.user-info"), super.getItem().nickname(), super.getItem().gxsId()),
 				() -> new ImageView(((ImageView) super.getGraphic()).getImage()));
 	}
 

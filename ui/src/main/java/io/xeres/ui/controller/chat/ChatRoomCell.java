@@ -27,9 +27,12 @@ import javafx.scene.control.TreeCell;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
 public class ChatRoomCell extends TreeCell<RoomHolder>
 {
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
 	public ChatRoomCell()
 	{
 		super();
@@ -40,10 +43,10 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 					{
 						return null;
 					}
-					return MessageFormat.format(I18nUtils.getString("chat.room.info"),
-							(StringUtils.isNotBlank(roomInfo.getTopic()) ? roomInfo.getTopic() : I18nUtils.getString("chat.room.none")),
+					return MessageFormat.format(bundle.getString("chat.room.info"),
+							(StringUtils.isNotBlank(roomInfo.getTopic()) ? roomInfo.getTopic() : bundle.getString("chat.room.none")),
 							roomInfo.getCount(),
-							String.join(", ", roomInfo.getRoomType() == RoomType.PRIVATE ? I18nUtils.getString("chat.room.private") : I18nUtils.getString("chat.room.public"), roomInfo.isSigned() ? I18nUtils.getString("chat.room.signed-only") : I18nUtils.getString("chat.room.anonymous-allowed")),
+							String.join(", ", roomInfo.getRoomType() == RoomType.PRIVATE ? bundle.getString("chat.room.private") : bundle.getString("chat.room.public"), roomInfo.isSigned() ? bundle.getString("chat.room.signed-only") : bundle.getString("chat.room.anonymous-allowed")),
 							Id.toString(getItem().getRoomInfo().getId()));
 				}
 				, null);

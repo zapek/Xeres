@@ -22,14 +22,18 @@ package io.xeres.common.message.chat;
 import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
 
+import java.util.ResourceBundle;
+
 public enum RoomType implements I18nEnum
 {
 	PRIVATE,
 	PUBLIC;
 
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
 	@Override
 	public String toString()
 	{
-		return I18nUtils.getString(getMessageKey(this));
+		return bundle.getString(getMessageKey(this));
 	}
 }

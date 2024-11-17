@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FILENAME;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
@@ -62,17 +63,19 @@ public class ContentImage implements Content
 {
 	private static final ContextMenu contextMenu;
 
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
+
 	static
 	{
-		var viewMenuItem = new MenuItem(I18nUtils.getString("view"));
+		var viewMenuItem = new MenuItem(bundle.getString("view"));
 		viewMenuItem.setGraphic(new FontIcon(MaterialDesignI.IMAGE));
 		viewMenuItem.setOnAction(ContentImage::view);
 
-		var copyMenuItem = new MenuItem(I18nUtils.getString("copy"));
+		var copyMenuItem = new MenuItem(bundle.getString("copy"));
 		copyMenuItem.setGraphic(new FontIcon(MaterialDesignC.CONTENT_COPY));
 		copyMenuItem.setOnAction(ContentImage::copyToClipboard);
 
-		var saveAsMenuItem = new MenuItem(I18nUtils.getString("save-as"));
+		var saveAsMenuItem = new MenuItem(bundle.getString("save-as"));
 		saveAsMenuItem.setGraphic(new FontIcon(MaterialDesignC.CONTENT_SAVE));
 		saveAsMenuItem.setOnAction(ContentImage::saveAs);
 
@@ -124,7 +127,7 @@ public class ContentImage implements Content
 		}
 
 		var fileChooser = new FileChooser();
-		fileChooser.setTitle(I18nUtils.getString("file-requester.save-image-title"));
+		fileChooser.setTitle(bundle.getString("file-requester.save-image-title"));
 		fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(saveFormat.format(), saveFormat.extensions()));
 		fileChooser.setInitialFileName("Image_" + DATE_TIME_FILENAME.format(Instant.now()) + saveFormat.getPrimaryExtension());

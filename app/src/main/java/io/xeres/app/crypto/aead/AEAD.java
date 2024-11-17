@@ -36,6 +36,10 @@ import java.util.Objects;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 
+/**
+ * Authenticated Encryption with Associated Data.
+ * This implementation uses Encrypt-then-MAC (EtM).
+ */
 public final class AEAD
 {
 	private static final String ENCRYPTION_TRANSFORMATION_CHACHA20_POLY1305 = "ChaCha20-Poly1305";

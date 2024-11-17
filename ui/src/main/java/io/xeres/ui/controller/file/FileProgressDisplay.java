@@ -7,6 +7,8 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.util.ResourceBundle;
+
 public class FileProgressDisplay
 {
 	public enum State implements I18nEnum
@@ -16,10 +18,12 @@ public class FileProgressDisplay
 		REMOVING,
 		DONE;
 
+		private final ResourceBundle bundle = I18nUtils.getBundle();
+
 		@Override
 		public String toString()
 		{
-			return I18nUtils.getString(getMessageKey(this));
+			return bundle.getString(getMessageKey(this));
 		}
 	}
 

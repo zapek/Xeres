@@ -168,7 +168,7 @@ public class FileResultView extends Tab
 			}
 		});
 
-		var copyLinkItem = new MenuItem(I18nUtils.getString("copy-link"));
+		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
@@ -198,7 +198,10 @@ public class FileResultView extends Tab
 					double finalD = d;
 					Platform.runLater(() -> progressBar.setProgress(finalD));
 				}
-				Platform.runLater(() -> progressBar.setProgress(1.0));
+				Platform.runLater(() -> {
+					progressBar.setProgress(1.0);
+					filesTableView.setPlaceholder(new Label("No results found"));
+				});
 				return null;
 			}
 		};

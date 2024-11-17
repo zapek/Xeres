@@ -410,7 +410,10 @@ public class ContactViewController implements Controller
 		// updated.
 		sortedList.addListener((InvalidationListener) c -> {
 			log.debug("Sorting invalidated, selected index: {}", contactTreeTableView.getSelectionModel().getSelectedIndex());
-			contactListLocked = true;
+			if (!sortedList.isEmpty()) // Empty lists don't get passed on to filtered list and would get locked forever
+			{
+				contactListLocked = true;
+			}
 			selectedItem = contactTreeTableView.getSelectionModel().getSelectedItem();
 		});
 
@@ -1007,11 +1010,22 @@ public class ContactViewController implements Controller
 
 	private String getKeyInformation(ProfileKeyAttributes profileKeyAttributes)
 	{
-		return MessageFormat.format(bundle.getString("contact-view.information.key-information"),
-				profileKeyAttributes.version(),
-				PublicKeyUtils.getKeyAlgorithmName(profileKeyAttributes.keyAlgorithm()),
-				profileKeyAttributes.keyBits(),
-				PublicKeyUtils.getSignatureHash(profileKeyAttributes.signatureHash()));
+		// EC keys don't return the length for some reason
+		if (profileKeyAttributes.keyBits() > 0)
+		{
+			return MessageFormat.format(bundle.getString("contact-view.information.key-information-with-length"),
+					profileKeyAttributes.version(),
+					PublicKeyUtils.getKeyAlgorithmName(profileKeyAttributes.keyAlgorithm()),
+					profileKeyAttributes.keyBits(),
+					PublicKeyUtils.getSignatureHash(profileKeyAttributes.signatureHash()));
+		}
+		else
+		{
+			return MessageFormat.format(bundle.getString("contact-view.information.key-information"),
+					profileKeyAttributes.version(),
+					PublicKeyUtils.getKeyAlgorithmName(profileKeyAttributes.keyAlgorithm()),
+					PublicKeyUtils.getSignatureHash(profileKeyAttributes.signatureHash()));
+		}
 	}
 
 	private void showBadges(Profile profile)

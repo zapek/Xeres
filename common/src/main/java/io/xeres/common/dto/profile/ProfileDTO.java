@@ -49,7 +49,7 @@ public record ProfileDTO(
 
 		Instant created,
 
-		@Size(min = ProfileFingerprint.LENGTH, max = ProfileFingerprint.LENGTH)
+		@Size(min = ProfileFingerprint.V4_LENGTH, max = ProfileFingerprint.LENGTH)
 		@Schema(example = "nhgF6ITwm/LLqchhpwJ91KFfAxg=")
 		byte[] pgpFingerprint,
 

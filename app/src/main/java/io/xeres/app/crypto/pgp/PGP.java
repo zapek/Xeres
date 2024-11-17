@@ -26,6 +26,7 @@ import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.PublicKeyPacket;
 import org.bouncycastle.bcpg.SignaturePacket;
 import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.operator.PGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.*;
 
 import java.io.IOException;
@@ -33,13 +34,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
 import java.security.SignatureException;
 import java.util.Date;
 import java.util.List;
 
-import static org.bouncycastle.bcpg.HashAlgorithmTags.SHA1;
-import static org.bouncycastle.bcpg.HashAlgorithmTags.SHA512;
+import static io.xeres.common.Features.EXPERIMENTAL_EC;
+import static org.bouncycastle.bcpg.HashAlgorithmTags.*;
 import static org.bouncycastle.bcpg.PublicKeyAlgorithmTags.DSA;
+import static org.bouncycastle.bcpg.PublicKeyAlgorithmTags.Ed25519;
 import static org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags.AES_128;
 import static org.bouncycastle.openpgp.PGPPublicKey.RSA_GENERAL;
 import static org.bouncycastle.openpgp.PGPSignature.BINARY_DOCUMENT;
@@ -189,22 +192,42 @@ public final class PGP
 	 */
 	public static PGPSecretKey generateSecretKey(String id, String suffix, int size) throws PGPException
 	{
-		var keyPair = RSA.generateKeys(size);
+		KeyPair keyPair;
 
-		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(PublicKeyPacket.VERSION_4, RSA_GENERAL, keyPair, new Date());
+		if (EXPERIMENTAL_EC)
+		{
+			keyPair = io.xeres.app.crypto.ec.Ed25519.generateKeys(size);
+		}
+		else
+		{
+			keyPair = RSA.generateKeys(size);
+		}
+
+		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(EXPERIMENTAL_EC ? PublicKeyPacket.VERSION_6 : PublicKeyPacket.VERSION_4, EXPERIMENTAL_EC ? Ed25519 : RSA_GENERAL, keyPair, new Date());
 
 		return encryptKeyPair(pgpKeyPair, suffix != null ? (id + " " + suffix) : id);
 	}
 
 	public static PGPSecretKey encryptKeyPair(PGPKeyPair pgpKeyPair, String id) throws PGPException
 	{
-		var sha1Calc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
+		var shaCalc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
+		var signer = new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256);
+		var encryptor = new JcePBESecretKeyEncryptorBuilder(AES_128, shaCalc).setSecureRandom(SecureRandomUtils.getGenerator()).build("".toCharArray());
 
-		return new PGPSecretKey(DEFAULT_CERTIFICATION, pgpKeyPair, id, sha1Calc, null, null,
-				new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256),
-				new JcePBESecretKeyEncryptorBuilder(AES_128, sha1Calc)
-						.setSecureRandom(SecureRandomUtils.getGenerator())
-						.build("".toCharArray()));
+		return new PGPSecretKey(pgpKeyPair.getPrivateKey(), certifiedPublicKey(pgpKeyPair, id, signer), shaCalc, true, encryptor);
+	}
+
+	private static PGPPublicKey certifiedPublicKey(PGPKeyPair keyPair, String id, PGPContentSignerBuilder certificationSignerBuilder) throws PGPException
+	{
+		var signatureGenerator = new PGPSignatureGenerator(certificationSignerBuilder, keyPair.getPublicKey(), EXPERIMENTAL_EC ? SignaturePacket.VERSION_6 : SignaturePacket.VERSION_4);
+
+		signatureGenerator.init(DEFAULT_CERTIFICATION, keyPair.getPrivateKey());
+
+		signatureGenerator.setHashedSubpackets(null);
+		signatureGenerator.setUnhashedSubpackets(null);
+
+		var certification = signatureGenerator.generateCertification(id, keyPair.getPublicKey());
+		return PGPPublicKey.addCertification(keyPair.getPublicKey(), id, certification);
 	}
 
 	/**
@@ -227,7 +250,7 @@ public final class PGP
 		var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
 				.build("".toCharArray()));
 
-		var signatureGenerator = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), SignaturePacket.VERSION_4);
+		var signatureGenerator = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), EXPERIMENTAL_EC ? SignaturePacket.VERSION_6 : SignaturePacket.VERSION_4);
 
 		signatureGenerator.init(BINARY_DOCUMENT, pgpPrivateKey);
 
@@ -303,17 +326,17 @@ public final class PGP
 			throw new SignatureException("Signature is not of BINARY_DOCUMENT (" + pgpSignature.getSignatureType() + ")");
 		}
 
-		if (pgpSignature.getVersion() != 4)
+		if (pgpSignature.getVersion() != 4 && pgpSignature.getVersion() != 6)
 		{
-			throw new SignatureException("Signature is not PGP version 4 (" + pgpSignature.getVersion() + ")");
+			throw new SignatureException("Signature is not PGP version 4 or 6 (" + pgpSignature.getVersion() + ")");
 		}
 
-		if (!List.of(RSA_GENERAL, 3 /* RSA_SIGN */, DSA).contains(pgpSignature.getKeyAlgorithm()))
+		if (!List.of(RSA_GENERAL, 3 /* RSA_SIGN */, DSA, Ed25519).contains(pgpSignature.getKeyAlgorithm()))
 		{
-			throw new SignatureException("Signature key algorithm is not of RSA or DSA (" + pgpSignature.getSignatureType() + ")");
+			throw new SignatureException("Signature key algorithm is not of RSA, DSA or Ed25519 (" + pgpSignature.getSignatureType() + ")");
 		}
 
-		if (!List.of(SHA1, SHA256, SHA512).contains(pgpSignature.getHashAlgorithm()))
+		if (!List.of(SHA1, SHA256, SHA384, SHA512).contains(pgpSignature.getHashAlgorithm()))
 		{
 			throw new SignatureException("Signature hash algorithm is not of SHA family (" + pgpSignature.getHashAlgorithm() + ")");
 		}
@@ -328,7 +351,14 @@ public final class PGP
 	public static long getPGPIdentifierFromFingerprint(byte[] fingerprint)
 	{
 		var buf = ByteBuffer.allocate(Long.BYTES);
-		buf.put(fingerprint, 12, 8);
+		if (fingerprint.length == 20)
+		{
+			buf.put(fingerprint, 12, 8);
+		}
+		else
+		{
+			buf.put(fingerprint, 0, 8);
+		}
 		buf.flip();
 		return buf.getLong();
 	}

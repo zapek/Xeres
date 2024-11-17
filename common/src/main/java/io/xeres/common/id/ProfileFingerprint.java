@@ -28,7 +28,8 @@ import java.util.Objects;
 @Embeddable
 public class ProfileFingerprint implements Identifier
 {
-	public static final int LENGTH = 20;
+	public static final int V4_LENGTH = 20;
+	public static final int LENGTH = 32;
 
 	private byte[] identifier;
 
@@ -40,9 +41,9 @@ public class ProfileFingerprint implements Identifier
 	public ProfileFingerprint(byte[] identifier)
 	{
 		Objects.requireNonNull(identifier, "Null identifier");
-		if (identifier.length != LENGTH)
+		if (identifier.length != V4_LENGTH && identifier.length != LENGTH)
 		{
-			throw new IllegalArgumentException("Bad identifier length, expected " + LENGTH + ", got " + identifier.length);
+			throw new IllegalArgumentException("Bad identifier length, expected " + V4_LENGTH + " or " + LENGTH + ", got " + identifier.length);
 		}
 		this.identifier = identifier;
 	}
@@ -63,7 +64,7 @@ public class ProfileFingerprint implements Identifier
 	@Override
 	public int getLength()
 	{
-		return LENGTH;
+		return identifier.length;
 	}
 
 	@Override
@@ -92,8 +93,9 @@ public class ProfileFingerprint implements Identifier
 	{
 		var s = Id.toString(identifier);
 		var out = new StringBuilder();
+		var length = identifier.length * 2;
 
-		for (var i = 0; i < 40; i += 4)
+		for (var i = 0; i < length; i += 4)
 		{
 			if (i > 0)
 			{

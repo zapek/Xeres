@@ -27,6 +27,7 @@ import io.xeres.app.service.notification.availability.AvailabilityNotificationSe
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
+import io.xeres.app.service.notification.file.FileTrendNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.springframework.http.MediaType;
@@ -46,15 +47,17 @@ public class NotificationController
 	private final ForumNotificationService forumNotificationService;
 	private final FileNotificationService fileNotificationService;
 	private final FileSearchNotificationService fileSearchNotificationService;
+	private final FileTrendNotificationService fileTrendNotificationService;
 	private final ContactNotificationService contactNotificationService;
 	private final AvailabilityNotificationService availabilityNotificationService;
 
-	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, ContactNotificationService contactNotificationService, AvailabilityNotificationService availabilityNotificationService)
+	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, ContactNotificationService contactNotificationService, AvailabilityNotificationService availabilityNotificationService)
 	{
 		this.statusNotificationService = statusNotificationService;
 		this.forumNotificationService = forumNotificationService;
 		this.fileNotificationService = fileNotificationService;
 		this.fileSearchNotificationService = fileSearchNotificationService;
+		this.fileTrendNotificationService = fileTrendNotificationService;
 		this.contactNotificationService = contactNotificationService;
 		this.availabilityNotificationService = availabilityNotificationService;
 	}
@@ -89,6 +92,14 @@ public class NotificationController
 	public SseEmitter setupFileSearchNotification()
 	{
 		return fileSearchNotificationService.addClient();
+	}
+
+	@GetMapping("/file-trend")
+	@Operation(summary = "Subscribe to file trend notifications")
+	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	public SseEmitter setupFileTrendNotification()
+	{
+		return fileTrendNotificationService.addClient();
 	}
 
 	@GetMapping("/contact")

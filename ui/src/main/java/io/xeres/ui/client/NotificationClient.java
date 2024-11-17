@@ -24,6 +24,7 @@ import io.xeres.common.rest.notification.availability.AvailabilityNotification;
 import io.xeres.common.rest.notification.contact.ContactNotification;
 import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
+import io.xeres.common.rest.notification.file.FileTrendNotification;
 import io.xeres.common.rest.notification.forum.ForumNotification;
 import io.xeres.common.rest.notification.status.StatusNotification;
 import io.xeres.common.util.RemoteUtils;
@@ -90,6 +91,16 @@ public class NotificationClient
 	{
 		return webClient.get()
 				.uri("/file-search")
+				.retrieve()
+				.bodyToFlux(new ParameterizedTypeReference<>()
+				{
+				});
+	}
+
+	public Flux<ServerSentEvent<FileTrendNotification>> getFileTrendNotifications()
+	{
+		return webClient.get()
+				.uri("/file-trend")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

@@ -46,6 +46,9 @@ public class FileMainController implements Controller
 	@FXML
 	private FileUploadViewController fileUploadViewController;
 
+	@FXML
+	private FileTrendViewController fileTrendViewController;
+
 	@Override
 	public void initialize()
 	{
@@ -72,6 +75,7 @@ public class FileMainController implements Controller
 			case "search" -> fileSearchViewController;
 			case "downloads" -> fileDownloadViewController;
 			case "uploads" -> fileUploadViewController;
+			case "trends" -> fileTrendViewController;
 			default -> throw new IllegalStateException("Unexpected value: " + id);
 		};
 	}

@@ -19,8 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.file.FileMainController">
@@ -43,6 +42,12 @@
                     <FontIcon iconLiteral="mdi2u-upload"/>
                 </graphic>
                 <fx:include fx:id="fileUploadView" source="upload.fxml"/>
+            </Tab>
+            <Tab fx:id="trends" text="Trends">
+                <graphic>
+                    <FontIcon iconLiteral="mdi2t-trending-up"/>
+                </graphic>
+                <fx:include fx:id="fileTrendView" source="trend.fxml"/>
             </Tab>
         </TabPane>
     </AnchorPane>

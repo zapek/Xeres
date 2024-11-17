@@ -24,6 +24,7 @@ import io.xeres.app.service.notification.availability.AvailabilityNotificationSe
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
+import io.xeres.app.service.notification.file.FileTrendNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.junit.jupiter.api.Test;
@@ -62,6 +63,9 @@ class NotificationControllerTest extends AbstractControllerTest
 
 	@MockBean
 	private AvailabilityNotificationService availabilityNotificationService;
+
+	@MockBean
+	private FileTrendNotificationService fileTrendNotificationService;
 
 	@Autowired
 	public MockMvc mvc;

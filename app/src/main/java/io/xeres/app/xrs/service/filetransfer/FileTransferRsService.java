@@ -31,6 +31,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
+import io.xeres.app.service.notification.file.FileTrendNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
@@ -72,6 +73,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final FileService fileService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final FileSearchNotificationService fileSearchNotificationService;
+	private final FileTrendNotificationService fileTrendNotificationService;
 	private final RsServiceRegistry rsServiceRegistry;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final LocationService locationService;
@@ -88,13 +90,14 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private final Map<Sha1Sum, Sha1Sum> encryptedHashes = new ConcurrentHashMap<>();
 
-	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, FileDownloadRepository fileDownloadRepository)
+	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, FileDownloadRepository fileDownloadRepository)
 	{
 		super(rsServiceRegistry);
 		this.fileService = fileService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.fileSearchNotificationService = fileSearchNotificationService;
 		this.rsServiceRegistry = rsServiceRegistry;
+		this.fileTrendNotificationService = fileTrendNotificationService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -280,6 +283,12 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Override
+	public void receiveSearchRequestString(String keywords)
+	{
+		fileTrendNotificationService.receivedSearch(keywords);
+	}
+
+	@Override
 	public void receiveSearchResult(int requestId, TurtleSearchResultItem item)
 	{
 		if (item instanceof TurtleFileSearchResultItem fileItem)
@@ -362,6 +371,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	public void shutdown()
 	{
 		fileSearchNotificationService.shutdown();
+		fileTrendNotificationService.shutdown();
 		if (fileTransferManagerThread != null)
 		{
 			log.info("Stopping FileTransferManager...");

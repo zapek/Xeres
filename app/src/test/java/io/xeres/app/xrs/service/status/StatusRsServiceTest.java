@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.status;
 
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
@@ -45,7 +46,10 @@ class StatusRsServiceTest
 	private LocationService locationService;
 
 	@Mock
-	AvailabilityNotificationService availabilityNotificationService;
+	private AvailabilityNotificationService availabilityNotificationService;
+
+	@Mock
+	private DatabaseSessionManager databaseSessionManager;
 
 	@InjectMocks
 	private StatusRsService statusRsService;

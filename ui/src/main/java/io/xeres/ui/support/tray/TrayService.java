@@ -24,7 +24,7 @@ import io.xeres.common.location.Availability;
 import io.xeres.common.tray.TrayNotificationType;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.NotificationClient;
-import io.xeres.ui.properties.UiClientProperties;
+import io.xeres.ui.support.notification.NotificationSettings;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
@@ -58,20 +58,20 @@ public class TrayService
 
 	private String tooltipTitle;
 
-	private final UiClientProperties uiClientProperties;
 	private final WindowManager windowManager;
 	private final NotificationClient notificationClient;
 	private final ConfigClient configClient;
+	private final NotificationSettings notificationSettings;
 	private final ResourceBundle bundle;
 
 	private Disposable availabilityNotificationDisposable;
 
-	public TrayService(UiClientProperties uiClientProperties, WindowManager windowManager, NotificationClient notificationClient, ConfigClient configClient, ResourceBundle bundle)
+	public TrayService(WindowManager windowManager, NotificationClient notificationClient, ConfigClient configClient, NotificationSettings notificationSettings, ResourceBundle bundle)
 	{
-		this.uiClientProperties = uiClientProperties;
 		this.windowManager = windowManager;
 		this.notificationClient = notificationClient;
 		this.configClient = configClient;
+		this.notificationSettings = notificationSettings;
 		this.bundle = bundle;
 	}
 
@@ -356,9 +356,9 @@ public class TrayService
 	{
 		return switch (type)
 		{
-			case BROADCAST -> true;
-			case CONNECTION -> uiClientProperties.isConnectionNotifications();
-			case DISCOVERY -> uiClientProperties.isBroadcastDiscoveryNotifications();
+			case BROADCAST -> notificationSettings.isBroadcastsEnabled();
+			case CONNECTION -> notificationSettings.isConnectionEnabled();
+			case DISCOVERY -> notificationSettings.isDiscoveryEnabled();
 		};
 	}
 

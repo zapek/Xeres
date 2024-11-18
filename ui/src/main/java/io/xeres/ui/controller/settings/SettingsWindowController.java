@@ -70,6 +70,7 @@ public class SettingsWindowController implements WindowController
 
 		listView.getItems().addAll(
 				new SettingsGroup(bundle.getString("settings.general"), createPreferenceGraphic("mdi2c-cog"), SettingsGeneralController.class),
+				new SettingsGroup(bundle.getString("settings.notifications"), createPreferenceGraphic("mdi2m-message-alert"), SettingsNotificationController.class),
 				new SettingsGroup(bundle.getString("settings.network"), createPreferenceGraphic("mdi2s-server-network"), SettingsNetworksController.class),
 				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("mdi2b-briefcase-download"), SettingsTransferController.class),
 				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("mdi2e-earth"), SettingsRemoteController.class)

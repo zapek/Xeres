@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2019-2024 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import atlantafx.base.controls.Card?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<ScrollPane fitToWidth="true" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNotificationController">
+    <Card>
+        <header>
+            <Label text="Notifications" styleClass="title-4"/>
+        </header>
+        <body>
+            <GridPane hgap="8" vgap="8">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="SOMETIMES"/>
+                </rowConstraints>
+                <CheckBox fx:id="showConnections" text="%settings.notifications.show-connections" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.notifications.show-connections.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <CheckBox fx:id="showBroadcasts" text="%settings.notifications.show-broadcasts" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.notifications.show-broadcasts.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <CheckBox fx:id="showDiscovery" text="%settings.notifications.show-discovery" GridPane.rowIndex="2" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.notifications.show-discovery.tip"/>
+                    </tooltip>
+                </CheckBox>
+            </GridPane>
+        </body>
+    </Card>
+</ScrollPane>

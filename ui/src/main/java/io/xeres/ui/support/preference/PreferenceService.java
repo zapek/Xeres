@@ -41,6 +41,7 @@ public class PreferenceService
 	public static final String CONTACTS = "Contacts";
 	public static final String CHAT_ROOMS = "Chatrooms";
 	public static final String FORUMS = "Forums";
+	public static final String NOTIFICATIONS = "Notifications";
 
 	private LocationId locationId;
 

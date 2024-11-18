@@ -43,7 +43,7 @@
                 </graphic>
                 <fx:include fx:id="fileUploadView" source="upload.fxml"/>
             </Tab>
-            <Tab fx:id="trends" text="Trends">
+            <Tab fx:id="trends" text="%search.main.trends">
                 <graphic>
                     <FontIcon iconLiteral="mdi2t-trending-up"/>
                 </graphic>

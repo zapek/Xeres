@@ -89,37 +89,37 @@
                     </HBox.margin>
                     <VBox>
                         <Label fx:id="nameLabel" style="-fx-font-size: 2.5em"/>
-                        <Label fx:id="badgeOwn" text="Own" styleClass="accent" managed="false" visible="false">
+                        <Label fx:id="badgeOwn" text="%contact-view.badge.own" styleClass="accent" managed="false" visible="false">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2l-label"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.own"/>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.own.tip"/>
                             </tooltip>
                         </Label>
-                        <Label fx:id="badgePartial" text="Partial" styleClass="warning" managed="false" visible="false">
+                        <Label fx:id="badgePartial" text="%contact-view.badge.partial" styleClass="warning" managed="false" visible="false">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2l-label"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.partial"/>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.partial.tip"/>
                             </tooltip>
                         </Label>
-                        <Label fx:id="badgeAccepted" text="Accepted" managed="false" visible="false">
+                        <Label fx:id="badgeAccepted" text="%contact-view.badge.accepted" managed="false" visible="false">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2l-label"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.accepted"/>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.accepted.tip"/>
                             </tooltip>
                         </Label>
-                        <Label fx:id="badgeUnvalidated" text="Not validated yet" styleClass="warning" managed="false" visible="false">
+                        <Label fx:id="badgeUnvalidated" text="%contact-view.badge.not-validated" styleClass="warning" managed="false" visible="false">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2l-label"/>
                             </graphic>
                             <tooltip>
                                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
-                                         text="%contact-view.badge.not-validated"/>
+                                         text="%contact-view.badge.not-validated.tip"/>
                             </tooltip>
                         </Label>
                     </VBox>
@@ -190,7 +190,6 @@
                         </columns>
                     </TableView>
                 </VBox>
-
             </VBox>
         </VBox>
     </SplitPane>

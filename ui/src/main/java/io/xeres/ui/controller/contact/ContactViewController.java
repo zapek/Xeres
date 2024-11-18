@@ -420,11 +420,9 @@ public class ContactViewController implements Controller
 		// Then we restore the selection after filteredList has been
 		// updated.
 		filteredList.addListener((ListChangeListener<? super TreeItem<Contact>>) c -> {
-			// XXX: actually, the selection might be relevant! Check if 'c' changes what is currently being selected?
-
 			log.debug("FilteredList changed, actions: {}", c);
 
-			// XXX: if we don't call this, the selection is lost
+			// We must call this otherwise the selection is lost
 			contactTreeTableView.getSelectionModel().select(selectedItem);
 
 			contactListLocked = false;
@@ -894,12 +892,6 @@ public class ContactViewController implements Controller
 			return;
 		}
 
-		// Prevent re-displaying the same contact when a different contact was added
-//		if (displayedContact != null && contact.getValue().equals(displayedContact.getValue()))
-//		{
-//			return;
-//		}
-
 		displayedContact = contact;
 
 		hideBadges();
@@ -1175,8 +1167,6 @@ public class ContactViewController implements Controller
 			return location != null;
 		});
 		xContextMenu.addToNode(locationTableView);
-
-		// XXX: add connect now?
 	}
 
 	private MenuItem createStateMenuItem(Availability availability)

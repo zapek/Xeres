@@ -4,5 +4,5 @@ __   __
  /   \ / _ \ '__/ _ \/ __|
 / /^\ \  __/ | |  __/\__ \
 \/   \/\___|_|  \___||___/
-:: Uncensorable Peer-to-Peer ::
+:: Uncensorable Friend-to-Friend ::
 :: https://xeres.io ::

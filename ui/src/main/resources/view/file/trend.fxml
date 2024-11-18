@@ -33,12 +33,12 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
         </columnResizePolicy>
         <placeholder>
-            <Label text="No trends yet"/>
+            <Label text="%trends.none"/>
         </placeholder>
         <columns>
-            <TableColumn fx:id="tableTerms" minWidth="100.0" prefWidth="180.0" text="Terms" sortable="false"/>
-            <TableColumn fx:id="tableFrom" prefWidth="120.0" text="From" sortable="false"/>
-            <TableColumn fx:id="tableTime" prefWidth="100.0" text="Time" sortable="false"/>
+            <TableColumn fx:id="tableTerms" minWidth="100.0" prefWidth="180.0" text="%trends.list.terms" sortable="false"/>
+            <TableColumn fx:id="tableFrom" prefWidth="120.0" text="%trends.list.from" sortable="false"/>
+            <TableColumn fx:id="tableTime" prefWidth="100.0" text="%trends.list.time" sortable="false"/>
         </columns>
     </TableView>
 </VBox>

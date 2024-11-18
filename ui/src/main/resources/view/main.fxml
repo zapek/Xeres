@@ -150,12 +150,12 @@
                             <FontIcon iconLiteral="mdi2r-radio-tower"/>
                         </graphic>
                     </MenuItem>
-                    <MenuItem fx:id="showSharesWindow" text="Configure shares">
+                    <MenuItem fx:id="showSharesWindow" text="%main.menu.shares">
                         <graphic>
                             <FontIcon iconLiteral="mdi2f-folder-multiple"/>
                         </graphic>
                     </MenuItem>
-                    <MenuItem fx:id="statistics" mnemonicParsing="false" text="Show statistics">
+                    <MenuItem fx:id="statistics" mnemonicParsing="false" text="%main.menu.statistics">
                         <graphic>
                             <FontIcon iconLiteral="mdi2c-chart-line"/>
                         </graphic>
@@ -176,7 +176,7 @@
                         </MenuItem>
                         <SeparatorMenuItem fx:id="debugSeparator" mnemonicParsing="false" visible="false"/>
                         <Menu fx:id="debug" text="_Debug" visible="false">
-                            <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="%main.menu.tools.web-interface">
+                            <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="Web Interface">
                                 <graphic>
                                     <FontIcon iconLiteral="mdi2w-web"/>
                                 </graphic>

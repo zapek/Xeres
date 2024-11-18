@@ -82,7 +82,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	/**
 	 * Time between checks of normal tunnels.
 	 */
-	private static final Duration REGULAR_TUNNELS_DIGGING_TIME = Duration.ofSeconds(300);
+	private static final Duration REGULAR_TUNNELS_DIGGING_TIME = Duration.ofMinutes(5);
 
 	/**
 	 * Time between tunnels cleanup.
@@ -116,12 +116,12 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	/**
 	 * Lifetime of search requests in the cache.
 	 */
-	private static final Duration SEARCH_REQUEST_LIFETIME = Duration.ofSeconds(600);
+	private static final Duration SEARCH_REQUEST_LIFETIME = Duration.ofMinutes(10);
 
 	/**
 	 * Lifetime of tunnel requests in the cache.
 	 */
-	private static final Duration TUNNEL_REQUEST_LIFETIME = Duration.ofSeconds(600);
+	private static final Duration TUNNEL_REQUEST_LIFETIME = Duration.ofMinutes(10);
 
 	/**
 	 * Lifetime of an ongoing search requests. Results coming after that time are dropped.
@@ -563,7 +563,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			return;
 		}
 
-		if (searchRequestsOrigins.size() > MAX_SEARCH_REQUEST_IN_CACHE)
+		if (searchRequestsOrigins.size() > MAX_SEARCH_REQUEST_IN_CACHE) // XXX: no expiration for those??
 		{
 			log.debug("Request cache is full. Check if a peer is flooding.");
 			return;
@@ -853,15 +853,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		// Search requests
 		searchRequestsOrigins.entrySet().removeIf(entry ->
-				Duration.between(now, entry.getValue().getLastUsed()).compareTo(SEARCH_REQUEST_LIFETIME) > 0);
+				Duration.between(entry.getValue().getLastUsed(), now).compareTo(SEARCH_REQUEST_LIFETIME) > 0);
 
 		// Tunnel requests
 		tunnelRequestsOrigins.entrySet().removeIf(entry ->
-				Duration.between(now, entry.getValue().getLastUsed()).compareTo(TUNNEL_REQUEST_LIFETIME) > 0);
+				Duration.between(entry.getValue().getLastUsed(), now).compareTo(TUNNEL_REQUEST_LIFETIME) > 0);
 
 		// Tunnels
 		localTunnels.entrySet().stream()
-				.filter(entry -> Duration.between(now, entry.getValue().getLastUsed()).compareTo(MAX_TUNNEL_IDLE_TIME) > 0)
+				.filter(entry -> Duration.between(entry.getValue().getLastUsed(), now).compareTo(MAX_TUNNEL_IDLE_TIME) > 0)
 				.forEach(entry -> closeTunnel(entry.getKey(), virtualPeersToRemove));
 
 		// Remove all the virtual peer ids from the clients

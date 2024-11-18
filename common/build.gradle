@@ -48,6 +48,7 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
+    testImplementation "com.tngtech.archunit:archunit-junit5:$archunitVersion"
     testFixturesImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }

@@ -26,10 +26,22 @@ import com.tngtech.archunit.lang.ArchRule;
 import io.xeres.ui.controller.WindowController;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.GeneralCodingRules.ACCESS_STANDARD_STREAMS;
+import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
 
 @AnalyzeClasses(packagesOf = JavaFxApplication.class, importOptions = ImportOption.DoNotIncludeTests.class)
 class UiCodingRulesTest
 {
+	@ArchTest
+	private final ArchRule noAccessToStandardStreams = noClasses()
+			.should(ACCESS_STANDARD_STREAMS)
+			.because("We use loggers");
+
+	@ArchTest
+	private final ArchRule noFieldInjection = NO_CLASSES_SHOULD_USE_FIELD_INJECTION
+			.because("Constructor injection allow detection of cyclic dependencies");
+
 	@ArchTest
 	private final ArchRule windowNaming = classes()
 			.that().implement(WindowController.class)

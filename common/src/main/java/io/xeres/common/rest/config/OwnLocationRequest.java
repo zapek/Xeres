@@ -19,13 +19,15 @@
 
 package io.xeres.common.rest.config;
 
-import io.xeres.common.dto.location.LocationConstants;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import static io.xeres.common.dto.location.LocationConstants.NAME_LENGTH_MAX;
+import static io.xeres.common.dto.location.LocationConstants.NAME_LENGTH_MIN;
+
 public record OwnLocationRequest(
 		@NotNull
-		@Size(min = LocationConstants.NAME_LENGTH_MIN, max = LocationConstants.NAME_LENGTH_MAX)
+		@Size(min = NAME_LENGTH_MIN, max = NAME_LENGTH_MAX, message = "location must be between " + NAME_LENGTH_MIN + " and " + NAME_LENGTH_MAX + " characters.")
 		String name
 )
 {

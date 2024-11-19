@@ -34,7 +34,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import static io.xeres.ui.support.util.UiUtils.getWindow;
@@ -180,13 +179,12 @@ public class AccountCreationWindowController implements WindowController
 	{
 		setInProgress(true);
 
-		var result = configClient.createProfile(profileName);
-
 		status.setText(bundle.getString("account.generation.profile-keys"));
 
-		result.doOnSuccess(unused -> Platform.runLater(() -> generateLocation(profileName, locationName)))
+		configClient.createProfile(profileName).doOnSuccess(unused -> Platform.runLater(() -> generateLocation(profileName, locationName)))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.showError(this.profileName, MessageFormat.format(bundle.getString("account.generation.profile.error"), e.getMessage()));
+					UiUtils.showAlertError(e);
+					//UiUtils.showError(this.profileName, MessageFormat.format(bundle.getString("account.generation.profile.error"), e.getMessage()));
 					setInProgress(false);
 				}))
 				.subscribe();
@@ -196,13 +194,11 @@ public class AccountCreationWindowController implements WindowController
 	{
 		setInProgress(true);
 
-		var result = configClient.createLocation(locationName);
-
 		status.setText(bundle.getString("account.generation.location-keys-and-certificate"));
 
-		result.doOnSuccess(unused -> Platform.runLater(() -> generateIdentity(profileName)))
+		configClient.createLocation(locationName).doOnSuccess(unused -> Platform.runLater(() -> generateIdentity(profileName)))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.alert(ERROR, e.getMessage());
+					UiUtils.alert(ERROR, e.getMessage()); // XXX: fix!
 					setInProgress(false);
 				}))
 				.subscribe();

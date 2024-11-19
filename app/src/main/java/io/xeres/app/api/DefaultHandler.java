@@ -26,19 +26,24 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
 import jakarta.persistence.EntityNotFoundException;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestControllerAdvice
 @OpenAPIDefinition(
@@ -50,7 +55,7 @@ import java.util.NoSuchElementException;
 				contact = @Contact(url = "https://zapek.com", name = "David Gerber", email = "dg@zapek.com")
 		)
 )
-public class DefaultHandler
+public class DefaultHandler extends ResponseEntityExceptionHandler
 {
 	private static final Logger log = LoggerFactory.getLogger(DefaultHandler.class);
 
@@ -110,6 +115,27 @@ public class DefaultHandler
 	public void handleAsyncRequestNotUsableException(AsyncRequestNotUsableException ignored)
 	{
 		// We ignore those because they happen when scrolling images (we abort useless loads when scrolling quickly).
+	}
+
+	// This one has to use an override
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request)
+	{
+		var problemDetail = handleValidationException(ex);
+		return ResponseEntity.status(status.value()).body(problemDetail);
+	}
+
+	private ProblemDetail handleValidationException(MethodArgumentNotValidException ex)
+	{
+		var details = Optional.of(ex.getDetailMessageArguments())
+				.map(args -> Arrays.stream(args)
+						.filter(msg -> !ObjectUtils.isEmpty(msg))
+						.reduce("Wrong input,", (a, b) -> a + " " + b)
+				)
+				.orElse("").toString();
+		var problemDetail = ProblemDetail.forStatusAndDetail(ex.getStatusCode(), details);
+		problemDetail.setInstance(ex.getBody().getInstance());
+		return problemDetail;
 	}
 
 	private void logError(Exception e, boolean withStackTrace)

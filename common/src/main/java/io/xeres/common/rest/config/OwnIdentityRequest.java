@@ -19,13 +19,15 @@
 
 package io.xeres.common.rest.config;
 
-import io.xeres.common.dto.identity.IdentityConstants;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import static io.xeres.common.dto.identity.IdentityConstants.NAME_LENGTH_MAX;
+import static io.xeres.common.dto.identity.IdentityConstants.NAME_LENGTH_MIN;
+
 public record OwnIdentityRequest(
 		@NotNull
-		@Size(min = IdentityConstants.NAME_LENGTH_MIN, max = IdentityConstants.NAME_LENGTH_MAX)
+		@Size(min = NAME_LENGTH_MIN, max = NAME_LENGTH_MAX)
 		String name,
 
 		boolean anonymous

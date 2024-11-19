@@ -21,6 +21,7 @@ package io.xeres.common.dto.identity;
 
 public final class IdentityConstants
 {
+	// Those must be like the profile, because the name is derived from it
 	public static final int NAME_LENGTH_MIN = 2;
 	public static final int NAME_LENGTH_MAX = 30;
 

@@ -24,7 +24,6 @@ import io.xeres.common.AppName;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.uri.UriService;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -39,7 +38,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.apache.commons.lang3.StringUtils;
@@ -74,9 +72,6 @@ public final class UiUtils
 	}
 
 	private static final PseudoClass dangerPseudoClass = PseudoClass.getPseudoClass("danger");
-
-	private static final String KEY_LISTENER = "listener";
-	private static final String KEY_POPUP = "popup";
 
 	/**
 	 * Shows a generic alert error. Is supposed to be used in {@code doOnError} in the WebClients.
@@ -116,42 +111,6 @@ public final class UiUtils
 			}
 			log.error("Error: {}", t.getMessage(), t);
 		});
-	}
-
-	public static void showError(TextField field, String error)
-	{
-		field.pseudoClassStateChanged(dangerPseudoClass, true);
-
-		var label = new Label();
-		label.setText(error);
-		label.setStyle("-fx-border-color: black; -fx-background-color: white;"); // XXX: temporary. we should probably have some proper layout somewhere
-		var popup = new Popup();
-		popup.getContent().add(label);
-		var bounds = field.getBoundsInLocal();
-		var location = field.localToScreen(bounds.getMinX(), bounds.getMaxY());
-		popup.show(field, location.getX(), location.getY());
-		popup.setAutoHide(true);
-		field.getProperties().put(KEY_POPUP, popup);
-
-		var listener = (InvalidationListener) observable -> clearError(field);
-		field.getProperties().put(KEY_LISTENER, listener);
-		field.textProperty().addListener(listener);
-	}
-
-	public static void clearError(TextField field)
-	{
-		var listener = (InvalidationListener) field.getProperties().get(KEY_LISTENER);
-		if (listener != null)
-		{
-			field.textProperty().removeListener(listener);
-		}
-
-		var popup = (Popup) field.getProperties().get(KEY_POPUP);
-		if (popup != null)
-		{
-			popup.hide();
-		}
-		field.pseudoClassStateChanged(dangerPseudoClass, false);
 	}
 
 	public static void showError(Node... nodes)

@@ -25,20 +25,18 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
-import io.xeres.common.rest.Error;
-import io.xeres.common.rest.ErrorResponseEntity;
 import jakarta.persistence.EntityNotFoundException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.UnknownHostException;
 import java.util.NoSuchElementException;
 
@@ -49,7 +47,7 @@ import java.util.NoSuchElementException;
 				version = "0.1",
 				description = "This is the REST API available for UI clients.",
 				license = @License(name = "GPL v3", url = "https://www.gnu.org/licenses/gpl-3.0.en.html"),
-				contact = @Contact(url = "https://zapek.com", name = "David Gerber", email = "info@zapek.com")
+				contact = @Contact(url = "https://zapek.com", name = "David Gerber", email = "dg@zapek.com")
 		)
 )
 public class DefaultHandler
@@ -60,43 +58,38 @@ public class DefaultHandler
 			NoSuchElementException.class,
 			EntityNotFoundException.class,
 			UnknownHostException.class})
-	public ResponseEntity<Error> handleNotFoundException(Exception e)
+	public ErrorResponse handleNotFoundException(Exception e)
 	{
-		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
-		var builder = new ErrorResponseEntity.Builder(HttpStatus.NOT_FOUND)
-				.setError(e.getMessage())
-				.setStackTrace(getStackTrace(e));
-
-		return builder.build();
+		logError(e, false);
+		return ErrorResponse.builder(e, HttpStatus.NOT_FOUND, e.getMessage())
+				.property("trace", ExceptionUtils.getStackTrace(e))
+				.build();
 	}
 
 	@ExceptionHandler(UnprocessableEntityException.class)
-	public ResponseEntity<Error> handleUnprocessableEntityException(UnprocessableEntityException e)
+	public ErrorResponse handleUnprocessableEntityException(UnprocessableEntityException e)
 	{
-		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
-		return new ErrorResponseEntity.Builder(HttpStatus.UNPROCESSABLE_ENTITY)
-				.setError(e.getMessage())
-				.setStackTrace(getStackTrace(e))
+		logError(e, false);
+		return ErrorResponse.builder(e, HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage())
+				.property("trace", ExceptionUtils.getStackTrace(e))
 				.build();
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
-	public ResponseEntity<Error> handleIllegalArgumentException(IllegalArgumentException e)
+	public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e)
 	{
-		log.error("Exception: {}, {}", e.getClass().getCanonicalName(), e.getMessage());
-		return new ErrorResponseEntity.Builder(HttpStatus.BAD_REQUEST)
-				.setError(e.getMessage())
-				.setStackTrace(getStackTrace(e))
+		logError(e, false);
+		return ErrorResponse.builder(e, HttpStatus.BAD_REQUEST, e.getMessage())
+				.property("trace", ExceptionUtils.getStackTrace(e))
 				.build();
 	}
 
-	@ExceptionHandler(RuntimeException.class)
-	public ResponseEntity<Error> handleRuntimeException(RuntimeException e)
+	@ExceptionHandler(Exception.class)
+	public ErrorResponse handleException(Exception e)
 	{
-		log.error("RuntimeException: {}, {}", e.getClass().getCanonicalName(), e.getMessage(), e);
-		return new ErrorResponseEntity.Builder(HttpStatus.INTERNAL_SERVER_ERROR)
-				.setError(e.getMessage())
-				.setStackTrace(getStackTrace(e))
+		logError(e, true);
+		return ErrorResponse.builder(e, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())
+				.property("trace", ExceptionUtils.getStackTrace(e))
 				.build();
 	}
 
@@ -119,11 +112,15 @@ public class DefaultHandler
 		// We ignore those because they happen when scrolling images (we abort useless loads when scrolling quickly).
 	}
 
-	private String getStackTrace(Exception e)
+	private void logError(Exception e, boolean withStackTrace)
 	{
-		var sw = new StringWriter();
-		var pw = new PrintWriter(sw);
-		e.printStackTrace(pw);
-		return sw.toString();
+		if (withStackTrace)
+		{
+			log.error("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+		}
+		else
+		{
+			log.error("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+		}
 	}
 }

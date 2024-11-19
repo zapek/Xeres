@@ -19,7 +19,8 @@
 
 package io.xeres.ui.support.util;
 
-import io.xeres.common.rest.ErrorResponseEntity;
+import atlantafx.base.theme.Styles;
+import io.xeres.common.AppName;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.uri.UriService;
 import javafx.application.Platform;
@@ -28,32 +29,38 @@ import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.*;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 
@@ -81,21 +88,34 @@ public final class UiUtils
 		Platform.runLater(() -> {
 			if (t instanceof WebClientResponseException e)
 			{
-				var error = getErrorResponseEntity(e);
-				alert(error.getStatusCode().isError() ? ERROR : WARNING, error.getMessage(), error.getStackTrace());
+				var problem = e.getResponseBodyAs(ProblemDetail.class);
+				String title;
+				String detail;
+				String stackTrace = null;
+
+				if (problem != null)
+				{
+					title = problem.getTitle();
+					detail = problem.getDetail();
+					var properties = problem.getProperties();
+					if (properties != null)
+					{
+						stackTrace = (String) properties.get("trace");
+					}
+				}
+				else
+				{
+					title = "Error";
+					detail = "Unknown error";
+				}
+				alert(e.getStatusCode().isError() ? ERROR : WARNING, title, detail, stackTrace);
 			}
 			else
 			{
-				alert(ERROR, t.getMessage());
+				alert(ERROR, "Error", t.getMessage(), ExceptionUtils.getStackTrace(t));
 			}
 			log.error("Error: {}", t.getMessage(), t);
 		});
-	}
-
-	private static ErrorResponseEntity getErrorResponseEntity(WebClientResponseException e)
-	{
-		var builder = new ErrorResponseEntity.Builder(e.getStatusCode());
-		return builder.fromJson(e.getResponseBodyAsString());
 	}
 
 	public static void showError(TextField field, String error)
@@ -150,27 +170,27 @@ public final class UiUtils
 		}
 	}
 
-	public static void alert(AlertType alertType, String message, String stackTrace)
+	public static void alert(AlertType alertType, String title, String message, String stackTrace)
 	{
-		var alert = buildAlert(alertType, message, stackTrace);
+		var alert = buildAlert(alertType, title, message, stackTrace);
 		alert.showAndWait();
 	}
 
 	public static void alert(AlertType alertType, String message)
 	{
-		var alert = buildAlert(alertType, message, null);
+		var alert = buildAlert(alertType, null, message, null);
 		alert.showAndWait();
 	}
 
 	public static void alertConfirm(String message, Runnable runnable)
 	{
-		var alert = buildAlert(AlertType.CONFIRMATION, message, null);
+		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
 		alert.showAndWait()
 				.filter(response -> response == ButtonType.OK)
 				.ifPresent(response -> runnable.run());
 	}
 
-	private static Alert buildAlert(AlertType alertType, String message, String stackTrace)
+	private static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace)
 	{
 		var alert = new Alert(alertType);
 		var stage = (Stage) alert.getDialogPane().getScene().getWindow();
@@ -178,11 +198,22 @@ public final class UiUtils
 		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
 		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied
 		// Setting dark borders doesn't work because dialogs aren't in JavaFX' built-in windows list
+		if (title != null)
+		{
+			alert.setTitle(title);
+		}
 		alert.setHeaderText(null); // the header is ugly
 
 		// The default doesn't allow cut & pasting and doesn't have scrollbars when needed,
 		// so instead we use a TextArea with similar styling.
 		var vbox = new VBox();
+		var hbox = new HBox();
+		hbox.setAlignment(Pos.TOP_RIGHT);
+		var copyButton = new Button(null, new FontIcon(MaterialDesignC.CLIPBOARD_OUTLINE));
+		copyButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
+		TooltipUtils.install(copyButton, "Copy as a bug report to the clipboard");
+		hbox.getChildren().add(copyButton);
+
 		var textArea = new TextArea();
 		textArea.setWrapText(true);
 		textArea.setEditable(false);
@@ -190,7 +221,7 @@ public final class UiUtils
 		textArea.getStyleClass().add("alert-textarea");
 		textArea.setPrefHeight(StringUtils.defaultString(message).length() < 120 ? 60 : 100); // Should be good enough
 		vbox.setPadding(new Insets(14.0));
-		vbox.getChildren().add(textArea);
+		vbox.getChildren().addAll(hbox, textArea);
 		alert.getDialogPane().setContent(vbox);
 
 		if (stackTrace != null)
@@ -210,9 +241,46 @@ public final class UiUtils
 
 			alert.getDialogPane().setExpandableContent(content);
 		}
-
 		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
+
+		copyButton.setOnAction(event -> {
+			var clipboardContent = new ClipboardContent();
+			clipboardContent.putString(generateAlertErrorString(alertType, title, message, stackTrace));
+			Clipboard.getSystemClipboard().setContent(clipboardContent);
+		});
+
 		return alert;
+	}
+
+	private static String generateAlertErrorString(AlertType alertType, String title, String message, String stackTrace)
+	{
+		String version;
+		var resource = UiUtils.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties");
+
+		if (resource != null)
+		{
+			var buildInfo = new BufferedReader(new InputStreamReader(resource));
+			version = buildInfo.lines()
+					.filter(s -> s.startsWith("build.version="))
+					.map(s -> s.substring("build.version=".length()))
+					.findFirst().orElse("unknown");
+		}
+		else
+		{
+			version = "unknown";
+		}
+
+		return AppName.NAME + " Requester Error Report\n\nVersion: " + version +
+				"\nTime: " +
+				DATE_TIME_DISPLAY.format(Instant.now()) +
+				"\nType: " + (alertType == ERROR ? "Error" : "Warning") +
+				"\nTitle: " +
+				title +
+				"\n\n" +
+				message +
+				"\n\nStack Trace:\n" +
+				stackTrace +
+				"\n\n";
 	}
 
 	public static void setDefaultIcon(Stage stage)

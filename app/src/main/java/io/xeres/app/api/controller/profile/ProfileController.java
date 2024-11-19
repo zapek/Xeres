@@ -37,7 +37,6 @@ import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.pgp.Trust;
-import io.xeres.common.rest.Error;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
 import io.xeres.common.util.ImageDetectionUtils;
@@ -46,6 +45,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -83,7 +83,7 @@ public class ProfileController
 	@GetMapping("/{id}")
 	@Operation(summary = "Return a profile")
 	@ApiResponse(responseCode = "200", description = "Profile found")
-	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ProfileDTO findProfileById(@PathVariable long id)
 	{
 		return toDeepDTO(profileService.findProfileById(id).orElseThrow());
@@ -93,7 +93,7 @@ public class ProfileController
 	@Operation(summary = "Return the profile's key attributes")
 	@ApiResponse(responseCode = "200", description = "Profile found")
 	@ApiResponse(responseCode = "400", description = "Error in the profile's key")
-	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ProfileKeyAttributes findProfileKeyAttributes(@PathVariable long id)
 	{
 		return profileService.findProfileKeyAttributes(id);
@@ -102,7 +102,7 @@ public class ProfileController
 	@GetMapping(value = "/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
 	@Operation(summary = "Return a profile's avatar image (currently an identicon)")
 	@ApiResponse(responseCode = "200", description = "Profile's avatar image found")
-	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<InputStreamResource> downloadImage(@PathVariable long id)
 	{
 		var profile = profileService.findProfileById(id).orElseThrow();
@@ -136,8 +136,8 @@ public class ProfileController
 	@PostMapping
 	@Operation(summary = "Create a profile and its possible location from an RS ID")
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "location", description = "the location of the profile"))
-	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
-	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> createProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest,
 	                                                  @RequestParam(value = "connectionIndex", required = false) Integer connectionIndex,
 	                                                  @RequestParam(value = "trust", required = false) Trust trust)
@@ -176,8 +176,8 @@ public class ProfileController
 	@PostMapping("/check")
 	@Operation(summary = "Check an RS ID")
 	@ApiResponse(responseCode = "200", description = "RS ID is OK")
-	@ApiResponse(responseCode = "422", description = "RS ID cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
-	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "422", description = "RS ID cannot be processed", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ProfileDTO checkProfileFromRsId(@Valid @RequestBody RsIdRequest rsIdRequest)
 	{
 		var rsId = RSId.parse(rsIdRequest.rsId(), ANY).orElseThrow(() -> new UnprocessableEntityException("RS id is invalid"));
@@ -206,7 +206,7 @@ public class ProfileController
 	@DeleteMapping("/{id}")
 	@Operation(summary = "Delete a profile")
 	@ApiResponse(responseCode = "200", description = "Profile successfully deleted")
-	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteProfile(@PathVariable long id)
 	{

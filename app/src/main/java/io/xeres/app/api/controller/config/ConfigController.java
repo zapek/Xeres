@@ -37,7 +37,6 @@ import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.status.StatusRsService;
 import io.xeres.common.location.Availability;
-import io.xeres.common.rest.Error;
 import io.xeres.common.rest.config.*;
 import jakarta.validation.Valid;
 import jakarta.xml.bind.JAXBException;
@@ -47,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -94,8 +94,8 @@ public class ConfigController
 	@Operation(summary = "Create own profile")
 	@ApiResponse(responseCode = "200", description = "Profile already exists")
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "Location", description = "The location of the created profile", schema = @Schema(type = "string")))
-	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
-	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> createOwnProfile(@Valid @RequestBody OwnProfileRequest ownProfileRequest)
 	{
 		var name = ownProfileRequest.name();
@@ -117,7 +117,7 @@ public class ConfigController
 	@Operation(summary = "Create own location")
 	@ApiResponse(responseCode = "200", description = "Location already exists")
 	@ApiResponse(responseCode = "201", description = "Location created successfully", headers = @Header(name = "Location", description = "The location of the created location", schema = @Schema(type = "string")))
-	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> createOwnLocation(@Valid @RequestBody OwnLocationRequest ownLocationRequest)
 	{
 		var name = ownLocationRequest.name();
@@ -154,7 +154,7 @@ public class ConfigController
 	@Operation(summary = "Create own identity")
 	@ApiResponse(responseCode = "200", description = "Identity already exists")
 	@ApiResponse(responseCode = "201", description = "Identity created successfully")
-	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> createOwnIdentity(@Valid @RequestBody OwnIdentityRequest ownIdentityRequest)
 	{
 		var name = ownIdentityRequest.name();
@@ -196,7 +196,7 @@ public class ConfigController
 	@GetMapping("/external-ip")
 	@Operation(summary = "Get the external IP address and port.", description = "Note that an external IP address is not strictly required if for example the host is on a public IP already.")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	@ApiResponse(responseCode = "404", description = "No location or no external IP address", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "No location or no external IP address", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public IpAddressResponse getExternalIpAddress()
 	{
 		var connection = locationService.findOwnLocation().orElseThrow()
@@ -211,7 +211,7 @@ public class ConfigController
 	@GetMapping("/internal-ip")
 	@Operation(summary = "Get the internal IP address and port.")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	@ApiResponse(responseCode = "404", description = "No location or no internal IP address", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "No location or no internal IP address", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public IpAddressResponse getInternalIpAddress()
 	{
 		return new IpAddressResponse(Optional.ofNullable(networkService.getLocalIpAddress()).orElseThrow(), networkService.getPort());
@@ -220,7 +220,7 @@ public class ConfigController
 	@GetMapping("/hostname")
 	@Operation(summary = "Get the machine's hostname.")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	@ApiResponse(responseCode = "404", description = "No hostname (host configuration problem)", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "No hostname (host configuration problem)", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public HostnameResponse getHostname() throws UnknownHostException
 	{
 		return new HostnameResponse(locationService.getHostname());
@@ -229,7 +229,7 @@ public class ConfigController
 	@GetMapping("/username")
 	@Operation(summary = "Get the OS session's  username.")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	@ApiResponse(responseCode = "404", description = "No username (no user session)", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "No username (no user session)", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public UsernameResponse getUsername()
 	{
 		return new UsernameResponse(locationService.getUsername());

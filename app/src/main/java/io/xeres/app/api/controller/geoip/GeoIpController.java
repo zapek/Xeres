@@ -26,10 +26,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.GeoIpService;
-import io.xeres.common.rest.Error;
 import io.xeres.common.rest.geoip.CountryResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.MediaType;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +54,7 @@ public class GeoIpController
 	@GetMapping("/{ip}")
 	@Operation(summary = "Get the ISO country code of the IP address.")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	@ApiResponse(responseCode = "404", description = "No country found for IP address", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "No country found for IP address", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public CountryResponse getIsoCountry(@PathVariable String ip)
 	{
 		var country = geoIpService.getCountry(ip);

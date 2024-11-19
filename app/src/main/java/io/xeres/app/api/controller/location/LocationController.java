@@ -28,12 +28,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.QrCodeService;
 import io.xeres.common.dto.location.LocationDTO;
-import io.xeres.common.rest.Error;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -60,7 +60,7 @@ public class LocationController
 	@GetMapping("/{id}")
 	@Operation(summary = "Return a location")
 	@ApiResponse(responseCode = "200", description = "Location found")
-	@ApiResponse(responseCode = "404", description = "Location not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Location not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public LocationDTO findLocationById(@PathVariable long id)
 	{
 		return toDTO(locationService.findLocationById(id).orElseThrow());
@@ -69,7 +69,7 @@ public class LocationController
 	@GetMapping("/{id}/rs-id")
 	@Operation(summary = "Return a location's RSId")
 	@ApiResponse(responseCode = "200", description = "Location found")
-	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public RSIdResponse getRSIdOfLocation(@PathVariable long id, @RequestParam(value = "type", required = false) Type type)
 	{
 		var location = locationService.findLocationById(id).orElseThrow();
@@ -80,7 +80,7 @@ public class LocationController
 	@GetMapping(value = "/{id}/rs-id/qr-code", produces = MediaType.IMAGE_PNG_VALUE)
 	@Operation(summary = "Return a location's RSId as a QR code")
 	@ApiResponse(responseCode = "200", description = "Location found")
-	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<BufferedImage> getRSIdOfLocationAsQrCode(@PathVariable long id)
 	{
 		var location = locationService.findLocationById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype

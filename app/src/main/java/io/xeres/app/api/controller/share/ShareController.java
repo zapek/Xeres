@@ -28,12 +28,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.exception.InternalServerErrorException;
 import io.xeres.app.service.file.FileService;
 import io.xeres.common.dto.share.ShareDTO;
-import io.xeres.common.rest.Error;
 import io.xeres.common.rest.share.UpdateShareRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.Paths;
@@ -67,8 +67,8 @@ public class ShareController
 	@PostMapping
 	@Operation(summary = "Add/Update shares")
 	@ApiResponse(responseCode = "201", description = "Shares created/updated successfully")
-	@ApiResponse(responseCode = "422", description = "Shares cannot be processed", content = @Content(schema = @Schema(implementation = Error.class)))
-	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "422", description = "Shares cannot be processed", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> createAndUpdateShares(@Valid @RequestBody UpdateShareRequest updateSharesRequest)
 	{
 		fileService.synchronize(fromDTOs(updateSharesRequest.shares()));

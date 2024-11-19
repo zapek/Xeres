@@ -32,12 +32,12 @@ import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
-import io.xeres.common.rest.Error;
 import io.xeres.common.util.ImageDetectionUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -74,7 +74,7 @@ public class IdentityController
 	@GetMapping("/{id}")
 	@Operation(summary = "Return an identity")
 	@ApiResponse(responseCode = "200", description = "Identity found")
-	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public IdentityDTO findIdentityById(@PathVariable long id)
 	{
 		return toDTO(identityService.findById(id).orElseThrow());
@@ -84,7 +84,7 @@ public class IdentityController
 	@Operation(summary = "Return an identity's avatar image")
 	@ApiResponse(responseCode = "200", description = "Identity's avatar image found")
 	@ApiResponse(responseCode = "204", description = "Identity's avatar image is empty")
-	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<InputStreamResource> downloadIdentityImage(@PathVariable long id)
 	{
 		var identity = identityService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
@@ -134,9 +134,9 @@ public class IdentityController
 	@PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Change an identity's avatar image")
 	@ApiResponse(responseCode = "201", description = "Identity's avatar image created")
-	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = Error.class)))
-	@ApiResponse(responseCode = "415", description = "Image's media type unsupported", content = @Content(schema = @Schema(implementation = Error.class)))
-	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = Error.class)))
+	@ApiResponse(responseCode = "404", description = "Identity not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "415", description = "Image's media type unsupported", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> uploadIdentityImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
 	{
 		var identity = identityRsService.saveOwnIdentityImage(id, file);

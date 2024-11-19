@@ -23,8 +23,6 @@ import io.xeres.common.AppName;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Objects;
 
 /**
@@ -66,15 +64,6 @@ public final class MinimalUserInterface
 		}
 		showError(exception.getMessage());
 
-	}
-
-	private String getStackTrace(Exception e)
-	{
-		var sw = new StringWriter();
-		var pw = new PrintWriter(sw);
-
-		e.printStackTrace(pw);
-		return sw.toString();
 	}
 
 	public static void showError(String message)

@@ -35,6 +35,7 @@ import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.forum.ForumMapper;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -52,8 +53,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -320,10 +319,8 @@ public class ForumViewController implements Controller
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
-			var clipboardContent = new ClipboardContent();
 			var forumGroup = ((ForumGroup) event.getSource());
-			clipboardContent.putString(ForumUriFactory.generate(forumGroup.getName(), forumGroup.getGxsId()));
-			Clipboard.getSystemClipboard().setContent(clipboardContent);
+			ClipboardUtils.copyTextToClipboard(ForumUriFactory.generate(forumGroup.getName(), forumGroup.getGxsId()));
 		});
 
 		var xContextMenu = new XContextMenu<ForumGroup>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
@@ -351,10 +348,8 @@ public class ForumViewController implements Controller
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
-			var clipboardContent = new ClipboardContent();
 			@SuppressWarnings("unchecked") var forumMessage = ((TreeItem<ForumMessage>) event.getSource()).getValue();
-			clipboardContent.putString(ForumUriFactory.generate(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId()));
-			Clipboard.getSystemClipboard().setContent(clipboardContent);
+			ClipboardUtils.copyTextToClipboard(ForumUriFactory.generate(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId()));
 		});
 
 		var xContextMenu = new XContextMenu<ForumMessage>(replyItem, new SeparatorMenuItem(), copyLinkItem);

@@ -20,14 +20,13 @@
 package io.xeres.ui.controller.debug;
 
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
@@ -69,11 +68,9 @@ public class PropertiesWindowController implements WindowController
 		tableName.setSortType(ASCENDING);
 
 		copyAll.setOnAction(event -> {
-			var clipboardContent = new ClipboardContent();
 			var sb = new StringBuilder();
 			getSortedProperties().forEach((k, v) -> sb.append(k).append(": ").append(showLineSeparator(v)).append("\n"));
-			clipboardContent.putString(showLineSeparator(sb.toString()));
-			Clipboard.getSystemClipboard().setContent(clipboardContent);
+			ClipboardUtils.copyTextToClipboard(showLineSeparator(sb.toString()));
 		});
 	}
 
@@ -104,9 +101,7 @@ public class PropertiesWindowController implements WindowController
 			@SuppressWarnings("unchecked") var entry = (Map.Entry<String, String>) event.getSource();
 			if (entry != null)
 			{
-				var clipboardContent = new ClipboardContent();
-				clipboardContent.putString(entry.getKey() + " = " + showLineSeparator(entry.getValue()));
-				Clipboard.getSystemClipboard().setContent(clipboardContent);
+				ClipboardUtils.copyTextToClipboard(entry.getKey() + " = " + showLineSeparator(entry.getValue()));
 			}
 		});
 		var xContextMenu = new XContextMenu<Map.Entry<String, String>>(copyItem);

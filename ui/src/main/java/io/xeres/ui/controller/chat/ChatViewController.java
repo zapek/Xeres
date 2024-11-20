@@ -32,6 +32,7 @@ import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.chat.NicknameCompleter;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceService;
@@ -52,7 +53,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -313,10 +317,8 @@ public class ChatViewController implements Controller
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
-			var clipboardContent = new ClipboardContent();
 			var chatRoomInfo = ((RoomHolder) event.getSource()).getRoomInfo();
-			clipboardContent.putString(ChatRoomUriFactory.generate(chatRoomInfo.getName(), chatRoomInfo.getId()));
-			Clipboard.getSystemClipboard().setContent(clipboardContent);
+			ClipboardUtils.copyTextToClipboard(ChatRoomUriFactory.generate(chatRoomInfo.getName(), chatRoomInfo.getId()));
 		});
 
 		var xContextMenu = new XContextMenu<RoomHolder>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
@@ -656,7 +658,7 @@ public class ChatViewController implements Controller
 
 		if (PASTE_KEY.match(event))
 		{
-			var image = Clipboard.getSystemClipboard().getImage();
+			var image = ClipboardUtils.getImageFromClipboard();
 			if (image != null)
 			{
 				imagePreview.setImage(image);

@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.util;
+package io.xeres.ui.support.clipboard;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -27,7 +27,7 @@ import java.awt.image.BufferedImage;
 /**
  * This class is needed to save images to the clipboard using AWT.
  */
-public class ImageSelection implements Transferable
+class ImageSelection implements Transferable
 {
 	private final BufferedImage image;
 

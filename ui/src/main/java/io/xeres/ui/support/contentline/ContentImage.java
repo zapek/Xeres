@@ -21,7 +21,7 @@ package io.xeres.ui.support.contentline;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.ResizeableImageView;
-import io.xeres.ui.support.util.ImageSelection;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -47,7 +47,6 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -104,12 +103,7 @@ public class ContentImage implements Content
 
 	private static void copyToClipboard(ActionEvent event)
 	{
-		// We cannot use ClipboardContent/putImage() here because
-		// JavaFX tries to find out if the image url is a supported format
-		// and this fails with data: URLs. It would have worked with a null
-		// URL, but one would have to copy the Image from a ByteBufferArray which
-		// is more complicated than just using AWT, which gets it right (sigh).
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageSelection(SwingFXUtils.fromFXImage(getImageViewFromEvent(event).getImage(), null)), null);
+		ClipboardUtils.copyImageToClipboard(getImageViewFromEvent(event).getImage());
 	}
 
 	private static void saveAs(ActionEvent event)

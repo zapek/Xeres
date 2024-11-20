@@ -21,6 +21,7 @@ package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.client.LocationClient;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.ImageUtils;
@@ -31,7 +32,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
@@ -392,7 +396,7 @@ public class EditorView extends VBox
 
 		if (PASTE_KEY.match(event))
 		{
-			var image = Clipboard.getSystemClipboard().getImage();
+			var image = ClipboardUtils.getImageFromClipboard();
 			if (image != null)
 			{
 				var imageView = new ImageView(image);

@@ -38,6 +38,7 @@ import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.chat.ChatCommand;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.FileUri;
 import io.xeres.ui.support.uri.FileUriFactory;
@@ -382,7 +383,7 @@ public class MessagingWindowController implements WindowController
 	{
 		if (PASTE_KEY.match(event))
 		{
-			var image = Clipboard.getSystemClipboard().getImage();
+			var image = ClipboardUtils.getImageFromClipboard();
 			if (image != null)
 			{
 				sendImageViewToMessage(new ImageView(image));

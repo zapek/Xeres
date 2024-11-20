@@ -22,6 +22,7 @@ package io.xeres.ui.support.util;
 import atlantafx.base.theme.Styles;
 import io.xeres.common.AppName;
 import io.xeres.ui.custom.DisclosedHyperlink;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.uri.UriService;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
@@ -35,8 +36,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -202,11 +201,7 @@ public final class UiUtils
 		}
 		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
 
-		copyButton.setOnAction(event -> {
-			var clipboardContent = new ClipboardContent();
-			clipboardContent.putString(generateAlertErrorString(alertType, title, message, stackTrace));
-			Clipboard.getSystemClipboard().setContent(clipboardContent);
-		});
+		copyButton.setOnAction(event -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, title, message, stackTrace)));
 
 		return alert;
 	}

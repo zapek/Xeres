@@ -38,6 +38,7 @@ import io.xeres.ui.custom.DelayedAction;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.TooltipUtils;
@@ -50,8 +51,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -349,12 +348,7 @@ public class MainWindowController implements WindowController
 	private void copyOwnId()
 	{
 		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID, Type.ANY);
-		rsIdResponse.subscribe(reply -> Platform.runLater(() -> {
-			var clipboard = Clipboard.getSystemClipboard();
-			var content = new ClipboardContent();
-			content.putString(reply.rsId());
-			clipboard.setContent(content);
-		}));
+		rsIdResponse.subscribe(reply -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(reply.rsId())));
 	}
 
 	private void showQrCode()

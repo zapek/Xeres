@@ -19,11 +19,13 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.app.util.DevUtils;
 import io.xeres.common.AppName;
 import net.harawata.appdirs.AppDirsFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -61,7 +63,16 @@ public class CacheDirConfiguration
 			return null;
 		}
 
-		cacheDir = getCacheDirFromPortableFileLocation();
+		if (environment.acceptsProfiles(Profiles.of("dev")))
+		{
+			cacheDir = DevUtils.getDirFromDevelopmentSetup("cache");
+		}
+
+		if (cacheDir == null)
+		{
+			cacheDir = getCacheDirFromPortableFileLocation();
+		}
+
 		if (cacheDir == null)
 		{
 			cacheDir = getCacheDirFromNativePlatform();

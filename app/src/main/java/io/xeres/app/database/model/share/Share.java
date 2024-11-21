@@ -51,7 +51,7 @@ public class Share
 	@Convert(converter = TrustConverter.class)
 	private Trust browsable = Trust.UNKNOWN;
 
-	private Instant lastScanned;
+	private Instant lastScanned = Instant.EPOCH;
 
 	public static Share createShare(String name, File directory, boolean searchable, Trust browsable)
 	{

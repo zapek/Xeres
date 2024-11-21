@@ -150,7 +150,7 @@ public class FileService
 	@Transactional
 	public void checkForSharesToScan()
 	{
-		var sharesToScan = shareRepository.findAll(Sort.by(Sort.Order.by("lastScanned").nullsFirst()).ascending());
+		var sharesToScan = shareRepository.findAll(Sort.by(Sort.Order.by("lastScanned")).ascending());
 
 		log.debug("Shares to scan: {}", sharesToScan);
 		var now = Instant.now();

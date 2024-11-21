@@ -19,6 +19,7 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.app.util.DevUtils;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import net.harawata.appdirs.AppDirsFactory;
@@ -30,7 +31,6 @@ import org.springframework.core.env.Profiles;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.xeres.common.properties.StartupProperties.Property.DATA_DIR;
@@ -74,7 +74,7 @@ public class DataDirConfiguration
 		dataDir = getDataDirFromArgs();
 		if (dataDir == null && environment.acceptsProfiles(Profiles.of("dev")))
 		{
-			dataDir = getDataDirFromDevelopmentSetup();
+			dataDir = DevUtils.getDirFromDevelopmentSetup(LOCAL_DATA);
 		}
 
 		if (dataDir == null)
@@ -122,24 +122,5 @@ public class DataDirConfiguration
 	{
 		var appDirs = AppDirsFactory.getInstance();
 		return appDirs.getUserDataDir(AppName.NAME, null, null, true);
-	}
-
-	private static String getDataDirFromDevelopmentSetup()
-	{
-		// Find out if we're running from rootProject, which means
-		// we have an 'app' folder in there.
-		// We use a relative directory because currentDir is not supposed
-		// to change, and it looks clearer.
-		var appDir = Path.of("app");
-		if (Files.exists(appDir))
-		{
-			return Path.of(".", LOCAL_DATA).toString();
-		}
-		appDir = Path.of("..", "app");
-		if (Files.exists(appDir))
-		{
-			return Path.of("..", LOCAL_DATA).toString();
-		}
-		throw new IllegalStateException("Unable to find/create data directory. Current directory must be the project's root directory or 'app'. It is " + Paths.get("").toAbsolutePath());
 	}
 }

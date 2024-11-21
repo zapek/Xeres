@@ -43,9 +43,9 @@ class GxsClientUpdateRepositoryTest
 	@Test
 	void CRUD_Success()
 	{
-		var profile = ProfileFakes.createProfile("profile1", 1);
+		var profile = ProfileFakes.createFreshProfile("profile1", 1);
 		profile = profileRepository.save(profile);
-		var location = LocationFakes.createLocation("location1", profile);
+		var location = LocationFakes.createFreshLocation("location1", profile);
 
 		profile.addLocation(location);
 		profile = profileRepository.save(profile);
@@ -89,9 +89,9 @@ class GxsClientUpdateRepositoryTest
 	@Test
 	void CRUD_Messages_Success()
 	{
-		var profile = ProfileFakes.createProfile("profile1", 1);
+		var profile = ProfileFakes.createFreshProfile("profile1", 1);
 		profile = profileRepository.save(profile);
-		var location = LocationFakes.createLocation("location1", profile);
+		var location = LocationFakes.createFreshLocation("location1", profile);
 
 		profile.addLocation(location);
 		profile = profileRepository.save(profile);

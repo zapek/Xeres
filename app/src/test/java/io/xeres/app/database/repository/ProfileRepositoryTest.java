@@ -35,9 +35,9 @@ class ProfileRepositoryTest
 	@Test
 	void CRUD_Success()
 	{
-		var profile1 = ProfileFakes.createProfile("test1", 1);
-		var profile2 = ProfileFakes.createProfile("test2", 2);
-		var profile3 = ProfileFakes.createProfile("test3", 3);
+		var profile1 = ProfileFakes.createFreshProfile("test1", 1);
+		var profile2 = ProfileFakes.createFreshProfile("test2", 2);
+		var profile3 = ProfileFakes.createFreshProfile("test3", 3);
 
 		var savedProfile = profileRepository.save(profile1);
 		profileRepository.save(profile2);

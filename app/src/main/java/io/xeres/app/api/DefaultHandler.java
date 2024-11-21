@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -36,7 +37,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -111,15 +111,9 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 		return new ResponseEntity<>(e.getStatusCode());
 	}
 
-	@ExceptionHandler(AsyncRequestNotUsableException.class)
-	public void handleAsyncRequestNotUsableException(AsyncRequestNotUsableException ignored)
-	{
-		// We ignore those because they happen when scrolling images (we abort useless loads when scrolling quickly).
-	}
-
 	// This one has to use an override
 	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request)
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(@Nonnull MethodArgumentNotValidException ex, @Nonnull HttpHeaders headers, HttpStatusCode status, @Nonnull WebRequest request)
 	{
 		var problemDetail = handleValidationException(ex);
 		return ResponseEntity.status(status.value()).body(problemDetail);

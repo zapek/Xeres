@@ -38,13 +38,13 @@ class LocationRepositoryTest
 	@Test
 	void CRUD_Success()
 	{
-		var profile = ProfileFakes.createProfile("test", 1);
+		var profile = ProfileFakes.createFreshProfile("test", 1);
 
 		profile = profileRepository.save(profile);
 
-		var location1 = LocationFakes.createLocation("test1", profile);
-		var location2 = LocationFakes.createLocation("test2", profile);
-		var location3 = LocationFakes.createLocation("test3", profile);
+		var location1 = LocationFakes.createFreshLocation("test1", profile);
+		var location2 = LocationFakes.createFreshLocation("test2", profile);
+		var location3 = LocationFakes.createFreshLocation("test3", profile);
 
 		profile.addLocation(location1);
 		profile.addLocation(location2);

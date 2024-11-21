@@ -58,6 +58,14 @@ public final class LocationFakes
 		return createLocation(name, profile, new LocationId(getRandomArray()));
 	}
 
+	public static Location createFreshLocation(String name, Profile profile)
+	{
+		var location = new Location(0L, name, profile, new LocationId(getRandomArray()));
+		location.setNetMode(NetMode.UPNP);
+		location.setVersion("Xeres 0.1.1");
+		return location;
+	}
+
 	public static Location createLocation(String name, Profile profile, LocationId locationId)
 	{
 		var location = new Location(getUniqueId(), name, profile, locationId);

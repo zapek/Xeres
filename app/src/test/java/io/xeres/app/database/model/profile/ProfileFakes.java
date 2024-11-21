@@ -46,6 +46,11 @@ public final class ProfileFakes
 		return createProfile(StringFakes.createNickname(), ThreadLocalRandom.current().nextLong());
 	}
 
+	public static Profile createFreshProfile(String name, long pgpIdentifier)
+	{
+		return new Profile(0L, name, pgpIdentifier, Instant.now(), new ProfileFingerprint(getRandomArray(20)), getRandomArray(200));
+	}
+
 	public static Profile createProfile(String name, long pgpIdentifier)
 	{
 		return createProfile(name, pgpIdentifier, new ProfileFingerprint(getRandomArray(20)), getRandomArray(200));

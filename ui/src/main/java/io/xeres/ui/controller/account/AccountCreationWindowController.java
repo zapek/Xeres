@@ -119,6 +119,7 @@ public class AccountCreationWindowController implements WindowController
 							.doOnError(throwable -> {
 								UiUtils.showAlertError(throwable);
 								setInProgress(false);
+								status.setText(null);
 							})
 							.subscribe();
 				}
@@ -136,6 +137,7 @@ public class AccountCreationWindowController implements WindowController
 							.doOnError(throwable -> {
 								UiUtils.showAlertError(throwable);
 								setInProgress(false);
+								status.setText(null);
 							})
 							.subscribe());
 				}
@@ -184,8 +186,8 @@ public class AccountCreationWindowController implements WindowController
 		configClient.createProfile(profileName).doOnSuccess(unused -> Platform.runLater(() -> generateLocation(profileName, locationName)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.showAlertError(e);
-					//UiUtils.showError(this.profileName, MessageFormat.format(bundle.getString("account.generation.profile.error"), e.getMessage()));
 					setInProgress(false);
+					status.setText(null);
 				}))
 				.subscribe();
 	}
@@ -198,8 +200,9 @@ public class AccountCreationWindowController implements WindowController
 
 		configClient.createLocation(locationName).doOnSuccess(unused -> Platform.runLater(() -> generateIdentity(profileName)))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.alert(ERROR, e.getMessage()); // XXX: fix!
+					UiUtils.showAlertError(e);
 					setInProgress(false);
+					status.setText(null);
 				}))
 				.subscribe();
 	}
@@ -214,8 +217,9 @@ public class AccountCreationWindowController implements WindowController
 
 		result.doOnSuccess(identityResponse -> Platform.runLater(this::openDashboard))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.alert(ERROR, e.getMessage());
+					UiUtils.showAlertError(e);
 					setInProgress(false);
+					status.setText(null);
 				}))
 				.subscribe();
 	}

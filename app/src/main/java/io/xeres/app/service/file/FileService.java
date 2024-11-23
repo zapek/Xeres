@@ -386,8 +386,10 @@ public class FileService
 		tree.add(file);
 		while (file.getParent() != null)
 		{
-			tree.add(file.getParent());
-			file = file.getParent();
+			var parent = file.getParent();
+			tree.add(parent);
+			parent.getChildren().add(file);
+			file = parent;
 		}
 		Collections.reverse(tree);
 

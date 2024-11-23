@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.VBox?>
 <fx:root type="Tab" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <VBox>
-        <ProgressBar fx:id="progressBar" styleClass="small" prefWidth="Infinity"/>
+        <ProgressBar fx:id="progressBar" styleClass="small" prefWidth="Infinity" minHeight="4.0"/>
         <TableView fx:id="filesTableView" VBox.vgrow="ALWAYS">
             <placeholder>
                 <Label text="Searching..."/>

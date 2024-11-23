@@ -309,10 +309,12 @@ public class ForumViewController implements Controller
 	{
 		var subscribeItem = new MenuItem(bundle.getString("forum.tree.subscribe"));
 		subscribeItem.setId(SUBSCRIBE_MENU_ID);
+		subscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_ENTER));
 		subscribeItem.setOnAction(event -> subscribeToForumGroup((ForumGroup) event.getSource()));
 
 		var unsubscribeItem = new MenuItem(bundle.getString("forum.tree.unsubscribe"));
 		unsubscribeItem.setId(UNSUBSCRIBE_MENU_ID);
+		unsubscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_EXIT));
 		unsubscribeItem.setOnAction(event -> unsubscribeFromForumGroups((ForumGroup) event.getSource()));
 
 		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));

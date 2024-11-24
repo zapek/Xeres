@@ -36,7 +36,7 @@ import org.bouncycastle.util.encoders.Base64;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,20 +56,20 @@ class ProfileControllerTest extends AbstractControllerTest
 	private static final String BASE_URL = PROFILES_PATH;
 
 	@SuppressWarnings("unused")
-	@MockBean
+	@MockitoBean
 	private PeerConnectionJob peerConnectionJob;
 
-	@MockBean
+	@MockitoBean
 	private ProfileService profileService;
 
-	@MockBean
+	@MockitoBean
 	private IdentityService identityService;
 
-	@MockBean
+	@MockitoBean
 	private IdenticonService identiconService;
 
 	@SuppressWarnings("unused")
-	@MockBean
+	@MockitoBean
 	private StatusNotificationService statusNotificationService;
 
 	@Test

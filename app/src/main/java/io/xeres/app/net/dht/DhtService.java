@@ -122,11 +122,8 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 		}
 		catch (IOException | ExecutionException | InterruptedException | IllegalStateException e)
 		{
-			log.error("Error while setting up DHT: {}", e.getMessage(), e);
-			if (dht != null && dht.isRunning())
-			{
-				dht.stop();
-			}
+			log.error("Error while setting up DHT: {}", e.getMessage());
+			dht.stop();
 			if (e instanceof InterruptedException)
 			{
 				Thread.currentThread().interrupt();

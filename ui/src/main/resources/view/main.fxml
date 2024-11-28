@@ -230,6 +230,11 @@
                                 <FontIcon iconLiteral="mdi2b-bug"/>
                             </graphic>
                         </MenuItem>
+                        <MenuItem fx:id="versionCheck" text="Check for updates...">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2u-update"/>
+                            </graphic>
+                        </MenuItem>
                     </Menu>
                     <MenuItem fx:id="showSettingsWindow" text="%main.menu.settings">
                         <graphic>

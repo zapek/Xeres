@@ -32,6 +32,7 @@ import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
+import io.xeres.ui.client.update.UpdateClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.controller.file.FileMainController;
 import io.xeres.ui.custom.DelayedAction;
@@ -43,6 +44,7 @@ import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.version.VersionChecker;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -61,6 +63,7 @@ import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -177,6 +180,9 @@ public class MainWindowController implements WindowController
 	private MenuItem openUiCheck;
 
 	@FXML
+	private MenuItem versionCheck;
+
+	@FXML
 	private ReadOnlyTextField shortId;
 
 	@FXML
@@ -217,6 +223,8 @@ public class MainWindowController implements WindowController
 	private final Environment environment;
 	private final ConfigClient configClient;
 	private final NotificationClient notificationClient;
+	private final UpdateClient updateClient;
+	private final BuildProperties buildProperties;
 	private final ResourceBundle bundle;
 
 	private int currentUsers;
@@ -226,7 +234,7 @@ public class MainWindowController implements WindowController
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, UpdateClient updateClient, BuildProperties buildProperties, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -235,6 +243,8 @@ public class MainWindowController implements WindowController
 		this.environment = environment;
 		this.configClient = configClient;
 		this.notificationClient = notificationClient;
+		this.updateClient = updateClient;
+		this.buildProperties = buildProperties;
 		this.bundle = bundle;
 	}
 
@@ -302,6 +312,7 @@ public class MainWindowController implements WindowController
 			systemProperties.setOnAction(event -> windowManager.openSystemProperties());
 			openShell.setOnAction(event -> MinimalUserInterface.openShell());
 			openUiCheck.setOnAction(event -> windowManager.openUiCheck());
+			versionCheck.setOnAction(even -> checkForUpdate());
 		}
 
 		exitApplication.setOnAction(event -> trayService.exitApplication());
@@ -614,5 +625,22 @@ public class MainWindowController implements WindowController
 				}
 			}
 		});
+	}
+
+	private void checkForUpdate()
+	{
+		updateClient.getLatestVersion()
+				.doOnSuccess(versionResponse -> Platform.runLater(() -> {
+					if (VersionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
+					{
+						UiUtils.alertConfirm("There's a new version available (" + versionResponse.tagName().substring(1) + "). Download?", () -> UriService.openUri("https://xeres.io/download/"));
+					}
+					else
+					{
+						UiUtils.alert(Alert.AlertType.INFORMATION, "You already have the latest version.");
+					}
+				}))
+				.doOnError(UiUtils::showAlertError)
+				.subscribe();
 	}
 }

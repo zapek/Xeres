@@ -22,7 +22,7 @@ buildscript {
         bouncycastleVersion = "1.79"
         apacheCommonsCollectionsVersion = "4.4"
         springOpenApiVersion = "2.7.0"
-        jsoupVersion = "1.18.1"
+        jsoupVersion = "1.18.2"
         jsonPatchVersion = "1.13"
         zxingVersion = "3.5.3"
         appDirsVersion = "1.2.2"
@@ -35,7 +35,7 @@ plugins {
     id 'org.springframework.boot' version '3.4.0' apply false
     id 'org.flywaydb.flyway' version '10.20.0' apply false // Keep the version in sync with spring-boot from time to time
     id 'org.panteleyev.jpackageplugin' version '1.6.0' apply false
-    id 'org.sonarqube' version '6.0.0.5145'
+    id 'org.sonarqube' version '6.0.1.5171'
 }
 
 // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task

@@ -167,10 +167,14 @@ public final class UiUtils
 		var vbox = new VBox();
 		var hbox = new HBox();
 		hbox.setAlignment(Pos.TOP_RIGHT);
-		var copyButton = new Button(null, new FontIcon(MaterialDesignC.CLIPBOARD_OUTLINE));
-		copyButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
-		TooltipUtils.install(copyButton, "Copy as a bug report to the clipboard");
-		hbox.getChildren().add(copyButton);
+		if (stackTrace != null)
+		{
+			var copyButton = new Button(null, new FontIcon(MaterialDesignC.CLIPBOARD_OUTLINE));
+			copyButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
+			TooltipUtils.install(copyButton, "Copy as a bug report to the clipboard");
+			hbox.getChildren().add(copyButton);
+			copyButton.setOnAction(event -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, title, message, stackTrace)));
+		}
 
 		var textArea = new TextArea();
 		textArea.setWrapText(true);
@@ -200,8 +204,6 @@ public final class UiUtils
 			alert.getDialogPane().setExpandableContent(content);
 		}
 		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
-
-		copyButton.setOnAction(event -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, title, message, stackTrace)));
 
 		return alert;
 	}

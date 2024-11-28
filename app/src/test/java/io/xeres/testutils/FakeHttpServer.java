@@ -43,7 +43,6 @@ public class FakeHttpServer
 			{
 				exchange.getResponseBody().write(responseBody);
 			}
-			exchange.close();
 		};
 		httpServer.createContext(path, handler);
 

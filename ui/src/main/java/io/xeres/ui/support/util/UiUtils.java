@@ -24,6 +24,7 @@ import io.xeres.common.AppName;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -152,6 +153,14 @@ public final class UiUtils
 	{
 		var alert = new Alert(alertType);
 		var stage = (Stage) alert.getDialogPane().getScene().getWindow();
+
+		// Try to intelligently set the owner window to indicate to the
+		// user that there's some action needed if he clicks it
+		var defaultOwnerWindow = WindowManager.getDefaultOwnerWindow();
+		if (defaultOwnerWindow != null)
+		{
+			alert.initOwner(defaultOwnerWindow);
+		}
 
 		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
 		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied

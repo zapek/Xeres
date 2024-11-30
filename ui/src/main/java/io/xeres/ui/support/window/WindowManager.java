@@ -104,7 +104,7 @@ public class WindowManager
 	private static AppThemeManager appThemeManager;
 
 	private static WindowBorder windowBorder;
-	private Window rootWindow;
+	private static Window rootWindow;
 
 	private String fullTitle;
 
@@ -510,6 +510,18 @@ public class WindowManager
 	public void calculateWindowDecorationSizes(Stage stage)
 	{
 		windowBorder = UiBorders.calculateWindowDecorationSizes(stage);
+	}
+
+	/**
+	 * Gets the default owner window. Usually the last focus window otherwise the main window.
+	 *
+	 * @return the default owner window, can be null
+	 */
+	public static Window getDefaultOwnerWindow()
+	{
+		return Window.getWindows().stream()
+				.filter(Window::isFocused)
+				.findFirst().orElse(rootWindow);
 	}
 
 	static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass)

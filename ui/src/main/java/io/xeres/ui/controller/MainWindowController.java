@@ -60,6 +60,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -402,6 +403,9 @@ public class MainWindowController implements WindowController
 		var in = Animations.slideInDown(msg, javafx.util.Duration.millis(250));
 		stackPane.getChildren().add(msg);
 		in.playFromStart();
+
+		// If the window is iconified, un-iconify it
+		((Stage) UiUtils.getWindow(stackPane)).show();
 	}
 
 	private void setupNotifications()

@@ -25,15 +25,17 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class FakeHttpServer
 {
-	private int port = 1068;
+	private int port;
 	private final HttpServer httpServer;
 	private byte[] requestBody;
 
 	public FakeHttpServer(String path, int responseCode, byte[] responseBody)
 	{
+		port = ThreadLocalRandom.current().nextInt(2048, 28000);
 		httpServer = createHttpServer();
 
 		var handler = (HttpHandler) exchange -> {

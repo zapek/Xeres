@@ -19,7 +19,7 @@
 
 package io.xeres.ui.support.version;
 
-public record Version(int major, int minor, int patch) implements Comparable<Version>
+record Version(int major, int minor, int patch) implements Comparable<Version>
 {
 	@Override
 	public int compareTo(Version o)
@@ -52,5 +52,11 @@ public record Version(int major, int minor, int patch) implements Comparable<Ver
 	public boolean isNotARelease()
 	{
 		return major == 0 && minor == 0 && patch == 0;
+	}
+
+	@Override
+	public String toString()
+	{
+		return major + "." + minor + "." + patch;
 	}
 }

@@ -22,8 +22,10 @@ package io.xeres.ui.controller.settings;
 import io.xeres.common.rest.config.Capabilities;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.model.settings.Settings;
+import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.theme.AppTheme;
 import io.xeres.ui.support.theme.AppThemeManager;
+import io.xeres.ui.support.version.VersionChecker;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -33,6 +35,8 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+
+import static io.xeres.ui.support.preference.PreferenceService.UPDATE_CHECK;
 
 @Component
 @FxmlView(value = "/view/settings/settings_general.fxml")
@@ -45,17 +49,22 @@ public class SettingsGeneralController implements SettingsController
 	private CheckBox autoStartEnabled;
 
 	@FXML
+	private CheckBox checkForUpdates;
+
+	@FXML
 	private Label autoStartNotAvailable;
 
 	private Settings settings;
 
 	private final ConfigClient configClient;
 	private final AppThemeManager appThemeManager;
+	private final PreferenceService preferenceService;
 
-	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager)
+	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager, PreferenceService preferenceService)
 	{
 		this.configClient = configClient;
 		this.appThemeManager = appThemeManager;
+		this.preferenceService = preferenceService;
 	}
 
 	@Override
@@ -86,12 +95,16 @@ public class SettingsGeneralController implements SettingsController
 		this.settings = settings;
 
 		autoStartEnabled.setSelected(settings.isAutoStartEnabled());
+
+		checkForUpdates.setSelected(VersionChecker.isCheckForUpdates(preferenceService.getPreferences().node(UPDATE_CHECK)));
 	}
 
 	@Override
 	public Settings onSave()
 	{
 		settings.setAutoStartEnabled(autoStartEnabled.isSelected());
+
+		VersionChecker.setCheckForUpdates(preferenceService.getPreferences().node(UPDATE_CHECK), checkForUpdates.isSelected());
 
 		return settings;
 	}

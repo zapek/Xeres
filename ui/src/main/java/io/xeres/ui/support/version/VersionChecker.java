@@ -20,16 +20,56 @@
 package io.xeres.ui.support.version;
 
 import io.micrometer.common.util.StringUtils;
+import io.xeres.ui.support.preference.PreferenceService;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Timer;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
-public final class VersionChecker
+import static io.xeres.ui.support.preference.PreferenceService.UPDATE_CHECK;
+
+public class VersionChecker
 {
 	private static final Pattern VERSION_PATTERN = Pattern.compile("^v(\\d{1,5})\\.(\\d{1,5})\\.(\\d{1,5})$");
 
-	private VersionChecker()
+	private static final String LAST_CHECK = "LastCheck";
+	private static final String ENABLED = "Enabled";
+	private static final String SKIP = "Skip";
+
+	private static final Duration TIME_BETWEEN_CHECKS = Duration.ofDays(1);
+	private static final long SKEW_SECONDS = 240; // Seconds around the checks to avoid tracking
+
+	private final Preferences preferences;
+
+	public VersionChecker(PreferenceService preferenceService)
 	{
-		throw new UnsupportedOperationException("Utility class");
+		preferences = preferenceService.getPreferences().node(UPDATE_CHECK);
+	}
+
+	public boolean isVersionMoreRecent(String newVersionString, String currentVersionString)
+	{
+		if (StringUtils.isBlank(newVersionString))
+		{
+			return false;
+		}
+
+		var currentVersion = createVersion(currentVersionString);
+		if (currentVersion.isNotARelease())
+		{
+			return false;
+		}
+
+		var newVersion = createVersion(newVersionString);
+
+		var versionToSkip = createVersion(preferences.get(SKIP, "0.0.0"));
+		if (newVersion.equals(versionToSkip))
+		{
+			return false;
+		}
+		return newVersion.compareTo(currentVersion) > 0;
 	}
 
 	private static Version createVersion(String versionString)
@@ -47,21 +87,50 @@ public final class VersionChecker
 		return new Version(0, 0, 0);
 	}
 
-	public static boolean isVersionMoreRecent(String newVersionString, String currentVersionString)
+	public void scheduleVersionCheck(Runnable check)
 	{
-		if (StringUtils.isBlank(newVersionString))
+		var timer = new Timer("Version Update Checker", true);
+
+		Runnable task = () -> {
+			if (shouldCheckForUpdate(preferences))
+			{
+				check.run();
+			}
+		};
+
+		var versionCheckTask = new VersionCheckTask(task);
+		var skew = ThreadLocalRandom.current().nextLong(SKEW_SECONDS) - SKEW_SECONDS / 2;
+		timer.scheduleAtFixedRate(versionCheckTask, 0L, Duration.ofDays(1).plus(Duration.ofSeconds(skew)).toMillis());
+	}
+
+	public void skipUpdate(String versionString)
+	{
+		var versionToSkip = createVersion(versionString);
+		if (versionToSkip.isNotARelease())
 		{
-			return false;
+			return;
 		}
+		preferences.put(SKIP, versionToSkip.toString());
+	}
 
-		var currentVersion = createVersion(currentVersionString);
-		if (currentVersion.isNotARelease())
+	private static boolean shouldCheckForUpdate(Preferences preferences)
+	{
+		var now = Instant.now();
+		var shouldCheck = preferences.getBoolean(ENABLED, false) && Duration.between(Instant.ofEpochMilli(preferences.getLong(LAST_CHECK, 0)), now).abs().compareTo(TIME_BETWEEN_CHECKS.minus(Duration.ofSeconds(SKEW_SECONDS))) > 0;
+		if (shouldCheck)
 		{
-			return false;
+			preferences.putLong(LAST_CHECK, now.toEpochMilli());
 		}
+		return shouldCheck;
+	}
 
-		var newVersion = createVersion(newVersionString);
+	public static boolean isCheckForUpdates(Preferences preferences)
+	{
+		return preferences.getBoolean(ENABLED, false);
+	}
 
-		return newVersion.compareTo(currentVersion) > 0;
+	public static void setCheckForUpdates(Preferences preferences, boolean check)
+	{
+		preferences.putBoolean(ENABLED, check);
 	}
 }

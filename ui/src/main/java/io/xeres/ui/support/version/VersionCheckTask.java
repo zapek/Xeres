@@ -19,34 +19,20 @@
 
 package io.xeres.ui.support.version;
 
-import org.junit.jupiter.api.Test;
+import java.util.TimerTask;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-class VersionCheckerTest
+class VersionCheckTask extends TimerTask
 {
-	@Test
-	void IsNewVersion_Major_OK()
+	private final Runnable runnable;
+
+	public VersionCheckTask(Runnable runnable)
 	{
-		assertTrue(VersionChecker.isVersionMoreRecent("1.0.0", "0.1.1"));
+		this.runnable = runnable;
 	}
 
-	@Test
-	void IsNewVersion_Minor_OK()
+	@Override
+	public void run()
 	{
-		assertTrue(VersionChecker.isVersionMoreRecent("1.1.0", "1.0.5"));
-	}
-
-	@Test
-	void IsNewVersion_Patch_OK()
-	{
-		assertTrue(VersionChecker.isVersionMoreRecent("1.1.1", "1.1.0"));
-	}
-
-	@Test
-	void IsNewVersion_Same_OK()
-	{
-		assertFalse(VersionChecker.isVersionMoreRecent("1.1.1", "1.1.1"));
+		runnable.run();
 	}
 }

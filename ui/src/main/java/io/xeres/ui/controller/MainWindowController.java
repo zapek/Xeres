@@ -40,6 +40,7 @@ import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
+import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.TooltipUtils;
@@ -88,6 +89,7 @@ public class MainWindowController implements WindowController
 {
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
+	private static final String XERES_DOWNLOAD_URL = "https://xeres.io/download";
 
 	@FXML
 	private StackPane stackPane;
@@ -225,7 +227,10 @@ public class MainWindowController implements WindowController
 	private final NotificationClient notificationClient;
 	private final UpdateClient updateClient;
 	private final BuildProperties buildProperties;
+	private final PreferenceService preferenceService;
 	private final ResourceBundle bundle;
+
+	private VersionChecker versionChecker;
 
 	private int currentUsers;
 	private int totalUsers;
@@ -234,7 +239,7 @@ public class MainWindowController implements WindowController
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, UpdateClient updateClient, BuildProperties buildProperties, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, UpdateClient updateClient, BuildProperties buildProperties, PreferenceService preferenceService, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -245,6 +250,7 @@ public class MainWindowController implements WindowController
 		this.notificationClient = notificationClient;
 		this.updateClient = updateClient;
 		this.buildProperties = buildProperties;
+		this.preferenceService = preferenceService;
 		this.bundle = bundle;
 	}
 
@@ -326,6 +332,9 @@ public class MainWindowController implements WindowController
 				.subscribe();
 
 		setupAnimations();
+
+		versionChecker = new VersionChecker(preferenceService);
+		versionChecker.scheduleVersionCheck(this::checkForUpdateInBackground);
 	}
 
 	@Override
@@ -368,21 +377,29 @@ public class MainWindowController implements WindowController
 		rsIdResponse.subscribe(reply -> Platform.runLater(() -> windowManager.openQrCode(reply)));
 	}
 
-	public void showPopup(String message)
+	public void showUpdate(String message, String tagName)
 	{
 		var msg = new Notification(message, new FontIcon(MaterialDesignI.INFORMATION));
-		msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_1);
+		msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_2);
 		msg.setPrefHeight(Region.USE_PREF_SIZE);
 		msg.setMaxHeight(Region.USE_PREF_SIZE);
-		StackPane.setAlignment(msg, Pos.BOTTOM_RIGHT);
+
+		var downloadButton = new Button("Download");
+		downloadButton.setDefaultButton(true);
+		downloadButton.setOnAction(actionEvent -> UriService.openUri(XERES_DOWNLOAD_URL));
+		var skipButton = new Button("Skip");
+		skipButton.setOnAction(actionEvent -> versionChecker.skipUpdate(tagName));
+		msg.setPrimaryActions(downloadButton, skipButton);
+
+		StackPane.setAlignment(msg, Pos.TOP_RIGHT);
 		StackPane.setMargin(msg, new Insets(0, 10, 10, 0));
 		msg.setOnClose(event -> {
-			var out = Animations.slideOutDown(msg, javafx.util.Duration.millis(250));
+			var out = Animations.slideOutUp(msg, javafx.util.Duration.millis(250));
 			out.setOnFinished(f -> stackPane.getChildren().remove(msg));
 			out.playFromStart();
 		});
 
-		var in = Animations.slideInUp(msg, javafx.util.Duration.millis(250));
+		var in = Animations.slideInDown(msg, javafx.util.Duration.millis(250));
 		stackPane.getChildren().add(msg);
 		in.playFromStart();
 	}
@@ -631,9 +648,9 @@ public class MainWindowController implements WindowController
 	{
 		updateClient.getLatestVersion()
 				.doOnSuccess(versionResponse -> Platform.runLater(() -> {
-					if (VersionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
+					if (versionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
 					{
-						UiUtils.alertConfirm("There's a new version available (" + versionResponse.tagName().substring(1) + "). Download?", () -> UriService.openUri("https://xeres.io/download/"));
+						UiUtils.alertConfirm("There's a new version available (" + versionResponse.tagName().substring(1) + "). Download?", () -> UriService.openUri(XERES_DOWNLOAD_URL));
 					}
 					else
 					{
@@ -641,6 +658,18 @@ public class MainWindowController implements WindowController
 					}
 				}))
 				.doOnError(UiUtils::showAlertError)
+				.subscribe();
+	}
+
+	private void checkForUpdateInBackground()
+	{
+		updateClient.getLatestVersion()
+				.doOnSuccess(versionResponse -> Platform.runLater(() -> {
+					if (versionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
+					{
+						showUpdate("There's a new version available (" + versionResponse.tagName().substring(1) + ").", versionResponse.tagName());
+					}
+				}))
 				.subscribe();
 	}
 }

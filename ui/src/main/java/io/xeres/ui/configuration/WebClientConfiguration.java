@@ -19,9 +19,16 @@
 
 package io.xeres.ui.configuration;
 
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.xeres.common.properties.StartupProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
+
+import javax.net.ssl.SSLException;
 
 /**
  * This configuration overrides the default one of Spring Boot by making sure we only use
@@ -32,8 +39,23 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfiguration
 {
 	@Bean
-	public WebClient.Builder webClientBuilder()
+	public WebClient.Builder webClientBuilder() throws SSLException
 	{
-		return WebClient.builder();
+		var useHttps = StartupProperties.getBoolean(StartupProperties.Property.HTTPS, true);
+
+		if (useHttps)
+		{
+
+			var sslContext = SslContextBuilder.forClient()
+					.trustManager(InsecureTrustManagerFactory.INSTANCE)
+					.build();
+			var httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
+
+			return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
+		}
+		else
+		{
+			return WebClient.builder();
+		}
 	}
 }

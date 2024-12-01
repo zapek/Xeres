@@ -19,8 +19,10 @@
 
 package io.xeres.ui.client.message;
 
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.xeres.common.id.LocationId;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.util.RemoteUtils;
 import jakarta.websocket.ContainerProvider;
 import org.slf4j.Logger;
@@ -34,10 +36,12 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHttpHeaders;
-import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import javax.net.ssl.SSLContext;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -69,13 +73,31 @@ public class MessageClient
 
 	public MessageClient connect()
 	{
-		var url = "ws://" + RemoteUtils.getHostnameAndPort() + "/ws";
+		var useHttps = StartupProperties.getBoolean(StartupProperties.Property.HTTPS, true);
+
+		var url = (useHttps ? "wss://" : "ws://") + RemoteUtils.getHostnameAndPort() + "/ws";
 
 		var container = ContainerProvider.getWebSocketContainer();
 		container.setDefaultMaxTextMessageBufferSize(MAXIMUM_MESSAGE_SIZE);
 		container.setDefaultMaxBinaryMessageBufferSize(MAXIMUM_MESSAGE_SIZE);
 
-		WebSocketClient client = new StandardWebSocketClient(container);
+		var client = new StandardWebSocketClient(container);
+
+		if (useHttps)
+		{
+			try
+			{
+				var sslContext = SSLContext.getInstance("TLS");
+				sslContext.init(null, InsecureTrustManagerFactory.INSTANCE.getTrustManagers(), null);
+
+				client.setSslContext(sslContext);
+			}
+			catch (KeyManagementException | NoSuchAlgorithmException e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+
 		var stompClient = new WebSocketStompClient(client);
 		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 		stompClient.setInboundMessageSizeLimit(MAXIMUM_MESSAGE_SIZE);

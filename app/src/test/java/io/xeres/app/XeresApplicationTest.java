@@ -30,6 +30,6 @@ class XeresApplicationTest
 	@SuppressWarnings("java:S2699")
 	void Main_Success()
 	{
-		XeresApplication.main(new String[]{"--no-gui"});
+		XeresApplication.main(new String[]{"--no-gui", "--no-https"});
 	}
 }

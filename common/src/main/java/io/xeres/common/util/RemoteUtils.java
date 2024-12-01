@@ -46,6 +46,10 @@ public final class RemoteUtils
 
 	public static String getControlUrl()
 	{
+		if ("true".equals(System.getProperty("server.ssl.enabled")))
+		{
+			return "https://" + getHostnameAndPort();
+		}
 		//noinspection HttpUrlsUsage
 		return "http://" + getHostnameAndPort();
 	}

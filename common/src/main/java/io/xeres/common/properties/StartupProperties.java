@@ -38,7 +38,8 @@ public final class StartupProperties
 		UI_PORT("xrs.ui.port", Integer.class),
 		ICONIFIED("xrs.ui.iconified", Boolean.class),
 		FAST_SHUTDOWN("xrs.network.fast-shutdown", Boolean.class),
-		REMOTE_PASSWORD("xrs.ui.remote-password", String.class);
+		REMOTE_PASSWORD("xrs.ui.remote-password", String.class),
+		HTTPS("server.ssl.enabled", Boolean.class);
 
 		Property(String propertyName, Class<?> javaClass)
 		{

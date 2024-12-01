@@ -49,9 +49,10 @@ public final class CommandArgument
 	private static final String SERVER_PORT = "server-port";
 	private static final String FAST_SHUTDOWN = "fast-shutdown";
 	private static final String REMOTE_PASSWORD = "remote-password";
-	public static final String SERVER_ONLY = "server-only";
-	public static final String REMOTE_CONNECT = "remote-connect";
-	public static final String ICONIFIED = "iconified";
+	private static final String SERVER_ONLY = "server-only";
+	private static final String REMOTE_CONNECT = "remote-connect";
+	private static final String ICONIFIED = "iconified";
+	private static final String NO_HTTPS = "no-https";
 
 	/**
 	 * Parses command line arguments. Should be called before Spring Boot is initialized.
@@ -70,6 +71,10 @@ public final class CommandArgument
 				default -> throw new IllegalArgumentException("Unknown argument [" + arg + "]. Run with the --help argument.");
 			}
 		}
+
+		// We default to HTTPS and have to specify it here because RemoteUtils
+		// uses the property to know in which mode it is.
+		StartupProperties.setBoolean(StartupProperties.Property.HTTPS, "true");
 
 		for (var arg : appArgs.getOptionNames())
 		{
@@ -97,6 +102,7 @@ public final class CommandArgument
 				case FAST_SHUTDOWN -> setBoolean(StartupProperties.Property.FAST_SHUTDOWN, appArgs, arg);
 				case SERVER_ONLY -> setBoolean(StartupProperties.Property.SERVER_ONLY, appArgs, arg);
 				case ICONIFIED -> setBoolean(StartupProperties.Property.ICONIFIED, appArgs, arg);
+				case NO_HTTPS -> setBooleanInverted(StartupProperties.Property.HTTPS, appArgs, arg);
 				default -> throw new IllegalArgumentException("Unknown argument " + arg);
 			}
 		}
@@ -169,6 +175,7 @@ public final class CommandArgument
 				   --control-address=<host>            specify the address to bind to for incoming remote access (defaults to localhost only)
 				   --control-port=<port>               specify the control port for remote access
 				   --no-control-password               do not protect the control address with a password
+				   --no-https                          do not use HTTPS for the control connection
 				   --server-address=<host>             specify a local address to bind to (defaults to all interfaces)
 				   --server-port=<port>                specify the local port to bind to for incoming peer connections
 				   --fast-shutdown                     ignore proper shutdown procedure (not recommended)

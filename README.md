@@ -8,7 +8,7 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9469/badge)](https://www.bestpractices.dev/projects/9469)
 [![GitHub Discussions](https://img.shields.io/badge/chat-Discussions-green?logo=github)](https://github.com/zapek/Xeres/discussions)
 
-[Xeres](https://xeres.io) is a decentralized and secure application designed for communication and sharing.
+[Xeres](https://xeres.io) is a Friend-to-Friend, decentralized and secure application for communication and sharing.
 
 ---
 

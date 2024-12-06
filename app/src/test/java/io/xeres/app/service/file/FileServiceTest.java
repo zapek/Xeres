@@ -131,8 +131,8 @@ class FileServiceTest
 
 		fileService.deleteFile(file);
 
-		verify(fileRepository, times(0)).countByParent(file);
-		verify(shareRepository, times(0)).findShareByFile(file);
+		verify(fileRepository, never()).countByParent(file);
+		verify(shareRepository, never()).findShareByFile(file);
 
 		verify(fileRepository, times(1)).countByParent(fileParent);
 		verify(shareRepository, times(1)).findShareByFile(fileParent);
@@ -143,10 +143,10 @@ class FileServiceTest
 		verify(fileRepository, times(1)).countByParent(fileGreatGrandParent);
 		verify(shareRepository, times(1)).findShareByFile(fileGreatGrandParent);
 
-		verify(fileRepository, times(0)).countByParent(fileRoot);
-		verify(shareRepository, times(0)).findShareByFile(fileRoot);
+		verify(fileRepository, never()).countByParent(fileRoot);
+		verify(shareRepository, never()).findShareByFile(fileRoot);
 
-		verify(fileRepository, times(0)).delete(file);
+		verify(fileRepository, never()).delete(file);
 		verify(fileRepository, times(1)).delete(fileGrandParent);
 	}
 
@@ -177,23 +177,23 @@ class FileServiceTest
 
 		fileService.deleteFile(file);
 
-		verify(fileRepository, times(0)).countByParent(file);
-		verify(shareRepository, times(0)).findShareByFile(file);
+		verify(fileRepository, never()).countByParent(file);
+		verify(shareRepository, never()).findShareByFile(file);
 
 		verify(fileRepository, times(1)).countByParent(fileParent);
-		verify(shareRepository, times(0)).findShareByFile(fileParent);
+		verify(shareRepository, never()).findShareByFile(fileParent);
 
-		verify(fileRepository, times(0)).countByParent(fileGrandParent);
-		verify(shareRepository, times(0)).findShareByFile(fileGrandParent);
+		verify(fileRepository, never()).countByParent(fileGrandParent);
+		verify(shareRepository, never()).findShareByFile(fileGrandParent);
 
-		verify(fileRepository, times(0)).countByParent(fileGreatGrandParent);
-		verify(shareRepository, times(0)).findShareByFile(fileGreatGrandParent);
+		verify(fileRepository, never()).countByParent(fileGreatGrandParent);
+		verify(shareRepository, never()).findShareByFile(fileGreatGrandParent);
 
-		verify(fileRepository, times(0)).countByParent(fileRoot);
-		verify(shareRepository, times(0)).findShareByFile(fileRoot);
+		verify(fileRepository, never()).countByParent(fileRoot);
+		verify(shareRepository, never()).findShareByFile(fileRoot);
 
 		verify(fileRepository, times(1)).delete(file);
-		verify(fileRepository, times(0)).delete(fileGrandParent);
+		verify(fileRepository, never()).delete(fileGrandParent);
 	}
 
 	@Test
@@ -224,24 +224,24 @@ class FileServiceTest
 
 		fileService.deleteFile(file);
 
-		verify(fileRepository, times(0)).countByParent(file);
-		verify(shareRepository, times(0)).findShareByFile(file);
+		verify(fileRepository, never()).countByParent(file);
+		verify(shareRepository, never()).findShareByFile(file);
 
 		verify(fileRepository, times(1)).countByParent(fileParent);
 		verify(shareRepository, times(1)).findShareByFile(fileParent);
 
 		verify(fileRepository, times(1)).countByParent(fileGrandParent);
-		verify(shareRepository, times(0)).findShareByFile(fileGrandParent);
+		verify(shareRepository, never()).findShareByFile(fileGrandParent);
 
-		verify(fileRepository, times(0)).countByParent(fileGreatGrandParent);
-		verify(shareRepository, times(0)).findShareByFile(fileGreatGrandParent);
+		verify(fileRepository, never()).countByParent(fileGreatGrandParent);
+		verify(shareRepository, never()).findShareByFile(fileGreatGrandParent);
 
-		verify(fileRepository, times(0)).countByParent(fileRoot);
-		verify(shareRepository, times(0)).findShareByFile(fileRoot);
+		verify(fileRepository, never()).countByParent(fileRoot);
+		verify(shareRepository, never()).findShareByFile(fileRoot);
 
-		verify(fileRepository, times(0)).delete(file);
+		verify(fileRepository, never()).delete(file);
 		verify(fileRepository, times(1)).delete(fileParent);
-		verify(fileRepository, times(0)).delete(fileGrandParent);
+		verify(fileRepository, never()).delete(fileGrandParent);
 	}
 
 	@Test
@@ -266,18 +266,18 @@ class FileServiceTest
 
 		fileService.deleteFile(file);
 
-		verify(fileRepository, times(0)).countByParent(file);
-		verify(shareRepository, times(0)).findShareByFile(file);
+		verify(fileRepository, never()).countByParent(file);
+		verify(shareRepository, never()).findShareByFile(file);
 
 		verify(fileRepository, times(1)).countByParent(fileParent);
 		verify(shareRepository, times(1)).findShareByFile(fileParent);
 
-		verify(fileRepository, times(0)).countByParent(fileRoot);
-		verify(shareRepository, times(0)).findShareByFile(fileRoot);
+		verify(fileRepository, never()).countByParent(fileRoot);
+		verify(shareRepository, never()).findShareByFile(fileRoot);
 
 		verify(fileRepository, times(1)).delete(file);
-		verify(fileRepository, times(0)).delete(fileParent);
-		verify(fileRepository, times(0)).delete(fileRoot);
+		verify(fileRepository, never()).delete(fileParent);
+		verify(fileRepository, never()).delete(fileRoot);
 	}
 
 }

@@ -48,7 +48,7 @@ class NicknameCompleterTest
 		when(usernameFinder.getUsername("", 0)).thenReturn(null);
 
 		nicknameCompleter.complete("", 0, action);
-		verify(action, times(0)).accept("");
+		verify(action, never()).accept("");
 	}
 
 	@Test
@@ -59,7 +59,7 @@ class NicknameCompleterTest
 		when(usernameFinder.getUsername("", 0)).thenReturn(null);
 
 		nicknameCompleter.complete("Hello ", 6, action);
-		verify(action, times(0)).accept("");
+		verify(action, never()).accept("");
 	}
 
 	@Test

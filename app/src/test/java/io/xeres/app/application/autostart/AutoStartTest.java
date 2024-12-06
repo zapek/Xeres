@@ -55,7 +55,7 @@ class AutoStartTest
 
 		autoStart.enable();
 
-		verify(autoStarter, times(0)).enable();
+		verify(autoStarter, never()).enable();
 	}
 
 	@Test
@@ -75,7 +75,7 @@ class AutoStartTest
 
 		autoStart.disable();
 
-		verify(autoStarter, times(0)).disable();
+		verify(autoStarter, never()).disable();
 	}
 
 	@Test
@@ -101,6 +101,6 @@ class AutoStartTest
 
 		assertFalse(enabled);
 
-		verify(autoStarter, times(0)).isEnabled();
+		verify(autoStarter, never()).isEnabled();
 	}
 }

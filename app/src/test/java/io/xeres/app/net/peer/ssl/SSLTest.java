@@ -136,7 +136,7 @@ class SSLTest
 				.isInstanceOf(CertificateException.class)
 				.hasMessage("Empty certificate");
 
-		verify(locationService, times(0)).findLocationByLocationId(any(LocationId.class));
+		verify(locationService, never()).findLocationByLocationId(any(LocationId.class));
 	}
 
 	@Test

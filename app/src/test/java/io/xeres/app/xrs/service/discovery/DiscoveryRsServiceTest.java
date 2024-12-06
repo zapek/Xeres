@@ -80,7 +80,7 @@ class DiscoveryRsServiceTest
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
 
-		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+		verify(peerConnectionManager, never()).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 	}
 
 	/**
@@ -96,7 +96,7 @@ class DiscoveryRsServiceTest
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(LocationFakes.createLocation()));
 
-		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+		verify(peerConnectionManager, never()).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 	}
 
 	/**
@@ -116,7 +116,7 @@ class DiscoveryRsServiceTest
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(newLocation));
 
-		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+		verify(peerConnectionManager, never()).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 		verify(locationService).update(eq(newLocation), anyString(), any(NetMode.class), anyString(), any(), anyList());
 	}
 
@@ -138,7 +138,7 @@ class DiscoveryRsServiceTest
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
 
-		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+		verify(peerConnectionManager, never()).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 		verify(locationService).update(eq(friendLocation), anyString(), any(NetMode.class), anyString(), any(), anyList());
 	}
 
@@ -160,7 +160,7 @@ class DiscoveryRsServiceTest
 
 		discoveryRsService.handleItem(peerConnection, createDiscoveryContact(friendLocation));
 
-		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+		verify(peerConnectionManager, never()).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 	}
 
 	/**
@@ -210,7 +210,7 @@ class DiscoveryRsServiceTest
 		verify(locationService).findLocationByLocationId(peerLocation.getLocationId());
 		verify(locationService).findOwnLocation();
 		verify(locationService).update(eq(peerLocation), anyString(), any(NetMode.class), anyString(), any(), anyList());
-		verify(peerConnectionManager, times(0)).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
+		verify(peerConnectionManager, never()).writeItem(eq(peerConnection), any(Item.class), any(RsService.class));
 	}
 
 	/**

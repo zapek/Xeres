@@ -106,7 +106,7 @@ class LocationServiceTest
 	{
 		when(settingsService.getLocationPrivateKeyData()).thenReturn(new byte[]{1});
 
-		verify(settingsService, times(0)).saveLocationKeys(any(KeyPair.class));
+		verify(settingsService, never()).saveLocationKeys(any(KeyPair.class));
 	}
 
 	@Test

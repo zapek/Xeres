@@ -86,8 +86,8 @@ class ProfileServiceTest
 
 		assertEquals(ResourceCreationState.ALREADY_EXISTS, profileService.generateProfileKeys(name));
 
-		verify(profileRepository, times(0)).save(any(Profile.class));
-		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
+		verify(profileRepository, never()).save(any(Profile.class));
+		verify(settingsService, never()).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
@@ -99,8 +99,8 @@ class ProfileServiceTest
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("too short");
 
-		verify(profileRepository, times(0)).save(any(Profile.class));
-		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
+		verify(profileRepository, never()).save(any(Profile.class));
+		verify(settingsService, never()).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
@@ -112,8 +112,8 @@ class ProfileServiceTest
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("too long");
 
-		verify(profileRepository, times(0)).save(any(Profile.class));
-		verify(settingsService, times(0)).saveSecretProfileKey(any(byte[].class));
+		verify(profileRepository, never()).save(any(Profile.class));
+		verify(settingsService, never()).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test

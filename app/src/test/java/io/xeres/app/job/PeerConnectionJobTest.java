@@ -65,7 +65,7 @@ class PeerConnectionJobTest
 		peerConnectionJob.checkConnections();
 
 		verify(peerService).isRunning();
-		verify(locationService, times(0)).getConnectionsToConnectTo(anyInt());
+		verify(locationService, never()).getConnectionsToConnectTo(anyInt());
 	}
 
 	@Test

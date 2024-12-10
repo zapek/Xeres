@@ -19,6 +19,8 @@
 
 package io.xeres.common.message.chat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class PrivateChatMessage
 {
 	private String content;
@@ -43,6 +45,7 @@ public class PrivateChatMessage
 		this.content = content;
 	}
 
+	@JsonIgnore
 	public boolean isEmpty()
 	{
 		return content == null;

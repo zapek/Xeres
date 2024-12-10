@@ -49,6 +49,7 @@ public class WebSocketMessageBrokerConfiguration implements WebSocketMessageBrok
 	public void registerStompEndpoints(StompEndpointRegistry registry)
 	{
 		registry.addEndpoint("/ws");
+		//registry.addEndpoint("/ws").withSockJS(); apparently you can *add* that one too
 	}
 
 	@Override

@@ -50,9 +50,9 @@ import java.util.concurrent.ExecutionException;
 
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
+import static io.xeres.common.message.MessagePath.*;
 import static io.xeres.common.message.MessageType.*;
 import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZE;
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 /**
  * This sends messages to the server.
@@ -142,7 +142,7 @@ public class MessageClient
 		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
-		headers.setDestination("/app" + CHAT_PATH);
+		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, message.isEmpty() ? CHAT_TYPING_NOTIFICATION.name() : CHAT_PRIVATE_MESSAGE.name());
 		headers.set(DESTINATION_ID, locationId.toString());
 		stompSession.send(headers, message);
@@ -153,7 +153,7 @@ public class MessageClient
 		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
-		headers.setDestination("/app" + CHAT_PATH);
+		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, CHAT_AVATAR.name());
 		headers.set(DESTINATION_ID, locationId.toString());
 		stompSession.send(headers, new ChatMessage());
@@ -164,7 +164,7 @@ public class MessageClient
 		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
-		headers.setDestination("/app" + CHAT_PATH);
+		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_ROOM_DESTINATION);
 		headers.set(MESSAGE_TYPE, message.isEmpty() ? CHAT_ROOM_TYPING_NOTIFICATION.name() : CHAT_ROOM_MESSAGE.name());
 		headers.set(DESTINATION_ID, String.valueOf(chatRoomId));
 		stompSession.send(headers, message);
@@ -175,7 +175,7 @@ public class MessageClient
 		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
-		headers.setDestination("/app" + CHAT_PATH);
+		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_BROADCAST_DESTINATION);
 		headers.set(MESSAGE_TYPE, CHAT_BROADCAST_MESSAGE.name());
 		stompSession.send(headers, message);
 	}

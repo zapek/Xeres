@@ -32,8 +32,9 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
+import static io.xeres.common.message.MessagePath.APP_PREFIX;
+import static io.xeres.common.message.MessagePath.BROKER_PREFIX;
 import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZE;
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 /**
  * Configuration of the WebSocket. This is used for anything that requires a persistent connection from
@@ -49,14 +50,14 @@ public class WebSocketMessageBrokerConfiguration implements WebSocketMessageBrok
 	public void registerStompEndpoints(StompEndpointRegistry registry)
 	{
 		registry.addEndpoint("/ws");
-		//registry.addEndpoint("/ws").withSockJS(); apparently you can *add* that one too
+		registry.addEndpoint("/ws").withSockJS();
 	}
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry)
 	{
-		registry.setApplicationDestinationPrefixes("/app"); // this is for @Controller annotated endpoints
-		registry.enableSimpleBroker(CHAT_PATH); // this is for the broker (subscriptions, ...)
+		registry.enableSimpleBroker(BROKER_PREFIX); // this is for the broker (subscriptions, ...)
+		registry.setApplicationDestinationPrefixes(APP_PREFIX); // this is for @Controller annotated endpoints using @MessageMapping and such
 	}
 
 	@EventListener

@@ -35,8 +35,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Hooks;
 
+import static io.xeres.common.message.MessagePath.chatPrivateDestination;
+import static io.xeres.common.message.MessagePath.chatRoomDestination;
 import static io.xeres.common.properties.StartupProperties.Property.ICONIFIED;
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Component
 public class PrimaryStageInitializer
@@ -79,7 +80,12 @@ public class PrimaryStageInitializer
 	@EventListener
 	public void onNetworkReadyEvent(NetworkReadyEvent event)
 	{
-		messageClient.subscribe(CHAT_PATH, new ChatFrameHandler(windowManager, chatViewController))
+		var handler = new ChatFrameHandler(windowManager, chatViewController); // XXX: for now, use the same for both
+
+		messageClient
+				.subscribe(chatPrivateDestination(), handler)
+				.subscribe(chatRoomDestination(), handler)
+				// XXX: and don't forget to subscribe to broadcasts one day too
 				.connect();
 	}
 }

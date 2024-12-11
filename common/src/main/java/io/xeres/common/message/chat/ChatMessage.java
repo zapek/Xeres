@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ChatMessage
 {
 	private String content;
+	private boolean isOwn;
 
 	public ChatMessage()
 	{
@@ -47,6 +48,16 @@ public class ChatMessage
 	public void setContent(String content)
 	{
 		this.content = content;
+	}
+
+	public boolean isOwn()
+	{
+		return isOwn;
+	}
+
+	public void setOwn(boolean own)
+	{
+		isOwn = own;
 	}
 
 	@JsonIgnore

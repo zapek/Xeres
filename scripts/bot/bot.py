@@ -166,7 +166,8 @@ def upload_avatar(path):
 
 def connect_and_subscribe(conn):
 	conn.connect(wait=True, with_connect_command=True)
-	conn.subscribe(destination='/api/v1/chat', id=1, ack='auto')
+	conn.subscribe(destination='/topic/chat/private', id=1, ack='auto')
+	conn.subscribe(destination='/topic/chat/room', id=2, ack='auto')
 
 
 class StompListener(stomp.ConnectionListener):
@@ -181,7 +182,7 @@ class StompListener(stomp.ConnectionListener):
 		# print(f'frame is {frame}')
 		headers = frame.headers
 		data = json.loads(frame.body)
-		if headers['messageType'] == "CHAT_ROOM_MESSAGE":
+		if headers['messageType'] == "CHAT_ROOM_MESSAGE" and data['senderNickname']:
 			handle_incoming_room_message(self.conn,
 			                             self.own_id,
 			                             headers['destinationId'],
@@ -189,7 +190,7 @@ class StompListener(stomp.ConnectionListener):
 			                             data['senderNickname'],
 			                             data['gxsId']['bytes'],
 			                             data['content'])
-		elif headers['messageType'] == "CHAT_PRIVATE_MESSAGE":
+		elif headers['messageType'] == "CHAT_PRIVATE_MESSAGE" and data['own'] == False:
 			handle_incoming_private_message(self.conn,
 			                                self.own_id,
 			                                headers['destinationId'],
@@ -225,7 +226,7 @@ def handle_incoming_room_message(conn, own_id, destination_id, room_id, sender, 
 
 	content = openai_api_send(content, own_id['name'], sender, gxs_sender, lambda: send_chat_room_typing_notification(conn, own_id, destination_id, room_id))
 
-	conn.send(destination="/app/api/v1/chat",
+	conn.send(destination="/app/chat/room",
 	          content_type="application/json",
 	          headers={"messageType": "CHAT_ROOM_MESSAGE",
 	                   "destinationId": f"{destination_id}"},
@@ -240,7 +241,7 @@ def handle_incoming_private_message(conn, own_id, destination_id, content):
 	# user is not really the destination_id, we should fetch it
 	content = openai_api_send(content, own_id['name'], destination_id, destination_id, lambda: send_private_typing_notification(conn, destination_id))
 
-	conn.send(destination="/app/api/v1/chat",
+	conn.send(destination="/app/chat/private",
 	          content_type="application/json",
 	          headers={"messageType": "CHAT_PRIVATE_MESSAGE",
 	                   "destinationId": f"{destination_id}"},
@@ -249,7 +250,7 @@ def handle_incoming_private_message(conn, own_id, destination_id, content):
 
 
 def send_chat_room_typing_notification(conn, own_id, destination_id, room_id):
-	conn.send(destination="/app/api/v1/chat",
+	conn.send(destination="/app/chat/room",
 	          content_type="application/json",
 	          headers={"messageType": "CHAT_ROOM_TYPING_NOTIFICATION",
 	                   "destinationId": f"{destination_id}"},
@@ -261,7 +262,7 @@ def send_chat_room_typing_notification(conn, own_id, destination_id, room_id):
 
 
 def send_private_typing_notification(conn, destination_id):
-	conn.send(destination="/app/api/v1/chat",
+	conn.send(destination="/app/chat/private",
 	          content_type="application/json",
 	          headers={"messageType": "CHAT_TYPING_NOTIFICATION",
 	                   "destinationId": f"{destination_id}"},

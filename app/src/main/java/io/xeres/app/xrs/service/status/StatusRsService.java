@@ -24,6 +24,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.MessageService;
 import io.xeres.app.service.notification.availability.AvailabilityNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
@@ -40,8 +41,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.STATUS;
+import static io.xeres.common.message.MessagePath.chatPrivateDestination;
 import static io.xeres.common.message.MessageType.CHAT_AVAILABILITY;
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Component
 public class StatusRsService extends RsService
@@ -51,16 +52,18 @@ public class StatusRsService extends RsService
 	private Availability availability = Availability.AVAILABLE;
 
 	private final PeerConnectionManager peerConnectionManager;
+	private final MessageService messageService;
 	private final LocationService locationService;
 	private final AvailabilityNotificationService availabilityNotificationService;
 	private final DatabaseSessionManager databaseSessionManager;
 
 	private boolean locked;
 
-	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, AvailabilityNotificationService availabilityNotificationService, DatabaseSessionManager databaseSessionManager)
+	public StatusRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, MessageService messageService, LocationService locationService, AvailabilityNotificationService availabilityNotificationService, DatabaseSessionManager databaseSessionManager)
 	{
 		super(rsServiceRegistry);
 		this.peerConnectionManager = peerConnectionManager;
+		this.messageService = messageService;
 		this.locationService = locationService;
 		this.availabilityNotificationService = availabilityNotificationService;
 		this.databaseSessionManager = databaseSessionManager;
@@ -97,7 +100,7 @@ public class StatusRsService extends RsService
 			var newStatus = toAvailability(statusItem.getStatus());
 			locationService.setAvailability(sender.getLocation(), newStatus);
 			availabilityNotificationService.changeAvailability(sender.getLocation(), newStatus);
-			peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, sender.getLocation().getLocationId(), newStatus);
+			messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, sender.getLocation().getLocationId(), newStatus);
 		}
 	}
 

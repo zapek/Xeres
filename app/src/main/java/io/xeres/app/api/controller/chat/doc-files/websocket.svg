@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" contentStyleType="text/css" height="287px" preserveAspectRatio="none" style="width:374px;height:287px;background:#FFFFFF;" version="1.1" viewBox="0 0 374 287" width="374px" zoomAndPan="magnify">
+	<defs/>
+	<g><!--cluster UI Client-->
+		<g id="cluster_UI Client">
+			<path d="M8.5,160.7257 L66.2793,160.7257 A3.75,3.75 0 0 1 68.7793,163.2257 L75.7793,185.3468 L364.5,185.3468 A2.5,2.5 0 0 1 367,187.8468 L367,278.2257 A2.5,2.5 0 0 1 364.5,280.7257 L8.5,280.7257 A2.5,2.5 0 0 1 6,278.2257 L6,163.2257 A2.5,2.5 0 0 1 8.5,160.7257 " fill="none"
+			      style="stroke:#000000;stroke-width:1.5;"/>
+			<line style="stroke:#000000;stroke-width:1.5;" x1="6" x2="75.7793" y1="185.3468" y2="185.3468"/>
+			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="56.7793" x="10" y="177.8331">UI Client</text>
+		</g><!--cluster App Server-->
+		<g id="cluster_App Server">
+			<path d="M43.5,7.7257 L119.1963,7.7257 A3.75,3.75 0 0 1 121.6963,10.2257 L128.6963,32.3468 L216.5,32.3468 A2.5,2.5 0 0 1 219,34.8468 L219,107.2257 A2.5,2.5 0 0 1 216.5,109.7257 L43.5,109.7257 A2.5,2.5 0 0 1 41,107.2257 L41,10.2257 A2.5,2.5 0 0 1 43.5,7.7257 " fill="none"
+			      style="stroke:#000000;stroke-width:1.5;"/>
+			<line style="stroke:#000000;stroke-width:1.5;" x1="41" x2="128.6963" y1="32.3468" y2="32.3468"/>
+			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="74.6963" x="45" y="24.8331">App Server</text>
+		</g><!--cluster RS Network-->
+		<g id="cluster_RS Network">
+			<path d="M259.9472,16.3049 C264.1737,11.5072 267.7962,10.5944 271.9335,16.4057 C275.3329,9.7733 282.4265,9.1122 286.9894,15.0073 C290.0439,9.2788 294.89,8.4243 299.3811,13.334 C305.1214,6 310.5685,8.02 314.7642,14.9946 C318.6902,9.1863 323.3663,9.5862 326.9873,15.3177 C336.6447,8.2064 343.9684,11.9374 347,22.7257 C347.4509,22.5795 347.7204,22.7977 347.6497,23.2719 C353.6774,27.8672 354.9018,32.0264 347.5863,36.5581 C352.8365,39.4273 353.2678,43.0503 349.0049,47.1889 C355.4335,50.1102 354.9356,55.1517 350.1417,59.1405 C354.8532,62.6642 355.8637,68.469 349.2099,71.1078 C354.7842,75.474 354.5633,79.1756 348.4695,82.8031 C354.2475,91.1467 352.2567,101.4541 340,101.7257 C341.5089,101.0822 342.4595,101.8384 342.1283,103.457 C337.605,110.7176 332.7513,112.5766 326.9144,104.7847 C324.1378,110.8112 318.6825,112.0735 314.0995,106.8407 C311.1297,114.2327 306.3591,115.1189 300.3962,110.1622 C294.3186,116.5012 289.2969,115.7084 285.7208,107.6182 C280.8252,112.9388 274.2991,111.6504 272.0059,104.7077 C260.0242,111.2729 253.026,109.1111 251,94.7257 C252.1471,94.1362 252.8974,94.5399 253.0356,95.8227 C247.1653,93.2831 246.5433,88.8024 251.7061,84.9177 C245.4222,81.1674 243.6868,75.5925 250.6179,70.822 C244.3799,67.7584 243.6382,62.8915 249.5278,58.7342 C244.5807,55.2104 245.096,50.9764 249.7276,47.625 C245.1758,43.3852 245.6744,39.6354 250.9902,36.5173 C242.3235,26.043 245.1101,18.9323 258,15.7257 C258.7715,14.9947 259.7105,15.2381 259.9472,16.3049 "
+			      fill="none" style="stroke:#181818;stroke-width:1.0;"/>
+			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="78.5723" x="259.7139" y="35.8331">RS Network</text>
+		</g><!--entity producer-->
+		<g id="elem_producer">
+			<rect fill="#00FFFF" height="67.2422" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="143.5098" x="207" y="197.7257"/>
+			<rect fill="#00FFFF" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="330.5098" y="202.7257"/>
+			<rect fill="#00FFFF" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="328.5098" y="204.7257"/>
+			<rect fill="#00FFFF" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="328.5098" y="208.7257"/>
+			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56.8066" x="222" y="232.8331">Producer</text>
+			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="103.5098" x="222" y="251.4542">/app/chat/private</text>
+		</g><!--entity consumer-->
+		<g id="elem_consumer">
+			<rect fill="#00FFFF" height="67.2422" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="149.7236" x="22" y="197.7257"/>
+			<rect fill="#00FFFF" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="151.7236" y="202.7257"/>
+			<rect fill="#00FFFF" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="149.7236" y="204.7257"/>
+			<rect fill="#00FFFF" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="149.7236" y="208.7257"/>
+			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="64.5791" x="37" y="232.8331">Consumer</text>
+			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="109.7236" x="37" y="251.4542">/topic/chat/private</text>
+		</g><!--entity MessageHandler-->
+		<g id="elem_MessageHandler">
+			<rect fill="#008000" height="48.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="145.834" x="57" y="44.7257"/>
+			<rect fill="#008000" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="182.834" y="49.7257"/>
+			<rect fill="#008000" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="180.834" y="51.7257"/>
+			<rect fill="#008000" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="180.834" y="55.7257"/>
+			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="105.834" x="72" y="79.8331">MessageHandler</text>
+		</g><!--entity Friend-->
+		<g id="elem_Friend">
+			<rect fill="#F1F1F1" height="48.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="79.6826" x="259" y="44.7257"/>
+			<rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="318.6826" y="49.7257"/>
+			<rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="316.6826" y="51.7257"/>
+			<rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="316.6826" y="55.7257"/>
+			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="39.6826" x="274" y="79.8331">Friend</text>
+		</g><!--link producer to MessageHandler-->
+		<g id="link_producer_MessageHandler">
+			<path d="M248.66,197.6457 C219.95,166.8157 181.6589,125.6967 156.0789,98.2267 " fill="none" id="producer-to-MessageHandler" style="stroke:#181818;stroke-width:1.0;"/>
+			<polygon fill="#181818" points="151.99,93.8357,155.196,103.1481,155.3974,97.4948,161.0507,97.6962,151.99,93.8357" style="stroke:#181818;stroke-width:1.0;"/>
+			<text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="25.3018" x="196" y="140.754">/app</text>
+		</g><!--link MessageHandler to consumer-->
+		<g id="link_MessageHandler_consumer">
+			<path d="M125.13,93.8357 C119.47,121.3057 111.2922,160.9394 104.9322,191.7694 " fill="none" id="MessageHandler-to-consumer" style="stroke:#181818;stroke-width:1.0;"/>
+			<polygon fill="#181818" points="103.72,197.6457,109.4559,189.6394,104.7302,192.7488,101.6208,188.0231,103.72,197.6457" style="stroke:#181818;stroke-width:1.0;"/>
+			<text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="31.0718" x="120" y="140.754">/topic</text>
+		</g><!--link MessageHandler to Friend-->
+		<g id="link_MessageHandler_Friend">
+			<path d="M209.28,69.2257 C227.85,69.2257 234.42,69.2257 252.99,69.2257 " fill="none" id="MessageHandler-Friend" style="stroke:#181818;stroke-width:1.0;"/>
+			<polygon fill="#181818" points="203.28,69.2257,212.28,73.2257,208.28,69.2257,212.28,65.2257,203.28,69.2257" style="stroke:#181818;stroke-width:1.0;"/>
+			<polygon fill="#181818" points="258.99,69.2257,249.99,65.2257,253.99,69.2257,249.99,73.2257,258.99,69.2257" style="stroke:#181818;stroke-width:1.0;"/>
+		</g><!--SRC=[POynQyCm48Lt_Oh36JgvsaC954ER30cX8PFnS4X7OY9BnrbEAQN_lOfYbxOUDEYzTz_TUpZ7oFrIQtReuz2vHnCwdHu7JpwMjiMJOAUKOZGNF14KnmrKharc0PyAu2SBBC4EXWGMrGTwg9C9i1_5_D78hCqPesPfhnWfgSqVXWc-7xf_Z6eKxumOk3LpojUl4v-PuK1o9RdVM6-fxvEpHcyTIGEBLo7ojndZmc2XU3l0Zk9xaCiuyIAfeitOUYhMG5ckvh1bxgLcUWvFXN8idpuFFjs2qy9l]-->
+	</g>
+</svg>

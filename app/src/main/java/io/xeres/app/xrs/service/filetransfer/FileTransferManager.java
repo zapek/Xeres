@@ -45,7 +45,7 @@ import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_
 /**
  * File transfer class.
  * <p>
- * <img src="doc-files/filetransfer.png" alt="File transfer diagram">
+ * <img src="doc-files/filetransfer.svg" alt="File transfer diagram">
  */
 class FileTransferManager implements Runnable
 {

@@ -592,8 +592,15 @@ public class ChatViewController implements Controller
 		else
 		{
 			performOnChatListView(chatRoomMessage.getRoomId(), chatListView -> {
-				chatListView.addUserMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getGxsId(), chatRoomMessage.getContent());
-				setHighlighted(chatRoomMessage.getContent());
+				if (chatRoomMessage.isOwn())
+				{
+					chatListView.addOwnMessage(chatRoomMessage);
+				}
+				else
+				{
+					chatListView.addUserMessage(chatRoomMessage.getSenderNickname(), chatRoomMessage.getGxsId(), chatRoomMessage.getContent());
+					setHighlighted(chatRoomMessage.getContent());
+				}
 			});
 			getSubscribedTreeItem(chatRoomMessage.getRoomId()).ifPresent(roomHolderTreeItem -> {
 				if (isRoomSelected() && selectedRoom.getId() != chatRoomMessage.getRoomId())
@@ -709,7 +716,6 @@ public class ChatViewController implements Controller
 	{
 		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
 		messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
-		selectedChatListView.addOwnMessage(chatMessage);
 	}
 
 	private void setPreviewGroupVisibility(boolean visible)

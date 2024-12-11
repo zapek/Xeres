@@ -25,12 +25,13 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.MessageService;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.chat.item.ChatMessageItem;
 import io.xeres.app.xrs.service.chat.item.ChatRoomListItem;
 import io.xeres.app.xrs.service.chat.item.ChatRoomListRequestItem;
 import io.xeres.common.message.MessageType;
-import io.xeres.common.message.chat.PrivateChatMessage;
+import io.xeres.common.message.chat.ChatMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,7 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.EnumSet;
 
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
+import static io.xeres.common.message.MessagePath.chatPrivateDestination;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
@@ -63,6 +64,9 @@ class ChatRsServiceTest
 	@Mock
 	private ChatBacklogService chatBacklogService;
 
+	@Mock
+	private MessageService messageService;
+
 	@InjectMocks
 	private ChatRsService chatRsService;
 
@@ -76,9 +80,9 @@ class ChatRsServiceTest
 
 		chatRsService.handleItem(peerConnection, item);
 
-		verify(peerConnectionManager).sendToClientSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(privateChatMessage -> {
-			assertNotNull(privateChatMessage);
-			assertEquals(message, ((PrivateChatMessage) (privateChatMessage)).getContent());
+		verify(messageService).sendToConsumers(eq(chatPrivateDestination()), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(chatMessage -> {
+			assertNotNull(chatMessage);
+			assertEquals(message, ((ChatMessage) (chatMessage)).getContent());
 			return true;
 		}));
 	}
@@ -96,9 +100,9 @@ class ChatRsServiceTest
 		chatRsService.handleItem(peerConnection, item1);
 		chatRsService.handleItem(peerConnection, item2);
 
-		verify(peerConnectionManager).sendToClientSubscriptions(eq(CHAT_PATH), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(privateChatMessage -> {
-			assertNotNull(privateChatMessage);
-			assertEquals(message1 + message2, ((PrivateChatMessage) (privateChatMessage)).getContent());
+		verify(messageService).sendToConsumers(eq(chatPrivateDestination()), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(chatMessage -> {
+			assertNotNull(chatMessage);
+			assertEquals(message1 + message2, ((ChatMessage) (chatMessage)).getContent());
 			return true;
 		}));
 	}

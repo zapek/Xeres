@@ -22,6 +22,7 @@ package io.xeres.ui.controller.chat;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.message.chat.ChatRoomMessage;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.client.GeneralClient;
@@ -127,6 +128,11 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	public void addOwnMessage(ChatMessage chatMessage)
 	{
 		addOwnMessage(Instant.now(), chatMessage.getContent());
+	}
+
+	public void addOwnMessage(ChatRoomMessage chatRoomMessage)
+	{
+		addOwnMessage(Instant.now(), chatRoomMessage.getContent());
 	}
 
 	public void addOwnMessage(Instant when, String message)

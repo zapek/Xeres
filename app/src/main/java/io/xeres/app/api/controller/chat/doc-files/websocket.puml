@@ -1,0 +1,28 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+
+package "UI Client" {
+  component producer #Cyan [
+    Producer
+    /app/chat/private
+  ]
+  component consumer #Cyan [
+    Consumer
+    /topic/chat/private
+  ]
+}
+
+package "App Server" {
+  [MessageHandler] #Green
+}
+
+cloud "RS Network" {
+  [Friend]
+}
+
+[producer] --> [MessageHandler] : /app
+[MessageHandler] --> [consumer] : /topic
+[MessageHandler] <-> [Friend]
+
+@enduml

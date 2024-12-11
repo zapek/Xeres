@@ -29,40 +29,33 @@ import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsService;
-import io.xeres.common.id.Identifier;
 import io.xeres.common.location.Availability;
-import io.xeres.common.message.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 import static io.xeres.app.net.peer.PeerAttribute.PEER_CONNECTION;
-import static io.xeres.common.message.MessageHeaders.buildMessageHeaders;
 
 @Component
 public class PeerConnectionManager
 {
 	private static final Logger log = LoggerFactory.getLogger(PeerConnectionManager.class);
 
-	private final SimpMessageSendingOperations messagingTemplate;
 	private final StatusNotificationService statusNotificationService;
 	private final AvailabilityNotificationService availabilityNotificationService;
 	private final ApplicationEventPublisher publisher;
 
 	private final Map<Long, PeerConnection> peers = new ConcurrentHashMap<>();
 
-	public PeerConnectionManager(SimpMessageSendingOperations messagingTemplate, StatusNotificationService statusNotificationService, AvailabilityNotificationService availabilityNotificationService, ApplicationEventPublisher publisher)
+	public PeerConnectionManager(StatusNotificationService statusNotificationService, AvailabilityNotificationService availabilityNotificationService, ApplicationEventPublisher publisher)
 	{
-		this.messagingTemplate = messagingTemplate;
 		this.statusNotificationService = statusNotificationService;
 		this.availabilityNotificationService = availabilityNotificationService;
 		this.publisher = publisher;
@@ -184,30 +177,6 @@ public class PeerConnectionManager
 	public int getNumberOfPeers()
 	{
 		return peers.size();
-	}
-
-	public void sendToClientSubscriptions(String path, MessageType type, Object payload)
-	{
-		var headers = buildMessageHeaders(type);
-		sendToClientSubscriptions(path, headers, payload);
-	}
-
-	public void sendToClientSubscriptions(String path, MessageType type, long destination, Object payload)
-	{
-		var headers = buildMessageHeaders(type, String.valueOf(destination));
-		sendToClientSubscriptions(path, headers, payload);
-	}
-
-	public void sendToClientSubscriptions(String path, MessageType type, Identifier destination, Object payload)
-	{
-		var headers = buildMessageHeaders(type, destination.toString());
-		sendToClientSubscriptions(path, headers, payload);
-	}
-
-	public void sendToClientSubscriptions(String path, Map<String, Object> headers, Object payload)
-	{
-		Objects.requireNonNull(payload, "Payload *must* be an object that can be serialized to JSON");
-		messagingTemplate.convertAndSend(path, payload, headers);
 	}
 
 	private void updateCurrentUsersCount()

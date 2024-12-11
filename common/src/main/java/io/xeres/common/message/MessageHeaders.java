@@ -19,9 +19,6 @@
 
 package io.xeres.common.message;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public final class MessageHeaders
 {
 	public static final String MESSAGE_TYPE = "messageType";
@@ -30,21 +27,5 @@ public final class MessageHeaders
 	private MessageHeaders()
 	{
 		throw new UnsupportedOperationException("Utility class");
-	}
-
-	public static Map<String, Object> buildMessageHeaders(MessageType messageType, String id)
-	{
-		Map<String, Object> headers = new HashMap<>();
-		headers.put(MESSAGE_TYPE, messageType.name());
-		if (id != null)
-		{
-			headers.put(DESTINATION_ID, id);
-		}
-		return headers;
-	}
-
-	public static Map<String, Object> buildMessageHeaders(MessageType messageType)
-	{
-		return buildMessageHeaders(messageType, null);
 	}
 }

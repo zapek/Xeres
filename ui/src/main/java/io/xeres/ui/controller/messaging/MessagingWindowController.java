@@ -208,7 +208,6 @@ public class MessagingWindowController implements WindowController
 		}
 		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
 		messageClient.sendToLocation(locationId, chatMessage);
-		receive.addOwnMessage(chatMessage);
 		send.clear();
 	}
 
@@ -309,7 +308,14 @@ public class MessagingWindowController implements WindowController
 			}
 			else
 			{
-				receive.addUserMessage(targetProfile.getName(), message.getContent());
+				if (message.isOwn())
+				{
+					receive.addOwnMessage(message);
+				}
+				else
+				{
+					receive.addUserMessage(targetProfile.getName(), message.getContent());
+				}
 				lastTypingTimeline.jumpTo(Duration.INDEFINITE);
 			}
 		}

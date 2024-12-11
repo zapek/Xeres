@@ -29,6 +29,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.MessageService;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.util.UnHtml;
 import io.xeres.app.xrs.common.Signature;
@@ -65,8 +66,9 @@ import java.util.concurrent.TimeUnit;
 import static io.xeres.app.xrs.service.RsServiceType.CHAT;
 import static io.xeres.common.location.Availability.AVAILABLE;
 import static io.xeres.common.location.Availability.OFFLINE;
+import static io.xeres.common.message.MessagePath.chatPrivateDestination;
+import static io.xeres.common.message.MessagePath.chatRoomDestination;
 import static io.xeres.common.message.MessageType.*;
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -156,6 +158,7 @@ public class ChatRsService extends RsService
 
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
+	private final MessageService messageService;
 	private final IdentityService identityService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final IdentityManager identityManager;
@@ -165,11 +168,12 @@ public class ChatRsService extends RsService
 
 	private ScheduledExecutorService executorService;
 
-	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
+	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
+		this.messageService = messageService;
 		this.identityService = identityService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
@@ -290,7 +294,7 @@ public class ChatRsService extends RsService
 			// Remove inactive gxsIds
 			chatRoom.getExpiredUsers().forEach(user -> {
 				chatRoom.removeUser(user);
-				sendTimeoutEventToClient(chatRoom.getId(), user, isEmpty(chatRoom.getParticipatingLocations()));
+				sendChatRoomTimeoutToConsumers(chatRoom.getId(), user, isEmpty(chatRoom.getParticipatingLocations()));
 			});
 
 			sendKeepAliveIfNeeded(chatRoom);
@@ -478,7 +482,7 @@ public class ChatRsService extends RsService
 
 	private void refreshChatRoomsInClients()
 	{
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_ROOM_LIST, buildChatRoomLists());
+		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_LIST, buildChatRoomLists());
 	}
 
 	private void handleChatRoomListRequestItem(PeerConnection peerConnection)
@@ -516,7 +520,7 @@ public class ChatRsService extends RsService
 		chatRoom.userActivity(user);
 		var message = parseIncomingText(item.getMessage());
 		chatBacklogService.storeIncomingChatRoomMessage(item.getRoomId(), user, item.getSenderNickname(), message);
-		sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_MESSAGE, user, item.getSenderNickname(), message);
+		sendChatRoomMessageToConsumers(item.getRoomId(), user, item.getSenderNickname(), message);
 
 		chatRoom.incrementConnectionChallengeCount();
 	}
@@ -542,47 +546,48 @@ public class ChatRsService extends RsService
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
 			chatRoom.removeUser(user);
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_LEAVE, user, item.getSenderNickname(), null);
+			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_LEAVE, user, item.getSenderNickname());
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_JOINED.getCode())
 		{
 			chatRoom.addUser(user);
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
+			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
 			chatRoom.setLastKeepAlivePacket(Instant.EPOCH); // send a keep alive event to the participant so that he knows we are in the room
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
 			chatRoom.addUser(user); // KEEP_ALIVE is also used to add users
-			sendUserEventToClient(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
+			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
 		{
 			chatRoom.userActivity(user);
-			sendUserMessageToClient(item.getRoomId(), CHAT_ROOM_TYPING_NOTIFICATION, user, item.getSenderNickname(), null);
+			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_TYPING_NOTIFICATION, user, item.getSenderNickname());
 		}
 	}
 
-	private void sendUserEventToClient(long roomId, MessageType messageType)
-	{
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, new ChatRoomMessage());
-	}
-
-	private void sendUserEventToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, IdentityGroupItem identityGroupItem)
+	private void sendChatRoomEventToConsumers(long roomId, MessageType messageType, GxsId gxsId, String nickname, IdentityGroupItem identityGroupItem)
 	{
 		var chatRoomUserEvent = new ChatRoomUserEvent(gxsId, nickname, identityGroupItem != null ? identityGroupItem.getId() : 0L);
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomUserEvent);
+		messageService.sendToConsumers(chatRoomDestination(), messageType, roomId, chatRoomUserEvent);
 	}
 
-	private void sendTimeoutEventToClient(long roomId, GxsId gxsId, boolean split)
+	private void sendChatRoomEventToConsumers(long roomId, MessageType messageType, GxsId gxsId, String nickname)
+	{
+		var chatRoomMessage = new ChatRoomMessage(nickname, gxsId, null);
+		messageService.sendToConsumers(chatRoomDestination(), messageType, roomId, chatRoomMessage);
+	}
+
+	private void sendChatRoomTimeoutToConsumers(long roomId, GxsId gxsId, boolean split)
 	{
 		var chatRoomTimeoutEvent = new ChatRoomTimeoutEvent(gxsId, split);
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_ROOM_USER_TIMEOUT, roomId, chatRoomTimeoutEvent);
+		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_USER_TIMEOUT, roomId, chatRoomTimeoutEvent);
 	}
 
-	private void sendUserMessageToClient(long roomId, MessageType messageType, GxsId gxsId, String nickname, String content)
+	private void sendChatRoomMessageToConsumers(long roomId, GxsId gxsId, String nickname, String content)
 	{
 		var chatRoomMessage = new ChatRoomMessage(nickname, gxsId, content);
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, messageType, roomId, chatRoomMessage);
+		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_MESSAGE, roomId, chatRoomMessage);
 	}
 
 	private void sendInviteToClient(LocationId locationId, long roomId, String roomName, String roomTopic)
@@ -592,7 +597,7 @@ public class ChatRsService extends RsService
 			return; // Don't show multiple requesters
 		}
 		var chatRoomInvite = new ChatRoomInviteEvent(locationId.toString(), roomName, roomTopic);
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_ROOM_INVITE, roomId, chatRoomInvite);
+		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_INVITE, roomId, chatRoomInvite);
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -689,8 +694,7 @@ public class ChatRsService extends RsService
 		log.debug("Got status item from peer {}: {}", peerConnection, item);
 		if (MESSAGE_TYPING_CONTENT.equals(item.getStatus()))
 		{
-			var privateChatMessage = new PrivateChatMessage();
-			peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_TYPING_NOTIFICATION, peerConnection.getLocation().getLocationId(), privateChatMessage);
+			messageService.sendToConsumers(chatPrivateDestination(), CHAT_TYPING_NOTIFICATION, peerConnection.getLocation().getLocationId(), new ChatMessage());
 		}
 		else
 		{
@@ -747,9 +751,9 @@ public class ChatRsService extends RsService
 			peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
 		}
 		var from = peerConnection.getLocation().getLocationId();
-		var privateChatMessage = new PrivateChatMessage(parseIncomingText(message));
-		chatBacklogService.storeIncomingMessage(from, privateChatMessage.getContent());
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_PRIVATE_MESSAGE, from, privateChatMessage);
+		var chatMessage = new ChatMessage(parseIncomingText(message));
+		chatBacklogService.storeIncomingMessage(from, chatMessage.getContent());
+		messageService.sendToConsumers(chatPrivateDestination(), CHAT_PRIVATE_MESSAGE, from, chatMessage);
 	}
 
 	private void handlePartialMessage(PeerConnection peerConnection, ChatMessageItem item)
@@ -777,7 +781,7 @@ public class ChatRsService extends RsService
 		}
 
 		var chatAvatar = new ChatAvatar(item.getImageData());
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVATAR, peerConnection.getLocation().getLocationId(), chatAvatar);
+		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVATAR, peerConnection.getLocation().getLocationId(), chatAvatar);
 	}
 
 	/**
@@ -1052,13 +1056,13 @@ public class ChatRsService extends RsService
 
 			chatRoom.getParticipatingLocations().forEach(location -> inviteLocationToChatRoom(location, chatRoom, Invitation.PLAIN));
 
-			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_JOIN);
+			messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_JOIN, chatRoom.getId(), new ChatRoomMessage());
 			chatRoom.addUser(ownIdentity.getGxsId());
 
 			sendJoinEventIfNeeded(chatRoom);
 
 			// Add ourselves in the UI so that we're shown as joining
-			sendUserEventToClient(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsId(), ownIdentity.getName(), ownIdentity);
+			sendChatRoomEventToConsumers(chatRoom.getId(), CHAT_ROOM_USER_JOIN, ownIdentity.getGxsId(), ownIdentity.getName(), ownIdentity);
 		}
 	}
 
@@ -1093,7 +1097,7 @@ public class ChatRsService extends RsService
 		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities
 
 		chatRoomToRemove.getParticipatingLocations().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));
-		sendUserEventToClient(chatRoomToRemove.getId(), CHAT_ROOM_LEAVE);
+		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_LEAVE, chatRoomToRemove.getId(), new ChatRoomMessage());
 	}
 
 	public long createChatRoom(String roomName, String topic, Set<RoomFlags> flags, boolean signedIdentities)
@@ -1137,13 +1141,13 @@ public class ChatRsService extends RsService
 	@EventListener
 	public void onPeerConnectedEvent(PeerConnectedEvent event)
 	{
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, event.locationId(), AVAILABLE);
+		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, event.locationId(), AVAILABLE);
 	}
 
 	@EventListener
 	public void onPeerDisconnectedEvent(PeerDisconnectedEvent event)
 	{
-		peerConnectionManager.sendToClientSubscriptions(CHAT_PATH, CHAT_AVAILABILITY, event.locationId(), OFFLINE);
+		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, event.locationId(), OFFLINE);
 	}
 
 	private long createUniqueRoomId()

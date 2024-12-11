@@ -19,6 +19,7 @@
 
 package io.xeres.common.message.chat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.xeres.common.id.GxsId;
 
 public class ChatRoomMessage
@@ -80,6 +81,12 @@ public class ChatRoomMessage
 		this.content = content;
 	}
 
+	public boolean isOwn()
+	{
+		return senderNickname == null;
+	}
+
+	@JsonIgnore
 	public boolean isEmpty()
 	{
 		return content == null;

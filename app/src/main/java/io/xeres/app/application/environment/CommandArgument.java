@@ -94,7 +94,7 @@ public final class CommandArgument
 				case REMOTE_CONNECT -> {
 					var ipAndPort = appArgs.getOptionValues(arg).stream()
 							.findFirst()
-							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:1066'"));
+							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:6232'"));
 					StartupProperties.setUiRemoteConnect(ipAndPort);
 				}
 				case REMOTE_PASSWORD -> setString(StartupProperties.Property.REMOTE_PASSWORD, appArgs, arg);

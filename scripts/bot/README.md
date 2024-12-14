@@ -66,7 +66,7 @@ You need a `config.json` file in the same directory which looks like the followi
 ```
 {
     "xeres": {
-        "api_url": "http://localhost:1066",
+        "api_url": "http://localhost:6232",
         "profile_name": "YourBotName",
         "location_name": "YourLocationName",
         "friend_ids": [

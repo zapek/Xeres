@@ -351,4 +351,14 @@ public class SettingsService
 		settings.setVersion(version);
 		settingsRepository.save(settings);
 	}
+
+	public boolean isUpnpRemoteEnabled()
+	{
+		return settings.isRemoteEnabled() && settings.isUpnpRemoteEnabled();
+	}
+
+	public boolean isRemoteEnabled()
+	{
+		return settings.isRemoteEnabled();
+	}
 }

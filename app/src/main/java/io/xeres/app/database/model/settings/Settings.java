@@ -62,6 +62,10 @@ public class Settings
 
 	private String remotePassword;
 
+	private boolean remoteEnabled;
+
+	private boolean upnpRemoteEnabled;
+
 	protected Settings()
 	{
 	}
@@ -234,5 +238,25 @@ public class Settings
 	public void setRemotePassword(String remotePassword)
 	{
 		this.remotePassword = remotePassword;
+	}
+
+	public boolean isRemoteEnabled()
+	{
+		return remoteEnabled;
+	}
+
+	public void setRemoteEnabled(boolean remoteEnabled)
+	{
+		this.remoteEnabled = remoteEnabled;
+	}
+
+	public boolean isUpnpRemoteEnabled()
+	{
+		return upnpRemoteEnabled;
+	}
+
+	public void setUpnpRemoteEnabled(boolean upnpRemoteEnabled)
+	{
+		this.upnpRemoteEnabled = upnpRemoteEnabled;
 	}
 }

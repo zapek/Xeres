@@ -47,6 +47,8 @@ public final class SettingsMapper
 		settings.setAutoStartEnabled(dto.autoStartEnabled());
 		settings.setIncomingDirectory(dto.incomingDirectory());
 		settings.setRemotePassword(dto.remotePassword());
+		settings.setRemoteEnabled(dto.remoteEnabled());
+		settings.setRemoteUpnpEnabled(dto.upnpRemoteEnabled());
 		return settings;
 	}
 
@@ -67,7 +69,9 @@ public final class SettingsMapper
 				settings.isDhtEnabled(),
 				settings.isAutoStartEnabled(),
 				settings.getIncomingDirectory(),
-				settings.getRemotePassword()
+				settings.getRemotePassword(),
+				settings.isRemoteEnabled(),
+				settings.isRemoteUpnpEnabled()
 		);
 	}
 }

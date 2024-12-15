@@ -23,8 +23,11 @@ import atlantafx.base.controls.PasswordTextField;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.model.settings.Settings;
+import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.control.CheckBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
@@ -39,12 +42,34 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class SettingsRemoteController implements SettingsController
 {
 	@FXML
+	private CheckBox remoteEnabled;
+
+	@FXML
 	private PasswordTextField password;
 
 	@FXML
 	private ReadOnlyTextField port;
 
+	@FXML
+	private ReadOnlyTextField username;
+
+	@FXML
+	private CheckBox remoteUpnpEnabled;
+
+	private boolean noUpnp;
+
 	private Settings settings;
+
+	private boolean originalRemoteEnabled;
+
+	private String originalPassword;
+
+	private final TrayService trayService;
+
+	public SettingsRemoteController(TrayService trayService)
+	{
+		this.trayService = trayService;
+	}
 
 	@Override
 	public void initialize() throws IOException
@@ -56,6 +81,8 @@ public class SettingsRemoteController implements SettingsController
 			password.setRevealPassword(!password.getRevealPassword());
 		});
 		password.setRight(icon);
+
+		remoteEnabled.setOnAction(actionEvent -> checkDisabled());
 	}
 
 	@Override
@@ -63,15 +90,38 @@ public class SettingsRemoteController implements SettingsController
 	{
 		this.settings = settings;
 
+		noUpnp = !settings.isUpnpEnabled();
+
+		remoteEnabled.setSelected(settings.isRemoteEnabled());
+		remoteUpnpEnabled.setSelected(settings.isRemoteUpnpEnabled());
+		checkDisabled();
 		password.setText(settings.getRemotePassword());
 		port.setText(String.valueOf(StartupProperties.getInteger(CONTROL_PORT)));
+
+		originalRemoteEnabled = settings.isRemoteEnabled();
+		originalPassword = settings.getRemotePassword();
 	}
 
 	@Override
 	public Settings onSave()
 	{
 		settings.setRemotePassword(isBlank(password.getPassword()) ? null : password.getPassword());
+		settings.setRemoteEnabled(remoteEnabled.isSelected());
+		settings.setRemoteUpnpEnabled(remoteUpnpEnabled.isSelected());
+
+		if (originalRemoteEnabled != settings.isRemoteEnabled() || !originalPassword.equals(settings.getRemotePassword()))
+		{
+			UiUtils.alertConfirm("You need to restart Xeres in order for the remote access changes to be effective. Exit now?", trayService::exitApplication);
+		}
 
 		return settings;
+	}
+
+	private void checkDisabled()
+	{
+		port.setDisable(!remoteEnabled.isSelected());
+		username.setDisable(!remoteEnabled.isSelected());
+		password.setDisable(!remoteEnabled.isSelected());
+		remoteUpnpEnabled.setDisable(noUpnp || !remoteEnabled.isSelected());
 	}
 }

@@ -779,7 +779,10 @@ public class ContactViewController implements Controller
 				profileClient.findById(profileId)
 						.doOnSuccess(profile -> Platform.runLater(() -> {
 							existing.setValue(Contact.withAvailability(existing.getValue(), profile.getLocations().stream()
-									.anyMatch(Location::isConnected) ? Availability.AVAILABLE : Availability.OFFLINE));
+									.filter(Location::isConnected)
+									.min(Comparator.comparing(location -> location.getAvailability().ordinal()))
+									.map(Location::getAvailability)
+									.orElse(Availability.OFFLINE)));
 							refreshContactIfNeeded(existing);
 						}))
 						.subscribe();

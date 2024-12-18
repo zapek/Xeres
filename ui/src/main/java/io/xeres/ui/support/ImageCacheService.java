@@ -63,7 +63,7 @@ public class ImageCacheService implements ImageCache
 	@Override
 	public void putImage(String url, Image image)
 	{
-		if (!isImageCacheable(image))
+		if (url.startsWith("data:") || !isImageCacheable(image))
 		{
 			return;
 		}

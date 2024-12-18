@@ -32,15 +32,17 @@ public final class SettingsDTOFakes
 
 	public static SettingsDTO create()
 	{
-		return new SettingsDTO(RandomStringUtils.randomAlphanumeric(30),
+		return new SettingsDTO(RandomStringUtils.secure().nextAlphanumeric(30),
 				IdFakes.createInt(),
-				RandomStringUtils.randomAlphanumeric(30),
+				RandomStringUtils.secure().nextAlphanumeric(30),
 				IdFakes.createInt(),
 				BooleanFakes.create(),
 				BooleanFakes.create(),
 				BooleanFakes.create(),
 				BooleanFakes.create(),
 				"/foo/bar",
-				"foobar1234");
+				"foobar1234",
+				BooleanFakes.create(),
+				BooleanFakes.create());
 	}
 }

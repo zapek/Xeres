@@ -81,9 +81,9 @@ public class ContactService
 
 	private Availability getAvailability(Profile profile)
 	{
-		if (profile != null && profile.isConnected())
+		if (profile != null)
 		{
-			return Availability.AVAILABLE;
+			return profile.getBestAvailability();
 		}
 		return Availability.OFFLINE;
 	}

@@ -41,6 +41,10 @@ public class Settings implements Cloneable
 
 	private String remotePassword;
 
+	private boolean remoteEnabled;
+
+	private boolean isRemoteUpnpEnabled;
+
 	public String getTorSocksHost()
 	{
 		return torSocksHost;
@@ -144,6 +148,26 @@ public class Settings implements Cloneable
 	public void setRemotePassword(String remotePassword)
 	{
 		this.remotePassword = remotePassword;
+	}
+
+	public boolean isRemoteEnabled()
+	{
+		return remoteEnabled;
+	}
+
+	public void setRemoteEnabled(boolean enabled)
+	{
+		remoteEnabled = enabled;
+	}
+
+	public boolean isRemoteUpnpEnabled()
+	{
+		return isRemoteUpnpEnabled;
+	}
+
+	public void setRemoteUpnpEnabled(boolean remoteUpnpEnabled)
+	{
+		isRemoteUpnpEnabled = remoteUpnpEnabled;
 	}
 
 	@Override

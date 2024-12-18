@@ -30,38 +30,52 @@
       fx:controller="io.xeres.ui.controller.settings.SettingsRemoteController">
     <Card>
         <header>
-            <Label text="%settings.remote.auth" styleClass="title-4"/>
+            <Label text="%settings.remote.title" styleClass="title-4"/>
         </header>
         <body>
             <GridPane hgap="8" vgap="8">
                 <columnConstraints>
                     <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308"/>
+                    <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                 </columnConstraints>
                 <rowConstraints>
                     <RowConstraints vgrow="ALWAYS"/>
                     <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
                 </rowConstraints>
-                <Label text="%settings.network.port">
-                    <GridPane.margin>
-                        <Insets right="4.0"/>
-                    </GridPane.margin>
-                </Label>
-                <ReadOnlyTextField fx:id="port" GridPane.columnIndex="1"/>
-                <Label text="%settings.remote.username" GridPane.rowIndex="1">
-                    <GridPane.margin>
-                        <Insets right="4.0"/>
-                    </GridPane.margin>
-                </Label>
-                <ReadOnlyTextField text="user" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <Label text="%settings.remote.password" GridPane.rowIndex="2">
-                    <GridPane.margin>
-                        <Insets right="4.0"/>
-                    </GridPane.margin>
-                </Label>
-                <PasswordTextField fx:id="password" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <CheckBox fx:id="remoteEnabled" mnemonicParsing="false" text="Enabled" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Enable remote access. It can be accessed either from another Xeres instance or from the Android client."/>
+                    </tooltip>
+                </CheckBox>
 
-                <Label wrapText="true" GridPane.rowIndex="3" GridPane.columnSpan="2" styleClass="text-small" text="%settings.remote.note"/>
+                <Label text="%settings.network.port" GridPane.rowIndex="1">
+                    <GridPane.margin>
+                        <Insets right="4.0"/>
+                    </GridPane.margin>
+                </Label>
+                <ReadOnlyTextField fx:id="port" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <CheckBox fx:id="remoteUpnpEnabled" mnemonicParsing="false" text="Set with UPNP" GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Set the remote port with UPNP, making it accessible from the WAN."/>
+                    </tooltip>
+                </CheckBox>
+
+                <Label text="%settings.remote.username" GridPane.rowIndex="2">
+                    <GridPane.margin>
+                        <Insets right="4.0"/>
+                    </GridPane.margin>
+                </Label>
+                <ReadOnlyTextField fx:id="username" text="user" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="2147483647"/>
+                <Label text="%settings.remote.password" GridPane.rowIndex="3">
+                    <GridPane.margin>
+                        <Insets right="4.0"/>
+                    </GridPane.margin>
+                </Label>
+                <PasswordTextField fx:id="password" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2147483647"/>
+                <Label wrapText="true" GridPane.rowIndex="5" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" styleClass="text-small" text="%settings.remote.note"/>
             </GridPane>
         </body>
     </Card>

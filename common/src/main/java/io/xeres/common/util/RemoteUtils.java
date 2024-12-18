@@ -41,7 +41,7 @@ public final class RemoteUtils
 
 	private static int getControlPort()
 	{
-		return Integer.parseInt(System.getProperty("xrs.ui.port", "1066"));
+		return Integer.parseInt(System.getProperty("xrs.ui.port", "6232"));
 	}
 
 	public static String getControlUrl()

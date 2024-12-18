@@ -29,7 +29,9 @@ public record SettingsDTO(
 		boolean dhtEnabled,
 		boolean autoStartEnabled,
 		String incomingDirectory,
-		String remotePassword
+		String remotePassword,
+		boolean remoteEnabled,
+		boolean upnpRemoteEnabled
 )
 {
 }

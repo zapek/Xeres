@@ -22,6 +22,7 @@ package io.xeres.app.database.model.profile;
 import io.xeres.app.database.converter.TrustConverter;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.ProfileFingerprint;
+import io.xeres.common.location.Availability;
 import io.xeres.common.pgp.Trust;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +37,7 @@ import org.bouncycastle.util.encoders.Hex;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static io.xeres.common.dto.profile.ProfileConstants.*;
@@ -265,6 +267,16 @@ public class Profile
 	public boolean isConnected()
 	{
 		return getLocations().stream().anyMatch(Location::isConnected);
+	}
+
+	public Availability getBestAvailability()
+	{
+		return getLocations().stream()
+				.filter(Location::isConnected)
+				.min(Comparator.comparing(location -> location.getAvailability().ordinal()))
+				.map(Location::getAvailability)
+				.orElse(Availability.OFFLINE);
+
 	}
 
 	@Override

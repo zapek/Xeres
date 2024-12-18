@@ -108,6 +108,7 @@ public class UPNPService implements Runnable
 
 	private String localIpAddress;
 	private int localPort;
+	private int controlPort;
 	private Thread thread;
 
 	private SocketAddress multicastAddress;
@@ -125,11 +126,12 @@ public class UPNPService implements Runnable
 		this.databaseSessionManager = databaseSessionManager;
 	}
 
-	public void start(String localIpAddress, int localPort)
+	public void start(String localIpAddress, int localPort, int controlPort)
 	{
 		log.info("Starting UPNP service...");
 		this.localIpAddress = localIpAddress;
 		this.localPort = localPort;
+		this.controlPort = controlPort;
 
 		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
 
@@ -412,6 +414,10 @@ public class UPNPService implements Runnable
 		// XXX: add a mechanism if the localport is already taken on the router?
 		var refreshed = device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.TCP);
 		refreshed &= device.addPortMapping(localIpAddress, localPort, localPort, PORT_DURATION / 1000, Protocol.UDP);
+		if (controlPort != 0)
+		{
+			refreshed &= device.addPortMapping(localIpAddress, controlPort, controlPort, PORT_DURATION / 1000, Protocol.TCP);
+		}
 
 		if (refreshed)
 		{

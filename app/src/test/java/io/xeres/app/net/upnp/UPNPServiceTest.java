@@ -43,7 +43,7 @@ class UPNPServiceTest
 	@Test
 	void StartStop_Success()
 	{
-		upnpService.start("127.0.0.1", 1901); // nothing should reply in there
+		upnpService.start("127.0.0.1", 1901, 0); // nothing should reply in there
 		await().atMost(Duration.ofSeconds(2)).until(() -> upnpService.isRunning());
 
 		upnpService.stop();

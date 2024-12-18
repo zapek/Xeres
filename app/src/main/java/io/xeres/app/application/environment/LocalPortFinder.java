@@ -32,7 +32,7 @@ public final class LocalPortFinder
 {
 	private static final Logger log = LoggerFactory.getLogger(LocalPortFinder.class);
 
-	private static final int DEFAULT_PORT = 1066;
+	private static final int DEFAULT_PORT = 6232;
 	private static final int MAX_INSTANCES = 1024;
 
 	private LocalPortFinder()

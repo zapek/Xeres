@@ -31,6 +31,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 
 import static io.xeres.common.properties.StartupProperties.Property.CONTROL_PASSWORD;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -45,13 +46,27 @@ public class WebSecurityConfiguration
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(authorize -> {
-					if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
-							{
-								authorize.anyRequest().authenticated();
-							}
-							else
-							{
-								authorize.anyRequest().anonymous();
+					if (settingsService.isRemoteEnabled())
+					{
+						if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
+						{
+							authorize.anyRequest().authenticated();
+						}
+						else
+						{
+							authorize.anyRequest().anonymous();
+						}
+					}
+					else
+					{
+						if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
+						{
+							authorize.anyRequest().access(new WebExpressionAuthorizationManager("isAuthenticated() && hasIpAddress('127.0.0.1')"));
+						}
+						else
+						{
+							authorize.anyRequest().access(new WebExpressionAuthorizationManager("isAnonymous() && hasIpAddress('127.0.0.1')"));
+						}
 							}
 						}
 				)

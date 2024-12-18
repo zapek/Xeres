@@ -38,10 +38,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static io.xeres.common.properties.StartupProperties.Property.CONTROL_PORT;
 import static io.xeres.common.properties.StartupProperties.Property.SERVER_PORT;
 
 @Service
@@ -164,7 +166,7 @@ public class NetworkService
 					dhtService.stop();
 					upnpService.stop();
 				}
-				upnpService.start(localIpAddress, settingsService.getLocalPort());
+				upnpService.start(localIpAddress, settingsService.getLocalPort(), settingsService.isUpnpRemoteEnabled() ? Objects.requireNonNull(StartupProperties.getInteger(CONTROL_PORT)) : 0);
 			}
 			else
 			{
@@ -333,13 +335,23 @@ public class NetworkService
 		{
 			if (newSettings.isUpnpEnabled())
 			{
-				upnpService.start(localIpAddress, newSettings.getLocalPort());
+				upnpService.start(localIpAddress, newSettings.getLocalPort(), getRemotePortForUpnp(newSettings));
 			}
 			else
 			{
 				upnpService.stop();
 			}
 		}
+		else if (newSettings.isUpnpRemoteEnabled() != oldSettings.isUpnpRemoteEnabled())
+		{
+			upnpService.stop();
+			upnpService.start(localIpAddress, newSettings.getLocalPort(), getRemotePortForUpnp(newSettings));
+		}
+	}
+
+	private int getRemotePortForUpnp(Settings settings)
+	{
+		return (settings.isRemoteEnabled() && settings.isUpnpRemoteEnabled()) ? Objects.requireNonNull(StartupProperties.getInteger(CONTROL_PORT)) : 0;
 	}
 
 	private void applyTor(Settings oldSettings, Settings newSettings)

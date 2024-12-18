@@ -3,7 +3,7 @@ services:
   xeres:
     image: zapek/xeres:0.6.3
     ports:
-      - "1067:1066"
+      - "6232:6232"
       - "3335:3335"
     environment:
       - SPRING_PROFILES_ACTIVE=cloud

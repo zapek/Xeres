@@ -94,7 +94,7 @@ public final class CommandArgument
 				case REMOTE_CONNECT -> {
 					var ipAndPort = appArgs.getOptionValues(arg).stream()
 							.findFirst()
-							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:1066'"));
+							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:6232'"));
 					StartupProperties.setUiRemoteConnect(ipAndPort);
 				}
 				case REMOTE_PASSWORD -> setString(StartupProperties.Property.REMOTE_PASSWORD, appArgs, arg);
@@ -172,7 +172,7 @@ public final class CommandArgument
 				   --no-gui                            start without an UI
 				   --iconified                         start iconified into the tray
 				   --data-dir=<path>                   specify the data directory
-				   --control-address=<host>            specify the address to bind to for incoming remote access (defaults to localhost only)
+				   --control-address=<host>            specify the address to bind to for incoming remote access (defaults to all interfaces)
 				   --control-port=<port>               specify the control port for remote access
 				   --no-control-password               do not protect the control address with a password
 				   --no-https                          do not use HTTPS for the control connection

@@ -70,6 +70,8 @@ public final class IP
 			5222,  // Jabber
 			5223,  // Jabber
 			5269,  // Jabber
+			6232,  // Ourself
+			6233,  // Ourself + 1
 			6667,  // IRC
 			6697,  // IRCS
 			6881,  // Bittorrent

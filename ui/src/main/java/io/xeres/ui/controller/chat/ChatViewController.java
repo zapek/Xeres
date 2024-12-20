@@ -36,6 +36,8 @@ import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.sound.SoundService;
+import io.xeres.ui.support.sound.SoundService.SoundType;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.ChatRoomUriFactory;
@@ -162,6 +164,7 @@ public class ChatViewController implements Controller
 	private final PreferenceService preferenceService;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
+	private final SoundService soundService;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -181,7 +184,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService, GeneralClient generalClient, ImageCache imageCache)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService, GeneralClient generalClient, ImageCache imageCache, SoundService soundService)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -192,13 +195,14 @@ public class ChatViewController implements Controller
 		this.bundle = bundle;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
+		this.preferenceService = preferenceService;
+		this.generalClient = generalClient;
+		this.imageCache = imageCache;
+		this.soundService = soundService;
 
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
 		publicRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.public")));
-		this.preferenceService = preferenceService;
-		this.generalClient = generalClient;
-		this.imageCache = imageCache;
 	}
 
 	@Override
@@ -625,6 +629,7 @@ public class ChatViewController implements Controller
 	{
 		if (message.startsWith(nickname) || message.startsWith("@" + nickname) || message.contains(" " + nickname))
 		{
+			soundService.play(SoundType.HIGHLIGHT);
 			trayService.setEventIfIconified();
 		}
 	}

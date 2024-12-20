@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import atlantafx.base.controls.Card?>
+<?import atlantafx.base.layout.InputGroup?>
+<?import io.xeres.ui.custom.ReadOnlyTextField?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="12.0" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="io.xeres.ui.controller.settings.SettingsSoundController">
+    <Card>
+        <header>
+            <Label text="Sounds" styleClass="title-4"/>
+        </header>
+        <body>
+            <GridPane hgap="8" vgap="8">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308"/>
+                    <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                </rowConstraints>
+                <!-- Message -->
+                <CheckBox fx:id="messageEnabled" text="%settings.sound.message" selected="true">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.sound.message.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <InputGroup GridPane.columnIndex="1">
+                    <ReadOnlyTextField fx:id="messageFile" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="messageFileSelector" styleClass="button-icon">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-folder-open"/>
+                        </graphic>
+                    </Button>
+                </InputGroup>
+                <Button fx:id="messagePlay" styleClass="button-icon" GridPane.columnIndex="2">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-play"/>
+                    </graphic>
+                </Button>
+
+                <!-- Highlight -->
+                <CheckBox fx:id="highlightEnabled" GridPane.rowIndex="1" text="%settings.sound.highlight" selected="true">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.sound.highlight.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <InputGroup GridPane.rowIndex="1" GridPane.columnIndex="1">
+                    <ReadOnlyTextField fx:id="highlightFile" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="highlightFileSelector" styleClass="button-icon">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-folder-open"/>
+                        </graphic>
+                    </Button>
+                </InputGroup>
+                <Button fx:id="highlightPlay" styleClass="button-icon" GridPane.rowIndex="1" GridPane.columnIndex="2">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-play"/>
+                    </graphic>
+                </Button>
+
+                <!-- Friend connected -->
+                <CheckBox fx:id="friendEnabled" GridPane.rowIndex="2" text="%settings.sound.friend" selected="true">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.sound.friend.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <InputGroup GridPane.rowIndex="2" GridPane.columnIndex="1">
+                    <ReadOnlyTextField fx:id="friendFile" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="friendFileSelector" styleClass="button-icon">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-folder-open"/>
+                        </graphic>
+                    </Button>
+                </InputGroup>
+                <Button fx:id="friendPlay" styleClass="button-icon" GridPane.rowIndex="2" GridPane.columnIndex="2">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-play"/>
+                    </graphic>
+                </Button>
+
+                <!-- Download complete -->
+                <CheckBox fx:id="downloadEnabled" GridPane.rowIndex="3" text="%settings.sound.download" selected="true">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.sound.download.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <InputGroup GridPane.rowIndex="3" GridPane.columnIndex="1">
+                    <ReadOnlyTextField fx:id="downloadFile" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="downloadFileSelector" styleClass="button-icon">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-folder-open"/>
+                        </graphic>
+                    </Button>
+                </InputGroup>
+                <Button fx:id="downloadPlay" styleClass="button-icon" GridPane.rowIndex="3" GridPane.columnIndex="2">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-play"/>
+                    </graphic>
+                </Button>
+            </GridPane>
+        </body>
+    </Card>
+</VBox>

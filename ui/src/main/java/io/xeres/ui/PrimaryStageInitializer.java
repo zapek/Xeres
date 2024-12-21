@@ -25,6 +25,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.ChatFrameHandler;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Hooks;
 
@@ -74,6 +76,7 @@ public class PrimaryStageInitializer
 						windowManager.openAccountCreation(event.getStage());
 					}
 				})
+				.doOnError(WebClientRequestException.class, e -> UiUtils.showAlertError(e, Platform::exit))
 				.subscribe();
 	}
 

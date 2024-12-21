@@ -80,6 +80,11 @@ public final class UiUtils
 	 */
 	public static void showAlertError(Throwable t)
 	{
+		showAlertError(t, null);
+	}
+
+	public static void showAlertError(Throwable t, Runnable action)
+	{
 		Platform.runLater(() -> {
 			if (t instanceof WebClientResponseException e)
 			{
@@ -108,6 +113,10 @@ public final class UiUtils
 			else
 			{
 				alert(ERROR, "Error", t.getMessage(), ExceptionUtils.getStackTrace(t));
+			}
+			if (action != null)
+			{
+				action.run();
 			}
 			log.error("Error: {}", t.getMessage(), t);
 		});

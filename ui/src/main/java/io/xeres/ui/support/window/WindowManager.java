@@ -53,6 +53,8 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.sound.SoundService;
+import io.xeres.ui.support.sound.SoundService.SoundType;
 import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.UiUtils;
@@ -99,6 +101,7 @@ public class WindowManager
 	private final NotificationClient notificationClient;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
+	private final SoundService soundService;
 	private static ResourceBundle bundle;
 	private static PreferenceService preferenceService;
 	private static AppThemeManager appThemeManager;
@@ -114,7 +117,7 @@ public class WindowManager
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -128,6 +131,7 @@ public class WindowManager
 		this.notificationClient = notificationClient;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
+		this.soundService = soundService;
 		WindowManager.bundle = bundle;
 		WindowManager.preferenceService = preferenceService;
 		WindowManager.appThemeManager = appThemeManager;
@@ -211,7 +215,11 @@ public class WindowManager
 								// app, this will make the taskbar blink if the window is in there.
 								if (!chatMessage.isEmpty() && !isAnyWindowFocused() && !isBusy)
 								{
-									window.requestFocus();
+									if (!window.isFocused())
+									{
+										soundService.play(SoundType.MESSAGE);
+										window.requestFocus();
+									}
 								}
 							}
 							((MessagingWindowController) window.getUserData()).showMessage(chatMessage);
@@ -235,6 +243,7 @@ public class WindowManager
 								else
 								{
 									builder.open();
+									soundService.play(SoundType.MESSAGE);
 								}
 							}
 						}));

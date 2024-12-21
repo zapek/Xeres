@@ -25,6 +25,7 @@ import io.xeres.common.tray.TrayNotificationType;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.support.notification.NotificationSettings;
+import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
@@ -62,16 +63,18 @@ public class TrayService
 	private final NotificationClient notificationClient;
 	private final ConfigClient configClient;
 	private final NotificationSettings notificationSettings;
+	private final SoundService soundService;
 	private final ResourceBundle bundle;
 
 	private Disposable availabilityNotificationDisposable;
 
-	public TrayService(WindowManager windowManager, NotificationClient notificationClient, ConfigClient configClient, NotificationSettings notificationSettings, ResourceBundle bundle)
+	public TrayService(WindowManager windowManager, NotificationClient notificationClient, ConfigClient configClient, NotificationSettings notificationSettings, SoundService soundService, ResourceBundle bundle)
 	{
 		this.windowManager = windowManager;
 		this.notificationClient = notificationClient;
 		this.configClient = configClient;
 		this.notificationSettings = notificationSettings;
+		this.soundService = soundService;
 		this.bundle = bundle;
 	}
 
@@ -313,6 +316,10 @@ public class TrayService
 		if (hasSystemTray && isNotificationAllowed(type))
 		{
 			trayIcon.displayMessage(AppName.NAME, message, TrayIcon.MessageType.NONE);
+			if (type == TrayNotificationType.CONNECTION)
+			{
+				soundService.play(SoundService.SoundType.FRIEND);
+			}
 		}
 	}
 

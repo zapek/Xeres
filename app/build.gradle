@@ -91,7 +91,6 @@ test {
 
 tasks.register('copyInstaller', Copy) {
     from "${parent.rootDir}/installer"
-    include "*"
     into "${base.libsDirectory.get()}"
     doNotTrackState("Copying installation file need to re-run every time")
 }

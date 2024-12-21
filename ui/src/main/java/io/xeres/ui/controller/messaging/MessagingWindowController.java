@@ -402,10 +402,13 @@ public class MessagingWindowController implements WindowController
 			sendTypingNotificationIfNeeded();
 			event.consume();
 		}
-		else if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
+		else if (event.getCode() == KeyCode.ENTER)
 		{
-			sendMessage(send.getText());
-			lastTypingNotification = Instant.EPOCH;
+			if (isNotBlank(send.getText()))
+			{
+				sendMessage(send.getText());
+				lastTypingNotification = Instant.EPOCH;
+			}
 			event.consume();
 		}
 		else

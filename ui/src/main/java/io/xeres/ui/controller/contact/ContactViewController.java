@@ -397,7 +397,7 @@ public class ContactViewController implements Controller
 			{
 				return;
 			}
-			log.debug("Selection property changed, old: {}, new: {}", oldValue, newValue);
+			//log.debug("Selection property changed, old: {}, new: {}", oldValue, newValue);
 			displayContact(newValue);
 		});
 
@@ -411,7 +411,7 @@ public class ContactViewController implements Controller
 		// to save the selection before the sortedList (and then filteredList) are
 		// updated.
 		sortedList.addListener((InvalidationListener) c -> {
-			log.debug("Sorting invalidated, selected index: {}", contactTreeTableView.getSelectionModel().getSelectedIndex());
+			//log.debug("Sorting invalidated, selected index: {}", contactTreeTableView.getSelectionModel().getSelectedIndex());
 			if (!sortedList.isEmpty()) // Empty lists don't get passed on to filtered list and would get locked forever
 			{
 				contactListLocked = true;
@@ -422,7 +422,7 @@ public class ContactViewController implements Controller
 		// Then we restore the selection after filteredList has been
 		// updated.
 		filteredList.addListener((ListChangeListener<? super TreeItem<Contact>>) c -> {
-			log.debug("FilteredList changed, actions: {}", c);
+			//log.debug("FilteredList changed, actions: {}", c);
 
 			// We must call this otherwise the selection is lost
 			contactTreeTableView.getSelectionModel().select(selectedItem);
@@ -655,7 +655,7 @@ public class ContactViewController implements Controller
 
 	private void addContact(Contact contact)
 	{
-		log.debug("Adding contact {}", contact);
+		//log.debug("Adding contact {}", contact);
 
 		if (contact.profileId() != NO_PROFILE_ID && contact.identityId() != NO_IDENTITY_ID)
 		{
@@ -742,7 +742,7 @@ public class ContactViewController implements Controller
 
 	private void removeContact(Contact contact)
 	{
-		log.debug("Removing contact {}", contact);
+		//log.debug("Removing contact {}", contact);
 		contactObservableList.removeIf(existingContact -> existingContact.getValue().identityId() == contact.identityId());
 		// XXX: unselect if it was selected?
 	}

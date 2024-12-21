@@ -239,7 +239,7 @@ public class ContactViewController implements Controller
 	private final SortedList<TreeItem<Contact>> sortedList = new SortedList<>(contactObservableList);
 	private final FilteredList<TreeItem<Contact>> filteredList = new FilteredList<>(sortedList);
 	private final ContactFilter contactFilter = new ContactFilter(filteredList);
-	private final FontIcon searchClear = new FontIcon(MaterialDesignC.CLOSE_CIRCLE);
+	private FontIcon searchClear;
 
 	private final TreeItem<Contact> treeRoot = new TreeItem<>(Contact.EMPTY);
 
@@ -268,6 +268,8 @@ public class ContactViewController implements Controller
 	@Override
 	public void initialize() throws IOException
 	{
+		searchClear = new FontIcon(MaterialDesignC.CLOSE_CIRCLE);
+
 		contactImageView.setLoader(url -> generalClient.getImage(url).block());
 		contactImageView.setImageCache(imageCacheService);
 

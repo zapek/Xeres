@@ -19,6 +19,7 @@
 
 package io.xeres.app.configuration;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -30,6 +31,7 @@ import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZ
 
 @Configuration
 @EnableWebSocket
+@ConditionalOnProperty(value = "spring.main.web-application-type", havingValue = "servlet")
 public class WebSocketConfiguration implements WebSocketConfigurer
 {
 	@Bean

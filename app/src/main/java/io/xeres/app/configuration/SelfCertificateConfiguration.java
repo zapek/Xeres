@@ -29,7 +29,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.context.annotation.Configuration;
@@ -50,10 +50,10 @@ import java.time.Instant;
 import java.util.Date;
 
 /**
- * Strongly inspired from https://valb3r.github.io/letsencrypt-helper/ by Valentyn Berezin.
+ * Strongly inspired from <a href="https://valb3r.github.io/letsencrypt-helper/">let's encrypt helper</a> by Valentyn Berezin.
  */
 @Configuration
-@ConditionalOnProperty(value = "server.ssl.enabled", havingValue = "true")
+@ConditionalOnExpression("'${server.ssl.enabled}' == 'true' && '${spring.main.web-application-type}' != 'none'")
 public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 {
 	private static final Logger log = LoggerFactory.getLogger(SelfCertificateConfiguration.class);

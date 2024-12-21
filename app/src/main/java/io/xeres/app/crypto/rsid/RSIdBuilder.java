@@ -22,7 +22,7 @@ package io.xeres.app.crypto.rsid;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.rsid.Type;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class RSIdBuilder
 {
 	private final Type type;
 	private byte[] name;
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 	private Profile profile;
 	private byte[] pgpFingerprint;
 	private final List<String> locators = new ArrayList<>();
@@ -52,9 +52,9 @@ public class RSIdBuilder
 		return this;
 	}
 
-	public RSIdBuilder setLocationId(LocationId locationId)
+	public RSIdBuilder setLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 		return this;
 	}
 
@@ -99,11 +99,11 @@ public class RSIdBuilder
 						var si = new ShortInvite();
 
 						Objects.requireNonNull(name);
-						Objects.requireNonNull(locationId);
+						Objects.requireNonNull(locationIdentifier);
 						Objects.requireNonNull(pgpFingerprint);
 
 						si.setName(name);
-						si.setLocationId(locationId);
+						si.setLocationIdentifier(locationIdentifier);
 						si.setPgpFingerprint(pgpFingerprint);
 
 						if (externalLocator != null)
@@ -126,11 +126,11 @@ public class RSIdBuilder
 						var cert = new RSCertificate();
 
 						Objects.requireNonNull(name);
-						Objects.requireNonNull(locationId);
+						Objects.requireNonNull(locationIdentifier);
 						Objects.requireNonNull(profile);
 
 						cert.setName(name);
-						cert.setLocationId(locationId);
+						cert.setLocationIdentifier(locationIdentifier);
 						cert.setVerifiedPgpPublicKey(profile.getPgpPublicKeyData());
 
 						if (externalLocator != null)

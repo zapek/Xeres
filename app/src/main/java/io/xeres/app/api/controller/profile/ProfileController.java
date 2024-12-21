@@ -35,7 +35,7 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.dto.profile.ProfileDTO;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
@@ -117,17 +117,17 @@ public class ProfileController
 	@Operation(summary = "Search all profiles", description = "If no search parameters are provided, return all profiles")
 	@ApiResponse(responseCode = "200", description = "All matched profiles")
 	public List<ProfileDTO> findProfiles(@RequestParam(value = "name", required = false) String name,
-	                                     @RequestParam(value = "locationId", required = false) String locationId,
+	                                     @RequestParam(value = "locationIdentifier", required = false) String locationIdentifierString,
 	                                     @RequestParam(value = "withLocations", required = false) Boolean withLocations)
 	{
 		if (isNotBlank(name))
 		{
 			return toDTOs(profileService.findProfilesByName(name));
 		}
-		else if (isNotBlank(locationId))
+		else if (isNotBlank(locationIdentifierString))
 		{
-			var locationIdentifier = LocationId.fromString(locationId);
-			var profile = profileService.findProfileByLocationId(locationIdentifier);
+			var locationIdentifier = LocationIdentifier.fromString(locationIdentifierString);
+			var profile = profileService.findProfileByLocationIdentifier(locationIdentifier);
 			return profile.map(p -> List.of(Boolean.TRUE.equals(withLocations) ? toDeepDTO(p, locationIdentifier) : toDTO(p))).orElse(Collections.emptyList());
 		}
 		return toDTOs(profileService.getAllProfiles());

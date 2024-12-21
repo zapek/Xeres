@@ -21,7 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.rest.connection.ConnectionRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.profile.Profile;
@@ -63,9 +63,9 @@ public class ConnectionClient
 				.map(ProfileMapper::fromDeepDTO);
 	}
 
-	public Mono<Void> connect(LocationId locationId, int connectionIndex)
+	public Mono<Void> connect(LocationIdentifier locationIdentifier, int connectionIndex)
 	{
-		var connectionRequest = new ConnectionRequest(locationId.toString(), connectionIndex);
+		var connectionRequest = new ConnectionRequest(locationIdentifier.toString(), connectionIndex);
 
 		return webClient.put()
 				.uri("/connect")

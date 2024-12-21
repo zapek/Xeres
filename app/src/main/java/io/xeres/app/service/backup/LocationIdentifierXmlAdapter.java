@@ -19,19 +19,19 @@
 
 package io.xeres.app.service.backup;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
-public class LocationIdXmlAdapter extends XmlAdapter<String, LocationId>
+public class LocationIdentifierXmlAdapter extends XmlAdapter<String, LocationIdentifier>
 {
 	@Override
-	public LocationId unmarshal(String v)
+	public LocationIdentifier unmarshal(String v)
 	{
-		return LocationId.fromString(v);
+		return LocationIdentifier.fromString(v);
 	}
 
 	@Override
-	public String marshal(LocationId v)
+	public String marshal(LocationIdentifier v)
 	{
 		return v.toString();
 	}

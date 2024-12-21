@@ -72,7 +72,7 @@ public class PeerConnectionManager
 		ctx.channel().attr(PEER_CONNECTION).set(peerConnection);
 		availabilityNotificationService.changeAvailability(location, Availability.AVAILABLE);
 		updateCurrentUsersCount();
-		publisher.publishEvent(new PeerConnectedEvent(location.getLocationId()));
+		publisher.publishEvent(new PeerConnectedEvent(location.getLocationIdentifier()));
 		return peerConnection;
 	}
 
@@ -85,7 +85,7 @@ public class PeerConnectionManager
 		peers.remove(location.getId());
 		availabilityNotificationService.changeAvailability(location, Availability.OFFLINE);
 		updateCurrentUsersCount();
-		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationId()));
+		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationIdentifier()));
 	}
 
 	public void updatePeer(Location location)

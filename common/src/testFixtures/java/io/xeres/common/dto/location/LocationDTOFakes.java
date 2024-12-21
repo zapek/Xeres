@@ -37,6 +37,6 @@ public final class LocationDTOFakes
 
 	public static LocationDTO create()
 	{
-		return new LocationDTO(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createLocationId().getBytes(), StringFakes.createNickname(), List.of(ConnectionDTOFakes.createConnectionDTO()), BooleanFakes.create(), TimeFakes.createInstant(), Availability.AVAILABLE, "Xeres 2.3.2");
+		return new LocationDTO(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createLocationIdentifier().getBytes(), StringFakes.createNickname(), List.of(ConnectionDTOFakes.createConnectionDTO()), BooleanFakes.create(), TimeFakes.createInstant(), Availability.AVAILABLE, "Xeres 2.3.2");
 	}
 }

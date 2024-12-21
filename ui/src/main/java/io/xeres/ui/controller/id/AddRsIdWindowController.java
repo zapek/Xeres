@@ -195,7 +195,7 @@ public class AddRsIdWindowController implements WindowController
 							.findFirst()
 							.ifPresent(location ->
 							{
-								certLocId.setText(location.getLocationId().toString());
+								certLocId.setText(location.getLocationIdentifier().toString());
 
 								// The same sorting is used in PeerConnectionJob/connectImmediately()
 								var allIps = location.getConnections().stream()

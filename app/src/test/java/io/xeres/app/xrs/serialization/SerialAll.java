@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.serialization;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -73,7 +73,7 @@ public class SerialAll
 	private byte[] bytes;
 
 	@RsSerialized
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 
 	@RsSerialized
 	private List<String> stringList;
@@ -246,14 +246,14 @@ public class SerialAll
 		this.bytes = bytes;
 	}
 
-	public LocationId getLocationId()
+	public LocationIdentifier getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
-	public void setLocationId(LocationId locationId)
+	public void setLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
 	public List<String> getStringList()

@@ -19,6 +19,6 @@
 
 package io.xeres.common.rest.connection;
 
-public record ConnectionRequest(String locationId, int connectionIndex)
+public record ConnectionRequest(String locationIdentifier, int connectionIndex)
 {
 }

@@ -19,8 +19,8 @@
 
 package io.xeres.app.application.events;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 
-public record PeerConnectedEvent(LocationId locationId)
+public record PeerConnectedEvent(LocationIdentifier locationIdentifier)
 {
 }

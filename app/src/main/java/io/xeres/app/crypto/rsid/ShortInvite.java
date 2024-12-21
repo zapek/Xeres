@@ -21,7 +21,7 @@ package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.dto.profile.ProfileConstants;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -52,7 +52,7 @@ class ShortInvite extends RSId
 	static final int LOC4_LOCATOR = 0x93;
 
 	private String name;
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 
 	private ProfileFingerprint pgpFingerprint;
 	private PeerAddress hiddenLocator;
@@ -94,7 +94,7 @@ class ShortInvite extends RSId
 				{
 					case PGP_FINGERPRINT -> setPgpFingerprint(buf);
 					case NAME -> setName(buf);
-					case SSL_ID -> setLocationId(new LocationId(buf));
+					case SSL_ID -> setLocationIdentifier(new LocationIdentifier(buf));
 					case DNS_LOCATOR -> setDnsName(buf);
 					case HIDDEN_LOCATOR -> setHiddenNodeAddress(buf);
 					case EXT4_LOCATOR -> setExt4Locator(buf);
@@ -129,7 +129,7 @@ class ShortInvite extends RSId
 	@Override
 	void checkRequiredFields()
 	{
-		if (getLocationId() == null)
+		if (getLocationIdentifier() == null)
 		{
 			throw new IllegalArgumentException("Missing location id");
 		}
@@ -212,14 +212,14 @@ class ShortInvite extends RSId
 	}
 
 	@Override
-	public LocationId getLocationId()
+	public LocationIdentifier getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
-	void setLocationId(LocationId locationId)
+	void setLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
 	@Override
@@ -294,7 +294,7 @@ class ShortInvite extends RSId
 	{
 		var out = new ByteArrayOutputStream();
 
-		addPacket(SSL_ID, getLocationId().getBytes(), out);
+		addPacket(SSL_ID, getLocationIdentifier().getBytes(), out);
 		addPacket(NAME, getName().getBytes(), out);
 		addPacket(PGP_FINGERPRINT, getPgpFingerprint().getBytes(), out);
 		if (getHiddenNodeAddress().isPresent())

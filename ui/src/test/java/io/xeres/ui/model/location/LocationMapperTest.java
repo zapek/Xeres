@@ -42,7 +42,7 @@ class LocationMapperTest
 		var location = LocationMapper.fromDTO(dto);
 
 		assertEquals(dto.id(), location.getId());
-		assertArrayEquals(dto.locationIdentifier(), location.getLocationId().getBytes());
+		assertArrayEquals(dto.locationIdentifier(), location.getLocationIdentifier().getBytes());
 		assertEquals(dto.name(), location.getName());
 		assertEquals(dto.connected(), location.isConnected());
 		assertEquals(dto.lastConnected(), location.getLastConnected());
@@ -56,7 +56,7 @@ class LocationMapperTest
 		var location = LocationMapper.fromDeepDTO(dto);
 
 		assertEquals(dto.id(), location.getId());
-		assertArrayEquals(dto.locationIdentifier(), location.getLocationId().getBytes());
+		assertArrayEquals(dto.locationIdentifier(), location.getLocationIdentifier().getBytes());
 		assertEquals(dto.name(), location.getName());
 		//assertEquals(dto.hostname(), location.getHostname()); XXX
 		assertEquals(dto.connected(), location.isConnected());

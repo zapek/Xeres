@@ -42,7 +42,7 @@ import io.xeres.app.xrs.service.filetransfer.item.*;
 import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
 import io.xeres.app.xrs.service.turtle.item.*;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.file.FileProgress;
 import org.slf4j.Logger;
@@ -186,7 +186,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			fileDownloadRepository.findAllByLocation(peerConnection.getLocation())
-					.forEach(file -> fileCommandQueue.add(new ActionDownload(file.getId(), file.getName(), file.getHash(), file.getSize(), file.getLocation().getLocationId(), file.getChunkMap())));
+					.forEach(file -> fileCommandQueue.add(new ActionDownload(file.getId(), file.getName(), file.getHash(), file.getSize(), file.getLocation().getLocationIdentifier(), file.getChunkMap())));
 		}
 	}
 
@@ -335,12 +335,12 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	}
 
 	@Transactional
-	public long download(String name, Sha1Sum hash, long size, LocationId locationId)
+	public long download(String name, Sha1Sum hash, long size, LocationIdentifier locationIdentifier)
 	{
-		var id = fileService.addDownload(name, hash, size, locationService.findLocationByLocationId(locationId).orElse(null));
+		var id = fileService.addDownload(name, hash, size, locationService.findLocationByLocationIdentifier(locationIdentifier).orElse(null));
 		if (id != 0L)
 		{
-			fileCommandQueue.add(new ActionDownload(id, name, hash, size, locationId, null));
+			fileCommandQueue.add(new ActionDownload(id, name, hash, size, locationIdentifier, null));
 		}
 		return id;
 	}

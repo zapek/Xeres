@@ -22,7 +22,7 @@ package io.xeres.app.net.bdisc;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.service.LocationService;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.ip.IP;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +56,7 @@ class BroadcastDiscoveryServiceTest
 	{
 		var ownLocation = LocationFakes.createOwnLocation();
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
-		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.empty());
+		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.empty());
 
 		broadcastDiscoveryService.start(IP.getLocalIpAddress(), 36406); // nothing should reply in there, hopefully. We can't use localhost because linux has no broadcast in it
 		await().atMost(Duration.ofSeconds(10)).until(() -> broadcastDiscoveryService.isRunning());

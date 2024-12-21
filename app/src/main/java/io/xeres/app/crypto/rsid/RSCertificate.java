@@ -23,7 +23,7 @@ import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.net.protocol.DomainNameSocketAddress;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.dto.profile.ProfileConstants;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -65,7 +65,7 @@ class RSCertificate extends RSId
 	private ProfileFingerprint pgpFingerprint;
 
 	private String name;
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 
 	private PeerAddress hiddenNodeAddress;
 	private PeerAddress internalIp;
@@ -111,7 +111,7 @@ class RSCertificate extends RSId
 
 					case NAME -> setLocationName(buf);
 
-					case SSL_ID -> setLocationId(new LocationId(buf));
+					case SSL_ID -> setLocationIdentifier(new LocationIdentifier(buf));
 
 					case DNS -> setDnsName(buf);
 
@@ -166,9 +166,9 @@ class RSCertificate extends RSId
 	@Override
 	void checkRequiredFields()
 	{
-		if (getLocationId() == null)
+		if (getLocationIdentifier() == null)
 		{
-			throw new IllegalArgumentException("Missing location id");
+			throw new IllegalArgumentException("Missing location identifier");
 		}
 		if (getName() == null)
 		{
@@ -263,9 +263,9 @@ class RSCertificate extends RSId
 		this.name = new String(name, StandardCharsets.UTF_8);
 	}
 
-	void setLocationId(LocationId locationId)
+	void setLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
 	private void setHiddenNodeAddress(byte[] hiddenNodeAddress)
@@ -329,9 +329,9 @@ class RSCertificate extends RSId
 	}
 
 	@Override
-	public LocationId getLocationId()
+	public LocationIdentifier getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
 	@Override
@@ -400,7 +400,7 @@ class RSCertificate extends RSId
 		}
 
 		addPacket(NAME, getName().getBytes(), out);
-		addPacket(SSL_ID, getLocationId().getBytes(), out);
+		addPacket(SSL_ID, getLocationIdentifier().getBytes(), out);
 
 		getLocators().forEach(peerAddress -> addPacket(EXTRA_LOCATOR, peerAddress.getAddressAsBytes().orElseThrow(), out));
 

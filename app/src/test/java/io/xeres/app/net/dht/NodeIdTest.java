@@ -19,7 +19,7 @@
 
 package io.xeres.app.net.dht;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -29,9 +29,9 @@ class NodeIdTest
 	@Test
 	void Create_Success()
 	{
-		var locationId = new LocationId(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
+		var locationIdentifier = new LocationIdentifier(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
 
-		var result = NodeId.create(locationId);
+		var result = NodeId.create(locationIdentifier);
 
 		assertArrayEquals(new byte[]{2, -90, -53, -104, 57, 58, 24, -74, 10, 11, 61, 1, -120, 28, -26, 84, 78, 6, 91, 59}, result);
 	}

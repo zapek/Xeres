@@ -22,7 +22,7 @@ package io.xeres.app.net.bdisc;
 import io.netty.buffer.Unpooled;
 import io.xeres.app.net.bdisc.UdpDiscoveryPeer.Status;
 import io.xeres.app.xrs.serialization.Serializer;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,14 +129,14 @@ public final class UdpDiscoveryProtocol
 				default -> throw new IllegalArgumentException("Unknown fingerprint size:" + fingerPrintSize);
 			}
 		}
-		peer.setLocationId((LocationId) Serializer.deserializeIdentifier(buf, LocationId.class));
+		peer.setLocationIdentifier((LocationIdentifier) Serializer.deserializeIdentifier(buf, LocationIdentifier.class));
 		peer.setLocalPort(Serializer.deserializeShort(buf));
 		peer.setProfileName(Serializer.deserializeString(buf));
 
 		return peer;
 	}
 
-	public static ByteBuffer createPacket(int maxSize, Status status, int appId, int peerId, int counter, ProfileFingerprint fingerprint, LocationId locationId, int localPort, String profileName)
+	public static ByteBuffer createPacket(int maxSize, Status status, int appId, int peerId, int counter, ProfileFingerprint fingerprint, LocationIdentifier locationIdentifier, int localPort, String profileName)
 	{
 		var buffer = ByteBuffer.allocate(maxSize);
 
@@ -165,7 +165,7 @@ public final class UdpDiscoveryProtocol
 
 		var buf = Unpooled.buffer();
 		Serializer.serialize(buf, fingerprint, ProfileFingerprint.class);
-		Serializer.serialize(buf, locationId, LocationId.class);
+		Serializer.serialize(buf, locationIdentifier, LocationIdentifier.class);
 		Serializer.serialize(buf, (short) localPort);
 		Serializer.serialize(buf, profileName);
 

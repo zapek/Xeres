@@ -20,7 +20,7 @@
 package io.xeres.ui.client.message;
 
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.util.RemoteUtils;
@@ -137,25 +137,25 @@ public class MessageClient
 		return this;
 	}
 
-	public void sendToLocation(LocationId locationId, ChatMessage message)
+	public void sendToLocation(LocationIdentifier locationIdentifier, ChatMessage message)
 	{
 		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, message.isEmpty() ? CHAT_TYPING_NOTIFICATION.name() : CHAT_PRIVATE_MESSAGE.name());
-		headers.set(DESTINATION_ID, locationId.toString());
+		headers.set(DESTINATION_ID, locationIdentifier.toString());
 		stompSession.send(headers, message);
 	}
 
-	public void requestAvatar(LocationId locationId)
+	public void requestAvatar(LocationIdentifier locationIdentifier)
 	{
 		Objects.requireNonNull(stompSession);
 
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, CHAT_AVATAR.name());
-		headers.set(DESTINATION_ID, locationId.toString());
+		headers.set(DESTINATION_ID, locationIdentifier.toString());
 		stompSession.send(headers, new ChatMessage());
 	}
 

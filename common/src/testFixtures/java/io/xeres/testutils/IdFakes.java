@@ -20,7 +20,7 @@
 package io.xeres.testutils;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.MessageId;
 
 public final class IdFakes
@@ -45,9 +45,9 @@ public final class IdFakes
 		return new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));
 	}
 
-	public static LocationId createLocationId()
+	public static LocationIdentifier createLocationIdentifier()
 	{
-		return new LocationId(RandomUtils.nextBytes(LocationId.LENGTH));
+		return new LocationIdentifier(RandomUtils.nextBytes(LocationIdentifier.LENGTH));
 	}
 
 	public static long createLong()

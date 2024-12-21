@@ -21,7 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
@@ -115,12 +115,12 @@ public class ProfileClient
 				.bodyToMono(ProfileKeyAttributes.class);
 	}
 
-	public Flux<Profile> findByLocationId(LocationId locationId, boolean withLocations)
+	public Flux<Profile> findByLocationIdentifier(LocationIdentifier locationIdentifier, boolean withLocations)
 	{
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
 						.path("")
-						.queryParam("locationId", locationId.toString())
+						.queryParam("locationIdentifier", locationIdentifier.toString())
 						.queryParam("withLocations", withLocations)
 						.build())
 				.retrieve()

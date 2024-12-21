@@ -29,7 +29,7 @@ public record InviteToChatRoomRequest(
 		Long chatRoomId,
 
 		@NotEmpty
-		Set<String> locationIds
+		Set<String> locationIdentifiers
 )
 {
 }

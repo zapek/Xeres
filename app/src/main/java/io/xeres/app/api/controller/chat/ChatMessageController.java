@@ -21,7 +21,7 @@ package io.xeres.app.api.controller.chat;
 
 import io.xeres.app.service.MessageService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomMessage;
@@ -69,22 +69,22 @@ public class ChatMessageController
 			case CHAT_PRIVATE_MESSAGE ->
 			{
 				log.debug("Received websocket message, sending to peer location: {}, content {}", destinationId, chatMessage);
-				var locationId = LocationId.fromString(destinationId);
-				chatRsService.sendPrivateMessage(locationId, chatMessage.getContent());
+				var locationIdentifier = LocationIdentifier.fromString(destinationId);
+				chatRsService.sendPrivateMessage(locationIdentifier, chatMessage.getContent());
 				chatMessage.setOwn(true);
-				messageService.sendToConsumers(BROKER_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION, messageType, locationId, chatMessage);
+				messageService.sendToConsumers(BROKER_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION, messageType, locationIdentifier, chatMessage);
 			}
 			case CHAT_TYPING_NOTIFICATION ->
 			{
 				log.debug("Sending chat typing notification...");
 				Objects.requireNonNull(destinationId);
-				chatRsService.sendPrivateTypingNotification(LocationId.fromString(destinationId));
+				chatRsService.sendPrivateTypingNotification(LocationIdentifier.fromString(destinationId));
 			}
 			case CHAT_AVATAR ->
 			{
 				log.debug("Requesting avatar...");
 				Objects.requireNonNull(destinationId);
-				chatRsService.sendAvatarRequest(LocationId.fromString(destinationId));
+				chatRsService.sendAvatarRequest(LocationIdentifier.fromString(destinationId));
 			}
 			default -> throw new IllegalStateException("Unexpected value: " + messageType);
 		}

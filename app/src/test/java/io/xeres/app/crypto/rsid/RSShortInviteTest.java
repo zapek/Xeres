@@ -24,7 +24,7 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -71,12 +71,12 @@ class RSShortInviteTest
 	void Build_Success()
 	{
 		var profile = ProfileFakes.createProfile("Nemesis", 0x792b20ca657e2706L, Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), new byte[]{1});
-		var location = LocationFakes.createLocation("Home", profile, LocationId.fromString("738ea192064e3f20e766438cc9305bd5"));
+		var location = LocationFakes.createLocation("Home", profile, LocationIdentifier.fromString("738ea192064e3f20e766438cc9305bd5"));
 
 		var rsId = new RSIdBuilder(SHORT_INVITE)
 				.setName(profile.getName().getBytes())
 				.setPgpFingerprint(profile.getProfileFingerprint().getBytes())
-				.setLocationId(location.getLocationId())
+				.setLocationIdentifier(location.getLocationIdentifier())
 				.addLocator(Connection.from(PeerAddress.fromAddress("192.168.1.50:1234")))
 				.addLocator(Connection.from(PeerAddress.fromAddress("85.1.2.3:1234")))
 				.addLocator(Connection.from(PeerAddress.fromAddress("foo.bar.com:1234")))
@@ -102,7 +102,7 @@ class RSShortInviteTest
 		assertEquals(0x792b20ca657e2706L, rsId.get().getPgpIdentifier());
 		assertArrayEquals(Id.toBytes("06d4b446d209e752fa711a39792b20ca657e2706"), rsId.get().getPgpFingerprint().getBytes());
 
-		assertArrayEquals(Id.toBytes("738ea192064e3f20e766438cc9305bd5"), rsId.get().getLocationId().getBytes());
+		assertArrayEquals(Id.toBytes("738ea192064e3f20e766438cc9305bd5"), rsId.get().getLocationIdentifier().getBytes());
 
 		assertTrue(rsId.get().getHiddenNodeAddress().isEmpty());
 

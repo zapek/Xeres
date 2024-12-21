@@ -30,7 +30,7 @@ import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.common.AppName;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -66,7 +66,7 @@ public class ProfileService
 	private final SettingsService settingsService;
 	private final PeerConnectionManager peerConnectionManager;
 
-	private final Map<Profile, Set<LocationId>> profilesToDelete = HashMap.newHashMap(2);
+	private final Map<Profile, Set<LocationIdentifier>> profilesToDelete = HashMap.newHashMap(2);
 	private final ContactNotificationService contactNotificationService;
 
 	public ProfileService(ProfileRepository profileRepository, SettingsService settingsService, PeerConnectionManager peerConnectionManager, ContactNotificationService contactNotificationService)
@@ -169,9 +169,9 @@ public class ProfileService
 		return profileRepository.findAllDiscoverableProfilesByPgpIdentifiers(pgpIdentifiers);
 	}
 
-	public Optional<Profile> findProfileByLocationId(LocationId locationId)
+	public Optional<Profile> findProfileByLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		return profileRepository.findProfileByLocationId(locationId);
+		return profileRepository.findProfileByLocationIdentifier(locationIdentifier);
 	}
 
 	public ProfileKeyAttributes findProfileKeyAttributes(long id)
@@ -255,7 +255,7 @@ public class ProfileService
 		}
 		else
 		{
-			profilesToDelete.put(profile, connectedLocations.stream().map(Location::getLocationId).collect(Collectors.toSet()));
+			profilesToDelete.put(profile, connectedLocations.stream().map(Location::getLocationIdentifier).collect(Collectors.toSet()));
 			var ids = connectedLocations.stream().map(Location::getId).toList();
 			ids.forEach(location -> {
 				var peer = peerConnectionManager.getPeerByLocation(location);
@@ -274,7 +274,7 @@ public class ProfileService
 		{
 			return;
 		}
-		profilesToDelete.forEach((profile, locationIds) -> locationIds.removeIf(locationId -> locationId.equals(event.locationId())));
+		profilesToDelete.forEach((profile, locationIdentifiers) -> locationIdentifiers.removeIf(locationId -> locationId.equals(event.locationIdentifier())));
 		var it = profilesToDelete.entrySet().iterator();
 		while (it.hasNext())
 		{

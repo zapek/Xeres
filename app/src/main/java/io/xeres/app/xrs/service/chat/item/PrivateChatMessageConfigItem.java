@@ -23,14 +23,14 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 
 public class PrivateChatMessageConfigItem extends Item
 {
 	@RsSerialized
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 
 	@RsSerialized
 	private int chatFlags; // XXX: enumsets
@@ -65,9 +65,9 @@ public class PrivateChatMessageConfigItem extends Item
 		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
-	public LocationId getLocationId()
+	public LocationIdentifier getLocationId()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
 	public int getChatFlags()

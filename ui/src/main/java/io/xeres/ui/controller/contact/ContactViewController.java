@@ -21,7 +21,7 @@ package io.xeres.ui.controller.contact;
 
 import atlantafx.base.controls.CustomTextField;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.location.Availability;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.HostPort;
@@ -1147,7 +1147,7 @@ public class ContactViewController implements Controller
 		chatItem.setGraphic(new FontIcon(MaterialDesignC.COMMENT));
 		chatItem.setOnAction(event -> {
 			var location = (Location) event.getSource();
-			startChat(location.getLocationId());
+			startChat(location.getLocationIdentifier());
 		});
 
 		var connectItem = new MenuItem(bundle.getString("contact-view.action.connect"));
@@ -1155,7 +1155,7 @@ public class ContactViewController implements Controller
 		connectItem.setGraphic(new FontIcon(MaterialDesignC.CONNECTION));
 		connectItem.setOnAction(event -> {
 			var location = (Location) event.getSource();
-			connectionClient.connect(location.getLocationId(), -1)
+			connectionClient.connect(location.getLocationIdentifier(), -1)
 					.subscribe();
 		});
 
@@ -1206,14 +1206,14 @@ public class ContactViewController implements Controller
 		profileClient.findById(profileId)
 				.doOnSuccess(profile -> profile.getLocations().stream()
 						.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
-						.ifPresent(location -> windowManager.openMessaging(location.getLocationId().toString()))
+						.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier().toString()))
 				)
 				.subscribe();
 	}
 
-	private void startChat(LocationId locationId)
+	private void startChat(LocationIdentifier locationIdentifier)
 	{
-		windowManager.openMessaging(locationId.toString());
+		windowManager.openMessaging(locationIdentifier.toString());
 	}
 
 	@EventListener

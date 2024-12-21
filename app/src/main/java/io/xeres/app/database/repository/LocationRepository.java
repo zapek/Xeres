@@ -20,7 +20,7 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.location.Location;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,7 +34,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public interface LocationRepository extends JpaRepository<Location, Long>
 {
-	Optional<Location> findByLocationId(LocationId locationId);
+	Optional<Location> findByLocationIdentifier(LocationIdentifier locationIdentifier);
 
 	Slice<Location> findAllByConnectedFalse(Pageable pageable);
 

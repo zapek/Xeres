@@ -23,7 +23,7 @@ import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.hash.sha256.Sha256MessageDigest;
 import io.xeres.app.crypto.pgp.PGPSigner;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509v1CertificateBuilder;
@@ -100,11 +100,11 @@ public final class X509
 	 * @param certificate the X509 certificate
 	 * @return the ID that can be used as SSL ID
 	 */
-	public static LocationId getLocationId(X509Certificate certificate) throws CertificateException
+	public static LocationIdentifier getLocationIdentifier(X509Certificate certificate) throws CertificateException
 	{
 		var serialNumber = Optional.ofNullable(certificate.getSerialNumber()).orElseThrow(() -> new CertificateException("Missing serial number"));
 
-		var out = new byte[LocationId.LENGTH];
+		var out = new byte[LocationIdentifier.LENGTH];
 
 		// There are several certificate versions
 		if (serialNumber.equals(RSSerialVersion.V07_0001.serialNumber()))
@@ -127,6 +127,6 @@ public final class X509
 			// RS < November 2017. ID is the last 16 bytes of the signature.
 			System.arraycopy(certificate.getSignature(), certificate.getSignature().length - out.length, out, 0, out.length);
 		}
-		return new LocationId(out);
+		return new LocationIdentifier(out);
 	}
 }

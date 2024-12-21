@@ -20,7 +20,7 @@
 package io.xeres.app.net.dht;
 
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 
 import java.nio.charset.StandardCharsets;
 
@@ -33,12 +33,12 @@ final class NodeId
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static byte[] create(LocationId locationId)
+	static byte[] create(LocationIdentifier locationIdentifier)
 	{
 		var md = new Sha1MessageDigest();
 		var version = VERSION.getBytes(StandardCharsets.US_ASCII);
 		md.update(version);
-		md.update(locationId.getBytes());
+		md.update(locationIdentifier.getBytes());
 		return md.getBytes();
 	}
 }

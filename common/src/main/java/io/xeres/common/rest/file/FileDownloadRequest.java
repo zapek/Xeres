@@ -19,14 +19,14 @@
 
 package io.xeres.common.rest.file;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import jakarta.validation.constraints.NotNull;
 
 public record FileDownloadRequest(
 		@NotNull String name,
 		@NotNull String hash,
 		long size,
-		LocationId locationId
+		LocationIdentifier locationIdentifier
 )
 {
 }

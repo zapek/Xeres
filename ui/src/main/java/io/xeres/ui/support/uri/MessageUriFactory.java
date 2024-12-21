@@ -44,7 +44,7 @@ public class MessageUriFactory extends AbstractUriFactory
 	@Override
 	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID); // XXX: warning: it can be of different type (gxsId, locationId, etc...). We need to detect it first
+		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID); // XXX: warning: it can be of different type (gxsId, location identifier, etc...). We need to detect it first
 		var subject = uriComponents.getQueryParams().getFirst(PARAMETER_SUBJECT);
 
 		if (isBlank(id))

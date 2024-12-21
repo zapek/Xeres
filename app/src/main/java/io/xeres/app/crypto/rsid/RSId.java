@@ -21,7 +21,7 @@ package io.xeres.app.crypto.rsid;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.rsid.Type;
 import org.apache.commons.lang3.StringUtils;
@@ -148,11 +148,11 @@ public abstract class RSId
 	public abstract String getName();
 
 	/**
-	 * Gets the location ID (node identifier).
+	 * Gets the location identifier (node identifier).
 	 *
-	 * @return the location ID
+	 * @return the location identifier
 	 */
-	public abstract LocationId getLocationId();
+	public abstract LocationIdentifier getLocationIdentifier();
 
 	/**
 	 * Gets the DNS name.

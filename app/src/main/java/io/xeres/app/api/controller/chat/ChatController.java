@@ -32,7 +32,7 @@ import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.dto.chat.ChatBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
@@ -87,8 +87,8 @@ public class ChatController
 	@ApiResponse(responseCode = "200", description = "Peers invited successfully")
 	public void inviteToChatRoom(@Valid @RequestBody InviteToChatRoomRequest inviteToChatRoomRequest)
 	{
-		chatRsService.inviteLocationsToChatRoom(inviteToChatRoomRequest.chatRoomId(), inviteToChatRoomRequest.locationIds().stream()
-				.map(LocationId::fromString)
+		chatRsService.inviteLocationsToChatRoom(inviteToChatRoomRequest.chatRoomId(), inviteToChatRoomRequest.locationIdentifiers().stream()
+				.map(LocationIdentifier::fromString)
 				.collect(Collectors.toSet()));
 	}
 

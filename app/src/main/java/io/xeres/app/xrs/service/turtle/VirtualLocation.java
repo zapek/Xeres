@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.service.turtle;
 
 import io.xeres.app.database.model.location.Location;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 
 /**
  * Handles Virtual Locations, which are "distant" locations in the Turtle network (it could be your direct peer to, it's impossible to know).
@@ -42,12 +42,12 @@ final class VirtualLocation
 	 */
 	public static Location fromTunnel(int tunnelId)
 	{
-		var buf = new byte[LocationId.LENGTH];
+		var buf = new byte[LocationIdentifier.LENGTH];
 
 		for (var i = 0; i < 4; i++)
 		{
 			buf[i] = (byte) ((tunnelId >> ((3 - i) * 8)) & 0xff);
 		}
-		return Location.createLocation("TurtleVirtualLocation", new LocationId(buf));
+		return Location.createLocation("TurtleVirtualLocation", new LocationIdentifier(buf));
 	}
 }

@@ -80,7 +80,7 @@ class ChatRsServiceTest
 
 		chatRsService.handleItem(peerConnection, item);
 
-		verify(messageService).sendToConsumers(eq(chatPrivateDestination()), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(chatMessage -> {
+		verify(messageService).sendToConsumers(eq(chatPrivateDestination()), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationIdentifier()), argThat(chatMessage -> {
 			assertNotNull(chatMessage);
 			assertEquals(message, ((ChatMessage) (chatMessage)).getContent());
 			return true;
@@ -100,7 +100,7 @@ class ChatRsServiceTest
 		chatRsService.handleItem(peerConnection, item1);
 		chatRsService.handleItem(peerConnection, item2);
 
-		verify(messageService).sendToConsumers(eq(chatPrivateDestination()), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationId()), argThat(chatMessage -> {
+		verify(messageService).sendToConsumers(eq(chatPrivateDestination()), eq(MessageType.CHAT_PRIVATE_MESSAGE), eq(peerConnection.getLocation().getLocationIdentifier()), argThat(chatMessage -> {
 			assertNotNull(chatMessage);
 			assertEquals(message1 + message2, ((ChatMessage) (chatMessage)).getContent());
 			return true;

@@ -21,7 +21,7 @@ package io.xeres.app.database.model.location;
 
 import io.xeres.app.database.model.connection.ConnectionMapper;
 import io.xeres.common.dto.location.LocationDTO;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 
 import java.util.ArrayList;
 
@@ -43,7 +43,7 @@ public final class LocationMapper
 		return new LocationDTO(
 				location.getId(),
 				location.getName(),
-				location.getLocationId().getBytes(),
+				location.getLocationIdentifier().getBytes(),
 				null,
 				new ArrayList<>(),
 				location.isConnected(),
@@ -78,7 +78,7 @@ public final class LocationMapper
 		var location = new Location();
 		location.setId(dto.id());
 		location.setName(dto.name());
-		location.setLocationId(new LocationId(dto.locationIdentifier()));
+		location.setLocationIdentifier(new LocationIdentifier(dto.locationIdentifier()));
 		location.setConnected(dto.connected());
 		location.setLastConnected(dto.lastConnected());
 		location.setAvailability(dto.availability());

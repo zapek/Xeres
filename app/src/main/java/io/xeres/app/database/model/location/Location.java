@@ -27,9 +27,9 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.gxs.GxsClientUpdate;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.app.service.backup.LocationIdXmlAdapter;
+import io.xeres.app.service.backup.LocationIdentifierXmlAdapter;
 import io.xeres.app.service.backup.RSIdXmlAdapter;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.location.Availability;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.common.rsid.Type;
@@ -68,7 +68,7 @@ public class Location implements Comparable<Location>
 	@Embedded
 	@NotNull
 	@AttributeOverride(name = "identifier", column = @Column(name = "location_identifier"))
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "location", orphanRemoval = true)
 	private final List<Connection> connections = new ArrayList<>();
@@ -102,19 +102,19 @@ public class Location implements Comparable<Location>
 		this.name = name;
 	}
 
-	protected Location(long id, String name, Profile profile, LocationId locationId)
+	protected Location(long id, String name, Profile profile, LocationIdentifier locationIdentifier)
 	{
 		this.id = id;
 		this.name = name;
 		this.profile = profile;
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
-	protected Location(String name, Profile profile, LocationId locationId)
+	protected Location(String name, Profile profile, LocationIdentifier locationIdentifier)
 	{
 		this.name = name;
 		this.profile = profile;
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
 	public static Location createLocation(RSId rsId)
@@ -127,15 +127,15 @@ public class Location implements Comparable<Location>
 		return new Location(name);
 	}
 
-	public static Location createLocation(String name, Profile profile, LocationId locationId)
+	public static Location createLocation(String name, Profile profile, LocationIdentifier locationIdentifier)
 	{
-		return new Location(name, profile, locationId);
+		return new Location(name, profile, locationIdentifier);
 	}
 
-	public static Location createLocation(String name, LocationId locationId)
+	public static Location createLocation(String name, LocationIdentifier locationIdentifier)
 	{
 		var location = new Location(name);
-		location.setLocationId(locationId);
+		location.setLocationIdentifier(locationIdentifier);
 		return location;
 	}
 
@@ -145,14 +145,14 @@ public class Location implements Comparable<Location>
 		{
 			return;
 		}
-		profile.getLocations().removeIf(oldLocation -> oldLocation.getLocationId().equals(newLocation.getLocationId())); // XXX: don't remove but update if there are additional fields that were gathered before an update (ie. additional IPs)
+		profile.getLocations().removeIf(oldLocation -> oldLocation.getLocationIdentifier().equals(newLocation.getLocationIdentifier())); // XXX: don't remove but update if there are additional fields that were gathered before an update (ie. additional IPs)
 		profile.addLocation(newLocation);
 	}
 
 	public Location(RSId rsId)
 	{
 		setName(rsId.getName());
-		setLocationId(rsId.getLocationId());
+		setLocationIdentifier(rsId.getLocationIdentifier());
 		rsId.getDnsName().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
 		rsId.getInternalIp().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
 		rsId.getExternalIp().ifPresent(peerAddress -> addConnection(Connection.from(peerAddress)));
@@ -175,7 +175,7 @@ public class Location implements Comparable<Location>
 
 		builder.setName(getProfile().getName().getBytes())
 				.setProfile((getProfile()))
-				.setLocationId(getLocationId())
+				.setLocationIdentifier(getLocationIdentifier())
 				.setPgpFingerprint(getProfile().getProfileFingerprint().getBytes());
 
 		// Sort the connections with the most recently connected address first
@@ -296,16 +296,16 @@ public class Location implements Comparable<Location>
 		this.availability = availability;
 	}
 
-	public void setLocationId(LocationId locationId)
+	public void setLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
-	@XmlAttribute
-	@XmlJavaTypeAdapter(LocationIdXmlAdapter.class)
-	public LocationId getLocationId()
+	@XmlAttribute(name = "locationId")
+	@XmlJavaTypeAdapter(LocationIdentifierXmlAdapter.class)
+	public LocationIdentifier getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
 	public List<Connection> getConnections()
@@ -367,19 +367,19 @@ public class Location implements Comparable<Location>
 			return false;
 		}
 		var location = (Location) o;
-		return locationId.equals(location.locationId);
+		return locationIdentifier.equals(location.locationIdentifier);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(locationId);
+		return Objects.hash(locationIdentifier);
 	}
 
 	@Override
 	public String toString()
 	{
-		return locationId.toString();
+		return locationIdentifier.toString();
 	}
 
 	private static String getConnectionAsIpv4(Connection connection)
@@ -394,7 +394,7 @@ public class Location implements Comparable<Location>
 	@Override
 	public int compareTo(Location o)
 	{
-		return locationId.compareTo(o.locationId);
+		return locationIdentifier.compareTo(o.locationIdentifier);
 	}
 
 	/**

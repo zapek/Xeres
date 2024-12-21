@@ -134,20 +134,20 @@ class ProfileControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void FindProfileByLocationId_Success() throws Exception
+	void FindProfileByLocationIdentifier_Success() throws Exception
 	{
 		var expected = ProfileFakes.createProfile("test", 1);
 		expected.addLocation(LocationFakes.createLocation("test", expected));
-		var locationId = expected.getLocations().getFirst().getLocationId();
+		var locationIdentifier = expected.getLocations().getFirst().getLocationIdentifier();
 
-		when(profileService.findProfileByLocationId(locationId)).thenReturn(Optional.of(expected));
+		when(profileService.findProfileByLocationIdentifier(locationIdentifier)).thenReturn(Optional.of(expected));
 
-		mvc.perform(getJson(BASE_URL + "?locationId=" + locationId))
+		mvc.perform(getJson(BASE_URL + "?locationIdentifier=" + locationIdentifier))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(is(expected.getId()), Long.class))
 				.andExpect(jsonPath("$.[0].name", is(expected.getName())));
 
-		verify(profileService).findProfileByLocationId(locationId);
+		verify(profileService).findProfileByLocationIdentifier(locationIdentifier);
 	}
 
 	@Test

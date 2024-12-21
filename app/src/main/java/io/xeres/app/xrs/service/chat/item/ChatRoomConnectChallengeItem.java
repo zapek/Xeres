@@ -24,7 +24,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 
 public class ChatRoomConnectChallengeItem extends Item
 {
@@ -36,9 +36,9 @@ public class ChatRoomConnectChallengeItem extends Item
 	{
 	}
 
-	public ChatRoomConnectChallengeItem(LocationId locationId, long chatRoomId, long messageId)
+	public ChatRoomConnectChallengeItem(LocationIdentifier locationIdentifier, long chatRoomId, long messageId)
 	{
-		challengeCode = ChatChallenge.code(locationId, chatRoomId, messageId);
+		challengeCode = ChatChallenge.code(locationIdentifier, chatRoomId, messageId);
 	}
 
 	@Override

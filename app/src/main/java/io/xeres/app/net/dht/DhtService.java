@@ -23,7 +23,7 @@ import io.xeres.app.application.events.DhtNodeFoundEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.rest.notification.status.DhtInfo;
@@ -72,12 +72,12 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 	private DHT dht;
 
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 	private int localPort;
 
 	private Instant lastStats;
 
-	private final Map<Key, LocationId> searchedKeys = new ConcurrentHashMap<>();
+	private final Map<Key, LocationIdentifier> searchedKeys = new ConcurrentHashMap<>();
 
 	private final AtomicBoolean isReady = new AtomicBoolean();
 
@@ -92,14 +92,14 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 		this.statusNotificationService = statusNotificationService;
 	}
 
-	public void start(LocationId locationId, int localPort)
+	public void start(LocationIdentifier locationIdentifier, int localPort)
 	{
 		if (dht != null && dht.isRunning())
 		{
 			return;
 		}
 
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 		this.localPort = localPort;
 
 		DHT.setLogger(new DHTSpringLog());
@@ -149,7 +149,7 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 		}
 	}
 
-	public void search(LocationId locationId)
+	public void search(LocationIdentifier locationIdentifier)
 	{
 		if (dht == null || !dht.isRunning())
 		{
@@ -157,9 +157,9 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 			return;
 		}
 
-		var key = new Key(NodeId.create(locationId));
-		log.debug("Searching LocationId {} -> node id: {}", locationId, key);
-		searchedKeys.put(key, locationId);
+		var key = new Key(NodeId.create(locationIdentifier));
+		log.debug("Searching LocationIdentifier {} -> node id: {}", locationIdentifier, key);
+		searchedKeys.put(key, locationIdentifier);
 
 		var rpcServer = dht.getServerManager().getRandomActiveServer(false);
 		if (rpcServer == null)
@@ -168,7 +168,7 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 			return;
 		}
 		var nodeLookupTask = new NodeLookup(key, rpcServer, dht.getNode(), false);
-		nodeLookupTask.setInfo(locationId.toString());
+		nodeLookupTask.setInfo(locationIdentifier.toString());
 		nodeLookupTask.addListener(task -> log.debug("Task finished: {}", task.getInfo()));
 		dht.getTaskManager().addTask(nodeLookupTask);
 	}
@@ -219,7 +219,7 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 			{
 				Files.createDirectory(directoryPath);
 
-				var nodeId = Id.toString(NodeId.create(locationId)).toUpperCase(Locale.ROOT);
+				var nodeId = Id.toString(NodeId.create(locationIdentifier)).toUpperCase(Locale.ROOT);
 				log.debug("Storing own NodeID: {}", nodeId);
 
 				Files.createFile(filePath);
@@ -286,12 +286,12 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 	{
 		if (messageBase.getType() == MessageBase.Type.RSP_MSG && messageBase.getMethod() == MessageBase.Method.FIND_NODE)
 		{
-			var foundLocationId = searchedKeys.get(messageBase.getID());
-			if (foundLocationId != null)
+			var foundLocationIdentifier = searchedKeys.get(messageBase.getID());
+			if (foundLocationIdentifier != null)
 			{
-				log.debug("Found node for id {}, IP: {}", foundLocationId, messageBase.getOrigin());
+				log.debug("Found node for id {}, IP: {}", foundLocationIdentifier, messageBase.getOrigin());
 				searchedKeys.remove(messageBase.getID());
-				publisher.publishEvent(new DhtNodeFoundEvent(foundLocationId, new HostPort(messageBase.getOrigin().getAddress().getHostAddress(), messageBase.getOrigin().getPort())));
+				publisher.publishEvent(new DhtNodeFoundEvent(foundLocationIdentifier, new HostPort(messageBase.getOrigin().getAddress().getHostAddress(), messageBase.getOrigin().getPort())));
 			}
 		}
 	}

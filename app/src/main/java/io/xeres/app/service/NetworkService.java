@@ -271,7 +271,7 @@ public class NetworkService
 		// But it can still work without it.
 		if (settingsService.isDhtEnabled())
 		{
-			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), event.localPort());
+			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationIdentifier(), event.localPort());
 		}
 	}
 
@@ -283,7 +283,7 @@ public class NetworkService
 			{
 				dhtService.stop();
 			}
-			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), settingsService.getLocalPort());
+			dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationIdentifier(), settingsService.getLocalPort());
 		}
 	}
 
@@ -320,7 +320,7 @@ public class NetworkService
 		{
 			if (newSettings.isDhtEnabled())
 			{
-				dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationId(), newSettings.getLocalPort());
+				dhtService.start(locationService.findOwnLocation().orElseThrow().getLocationIdentifier(), newSettings.getLocalPort());
 			}
 			else
 			{

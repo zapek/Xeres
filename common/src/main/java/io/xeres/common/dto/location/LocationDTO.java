@@ -22,7 +22,7 @@ package io.xeres.common.dto.location;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.xeres.common.dto.connection.ConnectionDTO;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.location.Availability;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -44,7 +44,7 @@ public record LocationDTO(
 		String name,
 
 		@NotNull(message = "Location identifier is mandatory")
-		@Size(min = LocationId.LENGTH, max = LocationId.LENGTH)
+		@Size(min = LocationIdentifier.LENGTH, max = LocationIdentifier.LENGTH)
 		byte[] locationIdentifier,
 
 		String hostname,

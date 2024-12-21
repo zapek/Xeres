@@ -27,7 +27,7 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.MessageId;
 import io.xeres.testutils.IdFakes;
 import io.xeres.testutils.RandomUtils;
@@ -281,16 +281,16 @@ class SerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		var input = LocationFakes.createLocation().getLocationId();
+		var input = LocationFakes.createLocation().getLocationIdentifier();
 
-		var size = Serializer.serialize(buf, input, LocationId.class);
+		var size = Serializer.serialize(buf, input, LocationIdentifier.class);
 
 		assertEquals(input.getLength(), size);
 		var output = new byte[input.getLength()];
 		buf.getBytes(0, output);
 		assertArrayEquals(input.getBytes(), output);
 
-		var result = (LocationId) Serializer.deserialize(buf, LocationId.class);
+		var result = (LocationIdentifier) Serializer.deserialize(buf, LocationIdentifier.class);
 
 		assertEquals(input, result);
 		buf.release();
@@ -637,7 +637,7 @@ class SerializerTest
 
 		input.setBytes(new byte[]{1, 2, 3});
 
-		input.setLocationId(LocationFakes.createLocation().getLocationId());
+		input.setLocationIdentifier(LocationFakes.createLocation().getLocationIdentifier());
 
 		input.setStringList(List.of("foo", "bar"));
 
@@ -681,8 +681,8 @@ class SerializerTest
 
 		assertArrayEquals(input.getBytes(), result.getBytes());
 
-		assertEquals(input.getLocationId().getLength(), result.getLocationId().getLength());
-		assertArrayEquals(input.getLocationId().getBytes(), result.getLocationId().getBytes());
+		assertEquals(input.getLocationIdentifier().getLength(), result.getLocationIdentifier().getLength());
+		assertArrayEquals(input.getLocationIdentifier().getBytes(), result.getLocationIdentifier().getBytes());
 
 		assertEquals(input.getStringList().size(), result.getStringList().size());
 		assertIterableEquals(input.getStringList(), result.getStringList());

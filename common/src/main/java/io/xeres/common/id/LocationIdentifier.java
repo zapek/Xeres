@@ -27,18 +27,18 @@ import java.util.Objects;
 
 
 @Embeddable
-public class LocationId implements Identifier, Comparable<LocationId>
+public class LocationIdentifier implements Identifier, Comparable<LocationIdentifier>
 {
 	public static final int LENGTH = 16;
 
 	private byte[] identifier;
 
-	public LocationId()
+	public LocationIdentifier()
 	{
 
 	}
 
-	public LocationId(byte[] identifier)
+	public LocationIdentifier(byte[] identifier)
 	{
 		Objects.requireNonNull(identifier, "Null identifier");
 		if (identifier.length != LENGTH)
@@ -49,14 +49,14 @@ public class LocationId implements Identifier, Comparable<LocationId>
 	}
 
 	/**
-	 * Creates a {@link LocationId} from a string.
+	 * Creates a {@link LocationIdentifier} from a string.
 	 *
-	 * @param from the string representing the LocationId in hexadecimal form (lowercase, no prefix)
-	 * @return the LocationId or an empty LocationId if the string was invalid
+	 * @param from the string representing the Location identifier in hexadecimal form (lowercase, no prefix)
+	 * @return the LocationIdentifier or an empty LocationIdentifier if the string was invalid
 	 */
-	public static LocationId fromString(String from)
+	public static LocationIdentifier fromString(String from)
 	{
-		return new LocationId(Identifier.parseString(from, LENGTH));
+		return new LocationIdentifier(Identifier.parseString(from, LENGTH));
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class LocationId implements Identifier, Comparable<LocationId>
 		{
 			return false;
 		}
-		var that = (LocationId) o;
+		var that = (LocationIdentifier) o;
 		return Arrays.equals(identifier, that.identifier);
 	}
 
@@ -106,7 +106,7 @@ public class LocationId implements Identifier, Comparable<LocationId>
 	}
 
 	@Override
-	public int compareTo(LocationId o)
+	public int compareTo(LocationIdentifier o)
 	{
 		return Arrays.compare(identifier, o.identifier);
 	}

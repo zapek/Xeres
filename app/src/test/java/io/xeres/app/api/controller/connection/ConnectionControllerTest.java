@@ -76,12 +76,12 @@ class ConnectionControllerTest extends AbstractControllerTest
 	void AttemptToConnect_Success() throws Exception
 	{
 		var location = LocationFakes.createLocation();
-		when(locationService.findLocationByLocationId(location.getLocationId())).thenReturn(Optional.of(location));
+		when(locationService.findLocationByLocationIdentifier(location.getLocationIdentifier())).thenReturn(Optional.of(location));
 
-		mvc.perform(putJson(BASE_URL + "/connect", new ConnectionRequest(location.getLocationId().toString(), -1)))
+		mvc.perform(putJson(BASE_URL + "/connect", new ConnectionRequest(location.getLocationIdentifier().toString(), -1)))
 				.andExpect(status().isOk());
 
-		verify(locationService).findLocationByLocationId(location.getLocationId());
+		verify(locationService).findLocationByLocationIdentifier(location.getLocationIdentifier());
 		verify(peerConnectionJob).connectImmediately(location, -1);
 	}
 }

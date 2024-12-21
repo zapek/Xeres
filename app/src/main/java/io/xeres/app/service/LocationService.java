@@ -28,7 +28,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.util.NetworkMode;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.location.Availability;
 import io.xeres.common.protocol.NetMode;
 import org.apache.commons.lang3.StringUtils;
@@ -154,7 +154,7 @@ public class LocationService
 		settingsService.saveLocationCertificate(x509Certificate);
 
 		var location = Location.createLocation(name);
-		location.setLocationId(X509.getLocationId(X509.getCertificate(settingsService.getLocationCertificate())));
+		location.setLocationIdentifier(X509.getLocationIdentifier(X509.getCertificate(settingsService.getLocationCertificate())));
 		profileService.getOwnProfile().addLocation(location);
 		locationRepository.save(location);
 	}
@@ -162,12 +162,12 @@ public class LocationService
 	/**
 	 * Find the location.
 	 *
-	 * @param locationId the SSL identifier
+	 * @param locationIdentifier the SSL identifier
 	 * @return the location
 	 */
-	public Optional<Location> findLocationByLocationId(LocationId locationId)
+	public Optional<Location> findLocationByLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		return locationRepository.findByLocationId(locationId);
+		return locationRepository.findByLocationIdentifier(locationIdentifier);
 	}
 
 	public Optional<Location> findOwnLocation()

@@ -26,7 +26,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.service.chat.ChatBacklogService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.app.xrs.service.chat.RoomFlags;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.ChatRoomLists;
@@ -90,10 +90,10 @@ class ChatControllerTest extends AbstractControllerTest
 	void InviteToChatRoom_Success() throws Exception
 	{
 		var chatRoomId = 1L;
-		var locations = Set.of(LocationFakes.createLocation().getLocationId(), LocationFakes.createLocation().getLocationId());
+		var locations = Set.of(LocationFakes.createLocation().getLocationIdentifier(), LocationFakes.createLocation().getLocationIdentifier());
 
 		var inviteRequest = new InviteToChatRoomRequest(chatRoomId, locations.stream()
-				.map(LocationId::toString)
+				.map(LocationIdentifier::toString)
 				.collect(Collectors.toSet()));
 
 		mvc.perform(postJson(BASE_URL + "/rooms/invite", inviteRequest))

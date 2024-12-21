@@ -20,7 +20,7 @@
 package io.xeres.app.net.bdisc;
 
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class UdpDiscoveryProtocolTest
 	private static final int PACKET_INDEX = 32921;
 	private static final UdpDiscoveryPeer.Status STATUS_PRESENT = UdpDiscoveryPeer.Status.PRESENT;
 	private static final ProfileFingerprint FINGERPRINT = new ProfileFingerprint(Id.toBytes("54B7C121B73E434539DC3E0BA87461B115390F34"));
-	private static final LocationId LOCATION_ID = new LocationId(Id.toBytes("ec65a805a3faa6d4b88e7a2ee5a45f33"));
+	private static final LocationIdentifier LOCATION_ID = new LocationIdentifier(Id.toBytes("ec65a805a3faa6d4b88e7a2ee5a45f33"));
 	private static final String LOCAL_IP = "127.0.0.1";
 	private static final int LOCAL_PORT = 8600;
 	private static final String PROFILE_NAME = "retroshare.ch";
@@ -63,7 +63,7 @@ class UdpDiscoveryProtocolTest
 		assertEquals(PACKET_INDEX, peer.getPacketIndex());
 		assertEquals(STATUS_PRESENT, peer.getStatus());
 		assertEquals(FINGERPRINT, peer.getFingerprint());
-		assertEquals(LOCATION_ID, peer.getLocationId());
+		assertEquals(LOCATION_ID, peer.getLocationIdentifier());
 		assertEquals(LOCAL_IP, peer.getIpAddress());
 		assertEquals(LOCAL_PORT, peer.getLocalPort());
 		assertEquals(PROFILE_NAME, peer.getProfileName());

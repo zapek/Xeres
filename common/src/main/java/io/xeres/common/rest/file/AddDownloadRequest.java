@@ -19,14 +19,14 @@
 
 package io.xeres.common.rest.file;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
 
 public record AddDownloadRequest(
 		String name,
 		long size,
 		Sha1Sum hash,
-		LocationId locationId
+		LocationIdentifier locationIdentifier
 )
 {
 }

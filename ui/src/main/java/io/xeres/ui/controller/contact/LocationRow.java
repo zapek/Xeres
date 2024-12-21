@@ -46,7 +46,7 @@ class LocationRow extends TableRow<Location>
 			var sb = new StringBuilder();
 			sb.append(bundle.getString("contact-view.information.location.id"));
 			sb.append(" ");
-			sb.append(item.getLocationId().toString());
+			sb.append(item.getLocationIdentifier().toString());
 			if (item.hasVersion())
 			{
 				sb.append("\n");

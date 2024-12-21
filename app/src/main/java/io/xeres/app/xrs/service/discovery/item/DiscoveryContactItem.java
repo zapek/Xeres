@@ -28,7 +28,7 @@ import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.NetMode;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ import static io.xeres.app.xrs.serialization.TlvType.*;
 public class DiscoveryContactItem extends Item implements RsSerializable
 {
 	private long pgpIdentifier;
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 	private String locationName;
 	private String version;
 	private Set<NetMode> netMode; // 1: UDP, 2: UPNP, 3: EXT, 4: HIDDEN, 5: UNREACHABLE
@@ -70,7 +70,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	private DiscoveryContactItem(Builder builder)
 	{
 		pgpIdentifier = builder.pgpIdentifier;
-		locationId = builder.locationId;
+		locationIdentifier = builder.locationIdentifier;
 		locationName = builder.location;
 		version = builder.version;
 		netMode = EnumSet.of(builder.netMode);
@@ -124,7 +124,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		var size = 0;
 
 		size += serialize(buf, pgpIdentifier);
-		size += serialize(buf, locationId, LocationId.class);
+		size += serialize(buf, locationIdentifier, LocationIdentifier.class);
 		size += serialize(buf, STR_LOCATION, locationName);
 		size += serialize(buf, STR_VERSION, version);
 		size += serialize(buf, netMode, FieldSize.INTEGER);
@@ -157,7 +157,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	public void readObject(ByteBuf buf)
 	{
 		pgpIdentifier = deserializeLong(buf);
-		locationId = (LocationId) deserializeIdentifier(buf, LocationId.class);
+		locationIdentifier = (LocationIdentifier) deserializeIdentifier(buf, LocationIdentifier.class);
 		locationName = (String) deserialize(buf, STR_LOCATION);
 		version = (String) deserialize(buf, STR_VERSION);
 		netMode = deserializeEnumSet(buf, NetMode.class, FieldSize.INTEGER);
@@ -191,9 +191,9 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		return pgpIdentifier;
 	}
 
-	public LocationId getLocationId()
+	public LocationIdentifier getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
 	public String getLocationName()
@@ -305,7 +305,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	{
 		return "DiscoveryContactItem{" +
 				"pgpIdentifier=" + Id.toString(pgpIdentifier) +
-				", locationId=" + locationId +
+				", locationIdentifier=" + locationIdentifier +
 				", location='" + locationName + '\'' +
 				", version='" + version + '\'' +
 				", netMode=" + netMode +
@@ -329,7 +329,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	public static final class Builder
 	{
 		private long pgpIdentifier;
-		private LocationId locationId;
+		private LocationIdentifier locationIdentifier;
 		private String location;
 		private String version;
 		private NetMode netMode;
@@ -357,9 +357,9 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 			return this;
 		}
 
-		public Builder setLocationId(LocationId locationId)
+		public Builder setLocationIdentifier(LocationIdentifier locationIdentifier)
 		{
-			this.locationId = locationId;
+			this.locationIdentifier = locationIdentifier;
 			return this;
 		}
 

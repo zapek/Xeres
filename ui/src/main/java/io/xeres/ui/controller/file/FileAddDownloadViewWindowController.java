@@ -88,7 +88,7 @@ public class FileAddDownloadViewWindowController implements WindowController
 		downloadButton.setOnAction(event -> fileClient.download(args.name(),
 						args.hash(),
 						args.size(),
-						args.locationId())
+						args.locationIdentifier())
 				.doOnSuccess(aLong -> Platform.runLater(() -> UiUtils.closeWindow(name)))
 				.subscribe());
 	}

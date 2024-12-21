@@ -69,7 +69,7 @@ public class FileController
 		{
 			throw new IllegalArgumentException("Invalid hash");
 		}
-		return fileTransferRsService.download(fileDownloadRequest.name(), hash, fileDownloadRequest.size(), fileDownloadRequest.locationId());
+		return fileTransferRsService.download(fileDownloadRequest.name(), hash, fileDownloadRequest.size(), fileDownloadRequest.locationIdentifier());
 	}
 
 	@GetMapping("/downloads")

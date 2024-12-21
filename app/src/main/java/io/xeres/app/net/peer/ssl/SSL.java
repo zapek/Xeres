@@ -89,10 +89,10 @@ public final class SSL
 
 		var x509Certificate = X509.getCertificate(chain[0].getEncoded());
 
-		var locationId = X509.getLocationId(x509Certificate);
-		log.debug("SSL ID: {}", locationId);
+		var locationIdentifier = X509.getLocationIdentifier(x509Certificate);
+		log.debug("SSL ID: {}", locationIdentifier);
 
-		var location = locationService.findLocationByLocationId(locationId).orElseThrow(() -> new CertificateException("Unknown location (SSL ID: " + locationId + ")")); // XXX: don't throw but handle location not found, see below
+		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow(() -> new CertificateException("Unknown location (SSL ID: " + locationIdentifier + ")")); // XXX: don't throw but handle location not found, see below
 		// XXX: if the location is not found, we can check if we have a profile (accepted=true) that would verify it (verify() method below), then it would be a new location. The pgp identifier is in the issuer field (CN=pgp_id). create the location above instead of the orElseThrow() add orElseGet()
 		// XXX: what we don't know is the location name so use something like [Unknown] (we need to allow null location names!) and get it with discovery
 		log.debug("Found location: {} {}", location.getName(), location.isConnected() ? ", is already connected" : "");

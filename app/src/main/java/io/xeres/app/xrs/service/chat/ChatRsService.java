@@ -44,7 +44,7 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.util.ExecutorUtils;
@@ -368,7 +368,7 @@ public class ChatRsService extends RsService
 
 			// Send connection challenge to all connected friends
 			log.debug("Sending connection challenge for room {}", chatRoom);
-			peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new ChatRoomConnectChallengeItem(peerConnection.getLocation().getLocationId(), chatRoom.getId(), recentMessage), this),
+			peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new ChatRoomConnectChallengeItem(peerConnection.getLocation().getLocationIdentifier(), chatRoom.getId(), recentMessage), this),
 					this);
 		}
 	}
@@ -590,13 +590,13 @@ public class ChatRsService extends RsService
 		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_MESSAGE, roomId, chatRoomMessage);
 	}
 
-	private void sendInviteToClient(LocationId locationId, long roomId, String roomName, String roomTopic)
+	private void sendInviteToClient(LocationIdentifier locationIdentifier, long roomId, String roomName, String roomTopic)
 	{
 		if (invitedChatRooms.containsKey(roomId))
 		{
 			return; // Don't show multiple requesters
 		}
-		var chatRoomInvite = new ChatRoomInviteEvent(locationId.toString(), roomName, roomTopic);
+		var chatRoomInvite = new ChatRoomInviteEvent(locationIdentifier.toString(), roomName, roomTopic);
 		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_INVITE, roomId, chatRoomInvite);
 	}
 
@@ -677,7 +677,7 @@ public class ChatRsService extends RsService
 						item.isSigned());
 
 				invitedChatRoom.addParticipatingLocation(peerConnection.getLocation());
-				sendInviteToClient(peerConnection.getLocation().getLocationId(), item.getRoomId(), item.getRoomName(), item.getRoomTopic());
+				sendInviteToClient(peerConnection.getLocation().getLocationIdentifier(), item.getRoomId(), item.getRoomName(), item.getRoomTopic());
 
 				invitedChatRooms.put(invitedChatRoom.getId(), invitedChatRoom);
 
@@ -694,7 +694,7 @@ public class ChatRsService extends RsService
 		log.debug("Got status item from peer {}: {}", peerConnection, item);
 		if (MESSAGE_TYPING_CONTENT.equals(item.getStatus()))
 		{
-			messageService.sendToConsumers(chatPrivateDestination(), CHAT_TYPING_NOTIFICATION, peerConnection.getLocation().getLocationId(), new ChatMessage());
+			messageService.sendToConsumers(chatPrivateDestination(), CHAT_TYPING_NOTIFICATION, peerConnection.getLocation().getLocationIdentifier(), new ChatMessage());
 		}
 		else
 		{
@@ -750,7 +750,7 @@ public class ChatRsService extends RsService
 			message = String.join("", existingList);
 			peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
 		}
-		var from = peerConnection.getLocation().getLocationId();
+		var from = peerConnection.getLocation().getLocationIdentifier();
 		var chatMessage = new ChatMessage(parseIncomingText(message));
 		chatBacklogService.storeIncomingMessage(from, chatMessage.getContent());
 		messageService.sendToConsumers(chatPrivateDestination(), CHAT_PRIVATE_MESSAGE, from, chatMessage);
@@ -781,7 +781,7 @@ public class ChatRsService extends RsService
 		}
 
 		var chatAvatar = new ChatAvatar(item.getImageData());
-		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVATAR, peerConnection.getLocation().getLocationId(), chatAvatar);
+		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVATAR, peerConnection.getLocation().getLocationIdentifier(), chatAvatar);
 	}
 
 	/**
@@ -795,10 +795,10 @@ public class ChatRsService extends RsService
 	private void handleChatRoomConnectChallengeItem(PeerConnection peerConnection, ChatRoomConnectChallengeItem item)
 	{
 		log.debug("Received chat room connect challenge from {}: {}", peerConnection, item);
-		var locationId = peerConnection.getLocation().getLocationId();
+		var locationIdentifier = peerConnection.getLocation().getLocationIdentifier();
 
 		chatRooms.values().stream()
-				.filter(chatRoom -> chatRoom.getMessageCache().hasConnectionChallenge(locationId, chatRoom.getId(), item.getChallengeCode()))
+				.filter(chatRoom -> chatRoom.getMessageCache().hasConnectionChallenge(locationIdentifier, chatRoom.getId(), item.getChallengeCode()))
 				.findAny()
 				.ifPresent(chatRoom -> {
 					log.debug("Challenge accepted for chatroom {}, sending connection request to peer {}", chatRoom, peerConnection);
@@ -955,30 +955,30 @@ public class ChatRsService extends RsService
 	/**
 	 * Sends a private message to a peer.
 	 *
-	 * @param locationId the location id
+	 * @param locationIdentifier the location id
 	 * @param message    the message
 	 */
-	public void sendPrivateMessage(LocationId locationId, String message)
+	public void sendPrivateMessage(LocationIdentifier locationIdentifier, String message)
 	{
-		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
-		chatBacklogService.storeOutgoingMessage(location.getLocationId(), message);
+		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow();
+		chatBacklogService.storeOutgoingMessage(location.getLocationIdentifier(), message);
 		peerConnectionManager.writeItem(location, new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 
 	/**
 	 * Sends a typing notification for private messages to a peer.
 	 *
-	 * @param locationId the location id
+	 * @param locationIdentifier the location id
 	 */
-	public void sendPrivateTypingNotification(LocationId locationId)
+	public void sendPrivateTypingNotification(LocationIdentifier locationIdentifier)
 	{
-		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
+		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow();
 		peerConnectionManager.writeItem(location, new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 
-	public void sendAvatarRequest(LocationId locationId)
+	public void sendAvatarRequest(LocationIdentifier locationIdentifier)
 	{
-		var location = locationService.findLocationByLocationId(locationId).orElseThrow();
+		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow();
 		peerConnectionManager.writeItem(location, new ChatMessageItem("", EnumSet.of(ChatFlags.PRIVATE, ChatFlags.REQUEST_AVATAR)), this);
 	}
 
@@ -1121,7 +1121,7 @@ public class ChatRsService extends RsService
 		return newChatRoom.getId();
 	}
 
-	public void inviteLocationsToChatRoom(long chatRoomId, Set<LocationId> ids)
+	public void inviteLocationsToChatRoom(long chatRoomId, Set<LocationIdentifier> ids)
 	{
 		var chatRoom = chatRooms.get(chatRoomId);
 		if (chatRoom == null)
@@ -1131,7 +1131,7 @@ public class ChatRsService extends RsService
 		}
 
 		peerConnectionManager.doForAllPeers(peerConnection -> {
-			if (ids.contains(peerConnection.getLocation().getLocationId()))
+			if (ids.contains(peerConnection.getLocation().getLocationIdentifier()))
 			{
 				inviteLocationToChatRoom(peerConnection.getLocation(), chatRoom, Invitation.PLAIN);
 			}
@@ -1141,13 +1141,13 @@ public class ChatRsService extends RsService
 	@EventListener
 	public void onPeerConnectedEvent(PeerConnectedEvent event)
 	{
-		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, event.locationId(), AVAILABLE);
+		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, event.locationIdentifier(), AVAILABLE);
 	}
 
 	@EventListener
 	public void onPeerDisconnectedEvent(PeerDisconnectedEvent event)
 	{
-		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, event.locationId(), OFFLINE);
+		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, event.locationIdentifier(), OFFLINE);
 	}
 
 	private long createUniqueRoomId()

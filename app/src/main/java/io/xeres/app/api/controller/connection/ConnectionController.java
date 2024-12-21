@@ -27,7 +27,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.LocationService;
 import io.xeres.common.dto.profile.ProfileDTO;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.rest.connection.ConnectionRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
@@ -70,7 +70,7 @@ public class ConnectionController
 	@ApiResponse(responseCode = "200", description = "Request completed successfully")
 	public ResponseEntity<Void> connect(@Valid @RequestBody ConnectionRequest connectionRequest)
 	{
-		var location = locationService.findLocationByLocationId(LocationId.fromString(connectionRequest.locationId())).orElseThrow();
+		var location = locationService.findLocationByLocationIdentifier(LocationIdentifier.fromString(connectionRequest.locationIdentifier())).orElseThrow();
 		peerConnectionJob.connectImmediately(location, connectionRequest.connectionIndex());
 		return ResponseEntity.ok().build();
 	}

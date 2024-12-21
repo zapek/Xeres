@@ -20,7 +20,7 @@
 package io.xeres.ui.model.location;
 
 import io.xeres.common.dto.location.LocationDTO;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.ui.model.connection.ConnectionMapper;
 
 @SuppressWarnings("DuplicatedCode")
@@ -41,7 +41,7 @@ public final class LocationMapper
 		var location = new Location();
 		location.setId(dto.id());
 		location.setName(dto.name());
-		location.setLocationId(new LocationId(dto.locationIdentifier()));
+		location.setLocationIdentifier(new LocationIdentifier(dto.locationIdentifier()));
 		location.setConnected(dto.connected());
 		location.setLastConnected(dto.lastConnected());
 		location.setAvailability(dto.availability());

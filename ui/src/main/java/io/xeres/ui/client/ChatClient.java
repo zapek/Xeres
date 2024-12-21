@@ -23,7 +23,7 @@ import io.xeres.common.dto.chat.ChatBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatRoomBacklog;
 import io.xeres.common.message.chat.ChatRoomContext;
@@ -103,8 +103,8 @@ public class ChatClient
 	public Mono<Void> inviteLocationsToChatRoom(long chatRoomId, Set<Location> locations)
 	{
 		var request = new InviteToChatRoomRequest(chatRoomId, locations.stream()
-				.map(Location::getLocationId)
-				.map(LocationId::toString)
+				.map(Location::getLocationIdentifier)
+				.map(LocationIdentifier::toString)
 				.collect(Collectors.toSet()));
 
 		return webClient.post()

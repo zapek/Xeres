@@ -100,7 +100,7 @@ public class StatusRsService extends RsService
 			var newStatus = toAvailability(statusItem.getStatus());
 			locationService.setAvailability(sender.getLocation(), newStatus);
 			availabilityNotificationService.changeAvailability(sender.getLocation(), newStatus);
-			messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, sender.getLocation().getLocationId(), newStatus);
+			messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVAILABILITY, sender.getLocation().getLocationIdentifier(), newStatus);
 		}
 	}
 

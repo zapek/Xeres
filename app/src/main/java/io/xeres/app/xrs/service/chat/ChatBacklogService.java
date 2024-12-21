@@ -27,7 +27,7 @@ import io.xeres.app.database.repository.ChatRoomBacklogRepository;
 import io.xeres.app.database.repository.ChatRoomRepository;
 import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,16 +78,16 @@ public class ChatBacklogService
 	}
 
 	@Transactional
-	public void storeIncomingMessage(LocationId from, String message)
+	public void storeIncomingMessage(LocationIdentifier from, String message)
 	{
-		var location = locationRepository.findByLocationId(from).orElseThrow();
+		var location = locationRepository.findByLocationIdentifier(from).orElseThrow();
 		chatBacklogRepository.save(new ChatBacklog(location, false, message));
 	}
 
 	@Transactional
-	public void storeOutgoingMessage(LocationId to, String message)
+	public void storeOutgoingMessage(LocationIdentifier to, String message)
 	{
-		var location = locationRepository.findByLocationId(to).orElseThrow();
+		var location = locationRepository.findByLocationIdentifier(to).orElseThrow();
 		chatBacklogRepository.save(new ChatBacklog(location, true, message));
 	}
 

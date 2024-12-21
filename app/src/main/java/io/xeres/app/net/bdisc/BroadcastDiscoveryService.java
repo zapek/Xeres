@@ -167,7 +167,7 @@ public class BroadcastDiscoveryService implements Runnable
 		{
 			var ownLocation = locationService.findOwnLocation().orElseThrow();
 
-			ownPeerId = ownLocation.getLocationId().hashCode();
+			ownPeerId = ownLocation.getLocationIdentifier().hashCode();
 			sendBuffer = UdpDiscoveryProtocol.createPacket(
 					BROADCAST_BUFFER_SEND_SIZE_MAX,
 					UdpDiscoveryPeer.Status.PRESENT,
@@ -175,7 +175,7 @@ public class BroadcastDiscoveryService implements Runnable
 					ownPeerId,
 					counter,
 					ownLocation.getProfile().getProfileFingerprint(),
-					ownLocation.getLocationId(),
+					ownLocation.getLocationIdentifier(),
 					localAddress.getPort(),
 					ownLocation.getProfile().getName());
 			sendBuffer.flip();
@@ -335,7 +335,7 @@ public class BroadcastDiscoveryService implements Runnable
 						{
 							log.debug("Trying to update friend's IP");
 
-							locationService.findLocationByLocationId(peer.getLocationId()).ifPresentOrElse(location -> {
+							locationService.findLocationByLocationIdentifier(peer.getLocationIdentifier()).ifPresentOrElse(location -> {
 								if (!location.isConnected())
 								{
 									var lanConnection = Connection.from(PeerAddress.from(peer.getIpAddress(), peer.getLocalPort()));

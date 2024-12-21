@@ -19,7 +19,7 @@
 
 package io.xeres.app.service.backup;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -27,7 +27,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(name = "localLocation")
 class Location
 {
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 	private byte[] privateKey;
 	private byte[] publicKey;
 	private byte[] x509Certificate;
@@ -39,25 +39,25 @@ class Location
 		// Default constructor
 	}
 
-	public Location(LocationId locationId, byte[] privateKey, byte[] publicKey, byte[] x509Certificate, int localPort)
+	public Location(LocationIdentifier locationIdentifier, byte[] privateKey, byte[] publicKey, byte[] x509Certificate, int localPort)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 		this.privateKey = privateKey;
 		this.publicKey = publicKey;
 		this.x509Certificate = x509Certificate;
 		this.localPort = localPort;
 	}
 
-	@XmlAttribute
-	@XmlJavaTypeAdapter(LocationIdXmlAdapter.class)
-	public LocationId getLocationId()
+	@XmlAttribute(name = "locationId")
+	@XmlJavaTypeAdapter(LocationIdentifierXmlAdapter.class)
+	public LocationIdentifier getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
-	public void setLocationId(LocationId locationId)
+	public void setLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
 	@XmlAttribute

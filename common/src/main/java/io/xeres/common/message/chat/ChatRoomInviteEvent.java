@@ -21,7 +21,7 @@ package io.xeres.common.message.chat;
 
 public class ChatRoomInviteEvent
 {
-	private String locationId;
+	private String locationIdentifier;
 	private String roomName;
 	private String roomTopic;
 
@@ -30,9 +30,9 @@ public class ChatRoomInviteEvent
 		// Needed for JSON
 	}
 
-	public ChatRoomInviteEvent(String locationId, String roomName, String roomTopic)
+	public ChatRoomInviteEvent(String locationIdentifier, String roomName, String roomTopic)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 		this.roomName = roomName;
 		this.roomTopic = roomTopic;
 	}
@@ -57,21 +57,21 @@ public class ChatRoomInviteEvent
 		this.roomTopic = roomTopic;
 	}
 
-	public String getLocationId()
+	public String getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
-	public void setLocationId(String locationId)
+	public void setLocationIdentifier(String locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
 	@Override
 	public String toString()
 	{
 		return "ChatRoomInviteEvent{" +
-				"locationId='" + locationId + '\'' +
+				"locationIdentifier='" + locationIdentifier + '\'' +
 				", roomName='" + roomName + '\'' +
 				", roomTopic='" + roomTopic + '\'' +
 				'}';

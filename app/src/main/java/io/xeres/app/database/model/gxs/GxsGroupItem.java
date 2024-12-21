@@ -32,7 +32,7 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -111,7 +111,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	private String serviceString;
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "originator"))
-	private LocationId originator;
+	private LocationIdentifier originator;
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "internal_circle"))
 	private GxsId internalCircle;
@@ -322,12 +322,12 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		this.serviceString = serviceString;
 	}
 
-	public LocationId getOriginator()
+	public LocationIdentifier getOriginator()
 	{
 		return originator;
 	}
 
-	public void setOriginator(LocationId originator)
+	public void setOriginator(LocationIdentifier originator)
 	{
 		this.originator = originator;
 	}

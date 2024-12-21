@@ -20,7 +20,7 @@
 package io.xeres.ui.controller.messaging;
 
 import atlantafx.base.controls.Message;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
@@ -125,7 +125,7 @@ public class MessagingWindowController implements WindowController
 	private final WindowManager windowManager;
 	private final UriService uriService;
 	private final ResourceBundle bundle;
-	private final LocationId locationId;
+	private final LocationIdentifier locationIdentifier;
 	private Profile targetProfile;
 
 	private final MessageClient messageClient;
@@ -138,7 +138,7 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
-	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationId, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache)
+	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache)
 	{
 		this.profileClient = profileClient;
 		this.windowManager = windowManager;
@@ -148,7 +148,7 @@ public class MessagingWindowController implements WindowController
 		this.markdownService = markdownService;
 		this.chatClient = chatClient;
 		this.bundle = bundle;
-		this.locationId = LocationId.fromString(locationId);
+		this.locationIdentifier = LocationIdentifier.fromString(locationIdentifier);
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 	}
@@ -207,7 +207,7 @@ public class MessagingWindowController implements WindowController
 			return;
 		}
 		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
-		messageClient.sendToLocation(locationId, chatMessage);
+		messageClient.sendToLocation(locationIdentifier, chatMessage);
 		send.clear();
 	}
 
@@ -217,7 +217,7 @@ public class MessagingWindowController implements WindowController
 		if (java.time.Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
 		{
 			var message = new ChatMessage();
-			messageClient.sendToLocation(locationId, message);
+			messageClient.sendToLocation(locationIdentifier, message);
 			lastTypingNotification = now;
 		}
 	}
@@ -266,7 +266,7 @@ public class MessagingWindowController implements WindowController
 		if (uri instanceof FileUri(String name, long size, Sha1Sum hash))
 		{
 			windowManager.openAddDownload(
-					new AddDownloadRequest(name, size, hash, locationId));
+					new AddDownloadRequest(name, size, hash, locationIdentifier));
 		}
 		else
 		{
@@ -277,7 +277,7 @@ public class MessagingWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
-		profileClient.findByLocationId(locationId, true).collectList()
+		profileClient.findByLocationIdentifier(locationIdentifier, true).collectList()
 				.doOnSuccess(profiles -> {
 					targetProfile = profiles.stream().findFirst().orElseThrow();
 					Platform.runLater(() ->
@@ -295,7 +295,7 @@ public class MessagingWindowController implements WindowController
 				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 
-		messageClient.requestAvatar(locationId);
+		messageClient.requestAvatar(locationIdentifier);
 	}
 
 	public void showMessage(ChatMessage message)

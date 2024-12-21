@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.service.chat;
 
 import io.xeres.app.crypto.hash.chat.ChatChallenge;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.util.SecureRandomUtils;
 
 import java.time.Instant;
@@ -88,18 +88,18 @@ class MessageCache
 	/**
 	 * Checks if this message cache contains a challenge code.
 	 *
-	 * @param locationId    the location id of the peer
+	 * @param locationIdentifier    the location identifier of the peer
 	 * @param chatRoomId    the chat room id
 	 * @param challengeCode the challenge code to be matched against
 	 * @return true if challengeCode is in one of a suitable message
 	 */
-	public boolean hasConnectionChallenge(LocationId locationId, long chatRoomId, long challengeCode)
+	public boolean hasConnectionChallenge(LocationIdentifier locationIdentifier, long chatRoomId, long challengeCode)
 	{
 		var now = (int) Instant.now().getEpochSecond();
 
 		for (var message : messages.entrySet())
 		{
-			if (message.getValue() + CONNECTION_CHALLENGE_MAX_TIME + 5 > now && challengeCode == ChatChallenge.code(locationId, chatRoomId, message.getKey()))
+			if (message.getValue() + CONNECTION_CHALLENGE_MAX_TIME + 5 > now && challengeCode == ChatChallenge.code(locationIdentifier, chatRoomId, message.getKey()))
 			{
 				return true;
 			}

@@ -84,14 +84,14 @@ public class DhtFinderJob
 
 		locations.stream()
 				.filter(not(Location::isOwn))
-				.forEach(location -> dhtService.search(location.getLocationId()));
+				.forEach(location -> dhtService.search(location.getLocationIdentifier()));
 	}
 
 	@EventListener
 	public void dhtNodeFoundEvent(DhtNodeFoundEvent event)
 	{
 		var peerAddress = PeerAddress.from(event.hostPort());
-		log.debug("Trying to connect to LocationId: {} using {} from DHT lookup", event.locationId(), event.hostPort());
+		log.debug("Trying to connect to location identifier: {} using {} from DHT lookup", event.locationIdentifier(), event.hostPort());
 
 		// We don't update the connection table of the location here because there's no guarantee that the DHT node that answered is
 		// the right one (could be fake), but discovery will be able to update it.

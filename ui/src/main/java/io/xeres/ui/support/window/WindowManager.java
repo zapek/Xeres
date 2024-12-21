@@ -187,19 +187,19 @@ public class WindowManager
 	public void openMessaging(long locationId)
 	{
 		locationClient.findById(locationId)
-				.doOnSuccess(location -> openMessaging(location.getLocationId().toString()))
+				.doOnSuccess(location -> openMessaging(location.getLocationIdentifier().toString()))
 				.subscribe();
 	}
 
-	public void openMessaging(String locationId)
+	public void openMessaging(String locationIdentifier)
 	{
-		openMessaging(locationId, null);
+		openMessaging(locationIdentifier, null);
 	}
 
-	public void openMessaging(String locationId, ChatMessage chatMessage)
+	public void openMessaging(String locationIdentifier, ChatMessage chatMessage)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(MessagingWindowController.class, locationId).ifPresentOrElse(window ->
+				getOpenedWindow(MessagingWindowController.class, locationIdentifier).ifPresentOrElse(window ->
 						{
 							if (chatMessage == null)
 							{
@@ -228,11 +228,11 @@ public class WindowManager
 						{
 							if (chatMessage == null || (!chatMessage.isEmpty() && !chatMessage.isOwn())) // Don't open a window for a typing notification, we're not psychic (but do open when we double-click). Don't open for messages sent by us but from another client either
 							{
-								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationId, bundle, chatClient, generalClient, imageCache);
+								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationIdentifier, bundle, chatClient, generalClient, imageCache);
 
 								// There's no need to store the incoming message anywhere because it's retrieved by the chat backlog system
 								var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)
-										.setLocalId(locationId)
+										.setLocalId(locationIdentifier)
 										.setRememberEnvironment(true)
 										.build();
 
@@ -265,19 +265,19 @@ public class WindowManager
 						}));
 	}
 
-	public void sendMessaging(String locationId, ChatAvatar chatAvatar)
+	public void sendMessaging(String locationIdentifier, ChatAvatar chatAvatar)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(MessagingWindowController.class, locationId).ifPresent(window ->
+				getOpenedWindow(MessagingWindowController.class, locationIdentifier).ifPresent(window ->
 						((MessagingWindowController) window.getUserData()).showAvatar(chatAvatar)
 				)
 		);
 	}
 
-	public void sendMessaging(String locationId, Availability availability)
+	public void sendMessaging(String locationIdentifier, Availability availability)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(MessagingWindowController.class, locationId).ifPresent(window ->
+				getOpenedWindow(MessagingWindowController.class, locationIdentifier).ifPresent(window ->
 						((MessagingWindowController) window.getUserData()).setAvailability(availability)
 				)
 		);

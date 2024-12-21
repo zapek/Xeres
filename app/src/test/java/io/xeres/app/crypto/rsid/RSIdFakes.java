@@ -40,7 +40,7 @@ public final class RSIdFakes
 
 		var builder = new RSIdBuilder(SHORT_INVITE);
 		return builder.setName(StringFakes.createNickname().getBytes())
-				.setLocationId(LocationFakes.createLocation().getLocationId())
+				.setLocationIdentifier(LocationFakes.createLocation().getLocationIdentifier())
 				.setPgpFingerprint(profile.getProfileFingerprint().getBytes())
 				.build();
 	}
@@ -50,7 +50,7 @@ public final class RSIdFakes
 		var builder = new RSIdBuilder(CERTIFICATE);
 		return builder.setName(StringFakes.createNickname().getBytes())
 				.setProfile(ProfileFakes.createProfile())
-				.setLocationId(LocationFakes.createLocation().getLocationId())
+				.setLocationIdentifier(LocationFakes.createLocation().getLocationIdentifier())
 				.build();
 	}
 
@@ -59,7 +59,7 @@ public final class RSIdFakes
 		var builder = new RSIdBuilder(CERTIFICATE);
 		return builder.setName(profile.getName().getBytes())
 				.setProfile(profile)
-				.setLocationId(LocationFakes.createLocation().getLocationId())
+				.setLocationIdentifier(LocationFakes.createLocation().getLocationIdentifier())
 				.build();
 	}
 }

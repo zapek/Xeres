@@ -88,7 +88,7 @@ public class BackupService
 		var export = new Export();
 		var local = new Local();
 		local.setProfile(new Profile(settingsService.getSecretProfileKey()));
-		local.setLocation(new Location(locationService.findOwnLocation().orElseThrow().getLocationId(),
+		local.setLocation(new Location(locationService.findOwnLocation().orElseThrow().getLocationIdentifier(),
 				settingsService.getLocationPrivateKeyData(),
 				settingsService.getLocationPublicKeyData(),
 				settingsService.getLocationCertificate(),
@@ -134,9 +134,9 @@ public class BackupService
 				.filter(profile -> profile.getTrust() == Trust.ULTIMATE)
 				.findFirst().orElseThrow(() -> new IllegalArgumentException("No local profile in the profile list"));
 
-		var localLocationId = export.getLocal().getLocation().getLocationId();
+		var localLocationIdentifier = export.getLocal().getLocation().getLocationIdentifier();
 		var localLocation = localProfile.getLocations().stream()
-				.filter(location -> location.getLocationId().equals(localLocationId))
+				.filter(location -> location.getLocationIdentifier().equals(localLocationIdentifier))
 				.findFirst().orElseThrow(); // XXX: if not found, create new location? should be allowed
 
 		createOwnProfile(localProfile.getName(), export.getLocal().getProfile().getPgpPrivateKey(), localProfile.getPgpPublicKeyData());

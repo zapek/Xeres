@@ -21,7 +21,7 @@ package io.xeres.app.database.model.location;
 
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.testutils.StringFakes;
 
@@ -45,30 +45,30 @@ public final class LocationFakes
 
 	public static Location createOwnLocation()
 	{
-		return new Location(OWN_LOCATION_ID, StringFakes.createNickname(), ProfileFakes.createProfile(), new LocationId(getRandomArray()));
+		return new Location(OWN_LOCATION_ID, StringFakes.createNickname(), ProfileFakes.createProfile(), new LocationIdentifier(getRandomArray()));
 	}
 
 	public static Location createLocation()
 	{
-		return createLocation(StringFakes.createNickname(), ProfileFakes.createProfile(), new LocationId(getRandomArray()));
+		return createLocation(StringFakes.createNickname(), ProfileFakes.createProfile(), new LocationIdentifier(getRandomArray()));
 	}
 
 	public static Location createLocation(String name, Profile profile)
 	{
-		return createLocation(name, profile, new LocationId(getRandomArray()));
+		return createLocation(name, profile, new LocationIdentifier(getRandomArray()));
 	}
 
 	public static Location createFreshLocation(String name, Profile profile)
 	{
-		var location = new Location(0L, name, profile, new LocationId(getRandomArray()));
+		var location = new Location(0L, name, profile, new LocationIdentifier(getRandomArray()));
 		location.setNetMode(NetMode.UPNP);
 		location.setVersion("Xeres 0.1.1");
 		return location;
 	}
 
-	public static Location createLocation(String name, Profile profile, LocationId locationId)
+	public static Location createLocation(String name, Profile profile, LocationIdentifier locationIdentifier)
 	{
-		var location = new Location(getUniqueId(), name, profile, locationId);
+		var location = new Location(getUniqueId(), name, profile, locationIdentifier);
 		location.setNetMode(NetMode.UPNP);
 		location.setVersion("Xeres 0.1.1");
 		return location;

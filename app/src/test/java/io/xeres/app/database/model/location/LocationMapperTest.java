@@ -47,7 +47,7 @@ class LocationMapperTest
 
 		assertEquals(location.getId(), locationDTO.id());
 		assertEquals(location.getName(), locationDTO.name());
-		assertArrayEquals(location.getLocationId().getBytes(), locationDTO.locationIdentifier());
+		assertArrayEquals(location.getLocationIdentifier().getBytes(), locationDTO.locationIdentifier());
 		assertEquals(location.isConnected(), locationDTO.connected());
 		assertEquals(location.getLastConnected(), locationDTO.lastConnected());
 	}
@@ -83,7 +83,7 @@ class LocationMapperTest
 
 		assertEquals(locationDTO.id(), location.getId());
 		assertEquals(locationDTO.name(), location.getName());
-		assertArrayEquals(locationDTO.locationIdentifier(), location.getLocationId().getBytes());
+		assertArrayEquals(locationDTO.locationIdentifier(), location.getLocationIdentifier().getBytes());
 		assertEquals(locationDTO.connected(), location.isConnected());
 		assertEquals(locationDTO.lastConnected(), location.getLastConnected());
 	}

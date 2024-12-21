@@ -19,7 +19,7 @@
 
 package io.xeres.app.net.bdisc;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 
 import java.time.Instant;
@@ -39,7 +39,7 @@ public class UdpDiscoveryPeer
 	private String ipAddress;
 
 	private ProfileFingerprint fingerprint;
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 	private int localPort;
 	private String profileName;
 
@@ -105,14 +105,14 @@ public class UdpDiscoveryPeer
 		this.fingerprint = fingerprint;
 	}
 
-	public LocationId getLocationId()
+	public LocationIdentifier getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
-	public void setLocationId(LocationId locationId)
+	public void setLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
 	public int getLocalPort()
@@ -154,7 +154,7 @@ public class UdpDiscoveryPeer
 				", peerId=" + peerId +
 				", packetIndex=" + packetIndex +
 				", fingerprint=" + fingerprint +
-				", locationId=" + locationId +
+				", locationIdentifier=" + locationIdentifier +
 				", ipAddress='" + ipAddress + '\'' +
 				", localPort=" + localPort +
 				", profileName='" + profileName + '\'' +

@@ -24,7 +24,7 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.service.turtle.item.TurtleTunnelRequestItem;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +54,7 @@ class TurtleRsServiceTest
 	void GeneratePersonalFilePrint_Success()
 	{
 		// Values have been taken directly from Retroshare to make sure there's no signed/unsigned bugs
-		var ownLocation = LocationFakes.createLocation("Test", null, LocationId.fromString("d3b9c7ceb75c7c68b5e3c6446259c8e7"));
+		var ownLocation = LocationFakes.createLocation("Test", null, LocationIdentifier.fromString("d3b9c7ceb75c7c68b5e3c6446259c8e7"));
 
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
 		turtleRsService.initialize();

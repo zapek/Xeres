@@ -19,7 +19,7 @@
 
 package io.xeres.ui.model.location;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.location.Availability;
 import io.xeres.ui.model.connection.Connection;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ public class Location
 {
 	private long id;
 	private String name;
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 	private String hostname;
 	private final List<Connection> connections = new ArrayList<>();
 	private boolean connected;
@@ -60,14 +60,14 @@ public class Location
 		this.name = name;
 	}
 
-	public LocationId getLocationId()
+	public LocationIdentifier getLocationIdentifier()
 	{
-		return locationId;
+		return locationIdentifier;
 	}
 
-	public void setLocationId(LocationId locationId)
+	public void setLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
-		this.locationId = locationId;
+		this.locationIdentifier = locationIdentifier;
 	}
 
 	public String getHostname()

@@ -26,7 +26,7 @@ import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.service.LocationService;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.testutils.TestUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
@@ -121,12 +121,12 @@ class SSLTest
 		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
 
-		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.of(location));
+		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.of(location));
 
 		var result = SSL.checkPeerCertificate(locationService, new X509Certificate[]{certificate});
 
 		assertEquals(result, location);
-		verify(locationService).findLocationByLocationId(any(LocationId.class));
+		verify(locationService).findLocationByLocationIdentifier(any(LocationIdentifier.class));
 	}
 
 	@Test
@@ -136,7 +136,7 @@ class SSLTest
 				.isInstanceOf(CertificateException.class)
 				.hasMessage("Empty certificate");
 
-		verify(locationService, never()).findLocationByLocationId(any(LocationId.class));
+		verify(locationService, never()).findLocationByLocationIdentifier(any(LocationIdentifier.class));
 	}
 
 	@Test
@@ -146,13 +146,13 @@ class SSLTest
 		var location = LocationFakes.createLocation("bar", profile);
 		location.setConnected(true);
 
-		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.of(location));
+		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.of(location));
 
 		assertThatThrownBy(() -> SSL.checkPeerCertificate(locationService, new X509Certificate[]{certificate}))
 				.isInstanceOf(CertificateException.class)
 				.hasMessage("Already connected");
 
-		verify(locationService).findLocationByLocationId(any(LocationId.class));
+		verify(locationService).findLocationByLocationIdentifier(any(LocationIdentifier.class));
 	}
 
 	@Test
@@ -163,12 +163,12 @@ class SSLTest
 		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
 
-		when(locationService.findLocationByLocationId(any(LocationId.class))).thenReturn(Optional.of(location));
+		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.of(location));
 
 		assertThatThrownBy(() -> SSL.checkPeerCertificate(locationService, new X509Certificate[]{wrongCertificate}))
 				.isInstanceOf(CertificateException.class)
 				.hasMessageContaining("Wrong signature");
 
-		verify(locationService).findLocationByLocationId(any(LocationId.class));
+		verify(locationService).findLocationByLocationIdentifier(any(LocationIdentifier.class));
 	}
 }

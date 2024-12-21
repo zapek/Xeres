@@ -23,7 +23,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.service.chat.item.VisibleChatRoomInfo;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.RoomType;
 
@@ -52,12 +52,12 @@ public class ChatRoom
 	private final boolean signed;
 
 	private final MessageCache messageCache = new MessageCache();
-	private LocationId virtualPeerId; // XXX: check if we need that...
+	private LocationIdentifier virtualPeerId; // XXX: check if we need that...
 	private int connectionChallengeCount;
 	private Instant lastConnectionChallenge = Instant.EPOCH;
 	private boolean joinedRoomPacketSent;
 	private Instant lastKeepAlivePacket = Instant.EPOCH;
-	private final Set<LocationId> previouslyKnownLocations = ConcurrentHashMap.newKeySet();
+	private final Set<LocationIdentifier> previouslyKnownLocations = ConcurrentHashMap.newKeySet();
 
 	public ChatRoom(long id, String name, String topic, RoomType type, int userCount, boolean isSigned)
 	{
@@ -139,12 +139,12 @@ public class ChatRoom
 
 	public void recordPreviouslyKnownLocation(Location location)
 	{
-		previouslyKnownLocations.add(location.getLocationId());
+		previouslyKnownLocations.add(location.getLocationIdentifier());
 	}
 
 	public boolean isPreviouslyKnownLocation(Location location)
 	{
-		return previouslyKnownLocations.contains(location.getLocationId());
+		return previouslyKnownLocations.contains(location.getLocationIdentifier());
 	}
 
 	public void setOwnGxsId(GxsId gxsId)
@@ -206,7 +206,7 @@ public class ChatRoom
 		lastSeen = Instant.now();
 	}
 
-	public LocationId getVirtualPeerId()
+	public LocationIdentifier getVirtualPeerId()
 	{
 		return virtualPeerId;
 	}

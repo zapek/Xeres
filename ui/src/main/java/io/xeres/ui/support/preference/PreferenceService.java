@@ -19,7 +19,7 @@
 
 package io.xeres.ui.support.preference;
 
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.location.Location;
@@ -45,11 +45,11 @@ public class PreferenceService
 	public static final String UPDATE_CHECK = "UpdateCheck";
 	public static final String SOUND = "Sound";
 
-	private LocationId locationId;
+	private LocationIdentifier locationIdentifier;
 
 	public void setLocation(Location location)
 	{
-		locationId = location.getLocationId();
+		locationIdentifier = location.getLocationIdentifier();
 	}
 
 	public Preferences getPreferences()
@@ -62,11 +62,11 @@ public class PreferenceService
 		}
 		else
 		{
-			if (locationId == null)
+			if (locationIdentifier == null)
 			{
 				return null;
 			}
-			return rootNode.node(locationId.toString());
+			return rootNode.node(locationIdentifier.toString());
 		}
 	}
 }

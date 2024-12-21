@@ -26,7 +26,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.service.gxs.Transaction.Direction;
 import io.xeres.app.xrs.service.gxs.item.*;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.util.ExecutorUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -75,8 +75,8 @@ public class GxsTransactionManager
 
 	private final PeerConnectionManager peerConnectionManager;
 
-	private final Map<LocationId, Map<Integer, Transaction<?>>> incomingTransactions = new ConcurrentHashMap<>();
-	private final Map<LocationId, Map<Integer, Transaction<?>>> outgoingTransactions = new ConcurrentHashMap<>();
+	private final Map<LocationIdentifier, Map<Integer, Transaction<?>>> incomingTransactions = new ConcurrentHashMap<>();
+	private final Map<LocationIdentifier, Map<Integer, Transaction<?>>> outgoingTransactions = new ConcurrentHashMap<>();
 
 	private ScheduledExecutorService executorService;
 
@@ -104,8 +104,8 @@ public class GxsTransactionManager
 	 */
 	private void cleanupTransactions()
 	{
-		incomingTransactions.forEach((locationId, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimeout()));
-		outgoingTransactions.forEach((locationId, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimeout()));
+		incomingTransactions.forEach((locationIdentifier, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimeout()));
+		outgoingTransactions.forEach((locationIdentifier, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimeout()));
 	}
 
 	/**
@@ -281,18 +281,18 @@ public class GxsTransactionManager
 	@EventListener
 	public void onPeerDisconnectedEvent(PeerDisconnectedEvent event)
 	{
-		outgoingTransactions.remove(event.locationId());
+		outgoingTransactions.remove(event.locationIdentifier());
 	}
 
 	private void addTransaction(PeerConnection peerConnection, Transaction<?> transaction, Direction direction)
 	{
-		Map<LocationId, Map<Integer, Transaction<?>>> transactionList = switch (direction)
+		Map<LocationIdentifier, Map<Integer, Transaction<?>>> transactionList = switch (direction)
 		{
 			case OUTGOING -> outgoingTransactions;
 			case INCOMING -> incomingTransactions;
 		};
 
-		var transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationId(), key -> new HashMap<>());
+		var transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationIdentifier(), key -> new HashMap<>());
 		if (transactionMap.put(transaction.getId(), transaction) != null && direction == OUTGOING)
 		{
 			throw new IllegalStateException("Transaction " + transaction.getId() + " (OUTGOING) for peer " + peerConnection + " already exists. Should not happen (tm)");
@@ -301,9 +301,9 @@ public class GxsTransactionManager
 
 	private Transaction<?> getTransaction(PeerConnection peerConnection, int id, Direction direction)
 	{
-		var locationId = peerConnection.getLocation().getLocationId();
+		var locationIdentifier = peerConnection.getLocation().getLocationIdentifier();
 
-		var transactionMap = direction == INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
+		var transactionMap = direction == INCOMING ? incomingTransactions.get(locationIdentifier) : outgoingTransactions.get(locationIdentifier);
 		if (transactionMap == null)
 		{
 			throw new IllegalStateException("No existing transaction for peer " + peerConnection);
@@ -322,9 +322,9 @@ public class GxsTransactionManager
 
 	private void removeTransaction(PeerConnection peerConnection, Transaction<?> transaction)
 	{
-		var locationId = peerConnection.getLocation().getLocationId();
+		var locationIdentifier = peerConnection.getLocation().getLocationIdentifier();
 
-		var transactionMap = transaction.getDirection() == INCOMING ? incomingTransactions.get(locationId) : outgoingTransactions.get(locationId);
+		var transactionMap = transaction.getDirection() == INCOMING ? incomingTransactions.get(locationIdentifier) : outgoingTransactions.get(locationIdentifier);
 		if (transactionMap == null)
 		{
 			throw new IllegalStateException("No existing transaction for removal for peer " + peerConnection);

@@ -24,7 +24,7 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +41,7 @@ public class SubscribedChatRoomConfigItem extends Item
 	private String roomTopic;
 
 	@RsSerialized
-	private Set<LocationId> participatingLocations; // XXX: do we serialize Sets yet? no, see #19
+	private Set<LocationIdentifier> participatingLocations; // XXX: do we serialize Sets yet? no, see #19
 
 	@RsSerialized
 	private GxsId gxsId;
@@ -82,7 +82,7 @@ public class SubscribedChatRoomConfigItem extends Item
 		return roomTopic;
 	}
 
-	public Set<LocationId> getParticipatingLocations()
+	public Set<LocationIdentifier> getParticipatingLocations()
 	{
 		return participatingLocations;
 	}

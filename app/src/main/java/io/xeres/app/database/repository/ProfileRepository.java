@@ -20,7 +20,7 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.profile.Profile;
-import io.xeres.common.id.LocationId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -41,8 +41,8 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>
 
 	Optional<Profile> findByPgpIdentifier(long pgpIdentifier);
 
-	@Query("SELECT p FROM Profile p, IN(p.locations) l WHERE l.locationId = :locationId")
-	Optional<Profile> findProfileByLocationId(@Param("locationId") LocationId locationId);
+	@Query("SELECT p FROM Profile p, IN(p.locations) l WHERE l.locationIdentifier = :locationIdentifier")
+	Optional<Profile> findProfileByLocationIdentifier(@Param("locationIdentifier") LocationIdentifier locationIdentifier);
 
 	@Query("SELECT p FROM Profile p, IN(p.locations) l WHERE p.pgpIdentifier = :pgpIdentifier AND p.accepted = true AND p.pgpPublicKeyData is not null AND l.discoverable = true")
 	Optional<Profile> findDiscoverableProfileByPgpIdentifier(@Param("pgpIdentifier") long pgpIdentifier);

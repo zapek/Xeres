@@ -146,7 +146,7 @@ public class DiscoveryRsService extends RsService
 		var builder = DiscoveryContactItem.builder();
 
 		builder.setPgpIdentifier(aboutLocation.getProfile().getPgpIdentifier());
-		builder.setLocationId(aboutLocation.getLocationId());
+		builder.setLocationIdentifier(aboutLocation.getLocationIdentifier());
 		builder.setLocationName(aboutLocation.getName());
 		if (aboutLocation.isOwn())
 		{
@@ -230,7 +230,7 @@ public class DiscoveryRsService extends RsService
 	private void handleContact(PeerConnection peerConnection, DiscoveryContactItem discoveryContactItem)
 	{
 		var peerLocation = peerConnection.getLocation();
-		var existingContactLocation = locationService.findLocationByLocationId(discoveryContactItem.getLocationId());
+		var existingContactLocation = locationService.findLocationByLocationIdentifier(discoveryContactItem.getLocationIdentifier());
 
 		existingContactLocation.ifPresentOrElse(contactLocation -> {
 			if (contactLocation.equals(peerLocation))
@@ -303,7 +303,7 @@ public class DiscoveryRsService extends RsService
 					if (profile.isAccepted())
 					{
 						// New location of a friend
-						var newLocation = Location.createLocation(discoveryContactItem.getLocationName(), profile, discoveryContactItem.getLocationId());
+						var newLocation = Location.createLocation(discoveryContactItem.getLocationName(), profile, discoveryContactItem.getLocationIdentifier());
 						newLocation = updateLocation(newLocation, discoveryContactItem);
 						log.debug("New location of a friend, added: {}", newLocation);
 						statusNotificationService.incrementTotalUsers();

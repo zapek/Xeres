@@ -29,7 +29,7 @@ import io.xeres.app.xrs.service.status.GetIdleTime;
 public class GetIdleTimeLinux implements GetIdleTime
 {
 	@SuppressWarnings("unused")
-	private static class XScreenSaverInfo extends Structure
+	public static class XScreenSaverInfo extends Structure
 	{
 		public X11.Window window;
 		public int state;

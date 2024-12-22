@@ -45,9 +45,9 @@
                     <RowConstraints vgrow="ALWAYS"/>
                     <RowConstraints vgrow="ALWAYS"/>
                 </rowConstraints>
-                <CheckBox fx:id="remoteEnabled" mnemonicParsing="false" text="Enabled" GridPane.columnSpan="2147483647">
+                <CheckBox fx:id="remoteEnabled" mnemonicParsing="false" text="%enabled" GridPane.columnSpan="2147483647">
                     <tooltip>
-                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Enable remote access. It can be accessed either from another Xeres instance or from the Android client."/>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.remote.enabled.tip"/>
                     </tooltip>
                 </CheckBox>
 
@@ -57,9 +57,9 @@
                     </GridPane.margin>
                 </Label>
                 <TextField fx:id="port" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <CheckBox fx:id="remoteUpnpEnabled" mnemonicParsing="false" text="Set with UPNP" GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.columnSpan="2147483647">
+                <CheckBox fx:id="remoteUpnpEnabled" mnemonicParsing="false" text="%settings.remote.upnp-set" GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.columnSpan="2147483647">
                     <tooltip>
-                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Set the remote port with UPNP, making it accessible from the WAN."/>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.remote.upnp-set.tip"/>
                     </tooltip>
                 </CheckBox>
 

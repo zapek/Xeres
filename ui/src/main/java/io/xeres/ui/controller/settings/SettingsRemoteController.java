@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 import static io.xeres.common.properties.StartupProperties.Property.CONTROL_PORT;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -69,9 +70,12 @@ public class SettingsRemoteController implements SettingsController
 
 	private final TrayService trayService;
 
-	public SettingsRemoteController(TrayService trayService)
+	private final ResourceBundle bundle;
+
+	public SettingsRemoteController(TrayService trayService, ResourceBundle bundle)
 	{
 		this.trayService = trayService;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -127,7 +131,7 @@ public class SettingsRemoteController implements SettingsController
 
 		if (originalRemoteEnabled != settings.isRemoteEnabled() || !originalPassword.equals(settings.getRemotePassword()) || portChanged)
 		{
-			UiUtils.alertConfirm("You need to restart Xeres in order for the remote access changes to be effective. Exit now?", trayService::exitApplication);
+			UiUtils.alertConfirm(bundle.getString("settings.remote.restart"), trayService::exitApplication);
 		}
 
 		return settings;

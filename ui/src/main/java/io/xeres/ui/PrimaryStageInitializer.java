@@ -40,6 +40,7 @@ import reactor.core.publisher.Hooks;
 import static io.xeres.common.message.MessagePath.chatPrivateDestination;
 import static io.xeres.common.message.MessagePath.chatRoomDestination;
 import static io.xeres.common.properties.StartupProperties.Property.ICONIFIED;
+import static io.xeres.common.properties.StartupProperties.Property.UI;
 
 @Component
 public class PrimaryStageInitializer
@@ -83,6 +84,11 @@ public class PrimaryStageInitializer
 	@EventListener
 	public void onNetworkReadyEvent(NetworkReadyEvent event)
 	{
+		if (!StartupProperties.getBoolean(UI, true))
+		{
+			return;
+		}
+
 		var handler = new ChatFrameHandler(windowManager, chatViewController); // XXX: for now, use the same for both
 
 		messageClient

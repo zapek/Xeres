@@ -361,4 +361,14 @@ public class SettingsService
 	{
 		return settings.isRemoteEnabled();
 	}
+
+	public boolean hasRemotePortConfigured()
+	{
+		return settings.isRemoteEnabled() && settings.getRemotePort() != 0;
+	}
+
+	public int getRemotePort()
+	{
+		return settings.getRemotePort();
+	}
 }

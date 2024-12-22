@@ -66,6 +66,8 @@ public class Settings
 
 	private boolean upnpRemoteEnabled;
 
+	private int remotePort;
+
 	protected Settings()
 	{
 	}
@@ -258,5 +260,15 @@ public class Settings
 	public void setUpnpRemoteEnabled(boolean upnpRemoteEnabled)
 	{
 		this.upnpRemoteEnabled = upnpRemoteEnabled;
+	}
+
+	public int getRemotePort()
+	{
+		return remotePort;
+	}
+
+	public void setRemotePort(int remotePort)
+	{
+		this.remotePort = remotePort;
 	}
 }

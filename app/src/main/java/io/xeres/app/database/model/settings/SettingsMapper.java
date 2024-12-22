@@ -47,7 +47,8 @@ public final class SettingsMapper
 				settings.getIncomingDirectory(),
 				settings.getRemotePassword(),
 				settings.isRemoteEnabled(),
-				settings.isUpnpRemoteEnabled()
+				settings.isUpnpRemoteEnabled(),
+				settings.getRemotePort()
 		);
 	}
 
@@ -71,6 +72,7 @@ public final class SettingsMapper
 		settings.setRemotePassword(dto.remotePassword());
 		settings.setRemoteEnabled(dto.remoteEnabled());
 		settings.setUpnpRemoteEnabled(dto.upnpRemoteEnabled());
+		settings.setRemotePort(dto.remotePort());
 		return settings;
 	}
 }

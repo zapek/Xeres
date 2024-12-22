@@ -24,15 +24,18 @@ import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static io.xeres.common.properties.StartupProperties.Property.CONTROL_PORT;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -48,7 +51,7 @@ public class SettingsRemoteController implements SettingsController
 	private PasswordTextField password;
 
 	@FXML
-	private ReadOnlyTextField port;
+	private TextField port;
 
 	@FXML
 	private ReadOnlyTextField username;
@@ -74,6 +77,8 @@ public class SettingsRemoteController implements SettingsController
 	@Override
 	public void initialize() throws IOException
 	{
+		TextFieldUtils.setNumeric(port, 1025, 65535);
+
 		var icon = new FontIcon("mdi2e-eye-off");
 		icon.setCursor(Cursor.HAND);
 		icon.setOnMouseClicked(mouseEvent -> {
@@ -105,11 +110,22 @@ public class SettingsRemoteController implements SettingsController
 	@Override
 	public Settings onSave()
 	{
+		var portChanged = false;
+
 		settings.setRemotePassword(isBlank(password.getPassword()) ? null : password.getPassword());
 		settings.setRemoteEnabled(remoteEnabled.isSelected());
 		settings.setRemoteUpnpEnabled(remoteUpnpEnabled.isSelected());
+		if (!port.getText().isEmpty())
+		{
+			var portValue = Integer.parseInt(port.getText());
+			if (portValue != Objects.requireNonNull(StartupProperties.getInteger(CONTROL_PORT)))
+			{
+				settings.setRemotePort(portValue);
+				portChanged = true;
+			}
+		}
 
-		if (originalRemoteEnabled != settings.isRemoteEnabled() || !originalPassword.equals(settings.getRemotePassword()))
+		if (originalRemoteEnabled != settings.isRemoteEnabled() || !originalPassword.equals(settings.getRemotePassword()) || portChanged)
 		{
 			UiUtils.alertConfirm("You need to restart Xeres in order for the remote access changes to be effective. Exit now?", trayService::exitApplication);
 		}

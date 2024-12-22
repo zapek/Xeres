@@ -79,8 +79,8 @@ public final class LocalPortFinder
 				log.info("Local port {} already used, using {} instead", port, portFound);
 			}
 			// Make sure the properties are always set
-			StartupProperties.setPort(CONTROL_PORT, String.valueOf(portFound));
-			StartupProperties.setPort(UI_PORT, String.valueOf(portFound));
+			StartupProperties.setPort(CONTROL_PORT, String.valueOf(portFound), StartupProperties.Origin.PROPERTY);
+			StartupProperties.setPort(UI_PORT, String.valueOf(portFound), StartupProperties.Origin.PROPERTY);
 		}
 	}
 }

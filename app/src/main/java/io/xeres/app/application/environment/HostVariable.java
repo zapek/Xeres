@@ -89,7 +89,7 @@ public final class HostVariable
 	{
 		try
 		{
-			StartupProperties.setString(property, value);
+			StartupProperties.setString(property, value, StartupProperties.Origin.ENVIRONMENT_VARIABLE);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -101,7 +101,7 @@ public final class HostVariable
 	{
 		try
 		{
-			StartupProperties.setBoolean(property, value);
+			StartupProperties.setBoolean(property, value, StartupProperties.Origin.ENVIRONMENT_VARIABLE);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -113,7 +113,7 @@ public final class HostVariable
 	{
 		try
 		{
-			StartupProperties.setPort(property, value);
+			StartupProperties.setPort(property, value, StartupProperties.Origin.ENVIRONMENT_VARIABLE);
 		}
 		catch (IllegalArgumentException e)
 		{

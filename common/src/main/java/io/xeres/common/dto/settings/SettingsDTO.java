@@ -31,7 +31,8 @@ public record SettingsDTO(
 		String incomingDirectory,
 		String remotePassword,
 		boolean remoteEnabled,
-		boolean upnpRemoteEnabled
+		boolean upnpRemoteEnabled,
+		int remotePort
 )
 {
 }

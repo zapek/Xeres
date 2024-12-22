@@ -56,7 +56,7 @@
                         <Insets right="4.0"/>
                     </GridPane.margin>
                 </Label>
-                <ReadOnlyTextField fx:id="port" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <TextField fx:id="port" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                 <CheckBox fx:id="remoteUpnpEnabled" mnemonicParsing="false" text="Set with UPNP" GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.columnSpan="2147483647">
                     <tooltip>
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Set the remote port with UPNP, making it accessible from the WAN."/>

@@ -26,29 +26,31 @@ public final class StartupProperties
 {
 	public enum Property
 	{
-		SERVER_ONLY("xrs.network.server-only", Boolean.class),
-		CONTROL_PORT("server.port", Integer.class),
-		CONTROL_ADDRESS("server.address", String.class),
-		CONTROL_PASSWORD("xrs.server.password", Boolean.class),
-		SERVER_ADDRESS("xrs.network.server-address", String.class),
-		SERVER_PORT("xrs.network.server-port", Integer.class),
-		DATA_DIR("xrs.data.dir-path", String.class),
-		UI("xrs.ui.enabled", Boolean.class),
-		UI_ADDRESS("xrs.ui.address", String.class),
-		UI_PORT("xrs.ui.port", Integer.class),
-		ICONIFIED("xrs.ui.iconified", Boolean.class),
-		FAST_SHUTDOWN("xrs.network.fast-shutdown", Boolean.class),
-		REMOTE_PASSWORD("xrs.ui.remote-password", String.class),
-		HTTPS("server.ssl.enabled", Boolean.class);
+		SERVER_ONLY("xrs.network.server-only", Boolean.class, Origin.PROPERTY),
+		CONTROL_PORT("server.port", Integer.class, Origin.PROPERTY),
+		CONTROL_ADDRESS("server.address", String.class, Origin.PROPERTY),
+		CONTROL_PASSWORD("xrs.server.password", Boolean.class, Origin.PROPERTY),
+		SERVER_ADDRESS("xrs.network.server-address", String.class, Origin.PROPERTY),
+		SERVER_PORT("xrs.network.server-port", Integer.class, Origin.PROPERTY),
+		DATA_DIR("xrs.data.dir-path", String.class, Origin.PROPERTY),
+		UI("xrs.ui.enabled", Boolean.class, Origin.PROPERTY),
+		UI_ADDRESS("xrs.ui.address", String.class, Origin.PROPERTY),
+		UI_PORT("xrs.ui.port", Integer.class, Origin.PROPERTY),
+		ICONIFIED("xrs.ui.iconified", Boolean.class, Origin.PROPERTY),
+		FAST_SHUTDOWN("xrs.network.fast-shutdown", Boolean.class, Origin.PROPERTY),
+		REMOTE_PASSWORD("xrs.ui.remote-password", String.class, Origin.PROPERTY),
+		HTTPS("server.ssl.enabled", Boolean.class, Origin.PROPERTY);
 
-		Property(String propertyName, Class<?> javaClass)
+		Property(String propertyName, Class<?> javaClass, Origin origin)
 		{
 			this.propertyName = propertyName;
 			this.javaClass = javaClass;
+			this.origin = origin;
 		}
 
 		private final String propertyName;
 		private final Class<?> javaClass;
+		private Origin origin;
 
 		public String getKey()
 		{
@@ -59,6 +61,28 @@ public final class StartupProperties
 		{
 			return javaClass;
 		}
+
+		public Origin getOrigin()
+		{
+			return origin;
+		}
+
+		private void setOrigin(Origin origin)
+		{
+			this.origin = origin;
+		}
+
+		public boolean isUnset()
+		{
+			return this.origin == Origin.PROPERTY;
+		}
+	}
+
+	public enum Origin
+	{
+		PROPERTY,
+		ENVIRONMENT_VARIABLE,
+		ARGUMENT
 	}
 
 	private StartupProperties()
@@ -76,7 +100,7 @@ public final class StartupProperties
 		return System.getProperty(property.getKey());
 	}
 
-	public static void setString(Property property, String value)
+	public static void setString(Property property, String value, Origin origin)
 	{
 		if (!property.getJavaClass().equals(String.class))
 		{
@@ -88,6 +112,7 @@ public final class StartupProperties
 			throw new IllegalArgumentException("Property " + property.name() + " (" + property.getKey() + ") does not contain a value");
 		}
 
+		property.setOrigin(origin);
 		System.setProperty(property.getKey(), value);
 	}
 
@@ -112,7 +137,7 @@ public final class StartupProperties
 		return Boolean.parseBoolean(value);
 	}
 
-	public static void setBoolean(Property property, String value)
+	public static void setBoolean(Property property, String value, Origin origin)
 	{
 		if (!property.getJavaClass().equals(Boolean.class))
 		{
@@ -124,6 +149,7 @@ public final class StartupProperties
 		{
 			throw new IllegalArgumentException("Property " + property.name() + " (" + property.getKey() + ") does not contain a boolean value (" + value + ")");
 		}
+		property.setOrigin(origin);
 		System.setProperty(property.getKey(), String.valueOf(val));
 	}
 
@@ -137,7 +163,7 @@ public final class StartupProperties
 		return Integer.parseInt(value);
 	}
 
-	public static void setPort(Property property, String value)
+	public static void setPort(Property property, String value, Origin origin)
 	{
 		if (!property.getJavaClass().equals(Integer.class))
 		{
@@ -151,6 +177,7 @@ public final class StartupProperties
 			{
 				throw new NumberFormatException();
 			}
+			property.setOrigin(origin);
 			System.setProperty(property.getKey(), String.valueOf(val));
 		}
 		catch (NumberFormatException e)
@@ -159,7 +186,7 @@ public final class StartupProperties
 		}
 	}
 
-	public static void setUiRemoteConnect(String ipAndPort)
+	public static void setUiRemoteConnect(String ipAndPort, Origin origin)
 	{
 		var tokens = ipAndPort.split(":");
 
@@ -171,7 +198,7 @@ public final class StartupProperties
 		{
 			throw new IllegalArgumentException("IP " + tokens[0] + " cannot be bound to");
 		}
-		setString(Property.UI_ADDRESS, tokens[0]);
+		setString(Property.UI_ADDRESS, tokens[0], origin);
 
 		if (tokens.length == 2 && StringUtils.isNotBlank(tokens[1]))
 		{
@@ -179,7 +206,7 @@ public final class StartupProperties
 			{
 				throw new IllegalArgumentException("Invalid port " + tokens[1]);
 			}
-			setPort(Property.UI_PORT, tokens[1]);
+			setPort(Property.UI_PORT, tokens[1], origin);
 		}
 		System.setProperty("spring.main.web-application-type", "none");
 	}

@@ -74,7 +74,7 @@ public final class CommandArgument
 
 		// We default to HTTPS and have to specify it here because RemoteUtils
 		// uses the property to know in which mode it is.
-		StartupProperties.setBoolean(StartupProperties.Property.HTTPS, "true");
+		StartupProperties.setBoolean(StartupProperties.Property.HTTPS, "true", StartupProperties.Origin.PROPERTY);
 
 		for (var arg : appArgs.getOptionNames())
 		{
@@ -95,7 +95,7 @@ public final class CommandArgument
 					var ipAndPort = appArgs.getOptionValues(arg).stream()
 							.findFirst()
 							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:6232'"));
-					StartupProperties.setUiRemoteConnect(ipAndPort);
+					StartupProperties.setUiRemoteConnect(ipAndPort, StartupProperties.Origin.ARGUMENT);
 				}
 				case REMOTE_PASSWORD -> setString(StartupProperties.Property.REMOTE_PASSWORD, appArgs, arg);
 				case NO_GUI -> setBooleanInverted(StartupProperties.Property.UI, appArgs, arg);
@@ -114,7 +114,7 @@ public final class CommandArgument
 		{
 			throw new IllegalArgumentException("--" + arg + " doesn't expect a value");
 		}
-		StartupProperties.setBoolean(property, "true");
+		StartupProperties.setBoolean(property, "true", StartupProperties.Origin.ARGUMENT);
 	}
 
 	private static void setBooleanInverted(StartupProperties.Property property, ApplicationArguments appArgs, String arg)
@@ -123,14 +123,14 @@ public final class CommandArgument
 		{
 			throw new IllegalArgumentException("--" + arg + " doesn't expect a value");
 		}
-		StartupProperties.setBoolean(property, "false");
+		StartupProperties.setBoolean(property, "false", StartupProperties.Origin.ARGUMENT);
 	}
 
 	private static void setString(StartupProperties.Property property, ApplicationArguments appArgs, String arg)
 	{
 		try
 		{
-			StartupProperties.setString(property, getValue(appArgs, arg));
+			StartupProperties.setString(property, getValue(appArgs, arg), StartupProperties.Origin.ARGUMENT);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -142,7 +142,7 @@ public final class CommandArgument
 	{
 		try
 		{
-			StartupProperties.setPort(property, getValue(appArgs, arg));
+			StartupProperties.setPort(property, getValue(appArgs, arg), StartupProperties.Origin.ARGUMENT);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -172,7 +172,7 @@ public final class CommandArgument
 				   --no-gui                            start without an UI
 				   --iconified                         start iconified into the tray
 				   --data-dir=<path>                   specify the data directory
-				   --control-address=<host>            specify the address to bind to for incoming remote access (defaults to all interfaces)
+				   --control-address=<host>            specify the address to bind to for incoming remote access (defaults to localhost)
 				   --control-port=<port>               specify the control port for remote access
 				   --no-control-password               do not protect the control address with a password
 				   --no-https                          do not use HTTPS for the control connection

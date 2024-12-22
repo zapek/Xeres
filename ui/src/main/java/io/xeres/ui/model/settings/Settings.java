@@ -45,6 +45,8 @@ public class Settings implements Cloneable
 
 	private boolean isRemoteUpnpEnabled;
 
+	private int remotePort;
+
 	public String getTorSocksHost()
 	{
 		return torSocksHost;
@@ -168,6 +170,16 @@ public class Settings implements Cloneable
 	public void setRemoteUpnpEnabled(boolean remoteUpnpEnabled)
 	{
 		isRemoteUpnpEnabled = remoteUpnpEnabled;
+	}
+
+	public int getRemotePort()
+	{
+		return remotePort;
+	}
+
+	public void setRemotePort(int remotePort)
+	{
+		this.remotePort = remotePort;
 	}
 
 	@Override

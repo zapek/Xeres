@@ -82,7 +82,7 @@ public class PrimaryStageInitializer
 	}
 
 	@EventListener
-	public void onNetworkReadyEvent(NetworkReadyEvent event)
+	public void onNetworkReadyEvent(NetworkReadyEvent unused)
 	{
 		if (!StartupProperties.getBoolean(UI, true))
 		{

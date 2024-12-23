@@ -40,6 +40,10 @@ jacocoTestReport {
     }
 }
 
+javadoc {
+    options.overview = "src/main/javadoc/overview.html"
+}
+
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation project(':common')

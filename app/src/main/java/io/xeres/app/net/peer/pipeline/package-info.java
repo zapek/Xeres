@@ -18,7 +18,8 @@
  */
 
 /**
- * The pipeline process works in the following way.
+ * Pipeline process.
+ * <p>It works in the following way.
  * <p>For incoming packets
  * <pre>incoming bytes -> Packet -> Item -> deserialization -> service data</pre>
  * <p>For outgoing packets

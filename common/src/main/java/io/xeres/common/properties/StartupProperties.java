@@ -72,9 +72,14 @@ public final class StartupProperties
 			this.origin = origin;
 		}
 
+		/**
+		 * Checks if an argument was set by command line or environment variable.
+		 *
+		 * @return true if set by env var or command line
+		 */
 		public boolean isUnset()
 		{
-			return this.origin == Origin.PROPERTY;
+			return origin == Origin.PROPERTY;
 		}
 	}
 

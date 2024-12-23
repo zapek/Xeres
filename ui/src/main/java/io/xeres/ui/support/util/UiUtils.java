@@ -83,6 +83,12 @@ public final class UiUtils
 		showAlertError(t, null);
 	}
 
+	/**
+	 * Shows a generic alert error and allows to run an action afterwards.
+	 *
+	 * @param t      the throwable
+	 * @param action the action to perform after the alert has been dismissed
+	 */
 	public static void showAlertError(Throwable t, Runnable action)
 	{
 		Platform.runLater(() -> {

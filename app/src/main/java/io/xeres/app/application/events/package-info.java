@@ -18,7 +18,7 @@
  */
 
 /**
- * This package contains Spring application events.
+ * Spring application events.
  * <b>Beware:</b> those events are <b>asynchronous</b> which means they'll run in a new thread. If you
  * need a synchronous event, make sure your event implements SynchronousEvent.
  */

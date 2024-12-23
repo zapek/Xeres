@@ -18,6 +18,7 @@
  */
 
 /**
+ * Packet format for sending and receiving data.
  * <p>There are 2 header formats for Packets:
  * <p>Old (describing a SimplePacket):<br>
  * <pre>

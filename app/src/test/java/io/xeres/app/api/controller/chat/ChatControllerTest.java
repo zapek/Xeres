@@ -20,6 +20,9 @@
 package io.xeres.app.api.controller.chat;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
+import io.xeres.app.database.model.chat.ChatBacklog;
+import io.xeres.app.database.model.chat.ChatRoomBacklog;
+import io.xeres.app.database.model.chat.ChatRoomFakes;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.service.LocationService;
@@ -42,12 +45,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -145,5 +154,87 @@ class ChatControllerTest extends AbstractControllerTest
 				.andExpect(jsonPath("$.identity.gxsId.bytes", is(Base64.toBase64String(ownIdentity.getGxsId().getBytes()))));
 
 		verify(chatRsService).getChatRoomContext();
+	}
+
+	@Test
+	void GetChatMessages_Default_Success() throws Exception
+	{
+		var creation = Instant.now();
+		var location = LocationFakes.createLocation();
+		var chatBacklog = new ChatBacklog(location, false, "hey");
+		chatBacklog.setCreated(creation);
+
+		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
+		when(chatBacklogService.getMessages(eq(location), any(Instant.class), anyInt())).thenReturn(List.of(chatBacklog));
+
+		mvc.perform(getJson(BASE_URL + "/chats/" + location.getId() + "/messages"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].created", is(creation.toString())))
+				.andExpect(jsonPath("$[0].own", is(false)))
+				.andExpect(jsonPath("$[0].message", is("hey")));
+
+		verify(chatBacklogService).getMessages(eq(location), any(Instant.class), eq(20));
+	}
+
+	@Test
+	void GetChatMessages_WithParameters_Success() throws Exception
+	{
+		var creation = Instant.now();
+		var location = LocationFakes.createLocation();
+		var chatBacklog = new ChatBacklog(location, false, "hey");
+		chatBacklog.setCreated(creation);
+
+		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
+		when(chatBacklogService.getMessages(eq(location), any(Instant.class), anyInt())).thenReturn(List.of(chatBacklog));
+
+		mvc.perform(getJson(BASE_URL + "/chats/" + location.getId() + "/messages?maxLines=30&from=2024-12-23T22:13"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].created", is(creation.toString())))
+				.andExpect(jsonPath("$[0].own", is(false)))
+				.andExpect(jsonPath("$[0].message", is("hey")));
+
+		verify(chatBacklogService).getMessages(location, LocalDateTime.parse("2024-12-23T22:13").toInstant(ZoneOffset.UTC), 30);
+	}
+
+	@Test
+	void GetChatRoomMessages_Default_Success() throws Exception
+	{
+		var creation = Instant.now();
+		var chatRoom = ChatRoomFakes.createChatRoomEntity();
+		var ownIdentity = IdentityFakes.createOwn();
+		var chatRoomBacklog = new ChatRoomBacklog(chatRoom, ownIdentity.getGxsId(), "Foobar", "blabla");
+		chatRoomBacklog.setCreated(creation);
+
+		when(chatBacklogService.getChatRoomMessages(eq(chatRoom.getRoomId()), any(Instant.class), anyInt())).thenReturn(List.of(chatRoomBacklog));
+
+		mvc.perform(getJson(BASE_URL + "/rooms/" + chatRoom.getRoomId() + "/messages"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].created", is(creation.toString())))
+				.andExpect(jsonPath("$[0].gxsId.bytes", is(Base64.toBase64String(ownIdentity.getGxsId().getBytes()))))
+				.andExpect(jsonPath("$[0].nickname", is("Foobar")))
+				.andExpect(jsonPath("$[0].message", is("blabla")));
+
+		verify(chatBacklogService).getChatRoomMessages(eq(chatRoom.getRoomId()), any(Instant.class), eq(50));
+	}
+
+	@Test
+	void GetChatRoomMessages_WithParameters_Success() throws Exception
+	{
+		var creation = Instant.now();
+		var chatRoom = ChatRoomFakes.createChatRoomEntity();
+		var ownIdentity = IdentityFakes.createOwn();
+		var chatRoomBacklog = new ChatRoomBacklog(chatRoom, ownIdentity.getGxsId(), "Foobar", "blabla");
+		chatRoomBacklog.setCreated(creation);
+
+		when(chatBacklogService.getChatRoomMessages(eq(chatRoom.getRoomId()), any(Instant.class), anyInt())).thenReturn(List.of(chatRoomBacklog));
+
+		mvc.perform(getJson(BASE_URL + "/rooms/" + chatRoom.getRoomId() + "/messages?maxLines=80&from=2024-12-24T01:27"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].created", is(creation.toString())))
+				.andExpect(jsonPath("$[0].gxsId.bytes", is(Base64.toBase64String(ownIdentity.getGxsId().getBytes()))))
+				.andExpect(jsonPath("$[0].nickname", is("Foobar")))
+				.andExpect(jsonPath("$[0].message", is("blabla")));
+
+		verify(chatBacklogService).getChatRoomMessages(chatRoom.getRoomId(), LocalDateTime.parse("2024-12-24T01:27").toInstant(ZoneOffset.UTC), 80);
 	}
 }

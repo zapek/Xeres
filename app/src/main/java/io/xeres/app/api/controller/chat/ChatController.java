@@ -37,6 +37,9 @@ import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +48,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,6 +62,11 @@ import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 @RequestMapping(value = CHAT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ChatController
 {
+	private static final int PRIVATE_CHAT_DEFAULT_MAX_LINES = 20;
+	private static final Duration PRIVATE_CHAT_DEFAULT_DURATION = Duration.ofDays(7);
+	private static final int ROOM_CHAT_DEFAULT_MAX_LINES = 50;
+	private static final Duration ROOM_CHAT_DEFAULT_DURATION = Duration.ofDays(7);
+
 	private final ChatRsService chatRsService;
 	private final ChatBacklogService chatBacklogService;
 	private final LocationService locationService;
@@ -118,17 +128,27 @@ public class ChatController
 	@GetMapping("/rooms/{roomId}/messages")
 	@Operation(summary = "Get the chat room messages backlog")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public List<ChatRoomBacklogDTO> getChatRoomMessages(@PathVariable long roomId)
+	public List<ChatRoomBacklogDTO> getChatRoomMessages(@PathVariable long roomId,
+	                                                    @RequestParam(value = "maxLines", required = false) @Min(1) @Max(500) Integer maxLines,
+	                                                    @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from)
 	{
-		return toChatRoomBacklogDTOs(chatBacklogService.getChatRoomMessages(roomId, Instant.now().minus(Duration.ofDays(7))));
+		return toChatRoomBacklogDTOs(chatBacklogService.getChatRoomMessages(
+				roomId,
+				from != null ? from.toInstant(ZoneOffset.UTC) : Instant.now().minus(ROOM_CHAT_DEFAULT_DURATION),
+				maxLines != null ? maxLines : ROOM_CHAT_DEFAULT_MAX_LINES));
 	}
 
 	@GetMapping("/chats/{locationId}/messages")
 	@Operation(summary = "Get the chat messages backlog")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public List<ChatBacklogDTO> getChatMessages(@PathVariable long locationId)
+	public List<ChatBacklogDTO> getChatMessages(@PathVariable long locationId,
+	                                            @RequestParam(value = "maxLines", required = false) @Min(1) @Max(500) Integer maxLines,
+	                                            @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from)
 	{
 		var location = locationService.findLocationById(locationId).orElseThrow();
-		return toChatBacklogDTOs(chatBacklogService.getMessages(location, Instant.now().minus(Duration.ofDays(7))));
+		return toChatBacklogDTOs(chatBacklogService.getMessages(
+				location,
+				from != null ? from.toInstant(ZoneOffset.UTC) : Instant.now().minus(PRIVATE_CHAT_DEFAULT_DURATION),
+				maxLines != null ? maxLines : PRIVATE_CHAT_DEFAULT_MAX_LINES));
 	}
 }

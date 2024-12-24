@@ -39,8 +39,6 @@ import java.util.List;
 @Service
 public class ChatBacklogService
 {
-	private static final int LAST_LINES_CHAT = 20;
-	private static final int LAST_LINES_CHAT_ROOMS = 50;
 	private static final Duration MAXIMUM_DURATION = Duration.ofDays(31);
 
 	private final ChatBacklogRepository chatBacklogRepository;
@@ -71,10 +69,10 @@ public class ChatBacklogService
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChatRoomBacklog> getChatRoomMessages(long chatRoomId, Instant from)
+	public List<ChatRoomBacklog> getChatRoomMessages(long chatRoomId, Instant from, int maxLines)
 	{
 		var chatRoom = chatRoomRepository.findByRoomId(chatRoomId).orElseThrow();
-		return chatRoomBacklogRepository.findAllByRoomAndCreatedAfterOrderByCreatedDesc(chatRoom, from, Limit.of(LAST_LINES_CHAT_ROOMS)).reversed();
+		return chatRoomBacklogRepository.findAllByRoomAndCreatedAfterOrderByCreatedDesc(chatRoom, from, Limit.of(maxLines)).reversed();
 	}
 
 	@Transactional
@@ -91,9 +89,9 @@ public class ChatBacklogService
 		chatBacklogRepository.save(new ChatBacklog(location, true, message));
 	}
 
-	public List<ChatBacklog> getMessages(Location with, Instant from)
+	public List<ChatBacklog> getMessages(Location with, Instant from, int maxLines)
 	{
-		return chatBacklogRepository.findAllByLocationAndCreatedAfterOrderByCreatedDesc(with, from, Limit.of(LAST_LINES_CHAT)).reversed();
+		return chatBacklogRepository.findAllByLocationAndCreatedAfterOrderByCreatedDesc(with, from, Limit.of(maxLines)).reversed();
 	}
 
 	public void storeIncomingDistantMessage(GxsId from, String message)

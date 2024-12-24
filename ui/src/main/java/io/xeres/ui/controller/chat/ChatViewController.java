@@ -648,10 +648,30 @@ public class ChatViewController implements Controller
 		var chatListView = roomInfoTreeItem.getValue().getChatListView();
 		if (chatListView == null)
 		{
-			chatListView = new ChatListView(nickname, roomInfoTreeItem.getValue().getRoomInfo().getId(), markdownService, uriService, generalClient, imageCache);
+			var chatRoomId = roomInfoTreeItem.getValue().getRoomInfo().getId();
+			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache);
+			var finalChatListView = chatListView;
+			chatClient.getChatRoomBacklog(chatRoomId).collectList()
+					.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(finalChatListView, backlogs)))
+					.subscribe();
 			roomInfoTreeItem.getValue().setChatListView(chatListView);
 		}
 		return chatListView;
+	}
+
+	private void fillBacklog(ChatListView chatListView, List<ChatRoomBacklog> messages)
+	{
+		messages.forEach(message -> {
+			if (message.gxsId() == null)
+			{
+				chatListView.addOwnMessage(message.create(), message.message());
+			}
+			else
+			{
+				chatListView.addUserMessage(message.nickname(), message.gxsId(), message.message());
+			}
+		});
+		chatListView.jumpToBottom(true);
 	}
 
 	private void handleInputKeys(KeyEvent event)

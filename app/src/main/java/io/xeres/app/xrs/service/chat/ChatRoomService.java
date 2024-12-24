@@ -43,25 +43,31 @@ class ChatRoomService
 		foundRoom.ifPresent(subscribedRoom -> {
 			subscribedRoom.setSubscribed(false);
 			subscribedRoom.setJoined(false);
+			subscribedRoom.clearLocations();
 		});
 		return foundRoom.orElse(null);
 	}
 
-	@Transactional
 	public void deleteChatRoom(long chatRoomId, IdentityGroupItem identityGroupItem)
 	{
 		chatRoomRepository.findByRoomIdAndIdentityGroupItem(chatRoomId, identityGroupItem).ifPresent(chatRoomRepository::delete);
 	}
 
-	@Transactional
 	public List<io.xeres.app.database.model.chat.ChatRoom> getAllChatRoomsPendingToSubscribe()
 	{
 		return chatRoomRepository.findAllBySubscribedTrueAndJoinedFalse(); // Remember joined is set to false on startup
 	}
 
-	@Transactional
 	public void markAllChatRoomsAsLeft()
 	{
 		chatRoomRepository.putAllJoinedToFalse();
+	}
+
+	@Transactional
+	public void syncParticipatingLocations(io.xeres.app.xrs.service.chat.ChatRoom chatRoom)
+	{
+		var room = chatRoomRepository.findByRoomId(chatRoom.getId()).orElseThrow();
+		room.clearLocations();
+		chatRoom.getParticipatingLocations().forEach(room::addLocation);
 	}
 }

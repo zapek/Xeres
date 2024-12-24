@@ -19,11 +19,13 @@
 
 package io.xeres.app.database.model.chat;
 
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.EnumUtils;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -44,6 +46,12 @@ public class ChatRoom
 	private int flags;
 	private boolean subscribed;
 	private boolean joined;
+
+	/**
+	 * Locations that are participating in the chat room.
+	 */
+	@OneToMany
+	private final Set<Location> locations = new HashSet<>();
 
 	protected ChatRoom()
 	{
@@ -146,5 +154,25 @@ public class ChatRoom
 	public void setJoined(boolean joined)
 	{
 		this.joined = joined;
+	}
+
+	public Set<Location> getLocations()
+	{
+		return locations;
+	}
+
+	public void addLocation(Location location)
+	{
+		locations.add(location);
+	}
+
+	public void removeLocation(Location location)
+	{
+		locations.remove(location);
+	}
+
+	public void clearLocations()
+	{
+		locations.clear();
 	}
 }

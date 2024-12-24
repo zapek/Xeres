@@ -262,7 +262,10 @@ public class ChatRsService extends RsService
 	@Override
 	public void shutdown(PeerConnection peerConnection)
 	{
-		chatRooms.forEach((id, chatRoom) -> sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_LEFT));
+		chatRooms.forEach((id, chatRoom) -> {
+			chatRoomService.syncParticipatingLocations(chatRoom);
+			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_LEFT);
+		});
 		chatBacklogService.cleanup();
 	}
 
@@ -403,6 +406,7 @@ public class ChatRsService extends RsService
 					1,
 					savedRoom.getFlags().contains(RoomFlags.PGP_SIGNED)
 			);
+			savedRoom.getLocations().forEach(chatRoom::recordPreviouslyKnownLocation);
 			availableChatRooms.put(chatRoom.getId(), chatRoom);
 			joinChatRoom(chatRoom.getId());
 		});

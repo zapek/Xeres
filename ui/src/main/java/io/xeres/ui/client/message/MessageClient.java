@@ -195,16 +195,14 @@ public class MessageClient
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored) // we don't use @PreDestroy because the tomcat context is closed before that
 	{
-		// Only disconnects gracefully on the remote scenario because on the local
-		// one, the WebSocket will already be closed anyway.
-		if (future != null && RemoteUtils.isRemoteUiClient())
+		if (future != null)
 		{
 			try
 			{
-				subscriptions.forEach(StompSession.Subscription::unsubscribe); // if the connection is already closed (likely when running on the same host), we catch the MessageDeliveryException below
+				subscriptions.forEach(StompSession.Subscription::unsubscribe); // if the connection is already closed (likely when running on the same host), we catch the MessageDeliveryException below as well as IllegalStateException
 				future.get().disconnect();
 			}
-			catch (MessageDeliveryException | ExecutionException ignoredException)
+			catch (MessageDeliveryException | IllegalStateException | ExecutionException ignoredException)
 			{
 				// Nothing we can do
 			}

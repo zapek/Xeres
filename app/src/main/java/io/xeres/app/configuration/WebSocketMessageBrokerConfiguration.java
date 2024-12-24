@@ -21,6 +21,7 @@ package io.xeres.app.configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -31,6 +32,7 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 import static io.xeres.common.message.MessagePath.APP_PREFIX;
 import static io.xeres.common.message.MessagePath.BROKER_PREFIX;
@@ -45,6 +47,16 @@ import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZ
 public class WebSocketMessageBrokerConfiguration implements WebSocketMessageBrokerConfigurer
 {
 	private static final Logger log = LoggerFactory.getLogger(WebSocketMessageBrokerConfiguration.class);
+
+	// See https://stackoverflow.com/questions/21730566/how-to-increase-output-buffer-for-spring-sockjs-websocket-server-implementation
+	@Bean
+	public ServletServerContainerFactoryBean createServletServerContainerFactoryBean()
+	{
+		var container = new ServletServerContainerFactoryBean();
+		container.setMaxTextMessageBufferSize(MAXIMUM_MESSAGE_SIZE);
+		container.setMaxBinaryMessageBufferSize(MAXIMUM_MESSAGE_SIZE);
+		return container;
+	}
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry)

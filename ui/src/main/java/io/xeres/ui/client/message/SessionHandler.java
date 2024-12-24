@@ -19,7 +19,10 @@
 
 package io.xeres.ui.client.message;
 
+import io.xeres.ui.support.util.UiUtils;
 import jakarta.annotation.Nonnull;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.stomp.*;
@@ -58,7 +61,8 @@ public class SessionHandler extends StompSessionHandlerAdapter
 	{
 		if (exception instanceof ConnectionLostException)
 		{
-			log.debug("Connection closed");
+			log.debug("Connection closed: {}", exception.getMessage());
+			Platform.runLater(() -> UiUtils.alert(Alert.AlertType.ERROR, "WebSocket connection lost. Chat messages won't work anymore. Relaunch to fix."));
 		}
 		else
 		{

@@ -695,7 +695,7 @@ public class ChatViewController implements Controller
 			{
 				imagePreview.setImage(image);
 
-				ImageUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX, PREVIEW_IMAGE_HEIGHT_MAX);
+				ImageUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
 
 				setPreviewGroupVisibility(true);
 				event.consume();

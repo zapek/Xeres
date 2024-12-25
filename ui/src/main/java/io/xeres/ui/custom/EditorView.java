@@ -400,7 +400,7 @@ public class EditorView extends VBox
 			if (image != null)
 			{
 				var imageView = new ImageView(image);
-				ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX, IMAGE_HEIGHT_MAX);
+				ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
 
 				var imgData = ImageUtils.writeImageAsJpegData(imageView.getImage(), IMAGE_MAXIMUM_SIZE);
 				editor.insertText(editor.getCaretPosition(), "![](" + imgData + ")");

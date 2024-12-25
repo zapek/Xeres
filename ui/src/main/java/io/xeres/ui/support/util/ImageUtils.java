@@ -134,4 +134,22 @@ public final class ImageUtils
 			imageView.setImage(scaleImageView.snapshot(null, null));
 		}
 	}
+
+	public static void limitMaximumImageSize(ImageView imageView, int maximumSize)
+	{
+		var width = imageView.getImage().getWidth();
+		var height = imageView.getImage().getHeight();
+
+		var actualSize = width * height;
+
+		if (actualSize > maximumSize)
+		{
+			var ratio = Math.sqrt(maximumSize / actualSize);
+			var scaleImageView = new ImageView(imageView.getImage());
+			scaleImageView.setFitWidth(width * ratio);
+			scaleImageView.setFitHeight(height * ratio);
+			scaleImageView.setSmooth(true);
+			imageView.setImage(scaleImageView.snapshot(null, null));
+		}
+	}
 }

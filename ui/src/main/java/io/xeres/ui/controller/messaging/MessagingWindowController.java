@@ -419,7 +419,7 @@ public class MessagingWindowController implements WindowController
 
 	private void sendImageViewToMessage(ImageView imageView)
 	{
-		ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX, IMAGE_HEIGHT_MAX);
+		ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
 		sendMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 		imageView.setImage(null);
 	}

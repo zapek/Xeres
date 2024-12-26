@@ -21,6 +21,7 @@ package io.xeres.ui;
 
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -65,6 +66,9 @@ public class JavaFxApplication extends Application
 	{
 		Objects.requireNonNull(springContext);
 
+		// This allows all JavaFX crashes to show up in the logger instead of stdout
+		Thread.setDefaultUncaughtExceptionHandler(JavaFxApplication::handleException);
+
 		var openUrlService = springContext.getBean(UriService.class);
 		openUrlService.setHostServices(getHostServices());
 
@@ -75,5 +79,10 @@ public class JavaFxApplication extends Application
 	public void stop()
 	{
 		springContext.close();
+	}
+
+	private static void handleException(Thread thread, Throwable throwable)
+	{
+		UiUtils.showAlertError(throwable);
 	}
 }

@@ -118,14 +118,14 @@ public final class UiUtils
 			}
 			else
 			{
-				alert(ERROR, "Error", t.getMessage(), ExceptionUtils.getStackTrace(t));
+				alert(ERROR, "Error", t.getClass().getSimpleName() + ": " + t.getMessage(), ExceptionUtils.getStackTrace(t));
 			}
 			if (action != null)
 			{
 				action.run();
 			}
-			log.error("Error: {}", t.getMessage(), t);
 		});
+		log.error("Error: {}", t.getMessage(), t);
 	}
 
 	public static void showError(Node... nodes)

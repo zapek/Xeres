@@ -81,6 +81,7 @@ public class ChatRoomMessage
 		this.content = content;
 	}
 
+	@JsonIgnore
 	public boolean isOwn()
 	{
 		return senderNickname == null;

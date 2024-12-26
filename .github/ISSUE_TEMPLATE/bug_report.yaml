@@ -47,5 +47,10 @@ body:
   id: logs
   attributes:
     label: Relevant log output
-    description: Please paste any relevant log output here, if you have them.
+    description: |
+      Please paste any relevant log output here, if you have them. 
+      If you have an error requester, click the clipboard icon and paste the output here. 
+      Otherwise the logs location are:
+      - Windows: %LOCALAPPDATA%\Xeres\xeres.log
+      - Linux: $HOME/xeres.log
     render: shell

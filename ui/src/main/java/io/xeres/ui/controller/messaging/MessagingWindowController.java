@@ -90,8 +90,8 @@ public class MessagingWindowController implements WindowController
 {
 	private static final Logger log = LoggerFactory.getLogger(MessagingWindowController.class);
 
-	private static final int IMAGE_WIDTH_MAX = 640;
-	private static final int IMAGE_HEIGHT_MAX = 480;
+	private static final int IMAGE_WIDTH_MAX = 800;
+	private static final int IMAGE_HEIGHT_MAX = 600;
 	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);

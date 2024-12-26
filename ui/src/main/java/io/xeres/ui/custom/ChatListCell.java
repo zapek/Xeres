@@ -75,7 +75,10 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	{
 		if (isReusable())
 		{
-			content.getChildren().remove(2); // keep time and action only
+			if (content.getChildren().size() > 2)
+			{
+				content.getChildren().remove(2); // keep time and action only
+			}
 		}
 	}
 

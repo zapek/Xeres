@@ -84,7 +84,8 @@ public final class UiUtils
 	}
 
 	/**
-	 * Shows a generic alert error and allows to run an action afterwards.
+	 * Shows a generic alert error and allows to run an action afterwards. Is supposed to be used in
+	 * {@code doOnError} in the WebClients.
 	 *
 	 * @param t      the throwable
 	 * @param action the action to perform after the alert has been dismissed
@@ -144,7 +145,7 @@ public final class UiUtils
 		}
 	}
 
-	public static void alert(AlertType alertType, String title, String message, String stackTrace)
+	private static void alert(AlertType alertType, String title, String message, String stackTrace)
 	{
 		var alert = buildAlert(alertType, title, message, stackTrace);
 		alert.showAndWait();

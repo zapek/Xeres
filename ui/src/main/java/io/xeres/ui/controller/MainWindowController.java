@@ -319,8 +319,9 @@ public class MainWindowController implements WindowController
 			systemProperties.setOnAction(event -> windowManager.openSystemProperties());
 			openShell.setOnAction(event -> MinimalUserInterface.openShell());
 			openUiCheck.setOnAction(event -> windowManager.openUiCheck());
-			versionCheck.setOnAction(even -> checkForUpdate());
 		}
+
+		versionCheck.setOnAction(even -> checkForUpdate());
 
 		exitApplication.setOnAction(event -> trayService.exitApplication());
 

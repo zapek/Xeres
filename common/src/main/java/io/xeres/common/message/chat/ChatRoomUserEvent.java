@@ -35,7 +35,7 @@ public class ChatRoomUserEvent
 	public ChatRoomUserEvent(GxsId gxsId, String nickname, long identityId)
 	{
 		this.gxsId = gxsId;
-		this.nickname = nickname != null ? nickname : ""; // Workaround against users having a null nickname
+		this.nickname = nickname;
 		this.identityId = identityId;
 	}
 
@@ -51,7 +51,7 @@ public class ChatRoomUserEvent
 
 	public String getNickname()
 	{
-		return nickname;
+		return nickname != null ? nickname : ""; // Workaround against users having a null nickname
 	}
 
 	public void setNickname(String nickname)

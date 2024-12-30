@@ -23,7 +23,6 @@ import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.JavaFxApplication;
 import io.xeres.ui.model.location.Location;
-import org.springframework.stereotype.Service;
 
 import java.util.prefs.Preferences;
 
@@ -35,8 +34,7 @@ import java.util.prefs.Preferences;
  *     <li>Linux: $HOME/.java</li>
  * </ul>
  */
-@Service
-public class PreferenceService
+public class PreferenceUtils
 {
 	public static final String CONTACTS = "Contacts";
 	public static final String CHAT_ROOMS = "Chatrooms";
@@ -44,15 +42,21 @@ public class PreferenceService
 	public static final String NOTIFICATIONS = "Notifications";
 	public static final String UPDATE_CHECK = "UpdateCheck";
 	public static final String SOUND = "Sound";
+	public static final String IMAGE_VIEW = "ImageView";
 
-	private LocationIdentifier locationIdentifier;
+	private static LocationIdentifier locationIdentifier;
 
-	public void setLocation(Location location)
+	private PreferenceUtils()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static void setLocation(Location location)
 	{
 		locationIdentifier = location.getLocationIdentifier();
 	}
 
-	public Preferences getPreferences()
+	public static Preferences getPreferences()
 	{
 		var rootNode = Preferences.userNodeForPackage(JavaFxApplication.class);
 
@@ -64,7 +68,7 @@ public class PreferenceService
 		{
 			if (locationIdentifier == null)
 			{
-				return null;
+				throw new IllegalStateException("Preferences: LocationIdentifier is not set");
 			}
 			return rootNode.node(locationIdentifier.toString());
 		}

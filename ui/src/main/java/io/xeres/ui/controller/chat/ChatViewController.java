@@ -35,7 +35,7 @@ import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.sound.SoundService.SoundType;
 import io.xeres.ui.support.tray.TrayService;
@@ -80,7 +80,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
-import static io.xeres.ui.support.preference.PreferenceService.CHAT_ROOMS;
+import static io.xeres.ui.support.preference.PreferenceUtils.CHAT_ROOMS;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -161,7 +161,6 @@ public class ChatViewController implements Controller
 	private final ResourceBundle bundle;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
-	private final PreferenceService preferenceService;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
 	private final SoundService soundService;
@@ -184,7 +183,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService, GeneralClient generalClient, ImageCache imageCache, SoundService soundService)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundService soundService)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -195,7 +194,6 @@ public class ChatViewController implements Controller
 		this.bundle = bundle;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
-		this.preferenceService = preferenceService;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		this.soundService = soundService;
@@ -283,7 +281,7 @@ public class ChatViewController implements Controller
 
 	private void setupTrees()
 	{
-		var node = preferenceService.getPreferences().node(CHAT_ROOMS);
+		var node = PreferenceUtils.getPreferences().node(CHAT_ROOMS);
 		subscribedRooms.setExpanded(node.getBoolean(OPEN_SUBSCRIBED, false));
 		privateRooms.setExpanded(node.getBoolean(OPEN_PRIVATE, false));
 		publicRooms.setExpanded(node.getBoolean(OPEN_PUBLIC, false));

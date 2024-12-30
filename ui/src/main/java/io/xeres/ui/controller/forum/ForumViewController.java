@@ -40,7 +40,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.ForumUriFactory;
 import io.xeres.ui.support.uri.IdentityUri;
@@ -71,7 +71,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static io.xeres.ui.support.preference.PreferenceService.FORUMS;
+import static io.xeres.ui.support.preference.PreferenceUtils.FORUMS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_DISPLAY;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
@@ -147,7 +147,6 @@ public class ForumViewController implements Controller
 	private final ObjectMapper objectMapper;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
-	private final PreferenceService preferenceService;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCacheService;
 
@@ -165,7 +164,7 @@ public class ForumViewController implements Controller
 
 	private MessageId messageIdToSelect;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, PreferenceService preferenceService, GeneralClient generalClient, ImageCache imageCacheService)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -179,7 +178,6 @@ public class ForumViewController implements Controller
 		this.objectMapper = objectMapper;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
-		this.preferenceService = preferenceService;
 		this.generalClient = generalClient;
 		this.imageCacheService = imageCacheService;
 	}
@@ -242,7 +240,7 @@ public class ForumViewController implements Controller
 
 	private void setupTrees()
 	{
-		var node = preferenceService.getPreferences().node(FORUMS);
+		var node = PreferenceUtils.getPreferences().node(FORUMS);
 		ownForums.setExpanded(node.getBoolean(OPEN_OWN, false));
 		subscribedForums.setExpanded(node.getBoolean(OPEN_SUBSCRIBED, false));
 		popularForums.setExpanded(node.getBoolean(OPEN_POPULAR, false));

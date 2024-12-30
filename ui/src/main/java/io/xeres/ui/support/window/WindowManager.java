@@ -52,7 +52,7 @@ import io.xeres.ui.controller.statistics.StatisticsMainWindowController;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.sound.SoundService.SoundType;
 import io.xeres.ui.support.theme.AppThemeManager;
@@ -103,7 +103,6 @@ public class WindowManager
 	private final ImageCache imageCache;
 	private final SoundService soundService;
 	private static ResourceBundle bundle;
-	private static PreferenceService preferenceService;
 	private static AppThemeManager appThemeManager;
 
 	private static WindowBorder windowBorder;
@@ -117,7 +116,7 @@ public class WindowManager
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ResourceBundle bundle, PreferenceService preferenceService, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ResourceBundle bundle, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -133,7 +132,6 @@ public class WindowManager
 		this.imageCache = imageCache;
 		this.soundService = soundService;
 		WindowManager.bundle = bundle;
-		WindowManager.preferenceService = preferenceService;
 		WindowManager.appThemeManager = appThemeManager;
 	}
 
@@ -243,7 +241,10 @@ public class WindowManager
 								else
 								{
 									builder.open();
-									soundService.play(SoundType.MESSAGE);
+									if (chatMessage != null)
+									{
+										soundService.play(SoundType.MESSAGE);
+									}
 								}
 							}
 						}));
@@ -460,7 +461,7 @@ public class WindowManager
 			else
 			{
 				var location = profile.getLocations().stream().findFirst().orElseThrow();
-				preferenceService.setLocation(location);
+				PreferenceUtils.setLocation(location);
 
 				appThemeManager.applyCurrentTheme();
 
@@ -658,7 +659,7 @@ public class WindowManager
 			boolean preferencesExist;
 			try
 			{
-				preferencesExist = preferenceService.getPreferences().nodeExists(NODE_WINDOWS + "/" + id);
+				preferencesExist = PreferenceUtils.getPreferences().nodeExists(NODE_WINDOWS + "/" + id);
 			}
 			catch (BackingStoreException e)
 			{
@@ -668,7 +669,7 @@ public class WindowManager
 
 			if (preferencesExist)
 			{
-				var preferences = preferenceService.getPreferences().node(NODE_WINDOWS).node(id);
+				var preferences = PreferenceUtils.getPreferences().node(NODE_WINDOWS).node(id);
 				stage.setX(preferences.getDouble(KEY_WINDOW_X, 0));
 				stage.setY(preferences.getDouble(KEY_WINDOW_Y, 0));
 				stage.setWidth(preferences.getDouble(KEY_WINDOW_WIDTH, 0));
@@ -690,7 +691,7 @@ public class WindowManager
 				throw new IllegalArgumentException("A Window requires an ID");
 			}
 
-			var preferences = preferenceService.getPreferences().node(NODE_WINDOWS).node(id);
+			var preferences = PreferenceUtils.getPreferences().node(NODE_WINDOWS).node(id);
 			preferences.putDouble(KEY_WINDOW_X, stage.getX());
 			preferences.putDouble(KEY_WINDOW_Y, stage.getY());
 			preferences.putDouble(KEY_WINDOW_WIDTH, stage.getWidth());

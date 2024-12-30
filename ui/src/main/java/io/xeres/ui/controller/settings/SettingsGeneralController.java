@@ -22,7 +22,7 @@ package io.xeres.ui.controller.settings;
 import io.xeres.common.rest.config.Capabilities;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.model.settings.Settings;
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.theme.AppTheme;
 import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.version.VersionChecker;
@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
-import static io.xeres.ui.support.preference.PreferenceService.UPDATE_CHECK;
+import static io.xeres.ui.support.preference.PreferenceUtils.UPDATE_CHECK;
 
 @Component
 @FxmlView(value = "/view/settings/settings_general.fxml")
@@ -58,13 +58,11 @@ public class SettingsGeneralController implements SettingsController
 
 	private final ConfigClient configClient;
 	private final AppThemeManager appThemeManager;
-	private final PreferenceService preferenceService;
 
-	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager, PreferenceService preferenceService)
+	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager)
 	{
 		this.configClient = configClient;
 		this.appThemeManager = appThemeManager;
-		this.preferenceService = preferenceService;
 	}
 
 	@Override
@@ -96,7 +94,7 @@ public class SettingsGeneralController implements SettingsController
 
 		autoStartEnabled.setSelected(settings.isAutoStartEnabled());
 
-		checkForUpdates.setSelected(VersionChecker.isCheckForUpdates(preferenceService.getPreferences().node(UPDATE_CHECK)));
+		checkForUpdates.setSelected(VersionChecker.isCheckForUpdates(PreferenceUtils.getPreferences().node(UPDATE_CHECK)));
 	}
 
 	@Override
@@ -104,7 +102,7 @@ public class SettingsGeneralController implements SettingsController
 	{
 		settings.setAutoStartEnabled(autoStartEnabled.isSelected());
 
-		VersionChecker.setCheckForUpdates(preferenceService.getPreferences().node(UPDATE_CHECK), checkForUpdates.isSelected());
+		VersionChecker.setCheckForUpdates(PreferenceUtils.getPreferences().node(UPDATE_CHECK), checkForUpdates.isSelected());
 
 		return settings;
 	}

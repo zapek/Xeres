@@ -20,7 +20,7 @@
 package io.xeres.ui.support.theme;
 
 import io.xeres.common.properties.StartupProperties;
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.window.UiBorders;
 import javafx.application.Application;
 import javafx.application.ColorScheme;
@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 
 import static io.xeres.common.properties.StartupProperties.Property.UI;
 
@@ -40,21 +41,25 @@ public class AppThemeManager
 
 	private final AppTheme defaultTheme;
 
-	private final PreferenceService preferenceService;
-
-	public AppThemeManager(PreferenceService preferenceService)
+	public AppThemeManager()
 	{
-		this.preferenceService = preferenceService;
 		defaultTheme = getDefaultTheme();
 	}
 
 	public AppTheme getCurrentTheme()
 	{
-		var rootPreferences = preferenceService.getPreferences();
-		if (rootPreferences == null)
+		Preferences rootPreferences;
+		try
 		{
+			rootPreferences = PreferenceUtils.getPreferences();
+		}
+		catch (IllegalStateException e)
+		{
+			// This can be called when the preferences aren't fully setup (no LocationIdentifier known yet)
+			// so in that case we simply use the default theme.
 			return defaultTheme;
 		}
+
 		var preferences = rootPreferences.node(NODE_APPLICATION);
 		return Optional.ofNullable(AppTheme.findByName(preferences.get(KEY_THEME, String.valueOf(defaultTheme)))).orElse(defaultTheme);
 	}
@@ -100,7 +105,7 @@ public class AppThemeManager
 
 	private void saveCurrentTheme(AppTheme appTheme)
 	{
-		var preferences = preferenceService.getPreferences().node(NODE_APPLICATION);
+		var preferences = PreferenceUtils.getPreferences().node(NODE_APPLICATION);
 		preferences.put(KEY_THEME, appTheme.getName());
 	}
 }

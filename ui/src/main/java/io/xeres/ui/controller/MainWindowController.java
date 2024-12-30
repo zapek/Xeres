@@ -40,7 +40,6 @@ import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
-import io.xeres.ui.support.preference.PreferenceService;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.TooltipUtils;
@@ -228,7 +227,6 @@ public class MainWindowController implements WindowController
 	private final NotificationClient notificationClient;
 	private final UpdateClient updateClient;
 	private final BuildProperties buildProperties;
-	private final PreferenceService preferenceService;
 	private final ResourceBundle bundle;
 
 	private VersionChecker versionChecker;
@@ -240,7 +238,7 @@ public class MainWindowController implements WindowController
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, UpdateClient updateClient, BuildProperties buildProperties, PreferenceService preferenceService, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, UpdateClient updateClient, BuildProperties buildProperties, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -251,7 +249,6 @@ public class MainWindowController implements WindowController
 		this.notificationClient = notificationClient;
 		this.updateClient = updateClient;
 		this.buildProperties = buildProperties;
-		this.preferenceService = preferenceService;
 		this.bundle = bundle;
 	}
 
@@ -335,7 +332,7 @@ public class MainWindowController implements WindowController
 
 		setupAnimations();
 
-		versionChecker = new VersionChecker(preferenceService);
+		versionChecker = new VersionChecker();
 		versionChecker.scheduleVersionCheck(this::checkForUpdateInBackground);
 	}
 

@@ -19,10 +19,10 @@
 
 package io.xeres.ui.support.sound;
 
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import org.springframework.stereotype.Service;
 
-import static io.xeres.ui.support.preference.PreferenceService.SOUND;
+import static io.xeres.ui.support.preference.PreferenceUtils.SOUND;
 
 @Service
 public class SoundSettings
@@ -49,11 +49,8 @@ public class SoundSettings
 
 	private boolean loaded;
 
-	private final PreferenceService preferenceService;
-
-	public SoundSettings(PreferenceService preferenceService)
+	public SoundSettings()
 	{
-		this.preferenceService = preferenceService;
 	}
 
 	public boolean isMessageEnabled()
@@ -146,7 +143,7 @@ public class SoundSettings
 		{
 			return;
 		}
-		var node = preferenceService.getPreferences().node(SOUND);
+		var node = PreferenceUtils.getPreferences().node(SOUND);
 		messageEnabled = node.getBoolean(ENABLE_MESSAGE, false);
 		highlightEnabled = node.getBoolean(ENABLE_HIGHLIGHT, false);
 		friendEnabled = node.getBoolean(ENABLE_FRIEND, false);
@@ -162,7 +159,7 @@ public class SoundSettings
 
 	public void save()
 	{
-		var node = preferenceService.getPreferences().node(SOUND);
+		var node = PreferenceUtils.getPreferences().node(SOUND);
 		node.putBoolean(ENABLE_MESSAGE, messageEnabled);
 		node.putBoolean(ENABLE_HIGHLIGHT, highlightEnabled);
 		node.putBoolean(ENABLE_FRIEND, friendEnabled);

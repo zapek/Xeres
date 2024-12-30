@@ -36,7 +36,7 @@ import io.xeres.ui.model.connection.Connection;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.contextmenu.XContextMenu;
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.PublicKeyUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
@@ -93,7 +93,7 @@ import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.NO_PROFILE_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
-import static io.xeres.ui.support.preference.PreferenceService.CONTACTS;
+import static io.xeres.ui.support.preference.PreferenceUtils.CONTACTS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.WARNING;
@@ -227,7 +227,6 @@ public class ContactViewController implements Controller
 	private final ProfileClient profileClient;
 	private final IdentityClient identityClient;
 	private final NotificationClient notificationClient;
-	private final PreferenceService preferenceService;
 	private final ImageCache imageCacheService;
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
@@ -250,14 +249,13 @@ public class ContactViewController implements Controller
 	private TreeItem<Contact> displayedContact;
 	private boolean contactListLocked;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, PreferenceService preferenceService, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient, ConnectionClient connectionClient)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient, ConnectionClient connectionClient)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
 		this.notificationClient = notificationClient;
-		this.preferenceService = preferenceService;
 		this.imageCacheService = imageCacheService;
 		this.bundle = bundle;
 		this.windowManager = windowManager;
@@ -478,11 +476,12 @@ public class ContactViewController implements Controller
 
 	private void setupMenuFilters()
 	{
+		var prefsNode = PreferenceUtils.getPreferences().node(CONTACTS);
 		showAllContacts.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			contactFilter.setShowAllContacts(newValue);
-			preferenceService.getPreferences().node(CONTACTS).putBoolean(SHOW_ALL_CONTACTS, newValue);
+			prefsNode.putBoolean(SHOW_ALL_CONTACTS, newValue);
 		});
-		showAllContacts.selectedProperty().set(preferenceService.getPreferences().node(CONTACTS).getBoolean(SHOW_ALL_CONTACTS, false));
+		showAllContacts.selectedProperty().set(prefsNode.getBoolean(SHOW_ALL_CONTACTS, false));
 	}
 
 	private void getContacts()

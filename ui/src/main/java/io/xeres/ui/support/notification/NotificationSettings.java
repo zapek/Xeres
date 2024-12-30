@@ -19,10 +19,10 @@
 
 package io.xeres.ui.support.notification;
 
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import org.springframework.stereotype.Service;
 
-import static io.xeres.ui.support.preference.PreferenceService.NOTIFICATIONS;
+import static io.xeres.ui.support.preference.PreferenceUtils.NOTIFICATIONS;
 
 @Service
 public class NotificationSettings
@@ -37,11 +37,8 @@ public class NotificationSettings
 
 	private boolean loaded;
 
-	private final PreferenceService preferenceService;
-
-	public NotificationSettings(PreferenceService preferenceService)
+	public NotificationSettings()
 	{
-		this.preferenceService = preferenceService;
 	}
 
 	public boolean isBroadcastsEnabled()
@@ -83,7 +80,7 @@ public class NotificationSettings
 		{
 			return;
 		}
-		var node = preferenceService.getPreferences().node(NOTIFICATIONS);
+		var node = PreferenceUtils.getPreferences().node(NOTIFICATIONS);
 		broadcastsEnabled = node.getBoolean(ENABLE_BROADCAST, true);
 		connectionEnabled = node.getBoolean(ENABLE_CONNECTION, false);
 		discoveryEnabled = node.getBoolean(ENABLE_DISCOVERY, true);
@@ -93,7 +90,7 @@ public class NotificationSettings
 
 	public void save()
 	{
-		var node = preferenceService.getPreferences().node(NOTIFICATIONS);
+		var node = PreferenceUtils.getPreferences().node(NOTIFICATIONS);
 		node.putBoolean(ENABLE_BROADCAST, broadcastsEnabled);
 		node.putBoolean(ENABLE_CONNECTION, connectionEnabled);
 		node.putBoolean(ENABLE_DISCOVERY, discoveryEnabled);

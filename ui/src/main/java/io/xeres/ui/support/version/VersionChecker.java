@@ -20,7 +20,7 @@
 package io.xeres.ui.support.version;
 
 import io.micrometer.common.util.StringUtils;
-import io.xeres.ui.support.preference.PreferenceService;
+import io.xeres.ui.support.preference.PreferenceUtils;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
-import static io.xeres.ui.support.preference.PreferenceService.UPDATE_CHECK;
+import static io.xeres.ui.support.preference.PreferenceUtils.UPDATE_CHECK;
 
 public class VersionChecker
 {
@@ -44,9 +44,9 @@ public class VersionChecker
 
 	private final Preferences preferences;
 
-	public VersionChecker(PreferenceService preferenceService)
+	public VersionChecker()
 	{
-		preferences = preferenceService.getPreferences().node(UPDATE_CHECK);
+		preferences = PreferenceUtils.getPreferences().node(UPDATE_CHECK);
 	}
 
 	public boolean isVersionMoreRecent(String newVersionString, String currentVersionString)

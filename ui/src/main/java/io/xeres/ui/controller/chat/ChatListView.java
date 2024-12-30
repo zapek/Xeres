@@ -319,7 +319,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private void addMessageLine(ChatAction action, Image image)
 	{
-		var chatLine = new ChatLine(Instant.now(), action, new ContentImage(image));
+		var chatLine = new ChatLine(Instant.now(), action, new ContentImage(image, chatView));
 		addMessageLine(chatLine);
 	}
 

@@ -105,7 +105,9 @@ public class ContentImage implements Content
 
 		if (parent != null)
 		{
-			node.fitWidthProperty().bind(parent.widthProperty());
+			parent.widthProperty().addListener((observable, oldValue, newValue) -> {
+				node.setFitWidth(newValue.doubleValue() - 24); // 12 margins
+			});
 			node.setPreserveRatio(true);
 			node.setOnMouseClicked(ContentImage::view);
 		}

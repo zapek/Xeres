@@ -102,15 +102,22 @@ public class ContentImage implements Content
 
 		node.setImage(image);
 		node.setOnContextMenuRequested(event -> contextMenu.show(node, event.getScreenX(), event.getScreenY()));
+		node.setOnMouseClicked(ContentImage::view);
 
 		if (parent != null)
 		{
+			syncImageWidth(node, parent.getWidth());
 			parent.widthProperty().addListener((observable, oldValue, newValue) -> {
-				node.setFitWidth(newValue.doubleValue() - 24); // 12 margins
+				syncImageWidth(node, newValue.doubleValue());
 			});
+
 			node.setPreserveRatio(true);
-			node.setOnMouseClicked(ContentImage::view);
 		}
+	}
+
+	private static void syncImageWidth(ImageView imageView, double width)
+	{
+		imageView.setFitWidth(width - 24); // margins of 12 on each side
 	}
 
 	@Override

@@ -62,6 +62,9 @@ import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 
+/**
+ * Supplements JavaFX with handy functions for UI operations.
+ */
 public final class UiUtils
 {
 	private static final Logger log = LoggerFactory.getLogger(UiUtils.class);
@@ -75,6 +78,7 @@ public final class UiUtils
 
 	/**
 	 * Shows a generic alert error. Is supposed to be used in {@code doOnError} in the WebClients.
+	 * Will not block.
 	 *
 	 * @param t the throwable
 	 */
@@ -85,7 +89,7 @@ public final class UiUtils
 
 	/**
 	 * Shows a generic alert error and allows to run an action afterwards. Is supposed to be used in
-	 * {@code doOnError} in the WebClients.
+	 * {@code doOnError} in the WebClients. Will not block.
 	 *
 	 * @param t      the throwable
 	 * @param action the action to perform after the alert has been dismissed
@@ -129,6 +133,11 @@ public final class UiUtils
 		log.error("Error: {}", t.getMessage(), t);
 	}
 
+	/**
+	 * Highlights the specified nodes. Add the 'danger' CSS style to them.
+	 *
+	 * @param nodes the nodes to highlight with errors
+	 */
 	public static void showError(Node... nodes)
 	{
 		for (var node : nodes)
@@ -137,6 +146,11 @@ public final class UiUtils
 		}
 	}
 
+	/**
+	 * Clears out the highlighting of the specified nodes. Removes the 'danger' CSS styles to them.
+	 *
+	 * @param nodes the nodes to un-highlight with errors
+	 */
 	public static void clearError(Node... nodes)
 	{
 		for (var node : nodes)
@@ -145,24 +159,36 @@ public final class UiUtils
 		}
 	}
 
-	private static void alert(AlertType alertType, String title, String message, String stackTrace)
-	{
-		var alert = buildAlert(alertType, title, message, stackTrace);
-		alert.showAndWait();
-	}
-
+	/**
+	 * Shows an alert. Is supposed to run in the UI thread and will block.
+	 *
+	 * @param alertType the type of the alert
+	 * @param message   the message
+	 */
 	public static void alert(AlertType alertType, String message)
 	{
 		var alert = buildAlert(alertType, null, message, null);
 		alert.showAndWait();
 	}
 
+	/**
+	 * Shows an alert with a confirmation. Is supposed to run in the UI thread and will block.
+	 *
+	 * @param message  the message to display
+	 * @param runnable the action to run after the confirmation
+	 */
 	public static void alertConfirm(String message, Runnable runnable)
 	{
 		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
 		alert.showAndWait()
 				.filter(response -> response == ButtonType.OK)
 				.ifPresent(response -> runnable.run());
+	}
+
+	private static void alert(AlertType alertType, String title, String message, String stackTrace)
+	{
+		var alert = buildAlert(alertType, title, message, stackTrace);
+		alert.showAndWait();
 	}
 
 	private static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace)
@@ -264,11 +290,21 @@ public final class UiUtils
 				"\n\n";
 	}
 
+	/**
+	 * Sets the default icon of a stage (once per window).
+	 *
+	 * @param stage the stage to set the default icon to
+	 */
 	public static void setDefaultIcon(Stage stage)
 	{
 		stage.getIcons().add(new Image(Objects.requireNonNull(stage.getClass().getResourceAsStream("/image/icon.png"))));
 	}
 
+	/**
+	 * Sets the default style of a scene (once per window).
+	 *
+	 * @param scene the scene to set the default icon to
+	 */
 	public static void setDefaultStyle(Scene scene)
 	{
 		scene.getStylesheets().add("/view/default.css");
@@ -327,6 +363,12 @@ public final class UiUtils
 		stage.close();
 	}
 
+	/**
+	 * Gets the user data set to a particular node.
+	 *
+	 * @param node the node to get the userdata from
+	 * @return the user data
+	 */
 	public static Object getUserData(Node node)
 	{
 		return node.getScene().getRoot().getUserData();
@@ -393,22 +435,44 @@ public final class UiUtils
 		}
 	}
 
+	/**
+	 * Gets the window from a node.
+	 *
+	 * @param node the node to get the window from
+	 * @return the window
+	 */
 	public static Window getWindow(Node node)
 	{
 		return node.getScene().getWindow();
 	}
 
+	/**
+	 * Sets the presence of a node, that is, if it's visible and takes up space.
+	 *
+	 * @param node the node
+	 * @param present true if visible, false if gone
+	 */
 	public static void setPresent(Node node, boolean present)
 	{
 		node.setManaged(present);
 		node.setVisible(present);
 	}
 
+	/**
+	 * Puts a node as present, that is, is visible and takes up space.
+	 *
+	 * @param node the node
+	 */
 	public static void setPresent(Node node)
 	{
 		setPresent(node, true);
 	}
 
+	/**
+	 * Puts a node as absent, that is, is gone.
+	 *
+	 * @param node the node
+	 */
 	public static void setAbsent(Node node)
 	{
 		setPresent(node, false);

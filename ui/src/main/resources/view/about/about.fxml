@@ -244,6 +244,12 @@
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
+                    <DisclosedHyperlink text="Sound Effects" uri="https://pixabay.com/sound-effects"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Pixabay. Licensed under the "/>
+                    <DisclosedHyperlink text="Creative Commons Zero (CC0) license." uri="https://pixabay.com/service/terms/"/>
+                    <Text text="&#10;&#10;"/>
+
                     <DisclosedHyperlink text="Spring Boot" uri="https://spring.io/"/>
                     <Text text="&#10;"/>
                     <Text text=" © Broadcom. Licensed under the "/>

@@ -21,8 +21,6 @@
     -fx-font-family: "Consolas";
 }
 
-/* this is needed to display emojis before sending them */
 .chat-send {
-    -fx-font-family: "Segoe UI Emoji";
-    -fx-pref-height: 36px; /* and this is needed otherwise the widget is too small */
+    -fx-pref-height: 36px; /* this is needed otherwise the widget is too small */
 }

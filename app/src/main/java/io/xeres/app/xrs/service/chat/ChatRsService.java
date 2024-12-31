@@ -566,7 +566,7 @@ public class ChatRsService extends RsService
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
 		{
 			chatRoom.userActivity(user);
-			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_TYPING_NOTIFICATION, user, item.getSenderNickname());
+			sendChatRoomTypingNotificationToConsumers(item.getRoomId(), user, item.getSenderNickname());
 		}
 	}
 
@@ -579,6 +579,12 @@ public class ChatRsService extends RsService
 	private void sendChatRoomEventToConsumers(long roomId, MessageType messageType, GxsId gxsId, String nickname)
 	{
 		sendChatRoomEventToConsumers(roomId, messageType, gxsId, nickname, null);
+	}
+
+	private void sendChatRoomTypingNotificationToConsumers(long roomId, GxsId gxsId, String nickname)
+	{
+		var chatRoomMessage = new ChatRoomMessage(nickname, gxsId, null);
+		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_TYPING_NOTIFICATION, roomId, chatRoomMessage);
 	}
 
 	private void sendChatRoomTimeoutToConsumers(long roomId, GxsId gxsId, boolean split)

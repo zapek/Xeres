@@ -68,7 +68,7 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 			{
 				if (item.getRoomInfo().getRoomType() == RoomType.PRIVATE)
 				{
-					setStyle("-fx-text-fill:red; -fx-font-weight: bold;");
+					setStyle("-fx-text-fill: teal; -fx-font-weight: bold;");
 				}
 				else
 				{
@@ -79,7 +79,7 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 			{
 				if (item.getRoomInfo().getRoomType() == RoomType.PRIVATE)
 				{
-					setStyle("-fx-text-fill: red;");
+					setStyle("-fx-text-fill: teal;");
 				}
 				else
 				{

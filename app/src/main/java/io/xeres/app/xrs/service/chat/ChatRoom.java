@@ -277,7 +277,7 @@ public class ChatRoom
 		connectionChallengeCount++;
 	}
 
-	public MessageCache getMessageCache()
+	MessageCache getMessageCache()
 	{
 		return messageCache;
 	}

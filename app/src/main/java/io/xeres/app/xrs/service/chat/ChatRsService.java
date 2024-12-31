@@ -578,8 +578,7 @@ public class ChatRsService extends RsService
 
 	private void sendChatRoomEventToConsumers(long roomId, MessageType messageType, GxsId gxsId, String nickname)
 	{
-		var chatRoomMessage = new ChatRoomMessage(nickname, gxsId, null);
-		messageService.sendToConsumers(chatRoomDestination(), messageType, roomId, chatRoomMessage);
+		sendChatRoomEventToConsumers(roomId, messageType, gxsId, nickname, null);
 	}
 
 	private void sendChatRoomTimeoutToConsumers(long roomId, GxsId gxsId, boolean split)

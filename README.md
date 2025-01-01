@@ -24,13 +24,14 @@
 - 👋 Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
 - 🛠️ Hardware accelerated encryption
 - 🖥️ Modern looking desktop user interface with several themes including dark mode
-- 📶 Remote access
+- 📶 Remote access (Android mobile client available [here](https://github.com/zapek/Xeres-Android))
 - 📖 Free software ([GPL](https://www.gnu.org/licenses/quick-guide-gplv3.html))
 - 😃 Available for Windows and Linux
 
 ## Releases
 
 Latest release always available [here](https://github.com/zapek/Xeres/releases/latest).
+The mobile client for Android is available [here](https://github.com/zapek/Xeres-Android/releases/latest).
 
 ## Quick try
 

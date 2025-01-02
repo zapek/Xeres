@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,7 @@
 
 package io.xeres.app;
 
-import io.xeres.app.application.environment.CommandArgument;
-import io.xeres.app.application.environment.HostVariable;
-import io.xeres.app.application.environment.LocalPortFinder;
+import io.xeres.app.application.environment.*;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.UiStarter;
 import org.slf4j.Logger;
@@ -29,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import static io.xeres.app.application.environment.Cloud.isRunningOnCloud;
 import static io.xeres.common.properties.StartupProperties.Property.UI;
 
 @SpringBootApplication(scanBasePackageClasses = {io.xeres.app.XeresApplication.class, io.xeres.ui.UiStarter.class})
@@ -39,11 +36,14 @@ public class XeresApplication
 
 	public static void main(String[] args)
 	{
+		DefaultProperties.setDefaults();
+
+		Cloud.checkIfRunningOnCloud();
 		HostVariable.parse();
 		CommandArgument.parse(args);
 		LocalPortFinder.ensureFreePort();
 
-		if (isRunningOnCloud() || !StartupProperties.getBoolean(UI, true))
+		if (!StartupProperties.getBoolean(UI, true))
 		{
 			log.info("no gui mode");
 			SpringApplication.run(XeresApplication.class, args);

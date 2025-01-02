@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -73,7 +73,7 @@ public final class SSL
 					.keyManager(RSA.getPrivateKey(privateKeyData), certificate);
 		}
 		return builder
-				.sslProvider(SslProvider.OPENSSL_REFCNT)
+				.sslProvider(SslProvider.JDK)
 				.protocols("TLSv1.3")
 				.clientAuth(ClientAuth.REQUIRE)
 				.trustManager(InsecureTrustManagerFactory.INSTANCE)

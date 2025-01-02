@@ -1,7 +1,7 @@
 version: '2.4'
 services:
   xeres:
-    image: zapek/xeres:0.6.3
+    image: zapek/xeres:0.8.0
     ports:
       - "6232:6232"
       - "3335:3335"

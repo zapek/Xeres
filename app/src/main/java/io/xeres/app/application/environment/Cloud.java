@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,11 @@
 
 package io.xeres.app.application.environment;
 
+import io.xeres.common.properties.StartupProperties;
+
 import java.util.Arrays;
+
+import static io.xeres.common.properties.StartupProperties.Property.UI;
 
 /**
  * Utility class containing cloud related functions.
@@ -36,14 +40,23 @@ public final class Cloud
 	 *
 	 * @return true if running on the cloud
 	 */
-	public static boolean isRunningOnCloud()
+	private static boolean isRunningOnCloud()
 	{
 		var profiles = System.getenv("SPRING_PROFILES_ACTIVE");
 		if (profiles != null)
 		{
 			var tokens = profiles.split(",");
-			return Arrays.asList(tokens).contains("cloud");
+			return Arrays.asList(tokens).contains(
+					"cloud");
 		}
 		return false;
+	}
+
+	public static void checkIfRunningOnCloud()
+	{
+		if (isRunningOnCloud())
+		{
+			StartupProperties.setBoolean(UI, "false", StartupProperties.Origin.ENVIRONMENT_VARIABLE);
+		}
 	}
 }

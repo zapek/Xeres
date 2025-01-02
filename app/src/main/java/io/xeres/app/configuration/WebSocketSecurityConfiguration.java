@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.app.configuration;
 
 import io.xeres.app.service.SettingsService;
+import io.xeres.common.properties.StartupProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -28,6 +29,8 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 
+import static io.xeres.common.properties.StartupProperties.Property.CONTROL_PASSWORD;
+
 @Configuration
 @EnableWebSocketSecurity
 public class WebSocketSecurityConfiguration
@@ -35,7 +38,7 @@ public class WebSocketSecurityConfiguration
 	@Bean
 	AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages, SettingsService settingsService)
 	{
-		if (settingsService.hasRemotePassword())
+		if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
 		{
 			return AuthorityAuthorizationManager.hasRole("USER");
 		}

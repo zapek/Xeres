@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -71,10 +71,6 @@ public final class CommandArgument
 				default -> throw new IllegalArgumentException("Unknown argument [" + arg + "]. Run with the --help argument.");
 			}
 		}
-
-		// We default to HTTPS and have to specify it here because RemoteUtils
-		// uses the property to know in which mode it is.
-		StartupProperties.setBoolean(StartupProperties.Property.HTTPS, "true", StartupProperties.Origin.PROPERTY);
 
 		for (var arg : appArgs.getOptionNames())
 		{

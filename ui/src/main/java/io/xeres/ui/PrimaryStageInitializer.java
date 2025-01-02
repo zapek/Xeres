@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,7 @@
 
 package io.xeres.ui;
 
-import io.xeres.common.events.NetworkReadyEvent;
+import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.ChatFrameHandler;
@@ -82,12 +82,14 @@ public class PrimaryStageInitializer
 	}
 
 	@EventListener
-	public void onNetworkReadyEvent(NetworkReadyEvent unused)
+	public void onNetworkReadyEvent(ConnectWebSocketsEvent unused)
 	{
 		if (!StartupProperties.getBoolean(UI, true))
 		{
 			return;
 		}
+
+		// XXX: make sure we're not already connected... I think we can get the event twice when the network is reconfigured
 
 		var handler = new ChatFrameHandler(windowManager, chatViewController); // XXX: for now, use the same for both
 

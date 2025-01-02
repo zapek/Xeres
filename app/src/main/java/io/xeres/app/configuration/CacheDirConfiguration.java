@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,8 @@ package io.xeres.app.configuration;
 import io.xeres.app.util.DevUtils;
 import io.xeres.common.AppName;
 import net.harawata.appdirs.AppDirsFactory;
-import org.springframework.context.annotation.Bean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
@@ -40,6 +41,8 @@ import java.nio.file.Path;
 @Configuration
 public class CacheDirConfiguration
 {
+	private static final Logger log = LoggerFactory.getLogger(CacheDirConfiguration.class);
+
 	private final Environment environment;
 
 	private String cacheDir;
@@ -49,7 +52,6 @@ public class CacheDirConfiguration
 		this.environment = environment;
 	}
 
-	@Bean
 	public String getCacheDir()
 	{
 		if (cacheDir != null)
@@ -87,7 +89,8 @@ public class CacheDirConfiguration
 			}
 			catch (IOException e)
 			{
-				throw new IllegalStateException("Couldn't create cache directory: " + cacheDir + ", :" + e.getMessage());
+				log.error("Couldn't create cache directory: {}, {}. Cache won't be available", cacheDir, e.getMessage());
+				return null;
 			}
 		}
 		return cacheDir;

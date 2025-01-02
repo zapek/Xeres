@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -455,6 +455,10 @@ public class MainWindowController implements WindowController
 							}
 							case STOP_SCANNING ->
 							{
+								if (hashingDelayedDisplayAction == null) // Can happen when connecting remotely
+								{
+									return;
+								}
 								hashingDelayedDisplayAction.abort();
 								hashingStatus.setVisible(false);
 								hashingDelayedDisplayAction = null;

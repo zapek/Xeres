@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,13 +21,14 @@ package io.xeres.app.service;
 
 import io.xeres.app.application.events.IpChangedEvent;
 import io.xeres.app.application.events.LocationReadyEvent;
+import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.application.events.UpnpEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
 import io.xeres.app.net.dht.DhtService;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.upnp.UPNPService;
-import io.xeres.common.events.NetworkReadyEvent;
+import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
 import org.apache.commons.lang3.StringUtils;
@@ -145,6 +146,7 @@ public class NetworkService
 				startWhenPossible = false;
 
 				publisher.publishEvent(new NetworkReadyEvent());
+				publisher.publishEvent(new ConnectWebSocketsEvent());
 			}
 			else
 			{

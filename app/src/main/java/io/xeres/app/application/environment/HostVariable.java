@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -58,6 +58,10 @@ public final class HostVariable
 	 */
 	private static final String XERES_SERVER_ONLY = "XERES_SERVER_ONLY";
 
+	private static final String XERES_HTTPS = "XERES_HTTPS";
+
+	private static final String XERES_CONTROL_PASSWORD = "XERES_CONTROL_PASSWORD";
+
 	private static final String ENVIRONMENT_VARIABLE_STRING = "Environment variable";
 
 	private HostVariable()
@@ -78,6 +82,8 @@ public final class HostVariable
 		});
 		get(XERES_SERVER_ADDRESS).ifPresent(s -> setString(XERES_SERVER_ADDRESS, SERVER_ADDRESS, s));
 		get(XERES_SERVER_PORT).ifPresent(s -> setPort(XERES_SERVER_PORT, SERVER_PORT, s));
+		get(XERES_HTTPS).ifPresent(s -> setBoolean(XERES_HTTPS, HTTPS, s));
+		get(XERES_CONTROL_PASSWORD).ifPresent(s -> setBoolean(XERES_CONTROL_PASSWORD, CONTROL_PASSWORD, s));
 	}
 
 	private static Optional<String> get(String key)

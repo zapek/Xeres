@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,9 @@
 
 package io.xeres.app.xrs.service;
 
+import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.common.events.NetworkReadyEvent;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.context.annotation.DependsOn;

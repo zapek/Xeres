@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,8 +34,9 @@ import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZ
 @ConditionalOnProperty(value = "spring.main.web-application-type", havingValue = "servlet")
 public class WebSocketConfiguration implements WebSocketConfigurer
 {
+	// See https://stackoverflow.com/questions/21730566/how-to-increase-output-buffer-for-spring-sockjs-websocket-server-implementation
 	@Bean
-	public ServletServerContainerFactoryBean createWebSocketContainer()
+	public ServletServerContainerFactoryBean createServletServerContainerFactoryBean()
 	{
 		var container = new ServletServerContainerFactoryBean();
 		container.setMaxTextMessageBufferSize(MAXIMUM_MESSAGE_SIZE);

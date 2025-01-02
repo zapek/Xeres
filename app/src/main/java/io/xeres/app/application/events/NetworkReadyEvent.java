@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.events;
+package io.xeres.app.application.events;
 
 /**
  * Event that is sent once the network is ready (aka the peer service is started).

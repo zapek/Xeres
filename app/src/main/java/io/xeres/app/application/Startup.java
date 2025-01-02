@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,6 @@ package io.xeres.app.application;
 
 import io.xeres.app.XeresApplication;
 import io.xeres.app.application.autostart.AutoStart;
-import io.xeres.app.application.environment.TemporaryFiles;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.configuration.DataDirConfiguration;
@@ -34,6 +33,7 @@ import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.AppName;
+import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.mui.MinimalUserInterface;
 import org.slf4j.Logger;
@@ -95,7 +95,6 @@ public class Startup implements ApplicationRunner
 		checkSingleInstance();
 		infoService.showStartupInfo();
 		checkRequirements();
-		TemporaryFiles.cleanup();
 		infoService.showCapabilities();
 		infoService.showFeatures();
 		infoService.showDebug();
@@ -105,6 +104,7 @@ public class Startup implements ApplicationRunner
 		if (XeresApplication.isRemoteUiClient())
 		{
 			log.info("Remote UI mode");
+			publisher.publishEvent(new ConnectWebSocketsEvent()); // Make sure the websockets connect
 			return;
 		}
 

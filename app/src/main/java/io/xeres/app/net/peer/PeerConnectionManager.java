@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,8 @@ package io.xeres.app.net.peer;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.FailedFuture;
+import io.netty.util.concurrent.Future;
 import io.xeres.app.application.events.PeerConnectedEvent;
 import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.database.model.location.Location;
@@ -119,26 +121,24 @@ public class PeerConnectionManager
 		availabilityNotificationService.shutdown();
 	}
 
-	public ChannelFuture writeItem(Location location, Item item, RsService rsService)
+	public Future<Void> writeItem(Location location, Item item, RsService rsService)
 	{
 		var peer = peers.get(location.getId());
 		if (peer != null)
 		{
 			return setOutgoingAndWriteItem(peer, item, rsService);
 		}
-		log.warn("Peer with location {} not found while trying to write item. User disconnected?", location);
-		return null; // XXX: use executor.newFailedFuture()? but where do I get the executor from?
+		return new FailedFuture<>(null, new IllegalStateException("Peer with connection " + location + " not found while trying to write item. User disconnected?"));
 	}
 
-	public ChannelFuture writeItem(PeerConnection peerConnection, Item item, RsService rsService)
+	public Future<Void> writeItem(PeerConnection peerConnection, Item item, RsService rsService)
 	{
 		var peer = peers.get(peerConnection.getLocation().getId());
 		if (peer != null)
 		{
 			return setOutgoingAndWriteItem(peer, item, rsService);
 		}
-		log.warn("Peer with location {} not found while trying to write item. User disconnected?", peerConnection.getLocation());
-		return null; // XXX: use executor.newFailedFuture()? but where do I get the executor from?
+		return new FailedFuture<>(null, new IllegalStateException("Peer with connection " + peerConnection.getLocation() + " not found while trying to write item. User disconnected?"));
 	}
 
 	private static ChannelFuture setOutgoingAndWriteItem(PeerConnection peerConnection, Item item, RsService rsService)

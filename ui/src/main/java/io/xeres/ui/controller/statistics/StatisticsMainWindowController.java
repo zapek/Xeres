@@ -21,6 +21,7 @@ package io.xeres.ui.controller.statistics;
 
 import io.xeres.ui.controller.WindowController;
 import javafx.fxml.FXML;
+import javafx.scene.control.TabPane;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,9 @@ import org.springframework.stereotype.Component;
 @FxmlView(value = "/view/statistics/main.fxml")
 public class StatisticsMainWindowController implements WindowController
 {
+	@FXML
+	private TabPane tabPane;
+
 	// This field name to get the controller is some black magic, see last answer at https://stackoverflow.com/questions/40754454/get-controller-instance-from-node
 	@FXML
 	private StatisticsTurtleController statisticsTurtleController;
@@ -38,7 +42,7 @@ public class StatisticsMainWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		// XXX: the start/stop should be done on tab switch maybe... but check later on when I have more tabs
+
 	}
 
 	@Override

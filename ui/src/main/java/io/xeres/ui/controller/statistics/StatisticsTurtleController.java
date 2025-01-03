@@ -31,8 +31,6 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -43,8 +41,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @FxmlView(value = "/view/statistics/turtle.fxml")
 public class StatisticsTurtleController implements Controller
 {
-	private static final Logger log = LoggerFactory.getLogger(StatisticsTurtleController.class);
-
 	private static final int UPDATE_IN_SECONDS = 2;
 	private static final int DATA_WINDOW_SIZE = 60; // 2 minutes of data (one data each 2 seconds)
 
@@ -150,6 +146,14 @@ public class StatisticsTurtleController implements Controller
 	public void stop()
 	{
 		ExecutorUtils.cleanupExecutor(executorService);
+
+		dataDownload.getData().clear();
+		dataUpload.getData().clear();
+		forwardTotal.getData().clear();
+		tunnelRequestsDownload.getData().clear();
+		tunnelRequestsUpload.getData().clear();
+		searchRequestsDownload.getData().clear();
+		searchRequestsUpload.getData().clear();
 	}
 
 	private static void updateData(XYChart.Series<Number, Number> series, float value)

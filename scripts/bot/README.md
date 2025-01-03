@@ -9,7 +9,7 @@ It is supposed to use a LLM running locally.
 You need the following:
 
 - a running Xeres instance
-- a running llamafile instance (also works with ollama)
+- a running Ollama instance (also works with llamafile)
 - `pip install requests stomp.py cachetools`
 
 ## Running Xeres
@@ -19,21 +19,30 @@ Either run it standalone with the `--no-gui` option or with a docker compose lik
 ```
 services:
   xeres:
-    image: zapek/xeres:0.6.3-rc1
+    image: zapek/xeres:0.8.0
     user: 0:0
     environment:
       - SPRING_PROFILES_ACTIVE=cloud
       - XERES_SERVER_PORT=3333
       - XERES_DATA_DIR=/tmp/xeres
+      - XERES_HTTPS=false
+      - XERES_CONTROL_PASSWORD=false
       - "JAVA_TOOL_OPTIONS=-Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8"
     volumes:
-      xeres-bot-data:
+      xeres-bot-data:/tmp/xeres
     mem_limit: 1G
-    restart: always
+    restart: unless-stopped
     network_mode: host
+    
 volumes:
   xeres-bot-data:
 ```
+
+## Running with ollama
+
+Get ollama from here: https://ollama.com/
+
+Then use `ollama run llama2`
 
 ## Running with llamafile
 
@@ -52,12 +61,6 @@ Run it with something like that (use the name of the llamafile you downloaded):
 ### Docker
 
 See https://github.com/iverly/llamafile-docker
-
-## Running with ollama
-
-Get ollama from here: https://ollama.com/
-
-Then use `ollama run llama2`
 
 ## Writing the configuration file
 

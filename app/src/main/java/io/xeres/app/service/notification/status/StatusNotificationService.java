@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -63,21 +63,6 @@ public class StatusNotificationService extends NotificationService
 	{
 		totalUsers = value;
 		sendNotification(createNotification());
-	}
-
-	public void incrementTotalUsers()
-	{
-		totalUsers++;
-		sendNotification(createNotification());
-	}
-
-	public void decrementTotalUsers()
-	{
-		if (totalUsers > 0)
-		{
-			totalUsers--;
-			sendNotification(createNotification());
-		}
 	}
 
 	public void setNatStatus(NatStatus value)

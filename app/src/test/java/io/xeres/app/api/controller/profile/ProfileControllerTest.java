@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,6 +27,7 @@ import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
@@ -67,6 +68,9 @@ class ProfileControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private IdenticonService identiconService;
+
+	@MockitoBean
+	private LocationService locationService;
 
 	@SuppressWarnings("unused")
 	@MockitoBean

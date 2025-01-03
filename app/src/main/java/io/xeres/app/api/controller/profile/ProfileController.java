@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,6 +31,7 @@ import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.job.PeerConnectionJob;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
@@ -66,15 +67,17 @@ public class ProfileController
 {
 	private final ProfileService profileService;
 	private final IdentityService identityService;
+	private final LocationService locationService;
 
 	private final PeerConnectionJob peerConnectionJob;
 	private final StatusNotificationService statusNotificationService;
 	private final IdenticonService identiconService;
 
-	public ProfileController(ProfileService profileService, IdentityService identityService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService, IdenticonService identiconService)
+	public ProfileController(ProfileService profileService, IdentityService identityService, LocationService locationService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService, IdenticonService identiconService)
 	{
 		this.profileService = profileService;
 		this.identityService = identityService;
+		this.locationService = locationService;
 		this.peerConnectionJob = peerConnectionJob;
 		this.statusNotificationService = statusNotificationService;
 		this.identiconService = identiconService;
@@ -156,7 +159,7 @@ public class ProfileController
 
 		var savedProfile = profileService.createOrUpdateProfile(profile);
 
-		statusNotificationService.incrementTotalUsers(); // not correct if a certificate is used to update an existing profile (XXX: put a created date? or age? that would detect it)
+		statusNotificationService.setTotalUsers((int) locationService.countLocations());
 
 		locationToConnectTo.ifPresent(location ->
 		{
@@ -217,6 +220,6 @@ public class ProfileController
 		identityService.removeAllLinksToProfile(id);
 		profileService.deleteProfile(id);
 
-		statusNotificationService.decrementTotalUsers(); // XXX: wrong, a profile can have many locations
+		statusNotificationService.setTotalUsers((int) locationService.countLocations());
 	}
 }

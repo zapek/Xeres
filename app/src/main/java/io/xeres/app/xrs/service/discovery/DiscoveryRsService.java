@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -306,7 +306,7 @@ public class DiscoveryRsService extends RsService
 						var newLocation = Location.createLocation(discoveryContactItem.getLocationName(), profile, discoveryContactItem.getLocationIdentifier());
 						newLocation = updateLocation(newLocation, discoveryContactItem);
 						log.debug("New location of a friend, added: {}", newLocation);
-						statusNotificationService.incrementTotalUsers();
+						statusNotificationService.setTotalUsers((int) locationService.countLocations());
 					}
 					else
 					{

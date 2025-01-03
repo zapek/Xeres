@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.statistics.RttStatisticsResponse;
 import io.xeres.common.rest.statistics.TurtleStatisticsResponse;
 import io.xeres.common.util.RemoteUtils;
 import org.springframework.context.event.EventListener;
@@ -49,11 +50,19 @@ public class StatisticsClient
 				.build();
 	}
 
-	public Mono<TurtleStatisticsResponse> getStatistics()
+	public Mono<TurtleStatisticsResponse> getTurtleStatistics()
 	{
 		return webClient.get()
 				.uri("/turtle")
 				.retrieve()
 				.bodyToMono(TurtleStatisticsResponse.class);
+	}
+
+	public Mono<RttStatisticsResponse> getRttStatistics()
+	{
+		return webClient.get()
+				.uri("/rtt")
+				.retrieve()
+				.bodyToMono(RttStatisticsResponse.class);
 	}
 }

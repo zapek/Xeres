@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -30,6 +30,12 @@
                 <FontIcon iconLiteral="mdi2t-turtle"/>
             </graphic>
             <fx:include fx:id="statisticsTurtle" source="turtle.fxml"/>
+        </Tab>
+        <Tab text="RTT">
+            <graphic>
+                <FontIcon iconLiteral="mdi2t-timer"/>
+            </graphic>
+            <fx:include fx:id="statisticsRtt" source="rtt.fxml"/>
         </Tab>
     </TabPane>
 </VBox>

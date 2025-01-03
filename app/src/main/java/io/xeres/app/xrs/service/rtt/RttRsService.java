@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,6 +28,9 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.rtt.item.RttPingItem;
 import io.xeres.app.xrs.service.rtt.item.RttPongItem;
+import io.xeres.common.rest.statistics.RttPeer;
+import io.xeres.common.rest.statistics.RttStatisticsResponse;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,6 +38,10 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.RTT;
@@ -47,6 +54,9 @@ public class RttRsService extends RsService
 	private final PeerConnectionManager peerConnectionManager;
 
 	private static final int KEY_COUNTER = 1;
+	public static final int KEY_RTT = 2;
+
+	private final Map<Long, CircularFifoQueue<Duration>> peers = new ConcurrentHashMap<>(); // XXX: we should clear the queue upon disconnection, but we only have initialize(), not cleanup()
 
 	public RttRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager)
 	{
@@ -74,6 +84,9 @@ public class RttRsService extends RsService
 				0,
 				10,
 				TimeUnit.SECONDS);
+
+		var means = peers.computeIfAbsent(peerConnection.getLocation().getId(), unused -> new CircularFifoQueue<>(20));
+		means.clear();
 	}
 
 	private int getCounter(PeerConnection peerConnection)
@@ -115,7 +128,31 @@ public class RttRsService extends RsService
 
 			log.debug("RTT: {}, offset: {}, peerTime: {}", rtt, offset, peerTime);
 
-			// To calculate a mean time offset, keep ~20 of them and compute the average between them. XXX: see how RS does it and store it in the peerConnection has an extra value
+			sender.putServiceData(this, KEY_RTT, rtt.toMillis());
+
+			var means = peers.get(sender.getLocation().getId());
+			means.add(offset);
+
+			if (means.isAtFullCapacity())
+			{
+				var mean = means.stream()
+						.mapToLong(Duration::toMillis)
+						.average()
+						.orElse(0.0) / 1000.0;
+
+				if (Math.abs(mean) > 120.0)
+				{
+					log.warn("Peer {}'s time is drifting ({} seconds)", sender, mean);
+				}
+			}
 		}
+	}
+
+	public RttStatisticsResponse getStatistics()
+	{
+		List<RttPeer> rttPeers = new ArrayList<>(peerConnectionManager.getNumberOfPeers());
+		peerConnectionManager.doForAllPeers(peerConnection -> rttPeers.add(new RttPeer(peerConnection.getLocation().getId(), peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName(), (long) peerConnection.getServiceData(this, KEY_RTT).orElse(0L))), this);
+
+		return new RttStatisticsResponse(rttPeers);
 	}
 }

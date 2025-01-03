@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -176,7 +176,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 				.map(GxsMessageItem::getMessageId)
 				.collect(Collectors.toSet());
 
-		messageIds.removeIf(existing::contains);
+		messageIds.removeAll(existing);
 
 		return messageIds.stream().toList();
 	}

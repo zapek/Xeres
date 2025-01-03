@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,7 +23,9 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.xrs.service.rtt.RttRsService;
 import io.xeres.app.xrs.service.turtle.TurtleRsService;
+import io.xeres.common.rest.statistics.RttStatisticsResponse;
 import io.xeres.common.rest.statistics.TurtleStatisticsResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,10 +41,12 @@ import static io.xeres.common.rest.PathConfig.STATISTICS_PATH;
 public class StatisticsController
 {
 	private final TurtleRsService turtleRsService;
+	private final RttRsService rttRsService;
 
-	public StatisticsController(TurtleRsService turtleRsService)
+	public StatisticsController(TurtleRsService turtleRsService, RttRsService rttRsService)
 	{
 		this.turtleRsService = turtleRsService;
+		this.rttRsService = rttRsService;
 	}
 
 	@GetMapping("/turtle")
@@ -51,5 +55,13 @@ public class StatisticsController
 	public TurtleStatisticsResponse getTurtleStatistics()
 	{
 		return toDTO(turtleRsService.getStatistics());
+	}
+
+	@GetMapping("/rtt")
+	@Operation(summary = "Get RTT statistics")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public RttStatisticsResponse getRttStatistics()
+	{
+		return rttRsService.getStatistics();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -132,7 +132,7 @@ public class StatisticsTurtleController implements Controller
 
 	public void start()
 	{
-		executorService = ExecutorUtils.createFixedRateExecutor(() -> statisticsClient.getStatistics()
+		executorService = ExecutorUtils.createFixedRateExecutor(() -> statisticsClient.getTurtleStatistics()
 						.doOnSuccess(turtleStatisticsResponse -> Platform.runLater(() -> {
 							updateData(dataDownload, turtleStatisticsResponse.dataDownload() / 1024f);
 							updateData(dataUpload, turtleStatisticsResponse.dataUpload() / 1024f);

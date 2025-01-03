@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,6 +32,9 @@ public class StatisticsMainWindowController implements WindowController
 	@FXML
 	private StatisticsTurtleController statisticsTurtleController;
 
+	@FXML
+	private StatisticsRttController statisticsRttController;
+
 	@Override
 	public void initialize()
 	{
@@ -42,11 +45,13 @@ public class StatisticsMainWindowController implements WindowController
 	public void onShown()
 	{
 		statisticsTurtleController.start();
+		statisticsRttController.start();
 	}
 
 	@Override
 	public void onHiding()
 	{
 		statisticsTurtleController.stop();
+		statisticsRttController.stop();
 	}
 }

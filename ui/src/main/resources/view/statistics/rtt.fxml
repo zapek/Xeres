@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
 <!--
-  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -27,23 +25,23 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.statistics.StatisticsTurtleController">
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.statistics.StatisticsRttController">
     <HBox alignment="BASELINE_RIGHT">
         <Button styleClass="button-icon, flat, accent">
             <graphic>
                 <FontIcon iconLiteral="mdi2i-information"/>
             </graphic>
             <tooltip>
-                <Tooltip showDelay="0ms" showDuration="1m" maxWidth="400" wrapText="true" text="%statistics.turtle.tip"/>
+                <Tooltip showDelay="0ms" showDuration="1m" maxWidth="400" wrapText="true" text="%statistics.rtt.tip"/>
             </tooltip>
         </Button>
     </HBox>
-    <LineChart fx:id="lineChart" title="%statistics.turtle.bandwidth" animated="false" createSymbols="false" VBox.vgrow="ALWAYS">
+    <LineChart fx:id="lineChart" title="%statistics.rtt.rtt" animated="false" createSymbols="false" VBox.vgrow="ALWAYS">
         <xAxis>
-            <NumberAxis fx:id="xAxis" label="%statistics.elapsed-time" animated="false" lowerBound="-120" upperBound="0" autoRanging="false"/>
+            <NumberAxis fx:id="xAxis" label="%statistics.elapsed-time" animated="false" lowerBound="-120" tickUnit="10" upperBound="0" autoRanging="false"/>
         </xAxis>
         <yAxis>
-            <NumberAxis label="%statistics.turtle.speed" animated="false"/>
+            <NumberAxis label="%statistics.rtt.time" animated="false"/>
         </yAxis>
         <cursor>
             <Cursor fx:constant="CROSSHAIR"/>

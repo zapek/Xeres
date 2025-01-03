@@ -30,8 +30,11 @@
 
 ## Releases
 
-Latest release always available [here](https://github.com/zapek/Xeres/releases/latest).
-The mobile client for Android is available [here](https://github.com/zapek/Xeres-Android/releases/latest).
+Latest release [here](https://github.com/zapek/Xeres/releases/latest).
+
+The mobile client for Android is [here](https://github.com/zapek/Xeres-Android/releases/latest).
+
+The docker image for headless installations is [here](https://hub.docker.com/r/zapek/xeres)
 
 ## Quick try
 

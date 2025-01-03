@@ -25,11 +25,9 @@ import io.xeres.ui.client.StatisticsClient;
 import io.xeres.ui.controller.Controller;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Cursor;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
@@ -118,27 +116,7 @@ public class StatisticsRttController implements Controller
 		var series = new XYChart.Series<Number, Number>();
 		series.setName(rttPeer.name());
 		lineChart.getData().add(series);
-		setLegend();
 		return series;
-	}
-
-	private void setLegend()
-	{
-		lineChart.lookupAll("Label.chart-legend-item").forEach(node -> {
-			if (node instanceof Label label && label.getCursor() == null) // Make sure we only do the job once for each
-			{
-				label.setCursor(Cursor.HAND);
-				label.setOnMouseClicked(event -> {
-					label.setOpacity(label.getOpacity() > 0.75 ? 0.5 : 1.0);
-					lineChart.getData().forEach(series -> {
-						if (series.getName().equals(label.getText()))
-						{
-							series.getNode().setVisible(!series.getNode().isVisible());
-						}
-					});
-				});
-			}
-		});
 	}
 
 	private static void updateData(XYChart.Series<Number, Number> series, float value)

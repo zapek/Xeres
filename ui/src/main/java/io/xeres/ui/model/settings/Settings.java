@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -43,7 +43,7 @@ public class Settings implements Cloneable
 
 	private boolean remoteEnabled;
 
-	private boolean isRemoteUpnpEnabled;
+	private boolean isUpnpRemoteEnabled;
 
 	private int remotePort;
 
@@ -162,14 +162,14 @@ public class Settings implements Cloneable
 		remoteEnabled = enabled;
 	}
 
-	public boolean isRemoteUpnpEnabled()
+	public boolean isUpnpRemoteEnabled()
 	{
-		return isRemoteUpnpEnabled;
+		return isUpnpRemoteEnabled;
 	}
 
-	public void setRemoteUpnpEnabled(boolean remoteUpnpEnabled)
+	public void setUpnpRemoteEnabled(boolean upnpRemoteEnabled)
 	{
-		isRemoteUpnpEnabled = remoteUpnpEnabled;
+		isUpnpRemoteEnabled = upnpRemoteEnabled;
 	}
 
 	public int getRemotePort()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -102,7 +102,7 @@ public class SettingsRemoteController implements SettingsController
 		noUpnp = !settings.isUpnpEnabled();
 
 		remoteEnabled.setSelected(settings.isRemoteEnabled());
-		remoteUpnpEnabled.setSelected(settings.isRemoteUpnpEnabled());
+		remoteUpnpEnabled.setSelected(settings.isUpnpRemoteEnabled());
 		checkDisabled();
 		password.setText(settings.getRemotePassword());
 		port.setText(String.valueOf(StartupProperties.getInteger(CONTROL_PORT)));
@@ -118,7 +118,7 @@ public class SettingsRemoteController implements SettingsController
 
 		settings.setRemotePassword(isBlank(password.getPassword()) ? null : password.getPassword());
 		settings.setRemoteEnabled(remoteEnabled.isSelected());
-		settings.setRemoteUpnpEnabled(remoteUpnpEnabled.isSelected());
+		settings.setUpnpRemoteEnabled(remoteUpnpEnabled.isSelected());
 		if (!port.getText().isEmpty())
 		{
 			var portValue = Integer.parseInt(port.getText());

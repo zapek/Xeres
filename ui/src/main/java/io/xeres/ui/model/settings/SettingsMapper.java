@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -48,7 +48,7 @@ public final class SettingsMapper
 		settings.setIncomingDirectory(dto.incomingDirectory());
 		settings.setRemotePassword(dto.remotePassword());
 		settings.setRemoteEnabled(dto.remoteEnabled());
-		settings.setRemoteUpnpEnabled(dto.upnpRemoteEnabled());
+		settings.setUpnpRemoteEnabled(dto.upnpRemoteEnabled());
 		settings.setRemotePort(dto.remotePort());
 		return settings;
 	}
@@ -72,7 +72,7 @@ public final class SettingsMapper
 				settings.getIncomingDirectory(),
 				settings.getRemotePassword(),
 				settings.isRemoteEnabled(),
-				settings.isRemoteUpnpEnabled(),
+				settings.isUpnpRemoteEnabled(),
 				settings.getRemotePort()
 		);
 	}

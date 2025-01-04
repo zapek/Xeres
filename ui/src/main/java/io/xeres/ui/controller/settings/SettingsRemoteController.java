@@ -81,7 +81,7 @@ public class SettingsRemoteController implements SettingsController
 	@Override
 	public void initialize() throws IOException
 	{
-		TextFieldUtils.setNumeric(port, 1025, 65535);
+		TextFieldUtils.setNumeric(port, 0, 6);
 
 		var icon = new FontIcon("mdi2e-eye-off");
 		icon.setCursor(Cursor.HAND);
@@ -122,7 +122,7 @@ public class SettingsRemoteController implements SettingsController
 		if (!port.getText().isEmpty())
 		{
 			var portValue = Integer.parseInt(port.getText());
-			if (portValue != Objects.requireNonNull(StartupProperties.getInteger(CONTROL_PORT)))
+			if (portValue >= 1025 && portValue <= 65535 && portValue != Objects.requireNonNull(StartupProperties.getInteger(CONTROL_PORT)))
 			{
 				settings.setRemotePort(portValue);
 				portChanged = true;

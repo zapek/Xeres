@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -36,15 +36,15 @@ public final class TextFieldUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static void setNumeric(TextField textField, int min, int max)
+	public static void setNumeric(TextField textField, int minChars, int maxChars)
 	{
-		if (min < 0 || max < 0)
+		if (minChars < 0 || maxChars < 0)
 		{
-			throw new IllegalArgumentException("Negative numbers are not supported");
+			throw new IllegalArgumentException("Negative char limits are not supported");
 		}
-		if (max < min)
+		if (maxChars < minChars)
 		{
-			throw new IllegalArgumentException("Max cannot be smaller than min");
+			throw new IllegalArgumentException("maxChars cannot be smaller than minChars");
 		}
 
 		var textFormatter = new TextFormatter<String>(change -> {
@@ -56,8 +56,8 @@ public final class TextFieldUtils
 			}
 			try
 			{
-				var value = Integer.parseInt(change.getControlNewText());
-				if (value >= min && value <= max)
+				Integer.parseInt(change.getControlNewText());
+				if (change.getControlNewText().length() >= minChars && change.getControlNewText().length() <= maxChars)
 				{
 					return change;
 				}

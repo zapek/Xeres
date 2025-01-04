@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -79,10 +79,10 @@ public class SettingsNetworksController implements SettingsController
 	public void initialize()
 	{
 		TextFieldUtils.setHost(torSocksHost);
-		TextFieldUtils.setNumeric(torSocksPort, 0, 65535);
+		TextFieldUtils.setNumeric(torSocksPort, 0, 6);
 
 		TextFieldUtils.setHost(i2pSocksHost);
-		TextFieldUtils.setNumeric(i2pSocksPort, 0, 65535);
+		TextFieldUtils.setNumeric(i2pSocksPort, 0, 6);
 
 		configClient.getExternalIpAddress()
 				.doOnSuccess(ipAddressResponse -> Platform.runLater(() -> {
@@ -127,10 +127,10 @@ public class SettingsNetworksController implements SettingsController
 	public Settings onSave()
 	{
 		settings.setTorSocksHost(TextFieldUtils.getString(torSocksHost));
-		settings.setTorSocksPort(TextFieldUtils.getAsNumber(torSocksPort));
+		settings.setTorSocksPort(limitPort(TextFieldUtils.getAsNumber(torSocksPort)));
 
 		settings.setI2pSocksHost(TextFieldUtils.getString(i2pSocksHost));
-		settings.setI2pSocksPort(TextFieldUtils.getAsNumber(i2pSocksPort));
+		settings.setI2pSocksPort(limitPort(TextFieldUtils.getAsNumber(i2pSocksPort)));
 
 		settings.setUpnpEnabled(upnpEnabled.isSelected());
 
@@ -139,5 +139,14 @@ public class SettingsNetworksController implements SettingsController
 		settings.setDhtEnabled(dhtEnabled.isSelected());
 
 		return settings;
+	}
+
+	private int limitPort(int port)
+	{
+		if (port > 65535)
+		{
+			port = 65535;
+		}
+		return port;
 	}
 }

@@ -132,7 +132,7 @@ public class Startup implements ApplicationRunner
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			syncAutoStart();
-			statusNotificationService.setTotalUsers((int) locationService.getAllLocations().stream().filter(location -> !location.isOwn()).count());
+			statusNotificationService.setTotalUsers((int) locationService.countLocations());
 			networkService.start();
 		}
 		MinimalUserInterface.setShell(shellService);

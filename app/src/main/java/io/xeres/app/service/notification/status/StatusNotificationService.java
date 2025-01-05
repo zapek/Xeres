@@ -61,7 +61,7 @@ public class StatusNotificationService extends NotificationService
 
 	public void setTotalUsers(int value)
 	{
-		totalUsers = value;
+		totalUsers = value - 1; // We remove our own location
 		sendNotification(createNotification());
 	}
 

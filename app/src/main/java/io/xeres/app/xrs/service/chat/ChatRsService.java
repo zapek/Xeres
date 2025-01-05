@@ -887,7 +887,7 @@ public class ChatRsService extends RsService
 			if (peerConnection == null || !Objects.equals(location, peerConnection.getLocation()))
 			{
 				var status = peerConnectionManager.writeItem(location, bounce.clone(), this); // Netty frees sent items so we need to clone
-				if (!status.isSuccess())
+				if (status.isDone() && !status.isSuccess())
 				{
 					iterator.remove(); // Failed to write, it means the location disconnected, so we need to remove it from our participating locations
 				}

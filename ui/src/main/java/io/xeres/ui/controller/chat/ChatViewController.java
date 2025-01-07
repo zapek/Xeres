@@ -675,11 +675,11 @@ public class ChatViewController implements Controller
 		messages.forEach(message -> {
 			if (message.gxsId() == null)
 			{
-				chatListView.addOwnMessage(message.create(), message.message());
+				chatListView.addOwnMessage(message.created(), message.message());
 			}
 			else
 			{
-				chatListView.addUserMessage(message.nickname(), message.gxsId(), message.message());
+				chatListView.addUserMessage(message.created(), message.nickname(), message.gxsId(), message.message());
 			}
 		});
 		chatListView.jumpToBottom(true);

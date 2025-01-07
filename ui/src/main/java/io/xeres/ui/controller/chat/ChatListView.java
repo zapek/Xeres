@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -154,8 +154,13 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	public void addUserMessage(String from, GxsId gxsId, String message)
 	{
+		addUserMessage(Instant.now(), from, gxsId, message);
+	}
+
+	public void addUserMessage(Instant when, String from, GxsId gxsId, String message)
+	{
 		var chatAction = new ChatAction(SAY, from, gxsId);
-		addMessage(Instant.now(), chatAction, message);
+		addMessage(when, chatAction, message);
 	}
 
 	private void addMessage(Instant time, ChatAction chatAction, String message)
@@ -172,7 +177,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				var image = new Image(data);
 				if (!image.isError())
 				{
-					addMessageLine(chatAction, image);
+					addMessageLine(time, chatAction, image);
 				}
 			}
 		}
@@ -317,9 +322,9 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		trimScrollBackIfNeeded();
 	}
 
-	private void addMessageLine(ChatAction action, Image image)
+	private void addMessageLine(Instant when, ChatAction action, Image image)
 	{
-		var chatLine = new ChatLine(Instant.now(), action, new ContentImage(image, chatView));
+		var chatLine = new ChatLine(when, action, new ContentImage(image, chatView));
 		addMessageLine(chatLine);
 	}
 

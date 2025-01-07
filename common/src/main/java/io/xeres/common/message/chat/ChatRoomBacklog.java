@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,6 @@ import io.xeres.common.id.GxsId;
 
 import java.time.Instant;
 
-public record ChatRoomBacklog(Instant create, GxsId gxsId, String nickname, String message)
+public record ChatRoomBacklog(Instant created, GxsId gxsId, String nickname, String message)
 {
 }

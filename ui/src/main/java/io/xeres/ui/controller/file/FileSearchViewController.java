@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -80,7 +80,7 @@ public class FileSearchViewController implements Controller, TabActivation
 	@Override
 	public void initialize()
 	{
-		TextInputControlUtils.addEnhancedInputContextMenu(search, null);
+		TextInputControlUtils.addEnhancedInputContextMenu(search, null, null);
 		search.setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.ENTER)
 			{

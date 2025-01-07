@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,11 +31,14 @@ import java.io.IOException;
 
 /**
  * Utility class to use the clipboard. This implementation uses AWT because the clipboard support of JavaFX is, quite frankly, a
- * royal piece of shit.
+ * royal piece of shit:
+ * <ul>
+ *     <li>it fails to work with some bitmaps (for example from Telegram, Windows 10 and print screen, Chrome, ...).
+ * <li>it fails with data URIs because it tries to find out if the image is a supported format and even though it is, the URL is "wrong" for it.
+ * </ul>
  * <p>
- * Fails to work with some bitmaps (for example from Telegram, Windows 10 and print screen, Chrome, ...).
- * <p>
- * Fails with data URIs because it tries to find out if the image is a supported format and even though it is, the URL is "wrong" for it.
+ * This one just works. Note that there still might be some warnings printed out because of the DataFlavor system that isn't compatible
+ * with everything. It's harmless though.
  */
 public final class ClipboardUtils
 {
@@ -44,6 +47,26 @@ public final class ClipboardUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * Gets whatever is in the clipboard and supported, currently: string and JavaFX images.
+	 *
+	 * @return a string or an image
+	 */
+	public static Object getSupportedObjectFromClipboard()
+	{
+		Object object = getImageFromClipboard();
+		if (object == null)
+		{
+			object = getStringFromClipboard();
+		}
+		return object;
+	}
+
+	/**
+	 * Gets an image from the clipboard
+	 *
+	 * @return the image, or null if the clipboard is empty, or it doesn't contain an image
+	 */
 	public static Image getImageFromClipboard()
 	{
 		var transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
@@ -63,11 +86,45 @@ public final class ClipboardUtils
 		return null;
 	}
 
+	/**
+	 * Copies an image to the clipboard.
+	 *
+	 * @param image the image to copy to the clipboard
+	 */
 	public static void copyImageToClipboard(Image image)
 	{
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageSelection(SwingFXUtils.fromFXImage(image, null)), null);
 	}
 
+	/**
+	 * Gets a string from the clipboard.
+	 *
+	 * @return a string, or null if the clipboard is empty, or it doesn't contain a string
+	 */
+	public static String getStringFromClipboard()
+	{
+		var transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+		if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor))
+		{
+			String string;
+			try
+			{
+				string = (String) transferable.getTransferData(DataFlavor.stringFlavor);
+			}
+			catch (UnsupportedFlavorException | IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+			return string;
+		}
+		return null;
+	}
+
+	/**
+	 * Copies a string to the clipboard.
+	 *
+	 * @param text the string to copy to the clipboard
+	 */
 	public static void copyTextToClipboard(String text)
 	{
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);

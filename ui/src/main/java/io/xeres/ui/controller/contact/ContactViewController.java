@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -358,7 +358,7 @@ public class ContactViewController implements Controller
 		searchClear.setCursor(Cursor.HAND);
 		searchClear.setOnMouseClicked(event -> searchTextField.clear());
 
-		TextInputControlUtils.addEnhancedInputContextMenu(searchTextField, null);
+		TextInputControlUtils.addEnhancedInputContextMenu(searchTextField, null, null);
 		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
 		searchTextField.lengthProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue.intValue() > 0)

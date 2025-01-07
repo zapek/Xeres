@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -54,6 +54,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -204,10 +205,15 @@ public class ChatViewController implements Controller
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
-		profileClient.getOwn().doOnSuccess(profile -> nickname = profile.getName()) // XXX: we shouldn't go further until nickname is set. maybe it should be a parameter
+		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> initializeReally(profile.getName())))
 				.subscribe();
+	}
+
+	private void initializeReally(String nickname)
+	{
+		this.nickname = nickname;
 
 		var root = new TreeItem<>(new RoomHolder());
 		//noinspection unchecked
@@ -253,7 +259,14 @@ public class ChatViewController implements Controller
 		});
 
 		var loader = new FXMLLoader(getClass().getResource("/view/chat/chat_roominfo.fxml"), bundle);
-		roomInfoView = loader.load();
+		try
+		{
+			roomInfoView = loader.load();
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 		chatRoomInfoController = loader.getController();
 
 		lastTypingTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
@@ -268,7 +281,7 @@ public class ChatViewController implements Controller
 		previewCancel.setOnAction(event -> cancelImage());
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
-		TextInputControlUtils.addEnhancedInputContextMenu(send, locationClient);
+		TextInputControlUtils.addEnhancedInputContextMenu(send, locationClient, this::handlePaste);
 
 		invite.setOnAction(event -> windowManager.openInvite(selectedRoom.getId()));
 
@@ -688,14 +701,8 @@ public class ChatViewController implements Controller
 
 		if (PASTE_KEY.match(event))
 		{
-			var image = ClipboardUtils.getImageFromClipboard();
-			if (image != null)
+			if (handlePaste(send))
 			{
-				imagePreview.setImage(image);
-
-				ImageUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
-
-				setPreviewGroupVisibility(true);
 				event.consume();
 			}
 		}
@@ -709,6 +716,29 @@ public class ChatViewController implements Controller
 			cancelImage();
 			event.consume();
 		}
+	}
+
+	private boolean handlePaste(TextInputControl textInputControl)
+	{
+		var object = ClipboardUtils.getSupportedObjectFromClipboard();
+		return switch (object)
+		{
+			case Image image ->
+			{
+				imagePreview.setImage(image);
+
+				ImageUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
+
+				setPreviewGroupVisibility(true);
+				yield true;
+			}
+			case String string ->
+			{
+				textInputControl.insertText(textInputControl.getCaretPosition(), string);
+				yield true;
+			}
+			default -> false;
+		};
 	}
 
 	private void sendImage()

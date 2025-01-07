@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -128,7 +128,7 @@ public class AddRsIdWindowController implements WindowController
 			debouncer.setOnFinished(event -> checkRsId(newValue));
 			debouncer.playFromStart();
 		});
-		TextInputControlUtils.addEnhancedInputContextMenu(rsIdTextArea, null);
+		TextInputControlUtils.addEnhancedInputContextMenu(rsIdTextArea, null, null);
 
 		profileClient.getOwn()
 				.doOnSuccess(profile -> ownProfile = profile)

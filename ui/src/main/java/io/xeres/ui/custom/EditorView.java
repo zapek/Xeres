@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,6 +31,7 @@ import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -208,7 +209,7 @@ public class EditorView extends VBox
 
 	public void setInputContextMenu(LocationClient locationClient)
 	{
-		TextInputControlUtils.addEnhancedInputContextMenu(editor, locationClient);
+		TextInputControlUtils.addEnhancedInputContextMenu(editor, locationClient, this::handlePaste);
 	}
 
 	public boolean isModified()
@@ -396,15 +397,8 @@ public class EditorView extends VBox
 
 		if (PASTE_KEY.match(event))
 		{
-			var image = ClipboardUtils.getImageFromClipboard();
-			if (image != null)
+			if (handlePaste(editor))
 			{
-				var imageView = new ImageView(image);
-				ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
-
-				var imgData = ImageUtils.writeImageAsJpegData(imageView.getImage(), IMAGE_MAXIMUM_SIZE);
-				editor.insertText(editor.getCaretPosition(), "![](" + imgData + ")");
-
 				event.consume();
 			}
 		}
@@ -412,6 +406,30 @@ public class EditorView extends VBox
 		{
 			completeStatement();
 		}
+	}
+
+	private boolean handlePaste(TextInputControl textInputControl)
+	{
+		var object = ClipboardUtils.getSupportedObjectFromClipboard();
+		return switch (object)
+		{
+			case Image image ->
+			{
+				var imageView = new ImageView(image);
+				ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
+
+				var imgData = ImageUtils.writeImageAsJpegData(imageView.getImage(), IMAGE_MAXIMUM_SIZE);
+				textInputControl.insertText(textInputControl.getCaretPosition(), "![](" + imgData + ")");
+
+				yield true;
+			}
+			case String string ->
+			{
+				textInputControl.insertText(textInputControl.getCaretPosition(), string);
+				yield true;
+			}
+			default -> false;
+		};
 	}
 
 	/**

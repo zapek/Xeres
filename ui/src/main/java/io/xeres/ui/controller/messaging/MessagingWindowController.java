@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -55,6 +55,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -161,7 +162,7 @@ public class MessagingWindowController implements WindowController
 				.subscribe();
 
 		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
-		TextInputControlUtils.addEnhancedInputContextMenu(send, null);
+		TextInputControlUtils.addEnhancedInputContextMenu(send, null, this::handlePaste);
 
 		addImage.setOnAction(event -> {
 			var fileChooser = new FileChooser();
@@ -389,10 +390,8 @@ public class MessagingWindowController implements WindowController
 	{
 		if (PASTE_KEY.match(event))
 		{
-			var image = ClipboardUtils.getImageFromClipboard();
-			if (image != null)
+			if (handlePaste(send))
 			{
-				sendImageViewToMessage(new ImageView(image));
 				event.consume();
 			}
 		}
@@ -415,6 +414,25 @@ public class MessagingWindowController implements WindowController
 		{
 			sendTypingNotificationIfNeeded();
 		}
+	}
+
+	private boolean handlePaste(TextInputControl textInputControl)
+	{
+		var object = ClipboardUtils.getSupportedObjectFromClipboard();
+		return switch (object)
+		{
+			case Image image ->
+			{
+				sendImageViewToMessage(new ImageView(image));
+				yield true;
+			}
+			case String string ->
+			{
+				textInputControl.insertText(textInputControl.getCaretPosition(), string);
+				yield true;
+			}
+			default -> false;
+		};
 	}
 
 	private void sendImageViewToMessage(ImageView imageView)

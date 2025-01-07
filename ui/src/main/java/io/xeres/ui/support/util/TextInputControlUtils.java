@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,6 +35,7 @@ import org.kordamp.ikonli.materialdesign2.*;
 
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 
@@ -54,11 +55,11 @@ public final class TextInputControlUtils
 	 * @param textInputControl the text input control
 	 * @param locationClient   the location client, if null, then there will be no "Paste own ID" menu item
 	 */
-	public static void addEnhancedInputContextMenu(TextInputControl textInputControl, LocationClient locationClient)
+	public static void addEnhancedInputContextMenu(TextInputControl textInputControl, LocationClient locationClient, Consumer<TextInputControl> pasteAction)
 	{
 		var contextMenu = new ContextMenu();
 
-		contextMenu.getItems().addAll(createDefaultChatInputMenuItems(textInputControl));
+		contextMenu.getItems().addAll(createDefaultChatInputMenuItems(textInputControl, pasteAction));
 		if (locationClient != null)
 		{
 			var pasteId = new MenuItem(bundle.getString("paste-id"));
@@ -81,7 +82,7 @@ public final class TextInputControlUtils
 		return CertificateUriFactory.generate(cleanCert, rsIdResponse.name(), rsIdResponse.location());
 	}
 
-	private static List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl)
+	private static List<MenuItem> createDefaultChatInputMenuItems(TextInputControl textInputControl, Consumer<TextInputControl> pasteAction)
 	{
 		var undo = new MenuItem(bundle.getString("undo"));
 		undo.setGraphic(new FontIcon(MaterialDesignU.UNDO_VARIANT));
@@ -101,7 +102,16 @@ public final class TextInputControlUtils
 
 		var paste = new MenuItem(bundle.getString("paste"));
 		paste.setGraphic(new FontIcon(MaterialDesignC.CONTENT_PASTE));
-		paste.setOnAction(event -> textInputControl.paste());
+		paste.setOnAction(event -> {
+			if (pasteAction != null)
+			{
+				pasteAction.accept(textInputControl);
+			}
+			else
+			{
+				textInputControl.paste();
+			}
+		});
 
 		var delete = new MenuItem(bundle.getString("delete"));
 		delete.setGraphic(new FontIcon(MaterialDesignT.TRASH_CAN));

@@ -235,29 +235,6 @@ public class ChatViewController implements Controller
 			}
 		});
 
-		send.setOnKeyPressed(event ->
-		{
-			if (isRoomSelected())
-			{
-				if (event.getCode() == KeyCode.ENTER && isNotBlank(send.getText()))
-				{
-					sendChatMessage(send.getText());
-					send.clear();
-					lastTypingNotification = Instant.EPOCH;
-				}
-				else
-				{
-					var now = Instant.now();
-					if (Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
-					{
-						var chatMessage = new ChatMessage();
-						messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
-						lastTypingNotification = now;
-					}
-				}
-			}
-		});
-
 		var loader = new FXMLLoader(getClass().getResource("/view/chat/chat_roominfo.fxml"), bundle);
 		try
 		{
@@ -280,7 +257,7 @@ public class ChatViewController implements Controller
 		previewSend.setOnAction(event -> sendImage());
 		previewCancel.setOnAction(event -> cancelImage());
 
-		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+		send.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		TextInputControlUtils.addEnhancedInputContextMenu(send, locationClient, this::handlePaste);
 
 		invite.setOnAction(event -> windowManager.openInvite(selectedRoom.getId()));
@@ -715,6 +692,26 @@ public class ChatViewController implements Controller
 		{
 			cancelImage();
 			event.consume();
+		}
+		else if (event.getCode() == KeyCode.ENTER)
+		{
+			if (isRoomSelected() && isNotBlank(send.getText()))
+			{
+				sendChatMessage(send.getText());
+				send.clear();
+				lastTypingNotification = Instant.EPOCH;
+			}
+			event.consume();
+		}
+		else
+		{
+			var now = Instant.now();
+			if (Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
+			{
+				var chatMessage = new ChatMessage();
+				messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
+				lastTypingNotification = now;
+			}
 		}
 	}
 

@@ -161,7 +161,7 @@ public class MessagingWindowController implements WindowController
 		ownProfileResult.doOnSuccess(profile -> Platform.runLater(() -> setupChatListView(profile.getName(), profile.getId())))
 				.subscribe();
 
-		send.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+		send.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		TextInputControlUtils.addEnhancedInputContextMenu(send, null, this::handlePaste);
 
 		addImage.setOnAction(event -> {

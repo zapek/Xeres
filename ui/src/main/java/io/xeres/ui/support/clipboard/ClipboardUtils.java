@@ -21,10 +21,13 @@ package io.xeres.ui.support.clipboard;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -42,6 +45,8 @@ import java.io.IOException;
  */
 public final class ClipboardUtils
 {
+	private static final Logger log = LoggerFactory.getLogger(ClipboardUtils.class);
+
 	private ClipboardUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -69,7 +74,7 @@ public final class ClipboardUtils
 	 */
 	public static Image getImageFromClipboard()
 	{
-		var transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+		var transferable = getTransferable();
 		if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.imageFlavor))
 		{
 			BufferedImage image;
@@ -103,7 +108,7 @@ public final class ClipboardUtils
 	 */
 	public static String getStringFromClipboard()
 	{
-		var transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+		var transferable = getTransferable();
 		if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor))
 		{
 			String string;
@@ -128,5 +133,18 @@ public final class ClipboardUtils
 	public static void copyTextToClipboard(String text)
 	{
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+	}
+
+	private static Transferable getTransferable()
+	{
+		try
+		{
+			return Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+		}
+		catch (HeadlessException | IllegalStateException e)
+		{
+			log.warn("Clipboard not available: {}", e.getMessage());
+			return null;
+		}
 	}
 }

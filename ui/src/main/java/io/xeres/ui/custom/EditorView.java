@@ -153,7 +153,7 @@ public class EditorView extends VBox
 		header6.setOnAction(event -> insertNextLine("######"));
 		hyperlink.setOnAction(event -> insertUrl(UiUtils.getWindow(event)));
 
-		editor.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+		editor.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 
 		preview.setOnAction(event -> {
 			if (preview.isSelected())

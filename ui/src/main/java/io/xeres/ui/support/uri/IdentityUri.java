@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,7 +20,22 @@
 package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.Id;
 
 public record IdentityUri(String name, GxsId id, String groupData) implements Uri
 {
+	static String AUTHORITY = "identity";
+
+	static String PARAMETER_GXSID = "gxsid";
+	static String PARAMETER_NAME = "name";
+	static String PARAMETER_GROUPDATA = "groupdata";
+
+	@Override
+	public String toString()
+	{
+		return Uri.buildUri(AUTHORITY,
+				PARAMETER_GXSID, Id.toString(id),
+				PARAMETER_NAME, name,
+				PARAMETER_GROUPDATA, groupData);
+	}
 }

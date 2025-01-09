@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,12 +26,11 @@ import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
+import static io.xeres.ui.support.uri.SearchUri.AUTHORITY;
+import static io.xeres.ui.support.uri.SearchUri.PARAMETER_KEYWORDS;
+
 public class SearchUriFactory extends AbstractUriFactory
 {
-	private static final String AUTHORITY = "search";
-
-	private static final String PARAMETER_KEYWORDS = "keywords";
-
 	@Override
 	public String getAuthority()
 	{
@@ -50,14 +49,6 @@ public class SearchUriFactory extends AbstractUriFactory
 
 		var searchUri = new SearchUri(keywords.trim());
 
-		return new ContentUri(keywords, keywords, uri -> uriAction.openUri(searchUri));
-	}
-
-	public static String generate(String name, String keywords)
-	{
-		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_KEYWORDS, keywords);
-
-		return "<a href=\"" + uri + "\">" + name + "</a>";
+		return new ContentUri(searchUri.toString(), StringUtils.isNotBlank(text) ? text : keywords, uri -> uriAction.openUri(searchUri));
 	}
 }

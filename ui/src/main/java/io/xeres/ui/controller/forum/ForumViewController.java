@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -42,7 +42,6 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.ForumUri;
-import io.xeres.ui.support.uri.ForumUriFactory;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.UiUtils;
@@ -320,7 +319,8 @@ public class ForumViewController implements Controller
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			var forumGroup = ((ForumGroup) event.getSource());
-			ClipboardUtils.copyTextToClipboard(ForumUriFactory.generate(forumGroup.getName(), forumGroup.getGxsId()));
+			var forumUri = new ForumUri(forumGroup.getName(), forumGroup.getGxsId(), null);
+			ClipboardUtils.copyTextToClipboard(forumUri.toString());
 		});
 
 		var xContextMenu = new XContextMenu<ForumGroup>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
@@ -349,7 +349,8 @@ public class ForumViewController implements Controller
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var forumMessage = ((TreeItem<ForumMessage>) event.getSource()).getValue();
-			ClipboardUtils.copyTextToClipboard(ForumUriFactory.generate(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId()));
+			var forumUri = new ForumUri(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId());
+			ClipboardUtils.copyTextToClipboard(forumUri.toString());
 		});
 
 		var xContextMenu = new XContextMenu<ForumMessage>(replyItem, new SeparatorMenuItem(), copyLinkItem);

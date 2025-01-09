@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,4 +23,18 @@ import io.xeres.common.id.Sha1Sum;
 
 public record FileUri(String name, long size, Sha1Sum hash) implements Uri
 {
+	static String AUTHORITY = "file";
+
+	static String PARAMETER_NAME = "name";
+	static String PARAMETER_SIZE = "size";
+	static String PARAMETER_HASH = "hash";
+
+	@Override
+	public String toString()
+	{
+		return Uri.buildUri(AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_SIZE, String.valueOf(size),
+				PARAMETER_HASH, hash.toString());
+	}
 }

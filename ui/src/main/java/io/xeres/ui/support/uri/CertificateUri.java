@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,4 +21,17 @@ package io.xeres.ui.support.uri;
 
 public record CertificateUri(String radix, String name, String location) implements Uri
 {
+	static String AUTHORITY = "certificate";
+	static String PARAMETER_RADIX = "radix";
+	static String PARAMETER_NAME = "name";
+	static String PARAMETER_LOCATION = "location";
+
+	@Override
+	public String toString()
+	{
+		return Uri.buildUri(AUTHORITY,
+				PARAMETER_RADIX, radix,
+				PARAMETER_NAME, name,
+				PARAMETER_LOCATION, location);
+	}
 }

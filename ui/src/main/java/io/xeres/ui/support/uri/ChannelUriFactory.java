@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,14 +30,10 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
+import static io.xeres.ui.support.uri.ChannelUri.*;
+
 public class ChannelUriFactory extends AbstractUriFactory
 {
-	private static final String AUTHORITY = "channel";
-
-	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_ID = "id";
-	private static final String PARAMETER_MSGID = "msgid";
-
 	@Override
 	public String getAuthority()
 	{
@@ -58,16 +54,6 @@ public class ChannelUriFactory extends AbstractUriFactory
 
 		var channelUri = new ChannelUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
 
-		return new ContentUri(msgId != null ? msgId : id, name, uri -> uriAction.openUri(channelUri));
-	}
-
-	public static String generate(String name, String id, String msgId)
-	{
-		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_NAME, name,
-				PARAMETER_ID, id,
-				PARAMETER_MSGID, msgId);
-
-		return "<a href=\"" + uri + "\">" + name + "</a>";
+		return new ContentUri(channelUri.toString(), StringUtils.isNotBlank(text) ? text : name, uri -> uriAction.openUri(channelUri));
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,15 +29,10 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
+import static io.xeres.ui.support.uri.CollectionUri.*;
+
 public class CollectionUriFactory extends AbstractUriFactory
 {
-	private static final String AUTHORITY = "collection";
-
-	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_SIZE = "size";
-	private static final String PARAMETER_RADIX = "radix";
-	private static final String PARAMETER_FILES = "files";
-
 	@Override
 	public String getAuthority()
 	{
@@ -60,17 +55,6 @@ public class CollectionUriFactory extends AbstractUriFactory
 		var collectionUri = new CollectionUri(name, getLongArgument(size), radix, getIntArgument(count));
 
 		//noinspection ConstantConditions
-		return new ContentUri(radix, name + " (" + count + "files, " + ByteUnitUtils.fromBytes(Long.parseLong(size)) + ")", uri -> uriAction.openUri(collectionUri));
-	}
-
-	public static String generate(String name, int size, String radix, String files)
-	{
-		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_NAME, name,
-				PARAMETER_SIZE, String.valueOf(size),
-				PARAMETER_RADIX, radix,
-				PARAMETER_FILES, files);
-
-		return "<a href=\"" + uri + "\">" + name + "</a>";
+		return new ContentUri(collectionUri.toString(), StringUtils.isNotBlank(text) ? text : (name + " (" + count + "files, " + ByteUnitUtils.fromBytes(Long.parseLong(size)) + ")"), uri -> uriAction.openUri(collectionUri));
 	}
 }

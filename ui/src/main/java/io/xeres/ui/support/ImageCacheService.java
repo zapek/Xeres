@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -63,7 +63,7 @@ public class ImageCacheService implements ImageCache
 	@Override
 	public void putImage(String url, Image image)
 	{
-		if (url.startsWith("data:") || !isImageCacheable(image))
+		if (!isUrlCacheable(url) || !isImageCacheable(image))
 		{
 			return;
 		}
@@ -142,6 +142,11 @@ public class ImageCacheService implements ImageCache
 	private boolean isImageCacheable(Image image)
 	{
 		return maxSize > 0 && image.getWidth() * image.getHeight() * 4 < MAX_IMAGE_SIZE;
+	}
+
+	private boolean isUrlCacheable(String url)
+	{
+		return !url.startsWith("data:");
 	}
 
 	private static class ImageSizeSoftReference extends SoftReference<Image>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,14 +27,10 @@ import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
+import static io.xeres.ui.support.uri.CertificateUri.*;
+
 public class CertificateUriFactory extends AbstractUriFactory
 {
-	private static final String AUTHORITY = "certificate";
-
-	private static final String PARAMETER_RADIX = "radix";
-	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_LOCATION = "location";
-
 	@Override
 	public String getAuthority()
 	{
@@ -55,16 +51,42 @@ public class CertificateUriFactory extends AbstractUriFactory
 
 		var certificateUri = new CertificateUri(radix, name, location);
 
-		return new ContentUri(StringUtils.defaultString(certificateUri.radix()), text, uri -> uriAction.openUri(certificateUri));
+		return new ContentUri(certificateUri.toString(), StringUtils.isNotBlank(text) ? text : generateName(name, location), uri -> uriAction.openUri(certificateUri));
 	}
 
+	private static String generateName(String name, String location)
+	{
+		var sb = new StringBuilder(AppName.NAME);
+		sb.append(" Certificate (");
+
+		if (StringUtils.isNotBlank(name))
+		{
+			sb.append(name);
+		}
+		else
+		{
+			sb.append("unknown");
+		}
+		if (StringUtils.isNotBlank(location))
+		{
+			sb.append(", @");
+			sb.append(location);
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
+	/**
+	 * Generates the certificate in a friendly way, since otherwise this would generate big URLs.
+	 *
+	 * @param radix    the encoded certificate in base64
+	 * @param name     the name
+	 * @param location the location
+	 * @return a link URL
+	 */
 	public static String generate(String radix, String name, String location)
 	{
-		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_RADIX, radix,
-				PARAMETER_NAME, name,
-				PARAMETER_LOCATION, location);
-
-		return "<a href=\"" + uri + "\">" + AppName.NAME + " Certificate (" + name + ", @" + location + ")</a>";
+		var certificateUri = new CertificateUri(radix, name, location);
+		return "<a href=\"" + certificateUri + "\">" + AppName.NAME + " Certificate (" + name + ", @" + location + ")</a>";
 	}
 }

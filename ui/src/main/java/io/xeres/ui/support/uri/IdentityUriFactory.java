@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,14 +29,10 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
+import static io.xeres.ui.support.uri.IdentityUri.*;
+
 public class IdentityUriFactory extends AbstractUriFactory
 {
-	private static final String AUTHORITY = "identity";
-
-	private static final String PARAMETER_GXSID = "gxsid";
-	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_GROUPDATA = "groupdata";
-
 	@Override
 	public String getAuthority()
 	{
@@ -57,16 +53,6 @@ public class IdentityUriFactory extends AbstractUriFactory
 
 		var identityUri = new IdentityUri(name, GxsId.fromString(gxsId), groupData); // groupData contains the gxs group's data so that the peer can do something with it even if it doesn't have the group yet
 
-		return new ContentUri(groupData, "Identity (name=" + name + ", ID=" + gxsId + ")", uri -> uriAction.openUri(identityUri));
-	}
-
-	public static String generate(String gxsId, String name, String groupData)
-	{
-		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_GXSID, gxsId,
-				PARAMETER_NAME, name,
-				PARAMETER_GROUPDATA, groupData);
-
-		return "<a href=\"" + uri + "\">" + name + "</a>";
+		return new ContentUri(identityUri.toString(), StringUtils.isNotBlank(text) ? text : ("Identity (name=" + name + ", ID=" + gxsId + ")"), uri -> uriAction.openUri(identityUri));
 	}
 }

@@ -19,7 +19,6 @@
 
 package io.xeres.ui.support.uri;
 
-import io.xeres.testutils.Sha1SumFakes;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import org.junit.jupiter.api.Test;
@@ -31,81 +30,99 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @ExtendWith(ApplicationExtension.class)
-class FileUriFactoryTest
+class CertificateUriFactoryTest
 {
 	@Test
-	void FileUri_WrongParams_MissingName_Fail()
+	void CertificateUri_WrongParams_MissingRadix_Fail()
 	{
-		var url = "retroshare://file?size=128&hash=123400000000000000000000000000000000789a";
+		var url = "retroshare://certificate?name=foo";
 
-		var factory = new FileUriFactory();
+		var factory = new CertificateUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", null);
 
 		assertInstanceOf(ContentText.class, content);
 	}
 
 	@Test
-	void FileUri_WrongParams_MissingSize_Fail()
+	void CertificateUri_OneParam_Success()
 	{
-		var url = "retroshare://file?name=foo&hash=123400000000000000000000000000000000789a";
+		var url = "retroshare://certificate?radix=abcd0123";
 
-		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
-
-		assertInstanceOf(ContentText.class, content);
-	}
-
-	@Test
-	void FileUri_WrongParams_MissingHash_Fail()
-	{
-		var url = "retroshare://file?name=foo&size=128";
-
-		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
-
-		assertInstanceOf(ContentText.class, content);
-	}
-
-	@Test
-	void FileUri_Success()
-	{
-		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
-
-		var factory = new FileUriFactory();
+		var factory = new CertificateUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", null);
 
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
 
 	@Test
-	void FileUri_Pretty()
+	void CertificateUri_TwoParams_Success()
 	{
-		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
+		var url = "retroshare://certificate?radix=abcd0123&name=foo";
 
-		var factory = new FileUriFactory();
+		var factory = new CertificateUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", null);
 
-		assertEquals("foo (128 bytes)", content.asText());
+		assertEquals(url, ((ContentUri) content).getUri());
 	}
 
 	@Test
-	void FileUri_Pretty_FromText()
+	void CertificateUri_ThreeParams_Success()
 	{
-		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
+		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
 
-		var factory = new FileUriFactory();
+		var factory = new CertificateUriFactory();
+		var content = factory.create(createUriComponentsFromUri(url), "", null);
+
+		assertEquals(url, ((ContentUri) content).getUri());
+	}
+
+	@Test
+	void CertificateUri_Pretty()
+	{
+		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
+
+		var factory = new CertificateUriFactory();
+		var content = factory.create(createUriComponentsFromUri(url), "", null);
+
+		assertEquals("Xeres Certificate (foo, @earth)", content.asText());
+	}
+
+	@Test
+	void CertificateUri_Pretty_FromText()
+	{
+		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
+
+		var factory = new CertificateUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "Test", null);
 
 		assertEquals("Test", content.asText());
 	}
 
 	@Test
-	void FileUri_Generate_Success()
+	void CertificateUri_Pretty_WithoutLocation()
 	{
-		var hash = Sha1SumFakes.createSha1Sum();
+		var url = "retroshare://certificate?radix=abcd0123&name=foo";
 
-		var result = FileUriFactory.generate("foo", 128, hash);
+		var factory = new CertificateUriFactory();
+		var content = factory.create(createUriComponentsFromUri(url), "", null);
 
-		assertEquals("<a href=\"retroshare://file?name=foo&size=128&hash=" + hash + "\">foo (128 bytes)</a>", result);
+		assertEquals("Xeres Certificate (foo)", content.asText());
+	}
+
+	@Test
+	void CertificateUri_Pretty_NoName()
+	{
+		var url = "retroshare://certificate?radix=abcd0123";
+
+		var factory = new CertificateUriFactory();
+		var content = factory.create(createUriComponentsFromUri(url), "", null);
+
+		assertEquals("Xeres Certificate (unknown)", content.asText());
+	}
+
+	@Test
+	void CertificateUri_Generate()
+	{
+		assertEquals("<a href=\"retroshare://certificate?radix=1234&name=foo&location=bar\">Xeres Certificate (foo, @bar)</a>", CertificateUriFactory.generate("1234", "foo", "bar"));
 	}
 }

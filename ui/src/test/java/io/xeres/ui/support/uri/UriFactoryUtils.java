@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,22 +19,32 @@
 
 package io.xeres.ui.support.uri;
 
-public record CollectionUri(String name, long size, String radix, int count) implements Uri
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public final class UriFactoryUtils
 {
-	static String AUTHORITY = "collection";
-
-	static String PARAMETER_NAME = "name";
-	static String PARAMETER_SIZE = "size";
-	static String PARAMETER_RADIX = "radix";
-	static String PARAMETER_FILES = "files";
-
-	@Override
-	public String toString()
+	private UriFactoryUtils()
 	{
-		return Uri.buildUri(AUTHORITY,
-				PARAMETER_NAME, name,
-				PARAMETER_SIZE, String.valueOf(size),
-				PARAMETER_RADIX, radix,
-				PARAMETER_FILES, String.valueOf(count));
+		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static UriComponents createUriComponentsFromUri(String url)
+	{
+		URI uri;
+		try
+		{
+			uri = new URI(url);
+		}
+		catch (URISyntaxException e)
+		{
+			throw new RuntimeException(e);
+		}
+		return UriComponentsBuilder.fromPath(uri.getPath())
+				.query(uri.getQuery())
+				.build();
 	}
 }

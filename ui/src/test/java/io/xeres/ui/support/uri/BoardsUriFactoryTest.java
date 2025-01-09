@@ -19,7 +19,7 @@
 
 package io.xeres.ui.support.uri;
 
-import io.xeres.testutils.Sha1SumFakes;
+import io.xeres.testutils.IdFakes;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import org.junit.jupiter.api.Test;
@@ -31,81 +31,83 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @ExtendWith(ApplicationExtension.class)
-class FileUriFactoryTest
+class BoardsUriFactoryTest
 {
 	@Test
-	void FileUri_WrongParams_MissingName_Fail()
+	void BoardsUri_WrongParams_MissingGxsId_Fail()
 	{
-		var url = "retroshare://file?size=128&hash=123400000000000000000000000000000000789a";
+		var url = "retroshare://posted?name=test";
 
-		var factory = new FileUriFactory();
+		var factory = new BoardsUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", null);
 
 		assertInstanceOf(ContentText.class, content);
 	}
 
 	@Test
-	void FileUri_WrongParams_MissingSize_Fail()
+	void BoardsUri_WrongParams_MissingName_Fail()
 	{
-		var url = "retroshare://file?name=foo&hash=123400000000000000000000000000000000789a";
+		var gxsId = IdFakes.createGxsId();
+		var url = "retroshare://posted?id=" + gxsId;
 
-		var factory = new FileUriFactory();
+		var factory = new BoardsUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", null);
 
 		assertInstanceOf(ContentText.class, content);
 	}
 
 	@Test
-	void FileUri_WrongParams_MissingHash_Fail()
+	void BoardsUri_TwoParams_Success()
 	{
-		var url = "retroshare://file?name=foo&size=128";
+		var gxsId = IdFakes.createGxsId();
 
-		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var url = "retroshare://posted?name=test&id=" + gxsId;
 
-		assertInstanceOf(ContentText.class, content);
-	}
-
-	@Test
-	void FileUri_Success()
-	{
-		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
-
-		var factory = new FileUriFactory();
+		var factory = new BoardsUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", null);
 
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
 
 	@Test
-	void FileUri_Pretty()
+	void BoardsUri_ThreeParams_Success()
 	{
-		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
+		var gxsId = IdFakes.createGxsId();
+		var msgId = IdFakes.createMessageId();
 
-		var factory = new FileUriFactory();
+		var url = "retroshare://posted?name=test&id=" + gxsId + "&msgid=" + msgId;
+
+		var factory = new BoardsUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", null);
 
-		assertEquals("foo (128 bytes)", content.asText());
+		assertEquals(url, ((ContentUri) content).getUri());
 	}
 
 	@Test
-	void FileUri_Pretty_FromText()
+	void BoardsUri_Pretty()
 	{
-		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
+		var gxsId = IdFakes.createGxsId();
+		var msgId = IdFakes.createMessageId();
 
-		var factory = new FileUriFactory();
+		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
+
+		var factory = new BoardsUriFactory();
+		var content = factory.create(createUriComponentsFromUri(url), "", null);
+
+		assertEquals("Fun Board", content.asText());
+	}
+
+	@Test
+	void BoardsUri_Pretty_FromText()
+	{
+		var gxsId = IdFakes.createGxsId();
+		var msgId = IdFakes.createMessageId();
+
+		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
+
+		var factory = new BoardsUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "Test", null);
 
 		assertEquals("Test", content.asText());
-	}
-
-	@Test
-	void FileUri_Generate_Success()
-	{
-		var hash = Sha1SumFakes.createSha1Sum();
-
-		var result = FileUriFactory.generate("foo", 128, hash);
-
-		assertEquals("<a href=\"retroshare://file?name=foo&size=128&hash=" + hash + "\">foo (128 bytes)</a>", result);
 	}
 }

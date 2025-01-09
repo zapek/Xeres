@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,8 +19,21 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.Id;
 import io.xeres.common.id.Identifier;
 
 public record MessageUri(Identifier identifier, String subject) implements Uri
 {
+	static String AUTHORITY = "message";
+
+	static String PARAMETER_ID = "id";
+	static String PARAMETER_SUBJECT = "subject";
+
+	@Override
+	public String toString()
+	{
+		return Uri.buildUri(AUTHORITY,
+				PARAMETER_ID, Id.toString(identifier),
+				PARAMETER_SUBJECT, subject);
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,7 +25,7 @@ import io.xeres.common.id.Sha1Sum;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
-import io.xeres.ui.support.uri.FileUriFactory;
+import io.xeres.ui.support.uri.FileUri;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -173,7 +173,8 @@ public class FileResultView extends Tab
 		copyLinkItem.setOnAction(event -> {
 			if (event.getSource() instanceof FileResult file)
 			{
-				ClipboardUtils.copyTextToClipboard(FileUriFactory.generate(file.name(), file.size(), Sha1Sum.fromString(file.hash())));
+				var fileUri = new FileUri(file.name(), file.size(), Sha1Sum.fromString(file.hash()));
+				ClipboardUtils.copyTextToClipboard(fileUri.toString());
 			}
 		});
 

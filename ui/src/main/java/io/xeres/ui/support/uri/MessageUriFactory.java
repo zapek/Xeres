@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,17 +24,14 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
+import static io.xeres.ui.support.uri.MessageUri.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class MessageUriFactory extends AbstractUriFactory
 {
-	private static final String AUTHORITY = "message";
-
-	private static final String PARAMETER_ID = "id";
-	private static final String PARAMETER_SUBJECT = "subject";
-
 	@Override
 	public String getAuthority()
 	{
@@ -54,15 +51,6 @@ public class MessageUriFactory extends AbstractUriFactory
 
 		var messageUri = new MessageUri(GxsId.fromString(id), subject);
 
-		return new ContentUri(id, id, uri -> uriAction.openUri(messageUri));
-	}
-
-	public static String generate(String id, String subject)
-	{
-		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_ID, id,
-				PARAMETER_SUBJECT, subject);
-
-		return "<a href=\"" + uri + "\">" + subject + "</a>";
+		return new ContentUri(messageUri.toString(), StringUtils.isNotBlank(text) ? text : id, uri -> uriAction.openUri(messageUri));
 	}
 }

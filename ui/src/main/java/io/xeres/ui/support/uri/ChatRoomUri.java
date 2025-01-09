@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,23 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.Id;
+
 public record ChatRoomUri(String name, long id) implements Uri
 {
+	static String AUTHORITY = "chat_room";
+	static String PARAMETER_NAME = "name";
+	static String PARAMETER_ID = "id";
+	static String CHAT_ROOM_PREFIX = "L";
+	static String PRIVATE_MESSAGE_PREFIX = "P";
+	static String DISTANT_CHAT_PREFIX = "D";
+	static String BROADCAST_PREFIX = "L";
+
+	@Override
+	public String toString()
+	{
+		return Uri.buildUri(AUTHORITY,
+				PARAMETER_NAME, name,
+				PARAMETER_ID, CHAT_ROOM_PREFIX + Id.toString(id));
+	}
 }

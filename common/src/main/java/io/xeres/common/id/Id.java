@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -115,10 +115,14 @@ public final class Id
 	 * Converts an identifier into its hexadecimal representation.
 	 *
 	 * @param identifier the identifier
-	 * @return a hexadecimal lowercase representation of the identifier, without prefix
+	 * @return a hexadecimal lowercase representation of the identifier, without prefix, or an empty string if the identifier is empty
 	 */
 	public static String toString(Identifier identifier)
 	{
+		if (identifier == null)
+		{
+			return "";
+		}
 		return toString(identifier.getBytes());
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,13 +22,9 @@ package io.xeres.ui.support.uri;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.markdown.UriAction;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriUtils;
 
 import java.util.Locale;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public abstract class AbstractUriFactory
 {
@@ -41,39 +37,6 @@ public abstract class AbstractUriFactory
 	public String getProtocol()
 	{
 		return PROTOCOL_RETROSHARE;
-	}
-
-	protected static String buildUri(String protocol, String authority, String... args)
-	{
-		var sb = new StringBuilder(protocol);
-		var firstArg = true;
-
-		if (args.length % 2 != 0)
-		{
-			throw new IllegalArgumentException("Wrong number of arguments: must be name and value pairs");
-		}
-		sb.append("://");
-		sb.append(authority);
-
-		for (var i = 0; i < args.length; i += 2)
-		{
-			if (StringUtils.isNotBlank(args[i + 1]))
-			{
-				if (firstArg)
-				{
-					sb.append("?");
-					firstArg = false;
-				}
-				else
-				{
-					sb.append("&");
-				}
-				sb.append(args[i]);
-				sb.append("=");
-				sb.append(UriUtils.encodeQueryParam(args[i + 1], UTF_8));
-			}
-		}
-		return sb.toString();
 	}
 
 	protected static long getLongHexArgument(String s)

@@ -27,7 +27,6 @@ import io.xeres.ui.controller.TabActivation;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.uri.SearchUri;
-import io.xeres.ui.support.uri.SearchUriFactory;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
@@ -38,7 +37,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.apache.commons.lang3.StringUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.slf4j.Logger;
@@ -158,7 +156,8 @@ public class FileSearchViewController implements Controller, TabActivation
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			var fileResultView = (FileResultView) event.getSource();
-			ClipboardUtils.copyTextToClipboard(SearchUriFactory.generate(StringUtils.left(fileResultView.getText(), 50), fileResultView.getText()));
+			var searchUri = new SearchUri(fileResultView.getText());
+			ClipboardUtils.copyTextToClipboard(searchUri.toString());
 		});
 
 		var xContextMenu = new XContextMenu<Tab>(copyLinkItem);

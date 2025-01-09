@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,14 +30,10 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
+import static io.xeres.ui.support.uri.FileUri.*;
+
 public class FileUriFactory extends AbstractUriFactory
 {
-	private static final String AUTHORITY = "file";
-
-	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_SIZE = "size";
-	private static final String PARAMETER_HASH = "hash";
-
 	@Override
 	public String getAuthority()
 	{
@@ -58,16 +54,13 @@ public class FileUriFactory extends AbstractUriFactory
 
 		var fileUri = new FileUri(name, getLongArgument(size), getHashArgument(hash));
 
-		return new ContentUri(fileUri.hash().toString(), fileUri.name() + " (" + ByteUnitUtils.fromBytes(fileUri.size()) + ")", uri -> uriAction.openUri(fileUri));
+		return new ContentUri(fileUri.toString(), StringUtils.isNotBlank(text) ? text : (fileUri.name() + " (" + ByteUnitUtils.fromBytes(fileUri.size()) + ")"), uri -> uriAction.openUri(fileUri));
 	}
 
 	public static String generate(String name, long size, Sha1Sum hash)
 	{
-		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_NAME, name,
-				PARAMETER_SIZE, String.valueOf(size),
-				PARAMETER_HASH, hash.toString());
+		var fileUri = new FileUri(name, size, hash);
 
-		return "<a href=\"" + uri + "\">" + name + "</a>";
+		return "<a href=\"" + fileUri + "\">" + name + " (" + ByteUnitUtils.fromBytes(size) + ")" + "</a>";
 	}
 }

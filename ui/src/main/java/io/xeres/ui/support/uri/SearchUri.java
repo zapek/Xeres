@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,4 +21,14 @@ package io.xeres.ui.support.uri;
 
 public record SearchUri(String keywords) implements Uri
 {
+	static String AUTHORITY = "search";
+
+	static String PARAMETER_KEYWORDS = "keywords";
+
+	@Override
+	public String toString()
+	{
+		return Uri.buildUri(AUTHORITY,
+				PARAMETER_KEYWORDS, keywords);
+	}
 }

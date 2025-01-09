@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,13 +28,10 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
+import static io.xeres.ui.support.uri.ProfileUri.*;
+
 public class ProfileUriFactory extends AbstractUriFactory
 {
-	private static final String AUTHORITY = "person";
-
-	private static final String PARAMETER_NAME = "name";
-	private static final String PARAMETER_HASH = "hash";
-
 	@Override
 	public String getAuthority()
 	{
@@ -54,15 +51,6 @@ public class ProfileUriFactory extends AbstractUriFactory
 
 		var profileUri = new ProfileUri(name, getLongHexArgument(hash));
 
-		return new ContentUri(hash, name + "@" + hash, uri -> uriAction.openUri(profileUri));
-	}
-
-	public static String generate(String name, String hash)
-	{
-		var uri = buildUri(PROTOCOL_RETROSHARE, AUTHORITY,
-				PARAMETER_NAME, name,
-				PARAMETER_HASH, hash);
-
-		return "<a href=\"" + uri + "\">" + name + "</a>";
+		return new ContentUri(profileUri.toString(), StringUtils.isNotBlank(text) ? text : (name + "@" + hash), uri -> uriAction.openUri(profileUri));
 	}
 }

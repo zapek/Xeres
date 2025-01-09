@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,24 +19,24 @@
 
 package io.xeres.ui.support.markdown;
 
-import io.xeres.ui.support.contentline.ContentUri;
+import io.xeres.ui.support.uri.UriFactory;
 
 import java.util.regex.Pattern;
 
 class UrlDetector implements MarkdownDetector
 {
-	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
+	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?<u>(?:https?|ftps?|retroshare)://[-A-Z0-9+&@#/%?=~_|!:,.;()]*[-A-Z0-9+&@#/%=~_|()])|(?<e>[0-9A-Z._+\\-=]+@[0-9a-z\\-]+\\.[a-z]{2,})", Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public boolean isPossibly(String line)
 	{
-		return line.contains("http") || line.contains("ftp") || line.contains("@");
+		return line.contains("http") || line.contains("ftp") || line.contains("@") || line.contains("retroshare");
 	}
 
 	@Override
 	public void process(Context context, String line)
 	{
 		MarkdownService.processPattern(URL_PATTERN, context, line,
-				(s, groupName) -> context.addContent(new ContentUri(s)));
+				(s, groupName) -> context.addContent(UriFactory.createContent(s, "", context.getUriAction())));
 	}
 }

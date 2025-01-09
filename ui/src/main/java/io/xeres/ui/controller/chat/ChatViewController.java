@@ -40,7 +40,6 @@ import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.sound.SoundService.SoundType;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.ChatRoomUri;
-import io.xeres.ui.support.uri.ChatRoomUriFactory;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
@@ -310,7 +309,7 @@ public class ChatViewController implements Controller
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			var chatRoomInfo = ((RoomHolder) event.getSource()).getRoomInfo();
-			ClipboardUtils.copyTextToClipboard(ChatRoomUriFactory.generate(chatRoomInfo.getName(), chatRoomInfo.getId()));
+			ClipboardUtils.copyTextToClipboard(new ChatRoomUri(chatRoomInfo.getName(), chatRoomInfo.getId()).toString());
 		});
 
 		var xContextMenu = new XContextMenu<RoomHolder>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);

@@ -35,9 +35,11 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.connection.Connection;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.IdentityUri;
+import io.xeres.ui.support.uri.ProfileUri;
 import io.xeres.ui.support.util.PublicKeyUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.TooltipUtils;
@@ -74,6 +76,7 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -109,6 +112,7 @@ public class ContactViewController implements Controller
 	private static final String CHAT_MENU_ID = "chat";
 	private static final String CONNECT_MENU_ID = "connect";
 	private static final String DELETE_MENU_ID = "delete";
+	private static final String COPY_LINK_MENU_ID = "copyLink";
 
 	private final ConfigClient configClient;
 	private final ConnectionClient connectionClient;
@@ -1107,11 +1111,34 @@ public class ContactViewController implements Controller
 			}
 		});
 
-		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, new SeparatorMenuItem(), deleteItem);
+		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
+		copyLinkItem.setId(COPY_LINK_MENU_ID);
+		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
+		copyLinkItem.setOnAction(event -> {
+			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
+			if (contact.getValue().profileId() != NO_PROFILE_ID)
+			{
+				profileClient.findById(contact.getValue().profileId())
+						.doOnSuccess(profile -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(new ProfileUri(profile.getName(), profile.getPgpIdentifier()).toString())))
+						.subscribe();
+			}
+			else if (contact.getValue().identityId() != NO_IDENTITY_ID)
+			{
+				identityClient.findById(contact.getValue().identityId())
+						.doOnSuccess(identity -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(new IdentityUri(identity.getName(), identity.getGxsId(), null).toString())))
+						.subscribe();
+			}
+		});
+
+		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
 		xContextMenu.setOnShowing((contextMenu, contact) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact.getValue().availability() == Availability.OFFLINE));
+
+			contextMenu.getItems().stream()
+					.filter(menuItem -> COPY_LINK_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact.getValue().profileId() == NO_PROFILE_ID && contact.getValue().identityId() == NO_IDENTITY_ID));
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> DELETE_MENU_ID.equals(menuItem.getId()))

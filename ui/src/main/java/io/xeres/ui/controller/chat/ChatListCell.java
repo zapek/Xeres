@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.custom;
+package io.xeres.ui.controller.chat;
 
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.chat.ColorGenerator;
@@ -31,7 +31,7 @@ import java.util.List;
 
 import static io.xeres.ui.support.util.DateUtils.TIME_DISPLAY;
 
-public class ChatListCell implements Cell<ChatLine, TextFlow>
+class ChatListCell implements Cell<ChatLine, TextFlow>
 {
 	private static final PseudoClass passivePseudoClass = PseudoClass.getPseudoClass("passive");
 

@@ -26,7 +26,6 @@ import io.xeres.common.message.chat.ChatRoomMessage;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.custom.ChatListCell;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.chat.ChatAction;
 import io.xeres.ui.support.chat.ChatLine;
@@ -45,6 +44,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -53,6 +53,8 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.jsoup.Jsoup;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -64,6 +66,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ChatListView implements NicknameCompleter.UsernameFinder
 {
+	private static final Logger log = LoggerFactory.getLogger(ChatListView.class);
+
 	private static final int SCROLL_BACK_MAX_LINES = 1000;
 	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
 
@@ -76,13 +80,16 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private String nickname;
 	private final long id;
 
+	private final AnchorPane anchorPane;
 	private final VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> chatView;
 	private final ListView<ChatRoomUser> userListView;
 	private final MarkdownService markdownService;
 	private final UriAction uriAction;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
-	private final ResourceBundle bundle = I18nUtils.getBundle();
+	private final ResourceBundle bundle;
+
+	private final ChatListDragSelection dragSelection;
 
 	public enum AddUserOrigin
 	{
@@ -98,8 +105,13 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		this.uriAction = uriAction;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
+		bundle = I18nUtils.getBundle();
+		anchorPane = new AnchorPane();
+
+		dragSelection = new ChatListDragSelection();
 
 		chatView = createChatView();
+		addToAnchorPane(chatView, anchorPane);
 		userListView = createUserListView();
 	}
 
@@ -108,6 +120,9 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		final var view = VirtualFlow.createVertical(messages, ChatListCell::new, VirtualFlow.Gravity.REAR);
 		view.setFocusTraversable(false);
 		view.getStyleClass().add("chat-list");
+		view.addEventFilter(MouseEvent.MOUSE_PRESSED, dragSelection::press);
+		view.addEventFilter(MouseEvent.MOUSE_DRAGGED, dragSelection::drag);
+		view.addEventFilter(MouseEvent.MOUSE_RELEASED, dragSelection::release);
 		return new VirtualizedScrollPane<>(view);
 	}
 
@@ -292,17 +307,21 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	public Node getChatView()
 	{
+		return anchorPane;
+	}
+
+	private static void addToAnchorPane(Node chatView, AnchorPane anchorPane)
+	{
 		// We use an anchor to force the VirtualFlow to be bigger
 		// than its default size of 100 x 100. It doesn't behave
 		// well in a VBox only.
-		var anchor = new AnchorPane(chatView);
-		anchor.getStyleClass().add("chat-list-pane");
+		anchorPane.getChildren().add(chatView);
+		anchorPane.getStyleClass().add("chat-list-pane");
 		AnchorPane.setTopAnchor(chatView, 0.0);
 		AnchorPane.setLeftAnchor(chatView, 0.0);
 		AnchorPane.setRightAnchor(chatView, 0.0);
 		AnchorPane.setBottomAnchor(chatView, 0.0);
-		VBox.setVgrow(anchor, Priority.ALWAYS);
-		return anchor;
+		VBox.setVgrow(anchorPane, Priority.ALWAYS);
 	}
 
 	public Node getUserListView()

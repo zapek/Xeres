@@ -98,7 +98,14 @@ public final class ClipboardUtils
 	 */
 	public static void copyImageToClipboard(Image image)
 	{
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageSelection(SwingFXUtils.fromFXImage(image, null)), null);
+		try
+		{
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageSelection(SwingFXUtils.fromFXImage(image, null)), null);
+		}
+		catch (HeadlessException | IllegalStateException e)
+		{
+			log.warn("Clipboard not available: {}", e.getMessage());
+		}
 	}
 
 	/**
@@ -132,7 +139,14 @@ public final class ClipboardUtils
 	 */
 	public static void copyTextToClipboard(String text)
 	{
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+		try
+		{
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+		}
+		catch (HeadlessException | IllegalStateException e)
+		{
+			log.warn("Clipboard not available: {}", e.getMessage());
+		}
 	}
 
 	private static Transferable getTransferable()

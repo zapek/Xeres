@@ -20,29 +20,25 @@
 package io.xeres.ui.controller.chat;
 
 import javafx.scene.text.HitInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ChatListSelectRange
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatListSelectRange.class);
-
-	private int start;
-	private int end;
+	private final int start;
+	private final int end;
 
 	public ChatListSelectRange(HitInfo firstHit, HitInfo secondHit)
 	{
 		var compare = compare(firstHit, secondHit);
 
-		if (compare < 0)
+		if (compare < 0) // left to right
 		{
-			start = firstHit.getCharIndex();
+			start = (firstHit.isLeading() && firstHit.getCharIndex() > 2) ? Math.max(0, firstHit.getCharIndex() - 1) : firstHit.getCharIndex();
 			end = secondHit.isLeading() ? secondHit.getCharIndex() : secondHit.getCharIndex() + 1;
 		}
-		else if (compare > 0)
+		else if (compare > 0) // right to left
 		{
 			start = secondHit.getCharIndex();
-			end = firstHit.isLeading() ? firstHit.getCharIndex() : firstHit.getCharIndex() + 1;
+			end = firstHit.isLeading() ? (firstHit.getCharIndex() - 1) : firstHit.getCharIndex();
 		}
 		else
 		{

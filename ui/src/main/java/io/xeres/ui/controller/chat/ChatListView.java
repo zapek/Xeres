@@ -110,19 +110,20 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 		dragSelection = new ChatListDragSelection();
 
-		chatView = createChatView();
+		chatView = createChatView(dragSelection);
 		addToAnchorPane(chatView, anchorPane);
+
 		userListView = createUserListView();
 	}
 
-	private VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> createChatView()
+	private VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> createChatView(ChatListDragSelection selection)
 	{
 		final var view = VirtualFlow.createVertical(messages, ChatListCell::new, VirtualFlow.Gravity.REAR);
 		view.setFocusTraversable(false);
 		view.getStyleClass().add("chat-list");
-		view.addEventFilter(MouseEvent.MOUSE_PRESSED, dragSelection::press);
-		view.addEventFilter(MouseEvent.MOUSE_DRAGGED, dragSelection::drag);
-		view.addEventFilter(MouseEvent.MOUSE_RELEASED, dragSelection::release);
+		view.addEventFilter(MouseEvent.MOUSE_PRESSED, selection::press);
+		view.addEventFilter(MouseEvent.MOUSE_DRAGGED, selection::drag);
+		view.addEventFilter(MouseEvent.MOUSE_RELEASED, selection::release);
 		return new VirtualizedScrollPane<>(view);
 	}
 
@@ -138,6 +139,16 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 		createUsersListViewContextMenu(view);
 		return view;
+	}
+
+	public boolean copy()
+	{
+		if (dragSelection.isSelected())
+		{
+			dragSelection.copy();
+			return true;
+		}
+		return false;
 	}
 
 	public void addOwnMessage(ChatMessage chatMessage)

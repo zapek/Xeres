@@ -22,17 +22,13 @@ package io.xeres.ui.controller.chat;
 import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
+import io.xeres.ui.support.util.TextFlowUtils;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualFlowHit;
@@ -61,10 +57,9 @@ class ChatListDragSelection
 		UP
 	}
 
-	// XXX: remember, this is only needed if we only have ONE textflow... for the other cases, it's SelectionMode full lines!
 	private HitInfo firstHitInfo;
-	private HitInfo lastHitInfo;
 	private int startCellIndex;
+	private int lastCellIndex;
 
 	private SelectionMode selectionMode;
 
@@ -80,6 +75,8 @@ class ChatListDragSelection
 		{
 			throw new IllegalArgumentException("Event must be a MOUSE_PRESSED event");
 		}
+
+		clearSelection();
 
 		log.debug("Start {}, X: {}, Y: {}", e.getSource(), e.getX(), e.getY());
 		var virtualFlow = getVirtualFlow(e);
@@ -111,20 +108,19 @@ class ChatListDragSelection
 		{
 			throw new IllegalArgumentException("Event must be a MOUSE_DRAGGED event");
 		}
-		log.debug("Drag {}, X: {}, Y: {}", e.getSource(), e.getX(), e.getY());
 
 		var virtualFlow = getVirtualFlow(e);
 		var hitResult = virtualFlow.hit(e.getX(), e.getY());
 		if (hitResult.isCellHit())
 		{
-			if (!handleMultilineSelect(hitResult))
+			if (!handleMultilineSelect(virtualFlow, hitResult))
 			{
 				handleSingleLineSelect(hitResult);
 			}
 		}
 	}
 
-	private boolean handleMultilineSelect(VirtualFlowHit<ChatListCell> hitResult)
+	private boolean handleMultilineSelect(VirtualFlow<ChatLine, ChatListCell> virtualFlow, VirtualFlowHit<ChatListCell> hitResult)
 	{
 		var cellIndex = hitResult.getCellIndex();
 		var textFlow = hitResult.getCell().getNode();
@@ -134,42 +130,17 @@ class ChatListDragSelection
 			if (direction == Direction.SAME)
 			{
 				// We're switching to multiline mode.
-				var pathElements = textFlows.getFirst().rangeShape(0, countContent(textFlows.getFirst().getChildren())); // XXX: use the mode
+				var pathElements = textFlows.getFirst().rangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlows.getFirst()));
 				showVisibleSelection(textFlows.getFirst(), pathElements);
 
-				// XXX: check if it's possible to "skip" selection when selecting quickly... yes, it is when moving very quickly :( need to write loops
-
 				direction = cellIndex > startCellIndex ? Direction.DOWN : Direction.UP;
-				showVisibleSelection(textFlow, textFlow.rangeShape(0, countContent(textFlow.getChildren())));
-				textFlows.add(textFlow);
+				markSelection(virtualFlow, startCellIndex, cellIndex);
 			}
-			else if (direction == Direction.DOWN)
+			else
 			{
-				if (cellIndex > startCellIndex)
-				{
-					showVisibleSelection(textFlow, textFlow.rangeShape(0, countContent(textFlow.getChildren())));
-					textFlows.add(textFlow);
-				}
-				else
-				{
-					// XXX: we don't unwind immediately because we use startCellIndex. we should store an intermediate one...
-					clearVisibleSelection(textFlow);
-					textFlows.remove(textFlow);
-				}
+				markSelection(virtualFlow, lastCellIndex, cellIndex);
 			}
-			else if (direction == Direction.UP)
-			{
-				if (cellIndex < startCellIndex)
-				{
-					showVisibleSelection(textFlow, textFlow.rangeShape(0, countContent(textFlow.getChildren())));
-					textFlows.add(textFlow);
-				}
-				else
-				{
-					clearVisibleSelection(textFlow);
-					textFlows.remove(textFlow);
-				}
-			}
+			lastCellIndex = cellIndex;
 			return true;
 		}
 		else
@@ -185,18 +156,75 @@ class ChatListDragSelection
 		}
 	}
 
+	private void markSelection(VirtualFlow<ChatLine, ChatListCell> virtualFlow, int fromCell, int toCell)
+	{
+		switch (direction)
+		{
+			case UP ->
+			{
+				if (fromCell > toCell) // Going up (mark more)
+				{
+					for (int i = fromCell; i >= toCell; i--)
+					{
+						addVisibleSelection(virtualFlow.getCell(i).getNode());
+					}
+				}
+				else if (fromCell < toCell) // Going down (unwind)
+				{
+					for (int i = fromCell; i < toCell; i++)
+					{
+						removeVisibleSelection(virtualFlow.getCell(i).getNode());
+					}
+				}
+			}
+			case DOWN ->
+			{
+				if (fromCell < toCell) // Going down (mark more)
+				{
+					for (int i = fromCell; i <= toCell; i++)
+					{
+						addVisibleSelection(virtualFlow.getCell(i).getNode());
+					}
+				}
+				else if (fromCell > toCell) // Going up (unwind)
+				{
+					for (int i = fromCell; i > toCell; i--)
+					{
+						removeVisibleSelection(virtualFlow.getCell(i).getNode());
+					}
+				}
+			}
+			case null, default -> throw new IllegalArgumentException("Wrong direction: " + direction);
+		}
+	}
+
+	private int getOffsetFromSelectionMode()
+	{
+		return switch (selectionMode)
+		{
+			case TIME_ACTION_AND_TEXT -> 0;
+			case ACTION_AND_TEXT -> 1;
+			case TEXT -> 2;
+		};
+	}
+
 	private void handleSingleLineSelect(VirtualFlowHit<ChatListCell> hitResult)
 	{
 		var textFlow = hitResult.getCell().getNode();
 
-		lastHitInfo = textFlow.hitTest(hitResult.getCellOffset());
-
-		selectRange = new ChatListSelectRange(firstHitInfo, lastHitInfo);
-
-		// XXX: offset 0 is time, 1 is nickname/action then 2+ is the text, one char per text. hyperlink is 1, image is 1... sigh
+		selectRange = new ChatListSelectRange(firstHitInfo, textFlow.hitTest(hitResult.getCellOffset()));
 
 		var pathElements = textFlow.rangeShape(selectRange.getStart(), selectRange.getEnd());
 		showVisibleSelection(textFlow, pathElements);
+	}
+
+	private void addVisibleSelection(TextFlow textFlow)
+	{
+		showVisibleSelection(textFlow, textFlow.rangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlow)));
+		if (!textFlows.contains(textFlow)) // XXX: not fast...
+		{
+			textFlows.add(textFlow);
+		}
 	}
 
 	private static void showVisibleSelection(TextFlow textFlow, PathElement[] pathElements)
@@ -214,12 +242,13 @@ class ChatListDragSelection
 		textFlow.getChildren().add(path);
 	}
 
-	private static void clearVisibleSelection(TextFlow textFlow)
+	private void removeVisibleSelection(TextFlow textFlow)
 	{
 		if (textFlow.getChildren().getLast() instanceof Path)
 		{
 			textFlow.getChildren().removeLast();
 		}
+		textFlows.remove(textFlow);
 	}
 
 
@@ -233,26 +262,29 @@ class ChatListDragSelection
 
 		var virtualFlow = getVirtualFlow(e);
 		virtualFlow.setCursor(Cursor.DEFAULT);
+	}
 
-		// XXX: don't do that here! it has to be when either we stop or hit ctrl - c
+	public void copy()
+	{
 		var text = getSelectionAsText();
 		if (StringUtils.isNotBlank(text))
 		{
 			log.debug("Copying to clipboard: [{}]", text);
 			ClipboardUtils.copyTextToClipboard(text);
 		}
+	}
 
-		clearSelection();
-
-		firstHitInfo = null;
+	public boolean isSelected()
+	{
+		return !textFlows.isEmpty();
 	}
 
 	private void clearSelection()
 	{
 		while (!textFlows.isEmpty())
 		{
-			var textFlow = textFlows.removeLast();
-			clearVisibleSelection(textFlow);
+			var textFlow = textFlows.getLast();
+			removeVisibleSelection(textFlow);
 		}
 	}
 
@@ -265,104 +297,29 @@ class ChatListDragSelection
 
 		if (textFlows.size() == 1)
 		{
+			// Single line selection
 			var textFlow = textFlows.getFirst();
 
 			assert textFlow.getChildren().size() >= 3;
 
-			String time = getContentAsText(textFlow.getChildren().getFirst());
-			String action = getContentAsText(textFlow.getChildren().get(1));
-			String text = textFlow.getChildren().stream()
-					.skip(2)
-					.map(ChatListDragSelection::getContentAsText) // This is wrong. a hyper link has size 1 (like a label or an image) but its text is usually bigger
-					.collect(Collectors.joining(" "));
-
-			var sb = new StringBuilder();
-
-			if (selectRange.getStart() == 0 && selectRange.getEnd() > 0)
-			{
-				sb.append(time);
-			}
-			if (selectRange.getStart() <= 1 && selectRange.getEnd() > 1)
-			{
-				if (!sb.isEmpty())
-				{
-					sb.append(" ");
-				}
-				sb.append(action);
-			}
-			if (selectRange.getStart() <= 2 && selectRange.getEnd() > 2)
-			{
-				if (!sb.isEmpty())
-				{
-					sb.append(" ");
-				}
-
-				var start = Math.max(0, selectRange.getStart() - 2);
-				var end = selectRange.getEnd() - 2;
-
-				if (hasHyperlinks(textFlow.getChildren())) // This is a bit fo a hack because hyperlinks count as 1 and not their number of chars
-				{
-					sb.append(text);
-				}
-				else
-				{
-					sb.append(text, start, end);
-				}
-			}
-			return sb.toString();
+			return TextFlowUtils.getTextFlowAsText(textFlow, selectRange.getStart(), selectRange.getEnd());
 		}
 		else
 		{
-			// XXX: handle multiple text flows!
-			return "";
-		}
-	}
-
-	private static String getContentAsText(Node node)
-	{
-		return switch (node)
-		{
-			case Label label -> label.getText();
-			case Text text -> text.getText();
-			case Hyperlink hyperlink -> hyperlink.getText();
-			case ImageView ignored -> "";
-			case Path ignored -> ""; // ignore, it's the selection node
-			default ->
+			if (direction == Direction.UP)
 			{
-				log.error("Unhandled node: {}", node);
-				yield " ";
+				return textFlows.reversed().stream()
+						.map(TextFlowUtils::getTextFlowAsText)
+						.collect(Collectors.joining("\n"));
+
 			}
-		};
-	}
-
-	private static boolean hasHyperlinks(List<Node> nodes)
-	{
-		for (var node : nodes)
-		{
-			if (node instanceof Hyperlink)
+			else
 			{
-				return true;
+				return textFlows.stream()
+						.map(TextFlowUtils::getTextFlowAsText)
+						.collect(Collectors.joining("\n"));
 			}
 		}
-		return false;
-	}
-
-	private static int countContent(List<Node> nodes)
-	{
-		int total = 0;
-
-		for (var node : nodes)
-		{
-			total += switch (node)
-			{
-				case Label ignored -> 1;
-				case Text text -> text.getText().length();
-				case Hyperlink hyperlink -> 1;//hyperlink.getText().length();
-				case ImageView ignored -> 1;
-				default -> 0;
-			};
-		}
-		return total;
 	}
 
 	private VirtualFlow<ChatLine, ChatListCell> getVirtualFlow(MouseEvent e)

@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -28,6 +29,7 @@ import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 public final class TextFlowUtils
@@ -51,6 +53,12 @@ public final class TextFlowUtils
 		return getTextFlowAsText(textFlow, 0, getTextFlowCount(textFlow));
 	}
 
+	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex)
+	{
+		Objects.requireNonNull(textFlow);
+		return getTextFlowAsText(textFlow, beginIndex, getTextFlowCount(textFlow));
+	}
+
 	/**
 	 * Returns a text flow as a string.
 	 *
@@ -61,13 +69,17 @@ public final class TextFlowUtils
 	 */
 	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, int endIndex)
 	{
+		log.debug("beginIndex: {}, endIndex: {}", beginIndex, endIndex);
+
+		// XXX: this is really a mess!
+
 		Objects.requireNonNull(textFlow);
 		var children = textFlow.getChildrenUnmodifiable();
-		Objects.checkFromToIndex(beginIndex, endIndex, getTextFlowCount(textFlow));
+		assert endIndex <= getTextFlowCount(textFlow);
 		var s = new StringBuilder();
 		var addSpace = false;
+		var i = 0;
 		var j = 0;
-		var i = beginIndex;
 
 		while (i < endIndex)
 		{
@@ -75,6 +87,7 @@ public final class TextFlowUtils
 			if (addSpace)
 			{
 				s.append(" ");
+				addSpace = false;
 			}
 
 			var value = (switch (node)
@@ -87,8 +100,9 @@ public final class TextFlowUtils
 				case Text text ->
 				{
 					var t = text.getText();
-					t = t.substring(0, Math.min(t.length(), endIndex - i));
-					i += t.length();
+					t = t.substring((beginIndex > 0 && beginIndex < i + t.length()) ? beginIndex - (i - 2) : 0, Math.min((endIndex - i), t.length()));
+					i += text.getText().length();
+					beginIndex = Math.max(0, beginIndex - (t.length() - 1));
 					yield t;
 				}
 				case Hyperlink hyperlink ->
@@ -114,15 +128,15 @@ public final class TextFlowUtils
 				}
 			});
 
-			if (!value.isEmpty())
+			if (!value.isEmpty() && beginIndex == 0)
 			{
 				s.append(value);
-				addSpace = true;
+				if (i < 3)
+				{
+					addSpace = true;
+				}
 			}
-			else
-			{
-				addSpace = false;
-			}
+			beginIndex = Math.max(0, beginIndex - 1);
 			j++;
 		}
 		return s.toString();
@@ -143,9 +157,57 @@ public final class TextFlowUtils
 				case Text text -> text.getText().length();
 				case Hyperlink ignored -> 1;
 				case ImageView ignored -> 1;
-				default -> 0; // XXX: sure?
+				default -> 0;
 			};
 		}
 		return total;
+	}
+
+	// XXX
+	// The theory of operation is:
+	// If node is below beginIndex, ignore it
+	// if node is above endIndex, ignore it
+	// if node is within beginIndex - endIndex, use it
+	//   if it's a text node, we need to handle beginIndex and endIndex
+
+	private static class Context
+	{
+		private List<Node> nodes;
+		private int beginIndex;
+		private int endIndex;
+
+		private int currentNode = -1;
+
+		public boolean hasNextNode()
+		{
+			return currentNode + 1 < nodes.size() && !(nodes.get(currentNode + 1) instanceof Path);
+		}
+
+		public Node nextNode()
+		{
+			currentNode++;
+			var node = nodes.get(currentNode);
+
+			beginIndex += switch (node)
+			{
+				case Label ignored -> 1;
+				case Text text -> text.getText().length();
+				case Hyperlink ignored -> 1;
+				case ImageView ignored -> 1;
+				default -> 0;
+			};
+
+			return node;
+		}
+
+//		public int beginIndexForNode()
+//		{
+//
+//		}
+//
+//		public int endIndexForNode()
+//		{
+//
+//		}
 	}
 }

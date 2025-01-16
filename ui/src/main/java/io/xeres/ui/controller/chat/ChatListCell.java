@@ -24,6 +24,7 @@ import io.xeres.ui.support.chat.ColorGenerator;
 import io.xeres.ui.support.contentline.Content;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Label;
+import javafx.scene.shape.Path;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 
@@ -67,7 +68,7 @@ class ChatListCell implements Cell<ChatLine, TextFlow>
 	@Override
 	public boolean isReusable()
 	{
-		return !isRich;
+		return !isRich && !(content.getChildren().getLast() instanceof Path); // Do not reuse rich content AND selected content
 	}
 
 	@Override

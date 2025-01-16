@@ -113,6 +113,16 @@ class ChatListDragSelection
 		var hitResult = virtualFlow.hit(e.getX(), e.getY());
 		if (hitResult.isCellHit())
 		{
+			var cellIndex = hitResult.getCellIndex();
+			if (cellIndex < virtualFlow.getFirstVisibleIndex())
+			{
+				virtualFlow.scrollYBy(-1);
+			}
+			else if (cellIndex > virtualFlow.getLastVisibleIndex())
+			{
+				virtualFlow.scrollYBy(1);
+			}
+
 			if (!handleMultilineSelect(virtualFlow, hitResult))
 			{
 				handleSingleLineSelect(hitResult);
@@ -214,14 +224,21 @@ class ChatListDragSelection
 
 		selectRange = new ChatListSelectRange(firstHitInfo, textFlow.hitTest(hitResult.getCellOffset()));
 
-		var pathElements = textFlow.rangeShape(selectRange.getStart(), selectRange.getEnd());
-		showVisibleSelection(textFlow, pathElements);
+		if (selectRange.isSelected())
+		{
+			var pathElements = textFlow.rangeShape(selectRange.getStart(), selectRange.getEnd() + 1);
+			showVisibleSelection(textFlow, pathElements);
+		}
+		else
+		{
+			hideVisibleSelection(textFlow);
+		}
 	}
 
 	private void addVisibleSelection(TextFlow textFlow)
 	{
 		showVisibleSelection(textFlow, textFlow.rangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlow)));
-		if (!textFlows.contains(textFlow)) // XXX: not fast...
+		if (textFlows.getLast() != textFlow)
 		{
 			textFlows.add(textFlow);
 		}
@@ -235,19 +252,21 @@ class ChatListDragSelection
 		path.setOpacity(0.3);
 		path.setManaged(false); // This is needed so they show up above
 		path.setTranslateX(8.0); // Margin
-		if (textFlow.getChildren().getLast() instanceof Path)
-		{
-			textFlow.getChildren().removeLast();
-		}
+		hideVisibleSelection(textFlow);
 		textFlow.getChildren().add(path);
 	}
 
-	private void removeVisibleSelection(TextFlow textFlow)
+	private static void hideVisibleSelection(TextFlow textFlow)
 	{
 		if (textFlow.getChildren().getLast() instanceof Path)
 		{
 			textFlow.getChildren().removeLast();
 		}
+	}
+
+	private void removeVisibleSelection(TextFlow textFlow)
+	{
+		hideVisibleSelection(textFlow);
 		textFlows.remove(textFlow);
 	}
 
@@ -309,14 +328,14 @@ class ChatListDragSelection
 			if (direction == Direction.UP)
 			{
 				return textFlows.reversed().stream()
-						.map(TextFlowUtils::getTextFlowAsText)
+						.map(textFlow -> TextFlowUtils.getTextFlowAsText(textFlow, getOffsetFromSelectionMode()))
 						.collect(Collectors.joining("\n"));
 
 			}
 			else
 			{
 				return textFlows.stream()
-						.map(TextFlowUtils::getTextFlowAsText)
+						.map(textFlow -> TextFlowUtils.getTextFlowAsText(textFlow, getOffsetFromSelectionMode()))
 						.collect(Collectors.joining("\n"));
 			}
 		}

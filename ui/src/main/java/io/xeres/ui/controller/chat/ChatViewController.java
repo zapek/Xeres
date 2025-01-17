@@ -94,6 +94,7 @@ public class ChatViewController implements Controller
 	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats
 	private static final KeyCodeCombination TAB_KEY = new KeyCodeCombination(KeyCode.TAB);
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination ENTER_KEY = new KeyCodeCombination(KeyCode.ENTER);
 	private static final KeyCodeCombination BACKSPACE_KEY = new KeyCodeCombination(KeyCode.BACK_SPACE);
 	private static final String SUBSCRIBED_MENU_ID = "subscribed";
@@ -636,7 +637,7 @@ public class ChatViewController implements Controller
 		if (chatListView == null)
 		{
 			var chatRoomId = roomInfoTreeItem.getValue().getRoomInfo().getId();
-			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache);
+			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache, send);
 			var finalChatListView = chatListView;
 			chatClient.getChatRoomBacklog(chatRoomId).collectList()
 					.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(finalChatListView, backlogs)))
@@ -680,6 +681,16 @@ public class ChatViewController implements Controller
 			if (handlePaste(send))
 			{
 				event.consume();
+			}
+		}
+		else if (COPY_KEY.match(event))
+		{
+			if (selectedChatListView != null)
+			{
+				if (selectedChatListView.copy())
+				{
+					event.consume();
+				}
 			}
 		}
 		else if (ENTER_KEY.match(event) && imagePreview.getImage() != null)

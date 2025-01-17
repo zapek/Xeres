@@ -96,6 +96,7 @@ public class MessagingWindowController implements WindowController
 	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination CTRL_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN);
 	private static final KeyCodeCombination SHIFT_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN);
 
@@ -225,7 +226,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache);
+		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache, send);
 		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
@@ -391,6 +392,13 @@ public class MessagingWindowController implements WindowController
 		if (PASTE_KEY.match(event))
 		{
 			if (handlePaste(send))
+			{
+				event.consume();
+			}
+		}
+		else if (COPY_KEY.match(event))
+		{
+			if (receive.copy())
 			{
 				event.consume();
 			}

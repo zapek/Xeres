@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -55,6 +55,6 @@ class EmojiDetector implements MarkdownDetector
 	public void process(Context context, String line)
 	{
 		MarkdownService.processPattern(EMOJI_PATTERN, context, line,
-				(s, groupName) -> context.addContent(new ContentEmoji(context.getEmojiService().getEmoji(s))));
+				(s, groupName) -> context.addContent(new ContentEmoji(context.getEmojiService().getEmoji(s), s)));
 	}
 }

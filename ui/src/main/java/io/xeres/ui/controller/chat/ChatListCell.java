@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,13 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.custom;
+package io.xeres.ui.controller.chat;
 
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.chat.ColorGenerator;
 import io.xeres.ui.support.contentline.Content;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Label;
+import javafx.scene.shape.Path;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 
@@ -31,7 +32,7 @@ import java.util.List;
 
 import static io.xeres.ui.support.util.DateUtils.TIME_DISPLAY;
 
-public class ChatListCell implements Cell<ChatLine, TextFlow>
+class ChatListCell implements Cell<ChatLine, TextFlow>
 {
 	private static final PseudoClass passivePseudoClass = PseudoClass.getPseudoClass("passive");
 
@@ -67,7 +68,7 @@ public class ChatListCell implements Cell<ChatLine, TextFlow>
 	@Override
 	public boolean isReusable()
 	{
-		return !isRich;
+		return !isRich && !(content.getChildren().getLast() instanceof Path); // Do not reuse rich content AND selected content
 	}
 
 	@Override

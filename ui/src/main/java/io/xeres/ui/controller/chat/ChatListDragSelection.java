@@ -78,11 +78,10 @@ class ChatListDragSelection
 
 		clearSelection();
 
-		log.debug("Start {}, X: {}, Y: {}", e.getSource(), e.getX(), e.getY());
 		var virtualFlow = getVirtualFlow(e);
 		virtualFlow.setCursor(Cursor.TEXT);
 		var hitResult = virtualFlow.hit(e.getX(), e.getY());
-		if (hitResult.isCellHit()) // XXX: handle the other cases
+		if (hitResult.isCellHit())
 		{
 			var textFlow = hitResult.getCell().getNode();
 			startCellIndex = hitResult.getCellIndex();
@@ -97,8 +96,6 @@ class ChatListDragSelection
 				case 1 -> selectionMode = SelectionMode.ACTION_AND_TEXT;
 				default -> selectionMode = SelectionMode.TEXT;
 			}
-
-			log.debug("TextFlow: {}, char index: {} (leading: {})", textFlow, hitInfo.getCharIndex(), hitInfo.isLeading());
 		}
 	}
 
@@ -114,14 +111,21 @@ class ChatListDragSelection
 		if (hitResult.isCellHit())
 		{
 			var cellIndex = hitResult.getCellIndex();
-			if (cellIndex < virtualFlow.getFirstVisibleIndex())
+			if (cellIndex < virtualFlow.getFirstVisibleIndex() || cellIndex > virtualFlow.getLastVisibleIndex())
 			{
-				virtualFlow.scrollYBy(-1);
+				return;
 			}
-			else if (cellIndex > virtualFlow.getLastVisibleIndex())
-			{
-				virtualFlow.scrollYBy(1);
-			}
+
+			//if (cellIndex <= virtualFlow.getFirstVisibleIndex())
+			//{
+			// XXX: disabled for now...
+			//virtualFlow.scrollYBy(-1);
+			//}
+			//else if (cellIndex >= virtualFlow.getLastVisibleIndex())
+			//{
+			// XXX: ditto...
+			//virtualFlow.scrollYBy(1);
+			//}
 
 			if (!handleMultilineSelect(virtualFlow, hitResult))
 			{
@@ -277,10 +281,15 @@ class ChatListDragSelection
 		{
 			throw new IllegalArgumentException("Event must be a MOUSE_RELEASED event");
 		}
-		log.debug("Release {}, X: {}, Y: {}", e.getSource(), e.getX(), e.getY());
 
 		var virtualFlow = getVirtualFlow(e);
 		virtualFlow.setCursor(Cursor.DEFAULT);
+
+		if (selectRange == null || !selectRange.isSelected())
+		{
+			clearSelection();
+			selectRange = null;
+		}
 	}
 
 	public void copy()
@@ -288,7 +297,6 @@ class ChatListDragSelection
 		var text = getSelectionAsText();
 		if (StringUtils.isNotBlank(text))
 		{
-			log.debug("Copying to clipboard: [{}]", text);
 			ClipboardUtils.copyTextToClipboard(text);
 		}
 	}
@@ -321,7 +329,7 @@ class ChatListDragSelection
 
 			assert textFlow.getChildren().size() >= 3;
 
-			return TextFlowUtils.getTextFlowAsText(textFlow, selectRange.getStart(), selectRange.getEnd());
+			return TextFlowUtils.getTextFlowAsText(textFlow, selectRange.getStart(), selectRange.getEnd() + 1);
 		}
 		else
 		{

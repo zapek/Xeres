@@ -69,77 +69,8 @@ public final class TextFlowUtils
 	 */
 	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, int endIndex)
 	{
-		log.debug("beginIndex: {}, endIndex: {}", beginIndex, endIndex);
-
-		// XXX: this is really a mess!
-
-		Objects.requireNonNull(textFlow);
-		var children = textFlow.getChildrenUnmodifiable();
-		assert endIndex <= getTextFlowCount(textFlow);
-		var s = new StringBuilder();
-		var addSpace = false;
-		var i = 0;
-		var j = 0;
-
-		while (i < endIndex)
-		{
-			var node = children.get(j);
-			if (addSpace)
-			{
-				s.append(" ");
-				addSpace = false;
-			}
-
-			var value = (switch (node)
-			{
-				case Label label ->
-				{
-					i++;
-					yield label.getText();
-				}
-				case Text text ->
-				{
-					var t = text.getText();
-					t = t.substring((beginIndex > 0 && beginIndex < i + t.length()) ? beginIndex - (i - 2) : 0, Math.min((endIndex - i), t.length()));
-					i += text.getText().length();
-					beginIndex = Math.max(0, beginIndex - (t.length() - 1));
-					yield t;
-				}
-				case Hyperlink hyperlink ->
-				{
-					i++;
-					yield hyperlink.getText();
-				}
-				case ImageView ignored ->
-				{
-					i++;
-					yield "";
-				}
-				case Path ignored ->
-				{ // ignore, it's the selection node
-					i++;
-					yield "";
-				}
-				default ->
-				{
-					i++;
-					log.error("Unhandled node: {}", node);
-					yield "";
-				}
-			});
-
-			if (!value.isEmpty() && beginIndex == 0)
-			{
-				s.append(value);
-				if (i < 3)
-				{
-					addSpace = true;
-				}
-			}
-			beginIndex = Math.max(0, beginIndex - 1);
-			j++;
-		}
-		return s.toString();
+		var context = new Context(textFlow.getChildrenUnmodifiable(), beginIndex, endIndex);
+		return context.getText();
 	}
 
 	public static int getTextFlowCount(TextFlow textFlow)
@@ -163,51 +94,111 @@ public final class TextFlowUtils
 		return total;
 	}
 
-	// XXX
-	// The theory of operation is:
-	// If node is below beginIndex, ignore it
-	// if node is above endIndex, ignore it
-	// if node is within beginIndex - endIndex, use it
-	//   if it's a text node, we need to handle beginIndex and endIndex
-
 	private static class Context
 	{
-		private List<Node> nodes;
-		private int beginIndex;
-		private int endIndex;
+		private final List<Node> nodes;
+		private final int beginIndex;
+		private final int endIndex;
+		private int currentIndex;
 
 		private int currentNode = -1;
 
-		public boolean hasNextNode()
+		public Context(List<Node> nodes, int beginIndex, int endIndex)
+		{
+			this.nodes = nodes;
+			this.beginIndex = beginIndex;
+			this.endIndex = endIndex;
+		}
+
+		private boolean hasNextNode()
 		{
 			return currentNode + 1 < nodes.size() && !(nodes.get(currentNode + 1) instanceof Path);
 		}
 
-		public Node nextNode()
+		private boolean needsSpace()
+		{
+			return currentNode < 2;
+		}
+
+		private String processNextNode()
 		{
 			currentNode++;
 			var node = nodes.get(currentNode);
 
-			beginIndex += switch (node)
+			var size = switch (node)
 			{
 				case Label ignored -> 1;
 				case Text text -> text.getText().length();
 				case Hyperlink ignored -> 1;
 				case ImageView ignored -> 1;
-				default -> 0;
+				case Path ignored -> 0;
+				default -> throw new IllegalStateException("Unhandled node: " + node);
 			};
 
-			return node;
+			if (currentIndex + size <= beginIndex)
+			{
+				currentIndex += size;
+				return "";
+			}
+			if (currentIndex >= endIndex)
+			{
+				currentIndex += size;
+				return "";
+			}
+
+			switch (node)
+			{
+				case Label label ->
+				{
+					currentIndex += size;
+					return label.getText();
+				}
+				case Hyperlink hyperlink ->
+				{
+					currentIndex += size;
+					return hyperlink.getText();
+				}
+				case ImageView image ->
+				{
+					currentIndex += size;
+					var imageUserData = image.getUserData();
+					return imageUserData != null ? (String) imageUserData : "";
+				}
+				case Path ignored ->
+				{
+					return "";
+				}
+				case Text text ->
+				{
+					var start = 0;
+					var end = text.getText().length();
+					if (beginIndex >= currentIndex && beginIndex < currentIndex + size)
+					{
+						start = beginIndex - currentIndex;
+					}
+					if (endIndex > currentIndex && endIndex <= currentIndex + size)
+					{
+						end = endIndex - currentIndex;
+					}
+					currentIndex += text.getText().length(); // We don't use end because that way we'll break out of the next run
+					return text.getText().substring(start, end);
+				}
+				default -> throw new IllegalStateException("Unhandled node: " + node);
+			}
 		}
 
-//		public int beginIndexForNode()
-//		{
-//
-//		}
-//
-//		public int endIndexForNode()
-//		{
-//
-//		}
+		public String getText()
+		{
+			var sb = new StringBuilder();
+			while (hasNextNode())
+			{
+				if (needsSpace() && !sb.isEmpty())
+				{
+					sb.append(" ");
+				}
+				sb.append(processNextNode());
+			}
+			return sb.toString();
+		}
 	}
 }

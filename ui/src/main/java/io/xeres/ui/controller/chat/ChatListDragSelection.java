@@ -24,6 +24,7 @@ import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.util.TextFlowUtils;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
@@ -42,6 +43,8 @@ import java.util.stream.Collectors;
 class ChatListDragSelection
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatListDragSelection.class);
+
+	private final Node focusNode;
 
 	private enum SelectionMode
 	{
@@ -68,6 +71,11 @@ class ChatListDragSelection
 	private Direction direction = Direction.SAME;
 
 	private final List<TextFlow> textFlows = new LinkedList<>();
+
+	public ChatListDragSelection(Node focusNode)
+	{
+		this.focusNode = focusNode;
+	}
 
 	public void press(MouseEvent e)
 	{
@@ -116,16 +124,15 @@ class ChatListDragSelection
 				return;
 			}
 
-			//if (cellIndex <= virtualFlow.getFirstVisibleIndex())
-			//{
-			// XXX: disabled for now...
-			//virtualFlow.scrollYBy(-1);
-			//}
-			//else if (cellIndex >= virtualFlow.getLastVisibleIndex())
-			//{
-			// XXX: ditto...
-			//virtualFlow.scrollYBy(1);
-			//}
+			// XXX: this is not currently working (remove the above to have this be reachable)
+			if (cellIndex <= virtualFlow.getFirstVisibleIndex())
+			{
+				virtualFlow.showAsFirst(cellIndex);
+			}
+			else if (cellIndex >= virtualFlow.getLastVisibleIndex())
+			{
+				virtualFlow.showAsLast(cellIndex);
+			}
 
 			if (!handleMultilineSelect(virtualFlow, hitResult))
 			{
@@ -289,6 +296,11 @@ class ChatListDragSelection
 		{
 			clearSelection();
 			selectRange = null;
+		}
+
+		if (focusNode != null)
+		{
+			focusNode.requestFocus();
 		}
 	}
 

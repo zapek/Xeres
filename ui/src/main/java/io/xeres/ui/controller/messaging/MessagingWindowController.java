@@ -226,7 +226,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache);
+		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache, send);
 		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())

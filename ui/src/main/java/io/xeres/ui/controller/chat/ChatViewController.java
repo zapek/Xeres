@@ -637,7 +637,7 @@ public class ChatViewController implements Controller
 		if (chatListView == null)
 		{
 			var chatRoomId = roomInfoTreeItem.getValue().getRoomInfo().getId();
-			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache);
+			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache, send);
 			var finalChatListView = chatListView;
 			chatClient.getChatRoomBacklog(chatRoomId).collectList()
 					.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(finalChatListView, backlogs)))

@@ -97,7 +97,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		KEEP_ALIVE
 	}
 
-	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache)
+	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache, Node focusNode)
 	{
 		this.nickname = nickname;
 		this.id = id;
@@ -108,7 +108,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		bundle = I18nUtils.getBundle();
 		anchorPane = new AnchorPane();
 
-		dragSelection = new ChatListDragSelection();
+		dragSelection = new ChatListDragSelection(focusNode);
 
 		chatView = createChatView(dragSelection);
 		addToAnchorPane(chatView, anchorPane);

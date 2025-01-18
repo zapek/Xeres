@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.app.util;
 
 import io.xeres.app.util.markdown.Markdown;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,8 +28,6 @@ import org.jsoup.nodes.Entities;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Safelist;
-
-import java.util.Locale;
 
 import static io.xeres.app.util.markdown.Markdown.HeaderSize.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -49,6 +48,11 @@ public final class UnHtml
 
 	public static String cleanupChat(String text)
 	{
+		if (isBlank(text) ||
+				!(StringUtils.startsWithIgnoreCase(text, "<body>") && StringUtils.endsWithIgnoreCase(text, "</body>")))
+		{
+			return text;
+		}
 		return Entities.unescape( // &lt; -> <
 				Jsoup.clean(text, "", Safelist.none() // <span> -> nothing
 						.addAttributes("img", "src")
@@ -64,8 +68,8 @@ public final class UnHtml
 	{
 		// Only process HTML
 		if (isBlank(text) ||
-				(!text.toLowerCase(Locale.ROOT).startsWith("<body>") &&
-						!text.toLowerCase(Locale.ROOT).startsWith("<html>")))
+				(!StringUtils.startsWithIgnoreCase(text, "<body>") &&
+						!StringUtils.startsWithIgnoreCase(text, "<html>")))
 		{
 			return text;
 		}

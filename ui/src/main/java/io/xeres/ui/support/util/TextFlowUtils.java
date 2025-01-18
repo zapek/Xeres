@@ -39,17 +39,24 @@ public final class TextFlowUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	public enum Options
+	{
+		NONE,
+		SPACED_PREFIXES // This lacks flexibility but will do for now
+	}
+
 	/**
 	 * Returns a text flow as a string.
 	 *
-	 * @param textFlow the text flow, not null
+	 * @param textFlow   the text flow, not null
 	 * @param beginIndex the beginning index, inclusive
+	 * @param options    the options
 	 * @return the string, not null
 	 */
-	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex)
+	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, Options options)
 	{
 		Objects.requireNonNull(textFlow);
-		return getTextFlowAsText(textFlow, beginIndex, getTextFlowCount(textFlow));
+		return getTextFlowAsText(textFlow, beginIndex, getTextFlowCount(textFlow), options);
 	}
 
 	/**
@@ -58,17 +65,12 @@ public final class TextFlowUtils
 	 * @param textFlow   the text flow, not null
 	 * @param beginIndex the beginning index, inclusive
 	 * @param endIndex   the ending index, exclusive
+	 * @param options    the options
 	 * @return the string, not null
 	 */
-	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, int endIndex)
+	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, int endIndex, Options options)
 	{
-		var context = new Context(textFlow.getChildrenUnmodifiable(), beginIndex, endIndex, 0);
-		return context.getText();
-	}
-
-	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, int endIndex, int prefixNeedingSpace)
-	{
-		var context = new Context(textFlow.getChildrenUnmodifiable(), beginIndex, endIndex, prefixNeedingSpace);
+		var context = new Context(textFlow.getChildrenUnmodifiable(), beginIndex, endIndex, options == Options.SPACED_PREFIXES ? 2 : 0);
 		return context.getText();
 	}
 

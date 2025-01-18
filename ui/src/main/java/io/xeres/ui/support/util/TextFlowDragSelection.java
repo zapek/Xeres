@@ -21,6 +21,7 @@ package io.xeres.ui.support.util;
 
 import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
+import io.xeres.ui.support.util.TextFlowUtils.Options;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
@@ -90,7 +91,7 @@ public class TextFlowDragSelection
 
 	public void copy()
 	{
-		var text = TextFlowUtils.getTextFlowAsText(textFlow, textSelectRange.getStart(), textSelectRange.getEnd() + 1);
+		var text = TextFlowUtils.getTextFlowAsText(textFlow, textSelectRange.getStart(), textSelectRange.getEnd() + 1, Options.NONE);
 		if (StringUtils.isNotBlank(text))
 		{
 			ClipboardUtils.copyTextToClipboard(text);

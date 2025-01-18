@@ -23,6 +23,7 @@ import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.util.TextFlowUtils;
+import io.xeres.ui.support.util.TextFlowUtils.Options;
 import io.xeres.ui.support.util.TextSelectRange;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -319,21 +320,21 @@ class ChatListDragSelection
 
 			assert textFlow.getChildren().size() >= 3;
 
-			return TextFlowUtils.getTextFlowAsText(textFlow, textSelectRange.getStart(), textSelectRange.getEnd() + 1, 2);
+			return TextFlowUtils.getTextFlowAsText(textFlow, textSelectRange.getStart(), textSelectRange.getEnd() + 1, Options.SPACED_PREFIXES);
 		}
 		else
 		{
 			if (direction == Direction.UP)
 			{
 				return textFlows.reversed().stream()
-						.map(textFlow -> TextFlowUtils.getTextFlowAsText(textFlow, getOffsetFromSelectionMode()))
+						.map(textFlow -> TextFlowUtils.getTextFlowAsText(textFlow, getOffsetFromSelectionMode(), Options.SPACED_PREFIXES))
 						.collect(Collectors.joining("\n"));
 
 			}
 			else
 			{
 				return textFlows.stream()
-						.map(textFlow -> TextFlowUtils.getTextFlowAsText(textFlow, getOffsetFromSelectionMode()))
+						.map(textFlow -> TextFlowUtils.getTextFlowAsText(textFlow, getOffsetFromSelectionMode(), Options.SPACED_PREFIXES))
 						.collect(Collectors.joining("\n"));
 			}
 		}

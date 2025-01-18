@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -196,6 +196,18 @@
                     <Text text="&#10;"/>
                     <Text text=" © Andres Almiray. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
+                    <Text text="&#10;&#10;"/>
+
+                    <DisclosedHyperlink text="Java" uri="https://www.oracle.com/java/"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Oracle. Licensed under the "/>
+                    <DisclosedHyperlink text="GPLv2 + classpath exception." uri="https://openjdk.org/legal/gplv2+ce.html"/>
+                    <Text text="&#10;&#10;"/>
+
+                    <DisclosedHyperlink text="JavaFX" uri="https://openjfx.io/"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Oracle. Licensed under the "/>
+                    <DisclosedHyperlink text="GPLv2 + classpath exception." uri="https://openjdk.org/legal/gplv2+ce.html"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="JavaFX-Weaver" uri="https://github.com/rgielen/javafx-weaver"/>

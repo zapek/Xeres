@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -107,9 +107,7 @@ public class ContentImage implements Content
 		if (parent != null)
 		{
 			syncImageWidth(node, parent.getWidth());
-			parent.widthProperty().addListener((observable, oldValue, newValue) -> {
-				syncImageWidth(node, newValue.doubleValue());
-			});
+			parent.widthProperty().addListener((observable, oldValue, newValue) -> syncImageWidth(node, newValue.doubleValue()));
 
 			node.setPreserveRatio(true);
 		}

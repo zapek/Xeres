@@ -44,6 +44,7 @@ import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -52,6 +53,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -80,6 +82,8 @@ import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 public class ForumViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);
+
+	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
 
 	private static final String SUBSCRIBE_MENU_ID = "subscribe";
 	private static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
@@ -161,6 +165,8 @@ public class ForumViewController implements Controller
 	private final TreeItem<ForumGroup> popularForums;
 	private final TreeItem<ForumGroup> otherForums;
 
+	private TextFlowDragSelection dragSelection;
+
 	private MessageId messageIdToSelect;
 
 	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService)
@@ -235,6 +241,23 @@ public class ForumViewController implements Controller
 		getForumGroups();
 
 		setupTrees();
+
+		dragSelection = new TextFlowDragSelection(messageContent);
+		setupDragSelection(dragSelection);
+	}
+
+	private void setupDragSelection(TextFlowDragSelection selection)
+	{
+		messageContent.addEventFilter(MouseEvent.MOUSE_PRESSED, selection::press);
+		messageContent.addEventFilter(MouseEvent.MOUSE_DRAGGED, selection::drag);
+		messageContent.addEventFilter(MouseEvent.MOUSE_RELEASED, selection::release);
+		messagePane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			if (COPY_KEY.match(event))
+			{
+				selection.copy();
+				event.consume();
+			}
+		});
 	}
 
 	private void setupTrees()

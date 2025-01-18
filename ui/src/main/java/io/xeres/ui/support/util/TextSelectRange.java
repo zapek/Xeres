@@ -17,18 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.chat;
+package io.xeres.ui.support.util;
 
 import javafx.scene.text.HitInfo;
 
-class ChatListSelectRange
+public class TextSelectRange
 {
 	private final int start;
 	private final int end;
 
 	private final boolean isSelected;
 
-	public ChatListSelectRange(HitInfo firstHit, HitInfo secondHit)
+	public TextSelectRange(HitInfo firstHit, HitInfo secondHit)
 	{
 		var compare = compare(firstHit, secondHit);
 

@@ -23,12 +23,10 @@ import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.util.TextFlowUtils;
+import io.xeres.ui.support.util.TextSelectRange;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.VirtualFlow;
@@ -43,6 +41,7 @@ import java.util.stream.Collectors;
 class ChatListDragSelection
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatListDragSelection.class);
+	public static final double VIEW_MARGIN = 8.0;
 
 	private final Node focusNode;
 
@@ -66,7 +65,7 @@ class ChatListDragSelection
 
 	private SelectionMode selectionMode;
 
-	private ChatListSelectRange selectRange;
+	private TextSelectRange textSelectRange;
 
 	private Direction direction = Direction.SAME;
 
@@ -151,10 +150,10 @@ class ChatListDragSelection
 		var virtualFlow = getVirtualFlow(e);
 		virtualFlow.setCursor(Cursor.DEFAULT);
 
-		if (selectRange == null || !selectRange.isSelected())
+		if (textSelectRange == null || !textSelectRange.isSelected())
 		{
 			clearSelection();
-			selectRange = null;
+			textSelectRange = null;
 		}
 
 		if (focusNode != null)
@@ -188,7 +187,7 @@ class ChatListDragSelection
 			{
 				// We're switching to multiline mode.
 				var pathElements = textFlows.getFirst().rangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlows.getFirst()));
-				showVisibleSelection(textFlows.getFirst(), pathElements);
+				TextFlowUtils.showSelection(textFlows.getFirst(), pathElements, VIEW_MARGIN);
 
 				direction = cellIndex > startCellIndex ? Direction.DOWN : Direction.UP;
 				markSelection(virtualFlow, startCellIndex, cellIndex);
@@ -269,51 +268,31 @@ class ChatListDragSelection
 	{
 		var textFlow = hitResult.getCell().getNode();
 
-		selectRange = new ChatListSelectRange(firstHitInfo, textFlow.hitTest(hitResult.getCellOffset()));
+		textSelectRange = new TextSelectRange(firstHitInfo, textFlow.hitTest(hitResult.getCellOffset()));
 
-		if (selectRange.isSelected())
+		if (textSelectRange.isSelected())
 		{
-			var pathElements = textFlow.rangeShape(selectRange.getStart(), selectRange.getEnd() + 1);
-			showVisibleSelection(textFlow, pathElements);
+			var pathElements = textFlow.rangeShape(textSelectRange.getStart(), textSelectRange.getEnd() + 1);
+			TextFlowUtils.showSelection(textFlow, pathElements, VIEW_MARGIN);
 		}
 		else
 		{
-			hideVisibleSelection(textFlow);
+			TextFlowUtils.hideSelection(textFlow);
 		}
 	}
 
 	private void addVisibleSelection(TextFlow textFlow)
 	{
-		showVisibleSelection(textFlow, textFlow.rangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlow)));
+		TextFlowUtils.showSelection(textFlow, textFlow.rangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlow)), VIEW_MARGIN);
 		if (textFlows.getLast() != textFlow)
 		{
 			textFlows.add(textFlow);
 		}
 	}
 
-	private static void showVisibleSelection(TextFlow textFlow, PathElement[] pathElements)
-	{
-		var path = new Path(pathElements);
-		path.setStroke(Color.TRANSPARENT);
-		path.setFill(Color.DODGERBLUE);
-		path.setOpacity(0.3);
-		path.setManaged(false); // This is needed so they show up above
-		path.setTranslateX(8.0); // Margin
-		hideVisibleSelection(textFlow);
-		textFlow.getChildren().add(path);
-	}
-
-	private static void hideVisibleSelection(TextFlow textFlow)
-	{
-		if (textFlow.getChildren().getLast() instanceof Path)
-		{
-			textFlow.getChildren().removeLast();
-		}
-	}
-
 	private void removeVisibleSelection(TextFlow textFlow)
 	{
-		hideVisibleSelection(textFlow);
+		TextFlowUtils.hideSelection(textFlow);
 		textFlows.remove(textFlow);
 	}
 
@@ -340,7 +319,7 @@ class ChatListDragSelection
 
 			assert textFlow.getChildren().size() >= 3;
 
-			return TextFlowUtils.getTextFlowAsText(textFlow, selectRange.getStart(), selectRange.getEnd() + 1);
+			return TextFlowUtils.getTextFlowAsText(textFlow, textSelectRange.getStart(), textSelectRange.getEnd() + 1, 2);
 		}
 		else
 		{

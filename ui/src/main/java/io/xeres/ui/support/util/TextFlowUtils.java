@@ -23,7 +23,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -60,7 +62,13 @@ public final class TextFlowUtils
 	 */
 	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, int endIndex)
 	{
-		var context = new Context(textFlow.getChildrenUnmodifiable(), beginIndex, endIndex);
+		var context = new Context(textFlow.getChildrenUnmodifiable(), beginIndex, endIndex, 0);
+		return context.getText();
+	}
+
+	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, int endIndex, int prefixNeedingSpace)
+	{
+		var context = new Context(textFlow.getChildrenUnmodifiable(), beginIndex, endIndex, prefixNeedingSpace);
 		return context.getText();
 	}
 
@@ -85,6 +93,37 @@ public final class TextFlowUtils
 		return total;
 	}
 
+	/**
+	 * Shows the selected text visually.
+	 *
+	 * @param textFlow     the text flow
+	 * @param pathElements the path elements, retrieved with {@link TextFlow#rangeShape(int, int)}.
+	 */
+	public static void showSelection(TextFlow textFlow, PathElement[] pathElements, double margin)
+	{
+		var path = new Path(pathElements);
+		path.setStroke(Color.TRANSPARENT);
+		path.setFill(Color.DODGERBLUE);
+		path.setOpacity(0.3);
+		path.setManaged(false); // This is needed so they show up above
+		path.setTranslateX(margin);
+		hideSelection(textFlow);
+		textFlow.getChildren().add(path);
+	}
+
+	/**
+	 * Visually hides all the selected text.
+	 *
+	 * @param textFlow the text flow
+	 */
+	public static void hideSelection(TextFlow textFlow)
+	{
+		if (textFlow.getChildren().getLast() instanceof Path)
+		{
+			textFlow.getChildren().removeLast();
+		}
+	}
+
 	private static int getTotalSize(Node node)
 	{
 		return switch (node)
@@ -99,22 +138,24 @@ public final class TextFlowUtils
 	}
 
 	/**
-	 * Little helper class to keep track of the context.
+	 * Little helper class to keep track of the context when walking the flow.
 	 */
 	private static class Context
 	{
 		private final List<Node> nodes;
 		private final int beginIndex;
 		private final int endIndex;
+		private final int prefixNeedingSpace;
 		private int currentIndex;
 
 		private int currentNode = -1;
 
-		public Context(List<Node> nodes, int beginIndex, int endIndex)
+		public Context(List<Node> nodes, int beginIndex, int endIndex, int prefixNeedingSpace)
 		{
 			this.nodes = nodes;
 			this.beginIndex = beginIndex;
 			this.endIndex = endIndex;
+			this.prefixNeedingSpace = prefixNeedingSpace;
 		}
 
 		public String getText()
@@ -138,7 +179,7 @@ public final class TextFlowUtils
 
 		private boolean needsSpace()
 		{
-			return currentNode < 2;
+			return currentNode < prefixNeedingSpace;
 		}
 
 		private String processNextNode()

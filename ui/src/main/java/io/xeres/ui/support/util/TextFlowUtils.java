@@ -26,16 +26,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
 public final class TextFlowUtils
 {
-	private static final Logger log = LoggerFactory.getLogger(TextFlowUtils.class);
-
 	private TextFlowUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -45,14 +41,9 @@ public final class TextFlowUtils
 	 * Returns a text flow as a string.
 	 *
 	 * @param textFlow the text flow, not null
+	 * @param beginIndex the beginning index, inclusive
 	 * @return the string, not null
 	 */
-	public static String getTextFlowAsText(TextFlow textFlow)
-	{
-		Objects.requireNonNull(textFlow);
-		return getTextFlowAsText(textFlow, 0, getTextFlowCount(textFlow));
-	}
-
 	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex)
 	{
 		Objects.requireNonNull(textFlow);
@@ -73,6 +64,13 @@ public final class TextFlowUtils
 		return context.getText();
 	}
 
+	/**
+	 * Calculates the length of a textflow.
+	 * <p>Note: only {@link Text} has a length equal to the characters it contains, the other nodes return 1.
+	 *
+	 * @param textFlow the textflow
+	 * @return the length of the textflow
+	 */
 	public static int getTextFlowCount(TextFlow textFlow)
 	{
 		Objects.requireNonNull(textFlow);
@@ -82,18 +80,27 @@ public final class TextFlowUtils
 
 		for (var node : children)
 		{
-			total += switch (node)
-			{
-				case Label ignored -> 1;
-				case Text text -> text.getText().length();
-				case Hyperlink ignored -> 1;
-				case ImageView ignored -> 1;
-				default -> 0;
-			};
+			total += getTotalSize(node);
 		}
 		return total;
 	}
 
+	private static int getTotalSize(Node node)
+	{
+		return switch (node)
+		{
+			case Label ignored -> 1;
+			case Text text -> text.getText().length();
+			case Hyperlink ignored -> 1;
+			case ImageView ignored -> 1;
+			case Path ignored -> 0; // We don't account for that one because it's for marking selected text, and it's always at the end
+			default -> throw new IllegalStateException("Unhandled node: " + node);
+		};
+	}
+
+	/**
+	 * Little helper class to keep track of the context.
+	 */
 	private static class Context
 	{
 		private final List<Node> nodes;
@@ -108,6 +115,20 @@ public final class TextFlowUtils
 			this.nodes = nodes;
 			this.beginIndex = beginIndex;
 			this.endIndex = endIndex;
+		}
+
+		public String getText()
+		{
+			var sb = new StringBuilder();
+			while (hasNextNode())
+			{
+				if (needsSpace() && !sb.isEmpty())
+				{
+					sb.append(" ");
+				}
+				sb.append(processNextNode());
+			}
+			return sb.toString();
 		}
 
 		private boolean hasNextNode()
@@ -125,15 +146,7 @@ public final class TextFlowUtils
 			currentNode++;
 			var node = nodes.get(currentNode);
 
-			var size = switch (node)
-			{
-				case Label ignored -> 1;
-				case Text text -> text.getText().length();
-				case Hyperlink ignored -> 1;
-				case ImageView ignored -> 1;
-				case Path ignored -> 0;
-				default -> throw new IllegalStateException("Unhandled node: " + node);
-			};
+			var size = getTotalSize(node);
 
 			if (currentIndex + size <= beginIndex)
 			{
@@ -185,20 +198,6 @@ public final class TextFlowUtils
 				}
 				default -> throw new IllegalStateException("Unhandled node: " + node);
 			}
-		}
-
-		public String getText()
-		{
-			var sb = new StringBuilder();
-			while (hasNextNode())
-			{
-				if (needsSpace() && !sb.isEmpty())
-				{
-					sb.append(" ");
-				}
-				sb.append(processNextNode());
-			}
-			return sb.toString();
 		}
 	}
 }

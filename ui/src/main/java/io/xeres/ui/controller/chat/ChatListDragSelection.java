@@ -141,6 +141,42 @@ class ChatListDragSelection
 		}
 	}
 
+	public void release(MouseEvent e)
+	{
+		if (e.getEventType() != MouseEvent.MOUSE_RELEASED)
+		{
+			throw new IllegalArgumentException("Event must be a MOUSE_RELEASED event");
+		}
+
+		var virtualFlow = getVirtualFlow(e);
+		virtualFlow.setCursor(Cursor.DEFAULT);
+
+		if (selectRange == null || !selectRange.isSelected())
+		{
+			clearSelection();
+			selectRange = null;
+		}
+
+		if (focusNode != null)
+		{
+			focusNode.requestFocus();
+		}
+	}
+
+	public void copy()
+	{
+		var text = getSelectionAsText();
+		if (StringUtils.isNotBlank(text))
+		{
+			ClipboardUtils.copyTextToClipboard(text);
+		}
+	}
+
+	public boolean isSelected()
+	{
+		return !textFlows.isEmpty();
+	}
+
 	private boolean handleMultilineSelect(VirtualFlow<ChatLine, ChatListCell> virtualFlow, VirtualFlowHit<ChatListCell> hitResult)
 	{
 		var cellIndex = hitResult.getCellIndex();
@@ -279,43 +315,6 @@ class ChatListDragSelection
 	{
 		hideVisibleSelection(textFlow);
 		textFlows.remove(textFlow);
-	}
-
-
-	public void release(MouseEvent e)
-	{
-		if (e.getEventType() != MouseEvent.MOUSE_RELEASED)
-		{
-			throw new IllegalArgumentException("Event must be a MOUSE_RELEASED event");
-		}
-
-		var virtualFlow = getVirtualFlow(e);
-		virtualFlow.setCursor(Cursor.DEFAULT);
-
-		if (selectRange == null || !selectRange.isSelected())
-		{
-			clearSelection();
-			selectRange = null;
-		}
-
-		if (focusNode != null)
-		{
-			focusNode.requestFocus();
-		}
-	}
-
-	public void copy()
-	{
-		var text = getSelectionAsText();
-		if (StringUtils.isNotBlank(text))
-		{
-			ClipboardUtils.copyTextToClipboard(text);
-		}
-	}
-
-	public boolean isSelected()
-	{
-		return !textFlows.isEmpty();
 	}
 
 	private void clearSelection()

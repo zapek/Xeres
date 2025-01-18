@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,7 +34,7 @@ public final class ForumMessageItemFakes
 
 	public static ForumMessageItem createForumMessageItem()
 	{
-		return createForumMessageItem(IdFakes.createGxsId(), IdFakes.createMessageId(), RandomStringUtils.randomAlphabetic(8));
+		return createForumMessageItem(IdFakes.createGxsId(), IdFakes.createMessageId(), RandomStringUtils.insecure().nextAlphabetic(8));
 	}
 
 	private static ForumMessageItem createForumMessageItem(GxsId gxsId, MessageId messageId, String name)

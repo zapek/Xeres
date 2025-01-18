@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,12 +34,12 @@ public final class ChatRoomFakes
 
 	public static ChatRoom createChatRoomEntity()
 	{
-		return createChatRoomEntity(IdFakes.createLong(), IdentityFakes.createOwn(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoomEntity(IdFakes.createLong(), IdentityFakes.createOwn(), RandomStringUtils.insecure().nextAlphabetic(8), RandomStringUtils.insecure().nextAlphabetic(8), 0);
 	}
 
 	public static ChatRoom createChatRoomEntity(IdentityGroupItem identityGroupItem)
 	{
-		return createChatRoomEntity(IdFakes.createLong(), identityGroupItem, RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), 0);
+		return createChatRoomEntity(IdFakes.createLong(), identityGroupItem, RandomStringUtils.insecure().nextAlphabetic(8), RandomStringUtils.insecure().nextAlphabetic(8), 0);
 	}
 
 	public static ChatRoom createChatRoomEntity(long roomId, IdentityGroupItem identityGroupItem, String name, String topic, int flags)
@@ -49,7 +49,7 @@ public final class ChatRoomFakes
 
 	public static io.xeres.app.xrs.service.chat.ChatRoom createChatRoom()
 	{
-		return createChatRoom(IdFakes.createLong(), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), RoomType.PUBLIC, 5, false);
+		return createChatRoom(IdFakes.createLong(), RandomStringUtils.insecure().nextAlphabetic(8), RandomStringUtils.insecure().nextAlphabetic(8), RoomType.PUBLIC, 5, false);
 	}
 
 	public static io.xeres.app.xrs.service.chat.ChatRoom createChatRoom(long id, String name, String topic, RoomType roomType, int userCount, boolean isSigned)

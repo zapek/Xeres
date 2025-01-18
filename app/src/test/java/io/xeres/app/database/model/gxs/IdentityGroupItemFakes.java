@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -36,7 +36,7 @@ public final class IdentityGroupItemFakes
 
 	public static IdentityGroupItem createIdentityGroupItem()
 	{
-		return createIdentityGroupItem(IdFakes.createGxsId(), RandomStringUtils.randomAlphabetic(8));
+		return createIdentityGroupItem(IdFakes.createGxsId(), RandomStringUtils.insecure().nextAlphabetic(8));
 	}
 
 	public static IdentityGroupItem createIdentityGroupItem(GxsId gxsId, String name)

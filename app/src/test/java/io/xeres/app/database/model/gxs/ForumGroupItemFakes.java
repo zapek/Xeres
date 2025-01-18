@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,7 +35,7 @@ public final class ForumGroupItemFakes
 
 	public static ForumGroupItem createForumGroupItem()
 	{
-		return createForumGroupItem(IdFakes.createGxsId(), RandomStringUtils.randomAlphabetic(8));
+		return createForumGroupItem(IdFakes.createGxsId(), RandomStringUtils.insecure().nextAlphabetic(8));
 	}
 
 	public static ForumGroupItem createForumGroupItem(GxsId gxsId, String name)
@@ -43,7 +43,7 @@ public final class ForumGroupItemFakes
 		var item = new ForumGroupItem(gxsId, name);
 		item.setDiffusionFlags(EnumSet.noneOf(GxsPrivacyFlags.class));
 		item.setSignatureFlags(EnumSet.noneOf(GxsSignatureFlags.class));
-		item.setDescription(RandomStringUtils.randomAlphabetic(8));
+		item.setDescription(RandomStringUtils.insecure().nextAlphabetic(8));
 		return item;
 	}
 }

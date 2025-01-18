@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.testutils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.MessageId;
+import org.apache.commons.lang3.RandomUtils;
 
 public final class IdFakes
 {
@@ -32,7 +33,7 @@ public final class IdFakes
 
 	public static GxsId createGxsId()
 	{
-		return new GxsId(RandomUtils.nextBytes(GxsId.LENGTH));
+		return new GxsId(RandomUtils.insecure().randomBytes(GxsId.LENGTH));
 	}
 
 	public static GxsId createGxsId(byte[] gxsId)
@@ -42,21 +43,21 @@ public final class IdFakes
 
 	public static MessageId createMessageId()
 	{
-		return new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));
+		return new MessageId(RandomUtils.insecure().randomBytes(MessageId.LENGTH));
 	}
 
 	public static LocationIdentifier createLocationIdentifier()
 	{
-		return new LocationIdentifier(RandomUtils.nextBytes(LocationIdentifier.LENGTH));
+		return new LocationIdentifier(RandomUtils.insecure().randomBytes(LocationIdentifier.LENGTH));
 	}
 
 	public static long createLong()
 	{
-		return RandomUtils.nextLong(1, Long.MAX_VALUE);
+		return RandomUtils.insecure().randomLong(1, Long.MAX_VALUE);
 	}
 
 	public static int createInt()
 	{
-		return RandomUtils.nextInt(1, Integer.MAX_VALUE);
+		return RandomUtils.insecure().randomInt(1, Integer.MAX_VALUE);
 	}
 }

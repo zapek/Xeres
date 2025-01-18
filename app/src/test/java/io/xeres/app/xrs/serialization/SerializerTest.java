@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,7 +30,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.MessageId;
 import io.xeres.testutils.IdFakes;
-import io.xeres.testutils.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -444,7 +444,7 @@ class SerializerTest
 	void Serialize_TlvKeySignature()
 	{
 		var buf = Unpooled.buffer();
-		var key = RandomUtils.nextBytes(30);
+		var key = RandomUtils.insecure().randomBytes(30);
 
 		var input = new Signature(IdFakes.createGxsId(), key);
 
@@ -464,7 +464,7 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 		Set<Signature> input = new HashSet<>();
 		var gxsId = IdFakes.createGxsId();
-		var signature = RandomUtils.nextBytes(20);
+		var signature = RandomUtils.insecure().randomBytes(20);
 		var keySignature = new Signature(Signature.Type.ADMIN, gxsId, signature);
 		input.add(keySignature);
 
@@ -533,8 +533,8 @@ class SerializerTest
 	void Serialize_TlvSet_MessageId()
 	{
 		var buf = Unpooled.buffer();
-		var messageId1 = new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));
-		var messageId2 = new MessageId(RandomUtils.nextBytes(MessageId.LENGTH));
+		var messageId1 = new MessageId(RandomUtils.insecure().randomBytes(MessageId.LENGTH));
+		var messageId2 = new MessageId(RandomUtils.insecure().randomBytes(MessageId.LENGTH));
 		Set<MessageId> input = new HashSet<>();
 		input.add(messageId1);
 		input.add(messageId2);

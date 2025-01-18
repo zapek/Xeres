@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.testutils;
 
 import io.xeres.common.id.Sha1Sum;
+import org.apache.commons.lang3.RandomUtils;
 
 public final class Sha1SumFakes
 {
@@ -30,6 +31,6 @@ public final class Sha1SumFakes
 
 	public static Sha1Sum createSha1Sum()
 	{
-		return new Sha1Sum(RandomUtils.nextBytes(Sha1Sum.LENGTH));
+		return new Sha1Sum(RandomUtils.insecure().randomBytes(Sha1Sum.LENGTH));
 	}
 }

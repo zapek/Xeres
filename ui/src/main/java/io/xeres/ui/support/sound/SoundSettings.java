@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.ui.support.sound;
 
 import io.xeres.ui.support.preference.PreferenceUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.springframework.stereotype.Service;
 
 import static io.xeres.ui.support.preference.PreferenceUtils.SOUND;
@@ -149,10 +150,12 @@ public class SoundSettings
 		friendEnabled = node.getBoolean(ENABLE_FRIEND, false);
 		downloadEnabled = node.getBoolean(ENABLE_DOWNLOAD, false);
 
-		messageFile = node.get(MESSAGE_FILE, "app/sounds/message-notification-190034.mp3");
-		highlightFile = node.get(HIGHLIGHT_FILE, "app/sounds/notification-4-126507.mp3");
-		friendFile = node.get(FRIEND_FILE, "app/sounds/notification-20-270145.mp3");
-		downloadFile = node.get(DOWNLOAD_FILE, "app/sounds/achive-sound-132273.mp3");
+		var prefixPath = SystemUtils.IS_OS_LINUX ? "../lib/" : "";
+
+		messageFile = node.get(MESSAGE_FILE, prefixPath + "app/sounds/message-notification-190034.mp3");
+		highlightFile = node.get(HIGHLIGHT_FILE, prefixPath + "app/sounds/notification-4-126507.mp3");
+		friendFile = node.get(FRIEND_FILE, prefixPath + "app/sounds/notification-20-270145.mp3");
+		downloadFile = node.get(DOWNLOAD_FILE, prefixPath + "app/sounds/achive-sound-132273.mp3");
 
 		loaded = true;
 	}

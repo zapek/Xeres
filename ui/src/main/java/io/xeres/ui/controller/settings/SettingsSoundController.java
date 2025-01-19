@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -91,11 +91,11 @@ public class SettingsSoundController implements SettingsController
 	private final SoundSettings soundSettings;
 	private final SoundService soundService;
 
-	public SettingsSoundController(ResourceBundle bundle, SoundSettings soundSettings, SoundService soundService, SoundService soundService1)
+	public SettingsSoundController(ResourceBundle bundle, SoundSettings soundSettings, SoundService soundService)
 	{
 		this.bundle = bundle;
 		this.soundSettings = soundSettings;
-		this.soundService = soundService1;
+		this.soundService = soundService;
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class SettingsSoundController implements SettingsController
 			if (!path.getText().isEmpty())
 			{
 				fileChooser.setInitialFileName(path.getText());
-				fileChooser.setInitialDirectory(Path.of(path.getText()).getParent().toFile());
+				setInitialDirectoryIfExists(fileChooser, path.getText());
 			}
 			var selectedFile = fileChooser.showOpenDialog(UiUtils.getWindow(event));
 			if (selectedFile != null && selectedFile.isFile())
@@ -130,6 +130,19 @@ public class SettingsSoundController implements SettingsController
 			}
 		});
 		playButton.setOnAction(actionEvent -> soundService.play(path.getText()));
+	}
+
+	private static void setInitialDirectoryIfExists(FileChooser fileChooser, String path)
+	{
+		var parent = Path.of(path).getParent();
+		if (parent != null)
+		{
+			var file = parent.toFile();
+			if (file.exists() && file.isDirectory())
+			{
+				fileChooser.setInitialDirectory(file);
+			}
+		}
 	}
 
 	@Override

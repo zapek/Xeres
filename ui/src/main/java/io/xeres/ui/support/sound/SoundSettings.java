@@ -150,7 +150,7 @@ public class SoundSettings
 		friendEnabled = node.getBoolean(ENABLE_FRIEND, false);
 		downloadEnabled = node.getBoolean(ENABLE_DOWNLOAD, false);
 
-		var prefixPath = SystemUtils.IS_OS_LINUX ? "../lib/" : "";
+		var prefixPath = SystemUtils.IS_OS_LINUX ? "/opt/xeres/lib/" : "";
 
 		messageFile = node.get(MESSAGE_FILE, prefixPath + "app/sounds/message-notification-190034.mp3");
 		highlightFile = node.get(HIGHLIGHT_FILE, prefixPath + "app/sounds/notification-4-126507.mp3");

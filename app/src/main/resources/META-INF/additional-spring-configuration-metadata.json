@@ -54,6 +54,11 @@
             "name" : "xrs.service.filetransfer.enabled",
             "type" : "java.lang.Boolean",
             "description" : "Enable the file transfer service."
+        },
+        {
+            "name" : "xrs.service.gxstunnel.enabled",
+            "type" : "java.lang.Boolean",
+            "description" : "Enable the gxs tunnel service, used to create distant chats."
         }
     ]
 }

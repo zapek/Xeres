@@ -40,6 +40,8 @@ import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
+import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsClient;
+import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
@@ -74,7 +76,7 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @Component
-public class ChatRsService extends RsService
+public class ChatRsService extends RsService implements GxsTunnelRsClient
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatRsService.class);
 
@@ -146,6 +148,8 @@ public class ChatRsService extends RsService
 	 */
 	private static final int AVATAR_SIZE_MAX = 32767;
 
+	private static final int DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID = 0xa0001;
+
 	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
@@ -167,6 +171,7 @@ public class ChatRsService extends RsService
 	private final ChatBacklogService chatBacklogService;
 
 	private ScheduledExecutorService executorService;
+	private GxsTunnelRsService gxsTunnelRsService;
 
 	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
 	{
@@ -186,6 +191,19 @@ public class ChatRsService extends RsService
 	public RsServiceType getServiceType()
 	{
 		return CHAT;
+	}
+
+	@Override
+	public RsServiceInitPriority getInitPriority()
+	{
+		return RsServiceInitPriority.HIGH;
+	}
+
+	@Override
+	public int initializeGxsTunnel(GxsTunnelRsService gxsTunnelRsService)
+	{
+		this.gxsTunnelRsService = gxsTunnelRsService;
+		return DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID;
 	}
 
 	@Transactional
@@ -239,9 +257,15 @@ public class ChatRsService extends RsService
 	}
 
 	@Override
-	public RsServiceInitPriority getInitPriority()
+	public void receiveGxsTunnelData(Location virtual)
 	{
-		return RsServiceInitPriority.HIGH;
+
+	}
+
+	@Override
+	public boolean acceptGxsTunnelDataFromPeer()
+	{
+		return false;
 	}
 
 	@Override

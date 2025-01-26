@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -107,6 +107,6 @@ public class GxsId implements Identifier, Comparable<GxsId>
 	@Override
 	public int compareTo(GxsId o)
 	{
-		return Arrays.compare(identifier, o.identifier);
+		return Arrays.compareUnsigned(identifier, o.identifier);
 	}
 }

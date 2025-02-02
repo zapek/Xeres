@@ -19,9 +19,21 @@
 
 package io.xeres.app.xrs.service.gxstunnel.item;
 
+import io.xeres.app.xrs.serialization.RsSerialized;
+
 public class GxsTunnelDataItem extends GxsTunnelItem
 {
-	// XXX
+	@RsSerialized
+	private long counter;
+
+	@RsSerialized
+	private int flags; // Not used
+
+	@RsSerialized
+	private int serviceId;
+
+	@RsSerialized
+	private byte[] tunnelData;
 
 	@Override
 	public int getSubType()

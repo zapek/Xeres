@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.app.xrs.serialization;
 
 import io.xeres.common.id.LocationIdentifier;
 
+import java.math.BigInteger;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,9 @@ public class SerialAll
 
 	@RsSerialized
 	private byte[] bytes;
+
+	@RsSerialized
+	private BigInteger bigInteger;
 
 	@RsSerialized
 	private LocationIdentifier locationIdentifier;
@@ -244,6 +248,16 @@ public class SerialAll
 	public void setBytes(byte[] bytes)
 	{
 		this.bytes = bytes;
+	}
+
+	public BigInteger getBigInteger()
+	{
+		return bigInteger;
+	}
+
+	public void setBigInteger(BigInteger bigInteger)
+	{
+		this.bigInteger = bigInteger;
 	}
 
 	public LocationIdentifier getLocationIdentifier()

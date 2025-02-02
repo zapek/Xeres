@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.gxstunnel;
 
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.common.id.Sha1Sum;
 
@@ -37,6 +38,7 @@ class TunnelDhInfo
 	private Sha1Sum hash;
 	private TunnelDirection direction;
 	private KeyPair keyPair;
+	private Location tunnelId;
 
 	public Status getStatus()
 	{
@@ -76,5 +78,22 @@ class TunnelDhInfo
 	public void setKeyPair(KeyPair keyPair)
 	{
 		this.keyPair = keyPair;
+	}
+
+	public Location getTunnelId()
+	{
+		return tunnelId;
+	}
+
+	public void setTunnelId(Location tunnelId)
+	{
+		this.tunnelId = tunnelId;
+	}
+
+	public void clear()
+	{
+		status = Status.UNINITIALIZED;
+		keyPair = null;
+		tunnelId = null;
 	}
 }

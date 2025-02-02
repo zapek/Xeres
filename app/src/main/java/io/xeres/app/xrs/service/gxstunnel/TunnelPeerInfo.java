@@ -26,7 +26,7 @@ class TunnelPeerInfo
 	public enum Status
 	{
 		UNKNOWN,
-		TUNNEL_DN,
+		TUNNEL_DOWN,
 		CAN_TALK,
 		REMOTELY_CLOSED
 	}

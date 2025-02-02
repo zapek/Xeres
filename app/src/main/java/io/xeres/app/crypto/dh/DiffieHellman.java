@@ -21,12 +21,10 @@ package io.xeres.app.crypto.dh;
 
 import io.xeres.common.util.SecureRandomUtils;
 
+import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 
 public final class DiffieHellman
 {
@@ -53,6 +51,22 @@ public final class DiffieHellman
 			return keyPairGenerator.generateKeyPair();
 		}
 		catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e)
+		{
+			throw new IllegalArgumentException("DH algorithm error: " + e.getMessage());
+		}
+	}
+
+	public static byte[] generateCommonSecretKey(PrivateKey privateKey, PublicKey receivedPublicKey)
+	{
+		try
+		{
+			var keyAgreement = KeyAgreement.getInstance(KEY_ALGORITHM);
+			keyAgreement.init(privateKey);
+			keyAgreement.doPhase(receivedPublicKey, true);
+
+			return keyAgreement.generateSecret();
+		}
+		catch (InvalidKeyException | NoSuchAlgorithmException e)
 		{
 			throw new IllegalArgumentException("DH algorithm error: " + e.getMessage());
 		}

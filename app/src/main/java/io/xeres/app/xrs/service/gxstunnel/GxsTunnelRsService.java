@@ -20,11 +20,16 @@
 package io.xeres.app.xrs.service.gxstunnel;
 
 import io.xeres.app.crypto.dh.DiffieHellman;
+import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.util.BigIntegerUtils;
+import io.xeres.app.xrs.common.SecurityKey;
+import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
@@ -34,24 +39,28 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxstunnel.item.GxsTunnelDhPublicKeyItem;
 import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
-import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericDataItem;
-import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
-import io.xeres.app.xrs.service.turtle.item.TurtleSearchResultItem;
+import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.interfaces.DHPublicKey;
 import java.nio.ByteBuffer;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.xeres.app.xrs.common.SecurityKey.Flags.DISTRIBUTION_ADMIN;
+import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
 import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.HALF_KEY_DONE;
@@ -69,22 +78,32 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private final Map<Integer, GxsTunnelRsClient> clients = new HashMap<>();
 	private final RsServiceRegistry rsServiceRegistry;
+	private final DatabaseSessionManager databaseSessionManager;
+	private final IdentityService identityService;
 
 	private final Map<Integer, TunnelPeerInfo> contacts = new ConcurrentHashMap<>();
 	private final Map<Location, TunnelDhInfo> peers = new ConcurrentHashMap<>();
 
-	private final GxsId ownGxsId;
+	private GxsId ownGxsId;
 	private TurtleRouter turtleRouter;
 
 	public GxsTunnelRsService(RsServiceRegistry rsServiceRegistry, DatabaseSessionManager databaseSessionManager, IdentityService identityService)
 	{
 		super(rsServiceRegistry);
 		this.rsServiceRegistry = rsServiceRegistry;
+		this.databaseSessionManager = databaseSessionManager;
+		this.identityService = identityService;
+	}
 
+	@Override
+	public void initialize()
+	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			ownGxsId = identityService.getOwnIdentity().getGxsId();
 		}
+
+		// XXX: setup executor service
 	}
 
 	@Override
@@ -169,7 +188,64 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private void handleRecvDhPublicKeyItem(Location virtualLocation, GxsTunnelDhPublicKeyItem item)
 	{
-		// XXX
+		var peer = peers.get(virtualLocation);
+		if (peer == null)
+		{
+			log.error("Cannot find peer for {}", virtualLocation);
+			return;
+		}
+
+		PublicKey publicKey = null;
+
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			publicKey = identityService.findByGxsId(item.getSignerPublicKey().getKeyId())
+					.map(GxsGroupItem::getAdminPublicKey)
+					.orElse(item.getSignerPublicKey() != null ? RSA.getPublicKey(item.getSignerPublicKey().getData()) : null);
+		}
+		catch (NoSuchAlgorithmException | InvalidKeySpecException e)
+		{
+			log.debug("Error while trying to get public key for {}: {}", item.getSignerPublicKey().getKeyId(), e.getMessage());
+		}
+
+		if (publicKey == null)
+		{
+			log.warn("Cannot find public key for {}", item);
+			return;
+		}
+
+		// XXX: check public key? see the algo and where it's used
+
+		if (!item.getSignerPublicKey().getKeyId().equals(item.getSignature().getGxsId()))
+		{
+			log.warn("Signature does not match public key for {}", peer);
+			return;
+		}
+
+		if (!RSA.verify(publicKey, item.getSignature().getData(), BigIntegerUtils.getAsOneComplement(item.getPublicKey())))
+		{
+			log.error("Signature verification failed for {}", peer);
+			return;
+		}
+
+		if (peer.getKeyPair() == null)
+		{
+			log.error("No information on peer {}", peer);
+			return;
+		}
+		if (peer.getStatus() == TunnelDhInfo.Status.KEY_AVAILABLE)
+		{
+			restartDhSession(virtualLocation);
+		}
+
+		var tunnelId = VirtualLocation.fromGxsIds(ownGxsId, item.getSignerPublicKey().getKeyId());
+		peer.setTunnelId(tunnelId);
+
+		var commonSecret = DiffieHellman.generateCommonSecretKey(peer.getKeyPair().getPrivate(), publicKey); // XXX: catch IllegalArgumentException? I think so...
+		peer.setStatus(TunnelDhInfo.Status.KEY_AVAILABLE);
+
+		// XXX: create the tunnel name and pinfo, etc...
+
 	}
 
 	private void handleEncryptedData(Sha1Sum hash, Location virtualLocation, ByteBuffer buf)
@@ -201,7 +277,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		log.debug("Received new virtual peer {} for hash {}, direction {}", virtualLocation, hash, direction);
 
 		var dhInfo = peers.getOrDefault(virtualLocation, new TunnelDhInfo());
-		// XXX: fill in dhInfo
+		dhInfo.clear();
 		dhInfo.setDirection(direction);
 		dhInfo.setHash(hash);
 		dhInfo.setStatus(UNINITIALIZED);
@@ -232,7 +308,16 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	@Override
 	public void removeVirtualPeer(Sha1Sum hash, Location virtualLocation)
 	{
+		var peer = peers.remove(virtualLocation);
 
+		if (peer == null)
+		{
+			log.error("Cannot remove virtual peer {} because it's not found", virtualLocation);
+			return;
+		}
+
+		// XXX: weird stuff with contacts...
+		//contacts.remove(peer);
 	}
 
 	private void restartDhSession(Location virtualLocation)
@@ -249,7 +334,25 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		assert keyPair != null;
 
-		// XXX: send public key... check how RS does it... it's complex...
+		// Sign the public key
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			var ownIdentity = identityService.getOwnIdentity();
+			var signerSecurityKey = new SecurityKey(ownIdentity.getGxsId(), EnumSet.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY), 0, 0, ownIdentity.getAdminPublicKey().getEncoded()); // XXX: validity, flags, ... ok?
+
+			var publicKeyNum = ((DHPublicKey) keyPair.getPublic()).getY();
+
+			var signature = new Signature(ownIdentity.getGxsId(), RSA.sign(BigIntegerUtils.getAsOneComplement(publicKeyNum), ownIdentity.getAdminPrivateKey())); // XXX: no type... correct?
+
+			var item = new GxsTunnelDhPublicKeyItem(publicKeyNum, signature, signerSecurityKey);
+			var serializedItem = ItemUtils.serializeItem(item, this);
+
+			// The preceding IV is made of zeroes as this is the only clear item that is sent.
+			var data = new byte[serializedItem.length + 8];
+			System.arraycopy(serializedItem, 0, data, 8, serializedItem.length);
+
+			turtleRouter.sendTurtleData(virtualLocation, new TurtleGenericFastDataItem(data));
+		}
 	}
 
 	@Override

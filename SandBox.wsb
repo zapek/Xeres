@@ -1,5 +1,5 @@
 <Configuration>
-<VGpu>Default</VGpu>
+<VGpu>Disable</VGpu><!-- fixes the hardware acceleration with JavaFX on the sandbox, or not... -->
 <Networking>Default</Networking>
 <MappedFolders>
     <MappedFolder>
@@ -8,6 +8,6 @@
     </MappedFolder>
 </MappedFolders>
 <LogonCommand>
-    <Command>msiexec /i C:\Users\WDAGutilityAccount\Desktop\distributions\Xeres-0.7.2.msi</Command>
+    <Command>msiexec /i C:\Users\WDAGutilityAccount\Desktop\distributions\Xeres-0.8.0.msi</Command>
 </LogonCommand>
 </Configuration>

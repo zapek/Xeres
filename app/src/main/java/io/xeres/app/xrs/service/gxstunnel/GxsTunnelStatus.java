@@ -17,19 +17,21 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.gxstunnel.item;
+package io.xeres.app.xrs.service.gxstunnel;
 
-import io.xeres.app.xrs.serialization.RsSerialized;
-
-public class GxsTunnelDataAckItem extends GxsTunnelItem
+public enum GxsTunnelStatus
 {
-	@RsSerialized
-	private long counter;
-
-	@Override
-	public int getSubType()
-	{
-		return 4;
-	}
-
+	UNUSED_1,
+	UNUSED_2,
+	UNUSED_3,
+	UNUSED_4,
+	UNUSED_5,
+	UNUSED_6,
+	UNUSED_7,
+	UNUSED_8,
+	UNUSED_9,
+	UNUSED_10,
+	CLOSING_DISTANT_CONNECTION,
+	ACK_DISTANT_CONNECTION,
+	KEEP_ALIVE
 }

@@ -17,19 +17,34 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.gxstunnel.item;
+package io.xeres.app.util;
 
-import io.xeres.app.xrs.serialization.RsSerialized;
+import java.math.BigInteger;
+import java.util.Arrays;
 
-public class GxsTunnelDataAckItem extends GxsTunnelItem
+public final class BigIntegerUtils
 {
-	@RsSerialized
-	private long counter;
-
-	@Override
-	public int getSubType()
+	private BigIntegerUtils()
 	{
-		return 4;
+		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * Gets a BigInteger as one's complement.
+	 * <p>
+	 * This is useful when requiring compatibility with OpenSSL's BN_bn2bin().
+	 *
+	 * @param value the signed value
+	 * @return the value as a one's complement (that is, without leading zero if positive)
+	 */
+	public static byte[] getAsOneComplement(BigInteger value)
+	{
+		var bytes = value.toByteArray();
+
+		if (bytes[0] == 0 && bytes.length > 1)
+		{
+			return Arrays.copyOfRange(bytes, 1, bytes.length);
+		}
+		return bytes;
+	}
 }

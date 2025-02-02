@@ -19,13 +19,54 @@
 
 package io.xeres.app.xrs.service.gxstunnel.item;
 
+import io.xeres.app.xrs.common.SecurityKey;
+import io.xeres.app.xrs.common.Signature;
+import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.serialization.TlvType;
+
+import java.math.BigInteger;
+
 public class GxsTunnelDhPublicKeyItem extends GxsTunnelItem
 {
-	// XXX
+	@RsSerialized
+	private BigInteger publicKey;
+
+	@RsSerialized(tlvType = TlvType.SIGNATURE)
+	private Signature signature;
+
+	@RsSerialized(tlvType = TlvType.SECURITY_KEY)
+	private SecurityKey signerPublicKey;
 
 	@Override
 	public int getSubType()
 	{
 		return 2;
+	}
+
+	public GxsTunnelDhPublicKeyItem()
+	{
+		// Required
+	}
+
+	public GxsTunnelDhPublicKeyItem(BigInteger publicKey, Signature signature, SecurityKey signerPublicKey)
+	{
+		this.publicKey = publicKey;
+		this.signature = signature;
+		this.signerPublicKey = signerPublicKey;
+	}
+
+	public BigInteger getPublicKey()
+	{
+		return publicKey;
+	}
+
+	public Signature getSignature()
+	{
+		return signature;
+	}
+
+	public SecurityKey getSignerPublicKey()
+	{
+		return signerPublicKey;
 	}
 }

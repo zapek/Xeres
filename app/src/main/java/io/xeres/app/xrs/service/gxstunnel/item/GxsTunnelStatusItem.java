@@ -19,9 +19,15 @@
 
 package io.xeres.app.xrs.service.gxstunnel.item;
 
+import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus;
+
+import java.util.Set;
+
 public class GxsTunnelStatusItem extends GxsTunnelItem
 {
-	// XXX
+	@RsSerialized
+	private Set<GxsTunnelStatus> status;
 
 	@Override
 	public int getSubType()

@@ -20,7 +20,6 @@
 package io.xeres.app.crypto.rsa;
 
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
-import io.xeres.app.util.BigIntegerUtils;
 import io.xeres.common.id.GxsId;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DERNull;
@@ -28,6 +27,7 @@ import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.util.BigIntegers;
 
 import java.io.IOException;
 import java.security.*;
@@ -232,8 +232,8 @@ public final class RSA
 		Objects.requireNonNull(publicKey);
 		var rsaPublicKey = (RSAPublicKey) publicKey;
 		return makeGxsId(
-				BigIntegerUtils.getAsOneComplement(rsaPublicKey.getModulus()),
-				BigIntegerUtils.getAsOneComplement(rsaPublicKey.getPublicExponent())
+				BigIntegers.asUnsignedByteArray(rsaPublicKey.getModulus()),
+				BigIntegers.asUnsignedByteArray(rsaPublicKey.getPublicExponent())
 		);
 	}
 

@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.util.BigIntegerUtils;
+import org.bouncycastle.util.BigIntegers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ final class BigIntegerSerializer
 	static int serialize(ByteBuf buf, BigInteger value)
 	{
 		log.trace("Writing big integer: {}", value);
-		var data = BigIntegerUtils.getAsOneComplement(value);
+		var data = BigIntegers.asUnsignedByteArray(value);
 		buf.ensureWritable(Integer.BYTES + data.length);
 		buf.writeInt(data.length);
 		buf.writeBytes(data);
@@ -51,6 +51,6 @@ final class BigIntegerSerializer
 		log.trace("Reading big integer of size: {}", len);
 		var out = new byte[len];
 		buf.readBytes(out);
-		return new BigInteger(out); // Negative numbers aren't supported
+		return BigIntegers.fromUnsignedByteArray(out);
 	}
 }

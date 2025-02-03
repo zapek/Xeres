@@ -27,7 +27,6 @@ import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.service.IdentityService;
-import io.xeres.app.util.BigIntegerUtils;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
@@ -42,6 +41,7 @@ import io.xeres.app.xrs.service.turtle.TurtleRsClient;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
+import org.bouncycastle.util.BigIntegers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -222,7 +222,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 
-		if (!RSA.verify(publicKey, item.getSignature().getData(), BigIntegerUtils.getAsOneComplement(item.getPublicKey())))
+		if (!RSA.verify(publicKey, item.getSignature().getData(), BigIntegers.asUnsignedByteArray(item.getPublicKey())))
 		{
 			log.error("Signature verification failed for {}", peer);
 			return;
@@ -342,7 +342,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 			var publicKeyNum = ((DHPublicKey) keyPair.getPublic()).getY();
 
-			var signature = new Signature(ownIdentity.getGxsId(), RSA.sign(BigIntegerUtils.getAsOneComplement(publicKeyNum), ownIdentity.getAdminPrivateKey())); // XXX: no type... correct?
+			var signature = new Signature(ownIdentity.getGxsId(), RSA.sign(BigIntegers.asUnsignedByteArray(publicKeyNum), ownIdentity.getAdminPrivateKey())); // XXX: no type... correct?
 
 			var item = new GxsTunnelDhPublicKeyItem(publicKeyNum, signature, signerSecurityKey);
 			var serializedItem = ItemUtils.serializeItem(item, this);

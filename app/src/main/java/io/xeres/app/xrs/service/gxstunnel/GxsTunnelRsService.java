@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.gxstunnel;
 
 import io.xeres.app.crypto.dh.DiffieHellman;
+import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -36,11 +37,13 @@ import io.xeres.app.xrs.service.RsServiceMaster;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxstunnel.item.GxsTunnelDhPublicKeyItem;
+import io.xeres.app.xrs.service.gxstunnel.item.GxsTunnelItem;
 import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.util.SecureRandomUtils;
 import org.bouncycastle.util.BigIntegers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +84,8 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	private final DatabaseSessionManager databaseSessionManager;
 	private final IdentityService identityService;
 
-	private final Map<Integer, TunnelPeerInfo> contacts = new ConcurrentHashMap<>();
-	private final Map<Location, TunnelDhInfo> peers = new ConcurrentHashMap<>();
+	private final Map<Location, TunnelPeerInfo> contacts = new ConcurrentHashMap<>(); // _gxs_tunnel_contacts
+	private final Map<Location, TunnelDhInfo> peers = new ConcurrentHashMap<>(); // gxs_tunnel_virtual_peer_ids
 
 	private GxsId ownGxsId;
 	private TurtleRouter turtleRouter;
@@ -244,8 +247,19 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		var commonSecret = DiffieHellman.generateCommonSecretKey(peer.getKeyPair().getPrivate(), publicKey); // XXX: catch IllegalArgumentException? I think so...
 		peer.setStatus(TunnelDhInfo.Status.KEY_AVAILABLE);
 
-		// XXX: create the tunnel name and pinfo, etc...
+		contacts.put(tunnelId, new TunnelPeerInfo(generateAesKey(commonSecret), CAN_TALK, virtualLocation, peer.getDirection(), item.getSignature().getGxsId()));
 
+		// XXX: send the following encrypted tunnel to tunnelId
+		//new GxsTunnelStatusItem(Set.of(GxsTunnelStatus.ACK_DISTANT_CONNECTION));
+	}
+
+	private byte[] generateAesKey(byte[] commonSecret)
+	{
+		var aesKey = new byte[16];
+		var digest = new Sha1MessageDigest();
+		digest.update(commonSecret);
+		System.arraycopy(digest.getBytes(), 0, aesKey, 0, 16);
+		return aesKey;
 	}
 
 	private void handleEncryptedData(Sha1Sum hash, Location virtualLocation, ByteBuffer buf)
@@ -355,12 +369,37 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		}
 	}
 
+	private void sendEncryptedTunnelData(Location destination, GxsTunnelItem item)
+	{
+		var serializedItem = ItemUtils.serializeItem(item, this);
+
+		var peer = contacts.get(destination);
+		if (peer == null)
+		{
+			log.error("Cannot find peer for {}", destination);
+			return;
+		}
+
+		if (peer.getStatus() != CAN_TALK)
+		{
+			log.error("Cannot talk to tunnel id {}, status is {}", destination, peer.getStatus());
+			return;
+		}
+
+		peer.addSentSize(serializedItem.length);
+
+		var iv = new byte[8];
+		SecureRandomUtils.nextBytes(iv);
+		// XXX: aes crypt, using aes_key, + iv, etc...
+	}
+
 	@Override
 	public RsServiceType getMasterServiceType()
 	{
 		return TURTLE;
 	}
 
+	// XXX: that one called by requestSecuredTunnel()...
 	public Location createTunnel(GxsId from, GxsId to) // XXX: missing service ID
 	{
 		var hash = DestinationHash.createRandomHash(to);

@@ -29,6 +29,16 @@ public class GxsTunnelStatusItem extends GxsTunnelItem
 	@RsSerialized
 	private Set<GxsTunnelStatus> status;
 
+	public GxsTunnelStatusItem()
+	{
+		// Needed
+	}
+
+	public GxsTunnelStatusItem(Set<GxsTunnelStatus> status)
+	{
+		this.status = status;
+	}
+
 	@Override
 	public int getSubType()
 	{

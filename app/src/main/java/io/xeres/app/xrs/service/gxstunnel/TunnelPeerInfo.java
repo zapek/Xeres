@@ -19,7 +19,14 @@
 
 package io.xeres.app.xrs.service.gxstunnel;
 
+import io.xeres.app.database.model.location.Location;
+import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
+import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.Set;
 
 class TunnelPeerInfo
 {
@@ -31,8 +38,31 @@ class TunnelPeerInfo
 		REMOTELY_CLOSED
 	}
 
+	private Instant lastContact;
+	private Instant lastKeepAliveSent;
+	private byte[] aesKey;
 	private Sha1Sum hash;
 	private Status status;
+	private Location location;
+	private GxsId destination;
+	private TunnelDirection direction;
+	private Set<Integer> clientServices;
+	private Map<Long, Instant> receivedMessages;
+	private long totalSent;
+	private long totalReceived;
+
+	public TunnelPeerInfo(byte[] aesKey, Status status, Location location, TunnelDirection direction, GxsId destination)
+	{
+		var now = Instant.now();
+
+		lastContact = now;
+		lastKeepAliveSent = now;
+		this.aesKey = aesKey;
+		this.status = status;
+		this.location = location;
+		this.direction = direction;
+		this.destination = destination;
+	}
 
 	public Sha1Sum getHash()
 	{
@@ -42,5 +72,11 @@ class TunnelPeerInfo
 	public Status getStatus()
 	{
 		return status;
+	}
+
+
+	public void addSentSize(int size)
+	{
+		totalSent += size;
 	}
 }

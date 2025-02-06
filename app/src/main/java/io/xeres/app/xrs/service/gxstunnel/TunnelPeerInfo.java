@@ -74,6 +74,10 @@ class TunnelPeerInfo
 		return status;
 	}
 
+	public byte[] getAesKey()
+	{
+		return aesKey;
+	}
 
 	public void addSentSize(int size)
 	{

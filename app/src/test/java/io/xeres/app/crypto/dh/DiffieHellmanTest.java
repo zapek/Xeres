@@ -19,21 +19,49 @@
 
 package io.xeres.app.crypto.dh;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.security.KeyPair;
 
 import static io.xeres.app.crypto.dh.DiffieHellman.G;
 import static io.xeres.app.crypto.dh.DiffieHellman.P;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DiffieHellmanTest
 {
+	private static KeyPair keyPair;
+
+	@BeforeAll
+	static void setup()
+	{
+		keyPair = io.xeres.app.crypto.dh.DiffieHellman.generateKeys();
+	}
+
 	@Test
 	void DiffieHellman_Validate()
 	{
 		assertTrue(isSafePrime(P));
 		assertTrue(isGeneratorValid(G));
+	}
+
+	@Test
+	void DiffieHellman_Generation_Success()
+	{
+		assertNotNull(keyPair);
+		assertEquals("DH", keyPair.getPrivate().getAlgorithm());
+		assertEquals("DH", keyPair.getPublic().getAlgorithm());
+	}
+
+	@Test
+	void DiffieHellman_GenerateCommonSecret()
+	{
+		var receivedKeyPair = DiffieHellman.generateKeys();
+
+		var common = DiffieHellman.generateCommonSecretKey(keyPair.getPrivate(), receivedKeyPair.getPublic());
+
+		assertNotNull(common);
 	}
 
 	private static boolean isSafePrime(BigInteger p)

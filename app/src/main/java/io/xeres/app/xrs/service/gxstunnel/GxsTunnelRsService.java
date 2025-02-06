@@ -19,8 +19,10 @@
 
 package io.xeres.app.xrs.service.gxstunnel;
 
+import io.xeres.app.crypto.aes.AES;
 import io.xeres.app.crypto.dh.DiffieHellman;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
+import io.xeres.app.crypto.hmac.sha1.Sha1HMac;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -50,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -390,7 +393,26 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		var iv = new byte[8];
 		SecureRandomUtils.nextBytes(iv);
-		// XXX: aes crypt, using aes_key, + iv, etc...
+
+		var key = peer.getAesKey();
+
+		var encryptedItem = AES.encrypt(key, iv, serializedItem);
+		var turtleItem = new TurtleGenericFastDataItem(createTurtleData(key, iv, encryptedItem));
+		turtleRouter.sendTurtleData(destination, turtleItem);
+	}
+
+	private byte[] createTurtleData(byte[] aesKey, byte[] iv, byte[] encryptedItem)
+	{
+		var turtleData = new byte[iv.length + Sha1Sum.LENGTH + encryptedItem.length];
+
+		System.arraycopy(iv, 0, turtleData, 0, iv.length);
+
+		var hmac = new Sha1HMac(new SecretKeySpec(aesKey, "AES"));
+		hmac.update(encryptedItem);
+
+		System.arraycopy(hmac.getBytes(), 0, turtleData, iv.length, Sha1Sum.LENGTH);
+		System.arraycopy(encryptedItem, 0, turtleData, iv.length + Sha1Sum.LENGTH, encryptedItem.length);
+		return turtleData;
 	}
 
 	@Override

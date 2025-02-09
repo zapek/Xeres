@@ -29,6 +29,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -132,9 +133,17 @@ public class SettingsSoundController implements SettingsController
 		playButton.setOnAction(actionEvent -> soundService.play(path.getText()));
 	}
 
-	private static void setInitialDirectoryIfExists(FileChooser fileChooser, String path)
+	private void setInitialDirectoryIfExists(FileChooser fileChooser, String filePath)
 	{
-		var parent = Path.of(path).getParent();
+		var path = Path.of(filePath);
+		var parent = path.getParent();
+		if (parent == null && !path.isAbsolute())
+		{
+			// Try to find the proper path (can happen on Windows when we're auto started)
+			var home = new ApplicationHome(getClass());
+			path = Path.of(home.getDir().toString(), filePath);
+			parent = path.getParent();
+		}
 		if (parent != null)
 		{
 			var file = parent.toFile();

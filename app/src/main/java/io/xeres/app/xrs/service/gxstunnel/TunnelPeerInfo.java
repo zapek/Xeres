@@ -25,40 +25,46 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 class TunnelPeerInfo
 {
-	public enum Status
-	{
-		UNKNOWN,
-		TUNNEL_DOWN,
-		CAN_TALK,
-		REMOTELY_CLOSED
-	}
-
 	private Instant lastContact;
 	private Instant lastKeepAliveSent;
 	private byte[] aesKey;
 	private Sha1Sum hash;
-	private Status status;
+	private GxsTunnelStatus status;
 	private Location location;
 	private GxsId destination;
 	private TunnelDirection direction;
-	private Set<Integer> clientServices;
+	private Set<Integer> clientServices = new HashSet<>();
 	private Map<Long, Instant> receivedMessages;
 	private long totalSent;
 	private long totalReceived;
 
-	public TunnelPeerInfo(byte[] aesKey, Status status, Location location, TunnelDirection direction, GxsId destination)
+	public TunnelPeerInfo(Sha1Sum hash, GxsId destination, int serviceId)
 	{
 		var now = Instant.now();
 
 		lastContact = now;
 		lastKeepAliveSent = now;
+		status = GxsTunnelStatus.TUNNEL_DOWN;
+		direction = TunnelDirection.SERVER;
+		this.hash = hash;
+		this.destination = destination;
+		clientServices.add(serviceId);
+	}
+
+	public TunnelPeerInfo(byte[] aesKey, Location location, TunnelDirection direction, GxsId destination)
+	{
+		var now = Instant.now();
+
+		lastContact = now;
+		lastKeepAliveSent = now;
+		status = GxsTunnelStatus.CAN_TALK;
 		this.aesKey = aesKey;
-		this.status = status;
 		this.location = location;
 		this.direction = direction;
 		this.destination = destination;
@@ -69,9 +75,19 @@ class TunnelPeerInfo
 		return hash;
 	}
 
-	public Status getStatus()
+	public GxsTunnelStatus getStatus()
 	{
 		return status;
+	}
+
+	public void setStatus(GxsTunnelStatus status)
+	{
+		this.status = status;
+	}
+
+	public void clearLocation()
+	{
+		this.location = null;
 	}
 
 	public byte[] getAesKey()
@@ -79,8 +95,49 @@ class TunnelPeerInfo
 		return aesKey;
 	}
 
+	public TunnelDirection getDirection()
+	{
+		return direction;
+	}
+
+	public GxsId getDestination()
+	{
+		return destination;
+	}
+
+	public Set<Integer> getClientServices()
+	{
+		return clientServices;
+	}
+
 	public void addSentSize(int size)
 	{
 		totalSent += size;
+	}
+
+	public void addReceivedSize(int size)
+	{
+		totalReceived += size;
+	}
+
+	public void updateLastContact()
+	{
+		lastContact = Instant.now();
+	}
+
+	public void addService(int serviceId)
+	{
+		clientServices.add(serviceId);
+	}
+
+	public boolean checkIfMessageAlreadyReceivedAndRecord(long messageId)
+	{
+		var message = receivedMessages.get(messageId);
+		if (message != null)
+		{
+			return true;
+		}
+		receivedMessages.put(messageId, Instant.now());
+		return false;
 	}
 }

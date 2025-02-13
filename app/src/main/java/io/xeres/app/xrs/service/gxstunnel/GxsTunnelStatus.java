@@ -21,17 +21,8 @@ package io.xeres.app.xrs.service.gxstunnel;
 
 public enum GxsTunnelStatus
 {
-	UNUSED_1,
-	UNUSED_2,
-	UNUSED_3,
-	UNUSED_4,
-	UNUSED_5,
-	UNUSED_6,
-	UNUSED_7,
-	UNUSED_8,
-	UNUSED_9,
-	UNUSED_10,
-	CLOSING_DISTANT_CONNECTION,
-	ACK_DISTANT_CONNECTION,
-	KEEP_ALIVE
+	UNKNOWN,
+	TUNNEL_DOWN,
+	CAN_TALK,
+	REMOTELY_CLOSED
 }

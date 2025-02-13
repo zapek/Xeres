@@ -32,4 +32,18 @@ public class GxsTunnelDataAckItem extends GxsTunnelItem
 		return 4;
 	}
 
+	public GxsTunnelDataAckItem()
+	{
+		// Needed
+	}
+
+	public GxsTunnelDataAckItem(long counter)
+	{
+		this.counter = counter;
+	}
+
+	public long getCounter()
+	{
+		return counter;
+	}
 }

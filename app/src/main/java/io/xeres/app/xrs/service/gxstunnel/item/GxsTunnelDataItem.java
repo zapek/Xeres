@@ -19,9 +19,12 @@
 
 package io.xeres.app.xrs.service.gxstunnel.item;
 
+import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
-public class GxsTunnelDataItem extends GxsTunnelItem
+import java.time.Instant;
+
+public class GxsTunnelDataItem extends GxsTunnelItem implements Comparable<GxsTunnelDataItem>
 {
 	@RsSerialized
 	private long counter;
@@ -35,9 +38,67 @@ public class GxsTunnelDataItem extends GxsTunnelItem
 	@RsSerialized
 	private byte[] tunnelData;
 
+	// Used for resending
+	private Instant lastSendingAttempt = Instant.EPOCH;
+	private Location location;
+
+	public GxsTunnelDataItem()
+	{
+		// Needed
+	}
+
+	public GxsTunnelDataItem(long counter, int serviceId, byte[] tunnelData)
+	{
+		this.counter = counter;
+		this.serviceId = serviceId;
+		this.tunnelData = tunnelData;
+	}
+
 	@Override
 	public int getSubType()
 	{
 		return 1;
+	}
+
+	public long getCounter()
+	{
+		return counter;
+	}
+
+	public int getServiceId()
+	{
+		return serviceId;
+	}
+
+	public byte[] getTunnelData()
+	{
+		return tunnelData;
+	}
+
+	public void updateLastSendingAttempt()
+	{
+		lastSendingAttempt = Instant.now();
+	}
+
+	public Instant getLastSendingAttempt()
+	{
+		return lastSendingAttempt;
+	}
+
+	public void setForResending(Location location)
+	{
+		this.location = location;
+		updateLastSendingAttempt();
+	}
+
+	public Location getLocation()
+	{
+		return location;
+	}
+
+	@Override
+	public int compareTo(GxsTunnelDataItem o)
+	{
+		return lastSendingAttempt.compareTo(o.lastSendingAttempt);
 	}
 }

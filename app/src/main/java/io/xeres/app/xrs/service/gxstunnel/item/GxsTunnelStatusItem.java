@@ -20,21 +20,35 @@
 package io.xeres.app.xrs.service.gxstunnel.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus;
-
-import java.util.Set;
 
 public class GxsTunnelStatusItem extends GxsTunnelItem
 {
+	public enum Status
+	{
+		UNUSED_1,
+		UNUSED_2,
+		UNUSED_3,
+		UNUSED_4,
+		UNUSED_5,
+		UNUSED_6,
+		UNUSED_7,
+		UNUSED_8,
+		UNUSED_9,
+		UNUSED_10,
+		CLOSING_DISTANT_CONNECTION,
+		ACK_DISTANT_CONNECTION,
+		KEEP_ALIVE
+	}
+
 	@RsSerialized
-	private Set<GxsTunnelStatus> status;
+	private Status status;
 
 	public GxsTunnelStatusItem()
 	{
 		// Needed
 	}
 
-	public GxsTunnelStatusItem(Set<GxsTunnelStatus> status)
+	public GxsTunnelStatusItem(Status status)
 	{
 		this.status = status;
 	}
@@ -43,5 +57,10 @@ public class GxsTunnelStatusItem extends GxsTunnelItem
 	public int getSubType()
 	{
 		return 3;
+	}
+
+	public Status getStatus()
+	{
+		return status;
 	}
 }

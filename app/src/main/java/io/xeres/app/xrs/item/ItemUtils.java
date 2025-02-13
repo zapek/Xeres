@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -86,7 +86,7 @@ public final class ItemUtils
 	 *
 	 * @param data     the byte array of the item
 	 * @param registry the registry to build the item
-	 * @return the item
+	 * @return the item, not null
 	 */
 	public static Item deserializeItem(byte[] data, RsServiceRegistry registry)
 	{

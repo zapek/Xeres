@@ -42,6 +42,7 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsClient;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
+import io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
@@ -153,6 +154,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
+	private final RsServiceRegistry rsServiceRegistry;
 
 	private enum Invitation
 	{
@@ -173,7 +175,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private ScheduledExecutorService executorService;
 	private GxsTunnelRsService gxsTunnelRsService;
 
-	public ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
+	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
@@ -185,6 +187,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		this.uiBridgeService = uiBridgeService;
 		this.chatRoomService = chatRoomService;
 		this.chatBacklogService = chatBacklogService;
+		this.rsServiceRegistry = rsServiceRegistry;
 	}
 
 	@Override
@@ -200,7 +203,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	}
 
 	@Override
-	public int initializeGxsTunnel(GxsTunnelRsService gxsTunnelRsService)
+	public int onGxsTunnelInitialization(GxsTunnelRsService gxsTunnelRsService)
 	{
 		this.gxsTunnelRsService = gxsTunnelRsService;
 		return DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID;
@@ -257,15 +260,42 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	}
 
 	@Override
-	public void receiveGxsTunnelData(Location virtual)
+	public void onGxsTunnelDataReceived(Location tunnelId, byte[] data)
 	{
+		// XXX: store and check tunnel info!
 
+		var item = ItemUtils.deserializeItem(data, rsServiceRegistry);
+		// XXX: handle ChatMessageItem, ChatStatusItem and ChatAvatarItem, nothing else... not sure how to do it with tunnelId -> Peer...
 	}
 
 	@Override
-	public boolean acceptGxsTunnelDataFromPeer()
+	public boolean onGxsTunnelDataAuthorization(GxsId sender, Location tunnelId, boolean clientSide)
 	{
-		return false;
+		if (clientSide)
+		{
+			return true;
+		}
+
+		// XXX: add code for refusing distant chats
+		return true;
+	}
+
+	@Override
+	public void onGxsTunnelStatusChanged(Location tunnelId, GxsTunnelStatus status)
+	{
+		switch (status)
+		{
+			case UNKNOWN -> log.warn("Don't know how to handle {}", status);
+			case CAN_TALK ->
+			{
+			} // put peer as online
+			case TUNNEL_DOWN ->
+			{
+			} // put peer as offline
+			case REMOTELY_CLOSED ->
+			{
+			} // put peer as offline
+		}
 	}
 
 	@Override

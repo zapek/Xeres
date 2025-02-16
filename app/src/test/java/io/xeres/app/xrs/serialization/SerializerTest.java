@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.math.BigInteger;
 import java.util.*;
 
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
@@ -637,6 +638,8 @@ class SerializerTest
 
 		input.setBytes(new byte[]{1, 2, 3});
 
+		input.setBigInteger(new BigInteger("123456789"));
+
 		input.setLocationIdentifier(LocationFakes.createLocation().getLocationIdentifier());
 
 		input.setStringList(List.of("foo", "bar"));
@@ -680,6 +683,8 @@ class SerializerTest
 		assertEquals(input.getBooleanField(), result.getBooleanField());
 
 		assertArrayEquals(input.getBytes(), result.getBytes());
+
+		assertEquals(input.getBigInteger(), result.getBigInteger());
 
 		assertEquals(input.getLocationIdentifier().getLength(), result.getLocationIdentifier().getLength());
 		assertArrayEquals(input.getLocationIdentifier().getBytes(), result.getLocationIdentifier().getBytes());

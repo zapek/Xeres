@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,9 +27,9 @@ import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.util.BigIntegers;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -148,7 +148,7 @@ public final class RSA
 		}
 		catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e)
 		{
-			throw new IllegalArgumentException(e);
+			return false;
 		}
 	}
 
@@ -232,19 +232,9 @@ public final class RSA
 		Objects.requireNonNull(publicKey);
 		var rsaPublicKey = (RSAPublicKey) publicKey;
 		return makeGxsId(
-				getAsOneComplement(rsaPublicKey.getModulus()),
-				getAsOneComplement(rsaPublicKey.getPublicExponent())
+				BigIntegers.asUnsignedByteArray(rsaPublicKey.getModulus()),
+				BigIntegers.asUnsignedByteArray(rsaPublicKey.getPublicExponent())
 		);
-	}
-
-	private static byte[] getAsOneComplement(BigInteger number)
-	{
-		var array = number.toByteArray();
-		if (array[0] == 0)
-		{
-			array = Arrays.copyOfRange(array, 1, array.length);
-		}
-		return array;
 	}
 
 	private static GxsId makeGxsId(byte[] modulus, byte[] exponent)

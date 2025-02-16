@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -562,6 +563,10 @@ public final class Serializer
 		{
 			size += StringSerializer.serialize(buf, (String) object);
 		}
+		else if (javaClass.equals(BigInteger.class))
+		{
+			size += BigIntegerSerializer.serialize(buf, (BigInteger) object);
+		}
 		else if (javaClass.isArray())
 		{
 			size += ArraySerializer.serialize(buf, javaClass, object);
@@ -630,6 +635,10 @@ public final class Serializer
 		else if (javaClass.equals(String.class))
 		{
 			return StringSerializer.deserialize(buf);
+		}
+		else if (javaClass.equals(BigInteger.class))
+		{
+			return BigIntegerSerializer.deserialize(buf);
 		}
 		else if (Identifier.class.isAssignableFrom(javaClass))
 		{

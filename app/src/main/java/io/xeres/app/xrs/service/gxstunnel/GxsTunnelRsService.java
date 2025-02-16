@@ -132,7 +132,6 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private void manageResending()
 	{
-		// XXX: use a reentrant lock and utility functions to send items? only the encrypted item is important. rest can be sent directly
 		var now = Instant.now();
 
 		try

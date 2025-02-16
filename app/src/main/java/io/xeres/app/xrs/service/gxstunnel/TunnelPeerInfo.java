@@ -24,6 +24,7 @@ import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,9 +38,9 @@ class TunnelPeerInfo
 	private Sha1Sum hash;
 	private GxsTunnelStatus status;
 	private Location location;
-	private GxsId destination;
-	private TunnelDirection direction;
-	private Set<Integer> clientServices = new HashSet<>();
+	private final GxsId destination;
+	private final TunnelDirection direction;
+	private final Set<Integer> clientServices = new HashSet<>();
 	private Map<Long, Instant> receivedMessages;
 	private long totalSent;
 	private long totalReceived;
@@ -87,7 +88,7 @@ class TunnelPeerInfo
 
 	public void clearLocation()
 	{
-		this.location = null;
+		location = null;
 	}
 
 	public Location getLocation()
@@ -113,6 +114,21 @@ class TunnelPeerInfo
 	public Set<Integer> getClientServices()
 	{
 		return clientServices;
+	}
+
+	public Instant getLastContact()
+	{
+		return lastContact;
+	}
+
+	public Instant getLastKeepAliveSent()
+	{
+		return lastKeepAliveSent;
+	}
+
+	public void updateLastKeepAlive()
+	{
+		lastKeepAliveSent = Instant.now();
 	}
 
 	public void addSentSize(int size)
@@ -149,5 +165,12 @@ class TunnelPeerInfo
 		}
 		receivedMessages.put(messageId, Instant.now());
 		return false;
+	}
+
+	public void cleanupReceivedMessagesOlderThan(Duration delay)
+	{
+		var now = Instant.now();
+
+		receivedMessages.entrySet().removeIf(entry -> entry.getValue().plus(delay).isAfter(now));
 	}
 }

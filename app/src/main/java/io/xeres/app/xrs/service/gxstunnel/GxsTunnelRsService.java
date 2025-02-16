@@ -85,6 +85,8 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private static final Duration TUNNEL_MANAGEMENT_DELAY = Duration.ofSeconds(2);
 
+	private static final Duration TUNNEL_MESSAGES_DUPLICATE_DELAY = Duration.ofMinutes(10);
+
 	private final AtomicLong counter = new AtomicLong();
 
 	private final Map<Integer, GxsTunnelRsClient> clients = new HashMap<>();
@@ -119,7 +121,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			ownGxsId = identityService.getOwnIdentity().getGxsId();
 		}
 
-		executorService = ExecutorUtils.createFixedRateExecutor(this::manageResending,
+		executorService = ExecutorUtils.createFixedRateExecutor(this::manageTunnels,
 				getInitPriority().getMaxTime() + TUNNEL_DELAY_BETWEEN_RESEND.toSeconds(),
 				TUNNEL_MANAGEMENT_DELAY.toSeconds());
 	}
@@ -130,10 +132,16 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
-	private void manageResending()
+	private void manageTunnels()
 	{
 		var now = Instant.now();
 
+		manageResending(now);
+		manageDiggingAndCleanup(now);
+	}
+
+	private void manageResending(Instant now)
+	{
 		try
 		{
 			tunnelDataItemLock.lock();
@@ -154,6 +162,48 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		}
 
 		// XXX: there should be a way to remove them?! I think it's only when the tunnel is removed, but I can't see where it's done in RS
+	}
+
+	private void manageDiggingAndCleanup(Instant now)
+	{
+		var it = contacts.entrySet().iterator();
+		while (it.hasNext())
+		{
+			var entry = it.next();
+
+			// Remove tunnels that were remotely closed as we
+			// cannot use them anymore.
+			if (entry.getValue().getStatus() == REMOTELY_CLOSED && entry.getValue().getLastContact().plusSeconds(20).isBefore(now))
+			{
+				it.remove();
+				continue;
+			}
+
+			// Re-digg tunnels that have died out of inaction
+			if (entry.getValue().getStatus() == CAN_TALK && entry.getValue().getLastContact().plusSeconds(20).plus(TUNNEL_KEEP_ALIVE_TIMEOUT).isBefore(now))
+			{
+				log.debug("Connection interrupted with peer");
+				entry.getValue().setStatus(TUNNEL_DOWN);
+				entry.getValue().clearLocation();
+
+				// Reset the turtle router monitoring. Avoids having to wait 60 seconds for the tunnel to die.
+				if (entry.getValue().getDirection() == TunnelDirection.SERVER)
+				{
+					log.debug("Forcing new tunnel");
+					turtleRouter.forceReDiggTunnel(DestinationHash.createRandomHash(entry.getValue().getDestination()));
+				}
+			}
+
+			// Send keep alive to active tunnels.
+			if (entry.getValue().getStatus() == CAN_TALK && entry.getValue().getLastKeepAliveSent().plus(TUNNEL_KEEP_ALIVE_TIMEOUT).isBefore(now))
+			{
+				sendEncryptedTunnelData(entry.getKey(), new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.KEEP_ALIVE));
+				entry.getValue().updateLastKeepAlive();
+			}
+
+			// Clean old received messages
+			entry.getValue().cleanupReceivedMessagesOlderThan(TUNNEL_MESSAGES_DUPLICATE_DELAY);
+		}
 	}
 
 	// XXX: use this for sending encrypted data directly... it will retry them! used by getTunnelInfo() (reading)
@@ -398,7 +448,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		switch (item)
 		{
 			case GxsTunnelDataItem gxsTunnelDataItem -> handleTunnelDataItem(tunnelId, gxsTunnelDataItem);
-			case GxsTunnelDataAckItem gxsTunnelDataAckItem -> handleTunnelDataItemAck(tunnelId, gxsTunnelDataAckItem);
+			case GxsTunnelDataAckItem gxsTunnelDataAckItem -> handleTunnelDataItemAck(gxsTunnelDataAckItem);
 			case GxsTunnelStatusItem gxsTunnelStatusItem -> handleTunnelStatusItem(tunnelId, gxsTunnelStatusItem);
 			default -> log.warn("Unknown packet type received: {}", item.getSubType());
 		}
@@ -442,7 +492,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		}
 	}
 
-	private void handleTunnelDataItemAck(Location tunnelId, GxsTunnelDataAckItem item)
+	private void handleTunnelDataItemAck(GxsTunnelDataAckItem item)
 	{
 		try
 		{

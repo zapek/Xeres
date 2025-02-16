@@ -48,8 +48,7 @@ import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -140,6 +139,8 @@ public class MessagingWindowController implements WindowController
 
 	private Timeline lastTypingTimeline;
 
+	private ParallelTransition sendAnimation;
+
 	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, String locationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache)
 	{
 		this.profileClient = profileClient;
@@ -200,6 +201,8 @@ public class MessagingWindowController implements WindowController
 				new KeyFrame(Duration.ZERO, event -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), targetProfile.getName()))),
 				new KeyFrame(Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
 		lastTypingTimeline.setOnFinished(event -> notification.setText(""));
+
+		setupAnimations();
 	}
 
 	private void sendMessage(String message)
@@ -382,7 +385,6 @@ public class MessagingWindowController implements WindowController
 	private void setUserOnline(boolean online)
 	{
 		UiUtils.setPresent(notice, !online);
-		send.setDisable(!online);
 		addImage.setDisable(!online);
 		addFile.setDisable(!online);
 	}
@@ -413,8 +415,15 @@ public class MessagingWindowController implements WindowController
 		{
 			if (isNotBlank(send.getText()))
 			{
-				sendMessage(send.getText());
-				lastTypingNotification = Instant.EPOCH;
+				if (notice.isVisible())
+				{
+					sendAnimation.play();
+				}
+				else
+				{
+					sendMessage(send.getText());
+					lastTypingNotification = Instant.EPOCH;
+				}
 			}
 			event.consume();
 		}
@@ -448,5 +457,26 @@ public class MessagingWindowController implements WindowController
 		ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
 		sendMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 		imageView.setImage(null);
+	}
+
+	private void setupAnimations()
+	{
+		var translateTransition = new TranslateTransition(javafx.util.Duration.millis(50));
+		translateTransition.setFromX(-5.0);
+		translateTransition.setToX(5.0);
+		translateTransition.setCycleCount(6);
+		translateTransition.setAutoReverse(true);
+		translateTransition.setInterpolator(Interpolator.LINEAR);
+		translateTransition.setNode(send);
+		translateTransition.setOnFinished(actionEvent -> send.setTranslateX(0.0));
+
+		var fadeTransition = new FadeTransition(javafx.util.Duration.millis(100));
+		fadeTransition.setByValue(-1.0);
+		fadeTransition.setAutoReverse(true);
+		fadeTransition.setCycleCount(4);
+		fadeTransition.setInterpolator(Interpolator.EASE_IN);
+		fadeTransition.setNode(notice);
+
+		sendAnimation = new ParallelTransition(translateTransition, fadeTransition);
 	}
 }

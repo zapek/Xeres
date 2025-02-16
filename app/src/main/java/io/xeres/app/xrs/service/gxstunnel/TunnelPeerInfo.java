@@ -90,6 +90,11 @@ class TunnelPeerInfo
 		this.location = null;
 	}
 
+	public Location getLocation()
+	{
+		return location;
+	}
+
 	public byte[] getAesKey()
 	{
 		return aesKey;
@@ -128,6 +133,11 @@ class TunnelPeerInfo
 	public void addService(int serviceId)
 	{
 		clientServices.add(serviceId);
+	}
+
+	public void removeService(int serviceId)
+	{
+		clientServices.remove(serviceId);
 	}
 
 	public boolean checkIfMessageAlreadyReceivedAndRecord(long messageId)

@@ -49,7 +49,6 @@ import io.xeres.common.util.SecureRandomUtils;
 import org.bouncycastle.util.BigIntegers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.interfaces.DHPublicKey;
@@ -86,13 +85,12 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private static final Duration TUNNEL_MANAGEMENT_DELAY = Duration.ofSeconds(2);
 
-	private AtomicLong counter = new AtomicLong();
+	private final AtomicLong counter = new AtomicLong();
 
 	private final Map<Integer, GxsTunnelRsClient> clients = new HashMap<>();
 	private final RsServiceRegistry rsServiceRegistry;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final IdentityService identityService;
-	private final DestructionAwareBeanPostProcessor destructionAwareBeanPostProcessor;
 
 	private ScheduledExecutorService executorService;
 
@@ -105,13 +103,12 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	private GxsId ownGxsId;
 	private TurtleRouter turtleRouter;
 
-	public GxsTunnelRsService(RsServiceRegistry rsServiceRegistry, DatabaseSessionManager databaseSessionManager, IdentityService identityService, DestructionAwareBeanPostProcessor destructionAwareBeanPostProcessor)
+	public GxsTunnelRsService(RsServiceRegistry rsServiceRegistry, DatabaseSessionManager databaseSessionManager, IdentityService identityService)
 	{
 		super(rsServiceRegistry);
 		this.rsServiceRegistry = rsServiceRegistry;
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityService = identityService;
-		this.destructionAwareBeanPostProcessor = destructionAwareBeanPostProcessor;
 	}
 
 	@Override
@@ -657,7 +654,6 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	}
 
 	// XXX: missing public methods:
-	// XXX: closeExistingTunnel()
 	// XXX: getTunnelInfo()
 
 	public Location requestSecuredTunnel(GxsId from, GxsId to, int serviceId)
@@ -695,6 +691,50 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 		sendTunnelDataItem(tunnelId, new GxsTunnelDataItem(getUniquePacketCounter(), serviceId, data));
+	}
+
+	public void closeExistingTunnel(Location tunnelId, int serviceId)
+	{
+		var tunnelPeerInfo = contacts.get(tunnelId);
+		if (tunnelPeerInfo == null)
+		{
+			log.error("Cannot close distant tunnel connection. No connection opened for tunnel id {}", tunnelId);
+			return;
+		}
+
+		Sha1Sum hash;
+
+		var tunnelDhInfo = peers.get(tunnelPeerInfo.getLocation());
+		if (tunnelDhInfo != null)
+		{
+			hash = tunnelDhInfo.getHash();
+		}
+		else
+		{
+			hash = tunnelPeerInfo.getHash();
+		}
+
+		if (!tunnelPeerInfo.getClientServices().contains(serviceId))
+		{
+			log.error("Tunnel {} is not associated with service {}", tunnelId, serviceId);
+			return;
+		}
+
+		tunnelPeerInfo.removeService(serviceId);
+
+		if (tunnelPeerInfo.getClientServices().isEmpty())
+		{
+			// No clients, we can close the tunnel.
+
+			sendEncryptedTunnelData(tunnelId, new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.CLOSING_DISTANT_CONNECTION));
+
+			if (tunnelPeerInfo.getDirection() == TunnelDirection.SERVER)
+			{
+				turtleRouter.stopMonitoringTunnels(hash);
+			}
+
+			contacts.remove(tunnelId);
+		}
 	}
 
 	private long getUniquePacketCounter()

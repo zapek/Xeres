@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.ui.support.sound;
 
 import io.micrometer.common.util.StringUtils;
 import javafx.scene.media.AudioClip;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -81,7 +82,21 @@ public class SoundService
 
 	public void play(String file)
 	{
-		if (StringUtils.isNotEmpty(file) && Files.exists(Path.of(file)))
+		if (StringUtils.isEmpty(file))
+		{
+			return;
+		}
+
+		var path = Path.of(file);
+		if (!Files.exists(path) && !path.isAbsolute())
+		{
+			// Try to find the file if currentDir is not what we expect.
+			// This happens on Windows when auto starting
+			var home = new ApplicationHome(getClass());
+			path = Path.of(home.getDir().toString(), file);
+		}
+
+		if (Files.exists(path))
 		{
 			var player = new AudioClip("file:" + file.replace("\\", "/")); // URIs require a '/' for path and Windows uses '\' for path
 			player.play();

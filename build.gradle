@@ -21,20 +21,20 @@ buildscript {
     ext {
         bouncycastleVersion = "1.80"
         apacheCommonsCollectionsVersion = "4.4"
-        springOpenApiVersion = "2.8.3"
+        springOpenApiVersion = "2.8.4"
         jsoupVersion = "1.18.3"
         jsonPatchVersion = "1.13"
         zxingVersion = "3.5.3"
         appDirsVersion = "1.3.0"
         junitVersion = "5.11.4"
-        archunitVersion = "1.3.0"
+        archunitVersion = "1.4.0"
     }
 }
 
 plugins {
-    id 'org.springframework.boot' version '3.4.1' apply false
+    id 'org.springframework.boot' version '3.4.2' apply false
     id 'org.flywaydb.flyway' version '10.20.0' apply false // Keep the version in sync with spring-boot from time to time
-    id 'org.panteleyev.jpackageplugin' version '1.6.0' apply false
+    id 'org.panteleyev.jpackageplugin' version '1.6.1' apply false
     id 'org.sonarqube' version '6.0.1.5171'
 }
 

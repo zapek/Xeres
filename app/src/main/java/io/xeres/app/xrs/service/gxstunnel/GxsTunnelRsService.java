@@ -142,10 +142,9 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private void manageResending(Instant now)
 	{
+		tunnelDataItemLock.lock();
 		try
 		{
-			tunnelDataItemLock.lock();
-
 			var item = tunnelDataItems.poll();
 			if (item == null || Duration.between(item.getLastSendingAttempt(), now).compareTo(TUNNEL_DELAY_BETWEEN_RESEND) < 0)
 			{
@@ -209,10 +208,9 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	// XXX: use this for sending encrypted data directly... it will retry them! used by getTunnelInfo() (reading)
 	private void sendTunnelDataItem(Location destination, GxsTunnelDataItem item)
 	{
+		tunnelDataItemLock.lock();
 		try
 		{
-			tunnelDataItemLock.lock();
-
 			sendEncryptedTunnelData(destination, item);
 			item.setForResending(destination);
 			tunnelDataItems.offer(item);
@@ -494,10 +492,9 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private void handleTunnelDataItemAck(GxsTunnelDataAckItem item)
 	{
+		tunnelDataItemLock.lock();
 		try
 		{
-			tunnelDataItemLock.lock();
-
 			tunnelDataItems.removeIf(gxsTunnelDataItem -> gxsTunnelDataItem.getCounter() == item.getCounter());
 		}
 		finally

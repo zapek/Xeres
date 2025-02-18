@@ -101,26 +101,6 @@ jpackage {
     input = "${base.libsDirectory.get()}"
     destination = "${base.distsDirectory.get()}"
     mainJar = bootJar.archiveFileName.get()
-    // The following saves around 27 MB (but it's brittle, so removed for now)
-//    addModules = ['java.base',
-//                  'java.desktop',
-//                  'java.sql',
-//                  'java.xml',
-//                  'java.management',
-//                  'java.datatransfer',
-//                  'java.prefs',
-//                  'java.naming',
-//                  'java.security.jgss',
-//                  'java.instrument',
-//                  'java.logging',
-//                  'java.compiler',
-//                  'java.scripting',
-//                  'java.transaction.xa',
-//                  'jdk.net',
-//                  'java.rmi',
-//                  'jdk.unsupported',
-//                  'java.sql.rowset',
-//                  'java.net.http']
     if (project.hasProperty("jpackage.portable")) {
         type = ImageType.APP_IMAGE
     } else {

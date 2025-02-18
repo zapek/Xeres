@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 class TunnelPeerInfo
 {
@@ -41,7 +42,7 @@ class TunnelPeerInfo
 	private final GxsId destination;
 	private final TunnelDirection direction;
 	private final Set<Integer> clientServices = new HashSet<>();
-	private Map<Long, Instant> receivedMessages;
+	private final Map<Long, Instant> receivedMessages = new ConcurrentHashMap<>();
 	private long totalSent;
 	private long totalReceived;
 

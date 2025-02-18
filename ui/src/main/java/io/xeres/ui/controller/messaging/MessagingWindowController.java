@@ -288,7 +288,7 @@ public class MessagingWindowController implements WindowController
 					Platform.runLater(() ->
 					{
 						var location = targetProfile.getLocations().getFirst();
-						setAvailability(location.getAvailability());
+						setAvailability(location.isConnected() ? location.getAvailability() : Availability.OFFLINE);
 						updateTitle();
 						chatClient.getChatBacklog(location.getId()).collectList()
 								.doOnSuccess(backlogs -> Platform.runLater(() -> {

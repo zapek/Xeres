@@ -1189,7 +1189,7 @@ public class ContactViewController implements Controller
 		xContextMenu.setOnShowing((contextMenu, location) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(location == null || location.getId() == OWN_LOCATION_ID || getLocationAvailability(location) == Availability.OFFLINE));
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(location == null || location.getId() == OWN_LOCATION_ID));
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CONNECT_MENU_ID.equals(menuItem.getId()))

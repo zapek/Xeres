@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,53 +19,47 @@
 
 package io.xeres.ui.controller.messaging;
 
-import io.xeres.ui.model.location.Location;
-import io.xeres.ui.model.profile.Profile;
+import io.xeres.common.id.Identifier;
+import org.apache.commons.lang3.StringUtils;
 
-public class PeerHolder
+class Destination
 {
-	private Profile profile;
-	private Location location;
+	private final Identifier identifier;
+	private String name;
+	private String place;
 
-	public PeerHolder()
+	public Destination(Identifier identifier)
 	{
-
+		this.identifier = identifier;
 	}
 
-	public PeerHolder(Profile profile)
+	public Identifier getIdentifier()
 	{
-		this.profile = profile;
+		return identifier;
 	}
 
-	public PeerHolder(Profile profile, Location location)
+	public String getName()
 	{
-		this.profile = profile;
-		this.location = location;
+		return name;
 	}
 
-	public Profile getProfile()
+	public void setName(String name)
 	{
-		return profile;
+		this.name = name;
 	}
 
-	public Location getLocation()
+	public boolean hasPlace()
 	{
-		return location;
+		return StringUtils.isNotEmpty(place);
 	}
 
-	public void setLocation(Location location)
+	public String getPlace()
 	{
-		this.location = location;
+		return place;
 	}
 
-	public boolean hasLocation()
+	public void setPlace(String place)
 	{
-		return location != null;
-	}
-
-	@Override
-	public String toString()
-	{
-		return hasLocation() ? getLocation().getName() : getProfile().getName();
+		this.place = place;
 	}
 }

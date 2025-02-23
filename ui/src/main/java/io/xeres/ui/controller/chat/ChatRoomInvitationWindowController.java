@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,6 @@ package io.xeres.ui.controller.chat;
 import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.client.ConnectionClient;
 import io.xeres.ui.controller.WindowController;
-import io.xeres.ui.controller.messaging.PeerHolder;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;

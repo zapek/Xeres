@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.messaging;
 
 import atlantafx.base.controls.Message;
+import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
@@ -28,16 +29,12 @@ import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
-import io.xeres.ui.client.ChatClient;
-import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.client.ProfileClient;
-import io.xeres.ui.client.ShareClient;
+import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
-import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -123,12 +120,12 @@ public class MessagingWindowController implements WindowController
 	private ChatListView receive;
 
 	private final ProfileClient profileClient;
+	private final IdentityClient identityClient;
 	private final MarkdownService markdownService;
 	private final WindowManager windowManager;
 	private final UriService uriService;
 	private final ResourceBundle bundle;
-	private final Identifier destinationIdentifier;
-	private Profile targetProfile;
+	private final Destination destination;
 
 	private final MessageClient messageClient;
 	private final ShareClient shareClient;
@@ -142,9 +139,10 @@ public class MessagingWindowController implements WindowController
 
 	private ParallelTransition sendAnimation;
 
-	public MessagingWindowController(ProfileClient profileClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache)
+	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache)
 	{
 		this.profileClient = profileClient;
+		this.identityClient = identityClient;
 		this.windowManager = windowManager;
 		this.uriService = uriService;
 		this.messageClient = messageClient;
@@ -152,9 +150,9 @@ public class MessagingWindowController implements WindowController
 		this.markdownService = markdownService;
 		this.chatClient = chatClient;
 		this.bundle = bundle;
-		this.destinationIdentifier = destinationIdentifier;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
+		destination = new Destination(destinationIdentifier);
 	}
 
 	@Override
@@ -199,7 +197,7 @@ public class MessagingWindowController implements WindowController
 		});
 
 		lastTypingTimeline = new Timeline(
-				new KeyFrame(Duration.ZERO, event -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), targetProfile.getName()))),
+				new KeyFrame(Duration.ZERO, event -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), destination.getName()))),
 				new KeyFrame(Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
 		lastTypingTimeline.setOnFinished(event -> notification.setText(""));
 
@@ -213,7 +211,7 @@ public class MessagingWindowController implements WindowController
 			return;
 		}
 		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
-		messageClient.sendToDestination(destinationIdentifier, chatMessage);
+		messageClient.sendToDestination(destination.getIdentifier(), chatMessage);
 		send.clear();
 	}
 
@@ -223,14 +221,14 @@ public class MessagingWindowController implements WindowController
 		if (java.time.Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
 		{
 			var message = new ChatMessage();
-			messageClient.sendToDestination(destinationIdentifier, message);
+			messageClient.sendToDestination(destination.getIdentifier(), message);
 			lastTypingNotification = now;
 		}
 	}
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache, send);
+		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache, windowManager, send);
 		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
@@ -272,7 +270,7 @@ public class MessagingWindowController implements WindowController
 		if (uri instanceof FileUri(String name, long size, Sha1Sum hash))
 		{
 			windowManager.openAddDownload(
-					new AddDownloadRequest(name, size, hash, destinationIdentifier instanceof LocationIdentifier ? (LocationIdentifier) destinationIdentifier : null));
+					new AddDownloadRequest(name, size, hash, destination.getIdentifier() instanceof LocationIdentifier locationIdentifier ? locationIdentifier : null));
 		}
 		else
 		{
@@ -283,15 +281,17 @@ public class MessagingWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
-		if (destinationIdentifier instanceof LocationIdentifier locationIdentifier)
+		if (destination.getIdentifier() instanceof LocationIdentifier locationIdentifier)
 		{
 			profileClient.findByLocationIdentifier(locationIdentifier, true).collectList()
 					.doOnSuccess(profiles -> {
-						targetProfile = profiles.stream().findFirst().orElseThrow();
+						var profile = profiles.stream().findFirst().orElseThrow();
 						Platform.runLater(() ->
 						{
-							var location = targetProfile.getLocations().getFirst();
+							var location = profile.getLocations().getFirst();
 							setAvailability(location.isConnected() ? location.getAvailability() : Availability.OFFLINE);
+							destination.setName(profile.getName());
+							destination.setPlace(location.getName());
 							updateTitle();
 							chatClient.getChatBacklog(location.getId()).collectList()
 									.doOnSuccess(backlogs -> Platform.runLater(() -> {
@@ -303,12 +303,25 @@ public class MessagingWindowController implements WindowController
 					.doOnError(UiUtils::showAlertError)
 					.subscribe();
 		}
-		else
+		else if (destination.getIdentifier() instanceof GxsId gxsId)
 		{
-			throw new UnsupportedOperationException("Implement distant chat support");
+			identityClient.findByGxsId(gxsId).collectList()
+					.doOnSuccess(gxsIds -> {
+						var identity = gxsIds.stream().findFirst().orElseThrow();
+						Platform.runLater(() -> {
+							setAvailability(Availability.OFFLINE);
+							destination.setName(identity.getName());
+							updateTitle();
+							// XXX: get distant backlog
+
+							// XXX: open tunnel... and show some indication...
+						});
+					})
+					.doOnError(UiUtils::showAlertError)
+					.subscribe();
 		}
 
-		messageClient.requestAvatar(destinationIdentifier);
+		messageClient.requestAvatar(destination.getIdentifier());
 	}
 
 	public void showMessage(ChatMessage message)
@@ -327,7 +340,7 @@ public class MessagingWindowController implements WindowController
 				}
 				else
 				{
-					receive.addUserMessage(targetProfile.getName(), message.getContent());
+					receive.addUserMessage(destination.getName(), message.getContent());
 				}
 				lastTypingTimeline.jumpTo(Duration.INDEFINITE);
 			}
@@ -343,7 +356,7 @@ public class MessagingWindowController implements WindowController
 			}
 			else
 			{
-				receive.addUserMessage(message.created(), targetProfile.getName(), message.message());
+				receive.addUserMessage(message.created(), destination.getName(), message.message());
 			}
 		});
 		receive.jumpToBottom(true);
@@ -368,7 +381,7 @@ public class MessagingWindowController implements WindowController
 	private void updateTitle()
 	{
 		var stage = (Stage) getWindow(send);
-		stage.setTitle(targetProfile.getName() + " @ " + targetProfile.getLocations().getFirst().getName() + getAvailability());
+		stage.setTitle(destination.getName() + (destination.hasPlace() ? (" @ " + destination.getPlace()) : "") + " " + getAvailability());
 	}
 
 	private String getAvailability()
@@ -380,12 +393,12 @@ public class MessagingWindowController implements WindowController
 				setUserOnline(true);
 				yield "";
 			}
-			case AWAY -> " (" + Availability.AWAY + ")";
-			case BUSY -> " (" + Availability.BUSY + ")";
+			case AWAY -> "(" + Availability.AWAY + ")";
+			case BUSY -> "(" + Availability.BUSY + ")";
 			case OFFLINE ->
 			{
 				setUserOnline(false);
-				yield " (" + Availability.OFFLINE + ")";
+				yield "(" + Availability.OFFLINE + ")";
 			}
 		};
 	}

@@ -38,6 +38,7 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.uri.IdentityUri;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -53,6 +54,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.jsoup.Jsoup;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +62,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 import static io.xeres.ui.support.chat.ChatAction.Type.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -72,6 +75,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
 
 	private static final String INFO_MENU_ID = "info";
+	private static final String CHAT_MENU_ID = "chat";
 
 	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
@@ -88,6 +92,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
 	private final ResourceBundle bundle;
+	private final WindowManager windowManager;
 
 	private final ChatListDragSelection dragSelection;
 
@@ -97,7 +102,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		KEEP_ALIVE
 	}
 
-	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache, Node focusNode)
+	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache, WindowManager windowManager, Node focusNode)
 	{
 		this.nickname = nickname;
 		this.id = id;
@@ -105,6 +110,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		this.uriAction = uriAction;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
+		this.windowManager = windowManager;
 		bundle = I18nUtils.getBundle();
 		anchorPane = new AnchorPane();
 
@@ -388,13 +394,25 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		infoItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_BOX));
 		infoItem.setOnAction(event -> {
 			var user = (ChatRoomUser) event.getSource();
-			if (user.gxsId() != null)
-			{
-				uriAction.openUri(new IdentityUri(user.nickname(), user.gxsId(), null));
-			}
+			uriAction.openUri(new IdentityUri(user.nickname(), user.gxsId(), null));
 		});
 
-		var xContextMenu = new XContextMenu<ChatRoomUser>(infoItem);
+		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
+		chatItem.setId(CHAT_MENU_ID);
+		chatItem.setGraphic(new FontIcon(MaterialDesignC.COMMENT));
+		chatItem.setOnAction(event -> {
+			var user = (ChatRoomUser) event.getSource();
+			windowManager.openMessaging(user.gxsId());
+		});
+
+		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, infoItem);
+		xContextMenu.setOnShowing((contextMenu, chatRoomUser) -> {
+			contextMenu.getItems().stream()
+					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(chatRoomUser.identityId() == OWN_IDENTITY_ID));
+
+			return chatRoomUser.gxsId() != null;
+		});
 		xContextMenu.addToNode(view);
 	}
 }

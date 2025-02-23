@@ -94,6 +94,7 @@ public class WindowManager
 
 	private static FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
+	private final IdentityClient identityClient;
 	private final MessageClient messageClient;
 	private final ForumClient forumClient;
 	private final LocationClient locationClient;
@@ -119,10 +120,11 @@ public class WindowManager
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ResourceBundle bundle, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ResourceBundle bundle, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
+		this.identityClient = identityClient;
 		this.messageClient = messageClient;
 		this.forumClient = forumClient;
 		this.locationClient = locationClient;
@@ -244,7 +246,7 @@ public class WindowManager
 						{
 							if (chatMessage == null || (!chatMessage.isEmpty() && !chatMessage.isOwn())) // Don't open a window for a typing notification, we're not psychic (but do open when we double-click). Don't open for messages sent by us but from another client either
 							{
-								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, imageCache);
+								var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, imageCache);
 
 								// There's no need to store the incoming message anywhere because it's retrieved by the chat backlog system
 								var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)
@@ -284,19 +286,19 @@ public class WindowManager
 						}));
 	}
 
-	public void sendMessaging(String locationIdentifier, ChatAvatar chatAvatar)
+	public void sendMessaging(String identifier, ChatAvatar chatAvatar)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(MessagingWindowController.class, locationIdentifier).ifPresent(window ->
+				getOpenedWindow(MessagingWindowController.class, identifier).ifPresent(window ->
 						((MessagingWindowController) window.getUserData()).showAvatar(chatAvatar)
 				)
 		);
 	}
 
-	public void sendMessaging(String locationIdentifier, Availability availability)
+	public void sendMessaging(String identifier, Availability availability)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(MessagingWindowController.class, locationIdentifier).ifPresent(window ->
+				getOpenedWindow(MessagingWindowController.class, identifier).ifPresent(window ->
 						((MessagingWindowController) window.getUserData()).setAvailability(availability)
 				)
 		);

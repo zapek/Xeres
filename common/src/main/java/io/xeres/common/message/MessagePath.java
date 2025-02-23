@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,7 @@ public final class MessagePath
 	public static final String CHAT_PRIVATE_DESTINATION = "/private";
 	public static final String CHAT_ROOM_DESTINATION = "/room";
 	public static final String CHAT_BROADCAST_DESTINATION = "/broadcast";
+	public static final String CHAT_DISTANT_DESTINATION = "/distant";
 
 	private MessagePath()
 	{
@@ -48,5 +49,10 @@ public final class MessagePath
 	public static String chatBroadcastDestination()
 	{
 		return BROKER_PREFIX + CHAT_ROOT + CHAT_BROADCAST_DESTINATION;
+	}
+
+	public static String chatDistantDestination()
+	{
+		return BROKER_PREFIX + CHAT_ROOT + CHAT_DISTANT_DESTINATION;
 	}
 }

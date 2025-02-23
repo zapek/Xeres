@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,9 @@
 package io.xeres.ui.support.window;
 
 import io.xeres.common.AppName;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.Identifier;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
@@ -185,19 +188,34 @@ public class WindowManager
 	public void openMessaging(long locationId)
 	{
 		locationClient.findById(locationId)
-				.doOnSuccess(location -> openMessaging(location.getLocationIdentifier().toString()))
+				.doOnSuccess(location -> openMessaging(location.getLocationIdentifier()))
 				.subscribe();
 	}
 
-	public void openMessaging(String locationIdentifier)
+	public void openMessaging(LocationIdentifier locationIdentifier)
 	{
 		openMessaging(locationIdentifier, null);
 	}
 
-	public void openMessaging(String locationIdentifier, ChatMessage chatMessage)
+	public void openMessaging(LocationIdentifier locationIdentifier, ChatMessage chatMessage)
+	{
+		openMessagingInternal(locationIdentifier, chatMessage);
+	}
+
+	public void openMessaging(GxsId gxsId)
+	{
+		openMessaging(gxsId, null);
+	}
+
+	public void openMessaging(GxsId gxsId, ChatMessage chatMessage)
+	{
+		openMessagingInternal(gxsId, chatMessage);
+	}
+
+	private void openMessagingInternal(Identifier destinationIdentifier, ChatMessage chatMessage)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(MessagingWindowController.class, locationIdentifier).ifPresentOrElse(window ->
+				getOpenedWindow(MessagingWindowController.class, destinationIdentifier.toString()).ifPresentOrElse(window ->
 						{
 							if (chatMessage == null)
 							{
@@ -226,11 +244,11 @@ public class WindowManager
 						{
 							if (chatMessage == null || (!chatMessage.isEmpty() && !chatMessage.isOwn())) // Don't open a window for a typing notification, we're not psychic (but do open when we double-click). Don't open for messages sent by us but from another client either
 							{
-								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, locationIdentifier, bundle, chatClient, generalClient, imageCache);
+								var messaging = new MessagingWindowController(profileClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, imageCache);
 
 								// There's no need to store the incoming message anywhere because it's retrieved by the chat backlog system
 								var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)
-										.setLocalId(locationIdentifier)
+										.setLocalId(destinationIdentifier.toString())
 										.setRememberEnvironment(true)
 										.build();
 

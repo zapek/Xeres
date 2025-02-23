@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.app.api.controller.chat;
 
 import io.xeres.app.service.MessageService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
+import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
@@ -68,7 +69,7 @@ public class ChatMessageController
 		{
 			case CHAT_PRIVATE_MESSAGE ->
 			{
-				log.debug("Received websocket message, sending to peer location: {}, content {}", destinationId, chatMessage);
+				log.debug("Received private chat websocket message, sending to peer location: {}, content {}", destinationId, chatMessage);
 				var locationIdentifier = LocationIdentifier.fromString(destinationId);
 				chatRsService.sendPrivateMessage(locationIdentifier, chatMessage.getContent());
 				chatMessage.setOwn(true);
@@ -76,15 +77,44 @@ public class ChatMessageController
 			}
 			case CHAT_TYPING_NOTIFICATION ->
 			{
-				log.debug("Sending chat typing notification...");
+				log.debug("Sending private chat typing notification...");
 				Objects.requireNonNull(destinationId);
 				chatRsService.sendPrivateTypingNotification(LocationIdentifier.fromString(destinationId));
 			}
 			case CHAT_AVATAR ->
 			{
-				log.debug("Requesting avatar...");
+				log.debug("Requesting private chat avatar...");
 				Objects.requireNonNull(destinationId);
 				chatRsService.sendAvatarRequest(LocationIdentifier.fromString(destinationId));
+			}
+			default -> throw new IllegalStateException("Unexpected value: " + messageType);
+		}
+	}
+
+	@MessageMapping(CHAT_DISTANT_DESTINATION)
+	public void processDistantChatMessageFromProducer(@Header(DESTINATION_ID) String destinationId, @Header(MESSAGE_TYPE) MessageType messageType, @Payload @Valid ChatMessage chatMessage)
+	{
+		switch (messageType)
+		{
+			case CHAT_PRIVATE_MESSAGE ->
+			{
+				log.debug("Received distant chat websocket message, sending to peer gxsId: {}, content {}", destinationId, chatMessage);
+				var gxsId = GxsId.fromString(destinationId);
+				chatRsService.sendPrivateMessage(gxsId, chatMessage.getContent());
+				chatMessage.setOwn(true);
+				messageService.sendToConsumers(BROKER_PREFIX + CHAT_ROOT + CHAT_DISTANT_DESTINATION, messageType, gxsId, chatMessage);
+			}
+			case CHAT_TYPING_NOTIFICATION ->
+			{
+				log.debug("Sending distant chat typing notification...");
+				Objects.requireNonNull(destinationId);
+				chatRsService.sendPrivateTypingNotification(GxsId.fromString(destinationId));
+			}
+			case CHAT_AVATAR ->
+			{
+				log.debug("Requesting distant chat avatar...");
+				Objects.requireNonNull(destinationId);
+				chatRsService.sendAvatarRequest(GxsId.fromString(destinationId));
 			}
 			default -> throw new IllegalStateException("Unexpected value: " + messageType);
 		}

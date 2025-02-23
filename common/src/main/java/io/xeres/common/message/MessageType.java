@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,5 +35,5 @@ public enum MessageType
 	CHAT_ROOM_USER_TIMEOUT,
 	CHAT_ROOM_INVITE,
 	CHAT_AVATAR,
-	CHAT_AVAILABILITY
+	CHAT_AVAILABILITY,
 }

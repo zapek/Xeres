@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -67,7 +67,7 @@ class FileServiceTest
 	private FileService fileService;
 
 	@BeforeAll
-	public static void setErrorLogging()
+	static void setErrorLogging()
 	{
 		LoggingSystem.get(ClassLoader.getSystemClassLoader()).setLogLevel("io.xeres", LogLevel.DEBUG);
 	}

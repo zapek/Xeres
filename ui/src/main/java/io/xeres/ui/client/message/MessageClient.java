@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,8 @@
 package io.xeres.ui.client.message;
 
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.Identifier;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.properties.StartupProperties;
@@ -137,10 +139,20 @@ public class MessageClient
 		return this;
 	}
 
-	public void sendToLocation(LocationIdentifier locationIdentifier, ChatMessage message)
+	public void sendToDestination(Identifier identifier, ChatMessage message)
 	{
 		Objects.requireNonNull(stompSession);
 
+		switch (identifier)
+		{
+			case LocationIdentifier locationIdentifier -> sendToLocation(locationIdentifier, message);
+			case GxsId gxsId -> sendToGxsId(gxsId, message);
+			default -> throw new IllegalStateException("Unexpected value: " + identifier);
+		}
+	}
+
+	private void sendToLocation(LocationIdentifier locationIdentifier, ChatMessage message)
+	{
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, message.isEmpty() ? CHAT_TYPING_NOTIFICATION.name() : CHAT_PRIVATE_MESSAGE.name());
@@ -148,14 +160,42 @@ public class MessageClient
 		stompSession.send(headers, message);
 	}
 
-	public void requestAvatar(LocationIdentifier locationIdentifier)
+	private void sendToGxsId(GxsId gxsId, ChatMessage message)
+	{
+		var headers = new StompHeaders();
+		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_DISTANT_DESTINATION);
+		headers.set(MESSAGE_TYPE, message.isEmpty() ? CHAT_TYPING_NOTIFICATION.name() : CHAT_PRIVATE_MESSAGE.name());
+		headers.set(DESTINATION_ID, gxsId.toString());
+		stompSession.send(headers, message);
+	}
+
+	public void requestAvatar(Identifier identifier)
 	{
 		Objects.requireNonNull(stompSession);
 
+		switch (identifier)
+		{
+			case LocationIdentifier locationIdentifier -> requestAvatarFromLocation(locationIdentifier);
+			case GxsId gxsId -> requestAvatarFromGxsId(gxsId);
+			default -> throw new IllegalStateException("Unexpected value: " + identifier);
+		}
+	}
+
+	private void requestAvatarFromLocation(LocationIdentifier locationIdentifier)
+	{
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, CHAT_AVATAR.name());
 		headers.set(DESTINATION_ID, locationIdentifier.toString());
+		stompSession.send(headers, new ChatMessage());
+	}
+
+	private void requestAvatarFromGxsId(GxsId gxsId)
+	{
+		var headers = new StompHeaders();
+		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_DISTANT_DESTINATION);
+		headers.set(MESSAGE_TYPE, CHAT_AVATAR.name());
+		headers.set(DESTINATION_ID, gxsId.toString());
 		stompSession.send(headers, new ChatMessage());
 	}
 

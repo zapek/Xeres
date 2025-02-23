@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,7 +35,7 @@ class FileLeecherTest
 	private static String tempDir;
 
 	@BeforeAll
-	public static void setup()
+	static void setup()
 	{
 		tempDir = System.getProperty("java.io.tmpdir");
 	}

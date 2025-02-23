@@ -47,6 +47,7 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
+import io.xeres.common.id.Identifier;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
@@ -288,13 +289,13 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 			case UNKNOWN -> log.warn("Don't know how to handle {}", status);
 			case CAN_TALK ->
 			{
-			} // put peer as online
+			} // XXX: put peer as online
 			case TUNNEL_DOWN ->
 			{
-			} // put peer as offline
+			} // XXX: put peer as offline
 			case REMOTELY_CLOSED ->
 			{
-			} // put peer as offline
+			} // XXX: put peer as offline
 		}
 	}
 
@@ -1018,14 +1019,29 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	/**
 	 * Sends a private message to a peer.
 	 *
-	 * @param locationIdentifier the location id
+	 * @param identifier the identifier (LocationIdentifier or GxsId)
 	 * @param message    the message
 	 */
-	public void sendPrivateMessage(LocationIdentifier locationIdentifier, String message)
+	public void sendPrivateMessage(Identifier identifier, String message)
+	{
+		switch (identifier)
+		{
+			case LocationIdentifier locationIdentifier -> sendPrivateMessageToLocation(locationIdentifier, message);
+			case GxsId gxsId -> sendPrivateMessageToGxsId(gxsId, message);
+			default -> throw new IllegalStateException("Unexpected value: " + identifier);
+		}
+	}
+
+	private void sendPrivateMessageToLocation(LocationIdentifier locationIdentifier, String message)
 	{
 		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow();
 		chatBacklogService.storeOutgoingMessage(location.getLocationIdentifier(), message);
 		peerConnectionManager.writeItem(location, new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
+	}
+
+	private void sendPrivateMessageToGxsId(GxsId gxsId, String message)
+	{
+		// XXX
 	}
 
 	/**
@@ -1033,16 +1049,46 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	 *
 	 * @param locationIdentifier the location id
 	 */
-	public void sendPrivateTypingNotification(LocationIdentifier locationIdentifier)
+	public void sendPrivateTypingNotification(Identifier identifier)
+	{
+		switch (identifier)
+		{
+			case LocationIdentifier locationIdentifier -> sendPrivateTypingNotificationToLocation(locationIdentifier);
+			case GxsId gxsId -> sendPrivateTypingNotificationToGxsId(gxsId);
+			default -> throw new IllegalStateException("Unexpected value: " + identifier);
+		}
+	}
+
+	private void sendPrivateTypingNotificationToLocation(LocationIdentifier locationIdentifier)
 	{
 		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow();
 		peerConnectionManager.writeItem(location, new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
 
-	public void sendAvatarRequest(LocationIdentifier locationIdentifier)
+	private void sendPrivateTypingNotificationToGxsId(GxsId gxsId)
+	{
+		// XXX
+	}
+
+	public void sendAvatarRequest(Identifier identifier)
+	{
+		switch (identifier)
+		{
+			case LocationIdentifier locationIdentifier -> sendAvatarRequestToLocation(locationIdentifier);
+			case GxsId gxsId -> sendAvatarRequestToGxsId(gxsId);
+			default -> throw new IllegalStateException("Unexpected value: " + identifier);
+		}
+	}
+
+	private void sendAvatarRequestToLocation(LocationIdentifier locationIdentifier)
 	{
 		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow();
 		peerConnectionManager.writeItem(location, new ChatMessageItem("", EnumSet.of(ChatFlags.PRIVATE, ChatFlags.REQUEST_AVATAR)), this);
+	}
+
+	private void sendAvatarRequestToGxsId(GxsId gxsId)
+	{
+		// XXX
 	}
 
 	/**

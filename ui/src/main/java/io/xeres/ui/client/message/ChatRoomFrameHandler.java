@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,11 +19,9 @@
 
 package io.xeres.ui.client.message;
 
-import io.xeres.common.location.Availability;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.controller.chat.ChatViewController;
-import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.Nonnull;
 import javafx.application.Platform;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
@@ -36,16 +34,14 @@ import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 
 /**
- * This handles the incoming messages from the server to the UI.
+ * This handles the incoming chat room messages from the server to the UI.
  */
-public class ChatFrameHandler implements StompFrameHandler
+public class ChatRoomFrameHandler implements StompFrameHandler
 {
-	private final WindowManager windowManager;
 	private final ChatViewController chatViewController;
 
-	public ChatFrameHandler(WindowManager windowManager, ChatViewController chatViewController)
+	public ChatRoomFrameHandler(ChatViewController chatViewController)
 	{
-		this.windowManager = windowManager;
 		this.chatViewController = chatViewController;
 	}
 
@@ -62,17 +58,14 @@ public class ChatFrameHandler implements StompFrameHandler
 	{
 		var messageType = MessageType.valueOf(headers.getFirst(MESSAGE_TYPE));
 		return switch (messageType)
-				{
-					case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
-					case CHAT_AVATAR -> ChatAvatar.class;
-					case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> ChatRoomMessage.class;
-					case CHAT_ROOM_LIST -> ChatRoomLists.class;
-					case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
-					case CHAT_ROOM_USER_TIMEOUT -> ChatRoomTimeoutEvent.class;
-					case CHAT_ROOM_INVITE -> ChatRoomInviteEvent.class;
-					case CHAT_BROADCAST_MESSAGE -> Void.class;
-					case CHAT_AVAILABILITY -> Availability.class;
-				};
+		{
+			case CHAT_ROOM_JOIN, CHAT_ROOM_LEAVE, CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> ChatRoomMessage.class;
+			case CHAT_ROOM_LIST -> ChatRoomLists.class;
+			case CHAT_ROOM_USER_JOIN, CHAT_ROOM_USER_LEAVE, CHAT_ROOM_USER_KEEP_ALIVE -> ChatRoomUserEvent.class;
+			case CHAT_ROOM_USER_TIMEOUT -> ChatRoomTimeoutEvent.class;
+			case CHAT_ROOM_INVITE -> ChatRoomInviteEvent.class;
+			default -> throw new IllegalStateException("Unexpected value: " + messageType);
+		};
 	}
 
 	@Override
@@ -82,9 +75,6 @@ public class ChatFrameHandler implements StompFrameHandler
 		Platform.runLater(() -> {
 					switch (messageType)
 					{
-						case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(headers.getFirst(DESTINATION_ID), (ChatMessage) payload);
-						case CHAT_AVATAR -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (ChatAvatar) payload);
-						case CHAT_AVAILABILITY -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (Availability) payload);
 						case CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
 						case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
 						case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));
@@ -94,8 +84,6 @@ public class ChatFrameHandler implements StompFrameHandler
 						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_TIMEOUT -> chatViewController.userTimeout(getRoomId(headers), (ChatRoomTimeoutEvent) payload);
 						case CHAT_ROOM_INVITE -> chatViewController.openInvite(getRoomId(headers), (ChatRoomInviteEvent) payload);
-						case CHAT_BROADCAST_MESSAGE ->
-						{ /* handled as a notification */ }
 					}
 				}
 		);

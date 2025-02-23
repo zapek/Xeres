@@ -1232,14 +1232,14 @@ public class ContactViewController implements Controller
 		profileClient.findById(profileId)
 				.doOnSuccess(profile -> profile.getLocations().stream()
 						.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
-						.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier().toString()))
+						.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier()))
 				)
 				.subscribe();
 	}
 
 	private void startChat(LocationIdentifier locationIdentifier)
 	{
-		windowManager.openMessaging(locationIdentifier.toString());
+		windowManager.openMessaging(locationIdentifier);
 	}
 
 	@EventListener

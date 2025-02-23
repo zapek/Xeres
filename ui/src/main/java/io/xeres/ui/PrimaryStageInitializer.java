@@ -22,8 +22,7 @@ package io.xeres.ui;
 import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.client.ProfileClient;
-import io.xeres.ui.client.message.ChatFrameHandler;
-import io.xeres.ui.client.message.MessageClient;
+import io.xeres.ui.client.message.*;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -37,8 +36,7 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Hooks;
 
-import static io.xeres.common.message.MessagePath.chatPrivateDestination;
-import static io.xeres.common.message.MessagePath.chatRoomDestination;
+import static io.xeres.common.message.MessagePath.*;
 import static io.xeres.common.properties.StartupProperties.Property.ICONIFIED;
 import static io.xeres.common.properties.StartupProperties.Property.UI;
 
@@ -91,12 +89,11 @@ public class PrimaryStageInitializer
 
 		// XXX: make sure we're not already connected... I think we can get the event twice when the network is reconfigured
 
-		var handler = new ChatFrameHandler(windowManager, chatViewController); // XXX: for now, use the same for both
-
 		messageClient
-				.subscribe(chatPrivateDestination(), handler)
-				.subscribe(chatRoomDestination(), handler)
-				// XXX: and don't forget to subscribe to broadcasts one day too
+				.subscribe(chatPrivateDestination(), new PrivateChatFrameHandler(windowManager))
+				.subscribe(chatRoomDestination(), new ChatRoomFrameHandler(chatViewController))
+				.subscribe(chatDistantDestination(), new DistantChatFrameHandler(windowManager))
+				.subscribe(chatBroadcastDestination(), new BroadcastChatFrameHandler())
 				.connect();
 	}
 }

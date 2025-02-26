@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -95,6 +95,22 @@ public final class ChatMapper
 				chatBacklog.getCreated(),
 				chatBacklog.isOwn(),
 				chatBacklog.getMessage()
+		);
+	}
+
+	public static List<ChatBacklogDTO> fromDistantChatBacklogToChatBacklogDTOs(List<DistantChatBacklog> distantChatBacklogList)
+	{
+		return emptyIfNull(distantChatBacklogList).stream()
+				.map(ChatMapper::toDTO)
+				.toList();
+	}
+
+	public static ChatBacklogDTO toDTO(DistantChatBacklog distantChatBacklog)
+	{
+		return new ChatBacklogDTO(
+				distantChatBacklog.getCreated(),
+				distantChatBacklog.isOwn(),
+				distantChatBacklog.getMessage()
 		);
 	}
 }

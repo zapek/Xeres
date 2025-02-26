@@ -294,9 +294,7 @@ public class MessagingWindowController implements WindowController
 							destination.setPlace(location.getName());
 							updateTitle();
 							chatClient.getChatBacklog(location.getId()).collectList()
-									.doOnSuccess(backlogs -> Platform.runLater(() -> {
-										fillBacklog(backlogs); // No need to use userData to pass the incoming message, it's already in the backlog
-									}))
+									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // No need to use userData to pass the incoming message, it's already in the backlog
 									.subscribe();
 						});
 					})
@@ -312,9 +310,12 @@ public class MessagingWindowController implements WindowController
 							setAvailability(Availability.OFFLINE);
 							destination.setName(identity.getName());
 							updateTitle();
-							// XXX: get distant backlog
-
-							// XXX: open tunnel... and show some indication...
+							chatClient.getDistantChatBacklog(identity.getId()).collectList()
+									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // Incoming message already in the backlog
+									.subscribe();
+							chatClient.createDistantChat(identity.getId())
+									.subscribe();
+							// XXX: how do we know when the tunnel is open? with some inbound messages on the websocket...
 						});
 					})
 					.doOnError(UiUtils::showAlertError)

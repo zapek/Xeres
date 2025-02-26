@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.service.chat.ChatBacklogService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
@@ -32,9 +33,11 @@ import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.dto.chat.ChatBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
+import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
+import io.xeres.common.rest.chat.DistantChatRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -54,7 +57,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.xeres.app.database.model.chat.ChatMapper.*;
+import static io.xeres.app.database.model.chat.ChatMapper.fromDistantChatBacklogToChatBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toChatBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toChatRoomBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
+import static io.xeres.app.database.model.location.LocationMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Tag(name = "Chat", description = "Chat service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/chat", description = "Chat documentation"))
@@ -70,12 +77,14 @@ public class ChatController
 	private final ChatRsService chatRsService;
 	private final ChatBacklogService chatBacklogService;
 	private final LocationService locationService;
+	private final IdentityService identityService;
 
-	public ChatController(ChatRsService chatRsService, ChatBacklogService chatBacklogService, LocationService locationService)
+	public ChatController(ChatRsService chatRsService, ChatBacklogService chatBacklogService, LocationService locationService, IdentityService identityService)
 	{
 		this.chatRsService = chatRsService;
 		this.chatBacklogService = chatBacklogService;
 		this.locationService = locationService;
+		this.identityService = identityService;
 	}
 
 	@PostMapping("/rooms")
@@ -148,6 +157,29 @@ public class ChatController
 		var location = locationService.findLocationById(locationId).orElseThrow();
 		return toChatBacklogDTOs(chatBacklogService.getMessages(
 				location,
+				from != null ? from.toInstant(ZoneOffset.UTC) : Instant.now().minus(PRIVATE_CHAT_DEFAULT_DURATION),
+				maxLines != null ? maxLines : PRIVATE_CHAT_DEFAULT_MAX_LINES));
+	}
+
+	@PostMapping("/distant-chats")
+	@Operation(summary = "Create a distant chat")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public LocationDTO createDistantChat(@Valid @RequestBody DistantChatRequest distantChatRequest)
+	{
+		var identity = identityService.findById(distantChatRequest.identityId()).orElseThrow();
+		return toDTO(chatRsService.createDistantChat(identity));
+	}
+
+	@GetMapping("/distant-chats/{gxsId}/messages")
+	@Operation(summary = "Get the distant chat messages backlog")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public List<ChatBacklogDTO> getDistantChatMessages(@PathVariable long gxsId,
+	                                                   @RequestParam(value = "maxLines", required = false) @Min(1) @Max(500) Integer maxLines,
+	                                                   @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from)
+	{
+		var identity = identityService.findById(gxsId).orElseThrow();
+		return fromDistantChatBacklogToChatBacklogDTOs(chatBacklogService.getDistantMessages(
+				identity,
 				from != null ? from.toInstant(ZoneOffset.UTC) : Instant.now().minus(PRIVATE_CHAT_DEFAULT_DURATION),
 				maxLines != null ? maxLines : PRIVATE_CHAT_DEFAULT_MAX_LINES));
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,22 +19,22 @@
 
 package io.xeres.app.database.model.chat;
 
-import io.xeres.app.database.model.location.Location;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
 @Entity
-public class ChatBacklog
+public class DistantChatBacklog
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "location_id", nullable = false)
-	private Location location;
+	@JoinColumn(name = "identity_id", nullable = false)
+	private IdentityGroupItem identityGroupItem;
 
 	@CreationTimestamp
 	private Instant created;
@@ -43,14 +43,14 @@ public class ChatBacklog
 
 	private String message;
 
-	protected ChatBacklog()
+	protected DistantChatBacklog()
 	{
 
 	}
 
-	public ChatBacklog(Location location, boolean own, String message)
+	public DistantChatBacklog(IdentityGroupItem identityGroupItem, boolean own, String message)
 	{
-		this.location = location;
+		this.identityGroupItem = identityGroupItem;
 		this.own = own;
 		this.message = message;
 	}
@@ -65,14 +65,14 @@ public class ChatBacklog
 		this.id = id;
 	}
 
-	public Location getLocation()
+	public IdentityGroupItem getIdentityGroupItem()
 	{
-		return location;
+		return identityGroupItem;
 	}
 
-	public void setLocation(Location location)
+	public void setIdentityGroupItem(IdentityGroupItem identityGroupItem)
 	{
-		this.location = location;
+		this.identityGroupItem = identityGroupItem;
 	}
 
 	public Instant getCreated()

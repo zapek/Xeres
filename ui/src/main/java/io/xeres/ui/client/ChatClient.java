@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.chat.ChatBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
+import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.chat.ChatBacklog;
@@ -29,10 +30,12 @@ import io.xeres.common.message.chat.ChatRoomBacklog;
 import io.xeres.common.message.chat.ChatRoomContext;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
+import io.xeres.common.rest.chat.DistantChatRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.chat.ChatMapper;
 import io.xeres.ui.model.location.Location;
+import io.xeres.ui.model.location.LocationMapper;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -73,6 +76,18 @@ public class ChatClient
 				.bodyValue(request)
 				.retrieve()
 				.bodyToMono(Void.class);
+	}
+
+	public Mono<Location> createDistantChat(long identityId)
+	{
+		var request = new DistantChatRequest(identityId);
+
+		return webClient.post()
+				.uri("/distant-chats")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(LocationDTO.class)
+				.map(LocationMapper::fromDTO);
 	}
 
 	public Mono<Long> joinChatRoom(long id)
@@ -127,6 +142,15 @@ public class ChatClient
 	{
 		return webClient.get()
 				.uri("/chats/{locationId}/messages", id)
+				.retrieve()
+				.bodyToFlux(ChatBacklogDTO.class)
+				.map(ChatMapper::fromDTO);
+	}
+
+	public Flux<ChatBacklog> getDistantChatBacklog(long id)
+	{
+		return webClient.get()
+				.uri("/distant-chats/{gxsId}/messages", id)
 				.retrieve()
 				.bodyToFlux(ChatBacklogDTO.class)
 				.map(ChatMapper::fromDTO);

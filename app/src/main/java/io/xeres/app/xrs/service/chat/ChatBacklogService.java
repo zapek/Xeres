@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,11 +21,10 @@ package io.xeres.app.xrs.service.chat;
 
 import io.xeres.app.database.model.chat.ChatBacklog;
 import io.xeres.app.database.model.chat.ChatRoomBacklog;
+import io.xeres.app.database.model.chat.DistantChatBacklog;
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.database.repository.ChatBacklogRepository;
-import io.xeres.app.database.repository.ChatRoomBacklogRepository;
-import io.xeres.app.database.repository.ChatRoomRepository;
-import io.xeres.app.database.repository.LocationRepository;
+import io.xeres.app.database.repository.*;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import org.springframework.data.domain.Limit;
@@ -43,15 +42,19 @@ public class ChatBacklogService
 
 	private final ChatBacklogRepository chatBacklogRepository;
 	private final ChatRoomBacklogRepository chatRoomBacklogRepository;
+	private final DistantChatBacklogRepository distantChatBacklogRepository;
 	private final LocationRepository locationRepository;
 	private final ChatRoomRepository chatRoomRepository;
+	private final GxsIdentityRepository gxsIdentityRepository;
 
-	ChatBacklogService(ChatBacklogRepository chatBacklogRepository, ChatRoomBacklogRepository chatRoomBacklogRepository, LocationRepository locationRepository, ChatRoomRepository chatRoomRepository)
+	ChatBacklogService(ChatBacklogRepository chatBacklogRepository, ChatRoomBacklogRepository chatRoomBacklogRepository, DistantChatBacklogRepository distantChatBacklogRepository, LocationRepository locationRepository, ChatRoomRepository chatRoomRepository, GxsIdentityRepository gxsIdentityRepository)
 	{
 		this.chatBacklogRepository = chatBacklogRepository;
 		this.chatRoomBacklogRepository = chatRoomBacklogRepository;
+		this.distantChatBacklogRepository = distantChatBacklogRepository;
 		this.locationRepository = locationRepository;
 		this.chatRoomRepository = chatRoomRepository;
+		this.gxsIdentityRepository = gxsIdentityRepository;
 	}
 
 	@Transactional
@@ -94,14 +97,23 @@ public class ChatBacklogService
 		return chatBacklogRepository.findAllByLocationAndCreatedAfterOrderByCreatedDesc(with, from, Limit.of(maxLines)).reversed();
 	}
 
+	@Transactional
 	public void storeIncomingDistantMessage(GxsId from, String message)
 	{
-
+		var gxsId = gxsIdentityRepository.findByGxsId(from).orElseThrow();
+		distantChatBacklogRepository.save(new DistantChatBacklog(gxsId, false, message));
 	}
 
+	@Transactional
 	public void storeOutgoingDistantMessage(GxsId to, String message)
 	{
+		var gxsId = gxsIdentityRepository.findByGxsId(to).orElseThrow();
+		distantChatBacklogRepository.save(new DistantChatBacklog(gxsId, true, message));
+	}
 
+	public List<DistantChatBacklog> getDistantMessages(IdentityGroupItem with, Instant from, int maxLines)
+	{
+		return distantChatBacklogRepository.findAllByIdentityGroupItemAndCreatedAfterOrderByCreatedDesc(with, from, Limit.of(maxLines)).reversed();
 	}
 
 	@Transactional

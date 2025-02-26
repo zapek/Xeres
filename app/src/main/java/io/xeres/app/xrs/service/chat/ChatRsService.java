@@ -155,7 +155,8 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
-	private final RsServiceRegistry rsServiceRegistry;
+
+	private final Map<GxsId, Location> distantChatContacts = new ConcurrentHashMap<>();
 
 	private enum Invitation
 	{
@@ -163,6 +164,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		FROM_CHALLENGE
 	}
 
+	private final RsServiceRegistry rsServiceRegistry;
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final MessageService messageService;
@@ -1041,13 +1043,23 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void sendPrivateMessageToGxsId(GxsId gxsId, String message)
 	{
-		// XXX
+		var location = distantChatContacts.get(gxsId);
+		if (location == null)
+		{
+			log.error("Cannot find location for gxsId {}", gxsId);
+			return;
+		}
+
+		var identity = identityService.findByGxsId(gxsId).orElseThrow();
+		chatBacklogService.storeOutgoingDistantMessage(identity.getGxsId(), message);
+		var data = ItemUtils.serializeItem(new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
+		gxsTunnelRsService.sendData(location, DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
 	}
 
 	/**
 	 * Sends a typing notification for private messages to a peer.
 	 *
-	 * @param locationIdentifier the location id
+	 * @param identifier the identifier
 	 */
 	public void sendPrivateTypingNotification(Identifier identifier)
 	{
@@ -1067,7 +1079,14 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void sendPrivateTypingNotificationToGxsId(GxsId gxsId)
 	{
-		// XXX
+		var location = distantChatContacts.get(gxsId);
+		if (location == null)
+		{
+			log.error("Cannot find location for gxsId {}", gxsId);
+			return;
+		}
+		var data = ItemUtils.serializeItem(new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
+		gxsTunnelRsService.sendData(location, DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
 	}
 
 	public void sendAvatarRequest(Identifier identifier)
@@ -1088,7 +1107,22 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void sendAvatarRequestToGxsId(GxsId gxsId)
 	{
-		// XXX
+		var location = distantChatContacts.get(gxsId);
+		if (location == null)
+		{
+			log.error("Cannot find location for gxsId: {}", gxsId);
+			return;
+		}
+		var data = ItemUtils.serializeItem(new ChatMessageItem("", EnumSet.of(ChatFlags.PRIVATE, ChatFlags.REQUEST_AVATAR)), this);
+		gxsTunnelRsService.sendData(location, DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
+	}
+
+	public Location createDistantChat(IdentityGroupItem identityGroupItem)
+	{
+		var ownIdentity = identityService.getOwnIdentity();
+		var location = gxsTunnelRsService.requestSecuredTunnel(ownIdentity.getGxsId(), identityGroupItem.getGxsId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID);
+		distantChatContacts.put(identityGroupItem.getGxsId(), location);
+		return location;
 	}
 
 	/**

@@ -19,6 +19,29 @@
 
 package io.xeres.app.xrs.service.gxstunnel;
 
+import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.ByteBuffer;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static io.xeres.app.xrs.common.SecurityKey.Flags.DISTRIBUTION_ADMIN;
+import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
+import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
+import static io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus.*;
+import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.HALF_KEY_DONE;
+import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.UNINITIALIZED;
+
 import io.xeres.app.crypto.aes.AES;
 import io.xeres.app.crypto.dh.DiffieHellman;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
@@ -50,29 +73,6 @@ import org.bouncycastle.util.BigIntegers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import javax.crypto.interfaces.DHPublicKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.ByteBuffer;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static io.xeres.app.xrs.common.SecurityKey.Flags.DISTRIBUTION_ADMIN;
-import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
-import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
-import static io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus.*;
-import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.HALF_KEY_DONE;
-import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.UNINITIALIZED;
 
 @Component
 public class GxsTunnelRsService extends RsService implements RsServiceMaster<GxsTunnelRsClient>, TurtleRsClient
@@ -145,21 +145,21 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		tunnelDataItemLock.lock();
 		try
 		{
-			var item = tunnelDataItems.poll();
+			var item = tunnelDataItems.peek();
 			if (item == null || Duration.between(item.getLastSendingAttempt(), now).compareTo(TUNNEL_DELAY_BETWEEN_RESEND) < 0)
 			{
 				return;
 			}
+
+			tunnelDataItems.poll(); // We need to remove it so that the priority is changed
 			sendEncryptedTunnelData(item.getLocation(), item);
 			item.updateLastSendingAttempt();
-
 			tunnelDataItems.offer(item);
 		}
 		finally
 		{
 			tunnelDataItemLock.unlock();
 		}
-
 		// XXX: there should be a way to remove them?! I think it's only when the tunnel is removed, but I can't see where it's done in RS
 	}
 
@@ -205,7 +205,6 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		}
 	}
 
-	// XXX: use this for sending encrypted data directly... it will retry them! used by getTunnelInfo() (reading)
 	private void sendTunnelDataItem(Location destination, GxsTunnelDataItem item)
 	{
 		tunnelDataItemLock.lock();
@@ -699,9 +698,6 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		turtleRouter.sendTurtleData(destination, turtleItem);
 	}
 
-	// XXX: missing public methods:
-	// XXX: getTunnelInfo()
-
 	public Location requestSecuredTunnel(GxsId from, GxsId to, int serviceId)
 	{
 		var hash = DestinationHash.createRandomHash(to);
@@ -719,6 +715,16 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		turtleRouter.startMonitoringTunnels(hash, this, false);
 
 		return tunnelId;
+	}
+
+	public GxsId getGxsFromTunnel(Location tunnelId)
+	{
+		var tunnelPeerInfo = contacts.get(tunnelId);
+		if (tunnelPeerInfo == null)
+		{
+			return null;
+		}
+		return tunnelPeerInfo.getDestination();
 	}
 
 	public void sendData(Location tunnelId, int serviceId, byte[] data)

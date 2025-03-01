@@ -19,6 +19,11 @@
 
 package io.xeres.ui.client;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
+
 import io.xeres.common.dto.chat.ChatBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
@@ -41,11 +46,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Component
 public class ChatClient
@@ -88,6 +88,14 @@ public class ChatClient
 				.retrieve()
 				.bodyToMono(LocationDTO.class)
 				.map(LocationMapper::fromDTO);
+	}
+
+	public Mono<Void> closeDistantChat(long identityId)
+	{
+		return webClient.delete()
+				.uri("/distant-chats/{id}", identityId)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 
 	public Mono<Long> joinChatRoom(long id)

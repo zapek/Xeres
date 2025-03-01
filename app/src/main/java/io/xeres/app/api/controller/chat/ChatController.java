@@ -19,6 +19,21 @@
 
 package io.xeres.app.api.controller.chat;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static io.xeres.app.database.model.chat.ChatMapper.fromDistantChatBacklogToChatBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toChatBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toChatRoomBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
+import static io.xeres.app.database.model.location.LocationMapper.toDTO;
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
+
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -39,6 +54,7 @@ import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.DistantChatRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -48,21 +64,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static io.xeres.app.database.model.chat.ChatMapper.fromDistantChatBacklogToChatBacklogDTOs;
-import static io.xeres.app.database.model.chat.ChatMapper.toChatBacklogDTOs;
-import static io.xeres.app.database.model.chat.ChatMapper.toChatRoomBacklogDTOs;
-import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
-import static io.xeres.app.database.model.location.LocationMapper.toDTO;
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Tag(name = "Chat", description = "Chat service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/chat", description = "Chat documentation"))
 @RestController
@@ -168,6 +169,17 @@ public class ChatController
 	{
 		var identity = identityService.findById(distantChatRequest.identityId()).orElseThrow();
 		return toDTO(chatRsService.createDistantChat(identity));
+	}
+
+	@DeleteMapping("/distant-chats/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	void closeDistantChat(@PathVariable long id)
+	{
+		var identity = identityService.findById(id).orElseThrow();
+		if (!chatRsService.closeDistantChat(identity))
+		{
+			throw new EntityNotFoundException();
+		}
 	}
 
 	@GetMapping("/distant-chats/{gxsId}/messages")

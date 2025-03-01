@@ -19,6 +19,23 @@
 
 package io.xeres.ui.controller.messaging;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+
+import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static io.xeres.ui.support.util.UiUtils.getWindow;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import atlantafx.base.controls.Message;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
@@ -65,23 +82,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
-
-import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
-import static io.xeres.ui.support.util.UiUtils.getWindow;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @FxmlView(value = "/view/messaging/messaging.fxml")
 public class MessagingWindowController implements WindowController
@@ -315,7 +315,6 @@ public class MessagingWindowController implements WindowController
 									.subscribe();
 							chatClient.createDistantChat(identity.getId())
 									.subscribe();
-							// XXX: how do we know when the tunnel is open? with some inbound messages on the websocket...
 						});
 					})
 					.doOnError(UiUtils::showAlertError)
@@ -323,6 +322,23 @@ public class MessagingWindowController implements WindowController
 		}
 
 		messageClient.requestAvatar(destination.getIdentifier());
+	}
+
+	@Override
+	public void onHidden()
+	{
+		if (destination.getIdentifier() instanceof GxsId gxsId)
+		{
+			identityClient.findByGxsId(gxsId).collectList()
+					.doOnSuccess(gxsIds -> {
+						var identity = gxsIds.stream().findFirst().orElseThrow();
+						Platform.runLater(() -> {
+							chatClient.closeDistantChat(identity.getId())
+									.subscribe();
+						});
+					})
+					.subscribe();
+		}
 	}
 
 	public void showMessage(ChatMessage message)

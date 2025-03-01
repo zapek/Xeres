@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,12 +19,31 @@
 
 package io.xeres.app.api.controller.chat;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.chat.ChatBacklog;
 import io.xeres.app.database.model.chat.ChatRoomBacklog;
 import io.xeres.app.database.model.chat.ChatRoomFakes;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.xrs.service.chat.ChatBacklogService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
@@ -45,24 +64,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @WebMvcTest(ChatController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ChatControllerTest extends AbstractControllerTest
@@ -77,6 +78,9 @@ class ChatControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private LocationService locationService;
+
+	@MockitoBean
+	private IdentityService identityService;
 
 	@Autowired
 	public MockMvc mvc;

@@ -19,6 +19,23 @@
 
 package io.xeres.app.xrs.service.chat;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+import static io.xeres.app.xrs.service.RsServiceType.CHAT;
+import static io.xeres.common.location.Availability.AVAILABLE;
+import static io.xeres.common.location.Availability.OFFLINE;
+import static io.xeres.common.message.MessagePath.*;
+import static io.xeres.common.message.MessageType.*;
+import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+
 import io.xeres.app.application.events.PeerConnectedEvent;
 import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.crypto.rsa.RSA;
@@ -58,24 +75,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-import static io.xeres.app.xrs.service.RsServiceType.CHAT;
-import static io.xeres.common.location.Availability.AVAILABLE;
-import static io.xeres.common.location.Availability.OFFLINE;
-import static io.xeres.common.message.MessagePath.chatPrivateDestination;
-import static io.xeres.common.message.MessagePath.chatRoomDestination;
-import static io.xeres.common.message.MessageType.*;
-import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @Component
 public class ChatRsService extends RsService implements GxsTunnelRsClient
@@ -156,7 +155,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private final Map<Long, ChatRoom> availableChatRooms = new ConcurrentHashMap<>();
 	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
 
-	private final Map<GxsId, Location> distantChatContacts = new ConcurrentHashMap<>();
+	private final Map<GxsId, DistantLocation> distantChatContacts = new ConcurrentHashMap<>();
 
 	private enum Invitation
 	{
@@ -265,10 +264,25 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	@Override
 	public void onGxsTunnelDataReceived(Location tunnelId, byte[] data)
 	{
-		// XXX: store and check tunnel info!
+		var destination = gxsTunnelRsService.getGxsFromTunnel(tunnelId);
+		if (destination == null)
+		{
+			log.error("Cannot get tunnel info from {}", tunnelId);
+			return;
+		}
+
+		var distantLocation = new DistantLocation(tunnelId, destination);
+
+		distantChatContacts.putIfAbsent(destination, new DistantLocation(tunnelId, destination));
 
 		var item = ItemUtils.deserializeItem(data, rsServiceRegistry);
-		// XXX: handle ChatMessageItem, ChatStatusItem and ChatAvatarItem, nothing else... not sure how to do it with tunnelId -> Peer...
+		switch (item)
+		{
+			case ChatMessageItem chatMessageItem -> handleChatMessageItem(distantLocation, chatMessageItem);
+			case ChatAvatarItem chatAvatarItem -> handleChatAvatarItem(distantLocation, chatAvatarItem);
+			case ChatStatusItem chatStatusItem -> handleChatStatusItem(distantLocation, chatStatusItem);
+			default -> log.error("Unknown item {}", item);
+		}
 	}
 
 	@Override
@@ -289,15 +303,8 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		switch (status)
 		{
 			case UNKNOWN -> log.warn("Don't know how to handle {}", status);
-			case CAN_TALK ->
-			{
-			} // XXX: put peer as online
-			case TUNNEL_DOWN ->
-			{
-			} // XXX: put peer as offline
-			case REMOTELY_CLOSED ->
-			{
-			} // XXX: put peer as offline
+			case CAN_TALK -> messageService.sendToConsumers(chatDistantDestination(), CHAT_AVAILABILITY, tunnelId.getLocationIdentifier(), AVAILABLE);
+			case TUNNEL_DOWN, REMOTELY_CLOSED -> messageService.sendToConsumers(chatDistantDestination(), CHAT_AVAILABILITY, tunnelId.getLocationIdentifier(), OFFLINE);
 		}
 	}
 
@@ -768,6 +775,19 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
+	private void handleChatStatusItem(DistantLocation distantLocation, ChatStatusItem item)
+	{
+		log.debug("Got status item from distant peer {}: {}", distantLocation, item);
+		if (MESSAGE_TYPING_CONTENT.equals(item.getStatus()))
+		{
+			messageService.sendToConsumers(chatDistantDestination(), CHAT_TYPING_NOTIFICATION, distantLocation.getGxsId(), new ChatMessage());
+		}
+		else
+		{
+			log.warn("Unknown status item from distant peer {}, status: {}, flags: {}", distantLocation, item.getStatus(), item.getFlags());
+		}
+	}
+
 	private void handleChatMessageItem(PeerConnection peerConnection, ChatMessageItem item)
 	{
 		log.debug("Received chat message item from {}: {}", peerConnection, item);
@@ -795,13 +815,58 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
+	private void handleChatMessageItem(DistantLocation distantLocation, ChatMessageItem item)
+	{
+		log.debug("Received distant chat message item from {}: {}", distantLocation, item);
+		if (!item.isPrivate())
+		{
+			log.debug("Item type {} not supported", item);
+			return;
+		}
+
+		if (item.isAvatarRequest())
+		{
+			handleAvatarRequest(distantLocation);
+		}
+		else
+		{
+			if (item.isPartial())
+			{
+				handlePartialMessage(distantLocation, item);
+			}
+			else
+			{
+				handleMessage(distantLocation, item);
+			}
+		}
+	}
+
 	private void handleAvatarRequest(PeerConnection peerConnection)
+	{
+		var ownImage = getOwnImage();
+		if (ownImage != null)
+		{
+			peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
+		}
+	}
+
+	private void handleAvatarRequest(DistantLocation distantLocation)
+	{
+		var ownImage = getOwnImage();
+		if (ownImage != null)
+		{
+			gxsTunnelRsService.sendData(distantLocation.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, ItemUtils.serializeItem(new ChatAvatarItem(ownImage), this));
+		}
+	}
+
+	private byte[] getOwnImage()
 	{
 		var ownImage = identityService.getOwnIdentity().getImage();
 		if (ownImage != null && ownImage.length <= AVATAR_SIZE_MAX)
 		{
-			peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
+			return ownImage;
 		}
+		return null;
 	}
 
 	private void handleMessage(PeerConnection peerConnection, ChatMessageItem item)
@@ -822,6 +887,21 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		messageService.sendToConsumers(chatPrivateDestination(), CHAT_PRIVATE_MESSAGE, from, chatMessage);
 	}
 
+	private void handleMessage(DistantLocation distantLocation, ChatMessageItem item)
+	{
+		var message = item.getMessage();
+		if (distantLocation.hasMessages())
+		{
+			distantLocation.addMessage(message);
+			message = distantLocation.getAllMessages();
+			distantLocation.clearMessages();
+		}
+		var from = distantLocation.getGxsId();
+		var chatMessage = new ChatMessage(parseIncomingText(message));
+		chatBacklogService.storeIncomingDistantMessage(from, chatMessage.getContent());
+		messageService.sendToConsumers(chatDistantDestination(), CHAT_PRIVATE_MESSAGE, from, chatMessage);
+	}
+
 	private void handlePartialMessage(PeerConnection peerConnection, ChatMessageItem item)
 	{
 		var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
@@ -838,9 +918,14 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
+	private void handlePartialMessage(DistantLocation distantLocation, ChatMessageItem item)
+	{
+		distantLocation.addMessage(item.getMessage());
+	}
+
 	private void handleChatAvatarItem(PeerConnection peerConnection, ChatAvatarItem item)
 	{
-		if (item.getImageData() == null || item.getImageData().length > AVATAR_SIZE_MAX)
+		if (!isAvatarValid(item))
 		{
 			log.debug("Avatar from {} is null or too big", peerConnection);
 			return;
@@ -848,6 +933,23 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 		var chatAvatar = new ChatAvatar(item.getImageData());
 		messageService.sendToConsumers(chatPrivateDestination(), CHAT_AVATAR, peerConnection.getLocation().getLocationIdentifier(), chatAvatar);
+	}
+
+	private void handleChatAvatarItem(DistantLocation distantLocation, ChatAvatarItem item)
+	{
+		if (!isAvatarValid(item))
+		{
+			log.debug("Distant avatar from {} is null or too big", distantLocation);
+			return;
+		}
+
+		var chatAvatar = new ChatAvatar(item.getImageData());
+		messageService.sendToConsumers(chatDistantDestination(), CHAT_AVATAR, distantLocation.getGxsId(), chatAvatar);
+	}
+
+	private boolean isAvatarValid(ChatAvatarItem item)
+	{
+		return item.getImageData() != null && item.getImageData().length <= AVATAR_SIZE_MAX;
 	}
 
 	/**
@@ -1043,17 +1145,17 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void sendPrivateMessageToGxsId(GxsId gxsId, String message)
 	{
-		var location = distantChatContacts.get(gxsId);
-		if (location == null)
+		var distantLocation = distantChatContacts.get(gxsId);
+		if (distantLocation == null)
 		{
-			log.error("Cannot find location for gxsId {}", gxsId);
+			log.error("Cannot find distantLocation for gxsId {}", gxsId);
 			return;
 		}
 
 		var identity = identityService.findByGxsId(gxsId).orElseThrow();
 		chatBacklogService.storeOutgoingDistantMessage(identity.getGxsId(), message);
 		var data = ItemUtils.serializeItem(new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
-		gxsTunnelRsService.sendData(location, DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
+		gxsTunnelRsService.sendData(distantLocation.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
 	}
 
 	/**
@@ -1079,14 +1181,14 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void sendPrivateTypingNotificationToGxsId(GxsId gxsId)
 	{
-		var location = distantChatContacts.get(gxsId);
-		if (location == null)
+		var distantLocation = distantChatContacts.get(gxsId);
+		if (distantLocation == null)
 		{
-			log.error("Cannot find location for gxsId {}", gxsId);
+			log.error("Cannot find distantLocation for gxsId {}", gxsId);
 			return;
 		}
 		var data = ItemUtils.serializeItem(new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
-		gxsTunnelRsService.sendData(location, DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
+		gxsTunnelRsService.sendData(distantLocation.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
 	}
 
 	public void sendAvatarRequest(Identifier identifier)
@@ -1107,22 +1209,34 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void sendAvatarRequestToGxsId(GxsId gxsId)
 	{
-		var location = distantChatContacts.get(gxsId);
-		if (location == null)
+		var distantLocation = distantChatContacts.get(gxsId);
+		if (distantLocation == null)
 		{
-			log.error("Cannot find location for gxsId: {}", gxsId);
+			log.error("Cannot find distantLocation for gxsId: {}", gxsId);
 			return;
 		}
 		var data = ItemUtils.serializeItem(new ChatMessageItem("", EnumSet.of(ChatFlags.PRIVATE, ChatFlags.REQUEST_AVATAR)), this);
-		gxsTunnelRsService.sendData(location, DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
+		gxsTunnelRsService.sendData(distantLocation.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
 	}
 
 	public Location createDistantChat(IdentityGroupItem identityGroupItem)
 	{
 		var ownIdentity = identityService.getOwnIdentity();
-		var location = gxsTunnelRsService.requestSecuredTunnel(ownIdentity.getGxsId(), identityGroupItem.getGxsId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID);
-		distantChatContacts.put(identityGroupItem.getGxsId(), location);
-		return location;
+		var tunnelId = gxsTunnelRsService.requestSecuredTunnel(ownIdentity.getGxsId(), identityGroupItem.getGxsId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID);
+		distantChatContacts.put(identityGroupItem.getGxsId(), new DistantLocation(tunnelId, identityGroupItem.getGxsId()));
+		return tunnelId;
+	}
+
+	public boolean closeDistantChat(IdentityGroupItem identityGroupItem)
+	{
+		var location = distantChatContacts.remove(identityGroupItem.getGxsId());
+		if (location == null)
+		{
+			log.debug("Failed to close distant chat for identityGroupItem {}", identityGroupItem);
+			return false;
+		}
+		gxsTunnelRsService.closeExistingTunnel(location.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID);
+		return true;
 	}
 
 	/**

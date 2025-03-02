@@ -78,7 +78,7 @@ sonarqube {
         property "sonar.projectKey", "zapek_Xeres"
         property "sonar.organization", "zapek"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.cpd.exclusion", "**/*Mapper.java"
-        property "sonar.coverage.exclusion", "**/*DTO.java"
+        property "sonar.cpd.exclusions", "**/*Mapper.java"
+        property "sonar.coverage.exclusions", "**/*DTO.java"
     }
 }

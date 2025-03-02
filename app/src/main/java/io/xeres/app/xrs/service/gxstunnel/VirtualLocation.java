@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.gxstunnel;
 
+import java.nio.ByteBuffer;
+
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.GxsId;
@@ -49,6 +51,12 @@ final class VirtualLocation
 		}
 		var digest = new Sha1MessageDigest();
 		digest.update(buf);
-		return Location.createLocation("GxsTunnelVirtualLocation", new LocationIdentifier(digest.getBytes()));
+		var wrap = ByteBuffer.wrap(digest.getBytes());
+
+		// Only get the first 16 bytes
+		var out = new byte[LocationIdentifier.LENGTH];
+		wrap.get(out);
+
+		return Location.createLocation("GxsTunnelVirtualLocation", new LocationIdentifier(out));
 	}
 }

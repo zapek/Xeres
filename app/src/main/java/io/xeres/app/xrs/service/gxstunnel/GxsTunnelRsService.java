@@ -271,9 +271,10 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 				if (hasNoIv(buf))
 				{
-					// Clear data
-					buf.position(4);
+					// Skip IV placeholder
+					buf.position(8);
 					buf.compact();
+					buf.position(0);
 					var deserializedItem = ItemUtils.deserializeItem(buf.array(), rsServiceRegistry);
 					if (deserializedItem instanceof GxsTunnelDhPublicKeyItem gxsTunnelDhPublicKeyItem)
 					{
@@ -291,29 +292,34 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 				}
 			}
 			case null -> throw new IllegalStateException("Null item");
-			default -> log.warn("Unknown packet type received: {}", item.getSubType());
+			default -> log.warn("Unknown packet subtype received from turtle data: {}", item.getSubType());
 		}
 	}
 
 	private boolean hasNoIv(ByteBuffer buf)
 	{
-		return buf.getLong(0) == 0L;
+		buf.mark();
+		var result = buf.getLong(0) == 0L;
+		buf.reset();
+		return result;
 	}
 
 	private void handleRecvDhPublicKeyItem(Location virtualLocation, GxsTunnelDhPublicKeyItem item)
 	{
+		log.debug("Received DH public key for {}", virtualLocation);
+
 		var peer = peers.get(virtualLocation);
 		if (peer == null)
 		{
-			log.error("Cannot find peer for {}", virtualLocation);
+			log.error("Cannot find peer for {} when receiving DH public key", virtualLocation);
 			return;
 		}
 
-		PublicKey publicKey = null;
+		PublicKey signerPublicKey = null;
 
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			publicKey = identityService.findByGxsId(item.getSignerPublicKey().getKeyId())
+			signerPublicKey = identityService.findByGxsId(item.getSignerPublicKey().getKeyId())
 					.map(GxsGroupItem::getAdminPublicKey)
 					.orElse(item.getSignerPublicKey() != null ? RSA.getPublicKey(item.getSignerPublicKey().getData()) : null);
 		}
@@ -322,7 +328,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			log.debug("Error while trying to get public key for {}: {}", item.getSignerPublicKey().getKeyId(), e.getMessage());
 		}
 
-		if (publicKey == null)
+		if (signerPublicKey == null)
 		{
 			log.warn("Cannot find public key for {}", item);
 			return;
@@ -336,7 +342,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 
-		if (!RSA.verify(publicKey, item.getSignature().getData(), BigIntegers.asUnsignedByteArray(item.getPublicKey())))
+		if (!RSA.verify(signerPublicKey, item.getSignature().getData(), BigIntegers.asUnsignedByteArray(item.getPublicKey())))
 		{
 			log.error("Signature verification failed for {}", peer);
 			return;
@@ -355,6 +361,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		var tunnelId = VirtualLocation.fromGxsIds(ownGxsId, item.getSignerPublicKey().getKeyId());
 		peer.setTunnelId(tunnelId);
 
+		var publicKey = DiffieHellman.getPublicKey(item.getPublicKey());
 		var commonSecret = DiffieHellman.generateCommonSecretKey(peer.getKeyPair().getPrivate(), publicKey); // XXX: catch IllegalArgumentException? I think so...
 		peer.setStatus(TunnelDhInfo.Status.KEY_AVAILABLE);
 
@@ -383,7 +390,13 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		var peer = peers.get(virtualLocation);
 		if (peer == null)
 		{
-			log.error("Cannot find peer for hash {}, virtual location {}", hash, virtualLocation);
+			log.error("Incoming item not coming out of a registered tunnel for hash {}, virtual location {}. This is unexpected.", hash, virtualLocation);
+			return;
+		}
+
+		if (peer.getTunnelId() == null)
+		{
+			log.error("No tunnel id for peer {}, this shouldn't happen", peer);
 			return;
 		}
 
@@ -447,7 +460,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			case GxsTunnelDataItem gxsTunnelDataItem -> handleTunnelDataItem(tunnelId, gxsTunnelDataItem);
 			case GxsTunnelDataAckItem gxsTunnelDataAckItem -> handleTunnelDataItemAck(gxsTunnelDataAckItem);
 			case GxsTunnelStatusItem gxsTunnelStatusItem -> handleTunnelStatusItem(tunnelId, gxsTunnelStatusItem);
-			default -> log.warn("Unknown packet type received: {}", item.getSubType());
+			default -> log.warn("Unknown packet subtype received from encrypted data: {}", item.getSubType());
 		}
 	}
 
@@ -571,7 +584,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		log.debug("Received new virtual peer {} for hash {}, direction {}", virtualLocation, hash, direction);
 
-		var dhInfo = peers.getOrDefault(virtualLocation, new TunnelDhInfo());
+		var dhInfo = peers.computeIfAbsent(virtualLocation, location -> new TunnelDhInfo());
 		dhInfo.clear();
 		dhInfo.setDirection(direction);
 		dhInfo.setHash(hash);
@@ -636,7 +649,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private void restartDhSession(Location virtualLocation)
 	{
-		var dhInfo = peers.getOrDefault(virtualLocation, new TunnelDhInfo());
+		var dhInfo = peers.computeIfAbsent(virtualLocation, location -> new TunnelDhInfo());
 		dhInfo.setStatus(UNINITIALIZED);
 		dhInfo.setKeyPair(DiffieHellman.generateKeys());
 		dhInfo.setStatus(HALF_KEY_DONE);
@@ -647,6 +660,8 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	private void sendDhPublicKey(Location virtualLocation, KeyPair keyPair)
 	{
 		assert keyPair != null;
+
+		log.debug("Sending DH public key to {}", virtualLocation);
 
 		// Sign the public key
 		try (var ignored = new DatabaseSession(databaseSessionManager))
@@ -676,7 +691,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		var peer = contacts.get(destination);
 		if (peer == null)
 		{
-			log.error("Cannot find peer for {}", destination);
+			log.error("Cannot find peer for {} when trying to send encrypted data", destination);
 			return;
 		}
 
@@ -695,7 +710,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		var encryptedItem = AES.encrypt(key, iv, serializedItem);
 		var turtleItem = new TurtleGenericFastDataItem(createTurtleData(key, iv, encryptedItem));
-		turtleRouter.sendTurtleData(destination, turtleItem);
+		turtleRouter.sendTurtleData(peer.getLocation(), turtleItem);
 	}
 
 	public Location requestSecuredTunnel(GxsId from, GxsId to, int serviceId)
@@ -751,6 +766,12 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		if (tunnelPeerInfo == null)
 		{
 			log.error("Cannot close distant tunnel connection. No connection opened for tunnel id {}", tunnelId);
+			return;
+		}
+
+		if (tunnelPeerInfo.getLocation() == null)
+		{
+			log.warn("Connection already closed for tunnel id {}", tunnelId);
 			return;
 		}
 

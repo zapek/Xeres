@@ -300,6 +300,7 @@ public class MessagingWindowController implements WindowController
 					})
 					.doOnError(UiUtils::showAlertError)
 					.subscribe();
+			messageClient.requestAvatar(destination.getIdentifier());
 		}
 		else if (destination.getIdentifier() instanceof GxsId gxsId)
 		{
@@ -319,9 +320,8 @@ public class MessagingWindowController implements WindowController
 					})
 					.doOnError(UiUtils::showAlertError)
 					.subscribe();
+			// XXX: I don't think we need to request the avatar for distant chats but it wouldn't surprise me that RS does it... check if it does it
 		}
-
-		messageClient.requestAvatar(destination.getIdentifier());
 	}
 
 	@Override

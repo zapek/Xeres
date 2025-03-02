@@ -19,12 +19,14 @@
 
 package io.xeres.app.crypto.dh;
 
-import io.xeres.common.util.SecureRandomUtils;
-
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
+import javax.crypto.spec.DHPublicKeySpec;
 import java.math.BigInteger;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+
+import io.xeres.common.util.SecureRandomUtils;
 
 public final class DiffieHellman
 {
@@ -54,6 +56,21 @@ public final class DiffieHellman
 		{
 			throw new IllegalArgumentException("DH algorithm error: " + e.getMessage());
 		}
+	}
+
+	public static PublicKey getPublicKey(BigInteger pubKeyBigInteger)
+	{
+		try
+		{
+			var keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+
+			return keyFactory.generatePublic(new DHPublicKeySpec(pubKeyBigInteger, P, G));
+		}
+		catch (NoSuchAlgorithmException | InvalidKeySpecException e)
+		{
+			throw new IllegalArgumentException("DH algorithm error: " + e.getMessage());
+		}
+
 	}
 
 	public static byte[] generateCommonSecretKey(PrivateKey privateKey, PublicKey receivedPublicKey)

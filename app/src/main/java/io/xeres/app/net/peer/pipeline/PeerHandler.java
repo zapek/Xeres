@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -18,6 +18,15 @@
  */
 
 package io.xeres.app.net.peer.pipeline;
+
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
+import static io.xeres.common.tray.TrayNotificationType.CONNECTION;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -44,15 +53,6 @@ import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.net.ssl.SSLPeerUnverifiedException;
-import java.io.IOException;
-import java.security.cert.CertificateException;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
-import static io.xeres.common.tray.TrayNotificationType.CONNECTION;
 
 public class PeerHandler extends ChannelDuplexHandler
 {
@@ -100,8 +100,9 @@ public class PeerHandler extends ChannelDuplexHandler
 		try
 		{
 			item = rsServiceRegistry.buildIncomingItem(rawItem);
-			log.debug("<== {}", item);
+			log.debug("<== {}", item.getClass().getSimpleName());
 			rawItem.deserialize(item);
+			log.debug("   \\- : {}", item);
 
 			var service = rsServiceRegistry.getServiceFromType(item.getServiceType());
 			if (service != null)

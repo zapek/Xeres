@@ -20,7 +20,6 @@
 package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.item.ItemPriority;
-import io.xeres.app.xrs.serialization.RsSerialized;
 
 /**
  * Used by any service to pass on arbitrary data into a tunnel.
@@ -28,22 +27,16 @@ import io.xeres.app.xrs.serialization.RsSerialized;
  * Same as {@link TurtleGenericDataItem} but with a fast priority. Can be
  * used for example by distant chat.
  */
-public class TurtleGenericFastDataItem extends TurtleGenericTunnelItem
+public class TurtleGenericFastDataItem extends TurtleGenericDataItem
 {
-	/**
-	 * The data.
-	 */
-	@RsSerialized
-	private byte[] tunnelData;
-
 	public TurtleGenericFastDataItem()
 	{
 		// Required
 	}
 
-	public TurtleGenericFastDataItem(byte[] tunnelData)
+	public TurtleGenericFastDataItem(byte[] data)
 	{
-		this.tunnelData = tunnelData;
+		super(data);
 	}
 
 	@Override
@@ -59,21 +52,10 @@ public class TurtleGenericFastDataItem extends TurtleGenericTunnelItem
 	}
 
 	@Override
-	public boolean shouldStampTunnel()
-	{
-		return true;
-	}
-
-	public byte[] getTunnelData()
-	{
-		return tunnelData;
-	}
-
-	@Override
 	public String toString()
 	{
 		return "TurtleGenericFastDataItem{" +
-				"tunnelData.length=" + getTunnelData().length +
+				"tunnelData.length=" + (getTunnelData() == null ? "[null]" : getTunnelData().length) +
 				'}';
 	}
 

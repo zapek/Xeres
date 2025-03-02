@@ -20,9 +20,10 @@
 package io.xeres.app.xrs.service.gxstunnel;
 
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.xrs.service.RsServiceSlave;
 import io.xeres.common.id.GxsId;
 
-public interface GxsTunnelRsClient
+public interface GxsTunnelRsClient extends RsServiceSlave
 {
 	/**
 	 * Called to initialize the gxs tunnel client.
@@ -31,14 +32,10 @@ public interface GxsTunnelRsClient
 	 * @return the service number
 	 */
 	int onGxsTunnelInitialization(GxsTunnelRsService gxsTunnelRsService);
-	// XXX: connectToGxsTunnelService
 
 	void onGxsTunnelDataReceived(Location tunnelId, byte[] data);
-	// XXX: receiveData
 
 	boolean onGxsTunnelDataAuthorization(GxsId sender, Location tunnelId, boolean clientSide);
-	// XXX: acceptDataFromPeer
 
 	void onGxsTunnelStatusChanged(Location tunnelId, GxsTunnelStatus status);
-	// XXX: notifyTunnelStatus
 }

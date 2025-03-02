@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -18,6 +18,14 @@
  */
 
 package io.xeres.app.xrs.service.turtle;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -47,14 +55,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
 
 /**
  * Implementation of the {@link TurtleRouter}. Only supports encrypted hashes.
@@ -242,7 +242,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		var tunnelId = virtualPeers.get(virtualPeer.getLocationIdentifier());
 		if (tunnelId == null)
 		{
-			log.warn("Couldn't find tunnel for virtual peer id {}", virtualPeer.getLocationIdentifier());
+			log.warn("Couldn't find tunnel for virtual peer id {} when sending data", virtualPeer.getLocationIdentifier());
 			return;
 		}
 

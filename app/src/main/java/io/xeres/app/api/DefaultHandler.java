@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -18,6 +18,11 @@
  */
 
 package io.xeres.app.api;
+
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -40,11 +45,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
 @RestControllerAdvice
 @OpenAPIDefinition(
 		info = @Info(
@@ -65,7 +65,7 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 			UnknownHostException.class})
 	public ErrorResponse handleNotFoundException(Exception e)
 	{
-		logError(e, false);
+		logError(e, log.isDebugEnabled());
 		return ErrorResponse.builder(e, HttpStatus.NOT_FOUND, e.getMessage())
 				.property("trace", ExceptionUtils.getStackTrace(e))
 				.build();
@@ -74,7 +74,7 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 	@ExceptionHandler(UnprocessableEntityException.class)
 	public ErrorResponse handleUnprocessableEntityException(UnprocessableEntityException e)
 	{
-		logError(e, false);
+		logError(e, log.isDebugEnabled());
 		return ErrorResponse.builder(e, HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage())
 				.property("trace", ExceptionUtils.getStackTrace(e))
 				.build();
@@ -83,7 +83,7 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e)
 	{
-		logError(e, false);
+		logError(e, log.isDebugEnabled());
 		return ErrorResponse.builder(e, HttpStatus.BAD_REQUEST, e.getMessage())
 				.property("trace", ExceptionUtils.getStackTrace(e))
 				.build();

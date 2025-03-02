@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.CHAT;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
 import static io.xeres.common.location.Availability.AVAILABLE;
 import static io.xeres.common.location.Availability.OFFLINE;
 import static io.xeres.common.message.MessagePath.*;
@@ -156,6 +157,12 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private final Map<Long, ChatRoom> invitedChatRooms = new ConcurrentHashMap<>();
 
 	private final Map<GxsId, DistantLocation> distantChatContacts = new ConcurrentHashMap<>();
+
+	@Override
+	public RsServiceType getMasterServiceType()
+	{
+		return GXS_TUNNEL;
+	}
 
 	private enum Invitation
 	{
@@ -1148,7 +1155,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		var distantLocation = distantChatContacts.get(gxsId);
 		if (distantLocation == null)
 		{
-			log.error("Cannot find distantLocation for gxsId {}", gxsId);
+			log.error("Cannot find distantLocation for gxsId {} when sending private message", gxsId);
 			return;
 		}
 
@@ -1184,7 +1191,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		var distantLocation = distantChatContacts.get(gxsId);
 		if (distantLocation == null)
 		{
-			log.error("Cannot find distantLocation for gxsId {}", gxsId);
+			log.error("Cannot find distantLocation for gxsId {} when sending typing notification", gxsId);
 			return;
 		}
 		var data = ItemUtils.serializeItem(new ChatStatusItem(MESSAGE_TYPING_CONTENT, EnumSet.of(ChatFlags.PRIVATE)), this);
@@ -1212,7 +1219,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		var distantLocation = distantChatContacts.get(gxsId);
 		if (distantLocation == null)
 		{
-			log.error("Cannot find distantLocation for gxsId: {}", gxsId);
+			log.error("Cannot find distantLocation for gxsId: {} when sending avatar request", gxsId);
 			return;
 		}
 		var data = ItemUtils.serializeItem(new ChatMessageItem("", EnumSet.of(ChatFlags.PRIVATE, ChatFlags.REQUEST_AVATAR)), this);
@@ -1223,6 +1230,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	{
 		var ownIdentity = identityService.getOwnIdentity();
 		var tunnelId = gxsTunnelRsService.requestSecuredTunnel(ownIdentity.getGxsId(), identityGroupItem.getGxsId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID);
+		log.debug("Creating distant chat tunnel for identity {}, resulting tunnelId: {}", identityGroupItem.getGxsId(), tunnelId.getLocationIdentifier());
 		distantChatContacts.put(identityGroupItem.getGxsId(), new DistantLocation(tunnelId, identityGroupItem.getGxsId()));
 		return tunnelId;
 	}

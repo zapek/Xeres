@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,10 @@
 
 package io.xeres.app.service;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import io.xeres.app.application.autostart.AutoStart;
 import io.xeres.common.rest.config.Capabilities;
 import org.junit.jupiter.api.Test;
@@ -27,12 +31,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(SpringExtension.class)
-class CapabilitiesServiceTest
+class CapabilityServiceTest
 {
 	@Mock
 	private AutoStart autoStart;

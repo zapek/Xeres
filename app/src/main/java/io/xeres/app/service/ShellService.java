@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,12 @@
 
 package io.xeres.app.service;
 
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.StringTokenizer;
+
+import static io.xeres.common.mui.ShellAction.*;
+
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
@@ -27,12 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
-import static io.xeres.common.mui.ShellAction.*;
-
 @Service
 public class ShellService implements Shell
 {
@@ -40,7 +40,7 @@ public class ShellService implements Shell
 	public ShellResult sendCommand(String input)
 	{
 		var args = new DefaultApplicationArguments(translateCommandline(input));
-		var arg = args.getNonOptionArgs().getFirst();
+		var arg = args.getNonOptionArgs().isEmpty() ? null : args.getNonOptionArgs().getFirst();
 
 		if (arg != null)
 		{

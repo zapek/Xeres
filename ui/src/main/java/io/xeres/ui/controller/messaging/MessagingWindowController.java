@@ -332,10 +332,8 @@ public class MessagingWindowController implements WindowController
 			identityClient.findByGxsId(gxsId).collectList()
 					.doOnSuccess(gxsIds -> {
 						var identity = gxsIds.stream().findFirst().orElseThrow();
-						Platform.runLater(() -> {
-							chatClient.closeDistantChat(identity.getId())
-									.subscribe();
-						});
+						Platform.runLater(() -> chatClient.closeDistantChat(identity.getId())
+								.subscribe());
 					})
 					.subscribe();
 		}

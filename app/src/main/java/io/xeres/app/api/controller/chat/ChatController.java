@@ -54,6 +54,7 @@ import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.DistantChatRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -165,10 +166,16 @@ public class ChatController
 	@PostMapping("/distant-chats")
 	@Operation(summary = "Create a distant chat")
 	@ApiResponse(responseCode = "200", description = "Request successful")
+	@ApiResponse(responseCode = "409", description = "Tunnel already exists")
 	public LocationDTO createDistantChat(@Valid @RequestBody DistantChatRequest distantChatRequest)
 	{
 		var identity = identityService.findById(distantChatRequest.identityId()).orElseThrow();
-		return toDTO(chatRsService.createDistantChat(identity));
+		var location = toDTO(chatRsService.createDistantChat(identity));
+		if (location == null)
+		{
+			throw new EntityExistsException();
+		}
+		return location;
 	}
 
 	@DeleteMapping("/distant-chats/{id}")

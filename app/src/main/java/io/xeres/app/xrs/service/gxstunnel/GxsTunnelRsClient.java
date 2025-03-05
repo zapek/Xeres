@@ -37,5 +37,5 @@ public interface GxsTunnelRsClient extends RsServiceSlave
 
 	boolean onGxsTunnelDataAuthorization(GxsId sender, Location tunnelId, boolean clientSide);
 
-	void onGxsTunnelStatusChanged(Location tunnelId, GxsTunnelStatus status);
+	void onGxsTunnelStatusChanged(Location tunnelId, GxsId destination, GxsTunnelStatus status);
 }

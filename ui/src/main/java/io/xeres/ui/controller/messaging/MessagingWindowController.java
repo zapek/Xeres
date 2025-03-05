@@ -82,6 +82,8 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @FxmlView(value = "/view/messaging/messaging.fxml")
 public class MessagingWindowController implements WindowController
@@ -308,13 +310,19 @@ public class MessagingWindowController implements WindowController
 					.doOnSuccess(gxsIds -> {
 						var identity = gxsIds.stream().findFirst().orElseThrow();
 						Platform.runLater(() -> {
-							setAvailability(Availability.OFFLINE);
 							destination.setName(identity.getName());
 							updateTitle();
 							chatClient.getDistantChatBacklog(identity.getId()).collectList()
 									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // Incoming message already in the backlog
 									.subscribe();
 							chatClient.createDistantChat(identity.getId())
+									.doOnSuccess(chat -> Platform.runLater(() -> setAvailability(Availability.OFFLINE)))
+									.doOnError(WebClientResponseException.class, e -> {
+										if (e.getStatusCode() == HttpStatus.CONFLICT)
+										{
+											Platform.runLater(() -> setAvailability(Availability.AVAILABLE));
+										}
+									})
 									.subscribe();
 						});
 					})

@@ -152,9 +152,10 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			}
 
 			tunnelDataItems.poll(); // We need to remove it so that the priority is changed
+			log.debug("Resending tunnel data item for tunnel {}", item.getLocation());
 			sendEncryptedTunnelData(item.getLocation(), item);
 			item.updateLastSendingAttempt();
-			tunnelDataItems.offer(item);
+			tunnelDataItems.offer(item); // Insert back with the proper priority
 		}
 		finally
 		{
@@ -174,6 +175,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			// cannot use them anymore.
 			if (entry.getValue().getStatus() == REMOTELY_CLOSED && entry.getValue().getLastContact().plusSeconds(20).isBefore(now))
 			{
+				log.debug("Removing tunnel {}", entry.getKey());
 				it.remove();
 				continue;
 			}
@@ -196,6 +198,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			// Send keep alive to active tunnels.
 			if (entry.getValue().getStatus() == CAN_TALK && entry.getValue().getLastKeepAliveSent().plus(TUNNEL_KEEP_ALIVE_TIMEOUT).isBefore(now))
 			{
+				log.debug("Sending keep alive to tunnel {}", entry.getKey());
 				sendEncryptedTunnelData(entry.getKey(), new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.KEEP_ALIVE));
 				entry.getValue().updateLastKeepAlive();
 			}
@@ -210,6 +213,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		tunnelDataItemLock.lock();
 		try
 		{
+			log.debug("Sending tunnel data item {} to tunnel {}", item, destination);
 			sendEncryptedTunnelData(destination, item);
 			item.setForResending(destination);
 			tunnelDataItems.offer(item);
@@ -250,12 +254,18 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		// Only answer request that are for us.
 		var destination = DestinationHash.getGxsIdFromHash(hash);
-		return ownGxsId.equals(destination);
+		var isForUs = ownGxsId.equals(destination);
+		if (isForUs)
+		{
+			log.trace("Tunnel request from {} is for us", sender);
+		}
+		return isForUs;
 	}
 
 	@Override
 	public void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hash, Location virtualLocation, TunnelDirection tunnelDirection)
 	{
+		log.debug("Received tunnel data item {} from {} (direction: {})", item, virtualLocation, tunnelDirection);
 		switch (item)
 		{
 			case TurtleGenericDataItem turtleGenericDataItem ->
@@ -355,6 +365,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		}
 		if (peer.getStatus() == TunnelDhInfo.Status.KEY_AVAILABLE)
 		{
+			log.debug("Key already available for {}, restarting DH session...", peer);
 			restartDhSession(virtualLocation);
 		}
 
@@ -365,8 +376,10 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		var commonSecret = DiffieHellman.generateCommonSecretKey(peer.getKeyPair().getPrivate(), publicKey); // XXX: catch IllegalArgumentException? I think so...
 		peer.setStatus(TunnelDhInfo.Status.KEY_AVAILABLE);
 
-		contacts.put(tunnelId, new TunnelPeerInfo(generateAesKey(commonSecret), virtualLocation, peer.getDirection(), item.getSignature().getGxsId()));
+		var tunnelPeerInfo = contacts.computeIfAbsent(tunnelId, location -> new TunnelPeerInfo());
+		tunnelPeerInfo.activate(generateAesKey(commonSecret), virtualLocation, peer.getDirection(), item.getSignature().getGxsId());
 
+		log.debug("Sending distant connection ack for tunnel {}", tunnelId);
 		sendEncryptedTunnelData(tunnelId, new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.ACK_DISTANT_CONNECTION));
 	}
 
@@ -396,7 +409,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		if (peer.getTunnelId() == null)
 		{
-			log.error("No tunnel id for peer {}, this shouldn't happen", peer);
+			log.error("No tunnel id for peer for virtual location {}, this shouldn't happen", virtualLocation);
 			return;
 		}
 
@@ -468,6 +481,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		// Acknowledge reception
 		var ackItem = new GxsTunnelDataAckItem(item.getCounter());
+		log.debug("Sending ack for tunnel {}", tunnelId);
 		sendEncryptedTunnelData(tunnelId, ackItem);
 
 		var client = clients.get(item.getServiceId());
@@ -556,7 +570,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			var client = clients.get(serviceId);
 			if (client != null)
 			{
-				client.onGxsTunnelStatusChanged(tunnelId, status);
+				client.onGxsTunnelStatusChanged(tunnelId, tunnelPeerInfo.getDestination(), status);
 			}
 		});
 	}
@@ -616,23 +630,23 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	@Override
 	public void removeVirtualPeer(Sha1Sum hash, Location virtualLocation)
 	{
-		var peer = peers.remove(virtualLocation);
+		var tunnelDhInfo = peers.remove(virtualLocation);
 
-		if (peer == null)
+		if (tunnelDhInfo == null)
 		{
 			log.error("Cannot remove virtual peer {} because it's not found", virtualLocation);
 			return;
 		}
 
-		var tunnelPeerInfo = contacts.get(peer.getTunnelId());
+		var tunnelPeerInfo = contacts.get(tunnelDhInfo.getTunnelId());
 		if (tunnelPeerInfo == null)
 		{
-			log.error("Cannot find tunnel id {} in contact list", peer.getTunnelId());
+			log.error("Cannot find tunnel id {} in contact list", tunnelDhInfo.getTunnelId());
 			return;
 		}
 
 		// Notify all clients that this tunnel is down.
-		if (peer.getTunnelId().equals(virtualLocation))
+		if (tunnelDhInfo.getTunnelId().equals(virtualLocation))
 		{
 			tunnelPeerInfo.setStatus(TUNNEL_DOWN);
 			tunnelPeerInfo.clearLocation();
@@ -641,7 +655,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 				var client = clients.get(serviceId);
 				if (client != null)
 				{
-					client.onGxsTunnelStatusChanged(peer.getTunnelId(), TUNNEL_DOWN);
+					client.onGxsTunnelStatusChanged(tunnelDhInfo.getTunnelId(), tunnelPeerInfo.getDestination(), TUNNEL_DOWN);
 				}
 			});
 		}
@@ -718,14 +732,13 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		var hash = DestinationHash.createRandomHash(to);
 		var tunnelId = VirtualLocation.fromGxsIds(from, to);
 
-		if (contacts.get(tunnelId) != null)
+		log.debug("Requesting secured tunnel for gxs id {}, resulting tunnel id: {}", to, tunnelId);
+
+		if (contacts.putIfAbsent(tunnelId, new TunnelPeerInfo(hash, to, serviceId)) != null)
 		{
 			log.error("Tunnel {} already exists", tunnelId);
 			return null;
 		}
-
-		var peer = new TunnelPeerInfo(hash, to, serviceId);
-		contacts.put(tunnelId, peer);
 
 		turtleRouter.startMonitoringTunnels(hash, this, false);
 
@@ -747,7 +760,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		var tunnelPeerInfo = contacts.get(tunnelId);
 		if (tunnelPeerInfo == null)
 		{
-			log.error("Not tunnel with this id");
+			log.error("No tunnel peer info found for {}", tunnelId);
 			return;
 		}
 
@@ -798,7 +811,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		if (tunnelPeerInfo.getClientServices().isEmpty())
 		{
 			// No clients, we can close the tunnel.
-
+			log.debug("Sending close tunnel status to tunnel id {}", tunnelId);
 			sendEncryptedTunnelData(tunnelId, new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.CLOSING_DISTANT_CONNECTION));
 
 			if (tunnelPeerInfo.getDirection() == TunnelDirection.SERVER)

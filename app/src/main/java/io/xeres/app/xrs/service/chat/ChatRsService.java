@@ -278,9 +278,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 			return;
 		}
 
-		var distantLocation = new DistantLocation(tunnelId, destination);
-
-		distantChatContacts.putIfAbsent(destination, new DistantLocation(tunnelId, destination));
+		var distantLocation = distantChatContacts.computeIfAbsent(destination, gxsId -> new DistantLocation(tunnelId, destination));
 
 		var item = ItemUtils.deserializeItem(data, rsServiceRegistry);
 		switch (item)
@@ -305,13 +303,13 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	}
 
 	@Override
-	public void onGxsTunnelStatusChanged(Location tunnelId, GxsTunnelStatus status)
+	public void onGxsTunnelStatusChanged(Location tunnelId, GxsId destination, GxsTunnelStatus status)
 	{
 		switch (status)
 		{
 			case UNKNOWN -> log.warn("Don't know how to handle {}", status);
-			case CAN_TALK -> messageService.sendToConsumers(chatDistantDestination(), CHAT_AVAILABILITY, tunnelId.getLocationIdentifier(), AVAILABLE);
-			case TUNNEL_DOWN, REMOTELY_CLOSED -> messageService.sendToConsumers(chatDistantDestination(), CHAT_AVAILABILITY, tunnelId.getLocationIdentifier(), OFFLINE);
+			case CAN_TALK -> messageService.sendToConsumers(chatDistantDestination(), CHAT_AVAILABILITY, destination, AVAILABLE);
+			case TUNNEL_DOWN, REMOTELY_CLOSED -> messageService.sendToConsumers(chatDistantDestination(), CHAT_AVAILABILITY, destination, OFFLINE);
 		}
 	}
 

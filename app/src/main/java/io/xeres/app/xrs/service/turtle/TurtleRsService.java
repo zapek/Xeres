@@ -269,12 +269,15 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 			item.setDirection(TunnelDirection.SERVER);
 			turtleStatisticsBuffer.addToDataDownload(itemSerializedSize);
 			peerConnectionManager.writeItem(tunnel.getDestination(), item, this);
+			log.trace("Sending turtle item {} to {} (server)", item, tunnel.getDestination());
 		}
 		else if (tunnel.getDestination().equals(ownLocation))
 		{
 			item.setDirection(TunnelDirection.CLIENT);
 			turtleStatisticsBuffer.addToDataUpload(itemSerializedSize);
 			peerConnectionManager.writeItem(tunnel.getSource(), item, this);
+			log.trace("Sending turtle item {} to {} (client)", item, tunnel.getSource());
+
 		}
 		else
 		{
@@ -300,10 +303,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	private void routeGenericTunnel(PeerConnection sender, TurtleGenericTunnelItem item)
 	{
+		log.trace("Routing generic tunnel {} from {}", item, sender);
 		var tunnel = localTunnels.get(item.getTunnelId());
 		if (tunnel == null)
 		{
-			log.error("Got file map with unknown tunnel id {}", item.getTunnelId());
+			log.error("Got item {} with unknown tunnel id {} from {}, dropping", item, item.getTunnelId(), sender);
 			return;
 		}
 
@@ -331,7 +335,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (sender.getLocation().equals(tunnel.getDestination()) && !tunnel.getSource().equals(ownLocation))
 		{
-			log.trace("Forwarding generic item to {}", tunnel.getSource());
+			log.trace("Forwarding generic item {} to {}", item, tunnel.getSource());
 
 			turtleStatisticsBuffer.addToForwardTotal(serializedSize);
 
@@ -341,7 +345,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 		if (sender.getLocation().equals(tunnel.getSource()) && !tunnel.getDestination().equals(ownLocation))
 		{
-			log.trace("Forwarding generic item to {}", tunnel.getDestination());
+			log.trace("Forwarding generic item {} to {}", item, tunnel.getDestination());
 
 			turtleStatisticsBuffer.addToForwardTotal(serializedSize);
 
@@ -428,18 +432,19 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		// If a client found something, send the search result back.
 		if (clientWithSearchResult.isPresent())
 		{
-			log.debug("Honoring tunnel request from peer {}: {}", sender, item);
 			var tunnelId = item.getPartialTunnelId() ^ generatePersonalFilePrint(item.getHash(), tunnelProbability.getBias(), false);
+			log.debug("Honoring tunnel request from peer {}: {}. generated tunnel id: {}", sender, item, tunnelId);
 			var resultItem = new TurtleTunnelResultItem(tunnelId, item.getRequestId());
 
 			var tunnel = new Tunnel(tunnelId, sender.getLocation(), ownLocation, item.getHash());
 			localTunnels.put(tunnelId, tunnel);
 			virtualPeers.put(tunnel.getVirtualLocation().getLocationIdentifier(), tunnelId);
-			clientWithSearchResult.get().addVirtualPeer(item.getHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
 
 			outgoingTunnelClients.put(tunnelId, clientWithSearchResult.get());
 
 			peerConnectionManager.writeItem(sender, resultItem, this);
+
+			clientWithSearchResult.get().addVirtualPeer(item.getHash(), tunnel.getVirtualLocation(), TunnelDirection.CLIENT);
 			return;
 		}
 

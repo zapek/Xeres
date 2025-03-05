@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
 import jakarta.annotation.Nonnull;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -58,6 +59,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class DefaultHandler extends ResponseEntityExceptionHandler
 {
 	private static final Logger log = LoggerFactory.getLogger(DefaultHandler.class);
+	public static final String TRACE = "trace";
 
 	@ExceptionHandler({
 			NoSuchElementException.class,
@@ -67,7 +69,7 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 	{
 		logError(e, log.isDebugEnabled());
 		return ErrorResponse.builder(e, HttpStatus.NOT_FOUND, e.getMessage())
-				.property("trace", ExceptionUtils.getStackTrace(e))
+				.property(TRACE, ExceptionUtils.getStackTrace(e))
 				.build();
 	}
 
@@ -76,7 +78,16 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 	{
 		logError(e, log.isDebugEnabled());
 		return ErrorResponse.builder(e, HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage())
-				.property("trace", ExceptionUtils.getStackTrace(e))
+				.property(TRACE, ExceptionUtils.getStackTrace(e))
+				.build();
+	}
+
+	@ExceptionHandler(EntityExistsException.class)
+	public ErrorResponse handleEntityExistsException(EntityExistsException e)
+	{
+		logError(e, log.isDebugEnabled());
+		return ErrorResponse.builder(e, HttpStatus.CONFLICT, e.getMessage())
+				.property(TRACE, ExceptionUtils.getStackTrace(e))
 				.build();
 	}
 
@@ -85,7 +96,7 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 	{
 		logError(e, log.isDebugEnabled());
 		return ErrorResponse.builder(e, HttpStatus.BAD_REQUEST, e.getMessage())
-				.property("trace", ExceptionUtils.getStackTrace(e))
+				.property(TRACE, ExceptionUtils.getStackTrace(e))
 				.build();
 	}
 
@@ -94,7 +105,7 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 	{
 		logError(e, true);
 		return ErrorResponse.builder(e, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())
-				.property("trace", ExceptionUtils.getStackTrace(e))
+				.property(TRACE, ExceptionUtils.getStackTrace(e))
 				.build();
 	}
 

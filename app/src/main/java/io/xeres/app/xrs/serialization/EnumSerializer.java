@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,7 +38,7 @@ final class EnumSerializer
 	static int serialize(ByteBuf buf, Enum<? extends Enum<?>> e)
 	{
 		Objects.requireNonNull(e, "Null enum not supported");
-		log.trace("Writing enum: {}", e.ordinal());
+		log.trace("Writing enum ordinal value: {}", e.ordinal());
 		buf.ensureWritable(Integer.BYTES);
 		buf.writeInt(e.ordinal());
 		return Integer.BYTES;
@@ -53,7 +53,7 @@ final class EnumSerializer
 	static <E extends Enum<E>> E deserialize(ByteBuf buf, Class<?> e)
 	{
 		var val = buf.readInt();
-		log.trace("Reading enum: {}, class: {}", val, e.getSimpleName());
+		log.trace("Reading enum ordinal value: {}, class: {}", val, e.getSimpleName());
 		return (E) e.getEnumConstants()[val];
 	}
 }

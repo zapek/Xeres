@@ -19,11 +19,11 @@
 
 package io.xeres.app.xrs.service.gxstunnel;
 
-import java.security.KeyPair;
-
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.common.id.Sha1Sum;
+
+import java.security.KeyPair;
 
 class TunnelDhInfo
 {
@@ -101,7 +101,9 @@ class TunnelDhInfo
 	public String toString()
 	{
 		return "TunnelDhInfo{" +
-				"tunnelId=" + tunnelId +
+				"status=" + status +
+				", direction=" + direction +
+				", tunnelId=" + tunnelId +
 				'}';
 	}
 }

@@ -19,17 +19,17 @@
 
 package io.xeres.app.xrs.service.gxstunnel;
 
+import io.xeres.app.database.model.location.Location;
+import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.Sha1Sum;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import io.xeres.app.database.model.location.Location;
-import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.Sha1Sum;
 
 class TunnelPeerInfo
 {
@@ -178,5 +178,16 @@ class TunnelPeerInfo
 		var now = Instant.now();
 
 		receivedMessages.entrySet().removeIf(entry -> entry.getValue().plus(delay).isAfter(now));
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TunnelPeerInfo{" +
+				"status=" + status +
+				", location=" + location +
+				", destination=" + destination +
+				", direction=" + direction +
+				'}';
 	}
 }

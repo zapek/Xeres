@@ -21,6 +21,9 @@ package io.xeres.app.xrs.service.gxstunnel.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public class GxsTunnelStatusItem extends GxsTunnelItem
 {
 	public enum Status
@@ -41,16 +44,16 @@ public class GxsTunnelStatusItem extends GxsTunnelItem
 	}
 
 	@RsSerialized
-	private Status status;
+	private Set<Status> status;
 
+	@SuppressWarnings("unused")
 	public GxsTunnelStatusItem()
 	{
-		// Needed
 	}
 
 	public GxsTunnelStatusItem(Status status)
 	{
-		this.status = status;
+		this.status = EnumSet.of(status);
 	}
 
 	@Override
@@ -61,6 +64,7 @@ public class GxsTunnelStatusItem extends GxsTunnelItem
 
 	public Status getStatus()
 	{
-		return status;
+		// XXX: we should add some warning when a status we don't know is wedged in there
+		return status.stream().findFirst().orElse(Status.UNUSED_1);
 	}
 }

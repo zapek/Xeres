@@ -19,29 +19,6 @@
 
 package io.xeres.app.xrs.service.gxstunnel;
 
-import javax.crypto.interfaces.DHPublicKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.ByteBuffer;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static io.xeres.app.xrs.common.SecurityKey.Flags.DISTRIBUTION_ADMIN;
-import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
-import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
-import static io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus.*;
-import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.HALF_KEY_DONE;
-import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.UNINITIALIZED;
-
 import io.xeres.app.crypto.aes.AES;
 import io.xeres.app.crypto.dh.DiffieHellman;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
@@ -74,6 +51,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static io.xeres.app.xrs.common.SecurityKey.Flags.DISTRIBUTION_ADMIN;
+import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
+import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
+import static io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus.*;
+import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.HALF_KEY_DONE;
+import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.UNINITIALIZED;
+
 @Component
 public class GxsTunnelRsService extends RsService implements RsServiceMaster<GxsTunnelRsClient>, TurtleRsClient
 {
@@ -96,8 +97,8 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private ScheduledExecutorService executorService;
 
-	private final Map<Location, TunnelPeerInfo> contacts = new ConcurrentHashMap<>(); // _gxs_tunnel_contacts
-	private final Map<Location, TunnelDhInfo> peers = new ConcurrentHashMap<>(); // gxs_tunnel_virtual_peer_ids
+	private final Map<Location, TunnelPeerInfo> contacts = new ConcurrentHashMap<>();
+	private final Map<Location, TunnelDhInfo> peers = new ConcurrentHashMap<>();
 
 	private final ReentrantLock tunnelDataItemLock = new ReentrantLock();
 	private final PriorityQueue<GxsTunnelDataItem> tunnelDataItems = new PriorityQueue<>();
@@ -329,13 +330,13 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			signerPublicKey = identityService.findByGxsId(item.getSignerPublicKey().getKeyId())
+			signerPublicKey = identityService.findByGxsId(item.getSignature().getGxsId())
 					.map(GxsGroupItem::getAdminPublicKey)
-					.orElse(item.getSignerPublicKey() != null ? RSA.getPublicKey(item.getSignerPublicKey().getData()) : null);
+					.orElse(RSA.getPublicKeyFromPkcs1(item.getSignerPublicKey().getData()));
 		}
-		catch (NoSuchAlgorithmException | InvalidKeySpecException e)
+		catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
 		{
-			log.debug("Error while trying to get public key for {}: {}", item.getSignerPublicKey().getKeyId(), e.getMessage());
+			log.debug("Error while trying to get public key for {}: {}", item.getSignature().getGxsId(), e.getMessage());
 		}
 
 		if (signerPublicKey == null)
@@ -344,7 +345,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 
-		// XXX: check public key? see the algo and where it's used
+		// XXX: check public key more thoroughly? (only for the key in the item though), see the algo and where it's used
 
 		if (!item.getSignerPublicKey().getKeyId().equals(item.getSignature().getGxsId()))
 		{
@@ -681,11 +682,11 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownIdentity = identityService.getOwnIdentity();
-			var signerSecurityKey = new SecurityKey(ownIdentity.getGxsId(), EnumSet.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY), 0, 0, ownIdentity.getAdminPublicKey().getEncoded()); // XXX: validity, flags, ... ok?
+			var signerSecurityKey = new SecurityKey(ownIdentity.getGxsId(), EnumSet.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY), 0, 0, RSA.getPublicKeyAsPkcs1(ownIdentity.getAdminPublicKey())); // XXX: validity, not OK! use real creation and + 5 years or so, flags: OK, ... ok?
 
 			var publicKeyNum = ((DHPublicKey) keyPair.getPublic()).getY();
 
-			var signature = new Signature(ownIdentity.getGxsId(), RSA.sign(BigIntegers.asUnsignedByteArray(publicKeyNum), ownIdentity.getAdminPrivateKey())); // XXX: no type... correct?
+			var signature = new Signature(ownIdentity.getGxsId(), RSA.sign(BigIntegers.asUnsignedByteArray(publicKeyNum), ownIdentity.getAdminPrivateKey()));
 
 			var item = new GxsTunnelDhPublicKeyItem(publicKeyNum, signature, signerSecurityKey);
 			var serializedItem = ItemUtils.serializeItem(item, this);
@@ -695,6 +696,10 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			System.arraycopy(serializedItem, 0, data, 8, serializedItem.length);
 
 			turtleRouter.sendTurtleData(virtualLocation, new TurtleGenericFastDataItem(data));
+		}
+		catch (IOException e)
+		{
+			throw new IllegalArgumentException("Cannot read public key from database: " + e.getMessage(), e);
 		}
 	}
 

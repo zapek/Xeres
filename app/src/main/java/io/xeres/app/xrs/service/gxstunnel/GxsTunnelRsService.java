@@ -317,7 +317,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private void handleRecvDhPublicKeyItem(Location virtualLocation, GxsTunnelDhPublicKeyItem item)
 	{
-		log.debug("Received DH public key for {}", virtualLocation);
+		log.debug("Received DH public key from {}", virtualLocation);
 
 		var peer = peers.get(virtualLocation);
 		if (peer == null)
@@ -332,11 +332,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		{
 			signerPublicKey = identityService.findByGxsId(item.getSignature().getGxsId())
 					.map(GxsGroupItem::getAdminPublicKey)
-					.orElse(RSA.getPublicKeyFromPkcs1(item.getSignerPublicKey().getData()));
-		}
-		catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
-		{
-			log.debug("Error while trying to get public key for {}: {}", item.getSignature().getGxsId(), e.getMessage());
+					.orElse(getPublicKeySecurely(item.getSignerPublicKey()));
 		}
 
 		if (signerPublicKey == null)
@@ -344,8 +340,6 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			log.warn("Cannot find public key for {}", item);
 			return;
 		}
-
-		// XXX: check public key more thoroughly? (only for the key in the item though), see the algo and where it's used
 
 		if (!item.getSignerPublicKey().getKeyId().equals(item.getSignature().getGxsId()))
 		{
@@ -382,6 +376,53 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		log.debug("Sending distant connection ack for tunnel {}", tunnelId);
 		sendEncryptedTunnelData(tunnelId, new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.ACK_DISTANT_CONNECTION));
+	}
+
+	private static PublicKey getPublicKeySecurely(SecurityKey securityKey)
+	{
+		if (!securityKey.getFlags().contains(TYPE_PUBLIC_ONLY))
+		{
+			log.warn("Public key misses public flag");
+			return null;
+		}
+
+		try
+		{
+			RSA.getPrivateKey(securityKey.getData());
+			log.warn("Public key is in fact a private key, rejecting.");
+			return null;
+		}
+		catch (NoSuchAlgorithmException | InvalidKeySpecException e)
+		{
+			// All good
+		}
+
+		PublicKey publicKey;
+
+		try
+		{
+			publicKey = RSA.getPublicKeyFromPkcs1(securityKey.getData());
+		}
+		catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e)
+		{
+			log.warn("Couldn't decode public key: {}", e.getMessage());
+			return null;
+		}
+
+		var gxsId = RSA.getGxsId(publicKey);
+
+		if (!securityKey.getKeyId().equals(gxsId))
+		{
+			// RS used to generate those keys. They're still accepted, but they
+			// will be removed one day.
+			if (!securityKey.getKeyId().equals(RSA.getGxsIdInsecure(publicKey)))
+			{
+				log.warn("Old style key has wrong fingerprint, rejecting.");
+				return null;
+			}
+			log.warn("Using old style key. The peer should generate a new identity though.");
+		}
+		return publicKey;
 	}
 
 	private byte[] generateAesKey(byte[] commonSecret)
@@ -682,7 +723,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownIdentity = identityService.getOwnIdentity();
-			var signerSecurityKey = new SecurityKey(ownIdentity.getGxsId(), EnumSet.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY), 0, 0, RSA.getPublicKeyAsPkcs1(ownIdentity.getAdminPublicKey())); // XXX: validity, not OK! use real creation and + 5 years or so, flags: OK, ... ok?
+			var signerSecurityKey = new SecurityKey(ownIdentity.getGxsId(), EnumSet.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY), ownIdentity.getPublished(), null, RSA.getPublicKeyAsPkcs1(ownIdentity.getAdminPublicKey()));
 
 			var publicKeyNum = ((DHPublicKey) keyPair.getPublic()).getY();
 

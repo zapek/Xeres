@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,12 +26,12 @@ package io.xeres.app.xrs.service.turtle.item;
 public enum TunnelDirection
 {
 	/**
-	 * A client, For example when downloading a file from a remote node.
+	 * A client, For example when downloading a file from a remote node or when we started a distant chat.
 	 */
 	CLIENT,
 
 	/**
-	 * A server, for example when serving a file to a remote node.
+	 * A server, for example when serving a file to a remote node or receiving a distant chat.
 	 */
 	SERVER
 }

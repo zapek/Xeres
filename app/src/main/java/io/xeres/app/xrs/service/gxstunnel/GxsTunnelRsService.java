@@ -75,6 +75,15 @@ import static io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus.*;
 import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.HALF_KEY_DONE;
 import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.UNINITIALIZED;
 
+/**
+ * Generic tunnel service.
+ * <p>
+ * Services wanting to use it just need to implement {@link GxsTunnelRsClient}.
+ * They can then request a tunnel from their identity to another identity and get a
+ * handle (<i>tunnel id</i>). They can send data using that <i>tunnel id</i>. Several services can
+ * use the same tunnel if the destination is the same. A <i>service id</i> is used to differentiate
+ * between services.
+ */
 @Component
 public class GxsTunnelRsService extends RsService implements RsServiceMaster<GxsTunnelRsClient>, TurtleRsClient
 {
@@ -97,8 +106,15 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private ScheduledExecutorService executorService;
 
+	/**
+	 * Current peers we can talk to. Key is a tunnel id.
+	 */
 	private final Map<Location, TunnelPeerInfo> contacts = new ConcurrentHashMap<>();
-	private final Map<Location, TunnelDhInfo> peers = new ConcurrentHashMap<>();
+
+	/**
+	 * Current virtual peers. Key is a turtle virtual peer.
+	 */
+	private final Map<Location, TunnelDhInfo> dhPeers = new ConcurrentHashMap<>();
 
 	private final ReentrantLock tunnelDataItemLock = new ReentrantLock();
 	private final PriorityQueue<GxsTunnelDataItem> tunnelDataItems = new PriorityQueue<>();
@@ -170,42 +186,42 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		var it = contacts.entrySet().iterator();
 		while (it.hasNext())
 		{
-			var entry = it.next();
+			var tunnelPeerInfoEntry = it.next();
 
 			// Remove tunnels that were remotely closed as we
 			// cannot use them anymore.
-			if (entry.getValue().getStatus() == REMOTELY_CLOSED && entry.getValue().getLastContact().plusSeconds(20).isBefore(now))
+			if (tunnelPeerInfoEntry.getValue().getStatus() == REMOTELY_CLOSED && tunnelPeerInfoEntry.getValue().getLastContact().plusSeconds(20).isBefore(now))
 			{
-				log.debug("Removing tunnel {}", entry.getKey());
+				log.debug("Removing tunnel {}", tunnelPeerInfoEntry.getKey());
 				it.remove();
 				continue;
 			}
 
 			// Re-digg tunnels that have died out of inaction
-			if (entry.getValue().getStatus() == CAN_TALK && entry.getValue().getLastContact().plusSeconds(20).plus(TUNNEL_KEEP_ALIVE_TIMEOUT).isBefore(now))
+			if (tunnelPeerInfoEntry.getValue().getStatus() == CAN_TALK && tunnelPeerInfoEntry.getValue().getLastContact().plusSeconds(20).plus(TUNNEL_KEEP_ALIVE_TIMEOUT).isBefore(now))
 			{
-				log.debug("Connection interrupted with peer");
-				entry.getValue().setStatus(TUNNEL_DOWN);
-				entry.getValue().clearLocation();
+				log.debug("Connection interrupted with tunnelPeerInfo");
+				tunnelPeerInfoEntry.getValue().setStatus(TUNNEL_DOWN);
+				tunnelPeerInfoEntry.getValue().clearLocation();
 
 				// Reset the turtle router monitoring. Avoids having to wait 60 seconds for the tunnel to die.
-				if (entry.getValue().getDirection() == TunnelDirection.SERVER)
+				if (tunnelPeerInfoEntry.getValue().getDirection() == TunnelDirection.SERVER)
 				{
 					log.debug("Forcing new tunnel");
-					turtleRouter.forceReDiggTunnel(DestinationHash.createRandomHash(entry.getValue().getDestination()));
+					turtleRouter.forceReDiggTunnel(DestinationHash.createRandomHash(tunnelPeerInfoEntry.getValue().getDestination()));
 				}
 			}
 
 			// Send keep alive to active tunnels.
-			if (entry.getValue().getStatus() == CAN_TALK && entry.getValue().getLastKeepAliveSent().plus(TUNNEL_KEEP_ALIVE_TIMEOUT).isBefore(now))
+			if (tunnelPeerInfoEntry.getValue().getStatus() == CAN_TALK && tunnelPeerInfoEntry.getValue().getLastKeepAliveSent().plus(TUNNEL_KEEP_ALIVE_TIMEOUT).isBefore(now))
 			{
-				log.debug("Sending keep alive to tunnel {}", entry.getKey());
-				sendEncryptedTunnelData(entry.getKey(), new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.KEEP_ALIVE));
-				entry.getValue().updateLastKeepAlive();
+				log.debug("Sending keep alive to tunnel {}", tunnelPeerInfoEntry.getKey());
+				sendEncryptedTunnelData(tunnelPeerInfoEntry.getKey(), new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.KEEP_ALIVE));
+				tunnelPeerInfoEntry.getValue().updateLastKeepAlive();
 			}
 
 			// Clean old received messages
-			entry.getValue().cleanupReceivedMessagesOlderThan(TUNNEL_MESSAGES_DUPLICATE_DELAY);
+			tunnelPeerInfoEntry.getValue().cleanupReceivedMessagesOlderThan(TUNNEL_MESSAGES_DUPLICATE_DELAY);
 		}
 	}
 
@@ -319,10 +335,10 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		log.debug("Received DH public key from {}", virtualLocation);
 
-		var peer = peers.get(virtualLocation);
-		if (peer == null)
+		var tunnelDhInfo = dhPeers.get(virtualLocation);
+		if (tunnelDhInfo == null)
 		{
-			log.error("Cannot find peer for {} when receiving DH public key", virtualLocation);
+			log.error("DH: Cannot find tunnelDhInfo for {}", virtualLocation);
 			return;
 		}
 
@@ -337,42 +353,51 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		if (signerPublicKey == null)
 		{
-			log.warn("Cannot find public key for {}", item);
+			log.error("DH: Cannot find/process signer public key for {}", tunnelDhInfo);
 			return;
 		}
 
 		if (!item.getSignerPublicKey().getKeyId().equals(item.getSignature().getGxsId()))
 		{
-			log.warn("Signature does not match public key for {}", peer);
+			log.error("DH: Signature does not match public key for {}", tunnelDhInfo);
 			return;
 		}
 
 		if (!RSA.verify(signerPublicKey, item.getSignature().getData(), BigIntegers.asUnsignedByteArray(item.getPublicKey())))
 		{
-			log.error("Signature verification failed for {}", peer);
+			log.error("DH: Signature verification failed for {}", tunnelDhInfo);
 			return;
 		}
 
-		if (peer.getKeyPair() == null)
+		if (tunnelDhInfo.getKeyPair() == null)
 		{
-			log.error("No information on peer {}", peer);
+			log.error("DH: No information on tunnelDhInfo {}", tunnelDhInfo);
 			return;
 		}
-		if (peer.getStatus() == TunnelDhInfo.Status.KEY_AVAILABLE)
+		if (tunnelDhInfo.getStatus() == TunnelDhInfo.Status.KEY_AVAILABLE)
 		{
-			log.debug("Key already available for {}, restarting DH session...", peer);
+			log.debug("Key already available for {}, restarting DH session...", tunnelDhInfo);
 			restartDhSession(virtualLocation);
 		}
 
 		var tunnelId = VirtualLocation.fromGxsIds(ownGxsId, item.getSignerPublicKey().getKeyId());
-		peer.setTunnelId(tunnelId);
+		tunnelDhInfo.setTunnelId(tunnelId);
 
 		var publicKey = DiffieHellman.getPublicKey(item.getPublicKey());
-		var commonSecret = DiffieHellman.generateCommonSecretKey(peer.getKeyPair().getPrivate(), publicKey); // XXX: catch IllegalArgumentException? I think so...
-		peer.setStatus(TunnelDhInfo.Status.KEY_AVAILABLE);
+		byte[] commonSecret;
+		try
+		{
+			commonSecret = DiffieHellman.generateCommonSecretKey(tunnelDhInfo.getKeyPair().getPrivate(), publicKey);
+		}
+		catch (IllegalArgumentException e)
+		{
+			log.error("DH: Cannot generate common secret key for {}", tunnelDhInfo);
+			return;
+		}
+		tunnelDhInfo.setStatus(TunnelDhInfo.Status.KEY_AVAILABLE);
 
 		var tunnelPeerInfo = contacts.computeIfAbsent(tunnelId, location -> new TunnelPeerInfo());
-		tunnelPeerInfo.activate(generateAesKey(commonSecret), virtualLocation, peer.getDirection(), item.getSignature().getGxsId());
+		tunnelPeerInfo.activate(generateAesKey(commonSecret), virtualLocation, tunnelDhInfo.getDirection(), item.getSignature().getGxsId());
 
 		log.debug("Sending distant connection ack for tunnel {}", tunnelId);
 		sendEncryptedTunnelData(tunnelId, new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.ACK_DISTANT_CONNECTION));
@@ -415,6 +440,8 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		{
 			// RS used to generate those keys. They're still accepted, but they
 			// will be removed one day.
+
+			//noinspection deprecation
 			if (!securityKey.getKeyId().equals(RSA.getGxsIdInsecure(publicKey)))
 			{
 				log.warn("Old style key has wrong fingerprint, rejecting.");
@@ -442,23 +469,23 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 
-		var peer = peers.get(virtualLocation);
-		if (peer == null)
+		var tunnelDhInfo = dhPeers.get(virtualLocation);
+		if (tunnelDhInfo == null)
 		{
 			log.error("Incoming item not coming out of a registered tunnel for hash {}, virtual location {}. This is unexpected.", hash, virtualLocation);
 			return;
 		}
 
-		if (peer.getTunnelId() == null)
+		if (tunnelDhInfo.getTunnelId() == null)
 		{
-			log.error("No tunnel id for peer for virtual location {}, this shouldn't happen", virtualLocation);
+			log.error("No tunnel id for tunnelDhInfo for virtual location {}, this shouldn't happen", virtualLocation);
 			return;
 		}
 
-		var tunnelPeerInfo = contacts.get(peer.getTunnelId());
+		var tunnelPeerInfo = contacts.get(tunnelDhInfo.getTunnelId());
 		if (tunnelPeerInfo == null)
 		{
-			log.error("Cannot find tunnel peer {}, virtual location {}", peer, virtualLocation);
+			log.error("Cannot find tunnel tunnelDhInfo {}, virtual location {}", tunnelDhInfo, virtualLocation);
 			return;
 		}
 
@@ -474,7 +501,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		if (!Arrays.equals(hmac, hmacCheck.getBytes()))
 		{
-			log.error("HMAC check failed for peer {}, virtual location {}. Resetting DH session.", peer, virtualLocation);
+			log.error("HMAC check failed for tunnelDhInfo {}, virtual location {}. Resetting DH session.", tunnelDhInfo, virtualLocation);
 			restartDhSession(virtualLocation);
 			return;
 		}
@@ -487,7 +514,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		}
 		catch (IllegalArgumentException e)
 		{
-			log.error("Decryption failed for peer {}, virtual location {}. : {}. Resetting DH session.", peer, virtualLocation, e.getMessage());
+			log.error("Decryption failed for tunnelDhInfo {}, virtual location {}. : {}. Resetting DH session.", tunnelDhInfo, virtualLocation, e.getMessage());
 			restartDhSession(virtualLocation);
 			return;
 		}
@@ -499,13 +526,13 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		if (item.getServiceType() == RsServiceType.NONE.getType())
 		{
-			log.error("Deserialization failed for peer {}, virtual location {}", peer, virtualLocation);
+			log.error("Deserialization failed for tunnelDhInfo {}, virtual location {}", tunnelDhInfo, virtualLocation);
 			return;
 		}
 
 		tunnelPeerInfo.addReceivedSize(decryptedItem.length);
 
-		handleIncomingItem(peer.getTunnelId(), item);
+		handleIncomingItem(tunnelDhInfo.getTunnelId(), item);
 	}
 
 	private void handleIncomingItem(Location tunnelId, Item item)
@@ -640,11 +667,11 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		log.debug("Received new virtual peer {} for hash {}, direction {}", virtualLocation, hash, direction);
 
-		var dhInfo = peers.computeIfAbsent(virtualLocation, location -> new TunnelDhInfo());
-		dhInfo.clear();
-		dhInfo.setDirection(direction);
-		dhInfo.setHash(hash);
-		dhInfo.setStatus(UNINITIALIZED);
+		var tunnelDhInfo = dhPeers.computeIfAbsent(virtualLocation, location -> new TunnelDhInfo());
+		tunnelDhInfo.clear();
+		tunnelDhInfo.setDirection(direction);
+		tunnelDhInfo.setHash(hash);
+		tunnelDhInfo.setStatus(UNINITIALIZED);
 
 		if (direction == TunnelDirection.SERVER)
 		{
@@ -672,7 +699,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	@Override
 	public void removeVirtualPeer(Sha1Sum hash, Location virtualLocation)
 	{
-		var tunnelDhInfo = peers.remove(virtualLocation);
+		var tunnelDhInfo = dhPeers.remove(virtualLocation);
 
 		if (tunnelDhInfo == null)
 		{
@@ -705,12 +732,12 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private void restartDhSession(Location virtualLocation)
 	{
-		var dhInfo = peers.computeIfAbsent(virtualLocation, location -> new TunnelDhInfo());
-		dhInfo.setStatus(UNINITIALIZED);
-		dhInfo.setKeyPair(DiffieHellman.generateKeys());
-		dhInfo.setStatus(HALF_KEY_DONE);
+		var tunnelDhInfo = dhPeers.computeIfAbsent(virtualLocation, location -> new TunnelDhInfo());
+		tunnelDhInfo.setStatus(UNINITIALIZED);
+		tunnelDhInfo.setKeyPair(DiffieHellman.generateKeys());
+		tunnelDhInfo.setStatus(HALF_KEY_DONE);
 
-		sendDhPublicKey(virtualLocation, dhInfo.getKeyPair());
+		sendDhPublicKey(virtualLocation, tunnelDhInfo.getKeyPair());
 	}
 
 	private void sendDhPublicKey(Location virtualLocation, KeyPair keyPair)
@@ -748,31 +775,42 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		var serializedItem = ItemUtils.serializeItem(item, this);
 
-		var peer = contacts.get(destination);
-		if (peer == null)
+		var tunnelPeerInfo = contacts.get(destination);
+		if (tunnelPeerInfo == null)
 		{
-			log.error("Cannot find peer for {} when trying to send encrypted data", destination);
+			log.error("Cannot find tunnelPeerInfo for {} when trying to send encrypted data", destination);
 			return;
 		}
 
-		if (peer.getStatus() != CAN_TALK)
+		if (tunnelPeerInfo.getStatus() != CAN_TALK)
 		{
-			log.error("Cannot talk to tunnel id {}, status is {}", destination, peer.getStatus());
+			log.error("Cannot talk to tunnel id {}, status is {}", destination, tunnelPeerInfo.getStatus());
 			return;
 		}
 
-		peer.addSentSize(serializedItem.length);
+		tunnelPeerInfo.addSentSize(serializedItem.length);
 
 		var iv = new byte[8];
 		SecureRandomUtils.nextBytes(iv);
 
-		var key = peer.getAesKey();
+		var key = tunnelPeerInfo.getAesKey();
 
 		var encryptedItem = AES.encrypt(key, iv, serializedItem);
 		var turtleItem = new TurtleGenericFastDataItem(createTurtleData(key, iv, encryptedItem));
-		turtleRouter.sendTurtleData(peer.getLocation(), turtleItem);
+		turtleRouter.sendTurtleData(tunnelPeerInfo.getLocation(), turtleItem);
 	}
 
+	/**
+	 * Asks for a tunnel. The service will request it to the turtle router, and exchange an AES key using DH.
+	 * When the tunnel is established, a {@link GxsTunnelRsClient#onGxsTunnelStatusChanged(Location, GxsId, GxsTunnelStatus)}  method will be received.
+	 * Data can then be sent and received in the tunnel. A same tunnel can be used by several clients, hence they're differentiated
+	 * by the serviceId parameter.
+	 *
+	 * @param from the originating identity
+	 * @param to the destination identity
+	 * @param serviceId the service id
+	 * @return a tunnel id
+	 */
 	public Location requestSecuredTunnel(GxsId from, GxsId to, int serviceId)
 	{
 		var hash = DestinationHash.createRandomHash(to);
@@ -791,6 +829,12 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		return tunnelId;
 	}
 
+	/**
+	 * Gets the destination GxS identity from a tunnel.
+	 *
+	 * @param tunnelId the tunnel id
+	 * @return the identity
+	 */
 	public GxsId getGxsFromTunnel(Location tunnelId)
 	{
 		var tunnelPeerInfo = contacts.get(tunnelId);
@@ -801,24 +845,41 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		return tunnelPeerInfo.getDestination();
 	}
 
-	public void sendData(Location tunnelId, int serviceId, byte[] data)
+	/**
+	 * Sends data through the tunnel. If a tunnel is present, retries are performed automatically until the reception is acknowledged by the other end.
+	 *
+	 * @param tunnelId  the tunnel id
+	 * @param serviceId the service id
+	 * @param data      the data
+	 * @return true if successful, false if the tunnel doesn't exist
+	 */
+	public boolean sendData(Location tunnelId, int serviceId, byte[] data)
 	{
 		var tunnelPeerInfo = contacts.get(tunnelId);
 		if (tunnelPeerInfo == null)
 		{
 			log.error("No tunnel peer info found for {}", tunnelId);
-			return;
+			return false;
 		}
 
 		var client = clients.get(serviceId);
 		if (client == null)
 		{
 			log.error("Cannot find client for {}", serviceId);
-			return;
+			return false;
 		}
 		sendTunnelDataItem(tunnelId, new GxsTunnelDataItem(getUniquePacketCounter(), serviceId, data));
+		return true;
 	}
 
+	/**
+	 * Closes and established tunnel. All further data will be refused but the tunnel will be kept alive for a little
+	 * while until all pending data is delivered. Clients will receive a {@link GxsTunnelRsClient#onGxsTunnelStatusChanged(Location, GxsId, GxsTunnelStatus)} method
+	 * once the tunnel gets closed.
+	 *
+	 * @param tunnelId the tunnel id
+	 * @param serviceId the service id
+	 */
 	public void closeExistingTunnel(Location tunnelId, int serviceId)
 	{
 		var tunnelPeerInfo = contacts.get(tunnelId);
@@ -836,7 +897,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		Sha1Sum hash;
 
-		var tunnelDhInfo = peers.get(tunnelPeerInfo.getLocation());
+		var tunnelDhInfo = dhPeers.get(tunnelPeerInfo.getLocation());
 		if (tunnelDhInfo != null)
 		{
 			hash = tunnelDhInfo.getHash();

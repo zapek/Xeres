@@ -25,6 +25,9 @@ import io.xeres.common.id.Sha1Sum;
 
 import java.security.KeyPair;
 
+/**
+ * Used to keep track of a Diffie-Hellman session.
+ */
 class TunnelDhInfo
 {
 	public enum Status

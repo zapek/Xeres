@@ -19,21 +19,6 @@
 
 package io.xeres.app.api.controller.chat;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static io.xeres.app.database.model.chat.ChatMapper.fromDistantChatBacklogToChatBacklogDTOs;
-import static io.xeres.app.database.model.chat.ChatMapper.toChatBacklogDTOs;
-import static io.xeres.app.database.model.chat.ChatMapper.toChatRoomBacklogDTOs;
-import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
-import static io.xeres.app.database.model.location.LocationMapper.toDTO;
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
-
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -65,6 +50,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static io.xeres.app.database.model.chat.ChatMapper.fromDistantChatBacklogToChatBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toChatBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toChatRoomBacklogDTOs;
+import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
+import static io.xeres.app.database.model.location.LocationMapper.toDTO;
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Tag(name = "Chat", description = "Chat service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/chat", description = "Chat documentation"))
 @RestController
@@ -173,7 +173,7 @@ public class ChatController
 		var location = toDTO(chatRsService.createDistantChat(identity));
 		if (location == null)
 		{
-			throw new EntityExistsException();
+			throw new EntityExistsException("Distant chat already active");
 		}
 		return location;
 	}

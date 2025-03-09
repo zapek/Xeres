@@ -19,24 +19,6 @@
 
 package io.xeres.app.xrs.service.chat;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-import static io.xeres.app.xrs.service.RsServiceType.CHAT;
-import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
-import static io.xeres.common.location.Availability.AVAILABLE;
-import static io.xeres.common.location.Availability.OFFLINE;
-import static io.xeres.common.message.MessagePath.*;
-import static io.xeres.common.message.MessageType.*;
-import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-
 import io.xeres.app.application.events.PeerConnectedEvent;
 import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.crypto.rsa.RSA;
@@ -76,6 +58,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+import static io.xeres.app.xrs.service.RsServiceType.CHAT;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
+import static io.xeres.common.location.Availability.AVAILABLE;
+import static io.xeres.common.location.Availability.OFFLINE;
+import static io.xeres.common.message.MessagePath.*;
+import static io.xeres.common.message.MessageType.*;
+import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @Component
 public class ChatRsService extends RsService implements GxsTunnelRsClient
@@ -1228,8 +1228,11 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	{
 		var ownIdentity = identityService.getOwnIdentity();
 		var tunnelId = gxsTunnelRsService.requestSecuredTunnel(ownIdentity.getGxsId(), identityGroupItem.getGxsId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID);
-		log.debug("Creating distant chat tunnel for identity {}, resulting tunnelId: {}", identityGroupItem.getGxsId(), tunnelId.getLocationIdentifier());
-		distantChatContacts.put(identityGroupItem.getGxsId(), new DistantLocation(tunnelId, identityGroupItem.getGxsId()));
+		if (tunnelId != null)
+		{
+			log.debug("Creating distant chat tunnel for identity {}, resulting tunnelId: {}", identityGroupItem.getGxsId(), tunnelId.getLocationIdentifier());
+			distantChatContacts.put(identityGroupItem.getGxsId(), new DistantLocation(tunnelId, identityGroupItem.getGxsId()));
+		}
 		return tunnelId;
 	}
 

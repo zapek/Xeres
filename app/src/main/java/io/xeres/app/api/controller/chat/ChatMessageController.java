@@ -110,12 +110,6 @@ public class ChatMessageController
 				Objects.requireNonNull(destinationId);
 				chatRsService.sendPrivateTypingNotification(GxsId.fromString(destinationId));
 			}
-			case CHAT_AVATAR ->
-			{
-				log.debug("Requesting distant chat avatar...");
-				Objects.requireNonNull(destinationId);
-				chatRsService.sendAvatarRequest(GxsId.fromString(destinationId));
-			}
 			default -> throw new IllegalStateException("Unexpected value: " + messageType);
 		}
 	}

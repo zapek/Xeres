@@ -22,7 +22,6 @@ package io.xeres.ui.client.message;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.location.Availability;
 import io.xeres.common.message.MessageType;
-import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.Nonnull;
@@ -62,7 +61,6 @@ public class DistantChatFrameHandler implements StompFrameHandler
 		return switch (messageType)
 		{
 			case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
-			case CHAT_AVATAR -> ChatAvatar.class;
 			case CHAT_AVAILABILITY -> Availability.class;
 			default -> throw new IllegalStateException("Unexpected value: " + messageType);
 		};
@@ -76,7 +74,6 @@ public class DistantChatFrameHandler implements StompFrameHandler
 					switch (messageType)
 					{
 						case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(GxsId.fromString(headers.getFirst(DESTINATION_ID)), (ChatMessage) payload);
-						case CHAT_AVATAR -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (ChatAvatar) payload);
 						case CHAT_AVAILABILITY -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (Availability) payload);
 					}
 				}

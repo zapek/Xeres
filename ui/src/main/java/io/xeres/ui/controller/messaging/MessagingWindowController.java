@@ -331,7 +331,14 @@ public class MessagingWindowController implements WindowController
 					})
 					.doOnError(UiUtils::showAlertError)
 					.subscribe();
-			// XXX: I don't think we need to request the avatar for distant chats but it wouldn't surprise me that RS does it... check if it does it
+
+			UiUtils.getWindow(send).setOnCloseRequest(event -> {
+				if (availability != Availability.OFFLINE)
+				{
+					UiUtils.alertConfirm("Closing this window will end the distant chat and drop all unsent messages. Are you sure?", () -> UiUtils.getWindow(send).hide());
+					event.consume();
+				}
+			});
 		}
 	}
 

@@ -176,7 +176,6 @@ public class MessageClient
 		switch (identifier)
 		{
 			case LocationIdentifier locationIdentifier -> requestAvatarFromLocation(locationIdentifier);
-			case GxsId gxsId -> requestAvatarFromGxsId(gxsId);
 			default -> throw new IllegalStateException("Unexpected value: " + identifier);
 		}
 	}
@@ -187,15 +186,6 @@ public class MessageClient
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, CHAT_AVATAR.name());
 		headers.set(DESTINATION_ID, locationIdentifier.toString());
-		stompSession.send(headers, new ChatMessage());
-	}
-
-	private void requestAvatarFromGxsId(GxsId gxsId)
-	{
-		var headers = new StompHeaders();
-		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_DISTANT_DESTINATION);
-		headers.set(MESSAGE_TYPE, CHAT_AVATAR.name());
-		headers.set(DESTINATION_ID, gxsId.toString());
 		stompSession.send(headers, new ChatMessage());
 	}
 

@@ -19,23 +19,6 @@
 
 package io.xeres.ui.controller.messaging;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
-
-import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
-import static io.xeres.ui.support.util.UiUtils.getWindow;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import atlantafx.base.controls.Message;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
@@ -46,6 +29,7 @@ import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
@@ -84,6 +68,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+
+import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
+import static io.xeres.ui.support.util.UiUtils.getWindow;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @FxmlView(value = "/view/messaging/messaging.fxml")
 public class MessagingWindowController implements WindowController
@@ -312,6 +314,7 @@ public class MessagingWindowController implements WindowController
 						Platform.runLater(() -> {
 							destination.setName(identity.getName());
 							updateTitle();
+							fetchIdentityImage(identity.hasImage() ? identity.getId() : 0L, identity.getGxsId());
 							chatClient.getDistantChatBacklog(identity.getId()).collectList()
 									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // Incoming message already in the backlog
 									.subscribe();
@@ -330,6 +333,30 @@ public class MessagingWindowController implements WindowController
 					.subscribe();
 			// XXX: I don't think we need to request the avatar for distant chats but it wouldn't surprise me that RS does it... check if it does it
 		}
+	}
+
+	private void fetchIdentityImage(long identityId, GxsId gxsId)
+	{
+		String url;
+
+		if (identityId != 0L)
+		{
+			url = RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + identityId + "/image";
+		}
+		else
+		{
+			url = RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + gxsId;
+		}
+		generalClient.getImage(url)
+				.doOnSuccess(imageData -> Platform.runLater(() -> setWindowIcon(imageData)))
+				.subscribe();
+	}
+
+	private void setWindowIcon(byte[] imageData)
+	{
+		var icon = new Image(new ByteArrayInputStream(imageData));
+		var stage = (Stage) getWindow(send);
+		stage.getIcons().add(icon);
 	}
 
 	@Override
@@ -389,9 +416,7 @@ public class MessagingWindowController implements WindowController
 	{
 		if (chatAvatar.getImage() != null)
 		{
-			var avatarImage = new Image(new ByteArrayInputStream(chatAvatar.getImage()));
-			var stage = (Stage) getWindow(send);
-			stage.getIcons().add(avatarImage);
+			setWindowIcon(chatAvatar.getImage());
 		}
 	}
 

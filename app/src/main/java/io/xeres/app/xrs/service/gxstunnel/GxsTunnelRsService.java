@@ -202,6 +202,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			{
 				log.debug("Connection interrupted with tunnelPeerInfo");
 				tunnelPeerInfoEntry.getValue().setStatus(TUNNEL_DOWN);
+				notifyClients(tunnelPeerInfoEntry.getKey(), tunnelPeerInfoEntry.getValue().getStatus()); // XXX: OK?!
 				tunnelPeerInfoEntry.getValue().clearLocation();
 
 				// Reset the turtle router monitoring. Avoids having to wait 60 seconds for the tunnel to die.

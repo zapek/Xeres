@@ -40,7 +40,7 @@ plugins {
 
 // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
 wrapper {
-    gradleVersion = '8.12'
+    gradleVersion = '8.13'
 }
 
 // This gives a git-like version for git builds but a proper version

@@ -77,6 +77,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -290,7 +291,7 @@ public class ContactViewController implements Controller
 		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
 		contactImageDeleteButton.setOnAction(event -> UiUtils.alertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
-		chatButton.setOnAction(event -> startChat(displayedContact.getValue().profileId()));
+		chatButton.setOnAction(event -> startChat(displayedContact.getValue()));
 
 		setupOwnContact();
 
@@ -911,7 +912,7 @@ public class ContactViewController implements Controller
 		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.getValue().name());
-		chatButton.setDisable(contact.getValue().availability() == Availability.OFFLINE);
+		setChatButtonVisual(contact.getValue());
 		contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
 		if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
@@ -934,6 +935,28 @@ public class ContactViewController implements Controller
 			hideTableLocations();
 
 			fetchIdentity(contact.getValue().identityId(), Information.IDENTITY);
+		}
+	}
+
+	private void setChatButtonVisual(Contact contact)
+	{
+		if (contact.profileId() == OWN_PROFILE_ID || contact.identityId() == OWN_IDENTITY_ID)
+		{
+			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
+			chatButton.setDisable(true);
+			TooltipUtils.uninstall(chatButton);
+		}
+		else if (contact.profileId() != NO_PROFILE_ID)
+		{
+			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
+			chatButton.setDisable(contact.availability() == Availability.OFFLINE);
+			TooltipUtils.install(chatButton, "Start direct chat");
+		}
+		else
+		{
+			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE_ARROW_RIGHT));
+			chatButton.setDisable(false);
+			TooltipUtils.install(chatButton, "Start distant chat");
 		}
 	}
 
@@ -1093,10 +1116,9 @@ public class ContactViewController implements Controller
 	{
 		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
 		chatItem.setId(CHAT_MENU_ID);
-		chatItem.setGraphic(new FontIcon(MaterialDesignC.COMMENT));
 		chatItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var contact = ((TreeItem<Contact>) event.getSource()).getValue();
-			startChat(contact.profileId());
+			startChat(contact);
 		});
 
 		var deleteItem = new MenuItem(bundle.getString("profiles.delete"));
@@ -1134,7 +1156,23 @@ public class ContactViewController implements Controller
 		xContextMenu.setOnShowing((contextMenu, contact) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact.getValue().availability() == Availability.OFFLINE));
+					.findFirst().ifPresent(menuItem -> {
+						if (contact.getValue().profileId() == OWN_PROFILE_ID || contact.getValue().identityId() == OWN_IDENTITY_ID)
+						{
+							menuItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
+							menuItem.setDisable(true);
+						}
+						else if (contact.getValue().profileId() != NO_PROFILE_ID)
+						{
+							menuItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
+							menuItem.setDisable(contact.getValue().availability() == Availability.OFFLINE);
+						}
+						else
+						{
+							menuItem.setDisable(false);
+							menuItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE_ARROW_RIGHT));
+						}
+					});
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> COPY_LINK_MENU_ID.equals(menuItem.getId()))
@@ -1170,7 +1208,7 @@ public class ContactViewController implements Controller
 	{
 		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
 		chatItem.setId(CHAT_MENU_ID);
-		chatItem.setGraphic(new FontIcon(MaterialDesignC.COMMENT));
+		chatItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
 		chatItem.setOnAction(event -> {
 			var location = (Location) event.getSource();
 			startChat(location.getLocationIdentifier());
@@ -1227,14 +1265,23 @@ public class ContactViewController implements Controller
 		}
 	}
 
-	private void startChat(long profileId)
+	private void startChat(Contact contact)
 	{
-		profileClient.findById(profileId)
-				.doOnSuccess(profile -> profile.getLocations().stream()
-						.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
-						.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier()))
-				)
-				.subscribe();
+		if (contact.profileId() != NO_PROFILE_ID)
+		{
+			profileClient.findById(contact.profileId())
+					.doOnSuccess(profile -> profile.getLocations().stream()
+							.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
+							.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier()))
+					)
+					.subscribe();
+		}
+		else
+		{
+			identityClient.findById(contact.identityId())
+					.doOnSuccess(identity -> windowManager.openMessaging(identity.getGxsId()))
+					.subscribe();
+		}
 	}
 
 	private void startChat(LocationIdentifier locationIdentifier)

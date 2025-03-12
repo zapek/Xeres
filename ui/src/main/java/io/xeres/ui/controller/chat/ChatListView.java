@@ -54,7 +54,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.jsoup.Jsoup;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -399,7 +399,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
 		chatItem.setId(CHAT_MENU_ID);
-		chatItem.setGraphic(new FontIcon(MaterialDesignC.COMMENT));
+		chatItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
 		chatItem.setOnAction(event -> {
 			var user = (ChatRoomUser) event.getSource();
 			windowManager.openMessaging(user.gxsId());

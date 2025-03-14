@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,11 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.HBox;
 
 import java.io.IOException;
@@ -30,6 +32,9 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class TypingNotificationView extends HBox
 {
+	@FXML
+	private ProgressIndicator progressIndicator;
+
 	@FXML
 	private Label text;
 
@@ -56,5 +61,21 @@ public class TypingNotificationView extends HBox
 	{
 		waveDotsView.setVisible(!isEmpty(text));
 		this.text.setText(text);
+	}
+
+	public void setProgress(String text)
+	{
+		waveDotsView.setVisible(false);
+		this.text.setText(text);
+		UiUtils.setPresent(progressIndicator);
+	}
+
+	public void stopProgress()
+	{
+		if (progressIndicator.isManaged())
+		{
+			UiUtils.setAbsent(progressIndicator);
+			text.setText(null);
+		}
 	}
 }

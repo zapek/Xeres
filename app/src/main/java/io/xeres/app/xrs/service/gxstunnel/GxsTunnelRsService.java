@@ -810,7 +810,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	 * @param from the originating identity
 	 * @param to the destination identity
 	 * @param serviceId the service id
-	 * @return a tunnel id
+	 * @return a tunnel id or null if it already exists
 	 */
 	public Location requestSecuredTunnel(GxsId from, GxsId to, int serviceId)
 	{

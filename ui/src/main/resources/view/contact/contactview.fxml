@@ -125,7 +125,7 @@
                     </VBox>
                     <Spacer HBox.hgrow="ALWAYS"/>
                     <VBox>
-                        <Button fx:id="chatButton" text="%contact-view.action.chat" disable="true">
+                        <Button fx:id="chatButton" disable="true">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2m-message"/>
                             </graphic>

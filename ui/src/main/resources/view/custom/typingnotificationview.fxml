@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -22,8 +22,14 @@
 <?import io.xeres.ui.custom.WaveDotsView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.HBox?>
 <fx:root type="HBox" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <ProgressIndicator fx:id="progressIndicator" prefWidth="16.0" prefHeight="16.0" managed="false">
+        <HBox.margin>
+            <Insets right="4.0"/>
+        </HBox.margin>
+    </ProgressIndicator>
     <Label fx:id="text"/>
     <WaveDotsView alignment="BOTTOM_LEFT" fx:id="waveDotsView" visible="false">
         <HBox.margin>

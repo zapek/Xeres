@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -26,7 +26,7 @@
         <ProgressBar fx:id="progressBar" styleClass="small" prefWidth="Infinity" minHeight="4.0"/>
         <TableView fx:id="filesTableView" VBox.vgrow="ALWAYS">
             <placeholder>
-                <Label text="Searching..."/>
+                <Label text="%search.searching"/>
             </placeholder>
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>

@@ -111,6 +111,7 @@ public class ContactViewController implements Controller
 	private static final String SHOW_ALL_CONTACTS = "ShowAllContacts";
 
 	private static final String CHAT_MENU_ID = "chat";
+	private static final String DISTANT_CHAT_MENU_ID = "distant-chat";
 	private static final String CONNECT_MENU_ID = "connect";
 	private static final String DELETE_MENU_ID = "delete";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
@@ -950,13 +951,13 @@ public class ContactViewController implements Controller
 		{
 			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
 			chatButton.setDisable(contact.availability() == Availability.OFFLINE);
-			TooltipUtils.install(chatButton, "Start direct chat");
+			TooltipUtils.install(chatButton, bundle.getString("contact-view.chat.start"));
 		}
 		else
 		{
 			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE_ARROW_RIGHT));
 			chatButton.setDisable(false);
-			TooltipUtils.install(chatButton, "Start distant chat");
+			TooltipUtils.install(chatButton, bundle.getString("contact-view.distant-chat.start"));
 		}
 	}
 
@@ -1114,11 +1115,21 @@ public class ContactViewController implements Controller
 
 	private void createContactTableViewContextMenu()
 	{
+		// The chat menu item can morph betwen chat and distant chat
 		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
 		chatItem.setId(CHAT_MENU_ID);
 		chatItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var contact = ((TreeItem<Contact>) event.getSource()).getValue();
 			startChat(contact);
+		});
+
+		// And the distant chat menu item can disappear all together
+		var distantChatItem = new MenuItem(bundle.getString("contact-view.action.distant-chat"));
+		distantChatItem.setId(DISTANT_CHAT_MENU_ID);
+		distantChatItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE_ARROW_RIGHT));
+		distantChatItem.setOnAction(event -> {
+			@SuppressWarnings("unchecked") var contact = ((TreeItem<Contact>) event.getSource()).getValue();
+			startDistantChat(contact);
 		});
 
 		var deleteItem = new MenuItem(bundle.getString("profiles.delete"));
@@ -1152,25 +1163,41 @@ public class ContactViewController implements Controller
 			}
 		});
 
-		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
+		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, distantChatItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
 		xContextMenu.setOnShowing((contextMenu, contact) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> {
 						if (contact.getValue().profileId() == OWN_PROFILE_ID || contact.getValue().identityId() == OWN_IDENTITY_ID)
 						{
+							menuItem.setText(bundle.getString("contact-view.action.chat"));
 							menuItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
 							menuItem.setDisable(true);
 						}
 						else if (contact.getValue().profileId() != NO_PROFILE_ID)
 						{
+							menuItem.setText(bundle.getString("contact-view.action.chat"));
 							menuItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
 							menuItem.setDisable(contact.getValue().availability() == Availability.OFFLINE);
 						}
 						else
 						{
-							menuItem.setDisable(false);
+							menuItem.setText(bundle.getString("contact-view.action.distant-chat"));
 							menuItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE_ARROW_RIGHT));
+							menuItem.setDisable(false);
+						}
+					});
+
+			contextMenu.getItems().stream()
+					.filter(menuItem -> DISTANT_CHAT_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> {
+						if (contact.getValue().profileId() != NO_PROFILE_ID)
+						{
+							menuItem.setVisible(contact.getValue().availability() == Availability.OFFLINE);
+						}
+						else
+						{
+							menuItem.setVisible(false);
 						}
 					});
 
@@ -1278,15 +1305,20 @@ public class ContactViewController implements Controller
 		}
 		else
 		{
-			identityClient.findById(contact.identityId())
-					.doOnSuccess(identity -> windowManager.openMessaging(identity.getGxsId()))
-					.subscribe();
+			startDistantChat(contact);
 		}
 	}
 
 	private void startChat(LocationIdentifier locationIdentifier)
 	{
 		windowManager.openMessaging(locationIdentifier);
+	}
+
+	private void startDistantChat(Contact contact)
+	{
+		identityClient.findById(contact.identityId())
+				.doOnSuccess(identity -> windowManager.openMessaging(identity.getGxsId()))
+				.subscribe();
 	}
 
 	@EventListener

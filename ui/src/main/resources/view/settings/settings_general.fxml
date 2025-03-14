@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -46,9 +46,9 @@
                     <RowConstraints vgrow="SOMETIMES"/>
                     <RowConstraints/>
                 </rowConstraints>
-                <CheckBox fx:id="checkForUpdates" text="Automatically check for updates" GridPane.columnSpan="2147483647">
+                <CheckBox fx:id="checkForUpdates" text="%settings.general.update-check" GridPane.columnSpan="2147483647">
                     <tooltip>
-                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Automatically checks GitHub once per day to see if there's a new release."/>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.general.update-check.tip"/>
                     </tooltip>
                 </CheckBox>
                 <CheckBox fx:id="autoStartEnabled" disable="true" mnemonicParsing="false" text="%settings.general.startup" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">

@@ -198,7 +198,7 @@ public class FileResultView extends Tab
 				}
 				Platform.runLater(() -> {
 					progressBar.setProgress(1.0);
-					filesTableView.setPlaceholder(new Label("No results found"));
+					filesTableView.setPlaceholder(new Label(bundle.getString("no-results")));
 				});
 				return null;
 			}

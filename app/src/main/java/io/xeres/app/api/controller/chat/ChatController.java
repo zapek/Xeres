@@ -178,14 +178,14 @@ public class ChatController
 		return location;
 	}
 
-	@DeleteMapping("/distant-chats/{id}")
+	@DeleteMapping("/distant-chats/{identityId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	void closeDistantChat(@PathVariable long id)
+	void closeDistantChat(@PathVariable long identityId)
 	{
-		var identity = identityService.findById(id).orElseThrow();
+		var identity = identityService.findById(identityId).orElseThrow();
 		if (!chatRsService.closeDistantChat(identity))
 		{
-			throw new EntityNotFoundException();
+			throw new EntityNotFoundException("No distant chat for identity id " + identityId);
 		}
 	}
 

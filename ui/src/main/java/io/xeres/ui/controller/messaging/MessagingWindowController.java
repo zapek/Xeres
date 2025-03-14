@@ -143,7 +143,9 @@ public class MessagingWindowController implements WindowController
 
 	private ParallelTransition sendAnimation;
 
-	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache)
+	private final boolean isIncoming;
+
+	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache, boolean isIncoming)
 	{
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
@@ -157,6 +159,7 @@ public class MessagingWindowController implements WindowController
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		destination = new Destination(destinationIdentifier);
+		this.isIncoming = isIncoming;
 	}
 
 	@Override
@@ -318,15 +321,25 @@ public class MessagingWindowController implements WindowController
 							chatClient.getDistantChatBacklog(identity.getId()).collectList()
 									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // Incoming message already in the backlog
 									.subscribe();
-							chatClient.createDistantChat(identity.getId())
-									.doOnSuccess(chat -> Platform.runLater(() -> setAvailability(Availability.OFFLINE)))
-									.doOnError(WebClientResponseException.class, e -> {
-										if (e.getStatusCode() == HttpStatus.CONFLICT)
-										{
-											Platform.runLater(() -> setAvailability(Availability.AVAILABLE));
-										}
-									})
-									.subscribe();
+							if (isIncoming)
+							{
+								setAvailability(Availability.AVAILABLE);
+							}
+							else
+							{
+								chatClient.createDistantChat(identity.getId())
+										.doOnSuccess(chat -> Platform.runLater(() -> {
+											setAvailability(Availability.OFFLINE);
+											notification.setProgress(bundle.getString("messaging.tunneling"));
+										}))
+										.doOnError(WebClientResponseException.class, e -> {
+											if (e.getStatusCode() == HttpStatus.CONFLICT)
+											{
+												Platform.runLater(() -> setAvailability(Availability.OFFLINE));
+											}
+										})
+										.subscribe();
+							}
 						});
 					})
 					.doOnError(UiUtils::showAlertError)
@@ -335,7 +348,7 @@ public class MessagingWindowController implements WindowController
 			UiUtils.getWindow(send).setOnCloseRequest(event -> {
 				if (availability != Availability.OFFLINE)
 				{
-					UiUtils.alertConfirm("Closing this window will end the distant chat and drop all unsent messages. Are you sure?", () -> UiUtils.getWindow(send).hide());
+					UiUtils.alertConfirm(bundle.getString("messaging.closing-tunnel.confirm"), () -> UiUtils.getWindow(send).hide());
 					event.consume();
 				}
 			});
@@ -431,6 +444,7 @@ public class MessagingWindowController implements WindowController
 	{
 		this.availability = availability;
 		updateTitle();
+		notification.stopProgress();
 	}
 
 	private void updateTitle()

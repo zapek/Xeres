@@ -383,10 +383,10 @@ public class MainWindowController implements WindowController
 		msg.setPrefHeight(Region.USE_PREF_SIZE);
 		msg.setMaxHeight(Region.USE_PREF_SIZE);
 
-		var downloadButton = new Button("Download");
+		var downloadButton = new Button(bundle.getString("download"));
 		downloadButton.setDefaultButton(true);
 		downloadButton.setOnAction(actionEvent -> UriService.openUri(XERES_DOWNLOAD_URL));
-		var skipButton = new Button("Skip");
+		var skipButton = new Button(bundle.getString("skip"));
 		skipButton.setOnAction(actionEvent -> versionChecker.skipUpdate(tagName));
 		msg.setPrimaryActions(downloadButton, skipButton);
 
@@ -656,11 +656,11 @@ public class MainWindowController implements WindowController
 				.doOnSuccess(versionResponse -> Platform.runLater(() -> {
 					if (versionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
 					{
-						UiUtils.alertConfirm("There's a new version available (" + versionResponse.tagName().substring(1) + "). Download?", () -> UriService.openUri(XERES_DOWNLOAD_URL));
+						UiUtils.alertConfirm(MessageFormat.format(bundle.getString("update.new-version"), versionResponse.tagName().substring(1)), () -> UriService.openUri(XERES_DOWNLOAD_URL));
 					}
 					else
 					{
-						UiUtils.alert(Alert.AlertType.INFORMATION, "You already have the latest version.");
+						UiUtils.alert(Alert.AlertType.INFORMATION, bundle.getString("update.latest-already"));
 					}
 				}))
 				.doOnError(UiUtils::showAlertError)
@@ -673,7 +673,7 @@ public class MainWindowController implements WindowController
 				.doOnSuccess(versionResponse -> Platform.runLater(() -> {
 					if (versionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
 					{
-						showUpdate("There's a new version available (" + versionResponse.tagName().substring(1) + ").", versionResponse.tagName());
+						showUpdate(MessageFormat.format(bundle.getString("update.new-version-auto"), versionResponse.tagName().substring(1)), versionResponse.tagName());
 					}
 				}))
 				.subscribe();

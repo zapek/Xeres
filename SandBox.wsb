@@ -8,6 +8,7 @@
     </MappedFolder>
 </MappedFolders>
 <LogonCommand>
-    <Command>msiexec /i C:\Users\WDAGutilityAccount\Desktop\distributions\Xeres-0.8.0.msi</Command>
+    <Command>powershell -Command "Start-Process PowerShell -ArgumentList '-NoProfile -ExecutionPolicy Bypass -Command Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy -Name VerifiedAndReputablePolicyState -Value 0; CiTool.exe -r' -Verb RunAs"</Command>
+    <!-- <Command>msiexec /i C:\Users\WDAGutilityAccount\Desktop\distributions\Xeres-0.8.1.msi</Command>-->
 </LogonCommand>
 </Configuration>

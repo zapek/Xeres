@@ -399,7 +399,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
 		chatItem.setId(CHAT_MENU_ID);
-		chatItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
+		chatItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE_ARROW_RIGHT));
 		chatItem.setOnAction(event -> {
 			var user = (ChatRoomUser) event.getSource();
 			windowManager.openMessaging(user.gxsId());

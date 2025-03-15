@@ -76,8 +76,8 @@ jobs:
           name: windows-installer-portable
           retention-days: 1
 
-  build-ubuntu-24-04-installer-deb:
-    name: Build Ubuntu 24.04 x64 installer (DEB)
+  build-ubuntu-installer-deb:
+    name: Build Ubuntu x64 installer (DEB)
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -103,41 +103,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ./app/build/distributions/xeres_*.deb
-          name: ubuntu-24-04-installer-deb
+          name: ubuntu-installer-deb
           retention-days: 1
 
-  build-ubuntu-22-04-installer-deb:
-    name: Build Ubuntu 22.04 x64 installer (DEB)
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate Gradle
-        uses: gradle/actions/wrapper-validation@v4
-
-      - name: Setup JDK 21
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Build
-        run: ./gradlew jpackage
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          path: ./app/build/distributions/xeres_*.deb
-          name: ubuntu-22-04-installer-deb
-          retention-days: 1
-
-  build-ubuntu-24-04-arm-installer-deb:
-    name: Build Ubuntu 24.04 ARM installer (DEB)
+  build-ubuntu-arm-installer-deb:
+    name: Build Ubuntu ARM installer (DEB)
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -163,37 +133,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ./app/build/distributions/xeres_*.deb
-          name: ubuntu-24-04-arm-installer-deb
-          retention-days: 1
-
-  build-ubuntu-22-04-arm-installer-deb:
-    name: Build Ubuntu 22.04 ARM installer (DEB)
-    runs-on: ubuntu-22.04-arm
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate Gradle
-        uses: gradle/actions/wrapper-validation@v4
-
-      - name: Setup JDK 21
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Build
-        run: ./gradlew jpackage
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          path: ./app/build/distributions/xeres_*.deb
-          name: ubuntu-22-04-arm-installer-deb
+          name: ubuntu-arm-installer-deb
           retention-days: 1
 
   create-release:
@@ -201,10 +141,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build-windows-installer-msi,
              build-windows-installer-portable,
-             build-ubuntu-22-04-installer-deb,
-             build-ubuntu-24-04-installer-deb,
-             build-ubuntu-22-04-arm-installer-deb,
-             build-ubuntu-24-04-arm-installer-deb ]
+             build-ubuntu-installer-deb,
+             build-ubuntu-arm-installer-deb ]
     steps:
       - name: Download Windows x64 installer (MSI)
         uses: actions/download-artifact@v4
@@ -216,25 +154,15 @@ jobs:
         with:
           name: windows-installer-portable
 
-      - name: Download Ubuntu 22.04 x64 installer (DEB)
+      - name: Download Ubuntu x64 installer (DEB)
         uses: actions/download-artifact@v4
         with:
-          name: ubuntu-22-04-installer-deb
+          name: ubuntu-installer-deb
 
-      - name: Download Ubuntu 24.04 x64 installer (DEB)
+      - name: Download Ubuntu ARM installer (DEB)
         uses: actions/download-artifact@v4
         with:
-          name: ubuntu-24-04-installer-deb
-
-      - name: Download Ubuntu 22.04 ARM installer (DEB)
-        uses: actions/download-artifact@v4
-        with:
-          name: ubuntu-22-04-arm-installer-deb
-
-      - name: Download Ubuntu 24.04 ARM installer (DEB)
-        uses: actions/download-artifact@v4
-        with:
-          name: ubuntu-24-04-arm-installer-deb
+          name: ubuntu-arm-installer-deb
 
       - name: Generate checksum
         uses: jmgilman/actions-generate-checksum@v1

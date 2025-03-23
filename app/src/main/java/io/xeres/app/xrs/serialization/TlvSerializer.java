@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -57,7 +57,7 @@ final class TlvSerializer
 		return switch (type)
 				{
 					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH -> TlvStringSerializer.serialize(buf, type, (String) value);
-					case INT_AGE, INT_POPULARITY, INT_SIZE -> TlvUint32Serializer.serialize(buf, type, (int) value);
+					case INT_AGE, INT_POPULARITY, INT_SIZE, INT_BANDWIDTH -> TlvUint32Serializer.serialize(buf, type, (int) value);
 					case LONG_OFFSET -> TlvUint64Serializer.serialize(buf, type, (long) value);
 					case ADDRESS -> TlvAddressSerializer.serialize(buf, (PeerAddress) value);
 					case ADDRESS_SET -> TlvAddressSerializer.serializeList(buf, (List<PeerAddress>) value);
@@ -83,7 +83,7 @@ final class TlvSerializer
 		return switch (type)
 				{
 					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH -> TlvStringSerializer.deserialize(buf, type);
-					case INT_AGE, INT_POPULARITY, INT_SIZE -> TlvUint32Serializer.deserialize(buf, type);
+					case INT_AGE, INT_POPULARITY, INT_SIZE, INT_BANDWIDTH -> TlvUint32Serializer.deserialize(buf, type);
 					case LONG_OFFSET -> TlvUint64Serializer.deserialize(buf, type);
 					case ADDRESS -> TlvAddressSerializer.deserialize(buf);
 					case ADDRESS_SET -> TlvAddressSerializer.deserializeList(buf);

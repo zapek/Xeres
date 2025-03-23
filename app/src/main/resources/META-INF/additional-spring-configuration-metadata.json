@@ -59,6 +59,11 @@
             "name" : "xrs.service.gxstunnel.enabled",
             "type" : "java.lang.Boolean",
             "description" : "Enable the gxs tunnel service, used to create distant chats."
+        },
+        {
+            "name" : "xrs.service.bandwidth.enabled",
+            "type" : "java.lang.Boolean",
+            "description" : "Enable the bandwidth control service, used to advertise our bandwidth."
         }
     ]
 }

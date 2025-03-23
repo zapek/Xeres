@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,6 +25,7 @@ public enum TlvType
 	INT_SIZE(0x30),
 	INT_POPULARITY(0x31),
 	INT_AGE(0x32),
+	INT_BANDWIDTH(0x35),
 	LONG_OFFSET(0x41),
 	STR_NAME(0x51),
 	STR_PATH(0x52),

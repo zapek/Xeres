@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,6 +33,7 @@ class TlvTypeTest
 		assertEquals(0x30, INT_SIZE.getValue());
 		assertEquals(0x31, INT_POPULARITY.getValue());
 		assertEquals(0x32, INT_AGE.getValue());
+		assertEquals(0x35, INT_BANDWIDTH.getValue());
 		assertEquals(0x41, LONG_OFFSET.getValue());
 		assertEquals(0x51, STR_NAME.getValue());
 		assertEquals(0x52, STR_PATH.getValue());
@@ -72,6 +73,6 @@ class TlvTypeTest
 		assertEquals(0x1072, ADDRESS.getValue());
 		assertEquals(0xffff, UNKNOWN.getValue());
 
-		assertEquals(42, values().length);
+		assertEquals(43, values().length);
 	}
 }

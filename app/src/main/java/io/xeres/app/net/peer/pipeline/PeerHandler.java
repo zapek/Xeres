@@ -19,15 +19,6 @@
 
 package io.xeres.app.net.peer.pipeline;
 
-import javax.net.ssl.SSLPeerUnverifiedException;
-import java.io.IOException;
-import java.security.cert.CertificateException;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
-import static io.xeres.common.tray.TrayNotificationType.CONNECTION;
-
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.TooLongFrameException;
@@ -48,11 +39,19 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
-import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
+import static io.xeres.common.tray.TrayNotificationType.CONNECTION;
 
 public class PeerHandler extends ChannelDuplexHandler
 {
@@ -96,6 +95,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		var rawItem = (RawItem) msg;
 		Item item = null;
 		var sessionBound = false;
+		peerConnection.incrementReceivedCounter(rawItem.getSize());
 
 		try
 		{
@@ -236,7 +236,6 @@ public class PeerHandler extends ChannelDuplexHandler
 
 	private static void sendSliceProbe(ChannelHandlerContext ctx)
 	{
-		var sliceProbeItem = SliceProbeItem.from(ctx);
-		PeerConnectionManager.writeItem(ctx, sliceProbeItem); // this makes the remote RS send packets in the new format
+		PeerConnectionManager.writeSliceProbe(ctx); // this makes the remote RS send packets in the new format
 	}
 }

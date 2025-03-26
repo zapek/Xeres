@@ -31,6 +31,7 @@ import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import io.xeres.common.location.Availability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,14 +145,20 @@ public class PeerConnectionManager
 	private static ChannelFuture setOutgoingAndWriteItem(PeerConnection peerConnection, Item item, RsService rsService)
 	{
 		item.setOutgoing(peerConnection.getCtx().alloc(), rsService);
-		return writeItem(peerConnection.getCtx(), item);
+		return writeItem(peerConnection, item);
 	}
 
+	/**
+	 * Execute an action for all peers.
+	 *
+	 * @param action    the action to execute
+	 * @param rsService the service that has to be enabled for the peer as well. Can be null, in that case, all peers are considered for the action regardless of the service they're running
+	 */
 	public void doForAllPeers(Consumer<PeerConnection> action, RsService rsService)
 	{
 		peers.forEach((peerId, peerConnection) ->
 		{
-			if (peerConnection.isServiceSupported(rsService))
+			if (rsService == null || peerConnection.isServiceSupported(rsService))
 			{
 				action.accept(peerConnection);
 			}
@@ -166,12 +173,20 @@ public class PeerConnectionManager
 				.forEach(action);
 	}
 
-	public static ChannelFuture writeItem(ChannelHandlerContext ctx, Item item)
+	private static ChannelFuture writeItem(PeerConnection peerConnection, Item item)
 	{
 		var rawItem = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 		log.debug("==> {}", item);
 		log.trace("Message content: {}", rawItem);
-		return ctx.writeAndFlush(rawItem);
+		peerConnection.incrementSentCounter(rawItem.getSize());
+		return peerConnection.getCtx().writeAndFlush(rawItem);
+	}
+
+	public static void writeSliceProbe(ChannelHandlerContext ctx)
+	{
+		var item = SliceProbeItem.from(ctx);
+		var rawItem = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
+		ctx.writeAndFlush(rawItem);
 	}
 
 	public int getNumberOfPeers()

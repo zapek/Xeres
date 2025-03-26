@@ -37,5 +37,11 @@
             </graphic>
             <fx:include fx:id="statisticsRtt" source="rtt.fxml"/>
         </Tab>
+        <Tab text="Data usage">
+            <graphic>
+                <FontIcon iconLiteral="mdi2p-pipe"/>
+            </graphic>
+            <fx:include fx:id="statisticsDataCounter" source="datacounter.fxml"/>
+        </Tab>
     </TabPane>
 </VBox>

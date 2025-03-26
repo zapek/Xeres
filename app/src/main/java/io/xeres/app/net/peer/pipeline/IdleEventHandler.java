@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,7 +25,6 @@ import io.netty.channel.SimpleUserEventChannelHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.xrs.service.sliceprobe.item.SliceProbeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,7 @@ public class IdleEventHandler extends SimpleUserEventChannelHandler<IdleStateEve
 		else if (evt.state() == IdleState.WRITER_IDLE)
 		{
 			log.info("Sending idle slicing probe");
-			PeerConnectionManager.writeItem(ctx, SliceProbeItem.from(ctx));
+			PeerConnectionManager.writeSliceProbe(ctx);
 		}
 	}
 }

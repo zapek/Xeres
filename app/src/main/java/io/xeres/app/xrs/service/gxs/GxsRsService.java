@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -423,8 +423,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	protected synchronized int getNextTransactionId(PeerConnection peerConnection)
 	{
-		var transactionId = (int) peerConnection.getData(KEY_TRANSACTION_ID).orElse(0) + 1;
-		peerConnection.putData(KEY_TRANSACTION_ID, transactionId);
+		var transactionId = (int) peerConnection.getPeerData(KEY_TRANSACTION_ID).orElse(0) + 1;
+		peerConnection.putPeerData(KEY_TRANSACTION_ID, transactionId);
 		return transactionId;
 	}
 

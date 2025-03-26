@@ -1,0 +1,51 @@
+<!--
+  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.statistics.StatisticsDataCounterController">
+    <HBox alignment="BASELINE_RIGHT">
+        <Button styleClass="button-icon, flat, accent">
+            <graphic>
+                <FontIcon iconLiteral="mdi2i-information"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDelay="0ms" showDuration="1m" maxWidth="400" wrapText="true" text="%statistics.data-counter.tip"/>
+            </tooltip>
+        </Button>
+    </HBox>
+    <BarChart fx:id="barChart" title="%statistics.data-counter.title" animated="false" VBox.vgrow="ALWAYS" barGap="0.0" categoryGap="20.0">
+        <xAxis>
+            <CategoryAxis fx:id="xAxis" label="%statistics.data-counter.peers" animated="false"/>
+        </xAxis>
+        <yAxis>
+            <NumberAxis label="%statistics.data-counter.data" animated="false"/>
+        </yAxis>
+        <cursor>
+            <Cursor fx:constant="CROSSHAIR"/>
+        </cursor>
+    </BarChart>
+</VBox>

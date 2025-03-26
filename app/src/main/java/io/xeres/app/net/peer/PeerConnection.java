@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,6 +28,7 @@ import io.xeres.common.util.NoSuppressedRunnable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.LongAdder;
 
 public class PeerConnection
 {
@@ -35,9 +36,11 @@ public class PeerConnection
 	private final ChannelHandlerContext ctx;
 	private final Set<RsService> services = new HashSet<>();
 	private final AtomicBoolean servicesSent = new AtomicBoolean(false);
-	private final Map<Integer, Object> data = new HashMap<>();
+	private final Map<Integer, Object> peerData = new HashMap<>();
 	private final Map<Integer, Map<Integer, Object>> serviceData = new HashMap<>();
 	private final List<ScheduledFuture<?>> schedules = new ArrayList<>();
+	private final LongAdder sent = new LongAdder();
+	private final LongAdder received = new LongAdder();
 
 	public PeerConnection(Location location, ChannelHandlerContext ctx)
 	{
@@ -84,9 +87,9 @@ public class PeerConnection
 	 * @param key  the key
 	 * @param data the data
 	 */
-	public void putData(int key, Object data)
+	public void putPeerData(int key, Object data)
 	{
-		this.data.put(key, data);
+		peerData.put(key, data);
 	}
 
 	/**
@@ -95,9 +98,9 @@ public class PeerConnection
 	 * @param key the key
 	 * @return the data
 	 */
-	public Optional<Object> getData(int key)
+	public Optional<Object> getPeerData(int key)
 	{
-		return Optional.ofNullable(data.get(key));
+		return Optional.ofNullable(peerData.get(key));
 	}
 
 	/**
@@ -105,9 +108,9 @@ public class PeerConnection
 	 *
 	 * @param key the key
 	 */
-	public void removeData(int key)
+	public void removePeerData(int key)
 	{
-		data.remove(key);
+		peerData.remove(key);
 	}
 
 	/**
@@ -180,6 +183,26 @@ public class PeerConnection
 	public void cleanup()
 	{
 		schedules.forEach(scheduledFuture -> scheduledFuture.cancel(false));
+	}
+
+	public void incrementSentCounter(long value)
+	{
+		sent.add(value);
+	}
+
+	public void incrementReceivedCounter(long value)
+	{
+		received.add(value);
+	}
+
+	public long getSentCounter()
+	{
+		return sent.longValue();
+	}
+
+	public long getReceivedCounter()
+	{
+		return received.longValue();
 	}
 
 	@Override

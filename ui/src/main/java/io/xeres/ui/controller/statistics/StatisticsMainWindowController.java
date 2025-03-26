@@ -39,6 +39,9 @@ public class StatisticsMainWindowController implements WindowController
 	@FXML
 	private StatisticsRttController statisticsRttController;
 
+	@FXML
+	private StatisticsDataCounterController statisticsDataCounterController;
+
 	@Override
 	public void initialize()
 	{
@@ -50,6 +53,7 @@ public class StatisticsMainWindowController implements WindowController
 	{
 		statisticsTurtleController.start();
 		statisticsRttController.start();
+		statisticsDataCounterController.start();
 	}
 
 	@Override
@@ -57,5 +61,6 @@ public class StatisticsMainWindowController implements WindowController
 	{
 		statisticsTurtleController.stop();
 		statisticsRttController.stop();
+		statisticsDataCounterController.stop();
 	}
 }

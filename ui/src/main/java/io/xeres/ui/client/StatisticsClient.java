@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.statistics.DataCounterStatisticsResponse;
 import io.xeres.common.rest.statistics.RttStatisticsResponse;
 import io.xeres.common.rest.statistics.TurtleStatisticsResponse;
 import io.xeres.common.util.RemoteUtils;
@@ -64,5 +65,13 @@ public class StatisticsClient
 				.uri("/rtt")
 				.retrieve()
 				.bodyToMono(RttStatisticsResponse.class);
+	}
+
+	public Mono<DataCounterStatisticsResponse> getDataCounterStatistics()
+	{
+		return webClient.get()
+				.uri("/data-counter")
+				.retrieve()
+				.bodyToMono(DataCounterStatisticsResponse.class);
 	}
 }

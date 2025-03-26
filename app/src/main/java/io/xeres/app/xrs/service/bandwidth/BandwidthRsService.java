@@ -27,10 +27,15 @@ import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.bandwidth.item.BandwidthAllowedItem;
+import io.xeres.common.rest.statistics.DataCounterPeer;
+import io.xeres.common.rest.statistics.DataCounterStatisticsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.xrs.service.RsServiceType.BANDWIDTH_CONTROL;
@@ -82,7 +87,8 @@ public class BandwidthRsService extends RsService
 		if (currentBandwidth != 0L)
 		{
 			log.debug("Sending Bandwidth of {} bit/s to peer {}", currentBandwidth, peerConnection);
-			peerConnectionManager.writeItem(peerConnection, new BandwidthAllowedItem(currentBandwidth / 1000), this); // RS wants bytes/s
+			peerConnectionManager.writeItem(peerConnection, new BandwidthAllowedItem((long) (currentBandwidth * 0.75 / 1000)), this); // RS wants bytes/s, and it defaults to 75% of the bandwidth
+			// TODO: the computation should be improved
 		}
 	}
 
@@ -93,5 +99,16 @@ public class BandwidthRsService extends RsService
 		{
 			log.debug("Allowed bandwidth for peer {}: {} bytes/s", sender, bandwidthAllowedItem.getAllowedBandwidth());
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public DataCounterStatisticsResponse getDataCounterStatistics()
+	{
+		List<DataCounterPeer> peers = new ArrayList<>();
+		peerConnectionManager.doForAllPeers(peerConnection -> peers.add(new DataCounterPeer(peerConnection.getLocation().getId(),
+				peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName(),
+				peerConnection.getSentCounter(),
+				peerConnection.getReceivedCounter())), null);
+		return new DataCounterStatisticsResponse(peers);
 	}
 }

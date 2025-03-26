@@ -23,8 +23,10 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.xrs.service.bandwidth.BandwidthRsService;
 import io.xeres.app.xrs.service.rtt.RttRsService;
 import io.xeres.app.xrs.service.turtle.TurtleRsService;
+import io.xeres.common.rest.statistics.DataCounterStatisticsResponse;
 import io.xeres.common.rest.statistics.RttStatisticsResponse;
 import io.xeres.common.rest.statistics.TurtleStatisticsResponse;
 import org.springframework.http.MediaType;
@@ -42,11 +44,13 @@ public class StatisticsController
 {
 	private final TurtleRsService turtleRsService;
 	private final RttRsService rttRsService;
+	private final BandwidthRsService bandwidthRsService;
 
-	public StatisticsController(TurtleRsService turtleRsService, RttRsService rttRsService)
+	public StatisticsController(TurtleRsService turtleRsService, RttRsService rttRsService, BandwidthRsService bandwidthRsService)
 	{
 		this.turtleRsService = turtleRsService;
 		this.rttRsService = rttRsService;
+		this.bandwidthRsService = bandwidthRsService;
 	}
 
 	@GetMapping("/turtle")
@@ -63,5 +67,13 @@ public class StatisticsController
 	public RttStatisticsResponse getRttStatistics()
 	{
 		return rttRsService.getStatistics();
+	}
+
+	@GetMapping("/data-counter")
+	@Operation(summary = "Get global data counter statistics")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public DataCounterStatisticsResponse getDataCounterStatistics()
+	{
+		return bandwidthRsService.getDataCounterStatistics();
 	}
 }

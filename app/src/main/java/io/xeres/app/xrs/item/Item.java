@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -129,6 +129,17 @@ public abstract class Item implements Cloneable
 			assert buf.refCnt() == 1 : "buffer refCount is " + buf.refCnt();
 			ReferenceCountUtil.release(buf);
 		}
+	}
+
+	/**
+	 * Get the item's serialized size. This is always set for incoming items from their deserialization until they're disposed. For outgoing items, the value is undefined until the
+	 * item has been serialized.
+	 *
+	 * @return the size of the item in its serialized form
+	 */
+	public int getItemSize()
+	{
+		return buf.getInt(4);
 	}
 
 	protected void setItemSize(int size)

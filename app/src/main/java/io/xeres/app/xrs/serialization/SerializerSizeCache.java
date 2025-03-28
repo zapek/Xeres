@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,8 @@ import java.util.Map;
 /**
  * This class allows to speed up the case when the size of a serialized item is needed frequently.
  * Only use it with items that cannot have a varying size depending on the item's field values.
+ * Also note that incoming items have their serialized size recorded after deserialization, and outgoing items
+ * return their serialized size when they're written to the wire, making this cache pretty much unnecessary.
  */
 public final class SerializerSizeCache
 {
@@ -41,6 +43,8 @@ public final class SerializerSizeCache
 
 	/**
 	 * Gets the size of an item once it's serialized.
+	 * <p>
+	 * The result is cached so make sure this is only used with items whose serialized size cannot vary depending on their content.
 	 *
 	 * @param item the item
 	 * @return the size of the item after serialization, header included

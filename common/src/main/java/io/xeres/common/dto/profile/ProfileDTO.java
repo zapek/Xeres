@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -45,7 +45,7 @@ public record ProfileDTO(
 		@Size(message = "Name length must be between " + NAME_LENGTH_MIN + " and " + NAME_LENGTH_MAX + " characters", min = NAME_LENGTH_MIN, max = NAME_LENGTH_MAX)
 		String name,
 
-		String pgpIdentifier,
+		String pgpIdentifier, // a string is used instead of a long because JS is limited to 53-bits
 
 		Instant created,
 

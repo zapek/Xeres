@@ -20,6 +20,8 @@
 package io.xeres.app.xrs.item;
 
 import io.netty.buffer.Unpooled;
+import io.xeres.app.net.peer.PeerConnection;
+import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -35,6 +37,10 @@ public final class ItemUtils
 
 	/**
 	 * Serializes an item to get its serialized size.
+	 * <p>
+	 * Note: prefer {@link Item#getItemSize()} which is set for incoming items. For outgoing items, if you don't
+	 * need the size before writing the item, prefer {@link PeerConnectionManager#writeItem(PeerConnection, Item, RsService)}.
+	 *
 	 * @param item    the item
 	 * @param service the service
 	 * @return the total serialized size in bytes
@@ -50,6 +56,7 @@ public final class ItemUtils
 
 	/**
 	 * Serializes an item to make a signature out of it.
+	 *
 	 * @param item    the item
 	 * @param service the service
 	 * @return a byte array

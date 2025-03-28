@@ -19,10 +19,8 @@
 
 package io.xeres.app.net.peer;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.FailedFuture;
-import io.netty.util.concurrent.Future;
 import io.xeres.app.application.events.PeerConnectedEvent;
 import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.database.model.location.Location;
@@ -46,6 +44,9 @@ import java.util.function.Consumer;
 
 import static io.xeres.app.net.peer.PeerAttribute.PEER_CONNECTION;
 
+/**
+ * This component manages connected peers (addition, removals, writing data to them, etc...)
+ */
 @Component
 public class PeerConnectionManager
 {
@@ -57,13 +58,20 @@ public class PeerConnectionManager
 
 	private final Map<Long, PeerConnection> peers = new ConcurrentHashMap<>();
 
-	public PeerConnectionManager(StatusNotificationService statusNotificationService, AvailabilityNotificationService availabilityNotificationService, ApplicationEventPublisher publisher)
+	PeerConnectionManager(StatusNotificationService statusNotificationService, AvailabilityNotificationService availabilityNotificationService, ApplicationEventPublisher publisher)
 	{
 		this.statusNotificationService = statusNotificationService;
 		this.availabilityNotificationService = availabilityNotificationService;
 		this.publisher = publisher;
 	}
 
+	/**
+	 * Adds a connected peer.
+	 *
+	 * @param location the location of the peer
+	 * @param ctx      the context
+	 * @return a peer connection
+	 */
 	public PeerConnection addPeer(Location location, ChannelHandlerContext ctx)
 	{
 		if (peers.containsKey(location.getId()))
@@ -79,6 +87,11 @@ public class PeerConnectionManager
 		return peerConnection;
 	}
 
+	/**
+	 * Removes a peer because it disconnected.
+	 *
+	 * @param location the location of the peer
+	 */
 	public void removePeer(Location location)
 	{
 		if (!peers.containsKey(location.getId()))
@@ -91,20 +104,22 @@ public class PeerConnectionManager
 		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationIdentifier()));
 	}
 
-	public void updatePeer(Location location)
-	{
-		if (!peers.containsKey(location.getId()))
-		{
-			throw new IllegalStateException("Location " + location + " is not in the list of peers");
-		}
-		peers.get(location.getId()).updateLocation(location);
-	}
-
+	/**
+	 * Gets a peer by its location id
+	 *
+	 * @param id the id of the location
+	 * @return the peer connection
+	 */
 	public PeerConnection getPeerByLocation(long id)
 	{
 		return peers.get(id);
 	}
 
+	/**
+	 * Gets a random peer.
+	 *
+	 * @return a random peer
+	 */
 	public PeerConnection getRandomPeer()
 	{
 		if (peers.isEmpty())
@@ -122,34 +137,44 @@ public class PeerConnectionManager
 		availabilityNotificationService.shutdown();
 	}
 
-	public Future<Void> writeItem(Location location, Item item, RsService rsService)
+	/**
+	 * Writes an item to a location.
+	 *
+	 * @param location  the target location
+	 * @param item      the item to write
+	 * @param rsService the service concerned
+	 * @return an ItemFuture containing the item's write state and item serialized state
+	 */
+	public ItemFuture writeItem(Location location, Item item, RsService rsService)
 	{
 		var peer = peers.get(location.getId());
 		if (peer != null)
 		{
 			return setOutgoingAndWriteItem(peer, item, rsService);
 		}
-		return new FailedFuture<>(null, new IllegalStateException("Peer with connection " + location + " not found while trying to write item. User disconnected?"));
+		return new DefaultItemFuture(new FailedFuture<>(null, new IllegalStateException("Peer with connection " + location + " not found while trying to write item. User disconnected?")));
 	}
 
-	public Future<Void> writeItem(PeerConnection peerConnection, Item item, RsService rsService)
+	/**
+	 * Writes an item to a peer.
+	 *
+	 * @param peerConnection the target peer
+	 * @param item           the item to write
+	 * @param rsService      the service concerned
+	 * @return an ItemFuture containing the item's write state and item serialized state
+	 */
+	public ItemFuture writeItem(PeerConnection peerConnection, Item item, RsService rsService)
 	{
 		var peer = peers.get(peerConnection.getLocation().getId());
 		if (peer != null)
 		{
 			return setOutgoingAndWriteItem(peer, item, rsService);
 		}
-		return new FailedFuture<>(null, new IllegalStateException("Peer with connection " + peerConnection.getLocation() + " not found while trying to write item. User disconnected?"));
-	}
-
-	private static ChannelFuture setOutgoingAndWriteItem(PeerConnection peerConnection, Item item, RsService rsService)
-	{
-		item.setOutgoing(peerConnection.getCtx().alloc(), rsService);
-		return writeItem(peerConnection, item);
+		return new DefaultItemFuture(new FailedFuture<>(null, new IllegalStateException("Peer with connection " + peerConnection.getLocation() + " not found while trying to write item. User disconnected?")));
 	}
 
 	/**
-	 * Execute an action for all peers.
+	 * Executes an action for all peers.
 	 *
 	 * @param action    the action to execute
 	 * @param rsService the service that has to be enabled for the peer as well. Can be null, in that case, all peers are considered for the action regardless of the service they're running
@@ -165,23 +190,26 @@ public class PeerConnectionManager
 		});
 	}
 
+	/**
+	 * Executes an action for all peers except the originator.
+	 *
+	 * @param action    the action to execute
+	 * @param sender    the originator of the action
+	 * @param rsService the service that has to be enabled for the peer as well. Can be null, in that case, all peers are considered for the action regardless of the service they're running
+	 */
 	public void doForAllPeersExceptSender(Consumer<PeerConnection> action, PeerConnection sender, RsService rsService)
 	{
 		peers.values().stream()
 				.filter(peerConnection -> !peerConnection.equals(sender))
-				.filter(peerConnection -> peerConnection.isServiceSupported(rsService))
+				.filter(peerConnection -> rsService == null || peerConnection.isServiceSupported(rsService))
 				.forEach(action);
 	}
 
-	private static ChannelFuture writeItem(PeerConnection peerConnection, Item item)
-	{
-		var rawItem = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
-		log.debug("==> {}", item);
-		log.trace("Message content: {}", rawItem);
-		peerConnection.incrementSentCounter(rawItem.getSize());
-		return peerConnection.getCtx().writeAndFlush(rawItem);
-	}
-
+	/**
+	 * Writes the slice probe item. This is only needed for very particular cases.
+	 *
+	 * @param ctx the context
+	 */
 	public static void writeSliceProbe(ChannelHandlerContext ctx)
 	{
 		var item = SliceProbeItem.from(ctx);
@@ -189,9 +217,30 @@ public class PeerConnectionManager
 		ctx.writeAndFlush(rawItem);
 	}
 
+	/**
+	 * Returns the number of connected peers.
+	 *
+	 * @return the number of connected peers
+	 */
 	public int getNumberOfPeers()
 	{
 		return peers.size();
+	}
+
+	private static ItemFuture setOutgoingAndWriteItem(PeerConnection peerConnection, Item item, RsService rsService)
+	{
+		item.setOutgoing(peerConnection.getCtx().alloc(), rsService);
+		return writeItem(peerConnection, item);
+	}
+
+	private static ItemFuture writeItem(PeerConnection peerConnection, Item item)
+	{
+		var rawItem = item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
+		var size = rawItem.getSize(); // get it before it's written
+		log.debug("==> {}", item);
+		log.trace("Message content: {}", rawItem);
+		peerConnection.incrementSentCounter(size);
+		return new DefaultItemFuture(peerConnection.getCtx().writeAndFlush(rawItem), size);
 	}
 
 	private void updateCurrentUsersCount()

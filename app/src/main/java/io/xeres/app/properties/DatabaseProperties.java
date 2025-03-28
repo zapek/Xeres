@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
 public class DatabaseProperties
 {
 	private Integer cacheSize;
+	private Integer maxCompactTime;
 
 	public Integer getCacheSize()
 	{
@@ -36,5 +37,15 @@ public class DatabaseProperties
 	public void setCacheSize(Integer cacheSize)
 	{
 		this.cacheSize = cacheSize;
+	}
+
+	public Integer getMaxCompactTime()
+	{
+		return maxCompactTime;
+	}
+
+	public void setMaxCompactTime(Integer maxCompactTime)
+	{
+		this.maxCompactTime = maxCompactTime;
 	}
 }

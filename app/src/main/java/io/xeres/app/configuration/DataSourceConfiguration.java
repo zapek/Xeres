@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -89,6 +89,11 @@ public class DataSourceConfiguration
 		if (databaseProperties.getCacheSize() != null)
 		{
 			dbOpts += ";CACHE_SIZE=" + databaseProperties.getCacheSize();
+		}
+
+		if (databaseProperties.getMaxCompactTime() != null)
+		{
+			dbOpts += ";MAX_COMPACT_TIME=" + databaseProperties.getMaxCompactTime();
 		}
 
 		var url = H2_URL_PREFIX + dataDir + dbOpts + useJMX;

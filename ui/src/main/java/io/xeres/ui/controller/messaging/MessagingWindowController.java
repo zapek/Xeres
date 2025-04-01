@@ -300,6 +300,7 @@ public class MessagingWindowController implements WindowController
 							destination.setName(profile.getName());
 							destination.setPlace(location.getName());
 							updateTitle();
+							receive.setOnClearHistory(() -> chatClient.deleteChatBacklog(location.getId()).subscribe());
 							chatClient.getChatBacklog(location.getId()).collectList()
 									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // No need to use userData to pass the incoming message, it's already in the backlog
 									.subscribe();
@@ -318,6 +319,7 @@ public class MessagingWindowController implements WindowController
 							destination.setName(identity.getName());
 							updateTitle();
 							fetchIdentityImage(identity.hasImage() ? identity.getId() : 0L, identity.getGxsId());
+							receive.setOnClearHistory(() -> chatClient.deleteDistantChatBacklog(identity.getId()).subscribe());
 							chatClient.getDistantChatBacklog(identity.getId()).collectList()
 									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // Incoming message already in the backlog
 									.subscribe();

@@ -34,4 +34,6 @@ public interface DistantChatBacklogRepository extends JpaRepository<DistantChatB
 	List<DistantChatBacklog> findAllByIdentityGroupItemAndCreatedAfterOrderByCreatedDesc(IdentityGroupItem identityGroupItem, Instant from, Limit limit);
 
 	void deleteAllByCreatedBefore(Instant from);
+
+	void deleteAllByIdentityGroupItem(IdentityGroupItem identityGroupItem);
 }

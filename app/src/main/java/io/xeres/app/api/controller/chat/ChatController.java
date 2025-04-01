@@ -163,6 +163,14 @@ public class ChatController
 				maxLines != null ? maxLines : PRIVATE_CHAT_DEFAULT_MAX_LINES));
 	}
 
+	@DeleteMapping("/chats/{locationId}/messages")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteChatMessages(@PathVariable long locationId)
+	{
+		var location = locationService.findLocationById(locationId).orElseThrow();
+		chatBacklogService.deleteMessages(location);
+	}
+
 	@PostMapping("/distant-chats")
 	@Operation(summary = "Create a distant chat")
 	@ApiResponse(responseCode = "200", description = "Request successful")
@@ -201,5 +209,13 @@ public class ChatController
 				identity,
 				from != null ? from.toInstant(ZoneOffset.UTC) : Instant.now().minus(PRIVATE_CHAT_DEFAULT_DURATION),
 				maxLines != null ? maxLines : PRIVATE_CHAT_DEFAULT_MAX_LINES));
+	}
+
+	@DeleteMapping("/distant-chats/{gxsId}/messages")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteDistantChatMessages(@PathVariable long gxsId)
+	{
+		var identity = identityService.findById(gxsId).orElseThrow();
+		chatBacklogService.deleteDistantMessages(identity);
 	}
 }

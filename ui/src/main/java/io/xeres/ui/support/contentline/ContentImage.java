@@ -101,7 +101,10 @@ public class ContentImage implements Content
 		node.setFitHeight(image.getHeight() / Screen.getPrimary().getOutputScaleY());
 
 		node.setImage(image);
-		node.setOnContextMenuRequested(event -> contextMenu.show(node, event.getScreenX(), event.getScreenY()));
+		node.setOnContextMenuRequested(event -> {
+			contextMenu.show(node, event.getScreenX(), event.getScreenY());
+			event.consume();
+		});
 		node.setOnMouseClicked(ContentImage::view);
 
 		if (parent != null)

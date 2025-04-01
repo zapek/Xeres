@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,4 +34,6 @@ public interface ChatBacklogRepository extends JpaRepository<ChatBacklog, Long>
 	List<ChatBacklog> findAllByLocationAndCreatedAfterOrderByCreatedDesc(Location location, Instant from, Limit limit);
 
 	void deleteAllByCreatedBefore(Instant before);
+
+	void deleteAllByLocation(Location location);
 }

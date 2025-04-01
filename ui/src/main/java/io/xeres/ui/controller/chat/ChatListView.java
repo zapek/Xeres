@@ -42,6 +42,7 @@ import io.xeres.ui.support.window.WindowManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
@@ -76,6 +77,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private static final String INFO_MENU_ID = "info";
 	private static final String CHAT_MENU_ID = "chat";
+	private static final String CLEAR_HISTORY_MENU_ID = "clearHistory";
 
 	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
@@ -95,6 +97,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final WindowManager windowManager;
 
 	private final ChatListDragSelection dragSelection;
+
+	private ContextMenu contextMenu;
 
 	public enum AddUserOrigin
 	{
@@ -122,14 +126,40 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		userListView = createUserListView();
 	}
 
+	public void setOnClearHistory(Runnable action)
+	{
+		var clearItem = new MenuItem("Clear chat history");
+		clearItem.setId(CLEAR_HISTORY_MENU_ID);
+		clearItem.setOnAction(event -> {
+			action.run();
+			messages.clear();
+		});
+
+		contextMenu = new ContextMenu(clearItem);
+	}
+
 	private VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> createChatView(ChatListDragSelection selection)
 	{
 		final var view = VirtualFlow.createVertical(messages, ChatListCell::new, VirtualFlow.Gravity.REAR);
 		view.setFocusTraversable(false);
 		view.getStyleClass().add("chat-list");
-		view.addEventFilter(MouseEvent.MOUSE_PRESSED, selection::press);
+		view.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+			if (contextMenu != null)
+			{
+				contextMenu.hide();
+			}
+			selection.press(e);
+		});
 		view.addEventFilter(MouseEvent.MOUSE_DRAGGED, selection::drag);
 		view.addEventFilter(MouseEvent.MOUSE_RELEASED, selection::release);
+		view.setOnContextMenuRequested(event -> {
+			if (contextMenu != null)
+			{
+				contextMenu.show(view, event.getScreenX(), event.getScreenY());
+			}
+			event.consume();
+		});
+
 		return new VirtualizedScrollPane<>(view);
 	}
 

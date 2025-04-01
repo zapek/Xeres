@@ -98,6 +98,12 @@ public class ChatBacklogService
 	}
 
 	@Transactional
+	public void deleteMessages(Location of)
+	{
+		chatBacklogRepository.deleteAllByLocation(of);
+	}
+
+	@Transactional
 	public void storeIncomingDistantMessage(GxsId from, String message)
 	{
 		var gxsId = gxsIdentityRepository.findByGxsId(from).orElseThrow();
@@ -114,6 +120,12 @@ public class ChatBacklogService
 	public List<DistantChatBacklog> getDistantMessages(IdentityGroupItem with, Instant from, int maxLines)
 	{
 		return distantChatBacklogRepository.findAllByIdentityGroupItemAndCreatedAfterOrderByCreatedDesc(with, from, Limit.of(maxLines)).reversed();
+	}
+
+	@Transactional
+	public void deleteDistantMessages(IdentityGroupItem of)
+	{
+		distantChatBacklogRepository.deleteAllByIdentityGroupItem(of);
 	}
 
 	@Transactional

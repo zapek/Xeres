@@ -19,11 +19,6 @@
 
 package io.xeres.ui.client;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
-
 import io.xeres.common.dto.chat.ChatBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
@@ -46,6 +41,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
 @Component
 public class ChatClient
@@ -155,6 +155,14 @@ public class ChatClient
 				.map(ChatMapper::fromDTO);
 	}
 
+	public Mono<Void> deleteChatBacklog(long id)
+	{
+		return webClient.delete()
+				.uri("/chats/{locationId}/messages", id)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
 	public Flux<ChatBacklog> getDistantChatBacklog(long id)
 	{
 		return webClient.get()
@@ -162,5 +170,13 @@ public class ChatClient
 				.retrieve()
 				.bodyToFlux(ChatBacklogDTO.class)
 				.map(ChatMapper::fromDTO);
+	}
+
+	public Mono<Void> deleteDistantChatBacklog(long id)
+	{
+		return webClient.delete()
+				.uri("/distant-chats/{GxsId}/messages", id)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

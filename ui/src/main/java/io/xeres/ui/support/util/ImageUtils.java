@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -151,5 +151,30 @@ public final class ImageUtils
 			scaleImageView.setSmooth(true);
 			imageView.setImage(scaleImageView.snapshot(null, null));
 		}
+	}
+
+	/**
+	 * Checks if an image has an exaggerated aspect ratio, that is, excessive horizontal
+	 * or vertical length to try to mess up the UI.
+	 *
+	 * @param image the image to check
+	 * @return true if the aspect ratio is excessive
+	 */
+	public static boolean isExaggeratedAspectRatio(Image image)
+	{
+		var width = image.getWidth();
+		var height = image.getHeight();
+
+		double aspectRatio;
+
+		if (width > height)
+		{
+			aspectRatio = height / width;
+		}
+		else
+		{
+			aspectRatio = width / height;
+		}
+		return aspectRatio < 0.0014285714;
 	}
 }

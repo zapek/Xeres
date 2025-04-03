@@ -19,7 +19,6 @@
 
 package io.xeres.app.crypto.aes;
 
-import io.xeres.app.crypto.dh.DiffieHellman;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.testutils.TestUtils;
 import org.apache.commons.lang3.RandomUtils;
@@ -38,12 +37,8 @@ class AESTest
 	@BeforeAll
 	static void setup()
 	{
-		var keyPair1 = DiffieHellman.generateKeys();
-		var keyPair2 = DiffieHellman.generateKeys();
-		var commonSecret = DiffieHellman.generateCommonSecretKey(keyPair1.getPrivate(), keyPair2.getPublic());
-
 		Sha1MessageDigest digest = new Sha1MessageDigest();
-		digest.update(commonSecret);
+		digest.update(RandomUtils.insecure().randomBytes(16));
 		System.arraycopy(digest.getBytes(), 0, aesKey, 0, aesKey.length);
 
 		iv = RandomUtils.insecure().randomBytes(8);

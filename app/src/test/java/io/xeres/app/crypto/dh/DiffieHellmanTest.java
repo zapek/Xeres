@@ -19,6 +19,7 @@
 
 package io.xeres.app.crypto.dh;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,12 @@ class DiffieHellmanTest
 	static void setup()
 	{
 		keyPair = io.xeres.app.crypto.dh.DiffieHellman.generateKeys();
+	}
+
+	@Test
+	void utilityClassCheck() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(DiffieHellman.class);
 	}
 
 	@Test
@@ -62,6 +69,18 @@ class DiffieHellmanTest
 		var common = DiffieHellman.generateCommonSecretKey(keyPair.getPrivate(), receivedKeyPair.getPublic());
 
 		assertNotNull(common);
+	}
+
+	@Test
+	void DiffieHellman_FullExchange()
+	{
+		var heike = DiffieHellman.generateKeys();
+		var juergen = DiffieHellman.generateKeys();
+
+		var heikeSecret = DiffieHellman.generateCommonSecretKey(heike.getPrivate(), juergen.getPublic());
+		var juergenSecret = DiffieHellman.generateCommonSecretKey(juergen.getPrivate(), heike.getPublic());
+
+		assertArrayEquals(heikeSecret, juergenSecret);
 	}
 
 	private static boolean isSafePrime(BigInteger p)

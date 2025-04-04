@@ -47,7 +47,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
@@ -64,8 +63,7 @@ public class MessageClient
 {
 	private static final Logger log = LoggerFactory.getLogger(MessageClient.class);
 
-	private CompletableFuture<StompSession> future;
-
+	private SessionHandler sessionHandler;
 	private StompSession stompSession;
 	private String username;
 	private String password;
@@ -104,20 +102,21 @@ public class MessageClient
 		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 		stompClient.setInboundMessageSizeLimit(MAXIMUM_MESSAGE_SIZE);
 
-		var sessionHandler = new SessionHandler(session ->
+		var httpHeaders = new WebSocketHttpHeaders();
+		if (password != null)
+		{
+			httpHeaders.setBasicAuth(username, password);
+		}
+
+		sessionHandler = new SessionHandler(stompClient, url, httpHeaders, session ->
 		{
 			stompSession = session;
 			performPendingSubscriptions(stompSession);
 		});
 
 		log.debug("Connecting to {}", url);
-		var httpHeaders = new WebSocketHttpHeaders();
-		if (password != null)
-		{
-			httpHeaders.setBasicAuth(username, password);
-		}
-		var connectHeaders = new StompHeaders();
-		future = stompClient.connectAsync(url, httpHeaders, connectHeaders, sessionHandler);
+
+		sessionHandler.connect();
 
 		return this;
 	}
@@ -137,6 +136,11 @@ public class MessageClient
 			performPendingSubscriptions(stompSession);
 		}
 		return this;
+	}
+
+	public boolean isConnected()
+	{
+		return stompSession != null && stompSession.isConnected();
 	}
 
 	public void sendToDestination(Identifier identifier, ChatMessage message)
@@ -225,12 +229,12 @@ public class MessageClient
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored) // we don't use @PreDestroy because the tomcat context is closed before that
 	{
-		if (future != null)
+		if (sessionHandler != null && sessionHandler.getFuture() != null)
 		{
 			try
 			{
 				subscriptions.forEach(StompSession.Subscription::unsubscribe); // if the connection is already closed (likely when running on the same host), we catch the MessageDeliveryException below as well as IllegalStateException
-				future.get().disconnect();
+				sessionHandler.getFuture().get().disconnect();
 			}
 			catch (MessageDeliveryException | IllegalStateException | ExecutionException ignoredException)
 			{

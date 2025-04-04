@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,10 @@ import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.stomp.*;
+import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.web.socket.messaging.WebSocketStompClient;
+
+import java.util.concurrent.CompletableFuture;
 
 public class SessionHandler extends StompSessionHandlerAdapter
 {
@@ -33,21 +37,40 @@ public class SessionHandler extends StompSessionHandlerAdapter
 
 	public interface OnConnected
 	{
-		void connect(StompSession session);
+		void afterConnected(StompSession session);
 	}
 
+	private final WebSocketStompClient stompClient;
+	private final String url;
+	private final WebSocketHttpHeaders httpHeaders;
 	private final OnConnected onConnected;
 
-	SessionHandler(OnConnected onConnected)
+	private CompletableFuture<StompSession> future;
+
+
+	SessionHandler(WebSocketStompClient stompClient, String url, WebSocketHttpHeaders httpHeaders, OnConnected onConnected)
 	{
+		this.stompClient = stompClient;
+		this.url = url;
+		this.httpHeaders = httpHeaders;
 		this.onConnected = onConnected;
+	}
+
+	public void connect()
+	{
+		future = stompClient.connectAsync(url, httpHeaders, new StompHeaders(), this);
+	}
+
+	public CompletableFuture<StompSession> getFuture()
+	{
+		return future;
 	}
 
 	@Override
 	public void afterConnected(@Nonnull StompSession session, @Nonnull StompHeaders connectedHeaders)
 	{
 		log.debug("Connected successfully to session {}, headers: {}", session, connectedHeaders);
-		onConnected.connect(session);
+		onConnected.afterConnected(session);
 	}
 
 	@Override

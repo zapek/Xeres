@@ -87,7 +87,10 @@ public class PrimaryStageInitializer
 			return;
 		}
 
-		// XXX: make sure we're not already connected... I think we can get the event twice when the network is reconfigured
+		if (messageClient.isConnected())
+		{
+			return;
+		}
 
 		messageClient
 				.subscribe(chatPrivateDestination(), new PrivateChatFrameHandler(windowManager))

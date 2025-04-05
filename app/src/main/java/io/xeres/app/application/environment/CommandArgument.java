@@ -168,7 +168,7 @@ public final class CommandArgument
 				   --no-gui                            start without an UI
 				   --iconified                         start iconified into the tray
 				   --data-dir=<path>                   specify the data directory
-				   --control-address=<host>            specify the address to bind to for incoming remote access (defaults to localhost)
+				   --control-address=<host>            specify the address to bind to for incoming remote access (defaults to 127.0.0.1)
 				   --control-port=<port>               specify the control port for remote access
 				   --no-control-password               do not protect the control address with a password
 				   --no-https                          do not use HTTPS for the control connection

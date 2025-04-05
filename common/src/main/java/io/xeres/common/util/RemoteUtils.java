@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -36,7 +36,7 @@ public final class RemoteUtils
 
 	private static String getHostname()
 	{
-		return System.getProperty("xrs.ui.address", "localhost");
+		return System.getProperty("xrs.ui.address", "127.0.0.1");
 	}
 
 	private static int getControlPort()

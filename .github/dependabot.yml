@@ -12,7 +12,7 @@ updates:
   schedule:
     interval: "daily"
 
-- package-ecosystem: "npm"
-  directory: "/webui"
+- package-ecosystem: "python"
+  directory: "/scripts/bot"
   schedule:
-    interval: "daily"
+    interval: "daily""

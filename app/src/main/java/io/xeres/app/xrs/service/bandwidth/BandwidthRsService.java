@@ -106,7 +106,7 @@ public class BandwidthRsService extends RsService
 	{
 		List<DataCounterPeer> peers = new ArrayList<>();
 		peerConnectionManager.doForAllPeers(peerConnection -> peers.add(new DataCounterPeer(peerConnection.getLocation().getId(),
-				peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName(),
+				peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getSafeName(),
 				peerConnection.getSentCounter(),
 				peerConnection.getReceivedCounter())), null);
 		return new DataCounterStatisticsResponse(peers);

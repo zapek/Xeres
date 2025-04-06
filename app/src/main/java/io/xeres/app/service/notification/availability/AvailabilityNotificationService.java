@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,6 +30,6 @@ public class AvailabilityNotificationService extends NotificationService
 {
 	public void changeAvailability(Location location, Availability availability)
 	{
-		sendNotification(new AvailabilityNotification(availability, location.getProfile().getId(), location.getProfile().getName(), location.getId(), location.getName()));
+		sendNotification(new AvailabilityNotification(availability, location.getProfile().getId(), location.getProfile().getName(), location.getId(), location.getSafeName()));
 	}
 }

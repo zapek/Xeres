@@ -816,7 +816,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 		else if (item.isBroadcast())
 		{
-			uiBridgeService.showTrayNotification(BROADCAST, "Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName() + ": " + parseIncomingText(item.getMessage()));
+			uiBridgeService.showTrayNotification(BROADCAST, "Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getSafeName() + ": " + parseIncomingText(item.getMessage()));
 		}
 	}
 

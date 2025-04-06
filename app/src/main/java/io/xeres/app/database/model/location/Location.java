@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -62,7 +62,6 @@ public class Location implements Comparable<Location>
 	@JoinColumn(name = "profile_id", nullable = false)
 	private Profile profile;
 
-	@NotNull
 	private String name;
 
 	@Embedded
@@ -229,6 +228,16 @@ public class Location implements Comparable<Location>
 		this.name = name;
 	}
 
+	public String getSafeName()
+	{
+		return name == null ? "[Unknown]" : name;
+	}
+
+	/**
+	 * Gets the location name.
+	 *
+	 * @return the location name. Can be null if it was auto created from a profile and is not updated by discovery yet
+	 */
 	@XmlAttribute
 	public String getName()
 	{

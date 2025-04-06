@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -74,7 +74,7 @@ public class LocationController
 	{
 		var location = locationService.findLocationById(id).orElseThrow();
 
-		return new RSIdResponse(location.getProfile().getName(), location.getName(), location.getRsId(type == null ? Type.ANY : type).getArmored());
+		return new RSIdResponse(location.getProfile().getName(), location.getSafeName(), location.getRsId(type == null ? Type.ANY : type).getArmored());
 	}
 
 	@GetMapping(value = "/{id}/rs-id/qr-code", produces = MediaType.IMAGE_PNG_VALUE)

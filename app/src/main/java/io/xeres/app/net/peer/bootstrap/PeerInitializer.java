@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,6 +33,7 @@ import io.xeres.app.net.peer.pipeline.*;
 import io.xeres.app.net.peer.ssl.SSL;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -57,6 +58,7 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 	private final ConnectionType connectionType;
 	private final SettingsService settingsService;
 	private final NetworkProperties networkProperties;
+	private final ProfileService profileService;
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
@@ -68,9 +70,10 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 	private static final ChannelHandler ITEM_ENCODER = new ItemEncoder();
 	private static final ChannelHandler IDLE_EVENT_HANDLER = new IdleEventHandler(PEER_IDLE_TIMEOUT);
 
-	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
+	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, ProfileService profileService, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
 	{
 		this.settingsService = settingsService;
+		this.profileService = profileService;
 		this.uiBridgeService = uiBridgeService;
 		try
 		{
@@ -128,6 +131,6 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		// ^^^^^^^^
 		// Outbound
 
-		pipeline.addLast(new PeerHandler(locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, connectionType, uiBridgeService, rsServiceRegistry));
+		pipeline.addLast(new PeerHandler(profileService, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, connectionType, uiBridgeService, rsServiceRegistry));
 	}
 }

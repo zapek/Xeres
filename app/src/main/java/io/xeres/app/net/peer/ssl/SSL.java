@@ -30,8 +30,11 @@ import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
 import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.peer.ConnectionType;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.ProfileService;
+import io.xeres.common.id.LocationIdentifier;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.slf4j.Logger;
@@ -48,12 +51,16 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
 
 public final class SSL
 {
 	private static final Logger log = LoggerFactory.getLogger(SSL.class);
+
+	private static final Pattern ISSUER_MATCHER = Pattern.compile("^CN=(\\p{XDigit}{16})$");
 
 	private SSL()
 	{
@@ -80,8 +87,21 @@ public final class SSL
 				.build();
 	}
 
-	public static Location checkPeerCertificate(LocationService locationService, Certificate[] chain) throws CertificateException
+	/**
+	 * Checks if a certificate is valid. Either it matches a location that we already have or it's the location of a profile that
+	 * we have accepted. In the later case, the new location is also created with a null name that will be updated later
+	 * using discovery.
+	 *
+	 * @param profileService  the profile service
+	 * @param locationService the location service
+	 * @param chain           the certificate chain
+	 * @return the location
+	 * @throws CertificateException if the location is not allowed
+	 */
+	public static Location checkPeerCertificate(ProfileService profileService, LocationService locationService, Certificate[] chain) throws CertificateException
 	{
+		var isNewLocation = false;
+
 		if (chain == null || chain.length == 0)
 		{
 			throw new CertificateException("Empty certificate");
@@ -92,10 +112,17 @@ public final class SSL
 		var locationIdentifier = X509.getLocationIdentifier(x509Certificate);
 		log.debug("SSL ID: {}", locationIdentifier);
 
-		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow(() -> new CertificateException("Unknown location (SSL ID: " + locationIdentifier + ")")); // XXX: don't throw but handle location not found, see below
-		// XXX: if the location is not found, we can check if we have a profile (accepted=true) that would verify it (verify() method below), then it would be a new location. The pgp identifier is in the issuer field (CN=pgp_id). create the location above instead of the orElseThrow() add orElseGet()
-		// XXX: what we don't know is the location name so use something like [Unknown] (we need to allow null location names!) and get it with discovery
-		log.debug("Found location: {} {}", location.getName(), location.isConnected() ? ", is already connected" : "");
+		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElse(null);
+		if (location == null)
+		{
+			location = createLocationIfAcceptedProfile(locationIdentifier, x509Certificate, profileService);
+			if (location == null)
+			{
+				throw new CertificateException("Unknown location (SSL ID: " + locationIdentifier + ")");
+			}
+			isNewLocation = true;
+		}
+		log.debug("Found location: {} {}", location.getSafeName(), location.isConnected() ? ", is already connected" : "");
 		if (location.isConnected())
 		{
 			throw new CertificateException("Already connected");
@@ -106,6 +133,10 @@ public final class SSL
 			try
 			{
 				verify(PGP.getPGPPublicKey(location.getProfile().getPgpPublicKeyData()), x509Certificate);
+				if (isNewLocation)
+				{
+					profileService.createOrUpdateProfile(location.getProfile());
+				}
 			}
 			catch (InvalidKeyException e)
 			{
@@ -113,6 +144,33 @@ public final class SSL
 			}
 		}
 		return location;
+	}
+
+	private static Location createLocationIfAcceptedProfile(LocationIdentifier locationIdentifier, X509Certificate x509Certificate, ProfileService profileService)
+	{
+		var issuer = x509Certificate.getIssuerX500Principal().getName();
+		var matcher = ISSUER_MATCHER.matcher(issuer);
+
+		if (matcher.matches())
+		{
+			var pgpIdentifier = Long.parseUnsignedLong(matcher.group(1).toLowerCase(Locale.ROOT), 16);
+
+			var profile = profileService.findProfileByPgpIdentifier(pgpIdentifier)
+					.filter(Profile::isComplete)
+					.filter(Profile::isAccepted)
+					.orElse(null);
+
+			if (profile != null)
+			{
+				return Location.createLocation(null, profile, locationIdentifier);
+			}
+			log.debug("No profile found for location: {}", locationIdentifier);
+		}
+		else
+		{
+			log.debug("Couldn't match PGP key from certificate issuer: {}", issuer);
+		}
+		return null;
 	}
 
 	private static void verify(PGPPublicKey pgpPublicKey, X509Certificate cert) throws CertificateException

@@ -147,7 +147,7 @@ public class DiscoveryRsService extends RsService
 
 		builder.setPgpIdentifier(aboutLocation.getProfile().getPgpIdentifier());
 		builder.setLocationIdentifier(aboutLocation.getLocationIdentifier());
-		builder.setLocationName(aboutLocation.getName());
+		builder.setLocationName(aboutLocation.getSafeName());
 		if (aboutLocation.isOwn())
 		{
 			builder.setVersion(buildProperties.getName() + " " + buildProperties.getVersion());
@@ -386,6 +386,7 @@ public class DiscoveryRsService extends RsService
 					.map(Profile::getLocations)
 					.flatMap(List::stream)
 					.filter(location -> !location.equals(ownLocation)) // own location was sent at beginning
+					.filter(location -> location.getName() != null) // Do not send locations that have no name (they have been automatically added using the profile)
 					.toList();
 
 			locationsToSend.forEach(location -> sendContact(peerConnection, location));

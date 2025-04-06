@@ -151,7 +151,7 @@ public class RttRsService extends RsService
 	public RttStatisticsResponse getStatistics()
 	{
 		List<RttPeer> rttPeers = new ArrayList<>(peerConnectionManager.getNumberOfPeers());
-		peerConnectionManager.doForAllPeers(peerConnection -> rttPeers.add(new RttPeer(peerConnection.getLocation().getId(), peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getName(), (long) peerConnection.getServiceData(this, KEY_RTT).orElse(0L))), this);
+		peerConnectionManager.doForAllPeers(peerConnection -> rttPeers.add(new RttPeer(peerConnection.getLocation().getId(), peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getSafeName(), (long) peerConnection.getServiceData(this, KEY_RTT).orElse(0L))), this);
 
 		return new RttStatisticsResponse(rttPeers);
 	}

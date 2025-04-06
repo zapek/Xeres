@@ -34,6 +34,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.peer.ssl.SSL;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
@@ -58,6 +59,7 @@ public class PeerHandler extends ChannelDuplexHandler
 	private static final Logger log = LoggerFactory.getLogger(PeerHandler.class);
 
 	private final ConnectionType connectionType;
+	private final ProfileService profileService;
 	private final LocationService locationService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
@@ -65,14 +67,15 @@ public class PeerHandler extends ChannelDuplexHandler
 	private final UiBridgeService uiBridgeService;
 	private final RsServiceRegistry rsServiceRegistry;
 
-	public PeerHandler(LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
+	public PeerHandler(ProfileService profileService, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
 	{
 		super();
+		this.profileService = profileService;
+		this.locationService = locationService;
 		this.serviceInfoRsService = serviceInfoRsService;
 		this.connectionType = connectionType;
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
-		this.locationService = locationService;
 		this.uiBridgeService = uiBridgeService;
 		this.rsServiceRegistry = rsServiceRegistry;
 	}
@@ -195,13 +198,13 @@ public class PeerHandler extends ChannelDuplexHandler
 
 				synchronized (PeerHandler.class) // Make sure we cannot have an outgoing and incoming connection with the same peer at the same time
 				{
-					location = SSL.checkPeerCertificate(locationService, ctx.pipeline().get(SslHandler.class).engine().getSession().getPeerCertificates());
+					location = SSL.checkPeerCertificate(profileService, locationService, ctx.pipeline().get(SslHandler.class).engine().getSession().getPeerCertificates());
 					locationService.setConnected(location, ctx.channel().remoteAddress());
 					var peerConnection = peerConnectionManager.addPeer(location, ctx);
 					peerConnection.schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
 				}
 
-				var message = "Established " + connectionType.getDescription() + " connection with " + location.getProfile().getName() + " (" + location.getName() + ")";
+				var message = "Established " + connectionType.getDescription() + " connection with " + location.getProfile().getName() + " (" + location.getSafeName() + ")";
 
 				log.info(message);
 				uiBridgeService.showTrayNotification(CONNECTION, message);

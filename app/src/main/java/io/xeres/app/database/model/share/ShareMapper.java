@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -69,7 +69,7 @@ public final class ShareMapper
 		var share = new Share();
 		share.setId(shareDTO.id());
 		share.setName(shareDTO.name());
-		share.setFile(File.createFile(Paths.get(shareDTO.path()))); // XXX: ouch... not sure that works...
+		share.setFile(File.createFile(Paths.get(shareDTO.path())));
 		share.setSearchable(shareDTO.searchable());
 		share.setBrowsable(shareDTO.browsable());
 		share.setLastScanned(shareDTO.lastScanned());

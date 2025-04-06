@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,8 +24,11 @@ import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
 import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.ProfileService;
+import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.testutils.TestUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -58,7 +61,11 @@ class SSLTest
 {
 	private static PGPSecretKey pgpKey;
 	private static KeyPair rsaKey;
+	private static Profile profile;
 	private static X509Certificate certificate;
+
+	@Mock
+	private ProfileService profileService;
 
 	@Mock
 	private LocationService locationService;
@@ -70,7 +77,10 @@ class SSLTest
 
 		pgpKey = PGP.generateSecretKey("foo", "", 512);
 		rsaKey = RSA.generateKeys(512);
-		certificate = X509.generateCertificate(pgpKey, rsaKey.getPublic(), "CN=me", "CN=foobar", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
+		profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
+		profile.setAccepted(true);
+
+		certificate = X509.generateCertificate(pgpKey, rsaKey.getPublic(), "CN=" + Id.toString(profile.getPgpIdentifier()), "CN=-", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
 	}
 
 	@Test
@@ -116,14 +126,13 @@ class SSLTest
 	}
 
 	@Test
-	void CheckPeerCertificate_Success() throws CertificateException, IOException
+	void CheckPeerCertificate_Success() throws CertificateException
 	{
-		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
 
 		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.of(location));
 
-		var result = SSL.checkPeerCertificate(locationService, new X509Certificate[]{certificate});
+		var result = SSL.checkPeerCertificate(profileService, locationService, new X509Certificate[]{certificate});
 
 		assertEquals(result, location);
 		verify(locationService).findLocationByLocationIdentifier(any(LocationIdentifier.class));
@@ -132,7 +141,7 @@ class SSLTest
 	@Test
 	void CheckPeerCertificate_EmptyCertificate_Failure()
 	{
-		assertThatThrownBy(() -> SSL.checkPeerCertificate(locationService, new X509Certificate[]{}))
+		assertThatThrownBy(() -> SSL.checkPeerCertificate(profileService, locationService, new X509Certificate[]{}))
 				.isInstanceOf(CertificateException.class)
 				.hasMessage("Empty certificate");
 
@@ -140,15 +149,14 @@ class SSLTest
 	}
 
 	@Test
-	void CheckPeerCertificate_AlreadyConnected_Failure() throws IOException
+	void CheckPeerCertificate_AlreadyConnected_Failure()
 	{
-		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
 		location.setConnected(true);
 
 		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.of(location));
 
-		assertThatThrownBy(() -> SSL.checkPeerCertificate(locationService, new X509Certificate[]{certificate}))
+		assertThatThrownBy(() -> SSL.checkPeerCertificate(profileService, locationService, new X509Certificate[]{certificate}))
 				.isInstanceOf(CertificateException.class)
 				.hasMessage("Already connected");
 
@@ -160,15 +168,28 @@ class SSLTest
 	{
 		var wrongPgpKey = PGP.generateSecretKey("notFoo", "", 512);
 		var wrongCertificate = X509.generateCertificate(wrongPgpKey, rsaKey.getPublic(), "CN=me", "CN=foobar", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
-		var profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		var location = LocationFakes.createLocation("bar", profile);
 
 		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.of(location));
 
-		assertThatThrownBy(() -> SSL.checkPeerCertificate(locationService, new X509Certificate[]{wrongCertificate}))
+		assertThatThrownBy(() -> SSL.checkPeerCertificate(profileService, locationService, new X509Certificate[]{wrongCertificate}))
 				.isInstanceOf(CertificateException.class)
 				.hasMessageContaining("Wrong signature");
 
 		verify(locationService).findLocationByLocationIdentifier(any(LocationIdentifier.class));
+	}
+
+	@Test
+	void CheckPeerCertificate_NoLocationButProfile_Success() throws CertificateException
+	{
+		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.empty());
+		when(profileService.findProfileByPgpIdentifier(profile.getPgpIdentifier())).thenReturn(Optional.of(profile));
+
+		var newLocation = SSL.checkPeerCertificate(profileService, locationService, new X509Certificate[]{certificate});
+
+		assertNotNull(newLocation);
+		assertNull(newLocation.getName());
+		assertEquals("[Unknown]", newLocation.getSafeName());
+		assertEquals(newLocation.getProfile(), profile);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -48,6 +49,7 @@ abstract class PeerClient
 
 	protected final SettingsService settingsService;
 	protected final NetworkProperties networkProperties;
+	protected final ProfileService profileService;
 	protected final LocationService locationService;
 	protected final PeerConnectionManager peerConnectionManager;
 	protected final DatabaseSessionManager databaseSessionManager;
@@ -62,10 +64,11 @@ abstract class PeerClient
 
 	public abstract AddressResolverGroup<? extends SocketAddress> getAddressResolverGroup();
 
-	protected PeerClient(SettingsService settingsService, NetworkProperties networkProperties, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
+	protected PeerClient(SettingsService settingsService, NetworkProperties networkProperties, ProfileService profileService, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
 	{
 		this.settingsService = settingsService;
 		this.networkProperties = networkProperties;
+		this.profileService = profileService;
 		this.locationService = locationService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;

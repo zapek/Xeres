@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.exception.InternalServerErrorException;
 import io.xeres.app.database.model.connection.Connection;
-import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.CapabilityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.NetworkService;
@@ -170,27 +169,6 @@ public class ConfigController
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(IDENTITIES_PATH + "/{id}").buildAndExpand(1L).toUri();
 		return status == ALREADY_EXISTS ? ResponseEntity.ok().build() : ResponseEntity.created(location).build();
-	}
-
-	@PutMapping("/external-ip")
-	@Operation(summary = "Set or update the external IP address and port.", description = "Note that an external IP address is not strictly required if for example the host is on a public IP already.")
-	@ApiResponse(responseCode = "201", description = "IP address set successfully", headers = @Header(name = "Location", description = "The location of where to get the IP address", schema = @Schema(type = "string")))
-	public ResponseEntity<Void> updateExternalIpAddress(@Valid @RequestBody IpAddressRequest request)
-	{
-		log.info("External IP address: {}", request);
-		var peerAddress = PeerAddress.from(request.ip(), request.port());
-		if (peerAddress.isInvalid())
-		{
-			throw new IllegalArgumentException("IP is invalid");
-		}
-		if (!peerAddress.isExternal())
-		{
-			throw new IllegalArgumentException("Wrong external IP address");
-		}
-
-		locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress);
-		var location = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
-		return ResponseEntity.created(location).build();
 	}
 
 	@GetMapping("/external-ip")

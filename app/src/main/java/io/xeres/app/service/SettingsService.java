@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -201,7 +201,6 @@ public class SettingsService
 		publisher.publishEvent(new SettingsChangedEvent(oldSettings, settings));
 	}
 
-	// XXX: I think those need 'synchronized' or so... depends how we use them
 	@Transactional
 	public void saveSecretProfileKey(byte[] privateKeyData)
 	{

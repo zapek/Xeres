@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,7 +28,6 @@ import io.xeres.app.service.*;
 import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.status.StatusRsService;
-import io.xeres.common.rest.config.IpAddressRequest;
 import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
 import io.xeres.common.rest.config.OwnProfileRequest;
@@ -170,47 +169,6 @@ class ConfigControllerTest extends AbstractControllerTest
 				.andExpect(status().isBadRequest());
 
 		verifyNoInteractions(locationService);
-	}
-
-	@Test
-	void UpdateExternalIpAddress_Create_Success() throws Exception
-	{
-		var ip = "1.1.1.1";
-		var port = 6667;
-
-		when(locationService.findOwnLocation()).thenReturn(Optional.of(Location.createLocation("foo")));
-
-		var request = new IpAddressRequest(ip, port);
-
-		mvc.perform(putJson(BASE_URL + "/external-ip", request))
-				.andExpect(status().isCreated())
-				.andExpect(header().string("Location", "http://localhost" + CONFIG_PATH + "/external-ip"));
-
-		verify(locationService).updateConnection(any(Location.class), any(PeerAddress.class));
-	}
-
-	@Test
-	void UpdateExternalIpAddress_Update_WrongIp_Failure() throws Exception
-	{
-		var ip = "1.1.1.1.1";
-		var port = 6667;
-
-		var request = new IpAddressRequest(ip, port);
-
-		mvc.perform(putJson(BASE_URL + "/external-ip", request))
-				.andExpect(status().isBadRequest());
-	}
-
-	@Test
-	void UpdateExternalIpAddress_Update_InternalIp_Failure() throws Exception
-	{
-		var ip = "192.168.1.38";
-		var port = 6667;
-
-		var request = new IpAddressRequest(ip, port);
-
-		mvc.perform(putJson(BASE_URL + "/external-ip", request))
-				.andExpect(status().isBadRequest());
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -45,7 +45,6 @@ public class ForumMessageService
 	private final ForumRsService forumRsService;
 	private final IdentityService identityService;
 
-	// XXX: try to fix the circular dependency injection
 	public ForumMessageService(@Lazy ForumRsService forumRsService, IdentityService identityService)
 	{
 		this.forumRsService = forumRsService;

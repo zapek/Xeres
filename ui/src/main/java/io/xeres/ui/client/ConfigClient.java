@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -88,18 +88,6 @@ public class ConfigClient
 		return webClient.post()
 				.uri("/identity")
 				.bodyValue(identityRequest)
-				.retrieve()
-				.bodyToMono(Void.class);
-	}
-
-	// XXX: remove? what was this for?
-	public Mono<Void> updateExternalIpAddress(String ip, int port)
-	{
-		var externalIpAddressRequest = new IpAddressRequest(ip, port);
-
-		return webClient.put()
-				.uri("/external-ip")
-				.bodyValue(externalIpAddressRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}

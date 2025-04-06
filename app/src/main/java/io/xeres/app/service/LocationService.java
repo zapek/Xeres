@@ -353,7 +353,7 @@ public class LocationService
 		return false;
 	}
 
-	private int getPageIndex() // XXX: that stuff should be moved out
+	private int getPageIndex()
 	{
 		if (locations == null || locations.isLast())
 		{

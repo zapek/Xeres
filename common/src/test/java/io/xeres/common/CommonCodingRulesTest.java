@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -54,4 +54,25 @@ class CommonCodingRulesTest
 					events.add(new SimpleConditionEvent(javaClass, satisfied, message));
 				}
 			});
+
+	@ArchTest
+	private final ArchRule utilityClass = classes()
+			.that().haveSimpleNameEndingWith("Utils")
+			.should(new ArchCondition<>("have a private constructor without parameters")
+			        {
+				        @Override
+				        public void check(JavaClass javaClass, ConditionEvents events)
+				        {
+					        boolean satisfied = javaClass.getConstructors().stream()
+							        .anyMatch(constructor ->
+									        constructor.getModifiers().contains(JavaModifier.PRIVATE)
+											        && constructor.getParameters().isEmpty()
+							        );
+					        String message = javaClass.getDescription() + (satisfied ? " has" : " does not have")
+							        + " a private constructor without parameters";
+					        events.add(new SimpleConditionEvent(javaClass, satisfied, message));
+				        }
+			        }
+			)
+			.andShould().haveModifier(JavaModifier.FINAL);
 }

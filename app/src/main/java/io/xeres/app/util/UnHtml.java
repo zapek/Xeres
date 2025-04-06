@@ -48,13 +48,19 @@ public final class UnHtml
 
 	public static String cleanupChat(String text)
 	{
+		// Only process HTML
 		if (isBlank(text) ||
 				!(StringUtils.startsWithIgnoreCase(text, "<body>") && StringUtils.endsWithIgnoreCase(text, "</body>")))
 		{
 			return text;
 		}
+
+		// Keep line feeds
+		var document = Jsoup.parse(text);
+		document.outputSettings(CHAT_OUTPUT_SETTINGS);
+
 		return Entities.unescape( // &lt; -> <
-				Jsoup.clean(text, "", Safelist.none() // <span> -> nothing
+				Jsoup.clean(document.wholeText(), "", Safelist.none() // <span> -> nothing
 						.addAttributes("img", "src")
 						.addProtocols("img", "src", "data")
 						.addAttributes("a", "href")

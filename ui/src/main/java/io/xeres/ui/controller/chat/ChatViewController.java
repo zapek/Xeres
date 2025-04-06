@@ -685,12 +685,9 @@ public class ChatViewController implements Controller
 		}
 		else if (COPY_KEY.match(event))
 		{
-			if (selectedChatListView != null)
+			if (selectedChatListView != null && selectedChatListView.copy())
 			{
-				if (selectedChatListView.copy())
-				{
-					event.consume();
-				}
+				event.consume();
 			}
 		}
 		else if (ENTER_KEY.match(event) && imagePreview.getImage() != null)
@@ -715,13 +712,18 @@ public class ChatViewController implements Controller
 		}
 		else
 		{
-			var now = Instant.now();
-			if (Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
-			{
-				var chatMessage = new ChatMessage();
-				messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
-				lastTypingNotification = now;
-			}
+			sendTypingNotificationIfNeeded();
+		}
+	}
+
+	private void sendTypingNotificationIfNeeded()
+	{
+		var now = Instant.now();
+		if (Duration.between(lastTypingNotification, now).compareTo(TYPING_NOTIFICATION_DELAY.minusSeconds(1)) > 0)
+		{
+			var chatMessage = new ChatMessage();
+			messageClient.sendToChatRoom(selectedRoom.getId(), chatMessage);
+			lastTypingNotification = now;
 		}
 	}
 

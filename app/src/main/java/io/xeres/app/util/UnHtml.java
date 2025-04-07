@@ -22,9 +22,7 @@ package io.xeres.app.util;
 import io.xeres.app.util.markdown.Markdown;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Entities;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Safelist;
@@ -34,40 +32,9 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public final class UnHtml
 {
-	private static final Document.OutputSettings CHAT_OUTPUT_SETTINGS = new Document.OutputSettings();
-
-	static
-	{
-		CHAT_OUTPUT_SETTINGS.prettyPrint(false);
-	}
-
 	private UnHtml()
 	{
 		throw new UnsupportedOperationException("Utility class");
-	}
-
-	public static String cleanupChat(String text)
-	{
-		// Only process HTML
-		if (isBlank(text) ||
-				!(StringUtils.startsWithIgnoreCase(text, "<body>") && StringUtils.endsWithIgnoreCase(text, "</body>")))
-		{
-			return text;
-		}
-
-		// Keep line feeds
-		var document = Jsoup.parse(text);
-		document.outputSettings(CHAT_OUTPUT_SETTINGS);
-
-		return Entities.unescape( // &lt; -> <
-				Jsoup.clean(document.wholeText(), "", Safelist.none() // <span> -> nothing
-						.addAttributes("img", "src")
-						.addProtocols("img", "src", "data")
-						.addAttributes("a", "href")
-						.addProtocols("a", "href", "retroshare")
-								.preserveRelativeLinks(true),
-						CHAT_OUTPUT_SETTINGS)
-		);
 	}
 
 	public static String cleanupMessage(String text)

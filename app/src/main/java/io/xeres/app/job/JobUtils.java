@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,7 @@ package io.xeres.app.job;
 import io.xeres.app.XeresApplication;
 import io.xeres.app.service.PeerService;
 
-public final class JobUtils
+final class JobUtils
 {
 	private JobUtils()
 	{

@@ -1458,6 +1458,6 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private static String parseIncomingText(String text)
 	{
-		return UnHtml.cleanupChat(text);
+		return UnHtml.cleanupMessage(text);
 	}
 }

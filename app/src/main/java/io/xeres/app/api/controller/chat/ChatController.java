@@ -140,6 +140,8 @@ public class ChatController
 
 	@GetMapping("/rooms/{roomId}/messages")
 	@Operation(summary = "Gets the chat room messages backlog")
+	@ApiResponse(responseCode = "200", description = "OK")
+	@ApiResponse(responseCode = "404", description = "No room found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public List<ChatRoomBacklogDTO> getChatRoomMessages(@PathVariable @Parameter(description = "The room's unique 64-bit identifier") long roomId,
 	                                                    @RequestParam(value = "maxLines", required = false) @Min(1) @Max(500) Integer maxLines,
 	                                                    @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from)

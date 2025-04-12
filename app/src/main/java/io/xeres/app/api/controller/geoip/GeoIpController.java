@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.api.controller.geoip;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,7 +38,7 @@ import java.util.Locale;
 
 import static io.xeres.common.rest.PathConfig.GEOIP_PATH;
 
-@Tag(name = "GeoIP", description = "GeoIP lookups", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/geoip", description = "GeoIP documentation"))
+@Tag(name = "GeoIP", description = "GeoIP lookups")
 @RestController
 @RequestMapping(value = GEOIP_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class GeoIpController
@@ -52,7 +51,7 @@ public class GeoIpController
 	}
 
 	@GetMapping("/{ip}")
-	@Operation(summary = "Get the ISO country code of the IP address.")
+	@Operation(summary = "Gets the ISO country code of an IP address")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	@ApiResponse(responseCode = "404", description = "No country found for IP address", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public CountryResponse getIsoCountry(@PathVariable String ip)

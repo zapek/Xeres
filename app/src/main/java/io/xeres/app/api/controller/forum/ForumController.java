@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.api.controller.forum;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -52,7 +51,7 @@ import java.util.stream.Collectors;
 import static io.xeres.app.database.model.forum.ForumMapper.*;
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
-@Tag(name = "Forums", description = "Forums", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/forums", description = "Forums documentation"))
+@Tag(name = "Forums", description = "Forums")
 @RestController
 @RequestMapping(value = FORUMS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ForumController
@@ -69,15 +68,14 @@ public class ForumController
 	}
 
 	@GetMapping("/groups")
-	@Operation(summary = "Get the list of forums")
-	@ApiResponse(responseCode = "200", description = "Request successful")
+	@Operation(summary = "Gets the list of forums")
 	public List<ForumGroupDTO> getForumGroups()
 	{
 		return toDTOs(forumRsService.findAllGroups());
 	}
 
 	@PostMapping("/groups")
-	@Operation(summary = "Create a forum")
+	@Operation(summary = "Creates a forum")
 	@ApiResponse(responseCode = "201", description = "Forum created successfully", headers = @Header(name = "Forum", description = "The location of the created forum", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateForumGroupRequest createForumGroupRequest)
 	{
@@ -89,7 +87,7 @@ public class ForumController
 	}
 
 	@GetMapping("/groups/{groupId}")
-	@Operation(summary = "Get a forum details")
+	@Operation(summary = "Gets the details of a forum")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ForumGroupDTO getForumGroupById(@PathVariable long groupId)
 	{
@@ -97,14 +95,15 @@ public class ForumController
 	}
 
 	@PutMapping("/groups/{groupId}/subscription")
-	@ResponseStatus(HttpStatus.OK)
-	public long subscribeToForumGroup(@PathVariable long groupId)
+	@Operation(summary = "Subscribes to a forum")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void subscribeToForumGroup(@PathVariable long groupId)
 	{
 		forumRsService.subscribeToForumGroup(groupId);
-		return groupId;
 	}
 
 	@DeleteMapping("/groups/{groupId}/subscription")
+	@Operation(summary = "Unsubscribes from a forum")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void unsubscribeFromForumGroup(@PathVariable long groupId)
 	{
@@ -112,8 +111,7 @@ public class ForumController
 	}
 
 	@GetMapping("/groups/{groupId}/messages")
-	@Operation(summary = "Get the summary of messages in a group")
-	@ApiResponse(responseCode = "200", description = "Request successful")
+	@Operation(summary = "Gets the summary of messages in a group")
 	public List<ForumMessageDTO> getForumMessages(@PathVariable long groupId)
 	{
 		var forumMessages = forumRsService.findAllMessagesSummary(groupId);
@@ -124,7 +122,7 @@ public class ForumController
 	}
 
 	@GetMapping("/messages/{messageId}")
-	@Operation(summary = "Get a message")
+	@Operation(summary = "Gets a message")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
@@ -149,7 +147,7 @@ public class ForumController
 	}
 
 	@PostMapping("/messages")
-	@Operation(summary = "Create a forum message")
+	@Operation(summary = "Creates a forum message")
 	@ApiResponse(responseCode = "201", description = "Forum message created successfully", headers = @Header(name = "Message", description = "The location of the created message", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createForumMessage(@Valid @RequestBody CreateForumMessageRequest createMessageRequest)
 	{

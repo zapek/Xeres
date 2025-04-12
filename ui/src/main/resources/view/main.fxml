@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -179,6 +179,11 @@
                             <MenuItem fx:id="launchWebInterface" mnemonicParsing="false" text="Web Interface">
                                 <graphic>
                                     <FontIcon iconLiteral="mdi2w-web"/>
+                                </graphic>
+                            </MenuItem>
+                            <MenuItem fx:id="launchSwagger" mnemonicParsing="false" text="REST API">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2a-api"/>
                                 </graphic>
                             </MenuItem>
                             <MenuItem fx:id="h2Console" text="H2 Console">

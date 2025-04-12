@@ -19,7 +19,6 @@
 
 package io.xeres.app.api.controller.location;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,7 +41,7 @@ import java.awt.image.BufferedImage;
 import static io.xeres.app.database.model.location.LocationMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.LOCATIONS_PATH;
 
-@Tag(name = "Location", description = "Local instance", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/location", description = "Location documentation"))
+@Tag(name = "Location", description = "Local instance")
 @RestController
 @RequestMapping(value = LOCATIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class LocationController
@@ -58,7 +57,7 @@ public class LocationController
 	}
 
 	@GetMapping("/{id}")
-	@Operation(summary = "Return a location")
+	@Operation(summary = "Returns a location")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Location not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public LocationDTO findLocationById(@PathVariable long id)
@@ -67,7 +66,7 @@ public class LocationController
 	}
 
 	@GetMapping("/{id}/rs-id")
-	@Operation(summary = "Return a location's RSId")
+	@Operation(summary = "Returns a location's RSId")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public RSIdResponse getRSIdOfLocation(@PathVariable long id, @RequestParam(value = "type", required = false) Type type)
@@ -78,7 +77,7 @@ public class LocationController
 	}
 
 	@GetMapping(value = "/{id}/rs-id/qr-code", produces = MediaType.IMAGE_PNG_VALUE)
-	@Operation(summary = "Return a location's RSId as a QR code")
+	@Operation(summary = "Returns a location's RSId as a QR code")
 	@ApiResponse(responseCode = "200", description = "Location found")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<BufferedImage> getRSIdOfLocationAsQrCode(@PathVariable long id)

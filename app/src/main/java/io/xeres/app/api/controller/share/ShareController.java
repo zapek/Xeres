@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.api.controller.share;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,7 +42,7 @@ import static io.xeres.app.database.model.share.ShareMapper.fromDTOs;
 import static io.xeres.app.database.model.share.ShareMapper.toDTOs;
 import static io.xeres.common.rest.PathConfig.SHARES_PATH;
 
-@Tag(name = "Share", description = "File shares", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/share", description = "Shares documentation"))
+@Tag(name = "Share", description = "File shares")
 @RestController
 @RequestMapping(value = SHARES_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ShareController
@@ -56,7 +55,7 @@ public class ShareController
 	}
 
 	@GetMapping
-	@Operation(summary = "Return all shares", description = "Return all configured shares")
+	@Operation(summary = "Returns all shares", description = "Return all configured shares")
 	@ApiResponse(responseCode = "200", description = "All shares")
 	public List<ShareDTO> getShares()
 	{
@@ -65,7 +64,7 @@ public class ShareController
 	}
 
 	@PostMapping
-	@Operation(summary = "Add/Update shares")
+	@Operation(summary = "Adds/Updates shares")
 	@ApiResponse(responseCode = "201", description = "Shares created/updated successfully")
 	@ApiResponse(responseCode = "422", description = "Shares cannot be processed", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -76,10 +75,11 @@ public class ShareController
 	}
 
 	@PostMapping("/temporary")
-	@Operation(summary = "Add a file to share temporarily")
+	@Operation(summary = "Adds a file to share temporarily")
 	@ApiResponse(responseCode = "200", description = "File added to temporary share successfully")
 	public String shareTemporarily(@Valid @RequestBody String filePath)
 	{
+		//noinspection JvmTaintAnalysis
 		var path = Paths.get(filePath);
 		var hash = fileService.calculateTemporaryFileHash(path);
 

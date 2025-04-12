@@ -189,8 +189,8 @@ dependencies {
     implementation 'com.maxmind.geoip2:geoip2:4.2.1'
     implementation "com.google.zxing:javase:$zxingVersion"
     implementation 'com.sangupta:bloomfilter:0.9.0'
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
-    developmentOnly "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -21,6 +21,7 @@
 
 <?import atlantafx.base.controls.Card?>
 <?import atlantafx.base.controls.PasswordTextField?>
+<?import io.xeres.ui.custom.DisclosedHyperlink?>
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
@@ -50,6 +51,8 @@
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.remote.enabled.tip"/>
                     </tooltip>
                 </CheckBox>
+
+                <DisclosedHyperlink GridPane.halignment="RIGHT" fx:id="viewApi" GridPane.columnIndex="1" text="View API" styleClass="text-small"/>
 
                 <Label text="%settings.network.port" GridPane.rowIndex="1">
                     <GridPane.margin>

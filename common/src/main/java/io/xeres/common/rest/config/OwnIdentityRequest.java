@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.common.rest.config;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -28,6 +29,7 @@ import static io.xeres.common.dto.identity.IdentityConstants.NAME_LENGTH_MIN;
 public record OwnIdentityRequest(
 		@NotNull
 		@Size(min = NAME_LENGTH_MIN, max = NAME_LENGTH_MAX)
+		@Schema(example = "SuperCoolIdentity")
 		String name,
 
 		boolean anonymous

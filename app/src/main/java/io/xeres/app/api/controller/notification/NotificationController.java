@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,7 @@
 
 package io.xeres.app.api.controller.notification;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.notification.availability.AvailabilityNotificationService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
@@ -38,7 +36,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import static io.xeres.common.rest.PathConfig.NOTIFICATIONS_PATH;
 
-@Tag(name = "Notification", description = "Out of band notifications", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/notification", description = "Notification documentation"))
+@Tag(name = "Notification", description = "Out of band notifications")
 @RestController
 @RequestMapping(value = NOTIFICATIONS_PATH, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public class NotificationController
@@ -63,56 +61,49 @@ public class NotificationController
 	}
 
 	@GetMapping("/status")
-	@Operation(summary = "Subscribe to status notifications")
-	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@Operation(summary = "Subscribes to status notifications")
 	public SseEmitter setupStatusNotification()
 	{
 		return statusNotificationService.addClient();
 	}
 
 	@GetMapping("/forum")
-	@Operation(summary = "Subscribe to forum notifications")
-	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@Operation(summary = "Subscribes to forum notifications")
 	public SseEmitter setupForumNotification()
 	{
 		return forumNotificationService.addClient();
 	}
 
 	@GetMapping("/file")
-	@Operation(summary = "Subscribe to file notifications")
-	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@Operation(summary = "Subscribes to file notifications")
 	public SseEmitter setupFileNotification()
 	{
 		return fileNotificationService.addClient();
 	}
 
 	@GetMapping("/file-search")
-	@Operation(summary = "Subscribe to file search notifications")
-	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@Operation(summary = "Subscribes to file search notifications")
 	public SseEmitter setupFileSearchNotification()
 	{
 		return fileSearchNotificationService.addClient();
 	}
 
 	@GetMapping("/file-trend")
-	@Operation(summary = "Subscribe to file trend notifications")
-	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@Operation(summary = "Subscribes to file trend notifications")
 	public SseEmitter setupFileTrendNotification()
 	{
 		return fileTrendNotificationService.addClient();
 	}
 
 	@GetMapping("/contact")
-	@Operation(summary = "Subscribe to contact notifications")
-	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@Operation(summary = "Subscribes to contact notifications")
 	public SseEmitter setupContactNotification()
 	{
 		return contactNotificationService.addClient();
 	}
 
 	@GetMapping("/availability")
-	@Operation(summary = "Subscribe to connection notifications")
-	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@Operation(summary = "Subscribes to connection notifications")
 	public SseEmitter setupConnectionNotification()
 	{
 		return availabilityNotificationService.addClient();

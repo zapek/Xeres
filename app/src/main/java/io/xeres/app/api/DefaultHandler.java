@@ -60,7 +60,7 @@ import java.util.Optional;
 				contact = @Contact(name = "Xeres", url = "https://xeres.io"),
 				description = """
 						This is the REST interface for controlling the application. Don't forget to use the _Authorize_ button on the right to enter the same
-						credentials as the ones in _Settings / Remote_ (you can cut & paste).
+						credentials as the ones in _Settings / Remote_ (you can cut & paste, don't forget to make the password visible first or it will copy asterisks).
 						
 						**Note**: because some swagger-ui developers are [braindead](https://github.com/swagger-api/swagger-ui/issues/2030), 64-bit values output are truncated to 53-bit ones.
 						"""

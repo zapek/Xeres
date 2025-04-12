@@ -152,6 +152,5 @@ public class SettingsRemoteController implements SettingsController
 		username.setDisable(!selected);
 		password.setDisable(!selected);
 		remoteUpnpEnabled.setDisable(noUpnp || !selected);
-		UiUtils.setPresent(viewApi, selected);
 	}
 }

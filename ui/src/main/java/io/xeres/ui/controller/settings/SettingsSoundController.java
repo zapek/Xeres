@@ -147,7 +147,7 @@ public class SettingsSoundController implements SettingsController
 		if (parent != null)
 		{
 			var file = parent.toFile();
-			if (file.exists() && file.isDirectory())
+			if (file.isDirectory())
 			{
 				fileChooser.setInitialDirectory(file);
 			}

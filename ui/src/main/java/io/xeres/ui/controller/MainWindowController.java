@@ -131,6 +131,9 @@ public class MainWindowController implements WindowController
 	private MenuItem launchWebInterface;
 
 	@FXML
+	private MenuItem launchSwagger;
+
+	@FXML
 	private MenuItem exitApplication;
 
 	@FXML
@@ -263,6 +266,7 @@ public class MainWindowController implements WindowController
 		showQrCodeButton.setOnAction(event -> showQrCode());
 
 		launchWebInterface.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl()));
+		launchSwagger.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
 
 		showDocumentation.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
 		webHelpButton.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));

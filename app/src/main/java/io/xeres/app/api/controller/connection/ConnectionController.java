@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,8 +19,9 @@
 
 package io.xeres.app.api.controller.connection;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.location.Location;
@@ -32,6 +33,7 @@ import io.xeres.common.rest.connection.ConnectionRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,7 +42,7 @@ import static io.xeres.app.database.model.profile.ProfileMapper.toDeepDTOs;
 import static io.xeres.common.rest.PathConfig.CONNECTIONS_PATH;
 import static java.util.function.Predicate.not;
 
-@Tag(name = "Connection", description = "Connected peers", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/connection", description = "Connection documentation"))
+@Tag(name = "Connection", description = "Connected peers")
 @RestController
 @RequestMapping(value = CONNECTIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConnectionController
@@ -55,8 +57,7 @@ public class ConnectionController
 	}
 
 	@GetMapping("/profiles")
-	@Operation(summary = "Get all connected profiles")
-	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@Operation(summary = "Gets all currently connected profiles")
 	public List<ProfileDTO> getConnectedProfiles()
 	{
 		return toDeepDTOs(locationService.getConnectedLocations().stream()
@@ -66,8 +67,9 @@ public class ConnectionController
 	}
 
 	@PutMapping("/connect")
-	@Operation(summary = "Attempt to connect")
+	@Operation(summary = "Attempts to connect to a location")
 	@ApiResponse(responseCode = "200", description = "Request completed successfully")
+	@ApiResponse(responseCode = "404", description = "No location found for given identifier", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> connect(@Valid @RequestBody ConnectionRequest connectionRequest)
 	{
 		var location = locationService.findLocationByLocationIdentifier(LocationIdentifier.fromString(connectionRequest.locationIdentifier())).orElseThrow();

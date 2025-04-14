@@ -34,6 +34,7 @@ import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
+import io.xeres.ui.custom.StickerClickedEvent;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.chat.ChatCommand;
@@ -94,7 +95,9 @@ public class MessagingWindowController implements WindowController
 
 	private static final int IMAGE_WIDTH_MAX = 800;
 	private static final int IMAGE_HEIGHT_MAX = 600;
-	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct
+	private static final int STICKER_WIDTH_MAX = 256;
+	private static final int STICKER_HEIGHT_MAX = 256;
+	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct (I think it's more...)
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
@@ -171,6 +174,18 @@ public class MessagingWindowController implements WindowController
 
 		send.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		TextInputControlUtils.addEnhancedInputContextMenu(send, null, this::handlePaste);
+
+		send.addEventHandler(StickerClickedEvent.STICKER_CLICKED, event -> CompletableFuture.runAsync(() -> {
+			try (var inputStream = new FileInputStream(event.getPath().toFile()))
+			{
+				var imageView = new ImageView(new Image(inputStream));
+				Platform.runLater(() -> sendStickerToMessage(imageView));
+			}
+			catch (IOException e)
+			{
+				log.error("Couldn't send the sticker: {}", e.getMessage());
+			}
+		}));
 
 		addImage.setOnAction(event -> {
 			var fileChooser = new FileChooser();
@@ -548,6 +563,13 @@ public class MessagingWindowController implements WindowController
 	{
 		ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
 		sendMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		imageView.setImage(null);
+	}
+
+	private void sendStickerToMessage(ImageView imageView)
+	{
+		ImageUtils.limitMaximumImageSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
+		sendMessage("<img src=\"" + ImageUtils.writeImageAsPngData(imageView.getImage()) + "\"/>");
 		imageView.setImage(null);
 	}
 

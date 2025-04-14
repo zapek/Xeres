@@ -500,7 +500,7 @@ public class ForumViewController implements Controller
 		if (!alreadySubscribed)
 		{
 			forumClient.subscribeToForumGroup(forumGroup.getId())
-					.doOnSuccess(forumId -> {
+					.doOnSuccess(unused -> {
 						forumGroup.setSubscribed(true);
 						addOrUpdate(subscribedForums.getChildren(), forumGroup);
 					})

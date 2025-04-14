@@ -21,7 +21,9 @@ package io.xeres.app.api.controller.chat;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,6 +50,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -66,7 +69,7 @@ import static io.xeres.app.database.model.chat.ChatMapper.toDTO;
 import static io.xeres.app.database.model.location.LocationMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.CHAT_PATH;
 
-@Tag(name = "Chat", description = "Chat service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/chat", description = "Chat documentation"))
+@Tag(name = "Chat", description = "Chat rooms, private messages, distant chats, ...", externalDocs = @ExternalDocumentation(url = "https://github.com/zapek/Xeres/wiki/Chat", description = "Chat protocol"))
 @RestController
 @RequestMapping(value = CHAT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ChatController
@@ -90,8 +93,8 @@ public class ChatController
 	}
 
 	@PostMapping("/rooms")
-	@Operation(summary = "Create a chat room")
-	@ApiResponse(responseCode = "201", description = "Room created successfully", headers = @Header(name = "Room", description = "The location of the created room", schema = @Schema(type = "string")))
+	@Operation(summary = "Creates a chat room")
+	@ApiResponse(responseCode = "201", description = "Chat room created successfully", headers = @Header(name = "Room", description = "The location of the created chat room", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createChatRoom(@Valid @RequestBody CreateChatRoomRequest createChatRoomRequest)
 	{
 		var id = chatRsService.createChatRoom(createChatRoomRequest.name(),
@@ -104,8 +107,7 @@ public class ChatController
 	}
 
 	@PostMapping("/rooms/invite")
-	@Operation(summary = "Invite locations to a chat room")
-	@ApiResponse(responseCode = "200", description = "Peers invited successfully")
+	@Operation(summary = "Invites one or several locations to a chat room")
 	public void inviteToChatRoom(@Valid @RequestBody InviteToChatRoomRequest inviteToChatRoomRequest)
 	{
 		chatRsService.inviteLocationsToChatRoom(inviteToChatRoomRequest.chatRoomId(), inviteToChatRoomRequest.locationIdentifiers().stream()
@@ -114,32 +116,33 @@ public class ChatController
 	}
 
 	@PutMapping("/rooms/{id}/subscription")
-	@ResponseStatus(HttpStatus.OK)
-	public long subscribeToChatRoom(@PathVariable long id)
+	@Operation(summary = "Subscribes to a chat room")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void subscribeToChatRoom(@PathVariable @Parameter(description = "The room's unique 64-bit identifier") long id)
 	{
 		chatRsService.joinChatRoom(id);
-		return id;
 	}
 
 	@DeleteMapping("/rooms/{id}/subscription")
+	@Operation(summary = "Unsubscribes from a chat room")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void unsubscribeFromChatRoom(@PathVariable long id)
+	public void unsubscribeFromChatRoom(@PathVariable @Parameter(description = "The room's unique 64-bit identifier") long id)
 	{
 		chatRsService.leaveChatRoom(id);
 	}
 
 	@GetMapping("/rooms")
-	@Operation(summary = "Get a chat room context (all rooms, status, current nickname, etc...)")
-	@ApiResponse(responseCode = "200", description = "Request successful")
+	@Operation(summary = "Gets a chat room context", description = "The context contains all rooms, status, current nickname, etc...")
 	public ChatRoomContextDTO getChatRoomContext()
 	{
 		return toDTO(chatRsService.getChatRoomContext());
 	}
 
 	@GetMapping("/rooms/{roomId}/messages")
-	@Operation(summary = "Get the chat room messages backlog")
-	@ApiResponse(responseCode = "200", description = "Request successful")
-	public List<ChatRoomBacklogDTO> getChatRoomMessages(@PathVariable long roomId,
+	@Operation(summary = "Gets the chat room messages backlog")
+	@ApiResponse(responseCode = "200", description = "OK")
+	@ApiResponse(responseCode = "404", description = "No room found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public List<ChatRoomBacklogDTO> getChatRoomMessages(@PathVariable @Parameter(description = "The room's unique 64-bit identifier") long roomId,
 	                                                    @RequestParam(value = "maxLines", required = false) @Min(1) @Max(500) Integer maxLines,
 	                                                    @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from)
 	{
@@ -150,9 +153,10 @@ public class ChatController
 	}
 
 	@GetMapping("/chats/{locationId}/messages")
-	@Operation(summary = "Get the chat messages backlog")
-	@ApiResponse(responseCode = "200", description = "Request successful")
-	public List<ChatBacklogDTO> getChatMessages(@PathVariable long locationId,
+	@Operation(summary = "Gets the private chat messages backlog")
+	@ApiResponse(responseCode = "200", description = "OK")
+	@ApiResponse(responseCode = "404", description = "No location found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public List<ChatBacklogDTO> getChatMessages(@PathVariable @Parameter(description = "The location id") long locationId,
 	                                            @RequestParam(value = "maxLines", required = false) @Min(1) @Max(500) Integer maxLines,
 	                                            @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from)
 	{
@@ -164,17 +168,20 @@ public class ChatController
 	}
 
 	@DeleteMapping("/chats/{locationId}/messages")
+	@Operation(summary = "Clears the private chat messages backlog of a given location")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteChatMessages(@PathVariable long locationId)
+	@ApiResponse(responseCode = "404", description = "No location found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public void deleteChatMessages(@PathVariable @Parameter(description = "The location id") long locationId)
 	{
 		var location = locationService.findLocationById(locationId).orElseThrow();
 		chatBacklogService.deleteMessages(location);
 	}
 
 	@PostMapping("/distant-chats")
-	@Operation(summary = "Create a distant chat")
-	@ApiResponse(responseCode = "200", description = "Request successful")
-	@ApiResponse(responseCode = "409", description = "Tunnel already exists")
+	@Operation(summary = "Creates a distant chat")
+	@ApiResponse(responseCode = "200", description = "OK")
+	@ApiResponse(responseCode = "404", description = "No identity found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "409", description = "Tunnel already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public LocationDTO createDistantChat(@Valid @RequestBody DistantChatRequest distantChatRequest)
 	{
 		var identity = identityService.findById(distantChatRequest.identityId()).orElseThrow();
@@ -187,7 +194,9 @@ public class ChatController
 	}
 
 	@DeleteMapping("/distant-chats/{identityId}")
+	@Operation(summary = "Closes a distant chat")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ApiResponse(responseCode = "404", description = "No identity found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	void closeDistantChat(@PathVariable long identityId)
 	{
 		var identity = identityService.findById(identityId).orElseThrow();
@@ -197,25 +206,28 @@ public class ChatController
 		}
 	}
 
-	@GetMapping("/distant-chats/{gxsId}/messages")
-	@Operation(summary = "Get the distant chat messages backlog")
-	@ApiResponse(responseCode = "200", description = "Request successful")
-	public List<ChatBacklogDTO> getDistantChatMessages(@PathVariable long gxsId,
+	@GetMapping("/distant-chats/{identityId}/messages")
+	@Operation(summary = "Gets the distant chat messages backlog of a given identity")
+	@ApiResponse(responseCode = "200", description = "OK")
+	@ApiResponse(responseCode = "404", description = "No identity found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public List<ChatBacklogDTO> getDistantChatMessages(@PathVariable @Parameter(description = "The identity id") long identityId,
 	                                                   @RequestParam(value = "maxLines", required = false) @Min(1) @Max(500) Integer maxLines,
 	                                                   @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from)
 	{
-		var identity = identityService.findById(gxsId).orElseThrow();
+		var identity = identityService.findById(identityId).orElseThrow();
 		return fromDistantChatBacklogToChatBacklogDTOs(chatBacklogService.getDistantMessages(
 				identity,
 				from != null ? from.toInstant(ZoneOffset.UTC) : Instant.now().minus(PRIVATE_CHAT_DEFAULT_DURATION),
 				maxLines != null ? maxLines : PRIVATE_CHAT_DEFAULT_MAX_LINES));
 	}
 
-	@DeleteMapping("/distant-chats/{gxsId}/messages")
+	@DeleteMapping("/distant-chats/{identityId}/messages")
+	@Operation(summary = "Clears the distant chat messages backlog of a given identity")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteDistantChatMessages(@PathVariable long gxsId)
+	@ApiResponse(responseCode = "404", description = "No identity found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public void deleteDistantChatMessages(@PathVariable @Parameter(description = "The identity id") long identityId)
 	{
-		var identity = identityService.findById(gxsId).orElseThrow();
+		var identity = identityService.findById(identityId).orElseThrow();
 		chatBacklogService.deleteDistantMessages(identity);
 	}
 }

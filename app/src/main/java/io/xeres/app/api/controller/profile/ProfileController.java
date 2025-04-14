@@ -19,7 +19,6 @@
 
 package io.xeres.app.api.controller.profile;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -60,7 +59,7 @@ import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
 import static io.xeres.common.rsid.Type.ANY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@Tag(name = "Profile", description = "User's profiles", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/profile", description = "Profile documentation"))
+@Tag(name = "Profile", description = "User's profiles")
 @RestController
 @RequestMapping(value = PROFILES_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProfileController
@@ -84,7 +83,7 @@ public class ProfileController
 	}
 
 	@GetMapping("/{id}")
-	@Operation(summary = "Return a profile")
+	@Operation(summary = "Returns a profile")
 	@ApiResponse(responseCode = "200", description = "Profile found")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ProfileDTO findProfileById(@PathVariable long id)
@@ -93,7 +92,7 @@ public class ProfileController
 	}
 
 	@GetMapping("/{id}/key-attributes")
-	@Operation(summary = "Return the profile's key attributes")
+	@Operation(summary = "Returns the profile's key attributes")
 	@ApiResponse(responseCode = "200", description = "Profile found")
 	@ApiResponse(responseCode = "400", description = "Error in the profile's key")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -103,7 +102,7 @@ public class ProfileController
 	}
 
 	@GetMapping(value = "/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-	@Operation(summary = "Return a profile's avatar image (currently an identicon)")
+	@Operation(summary = "Returns a profile's avatar image (currently an identicon)")
 	@ApiResponse(responseCode = "200", description = "Profile's avatar image found")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<InputStreamResource> downloadImage(@PathVariable long id)
@@ -117,7 +116,7 @@ public class ProfileController
 	}
 
 	@GetMapping
-	@Operation(summary = "Search all profiles", description = "If no search parameters are provided, return all profiles")
+	@Operation(summary = "Searches all profiles", description = "If no search parameters are provided, return all profiles")
 	@ApiResponse(responseCode = "200", description = "All matched profiles")
 	public List<ProfileDTO> findProfiles(@RequestParam(value = "name", required = false) String name,
 	                                     @RequestParam(value = "locationIdentifier", required = false) String locationIdentifierString,
@@ -137,7 +136,7 @@ public class ProfileController
 	}
 
 	@PostMapping
-	@Operation(summary = "Create a profile and its possible location from an RS ID")
+	@Operation(summary = "Creates a profile and its possible location from an RS ID")
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "location", description = "the location of the profile"))
 	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -177,7 +176,7 @@ public class ProfileController
 	}
 
 	@PostMapping("/check")
-	@Operation(summary = "Check an RS ID")
+	@Operation(summary = "Checks an RS ID")
 	@ApiResponse(responseCode = "200", description = "RS ID is OK")
 	@ApiResponse(responseCode = "422", description = "RS ID cannot be processed", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -188,7 +187,7 @@ public class ProfileController
 	}
 
 	@PutMapping("/{id}/trust")
-	@Operation(summary = "Set the trust of a profile")
+	@Operation(summary = "Sets the trust of a profile")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void setTrust(@PathVariable long id, @RequestBody Trust trust)
 	{
@@ -207,7 +206,7 @@ public class ProfileController
 	}
 
 	@DeleteMapping("/{id}")
-	@Operation(summary = "Delete a profile")
+	@Operation(summary = "Deletes a profile")
 	@ApiResponse(responseCode = "200", description = "Profile successfully deleted")
 	@ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ResponseStatus(HttpStatus.NO_CONTENT)

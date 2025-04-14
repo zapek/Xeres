@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.common.rest.chat;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -28,6 +29,7 @@ public record InviteToChatRoomRequest(
 		@NotNull
 		Long chatRoomId,
 
+		@Schema(example = "[\"463652d6dec7497d3c10cfe5de036ecf\", \"68105c73086c99f7299023ce4f544511\"]")
 		@NotEmpty
 		Set<String> locationIdentifiers
 )

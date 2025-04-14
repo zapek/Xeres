@@ -21,6 +21,8 @@ package io.xeres.ui.controller.settings;
 
 import atlantafx.base.controls.PasswordTextField;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.common.util.RemoteUtils;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.tray.TrayService;
@@ -50,6 +52,9 @@ public class SettingsRemoteController implements SettingsController
 
 	@FXML
 	private PasswordTextField password;
+
+	@FXML
+	private DisclosedHyperlink viewApi;
 
 	@FXML
 	private TextField port;
@@ -92,6 +97,9 @@ public class SettingsRemoteController implements SettingsController
 		password.setRight(icon);
 
 		remoteEnabled.setOnAction(actionEvent -> checkDisabled());
+
+		UiUtils.linkify(viewApi);
+		viewApi.setUri(RemoteUtils.getControlUrl() + "/swagger-ui/index.html");
 	}
 
 	@Override
@@ -139,9 +147,10 @@ public class SettingsRemoteController implements SettingsController
 
 	private void checkDisabled()
 	{
-		port.setDisable(!remoteEnabled.isSelected());
-		username.setDisable(!remoteEnabled.isSelected());
-		password.setDisable(!remoteEnabled.isSelected());
-		remoteUpnpEnabled.setDisable(noUpnp || !remoteEnabled.isSelected());
+		var selected = remoteEnabled.isSelected();
+		port.setDisable(!selected);
+		username.setDisable(!selected);
+		password.setDisable(!selected);
+		remoteUpnpEnabled.setDisable(noUpnp || !selected);
 	}
 }

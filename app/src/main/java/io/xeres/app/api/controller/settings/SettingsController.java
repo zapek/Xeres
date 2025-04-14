@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,9 +20,7 @@
 package io.xeres.app.api.controller.settings;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.SettingsService;
 import io.xeres.common.dto.settings.SettingsDTO;
@@ -33,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import static io.xeres.app.database.model.settings.SettingsMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.SETTINGS_PATH;
 
-@Tag(name = "Settings", description = "Persisted settings", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/settings", description = "Settings documentation"))
+@Tag(name = "Settings", description = "Persisted settings")
 @RestController
 @RequestMapping(value = SETTINGS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SettingsController
@@ -46,14 +44,14 @@ public class SettingsController
 	}
 
 	@GetMapping
-	@Operation(summary = "Get the current settings.")
-	@ApiResponse(responseCode = "200", description = "Request successful")
+	@Operation(summary = "Gets the current settings")
 	public SettingsDTO getSettings()
 	{
 		return settingsService.getSettings();
 	}
 
 	@PatchMapping(consumes = "application/json-patch+json")
+	@Operation(summary = "Updates the settings")
 	public ResponseEntity<SettingsDTO> updateSettings(@RequestBody JsonPatch jsonPatch)
 	{
 		var newSettings = settingsService.applyPatchToSettings(jsonPatch);

@@ -19,15 +19,14 @@
 
 package io.xeres.app.api;
 
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
 import jakarta.annotation.Nonnull;
@@ -46,16 +45,31 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 @RestControllerAdvice
 @OpenAPIDefinition(
 		info = @Info(
-				title = AppName.NAME + " API definition",
+				title = AppName.NAME,
 				version = "0.1",
-				description = "This is the REST API available for UI clients.",
+				summary = "A decentralized and secure application for communication and sharing",
 				license = @License(name = "GPL v3", url = "https://www.gnu.org/licenses/gpl-3.0.en.html"),
-				contact = @Contact(url = "https://zapek.com", name = "David Gerber", email = "dg@zapek.com")
+				contact = @Contact(name = "Xeres", url = "https://xeres.io"),
+				description = """
+						This is the REST interface for controlling the application. Don't forget to use the _Authorize_ button on the right to enter the same
+						credentials as the ones in _Settings / Remote_ (you can cut & paste, don't forget to make the password visible first or it will copy asterisks).
+						
+						**Note**: because some swagger-ui developers are [braindead](https://github.com/swagger-api/swagger-ui/issues/2030), 64-bit values output are truncated to 53-bit ones.
+						"""
+		),
+		security = @SecurityRequirement(
+				name = "api" // Mark all endpoints as authenticated. Otherwise, remove and add @SecurityRequirement(name = "api") separately to all controller classes or methods
 		)
 )
+@SecurityScheme(name = "api", scheme = "basic", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
 public class DefaultHandler extends ResponseEntityExceptionHandler
 {
 	private static final Logger log = LoggerFactory.getLogger(DefaultHandler.class);

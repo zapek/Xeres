@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.api.controller.file;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +37,7 @@ import java.util.List;
 
 import static io.xeres.common.rest.PathConfig.FILES_PATH;
 
-@Tag(name = "File", description = "File service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/file", description = "File documentation"))
+@Tag(name = "File", description = "File service")
 @RestController
 @RequestMapping(value = FILES_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class FileController
@@ -51,15 +50,14 @@ public class FileController
 	}
 
 	@PostMapping("/search")
-	@Operation(summary = "Search for files")
-	@ApiResponse(responseCode = "200", description = "Search created successfully")
+	@Operation(summary = "Searches for files")
 	public FileSearchResponse search(@Valid @RequestBody FileSearchRequest fileSearchRequest)
 	{
 		return new FileSearchResponse(fileTransferRsService.turtleSearch(fileSearchRequest.name()));
 	}
 
 	@PostMapping("/download")
-	@Operation(summary = "Download a file")
+	@Operation(summary = "Downloads a file")
 	@ApiResponse(responseCode = "200", description = "Download created successfully")
 	@ApiResponse(responseCode = "400", description = "Invalid hash")
 	public long download(@RequestBody FileDownloadRequest fileDownloadRequest)
@@ -73,24 +71,21 @@ public class FileController
 	}
 
 	@GetMapping("/downloads")
-	@Operation(summary = "Show the current downloads")
-	@ApiResponse(responseCode = "200", description = "Success")
+	@Operation(summary = "Shows the current downloads")
 	public List<FileProgress> getDownloads()
 	{
 		return fileTransferRsService.getDownloadStatistics();
 	}
 
 	@GetMapping("/uploads")
-	@Operation(summary = "Show the current uploads")
-	@ApiResponse(responseCode = "200", description = "Success")
+	@Operation(summary = "Shows the current uploads")
 	public List<FileProgress> getUploads()
 	{
 		return fileTransferRsService.getUploadStatistics();
 	}
 
 	@DeleteMapping("/downloads/{id}")
-	@Operation(summary = "Remove/cancel a download")
-	@ApiResponse(responseCode = "200", description = "Download removed successfully")
+	@Operation(summary = "Removes/cancels a download")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void removeDownload(@PathVariable long id)
 	{

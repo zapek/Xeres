@@ -19,24 +19,6 @@
 
 package io.xeres.app.api.controller.chat;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.xeres.common.rest.PathConfig.CHAT_PATH;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.chat.ChatBacklog;
 import io.xeres.app.database.model.chat.ChatRoomBacklog;
@@ -63,6 +45,24 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.xeres.common.rest.PathConfig.CHAT_PATH;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ChatController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -121,8 +121,7 @@ class ChatControllerTest extends AbstractControllerTest
 		var id = 1L;
 
 		mvc.perform(put(BASE_URL + "/rooms/" + id + "/subscription"))
-				.andExpect(status().isOk())
-				.andExpect(content().string(String.valueOf(id)));
+				.andExpect(status().isNoContent());
 
 		verify(chatRsService).joinChatRoom(id);
 	}

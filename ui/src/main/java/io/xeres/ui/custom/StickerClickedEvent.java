@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,31 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.config;
+package io.xeres.ui.custom;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import javafx.event.Event;
+import javafx.event.EventType;
 
-import static io.xeres.common.dto.identity.IdentityConstants.NAME_LENGTH_MAX;
-import static io.xeres.common.dto.identity.IdentityConstants.NAME_LENGTH_MIN;
+import java.io.Serial;
+import java.nio.file.Path;
 
-public record OwnIdentityRequest(
-		@NotNull
-		@Size(min = NAME_LENGTH_MIN, max = NAME_LENGTH_MAX)
-		@Schema(example = "SuperCoolIdentity")
-		String name,
-
-		boolean anonymous
-)
+public class StickerClickedEvent extends Event
 {
+	@Serial
+	private static final long serialVersionUID = -1377318297476370274L;
+
+	public static final EventType<StickerClickedEvent> STICKER_CLICKED = new EventType<>(ANY, "STICKER_CLICKED");
+
+	private final Path path;
+
+	public StickerClickedEvent(Path path)
+	{
+		super(STICKER_CLICKED);
+		this.path = path;
+	}
+
+	public Path getPath()
+	{
+		return path;
+	}
 }

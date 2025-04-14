@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,7 @@
 
 package io.xeres.app.api.controller.contact;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.ContactService;
 import io.xeres.common.rest.contact.Contact;
@@ -34,7 +32,7 @@ import java.util.List;
 
 import static io.xeres.common.rest.PathConfig.CONTACT_PATH;
 
-@Tag(name = "Contact", description = "Contact service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/contact", description = "Contact documentation"))
+@Tag(name = "Contact", description = "Contacts")
 @RestController
 @RequestMapping(value = CONTACT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ContactController
@@ -47,8 +45,7 @@ public class ContactController
 	}
 
 	@GetMapping("")
-	@Operation(summary = "Get all the contacts")
-	@ApiResponse(responseCode = "200", description = "Request successful")
+	@Operation(summary = "Gets all the contacts")
 	public List<Contact> getContacts()
 	{
 		return contactService.getContacts();

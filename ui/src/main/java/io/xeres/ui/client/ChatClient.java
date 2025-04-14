@@ -98,12 +98,12 @@ public class ChatClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Long> joinChatRoom(long id)
+	public Mono<Void> joinChatRoom(long id)
 	{
 		return webClient.put()
 				.uri("/rooms/{id}/subscription", id)
 				.retrieve()
-				.bodyToMono(Long.class);
+				.bodyToMono(Void.class);
 	}
 
 	public Mono<Void> leaveChatRoom(long id)
@@ -166,7 +166,7 @@ public class ChatClient
 	public Flux<ChatBacklog> getDistantChatBacklog(long id)
 	{
 		return webClient.get()
-				.uri("/distant-chats/{gxsId}/messages", id)
+				.uri("/distant-chats/{identityId}/messages", id)
 				.retrieve()
 				.bodyToFlux(ChatBacklogDTO.class)
 				.map(ChatMapper::fromDTO);
@@ -175,7 +175,7 @@ public class ChatClient
 	public Mono<Void> deleteDistantChatBacklog(long id)
 	{
 		return webClient.delete()
-				.uri("/distant-chats/{GxsId}/messages", id)
+				.uri("/distant-chats/{identityId}/messages", id)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}

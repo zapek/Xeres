@@ -19,9 +19,7 @@
 
 package io.xeres.app.api.controller.statistics;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.xrs.service.bandwidth.BandwidthRsService;
 import io.xeres.app.xrs.service.rtt.RttRsService;
@@ -37,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static io.xeres.app.api.controller.statistics.StatisticsMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.STATISTICS_PATH;
 
-@Tag(name = "Statistics", description = "Statistics service", externalDocs = @ExternalDocumentation(url = "https://xeres.io/docs/api/statistics", description = "Statistics documentation"))
+@Tag(name = "Statistics", description = "Statistics service")
 @RestController
 @RequestMapping(value = STATISTICS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class StatisticsController
@@ -54,24 +52,21 @@ public class StatisticsController
 	}
 
 	@GetMapping("/turtle")
-	@Operation(summary = "Get turtle statistics")
-	@ApiResponse(responseCode = "200", description = "Request successful")
+	@Operation(summary = "Gets turtle statistics")
 	public TurtleStatisticsResponse getTurtleStatistics()
 	{
 		return toDTO(turtleRsService.getStatistics());
 	}
 
 	@GetMapping("/rtt")
-	@Operation(summary = "Get RTT statistics")
-	@ApiResponse(responseCode = "200", description = "Request successful")
+	@Operation(summary = "Gets RTT statistics")
 	public RttStatisticsResponse getRttStatistics()
 	{
 		return rttRsService.getStatistics();
 	}
 
 	@GetMapping("/data-counter")
-	@Operation(summary = "Get global data counter statistics")
-	@ApiResponse(responseCode = "200", description = "Request successful")
+	@Operation(summary = "Gets global data counter statistics")
 	public DataCounterStatisticsResponse getDataCounterStatistics()
 	{
 		return bandwidthRsService.getDataCounterStatistics();

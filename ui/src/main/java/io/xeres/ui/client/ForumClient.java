@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -88,12 +88,12 @@ public class ForumClient
 				.map(ForumMapper::fromDTO);
 	}
 
-	public Mono<Long> subscribeToForumGroup(long groupId)
+	public Mono<Void> subscribeToForumGroup(long groupId)
 	{
 		return webClient.put()
 				.uri("/groups/{groupId}/subscription", groupId)
 				.retrieve()
-				.bodyToMono(Long.class);
+				.bodyToMono(Void.class);
 	}
 
 	public Mono<Void> unsubscribeFromForumGroup(long groupId)

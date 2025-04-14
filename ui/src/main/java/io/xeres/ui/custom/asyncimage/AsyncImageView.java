@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -184,7 +184,7 @@ public class AsyncImageView extends ImageView
 
 	private static final class LoaderTask
 	{
-		private static final ExecutorService BACKGROUND_EXECUTOR = createExecutor();
+		private static final ExecutorService BACKGROUND_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
 		private final WeakReference<AsyncImageView> imageViewReference;
 		private final String url;
@@ -244,9 +244,9 @@ public class AsyncImageView extends ImageView
 			return false;
 		}
 
-		private LoaderTask(AsyncImageView imageViewReference, String url, Function<String, byte[]> loader, Runnable onSuccess, ImageCache imageCache)
+		private LoaderTask(AsyncImageView asyncImageView, String url, Function<String, byte[]> loader, Runnable onSuccess, ImageCache imageCache)
 		{
-			this.imageViewReference = new WeakReference<>(imageViewReference);
+			imageViewReference = new WeakReference<>(asyncImageView);
 			this.url = url;
 			this.onSuccess = onSuccess;
 			this.imageCache = imageCache;
@@ -357,11 +357,6 @@ public class AsyncImageView extends ImageView
 		public void cancel()
 		{
 			future.cancel(true);
-		}
-
-		private static ExecutorService createExecutor()
-		{
-			return Executors.newVirtualThreadPerTaskExecutor();
 		}
 
 		private static LoaderTask getLoaderTask(AsyncImageView imageView)

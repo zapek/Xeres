@@ -20,8 +20,10 @@
 package io.xeres.ui.support.util;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,7 +151,10 @@ public final class ImageUtils
 			scaleImageView.setFitWidth(width * ratio);
 			scaleImageView.setFitHeight(height * ratio);
 			scaleImageView.setSmooth(true);
-			imageView.setImage(scaleImageView.snapshot(null, null));
+
+			var parameters = new SnapshotParameters();
+			parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
+			imageView.setImage(scaleImageView.snapshot(parameters, null));
 		}
 	}
 

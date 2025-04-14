@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,8 +19,4 @@
 
 .fixed-font {
     -fx-font-family: "Consolas";
-}
-
-.chat-send {
-    -fx-pref-height: 36px; /* this is needed otherwise the widget is too small */
 }

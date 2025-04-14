@@ -34,6 +34,7 @@ import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
+import io.xeres.ui.custom.InputArea;
 import io.xeres.ui.custom.StickerClickedEvent;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
@@ -53,7 +54,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -105,7 +105,7 @@ public class MessagingWindowController implements WindowController
 	private static final KeyCodeCombination SHIFT_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN);
 
 	@FXML
-	private TextArea send;
+	private InputArea send;
 
 	@FXML
 	private TypingNotificationView notification;
@@ -121,6 +121,9 @@ public class MessagingWindowController implements WindowController
 
 	@FXML
 	private Button addFile;
+
+	@FXML
+	private Button addSticker;
 
 	private Availability availability = Availability.AVAILABLE;
 
@@ -217,6 +220,8 @@ public class MessagingWindowController implements WindowController
 				sendFile(selectedFile);
 			}
 		});
+
+		addSticker.setOnAction(event -> send.openStickerSelector());
 
 		lastTypingTimeline = new Timeline(
 				new KeyFrame(Duration.ZERO, event -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), destination.getName()))),
@@ -494,6 +499,7 @@ public class MessagingWindowController implements WindowController
 		UiUtils.setPresent(notice, !online);
 		addImage.setDisable(!online);
 		addFile.setDisable(!online);
+		addSticker.setDisable(!online);
 	}
 
 	private void handleInputKeys(KeyEvent event)
@@ -569,7 +575,7 @@ public class MessagingWindowController implements WindowController
 	private void sendStickerToMessage(ImageView imageView)
 	{
 		ImageUtils.limitMaximumImageSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
-		sendMessage("<img src=\"" + ImageUtils.writeImageAsPngData(imageView.getImage()) + "\"/>");
+		sendMessage("<img src=\"" + ImageUtils.writeImageAsPngData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 		imageView.setImage(null);
 	}
 

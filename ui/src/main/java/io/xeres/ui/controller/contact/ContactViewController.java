@@ -1165,6 +1165,11 @@ public class ContactViewController implements Controller
 
 		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, distantChatItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
 		xContextMenu.setOnShowing((contextMenu, contact) -> {
+			if (contact == null)
+			{
+				return false;
+			}
+
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> {
@@ -1209,7 +1214,7 @@ public class ContactViewController implements Controller
 					.filter(menuItem -> DELETE_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(isSubContact(contact) || contact.getValue().profileId() == NO_PROFILE_ID || contact.getValue().profileId() == OWN_PROFILE_ID));
 
-			return contact != null;
+			return true;
 		});
 		xContextMenu.addToNode(contactTreeTableView);
 	}

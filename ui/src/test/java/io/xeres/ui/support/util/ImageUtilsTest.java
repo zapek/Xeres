@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -47,7 +47,7 @@ class ImageUtilsTest
 	@Test
 	void WriteImageAsPngData_Success()
 	{
-		var pngImage = ImageUtils.writeImageAsPngData(image);
+		var pngImage = ImageUtils.writeImageAsPngData(image, 8192);
 
 		assertTrue(pngImage.startsWith("data:image/png;base64,iVBOR"), pngImage);
 	}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -19,6 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.custom.InputArea?>
 <?import io.xeres.ui.custom.TypingNotificationView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -89,11 +90,11 @@
                             <Insets bottom="4.0" left="8.0" top="4.0"/>
                         </VBox.margin>
                     </TypingNotificationView>
-                    <TextField fx:id="send" styleClass="chat-send">
+                    <InputArea fx:id="send" promptText="%messaging.prompt" VBox.vgrow="NEVER" HBox.hgrow="ALWAYS">
                         <VBox.margin>
                             <Insets top="4.0"/>
                         </VBox.margin>
-                    </TextField>
+                    </InputArea>
                 </VBox>
             </VBox>
         </VBox>

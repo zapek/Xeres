@@ -45,18 +45,28 @@ public final class ImageUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static String writeImageAsPngData(Image image)
+	public static String writeImageAsPngData(Image image, int maximumSize)
 	{
-		var out = new ByteArrayOutputStream();
+		// Quality gains are only marginal (it's lossless after all)... Should be set at 0.1 by default
 		try
 		{
-			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", out);
+			byte[] out;
+			var quality = 0.5f;
+			var bufferedImage = SwingFXUtils.fromFXImage(image, null);
+			do
+			{
+				out = compressBufferedImageToPngArray(bufferedImage, quality);
+				quality -= 0.2f;
+			}
+			while (maximumSize != 0 && Math.ceil((double) out.length / 3) * 4 > maximumSize - 200 && quality > 0); // 200 bytes to be safe as the message might contain tags and so on
+
+			return "data:image/png;base64," + Base64.getEncoder().encodeToString(out);
 		}
 		catch (IOException e)
 		{
 			log.error("Couldn't save image as PNG: {}", e.getMessage());
+			return "";
 		}
-		return "data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray());
 	}
 
 	public static String writeImageAsJpegData(Image image, int maximumSize)
@@ -97,6 +107,24 @@ public final class ImageUtils
 		jpegWriter.write(null, outputImage, jpegWriteParam);
 		var result = out.toByteArray();
 		jpegWriter.dispose();
+		return result;
+	}
+
+	private static byte[] compressBufferedImageToPngArray(BufferedImage image, float quality) throws IOException
+	{
+		var pngWriter = ImageIO.getImageWritersByFormatName("PNG").next();
+		var pngWriteParam = pngWriter.getDefaultWriteParam();
+		pngWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		pngWriteParam.setCompressionQuality(quality);
+
+		var out = new ByteArrayOutputStream();
+
+		var ios = ImageIO.createImageOutputStream(out);
+		pngWriter.setOutput(ios);
+		var outputImage = new IIOImage(image, null, null);
+		pngWriter.write(null, outputImage, pngWriteParam);
+		var result = out.toByteArray();
+		pngWriter.dispose();
 		return result;
 	}
 

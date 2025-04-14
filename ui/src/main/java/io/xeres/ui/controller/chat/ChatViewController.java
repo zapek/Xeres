@@ -28,6 +28,8 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
+import io.xeres.ui.custom.InputArea;
+import io.xeres.ui.custom.StickerClickedEvent;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.chat.ChatCommand;
@@ -65,9 +67,12 @@ import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -75,6 +80,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -89,12 +95,20 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @FxmlView(value = "/view/chat/chatview.fxml")
 public class ChatViewController implements Controller
 {
+	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
+
 	private static final int PREVIEW_IMAGE_WIDTH_MAX = 320;
 	private static final int PREVIEW_IMAGE_HEIGHT_MAX = 240;
+
+	private static final int STICKER_WIDTH_MAX = 96; // This has to be kept small because our PNG writer is pretty bad
+	private static final int STICKER_HEIGHT_MAX = 96;
+
 	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats
 	private static final KeyCodeCombination TAB_KEY = new KeyCodeCombination(KeyCode.TAB);
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination CTRL_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN);
+	private static final KeyCodeCombination SHIFT_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN);
 	private static final KeyCodeCombination ENTER_KEY = new KeyCodeCombination(KeyCode.ENTER);
 	private static final KeyCodeCombination BACKSPACE_KEY = new KeyCodeCombination(KeyCode.BACK_SPACE);
 	private static final String SUBSCRIBED_MENU_ID = "subscribed";
@@ -115,7 +129,7 @@ public class ChatViewController implements Controller
 	private VBox content;
 
 	@FXML
-	private TextField send;
+	private InputArea send;
 
 	@FXML
 	private VBox sendGroup;
@@ -259,6 +273,18 @@ public class ChatViewController implements Controller
 
 		send.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
 		TextInputControlUtils.addEnhancedInputContextMenu(send, locationClient, this::handlePaste);
+
+		send.addEventHandler(StickerClickedEvent.STICKER_CLICKED, event -> CompletableFuture.runAsync(() -> {
+			try (var inputStream = new FileInputStream(event.getPath().toFile()))
+			{
+				var imageView = new ImageView(new Image(inputStream));
+				Platform.runLater(() -> sendStickerToMessage(imageView));
+			}
+			catch (IOException e)
+			{
+				log.error("Couldn't send the sticker: {}", e.getMessage());
+			}
+		}));
 
 		invite.setOnAction(event -> windowManager.openInvite(selectedRoom.getId()));
 
@@ -690,6 +716,12 @@ public class ChatViewController implements Controller
 				event.consume();
 			}
 		}
+		else if (CTRL_ENTER.match(event) || SHIFT_ENTER.match(event) && isNotBlank(send.getText()))
+		{
+			send.insertText(send.getCaretPosition(), "\n");
+			sendTypingNotificationIfNeeded();
+			event.consume();
+		}
 		else if (ENTER_KEY.match(event) && imagePreview.getImage() != null)
 		{
 			sendImage();
@@ -756,6 +788,13 @@ public class ChatViewController implements Controller
 
 		resetPreviewImage();
 		jumpToBottom();
+	}
+
+	private void sendStickerToMessage(ImageView imageView)
+	{
+		ImageUtils.limitMaximumImageSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
+		sendChatMessage("<img src=\"" + ImageUtils.writeImageAsPngData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		imageView.setImage(null);
 	}
 
 	private void cancelImage()

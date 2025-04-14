@@ -73,8 +73,11 @@ public class InputArea extends TextArea
 		popup.setAnchorY(bounds.getMaxY());
 		popup.setAnchorLocation(PopupWindow.AnchorLocation.CONTENT_BOTTOM_LEFT);
 
+		// Proxy the event to the InputArea
 		stickerView.addEventHandler(StickerClickedEvent.STICKER_CLICKED, event -> {
-			log.debug("*** Sticker clicked: {}, filename: {}", event, event.getPath()); // XXX: we want to end up with MessagingWindowController#sendImageViewToMessage() with an ImageView... do the same as stickerView and send some event or so
+			event.consume();
+			fireEvent(new StickerClickedEvent(event.getPath()));
+			popup.hide();
 		});
 
 		popup.show(UiUtils.getWindow(this));

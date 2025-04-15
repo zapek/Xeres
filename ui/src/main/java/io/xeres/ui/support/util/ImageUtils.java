@@ -19,11 +19,16 @@
 
 package io.xeres.ui.support.util;
 
+import com.googlecode.pngtastic.core.PngImage;
+import com.googlecode.pngtastic.core.PngOptimizer;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,16 +52,21 @@ public final class ImageUtils
 
 	public static String writeImageAsPngData(Image image, int maximumSize)
 	{
-		// Quality gains are only marginal (it's lossless after all)... Should be set at 0.1 by default
 		try
 		{
 			byte[] out;
-			var quality = 0.5f;
+			var quality = 4;
 			var bufferedImage = SwingFXUtils.fromFXImage(image, null);
+			var pngOut = compressBufferedImageToPngArray(bufferedImage, 0.1f);
+
 			do
 			{
-				out = compressBufferedImageToPngArray(bufferedImage, quality);
-				quality -= 0.2f;
+				out = pngOut;
+				if (quality < 4)
+				{
+					out = optimizePng(pngOut, qualityToCompressionLevel(quality));
+				}
+				quality -= 1;
 			}
 			while (maximumSize != 0 && Math.ceil((double) out.length / 3) * 4 > maximumSize - 200 && quality > 0); // 200 bytes to be safe as the message might contain tags and so on
 
@@ -67,6 +77,27 @@ public final class ImageUtils
 			log.error("Couldn't save image as PNG: {}", e.getMessage());
 			return "";
 		}
+	}
+
+	private static int qualityToCompressionLevel(int quality)
+	{
+		return switch (quality)
+		{
+			case 3 -> 3;
+			case 2 -> 6;
+			case 1 -> 9;
+			default -> throw new IllegalStateException("Unexpected value: " + quality);
+		};
+	}
+
+	private static byte[] optimizePng(byte[] in, int compressionLevel) throws IOException
+	{
+		var pngImage = new PngImage(in);
+		var optimizer = new PngOptimizer();
+		var pngOut = optimizer.optimize(pngImage, true, compressionLevel);
+		var outputStream = new ByteArrayOutputStream();
+		pngOut.writeDataOutputStream(outputStream);
+		return outputStream.toByteArray();
 	}
 
 	public static String writeImageAsJpegData(Image image, int maximumSize)
@@ -151,6 +182,8 @@ public final class ImageUtils
 		if (width > maximumWidth || height > maximumHeight)
 		{
 			var scaleImageView = new ImageView(imageView.getImage());
+			scaleImageView.setPreserveRatio(true);
+			scaleImageView.setSmooth(true);
 			if (width > height)
 			{
 				scaleImageView.setFitWidth(maximumWidth);
@@ -159,9 +192,9 @@ public final class ImageUtils
 			{
 				scaleImageView.setFitHeight(maximumHeight);
 			}
-			scaleImageView.setPreserveRatio(true);
-			scaleImageView.setSmooth(true);
-			imageView.setImage(scaleImageView.snapshot(null, null));
+			var parameters = new SnapshotParameters();
+			parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
+			imageView.setImage(scaleImageView.snapshot(parameters, null));
 		}
 	}
 
@@ -209,5 +242,23 @@ public final class ImageUtils
 			aspectRatio = width / height;
 		}
 		return aspectRatio < 0.0014285714;
+	}
+
+	public static Screen getScreenOfNode(Node node)
+	{
+		if (node == null)
+		{
+			return Screen.getPrimary();
+		}
+		var bounds = node.localToScreen(node.getLayoutBounds());
+		if (bounds == null)
+		{
+			return Screen.getPrimary();
+		}
+		var rect = new Rectangle2D(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(), bounds.getHeight());
+		return Screen.getScreens().stream()
+				.filter(screen -> screen.getBounds().intersects(rect))
+				.findFirst()
+				.orElse(Screen.getPrimary());
 	}
 }

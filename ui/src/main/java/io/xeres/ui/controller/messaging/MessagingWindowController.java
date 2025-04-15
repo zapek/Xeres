@@ -97,7 +97,7 @@ public class MessagingWindowController implements WindowController
 	private static final int IMAGE_HEIGHT_MAX = 600;
 	private static final int STICKER_WIDTH_MAX = 256;
 	private static final int STICKER_HEIGHT_MAX = 256;
-	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct (I think it's more...)
+	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct (I think it's more... like 300_000 but there's all kind of problems with that (websockets size, etc...) and RS closes the connection
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);

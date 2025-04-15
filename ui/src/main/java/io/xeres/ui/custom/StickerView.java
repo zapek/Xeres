@@ -19,6 +19,7 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.ui.support.util.ImageUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -35,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,11 +48,11 @@ public class StickerView extends VBox
 {
 	private static final Logger log = LoggerFactory.getLogger(StickerView.class);
 
-	private static final int IMAGE_COLLECTION_WIDTH = 32;
-	private static final int IMAGE_COLLECTION_HEIGHT = 32;
+	private static final int IMAGE_COLLECTION_WIDTH = 48;
+	private static final int IMAGE_COLLECTION_HEIGHT = 48;
 
-	private static final int IMAGE_WIDTH = 96; // XXX: should vary depending on the image size... use the collection image to guess it?
-	private static final int IMAGE_HEIGHT = 96;
+	private static final int IMAGE_WIDTH = 192;
+	private static final int IMAGE_HEIGHT = 192;
 
 	@FXML
 	private TabPane tabPane;
@@ -75,6 +75,7 @@ public class StickerView extends VBox
 
 	public void loadStickers(final Path path)
 	{
+		var screen = ImageUtils.getScreenOfNode(tabPane);
 		Task<List<StickerCollectionEntry>> task = new Task<>()
 		{
 			@Override
@@ -108,8 +109,9 @@ public class StickerView extends VBox
 							tab = new Tab();
 							tab.setTooltip(new Tooltip(sticker.name()));
 							var imageView = new ImageView(sticker.image());
-							imageView.setFitWidth(IMAGE_COLLECTION_WIDTH);
-							imageView.setFitHeight(IMAGE_COLLECTION_HEIGHT);
+							ImageUtils.limitMaximumImageSize(imageView, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT);
+							imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
+							imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());
 							tab.setGraphic(imageView);
 							tab.setUserData(sticker.path());
 						}
@@ -138,11 +140,11 @@ public class StickerView extends VBox
 
 		if (tab.getContent() == null)
 		{
+			var screen = ImageUtils.getScreenOfNode(tabPane);
 			var path = (Path) tab.getUserData();
 			var textFlow = new TextFlow();
 			textFlow.setPrefWidth(600.0);
 			textFlow.setOnMouseClicked(mouseEvent -> {
-				log.debug("source: {}, target: {}", mouseEvent.getSource(), mouseEvent.getTarget());
 				if (mouseEvent.getTarget() instanceof ImageView imageView)
 				{
 					fireEvent(new StickerClickedEvent((Path) imageView.getUserData()));
@@ -165,13 +167,14 @@ public class StickerView extends VBox
 									.filter(filePath -> !filePath.equals(path))
 									.sorted(Comparator.comparing(filePath -> filePath.getFileName().toString()))
 									.forEach(filePath -> {
-										var image = openImage(filePath, IMAGE_WIDTH, IMAGE_HEIGHT);
+										var image = openImage(filePath);
 										if (image != null && !image.isError())
 										{
 											Platform.runLater(() -> {
 												var imageView = new ImageView(image);
-												imageView.setFitWidth(IMAGE_WIDTH);
-												imageView.setFitHeight(IMAGE_HEIGHT);
+												ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
+												imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
+												imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());
 												imageView.setUserData(filePath);
 												textFlow.getChildren().add(imageView);
 											});
@@ -204,11 +207,24 @@ public class StickerView extends VBox
 
 	private static Image openImage(Path path, int width, int height)
 	{
-		try
+		try (var inputStream = new FileInputStream(path.toFile()))
 		{
-			return new Image(new FileInputStream(path.toFile()), width * 1.5, height * 1.5, false, true); // Less than 1.5 and it's blurred, go figure...
+			return new Image(inputStream, width, height, true, true); // Less than 1.5 and it's blurred, go figure...
 		}
-		catch (FileNotFoundException e)
+		catch (IOException e)
+		{
+			log.debug("Couldn't open image {}: {}", path, e.getMessage());
+			return null;
+		}
+	}
+
+	private static Image openImage(Path path)
+	{
+		try (var inputStream = new FileInputStream(path.toFile()))
+		{
+			return new Image(inputStream);
+		}
+		catch (IOException e)
 		{
 			log.debug("Couldn't open image {}: {}", path, e.getMessage());
 			return null;

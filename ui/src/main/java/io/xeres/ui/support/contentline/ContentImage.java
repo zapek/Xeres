@@ -22,6 +22,7 @@ package io.xeres.ui.support.contentline;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.preference.PreferenceUtils;
+import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -41,7 +42,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.harawata.appdirs.AppDirsFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -95,10 +95,11 @@ public class ContentImage implements Content
 	public ContentImage(Image image, Region parent)
 	{
 		node = new ImageView();
+		var screen = ImageUtils.getScreenOfNode(parent);
 
 		// Remove ImageView's output scaling so that it's not zoomed in on 4K monitors.
-		node.setFitWidth(image.getWidth() / Screen.getPrimary().getOutputScaleX());
-		node.setFitHeight(image.getHeight() / Screen.getPrimary().getOutputScaleY());
+		node.setFitWidth(image.getWidth() / screen.getOutputScaleX());
+		node.setFitHeight(image.getHeight() / screen.getOutputScaleY());
 
 		node.setImage(image);
 		node.setOnContextMenuRequested(event -> {

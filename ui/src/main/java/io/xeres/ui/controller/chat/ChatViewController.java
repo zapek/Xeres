@@ -100,7 +100,7 @@ public class ChatViewController implements Controller
 	private static final int PREVIEW_IMAGE_WIDTH_MAX = 320;
 	private static final int PREVIEW_IMAGE_HEIGHT_MAX = 240;
 
-	private static final int STICKER_WIDTH_MAX = 96; // This has to be kept small because our PNG writer is pretty bad
+	private static final int STICKER_WIDTH_MAX = 96; // XXX: find out why we can't make it bigger. RS uses more
 	private static final int STICKER_HEIGHT_MAX = 96;
 
 	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats

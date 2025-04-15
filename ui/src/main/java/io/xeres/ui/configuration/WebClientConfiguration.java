@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,6 +40,15 @@ public class WebClientConfiguration
 {
 	@Bean
 	public WebClient.Builder webClientBuilder() throws SSLException
+	{
+		var webClientBuilder = createWebClientBuilder();
+		// Allow bigger message sizes (default is 256 KB). Not used yet but potentially
+		// a private message can be around 300 KB.
+		webClientBuilder.codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs().maxInMemorySize(300 * 1024));
+		return webClientBuilder;
+	}
+
+	private WebClient.Builder createWebClientBuilder() throws SSLException
 	{
 		var useHttps = StartupProperties.getBoolean(StartupProperties.Property.HTTPS, true);
 

@@ -69,7 +69,8 @@ public class ChatMessageController
 		{
 			case CHAT_PRIVATE_MESSAGE ->
 			{
-				log.debug("Received private chat websocket message, sending to peer location: {}, content {}", destinationId, chatMessage);
+				log.debug("Received private chat websocket message, sending to peer location: {}", destinationId);
+				log.trace("Content {}", chatMessage);
 				var locationIdentifier = LocationIdentifier.fromString(destinationId);
 				chatRsService.sendPrivateMessage(locationIdentifier, chatMessage.getContent());
 				chatMessage.setOwn(true);
@@ -98,7 +99,8 @@ public class ChatMessageController
 		{
 			case CHAT_PRIVATE_MESSAGE ->
 			{
-				log.debug("Received distant chat websocket message, sending to peer gxsId: {}, content {}", destinationId, chatMessage);
+				log.debug("Received distant chat websocket message, sending to peer gxsId: {}", destinationId);
+				log.trace("Content {}", chatMessage);
 				var gxsId = GxsId.fromString(destinationId);
 				chatRsService.sendPrivateMessage(gxsId, chatMessage.getContent());
 				chatMessage.setOwn(true);
@@ -121,7 +123,8 @@ public class ChatMessageController
 		{
 			case CHAT_ROOM_MESSAGE ->
 			{
-				log.debug("Sending to room: {}, content {}", destinationId, chatRoomMessage);
+				log.debug("Sending to room: {}, size: {}", destinationId, chatRoomMessage.isEmpty() ? 0 : chatRoomMessage.getContent().length());
+				log.trace("Content {}", chatRoomMessage);
 				Objects.requireNonNull(destinationId);
 				var chatRoomId = Long.parseLong(destinationId);
 				chatRsService.sendChatRoomMessage(chatRoomId, chatRoomMessage.getContent());

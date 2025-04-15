@@ -47,7 +47,7 @@ class ImageUtilsTest
 	@Test
 	void WriteImageAsPngData_Success()
 	{
-		var pngImage = ImageUtils.writeImageAsPngData(image, 8192);
+		var pngImage = ImageUtils.writeImageAsPngData(image, 2048);
 
 		assertTrue(pngImage.startsWith("data:image/png;base64,iVBOR"), pngImage);
 	}

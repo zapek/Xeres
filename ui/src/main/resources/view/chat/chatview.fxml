@@ -19,7 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import io.xeres.ui.custom.InputArea?>
+<?import io.xeres.ui.custom.InputAreaGroup?>
 <?import io.xeres.ui.custom.TypingNotificationView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -90,11 +90,11 @@
                             <Insets bottom="4.0" left="8.0" top="4.0"/>
                         </VBox.margin>
                     </TypingNotificationView>
-                    <InputArea fx:id="send" promptText="%messaging.prompt" VBox.vgrow="NEVER" HBox.hgrow="ALWAYS">
+                    <InputAreaGroup fx:id="send">
                         <VBox.margin>
                             <Insets top="4.0"/>
                         </VBox.margin>
-                    </InputArea>
+                    </InputAreaGroup>
                 </VBox>
             </VBox>
         </VBox>

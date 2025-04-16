@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -58,7 +58,8 @@ public class WaveDotsView extends HBox
 		}
 	}
 
-	public void initialize()
+	@FXML
+	private void initialize()
 	{
 		var t1 = createAnimation(circle1, Duration.millis(0));
 		t1.play();

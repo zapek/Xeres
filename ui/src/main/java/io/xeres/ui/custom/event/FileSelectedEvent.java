@@ -17,31 +17,31 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.custom;
+package io.xeres.ui.custom.event;
 
 import javafx.event.Event;
 import javafx.event.EventType;
 
+import java.io.File;
 import java.io.Serial;
-import java.nio.file.Path;
 
-public class StickerClickedEvent extends Event
+public class FileSelectedEvent extends Event
 {
 	@Serial
-	private static final long serialVersionUID = -1377318297476370274L;
+	private static final long serialVersionUID = -3716226621770176324L;
 
-	public static final EventType<StickerClickedEvent> STICKER_CLICKED = new EventType<>(ANY, "STICKER_CLICKED");
+	public static final EventType<FileSelectedEvent> FILE_SELECTED = new EventType<>(ANY, "FILE_SELECTED");
 
-	private final Path path;
+	private final File file;
 
-	public StickerClickedEvent(Path path)
+	public FileSelectedEvent(File file)
 	{
-		super(STICKER_CLICKED);
-		this.path = path;
+		super(FILE_SELECTED);
+		this.file = file;
 	}
 
-	public Path getPath()
+	public File getFile()
 	{
-		return path;
+		return file;
 	}
 }

@@ -19,6 +19,7 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.support.util.ImageUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -147,7 +148,7 @@ public class StickerView extends VBox
 			textFlow.setOnMouseClicked(mouseEvent -> {
 				if (mouseEvent.getTarget() instanceof ImageView imageView)
 				{
-					fireEvent(new StickerClickedEvent((Path) imageView.getUserData()));
+					fireEvent(new StickerSelectedEvent((Path) imageView.getUserData()));
 				}
 			});
 			var scrollPane = new ScrollPane(textFlow);

@@ -20,6 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.common.AppName;
+import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Group;
@@ -111,9 +112,9 @@ public class InputArea extends TextArea
 		popup.setAnchorLocation(PopupWindow.AnchorLocation.CONTENT_BOTTOM_LEFT);
 
 		// Proxy the event to the InputArea
-		stickerView.addEventHandler(StickerClickedEvent.STICKER_CLICKED, event -> {
+		stickerView.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
 			event.consume();
-			fireEvent(new StickerClickedEvent(event.getPath()));
+			fireEvent(new StickerSelectedEvent(event.getPath()));
 			popup.hide();
 		});
 

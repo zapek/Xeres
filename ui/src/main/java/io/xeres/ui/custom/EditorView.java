@@ -138,7 +138,8 @@ public class EditorView extends VBox
 		}
 	}
 
-	public void initialize()
+	@FXML
+	private void initialize()
 	{
 		bold.setOnAction(event -> surround("**"));
 		italic.setOnAction(event -> surround("_"));

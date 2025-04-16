@@ -34,10 +34,12 @@ import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
-import io.xeres.ui.custom.InputArea;
-import io.xeres.ui.custom.StickerClickedEvent;
+import io.xeres.ui.custom.InputAreaGroup;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.custom.event.FileSelectedEvent;
+import io.xeres.ui.custom.event.ImageSelectedEvent;
+import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -46,21 +48,17 @@ import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
-import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -105,7 +103,7 @@ public class MessagingWindowController implements WindowController
 	private static final KeyCodeCombination SHIFT_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN);
 
 	@FXML
-	private InputArea send;
+	private InputAreaGroup send;
 
 	@FXML
 	private TypingNotificationView notification;
@@ -115,15 +113,6 @@ public class MessagingWindowController implements WindowController
 
 	@FXML
 	private Message notice;
-
-	@FXML
-	private Button addImage;
-
-	@FXML
-	private Button addFile;
-
-	@FXML
-	private Button addSticker;
 
 	private Availability availability = Availability.AVAILABLE;
 
@@ -175,53 +164,47 @@ public class MessagingWindowController implements WindowController
 		ownProfileResult.doOnSuccess(profile -> Platform.runLater(() -> setupChatListView(profile.getName(), profile.getId())))
 				.subscribe();
 
-		send.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
-		TextInputControlUtils.addEnhancedInputContextMenu(send, null, this::handlePaste);
+		send.addKeyFilter(this::handleInputKeys);
+		send.addEnhancedContextMenu(this::handlePaste);
 
-		send.addEventHandler(StickerClickedEvent.STICKER_CLICKED, event -> CompletableFuture.runAsync(() -> {
-			try (var inputStream = new FileInputStream(event.getPath().toFile()))
-			{
-				var imageView = new ImageView(new Image(inputStream));
-				Platform.runLater(() -> sendStickerToMessage(imageView));
-			}
-			catch (IOException e)
-			{
-				log.error("Couldn't send the sticker: {}", e.getMessage());
-			}
-		}));
+		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
+			event.consume();
+			CompletableFuture.runAsync(() -> {
+				try (var inputStream = new FileInputStream(event.getPath().toFile()))
+				{
+					var imageView = new ImageView(new Image(inputStream));
+					Platform.runLater(() -> sendStickerToMessage(imageView));
+				}
+				catch (IOException e)
+				{
+					log.error("Couldn't send the sticker: {}", e.getMessage());
+				}
+			});
+		});
 
-		addImage.setOnAction(event -> {
-			var fileChooser = new FileChooser();
-			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-picture"));
-			fileChooser.getExtensionFilters().addAll(new ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
-			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
-			if (selectedFile != null && selectedFile.canRead())
+		send.addEventHandler(ImageSelectedEvent.IMAGE_SELECTED, event -> {
+			if (event.getFile().canRead())
 			{
 				CompletableFuture.runAsync(() -> {
-					try (var inputStream = new FileInputStream(selectedFile))
+					try (var inputStream = new FileInputStream(event.getFile()))
 					{
 						var imageView = new ImageView(new Image(inputStream));
 						Platform.runLater(() -> sendImageViewToMessage(imageView));
 					}
 					catch (IOException e)
 					{
-						UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), selectedFile, e.getMessage()));
+						UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
 					}
 				});
 			}
 		});
 
-		addFile.setOnAction(event -> {
-			var fileChooser = new FileChooser();
-			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-file"));
-			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
-			if (selectedFile != null && selectedFile.canRead())
+		send.addEventHandler(FileSelectedEvent.FILE_SELECTED, event -> {
+			if (event.getFile().canRead())
 			{
-				sendFile(selectedFile);
+				sendFile(event.getFile());
 			}
 		});
-
-		addSticker.setOnAction(event -> send.openStickerSelector());
 
 		lastTypingTimeline = new Timeline(
 				new KeyFrame(Duration.ZERO, event -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), destination.getName()))),
@@ -497,16 +480,14 @@ public class MessagingWindowController implements WindowController
 	private void setUserOnline(boolean online)
 	{
 		UiUtils.setPresent(notice, !online);
-		addImage.setDisable(!online);
-		addFile.setDisable(!online);
-		addSticker.setDisable(!online);
+		send.setDisable(!online);
 	}
 
 	private void handleInputKeys(KeyEvent event)
 	{
 		if (PASTE_KEY.match(event))
 		{
-			if (handlePaste(send))
+			if (handlePaste(send.getTextInputControl()))
 			{
 				event.consume();
 			}
@@ -518,15 +499,15 @@ public class MessagingWindowController implements WindowController
 				event.consume();
 			}
 		}
-		else if (CTRL_ENTER.match(event) || SHIFT_ENTER.match(event) && isNotBlank(send.getText()))
+		else if (CTRL_ENTER.match(event) || SHIFT_ENTER.match(event) && isNotBlank(send.getTextInputControl().getText()))
 		{
-			send.insertText(send.getCaretPosition(), "\n");
+			send.getTextInputControl().insertText(send.getTextInputControl().getCaretPosition(), "\n");
 			sendTypingNotificationIfNeeded();
 			event.consume();
 		}
 		else if (event.getCode() == KeyCode.ENTER)
 		{
-			if (isNotBlank(send.getText()))
+			if (isNotBlank(send.getTextInputControl().getText()))
 			{
 				if (notice.isVisible())
 				{
@@ -534,7 +515,7 @@ public class MessagingWindowController implements WindowController
 				}
 				else
 				{
-					sendMessage(send.getText());
+					sendMessage(send.getTextInputControl().getText());
 					lastTypingNotification = Instant.EPOCH;
 				}
 			}

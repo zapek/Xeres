@@ -99,7 +99,8 @@ public class FileResultView extends Tab
 		}
 	}
 
-	public void initialize()
+	@FXML
+	private void initialize()
 	{
 		createFilesTableViewContextMenu();
 

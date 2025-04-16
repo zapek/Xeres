@@ -19,19 +19,19 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.OpenUriEvent;
-import io.xeres.ui.client.ChatClient;
-import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.client.LocationClient;
-import io.xeres.ui.client.ProfileClient;
+import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
-import io.xeres.ui.custom.InputArea;
-import io.xeres.ui.custom.StickerClickedEvent;
+import io.xeres.ui.custom.InputAreaGroup;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.custom.event.FileSelectedEvent;
+import io.xeres.ui.custom.event.ImageSelectedEvent;
+import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
@@ -42,9 +42,9 @@ import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.sound.SoundService.SoundType;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.ChatRoomUri;
+import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageUtils;
-import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
@@ -72,8 +72,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -129,7 +132,7 @@ public class ChatViewController implements Controller
 	private VBox content;
 
 	@FXML
-	private InputArea send;
+	private InputAreaGroup send;
 
 	@FXML
 	private VBox sendGroup;
@@ -179,6 +182,7 @@ public class ChatViewController implements Controller
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
 	private final SoundService soundService;
+	private final ShareClient shareClient;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -198,7 +202,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundService soundService)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ShareClient shareClient)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -212,6 +216,7 @@ public class ChatViewController implements Controller
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		this.soundService = soundService;
+		this.shareClient = shareClient;
 
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
@@ -271,10 +276,10 @@ public class ChatViewController implements Controller
 		previewSend.setOnAction(event -> sendImage());
 		previewCancel.setOnAction(event -> cancelImage());
 
-		send.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
-		TextInputControlUtils.addEnhancedInputContextMenu(send, locationClient, this::handlePaste);
+		send.addKeyFilter(this::handleInputKeys);
+		send.addEnhancedContextMenu(this::handlePaste, locationClient);
 
-		send.addEventHandler(StickerClickedEvent.STICKER_CLICKED, event -> CompletableFuture.runAsync(() -> {
+		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> CompletableFuture.runAsync(() -> {
 			try (var inputStream = new FileInputStream(event.getPath().toFile()))
 			{
 				var imageView = new ImageView(new Image(inputStream));
@@ -286,6 +291,30 @@ public class ChatViewController implements Controller
 			}
 		}));
 
+		send.addEventHandler(ImageSelectedEvent.IMAGE_SELECTED, event -> {
+			if (event.getFile().canRead())
+			{
+				CompletableFuture.runAsync(() -> {
+					try (var inputStream = new FileInputStream(event.getFile()))
+					{
+						var image = new Image(inputStream);
+						Platform.runLater(() -> setPreviewImage(image));
+					}
+					catch (IOException e)
+					{
+						UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
+					}
+				});
+			}
+		});
+
+		send.addEventHandler(FileSelectedEvent.FILE_SELECTED, event -> {
+			if (event.getFile().canRead())
+			{
+				sendFile(event.getFile());
+			}
+		});
+
 		invite.setOnAction(event -> windowManager.openInvite(selectedRoom.getId()));
 
 		getChatRoomContext();
@@ -293,6 +322,27 @@ public class ChatViewController implements Controller
 		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation());
 
 		setupTrees();
+	}
+
+	private void sendFile(File file)
+	{
+		shareClient.createTemporaryShare(file.getAbsolutePath())
+				.doOnSuccess(result -> sendChatMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result))))
+				.subscribe();
+	}
+
+	// XXX: duplicate..
+	private static long getFileSize(Path path)
+	{
+		try
+		{
+			return Files.size(path);
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to get the file size of {}", path);
+			return 0;
+		}
 	}
 
 	private void setupTrees()
@@ -692,9 +742,9 @@ public class ChatViewController implements Controller
 	{
 		if (TAB_KEY.match(event))
 		{
-			nicknameCompleter.complete(send.getText(), send.getCaretPosition(), s -> {
-				send.setText(s);
-				send.positionCaret(s.length());
+			nicknameCompleter.complete(send.getTextInputControl().getText(), send.getTextInputControl().getCaretPosition(), s -> {
+				send.getTextInputControl().setText(s);
+				send.getTextInputControl().positionCaret(s.length());
 			});
 			event.consume();
 			return;
@@ -704,7 +754,7 @@ public class ChatViewController implements Controller
 
 		if (PASTE_KEY.match(event))
 		{
-			if (handlePaste(send))
+			if (handlePaste(send.getTextInputControl()))
 			{
 				event.consume();
 			}
@@ -716,9 +766,9 @@ public class ChatViewController implements Controller
 				event.consume();
 			}
 		}
-		else if (CTRL_ENTER.match(event) || SHIFT_ENTER.match(event) && isNotBlank(send.getText()))
+		else if (CTRL_ENTER.match(event) || SHIFT_ENTER.match(event) && isNotBlank(send.getTextInputControl().getText()))
 		{
-			send.insertText(send.getCaretPosition(), "\n");
+			send.getTextInputControl().insertText(send.getTextInputControl().getCaretPosition(), "\n");
 			sendTypingNotificationIfNeeded();
 			event.consume();
 		}
@@ -734,9 +784,9 @@ public class ChatViewController implements Controller
 		}
 		else if (event.getCode() == KeyCode.ENTER)
 		{
-			if (isRoomSelected() && isNotBlank(send.getText()))
+			if (isRoomSelected() && isNotBlank(send.getTextInputControl().getText()))
 			{
-				sendChatMessage(send.getText());
+				sendChatMessage(send.getTextInputControl().getText());
 				send.clear();
 				lastTypingNotification = Instant.EPOCH;
 			}
@@ -766,11 +816,7 @@ public class ChatViewController implements Controller
 		{
 			case Image image ->
 			{
-				imagePreview.setImage(image);
-
-				ImageUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
-
-				setPreviewGroupVisibility(true);
+				setPreviewImage(image);
 				yield true;
 			}
 			case String string ->
@@ -800,6 +846,15 @@ public class ChatViewController implements Controller
 	private void cancelImage()
 	{
 		resetPreviewImage();
+	}
+
+	private void setPreviewImage(Image image)
+	{
+		imagePreview.setImage(image);
+
+		ImageUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
+
+		setPreviewGroupVisibility(true);
 	}
 
 	/**

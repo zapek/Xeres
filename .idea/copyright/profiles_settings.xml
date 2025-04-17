@@ -1,3 +1,10 @@
 <component name="CopyrightManager">
-  <settings default="GNU GPL v3" />
+  <settings default="GNU GPL v3">
+    <module2copyright>
+      <element module="All" copyright="GNU GPL v3" />
+    </module2copyright>
+    <LanguageOptions name="SQL">
+      <option name="fileTypeOverride" value="1" />
+    </LanguageOptions>
+  </settings>
 </component>

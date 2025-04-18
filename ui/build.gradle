@@ -66,7 +66,7 @@ dependencies {
     implementation platform('org.kordamp.ikonli:ikonli-bom:12.3.1')
     implementation 'org.kordamp.ikonli:ikonli-javafx'
     implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack'
-    implementation 'com.github.depsypher:pngtastic:1.7'
+    implementation 'com.github.depsypher:pngtastic:1.8'
     implementation 'dev.mccue:imgscalr:2023.09.03'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

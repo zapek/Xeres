@@ -130,4 +130,10 @@ public class InputAreaGroup extends HBox
 	{
 		return inputArea;
 	}
+
+	@Override
+	public void requestFocus()
+	{
+		inputArea.requestFocus();
+	}
 }

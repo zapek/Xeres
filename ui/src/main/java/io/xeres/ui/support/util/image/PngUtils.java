@@ -21,8 +21,6 @@ package io.xeres.ui.support.util.image;
 
 import com.googlecode.pngtastic.core.PngImage;
 import com.googlecode.pngtastic.core.PngOptimizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -42,8 +40,6 @@ import java.util.List;
  */
 final class PngUtils
 {
-	private static final Logger log = LoggerFactory.getLogger(PngUtils.class);
-
 	private PngUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -52,9 +48,14 @@ final class PngUtils
 	static BufferedImage convertToIndexedPng(BufferedImage image)
 	{
 		var indexedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_INDEXED, getOrCreateIndexedColorModel(image));
-		var g = indexedImage.createGraphics();
-		g.drawImage(image, 0, 0, null);
-		g.dispose();
+		// Using drawImage with an indexed color model always produces dithering which looks ugly for stickers, so we copy manually
+		for (var x = 0; x < image.getWidth(); x++)
+		{
+			for (var y = 0; y < image.getHeight(); y++)
+			{
+				indexedImage.setRGB(x, y, image.getRGB(x, y));
+			}
+		}
 		return indexedImage;
 	}
 

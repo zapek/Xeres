@@ -278,6 +278,9 @@ public class ChatViewController implements Controller
 		previewSend.setOnAction(event -> sendImage());
 		previewCancel.setOnAction(event -> cancelImage());
 
+		// Handle the events even if the InputArea widget isn't selected
+		content.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+
 		send.addKeyFilter(this::handleInputKeys);
 		send.addEnhancedContextMenu(this::handlePaste, locationClient);
 

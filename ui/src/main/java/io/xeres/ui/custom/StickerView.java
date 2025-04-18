@@ -20,7 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.custom.event.StickerSelectedEvent;
-import io.xeres.ui.support.util.ImageUtils;
+import io.xeres.ui.support.util.image.ImageUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;

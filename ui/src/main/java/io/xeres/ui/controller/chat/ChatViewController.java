@@ -44,8 +44,8 @@ import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.UriService;
-import io.xeres.ui.support.util.ImageUtils;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.util.image.ImageUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -72,6 +72,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -103,8 +105,8 @@ public class ChatViewController implements Controller
 	private static final int PREVIEW_IMAGE_WIDTH_MAX = 320;
 	private static final int PREVIEW_IMAGE_HEIGHT_MAX = 240;
 
-	private static final int STICKER_WIDTH_MAX = 96; // XXX: find out why we can't make it bigger. RS uses more
-	private static final int STICKER_HEIGHT_MAX = 96;
+	private static final int STICKER_WIDTH_MAX = 192;
+	private static final int STICKER_HEIGHT_MAX = 192;
 
 	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats
 	private static final KeyCodeCombination TAB_KEY = new KeyCodeCombination(KeyCode.TAB);
@@ -280,10 +282,10 @@ public class ChatViewController implements Controller
 		send.addEnhancedContextMenu(this::handlePaste, locationClient);
 
 		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> CompletableFuture.runAsync(() -> {
-			try (var inputStream = new FileInputStream(event.getPath().toFile()))
+			try
 			{
-				var imageView = new ImageView(new Image(inputStream));
-				Platform.runLater(() -> sendStickerToMessage(imageView));
+				var bufferedImage = ImageIO.read(event.getPath().toFile());
+				Platform.runLater(() -> sendStickerToMessageOptimized(bufferedImage));
 			}
 			catch (IOException e)
 			{
@@ -836,11 +838,10 @@ public class ChatViewController implements Controller
 		jumpToBottom();
 	}
 
-	private void sendStickerToMessage(ImageView imageView)
+	private void sendStickerToMessageOptimized(BufferedImage image)
 	{
-		ImageUtils.limitMaximumImageSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
-		sendChatMessage("<img src=\"" + ImageUtils.writeImageAsPngData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
-		imageView.setImage(null);
+		image = ImageUtils.limitMaximumImageSize(image, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
+		sendChatMessage("<img src=\"" + ImageUtils.writeImageAsPngData(image, MESSAGE_MAXIMUM_SIZE) + "\"/>");
 	}
 
 	private void cancelImage()

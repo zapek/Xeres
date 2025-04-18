@@ -20,10 +20,14 @@
 package io.xeres.ui.support.util;
 
 import io.xeres.testutils.TestUtils;
+import io.xeres.ui.support.util.image.ImageUtils;
 import javafx.scene.image.Image;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,11 +35,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ImageUtilsTest
 {
 	private static Image image;
+	private static BufferedImage bufferedImage;
 
 	@BeforeAll
-	static void setup()
+	static void setup() throws IOException
 	{
 		image = new Image(Objects.requireNonNull(ImageUtilsTest.class.getResourceAsStream("/image/ours.png")));
+		bufferedImage = ImageIO.read(Objects.requireNonNull(ImageUtilsTest.class.getResourceAsStream("/image/ours.png")));
 	}
 
 	@Test
@@ -45,9 +51,17 @@ class ImageUtilsTest
 	}
 
 	@Test
-	void WriteImageAsPngData_Success()
+	void WriteImageAsPngData_Image_Success()
 	{
 		var pngImage = ImageUtils.writeImageAsPngData(image, 2048);
+
+		assertTrue(pngImage.startsWith("data:image/png;base64,iVBOR"), pngImage);
+	}
+
+	@Test
+	void WriteImageAsPngData_BufferedImage_Success()
+	{
+		var pngImage = ImageUtils.writeImageAsPngData(bufferedImage, 2048);
 
 		assertTrue(pngImage.startsWith("data:image/png;base64,iVBOR"), pngImage);
 	}
@@ -66,5 +80,13 @@ class ImageUtilsTest
 		var jpegImage = ImageUtils.writeImageAsJpegData(image, 256);
 
 		assertTrue(jpegImage.startsWith("data:image/jpeg;base64,/9j/"), jpegImage);
+	}
+
+	@Test
+	void LimitMaximumImageSize_Success()
+	{
+		var scaledImage = ImageUtils.limitMaximumImageSize(bufferedImage, 128);
+
+		assertTrue(scaledImage.getWidth() * scaledImage.getHeight() <= 128);
 	}
 }

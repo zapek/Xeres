@@ -38,7 +38,7 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.uri.IdentityUri;
-import io.xeres.ui.support.util.ImageUtils;
+import io.xeres.ui.support.util.image.ImageUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -437,8 +437,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		});
 
 		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, infoItem);
-		xContextMenu.setOnShowing((contextMenu, chatRoomUser) -> {
-			contextMenu.getItems().stream()
+		xContextMenu.setOnShowing((cm, chatRoomUser) -> {
+			cm.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(chatRoomUser.identityId() == OWN_IDENTITY_ID));
 

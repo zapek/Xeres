@@ -136,4 +136,17 @@ public class InputAreaGroup extends HBox
 	{
 		inputArea.requestFocus();
 	}
+
+	/**
+	 * Sets the input area to offline mode. Sending images, files and stickers will be disabled, but
+	 * text can still be entered.
+	 *
+	 * @param offline true if offline
+	 */
+	public void setOffline(boolean offline)
+	{
+		addImage.setDisable(offline);
+		addFile.setDisable(offline);
+		addSticker.setDisable(offline);
+	}
 }

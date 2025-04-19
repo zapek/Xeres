@@ -480,7 +480,7 @@ public class MessagingWindowController implements WindowController
 	private void setUserOnline(boolean online)
 	{
 		UiUtils.setPresent(notice, !online);
-		send.setDisable(!online);
+		send.setOffline(!online);
 	}
 
 	private void handleInputKeys(KeyEvent event)

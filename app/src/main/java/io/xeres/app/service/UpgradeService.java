@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,6 +37,8 @@ import java.util.Arrays;
 @Service
 public class UpgradeService
 {
+	private static final String INCOMING_DIRECTORY_NAME = "Incoming";
+
 	private final DataDirConfiguration dataDirConfiguration;
 	private final SettingsService settingsService;
 	private final FileService fileService;
@@ -68,7 +70,7 @@ public class UpgradeService
 
 		if (!settingsService.hasIncomingDirectory())
 		{
-			var incomingDirectory = Path.of(dataDirConfiguration.getDataDir(), "Incoming");
+			var incomingDirectory = Path.of(dataDirConfiguration.getDataDir(), INCOMING_DIRECTORY_NAME);
 			if (Files.notExists(incomingDirectory))
 			{
 				try
@@ -81,7 +83,7 @@ public class UpgradeService
 				}
 			}
 			settingsService.setIncomingDirectory(incomingDirectory.toString());
-			fileService.addShare(Share.createShare("Incoming", File.createFile(incomingDirectory), false, Trust.UNKNOWN));
+			fileService.addShare(Share.createShare(INCOMING_DIRECTORY_NAME, File.createFile(incomingDirectory), false, Trust.UNKNOWN));
 		}
 
 		if (settingsService.getVersion() < 1)

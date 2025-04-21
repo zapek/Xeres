@@ -27,6 +27,8 @@ import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.util.SecureRandomUtils;
 import org.bouncycastle.openpgp.PGPException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -37,7 +39,10 @@ import java.util.Arrays;
 @Service
 public class UpgradeService
 {
+	private static final Logger log = LoggerFactory.getLogger(UpgradeService.class);
+
 	private static final String INCOMING_DIRECTORY_NAME = "Incoming";
+	private static final String STICKERS_DIRECTORY_NAME = "Stickers";
 
 	private final DataDirConfiguration dataDirConfiguration;
 	private final SettingsService settingsService;
@@ -60,7 +65,7 @@ public class UpgradeService
 	 */
 	public void upgrade()
 	{
-		var version = 3; // Increment this number when needing to add new defaults
+		var version = 4; // Increment this number when needing to add new defaults
 
 		// Don't do this stuff when running tests
 		if (dataDirConfiguration.getDataDir() == null)
@@ -110,6 +115,23 @@ public class UpgradeService
 				throw new IllegalStateException("Couldn't fix own profile hash + signature: " + e.getMessage());
 			}
 			profileService.fixAllProfiles();
+		}
+
+		if (settingsService.getVersion() < 4)
+		{
+			var stickersDirectory = Path.of(dataDirConfiguration.getDataDir(), STICKERS_DIRECTORY_NAME);
+			if (Files.notExists(stickersDirectory))
+			{
+				try
+				{
+					Files.createDirectory(stickersDirectory);
+				}
+				catch (IOException e)
+				{
+					// Not very important, we can live without stickers.
+					log.error("Couldn't create stickers directory: {}, {}. Stickers won't be available", stickersDirectory, e.getMessage());
+				}
+			}
 		}
 
 		// [Add new defaults here]

@@ -25,10 +25,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
@@ -90,7 +87,7 @@ public class StickerView extends VBox
 					try (var stream = Files.find(path, 1, (dirPath, bfa) -> bfa.isDirectory()))
 					{
 						return stream
-								.filter(filePath -> !filePath.equals(path)) // filter out root directory
+								.filter(filePath -> !filePath.equals(path)) // filter out the root directory
 								.map(filePath -> new StickerCollectionEntry(filePath.getFileName().toString(), filePath, getStickerMainImage(filePath)))
 								.sorted(Comparator.comparing(StickerCollectionEntry::name))
 								.toList();
@@ -101,6 +98,11 @@ public class StickerView extends VBox
 		};
 		task.setOnSucceeded(event -> {
 			@SuppressWarnings("unchecked") var stickers = (List<StickerCollectionEntry>) event.getSource().getValue();
+
+			if (stickers.isEmpty())
+			{
+				tabPane.getTabs().add(new Tab("", new Label("Add your stickers into " + path + "\n\nOne directory per sticker collection, each containing PNGs or JPEGs.")));
+			}
 
 			tabPane.getTabs().addAll(stickers.stream()
 					.map(sticker -> {
@@ -210,11 +212,11 @@ public class StickerView extends VBox
 	{
 		try (var inputStream = new FileInputStream(path.toFile()))
 		{
-			return new Image(inputStream, width, height, true, true); // Less than 1.5 and it's blurred, go figure...
+			return new Image(inputStream, width, height, true, true);
 		}
 		catch (IOException e)
 		{
-			log.debug("Couldn't open image {}: {}", path, e.getMessage());
+			log.debug("Couldn't open image with specific size {}: {}", path, e.getMessage());
 			return null;
 		}
 	}

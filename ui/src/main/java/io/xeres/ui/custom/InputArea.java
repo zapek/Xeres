@@ -119,7 +119,7 @@ public class InputArea extends TextArea
 		});
 
 		popup.show(UiUtils.getWindow(this));
-		stickerView.loadStickers(Paths.get(AppDirsFactory.getInstance().getUserDataDir(AppName.NAME, null, null, true), "stickers"));
+		stickerView.loadStickers(Paths.get(AppDirsFactory.getInstance().getUserDataDir(AppName.NAME, null, null, true), "Stickers"));
 		popup.setAutoHide(true);
 		return true;
 	}

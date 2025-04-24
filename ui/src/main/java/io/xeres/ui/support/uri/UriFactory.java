@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,6 @@ package io.xeres.ui.support.uri;
 
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
-import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -29,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -51,6 +51,8 @@ public final class UriFactory
 		addContentParser(new CollectionUriFactory());
 	}
 
+	private static final ExternalUriFactory externalUriFactory = new ExternalUriFactory();
+
 	private UriFactory()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -59,7 +61,9 @@ public final class UriFactory
 	private static void addContentParser(AbstractUriFactory contentParser)
 	{
 		var map = contentParsers.getOrDefault(contentParser.getProtocol(), new HashMap<>());
-		map.put(contentParser.getAuthority(), contentParser);
+		var authority = contentParser.getAuthority();
+		Objects.requireNonNull(authority, "Authority cannot be null for " + contentParser.getClass().getSimpleName() + ", or it's not supposed to be used as a content parser");
+		map.put(authority, contentParser);
 		contentParsers.put(contentParser.getProtocol(), map);
 	}
 
@@ -87,13 +91,7 @@ public final class UriFactory
 					return contentParser.create(uriComponents, text, uriAction);
 				}
 			}
-
-			// If we don't know the URL, delegate to the OS
-			if (isBlank(text))
-			{
-				return new ContentUri(uri.toString());
-			}
-			return new ContentUri(uri.toString(), text);
+			return externalUriFactory.create(UriComponentsBuilder.fromUri(uri).build(), text, uriAction);
 		}
 		catch (URISyntaxException e)
 		{

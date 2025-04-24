@@ -20,7 +20,6 @@
 package io.xeres.ui.client.message;
 
 import io.xeres.ui.support.util.UiUtils;
-import jakarta.annotation.Nonnull;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import org.slf4j.Logger;
@@ -67,20 +66,20 @@ public class SessionHandler extends StompSessionHandlerAdapter
 	}
 
 	@Override
-	public void afterConnected(@Nonnull StompSession session, @Nonnull StompHeaders connectedHeaders)
+	public void afterConnected(StompSession session, StompHeaders connectedHeaders)
 	{
 		log.debug("Connected successfully to session {}, headers: {}", session, connectedHeaders);
 		onConnected.afterConnected(session);
 	}
 
 	@Override
-	public void handleException(@Nonnull StompSession session, StompCommand command, @Nonnull StompHeaders headers, @Nonnull byte[] payload, @Nonnull Throwable exception)
+	public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception)
 	{
 		log.error("StompSessionHandler Exception for session {}, command {}, headers {} and payload {}", session, command, headers, payload, exception);
 	}
 
 	@Override
-	public void handleTransportError(@Nonnull StompSession session, @Nonnull Throwable exception)
+	public void handleTransportError(StompSession session, Throwable exception)
 	{
 		if (exception instanceof ConnectionLostException)
 		{

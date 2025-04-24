@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.configuration;
 
-import jakarta.validation.constraints.NotNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -32,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class CustomCsrfChannelInterceptor implements ChannelInterceptor
 {
 	@Override
-	public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel)
+	public Message<?> preSend(Message<?> message, MessageChannel channel)
 	{
 		return message;
 	}

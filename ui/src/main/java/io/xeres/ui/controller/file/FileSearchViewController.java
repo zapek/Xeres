@@ -157,7 +157,7 @@ public class FileSearchViewController implements Controller, TabActivation
 		copyLinkItem.setOnAction(event -> {
 			var fileResultView = (FileResultView) event.getSource();
 			var searchUri = new SearchUri(fileResultView.getText());
-			ClipboardUtils.copyTextToClipboard(searchUri.toString());
+			ClipboardUtils.copyTextToClipboard(searchUri.toUriString());
 		});
 
 		var xContextMenu = new XContextMenu<Tab>(copyLinkItem);

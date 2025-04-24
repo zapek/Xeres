@@ -39,7 +39,8 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=test";
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertInstanceOf(ContentText.class, content);
 	}
@@ -51,7 +52,8 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?id=" + gxsId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertInstanceOf(ContentText.class, content);
 	}
@@ -64,7 +66,8 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=test&id=" + gxsId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
@@ -78,7 +81,8 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=test&id=" + gxsId + "&msgid=" + msgId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
@@ -92,7 +96,8 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals("Fun Board", content.asText());
 	}
@@ -106,7 +111,8 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "Test", null);
+		var content = factory.create(createUriComponentsFromUri(url), "Test", uri -> {
+		});
 
 		assertEquals("Test", content.asText());
 	}

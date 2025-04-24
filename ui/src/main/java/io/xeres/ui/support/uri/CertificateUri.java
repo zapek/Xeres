@@ -27,11 +27,17 @@ public record CertificateUri(String radix, String name, String location) impleme
 	static String PARAMETER_LOCATION = "location";
 
 	@Override
-	public String toString()
+	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_RADIX, radix,
 				PARAMETER_NAME, name,
 				PARAMETER_LOCATION, location);
+	}
+
+	@Override
+	public String toString()
+	{
+		return toUriString();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,8 +23,8 @@ import atlantafx.base.theme.Styles;
 import io.xeres.common.AppName;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
-import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -378,32 +378,38 @@ public final class UiUtils
 	 * Makes Hyperlinks actually do something. Slightly recursive.
 	 *
 	 * @param rootNode the parent node where the hyperlinks are
+	 * @param hostServices the host services
 	 */
-	public static void linkify(Node rootNode)
+	public static void linkify(Node rootNode, HostServices hostServices)
 	{
+		if (hostServices == null)
+		{
+			return;
+		}
+
 		if (rootNode instanceof TabPane tabPane)
 		{
-			tabPane.getTabs().forEach(tab -> linkify(tab.getContent()));
+			tabPane.getTabs().forEach(tab -> linkify(tab.getContent(), hostServices));
 		}
 		else if (rootNode instanceof ScrollPane scrollPane)
 		{
-			linkify(scrollPane.getContent());
+			linkify(scrollPane.getContent(), hostServices);
 		}
 		else if (rootNode instanceof Parent parent)
 		{
-			parent.getChildrenUnmodifiable().forEach(UiUtils::linkify);
+			parent.getChildrenUnmodifiable().forEach(node -> linkify(node, hostServices));
 		}
 
 		if (rootNode instanceof DisclosedHyperlink disclosedHyperlink)
 		{
 			if (disclosedHyperlink.getOnAction() == null)
 			{
-				disclosedHyperlink.setOnAction(event -> UriService.openUri(disclosedHyperlink.getUri()));
+				disclosedHyperlink.setOnAction(event -> hostServices.showDocument(disclosedHyperlink.getUri()));
 			}
 		}
 		else if (rootNode instanceof Hyperlink hyperlink && hyperlink.getOnAction() == null)
 		{
-			hyperlink.setOnAction(event -> UriService.openUri(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
+			hyperlink.setOnAction(event -> hostServices.showDocument(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
 		}
 	}
 

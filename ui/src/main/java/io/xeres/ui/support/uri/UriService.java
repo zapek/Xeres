@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,40 +21,30 @@ package io.xeres.ui.support.uri;
 
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.support.markdown.UriAction;
-import javafx.application.HostServices;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+/**
+ * This service is responsible for opening URIs within the application.
+ */
 @Service
 public class UriService implements UriAction
 {
 	private final ApplicationEventPublisher eventPublisher;
-
-	private static HostServices hostServices;
 
 	public UriService(ApplicationEventPublisher eventPublisher)
 	{
 		this.eventPublisher = eventPublisher;
 	}
 
-	public void setHostServices(HostServices hostServices)
-	{
-		UriService.hostServices = hostServices;
-	}
-
+	/**
+	 * Opens a URI to show within the application.
+	 *
+	 * @param uri the URI to open.
+	 */
 	@Override
 	public void openUri(Uri uri)
 	{
 		eventPublisher.publishEvent(new OpenUriEvent(uri));
-	}
-
-	/**
-	 * Opens a URI to show in the browser.
-	 *
-	 * @param uri the URI to open
-	 */
-	public static void openUri(String uri)
-	{
-		hostServices.showDocument(uri);
 	}
 }

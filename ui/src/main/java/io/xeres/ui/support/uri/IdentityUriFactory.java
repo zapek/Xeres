@@ -53,6 +53,6 @@ public class IdentityUriFactory extends AbstractUriFactory
 
 		var identityUri = new IdentityUri(name, GxsId.fromString(gxsId), groupData); // groupData contains the gxs group's data so that the peer can do something with it even if it doesn't have the group yet
 
-		return new ContentUri(identityUri.toString(), StringUtils.isNotBlank(text) ? text : ("Identity (name=" + name + ", ID=" + gxsId + ")"), uri -> uriAction.openUri(identityUri));
+		return new ContentUri(identityUri, StringUtils.isNotBlank(text) ? text : ("Identity (name=" + name + ", ID=" + gxsId + ")"), uriAction::openUri);
 	}
 }

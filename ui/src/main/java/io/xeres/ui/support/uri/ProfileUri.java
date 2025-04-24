@@ -29,10 +29,16 @@ public record ProfileUri(String name, long hash) implements Uri
 	static String PARAMETER_HASH = "hash";
 
 	@Override
-	public String toString()
+	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_HASH, Id.toString(hash));
+	}
+
+	@Override
+	public String toString()
+	{
+		return toUriString();
 	}
 }

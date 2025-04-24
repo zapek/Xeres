@@ -49,6 +49,6 @@ public class SearchUriFactory extends AbstractUriFactory
 
 		var searchUri = new SearchUri(keywords.trim());
 
-		return new ContentUri(searchUri.toString(), StringUtils.isNotBlank(text) ? text : keywords, uri -> uriAction.openUri(searchUri));
+		return new ContentUri(searchUri, StringUtils.isNotBlank(text) ? text : keywords, uriAction::openUri);
 	}
 }

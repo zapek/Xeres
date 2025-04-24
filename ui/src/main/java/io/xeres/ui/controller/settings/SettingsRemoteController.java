@@ -28,6 +28,8 @@ import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
+import jakarta.annotation.Nullable;
+import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.CheckBox;
@@ -74,12 +76,13 @@ public class SettingsRemoteController implements SettingsController
 	private String originalPassword;
 
 	private final TrayService trayService;
-
+	private final HostServices hostServices;
 	private final ResourceBundle bundle;
 
-	public SettingsRemoteController(TrayService trayService, ResourceBundle bundle)
+	public SettingsRemoteController(TrayService trayService, @Nullable HostServices hostServices, ResourceBundle bundle)
 	{
 		this.trayService = trayService;
+		this.hostServices = hostServices;
 		this.bundle = bundle;
 	}
 
@@ -98,7 +101,7 @@ public class SettingsRemoteController implements SettingsController
 
 		remoteEnabled.setOnAction(actionEvent -> checkDisabled());
 
-		UiUtils.linkify(viewApi);
+		UiUtils.linkify(viewApi, hostServices);
 		viewApi.setUri(RemoteUtils.getControlUrl() + "/swagger-ui/index.html");
 	}
 

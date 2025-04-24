@@ -72,7 +72,8 @@ class FileUriFactoryTest
 		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
 
 		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
@@ -83,7 +84,8 @@ class FileUriFactoryTest
 		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
 
 		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals("foo (128 bytes)", content.asText());
 	}
@@ -94,7 +96,8 @@ class FileUriFactoryTest
 		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
 
 		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "Test", null);
+		var content = factory.create(createUriComponentsFromUri(url), "Test", uri -> {
+		});
 
 		assertEquals("Test", content.asText());
 	}

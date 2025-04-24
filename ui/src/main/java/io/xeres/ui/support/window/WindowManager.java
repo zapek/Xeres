@@ -61,7 +61,9 @@ import io.xeres.ui.support.sound.SoundService.SoundType;
 import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.UiUtils;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.PreDestroy;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -106,6 +108,7 @@ public class WindowManager
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
 	private final SoundService soundService;
+	private final HostServices hostServices;
 	private static ResourceBundle bundle;
 	private static AppThemeManager appThemeManager;
 
@@ -120,7 +123,7 @@ public class WindowManager
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ResourceBundle bundle, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -136,6 +139,7 @@ public class WindowManager
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		this.soundService = soundService;
+		this.hostServices = hostServices;
 		WindowManager.bundle = bundle;
 		WindowManager.appThemeManager = appThemeManager;
 	}
@@ -167,6 +171,13 @@ public class WindowManager
 		{
 			case CertificateUri certificateUri -> openAddPeer(certificateUri.radix());
 			case FileUri(String name, long size, Sha1Sum hash) -> openAddDownload(new AddDownloadRequest(name, size, hash, null));
+			case ExternalUri externalUri ->
+			{
+				if (hostServices != null)
+				{
+					hostServices.showDocument(externalUri.toUriString());
+				}
+			}
 			case ChatRoomUri ignored ->
 			{
 				// Nothing to do. This is handled in ChatViewController

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,8 @@ package io.xeres.ui.controller.about;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
+import jakarta.annotation.Nullable;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -67,12 +69,14 @@ public class AboutWindowController implements WindowController
 
 	private final BuildProperties buildProperties;
 	private final Environment environment;
+	private final HostServices hostServices;
 	private final ResourceBundle bundle;
 
-	public AboutWindowController(BuildProperties buildProperties, Environment environment, ResourceBundle bundle)
+	public AboutWindowController(BuildProperties buildProperties, Environment environment, @Nullable HostServices hostServices, ResourceBundle bundle)
 	{
 		this.buildProperties = buildProperties;
 		this.environment = environment;
+		this.hostServices = hostServices;
 		this.bundle = bundle;
 	}
 
@@ -91,7 +95,7 @@ public class AboutWindowController implements WindowController
 		license.setText(UiUtils.getResourceFileAsString(getClass().getResourceAsStream("/LICENSE")));
 
 		closeWindow.setOnAction(UiUtils::closeWindow);
-		UiUtils.linkify(infoPane);
+		UiUtils.linkify(infoPane, hostServices);
 
 		logo.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY)

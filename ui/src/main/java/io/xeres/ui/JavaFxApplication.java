@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,12 +20,14 @@
 package io.xeres.ui;
 
 import io.xeres.common.mui.MinimalUserInterface;
-import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 
 import java.util.Objects;
 
@@ -51,7 +53,8 @@ public class JavaFxApplication extends Application
 		{
 			springContext = new SpringApplicationBuilder()
 					.sources(springApplicationClass)
-					.headless(false) // JavaFX defaults to true which is not what we want
+					.headless(false) // JavaFX defaults to true, which is not what we want
+					.initializers(initializers())
 					.run(getParameters().getRaw().toArray(new String[0]));
 		}
 		catch (Exception e)
@@ -69,10 +72,17 @@ public class JavaFxApplication extends Application
 		// This allows all JavaFX crashes to show up in the logger instead of stdout
 		Thread.setDefaultUncaughtExceptionHandler(JavaFxApplication::handleException);
 
-		var openUrlService = springContext.getBean(UriService.class);
-		openUrlService.setHostServices(getHostServices());
-
 		springContext.publishEvent(new StageReadyEvent(primaryStage));
+	}
+
+	/**
+	 * Registers HostServices as a bean.
+	 *
+	 * @return the ApplicationContextInitializer.
+	 */
+	private ApplicationContextInitializer<GenericApplicationContext> initializers()
+	{
+		return ac -> ac.registerBean(HostServices.class, this::getHostServices);
 	}
 
 	@Override

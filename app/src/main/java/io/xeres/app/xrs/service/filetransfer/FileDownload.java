@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,9 +41,9 @@ import static java.nio.file.StandardOpenOption.*;
 /**
  * This implementation of {@link FileProvider} is for downloading a file.
  */
-class FileLeecher extends FileSeeder
+class FileDownload extends FileUpload
 {
-	private static final Logger log = LoggerFactory.getLogger(FileLeecher.class);
+	private static final Logger log = LoggerFactory.getLogger(FileDownload.class);
 	private RandomAccessFile randomAccessFile;
 
 	private final long id;
@@ -53,7 +53,7 @@ class FileLeecher extends FileSeeder
 	private final Map<Integer, Chunk> chunks = new HashMap<>();
 	private long bytesWritten;
 
-	public FileLeecher(long id, File file, long size, BitSet chunkMap, FileTransferStrategy fileTransferStrategy)
+	public FileDownload(long id, File file, long size, BitSet chunkMap, FileTransferStrategy fileTransferStrategy)
 	{
 		super(file);
 		this.id = id;

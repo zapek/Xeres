@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferStrategy.LINEAR;
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileLeecherTest
+class FileDownloadTest
 {
 	private static String tempDir;
 
@@ -44,7 +44,7 @@ class FileLeecherTest
 	void Sparse_Success()
 	{
 		var file = Paths.get(tempDir, "sparsefile.tmp").toFile();
-		var fileLeecher = new FileLeecher(0L, file, 16384, null, LINEAR);
+		var fileLeecher = new FileDownload(0L, file, 16384, null, LINEAR);
 		fileLeecher.open();
 		assertEquals(16384, fileLeecher.getFileSize());
 		fileLeecher.close();
@@ -70,7 +70,7 @@ class FileLeecherTest
 	void Read_NotAvailable()
 	{
 		var file = Paths.get(tempDir, "filesize.tmp").toFile();
-		var fileLeecher = new FileLeecher(0L, file, 256, null, LINEAR);
+		var fileLeecher = new FileDownload(0L, file, 256, null, LINEAR);
 		fileLeecher.open();
 		assertThrows(IOException.class, () -> fileLeecher.read(0, 256));
 		fileLeecher.close();

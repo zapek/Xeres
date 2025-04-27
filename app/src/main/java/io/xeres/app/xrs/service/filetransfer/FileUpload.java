@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,9 +40,9 @@ import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_
 /**
  * This implementation of {@link FileProvider} is for uploading a file.
  */
-class FileSeeder implements FileProvider
+class FileUpload implements FileProvider
 {
-	private static final Logger log = LoggerFactory.getLogger(FileSeeder.class);
+	private static final Logger log = LoggerFactory.getLogger(FileUpload.class);
 	protected final File file;
 	protected FileChannel channel;
 	protected FileLock lock;
@@ -50,7 +50,7 @@ class FileSeeder implements FileProvider
 	private BitSet chunkMap;
 	private ByteBuffer buf;
 
-	public FileSeeder(File file)
+	public FileUpload(File file)
 	{
 		this.file = file;
 	}

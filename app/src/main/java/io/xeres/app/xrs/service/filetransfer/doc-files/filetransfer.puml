@@ -1,20 +1,29 @@
 @startuml
 'https://plantuml.com/component-diagram
+<style>
+document {
+  BackGroundColor #444444
+}
+root {
+  FontColor #?black:white
+  LineColor white
+}
+</style>
 skinparam componentStyle rectangle
 
 package "File Transfer" {
   [FileTransferManager] --> [FileTransferRsService]
 }
 
-[FileTransferManager] <-> FileTransferAgent
+[FileTransferManager] <-> FileTransferAgents
 
-package "FileTransferAgent" {
-	[FileLeecher] <<FileProvider>>
-	[FileSeeder] <<FileProvider>>
+package "FileTransferAgents" {
+	[Leechers] <<FileProvider>>
+	[Seeders] <<FileProvider>>
 }
 
-[FileLeecher] <--> [FileSystem]
-[FileSeeder] <--> [FileSystem]
+[Leechers] <--> [FileSystem]
+[Seeders] <--> [FileSystem]
 
 [FileSystem]
 

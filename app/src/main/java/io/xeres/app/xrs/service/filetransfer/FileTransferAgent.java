@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -106,8 +106,8 @@ class FileTransferAgent
 	 */
 	public boolean process()
 	{
-		processDownloads();
-		processUploads();
+		processSeeders();
+		processLeechers();
 		return !(leechers.isEmpty() && seeders.isEmpty());
 	}
 
@@ -146,7 +146,7 @@ class FileTransferAgent
 		return done;
 	}
 
-	private void processDownloads()
+	private void processSeeders()
 	{
 		seeders.entrySet().stream()
 				.skip(getRandomStreamSkip(seeders.size()))
@@ -196,7 +196,7 @@ class FileTransferAgent
 		}
 	}
 
-	private void processUploads()
+	private void processLeechers()
 	{
 		leechers.entrySet().stream()
 				.skip(getRandomStreamSkip(leechers.size()))
@@ -208,7 +208,7 @@ class FileTransferAgent
 					if (!remaining)
 					{
 						// We just remove the leecher here and nothing else. The fileTransferManager will close the file
-						// when it's idle for some time otherwise it would need to be reopened immediately for the
+						// when it's idle for some time, otherwise it would need to be reopened immediately for the
 						// next chunk.
 						chunkList.remove(chunkSender);
 						if (chunkList.isEmpty())

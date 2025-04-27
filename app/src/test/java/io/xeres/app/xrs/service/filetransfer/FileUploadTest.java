@@ -28,7 +28,7 @@ import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileSeederTest
+class FileUploadTest
 {
 	private static final int TEMP_FILE_SIZE = 256;
 
@@ -51,7 +51,7 @@ class FileSeederTest
 	void GetFileSize_NotInitialized() throws IOException
 	{
 		var tempFile = createTempFile(0);
-		var fileSeeder = new FileSeeder(tempFile);
+		var fileSeeder = new FileUpload(tempFile);
 		assertThrows(IllegalStateException.class, fileSeeder::getFileSize);
 		deleteTempFile(tempFile);
 	}
@@ -60,7 +60,7 @@ class FileSeederTest
 	void GetFileSize_Success() throws IOException
 	{
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
-		var fileSeeder = new FileSeeder(tempFile);
+		var fileSeeder = new FileUpload(tempFile);
 		fileSeeder.open();
 		assertEquals(TEMP_FILE_SIZE, fileSeeder.getFileSize());
 		fileSeeder.close();
@@ -71,7 +71,7 @@ class FileSeederTest
 	void Write_Illegal() throws IOException
 	{
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
-		var fileSeeder = new FileSeeder(tempFile);
+		var fileSeeder = new FileUpload(tempFile);
 		fileSeeder.open();
 		assertThrows(IllegalArgumentException.class, () -> fileSeeder.write(0, new byte[]{1, 2, 3}));
 		fileSeeder.close();
@@ -82,7 +82,7 @@ class FileSeederTest
 	void Read_Success() throws IOException
 	{
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
-		var fileSeeder = new FileSeeder(tempFile);
+		var fileSeeder = new FileUpload(tempFile);
 		fileSeeder.open();
 		assertArrayEquals(Files.readAllBytes(tempFile.toPath()), fileSeeder.read(0, TEMP_FILE_SIZE));
 		fileSeeder.close();
@@ -93,7 +93,7 @@ class FileSeederTest
 	void GetCompressedChunkMap_Success() throws IOException
 	{
 		var tempFile = createTempFile(TEMP_FILE_SIZE);
-		var fileSeeder = new FileSeeder(tempFile);
+		var fileSeeder = new FileUpload(tempFile);
 		fileSeeder.open();
 		assertTrue(fileSeeder.getChunkMap().get(0));
 		fileSeeder.close();
@@ -104,7 +104,7 @@ class FileSeederTest
 	void IsComplete_Success() throws IOException
 	{
 		var tempFile = createTempFile(0);
-		var fileSeeder = new FileSeeder(tempFile);
+		var fileSeeder = new FileUpload(tempFile);
 		fileSeeder.isComplete();
 		assertTrue(fileSeeder.isComplete());
 		deleteTempFile(tempFile);

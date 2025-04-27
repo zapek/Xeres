@@ -1,129 +1,149 @@
-<svg xmlns="http://www.w3.org/2000/svg" contentStyleType="text/css" height="472px" preserveAspectRatio="none" style="width:714px;height:472px;background:#FFFFFF;" version="1.1" viewBox="0 0 714 472" width="714px" zoomAndPan="magnify">
+<!--
+  - Copyright (c) 2025 by David Gerber - https://zapek.com
+  -
+  - This file is part of Xeres.
+  -
+  - Xeres is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Xeres is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" contentStyleType="text/css" height="472px" preserveAspectRatio="none" style="width:714px;height:472px;background:#444444;" version="1.1" viewBox="0 0 714 472" width="714px" zoomAndPan="magnify">
 	<defs/>
-	<g><!--cluster File Transfer-->
+	<g>
+		<rect fill="#444444" height="472" style="stroke:none;stroke-width:1.0;" width="714" x="0" y="0"/><!--cluster File Transfer-->
 		<g id="cluster_File Transfer">
 			<path d="M158.5,23.0137 L243.5273,23.0137 A3.75,3.75 0 0 1 246.0273,25.5137 L253.0273,47.6348 L343.5,47.6348 A2.5,2.5 0 0 1 346,50.1348 L346,220.5137 A2.5,2.5 0 0 1 343.5,223.0137 L158.5,223.0137 A2.5,2.5 0 0 1 156,220.5137 L156,25.5137 A2.5,2.5 0 0 1 158.5,23.0137 " fill="none"
-			      style="stroke:#000000;stroke-width:1.5;"/>
-			<line style="stroke:#000000;stroke-width:1.5;" x1="156" x2="253.0273" y1="47.6348" y2="47.6348"/>
-			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="84.0273" x="160" y="40.1211">File Transfer</text>
-		</g><!--cluster FileTransferAgent-->
-		<g id="cluster_FileTransferAgent">
-			<path d="M380.5,6.0137 L501.2998,6.0137 A3.75,3.75 0 0 1 503.7998,8.5137 L510.7998,30.6348 L697.5,30.6348 A2.5,2.5 0 0 1 700,33.1348 L700,129.5137 A2.5,2.5 0 0 1 697.5,132.0137 L380.5,132.0137 A2.5,2.5 0 0 1 378,129.5137 L378,8.5137 A2.5,2.5 0 0 1 380.5,6.0137 " fill="none"
-			      style="stroke:#000000;stroke-width:1.5;"/>
-			<line style="stroke:#000000;stroke-width:1.5;" x1="378" x2="510.7998" y1="30.6348" y2="30.6348"/>
-			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="119.7998" x="382" y="23.1211">FileTransferAgent</text>
+			      style="stroke:#FFFFFF;stroke-width:1.5;"/>
+			<line style="stroke:#FFFFFF;stroke-width:1.5;" x1="156" x2="253.0273" y1="47.6348" y2="47.6348"/>
+			<text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="84.0273" x="160" y="40.1211">File Transfer</text>
+		</g><!--cluster FileTransferAgents-->
+		<g id="cluster_FileTransferAgents">
+			<path d="M380.5,6.0137 L509.0859,6.0137 A3.75,3.75 0 0 1 511.5859,8.5137 L518.5859,30.6348 L697.5,30.6348 A2.5,2.5 0 0 1 700,33.1348 L700,129.5137 A2.5,2.5 0 0 1 697.5,132.0137 L380.5,132.0137 A2.5,2.5 0 0 1 378,129.5137 L378,8.5137 A2.5,2.5 0 0 1 380.5,6.0137 " fill="none"
+			      style="stroke:#FFFFFF;stroke-width:1.5;"/>
+			<line style="stroke:#FFFFFF;stroke-width:1.5;" x1="378" x2="518.5859" y1="30.6348" y2="30.6348"/>
+			<text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="127.5859" x="382" y="23.1211">FileTransferAgents</text>
 		</g><!--cluster Turtle-->
 		<g id="cluster_Turtle">
 			<path d="M8.5,323.0137 L48.3896,323.0137 A3.75,3.75 0 0 1 50.8896,325.5137 L57.8896,347.6348 L208.5,347.6348 A2.5,2.5 0 0 1 211,350.1348 L211,412.5137 A2.5,2.5 0 0 1 208.5,415.0137 L8.5,415.0137 A2.5,2.5 0 0 1 6,412.5137 L6,325.5137 A2.5,2.5 0 0 1 8.5,323.0137 " fill="none"
-			      style="stroke:#000000;stroke-width:1.5;"/>
-			<line style="stroke:#000000;stroke-width:1.5;" x1="6" x2="57.8896" y1="347.6348" y2="347.6348"/>
-			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="38.8896" x="10" y="340.1211">Turtle</text>
+			      style="stroke:#FFFFFF;stroke-width:1.5;"/>
+			<line style="stroke:#FFFFFF;stroke-width:1.5;" x1="6" x2="57.8896" y1="347.6348" y2="347.6348"/>
+			<text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="38.8896" x="10" y="340.1211">Turtle</text>
 		</g><!--cluster Peers-->
 		<g id="cluster_Peers">
 			<path d="M245.5,315.0137 L284.6445,315.0137 A3.75,3.75 0 0 1 287.1445,317.5137 L294.1445,339.6348 L481.5,339.6348 A2.5,2.5 0 0 1 484,342.1348 L484,420.5137 A2.5,2.5 0 0 1 481.5,423.0137 L245.5,423.0137 A2.5,2.5 0 0 1 243,420.5137 L243,317.5137 A2.5,2.5 0 0 1 245.5,315.0137 " fill="none"
-			      style="stroke:#000000;stroke-width:1.5;"/>
-			<line style="stroke:#000000;stroke-width:1.5;" x1="243" x2="294.1445" y1="339.6348" y2="339.6348"/>
-			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="38.1445" x="247" y="332.1211">Peers</text>
+			      style="stroke:#FFFFFF;stroke-width:1.5;"/>
+			<line style="stroke:#FFFFFF;stroke-width:1.5;" x1="243" x2="294.1445" y1="339.6348" y2="339.6348"/>
+			<text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="38.1445" x="247" y="332.1211">Peers</text>
 		</g><!--cluster H2 Database-->
 		<g id="cluster_H2 Database">
-			<path d="M516,257.0137 C516,247.0137 606.5,247.0137 606.5,247.0137 C606.5,247.0137 697,247.0137 697,257.0137 L697,445.0137 C697,455.0137 606.5,455.0137 606.5,455.0137 C606.5,455.0137 516,455.0137 516,445.0137 L516,257.0137 " fill="none" style="stroke:#181818;stroke-width:1.0;"/>
-			<path d="M516,257.0137 C516,267.0137 606.5,267.0137 606.5,267.0137 C606.5,267.0137 697,267.0137 697,257.0137 " fill="none" style="stroke:#181818;stroke-width:1.0;"/>
-			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="84.041" x="564.4795" y="284.1211">H2 Database</text>
+			<path d="M516,257.0137 C516,247.0137 606.5,247.0137 606.5,247.0137 C606.5,247.0137 697,247.0137 697,257.0137 L697,445.0137 C697,455.0137 606.5,455.0137 606.5,455.0137 C606.5,455.0137 516,455.0137 516,445.0137 L516,257.0137 " fill="none" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<path d="M516,257.0137 C516,267.0137 606.5,267.0137 606.5,267.0137 C606.5,267.0137 697,267.0137 697,257.0137 " fill="none" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="84.041" x="564.4795" y="284.1211">H2 Database</text>
 		</g><!--cluster Metadata-->
 		<g id="cluster_Metadata">
 			<path d="M550.5,315.0137 L612.1826,315.0137 A3.75,3.75 0 0 1 614.6826,317.5137 L621.6826,339.6348 L662.5,339.6348 A2.5,2.5 0 0 1 665,342.1348 L665,420.5137 A2.5,2.5 0 0 1 662.5,423.0137 L550.5,423.0137 A2.5,2.5 0 0 1 548,420.5137 L548,317.5137 A2.5,2.5 0 0 1 550.5,315.0137 " fill="none"
-			      style="stroke:#000000;stroke-width:1.5;"/>
-			<line style="stroke:#000000;stroke-width:1.5;" x1="548" x2="621.6826" y1="339.6348" y2="339.6348"/>
-			<text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="60.6826" x="552" y="332.1211">Metadata</text>
+			      style="stroke:#FFFFFF;stroke-width:1.5;"/>
+			<line style="stroke:#FFFFFF;stroke-width:1.5;" x1="548" x2="621.6826" y1="339.6348" y2="339.6348"/>
+			<text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="60.6826" x="552" y="332.1211">Metadata</text>
 		</g><!--entity FileTransferManager-->
 		<g id="elem_FileTransferManager">
-			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="149.9375" x="178" y="60.0137"/>
+			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="149.9375" x="178" y="60.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="129.9375" x="188" y="85.1211">FileTransferManager</text>
 		</g><!--entity FileTransferRsService-->
 		<g id="elem_FileTransferRsService">
-			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="158.4756" x="172" y="168.0137"/>
+			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="158.4756" x="172" y="168.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="138.4756" x="182" y="193.1211">FileTransferRsService</text>
-		</g><!--entity FileLeecher-->
-		<g id="elem_FileLeecher">
-			<rect fill="#F1F1F1" height="57.2422" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="110.2617" x="566" y="51.0137"/>
+		</g><!--entity Leechers-->
+		<g id="elem_Leechers">
+			<rect fill="#F1F1F1" height="57.2422" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="110.2617" x="566" y="51.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="90.2617" x="576" y="76.1211">&#171;FileProvider&#187;</text>
-			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73.1514" x="584.5552" y="94.7422">FileLeecher</text>
-		</g><!--entity FileSeeder-->
-		<g id="elem_FileSeeder">
-			<rect fill="#F1F1F1" height="57.2422" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="110.2617" x="421" y="51.0137"/>
+			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5928" x="592.3345" y="94.7422">Leechers</text>
+		</g><!--entity Seeders-->
+		<g id="elem_Seeders">
+			<rect fill="#F1F1F1" height="57.2422" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="110.2617" x="421" y="51.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="90.2617" x="431" y="76.1211">&#171;FileProvider&#187;</text>
-			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="67.7031" x="442.2793" y="94.7422">FileSeeder</text>
+			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.1445" x="450.0586" y="94.7422">Seeders</text>
 		</g><!--entity TurtleRsService-->
 		<g id="elem_TurtleRsService">
-			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="119.5791" x="22" y="360.0137"/>
+			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="119.5791" x="22" y="360.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="99.5791" x="32" y="385.1211">TurtleRsService</text>
 		</g><!--entity Tunnels-->
 		<g id="elem_Tunnels">
-			<ellipse cx="186" cy="379.5137" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/>
-			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="49.8066" x="161.0967" y="411.6211">Tunnels</text>
+			<ellipse cx="186" cy="379.5137" fill="#F1F1F1" rx="8" ry="8" style="stroke:#FFFFFF;stroke-width:0.5;"/>
+			<text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="49.8066" x="161.0967" y="411.6211">Tunnels</text>
 		</g><!--entity Peer #1-->
 		<g id="elem_Peer #1">
-			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="69.0342" x="390.5" y="360.0137"/>
+			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="69.0342" x="390.5" y="360.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="49.0342" x="400.5" y="385.1211">Peer #1</text>
 		</g><!--entity Peer #2-->
 		<g id="elem_Peer #2">
-			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="69.0342" x="286.5" y="360.0137"/>
+			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="69.0342" x="286.5" y="360.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="49.0342" x="296.5" y="385.1211">Peer #2</text>
 		</g><!--entity Files-->
 		<g id="elem_Files">
-			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="49.5586" x="591" y="360.0137"/>
+			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="49.5586" x="591" y="360.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="29.5586" x="601" y="385.1211">Files</text>
 		</g><!--entity FileSystem-->
 		<g id="elem_FileSystem">
-			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="89.2344" x="503.5" y="168.0137"/>
+			<rect fill="#F1F1F1" height="38.6211" rx="2.5" ry="2.5" style="stroke:#FFFFFF;stroke-width:0.5;" width="89.2344" x="503.5" y="168.0137"/>
 			<text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="69.2344" x="513.5" y="193.1211">FileSystem</text>
 		</g><!--link FileTransferManager to FileTransferRsService-->
 		<g id="link_FileTransferManager_FileTransferRsService">
-			<path d="M252.64,99.4637 C252.28,118.7537 251.8354,142.4948 251.4654,161.7248 " fill="none" id="FileTransferManager-to-FileTransferRsService" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="251.35,167.7237,255.5224,158.8023,251.4462,162.7246,247.5239,158.6484,251.35,167.7237" style="stroke:#181818;stroke-width:1.0;"/>
-		</g><!--link FileTransferManager to FileTransferAgent-->
-		<g id="link_FileTransferManager_FileTransferAgent">
+			<path d="M252.64,99.4637 C252.28,118.7537 251.8354,142.4948 251.4654,161.7248 " fill="none" id="FileTransferManager-to-FileTransferRsService" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="251.35,167.7237,255.5224,158.8023,251.4462,162.7246,247.5239,158.6484,251.35,167.7237" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+		</g><!--link FileTransferManager to FileTransferAgents-->
+		<g id="link_FileTransferManager_FileTransferAgents">
 			<path d="M334.07,79.5137 C343.65,79.5137 347.23,79.5137 356.81,79.5137 C361.6,79.5137 366.39,79.5137 371.18,79.5137 C372.3775,79.5137 373.575,79.5137 374.7725,79.5137 C375.3713,79.5137 375.97,79.5137 376.5688,79.5137 C376.8681,79.5137 377.1675,79.5137 377.4669,79.5137 C377.6166,79.5137 371.7663,79.5137 371.9159,79.5137 "
-			      fill="none" id="FileTransferManager-FileTransferAgent" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="328.07,79.5137,337.07,83.5137,333.07,79.5137,337.07,75.5137,328.07,79.5137" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="377.9159,79.5137,368.9159,75.5137,372.9159,79.5137,368.9159,83.5137,377.9159,79.5137" style="stroke:#181818;stroke-width:1.0;"/>
-		</g><!--link FileLeecher to FileSystem-->
-		<g id="link_FileLeecher_FileSystem">
-			<path d="M598.6062,113.0248 C585.6762,131.7948 575.7236,146.2625 564.3236,162.8125 " fill="none" id="FileLeecher-FileSystem" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="602.01,108.0837,593.6103,113.2262,599.1735,112.2013,600.1984,117.7645,602.01,108.0837" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="560.92,167.7537,569.3195,162.6109,563.7563,163.636,562.7313,158.0728,560.92,167.7537" style="stroke:#181818;stroke-width:1.0;"/>
-		</g><!--link FileSeeder to FileSystem-->
-		<g id="link_FileSeeder_FileSystem">
-			<path d="M498.1014,113.0469 C510.8514,131.8169 520.649,146.2402 531.889,162.7902 " fill="none" id="FileSeeder-FileSystem" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="494.73,108.0837,496.4783,117.7761,497.5395,112.2197,503.0959,113.2809,494.73,108.0837" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="535.26,167.7537,533.5125,158.0611,532.4508,163.6174,526.8945,162.5557,535.26,167.7537" style="stroke:#181818;stroke-width:1.0;"/>
+			      fill="none" id="FileTransferManager-FileTransferAgents" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="328.07,79.5137,337.07,83.5137,333.07,79.5137,337.07,75.5137,328.07,79.5137" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="377.9159,79.5137,368.9159,75.5137,372.9159,79.5137,368.9159,83.5137,377.9159,79.5137" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+		</g><!--link Leechers to FileSystem-->
+		<g id="link_Leechers_FileSystem">
+			<path d="M598.6062,113.0248 C585.6762,131.7948 575.7236,146.2625 564.3236,162.8125 " fill="none" id="Leechers-FileSystem" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="602.01,108.0837,593.6103,113.2262,599.1735,112.2013,600.1984,117.7645,602.01,108.0837" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="560.92,167.7537,569.3195,162.6109,563.7563,163.636,562.7313,158.0728,560.92,167.7537" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+		</g><!--link Seeders to FileSystem-->
+		<g id="link_Seeders_FileSystem">
+			<path d="M498.1014,113.0469 C510.8514,131.8169 520.649,146.2402 531.889,162.7902 " fill="none" id="Seeders-FileSystem" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="494.73,108.0837,496.4783,117.7761,497.5395,112.2197,503.0959,113.2809,494.73,108.0837" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="535.26,167.7537,533.5125,158.0611,532.4508,163.6174,526.8945,162.5557,535.26,167.7537" style="stroke:#FFFFFF;stroke-width:1.0;"/>
 		</g><!--link TurtleRsService to Tunnels-->
 		<g id="link_TurtleRsService_Tunnels">
-			<path d="M148.12,379.5137 C159.67,379.5137 159.21,379.5137 170.75,379.5137 " fill="none" id="TurtleRsService-Tunnels" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="142.12,379.5137,151.12,383.5137,147.12,379.5137,151.12,375.5137,142.12,379.5137" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="176.75,379.5137,167.75,375.5137,171.75,379.5137,167.75,383.5137,176.75,379.5137" style="stroke:#181818;stroke-width:1.0;"/>
+			<path d="M148.12,379.5137 C159.67,379.5137 159.21,379.5137 170.75,379.5137 " fill="none" id="TurtleRsService-Tunnels" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="142.12,379.5137,151.12,383.5137,147.12,379.5137,151.12,375.5137,142.12,379.5137" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="176.75,379.5137,167.75,375.5137,171.75,379.5137,167.75,383.5137,176.75,379.5137" style="stroke:#FFFFFF;stroke-width:1.0;"/>
 		</g><!--link FileTransferRsService to TurtleRsService-->
 		<g id="link_FileTransferRsService_TurtleRsService">
-			<path d="M200.66,209.9594 C184.81,218.0794 173.05,226.0037 160,239.0137 C124.04,274.8637 101.7594,325.1343 90.7694,354.0843 " fill="none" id="FileTransferRsService-TurtleRsService" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="206,207.2237,196.1662,207.7672,201.55,209.5034,199.8138,214.8873,206,207.2237" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="88.64,359.6937,95.5738,352.6992,90.4145,355.0192,88.0946,349.8599,88.64,359.6937" style="stroke:#181818;stroke-width:1.0;"/>
+			<path d="M200.66,209.9594 C184.81,218.0794 173.05,226.0037 160,239.0137 C124.04,274.8637 101.7594,325.1343 90.7694,354.0843 " fill="none" id="FileTransferRsService-TurtleRsService" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="206,207.2237,196.1662,207.7672,201.55,209.5034,199.8138,214.8873,206,207.2237" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="88.64,359.6937,95.5738,352.6992,90.4145,355.0192,88.0946,349.8599,88.64,359.6937" style="stroke:#FFFFFF;stroke-width:1.0;"/>
 		</g><!--link FileTransferRsService to Metadata-->
 		<g id="link_FileTransferRsService_Metadata">
 			<path d="M336.1276,191.3166 C382.4976,196.1566 434.03,208.0637 476,239.0137 C504.31,259.8937 524.1325,294.0137 536.9637,323.2824 C540.1716,330.5996 542.9424,337.6136 545.2997,344.0417 C545.889,345.6487 546.4525,347.2191 546.9905,348.7485 C547.2595,349.5132 547.5221,350.2676 547.7784,351.0112 C547.8425,351.1971 545.9599,345.7068 546.0232,345.8914 "
-			      fill="none" id="FileTransferRsService-Metadata" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="330.16,190.6937,338.6961,195.6064,335.133,191.2127,339.5266,187.6496,330.16,190.6937" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="547.9694,351.5669,548.8337,341.7561,546.3475,346.8373,541.2663,344.3511,547.9694,351.5669" style="stroke:#181818;stroke-width:1.0;"/>
+			      fill="none" id="FileTransferRsService-Metadata" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="330.16,190.6937,338.6961,195.6064,335.133,191.2127,339.5266,187.6496,330.16,190.6937" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="547.9694,351.5669,548.8337,341.7561,546.3475,346.8373,541.2663,344.3511,547.9694,351.5669" style="stroke:#FFFFFF;stroke-width:1.0;"/>
 		</g><!--link FileTransferRsService to Peers-->
 		<g id="link_FileTransferRsService_Peers">
-			<path d="M251,213.0737 C251,236.6087 251,272.5087 251,308.9937 C251,310.1338 251,311.2687 251,312.3976 C251,312.962 251,313.5249 251,314.0862 C251,314.3669 251,308.6472 251,308.927 " fill="none" id="FileTransferRsService-Peers" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="251,207.0737,247,216.0737,251,212.0737,255,216.0737,251,207.0737" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="251,314.927,255,305.927,251,309.927,247,305.927,251,314.927" style="stroke:#181818;stroke-width:1.0;"/>
+			<path d="M251,213.0737 C251,236.6087 251,272.5087 251,308.9937 C251,310.1338 251,311.2687 251,312.3976 C251,312.962 251,313.5249 251,314.0862 C251,314.3669 251,308.6472 251,308.927 " fill="none" id="FileTransferRsService-Peers" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="251,207.0737,247,216.0737,251,212.0737,255,216.0737,251,207.0737" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="251,314.927,255,305.927,251,309.927,247,305.927,251,314.927" style="stroke:#FFFFFF;stroke-width:1.0;"/>
 		</g><!--link Tunnels to Peers-->
 		<g id="link_Tunnels_Peers">
 			<path d="M200.8888,384.4918 C210.1238,387.2518 213.6125,386.6562 222.85,386.1424 C227.4688,385.8855 232.0875,385.2196 236.7059,384.1448 C237.8605,383.8761 239.0151,383.5818 240.1697,383.262 C240.747,383.1021 241.3243,382.9358 241.9015,382.7631 C242.1902,382.6767 242.4788,382.5888 242.7674,382.4992 C242.8396,382.4769 237.1857,384.2465 237.2578,384.224 "
-			      fill="none" id="Tunnels-Peers" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="195.14,382.7737,202.6177,389.1833,199.9306,384.2054,204.9085,381.5183,195.14,382.7737" style="stroke:#181818;stroke-width:1.0;"/>
-			<polygon fill="#181818" points="242.9839,382.4318,233.2,381.3026,238.2122,383.9253,235.5895,388.9374,242.9839,382.4318" style="stroke:#181818;stroke-width:1.0;"/>
-		</g><!--SRC=[XL6nQiCm49shhn3kqCaroLY2eH1AXmP2xArukDeNHqIMZIG7Gic_Lv9bkqe26GntzzuzlNj-EMZTgRSawJW8tJVyjMoRn7nTAr3ek69GIsY8EZBHWQdeX6Nwp95AB3M8cYCX7PH7g9567ym0kGIXzYWZ-aie_RQpSRG1ONYoe76SXiXEPIXFhCI2N0YvlxGoI_-1zzgOkNezmAo39wVrXLWUdCRAjblPdbY5CaqzdY5MT-7Hp2mmMS_EIcDJa53W1YPXDxdDUwav-f26PWx1tPhtGY1NriEqjKMKoY_PcZulYhbUklGgqF03oh0_btJjcs5dtt9ZaqORr61fmzJ_9MMLBZVv1wxiTTTc7z37jnxnt6c6vCyUCXYdVm00]-->
+			      fill="none" id="Tunnels-Peers" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="195.14,382.7737,202.6177,389.1833,199.9306,384.2054,204.9085,381.5183,195.14,382.7737" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+			<polygon fill="#FFFFFF" points="242.9839,382.4318,233.2,381.3026,238.2122,383.9253,235.5895,388.9374,242.9839,382.4318" style="stroke:#FFFFFF;stroke-width:1.0;"/>
+		</g><!--SRC=[XL5DYy8m43rlVaNGmvxSih8dALts0tSF2hBr9Zt4Tgp5D2b9wYAB_tqdJQoj2XO2oRptvhsPFcwDgVGa22hEXAbB_fJACi1JIG72ZBA2vOgL9DJcm24YcKph4W7wHoXzP-dkIybQP1-IIqM7Byr7ZaH9wIXJAOm7NzSS-PFVRM40aLaXm26kSYHXu4tqhX0LGrlQ1eajGXMaXecS0o4Lzc8vqC6qG62fcD0RK8F6T6LhfzAS2UIfX8v6KH_vqJ6eVP52WkRajYX4KHTuop6Clh3lWpR3mse6a6v1QMmHMiv2oNsHWOeY16E0x3PcWtIaRURue0sK2Ub8hp3IVxKHbxKo7FngtECyUZFXiXO2kBRkhMe1QED5zaw7pydvFcvsbZ73ramZ-tjCF_t3QJQIOquwc8DXbkQg_jzes-bujVLUAZlTPTWxz9FNFLup6fBys6u7f-e_]-->
 	</g>
 </svg>

@@ -31,11 +31,17 @@ public record IdentityUri(String name, GxsId id, String groupData) implements Ur
 	static String PARAMETER_GROUPDATA = "groupdata";
 
 	@Override
-	public String toString()
+	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_GXSID, Id.toString(id),
 				PARAMETER_NAME, name,
 				PARAMETER_GROUPDATA, groupData);
+	}
+
+	@Override
+	public String toString()
+	{
+		return toUriString();
 	}
 }

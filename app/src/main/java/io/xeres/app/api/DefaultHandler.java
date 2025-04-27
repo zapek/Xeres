@@ -29,7 +29,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.common.AppName;
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.lang3.ObjectUtils;
@@ -138,7 +137,7 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 
 	// This one has to use an override
 	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(@Nonnull MethodArgumentNotValidException ex, @Nonnull HttpHeaders headers, HttpStatusCode status, @Nonnull WebRequest request)
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request)
 	{
 		var problemDetail = handleValidationException(ex);
 		return ResponseEntity.status(status.value()).body(problemDetail);

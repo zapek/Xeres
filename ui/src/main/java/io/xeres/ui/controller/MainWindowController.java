@@ -41,12 +41,17 @@ import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.tray.TrayService;
-import io.xeres.ui.support.uri.*;
+import io.xeres.ui.support.uri.ChatRoomUri;
+import io.xeres.ui.support.uri.ForumUri;
+import io.xeres.ui.support.uri.IdentityUri;
+import io.xeres.ui.support.uri.SearchUri;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.version.VersionChecker;
 import io.xeres.ui.support.window.WindowManager;
+import jakarta.annotation.Nullable;
 import javafx.animation.*;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -230,6 +235,7 @@ public class MainWindowController implements WindowController
 	private final NotificationClient notificationClient;
 	private final UpdateClient updateClient;
 	private final BuildProperties buildProperties;
+	private final HostServices hostServices;
 	private final ResourceBundle bundle;
 
 	private VersionChecker versionChecker;
@@ -241,7 +247,7 @@ public class MainWindowController implements WindowController
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, UpdateClient updateClient, BuildProperties buildProperties, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, UpdateClient updateClient, BuildProperties buildProperties, @Nullable HostServices hostServices, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -252,6 +258,7 @@ public class MainWindowController implements WindowController
 		this.notificationClient = notificationClient;
 		this.updateClient = updateClient;
 		this.buildProperties = buildProperties;
+		this.hostServices = hostServices;
 		this.bundle = bundle;
 	}
 
@@ -265,13 +272,13 @@ public class MainWindowController implements WindowController
 
 		showQrCodeButton.setOnAction(event -> showQrCode());
 
-		launchWebInterface.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl()));
-		launchSwagger.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
+		launchWebInterface.setOnAction(event -> openUrl(RemoteUtils.getControlUrl()));
+		launchSwagger.setOnAction(event -> openUrl(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
 
-		showDocumentation.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
-		webHelpButton.setOnAction(event -> UriService.openUri(XERES_DOCS_URL));
+		showDocumentation.setOnAction(event -> openUrl(XERES_DOCS_URL));
+		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));
 
-		reportBug.setOnAction(event -> UriService.openUri(XERES_BUGS_URL));
+		reportBug.setOnAction(event -> openUrl(XERES_BUGS_URL));
 
 		showAboutWindow.setOnAction(event -> windowManager.openAbout());
 
@@ -316,7 +323,7 @@ public class MainWindowController implements WindowController
 			debugSeparator.setVisible(true);
 			debug.setVisible(true);
 			runGc.setOnAction(event -> System.gc());
-			h2Console.setOnAction(event -> UriService.openUri(RemoteUtils.getControlUrl() + "/h2-console"));
+			h2Console.setOnAction(event -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
 			systemProperties.setOnAction(event -> windowManager.openSystemProperties());
 			openShell.setOnAction(event -> MinimalUserInterface.openShell());
 			openUiCheck.setOnAction(event -> windowManager.openUiCheck());
@@ -389,7 +396,7 @@ public class MainWindowController implements WindowController
 
 		var downloadButton = new Button(bundle.getString("download"));
 		downloadButton.setDefaultButton(true);
-		downloadButton.setOnAction(actionEvent -> UriService.openUri(XERES_DOWNLOAD_URL));
+		downloadButton.setOnAction(actionEvent -> openUrl(XERES_DOWNLOAD_URL));
 		var skipButton = new Button(bundle.getString("skip"));
 		skipButton.setOnAction(actionEvent -> versionChecker.skipUpdate(tagName));
 		msg.setPrimaryActions(downloadButton, skipButton);
@@ -660,7 +667,7 @@ public class MainWindowController implements WindowController
 				.doOnSuccess(versionResponse -> Platform.runLater(() -> {
 					if (versionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
 					{
-						UiUtils.alertConfirm(MessageFormat.format(bundle.getString("update.new-version"), versionResponse.tagName().substring(1)), () -> UriService.openUri(XERES_DOWNLOAD_URL));
+						UiUtils.alertConfirm(MessageFormat.format(bundle.getString("update.new-version"), versionResponse.tagName().substring(1)), () -> openUrl(XERES_DOWNLOAD_URL));
 					}
 					else
 					{
@@ -681,5 +688,13 @@ public class MainWindowController implements WindowController
 					}
 				}))
 				.subscribe();
+	}
+
+	private void openUrl(String url)
+	{
+		if (hostServices != null)
+		{
+			hostServices.showDocument(url);
+		}
 	}
 }

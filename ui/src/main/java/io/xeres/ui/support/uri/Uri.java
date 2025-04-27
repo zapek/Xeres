@@ -26,6 +26,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface Uri
 {
+	String toUriString();
+
 	static String buildUri(String authority, String... args)
 	{
 		var sb = new StringBuilder("retroshare");

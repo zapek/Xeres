@@ -40,7 +40,6 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
-import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,7 +80,7 @@ public class PeerHandler extends ChannelDuplexHandler
 	}
 
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg)
+	public void channelRead(ChannelHandlerContext ctx, Object msg)
 	{
 		var peerConnection = ctx.channel().attr(PeerAttribute.PEER_CONNECTION).get();
 

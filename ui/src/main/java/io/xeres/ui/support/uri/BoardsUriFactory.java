@@ -54,6 +54,6 @@ public class BoardsUriFactory extends AbstractUriFactory
 
 		var boardsUri = new BoardsUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
 
-		return new ContentUri(boardsUri.toString(), StringUtils.isNotBlank(text) ? text : name, uri -> uriAction.openUri(boardsUri));
+		return new ContentUri(boardsUri, StringUtils.isNotBlank(text) ? text : name, uriAction::openUri);
 	}
 }

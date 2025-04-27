@@ -26,6 +26,7 @@ import io.xeres.common.protocol.HostPort;
 import io.xeres.common.protocol.i2p.I2pAddress;
 import io.xeres.common.protocol.ip.IP;
 import io.xeres.common.protocol.tor.OnionAddress;
+import io.xeres.common.util.NoSuppressedRunnable;
 import io.xeres.ui.client.GeoIpClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
@@ -207,7 +208,7 @@ public class AddRsIdWindowController implements WindowController
 										.map(s -> new AddressCountry(s, null))
 										.toList());
 
-								CompletableFuture.runAsync(() -> Platform.runLater(this::findFlags));
+								CompletableFuture.runAsync((NoSuppressedRunnable) () -> Platform.runLater(this::findFlags));
 							});
 					setDefaultTrust(trust);
 					titledPane.setExpanded(true);

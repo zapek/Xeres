@@ -32,10 +32,16 @@ public record ChatRoomUri(String name, long id) implements Uri
 	static String BROADCAST_PREFIX = "L";
 
 	@Override
-	public String toString()
+	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_ID, CHAT_ROOM_PREFIX + Id.toString(id));
+	}
+
+	@Override
+	public String toString()
+	{
+		return toUriString();
 	}
 }

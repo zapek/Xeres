@@ -32,11 +32,17 @@ public record BoardsUri(String name, GxsId id, MessageId messageId) implements U
 	static String PARAMETER_MSGID = "msgid";
 
 	@Override
-	public String toString()
+	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_ID, Id.toString(id),
 				PARAMETER_MSGID, Id.toString(messageId));
+	}
+
+	@Override
+	public String toString()
+	{
+		return toUriString();
 	}
 }

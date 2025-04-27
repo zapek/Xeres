@@ -30,11 +30,17 @@ public record FileUri(String name, long size, Sha1Sum hash) implements Uri
 	static String PARAMETER_HASH = "hash";
 
 	@Override
-	public String toString()
+	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_SIZE, String.valueOf(size),
 				PARAMETER_HASH, hash.toString());
+	}
+
+	@Override
+	public String toString()
+	{
+		return toUriString();
 	}
 }

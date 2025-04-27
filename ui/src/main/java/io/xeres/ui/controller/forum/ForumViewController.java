@@ -343,7 +343,7 @@ public class ForumViewController implements Controller
 		copyLinkItem.setOnAction(event -> {
 			var forumGroup = ((ForumGroup) event.getSource());
 			var forumUri = new ForumUri(forumGroup.getName(), forumGroup.getGxsId(), null);
-			ClipboardUtils.copyTextToClipboard(forumUri.toString());
+			ClipboardUtils.copyTextToClipboard(forumUri.toUriString());
 		});
 
 		var xContextMenu = new XContextMenu<ForumGroup>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
@@ -373,7 +373,7 @@ public class ForumViewController implements Controller
 		copyLinkItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var forumMessage = ((TreeItem<ForumMessage>) event.getSource()).getValue();
 			var forumUri = new ForumUri(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId());
-			ClipboardUtils.copyTextToClipboard(forumUri.toString());
+			ClipboardUtils.copyTextToClipboard(forumUri.toUriString());
 		});
 
 		var xContextMenu = new XContextMenu<ForumMessage>(replyItem, new SeparatorMenuItem(), copyLinkItem);

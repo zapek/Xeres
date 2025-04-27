@@ -175,7 +175,7 @@ public class FileResultView extends Tab
 			if (event.getSource() instanceof FileResult file)
 			{
 				var fileUri = new FileUri(file.name(), file.size(), Sha1Sum.fromString(file.hash()));
-				ClipboardUtils.copyTextToClipboard(fileUri.toString());
+				ClipboardUtils.copyTextToClipboard(fileUri.toUriString());
 			}
 		});
 

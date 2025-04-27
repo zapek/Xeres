@@ -55,6 +55,6 @@ public class CollectionUriFactory extends AbstractUriFactory
 		var collectionUri = new CollectionUri(name, getLongArgument(size), radix, getIntArgument(count));
 
 		//noinspection ConstantConditions
-		return new ContentUri(collectionUri.toString(), StringUtils.isNotBlank(text) ? text : (name + " (" + count + "files, " + ByteUnitUtils.fromBytes(Long.parseLong(size)) + ")"), uri -> uriAction.openUri(collectionUri));
+		return new ContentUri(collectionUri, StringUtils.isNotBlank(text) ? text : (name + " (" + count + "files, " + ByteUnitUtils.fromBytes(Long.parseLong(size)) + ")"), uriAction::openUri);
 	}
 }

@@ -391,7 +391,7 @@ public class ChatViewController implements Controller
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			var chatRoomInfo = ((RoomHolder) event.getSource()).getRoomInfo();
-			ClipboardUtils.copyTextToClipboard(new ChatRoomUri(chatRoomInfo.getName(), chatRoomInfo.getId()).toString());
+			ClipboardUtils.copyTextToClipboard(new ChatRoomUri(chatRoomInfo.getName(), chatRoomInfo.getId()).toUriString());
 		});
 
 		var xContextMenu = new XContextMenu<RoomHolder>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);

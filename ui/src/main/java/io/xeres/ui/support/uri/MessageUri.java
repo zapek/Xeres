@@ -30,10 +30,16 @@ public record MessageUri(Identifier identifier, String subject) implements Uri
 	static String PARAMETER_SUBJECT = "subject";
 
 	@Override
-	public String toString()
+	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_ID, Id.toString(identifier),
 				PARAMETER_SUBJECT, subject);
+	}
+
+	@Override
+	public String toString()
+	{
+		return toUriString();
 	}
 }

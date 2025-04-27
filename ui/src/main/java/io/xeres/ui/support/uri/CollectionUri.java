@@ -29,12 +29,18 @@ public record CollectionUri(String name, long size, String radix, int count) imp
 	static String PARAMETER_FILES = "files";
 
 	@Override
-	public String toString()
+	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_SIZE, String.valueOf(size),
 				PARAMETER_RADIX, radix,
 				PARAMETER_FILES, String.valueOf(count));
+	}
+
+	@Override
+	public String toString()
+	{
+		return toUriString();
 	}
 }

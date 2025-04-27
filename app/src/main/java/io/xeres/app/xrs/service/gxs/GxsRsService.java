@@ -38,6 +38,7 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.ExecutorUtils;
+import io.xeres.common.util.NoSuppressedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +53,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.REQUEST;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
@@ -321,9 +319,21 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	protected void sendSyncNotification(PeerConnection peerConnection)
 	{
-		var gxsSyncNotifyItem = new GxsSyncNotifyItem();
-		log.debug("Sending sync notification to {}", peerConnection);
-		peerConnectionManager.writeItem(peerConnection, gxsSyncNotifyItem, this);
+		CompletableFuture.runAsync((NoSuppressedRunnable) () -> {
+			try
+			{
+				TimeUnit.SECONDS.sleep(1);
+			}
+			catch (InterruptedException ignore)
+			{
+				Thread.currentThread().interrupt();
+				return;
+			}
+
+			var gxsSyncNotifyItem = new GxsSyncNotifyItem();
+			log.debug("Sending sync notification to {}", peerConnection);
+			peerConnectionManager.writeItem(peerConnection, gxsSyncNotifyItem, this);
+		});
 	}
 
 	private void handleGxsSyncGroupRequestItem(PeerConnection peerConnection, GxsSyncGroupRequestItem item)

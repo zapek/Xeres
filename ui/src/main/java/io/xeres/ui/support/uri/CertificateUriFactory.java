@@ -51,7 +51,7 @@ public class CertificateUriFactory extends AbstractUriFactory
 
 		var certificateUri = new CertificateUri(radix, name, location);
 
-		return new ContentUri(certificateUri.toString(), StringUtils.isNotBlank(text) ? text : generateName(name, location), uri -> uriAction.openUri(certificateUri));
+		return new ContentUri(certificateUri, StringUtils.isNotBlank(text) ? text : generateName(name, location), uriAction::openUri);
 	}
 
 	private static String generateName(String name, String location)
@@ -87,6 +87,6 @@ public class CertificateUriFactory extends AbstractUriFactory
 	public static String generate(String radix, String name, String location)
 	{
 		var certificateUri = new CertificateUri(radix, name, location);
-		return "<a href=\"" + certificateUri + "\">" + AppName.NAME + " Certificate (" + name + ", @" + location + ")</a>";
+		return "<a href=\"" + certificateUri.toUriString() + "\">" + AppName.NAME + " Certificate (" + name + ", @" + location + ")</a>";
 	}
 }

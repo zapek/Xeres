@@ -22,7 +22,6 @@ package io.xeres.ui.client.message;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.controller.chat.ChatViewController;
-import jakarta.annotation.Nonnull;
 import javafx.application.Platform;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -52,7 +51,6 @@ public class ChatRoomFrameHandler implements StompFrameHandler
 	 * @param headers the headers
 	 * @return a type
 	 */
-	@Nonnull
 	@Override
 	public Type getPayloadType(StompHeaders headers)
 	{

@@ -25,7 +25,6 @@ import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.support.window.WindowManager;
-import jakarta.annotation.Nonnull;
 import javafx.application.Platform;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -54,7 +53,6 @@ public class PrivateChatFrameHandler implements StompFrameHandler
 	 * @param headers the headers
 	 * @return a type
 	 */
-	@Nonnull
 	@Override
 	public Type getPayloadType(StompHeaders headers)
 	{

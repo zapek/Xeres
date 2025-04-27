@@ -54,6 +54,6 @@ public class ChannelUriFactory extends AbstractUriFactory
 
 		var channelUri = new ChannelUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
 
-		return new ContentUri(channelUri.toString(), StringUtils.isNotBlank(text) ? text : name, uri -> uriAction.openUri(channelUri));
+		return new ContentUri(channelUri, StringUtils.isNotBlank(text) ? text : name, uriAction::openUri);
 	}
 }

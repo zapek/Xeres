@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,41 +19,36 @@
 
 package io.xeres.ui.support.uri;
 
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
 import io.xeres.ui.support.contentline.Content;
-import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
-import java.util.stream.Stream;
-
-import static io.xeres.ui.support.uri.ForumUri.*;
-
-public class ForumUriFactory extends AbstractUriFactory
+public class ExternalUriFactory extends AbstractUriFactory
 {
 	@Override
 	public String getAuthority()
 	{
-		return AUTHORITY;
+		return null;
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
-		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
+		var externalUri = new ExternalUri(uriComponents.toUriString());
+		var actionUri = createMailToUriIfNeeded(externalUri);
 
-		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
+		return new ContentUri(actionUri, StringUtils.isNotBlank(text) ? text : externalUri.toUriString(), uriAction::openUri);
+	}
+
+	private static Uri createMailToUriIfNeeded(Uri uri)
+	{
+		var url = uri.toString();
+		if (url.contains("@") && !url.contains("://"))
 		{
-			return ContentText.EMPTY;
+			return new ExternalUri("mailto:" + url);
 		}
-
-		var forumUri = new ForumUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
-
-		return new ContentUri(forumUri, StringUtils.isNotBlank(text) ? text : name, uriAction::openUri);
+		return uri;
 	}
 }

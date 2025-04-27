@@ -38,7 +38,8 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?name=foo";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertInstanceOf(ContentText.class, content);
 	}
@@ -49,7 +50,8 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?radix=abcd0123";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
@@ -60,7 +62,8 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?radix=abcd0123&name=foo";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
@@ -71,7 +74,8 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
@@ -82,7 +86,8 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals("Xeres Certificate (foo, @earth)", content.asText());
 	}
@@ -93,7 +98,8 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "Test", null);
+		var content = factory.create(createUriComponentsFromUri(url), "Test", uri -> {
+		});
 
 		assertEquals("Test", content.asText());
 	}
@@ -104,7 +110,8 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?radix=abcd0123&name=foo";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals("Xeres Certificate (foo)", content.asText());
 	}
@@ -115,7 +122,8 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?radix=abcd0123";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		});
 
 		assertEquals("Xeres Certificate (unknown)", content.asText());
 	}

@@ -54,13 +54,13 @@ public class FileUriFactory extends AbstractUriFactory
 
 		var fileUri = new FileUri(name, getLongArgument(size), getHashArgument(hash));
 
-		return new ContentUri(fileUri.toString(), StringUtils.isNotBlank(text) ? text : (fileUri.name() + " (" + ByteUnitUtils.fromBytes(fileUri.size()) + ")"), uri -> uriAction.openUri(fileUri));
+		return new ContentUri(fileUri, StringUtils.isNotBlank(text) ? text : (fileUri.name() + " (" + ByteUnitUtils.fromBytes(fileUri.size()) + ")"), uriAction::openUri);
 	}
 
 	public static String generate(String name, long size, Sha1Sum hash)
 	{
 		var fileUri = new FileUri(name, size, hash);
 
-		return "<a href=\"" + fileUri + "\">" + name + " (" + ByteUnitUtils.fromBytes(size) + ")" + "</a>";
+		return "<a href=\"" + fileUri.toUriString() + "\">" + name + " (" + ByteUnitUtils.fromBytes(size) + ")" + "</a>";
 	}
 }

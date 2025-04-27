@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -89,7 +89,7 @@ class FileTransferManager implements Runnable
 		{
 			try
 			{
-				var action = (leechers.isEmpty() && seeders.isEmpty()) ? queue.take() : queue.poll(DEFAULT_TICK, TimeUnit.MILLISECONDS); // XXX: change the timeout value... or better... have a way to compute the next one.
+				var action = getNextAction();
 				processAction(action);
 				processLeechers();
 				processSeeders();
@@ -107,6 +107,24 @@ class FileTransferManager implements Runnable
 	private void cleanup()
 	{
 		leechers.forEach((hash, fileTransferAgent) -> fileService.suspendDownload(hash, fileTransferAgent.getFileProvider().getChunkMap()));
+	}
+
+	private Action getNextAction() throws InterruptedException
+	{
+		if (leechers.isEmpty() && seeders.isEmpty())
+		{
+			return queue.take();
+		}
+		else
+		{
+			// XXX: get rid of DEFAULT_TICK and compute the best waiting time depending on... many things
+			return queue.poll(computeOptimalWaitingTime(), TimeUnit.MILLISECONDS);
+		}
+	}
+
+	private long computeOptimalWaitingTime()
+	{
+		return DEFAULT_TICK;
 	}
 
 	public List<FileProgress> getDownloadsProgress()

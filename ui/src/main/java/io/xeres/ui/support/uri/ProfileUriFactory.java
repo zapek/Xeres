@@ -51,6 +51,6 @@ public class ProfileUriFactory extends AbstractUriFactory
 
 		var profileUri = new ProfileUri(name, getLongHexArgument(hash));
 
-		return new ContentUri(profileUri.toString(), StringUtils.isNotBlank(text) ? text : (name + "@" + hash), uri -> uriAction.openUri(profileUri));
+		return new ContentUri(profileUri, StringUtils.isNotBlank(text) ? text : (name + "@" + hash), uriAction::openUri);
 	}
 }

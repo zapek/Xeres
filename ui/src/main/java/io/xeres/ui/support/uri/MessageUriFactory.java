@@ -51,6 +51,6 @@ public class MessageUriFactory extends AbstractUriFactory
 
 		var messageUri = new MessageUri(GxsId.fromString(id), subject);
 
-		return new ContentUri(messageUri.toString(), StringUtils.isNotBlank(text) ? text : id, uri -> uriAction.openUri(messageUri));
+		return new ContentUri(messageUri, StringUtils.isNotBlank(text) ? text : id, uriAction::openUri);
 	}
 }

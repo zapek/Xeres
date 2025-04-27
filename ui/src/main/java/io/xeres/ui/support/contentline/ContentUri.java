@@ -22,7 +22,7 @@ package io.xeres.ui.support.contentline;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
-import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -53,23 +53,9 @@ public class ContentUri implements Content
 		contextMenu = new ContextMenu(copyMenuItem);
 	}
 
-	public ContentUri(String uri)
+	public ContentUri(Uri uri, String description, Consumer<Uri> action)
 	{
-		node = new Hyperlink(uri);
-		node.setOnAction(event -> UriService.openUri(appendMailToIfNeeded(node.getText())));
-		initContextMenu();
-	}
-
-	public ContentUri(String uri, String description)
-	{
-		node = new DisclosedHyperlink(description, uri);
-		node.setOnAction(event -> askBeforeOpeningIfNeeded(() -> UriService.openUri(appendMailToIfNeeded(uri))));
-		initContextMenu();
-	}
-
-	public ContentUri(String uri, String description, Consumer<String> action)
-	{
-		node = new DisclosedHyperlink(description, uri);
+		node = new DisclosedHyperlink(description, uri.toString());
 		node.setOnAction(event -> askBeforeOpeningIfNeeded(() -> action.accept(uri)));
 		initContextMenu();
 	}
@@ -89,15 +75,6 @@ public class ContentUri implements Content
 		{
 			action.run();
 		}
-	}
-
-	private static String appendMailToIfNeeded(String uri)
-	{
-		if (uri.contains("@") && !uri.contains("://"))
-		{
-			return "mailto:" + uri;
-		}
-		return uri;
 	}
 
 	@Override

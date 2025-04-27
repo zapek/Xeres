@@ -1152,13 +1152,13 @@ public class ContactViewController implements Controller
 			if (contact.getValue().profileId() != NO_PROFILE_ID)
 			{
 				profileClient.findById(contact.getValue().profileId())
-						.doOnSuccess(profile -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(new ProfileUri(profile.getName(), profile.getPgpIdentifier()).toString())))
+						.doOnSuccess(profile -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(new ProfileUri(profile.getName(), profile.getPgpIdentifier()).toUriString())))
 						.subscribe();
 			}
 			else if (contact.getValue().identityId() != NO_IDENTITY_ID)
 			{
 				identityClient.findById(contact.getValue().identityId())
-						.doOnSuccess(identity -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(new IdentityUri(identity.getName(), identity.getGxsId(), null).toString())))
+						.doOnSuccess(identity -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(new IdentityUri(identity.getName(), identity.getGxsId(), null).toUriString())))
 						.subscribe();
 			}
 		});

@@ -19,9 +19,6 @@
 
 package io.xeres.app.crypto.aes;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -38,8 +35,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public final class AES
 {
-	private static final Logger log = LoggerFactory.getLogger(AES.class);
-
 	private static final String ALGORITHM_AES = "AES/CBC/PKCS5Padding";
 	private static final int ROUNDS = 5;
 	private static final int KEY_SIZE = 256; // in bits
@@ -53,10 +48,10 @@ public final class AES
 	}
 
 	/**
-	 * Encrypts using AES with a 16 bytes key and an 8 bytes salt.
+	 * Encrypts using AES with a 16-byte key and an 8-byte salt.
 	 *
-	 * @param key       the 16 bytes key
-	 * @param iv        an 8 bytes initialization vector
+	 * @param key       the 16-byte key
+	 * @param iv        an 8-byte initialization vector
 	 * @param plainText the plain text
 	 * @return the encoded text
 	 */
@@ -66,10 +61,10 @@ public final class AES
 	}
 
 	/**
-	 * Decrypts using AES with a 16 bytes key and an 8 bytes salt.
+	 * Decrypts using AES with a 16-byte key and an 8-byte salt.
 	 *
-	 * @param key           the 16 bytes key
-	 * @param iv            an 8 bytes initialization vector
+	 * @param key           the 16-byte key
+	 * @param iv            an 8-byte initialization vector
 	 * @param encryptedText the encrypted text
 	 * @return the plain text
 	 */
@@ -121,12 +116,12 @@ public final class AES
 	 */
 	private static byte[][] EVP_BytesToKey(int keyLength, int ivLength, MessageDigest md, byte[] salt, byte[] data, int count)
 	{
-		byte[] key = new byte[keyLength];
-		byte[] iv = new byte[ivLength];
+		var key = new byte[keyLength];
+		var iv = new byte[ivLength];
 		byte[] mdBuf = null;
 
-		int keyPos = 0;
-		int ivPos = 0;
+		var keyPos = 0;
+		var ivPos = 0;
 
 		while (keyPos < keyLength || ivPos < ivLength)
 		{
@@ -147,7 +142,7 @@ public final class AES
 			mdBuf = md.digest();
 
 			// Apply count iterations
-			for (int i = 1; i < count; i++)
+			for (var i = 1; i < count; i++)
 			{
 				md.reset();
 				md.update(mdBuf);
@@ -155,7 +150,7 @@ public final class AES
 			}
 
 			// Fill key material
-			int bufPos = 0;
+			var bufPos = 0;
 			while (keyPos < keyLength && bufPos < mdBuf.length)
 			{
 				key[keyPos++] = mdBuf[bufPos++];

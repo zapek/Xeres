@@ -121,78 +121,52 @@ public final class AES
 	 */
 	private static byte[][] EVP_BytesToKey(int keyLength, int ivLength, MessageDigest md, byte[] salt, byte[] data, int count)
 	{
-		var both = new byte[2][];
-		var key = new byte[keyLength];
-		var keyIx = 0;
-		var iv = new byte[ivLength];
-		var ivIx = 0;
-		both[0] = key;
-		both[1] = iv;
+		byte[] key = new byte[keyLength];
+		byte[] iv = new byte[ivLength];
 		byte[] mdBuf = null;
-		int nKey = keyLength;
-		int nIv = ivLength;
-		var i = 0;
-		var addMd = 0;
-		do
+
+		int keyPos = 0;
+		int ivPos = 0;
+
+		while (keyPos < keyLength || ivPos < ivLength)
 		{
 			md.reset();
-			if (addMd++ > 0)
+
+			// Include previous hash if not the first iteration
+			if (mdBuf != null)
 			{
 				md.update(mdBuf);
 			}
+
 			md.update(data);
-			if (null != salt)
+			if (salt != null)
 			{
 				md.update(salt, 0, 8);
 			}
+
 			mdBuf = md.digest();
-			for (i = 1; i < count; i++)
+
+			// Apply count iterations
+			for (int i = 1; i < count; i++)
 			{
 				md.reset();
 				md.update(mdBuf);
 				mdBuf = md.digest();
 			}
-			i = 0;
-			if (nKey > 0)
-			{
-				for (; ; )
-				{
-					if (nKey == 0)
-					{
-						break;
-					}
-					if (i == mdBuf.length)
-					{
-						break;
-					}
-					key[keyIx++] = mdBuf[i];
-					nKey--;
-					i++;
-				}
-			}
-			if (nIv > 0 && i != mdBuf.length)
-			{
-				for (; ; )
-				{
-					if (nIv == 0)
-					{
-						break;
-					}
-					if (i == mdBuf.length)
-					{
-						break;
-					}
-					iv[ivIx++] = mdBuf[i];
-					nIv--;
-					i++;
-				}
-			}
-		} while (nKey != 0 || nIv != 0);
 
-		for (i = 0; i < mdBuf.length; i++)
-		{
-			mdBuf[i] = 0;
+			// Fill key material
+			int bufPos = 0;
+			while (keyPos < keyLength && bufPos < mdBuf.length)
+			{
+				key[keyPos++] = mdBuf[bufPos++];
+			}
+
+			// Fill IV material
+			while (ivPos < ivLength && bufPos < mdBuf.length)
+			{
+				iv[ivPos++] = mdBuf[bufPos++];
+			}
 		}
-		return both;
+		return new byte[][]{key, iv};
 	}
 }

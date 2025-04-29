@@ -29,6 +29,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.*;
+import io.xeres.app.service.UiBridgeService.SplashStatus;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityManager;
@@ -112,7 +113,7 @@ public class Startup implements ApplicationRunner
 
 		if (networkService.checkReadiness())
 		{
-			uiBridgeService.setSplashStatus("Starting network");
+			uiBridgeService.setSplashStatus(SplashStatus.NETWORK);
 		}
 		else
 		{

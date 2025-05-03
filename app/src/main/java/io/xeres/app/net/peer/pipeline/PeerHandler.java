@@ -161,21 +161,14 @@ public class PeerHandler extends ChannelDuplexHandler
 		}
 		else
 		{
-			if (log.isDebugEnabled())
-			{
-				log.debug("Error in channel of {}:", remote, cause);
-			}
-			else
-			{
-				log.error("Error in channel of {}: {}", remote, cause.getMessage());
-			}
+			log.debug("Error in channel of {}:", remote, cause);
 		}
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx)
 	{
-		log.info("{} connection with {}", connectionType == TCP_INCOMING ? "Incoming" : "Outgoing", ctx.channel().remoteAddress());
+		log.debug("{} connection with {}", connectionType == TCP_INCOMING ? "Incoming" : "Outgoing", ctx.channel().remoteAddress());
 		ctx.channel().attr(PeerAttribute.MULTI_PACKET).set(false);
 	}
 
@@ -186,7 +179,7 @@ public class PeerHandler extends ChannelDuplexHandler
 		{
 			if (!sslHandshakeCompletionEvent.isSuccess())
 			{
-				log.error("SSL handshake failed"); // There doesn't seem to ever be a useful message in the even so we don't display any
+				log.debug("SSL handshake failed"); // There doesn't seem to ever be a useful message in the even so we don't display any
 				ctx.close();
 				return;
 			}
@@ -223,10 +216,14 @@ public class PeerHandler extends ChannelDuplexHandler
 	{
 		var peerConnection = ctx.channel().attr(PeerAttribute.PEER_CONNECTION).get();
 		var remote = peerConnection != null ? peerConnection : ctx.channel().remoteAddress();
-		log.warn("Closing connection with {}", remote);
+		log.debug("Closing connection with {}", remote);
 
 		if (peerConnection != null)
 		{
+			if (!log.isDebugEnabled())
+			{
+				log.warn("Closing connection with {}", remote);
+			}
 			peerConnection.cleanup();
 			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{

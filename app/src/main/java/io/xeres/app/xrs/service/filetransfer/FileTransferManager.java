@@ -34,9 +34,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static io.xeres.app.service.file.FileService.DOWNLOAD_EXTENSION;
 import static io.xeres.app.service.file.FileService.DOWNLOAD_PREFIX;
@@ -130,7 +133,41 @@ class FileTransferManager implements Runnable
 
 	private long computeOptimalWaitingTime()
 	{
-		return DEFAULT_TICK;
+		var now = Instant.now();
+		int minWaitingTime = DEFAULT_TICK; // XXX: could be more?
+
+		var agents = Stream.concat(downloads.values().stream(), uploads.values().stream())
+				.toList();
+
+		for (var agent : agents)
+		{
+			minWaitingTime = Math.min(minWaitingTime, durationBetween(now, agent.getNextDelay()));
+			if (minWaitingTime == 0)
+			{
+				break;
+			}
+		}
+		log.debug("Calculated optimal time: {}", minWaitingTime);
+		return minWaitingTime;
+	}
+
+	private static int durationBetween(Instant now, Instant nextDelay)
+	{
+		var duration = Duration.between(now, nextDelay);
+		if (duration.isNegative())
+		{
+			return 0;
+		}
+		return safeLongToInt(duration.toMillis());
+	}
+
+	private static int safeLongToInt(long value)
+	{
+		if (value > Integer.MAX_VALUE)
+		{
+			return Integer.MAX_VALUE;
+		}
+		return (int) value;
 	}
 
 	public List<FileProgress> getDownloadsProgress()

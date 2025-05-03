@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,6 +34,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class UiBridgeService
 {
+	public enum SplashStatus
+	{
+		DATABASE,
+		NETWORK
+	}
+
 	private final SplashService splashService;
 	private final TrayService trayService;
 	private final WebClient.Builder webClientBuilder;
@@ -47,9 +53,13 @@ public class UiBridgeService
 		this.messageClient = messageClient;
 	}
 
-	public void setSplashStatus(String description)
+	public void setSplashStatus(SplashStatus status)
 	{
-		splashService.status(description);
+		splashService.status(switch (status)
+		{
+			case DATABASE -> SplashService.Status.DATABASE;
+			case NETWORK -> SplashService.Status.NETWORK;
+		});
 	}
 
 	public void closeSplashScreen()

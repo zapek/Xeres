@@ -24,6 +24,8 @@ import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationExtension;
 
 import static io.xeres.ui.support.uri.UriFactoryUtils.createUriComponentsFromUri;
@@ -33,33 +35,14 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 @ExtendWith(ApplicationExtension.class)
 class FileUriFactoryTest
 {
-	@Test
-	void FileUri_WrongParams_MissingName_Fail()
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"retroshare://file?size=128&hash=123400000000000000000000000000000000789a", // missing name
+			"retroshare://file?name=foo&hash=123400000000000000000000000000000000789a", // missing size
+			"retroshare://file?name=foo&size=128" // missing hash
+	})
+	void FileUri_WrongParams_Fail(String url)
 	{
-		var url = "retroshare://file?size=128&hash=123400000000000000000000000000000000789a";
-
-		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
-
-		assertInstanceOf(ContentText.class, content);
-	}
-
-	@Test
-	void FileUri_WrongParams_MissingSize_Fail()
-	{
-		var url = "retroshare://file?name=foo&hash=123400000000000000000000000000000000789a";
-
-		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
-
-		assertInstanceOf(ContentText.class, content);
-	}
-
-	@Test
-	void FileUri_WrongParams_MissingHash_Fail()
-	{
-		var url = "retroshare://file?name=foo&size=128";
-
 		var factory = new FileUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", null);
 

@@ -32,8 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Responsible for sending/receiving a file.
@@ -52,8 +52,10 @@ class FileTransferAgent
 	private long lastActivity;
 	private boolean trusted;
 
-	private final Map<Location, List<ChunkSender>> leechers = new LinkedHashMap<>();
-	private final Map<Location, ChunkReceiver> seeders = new LinkedHashMap<>();
+	private final Map<Location, FileLeecher> leechers = new LinkedHashMap<>();
+	private final Map<Location, FileSeeder> seeders = new LinkedHashMap<>();
+
+	private final PriorityQueue<FilePeer> queue = new PriorityQueue<>();
 
 	public FileTransferAgent(FileTransferRsService fileTransferRsService, String fileName, Sha1Sum hash, FileProvider fileProvider)
 	{
@@ -81,22 +83,36 @@ class FileTransferAgent
 
 	public void addSeeder(Location peer)
 	{
-		seeders.computeIfAbsent(peer, k -> new ChunkReceiver());
+		seeders.computeIfAbsent(peer, k -> {
+			var fileSeeder = new FileSeeder(peer);
+			queue.add(fileSeeder);
+			return fileSeeder;
+		});
 		fileTransferRsService.sendChunkMapRequest(peer, hash, false);
 	}
 
 	public void addLeecher(Location peer, long offset, int size)
 	{
-		leechers.computeIfAbsent(peer, k -> new LinkedList<>())
-				.add(new ChunkSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
+		leechers.computeIfAbsent(peer, k -> {
+			var fileLeecher = new FileLeecher(peer);
+			queue.add(fileLeecher);
+			return fileLeecher;
+		}).addChunkSender(new ChunkSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
 	}
 
 	public void removePeer(Location peer)
 	{
-		if (seeders.remove(peer) == null && leechers.remove(peer) == null)
+		FilePeer removed = seeders.remove(peer);
+		if (removed == null)
+		{
+			removed = leechers.remove(peer);
+		}
+
+		if (removed == null)
 		{
 			log.warn("Removal of peer {} failed because it's not in the list. This shouldn't happen.", peer);
 		}
+		queue.remove(removed);
 	}
 
 	/**
@@ -106,9 +122,8 @@ class FileTransferAgent
 	 */
 	public boolean process()
 	{
-		processSeeders();
-		processLeechers();
-		return !(leechers.isEmpty() && seeders.isEmpty());
+		processPeers();
+		return queue.isEmpty();
 	}
 
 	public void cancel()
@@ -132,7 +147,7 @@ class FileTransferAgent
 			log.error("Seeder not found for adding chunkmap");
 			return;
 		}
-		seeder.setChunkMap(chunkMap);
+		seeder.updateChunkMap(chunkMap);
 	}
 
 	public boolean isIdle()
@@ -146,46 +161,70 @@ class FileTransferAgent
 		return done;
 	}
 
-	private void processSeeders()
+	public Instant getNextDelay()
 	{
-		seeders.entrySet().stream()
-				.skip(getRandomStreamSkip(seeders.size()))
-				.findFirst().ifPresent(entry -> {
-					if (entry.getValue().isReceiving())
-					{
-						if (fileProvider.hasChunk(entry.getValue().getChunkNumber()))
-						{
-							log.debug("Chunk {} is complete", entry.getValue().getChunkNumber());
-							entry.getValue().setReceiving(false);
-						}
-					}
-					else
-					{
-						if (fileProvider.isComplete() && !done)
-						{
-							log.debug("File is complete, size: {}, renaming to {}", fileProvider.getFileSize(), fileName);
-							stop();
-							fileTransferRsService.markDownloadAsCompleted(hash);
-							fileTransferRsService.deactivateTunnels(hash);
-							var newPath = renameFile(fileProvider.getPath(), fileName);
-							setFileSecurity(newPath);
-							seeders.remove(entry.getKey());
-							done = true; // Prevents closing the file several times (we might have several seeders)
-						}
-						else
-						{
-							if (entry.getValue().hasChunkMap())
-							{
-								getNextChunk(entry.getValue().getChunkMap()).ifPresent(chunkNumber -> {
-									log.debug("Requesting chunk number {} to peer {}", chunkNumber, entry.getKey());
-									fileTransferRsService.sendDataRequest(entry.getKey(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
-									entry.getValue().setChunkNumber(chunkNumber);
-									entry.getValue().setReceiving(true);
-								});
-							}
-						}
-					}
-				});
+		var filePeer = queue.peek();
+		if (filePeer != null)
+		{
+			return filePeer.getNextScheduling();
+		}
+		return Instant.now().plusSeconds(1); // XXX: use a constant...
+	}
+
+	private void processPeers()
+	{
+		var filePeer = queue.poll();
+		switch (filePeer)
+		{
+			case FileSeeder fileSeeder -> processSeeder(fileSeeder);
+			case FileLeecher fileLeecher -> processLeecher(fileLeecher);
+			case null, default ->
+			{
+			} // Can't happen
+		}
+
+	}
+
+	private void processSeeder(FileSeeder fileSeeder)
+	{
+		if (fileSeeder.isReceiving())
+		{
+			if (fileProvider.hasChunk(fileSeeder.getChunkNumber()))
+			{
+				log.debug("Chunk {} is complete", fileSeeder.getChunkNumber());
+				fileSeeder.setReceiving(false);
+			}
+		}
+		else
+		{
+			if (fileProvider.isComplete() && !done)
+			{
+				log.debug("File is complete, size: {}, renaming to {}", fileProvider.getFileSize(), fileName);
+				stop();
+				fileTransferRsService.markDownloadAsCompleted(hash);
+				fileTransferRsService.deactivateTunnels(hash);
+				var newPath = renameFile(fileProvider.getPath(), fileName);
+				setFileSecurity(newPath);
+				removePeer(fileSeeder.getLocation());
+				done = true; // Prevents closing the file several times (we might have several seeders)
+				return; // Don't reinsert in the queue
+			}
+			else
+			{
+				if (fileSeeder.hasChunkMap())
+				{
+					getNextChunk(fileSeeder.getChunkMap()).ifPresent(chunkNumber -> {
+						log.debug("Requesting chunk number {} to peer {}", chunkNumber, fileSeeder.getLocation());
+						fileTransferRsService.sendDataRequest(fileSeeder.getLocation(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
+						fileSeeder.setChunkNumber(chunkNumber);
+						fileSeeder.setReceiving(true);
+					});
+				}
+			}
+		}
+		// Calculating the next computation would require guessing when we need to ask for the
+		// next chunk. Right now we ask for 1 MB, but we should ask for smaller and progressively bigger (up to 1 MB).
+		addNextScheduling(fileSeeder, Duration.ofMillis(250)); // XXX: use a real computation... not sure it needs to be done in each process*()... maybe in the processPeer() only? check...
 	}
 
 	private void setFileSecurity(Path path)
@@ -196,36 +235,31 @@ class FileTransferAgent
 		}
 	}
 
-	private void processLeechers()
+	private void processLeecher(FileLeecher fileLeecher)
 	{
-		leechers.entrySet().stream()
-				.skip(getRandomStreamSkip(leechers.size()))
-				.findFirst().ifPresent(entry -> {
-					var chunkList = entry.getValue();
-					var chunkSender = chunkList.getFirst();
-					var remaining = chunkSender.send();
-					lastActivity = System.nanoTime();
-					if (!remaining)
-					{
-						// We just remove the leecher here and nothing else. The fileTransferManager will close the file
-						// when it's idle for some time, otherwise it would need to be reopened immediately for the
-						// next chunk.
-						chunkList.remove(chunkSender);
-						if (chunkList.isEmpty())
-						{
-							leechers.remove(entry.getKey());
-						}
-					}
-				});
+		var chunkSender = fileLeecher.getChunkSender();
+		var remaining = chunkSender.send();
+		lastActivity = System.nanoTime();
+		if (!remaining)
+		{
+			// We just remove the leecher here and nothing else. The fileTransferManager will close the file
+			// when it's idle for some time, otherwise it would need to be reopened immediately for the
+			// next chunk.
+			fileLeecher.removeChunkSender(chunkSender);
+			if (fileLeecher.hasNoMoreSenders())
+			{
+				removePeer(fileLeecher.getLocation());
+				return;
+			}
+		}
+		// Here we could calculate the best time to send the next chunk (8 KB) without overflowing our bandwidth
+		addNextScheduling(fileLeecher, Duration.ofMillis(50)); // XXX: see above. this is 400 KB/s...
 	}
 
-	private static int getRandomStreamSkip(int size)
+	private void addNextScheduling(FilePeer filePeer, Duration duration)
 	{
-		if (size == 0)
-		{
-			return 0;
-		}
-		return ThreadLocalRandom.current().nextInt(size);
+		filePeer.addNextScheduling(duration);
+		queue.offer(filePeer);
 	}
 
 	private static Path renameFile(Path filePath, String fileName)
@@ -265,7 +299,7 @@ class FileTransferAgent
 			catch (IOException e)
 			{
 				log.error("Couldn't rename the file {} to {}", filePath, fileName, e);
-				success = true; // This is really a failure but there's nothing else we can do
+				success = true; // This is really a failure, but there's nothing else we can do
 			}
 		}
 		return path;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -147,7 +147,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 		{
 			return DONE;
 		}
-		if (currentProgress.getProgress() != 0 && newProgress != currentProgress.getProgress()) // First check is to not show transferring when resuming after a restart
+		if (currentProgress.getProgress() != 0.0 && newProgress != currentProgress.getProgress()) // The first check is to not show transferring when resuming after a restart
 		{
 			return TRANSFERRING;
 		}

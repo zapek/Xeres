@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.app.xrs.service.filetransfer;
+
+import io.xeres.app.database.model.location.Location;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FileLeecher extends FilePeer
+{
+	private final List<ChunkSender> chunkSenders = new ArrayList<>(2);
+
+	FileLeecher(Location location)
+	{
+		super(location);
+	}
+
+	public void addChunkSender(ChunkSender sender)
+	{
+		chunkSenders.add(sender);
+	}
+
+	public ChunkSender getChunkSender()
+	{
+		return chunkSenders.getFirst();
+	}
+
+	public void removeChunkSender(ChunkSender sender)
+	{
+		chunkSenders.remove(sender);
+	}
+
+	public boolean hasNoMoreSenders()
+	{
+		return chunkSenders.isEmpty();
+	}
+}

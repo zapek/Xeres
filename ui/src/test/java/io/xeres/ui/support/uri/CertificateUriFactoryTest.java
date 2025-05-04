@@ -23,6 +23,9 @@ import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationExtension;
 
 import static io.xeres.ui.support.uri.UriFactoryUtils.createUriComponentsFromUri;
@@ -44,11 +47,14 @@ class CertificateUriFactoryTest
 		assertInstanceOf(ContentText.class, content);
 	}
 
-	@Test
-	void CertificateUri_OneParam_Success()
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"retroshare://certificate?radix=abcd0123",
+			"retroshare://certificate?radix=abcd0123&name=foo",
+			"retroshare://certificate?radix=abcd0123&name=foo&location=earth"
+	})
+	void CertificateUri_MultiParams_Success(String url)
 	{
-		var url = "retroshare://certificate?radix=abcd0123";
-
 		var factory = new CertificateUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
 		});
@@ -56,40 +62,19 @@ class CertificateUriFactoryTest
 		assertEquals(url, ((ContentUri) content).getUri());
 	}
 
-	@Test
-	void CertificateUri_TwoParams_Success()
+	@ParameterizedTest
+	@CsvSource(delimiter = '|', value = {
+			"retroshare://certificate?radix=abcd0123| Xeres Certificate (unknown)",
+			"retroshare://certificate?radix=abcd0123&name=foo| Xeres Certificate (foo)",
+			"retroshare://certificate?radix=abcd0123&name=foo&location=earth| Xeres Certificate (foo, @earth)"
+	})
+	void CertificateUri_Pretty(String url, String certificateName)
 	{
-		var url = "retroshare://certificate?radix=abcd0123&name=foo";
-
 		var factory = new CertificateUriFactory();
 		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
 		});
 
-		assertEquals(url, ((ContentUri) content).getUri());
-	}
-
-	@Test
-	void CertificateUri_ThreeParams_Success()
-	{
-		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
-
-		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
-		});
-
-		assertEquals(url, ((ContentUri) content).getUri());
-	}
-
-	@Test
-	void CertificateUri_Pretty()
-	{
-		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
-
-		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
-		});
-
-		assertEquals("Xeres Certificate (foo, @earth)", content.asText());
+		assertEquals(certificateName, content.asText());
 	}
 
 	@Test
@@ -102,30 +87,6 @@ class CertificateUriFactoryTest
 		});
 
 		assertEquals("Test", content.asText());
-	}
-
-	@Test
-	void CertificateUri_Pretty_WithoutLocation()
-	{
-		var url = "retroshare://certificate?radix=abcd0123&name=foo";
-
-		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
-		});
-
-		assertEquals("Xeres Certificate (foo)", content.asText());
-	}
-
-	@Test
-	void CertificateUri_Pretty_NoName()
-	{
-		var url = "retroshare://certificate?radix=abcd0123";
-
-		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
-		});
-
-		assertEquals("Xeres Certificate (unknown)", content.asText());
 	}
 
 	@Test

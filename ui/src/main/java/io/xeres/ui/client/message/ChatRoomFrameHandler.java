@@ -82,6 +82,7 @@ public class ChatRoomFrameHandler implements StompFrameHandler
 						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
 						case CHAT_ROOM_USER_TIMEOUT -> chatViewController.userTimeout(getRoomId(headers), (ChatRoomTimeoutEvent) payload);
 						case CHAT_ROOM_INVITE -> chatViewController.openInvite(getRoomId(headers), (ChatRoomInviteEvent) payload);
+						default -> throw new IllegalStateException("Unexpected value: " + messageType);
 					}
 				}
 		);

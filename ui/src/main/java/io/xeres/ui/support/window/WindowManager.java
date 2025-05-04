@@ -171,13 +171,7 @@ public class WindowManager
 		{
 			case CertificateUri certificateUri -> openAddPeer(certificateUri.radix());
 			case FileUri(String name, long size, Sha1Sum hash) -> openAddDownload(new AddDownloadRequest(name, size, hash, null));
-			case ExternalUri externalUri ->
-			{
-				if (hostServices != null)
-				{
-					hostServices.showDocument(externalUri.toUriString());
-				}
-			}
+			case ExternalUri externalUri when hostServices != null -> hostServices.showDocument(externalUri.toUriString());
 			case ChatRoomUri ignored ->
 			{
 				// Nothing to do. This is handled in ChatViewController

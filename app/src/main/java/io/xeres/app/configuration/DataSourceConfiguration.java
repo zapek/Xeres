@@ -21,6 +21,7 @@ package io.xeres.app.configuration;
 
 import io.xeres.app.properties.DatabaseProperties;
 import io.xeres.app.service.UiBridgeService;
+import io.xeres.app.service.UiBridgeService.SplashStatus;
 import org.h2.tools.Upgrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class DataSourceConfiguration
 	@ConditionalOnProperty(prefix = "spring.datasource", name = "url", havingValue = "false", matchIfMissing = true)
 	public DataSource getDataSource()
 	{
-		uiBridgeService.setSplashStatus("Loading database");
+		uiBridgeService.setSplashStatus(SplashStatus.DATABASE);
 
 		var useJMX = "";
 

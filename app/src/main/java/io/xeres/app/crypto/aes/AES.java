@@ -19,9 +19,6 @@
 
 package io.xeres.app.crypto.aes;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -38,8 +35,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public final class AES
 {
-	private static final Logger log = LoggerFactory.getLogger(AES.class);
-
 	private static final String ALGORITHM_AES = "AES/CBC/PKCS5Padding";
 	private static final int ROUNDS = 5;
 	private static final int KEY_SIZE = 256; // in bits
@@ -53,10 +48,10 @@ public final class AES
 	}
 
 	/**
-	 * Encrypts using AES with a 16 bytes key and an 8 bytes salt.
+	 * Encrypts using AES with a 16-byte key and an 8-byte salt.
 	 *
-	 * @param key       the 16 bytes key
-	 * @param iv        an 8 bytes initialization vector
+	 * @param key       the 16-byte key
+	 * @param iv        an 8-byte initialization vector
 	 * @param plainText the plain text
 	 * @return the encoded text
 	 */
@@ -66,10 +61,10 @@ public final class AES
 	}
 
 	/**
-	 * Decrypts using AES with a 16 bytes key and an 8 bytes salt.
+	 * Decrypts using AES with a 16-byte key and an 8-byte salt.
 	 *
-	 * @param key           the 16 bytes key
-	 * @param iv            an 8 bytes initialization vector
+	 * @param key           the 16-byte key
+	 * @param iv            an 8-byte initialization vector
 	 * @param encryptedText the encrypted text
 	 * @return the plain text
 	 */
@@ -121,78 +116,52 @@ public final class AES
 	 */
 	private static byte[][] EVP_BytesToKey(int keyLength, int ivLength, MessageDigest md, byte[] salt, byte[] data, int count)
 	{
-		var both = new byte[2][];
 		var key = new byte[keyLength];
-		var keyIx = 0;
 		var iv = new byte[ivLength];
-		var ivIx = 0;
-		both[0] = key;
-		both[1] = iv;
 		byte[] mdBuf = null;
-		int nKey = keyLength;
-		int nIv = ivLength;
-		var i = 0;
-		var addMd = 0;
-		do
+
+		var keyPos = 0;
+		var ivPos = 0;
+
+		while (keyPos < keyLength || ivPos < ivLength)
 		{
 			md.reset();
-			if (addMd++ > 0)
+
+			// Include previous hash if not the first iteration
+			if (mdBuf != null)
 			{
 				md.update(mdBuf);
 			}
+
 			md.update(data);
-			if (null != salt)
+			if (salt != null)
 			{
 				md.update(salt, 0, 8);
 			}
+
 			mdBuf = md.digest();
-			for (i = 1; i < count; i++)
+
+			// Apply count iterations
+			for (var i = 1; i < count; i++)
 			{
 				md.reset();
 				md.update(mdBuf);
 				mdBuf = md.digest();
 			}
-			i = 0;
-			if (nKey > 0)
-			{
-				for (; ; )
-				{
-					if (nKey == 0)
-					{
-						break;
-					}
-					if (i == mdBuf.length)
-					{
-						break;
-					}
-					key[keyIx++] = mdBuf[i];
-					nKey--;
-					i++;
-				}
-			}
-			if (nIv > 0 && i != mdBuf.length)
-			{
-				for (; ; )
-				{
-					if (nIv == 0)
-					{
-						break;
-					}
-					if (i == mdBuf.length)
-					{
-						break;
-					}
-					iv[ivIx++] = mdBuf[i];
-					nIv--;
-					i++;
-				}
-			}
-		} while (nKey != 0 || nIv != 0);
 
-		for (i = 0; i < mdBuf.length; i++)
-		{
-			mdBuf[i] = 0;
+			// Fill key material
+			var bufPos = 0;
+			while (keyPos < keyLength && bufPos < mdBuf.length)
+			{
+				key[keyPos++] = mdBuf[bufPos++];
+			}
+
+			// Fill IV material
+			while (ivPos < ivLength && bufPos < mdBuf.length)
+			{
+				iv[ivPos++] = mdBuf[bufPos++];
+			}
 		}
-		return both;
+		return new byte[][]{key, iv};
 	}
 }

@@ -202,6 +202,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	{
 		var chatAction = new ChatAction(SAY_OWN, nickname, null);
 		addMessage(when, chatAction, message);
+		jumpToBottom(true); // Always move to the bottom for our own message
 	}
 
 	public void addUserMessage(String from, String message)

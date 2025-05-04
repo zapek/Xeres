@@ -163,7 +163,7 @@ class FileTransferAgent
 
 	public Instant getNextDelay()
 	{
-		FilePeer filePeer = queue.peek();
+		var filePeer = queue.peek();
 		if (filePeer != null)
 		{
 			return filePeer.getNextScheduling();
@@ -173,14 +173,14 @@ class FileTransferAgent
 
 	private void processPeers()
 	{
-		FilePeer filePeer = queue.poll();
+		var filePeer = queue.poll();
 		switch (filePeer)
 		{
 			case FileSeeder fileSeeder -> processSeeder(fileSeeder);
 			case FileLeecher fileLeecher -> processLeecher(fileLeecher);
 			case null, default ->
 			{
-			}
+			} // Can't happen
 		}
 
 	}

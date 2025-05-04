@@ -73,6 +73,7 @@ public class DistantChatFrameHandler implements StompFrameHandler
 					{
 						case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(GxsId.fromString(headers.getFirst(DESTINATION_ID)), (ChatMessage) payload);
 						case CHAT_AVAILABILITY -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (Availability) payload);
+						default -> throw new IllegalStateException("Unexpected value: " + messageType);
 					}
 				}
 		);

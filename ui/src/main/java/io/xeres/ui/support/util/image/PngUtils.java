@@ -230,21 +230,26 @@ final class PngUtils
 			{
 				continue;
 			}
-			int[] avg = {0, 0, 0};
-			for (int[] pixel : bucket)
-			{
-				for (var i = 0; i < 3; i++)
-				{
-					avg[i] += pixel[i];
-				}
-			}
-			for (var i = 0; i < 3; i++)
-			{
-				avg[i] /= bucket.size();
-			}
-			palette.add(avg);
+			palette.add(getAverage(bucket));
 		}
 		return palette;
+	}
+
+	private static int[] getAverage(List<int[]> bucket)
+	{
+		int[] avg = {0, 0, 0};
+		for (int[] pixel : bucket)
+		{
+			for (var i = 0; i < 3; i++)
+			{
+				avg[i] += pixel[i];
+			}
+		}
+		for (var i = 0; i < 3; i++)
+		{
+			avg[i] /= bucket.size();
+		}
+		return avg;
 	}
 
 	private static int qualityToCompressionLevel(int quality)

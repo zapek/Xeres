@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -93,7 +93,7 @@ public final class StringFakes
 
 	public static String createNickname()
 	{
-		var s = RandomStringUtils.randomAlphabetic(5, 10);
+		var s = RandomStringUtils.insecure().nextAlphabetic(5, 10);
 		return s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1);
 	}
 

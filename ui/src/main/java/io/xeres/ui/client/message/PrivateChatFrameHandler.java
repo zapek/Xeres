@@ -76,6 +76,7 @@ public class PrivateChatFrameHandler implements StompFrameHandler
 						case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> windowManager.openMessaging(LocationIdentifier.fromString(headers.getFirst(DESTINATION_ID)), (ChatMessage) payload);
 						case CHAT_AVATAR -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (ChatAvatar) payload);
 						case CHAT_AVAILABILITY -> windowManager.sendMessaging(headers.getFirst(DESTINATION_ID), (Availability) payload);
+						default -> throw new IllegalStateException("Unexpected value: " + messageType);
 					}
 				}
 		);

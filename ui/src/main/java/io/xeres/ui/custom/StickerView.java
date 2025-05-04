@@ -112,6 +112,7 @@ public class StickerView extends VBox
 							tab = new Tab();
 							tab.setTooltip(new Tooltip(sticker.name()));
 							var imageView = new ImageView(sticker.image());
+							imageView.setPickOnBounds(true); // make transparent areas clickable
 							ImageUtils.limitMaximumImageSize(imageView, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT);
 							imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
 							imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());
@@ -175,6 +176,7 @@ public class StickerView extends VBox
 										{
 											Platform.runLater(() -> {
 												var imageView = new ImageView(image);
+												imageView.setPickOnBounds(true); // make transparent areas clickable
 												ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
 												imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
 												imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());

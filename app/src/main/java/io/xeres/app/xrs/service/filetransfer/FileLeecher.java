@@ -26,30 +26,30 @@ import java.util.List;
 
 public class FileLeecher extends FilePeer
 {
-	private final List<ChunkSender> chunkSenders = new ArrayList<>(2);
+	private final List<SliceSender> sliceSenders = new ArrayList<>(2);
 
 	FileLeecher(Location location)
 	{
 		super(location);
 	}
 
-	public void addChunkSender(ChunkSender sender)
+	public void addSliceSender(SliceSender sender)
 	{
-		chunkSenders.add(sender);
+		sliceSenders.add(sender);
 	}
 
-	public ChunkSender getChunkSender()
+	public SliceSender getSliceSender()
 	{
-		return chunkSenders.getFirst();
+		return sliceSenders.getFirst();
 	}
 
-	public void removeChunkSender(ChunkSender sender)
+	public void removeSliceSender(SliceSender sender)
 	{
-		chunkSenders.remove(sender);
+		sliceSenders.remove(sender);
 	}
 
-	public boolean hasNoMoreSenders()
+	public boolean hasNoMoreSlices()
 	{
-		return chunkSenders.isEmpty();
+		return sliceSenders.isEmpty();
 	}
 }

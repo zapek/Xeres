@@ -23,11 +23,15 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
+import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.image.ImageUtils;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -42,9 +46,14 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -52,6 +61,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class EditorView extends VBox
 {
+	private static final Logger log = LoggerFactory.getLogger(EditorView.class);
+
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination ENTER_INSERT_KEY = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
@@ -60,6 +71,9 @@ public class EditorView extends VBox
 	private static final int IMAGE_MAXIMUM_SIZE = 31000; // Same as the one in chat
 
 	private static final Pattern URL_DETECTOR = Pattern.compile("(^mailto:.*$|^\\p{Ll}.{1,30}://.*$)");
+
+	@FXML
+	private ToolBar toolBar;
 
 	@FXML
 	private Button bold;
@@ -120,6 +134,8 @@ public class EditorView extends VBox
 
 	public final ReadOnlyIntegerWrapper lengthProperty = new ReadOnlyIntegerWrapper();
 
+	private final BooleanProperty previewOnly = new SimpleBooleanProperty(false);
+
 	public EditorView()
 	{
 		bundle = I18nUtils.getBundle();
@@ -174,6 +190,43 @@ public class EditorView extends VBox
 		});
 
 		lengthProperty.bind(editor.lengthProperty());
+
+		previewOnly.addListener((observable, oldValue, newValue) -> {
+			if (Boolean.TRUE.equals(newValue))
+			{
+				UiUtils.setAbsent(toolBar);
+				editor.setVisible(false);
+				previewPane.setVisible(true);
+			}
+			else
+			{
+				UiUtils.setPresent(toolBar);
+				editor.setVisible(true);
+				previewPane.setVisible(false);
+			}
+		});
+	}
+
+	public void setMarkdown(InputStream input, UriAction uriAction)
+	{
+		if (!previewOnly.get())
+		{
+			throw new IllegalStateException("Markdown file can only be set to an EditorView in previewOnly mode");
+		}
+
+		List<Content> contents;
+
+		try
+		{
+			contents = markdownService.parse(new String(input.readAllBytes(), StandardCharsets.UTF_8), EnumSet.noneOf(MarkdownService.ParsingMode.class), uriAction);
+		}
+		catch (IOException e)
+		{
+			contents = List.of(new ContentText("Couldn't open markdown file " + input + " (" + e.getMessage() + ")"));
+		}
+		previewContent.getChildren().clear();
+		previewContent.getChildren().addAll(contents.stream()
+				.map(Content::getNode).toList());
 	}
 
 	/**
@@ -216,6 +269,16 @@ public class EditorView extends VBox
 	public boolean isModified()
 	{
 		return typingCount >= 2;
+	}
+
+	public boolean isPreviewOnly()
+	{
+		return previewOnly.get();
+	}
+
+	public void setPreviewOnly(boolean previewOnly)
+	{
+		this.previewOnly.set(previewOnly);
 	}
 
 	private void surround(String text)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2023-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -25,7 +25,7 @@
 <?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.*?>
 <fx:root prefHeight="480" prefWidth="640" type="VBox" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
-    <ToolBar>
+    <ToolBar fx:id="toolBar">
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>

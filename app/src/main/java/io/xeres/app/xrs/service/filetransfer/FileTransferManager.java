@@ -46,7 +46,7 @@ import static io.xeres.app.service.file.FileService.DOWNLOAD_PREFIX;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
 /**
- * File transfer class.
+ * File transfer management class.
  * <p>
  * <img src="doc-files/filetransfer.svg" alt="File transfer diagram">
  * The FileTransferManager manages several uploads and downloads. Each of them is represented by one {@link FileTransferAgent}.
@@ -55,13 +55,18 @@ import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_
  * that agent (respectively, download or upload a file).
  * <p>
  * Each FileTransferAgent has a list of seeders and leechers for itself.
- *
+ * <p>
+ * Leechers ask for a slice between 1 byte and 1 MB. The result is always sent in packets of 8 KB max.
+ * The goal is to send at the optimum speed depending on our bandwidth, the peer's bandwidth and the peer's RTT.
+ * <p>
+ * For requesting, ask for a chunk size of some small size, then monitor the speed and RTT while asking for more. We shouldn't
+ * overflow our bandwidth nor the peer's one. We should also ask ahead of time for optimum speed including between chunks.
  */
 class FileTransferManager implements Runnable
 {
 	private static final Logger log = LoggerFactory.getLogger(FileTransferManager.class);
 
-	private static final int DEFAULT_TICK = 250;
+	private static final int DEFAULT_TICK = 1000;
 
 	private final FileTransferRsService fileTransferRsService;
 	private final FileService fileService;
@@ -134,7 +139,7 @@ class FileTransferManager implements Runnable
 	private long computeOptimalWaitingTime()
 	{
 		var now = Instant.now();
-		int minWaitingTime = DEFAULT_TICK; // XXX: could be more?
+		int minWaitingTime = DEFAULT_TICK;
 
 		var agents = Stream.concat(downloads.values().stream(), uploads.values().stream())
 				.toList();

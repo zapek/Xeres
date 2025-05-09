@@ -97,7 +97,7 @@ class FileTransferAgent
 			var fileLeecher = new FileLeecher(peer);
 			queue.add(fileLeecher);
 			return fileLeecher;
-		}).addChunkSender(new ChunkSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
+		}).addSliceSender(new SliceSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
 	}
 
 	public void removePeer(Location peer)
@@ -237,23 +237,23 @@ class FileTransferAgent
 
 	private void processLeecher(FileLeecher fileLeecher)
 	{
-		var chunkSender = fileLeecher.getChunkSender();
-		var remaining = chunkSender.send();
+		var sliceSender = fileLeecher.getSliceSender();
+		var remaining = sliceSender.send();
 		lastActivity = System.nanoTime();
 		if (!remaining)
 		{
 			// We just remove the leecher here and nothing else. The fileTransferManager will close the file
 			// when it's idle for some time, otherwise it would need to be reopened immediately for the
-			// next chunk.
-			fileLeecher.removeChunkSender(chunkSender);
-			if (fileLeecher.hasNoMoreSenders())
+			// next slice.
+			fileLeecher.removeSliceSender(sliceSender);
+			if (fileLeecher.hasNoMoreSlices())
 			{
 				removePeer(fileLeecher.getLocation());
 				return;
 			}
 		}
-		// Here we could calculate the best time to send the next chunk (8 KB) without overflowing our bandwidth
-		addNextScheduling(fileLeecher, Duration.ofMillis(50)); // XXX: see above. this is 400 KB/s...
+		// Here we could calculate the best time to send the next slice (8 KB) without overflowing our bandwidth
+		addNextScheduling(fileLeecher, Duration.ofMillis(50)); // XXX: see above. this is 160 KB/s...
 	}
 
 	private void addNextScheduling(FilePeer filePeer, Duration duration)

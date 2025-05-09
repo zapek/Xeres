@@ -27,7 +27,7 @@ buildscript {
         zxingVersion = "3.5.3"
         appDirsVersion = "1.4.0"
         junitVersion = "5.12.2"
-        archunitVersion = "1.4.0"
+        archunitVersion = "1.4.1"
     }
 }
 

@@ -275,7 +275,7 @@ public class MainWindowController implements WindowController
 		launchWebInterface.setOnAction(event -> openUrl(RemoteUtils.getControlUrl()));
 		launchSwagger.setOnAction(event -> openUrl(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
 
-		showDocumentation.setOnAction(event -> openUrl(XERES_DOCS_URL));
+		showDocumentation.setOnAction(event -> windowManager.openDocumentation());
 		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));
 
 		reportBug.setOnAction(event -> openUrl(XERES_BUGS_URL));

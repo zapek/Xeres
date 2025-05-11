@@ -44,6 +44,7 @@ import io.xeres.ui.controller.debug.UiCheckWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
+import io.xeres.ui.controller.help.HelpWindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
@@ -318,6 +319,25 @@ public class WindowManager
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
 						.build()
 						.open());
+	}
+
+	public void openDocumentation()
+	{
+		Platform.runLater(() -> {
+			var help = getOpenedWindow(HelpWindowController.class).orElse(null);
+			if (help != null)
+			{
+				help.requestFocus();
+			}
+			else
+			{
+				UiWindow.builder(HelpWindowController.class)
+						.setRememberEnvironment(true)
+						.setTitle("Help")
+						.build()
+						.open();
+			}
+		});
 	}
 
 	public void openShare()

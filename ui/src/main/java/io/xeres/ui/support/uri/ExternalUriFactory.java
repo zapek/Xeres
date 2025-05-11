@@ -25,6 +25,9 @@ import io.xeres.ui.support.markdown.UriAction;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 public class ExternalUriFactory extends AbstractUriFactory
 {
 	@Override
@@ -36,7 +39,7 @@ public class ExternalUriFactory extends AbstractUriFactory
 	@Override
 	Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var externalUri = new ExternalUri(uriComponents.toUriString());
+		var externalUri = new ExternalUri(URLDecoder.decode(uriComponents.toUriString(), StandardCharsets.UTF_8));
 		var actionUri = createMailToUriIfNeeded(externalUri);
 
 		return new ContentUri(actionUri, StringUtils.isNotBlank(text) ? text : externalUri.toUriString(), uriAction::openUri);
@@ -44,7 +47,7 @@ public class ExternalUriFactory extends AbstractUriFactory
 
 	private static Uri createMailToUriIfNeeded(Uri uri)
 	{
-		var url = uri.toString();
+		var url = uri.toUriString();
 		if (url.contains("@") && !url.contains("://"))
 		{
 			return new ExternalUri("mailto:" + url);

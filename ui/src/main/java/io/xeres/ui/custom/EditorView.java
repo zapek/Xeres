@@ -46,8 +46,6 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,8 +59,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class EditorView extends VBox
 {
-	private static final Logger log = LoggerFactory.getLogger(EditorView.class);
-
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination ENTER_INSERT_KEY = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
@@ -136,6 +132,8 @@ public class EditorView extends VBox
 
 	private final BooleanProperty previewOnly = new SimpleBooleanProperty(false);
 
+	private UriAction uriAction;
+
 	public EditorView()
 	{
 		bundle = I18nUtils.getBundle();
@@ -207,11 +205,21 @@ public class EditorView extends VBox
 		});
 	}
 
-	public void setMarkdown(InputStream input, UriAction uriAction)
+	public void setUriAction(UriAction uriAction)
+	{
+		this.uriAction = uriAction;
+	}
+
+	public void setMarkdown(InputStream input)
 	{
 		if (!previewOnly.get())
 		{
 			throw new IllegalStateException("Markdown file can only be set to an EditorView in previewOnly mode");
+		}
+
+		if (markdownService == null)
+		{
+			throw new IllegalStateException("Use setMarkdownService() to set a markdown service before");
 		}
 
 		List<Content> contents;

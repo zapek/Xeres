@@ -1,0 +1,50 @@
+<!--
+  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import io.xeres.ui.custom.EditorView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<VBox minWidth="640" minHeight="480" prefWidth="800" prefHeight="600" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.help.HelpWindowController">
+    <ToolBar>
+        <VBox.margin>
+            <Insets top="4.0"/>
+        </VBox.margin>
+        <Button fx:id="back" disable="true">
+            <graphic>
+                <FontIcon iconLiteral="mdi2a-arrow-left-bold"/>
+            </graphic>
+        </Button>
+        <Button fx:id="forward" disable="true">
+            <graphic>
+                <FontIcon iconLiteral="mdi2a-arrow-right-bold"/>
+            </graphic>
+        </Button>
+        <Button fx:id="home">
+            <graphic>
+                <FontIcon iconLiteral="mdi2h-home"/>
+            </graphic>
+        </Button>
+    </ToolBar>
+    <HBox VBox.vgrow="SOMETIMES">
+        <ListView fx:id="indexList"/>
+        <EditorView fx:id="editorView" previewOnly="true" HBox.hgrow="SOMETIMES"/>
+    </HBox>
+</VBox>

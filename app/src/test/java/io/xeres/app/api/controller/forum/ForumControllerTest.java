@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,7 @@ import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.gxs.ForumGroupItemFakes;
 import io.xeres.app.service.ForumMessageService;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
@@ -60,6 +61,9 @@ class ForumControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private ForumMessageService forumMessageService;
+
+	@MockitoBean
+	private UnHtmlService unHtmlService;
 
 	@Autowired
 	public MockMvc mvc;

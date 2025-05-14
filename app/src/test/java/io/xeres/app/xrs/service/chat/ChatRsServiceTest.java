@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,7 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.MessageService;
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.chat.item.ChatMessageItem;
 import io.xeres.app.xrs.service.chat.item.ChatRoomListItem;
@@ -67,6 +68,9 @@ class ChatRsServiceTest
 	@Mock
 	private MessageService messageService;
 
+	@Mock
+	private UnHtmlService unHtmlService;
+
 	@InjectMocks
 	private ChatRsService chatRsService;
 
@@ -77,6 +81,8 @@ class ChatRsServiceTest
 		var peerConnection = new PeerConnection(LocationFakes.createLocation(), null);
 
 		var item = new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE));
+
+		when(unHtmlService.cleanupMessage(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 
 		chatRsService.handleItem(peerConnection, item);
 
@@ -96,6 +102,8 @@ class ChatRsServiceTest
 
 		var item1 = new ChatMessageItem(message1, EnumSet.of(ChatFlags.PRIVATE, ChatFlags.PARTIAL_MESSAGE));
 		var item2 = new ChatMessageItem(message2, EnumSet.of(ChatFlags.PRIVATE));
+
+		when(unHtmlService.cleanupMessage(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 
 		chatRsService.handleItem(peerConnection, item1);
 		chatRsService.handleItem(peerConnection, item2);

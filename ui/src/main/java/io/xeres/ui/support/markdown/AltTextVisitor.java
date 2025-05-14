@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,23 +19,35 @@
 
 package io.xeres.ui.support.markdown;
 
-import io.xeres.ui.support.contentline.ContentCode;
+import org.commonmark.node.AbstractVisitor;
+import org.commonmark.node.HardLineBreak;
+import org.commonmark.node.SoftLineBreak;
+import org.commonmark.node.Text;
 
-import java.util.regex.Pattern;
-
-class CodeDetector implements MarkdownDetector
+class AltTextVisitor extends AbstractVisitor
 {
-	private static final Pattern CODE_PATTERN = Pattern.compile("(`.*`)");
+	private final StringBuilder sb = new StringBuilder();
 
-	@Override
-	public boolean isPossibly(String line)
+	String getAltText()
 	{
-		return line.contains("`");
+		return sb.toString();
 	}
 
 	@Override
-	public void process(Context context, String line)
+	public void visit(Text text)
 	{
-		MarkdownService.processPattern(CODE_PATTERN, context, line, (s, groupName) -> context.addContent(new ContentCode(s.substring(1, s.length() - 1).strip())));
+		sb.append(text.getLiteral());
+	}
+
+	@Override
+	public void visit(SoftLineBreak softLineBreak)
+	{
+		sb.append('\n');
+	}
+
+	@Override
+	public void visit(HardLineBreak hardLineBreak)
+	{
+		sb.append('\n');
 	}
 }

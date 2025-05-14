@@ -68,6 +68,9 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack'
     implementation 'com.github.depsypher:pngtastic:1.8'
     implementation 'dev.mccue:imgscalr:2023.09.03'
+    implementation "org.commonmark:commonmark:$commonMarkVersion"
+    implementation "org.commonmark:commonmark-ext-autolink:$commonMarkVersion"
+    implementation "org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion"
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

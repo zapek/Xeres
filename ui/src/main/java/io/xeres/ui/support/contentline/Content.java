@@ -25,21 +25,8 @@ public interface Content
 {
 	Node getNode();
 
-	default boolean isComplete()
-	{
-		return true;
-	}
-
 	default String asText()
 	{
 		return "";
-	}
-
-	/**
-	 * Removes any appended \n at the end of the component.
-	 */
-	default void stripTrailingLn()
-	{
-		// Nothing to do for components that don't add a trailing \n
 	}
 }

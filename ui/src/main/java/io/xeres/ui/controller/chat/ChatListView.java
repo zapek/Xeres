@@ -35,7 +35,6 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentImage;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
-import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.image.ImageUtils;
@@ -252,7 +251,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				message = ChatParser.parseActionMe(message, chatAction.getNickname());
 				chatAction.setType(ACTION);
 			}
-			var content = markdownService.parse(message, EnumSet.of(ParsingMode.ONE_LINER), uriAction);
+			var content = markdownService.parse(message, Set.of(), uriAction);
 			var chatLine = new ChatLine(time, chatAction, content.toArray(new Content[0]));
 			addMessageLine(chatLine);
 		}

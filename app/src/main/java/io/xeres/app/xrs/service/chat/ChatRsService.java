@@ -27,11 +27,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.IdentityService;
-import io.xeres.app.service.LocationService;
-import io.xeres.app.service.MessageService;
-import io.xeres.app.service.UiBridgeService;
-import io.xeres.app.util.UnHtml;
+import io.xeres.app.service.*;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemUtils;
@@ -180,11 +176,12 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private final UiBridgeService uiBridgeService;
 	private final ChatRoomService chatRoomService;
 	private final ChatBacklogService chatBacklogService;
+	private final UnHtmlService unHtmlService;
 
 	private ScheduledExecutorService executorService;
 	private GxsTunnelRsService gxsTunnelRsService;
 
-	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService)
+	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService, UnHtmlService unHtmlService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
@@ -197,6 +194,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		this.chatRoomService = chatRoomService;
 		this.chatBacklogService = chatBacklogService;
 		this.rsServiceRegistry = rsServiceRegistry;
+		this.unHtmlService = unHtmlService;
 	}
 
 	@Override
@@ -1456,8 +1454,8 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		bounce(chatRoomEvent);
 	}
 
-	private static String parseIncomingText(String text)
+	private String parseIncomingText(String text)
 	{
-		return UnHtml.cleanupMessage(text);
+		return unHtmlService.cleanupMessage(text);
 	}
 }

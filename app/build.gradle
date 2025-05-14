@@ -190,6 +190,8 @@ dependencies {
     implementation "com.google.zxing:javase:$zxingVersion"
     implementation 'com.sangupta:bloomfilter:0.9.0'
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
+    implementation "org.commonmark:commonmark:$commonMarkVersion"
+    implementation "org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion"
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"

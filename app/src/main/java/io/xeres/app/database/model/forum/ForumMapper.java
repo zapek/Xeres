@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.model.forum;
 
-import io.xeres.app.util.UnHtml;
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
@@ -97,7 +97,7 @@ public final class ForumMapper
 				.toList();
 	}
 
-	public static ForumMessageDTO toDTO(ForumMessageItem forumMessageItem, String authorName, long originalId, long parentId, boolean withMessageContent)
+	public static ForumMessageDTO toDTO(UnHtmlService unHtmlService, ForumMessageItem forumMessageItem, String authorName, long originalId, long parentId, boolean withMessageContent)
 	{
 		if (forumMessageItem == null)
 		{
@@ -114,15 +114,16 @@ public final class ForumMapper
 				authorName,
 				forumMessageItem.getName(),
 				forumMessageItem.getPublished(),
-				withMessageContent ? UnHtml.cleanupMessage(forumMessageItem.getContent()) : "",
+				withMessageContent ? unHtmlService.cleanupMessage(forumMessageItem.getContent()) : "",
 				forumMessageItem.isRead()
 		);
 	}
 
-	public static List<ForumMessageDTO> toForumMessageDTOs(List<ForumMessageItem> forumMessageItems, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ForumMessageItem> messagesMap, boolean withMessageContent)
+	public static List<ForumMessageDTO> toForumMessageDTOs(UnHtmlService unHtmlService, List<ForumMessageItem> forumMessageItems, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ForumMessageItem> messagesMap, boolean withMessageContent)
 	{
 		return emptyIfNull(forumMessageItems).stream()
-				.map(forumMessageItem -> toDTO(forumMessageItem,
+				.map(forumMessageItem -> toDTO(unHtmlService,
+						forumMessageItem,
 						authorsMap.getOrDefault(forumMessageItem.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
 						messagesMap.getOrDefault(forumMessageItem.getOriginalMessageId(), ForumMessageItem.EMPTY).getId(),
 						messagesMap.getOrDefault(forumMessageItem.getParentId(), ForumMessageItem.EMPTY).getId(),

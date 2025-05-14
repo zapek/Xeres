@@ -25,6 +25,7 @@ import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -174,7 +175,7 @@ public class EditorView extends VBox
 			if (preview.isSelected())
 			{
 				editor.setVisible(false);
-				var contents = markdownService.parse(editor.getText(), EnumSet.noneOf(MarkdownService.ParsingMode.class), null);
+				var contents = markdownService.parse(editor.getText(), EnumSet.of(ParsingMode.PARAGRAPH), null);
 				previewContent.getChildren().addAll(contents.stream()
 						.map(Content::getNode).toList());
 				previewPane.setVisible(true);
@@ -226,7 +227,7 @@ public class EditorView extends VBox
 
 		try
 		{
-			contents = markdownService.parse(new String(input.readAllBytes(), StandardCharsets.UTF_8), EnumSet.noneOf(MarkdownService.ParsingMode.class), uriAction);
+			contents = markdownService.parse(new String(input.readAllBytes(), StandardCharsets.UTF_8), EnumSet.of(ParsingMode.PARAGRAPH), uriAction);
 		}
 		catch (IOException e)
 		{

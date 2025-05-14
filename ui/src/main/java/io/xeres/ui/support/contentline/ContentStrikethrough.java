@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,11 +17,26 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.markdown;
+package io.xeres.ui.support.contentline;
 
-interface MarkdownDetector
+import javafx.scene.Node;
+import javafx.scene.text.Text;
+
+public class ContentStrikethrough implements Content
 {
-	boolean isPossibly(String line);
+	private static final String STYLE = "-fx-strikethrough: true;";
 
-	void process(Context context, String line);
+	private final Text node;
+
+	public ContentStrikethrough(String text)
+	{
+		node = new Text(text);
+		node.setStyle(STYLE);
+	}
+
+	@Override
+	public Node getNode()
+	{
+		return node;
+	}
 }

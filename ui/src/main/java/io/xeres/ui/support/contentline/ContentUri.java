@@ -27,7 +27,6 @@ import io.xeres.ui.support.util.UiUtils;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.MenuItem;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
@@ -39,7 +38,7 @@ import java.util.function.Consumer;
 
 public class ContentUri implements Content
 {
-	private final Hyperlink node;
+	private final DisclosedHyperlink node;
 	private static final ContextMenu contextMenu;
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
@@ -67,9 +66,9 @@ public class ContentUri implements Content
 
 	private void askBeforeOpeningIfNeeded(Runnable action)
 	{
-		if (((DisclosedHyperlink) node).isMalicious())
+		if (node.isMalicious())
 		{
-			UiUtils.alertConfirm(MessageFormat.format(bundle.getString("uri.malicious-link.confirm"), ((DisclosedHyperlink) node).getUri()), action);
+			UiUtils.alertConfirm(MessageFormat.format(bundle.getString("uri.malicious-link.confirm"), node.getUri()), action);
 		}
 		else
 		{
@@ -99,7 +98,6 @@ public class ContentUri implements Content
 		return switch (node)
 		{
 			case DisclosedHyperlink disclosedHyperlink -> disclosedHyperlink.getUri();
-			case Hyperlink hyperlink -> hyperlink.getText();
 			default -> "";
 		};
 	}

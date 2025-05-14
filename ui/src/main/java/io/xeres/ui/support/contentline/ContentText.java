@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,8 +24,7 @@ import javafx.scene.text.Text;
 
 public class ContentText implements Content
 {
-	private Text node;
-	private boolean complete;
+	private final Text node;
 
 	public ContentText(String text)
 	{
@@ -39,30 +38,9 @@ public class ContentText implements Content
 	}
 
 	@Override
-	public boolean isComplete()
-	{
-		return complete;
-	}
-
-	public void setComplete()
-	{
-		complete = true;
-	}
-
-	@Override
 	public String asText()
 	{
 		return node.getText();
-	}
-
-	@Override
-	public void stripTrailingLn()
-	{
-		var text = node.getText();
-		if (text.endsWith("\n"))
-		{
-			node = new Text(text.substring(0, text.length() - 1));
-		}
 	}
 
 	public static final ContentText EMPTY = new ContentText("");

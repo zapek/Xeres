@@ -588,7 +588,7 @@ public class ForumViewController implements Controller
 		{
 			forumClient.getForumMessage(forumMessage.getId())
 					.doOnSuccess(message -> Platform.runLater(() -> {
-						var contents = markdownService.parse(message.getContent(), EnumSet.noneOf(ParsingMode.class), uriService);
+						var contents = markdownService.parse(message.getContent(), EnumSet.of(ParsingMode.PARAGRAPH), uriService);
 						messageContent.getChildren().clear();
 						messagePane.setVvalue(messagePane.getVmin());
 						messageContent.getChildren().addAll(contents.stream()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.app.service.notification.forum;
 
 import io.xeres.app.service.ForumMessageService;
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
@@ -37,11 +38,13 @@ import static io.xeres.app.database.model.forum.ForumMapper.toForumMessageDTOs;
 public class ForumNotificationService extends NotificationService
 {
 	private final ForumMessageService forumMessageService;
+	private final UnHtmlService unHtmlService;
 
-	public ForumNotificationService(ForumMessageService forumMessageService)
+	public ForumNotificationService(ForumMessageService forumMessageService, UnHtmlService unHtmlService)
 	{
 		super();
 		this.forumMessageService = forumMessageService;
+		this.unHtmlService = unHtmlService;
 	}
 
 	public void addForumGroups(List<ForumGroupItem> forumGroups)
@@ -52,7 +55,7 @@ public class ForumNotificationService extends NotificationService
 
 	public void addForumMessages(List<ForumMessageItem> forumMessages)
 	{
-		var action = new AddForumMessages(toForumMessageDTOs(forumMessages,
+		var action = new AddForumMessages(toForumMessageDTOs(unHtmlService, forumMessages,
 				forumMessageService.getAuthorsMapFromMessages(forumMessages),
 				forumMessageService.getMessagesMapFromMessages(forumMessages),
 				false));

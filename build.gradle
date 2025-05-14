@@ -28,6 +28,7 @@ buildscript {
         appDirsVersion = "1.4.0"
         junitVersion = "5.12.2"
         archunitVersion = "1.4.1"
+        commonMarkVersion = "0.24.0"
     }
 }
 

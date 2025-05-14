@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.service.ForumMessageService;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
@@ -59,12 +60,14 @@ public class ForumController
 	private final ForumRsService forumRsService;
 	private final IdentityService identityService;
 	private final ForumMessageService forumMessageService;
+	private final UnHtmlService unHtmlService;
 
-	public ForumController(ForumRsService forumRsService, IdentityService identityService, ForumMessageService forumMessageService)
+	public ForumController(ForumRsService forumRsService, IdentityService identityService, ForumMessageService forumMessageService, UnHtmlService unHtmlService)
 	{
 		this.forumRsService = forumRsService;
 		this.identityService = identityService;
 		this.forumMessageService = forumMessageService;
+		this.unHtmlService = unHtmlService;
 	}
 
 	@GetMapping("/groups")
@@ -138,7 +141,9 @@ public class ForumController
 		var messages = forumRsService.findAllMessages(forumMessage.getGxsId(), messageSet).stream()
 				.collect(Collectors.toMap(ForumMessageItem::getMessageId, ForumMessageItem::getId));
 
-		return toDTO(forumMessage,
+		return toDTO(
+				unHtmlService,
+				forumMessage,
 				author.map(GxsGroupItem::getName).orElse(null),
 				messages.getOrDefault(forumMessage.getOriginalMessageId(), 0L),
 				messages.getOrDefault(forumMessage.getParentId(), 0L),

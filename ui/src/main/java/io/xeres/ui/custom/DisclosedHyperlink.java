@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,15 +21,25 @@ package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
-import javafx.scene.control.Hyperlink;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ObjectPropertyBase;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.text.Text;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 /**
- * A class that displays a tooltip over hyperlinks so that one knows what he's going to click on.
+ * Special Hyperlink-like class that offers the following benefits:
+ * <ul>
+ * <li>detects malicious links and warns about them (for example, a link that has a description of https://foo.com but really goes to https://bar.com
+ * <li>can be reflowed when put on a TextFlow
+ * </ul>
+ * On the other hand, it doesn't support the "visited" feature of normal hyperlinks.
  */
-public class DisclosedHyperlink extends Hyperlink
+public class DisclosedHyperlink extends Text
 {
 	private String uri;
 	private boolean malicious;
@@ -38,14 +48,55 @@ public class DisclosedHyperlink extends Hyperlink
 
 	public DisclosedHyperlink()
 	{
-		super("");
+		this("", null);
 	}
 
 	public DisclosedHyperlink(String text, String uri)
 	{
 		super(text);
 		setUri(uri);
+		setUnderline(true);
+		setStyle("-fx-fill: -color-accent-fg");
+		setOnMouseEntered(event -> setCursor(Cursor.HAND));
+		setOnMouseExited(event -> setCursor(Cursor.DEFAULT));
+		setOnMousePressed(event -> onAction.get().handle(new ActionEvent()));
 	}
+
+	public final ObjectProperty<EventHandler<ActionEvent>> onActionProperty()
+	{
+		return onAction;
+	}
+
+	public final void setOnAction(EventHandler<ActionEvent> value)
+	{
+		onActionProperty().set(value);
+	}
+
+	public final EventHandler<ActionEvent> getOnAction()
+	{
+		return onActionProperty().get();
+	}
+
+	private final ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>()
+	{
+		@Override
+		protected void invalidated()
+		{
+			setEventHandler(ActionEvent.ACTION, get());
+		}
+
+		@Override
+		public Object getBean()
+		{
+			return DisclosedHyperlink.this;
+		}
+
+		@Override
+		public String getName()
+		{
+			return "onAction";
+		}
+	};
 
 	public String getUri()
 	{
@@ -57,7 +108,7 @@ public class DisclosedHyperlink extends Hyperlink
 		this.uri = uri;
 		if (getText().contains("://") && !getText().equals(uri))
 		{
-			setStyle("-fx-text-fill: red;");
+			setStyle("-fx-fill: -color-danger-fg;");
 			TooltipUtils.install(this, MessageFormat.format(bundle.getString("uri.malicious-link"), uri));
 			malicious = true;
 		}

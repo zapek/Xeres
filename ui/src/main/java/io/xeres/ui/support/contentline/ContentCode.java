@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,19 +20,17 @@
 package io.xeres.ui.support.contentline;
 
 import javafx.scene.Node;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 public class ContentCode implements Content
 {
-	private static final String STYLE = "-fx-font-family: \"monospace\"";
+	private static final String STYLE = "-fx-font-family: \"monospace\"; -fx-fill: -color-success-fg";
 
-	private Text node;
+	private final Text node;
 
 	public ContentCode(String text)
 	{
 		node = new Text(text);
-		node.setFill(Color.LIMEGREEN);
 		node.setStyle(STYLE);
 	}
 
@@ -40,17 +38,5 @@ public class ContentCode implements Content
 	public Node getNode()
 	{
 		return node;
-	}
-
-	@Override
-	public void stripTrailingLn()
-	{
-		var text = node.getText();
-		if (text.endsWith("\n"))
-		{
-			node = new Text(text.substring(0, text.length() - 1));
-			node.setFill(Color.LIMEGREEN);
-			node.setStyle(STYLE);
-		}
 	}
 }

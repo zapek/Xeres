@@ -1,10 +1,29 @@
+/*
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package io.xeres.ui.support.markdown;
 
 import io.xeres.ui.FXTest;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.text.Text;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,12 +35,12 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -43,6 +62,7 @@ class MarkdownServiceTest extends FXTest
 	void configureMock()
 	{
 		when(emojiService.isColoredEmojis()).thenReturn(true);
+		when(emojiService.toUnicode(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 	}
 
 	@Test
@@ -72,12 +92,9 @@ class MarkdownServiceTest extends FXTest
 				Line3
 				Line4
 								
-				Line 5
-				""";
+				Line 5""";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class), null).stream()
+		assertEquals(wanted, markdownService.parse(text, Set.of(), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -95,13 +112,11 @@ class MarkdownServiceTest extends FXTest
 
 		var wanted = """
 				Line1
+				
 				> Line2
-				> Line3
-				""";
+				> Line3""";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class), null).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -122,12 +137,9 @@ class MarkdownServiceTest extends FXTest
 				> Line1
 				> Line2
 								
-				Line3
-				""";
+				Line3""";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(ParsingMode.class), null).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -156,9 +168,7 @@ class MarkdownServiceTest extends FXTest
 				Line3
 				Line4""";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.ONE_LINER), null).stream()
+		assertEquals(wanted, markdownService.parse(text, Set.of(), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -184,10 +194,7 @@ class MarkdownServiceTest extends FXTest
 
 				Line2 with trails
 
-				Line3 Line4
-				""";
-
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
+				Line3 Line4""";
 
 		var result = markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()
 				.map(Content::asText)
@@ -203,9 +210,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "Hello world! https://xeres.io is the site to visit now!";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER), null);
+		var output = markdownService.parse(input, Set.of(), null);
 
 		assertEquals(3, output.size());
 		assertInstanceOf(ContentText.class, output.get(0));
@@ -213,7 +218,7 @@ class MarkdownServiceTest extends FXTest
 		assertInstanceOf(ContentText.class, output.get(2));
 
 		assertEquals("Hello world! ", ((Text) output.get(0).getNode()).getText());
-		assertEquals("https://xeres.io", ((Hyperlink) output.get(1).getNode()).getText());
+		assertEquals("https://xeres.io", ((DisclosedHyperlink) output.get(1).getNode()).getText());
 		assertEquals(" is the site to visit now!", ((Text) output.get(2).getNode()).getText());
 	}
 
@@ -224,14 +229,12 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "https://www.foobar.com/watch?v=aXfS2p_ZyHY";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER), null);
+		var output = markdownService.parse(input, Set.of(), null);
 
 		assertEquals(1, output.size());
 		assertInstanceOf(ContentUri.class, output.getFirst());
 
-		assertEquals(input, ((Hyperlink) output.getFirst().getNode()).getText());
+		assertEquals(input, ((DisclosedHyperlink) output.getFirst().getNode()).getText());
 	}
 
 	@ParameterizedTest
@@ -244,9 +247,7 @@ class MarkdownServiceTest extends FXTest
 	{
 		var markdownService = createMarkdownService();
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		var output = markdownService.parse(input, EnumSet.of(ParsingMode.ONE_LINER), null);
+		var output = markdownService.parse(input, Set.of(), null);
 
 		assertEquals(expected, ((Text) output.getFirst().getNode()).getText());
 	}
@@ -258,9 +259,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "\n";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
+		var output = markdownService.parse(input, Set.of(), null);
 
 		assertEquals(0, output.size());
 	}
@@ -272,9 +271,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "\n\n";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
+		var output = markdownService.parse(input, Set.of(), null);
 
 		assertEquals(0, output.size());
 	}
@@ -286,14 +283,12 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "hello, world\n";
 
-		doAnswer(invocation -> invocation.getArgument(0)).when(emojiService).toUnicode(anyString());
-
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
+		var output = markdownService.parse(input, Set.of(), null);
 
 		assertEquals(1, output.size());
 
 		assertInstanceOf(ContentText.class, output.getFirst());
-		assertEquals("hello, world\n", ((Text) output.getFirst().getNode()).getText());
+		assertEquals("hello, world", ((Text) output.getFirst().getNode()).getText());
 	}
 
 	@Test
@@ -301,24 +296,17 @@ class MarkdownServiceTest extends FXTest
 	{
 		var markdownService = createMarkdownService();
 
-		var input = "https://zapek.com :-)\n";
+		var input = "https://zapek.com !\n";
 
-		when(emojiService.toUnicode(input)).thenReturn("https://zapek.com \uD83D\uDE42\n");
+		var output = markdownService.parse(input, Set.of(), null);
 
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
-
-		assertEquals(4, output.size()); // url + " " + 🙂 + "\n"
+		assertEquals(2, output.size());
 
 		assertInstanceOf(ContentUri.class, output.get(0));
-		assertEquals("https://zapek.com", ((Hyperlink) output.get(0).getNode()).getText());
+		assertEquals("https://zapek.com", ((DisclosedHyperlink) output.get(0).getNode()).getText());
 
 		assertInstanceOf(ContentText.class, output.get(1));
-		assertEquals(" ", ((Text) output.get(1).getNode()).getText());
-
-		assertInstanceOf(ContentEmoji.class, output.get(2));
-
-		assertInstanceOf(ContentText.class, output.get(3));
-		assertEquals("\n", ((Text) output.get(3).getNode()).getText());
+		assertEquals(" !", ((Text) output.get(1).getNode()).getText());
 	}
 
 	@Test
@@ -330,38 +318,30 @@ class MarkdownServiceTest extends FXTest
 		var line2 = "and another one: `fork();` it is\n";
 		var input = line1 + line2;
 
-		when(emojiService.toUnicode(line1)).thenReturn("https://zapek.com \uD83D\uDE42 **yeah**\n");
-		when(emojiService.toUnicode(line2)).thenReturn(line2);
+		var output = markdownService.parse(input, Set.of(), null);
 
-		var output = markdownService.parse(input, EnumSet.noneOf(ParsingMode.class), null);
-
-		assertEquals(9, output.size());
+		assertEquals(7, output.size());
 
 		assertInstanceOf(ContentUri.class, output.get(0));
-		assertEquals("https://zapek.com", ((Hyperlink) output.get(0).getNode()).getText());
+		assertEquals("https://zapek.com", ((DisclosedHyperlink) output.get(0).getNode()).getText());
 
 		assertInstanceOf(ContentText.class, output.get(1));
-		assertEquals(" ", ((Text) output.get(1).getNode()).getText());
+		assertEquals(" :-) ", ((Text) output.get(1).getNode()).getText());
 
-		assertInstanceOf(ContentEmoji.class, output.get(2));
+		assertInstanceOf(ContentEmphasis.class, output.get(2));
+		assertEquals("yeah", ((Text) output.get(2).getNode()).getText());
+		assertEquals("-fx-font-weight: bold;", output.get(2).getNode().getStyle());
 
 		assertInstanceOf(ContentText.class, output.get(3));
-		assertEquals(" ", ((Text) output.get(3).getNode()).getText());
+		assertEquals("\n", ((Text) output.get(3).getNode()).getText());
 
-		assertInstanceOf(ContentEmphasis.class, output.get(4));
-		assertEquals("yeah", ((Text) output.get(4).getNode()).getText());
-		assertEquals("-fx-font-weight: bold;", output.get(4).getNode().getStyle());
+		assertInstanceOf(ContentText.class, output.get(4));
+		assertEquals("and another one: ", ((Text) output.get(4).getNode()).getText());
 
-		assertInstanceOf(ContentText.class, output.get(5));
-		assertEquals("\n", ((Text) output.get(5).getNode()).getText());
+		assertInstanceOf(ContentCode.class, output.get(5));
+		assertEquals("fork();", ((Text) output.get(5).getNode()).getText());
 
 		assertInstanceOf(ContentText.class, output.get(6));
-		assertEquals("and another one: ", ((Text) output.get(6).getNode()).getText());
-
-		assertInstanceOf(ContentCode.class, output.get(7));
-		assertEquals("fork();", ((Text) output.get(7).getNode()).getText());
-
-		assertInstanceOf(ContentText.class, output.get(8));
-		assertEquals(" it is\n", ((Text) output.get(8).getNode()).getText());
+		assertEquals(" it is", ((Text) output.get(6).getNode()).getText());
 	}
 }

@@ -30,12 +30,12 @@ class ContentRenderer
 {
 	private final EmojiService emojiService;
 	private final UriAction uriAction;
-	private final boolean useSoftBreak;
+	private final boolean paragraph;
 
-	ContentRenderer(EmojiService emojiService, boolean useSoftBreak, UriAction uriAction)
+	ContentRenderer(EmojiService emojiService, boolean paragraph, UriAction uriAction)
 	{
 		this.emojiService = emojiService;
-		this.useSoftBreak = useSoftBreak;
+		this.paragraph = paragraph;
 		this.uriAction = uriAction;
 	}
 
@@ -43,7 +43,7 @@ class ContentRenderer
 	{
 		Objects.requireNonNull(node, "Node must not be null");
 
-		var visitor = new ContentVisitor(emojiService, useSoftBreak, uriAction);
+		var visitor = new ContentVisitor(emojiService, paragraph, uriAction);
 		node.accept(visitor);
 		return visitor.getContent();
 	}

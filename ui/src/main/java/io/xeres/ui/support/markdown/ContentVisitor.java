@@ -72,13 +72,13 @@ class ContentVisitor extends AbstractVisitor
 
 	private final List<Content> content = new ArrayList<>();
 	private ParsingMode parsingMode = ParsingMode.NORMAL;
-	private final boolean useSoftBreak;
+	private final boolean paragraph;
 	private int listCounter = 1;
 
-	ContentVisitor(EmojiService emojiService, boolean useSoftBreak, UriAction uriAction)
+	ContentVisitor(EmojiService emojiService, boolean paragraph, UriAction uriAction)
 	{
 		this.emojiService = emojiService;
-		this.useSoftBreak = useSoftBreak;
+		this.paragraph = paragraph;
 		this.uriAction = uriAction;
 	}
 
@@ -155,15 +155,22 @@ class ContentVisitor extends AbstractVisitor
 	@Override
 	public void visit(Heading heading)
 	{
-		addEmptyLine();
-		content.add(new ContentHeader(getFirstTextChild(heading).orElse(""), heading.getLevel()));
-		addEmptyLine();
+		if (paragraph)
+		{
+			addEmptyLine();
+			content.add(new ContentHeader(getFirstTextChild(heading).orElse(""), heading.getLevel()));
+			addEmptyLine();
+		}
+		else
+		{
+			content.add(new ContentText("#".repeat(Math.max(0, heading.getLevel())) + " " + getFirstTextChild(heading).orElse("")));
+		}
 	}
 
 	@Override
 	public void visit(SoftLineBreak softLineBreak)
 	{
-		if (useSoftBreak && parsingMode != ParsingMode.QUOTE)
+		if (paragraph && parsingMode != ParsingMode.QUOTE)
 		{
 			content.add(new ContentText(" "));
 		}
@@ -241,7 +248,7 @@ class ContentVisitor extends AbstractVisitor
 		}
 		else
 		{
-			content.add(new ContentText("- "));
+			content.add(new ContentText("• "));
 		}
 		visitChildren(listItem);
 		addEmptyLine();
@@ -330,6 +337,21 @@ class ContentVisitor extends AbstractVisitor
 	public void visit(Strikethrough strikeThrough)
 	{
 		content.add(new ContentStrikethrough(getFirstTextChild(strikeThrough).orElse("")));
+	}
+
+	@Override
+	public void visit(ThematicBreak thematicBreak)
+	{
+		if (paragraph)
+		{
+			addEmptyLine();
+			content.add(new ContentHorizontalRule());
+			addEmptyLine();
+		}
+		else
+		{
+			content.add(new ContentText(thematicBreak.getLiteral()));
+		}
 	}
 
 	@Override

@@ -35,7 +35,8 @@ public class MarkdownService
 	public enum ParsingMode
 	{
 		/**
-		 * Convert soft breaks to spaces, like HTML.
+		 * Editor mode. Convert soft breaks to spaces, like HTML.
+		 * Allows headings and horizontal rules. Anything that cannot be abused in a public chat.
 		 */
 		PARAGRAPH,
 	}

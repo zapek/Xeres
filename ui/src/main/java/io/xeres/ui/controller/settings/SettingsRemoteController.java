@@ -93,7 +93,7 @@ public class SettingsRemoteController implements SettingsController
 
 		var icon = new FontIcon("mdi2e-eye-off");
 		icon.setCursor(Cursor.HAND);
-		icon.setOnMouseClicked(mouseEvent -> {
+		UiUtils.setOnPrimaryMouseClicked(icon, event -> {
 			icon.setIconLiteral(password.getRevealPassword() ? "mdi2e-eye-off" : "mdi2e-eye");
 			password.setRevealPassword(!password.getRevealPassword());
 		});

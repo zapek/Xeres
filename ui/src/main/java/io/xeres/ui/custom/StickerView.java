@@ -20,6 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.custom.event.StickerSelectedEvent;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.image.ImageUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -148,8 +149,8 @@ public class StickerView extends VBox
 			var path = (Path) tab.getUserData();
 			var textFlow = new TextFlow();
 			textFlow.setPrefWidth(600.0);
-			textFlow.setOnMouseClicked(mouseEvent -> {
-				if (mouseEvent.getTarget() instanceof ImageView imageView)
+			UiUtils.setOnPrimaryMouseClicked(textFlow, event -> {
+				if (event.getTarget() instanceof ImageView imageView)
 				{
 					fireEvent(new StickerSelectedEvent((Path) imageView.getUserData()));
 				}

@@ -23,6 +23,7 @@ import io.xeres.common.util.ExecutorUtils;
 import io.xeres.ui.client.StatisticsClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
@@ -113,7 +114,7 @@ public class StatisticsTurtleController implements Controller
 			{
 				label.setCursor(Cursor.HAND);
 				TooltipUtils.install(label, legendTips.get(label.getText()));
-				label.setOnMouseClicked(event -> {
+				UiUtils.setOnPrimaryMouseClicked(label, event -> {
 					label.setOpacity(label.getOpacity() > 0.75 ? 0.5 : 1.0);
 					lineChart.getData().forEach(series -> {
 						if (series.getName().equals(label.getText()))

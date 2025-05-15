@@ -205,8 +205,8 @@ public class ForumViewController implements Controller
 		forumTree.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue())));
 
-		forumTree.setOnMouseClicked(event -> {
-			if (event.getClickCount() == 2 && isForumSelected())
+		UiUtils.setOnPrimaryMouseDoubleClicked(forumTree, event -> {
+			if (isForumSelected())
 			{
 				subscribeToForumGroup(selectedForumGroup);
 			}

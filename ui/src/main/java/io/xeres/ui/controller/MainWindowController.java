@@ -58,7 +58,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -633,30 +632,27 @@ public class MainWindowController implements WindowController
 		sequentialTransition.setNode(shareId);
 		sequentialTransition.setCycleCount(Animation.INDEFINITE);
 
-		logo.setOnMouseClicked(event -> {
-			if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY)
+		UiUtils.setOnPrimaryMouseDoubleClicked(logo, event -> {
+			if (rotateTransition.getStatus() == Animation.Status.RUNNING)
 			{
-				if (rotateTransition.getStatus() == Animation.Status.RUNNING)
-				{
-					rotateTransition.jumpTo(javafx.util.Duration.millis(0));
-					rotateTransition.stop();
+				rotateTransition.jumpTo(javafx.util.Duration.millis(0));
+				rotateTransition.stop();
 
-					scaleTransition.jumpTo(javafx.util.Duration.millis(0));
-					scaleTransition.stop();
+				scaleTransition.jumpTo(javafx.util.Duration.millis(0));
+				scaleTransition.stop();
 
-					fadeTransition.jumpTo(javafx.util.Duration.millis(0));
-					fadeTransition.stop();
+				fadeTransition.jumpTo(javafx.util.Duration.millis(0));
+				fadeTransition.stop();
 
-					sequentialTransition.jumpTo(javafx.util.Duration.millis(0));
-					sequentialTransition.stop();
-				}
-				else
-				{
-					rotateTransition.play();
-					scaleTransition.play();
-					fadeTransition.play();
-					sequentialTransition.play();
-				}
+				sequentialTransition.jumpTo(javafx.util.Duration.millis(0));
+				sequentialTransition.stop();
+			}
+			else
+			{
+				rotateTransition.play();
+				scaleTransition.play();
+				fadeTransition.play();
+				sequentialTransition.play();
 			}
 		});
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -57,7 +58,7 @@ public class ReadOnlyTextField extends TextField
 
 	private void init()
 	{
-		setOnMouseClicked(event -> selectAll());
+		UiUtils.setOnPrimaryMouseClicked(this, event -> selectAll());
 		setEditable(false);
 
 		setContextMenu(createContextMenu());

@@ -106,7 +106,7 @@ public class ContentImage implements Content
 			contextMenu.show(node, event.getScreenX(), event.getScreenY());
 			event.consume();
 		});
-		node.setOnMouseClicked(ContentImage::view);
+		UiUtils.setOnPrimaryMouseClicked(node, ContentImage::view);
 
 		if (parent != null)
 		{

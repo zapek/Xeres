@@ -37,6 +37,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -56,6 +58,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
@@ -482,5 +485,27 @@ public final class UiUtils
 	public static void setAbsent(Node node)
 	{
 		setPresent(node, false);
+	}
+
+	public static void setOnPrimaryMouseClicked(Node node, Consumer<MouseEvent> consumer)
+	{
+		node.setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY)
+			{
+				consumer.accept(event);
+				event.consume();
+			}
+		});
+	}
+
+	public static void setOnPrimaryMouseDoubleClicked(Node node, Consumer<MouseEvent> consumer)
+	{
+		node.setOnMouseClicked(event -> {
+			if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY)
+			{
+				consumer.accept(event);
+				event.consume();
+			}
+		});
 	}
 }

@@ -249,8 +249,8 @@ public class ChatViewController implements Controller
 		roomTree.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedRoom(newValue.getValue().getRoomInfo())));
 
-		roomTree.setOnMouseClicked(event -> {
-			if (event.getClickCount() == 2 && isRoomSelected())
+		UiUtils.setOnPrimaryMouseDoubleClicked(roomTree, event -> {
+			if (isRoomSelected())
 			{
 				joinChatRoom(selectedRoom);
 			}

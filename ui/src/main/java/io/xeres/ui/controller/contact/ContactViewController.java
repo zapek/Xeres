@@ -63,7 +63,6 @@ import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -333,12 +332,7 @@ public class ContactViewController implements Controller
 				.subscribe();
 		displayOwnContactImage();
 
-		ownContactGroup.setOnMouseClicked(event -> {
-			if (event.getButton() == MouseButton.PRIMARY)
-			{
-				displayOwnContact();
-			}
-		});
+		UiUtils.setOnPrimaryMouseClicked(ownContactGroup, event -> displayOwnContact());
 
 		createStateContextMenu();
 	}
@@ -362,7 +356,7 @@ public class ContactViewController implements Controller
 	private void setupContactSearch()
 	{
 		searchClear.setCursor(Cursor.HAND);
-		searchClear.setOnMouseClicked(event -> searchTextField.clear());
+		UiUtils.setOnPrimaryMouseClicked(searchClear, event -> searchTextField.clear());
 
 		TextInputControlUtils.addEnhancedInputContextMenu(searchTextField, null, null);
 		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
@@ -1227,13 +1221,7 @@ public class ContactViewController implements Controller
 
 		var contextMenu = new ContextMenu(availableItem, awayItem, busyItem);
 		ownContactState.setOnContextMenuRequested(event -> contextMenu.show(ownContactState, event.getScreenX(), event.getScreenY()));
-		ownContactState.setOnMouseClicked(event -> {
-			if (event.getButton() == MouseButton.PRIMARY)
-			{
-				contextMenu.show(ownContactState, event.getScreenX(), event.getScreenY());
-				event.consume();
-			}
-		});
+		UiUtils.setOnPrimaryMouseClicked(ownContactState, event -> contextMenu.show(ownContactState, event.getScreenX(), event.getScreenY()));
 	}
 
 	private void createLocationTableContextMenu()

@@ -31,7 +31,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.text.Text;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.boot.info.BuildProperties;
@@ -97,12 +96,9 @@ public class AboutWindowController implements WindowController
 		closeWindow.setOnAction(UiUtils::closeWindow);
 		UiUtils.linkify(infoPane, hostServices);
 
-		logo.setOnMouseClicked(event -> {
-			if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY)
-			{
-				logo.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/egg.png"))));
-				TooltipUtils.install(logo, "Qrqvpngrq gb Nyvan".chars().mapToObj(v -> (char) v).map(c -> (char) ((c < 'a') ? ((c - 'A' + 13) % 26) + 'A' : ((c - 'a' + 13) % 26) + 'a')).map(String::valueOf).collect(Collectors.joining()).replace("-", " "));
-			}
+		UiUtils.setOnPrimaryMouseDoubleClicked(logo, event -> {
+			logo.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/egg.png"))));
+			TooltipUtils.install(logo, "Qrqvpngrq gb Nyvan".chars().mapToObj(v -> (char) v).map(c -> (char) ((c < 'a') ? ((c - 'A' + 13) % 26) + 'A' : ((c - 'a' + 13) % 26) + 'a')).map(String::valueOf).collect(Collectors.joining()).replace("-", " "));
 		});
 
 		Platform.runLater(() -> closeWindow.requestFocus());

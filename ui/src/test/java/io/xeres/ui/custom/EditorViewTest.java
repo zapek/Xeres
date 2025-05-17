@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -102,7 +102,7 @@ class EditorViewTest
 	void Content_Code_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#code");
-		assertEquals("``", editorView.getText());
+		assertEquals("```\n\n```", editorView.getText());
 	}
 
 	@Test
@@ -112,7 +112,7 @@ class EditorViewTest
 		robot.press(KeyCode.CONTROL, KeyCode.A);
 		robot.release(KeyCode.CONTROL, KeyCode.A);
 		robot.clickOn("#code");
-		assertEquals("\thello", editorView.getText());
+		assertEquals("```\nhello\n```", editorView.getText());
 	}
 
 	@Test
@@ -145,7 +145,7 @@ class EditorViewTest
 	@Test
 	void Content_List_Transformed(FxRobot robot)
 	{
-		robot.clickOn("#list");
+		robot.clickOn("#unorderedList");
 		assertEquals("- ", editorView.getText());
 	}
 
@@ -155,7 +155,7 @@ class EditorViewTest
 		robot.write("hello");
 		robot.press(KeyCode.CONTROL, KeyCode.A);
 		robot.release(KeyCode.CONTROL, KeyCode.A);
-		robot.clickOn("#list");
+		robot.clickOn("#unorderedList");
 		assertEquals("\n- hello", editorView.getText());
 	}
 

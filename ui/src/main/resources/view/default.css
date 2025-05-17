@@ -244,3 +244,8 @@
     -fx-background-color: -color-bg-default;
     -fx-border-color: -color-border-default;
 }
+
+.tool-bar {
+    -fx-padding: 2 2 2 2;
+    -fx-spacing: 1;
+}

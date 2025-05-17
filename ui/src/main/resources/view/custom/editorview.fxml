@@ -25,10 +25,27 @@
 <?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.*?>
 <fx:root prefHeight="480" prefWidth="640" type="VBox" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
-    <ToolBar fx:id="toolBar">
+    <ToolBar fx:id="toolBar" style="-fx-spacing: 2;">
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>
+        <Button fx:id="undo" focusTraversable="false">
+            <graphic>
+                <FontIcon iconLiteral="mdi2u-undo"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="%editor.action.undo"/>
+            </tooltip>
+        </Button>
+        <Button fx:id="redo" focusTraversable="false">
+            <graphic>
+                <FontIcon iconLiteral="mdi2r-redo"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="%editor.action.redo"/>
+            </tooltip>
+        </Button>
+        <Separator orientation="VERTICAL"/>
         <Button fx:id="bold" focusTraversable="false">
             <graphic>
                 <FontIcon iconLiteral="mdi2f-format-bold"/>
@@ -43,6 +60,14 @@
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.italic"/>
+            </tooltip>
+        </Button>
+        <Button fx:id="code" focusTraversable="false">
+            <graphic>
+                <FontIcon iconLiteral="mdi2c-code-tags"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="%editor.action.code"/>
             </tooltip>
         </Button>
         <Separator orientation="VERTICAL"/>
@@ -62,21 +87,21 @@
                 <Tooltip showDuration="1m" text="%editor.action.quote"/>
             </tooltip>
         </Button>
-        <Button fx:id="code" focusTraversable="false">
-            <graphic>
-                <FontIcon iconLiteral="mdi2f-file-code-outline"/>
-            </graphic>
-            <tooltip>
-                <Tooltip showDuration="1m" text="%editor.action.code"/>
-            </tooltip>
-        </Button>
         <Separator orientation="VERTICAL"/>
-        <Button fx:id="list" focusTraversable="false">
+        <Button fx:id="unorderedList" focusTraversable="false">
             <graphic>
                 <FontIcon iconLiteral="mdi2f-format-list-bulleted"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" text="%editor.action.list"/>
+                <Tooltip showDuration="1m" text="%editor.action.unordered-list"/>
+            </tooltip>
+        </Button>
+        <Button fx:id="orderedList" focusTraversable="false">
+            <graphic>
+                <FontIcon iconLiteral="mdi2f-format-list-numbered"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" text="%editor.action.ordered-list"/>
             </tooltip>
         </Button>
         <MenuButton fx:id="heading" focusTraversable="false">

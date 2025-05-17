@@ -63,6 +63,21 @@ public class EditorView extends VBox
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination ENTER_INSERT_KEY = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
+	private static final KeyCodeCombination MAKE_BOLD = new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_ITALIC = new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_CODE = new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_LINK = new KeyCodeCombination(KeyCode.L, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_UNORDERED_LIST = new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_ORDERED_LIST = new KeyCodeCombination(KeyCode.U, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_QUOTE = new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_HEADER_1 = new KeyCodeCombination(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_HEADER_2 = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_HEADER_3 = new KeyCodeCombination(KeyCode.DIGIT3, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_HEADER_4 = new KeyCodeCombination(KeyCode.DIGIT4, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_HEADER_5 = new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination MAKE_HEADER_6 = new KeyCodeCombination(KeyCode.DIGIT6, KeyCombination.SHORTCUT_DOWN);
+	private static final KeyCodeCombination PREVIEW = new KeyCodeCombination(KeyCode.F12);
+
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
 	private static final int IMAGE_MAXIMUM_SIZE = 31000; // Same as the one in chat
@@ -71,6 +86,12 @@ public class EditorView extends VBox
 
 	@FXML
 	private ToolBar toolBar;
+
+	@FXML
+	private Button undo;
+
+	@FXML
+	private Button redo;
 
 	@FXML
 	private Button bold;
@@ -88,7 +109,10 @@ public class EditorView extends VBox
 	private Button code;
 
 	@FXML
-	private Button list;
+	private Button unorderedList;
+
+	@FXML
+	private Button orderedList;
 
 	@FXML
 	private MenuButton heading;
@@ -156,20 +180,34 @@ public class EditorView extends VBox
 	@FXML
 	private void initialize()
 	{
+		undo.disableProperty().bind(editor.undoableProperty().not());
+		undo.setOnAction(event -> editor.undo());
+
+		redo.disableProperty().bind(editor.redoableProperty().not());
+		redo.setOnAction(event -> editor.redo());
+
 		bold.setOnAction(event -> surround("**"));
 		italic.setOnAction(event -> surround("_"));
-		code.setOnAction(event -> selection(() -> prefixLines("\t"), () -> surround("`")));
+		code.setOnAction(event -> makeCode());
 		quote.setOnAction(event -> prefixLines(">"));
-		list.setOnAction(event -> insertNextLine("-"));
-		header1.setOnAction(event -> insertNextLine("#"));
-		header2.setOnAction(event -> insertNextLine("##"));
-		header3.setOnAction(event -> insertNextLine("###"));
-		header4.setOnAction(event -> insertNextLine("####"));
-		header5.setOnAction(event -> insertNextLine("#####"));
-		header6.setOnAction(event -> insertNextLine("######"));
+		unorderedList.setOnAction(event -> insertNextLine("-"));
+		orderedList.setOnAction(event -> insertNextLine("1."));
+		header1.setOnAction(event -> makeHeader(1));
+		header2.setOnAction(event -> makeHeader(2));
+		header3.setOnAction(event -> makeHeader(3));
+		header4.setOnAction(event -> makeHeader(4));
+		header5.setOnAction(event -> makeHeader(5));
+		header6.setOnAction(event -> makeHeader(6));
 		hyperlink.setOnAction(event -> insertUrl(UiUtils.getWindow(event)));
 
 		editor.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+
+		previewPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			if (PREVIEW.match(event))
+			{
+				preview.fire();
+			}
+		});
 
 		preview.setOnAction(event -> {
 			if (preview.isSelected())
@@ -179,12 +217,14 @@ public class EditorView extends VBox
 				previewContent.getChildren().addAll(contents.stream()
 						.map(Content::getNode).toList());
 				previewPane.setVisible(true);
+				previewPane.requestFocus();
 			}
 			else
 			{
 				editor.setVisible(true);
 				previewPane.setVisible(false);
 				previewContent.getChildren().clear();
+				editor.requestFocus();
 			}
 		});
 
@@ -204,6 +244,113 @@ public class EditorView extends VBox
 				previewPane.setVisible(false);
 			}
 		});
+	}
+
+	private void makeCode()
+	{
+		var selection = editor.getSelection();
+
+		if (selection.getLength() <= 0)
+		{
+			if (isBeginningOfLine(editor.getCaretPosition()))
+			{
+				surround("```\n", "\n```");
+			}
+			else
+			{
+				surround("`");
+			}
+		}
+		else
+		{
+			if (isParagraphBoundaries())
+			{
+				surround("```\n", "\n```");
+			}
+			else
+			{
+				surround("`");
+			}
+		}
+		editor.requestFocus();
+	}
+
+	private void makeHeader(int level)
+	{
+		insertNextLine("#".repeat(Math.max(0, level)));
+	}
+
+	private void handleInputKeys(KeyEvent event)
+	{
+		typingCount++;
+
+		if (PASTE_KEY.match(event))
+		{
+			if (handlePaste(editor))
+			{
+				event.consume();
+			}
+		}
+		else if (ENTER_INSERT_KEY.match(event))
+		{
+			completeStatement();
+		}
+		else if (MAKE_BOLD.match(event))
+		{
+			bold.fire();
+		}
+		else if (MAKE_ITALIC.match(event))
+		{
+			italic.fire();
+		}
+		else if (MAKE_CODE.match(event))
+		{
+			makeCode();
+		}
+		else if (MAKE_LINK.match(event))
+		{
+			insertUrl(UiUtils.getWindow(event));
+		}
+		else if (MAKE_UNORDERED_LIST.match(event))
+		{
+			unorderedList.fire();
+		}
+		else if (MAKE_ORDERED_LIST.match(event))
+		{
+			orderedList.fire();
+		}
+		else if (MAKE_QUOTE.match(event))
+		{
+			quote.fire();
+		}
+		else if (MAKE_HEADER_1.match(event))
+		{
+			makeHeader(1);
+		}
+		else if (MAKE_HEADER_2.match(event))
+		{
+			makeHeader(2);
+		}
+		else if (MAKE_HEADER_3.match(event))
+		{
+			makeHeader(3);
+		}
+		else if (MAKE_HEADER_4.match(event))
+		{
+			makeHeader(4);
+		}
+		else if (MAKE_HEADER_5.match(event))
+		{
+			makeHeader(5);
+		}
+		else if (MAKE_HEADER_6.match(event))
+		{
+			makeHeader(6);
+		}
+		else if (PREVIEW.match(event))
+		{
+			preview.fire();
+		}
 	}
 
 	public void setUriAction(UriAction uriAction)
@@ -290,6 +437,7 @@ public class EditorView extends VBox
 		this.previewOnly.set(previewOnly);
 	}
 
+	// XXX: remove!
 	private void surround(String text)
 	{
 		var selection = editor.getSelection();
@@ -311,6 +459,31 @@ public class EditorView extends VBox
 			}
 			editor.insertText(end, text);
 			editor.positionCaret(end + text.length() + 1);
+		}
+		editor.requestFocus();
+	}
+
+	private void surround(String before, String after)
+	{
+		var selection = editor.getSelection();
+
+		if (selection.getLength() <= 0)
+		{
+			var pos = editor.getCaretPosition();
+			editor.insertText(pos, before + after);
+			editor.positionCaret(pos + before.length());
+		}
+		else
+		{
+			var trailingSpace = editor.getText(selection.getEnd() - 1, selection.getEnd()).equals(" ");
+			editor.insertText(selection.getStart(), before);
+			var end = selection.getEnd() + before.length();
+			if (trailingSpace)
+			{
+				end--;
+			}
+			editor.insertText(end, after);
+			editor.positionCaret(end + after.length() + 1);
 		}
 		editor.requestFocus();
 	}
@@ -403,9 +576,9 @@ public class EditorView extends VBox
 		var selection = editor.getSelection();
 
 		var dialog = new TextInputDialog();
-		dialog.setTitle(bundle.getString("editor.hyperlink.insert"));
+		dialog.setTitle(bundle.getString("editor.hyperlink.enter"));
+		dialog.setHeaderText(null);
 		dialog.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
-		dialog.setHeaderText(bundle.getString("editor.hyperlink.enter"));
 		dialog.initOwner(parent);
 
 		dialog.showAndWait().ifPresent(link -> {
@@ -432,28 +605,6 @@ public class EditorView extends VBox
 		});
 	}
 
-	private void selection(Runnable paragraph, Runnable subline)
-	{
-		var selection = editor.getSelection();
-
-		if (selection.getLength() <= 0)
-		{
-			subline.run();
-		}
-		else
-		{
-			if (isParagraphBoundaries())
-			{
-				paragraph.run();
-			}
-			else
-			{
-				subline.run();
-			}
-		}
-		editor.requestFocus();
-	}
-
 	private boolean isParagraphBoundaries()
 	{
 		var selection = editor.getSelection();
@@ -462,23 +613,6 @@ public class EditorView extends VBox
 		var end = selection.getEnd();
 
 		return (start == 0 || editor.getText(start - 1, start).equals("\n")) && (editor.getText(end - 1, end).equals("\n") || end == editor.getLength() || editor.getText(end, end + 1).equals("\n"));
-	}
-
-	private void handleInputKeys(KeyEvent event)
-	{
-		typingCount++;
-
-		if (PASTE_KEY.match(event))
-		{
-			if (handlePaste(editor))
-			{
-				event.consume();
-			}
-		}
-		else if (ENTER_INSERT_KEY.match(event))
-		{
-			completeStatement();
-		}
 	}
 
 	private boolean handlePaste(TextInputControl textInputControl)

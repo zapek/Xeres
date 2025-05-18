@@ -211,7 +211,8 @@ class ContentVisitor extends AbstractVisitor
 		link.accept(altTextVisitor);
 		var altText = altTextVisitor.getAltText();
 
-		content.add(UriFactory.createContent(url, altText, uriAction));
+		// Only use the altText if it's not the same as the URL. Otherwise this can cause problems (URL decoded but no the text, etc...)
+		content.add(UriFactory.createContent(url, url.equals(altText) ? null : altText, uriAction));
 	}
 
 	@Override
@@ -304,20 +305,20 @@ class ContentVisitor extends AbstractVisitor
 			child = child.getNext();
 			if (child instanceof Text text)
 			{
-				addHref(href.getLiteral(), text.getLiteral());
+				addHref(href.getLiteral());
 				text.setLiteral(""); // The text is in the hyperlink already, so set it to empty to not have it shown twice
 			}
 		}
 	}
 
-	private void addHref(String html, String text)
+	private void addHref(String html)
 	{
 		var document = Jsoup.parse(html);
 		var links = document.getElementsByTag("a");
 		for (var link : links)
 		{
 			var href = link.attr("href");
-			content.add(UriFactory.createContent(href, text, uriAction));
+			content.add(UriFactory.createContent(href, null, uriAction));
 		}
 	}
 

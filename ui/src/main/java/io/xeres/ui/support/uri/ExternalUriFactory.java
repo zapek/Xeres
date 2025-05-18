@@ -40,18 +40,7 @@ public class ExternalUriFactory extends AbstractUriFactory
 	Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var externalUri = new ExternalUri(URLDecoder.decode(uriComponents.toUriString(), StandardCharsets.UTF_8));
-		var actionUri = createMailToUriIfNeeded(externalUri);
 
-		return new ContentUri(actionUri, StringUtils.isNotBlank(text) ? text : externalUri.toUriString(), uriAction::openUri);
-	}
-
-	private static Uri createMailToUriIfNeeded(Uri uri)
-	{
-		var url = uri.toUriString();
-		if (url.contains("@") && !url.contains("://"))
-		{
-			return new ExternalUri("mailto:" + url);
-		}
-		return uri;
+		return new ContentUri(externalUri, StringUtils.isNotBlank(text) ? text : externalUri.toUriString(), uriAction::openUri);
 	}
 }

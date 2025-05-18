@@ -160,6 +160,13 @@ class EditorViewTest
 	}
 
 	@Test
+	void Content_List_Ordered_Transformed(FxRobot robot)
+	{
+		robot.clickOn("#orderedList");
+		assertEquals("1. ", editorView.getText());
+	}
+
+	@Test
 	void Content_Heading_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#heading");
@@ -176,5 +183,15 @@ class EditorViewTest
 		robot.clickOn("#heading");
 		robot.clickOn("#header2");
 		assertEquals("\n## hello", editorView.getText());
+	}
+
+	@Test
+	void Content_Undo_Redo(FxRobot robot)
+	{
+		robot.write("hello");
+		robot.clickOn("#undo");
+		assertEquals("", editorView.getText());
+		robot.clickOn("#redo");
+		assertEquals("hello", editorView.getText());
 	}
 }

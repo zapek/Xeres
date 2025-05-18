@@ -26,31 +26,19 @@ import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.unix.X11;
 import io.xeres.app.xrs.service.status.GetIdleTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GetIdleTimeLinux implements GetIdleTime
 {
-	private static final Logger log = LoggerFactory.getLogger(GetIdleTimeLinux.class);
-
 	@SuppressWarnings("unused")
-	@FieldOrder({"window", "state", "kind", "til_or_since", "idle", "eventMask"})
+	@FieldOrder({"window", "state", "kind", "tilOrSince", "idle", "eventMask"})
 	public static class XScreenSaverInfo extends Structure
 	{
-		X11.Window window;
-		int state;
-		int kind;
-		NativeLong tilOrSince;
-		NativeLong idle;
-		NativeLong eventMask;
-
-		public XScreenSaverInfo()
-		{
-			super();
-
-			log.debug("GetFieldOrder (order): {}", getFieldOrder());
-			log.debug("GetFieldList (actual): {}", getFieldList());
-		}
+		public X11.Window window;
+		public int state;
+		public int kind;
+		public NativeLong tilOrSince;
+		public NativeLong idle;
+		public NativeLong eventMask;
 	}
 
 	private interface Xss extends Library

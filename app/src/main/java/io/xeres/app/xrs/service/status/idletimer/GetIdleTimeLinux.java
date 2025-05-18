@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,20 +23,22 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.unix.X11;
 import io.xeres.app.xrs.service.status.GetIdleTime;
 
 public class GetIdleTimeLinux implements GetIdleTime
 {
 	@SuppressWarnings("unused")
+	@FieldOrder({"window", "state", "kind", "til_or_since", "idle", "eventMask"})
 	public static class XScreenSaverInfo extends Structure
 	{
-		public X11.Window window;
-		public int state;
-		public int kind;
-		public NativeLong tilOrSince;
-		public NativeLong idle;
-		public NativeLong eventMask;
+		X11.Window window;
+		int state;
+		int kind;
+		NativeLong tilOrSince;
+		NativeLong idle;
+		NativeLong eventMask;
 	}
 
 	private interface Xss extends Library

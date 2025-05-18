@@ -21,6 +21,7 @@ package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.event.ActionEvent;
@@ -59,7 +60,7 @@ public class DisclosedHyperlink extends Text
 		setStyle("-fx-fill: -color-accent-fg");
 		setOnMouseEntered(event -> setCursor(Cursor.HAND));
 		setOnMouseExited(event -> setCursor(Cursor.DEFAULT));
-		setOnMousePressed(event -> onAction.get().handle(new ActionEvent()));
+		UiUtils.setOnPrimaryMouseClicked(this, event -> onAction.get().handle(new ActionEvent()));
 	}
 
 	public final ObjectProperty<EventHandler<ActionEvent>> onActionProperty()

@@ -32,7 +32,6 @@ import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
-import io.xeres.ui.client.update.UpdateClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.controller.file.FileMainController;
 import io.xeres.ui.custom.DelayedAction;
@@ -41,13 +40,13 @@ import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.updater.UpdateService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.SearchUri;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
-import io.xeres.ui.support.version.VersionChecker;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.Nullable;
 import javafx.animation.*;
@@ -68,7 +67,7 @@ import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
-import org.springframework.boot.info.BuildProperties;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -232,12 +231,9 @@ public class MainWindowController implements WindowController
 	private final Environment environment;
 	private final ConfigClient configClient;
 	private final NotificationClient notificationClient;
-	private final UpdateClient updateClient;
-	private final BuildProperties buildProperties;
 	private final HostServices hostServices;
+	private final UpdateService updateService;
 	private final ResourceBundle bundle;
-
-	private VersionChecker versionChecker;
 
 	private int currentUsers;
 	private int totalUsers;
@@ -246,7 +242,7 @@ public class MainWindowController implements WindowController
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, UpdateClient updateClient, BuildProperties buildProperties, @Nullable HostServices hostServices, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Nullable HostServices hostServices, @Lazy UpdateService updateService, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -255,9 +251,8 @@ public class MainWindowController implements WindowController
 		this.environment = environment;
 		this.configClient = configClient;
 		this.notificationClient = notificationClient;
-		this.updateClient = updateClient;
-		this.buildProperties = buildProperties;
 		this.hostServices = hostServices;
+		this.updateService = updateService;
 		this.bundle = bundle;
 	}
 
@@ -328,7 +323,7 @@ public class MainWindowController implements WindowController
 			openUiCheck.setOnAction(event -> windowManager.openUiCheck());
 		}
 
-		versionCheck.setOnAction(even -> checkForUpdate());
+		versionCheck.setOnAction(even -> updateService.checkForUpdate());
 
 		exitApplication.setOnAction(event -> trayService.exitApplication());
 
@@ -342,8 +337,7 @@ public class MainWindowController implements WindowController
 
 		setupAnimations();
 
-		versionChecker = new VersionChecker();
-		versionChecker.scheduleVersionCheck(this::checkForUpdateInBackground);
+		updateService.startBackgroundChecksIfEnabled();
 	}
 
 	@Override
@@ -395,9 +389,9 @@ public class MainWindowController implements WindowController
 
 		var downloadButton = new Button(bundle.getString("download"));
 		downloadButton.setDefaultButton(true);
-		downloadButton.setOnAction(actionEvent -> openUrl(XERES_DOWNLOAD_URL));
+		downloadButton.setOnAction(actionEvent -> openUrl(XERES_DOWNLOAD_URL)); // XXX: or download...
 		var skipButton = new Button(bundle.getString("skip"));
-		skipButton.setOnAction(actionEvent -> versionChecker.skipUpdate(tagName));
+		skipButton.setOnAction(actionEvent -> updateService.skipUpdate(tagName));
 		msg.setPrimaryActions(downloadButton, skipButton);
 
 		StackPane.setAlignment(msg, Pos.TOP_RIGHT);
@@ -655,35 +649,6 @@ public class MainWindowController implements WindowController
 				sequentialTransition.play();
 			}
 		});
-	}
-
-	private void checkForUpdate()
-	{
-		updateClient.getLatestVersion()
-				.doOnSuccess(versionResponse -> Platform.runLater(() -> {
-					if (versionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
-					{
-						UiUtils.alertConfirm(MessageFormat.format(bundle.getString("update.new-version"), versionResponse.tagName().substring(1)), () -> openUrl(XERES_DOWNLOAD_URL));
-					}
-					else
-					{
-						UiUtils.alert(Alert.AlertType.INFORMATION, bundle.getString("update.latest-already"));
-					}
-				}))
-				.doOnError(UiUtils::showAlertError)
-				.subscribe();
-	}
-
-	private void checkForUpdateInBackground()
-	{
-		updateClient.getLatestVersion()
-				.doOnSuccess(versionResponse -> Platform.runLater(() -> {
-					if (versionChecker.isVersionMoreRecent(versionResponse.tagName(), buildProperties.getVersion()))
-					{
-						showUpdate(MessageFormat.format(bundle.getString("update.new-version-auto"), versionResponse.tagName().substring(1)), versionResponse.tagName());
-					}
-				}))
-				.subscribe();
 	}
 
 	private void openUrl(String url)

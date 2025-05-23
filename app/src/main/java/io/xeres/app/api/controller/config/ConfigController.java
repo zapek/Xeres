@@ -51,6 +51,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -261,5 +262,16 @@ public class ConfigController
 		backupService.importFriendsFromRs(file);
 
 		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/verify-update")
+	@Operation(summary = "Verify an update file")
+	@ApiResponse(responseCode = "200", description = "File verified successfully")
+	public boolean verifyUpdate(@Valid @RequestBody VerifyUpdateRequest request)
+	{
+		//noinspection JvmTaintAnalysis
+		var path = Paths.get(request.filePath());
+
+		return backupService.verifyUpdate(path, request.signature());
 	}
 }

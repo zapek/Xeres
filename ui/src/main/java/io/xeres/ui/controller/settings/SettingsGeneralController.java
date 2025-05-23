@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,7 +25,7 @@ import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.theme.AppTheme;
 import io.xeres.ui.support.theme.AppThemeManager;
-import io.xeres.ui.support.version.VersionChecker;
+import io.xeres.ui.support.updater.UpdateService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -58,11 +58,13 @@ public class SettingsGeneralController implements SettingsController
 
 	private final ConfigClient configClient;
 	private final AppThemeManager appThemeManager;
+	private final UpdateService updateService;
 
-	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager)
+	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager, UpdateService updateService)
 	{
 		this.configClient = configClient;
 		this.appThemeManager = appThemeManager;
+		this.updateService = updateService;
 	}
 
 	@Override
@@ -94,7 +96,7 @@ public class SettingsGeneralController implements SettingsController
 
 		autoStartEnabled.setSelected(settings.isAutoStartEnabled());
 
-		checkForUpdates.setSelected(VersionChecker.isCheckForUpdates(PreferenceUtils.getPreferences().node(UPDATE_CHECK)));
+		checkForUpdates.setSelected(updateService.isAutomaticallyCheckingForUpdates(PreferenceUtils.getPreferences().node(UPDATE_CHECK)));
 	}
 
 	@Override
@@ -102,7 +104,7 @@ public class SettingsGeneralController implements SettingsController
 	{
 		settings.setAutoStartEnabled(autoStartEnabled.isSelected());
 
-		VersionChecker.setCheckForUpdates(PreferenceUtils.getPreferences().node(UPDATE_CHECK), checkForUpdates.isSelected());
+		updateService.setAutomaticCheckForUpdates(PreferenceUtils.getPreferences().node(UPDATE_CHECK), checkForUpdates.isSelected());
 
 		return settings;
 	}

@@ -17,26 +17,22 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.configuration;
+package io.xeres.ui.support.updater;
 
-import jakarta.annotation.PostConstruct;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.config.WebSocketMessageBrokerStats;
+import java.util.TimerTask;
 
-@Configuration
-public class WebSocketLoggingConfiguration
+class VersionCheckTask extends TimerTask
 {
-	private final WebSocketMessageBrokerStats webSocketMessageBrokerStats;
+	private final Runnable runnable;
 
-	public WebSocketLoggingConfiguration(WebSocketMessageBrokerStats webSocketMessageBrokerStats)
+	public VersionCheckTask(Runnable runnable)
 	{
-		this.webSocketMessageBrokerStats = webSocketMessageBrokerStats;
+		this.runnable = runnable;
 	}
 
-	@PostConstruct
-	private void init()
+	@Override
+	public void run()
 	{
-		// Avoids stats messages printed each 30 minutes
-		webSocketMessageBrokerStats.setLoggingPeriod(0L);
+		runnable.run();
 	}
 }

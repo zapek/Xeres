@@ -85,7 +85,7 @@ public class SettingsService
 	}
 
 	@PostConstruct
-	void init()
+	void init() // Keep as default access for testing
 	{
 		settings = settingsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));
 

@@ -184,4 +184,15 @@ public class ConfigClient
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
+
+	public Mono<Boolean> verifyUpdate(String filePath, byte[] signature)
+	{
+		var request = new VerifyUpdateRequest(filePath, signature);
+
+		return webClient.post()
+				.uri("/verify-update")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Boolean.class);
+	}
 }

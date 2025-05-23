@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.version;
+package io.xeres.ui.client.update;
 
-import java.util.TimerTask;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-class VersionCheckTask extends TimerTask
+import java.util.List;
+
+public record ReleaseResponse(
+		@JsonProperty("tag_name") String tagName,
+		List<ReleaseAsset> assets
+)
 {
-	private final Runnable runnable;
-
-	public VersionCheckTask(Runnable runnable)
-	{
-		this.runnable = runnable;
-	}
-
-	@Override
-	public void run()
-	{
-		runnable.run();
-	}
 }

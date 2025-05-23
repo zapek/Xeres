@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,7 @@ import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.PublicKeyPacket;
 import org.bouncycastle.bcpg.SignaturePacket;
 import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.PGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.*;
 
@@ -37,7 +38,9 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SignatureException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import static io.xeres.common.Features.EXPERIMENTAL_EC;
 import static org.bouncycastle.bcpg.HashAlgorithmTags.*;
@@ -303,6 +306,43 @@ public final class PGP
 		{
 			return 0L;
 		}
+	}
+
+	/**
+	 * Gets the public key used for signing releases.
+	 *
+	 * @return the signing key
+	 * @throws IOException  if I/O error
+	 * @throws PGPException if the key is somehow wrong
+	 */
+	public static PGPPublicKey getUpdateSigningKey() throws IOException, PGPException
+	{
+		InputStream in = Objects.requireNonNull(PGP.class.getResourceAsStream("/public.asc"));
+
+		JcaPGPPublicKeyRingCollection publicKeyRingCollection;
+
+		in = PGPUtil.getDecoderStream(in);
+
+		publicKeyRingCollection = new JcaPGPPublicKeyRingCollection(in);
+		in.close();
+
+		PGPPublicKey publicKey = null;
+		Iterator<PGPPublicKeyRing> keyRings = publicKeyRingCollection.getKeyRings();
+		while (publicKey == null && keyRings.hasNext())
+		{
+			PGPPublicKeyRing keyRing = keyRings.next();
+			Iterator<PGPPublicKey> publicKeys = keyRing.getPublicKeys();
+			while (publicKey == null && publicKeys.hasNext())
+			{
+				PGPPublicKey k = publicKeys.next();
+
+				if (k.isEncryptionKey())
+				{
+					publicKey = k;
+				}
+			}
+		}
+		return publicKey;
 	}
 
 	private static PGPSignature getSignature(byte[] signature) throws SignatureException, IOException

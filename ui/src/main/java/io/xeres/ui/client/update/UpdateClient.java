@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,15 +20,29 @@
 package io.xeres.ui.client.update;
 
 import io.xeres.common.events.StartupEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.function.Consumer;
 
 @Component
 public class UpdateClient
 {
+	private static final Logger log = LoggerFactory.getLogger(UpdateClient.class);
+
 	private final WebClient.Builder webClientBuilder;
 
 	private WebClient webClient;
@@ -44,14 +58,54 @@ public class UpdateClient
 		webClient = webClientBuilder
 				.baseUrl("https://api.github.com/repos/zapek/Xeres")
 				.defaultHeaders(HttpHeaders::clear) // Do not let GitHub know our user/password
+				.clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true))) // XXX: this is needed if we want to follow redirects! which github uses...
 				.build();
 	}
 
-	public Mono<VersionResponse> getLatestVersion()
+	public Mono<ReleaseResponse> getLatestVersion()
 	{
 		return webClient.get()
 				.uri("/releases/latest")
 				.retrieve()
-				.bodyToMono(VersionResponse.class);
+				.bodyToMono(ReleaseResponse.class);
+	}
+
+	public Mono<Void> downloadFile(String url, Path destination)
+	{
+		var dataBufferFlux = webClient.get()
+				.uri(url)
+				.accept(MediaType.APPLICATION_OCTET_STREAM)
+				.retrieve()
+				.bodyToFlux(DataBuffer.class);
+
+		log.debug("Downloading file {} to {}", url, destination);
+
+		return DataBufferUtils.write(dataBufferFlux, destination, StandardOpenOption.WRITE);
+	}
+
+	public Mono<byte[]> downloadFile(String url)
+	{
+		return webClient.get()
+				.uri(url)
+				.accept(MediaType.APPLICATION_OCTET_STREAM)
+				.retrieve()
+				.bodyToMono(byte[].class);
+	}
+
+	public Flux<DataBuffer> downloadFileWithProgress(String url, Path destination, Consumer<UpdateProgress> progress)
+	{
+		var updateProgress = new UpdateProgress(destination, progress);
+
+		var dataBufferFlux = webClient.get()
+				.uri(url)
+				.accept(MediaType.APPLICATION_OCTET_STREAM)
+				.exchangeToFlux(response -> {
+					long contentLength = response.headers().contentLength().orElse(-1);
+					updateProgress.setContentLength(contentLength);
+					return response.bodyToFlux(DataBuffer.class);
+				});
+
+		return DataBufferUtils.write(dataBufferFlux, updateProgress.getOutputStream())
+				.doOnNext(DataBufferUtils::release);
 	}
 }

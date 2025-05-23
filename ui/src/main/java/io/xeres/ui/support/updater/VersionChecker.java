@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.version;
+package io.xeres.ui.support.updater;
 
 import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.preference.PreferenceUtils;
@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 import static io.xeres.ui.support.preference.PreferenceUtils.UPDATE_CHECK;
 
-public class VersionChecker
+class VersionChecker
 {
 	private static final Pattern VERSION_PATTERN = Pattern.compile("^v(\\d{1,5})\\.(\\d{1,5})\\.(\\d{1,5})$");
 

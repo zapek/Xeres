@@ -45,6 +45,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
+import org.apache.commons.lang3.SystemUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 
@@ -77,6 +78,7 @@ public class EditorView extends VBox
 	private static final KeyCodeCombination MAKE_HEADER_5 = new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination MAKE_HEADER_6 = new KeyCodeCombination(KeyCode.DIGIT6, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination PREVIEW = new KeyCodeCombination(KeyCode.F12);
+	private static final KeyCodeCombination REDO = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN);
 
 	private static final int IMAGE_WIDTH_MAX = 640;
 	private static final int IMAGE_HEIGHT_MAX = 480;
@@ -350,6 +352,10 @@ public class EditorView extends VBox
 		else if (PREVIEW.match(event))
 		{
 			preview.fire();
+		}
+		else if (SystemUtils.IS_OS_WINDOWS && REDO.match(event))
+		{
+			editor.redo();
 		}
 	}
 

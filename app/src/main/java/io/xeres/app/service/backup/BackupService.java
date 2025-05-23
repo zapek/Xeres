@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -48,9 +48,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Collection;
@@ -239,6 +242,20 @@ public class BackupService
 				.map(SslId::getCertificate)
 				.filter(Objects::nonNull)
 				.forEach(certificate -> RSId.parse(certificate, Type.CERTIFICATE).ifPresent(rsId -> profileService.createOrUpdateProfile(profileService.getProfileFromRSId(rsId))));
+	}
+
+	public boolean verifyUpdate(Path updateFile, byte[] signature)
+	{
+		try
+		{
+			PGP.verify(PGP.getUpdateSigningKey(), signature, Files.newInputStream(updateFile));
+			return true;
+		}
+		catch (PGPException | IOException | SignatureException e)
+		{
+			log.error("Error while verifying update {}", e.getMessage());
+			return false;
+		}
 	}
 
 	private static InputStream getInputStream(MultipartFile file) throws IOException

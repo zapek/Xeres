@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,10 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.client.update;
+package io.xeres.common.rest.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 
-public record VersionResponse(@JsonProperty("tag_name") String tagName)
+public record VerifyUpdateRequest(
+		@NotNull
+		String filePath,
+		@NotNull
+		byte[] signature
+)
 {
 }

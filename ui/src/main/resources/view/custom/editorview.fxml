@@ -31,7 +31,7 @@
         </VBox.margin>
         <Button fx:id="undo" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="mdi2u-undo"/>
+                <FontIcon iconLiteral="mdi2u-undo-variant"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.undo"/>
@@ -39,7 +39,7 @@
         </Button>
         <Button fx:id="redo" focusTraversable="false">
             <graphic>
-                <FontIcon iconLiteral="mdi2r-redo"/>
+                <FontIcon iconLiteral="mdi2r-redo-variant"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" text="%editor.action.redo"/>

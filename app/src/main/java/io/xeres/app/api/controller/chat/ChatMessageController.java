@@ -69,8 +69,7 @@ public class ChatMessageController
 		{
 			case CHAT_PRIVATE_MESSAGE ->
 			{
-				log.debug("Received private chat websocket message, sending to peer location: {}", destinationId);
-				log.trace("Content {}", chatMessage);
+				logMessage("Received private chat websocket message, sending to peer location: " + destinationId, chatMessage.getContent());
 				var locationIdentifier = LocationIdentifier.fromString(destinationId);
 				chatRsService.sendPrivateMessage(locationIdentifier, chatMessage.getContent());
 				chatMessage.setOwn(true);
@@ -99,8 +98,7 @@ public class ChatMessageController
 		{
 			case CHAT_PRIVATE_MESSAGE ->
 			{
-				log.debug("Received distant chat websocket message, sending to peer gxsId: {}", destinationId);
-				log.trace("Content {}", chatMessage);
+				logMessage("Received distant chat websocket message, sending to peer gxsId: " + destinationId, chatMessage.getContent());
 				var gxsId = GxsId.fromString(destinationId);
 				chatRsService.sendPrivateMessage(gxsId, chatMessage.getContent());
 				chatMessage.setOwn(true);
@@ -123,8 +121,7 @@ public class ChatMessageController
 		{
 			case CHAT_ROOM_MESSAGE ->
 			{
-				log.debug("Sending to room: {}, size: {}", destinationId, chatRoomMessage.isEmpty() ? 0 : chatRoomMessage.getContent().length());
-				log.trace("Content {}", chatRoomMessage);
+				logMessage("Sending to room " + destinationId + ", size: " + (chatRoomMessage.isEmpty() ? 0 : chatRoomMessage.getContent().length()), chatRoomMessage.getContent());
 				Objects.requireNonNull(destinationId);
 				var chatRoomId = Long.parseLong(destinationId);
 				chatRsService.sendChatRoomMessage(chatRoomId, chatRoomMessage.getContent());
@@ -147,7 +144,7 @@ public class ChatMessageController
 		{
 			case CHAT_BROADCAST_MESSAGE ->
 			{
-				log.debug("Sending broadcast message");
+				logMessage("Sending broadcast message", chatMessage.getContent());
 				chatRsService.sendBroadcastMessage(chatMessage.getContent());
 			}
 			default -> throw new IllegalStateException("Unexpected value: " + messageType);
@@ -160,5 +157,17 @@ public class ChatMessageController
 	{
 		log.debug("Got exception: {}", e.getMessage(), e);
 		return e.getMessage();
+	}
+
+	private void logMessage(String info, String message)
+	{
+		if (log.isTraceEnabled())
+		{
+			log.trace("{}, content: {}", info, message);
+		}
+		else if (log.isDebugEnabled())
+		{
+			log.debug("{}", info);
+		}
 	}
 }

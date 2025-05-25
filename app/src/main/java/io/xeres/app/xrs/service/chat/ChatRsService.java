@@ -327,7 +327,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	}
 
 	@Override
-	public void shutdown(PeerConnection peerConnection)
+	public void shutdown()
 	{
 		chatRooms.forEach((id, chatRoom) -> {
 			chatRoomService.syncParticipatingLocations(chatRoom);
@@ -1448,9 +1448,9 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private void sendChatRoomEvent(ChatRoom chatRoom, ChatRoomEvent event, String status)
 	{
 		var chatRoomEvent = new ChatRoomEventItem(event, status);
-		log.debug("Sending chat room event {}", chatRoomEvent);
 
 		initializeBounce(chatRoom, chatRoomEvent);
+		log.debug("Sending chat room event {}", chatRoomEvent);
 		bounce(chatRoomEvent);
 	}
 

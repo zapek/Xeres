@@ -42,6 +42,4 @@ public class ContentText implements Content
 	{
 		return node.getText();
 	}
-
-	public static final ContentText EMPTY = new ContentText("");
 }

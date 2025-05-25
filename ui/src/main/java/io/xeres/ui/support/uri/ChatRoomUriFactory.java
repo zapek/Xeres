@@ -46,7 +46,7 @@ public class ChatRoomUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var chatRoomUri = new ChatRoomUri(name, id.length() > 1 && id.startsWith(CHAT_ROOM_PREFIX) ? getLongHexArgument(id.substring(1)) : 0);

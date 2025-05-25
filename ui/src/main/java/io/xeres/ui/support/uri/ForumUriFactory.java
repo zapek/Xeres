@@ -49,7 +49,7 @@ public class ForumUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var forumUri = new ForumUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);

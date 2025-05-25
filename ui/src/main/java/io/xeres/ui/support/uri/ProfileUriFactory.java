@@ -46,7 +46,7 @@ public class ProfileUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, hash).anyMatch(StringUtils::isBlank))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var profileUri = new ProfileUri(name, getLongHexArgument(hash));

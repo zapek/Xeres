@@ -95,7 +95,7 @@ public final class UriFactory
 		}
 		catch (URISyntaxException e)
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 	}
 }

@@ -46,7 +46,7 @@ public class MessageUriFactory extends AbstractUriFactory
 
 		if (isBlank(id))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var messageUri = new MessageUri(GxsId.fromString(id), subject);

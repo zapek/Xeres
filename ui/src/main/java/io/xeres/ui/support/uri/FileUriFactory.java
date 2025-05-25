@@ -49,7 +49,7 @@ public class FileUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, size, hash).anyMatch(StringUtils::isBlank))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var fileUri = new FileUri(name, getLongArgument(size), getHashArgument(hash));

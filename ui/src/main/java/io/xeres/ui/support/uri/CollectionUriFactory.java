@@ -49,7 +49,7 @@ public class CollectionUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, size, radix, count).anyMatch(StringUtils::isBlank))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var collectionUri = new CollectionUri(name, getLongArgument(size), radix, getIntArgument(count));

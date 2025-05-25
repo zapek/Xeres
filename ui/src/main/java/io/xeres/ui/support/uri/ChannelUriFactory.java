@@ -49,7 +49,7 @@ public class ChannelUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var channelUri = new ChannelUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);

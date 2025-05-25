@@ -49,7 +49,7 @@ public class BoardsUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, boardId).anyMatch(StringUtils::isBlank))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var boardsUri = new BoardsUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);

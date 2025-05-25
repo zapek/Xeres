@@ -44,7 +44,7 @@ public class SearchUriFactory extends AbstractUriFactory
 
 		if (StringUtils.isBlank(keywords))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var searchUri = new SearchUri(keywords.trim());

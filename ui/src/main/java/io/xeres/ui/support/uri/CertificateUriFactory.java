@@ -46,7 +46,7 @@ public class CertificateUriFactory extends AbstractUriFactory
 
 		if (StringUtils.isBlank(radix))
 		{
-			return ContentText.EMPTY;
+			return new ContentText("");
 		}
 
 		var certificateUri = new CertificateUri(radix, name, location);

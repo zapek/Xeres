@@ -521,7 +521,7 @@
     },
     {
         "alias" : "v",
-        "unicode" : "270c"
+        "unicode" : "270c-fe0f"
     },
     {
         "alias" : "vulcan",
@@ -589,7 +589,7 @@
     },
     {
         "alias" : "eye",
-        "unicode" : "1f441"
+        "unicode" : "1f441-fe0f"
     },
     {
         "alias" : "tongue",
@@ -780,7 +780,7 @@
         "unicode" : "1f373"
     },
     {
-        "alias" : "stew:",
+        "alias" : "stew",
         "unicode" : "1f372"
     },
     {
@@ -1737,7 +1737,7 @@
     },
     {
         "alias" : "bed",
-        "unicode" : "1f6cf"
+        "unicode" : "1f6cf-fe0f"
     },
     {
         "alias" : "couch",
@@ -1757,7 +1757,7 @@
     },
     {
         "alias" : "joystick",
-        "unicode" : "1f579"
+        "unicode" : "1f579-fe0f"
     },
     {
         "alias" : "tv",
@@ -1800,7 +1800,7 @@
         "unicode" : "1f4e6"
     },
     {
-        "alias" : "e-mail",
+        "alias" : "e_mail",
         "unicode" : "1f4e7"
     },
     {
@@ -1861,7 +1861,7 @@
     },
     {
         "alias" : "heart",
-        "unicode" : "2764"
+        "unicode" : "2764-fe0f"
     },
     {
         "alias" : "broken_heart",

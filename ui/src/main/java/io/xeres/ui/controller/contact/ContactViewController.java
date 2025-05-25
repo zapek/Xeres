@@ -742,7 +742,14 @@ public class ContactViewController implements Controller
 	private void removeContact(Contact contact)
 	{
 		//log.debug("Removing contact {}", contact);
-		contactObservableList.removeIf(existingContact -> existingContact.getValue().identityId() == contact.identityId());
+		if (contact.identityId() != NO_IDENTITY_ID)
+		{
+			contactObservableList.removeIf(existingContact -> existingContact.getValue().identityId() == contact.identityId());
+		}
+		else if (contact.profileId() != NO_PROFILE_ID)
+		{
+			contactObservableList.removeIf(existingContact -> existingContact.getValue().profileId() == contact.profileId());
+		}
 		// XXX: unselect if it was selected?
 	}
 

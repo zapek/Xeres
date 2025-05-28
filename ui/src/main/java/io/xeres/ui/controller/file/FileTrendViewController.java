@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -47,6 +47,7 @@ public class FileTrendViewController implements Controller, TabActivation
 {
 	private static final String NAME_CONTAINS_ALL = "NAME CONTAINS ALL ";
 	private static final int MAXIMUM_BACKLOG = 300;
+	private static final int MAXIMUM_DUPLICATE_SEARCH = 5;
 
 
 	private final NotificationClient notificationClient;
@@ -99,6 +100,13 @@ public class FileTrendViewController implements Controller, TabActivation
 						keywords = keywords.substring(NAME_CONTAINS_ALL.length());
 					}
 
+					// Don't add if it's already in the first few
+					// entries. This avoids duplicates.
+					if (isAlreadyTrending(keywords))
+					{
+						return;
+					}
+
 					trendResult.addFirst(new TrendResult(keywords, sse.data().senderName(), Instant.now()));
 					if (trendTableView.getItems().size() > MAXIMUM_BACKLOG)
 					{
@@ -106,6 +114,13 @@ public class FileTrendViewController implements Controller, TabActivation
 					}
 				}))
 				.subscribe();
+	}
+
+	private boolean isAlreadyTrending(String keywords)
+	{
+		return trendResult.stream()
+				.limit(MAXIMUM_DUPLICATE_SEARCH)
+				.anyMatch(result -> result.keywords().equals(keywords));
 	}
 
 	@EventListener

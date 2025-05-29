@@ -129,7 +129,7 @@ class EditorViewTest
 		robot.press(KeyCode.CONTROL, KeyCode.A);
 		robot.release(KeyCode.CONTROL, KeyCode.A);
 		robot.clickOn("#quote");
-		assertEquals("> hello", editorView.getText());
+		assertEquals("> hello\n\n", editorView.getText());
 	}
 
 	@Test
@@ -139,7 +139,7 @@ class EditorViewTest
 		robot.press(KeyCode.CONTROL, KeyCode.A);
 		robot.release(KeyCode.CONTROL, KeyCode.A);
 		robot.clickOn("#quote");
-		assertEquals("> hello\n> world\n> here", editorView.getText());
+		assertEquals("> hello\n> world\n> here\n\n", editorView.getText());
 	}
 
 	@Test

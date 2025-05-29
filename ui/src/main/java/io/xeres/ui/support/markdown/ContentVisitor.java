@@ -72,6 +72,7 @@ class ContentVisitor extends AbstractVisitor
 
 	private final List<Content> content = new ArrayList<>();
 	private ParsingMode parsingMode = ParsingMode.NORMAL;
+	private int quoteLevel;
 	private final boolean paragraph;
 	private int listCounter = 1;
 
@@ -100,7 +101,7 @@ class ContentVisitor extends AbstractVisitor
 	{
 		if (parsingMode == ParsingMode.QUOTE)
 		{
-			content.add(new ContentText("> "));
+			content.add(new ContentText(">".repeat(quoteLevel) + " "));
 		}
 
 		var s = text.getLiteral();
@@ -205,13 +206,12 @@ class ContentVisitor extends AbstractVisitor
 	{
 		// XXX: link.getTitle() is only some title that is added after the link (so not what we want)
 		var url = link.getDestination();
-		var title = link.getTitle();
 
 		var altTextVisitor = new AltTextVisitor();
 		link.accept(altTextVisitor);
 		var altText = altTextVisitor.getAltText();
 
-		// Only use the altText if it's not the same as the URL. Otherwise this can cause problems (URL decoded but no the text, etc...)
+		// Only use the altText if it's different from the URL. Otherwise, this can cause problems (URL decoded but no the text, etc...)
 		content.add(UriFactory.createContent(url, url.equals(altText) ? null : altText, uriAction));
 	}
 
@@ -219,8 +219,10 @@ class ContentVisitor extends AbstractVisitor
 	public void visit(BlockQuote blockQuote)
 	{
 		parsingMode = ParsingMode.QUOTE;
+		quoteLevel++;
 		visitChildren(blockQuote);
 		parsingMode = ParsingMode.NORMAL;
+		quoteLevel--;
 	}
 
 	@Override
@@ -359,7 +361,6 @@ class ContentVisitor extends AbstractVisitor
 	public void visit(Image image)
 	{
 		var data = image.getDestination();
-		var title = image.getTitle();
 
 		if (StringUtils.isNotBlank(data) && !data.startsWith("data:"))
 		{
@@ -368,15 +369,13 @@ class ContentVisitor extends AbstractVisitor
 
 		var altTextVisitor = new AltTextVisitor();
 		image.accept(altTextVisitor);
-		var altText = altTextVisitor.getAltText();
 
 		var fxImage = getImage(data);
 
 		if (fxImage != null)
 		{
-			content.add(new ContentImage(fxImage)); // XXX: title? alt?
+			content.add(new ContentImage(fxImage));
 		}
-		// XXX: add an "image corrupted" one?
 	}
 
 	private static javafx.scene.image.Image getImage(String data)

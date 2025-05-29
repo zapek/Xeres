@@ -505,6 +505,7 @@ public class EditorView extends VBox
 		else
 		{
 			prefixParagraph(text, selection);
+			editor.insertText(editor.getCaretPosition(), "\n\n");
 		}
 		editor.requestFocus();
 	}
@@ -524,23 +525,28 @@ public class EditorView extends VBox
 		{
 			var start = selection.getStart();
 			int end;
+			var selectionEnd = selection.getEnd();
 
-			while (start <= selection.getEnd())
+			var textToInsert = text + (text.isBlank() ? "" : " "); // spacing is not needed for indentation or so
+
+			while (start <= selectionEnd)
 			{
-				end = editor.getText(start, selection.getEnd()).indexOf("\n");
+				end = editor.getText(start, selectionEnd).indexOf("\n");
 				if (end == -1)
 				{
-					end = selection.getEnd();
+					end = selectionEnd;
 				}
 				else
 				{
 					end += start;
 				}
 
-				editor.insertText(start, text + (text.isBlank() ? "" : " ")); // spacing not needed for indentation or so
-				editor.positionCaret(end + 2 + text.length());
+				editor.insertText(start, textToInsert);
+				editor.positionCaret(end + 1 + textToInsert.length());
 
-				start = end + 2 + text.length();
+				selectionEnd += textToInsert.length();
+
+				start = end + 1 + textToInsert.length();
 			}
 		}
 	}

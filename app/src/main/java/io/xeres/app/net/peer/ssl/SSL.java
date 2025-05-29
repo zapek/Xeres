@@ -67,6 +67,17 @@ public final class SSL
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * Creates an SSL context.
+	 *
+	 * @param privateKeyData the private key
+	 * @param certificate    the certificate
+	 * @param connectionType the connection type (incoming for a server, outgoing for a client)
+	 * @return the ssl context
+	 * @throws InvalidKeySpecException  if the private key is bad
+	 * @throws NoSuchAlgorithmException if the private key has an unsupported key algorithm
+	 * @throws SSLException             if there's an SSL error
+	 */
 	public static SslContext createSslContext(byte[] privateKeyData, X509Certificate certificate, ConnectionType connectionType) throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
 		SslContextBuilder builder;
@@ -77,6 +88,7 @@ public final class SSL
 		else
 		{
 			builder = SslContextBuilder.forClient()
+					.endpointIdentificationAlgorithm(null) // No hostname verification. Would be impractical in a P2P setup
 					.keyManager(RSA.getPrivateKey(privateKeyData), certificate);
 		}
 		return builder

@@ -467,6 +467,11 @@ public final class UiUtils
 		node.setVisible(present);
 	}
 
+	public static void setAbsent(Node node, boolean absent)
+	{
+		setPresent(node, !absent);
+	}
+
 	/**
 	 * Puts a node as present, that is, is visible and takes up space.
 	 *

@@ -20,9 +20,11 @@
 package io.xeres.ui.custom;
 
 import io.xeres.common.AppName;
+import io.xeres.ui.custom.alias.PopupAlias;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
@@ -36,8 +38,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.PopupWindow;
 import net.harawata.appdirs.AppDirsFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Paths;
 import java.util.Set;
@@ -49,14 +50,14 @@ import java.util.Set;
  */
 public class InputArea extends TextArea
 {
-	private static final Logger log = LoggerFactory.getLogger(InputArea.class);
-
 	private static final KeyCodeCombination CTRL_S = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
 	private Text text;
 
 	private double offsetTop;
 	private double offsetBottom;
+
+	private PopupAlias popupAlias;
 
 	public InputArea()
 	{
@@ -83,6 +84,7 @@ public class InputArea extends TextArea
 		});
 
 		addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
+		addEventFilter(KeyEvent.KEY_TYPED, this::handleTypedKeys);
 	}
 
 	public void openStickerSelector()
@@ -98,6 +100,19 @@ public class InputArea extends TextArea
 			{
 				event.consume();
 			}
+		}
+		else if ((event.getCode() == KeyCode.BACK_SPACE && StringUtils.defaultString(getText()).length() == 1)
+				&& popupAlias != null)
+		{
+			popupAlias.hide();
+		}
+	}
+
+	private void handleTypedKeys(KeyEvent event)
+	{
+		if (event.getCharacter().equals("/") && StringUtils.defaultString(getText()).isEmpty()) // Only open if we type '/' alone
+		{
+			handleAliases();
 		}
 	}
 
@@ -122,6 +137,24 @@ public class InputArea extends TextArea
 		stickerView.loadStickers(Paths.get(AppDirsFactory.getInstance().getUserDataDir(AppName.NAME, null, null, true), "Stickers"));
 		popup.setAutoHide(true);
 		return true;
+	}
+
+	private void handleAliases()
+	{
+		var bounds = localToScreen(getBoundsInLocal());
+		popupAlias = new PopupAlias(bounds, alias -> {
+			setText(alias);
+			positionCaret(StringUtils.defaultString(getText()).length());
+		});
+
+		ChangeListener<? super String> changeListener = (observable, oldValue, newValue) -> popupAlias.setFilter(newValue);
+		textProperty().addListener(changeListener);
+
+		popupAlias.show(UiUtils.getWindow(this));
+		popupAlias.setOnHidden(windowEvent -> {
+			textProperty().removeListener(changeListener);
+			popupAlias = null;
+		});
 	}
 
 	private double computeHeight()

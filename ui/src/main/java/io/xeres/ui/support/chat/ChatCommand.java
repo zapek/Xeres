@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
@@ -35,13 +36,23 @@ public final class ChatCommand
 
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s");
 
+	public static final List<AliasEntry> ALIASES = List.of(
+			new AliasEntry("code", "text", null, "Send the text as a block of code"),
+			new AliasEntry("flip", null, null, "Flip a coin"),
+			new AliasEntry("me", "message", null, "Send an action message in the third person"),
+			new AliasEntry("pre", "text", null, "Send the text as preformatted"),
+			new AliasEntry("quote", "text", null, "Send the text as a quote"),
+			new AliasEntry("random", null, "max | min-max", "Send a random number from 1 to 10"),
+			new AliasEntry("shrug", null, "target", "Send ¯\\_(ツ)_/¯"),
+			new AliasEntry("table", null, "target", "Send (╯°□°)╯︵ ┻━┻")
+	);
+
 	private static final String COMMAND_CODE = "/code ";
+	private static final String COMMAND_FLIP = "/flip";
 	private static final String COMMAND_PRE = "/pre ";
 	private static final String COMMAND_QUOTE = "/quote ";
-	private static final String COMMAND_FLIP = "/flip";
 	private static final String COMMAND_RANDOM = "/random";
 	private static final String COMMAND_SHRUG = "/shrug";
-	private static final String COMMAND_TABLEFLIP = "/tableflip";
 	private static final String COMMAND_TABLE = "/table";
 
 	private ChatCommand()
@@ -50,12 +61,7 @@ public final class ChatCommand
 	}
 
 	/**
-	 * This parses outgoing commands so that they're formatted properly, currently supported:
-	 * <p>
-	 * <ul>
-	 *     <li>code: formats code</li>
-	 *     <li>pre: same as code</li>
-	 * </ul>
+	 * This parses outgoing commands so that they're formatted properly.
 	 *
 	 * @param s the string to be processed
 	 * @return the string with correct formatting
@@ -124,11 +130,7 @@ public final class ChatCommand
 		}
 		else if (s.startsWith(COMMAND_SHRUG))
 		{
-			return suffixWithSpaceIfNeeded(s.substring(COMMAND_SHRUG.length())) + "¯\\_(ツ)_/¯";
-		}
-		else if (s.startsWith(COMMAND_TABLEFLIP))
-		{
-			return "(╯°□°)╯︵ ┻━┻" + prefixWithSpaceIfNeeded(s.substring(COMMAND_TABLEFLIP.length()));
+			return suffixWithSpaceIfNeeded(s.substring(COMMAND_SHRUG.length())) + "¯\\\\\\_(ツ)\\_/¯";
 		}
 		else if (s.startsWith(COMMAND_TABLE))
 		{

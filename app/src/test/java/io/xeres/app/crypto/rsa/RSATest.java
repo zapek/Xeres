@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -150,5 +150,14 @@ class RSATest
 		var publicKey = RSA.getPublicKeyFromPkcs1(pkcs1);
 
 		assertArrayEquals(keyPair.getPublic().getEncoded(), publicKey.getEncoded());
+	}
+
+	@Test
+	void GetGxsId_Insecure()
+	{
+		// noinspection deprecation
+		var gxsIdInsecure = RSA.getGxsIdInsecure(keyPair.getPublic());
+
+		assertNotNull(gxsIdInsecure);
 	}
 }

@@ -21,11 +21,14 @@ package io.xeres.app.api.controller.forum;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.gxs.ForumGroupItemFakes;
+import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.service.ForumMessageService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
+import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +39,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ForumController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -82,6 +87,36 @@ class ForumControllerTest extends AbstractControllerTest
 				.andExpect(jsonPath("$.[1].id").value(is(forumGroups.get(1).getId()), Long.class));
 
 		verify(forumRsService).findAllGroups();
+	}
+
+	@Test
+	void CreateForumGroup_Success() throws Exception
+	{
+		var ownIdentity = IdentityFakes.createOwn();
+
+		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(forumRsService.createForumGroup(eq(ownIdentity.getGxsId()), anyString(), anyString())).thenReturn(1L);
+
+		var request = new CreateForumGroupRequest("foo", "the best");
+
+		mvc.perform(postJson(BASE_URL + "/groups", request))
+				.andExpect(status().isCreated())
+				.andExpect(header().string("Location", "http://localhost" + FORUMS_PATH + "/groups/" + 1L));
+
+		verify(forumRsService).createForumGroup(eq(ownIdentity.getGxsId()), anyString(), anyString());
+	}
+
+	@Test
+	void GetForumByGroupId_Success() throws Exception
+	{
+		long groupId = 1L;
+		var forumGroupItem = new ForumGroupItem(null, "foobar");
+
+		when(forumRsService.findById(groupId)).thenReturn(Optional.of(forumGroupItem));
+
+		mvc.perform(getJson(BASE_URL + "/groups/" + groupId))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(is(forumGroupItem.getId()), Long.class));
 	}
 
 	@Test

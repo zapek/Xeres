@@ -23,6 +23,7 @@ import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.crypto.interfaces.DHPublicKey;
 import java.math.BigInteger;
 import java.security.KeyPair;
 
@@ -59,6 +60,14 @@ class DiffieHellmanTest
 		assertNotNull(keyPair);
 		assertEquals("DH", keyPair.getPrivate().getAlgorithm());
 		assertEquals("DH", keyPair.getPublic().getAlgorithm());
+	}
+
+	@Test
+	void DiffieHellman_GetPublicKey()
+	{
+		var publicKeyNum = ((DHPublicKey) keyPair.getPublic()).getY();
+
+		assertEquals(((DHPublicKey) keyPair.getPublic()).getY(), ((DHPublicKey) DiffieHellman.getPublicKey(publicKeyNum)).getY());
 	}
 
 	@Test

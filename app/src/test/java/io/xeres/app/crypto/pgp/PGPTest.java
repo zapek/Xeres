@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -157,5 +157,13 @@ class PGPTest
 
 		assertTrue(output.contains("BEGIN PGP"));
 		assertTrue(output.contains("END PGP"));
+	}
+
+	@Test
+	void GetUpdateForSigning_Success() throws PGPException, IOException
+	{
+		var updateSigningKey = getUpdateSigningKey();
+
+		assertNotNull(updateSigningKey);
 	}
 }

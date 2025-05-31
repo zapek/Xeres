@@ -24,6 +24,7 @@ import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.Range;
+import io.xeres.ui.support.util.image.ImageUtils;
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
 import org.commonmark.node.*;
 import org.jsoup.Jsoup;
@@ -204,7 +205,6 @@ class ContentVisitor extends AbstractVisitor
 	@Override
 	public void visit(Link link)
 	{
-		// XXX: link.getTitle() is only some title that is added after the link (so not what we want)
 		var url = link.getDestination();
 
 		var altTextVisitor = new AltTextVisitor();
@@ -293,8 +293,7 @@ class ContentVisitor extends AbstractVisitor
 	public void visit(HtmlInline htmlInline)
 	{
 		var html = htmlInline.getLiteral();
-		// XXX: warning! I think RS can output the dreaded <img> thing... before some links too! check that and skip if so...
-		// XXX: maybe it automatically works already by skipping it? just check...
+
 		if (html.startsWith("<a href=\""))
 		{
 			var parent = htmlInline.getParent();
@@ -309,6 +308,24 @@ class ContentVisitor extends AbstractVisitor
 			{
 				addHref(href.getLiteral());
 				text.setLiteral(""); // The text is in the hyperlink already, so set it to empty to not have it shown twice
+			}
+		}
+		else if (html.startsWith("<img "))
+		{
+			var img = Jsoup.parse(html).selectFirst("img");
+
+			if (img != null)
+			{
+				var data = img.absUrl("src");
+				if (StringUtils.isNotEmpty(data) && data.startsWith("data:"))
+				{
+					var fxImage = getImage(data);
+
+					if (fxImage != null)
+					{
+						content.add(new ContentImage(fxImage));
+					}
+				}
 			}
 		}
 	}
@@ -384,7 +401,7 @@ class ContentVisitor extends AbstractVisitor
 		try
 		{
 			image = new javafx.scene.image.Image(data);
-			if (image.isError())
+			if (image.isError() || ImageUtils.isExaggeratedAspectRatio(image))
 			{
 				image = null;
 			}

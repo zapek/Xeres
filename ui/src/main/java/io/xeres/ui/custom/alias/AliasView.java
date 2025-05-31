@@ -20,6 +20,7 @@
 package io.xeres.ui.custom.alias;
 
 import io.xeres.ui.support.chat.AliasEntry;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -127,6 +128,28 @@ class AliasView extends VBox
 	{
 		filteredList = new FilteredList<>(FXCollections.observableArrayList(entries), p -> true);
 		aliasList.setItems(filteredList);
+
+		if (!entries.isEmpty())
+		{
+			aliasList.getSelectionModel().selectFirst();
+		}
+		aliasList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue == null && !aliasList.getItems().isEmpty())
+			{
+				Platform.runLater(() -> {
+					// Try to reselect the old value if it still exists
+					if (oldValue != null && aliasList.getItems().contains(oldValue))
+					{
+						aliasList.getSelectionModel().select(oldValue);
+					}
+					else
+					{
+						// Otherwise, select the first
+						aliasList.getSelectionModel().selectFirst();
+					}
+				});
+			}
+		});
 	}
 
 	public void setFilter(String alias)

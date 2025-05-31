@@ -143,8 +143,11 @@ public class InputArea extends TextArea
 	{
 		var bounds = localToScreen(getBoundsInLocal());
 		popupAlias = new PopupAlias(bounds, alias -> {
-			setText(alias);
-			positionCaret(StringUtils.defaultString(getText()).length());
+			if (StringUtils.isNotEmpty(alias))
+			{
+				setText(alias);
+				positionCaret(StringUtils.defaultString(getText()).length());
+			}
 		});
 
 		ChangeListener<? super String> changeListener = (observable, oldValue, newValue) -> popupAlias.setFilter(newValue);

@@ -109,7 +109,7 @@ jpackage {
     }
     javaOptions = ['-Djava.net.preferIPv4Stack=true',
                    '-Dfile.encoding=UTF-8',
-                   '-splash:$APPDIR/startup.jpg',
+                   '-splash:$APPDIR/startup.png',
                    '-Dlogging.file.name=xeres.log',
                    '-Dlogging.logback.rollingpolicy.clean-history-on-start=true',
                    '-Dlogging.logback.rollingpolicy.max-file-size=20MB',

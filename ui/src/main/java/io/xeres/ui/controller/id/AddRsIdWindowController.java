@@ -143,7 +143,7 @@ public class AddRsIdWindowController implements WindowController
 
 	private void handleArgument()
 	{
-		var userData = rsIdTextArea.getScene().getRoot().getUserData();
+		var userData = UiUtils.getUserData(rsIdTextArea);
 		if (userData != null)
 		{
 			setRsId((String) userData);

@@ -367,17 +367,6 @@ public final class UiUtils
 	}
 
 	/**
-	 * Gets the user data set to a particular node.
-	 *
-	 * @param node the node to get the userdata from
-	 * @return the user data
-	 */
-	public static Object getUserData(Node node)
-	{
-		return node.getScene().getRoot().getUserData();
-	}
-
-	/**
 	 * Makes Hyperlinks actually do something. Slightly recursive.
 	 *
 	 * @param rootNode the parent node where the hyperlinks are
@@ -512,5 +501,26 @@ public final class UiUtils
 				event.consume();
 			}
 		});
+	}
+
+	/**
+	 * Gets the user data set to a particular node.
+	 *
+	 * @param node the node to get the userdata from
+	 * @return the user data, can be null
+	 */
+	public static Object getUserData(Node node)
+	{
+		Objects.requireNonNull(node, "node cannot be null");
+		var scene = node.getScene();
+		if (scene != null)
+		{
+			var root = scene.getRoot();
+			if (root != null)
+			{
+				return root.getUserData();
+			}
+		}
+		return null;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -74,7 +74,7 @@ public class FileAddDownloadViewWindowController implements WindowController
 
 	private void handleArgument()
 	{
-		var args = (AddDownloadRequest) name.getScene().getRoot().getUserData();
+		var args = (AddDownloadRequest) UiUtils.getUserData(name);
 		if (args == null)
 		{
 			throw new IllegalArgumentException("Missing user data");

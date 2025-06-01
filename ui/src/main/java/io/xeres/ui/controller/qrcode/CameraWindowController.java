@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -94,7 +94,7 @@ public class CameraWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
-		parentController = (AddRsIdWindowController) capturedImage.getScene().getRoot().getUserData();
+		parentController = (AddRsIdWindowController) UiUtils.getUserData(capturedImage);
 	}
 
 	private void initializeCamera(Webcam camera)

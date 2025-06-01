@@ -94,11 +94,23 @@ public class SoundService
 			// This happens on Windows when auto starting
 			var home = new ApplicationHome(getClass());
 			path = Path.of(home.getDir().toString(), file);
+
+			// At some point (Spring probably), the currentDir returned by ApplicationHome() was changed from
+			// where the application was installed to 'app'. We have to use the next workaround
+			// to detect default paths set in the config prior to that.
+			if (!Files.exists(path))
+			{
+				if (file.startsWith("app/"))
+				{
+					file = file.substring("app/".length());
+					path = Path.of(home.getDir().toString(), file);
+				}
+			}
 		}
 
 		if (Files.exists(path))
 		{
-			var player = new AudioClip("file:" + file.replace("\\", "/")); // URIs require a '/' for path and Windows uses '\' for path
+			var player = new AudioClip("file:" + path.toString().replace("\\", "/")); // URIs require a '/' for path and Windows uses '\' for path
 			player.play();
 		}
 	}

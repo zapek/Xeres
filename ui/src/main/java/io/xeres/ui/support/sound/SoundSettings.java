@@ -152,10 +152,10 @@ public class SoundSettings
 
 		var prefixPath = SystemUtils.IS_OS_LINUX ? "/opt/xeres/lib/" : "";
 
-		messageFile = node.get(MESSAGE_FILE, prefixPath + "app/sounds/message-notification-190034.mp3");
-		highlightFile = node.get(HIGHLIGHT_FILE, prefixPath + "app/sounds/notification-4-126507.mp3");
-		friendFile = node.get(FRIEND_FILE, prefixPath + "app/sounds/notification-20-270145.mp3");
-		downloadFile = node.get(DOWNLOAD_FILE, prefixPath + "app/sounds/achive-sound-132273.mp3");
+		messageFile = node.get(MESSAGE_FILE, prefixPath + "sounds/message-notification-190034.mp3");
+		highlightFile = node.get(HIGHLIGHT_FILE, prefixPath + "sounds/notification-4-126507.mp3");
+		friendFile = node.get(FRIEND_FILE, prefixPath + "sounds/notification-20-270145.mp3");
+		downloadFile = node.get(DOWNLOAD_FILE, prefixPath + "sounds/achive-sound-132273.mp3");
 
 		loaded = true;
 	}

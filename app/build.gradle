@@ -107,10 +107,11 @@ jpackage {
         licenseFile = "${parent.rootDir}/LICENSE"
         aboutUrl = "https://xeres.io"
     }
+    // Do not supply files relative to currentDir. It can change depending on how the executable is started
     javaOptions = ['-Djava.net.preferIPv4Stack=true',
                    '-Dfile.encoding=UTF-8',
                    '-splash:$APPDIR/startup.png',
-                   '-Dlogging.file.name=xeres.log',
+                   '-Dlogging.file.name=$APPDIR/xeres.log',
                    '-Dlogging.logback.rollingpolicy.clean-history-on-start=true',
                    '-Dlogging.logback.rollingpolicy.max-file-size=20MB',
                    '-Dlogging.logback.rollingpolicy.max-history=3',

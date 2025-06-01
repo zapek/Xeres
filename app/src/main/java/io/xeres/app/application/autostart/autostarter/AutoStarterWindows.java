@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,16 +24,9 @@ import io.xeres.common.AppName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 import static com.sun.jna.platform.win32.Advapi32Util.*;
 import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
@@ -50,12 +43,7 @@ public class AutoStarterWindows implements AutoStarter
 	private static final Logger log = LoggerFactory.getLogger(AutoStarterWindows.class);
 
 	public static final String REGISTRY_RUN_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-	public static final String JAVA_OPTIONS = "[JavaOptions]";
-	public static final String JAVA_OPTIONS_SPLASH_DETECTION = "java-options=-splash:";
-	public static final String JAVA_OPTIONS_SPLASH = "java-options=-splash:$APPDIR/startup.jpg";
-	public static final String CONFIG_EXTENSION = ".cfg";
 	public static final String EXECUTABLE_EXTENSION = ".exe";
-	public static final String APP_DIRECTORY = "./app/";
 
 	private Path applicationPath;
 
@@ -68,21 +56,19 @@ public class AutoStarterWindows implements AutoStarter
 	@Override
 	public boolean isEnabled()
 	{
-		return registryValueExists(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME) && isSplashScreenHidden();
+		return registryValueExists(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
 	}
 
 	@Override
 	public void enable()
 	{
 		registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME, "\"" + getApplicationPath() + "\"" + " --iconified");
-		updateSplashScreen(false);
 	}
 
 	@Override
 	public void disable()
 	{
 		registryDeleteValue(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
-		updateSplashScreen(true);
 	}
 
 	/**
@@ -119,111 +105,5 @@ public class AutoStarterWindows implements AutoStarter
 		log.info("Application path: {}", appPath);
 
 		return applicationPath.toString();
-	}
-
-	private boolean isSplashScreenHidden()
-	{
-		var configFile = getStartupConfigFile();
-		if (configFile == null)
-		{
-			return false;
-		}
-
-		try (var bufferedReader = new BufferedReader(new FileReader(configFile.toFile())))
-		{
-			String line;
-			while ((line = bufferedReader.readLine()) != null)
-			{
-				if (line.startsWith(JAVA_OPTIONS_SPLASH_DETECTION))
-				{
-					return false;
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			log.error("Failed to check the config file's content", e);
-			return false; // we don't know the status, but let's settle for false
-		}
-		return true;
-	}
-
-	private Path getStartupConfigFile()
-	{
-		Objects.requireNonNull(applicationPath);
-
-		var configFile = applicationPath.resolveSibling(APP_DIRECTORY + AppName.NAME + CONFIG_EXTENSION);
-		if (Files.notExists(configFile))
-		{
-			return null;
-		}
-		return configFile;
-	}
-
-	private void updateSplashScreen(boolean enable)
-	{
-		var configFile = getStartupConfigFile();
-		if (configFile == null)
-		{
-			log.error("Failed to update splash screen: startup config file not found");
-			return;
-		}
-
-		List<String> lines = new ArrayList<>();
-		var alreadyEnabled = false;
-
-		try (var bufferedReader = new BufferedReader(new FileReader(configFile.toFile())))
-		{
-			String line;
-			while ((line = bufferedReader.readLine()) != null)
-			{
-				if (line.startsWith(JAVA_OPTIONS_SPLASH_DETECTION))
-				{
-					alreadyEnabled = true;
-					if (!enable)
-					{
-						continue;
-					}
-				}
-				lines.add(line);
-			}
-		}
-		catch (IOException e)
-		{
-			log.error("Failed to update the splash screen state (read)", e);
-		}
-
-		if (enable == alreadyEnabled)
-		{
-			// The file is already in the proper state, don't touch it
-			return;
-		}
-
-		if (enable)
-		{
-			for (var i = 0; i < lines.size(); i++)
-			{
-				if (lines.get(i).equals(JAVA_OPTIONS))
-				{
-					lines.add(i + 1, JAVA_OPTIONS_SPLASH);
-					break;
-				}
-			}
-		}
-		writeStartupConfigFile(configFile, lines);
-	}
-
-	private static void writeStartupConfigFile(Path configFile, List<String> newLines)
-	{
-		try
-		{
-			var tmpFile = Files.createTempFile(configFile.getParent(), AppName.NAME, CONFIG_EXTENSION);
-			Files.write(tmpFile, newLines);
-			Files.move(tmpFile, configFile, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-		}
-		catch (IOException e)
-		{
-			log.error("Failed to update the splash screen state (write)", e);
-		}
 	}
 }

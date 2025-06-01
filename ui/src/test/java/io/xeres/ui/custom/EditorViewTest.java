@@ -21,6 +21,8 @@ package io.xeres.ui.custom;
 
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.MethodOrderer;
@@ -68,6 +70,13 @@ class EditorViewTest
 	void Content_Bold_Transformed(FxRobot robot)
 	{
 		robot.clickOn("#bold");
+		assertEquals("****", editorView.getText());
+	}
+
+	@Test
+	void Content_Bold_Transformed_ShortCut(FxRobot robot)
+	{
+		robot.push(new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN));
 		assertEquals("****", editorView.getText());
 	}
 

@@ -152,14 +152,17 @@ class AliasView extends VBox
 		});
 	}
 
-	public void setFilter(String alias)
+	public void setFilter(String text)
 	{
 		filteredList.setPredicate(aliasEntry -> {
-			if (StringUtils.isEmpty(alias))
+			if (StringUtils.isEmpty(text))
 			{
 				return true;
 			}
-			return ("/" + aliasEntry.name()).toLowerCase(Locale.ROOT).contains(alias.toLowerCase(Locale.ROOT));
+			var textLw = text.toLowerCase(Locale.ENGLISH);
+			var aliasLw = ("/" + aliasEntry.name()).toLowerCase(Locale.ROOT);
+
+			return aliasLw.contains(textLw) || textLw.contains(aliasLw);
 		});
 	}
 }

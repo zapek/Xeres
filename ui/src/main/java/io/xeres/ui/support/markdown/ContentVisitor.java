@@ -328,6 +328,12 @@ class ContentVisitor extends AbstractVisitor
 				}
 			}
 		}
+		else
+		{
+			// Let the rest go through verbatim. Problematic tags
+			// are already removed upstream using UnHtml.
+			content.add(new ContentText(html));
+		}
 	}
 
 	private void addHref(String html)

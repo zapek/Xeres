@@ -30,6 +30,8 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Safelist;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +42,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Service
 public class UnHtmlService
 {
+	private static final Logger log = LoggerFactory.getLogger(UnHtmlService.class);
+
 	private final MarkdownRenderer markdownRenderer;
 
 	public UnHtmlService()
@@ -51,6 +55,7 @@ public class UnHtmlService
 
 	public String cleanupMessage(String text)
 	{
+		log.info("*** incoming text: {}", text);
 		// Only process HTML
 		if (isBlank(text) ||
 				(!StringUtils.startsWithIgnoreCase(text, "<body>") &&
@@ -141,19 +146,38 @@ public class UnHtmlService
 					// The code block is handled by the "pre" element
 					yield null;
 				}
-				yield new Code();
+				var code = new Code();
+				if (element.childNodeSize() == 1)
+				{
+					var node = element.childNode(0);
+					if (node instanceof TextNode textNode)
+					{
+						// Code doesn't handle children
+						code.setLiteral(textNode.text());
+					}
+				}
+				yield code;
 			}
 			case "pre" ->
 			{
 				var codeBlock = new FencedCodeBlock();
 				// Try to detect language
-				if (element.childNodeSize() == 1 && element.child(0).tagName().equals("code"))
+				if (element.childrenSize() == 1 && "code".equals(element.child(0).tagName().toLowerCase(Locale.ROOT)))
 				{
 					String classNames = element.child(0).className();
 					if (!classNames.isEmpty())
 					{
 						String language = classNames.split("\\s+")[0];
 						codeBlock.setInfo(language);
+					}
+				}
+				if (element.childNodeSize() == 1)
+				{
+					var node = element.childNode(0);
+					if (node instanceof TextNode textNode)
+					{
+						// FencedCodeBlock doesn't handle children
+						codeBlock.setLiteral(textNode.text());
 					}
 				}
 				yield codeBlock;

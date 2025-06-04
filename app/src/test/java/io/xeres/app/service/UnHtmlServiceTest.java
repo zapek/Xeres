@@ -78,4 +78,23 @@ class UnHtmlServiceTest
 				""", result);
 	}
 
+	@Test
+	void Pre()
+	{
+		var result = unHtmlService.cleanupMessage("""
+				<body><style type="text/css" RSOptimized="v2">.S1{margin-bottom:16px;}.S2{font-size:10pt;}.S1{margin-left:0px;}.S2{font-family:'SansSerif';}.S2{font-style:normal;}.S1{-qt-block-indent:0;}.S0{background-color:transparent;}.S2{font-weight:400;}.S0{color:#1f2328;}.S1{text-indent:0px;}.S1{background-color:#f6f8fa;}.S1{margin-top:0px;}.S1{line-height:145%;}.S0{font-family:'ui-monospace','SFMono-Regular','SFMono','Menlo','Consolas','LiberationMono','monospace';}.S1{margin-right:0px;}</style><span><span class="S2"><pre class="S1"><span class="S0">flatpak install --user https://dl.flathub.org/build-repo/189725/cc.retroshare.retroshare-gui.flatpakref</span></pre></span></span></body>""");
+
+
+		assertEquals("```\nflatpak install --user https://dl.flathub.org/build-repo/189725/cc.retroshare.retroshare-gui.flatpakref\n```\n", result);
+	}
+
+	@Test
+	void Code()
+	{
+		var result = unHtmlService.cleanupMessage("""
+				<body><style type="text/css" RSOptimized="v2">.S1{margin-bottom:16px;}.S2{font-size:10pt;}.S1{margin-left:0px;}.S2{font-family:'SansSerif';}.S2{font-style:normal;}.S1{-qt-block-indent:0;}.S0{background-color:transparent;}.S2{font-weight:400;}.S0{color:#1f2328;}.S1{text-indent:0px;}.S1{background-color:#f6f8fa;}.S1{margin-top:0px;}.S1{line-height:145%;}.S0{font-family:'ui-monospace','SFMono-Regular','SFMono','Menlo','Consolas','LiberationMono','monospace';}.S1{margin-right:0px;}</style><span><span class="S2"><code class="S1"><span class="S0">flatpak install --user https://dl.flathub.org/build-repo/189725/cc.retroshare.retroshare-gui.flatpakref</span></code></span></span></body>""");
+
+
+		assertEquals("`flatpak install --user https://dl.flathub.org/build-repo/189725/cc.retroshare.retroshare-gui.flatpakref`\n", result);
+	}
 }

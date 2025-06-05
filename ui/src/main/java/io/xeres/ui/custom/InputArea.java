@@ -145,8 +145,11 @@ public class InputArea extends TextArea
 		popupAlias = new PopupAlias(bounds, alias -> {
 			if (StringUtils.isNotEmpty(alias))
 			{
-				setText(alias);
-				positionCaret(StringUtils.defaultString(getText()).length());
+				if (getText().length() < alias.length()) // Only complete if we're not ahead already by entering arguments and so on (they would get removed)
+				{
+					setText(alias);
+					positionCaret(StringUtils.defaultString(getText()).length());
+				}
 			}
 		});
 

@@ -346,7 +346,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 			builder.originalMessageId(gxsForumMessageRepository.findById(originalId).orElseThrow().getMessageId());
 		}
 
-		builder.getMessageItem().setContent(content);
+		builder.getMessageItem().setContent(replaceImageLines(content));
 
 		var forumMessageItem = builder.build();
 
@@ -370,5 +370,46 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public void shutdown()
 	{
 		forumNotificationService.shutdown();
+	}
+
+	/**
+	 * Retroshare doesn't recognize markdown images, so we send them as an HTML img tag which is supported
+	 * by Markdown.
+	 *
+	 * @param input the input
+	 * @return the output, compatible with Retroshare
+	 */
+	static String replaceImageLines(String input)
+	{
+		String[] lines = input.split("\n");
+		var result = new StringBuilder();
+
+		for (String line : lines)
+		{
+			if (line.startsWith("![](data:image/"))
+			{
+				// Extract everything between ![]( and )
+				int start = line.indexOf("(data:image/");
+				int end = line.lastIndexOf(")");
+				if (end > start)
+				{
+					var imageData = line.substring(start + 1, end); // +1 to skip the opening (
+					String imgTag = "<img src=\"" + imageData + "\"></img>";
+					result.append(imgTag);
+				}
+				else
+				{
+					// If no closing parenthesis found, leave as-is
+					result.append(line);
+				}
+			}
+			else
+			{
+				result.append(line);
+			}
+			result.append("\n");
+		}
+
+		return result.toString();
 	}
 }

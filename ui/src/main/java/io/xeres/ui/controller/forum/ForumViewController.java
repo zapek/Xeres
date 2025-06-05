@@ -605,6 +605,7 @@ public class ForumViewController implements Controller
 								}))
 								.subscribe();
 					}))
+					.doOnError(UiUtils::showAlertError)
 					.subscribe();
 		}
 		else

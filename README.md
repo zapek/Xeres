@@ -6,7 +6,7 @@
 [![CodeQL](https://github.com/zapek/Xeres/actions/workflows/analysis.yml/badge.svg)](https://github.com/zapek/Xeres/actions/workflows/analysis.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zapek_Xeres&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zapek_Xeres)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9469/badge)](https://www.bestpractices.dev/projects/9469)
-[![GitHub Discussions](https://img.shields.io/badge/chat-Discussions-green?logo=github)](https://github.com/zapek/Xeres/discussions)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/zapek/Xeres)
 
 [Xeres](https://xeres.io) is a Friend-to-Friend, decentralized and secure application for communication and sharing.
 

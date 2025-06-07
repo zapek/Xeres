@@ -318,10 +318,6 @@ public class AsyncImageView extends ImageView
 
 		private void onFailure()
 		{
-//			if (onFailure != null)
-//			{
-//				Platform.runLater(() -> runIfSameTask(imageViewReference.get(), onFailure));
-//			}
 			cycleTasks();
 		}
 
@@ -333,10 +329,6 @@ public class AsyncImageView extends ImageView
 		public void onException(Exception e)
 		{
 			log.error("Couldn't load image: {}", e.getMessage());
-			if (onSuccess != null)
-			{
-				Platform.runLater(() -> runIfSameTask(imageViewReference.get(), onSuccess));
-			}
 			cycleTasks();
 		}
 

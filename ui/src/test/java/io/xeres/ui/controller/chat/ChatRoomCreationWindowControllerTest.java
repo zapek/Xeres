@@ -17,50 +17,43 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.help;
+package io.xeres.ui.controller.chat;
 
-import io.xeres.ui.support.markdown.MarkdownService;
-import io.xeres.ui.support.uri.UriService;
+import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.client.ChatClient;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.testfx.framework.junit5.ApplicationExtension;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @ExtendWith({ApplicationExtension.class, MockitoExtension.class})
-class HelpWindowControllerTest
+class ChatRoomCreationWindowControllerTest
 {
 	@Mock
-	private MarkdownService markdownService;
+	private ChatClient chatClient;
 
-	@Mock
-	private ResourcePatternResolver resourcePatternResolver;
-
-	@Mock
-	private UriService uriService;
+	@Spy
+	private ResourceBundle resourceBundle = I18nUtils.getBundle();
 
 	@InjectMocks
-	private HelpWindowController controller;
+	private ChatRoomCreationWindowController controller;
 
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/help/help.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/chat/chatroom_create.fxml"), resourceBundle);
 
 		loader.setControllerFactory(applicationContext -> controller);
-
-		when(resourcePatternResolver.getResources(anyString())).thenReturn(new Resource[]{});
 
 		Parent root = loader.load();
 

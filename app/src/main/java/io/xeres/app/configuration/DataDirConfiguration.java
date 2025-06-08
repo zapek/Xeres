@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.app.application.SingleInstanceRun;
 import io.xeres.app.util.DevUtils;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
@@ -88,7 +89,13 @@ public class DataDirConfiguration
 
 		Objects.requireNonNull(dataDir);
 
+		if (!SingleInstanceRun.enforceSingleInstance(dataDir))
+		{
+			throw new IllegalStateException("An instance of " + AppName.NAME + " is already running.");
+		}
+
 		var path = Path.of(dataDir);
+
 		if (Files.notExists(path))
 		{
 			try

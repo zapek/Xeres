@@ -33,7 +33,6 @@ import io.xeres.app.service.UiBridgeService.SplashStatus;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityManager;
-import io.xeres.common.AppName;
 import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.mui.MinimalUserInterface;
@@ -93,7 +92,6 @@ public class Startup implements ApplicationRunner
 	public void run(ApplicationArguments args)
 	{
 		// This is a convenient place to start code as it works in both UI and non-UI mode
-		checkSingleInstance();
 		infoService.showStartupInfo();
 		checkRequirements();
 		infoService.showCapabilities();
@@ -174,14 +172,6 @@ public class Startup implements ApplicationRunner
 		if (Charset.defaultCharset() != StandardCharsets.UTF_8)
 		{
 			throw new IllegalArgumentException("Platform charset must be UTF-8, found: " + Charset.defaultCharset());
-		}
-	}
-
-	private void checkSingleInstance()
-	{
-		if (!SingleInstanceRun.enforceSingleInstance(dataDirConfiguration.getDataDir()))
-		{
-			throw new IllegalStateException("An instance of " + AppName.NAME + " is already running.");
 		}
 	}
 

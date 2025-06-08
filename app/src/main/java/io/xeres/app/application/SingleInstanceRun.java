@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -71,7 +71,7 @@ public final class SingleInstanceRun
 		{
 			randomAccessFile = new RandomAccessFile(file, "rw");
 
-			lock = Optional.ofNullable(randomAccessFile.getChannel().tryLock()).orElseThrow(IllegalStateException::new);
+			lock = Optional.ofNullable(randomAccessFile.getChannel().tryLock()).orElseThrow(() -> new IllegalStateException("Lock already acquired by another process"));
 			if (lock != null)
 			{
 				result = true;

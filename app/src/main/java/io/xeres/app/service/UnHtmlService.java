@@ -55,11 +55,11 @@ public class UnHtmlService
 
 	public String cleanupMessage(String text)
 	{
-		log.info("*** incoming text: {}", text);
 		// Only process HTML
 		if (isBlank(text) ||
 				(!StringUtils.startsWithIgnoreCase(text, "<body>") &&
-						!StringUtils.startsWithIgnoreCase(text, "<html>")))
+						!StringUtils.startsWithIgnoreCase(text, "<html>") &&
+						!StringUtils.startsWithIgnoreCase(text, "<a "))) // Also convert certificate links sent by Xeres to RS. One day we'll send them as Markdown too
 		{
 			return text;
 		}

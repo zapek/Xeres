@@ -328,6 +328,10 @@ class ContentVisitor extends AbstractVisitor
 				}
 			}
 		}
+		else if (html.endsWith("</a>"))
+		{
+			// Ignore closing tags
+		}
 		else
 		{
 			// Let the rest go through verbatim. Problematic tags

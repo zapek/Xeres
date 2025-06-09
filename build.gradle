@@ -26,7 +26,7 @@ buildscript {
         jsonPatchVersion = "1.13"
         zxingVersion = "3.5.3"
         appDirsVersion = "1.4.0"
-        junitVersion = "5.13.0"
+        junitVersion = "5.13.1"
         archunitVersion = "1.4.1"
         commonMarkVersion = "0.24.0"
     }

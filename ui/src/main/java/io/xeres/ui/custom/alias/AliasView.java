@@ -70,7 +70,7 @@ class AliasView extends VBox
 
 		aliasList.setCellFactory(aliasEntryListView -> new AliasCell());
 		addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-			if (event.getCode() == KeyCode.ENTER)
+			if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.TAB)
 			{
 				action();
 			}
@@ -116,7 +116,7 @@ class AliasView extends VBox
 
 	private static String getAliasString(AliasEntry alias)
 	{
-		return "/" + alias.name() + (alias.required() != null ? " " : "");
+		return "/" + alias.name() + ((alias.required() != null || alias.optional() != null) ? " " : "");
 	}
 
 	public void setListener(OnActionListener onActionListener)

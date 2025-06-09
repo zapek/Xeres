@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,10 @@ import io.xeres.common.AppName;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Objects;
 
 /**
@@ -35,9 +39,9 @@ import java.util.Objects;
 public final class MinimalUserInterface
 {
 	private static JFrame shellFrame;
-	private static JTextField textField;
 	private static JTextArea textArea;
 	private static Shell shell;
+	private static String currentLine = "";
 
 	private MinimalUserInterface()
 	{
@@ -88,21 +92,21 @@ public final class MinimalUserInterface
 		}
 		if (!shellFrame.isVisible())
 		{
-			textArea.setText("""
+			appendToTextArea("""
 					New Shell process 1
 					Type 'help' for more information.
 					""");
-			textField.setText("");
+			textArea.setCaretPosition(textArea.getDocument().getLength());
 			shellFrame.setVisible(true);
 		}
 		shellFrame.toFront();
-		textField.requestFocus();
+		textArea.requestFocus();
 	}
 
 	private static void createShellFrame(Shell shell)
 	{
 		textArea = new JTextArea();
-		textArea.setEditable(false);
+		textArea.setEditable(true);
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
 		textArea.setMargin(new Insets(8, 8, 8, 8));
@@ -111,25 +115,102 @@ public final class MinimalUserInterface
 		scrollPane.setPreferredSize(new Dimension(640, 320));
 		scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
-		textField = new JTextField();
-		textField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-		textField.addActionListener(e -> {
-			textField.setText("");
-			if (shell != null)
+		textArea.addMouseListener(new MouseListener()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
 			{
-				var result = shell.sendCommand(e.getActionCommand());
-				switch (result.getAction())
+				textArea.setCaretPosition(textArea.getDocument().getLength());
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e)
+			{
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e)
+			{
+
+			}
+		});
+
+		textArea.addKeyListener(new KeyListener()
+		{
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+				if (e.getKeyChar() == '\n')
 				{
-					case UNKNOWN_COMMAND -> appendToTextArea(textArea, e.getActionCommand() + ": Unknown command");
-					case CLS -> textArea.setText("");
-					case EXIT -> closeShell();
-					case NO_OP -> appendToTextArea(textArea, "");
-					case SUCCESS -> appendToTextArea(textArea, result.getOutput());
+					e.consume();
+					return;
+				}
+				else if (e.getKeyChar() == '\b')
+				{
+					if (!currentLine.isEmpty())
+					{
+						currentLine = currentLine.substring(0, currentLine.length() - 1);
+					}
+					return;
+				}
+				currentLine += e.getKeyChar();
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+				{
+					if (currentLine.isEmpty())
+					{
+						e.consume();
+						return;
+					}
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_ENTER)
+				{
+					e.consume();
+					if (shell != null)
+					{
+						var result = shell.sendCommand(currentLine);
+						switch (result.getAction())
+						{
+							case UNKNOWN_COMMAND -> appendToTextArea(currentLine + ": Unknown command");
+							case CLS -> textArea.setText("");
+							case EXIT -> closeShell();
+							case NO_OP -> appendToTextArea("");
+							case SUCCESS -> appendToTextArea(result.getOutput());
+						}
+					}
+					else
+					{
+						appendToTextArea("No shell interface available");
+					}
+					currentLine = "";
+				}
+				if (textArea != null) // We might have typed 'exit'
+				{
+					textArea.setCaretPosition(textArea.getDocument().getLength());
 				}
 			}
-			else
+
+			@Override
+			public void keyReleased(KeyEvent e)
 			{
-				appendToTextArea(textArea, "No shell interface available");
+				textArea.setCaretPosition(textArea.getDocument().getLength());
 			}
 		});
 
@@ -137,15 +218,14 @@ public final class MinimalUserInterface
 		shellFrame.setIconImage(new ImageIcon(Objects.requireNonNull(MinimalUserInterface.class.getResource("/image/icon.png"))).getImage());
 		shellFrame.getContentPane().setLayout(new BoxLayout(shellFrame.getContentPane(), BoxLayout.Y_AXIS));
 		shellFrame.add(scrollPane);
-		shellFrame.add(textField);
 		shellFrame.pack();
 		shellFrame.setLocationRelativeTo(null);
 		shellFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 	}
 
-	private static void appendToTextArea(JTextArea textArea, String text)
+	private static void appendToTextArea(String text)
 	{
-		textArea.append(text + "\n");
+		textArea.append("\n" + text + "\n1.SYS:> ");
 		textArea.setCaretPosition(textArea.getDocument().getLength());
 	}
 
@@ -155,6 +235,8 @@ public final class MinimalUserInterface
 		{
 			shellFrame.setVisible(false);
 			shellFrame.dispose();
+			textArea = null;
+			shellFrame = null;
 		}
 	}
 }

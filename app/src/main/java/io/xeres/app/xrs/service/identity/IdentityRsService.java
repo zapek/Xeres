@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -225,10 +225,10 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 		try
 		{
-			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), identity.getProfileSignature(), new ByteArrayInputStream(computedHash.getBytes()));
+			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), Objects.requireNonNull(identity.getProfileSignature()), new ByteArrayInputStream(computedHash.getBytes()));
 			log.debug("Successful PGP profile validation for identity {}", identity);
 		}
-		catch (IOException | SignatureException | PGPException | InvalidKeyException e)
+		catch (IOException | SignatureException | PGPException | InvalidKeyException | NullPointerException e)
 		{
 			log.error("Profile signature verification failed for identity {}: {}", identity, e.getMessage());
 			return ValidationResult.INVALID;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,6 +25,7 @@ import io.xeres.app.database.model.gxs.GxsMetaAndData;
 import io.xeres.app.net.peer.packet.Packet;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.service.DefaultItem;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,14 +61,18 @@ public class RawItem
 
 		buf.skipBytes(HEADER_SIZE);
 
-		if (GxsMetaAndData.class.isAssignableFrom(item.getClass()))
+		if (item instanceof DefaultItem)
 		{
-			// This cannot be deserialized because the data is before the metadata and the data can vary in length (optional fields at the end). It would only be possible if the data was last.
+			buf.skipBytes(getItemSize());
+		}
+		else if (GxsMetaAndData.class.isAssignableFrom(item.getClass()))
+		{
+			// This cannot be deserialized because the data is before the metadata, and the data can vary in length (optional fields at the end). It would only be possible if the data was last.
 			throw new IllegalArgumentException("Cannot deserialize a GxsMetaAndData item");
 		}
 		else if (RsSerializable.class.isAssignableFrom(item.getClass()))
 		{
-			// If the object implements RsSerializable which is more flexible, use it
+			// If the object implements RsSerializable, which is more flexible, use it
 			log.trace("Deserializing class {} using readObject()", item.getClass().getSimpleName());
 			Serializer.deserializeRsSerializable(buf, (RsSerializable) item);
 		}

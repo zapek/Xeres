@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -77,7 +77,7 @@ public class BroadcastDiscoveryService implements Runnable
 	private InetSocketAddress sendAddress;
 	private Thread thread;
 
-	private SocketAddress broadcastAddress;
+	private SocketAddress broadcastSocketAddress;
 	private ByteBuffer sendBuffer;
 	private ByteBuffer receiveBuffer;
 	private State state;
@@ -156,9 +156,14 @@ public class BroadcastDiscoveryService implements Runnable
 		}
 		catch (SocketException e)
 		{
-			throw new IllegalStateException("Couldn't find broadcast address: " + e.getMessage(), e);
+			log.error("Failed to get broadcast address: {}", e.getMessage(), e);
+			return null;
 		}
-		return broadcastList.stream().findFirst().orElseThrow(() -> new IllegalStateException("No broadcast address found")).getHostAddress();
+		if (broadcastList.isEmpty())
+		{
+			return null;
+		}
+		return broadcastList.getFirst().getHostAddress();
 	}
 
 	private void setupOwnInfo()
@@ -185,15 +190,22 @@ public class BroadcastDiscoveryService implements Runnable
 	private void updateOwnInfo()
 	{
 		// For now, we do nothing; but we could implement something better if for
-		// example there's a change of IP or port. Don't forget to increase the
+		// example there's a change of IP or port. Remember to increase the
 		// counter for each update otherwise it won't be taken into account.
-		// but see https://github.com/truvorskameikin/udp-discovery-cpp/issues/18
+		// But see https://github.com/truvorskameikin/udp-discovery-cpp/issues/18
 	}
 
 	@Override
 	public void run()
 	{
-		broadcastAddress = new InetSocketAddress(getBroadcastAddress(localAddress.getHostString()), PORT);
+		var broadcastAddress = getBroadcastAddress(localAddress.getHostString());
+		if (broadcastAddress == null)
+		{
+			log.error("Couldn't get broadcast address, disabling broadcast discovery service");
+			return;
+		}
+
+		broadcastSocketAddress = new InetSocketAddress(broadcastAddress, PORT);
 		receiveBuffer = ByteBuffer.allocate(BROADCAST_BUFFER_RECV_SIZE);
 
 		setupOwnInfo();
@@ -360,7 +372,7 @@ public class BroadcastDiscoveryService implements Runnable
 	{
 		assert state == State.BROADCASTING;
 
-		channel.send(sendBuffer, broadcastAddress);
+		channel.send(sendBuffer, broadcastSocketAddress);
 		sent = Instant.now();
 		setState(State.WAITING);
 		sendBuffer.rewind();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,7 +41,7 @@ class ForumCellAuthor extends TreeTableCell<ForumMessage, ForumMessage>
 
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
-	private final ResourceBundle bundle = I18nUtils.getBundle();
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
 	public ForumCellAuthor(GeneralClient generalClient, ImageCache imageCache)
 	{

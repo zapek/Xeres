@@ -45,7 +45,7 @@ public class DisclosedHyperlink extends Text
 	private String uri;
 	private boolean malicious;
 
-	private final ResourceBundle bundle = I18nUtils.getBundle();
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
 	public DisclosedHyperlink()
 	{

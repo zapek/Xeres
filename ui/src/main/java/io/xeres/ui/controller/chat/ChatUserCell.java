@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,7 +41,7 @@ class ChatUserCell extends ListCell<ChatRoomUser>
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
 
-	private final ResourceBundle bundle = I18nUtils.getBundle();
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
 	public ChatUserCell(GeneralClient generalClient, ImageCache imageCache)
 	{

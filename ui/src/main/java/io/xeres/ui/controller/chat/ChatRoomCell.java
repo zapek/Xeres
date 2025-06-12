@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
 
 public class ChatRoomCell extends TreeCell<RoomHolder>
 {
-	private final ResourceBundle bundle = I18nUtils.getBundle();
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
 	public ChatRoomCell()
 	{

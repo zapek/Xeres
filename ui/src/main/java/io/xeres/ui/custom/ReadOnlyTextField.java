@@ -40,7 +40,7 @@ import java.util.ResourceBundle;
  */
 public class ReadOnlyTextField extends TextField
 {
-	private final ResourceBundle bundle = I18nUtils.getBundle();
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
 	@SuppressWarnings("unused")
 	public ReadOnlyTextField()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,7 +31,7 @@ class LocationRow extends TableRow<Location>
 {
 	private static final Pattern RETROSHARE_VERSION_DETECTOR = Pattern.compile("^\\d.*$");
 
-	private final ResourceBundle bundle = I18nUtils.getBundle();
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
 	@Override
 	protected void updateItem(Location item, boolean empty)

@@ -22,11 +22,10 @@ package io.xeres.ui.controller.forum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.message.forum.ForumGroup;
-import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
+import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.GeneralClient;
@@ -34,7 +33,9 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.model.forum.ForumGroup;
 import io.xeres.ui.model.forum.ForumMapper;
+import io.xeres.ui.model.forum.ForumMessage;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
@@ -95,7 +96,13 @@ public class ForumViewController implements Controller
 	private static final String OPEN_OTHER = "OpenOther";
 
 	@FXML
-	private TreeView<ForumGroup> forumTree;
+	private TreeTableView<ForumGroup> forumTree;
+
+	@FXML
+	private TreeTableColumn<ForumGroup, String> forumNameColumn;
+
+	@FXML
+	private TreeTableColumn<ForumMessage, Long> forumCountColumn;
 
 	@FXML
 	private SplitPane splitPaneVertical;
@@ -198,7 +205,9 @@ public class ForumViewController implements Controller
 		root.setExpanded(true);
 		forumTree.setRoot(root);
 		forumTree.setShowRoot(false);
-		forumTree.setCellFactory(param -> new ForumCell());
+		forumTree.setRowFactory(param -> new ForumCell());
+		forumNameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
+		forumCountColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("unreadCount"));
 		createForumTreeContextMenu();
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
@@ -346,18 +355,22 @@ public class ForumViewController implements Controller
 			ClipboardUtils.copyTextToClipboard(forumUri.toUriString());
 		});
 
-		var xContextMenu = new XContextMenu<ForumGroup>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
+		var xContextMenu = new XContextMenu<TreeItem<ForumGroup>>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
 		xContextMenu.addToNode(forumTree);
-		xContextMenu.setOnShowing((contextMenu, forumGroup) -> {
+		xContextMenu.setOnShowing((contextMenu, treeItem) -> {
+			if (treeItem == null)
+			{
+				return false;
+			}
 			contextMenu.getItems().stream()
 					.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(forumGroup.isSubscribed()));
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(treeItem.getValue().isSubscribed()));
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> UNSUBSCRIBE_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(!forumGroup.isSubscribed()));
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(!treeItem.getValue().isSubscribed()));
 
-			return forumGroup.isReal() && forumGroup.isExternal();
+			return treeItem.getValue().isReal() && treeItem.getValue().isExternal();
 		});
 	}
 
@@ -425,6 +438,12 @@ public class ForumViewController implements Controller
 									.map(ForumMapper::fromDTO)
 									.toList());
 						}
+						else if (idName.equals(MarkForumMessagesAsRead.class.getSimpleName()))
+						{
+							var action = objectMapper.convertValue(sse.data().action(), MarkForumMessagesAsRead.class);
+
+							markForumMessagesAsRead(action.messageMap());
+						}
 						else
 						{
 							log.debug("Unknown forum notification");
@@ -443,48 +462,59 @@ public class ForumViewController implements Controller
 
 	private void addForumGroups(List<ForumGroup> forumGroups)
 	{
-		var ownTree = ownForums.getChildren();
-		var subscribedTree = subscribedForums.getChildren();
-		var popularTree = popularForums.getChildren();
-		var otherTree = otherForums.getChildren();
-
 		forumGroups.forEach(forumGroup -> {
 			if (!forumGroup.isExternal())
 			{
-				addOrUpdate(ownTree, forumGroup);
+				addOrUpdate(ownForums, forumGroup);
 			}
 			else if (forumGroup.isSubscribed())
 			{
-				addOrUpdate(subscribedTree, forumGroup);
+				addOrUpdate(subscribedForums, forumGroup);
 			}
 			else
 			{
-				addOrUpdate(popularTree, forumGroup);
+				addOrUpdate(popularForums, forumGroup);
 			}
 		});
+		updateForumGroupsUnreadCount(forumGroups);
 	}
 
-	private void addOrUpdate(ObservableList<TreeItem<ForumGroup>> tree, ForumGroup forumGroup)
+	private void updateForumGroupsUnreadCount(List<ForumGroup> forumGroups)
 	{
+		forumGroups.forEach(forumGroup -> forumClient.getForumUnreadCount(forumGroup.getId())
+				.doOnSuccess(unreadCount -> Platform.runLater(() -> getSubscribedTreeItemByGxsId(forumGroup.getGxsId())
+						.ifPresent(forumGroupTreeItem -> forumGroupTreeItem.getValue().setUnreadCount(unreadCount))))
+				.doFinally(signalType -> Platform.runLater(() -> forumTree.refresh()))
+				.subscribe());
+	}
+
+	private void addOrUpdate(TreeItem<ForumGroup> parent, ForumGroup forumGroup)
+	{
+		var tree = parent.getChildren();
+
 		if (tree.stream()
 				.map(TreeItem::getValue)
 				.noneMatch(existingForum -> existingForum.equals(forumGroup)))
 		{
 			tree.add(new TreeItem<>(forumGroup));
+			parent.getValue().addUnreadCount(1);
 			sortByName(tree);
-			removeFromOthers(tree, forumGroup);
+			removeFromOthers(parent, forumGroup);
 		}
 	}
 
-	private void removeFromOthers(ObservableList<TreeItem<ForumGroup>> tree, ForumGroup forumGroup)
+	private void removeFromOthers(TreeItem<ForumGroup> parent, ForumGroup forumGroup)
 	{
-		var removalList = new ArrayList<>(List.of(ownForums.getChildren(), subscribedForums.getChildren(), popularForums.getChildren(), otherForums.getChildren()));
-		removalList.remove(tree);
+		var removalList = new ArrayList<>(List.of(ownForums, subscribedForums, popularForums, otherForums));
+		removalList.remove(parent);
 
-		removalList.forEach(treeItems -> treeItems.stream()
+		removalList.forEach(treeItems -> treeItems.getChildren().stream()
 				.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().equals(forumGroup))
 				.findFirst()
-				.ifPresent(treeItems::remove));
+				.ifPresent(forumGroupTreeItem -> {
+					treeItems.getChildren().remove(forumGroupTreeItem);
+					treeItems.getValue().subtractUnreadCount(1);
+				}));
 	}
 
 	private static void sortByName(ObservableList<TreeItem<ForumGroup>> children)
@@ -502,7 +532,7 @@ public class ForumViewController implements Controller
 			forumClient.subscribeToForumGroup(forumGroup.getId())
 					.doOnSuccess(unused -> {
 						forumGroup.setSubscribed(true);
-						addOrUpdate(subscribedForums.getChildren(), forumGroup);
+						addOrUpdate(subscribedForums, forumGroup);
 					})
 					.subscribe();
 		}
@@ -516,7 +546,7 @@ public class ForumViewController implements Controller
 				.ifPresent(forumHolderTreeItem -> forumClient.unsubscribeFromForumGroup(forumGroup.getId())
 						.doOnSuccess(unused -> {
 							forumGroup.setSubscribed(false);
-							addOrUpdate(popularForums.getChildren(), forumGroup);
+							addOrUpdate(popularForums, forumGroup);
 						}) // XXX: wrong, could be something else then "otherForums"
 						.subscribe());
 	}
@@ -599,10 +629,6 @@ public class ForumViewController implements Controller
 						messageSubject.setText(forumMessage.getName());
 						messageHeader.setVisible(true);
 						forumClient.updateForumMessagesRead(Map.of(message.getId(), true))
-								.doOnSuccess(unused -> Platform.runLater(() -> {
-									selectedForumMessage.setRead(true);
-									forumMessagesTreeTableView.refresh();
-								}))
 								.subscribe();
 					}))
 					.doOnError(UiUtils::showAlertError)
@@ -626,18 +652,59 @@ public class ForumViewController implements Controller
 
 	private void addForumMessages(List<ForumMessage> forumMessages)
 	{
-		if (selectedForumGroup == null)
-		{
-			return;
-		}
+		Map<GxsId, Integer> forumsToSetCount = new HashMap<>();
+		var needsSorting = false;
 
-		forumMessages.forEach(forumMessage -> {
-			if (forumMessage.getGxsId().equals(selectedForumGroup.getGxsId()))
+		for (ForumMessage forumMessage : forumMessages)
+		{
+			if (selectedForumGroup != null && forumMessage.getGxsId().equals(selectedForumGroup.getGxsId()))
 			{
 				add(forumMessage);
+				needsSorting = true;
 			}
+			forumsToSetCount.merge(forumMessage.getGxsId(), 1, Integer::sum);
+		}
+
+		if (needsSorting)
+		{
+			forumMessagesTreeTableView.sort();
+		}
+
+		forumsToSetCount.forEach((gxsId, unreadCount) -> getSubscribedTreeItemByGxsId(gxsId).ifPresent(forumGroupTreeItem -> addUnreadCount(forumGroupTreeItem, unreadCount)));
+	}
+
+	private void markForumMessagesAsRead(Map<Long, Boolean> messageMap)
+	{
+		// Handle the most common case quickly
+		if (messageMap.size() == 1)
+		{
+			var message = messageMap.entrySet().iterator().next();
+			if (selectedForumMessage != null && selectedForumMessage.getId() == message.getKey() && !selectedForumMessage.isRead())
+			{
+				selectedForumMessage.setRead(message.getValue());
+				selectedForumGroup.subtractUnreadCount(1);
+				forumMessagesTreeTableView.refresh();
+				forumTree.refresh();
+				return;
+			}
+		}
+
+		messageMap.forEach((aLong, aBoolean) -> {
+			// XXX: implement... boring. not needed yet because we can't mark several entries at once
 		});
-		forumMessagesTreeTableView.sort();
+	}
+
+	private Optional<TreeItem<ForumGroup>> getSubscribedTreeItemByGxsId(GxsId gxsId)
+	{
+		return Stream.concat(subscribedForums.getChildren().stream(), ownForums.getChildren().stream())
+				.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getGxsId().equals(gxsId))
+				.findFirst();
+	}
+
+	private void addUnreadCount(TreeItem<ForumGroup> forumGroupTreeItem, int unreadCount)
+	{
+		forumGroupTreeItem.getValue().addUnreadCount(unreadCount);
+		forumTree.refresh();
 	}
 
 	@EventListener

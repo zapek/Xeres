@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,9 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.message.forum;
+package io.xeres.ui.model.forum;
 
 import io.xeres.common.id.GxsId;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 public class ForumGroup
 {
@@ -29,6 +31,7 @@ public class ForumGroup
 	private String description;
 	private boolean subscribed;
 	private boolean external;
+	private final IntegerProperty unreadCount = new SimpleIntegerProperty(0);
 
 	public ForumGroup()
 	{
@@ -102,6 +105,36 @@ public class ForumGroup
 	public void setExternal(boolean external)
 	{
 		this.external = external;
+	}
+
+	public boolean hasNewMessages()
+	{
+		return unreadCount.get() > 0;
+	}
+
+	public int getUnreadCount()
+	{
+		return unreadCount.get();
+	}
+
+	public void setUnreadCount(int unreadCount)
+	{
+		this.unreadCount.set(unreadCount);
+	}
+
+	public void addUnreadCount(int value)
+	{
+		unreadCount.set(unreadCount.get() + value);
+	}
+
+	public void subtractUnreadCount(int value)
+	{
+		unreadCount.set(unreadCount.get() - value);
+	}
+
+	public IntegerProperty unreadCountProperty()
+	{
+		return unreadCount;
 	}
 
 	@Override

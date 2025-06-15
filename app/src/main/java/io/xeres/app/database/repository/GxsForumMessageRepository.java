@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,6 +24,7 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -43,4 +44,7 @@ public interface GxsForumMessageRepository extends JpaRepository<ForumMessageIte
 	List<ForumMessageItemSummary> findSummaryAllByGxsId(GxsId groupId);
 
 	List<ForumMessageItem> findAllByMessageIdIn(Set<MessageId> messageIds);
+
+	@Query("SELECT COUNT(m.id) FROM forum_message m WHERE m.gxsId = :gxsId AND m.read = false")
+	int countUnreadMessages(GxsId gxsId);
 }

@@ -27,9 +27,11 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.common.rest.notification.forum.ForumNotification;
+import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 import static io.xeres.app.database.model.forum.ForumMapper.toDTOs;
 import static io.xeres.app.database.model.forum.ForumMapper.toForumMessageDTOs;
@@ -59,6 +61,13 @@ public class ForumNotificationService extends NotificationService
 				forumMessageService.getAuthorsMapFromMessages(forumMessages),
 				forumMessageService.getMessagesMapFromMessages(forumMessages),
 				false));
+
+		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
+	}
+
+	public void markForumMessagesAsRead(Map<Long, Boolean> messageMap)
+	{
+		var action = new MarkForumMessagesAsRead(messageMap);
 
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
 	}

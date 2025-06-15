@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,7 @@
 
 package io.xeres.ui.controller.forum;
 
-import io.xeres.common.message.forum.ForumMessage;
+import io.xeres.ui.model.forum.ForumMessage;
 import javafx.scene.control.TreeTableCell;
 
 import java.time.Instant;

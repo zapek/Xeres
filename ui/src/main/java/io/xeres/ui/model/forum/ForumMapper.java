@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,8 +21,6 @@ package io.xeres.ui.model.forum;
 
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
-import io.xeres.common.message.forum.ForumGroup;
-import io.xeres.common.message.forum.ForumMessage;
 
 public final class ForumMapper
 {

@@ -22,13 +22,13 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.message.forum.ForumGroup;
-import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import io.xeres.common.util.RemoteUtils;
+import io.xeres.ui.model.forum.ForumGroup;
 import io.xeres.ui.model.forum.ForumMapper;
+import io.xeres.ui.model.forum.ForumMessage;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -86,6 +86,14 @@ public class ForumClient
 				.retrieve()
 				.bodyToMono(ForumGroupDTO.class)
 				.map(ForumMapper::fromDTO);
+	}
+
+	public Mono<Integer> getForumUnreadCount(long groupId)
+	{
+		return webClient.get()
+				.uri("/groups/{groupId}/unread-count", groupId)
+				.retrieve()
+				.bodyToMono(Integer.class);
 	}
 
 	public Mono<Void> subscribeToForumGroup(long groupId)

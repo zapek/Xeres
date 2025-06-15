@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,41 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.forum;
+package io.xeres.common.rest.notification.forum;
 
-import io.xeres.ui.model.forum.ForumMessage;
-import javafx.scene.control.TreeTableRow;
+import java.util.Map;
 
-public class ForumMessageCell extends TreeTableRow<ForumMessage>
+public record MarkForumMessagesAsRead(Map<Long, Boolean> messageMap)
 {
-	public ForumMessageCell()
-	{
-		super();
-	}
-
-	@Override
-	protected void updateItem(ForumMessage item, boolean empty)
-	{
-		super.updateItem(item, empty);
-		if (empty)
-		{
-			clearStyle();
-		}
-		else
-		{
-			if (item.isRead())
-			{
-				clearStyle();
-			}
-			else
-			{
-				setStyle("-fx-font-weight: bold");
-			}
-		}
-	}
-
-	private void clearStyle()
-	{
-		setStyle("");
-	}
 }

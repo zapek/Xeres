@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,12 +19,12 @@
 
 package io.xeres.ui.controller.forum;
 
-import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.EditorView;
+import io.xeres.ui.model.forum.ForumMessage;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;

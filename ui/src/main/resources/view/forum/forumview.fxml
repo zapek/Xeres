@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2023-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -41,7 +41,15 @@
                     </tooltip>
                 </Button>
             </HBox>
-            <TreeView fx:id="forumTree" minWidth="-Infinity" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+            <TreeTableView fx:id="forumTree" minWidth="-Infinity" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                <columnResizePolicy>
+                    <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                </columnResizePolicy>
+                <columns>
+                    <TreeTableColumn fx:id="forumNameColumn" sortable="false"/>
+                    <TreeTableColumn fx:id="forumCountColumn" sortable="false" minWidth="35" prefWidth="35" maxWidth="40"/>
+                </columns>
+            </TreeTableView>
         </VBox>
         <VBox minWidth="200.0" VBox.vgrow="ALWAYS">
             <HBox>

@@ -270,6 +270,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findAllByMessageIdIn(messageIds);
 	}
 
+	public int getUnreadCount(long groupId)
+	{
+		var forumGroupItem = gxsForumGroupRepository.findById(groupId).orElseThrow();
+		return gxsForumMessageRepository.countUnreadMessages(forumGroupItem.getGxsId());
+	}
+
 	@Transactional
 	public List<ForumMessageItemSummary> findAllMessagesSummary(long groupId)
 	{
@@ -364,6 +370,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public void setForumMessagesAsRead(Map<Long, Boolean> messageMap)
 	{
 		gxsForumMessageRepository.findAllById(messageMap.keySet()).forEach(forumMessageItem -> forumMessageItem.setRead(messageMap.get(forumMessageItem.getId())));
+		forumNotificationService.markForumMessagesAsRead(messageMap);
 	}
 
 	@Override

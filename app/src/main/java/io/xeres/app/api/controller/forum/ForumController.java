@@ -97,6 +97,13 @@ public class ForumController
 		return toDTO(forumRsService.findById(groupId).orElseThrow());
 	}
 
+	@GetMapping("/groups/{groupId}/unread-count")
+	@Operation(summary = "Get the unread count of a forum")
+	public int getForumUnreadCount(@PathVariable long groupId)
+	{
+		return forumRsService.getUnreadCount(groupId);
+	}
+
 	@PutMapping("/groups/{groupId}/subscription")
 	@Operation(summary = "Subscribes to a forum")
 	@ResponseStatus(HttpStatus.NO_CONTENT)

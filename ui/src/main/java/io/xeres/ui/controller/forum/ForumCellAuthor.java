@@ -20,11 +20,11 @@
 package io.xeres.ui.controller.forum;
 
 import io.xeres.common.i18n.I18nUtils;
-import io.xeres.common.message.forum.ForumMessage;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.model.forum.ForumMessage;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.ImageView;

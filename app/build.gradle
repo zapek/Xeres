@@ -59,14 +59,13 @@ test {
 }
 
 tasks.register('copyInstaller', Copy) {
-    from "${parent.rootDir}/installer"
-    into "${base.libsDirectory.get()}"
-    doNotTrackState("Copying installation file need to re-run every time")
+    from layout.settingsDirectory.dir("installer")
+    into layout.buildDirectory.dir("libs")
 }
 
 // needed to avoid duplicate jars in 'libs' when changing versions
 tasks.register('deleteLibs', Delete) {
-    delete "${base.libsDirectory.get()}"
+    delete layout.buildDirectory.file('libs')
 }
 
 bootBuildImage {
@@ -98,13 +97,14 @@ jpackage {
     vendor = "David Gerber"
     copyright = "Copyright 2019-2025 by David Gerber. All Rights Reserved"
     appDescription = parent.project.name
-    input = "${base.libsDirectory.get()}"
-    destination = "${base.distsDirectory.get()}"
-    mainJar = bootJar.archiveFileName.get()
+    input = layout.buildDirectory.dir("libs")
+    destination = layout.buildDirectory.dir("distributions")
+    mainJar = tasks.bootJar.archiveFile
     if (project.hasProperty("jpackage.portable")) {
         type = ImageType.APP_IMAGE
+        new File("${base.distsDirectory.get().dir(rootProject.name)}", "Portable").text = ""
     } else {
-        licenseFile = "${parent.rootDir}/LICENSE"
+        licenseFile = layout.settingsDirectory.file("LICENSE")
         aboutUrl = "https://xeres.io"
     }
     // Do not supply files relative to currentDir. It can change depending on how the executable is started
@@ -125,25 +125,19 @@ jpackage {
             winMenuGroup = parent.project.name
             winUpgradeUuid = "97a4aaa5-0a3f-47f9-b0a2-f91876d9e7dd"
         }
-        icon = "${parent.rootDir}/icon.ico"
+        icon = layout.settingsDirectory.file("icon.ico")
     }
     linux {
         if (project.hasProperty("jpackage.rpm")) {
             type = ImageType.RPM
         }
         linuxShortcut = true
-        icon = "${parent.rootDir}/icon.png"
+        icon = layout.settingsDirectory.file("icon.png")
     }
     mac {
         appVersion = "6.6.6" // MacOS sucks, it wants no more than 3 numbers and the first one != 0
-        icon = "${parent.rootDir}/icon.icns"
+        icon = layout.settingsDirectory.file("icon.icns")
     }
-    doLast {
-        if (project.hasProperty("jpackage.portable")) {
-            new File("${base.distsDirectory.get().dir(rootProject.name)}", "Portable").text = ""
-        }
-    }
-
 }
 
 jacocoTestReport {

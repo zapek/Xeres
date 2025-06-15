@@ -63,11 +63,6 @@ tasks.register('copyInstaller', Copy) {
     into layout.buildDirectory.dir("libs")
 }
 
-// needed to avoid duplicate jars in 'libs' when changing versions
-tasks.register('deleteLibs', Delete) {
-    delete layout.buildDirectory.file('libs')
-}
-
 bootBuildImage {
     // Don't forget to set the image platform, for example: -Dimage.platform=linux-x86_64 or -Dimage.platform=linux-aarch_64
     imageName = "zapek/${rootProject.name.toLowerCase(Locale.ROOT)}:${project.version}"
@@ -89,8 +84,7 @@ tasks.register('packagePortable', Zip) {
 }
 
 jpackage {
-    dependsOn deleteLibs, cleanJpackageWorkdir, bootJar, copyInstaller
-    mustRunAfter deleteLibs
+    dependsOn cleanJpackageWorkdir, bootJar, copyInstaller
     finalizedBy packagePortable, deletePortable
     appName = parent.project.name
     appVersion = "${project.version}".split("-")[0]

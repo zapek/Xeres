@@ -109,7 +109,7 @@ public class ForumGroup
 
 	public boolean hasNewMessages()
 	{
-		return unreadCount.get() > 0;
+		return unreadCount.get() > 0 && gxsId != null;
 	}
 
 	public int getUnreadCount()

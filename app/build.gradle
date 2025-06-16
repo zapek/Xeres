@@ -32,7 +32,12 @@ flyway {
     user = 'sa'
 }
 
+tasks.register('cleanLibs', Delete) {
+    delete layout.buildDirectory.dir("libs")
+}
+
 bootJar {
+    dependsOn cleanLibs
     manifest {
         attributes 'Implementation-Version': "${project.version}"
         attributes 'Implementation-Title': "${project.name}"
@@ -59,6 +64,7 @@ test {
 }
 
 tasks.register('copyInstaller', Copy) {
+    dependsOn cleanLibs
     from layout.settingsDirectory.dir("installer")
     into layout.buildDirectory.dir("libs")
 }
@@ -66,11 +72,6 @@ tasks.register('copyInstaller', Copy) {
 bootBuildImage {
     // Don't forget to set the image platform, for example: -Dimage.platform=linux-x86_64 or -Dimage.platform=linux-aarch_64
     imageName = "zapek/${rootProject.name.toLowerCase(Locale.ROOT)}:${project.version}"
-}
-
-// This is needed to have jpackage work with the configuration cache, see https://github.com/petr-panteleyev/jpackage-gradle-plugin/issues/29
-tasks.register('cleanJpackageWorkdir', Delete) {
-    delete layout.buildDirectory.file('jpackage')
 }
 
 tasks.register('deletePortable', Delete) {
@@ -84,7 +85,7 @@ tasks.register('packagePortable', Zip) {
 }
 
 jpackage {
-    dependsOn cleanJpackageWorkdir, bootJar, copyInstaller
+    dependsOn bootJar, copyInstaller
     finalizedBy packagePortable, deletePortable
     appName = parent.project.name
     appVersion = "${project.version}".split("-")[0]

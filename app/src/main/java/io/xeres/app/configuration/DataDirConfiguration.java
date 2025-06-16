@@ -89,11 +89,6 @@ public class DataDirConfiguration
 
 		Objects.requireNonNull(dataDir);
 
-		if (!SingleInstanceRun.enforceSingleInstance(dataDir))
-		{
-			throw new IllegalStateException("An instance of " + AppName.NAME + " is already running.");
-		}
-
 		var path = Path.of(dataDir);
 
 		if (Files.notExists(path))
@@ -107,6 +102,12 @@ public class DataDirConfiguration
 				throw new IllegalStateException("Couldn't create data directory: " + dataDir + ", :" + e.getMessage());
 			}
 		}
+
+		if (!SingleInstanceRun.enforceSingleInstance(dataDir))
+		{
+			throw new IllegalStateException("An instance of " + AppName.NAME + " is already running, path: " + dataDir);
+		}
+
 		return dataDir;
 	}
 

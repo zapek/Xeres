@@ -94,7 +94,7 @@ jpackage {
     appDescription = parent.project.name
     input = layout.buildDirectory.dir("libs")
     destination = layout.buildDirectory.dir("distributions")
-    mainJar = tasks.bootJar.archiveFile
+    mainJar = tasks.bootJar.archiveFile.get().asFile.path
     if (project.hasProperty("jpackage.portable")) {
         type = ImageType.APP_IMAGE
         new File("${base.distsDirectory.get().dir(rootProject.name)}", "Portable").text = ""

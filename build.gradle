@@ -19,29 +19,34 @@
 
 buildscript {
     ext {
-        bouncycastleVersion = "1.81"
         apacheCommonsCollectionsVersion = "4.5.0"
-        springOpenApiVersion = "2.8.9"
-        jsoupVersion = "1.20.1"
-        jsonPatchVersion = "1.13"
-        zxingVersion = "3.5.3"
         appDirsVersion = "1.4.0"
-        junitVersion = "5.13.1"
         archunitVersion = "1.4.1"
+        bouncycastleVersion = "1.81"
         commonMarkVersion = "0.24.0"
+        flywayDbVersion = "11.7.2" // Only used by the plugin, keep in sync with spring-boot from time to time
+        gradleVersion = "8.14.2" // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
+        jpackageVersion = "1.7.3"
+        jsonPatchVersion = "1.13"
+        jsoupVersion = "1.20.1"
+        junitVersion = "5.13.1"
+        sonarqubeVersion = "6.2.0.5505"
+        springBootVersion = "3.5.1"
+        springOpenApiVersion = "2.8.9"
+        zxingVersion = "3.5.3"
     }
 }
 
 plugins {
-    id 'org.springframework.boot' version '3.5.0' apply false
-    id 'org.flywaydb.flyway' version '10.20.0' apply false // Keep the version in sync with spring-boot from time to time
-    id 'org.panteleyev.jpackageplugin' version '1.7.3' apply false
-    id 'org.sonarqube' version '6.2.0.5505'
+    id 'org.springframework.boot' version "$springBootVersion" apply false
+    id 'org.flywaydb.flyway' version "$flywayDbVersion" apply false
+    id 'org.panteleyev.jpackageplugin' version "$jpackageVersion" apply false
+    id 'org.sonarqube' version "$sonarqubeVersion"
 }
 
-// To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
+
 wrapper {
-    gradleVersion = '8.14.2'
+    gradleVersion = "$gradleVersion"
 }
 
 // This gives a git-like version for git builds but a proper version

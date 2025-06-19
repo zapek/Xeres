@@ -170,9 +170,9 @@ class RSCertificate extends RSId
 		{
 			throw new IllegalArgumentException("Missing location identifier");
 		}
-		if (getName() == null)
+		if (StringUtils.isBlank(getName()))
 		{
-			throw new IllegalArgumentException("Missing name");
+			throw new IllegalArgumentException("Missing or wrong name");
 		}
 		if (getPgpPublicKey().isEmpty())
 		{

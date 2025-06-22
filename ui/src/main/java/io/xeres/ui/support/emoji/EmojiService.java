@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.ui.properties.UiClientProperties;
 import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.image.Image;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -40,8 +38,6 @@ import java.util.stream.Collectors;
 @Service
 public class EmojiService
 {
-	private static final Logger log = LoggerFactory.getLogger(EmojiService.class);
-
 	private static final String DEFAULT_UNICODE = "2753"; // question mark
 	private static final String EMOJI_PATH = "/image/emojis/";
 	private static final String EMOJI_EXTENSION = ".png";
@@ -153,7 +149,6 @@ public class EmojiService
 		{
 			fileName = fileName.replace("-fe0f", "");
 		}
-		log.debug("Emoji to filename: {} -> {}", emoji, fileName);
 		return fileName;
 	}
 

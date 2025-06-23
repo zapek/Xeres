@@ -28,7 +28,7 @@ buildscript {
         gradleVersion = "8.14.2" // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
         jpackageVersion = "1.7.3"
         jsonPatchVersion = "1.13"
-        jsoupVersion = "1.20.1"
+        jsoupVersion = "1.21.1"
         junitVersion = "5.13.1"
         sonarqubeVersion = "6.2.0.5505"
         springBootVersion = "3.5.3"

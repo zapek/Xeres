@@ -23,7 +23,7 @@ buildscript {
         appDirsVersion = "1.4.0"
         archunitVersion = "1.4.1"
         bouncycastleVersion = "1.81"
-        commonMarkVersion = "0.24.0"
+        commonMarkVersion = "0.25.0"
         flywayDbVersion = "11.7.2" // Only used by the plugin, keep in sync with spring-boot from time to time
         gradleVersion = "8.14.2" // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
         jpackageVersion = "1.7.3"

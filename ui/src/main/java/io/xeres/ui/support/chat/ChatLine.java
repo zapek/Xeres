@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -82,10 +82,8 @@ public class ChatLine
 	{
 		return switch (action.getType())
 		{
-			case JOIN, LEAVE, TIMEOUT:
-				yield false;
-			case SAY, SAY_OWN, ACTION:
-				yield true;
+			case JOIN, LEAVE, TIMEOUT -> false;
+			case SAY, SAY_OWN, ACTION -> true;
 		};
 	}
 

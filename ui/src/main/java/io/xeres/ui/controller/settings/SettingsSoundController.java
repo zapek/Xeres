@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.settings;
 
+import io.xeres.common.util.OsUtils;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.sound.SoundSettings;
@@ -29,7 +30,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -140,8 +140,8 @@ public class SettingsSoundController implements SettingsController
 		if (parent == null && !path.isAbsolute())
 		{
 			// Try to find the proper path (can happen on Windows when we're auto started)
-			var home = new ApplicationHome(getClass());
-			path = Path.of(home.getDir().toString(), filePath);
+			var home = OsUtils.getApplicationHome();
+			path = Path.of(home.toString(), filePath);
 			parent = path.getParent();
 		}
 		if (parent != null)

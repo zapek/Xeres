@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.common.util;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.system.ApplicationHome;
 
 import java.awt.*;
 import java.io.*;
@@ -355,6 +356,17 @@ public final class OsUtils
 				log.warn("Couldn't set the visibility of file at {}: {}", path, e.getMessage());
 			}
 		}
+	}
+
+	/**
+	 * Gets the application home.
+	 *
+	 * @return the path where the application is installed
+	 */
+	public static Path getApplicationHome()
+	{
+		var home = new ApplicationHome(OsUtils.class);
+		return home.getDir().toPath().toAbsolutePath();
 	}
 }
 

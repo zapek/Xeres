@@ -21,12 +21,12 @@ package io.xeres.app.application.autostart.autostarter;
 
 import io.xeres.app.application.autostart.AutoStarter;
 import io.xeres.common.AppName;
+import io.xeres.common.util.OsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.sun.jna.platform.win32.Advapi32Util.*;
 import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
@@ -73,8 +73,6 @@ public class AutoStarterWindows implements AutoStarter
 
 	/**
 	 * Gets the application path.
-	 * <p>
-	 * Source: <a href="https://stackoverflow.com/questions/320542/how-to-get-the-path-of-a-running-jar-file">stack overflow</a>
 	 *
 	 * @return the application path
 	 */
@@ -85,18 +83,19 @@ public class AutoStarterWindows implements AutoStarter
 			return applicationPath.toString();
 		}
 
-		var basePath = Paths.get(getClass().getProtectionDomain().getPermissions().elements().nextElement().getName()).toAbsolutePath();
+		var basePath = OsUtils.getApplicationHome();
 
-		// We are located in 'app/something.jar', get the parent directory of 'app'
-		if (basePath.getParent() == null || basePath.getParent().getParent() == null)
+		// Get the parent directory of 'app' because that's where the executable is
+		if (basePath.getParent() == null)
 		{
-			log.error("Couldn't get parent directory");
+			log.error("Couldn't get parent directory of application path {}", basePath);
 			return null;
 		}
 
-		var appPath = basePath.getParent().getParent().resolve(AppName.NAME + EXECUTABLE_EXTENSION);
+		var appPath = basePath.getParent().resolve(AppName.NAME + EXECUTABLE_EXTENSION);
 		if (Files.notExists(appPath))
 		{
+			log.error("Application path does not exist: {}", appPath);
 			return null;
 		}
 

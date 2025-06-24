@@ -20,8 +20,8 @@
 package io.xeres.ui.support.sound;
 
 import io.micrometer.common.util.StringUtils;
+import io.xeres.common.util.OsUtils;
 import javafx.scene.media.AudioClip;
-import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -92,8 +92,8 @@ public class SoundService
 		{
 			// Try to find the file if currentDir is not what we expect.
 			// This happens on Windows when auto starting
-			var home = new ApplicationHome(getClass());
-			path = Path.of(home.getDir().toString(), file);
+			var home = OsUtils.getApplicationHome();
+			path = Path.of(home.toString(), file);
 
 			// At some point (Spring probably), the currentDir returned by ApplicationHome() was changed from
 			// where the application was installed to 'app'. We have to use the next workaround
@@ -103,7 +103,7 @@ public class SoundService
 				if (file.startsWith("app/"))
 				{
 					file = file.substring("app/".length());
-					path = Path.of(home.getDir().toString(), file);
+					path = Path.of(home.toString(), file);
 				}
 			}
 		}

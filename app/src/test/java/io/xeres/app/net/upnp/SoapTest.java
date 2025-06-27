@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.app.net.upnp;
 import io.xeres.testutils.FakeHttpServer;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatusCode;
 import org.xml.sax.SAXException;
 
 import javax.xml.namespace.NamespaceContext;
@@ -39,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class SoapTest
 {
@@ -85,6 +87,23 @@ class SoapTest
 		assertEquals(value2, childNodes.item(1).getTextContent());
 
 		fakeHTTPServer.shutdown();
+	}
+
+	@Test
+	void SendRequest_Error() throws IOException, ParserConfigurationException, SAXException, XPathException
+	{
+		String key1 = "NewExternalPort", key2 = "NewProtocol";
+		String value1 = "1234", value2 = "TCP";
+		var fakeHTTPServer = new FakeHttpServer("/soaptest.xml", HttpURLConnection.HTTP_BAD_REQUEST, "Error".getBytes());
+
+		Map<String, String> args = LinkedHashMap.newLinkedHashMap(2);
+		args.put(key1, value1);
+		args.put(key2, value2);
+
+		var responseEntity = Soap.sendRequest(URI.create("http://localhost:" + fakeHTTPServer.getPort() + "/soaptest.xml"), SERVICE_TYPE, ACTION, args);
+		assertEquals(HttpStatusCode.valueOf(400), responseEntity.getStatusCode());
+		assertNull(responseEntity.getBody());
+
 	}
 
 	private NamespaceContext createNameSpaceContext(Map<String, String> uris)

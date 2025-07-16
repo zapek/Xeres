@@ -77,7 +77,7 @@
                         <Insets right="4.0"/>
                     </GridPane.margin>
                 </Label>
-                <PasswordTextField fx:id="password" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2147483647"/>
+                <PasswordTextField fx:id="password" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2147483647" bullet="●"/>
                 <Label wrapText="true" GridPane.rowIndex="5" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" styleClass="text-small" text="%settings.remote.note"/>
             </GridPane>
         </body>

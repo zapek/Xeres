@@ -52,7 +52,7 @@ dependencies {
         exclude group: 'io.netty', module: 'netty-transport-native-epoll'
     }
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'commons-io:commons-io:2.19.0'
+    implementation 'commons-io:commons-io:2.20.0'
     implementation 'net.rgielen:javafx-weaver-spring-boot-starter:2.0.1'
     implementation 'org.fxmisc.flowless:flowless:0.7.4'
     implementation 'org.apache.commons:commons-lang3'

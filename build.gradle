@@ -25,7 +25,6 @@ buildscript {
         bouncycastleVersion = "1.81"
         commonMarkVersion = "0.25.0"
         flywayDbVersion = "11.7.2" // Only used by the plugin, keep in sync with spring-boot from time to time
-        gradleVersion = "8.14.2" // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
         jpackageVersion = "1.7.3"
         jsonPatchVersion = "1.13"
         jsoupVersion = "1.21.1"
@@ -34,6 +33,7 @@ buildscript {
         springBootVersion = "3.5.4"
         springOpenApiVersion = "2.8.9"
         zxingVersion = "3.5.3"
+        // Gradle wrapper version is below (do not put it here otherwise it won't upgrade)
     }
 }
 
@@ -44,9 +44,8 @@ plugins {
     id 'org.sonarqube' version "$sonarqubeVersion"
 }
 
-
 wrapper {
-    gradleVersion = "$gradleVersion"
+    gradleVersion = "8.14.3" // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
 }
 
 // This gives a git-like version for git builds but a proper version

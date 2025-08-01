@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.database.model.share;
 
-import io.xeres.app.database.converter.TrustConverter;
 import io.xeres.app.database.model.file.File;
 import io.xeres.common.pgp.Trust;
 import jakarta.persistence.*;
@@ -48,7 +47,6 @@ public class Share
 
 	private boolean searchable;
 
-	@Convert(converter = TrustConverter.class)
 	private Trust browsable = Trust.UNKNOWN;
 
 	private Instant lastScanned = Instant.EPOCH;

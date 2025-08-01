@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,7 @@ package io.xeres.app.database.converter;
 import io.xeres.common.file.FileType;
 import jakarta.persistence.Converter;
 
-@Converter
+@Converter(autoApply = true)
 public class FileTypeConverter extends EnumConverter<FileType>
 {
 	@Override

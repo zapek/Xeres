@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,13 +20,14 @@
 package io.xeres.app.database.converter;
 
 import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
 
 /**
  * This class is needed because Hibernate uses the ordinal value of enums to save them in the database and
  * some smartass changed enums in H2 to start from 1 instead of 0. Of course this breaks everything.
+ * <p>
+ * Don't forget to annotate your subclass with @Converter(autoApply = true)!
  */
-@Converter
+@SuppressWarnings("ConverterNotAnnotatedInspection")
 public abstract class EnumConverter<E extends Enum<E>> implements AttributeConverter<E, Integer>
 {
 	abstract Class<E> getEnumClass();

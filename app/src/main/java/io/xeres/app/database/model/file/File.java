@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.database.model.file;
 
-import io.xeres.app.database.converter.FileTypeConverter;
 import io.xeres.common.file.FileType;
 import io.xeres.common.id.Sha1Sum;
 import jakarta.persistence.*;
@@ -59,7 +58,6 @@ public class File
 
 	private long size;
 
-	@Convert(converter = FileTypeConverter.class)
 	private FileType type;
 
 	@Embedded

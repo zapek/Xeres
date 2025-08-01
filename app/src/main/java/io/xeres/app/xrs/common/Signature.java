@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,11 @@
 
 package io.xeres.app.xrs.common;
 
-import io.xeres.app.database.converter.SignatureTypeConverter;
 import io.xeres.common.id.GxsId;
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Arrays;
@@ -30,7 +32,6 @@ import java.util.Objects;
 @Embeddable
 public final class Signature implements Comparable<Signature>
 {
-	@Convert(converter = SignatureTypeConverter.class)
 	private Type type;
 
 	@Embedded

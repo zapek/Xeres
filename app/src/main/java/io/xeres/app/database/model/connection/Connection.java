@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,7 +20,6 @@
 package io.xeres.app.database.model.connection;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.xeres.app.database.converter.PeerAddressTypeConverter;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.common.protocol.ip.IP;
@@ -43,7 +42,6 @@ public class Connection
 	@JoinColumn(name = "location_id", nullable = false)
 	private Location location;
 
-	@Convert(converter = PeerAddressTypeConverter.class)
 	private PeerAddress.Type type;
 
 	private String address;

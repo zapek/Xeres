@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,7 +20,6 @@
 package io.xeres.app.xrs.service.identity.item;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.database.converter.IdentityTypeConverter;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.xrs.serialization.SerializationFlags;
@@ -60,7 +59,6 @@ public class IdentityGroupItem extends GxsGroupItem
 
 	private byte[] image;
 
-	@Convert(converter = IdentityTypeConverter.class)
 	private Type type = Type.OTHER;
 
 	@Transient

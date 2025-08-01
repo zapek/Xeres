@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,7 @@ package io.xeres.app.database.converter;
 import io.xeres.app.xrs.common.Signature;
 import jakarta.persistence.Converter;
 
-@Converter
+@Converter(autoApply = true)
 public class SignatureTypeConverter extends EnumConverter<Signature.Type>
 {
 	@Override

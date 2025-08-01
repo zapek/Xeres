@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.database.model.profile;
 
-import io.xeres.app.database.converter.TrustConverter;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.location.Availability;
@@ -68,7 +67,6 @@ public class Profile
 
 	private boolean accepted;
 
-	@Convert(converter = TrustConverter.class)
 	private Trust trust = Trust.UNKNOWN;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "profile", orphanRemoval = true)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,11 @@
 
 package io.xeres.app.xrs.common;
 
-import io.xeres.app.database.converter.SecurityKeyFlagsConverter;
 import io.xeres.common.id.GxsId;
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigInteger;
@@ -38,7 +40,6 @@ public final class SecurityKey implements Comparable<SecurityKey>
 	@AttributeOverride(name = "identifier", column = @Column(name = "key_id"))
 	private GxsId keyId;
 
-	@Convert(converter = SecurityKeyFlagsConverter.class)
 	private Set<Flags> flags = EnumSet.noneOf(SecurityKey.Flags.class);
 
 	@NotNull

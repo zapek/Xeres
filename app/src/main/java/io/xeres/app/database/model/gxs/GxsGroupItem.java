@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,9 +21,6 @@ package io.xeres.app.database.model.gxs;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.crypto.rsa.RSA;
-import io.xeres.app.database.converter.GxsCircleTypeConverter;
-import io.xeres.app.database.converter.GxsPrivacyFlagsConverter;
-import io.xeres.app.database.converter.GxsSignatureFlagsConverter;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
@@ -69,15 +66,16 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "gxs_id"))
 	private GxsId gxsId;
+
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "original_gxs_id"))
 	private GxsId originalGxsId;
+
 	@NotNull
 	private String name;
-	@Convert(converter = GxsPrivacyFlagsConverter.class)
+
 	private Set<GxsPrivacyFlags> diffusionFlags = EnumSet.noneOf(GxsPrivacyFlags.class);
 
-	@Convert(converter = GxsSignatureFlagsConverter.class)
 	private Set<GxsSignatureFlags> signatureFlags = EnumSet.noneOf(GxsSignatureFlags.class); // what signatures are required for parent and child messages
 
 	private Instant published;
@@ -90,10 +88,10 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@AttributeOverride(name = "identifier", column = @Column(name = "circle_id"))
 	private GxsId circleId; // id of the circle to which the group is restricted
 
-	@Convert(converter = GxsCircleTypeConverter.class)
 	private GxsCircleType circleType = GxsCircleType.UNKNOWN;
 
 	private int authenticationFlags; // not used yet?
+
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "parent_id"))
 	private GxsId parentId;
@@ -109,9 +107,11 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	// service specific storage (not synced, but they are serialized though)
 	private String serviceString;
+
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "originator"))
 	private LocationIdentifier originator;
+
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "internal_circle"))
 	private GxsId internalCircle;

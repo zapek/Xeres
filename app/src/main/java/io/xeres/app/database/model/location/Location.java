@@ -21,8 +21,6 @@ package io.xeres.app.database.model.location;
 
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.crypto.rsid.RSIdBuilder;
-import io.xeres.app.database.converter.AvailabilityConverter;
-import io.xeres.app.database.converter.NetModeConverter;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.gxs.GxsClientUpdate;
 import io.xeres.app.database.model.profile.Profile;
@@ -85,10 +83,8 @@ public class Location implements Comparable<Location>
 
 	private String version;
 
-	@Convert(converter = NetModeConverter.class)
 	private NetMode netMode = NetMode.UNKNOWN;
 
-	@Convert(converter = AvailabilityConverter.class)
 	private Availability availability = Availability.AVAILABLE; // Do NOT use Availability.OFFLINE, use isConnected() for that
 
 	protected Location()

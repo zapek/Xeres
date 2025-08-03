@@ -20,15 +20,18 @@
 package io.xeres.ui.custom;
 
 import io.xeres.ui.custom.event.StickerSelectedEvent;
+import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.image.ImageUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
@@ -42,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class StickerView extends VBox
 {
@@ -52,6 +57,8 @@ public class StickerView extends VBox
 
 	private static final int IMAGE_WIDTH = 192;
 	private static final int IMAGE_HEIGHT = 192;
+
+	private static final Pattern PATTERN_ORDERED_NAME = Pattern.compile("^(\\d{1,3}\\.)(.*?)(\\.\\w{1,10})?$");
 
 	@FXML
 	private TabPane tabPane;
@@ -72,7 +79,7 @@ public class StickerView extends VBox
 		}
 	}
 
-	public void loadStickers(final Path path)
+	public void loadStickers(Path localPath, Path userPath)
 	{
 		var screen = ImageUtils.getScreenOfNode(tabPane);
 		Task<List<StickerCollectionEntry>> task = new Task<>()
@@ -82,19 +89,25 @@ public class StickerView extends VBox
 			{
 				List<StickerCollectionEntry> stickerCollections = new ArrayList<>();
 
-				if (Files.isDirectory(path))
+				if (Files.isDirectory(localPath))
 				{
-					log.debug("Found sticker collections directory");
-					try (var stream = Files.find(path, 1, (dirPath, bfa) -> bfa.isDirectory()))
+					try (var stream = Files.find(localPath, 1, (dirPath, bfa) -> bfa.isDirectory() && !dirPath.equals(localPath)))
 					{
-						return stream
-								.filter(filePath -> !filePath.equals(path)) // filter out the root directory
-								.map(filePath -> new StickerCollectionEntry(filePath.getFileName().toString(), filePath, getStickerMainImage(filePath)))
-								.sorted(Comparator.comparing(StickerCollectionEntry::name))
-								.toList();
+						stickerCollections.addAll(processStickers(stream));
 					}
 				}
-				return stickerCollections;
+
+				if (Files.isDirectory(userPath))
+				{
+					log.debug("Found sticker collections directory in {}", userPath);
+					try (var stream = Files.find(userPath, 1, (dirPath, bfa) -> bfa.isDirectory() && !dirPath.equals(userPath)))
+					{
+						stickerCollections.addAll(processStickers(stream));
+					}
+				}
+				return stickerCollections.stream()
+						.sorted(Comparator.comparing(StickerCollectionEntry::name))
+						.toList();
 			}
 		};
 		task.setOnSucceeded(event -> {
@@ -102,7 +115,7 @@ public class StickerView extends VBox
 
 			if (stickers.isEmpty())
 			{
-				tabPane.getTabs().add(new Tab("", new Label("Add your stickers into " + path + "\n\nOne directory per sticker collection, each containing PNGs or JPEGs.")));
+				tabPane.getTabs().add(new Tab("", new Label("Add your stickers into " + userPath + "\n\nOne directory per sticker collection, each containing PNGs or JPEGs.")));
 			}
 
 			tabPane.getTabs().addAll(stickers.stream()
@@ -111,7 +124,7 @@ public class StickerView extends VBox
 						if (sticker.image() != null && !sticker.image().isError())
 						{
 							tab = new Tab();
-							tab.setTooltip(new Tooltip(sticker.name()));
+							tab.setTooltip(new Tooltip(buildStickerName(sticker.name())));
 							var imageView = new ImageView(sticker.image());
 							imageView.setPickOnBounds(true); // make transparent areas clickable
 							ImageUtils.limitMaximumImageSize(imageView, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT);
@@ -127,7 +140,24 @@ public class StickerView extends VBox
 
 			setupTabSelection();
 		});
-		Thread.ofVirtual().name("Stickers Directory Loader").start(task);
+		Thread.ofVirtual().name("Stickers Collection Directory Loader").start(task);
+	}
+
+	private List<StickerCollectionEntry> processStickers(Stream<Path> stream)
+	{
+		return stream
+				.map(filePath -> new StickerCollectionEntry(filePath.getFileName().toString(), filePath, getStickerMainImage(filePath)))
+				.toList();
+	}
+
+	private String buildStickerName(String name)
+	{
+		var matcher = PATTERN_ORDERED_NAME.matcher(name);
+		if (matcher.matches())
+		{
+			return matcher.group(2);
+		}
+		return name;
 	}
 
 	private void setupTabSelection()
@@ -149,6 +179,7 @@ public class StickerView extends VBox
 			var path = (Path) tab.getUserData();
 			var textFlow = new TextFlow();
 			textFlow.setPrefWidth(600.0);
+			textFlow.setPadding(new Insets(8.0));
 			UiUtils.setOnPrimaryMouseClicked(textFlow, event -> {
 				if (event.getTarget() instanceof ImageView imageView)
 				{
@@ -169,7 +200,6 @@ public class StickerView extends VBox
 						try (var stream = Files.find(path, 1, (dirPath, bfa) -> bfa.isRegularFile()))
 						{
 							stream
-									.filter(filePath -> !filePath.equals(path))
 									.sorted(Comparator.comparing(filePath -> filePath.getFileName().toString()))
 									.forEach(filePath -> {
 										var image = openImage(filePath);
@@ -182,7 +212,11 @@ public class StickerView extends VBox
 												imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
 												imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());
 												imageView.setUserData(filePath);
-												textFlow.getChildren().add(imageView);
+												imageView.getStyleClass().add("sticker-image");
+												TooltipUtils.install(imageView, buildStickerName(filePath.getFileName().toString()));
+												var pane = new Pane(imageView);
+												pane.setPadding(new Insets(8.0));
+												textFlow.getChildren().add(pane);
 											});
 										}
 									});
@@ -191,7 +225,7 @@ public class StickerView extends VBox
 					return null;
 				}
 			};
-			Thread.ofVirtual().name("Stickers Loader").start(task);
+			Thread.ofVirtual().name("Stickers Collection Content Loader").start(task);
 		}
 	}
 

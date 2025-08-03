@@ -249,3 +249,10 @@
     -fx-padding: 2 2 2 2;
     -fx-spacing: 1;
 }
+
+.sticker-image:hover {
+    -fx-effect: dropshadow(three-pass-box, -color-accent-emphasis, 8.0, 0.5, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-cursor: hand;
+}

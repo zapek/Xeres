@@ -20,6 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.common.AppName;
+import io.xeres.common.util.OsUtils;
 import io.xeres.ui.custom.alias.PopupAlias;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.support.util.UiUtils;
@@ -40,7 +41,7 @@ import javafx.stage.PopupWindow;
 import net.harawata.appdirs.AppDirsFactory;
 import org.apache.commons.lang3.StringUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Set;
 
 /**
@@ -50,6 +51,7 @@ import java.util.Set;
  */
 public class InputArea extends TextArea
 {
+	private static final String STICKERS_DIRECTORY = "Stickers";
 	private static final KeyCodeCombination CTRL_S = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
 	private Text text;
@@ -134,7 +136,9 @@ public class InputArea extends TextArea
 		});
 
 		popup.show(UiUtils.getWindow(this));
-		stickerView.loadStickers(Paths.get(AppDirsFactory.getInstance().getUserDataDir(AppName.NAME, null, null, true), "Stickers"));
+		stickerView.loadStickers(
+				Path.of(OsUtils.getApplicationHome().toString(), STICKERS_DIRECTORY),
+				Path.of(AppDirsFactory.getInstance().getUserDataDir(AppName.NAME, null, null, true), STICKERS_DIRECTORY));
 		popup.setAutoHide(true);
 		return true;
 	}

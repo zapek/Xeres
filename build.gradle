@@ -23,7 +23,7 @@ buildscript {
         appDirsVersion = "1.4.0"
         archunitVersion = "1.4.1"
         bouncycastleVersion = "1.81"
-        commonMarkVersion = "0.25.0"
+        commonMarkVersion = "0.25.1"
         flywayDbVersion = "11.7.2" // Only used by the plugin, keep in sync with spring-boot from time to time
         jpackageVersion = "1.7.3"
         jsonPatchVersion = "1.13"

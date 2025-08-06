@@ -53,7 +53,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build, test and generate reports
-        run: ./gradlew build test jacocoTestReport --no-build-cache --no-parallel --no-configuration-cache --info # Disabling the build cache is needed for CodeQL (otherwise compilation output might not be generated)
+        run: ./gradlew build test jacocoTestReport --no-build-cache --info # Disabling the build cache is needed for CodeQL (otherwise compilation output might not be generated)
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -62,4 +62,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar
+        run: ./gradlew sonar --no-parallel --no-configuration-cache

@@ -145,22 +145,22 @@ jobs:
              build-ubuntu-arm-installer-deb ]
     steps:
       - name: Download Windows x64 installer (MSI)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: windows-installer-msi
 
       - name: Download Windows x64 installer (Portable)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: windows-installer-portable
 
       - name: Download Ubuntu x64 installer (DEB)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-installer-deb
 
       - name: Download Ubuntu ARM installer (DEB)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-arm-installer-deb
 

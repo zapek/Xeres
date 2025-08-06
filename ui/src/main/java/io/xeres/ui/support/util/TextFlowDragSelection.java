@@ -61,6 +61,11 @@ public class TextFlowDragSelection
 			throw new IllegalArgumentException("Event must be a MOUSE_DRAGGED event");
 		}
 
+		if (firstHitInfo == null)
+		{
+			throw new IllegalStateException("press() wasn't called prior to drag()");
+		}
+
 		textSelectRange = new TextSelectRange(firstHitInfo, textFlow.hitTest(new Point2D(e.getX(), e.getY())));
 		if (textSelectRange.isSelected())
 		{
@@ -91,6 +96,11 @@ public class TextFlowDragSelection
 
 	public void copy()
 	{
+		if (textSelectRange == null || !textSelectRange.isSelected())
+		{
+			return;
+		}
+
 		var text = TextFlowUtils.getTextFlowAsText(textFlow, textSelectRange.getStart(), textSelectRange.getEnd() + 1, Options.NONE);
 		if (StringUtils.isNotBlank(text))
 		{

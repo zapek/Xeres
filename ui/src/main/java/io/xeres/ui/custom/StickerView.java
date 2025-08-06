@@ -81,7 +81,7 @@ public class StickerView extends VBox
 
 	public void loadStickers(Path localPath, Path userPath)
 	{
-		var screen = ImageUtils.getScreenOfNode(tabPane);
+		var screen = ImageUtils.getScreen(tabPane);
 		Task<List<StickerCollectionEntry>> task = new Task<>()
 		{
 			@Override
@@ -175,7 +175,7 @@ public class StickerView extends VBox
 
 		if (tab.getContent() == null)
 		{
-			var screen = ImageUtils.getScreenOfNode(tabPane);
+			var screen = ImageUtils.getScreen(tabPane);
 			var path = (Path) tab.getUserData();
 			var textFlow = new TextFlow();
 			textFlow.setPrefWidth(600.0);
@@ -245,6 +245,7 @@ public class StickerView extends VBox
 		}
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private static Image openImage(Path path, int width, int height)
 	{
 		try (var inputStream = new FileInputStream(path.toFile()))

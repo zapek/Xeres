@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -84,12 +84,12 @@ public final class AEAD
 	{
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(nonce);
+		Objects.requireNonNull(plainText);
+		Objects.requireNonNull(additionalAuthenticatedData);
 		if (nonce.length != 12)
 		{
 			throw new IllegalArgumentException("Nonce must be 12 bytes");
 		}
-		Objects.requireNonNull(plainText);
-		Objects.requireNonNull(additionalAuthenticatedData);
 
 		try
 		{
@@ -119,12 +119,12 @@ public final class AEAD
 	{
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(nonce);
+		Objects.requireNonNull(cipherText);
+		Objects.requireNonNull(additionalAuthenticatedData);
 		if (nonce.length != 12)
 		{
 			throw new IllegalArgumentException("Nonce must be 12 bytes");
 		}
-		Objects.requireNonNull(cipherText);
-		Objects.requireNonNull(additionalAuthenticatedData);
 
 		try
 		{
@@ -155,12 +155,12 @@ public final class AEAD
 	{
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(nonce);
+		Objects.requireNonNull(plainText);
+		Objects.requireNonNull(additionalAuthenticatedData);
 		if (nonce.length != 12)
 		{
 			throw new IllegalArgumentException("Nonce must be 12 bytes");
 		}
-		Objects.requireNonNull(plainText);
-		Objects.requireNonNull(additionalAuthenticatedData);
 
 		try
 		{
@@ -201,12 +201,12 @@ public final class AEAD
 	{
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(nonce);
+		Objects.requireNonNull(cipherText);
+		Objects.requireNonNull(additionalAuthenticatedData);
 		if (nonce.length != 12)
 		{
 			throw new IllegalArgumentException("Nonce must be 12 bytes");
 		}
-		Objects.requireNonNull(cipherText);
-		Objects.requireNonNull(additionalAuthenticatedData);
 
 		var encryptedData = new byte[cipherText.length - TAG_SIZE];
 		var tag = new byte[TAG_SIZE];

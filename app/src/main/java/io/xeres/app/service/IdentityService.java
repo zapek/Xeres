@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -109,7 +109,7 @@ public class IdentityService
 	@Transactional(propagation = Propagation.NEVER)
 	public byte[] signData(IdentityGroupItem identityGroupItem, byte[] data)
 	{
-		return RSA.sign(data, identityGroupItem.getAdminPrivateKey());
+		return RSA.sign(identityGroupItem.getAdminPrivateKey(), data);
 	}
 
 	@Transactional

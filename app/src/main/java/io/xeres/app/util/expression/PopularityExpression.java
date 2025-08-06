@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,15 +35,21 @@ public class PopularityExpression extends RelationalExpression
 	}
 
 	@Override
+	boolean isEnabled()
+	{
+		return false;
+	}
+
+	@Override
 	String getType()
 	{
 		return "POPULARITY";
 	}
 
 	@Override
-	String getFieldName()
+	String getDatabaseColumnName()
 	{
-		return null;
+		return "";
 	}
 
 	@Override

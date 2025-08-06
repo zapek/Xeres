@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -61,20 +61,20 @@ public class TrackingFileVisitor implements FileVisitor<Path>
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
 	{
-		return null;
+		return FileVisitResult.CONTINUE;
 	}
 
 	@Override
 	public FileVisitResult visitFileFailed(Path file, IOException exc)
 	{
-		return null;
+		return FileVisitResult.CONTINUE;
 	}
 
 	@Override
 	public FileVisitResult postVisitDirectory(Path dir, IOException exc)
 	{
 		directories.removeLast();
-		return null;
+		return FileVisitResult.CONTINUE;
 	}
 
 	public File getCurrentDirectory()

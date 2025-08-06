@@ -22,10 +22,8 @@ package io.xeres.common.rest.config;
 import jakarta.validation.constraints.NotNull;
 
 public record VerifyUpdateRequest(
-		@NotNull
-		String filePath,
-		@NotNull
-		byte[] signature
+		@NotNull String filePath,
+		byte @NotNull [] signature
 )
 {
 }

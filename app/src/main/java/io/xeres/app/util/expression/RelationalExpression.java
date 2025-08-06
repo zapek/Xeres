@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,7 +26,7 @@ import jakarta.persistence.criteria.Root;
 
 import java.util.List;
 
-public abstract class RelationalExpression implements Expression
+abstract class RelationalExpression implements Expression
 {
 	public enum Operator
 	{
@@ -38,11 +38,21 @@ public abstract class RelationalExpression implements Expression
 		IN_RANGE
 	}
 
+	boolean isEnabled()
+	{
+		return true;
+	}
+
 	abstract int getValue(File file);
 
 	abstract String getType();
 
-	abstract String getFieldName();
+	/**
+	 * Gets the column name from the 'FILE' table in the database.
+	 *
+	 * @return the column name in lowercase. Null if the relation must be ignored.
+	 */
+	abstract String getDatabaseColumnName();
 
 	protected final Operator operator;
 	protected final int lowerValue;
@@ -75,7 +85,7 @@ public abstract class RelationalExpression implements Expression
 	@Override
 	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
 	{
-		if (getFieldName() == null)
+		if (!isEnabled())
 		{
 			return cb.isFalse(cb.literal(true));
 		}
@@ -83,12 +93,12 @@ public abstract class RelationalExpression implements Expression
 		// Remember: it's the condition that is checked to be true, i.e. greater than means the expression value is greater than the value of the file
 		return switch (operator)
 		{
-			case EQUALS -> cb.equal(root.get(getFieldName()), lowerValue);
-			case GREATER_THAN_OR_EQUALS -> cb.lessThanOrEqualTo(root.get(getFieldName()), lowerValue);
-			case GREATER_THAN -> cb.lessThan(root.get(getFieldName()), lowerValue);
-			case LESSER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getFieldName()), lowerValue);
-			case LESSER_THAN -> cb.greaterThan(root.get(getFieldName()), lowerValue);
-			case IN_RANGE -> cb.between(root.get(getFieldName()), lowerValue, higherValue);
+			case EQUALS -> cb.equal(root.get(getDatabaseColumnName()), lowerValue);
+			case GREATER_THAN_OR_EQUALS -> cb.lessThanOrEqualTo(root.get(getDatabaseColumnName()), lowerValue);
+			case GREATER_THAN -> cb.lessThan(root.get(getDatabaseColumnName()), lowerValue);
+			case LESSER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getDatabaseColumnName()), lowerValue);
+			case LESSER_THAN -> cb.greaterThan(root.get(getDatabaseColumnName()), lowerValue);
+			case IN_RANGE -> cb.between(root.get(getDatabaseColumnName()), lowerValue, higherValue);
 		};
 	}
 

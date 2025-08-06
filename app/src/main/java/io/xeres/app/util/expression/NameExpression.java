@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,7 +38,7 @@ public class NameExpression extends StringExpression
 	}
 
 	@Override
-	String getFieldName()
+	String getDatabaseColumnName()
 	{
 		return "name";
 	}

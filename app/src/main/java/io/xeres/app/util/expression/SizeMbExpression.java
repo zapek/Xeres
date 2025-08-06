@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -44,7 +44,7 @@ public class SizeMbExpression extends RelationalExpression
 	}
 
 	@Override
-	String getFieldName()
+	String getDatabaseColumnName()
 	{
 		return "size";
 	}
@@ -84,11 +84,11 @@ public class SizeMbExpression extends RelationalExpression
 		// Remember: it's the condition that is checked to be true, i.e. greater than means the expression value is greater than the value of the file
 		return switch (operator)
 		{
-			case EQUALS, IN_RANGE -> cb.between(root.get(getFieldName()), lower, higher);
-			case GREATER_THAN_OR_EQUALS -> cb.lessThanOrEqualTo(root.get(getFieldName()), lower);
-			case GREATER_THAN -> cb.lessThan(root.get(getFieldName()), lower);
-			case LESSER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getFieldName()), lower);
-			case LESSER_THAN -> cb.greaterThan(root.get(getFieldName()), lower);
+			case EQUALS, IN_RANGE -> cb.between(root.get(getDatabaseColumnName()), lower, higher);
+			case GREATER_THAN_OR_EQUALS -> cb.lessThanOrEqualTo(root.get(getDatabaseColumnName()), lower);
+			case GREATER_THAN -> cb.lessThan(root.get(getDatabaseColumnName()), lower);
+			case LESSER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getDatabaseColumnName()), lower);
+			case LESSER_THAN -> cb.greaterThan(root.get(getDatabaseColumnName()), lower);
 		};
 	}
 

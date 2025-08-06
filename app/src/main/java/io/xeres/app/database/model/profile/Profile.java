@@ -53,7 +53,6 @@ public class Profile
 	@Size(min = NAME_LENGTH_MIN, max = NAME_LENGTH_MAX)
 	private String name;
 
-	@NotNull
 	private long pgpIdentifier;
 
 	private Instant created;

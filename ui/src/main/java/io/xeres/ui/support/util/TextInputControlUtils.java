@@ -54,6 +54,7 @@ public final class TextInputControlUtils
 	 *
 	 * @param textInputControl the text input control
 	 * @param locationClient   the location client, if null, then there will be no "Paste own ID" menu item
+	 * @param pasteAction the action on paste, if null, there will be no action performed
 	 */
 	public static void addEnhancedInputContextMenu(TextInputControl textInputControl, LocationClient locationClient, Consumer<TextInputControl> pasteAction)
 	{

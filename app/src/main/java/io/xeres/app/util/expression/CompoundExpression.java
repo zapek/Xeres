@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -95,9 +95,9 @@ public class CompoundExpression implements Expression
 	{
 		return switch (operator)
 		{
-			case AND -> "(" + left.toString() + ") AND (" + right.toString() + ")";
-			case OR -> "(" + left.toString() + ") OR (" + right.toString() + ")";
-			case XOR -> "(" + left.toString() + ") XOR (" + right.toString() + ")";
+			case AND -> "(" + left + ") AND (" + right + ")";
+			case OR -> "(" + left + ") OR (" + right + ")";
+			case XOR -> "(" + left + ") XOR (" + right + ")";
 		};
 	}
 }

@@ -95,7 +95,7 @@ public final class UiUtils
 	 * {@code doOnError} in the WebClients. Will not block.
 	 *
 	 * @param t      the throwable
-	 * @param action the action to perform after the alert has been dismissed
+	 * @param action the action to perform after the alert has been dismissed, null if no action
 	 */
 	public static void showAlertError(Throwable t, Runnable action)
 	{
@@ -110,7 +110,7 @@ public final class UiUtils
 				if (problem != null)
 				{
 					title = problem.getTitle();
-					detail = problem.getDetail();
+					detail = StringUtils.defaultString(problem.getDetail());
 					var properties = problem.getProperties();
 					if (properties != null)
 					{
@@ -379,17 +379,14 @@ public final class UiUtils
 			return;
 		}
 
-		if (rootNode instanceof TabPane tabPane)
+		switch (rootNode)
 		{
-			tabPane.getTabs().forEach(tab -> linkify(tab.getContent(), hostServices));
-		}
-		else if (rootNode instanceof ScrollPane scrollPane)
-		{
-			linkify(scrollPane.getContent(), hostServices);
-		}
-		else if (rootNode instanceof Parent parent)
-		{
-			parent.getChildrenUnmodifiable().forEach(node -> linkify(node, hostServices));
+			case TabPane tabPane -> tabPane.getTabs().forEach(tab -> linkify(tab.getContent(), hostServices));
+			case ScrollPane scrollPane -> linkify(scrollPane.getContent(), hostServices);
+			case Parent parent -> parent.getChildrenUnmodifiable().forEach(node -> linkify(node, hostServices));
+			default ->
+			{
+			}
 		}
 
 		if (rootNode instanceof DisclosedHyperlink disclosedHyperlink)

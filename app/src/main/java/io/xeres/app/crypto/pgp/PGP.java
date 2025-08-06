@@ -342,6 +342,10 @@ public final class PGP
 				}
 			}
 		}
+		if (publicKey == null)
+		{
+			throw new IllegalStateException("Release signing public key not found");
+		}
 		return publicKey;
 	}
 

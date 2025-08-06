@@ -78,7 +78,7 @@ class RSATest
 	{
 		byte[] data = {1, 2, 3};
 
-		var signature = RSA.sign(data, keyPair.getPrivate());
+		var signature = RSA.sign(keyPair.getPrivate(), data);
 
 		assertNotNull(signature);
 
@@ -92,7 +92,7 @@ class RSATest
 	{
 		byte[] data = {1, 2, 3};
 
-		var signature = RSA.sign(data, keyPair.getPrivate());
+		var signature = RSA.sign(keyPair.getPrivate(), data);
 
 		assertNotNull(signature);
 
@@ -131,7 +131,7 @@ class RSATest
 			}
 		};
 
-		assertThrows(IllegalArgumentException.class, () -> RSA.sign(data, privateKey));
+		assertThrows(IllegalArgumentException.class, () -> RSA.sign(privateKey, data));
 	}
 
 	@Test

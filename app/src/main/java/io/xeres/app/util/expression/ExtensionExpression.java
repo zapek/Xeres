@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class ExtensionExpression extends StringExpression
 {
-	public ExtensionExpression(Operator operator, String template, boolean caseSensitive)
+	public ExtensionExpression(@SuppressWarnings("unused") Operator operator, String template, boolean caseSensitive)
 	{
 		super(Operator.CONTAINS_ANY, template, caseSensitive);
 	}
@@ -46,7 +46,7 @@ public class ExtensionExpression extends StringExpression
 	}
 
 	@Override
-	String getFieldName()
+	String getDatabaseColumnName()
 	{
 		return "name";
 	}
@@ -54,17 +54,13 @@ public class ExtensionExpression extends StringExpression
 	@Override
 	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
 	{
-		if (getFieldName() == null)
-		{
-			return cb.isFalse(cb.literal(true));
-		}
 		return contains(cb, root);
 	}
 
 	private Predicate contains(CriteriaBuilder cb, Root<File> root)
 	{
 		List<Predicate> predicates = new ArrayList<>();
-		words.forEach(s -> predicates.add(like(cb, root.get(getFieldName()), "." + s)));
+		words.forEach(s -> predicates.add(like(cb, root.get(getDatabaseColumnName()), "." + s)));
 		var array = predicates.toArray(new Predicate[0]);
 		return cb.or(array);
 	}

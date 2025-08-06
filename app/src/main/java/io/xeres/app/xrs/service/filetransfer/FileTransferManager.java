@@ -362,6 +362,7 @@ class FileTransferManager implements Runnable
 		log.debug("Received data request from {}, hash: {}, offset: {}, chunkSize: {}", location, hash, offset, chunkSize);
 		FileTransferAgent upload;
 
+		//noinspection StatementWithEmptyBody
 		if (location.equals(ownLocation))
 		{
 			// Own requests must be passed to seeders

@@ -328,7 +328,8 @@ class ContentVisitor extends AbstractVisitor
 				}
 			}
 		}
-		else if (html.endsWith("</a>"))
+		else //noinspection StatementWithEmptyBody
+			if (html.endsWith("</a>"))
 		{
 			// Ignore closing tags
 		}

@@ -68,10 +68,6 @@ public final class ChatCommand
 	 */
 	public static String parseCommands(String s)
 	{
-		if (s == null)
-		{
-			return s;
-		}
 		if (StringUtils.isEmpty(s))
 		{
 			return s;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -43,9 +43,8 @@ public record LocationDTO(
 		@JsonProperty("name")
 		String name,
 
-		@NotNull(message = "Location identifier is mandatory")
 		@Size(min = LocationIdentifier.LENGTH, max = LocationIdentifier.LENGTH)
-		byte[] locationIdentifier,
+		byte @NotNull(message = "Location identifier is mandatory") [] locationIdentifier,
 
 		String hostname,
 

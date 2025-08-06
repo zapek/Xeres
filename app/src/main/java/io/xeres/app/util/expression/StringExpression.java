@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,11 +38,21 @@ public abstract class StringExpression implements Expression
 		EQUALS
 	}
 
+	boolean isEnabled()
+	{
+		return true;
+	}
+
 	abstract String getValue(File file);
 
 	abstract String getType();
 
-	abstract String getFieldName();
+	/**
+	 * Gets the column name from the 'FILE' table in the database.
+	 *
+	 * @return the column name in lowercase. Null if the relation must be ignored.
+	 */
+	abstract String getDatabaseColumnName();
 
 	private final Operator operator;
 	protected final List<String> words;
@@ -76,7 +86,7 @@ public abstract class StringExpression implements Expression
 	@Override
 	public Predicate toPredicate(CriteriaBuilder cb, Root<File> root)
 	{
-		if (getFieldName() == null)
+		if (!isEnabled())
 		{
 			return cb.isFalse(cb.literal(true));
 		}
@@ -92,18 +102,18 @@ public abstract class StringExpression implements Expression
 	{
 		if (caseSensitive)
 		{
-			return cb.equal(root.get(getFieldName()), String.join(" ", words));
+			return cb.equal(root.get(getDatabaseColumnName()), String.join(" ", words));
 		}
 		else
 		{
-			return cb.equal(cb.lower(root.get(getFieldName())), String.join(" ", words).toLowerCase(Locale.ROOT));
+			return cb.equal(cb.lower(root.get(getDatabaseColumnName())), String.join(" ", words).toLowerCase(Locale.ROOT));
 		}
 	}
 
 	private Predicate contains(CriteriaBuilder cb, Root<File> root, boolean all)
 	{
 		List<Predicate> predicates = new ArrayList<>();
-		words.forEach(s -> predicates.add(like(cb, root.get(getFieldName()), s)));
+		words.forEach(s -> predicates.add(like(cb, root.get(getDatabaseColumnName()), s)));
 		var array = predicates.toArray(new Predicate[0]);
 		return all ? cb.and(array) : cb.or(array);
 	}

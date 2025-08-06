@@ -35,7 +35,7 @@ import java.util.ResourceBundle;
 /**
  * Special Hyperlink-like class that offers the following benefits:
  * <ul>
- * <li>detects malicious links and warns about them (for example, a link that has a description of https://foo.com but really goes to https://bar.com
+ * <li>detects malicious links and warns about them (for example, a link that has a description of <a href="https://foo.com">https://foo.bar</a> but really goes to <a href="https://bar.com">https://bar.com</a>
  * <li>can be reflowed when put on a TextFlow
  * </ul>
  * On the other hand, it doesn't support the "visited" feature of normal hyperlinks.
@@ -47,9 +47,10 @@ public class DisclosedHyperlink extends Text
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
+	@SuppressWarnings("unused") // Used by FXML
 	public DisclosedHyperlink()
 	{
-		this("", null);
+		this("", "");
 	}
 
 	public DisclosedHyperlink(String text, String uri)

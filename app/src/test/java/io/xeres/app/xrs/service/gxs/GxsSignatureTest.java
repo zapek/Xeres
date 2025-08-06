@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -47,7 +47,7 @@ class GxsSignatureTest
 
 		var data = serializeItemForSignature(gxsIdGroupItem);
 
-		var signature = RSA.sign(data, gxsIdGroupItem.getAdminPrivateKey());
+		var signature = RSA.sign(gxsIdGroupItem.getAdminPrivateKey(), data);
 		gxsIdGroupItem.setAdminSignature(signature);
 
 		var rawItem = serializeItem(gxsIdGroupItem);

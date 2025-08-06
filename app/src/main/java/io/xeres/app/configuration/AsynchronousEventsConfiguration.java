@@ -81,6 +81,7 @@ public class AsynchronousEventsConfiguration
 		{
 			return true;
 		}
+		//noinspection RedundantIfStatement
 		if (event instanceof PayloadApplicationEvent && ((PayloadApplicationEvent<?>) event).getPayload() instanceof SynchronousEvent)
 		{
 			return true;

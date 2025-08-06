@@ -343,7 +343,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 
-		PublicKey signerPublicKey = null;
+		PublicKey signerPublicKey;
 
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
@@ -755,7 +755,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 			var publicKeyNum = ((DHPublicKey) keyPair.getPublic()).getY();
 
-			var signature = new Signature(ownIdentity.getGxsId(), RSA.sign(BigIntegers.asUnsignedByteArray(publicKeyNum), ownIdentity.getAdminPrivateKey()));
+			var signature = new Signature(ownIdentity.getGxsId(), RSA.sign(ownIdentity.getAdminPrivateKey(), BigIntegers.asUnsignedByteArray(publicKeyNum)));
 
 			var item = new GxsTunnelDhPublicKeyItem(publicKeyNum, signature, signerSecurityKey);
 			var serializedItem = ItemUtils.serializeItem(item, this);

@@ -24,7 +24,7 @@ import io.xeres.app.database.model.location.Location;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileLeecher extends FilePeer
+class FileLeecher extends FilePeer
 {
 	private final List<SliceSender> sliceSenders = new ArrayList<>(2);
 

@@ -290,7 +290,7 @@ public final class ImageUtils
 	 * @param node the node for which to determine the associated screen, can be null
 	 * @return the screen where the node is located, or the primary screen if the node is null or not associated with a specific screen
 	 */
-	public static Screen getScreenOfNode(Node node)
+	public static Screen getScreen(Node node)
 	{
 		if (node == null)
 		{

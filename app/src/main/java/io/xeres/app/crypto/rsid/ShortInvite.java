@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -115,7 +115,7 @@ class ShortInvite extends RSId
 			{
 				throw new IllegalArgumentException("Missing checksum packet");
 			}
-			else if (Boolean.FALSE.equals(checksumPassed))
+			else if (!checksumPassed)
 			{
 				throw new IllegalArgumentException("Wrong checksum");
 			}

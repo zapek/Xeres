@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,15 +32,21 @@ public class HashExpression extends StringExpression
 	}
 
 	@Override
+	boolean isEnabled()
+	{
+		return false; // Criteria API doesn't seem to support byte arrays so we just fail for now
+	}
+
+	@Override
 	String getType()
 	{
 		return "HASH";
 	}
 
 	@Override
-	String getFieldName()
+	String getDatabaseColumnName()
 	{
-		return null; // Criteria API doesn't seem to support byte arrays so we just fail for now
+		return "hash";
 	}
 
 	@Override

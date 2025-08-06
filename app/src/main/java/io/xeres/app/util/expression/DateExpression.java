@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -45,7 +45,7 @@ public class DateExpression extends RelationalExpression
 	}
 
 	@Override
-	String getFieldName()
+	String getDatabaseColumnName()
 	{
 		return "modified";
 	}
@@ -56,12 +56,12 @@ public class DateExpression extends RelationalExpression
 		// Remember: it's the condition that is checked to be true, i.e. greater than means the expression value is greater than the value of the file
 		return switch (operator)
 		{
-			case EQUALS -> cb.equal(root.get(getFieldName()), Instant.ofEpochSecond(lowerValue));
-			case GREATER_THAN_OR_EQUALS -> cb.lessThanOrEqualTo(root.get(getFieldName()), Instant.ofEpochSecond(lowerValue));
-			case GREATER_THAN -> cb.lessThan(root.get(getFieldName()), Instant.ofEpochSecond(lowerValue));
-			case LESSER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getFieldName()), Instant.ofEpochSecond(lowerValue));
-			case LESSER_THAN -> cb.greaterThan(root.get(getFieldName()), Instant.ofEpochSecond(lowerValue));
-			case IN_RANGE -> cb.between(root.get(getFieldName()), Instant.ofEpochSecond(lowerValue), Instant.ofEpochSecond(higherValue));
+			case EQUALS -> cb.equal(root.get(getDatabaseColumnName()), Instant.ofEpochSecond(lowerValue));
+			case GREATER_THAN_OR_EQUALS -> cb.lessThanOrEqualTo(root.get(getDatabaseColumnName()), Instant.ofEpochSecond(lowerValue));
+			case GREATER_THAN -> cb.lessThan(root.get(getDatabaseColumnName()), Instant.ofEpochSecond(lowerValue));
+			case LESSER_THAN_OR_EQUALS -> cb.greaterThanOrEqualTo(root.get(getDatabaseColumnName()), Instant.ofEpochSecond(lowerValue));
+			case LESSER_THAN -> cb.greaterThan(root.get(getDatabaseColumnName()), Instant.ofEpochSecond(lowerValue));
+			case IN_RANGE -> cb.between(root.get(getDatabaseColumnName()), Instant.ofEpochSecond(lowerValue), Instant.ofEpochSecond(higherValue));
 		};
 	}
 

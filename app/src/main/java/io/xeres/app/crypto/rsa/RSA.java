@@ -105,11 +105,11 @@ public final class RSA
 	/**
 	 * Signs some data.
 	 *
-	 * @param data       the data to sign
 	 * @param privateKey the RSA private key
+	 * @param data       the data to sign
 	 * @return the signature
 	 */
-	public static byte[] sign(byte[] data, PrivateKey privateKey)
+	public static byte[] sign(PrivateKey privateKey, byte[] data)
 	{
 		Objects.requireNonNull(privateKey);
 		Objects.requireNonNull(data);

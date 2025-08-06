@@ -484,7 +484,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			@SuppressWarnings("unchecked")
 			var gxsIdsMap = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
 					.collect(toMap(GxsSyncGroupItem::getGroupId, gxsSyncGroupItem -> Instant.ofEpochSecond(gxsSyncGroupItem.getPublishTimestamp())));
-			log.debug("{} has the following group ids (new or updates) for us (total: {}): {} ...", peerConnection, gxsIdsMap.keySet().size(), gxsIdsMap.keySet().stream().limit(10).toList());
+			log.debug("{} has the following group ids (new or updates) for us (total: {}): {} ...", peerConnection, gxsIdsMap.size(), gxsIdsMap.keySet().stream().limit(10).toList());
 			requestGxsGroups(peerConnection, onAvailableGroupListResponse(gxsIdsMap));
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_GROUP_LIST_REQUEST))
@@ -916,14 +916,14 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 
 		var data = ItemUtils.serializeItemForSignature(gxsGroupItem, this);
-		var signature = RSA.sign(data, gxsGroupItem.getAdminPrivateKey());
+		var signature = RSA.sign(gxsGroupItem.getAdminPrivateKey(), data);
 		gxsGroupItem.setAdminSignature(signature);
 
 		if (gxsGroupItem.getAuthor() != null)
 		{
 			var author = identityManager.getGxsGroup(gxsGroupItem.getAuthor());
 			Objects.requireNonNull(author, "Couldn't get own identity. Shouldn't happen (tm)");
-			var authorSignature = RSA.sign(data, author.getAdminPrivateKey());
+			var authorSignature = RSA.sign(author.getAdminPrivateKey(), data);
 			gxsGroupItem.setAuthorSignature(authorSignature);
 		}
 	}
@@ -998,7 +998,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		private void signMessage(GxsMessageItem gxsMessageItem, byte[] data, PrivateKey privateKey)
 		{
 			// TODO: needs to handle publish sign (I think it's for the circles)
-			var signature = RSA.sign(data, privateKey);
+			var signature = RSA.sign(privateKey, data);
 			gxsMessageItem.setAuthorSignature(signature);
 			// XXX: publish signature is missing (I think it's for the circles)
 		}

@@ -29,6 +29,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 /**
  * AES 256 CBC encryption.
@@ -75,12 +76,16 @@ public final class AES
 
 	private static byte[] process(int opMode, byte[] key, byte[] iv, byte[] data)
 	{
-		if (key == null || key.length != 16)
+		Objects.requireNonNull(key);
+		Objects.requireNonNull(iv);
+		Objects.requireNonNull(data);
+
+		if (key.length != 16)
 		{
 			throw new IllegalArgumentException("Invalid key");
 		}
 
-		if (iv == null || iv.length != IV_SIZE)
+		if (iv.length != IV_SIZE)
 		{
 			throw new IllegalArgumentException("Invalid salt");
 		}
@@ -114,6 +119,7 @@ public final class AES
 	 * OpenSSL equivalent, by Ola Bini, public domain. The source
 	 * is <a href="http://olabini.com/blog/tag/evp_bytestokey/">here</a>.
 	 */
+	@SuppressWarnings("SameParameterValue")
 	private static byte[][] EVP_BytesToKey(int keyLength, int ivLength, MessageDigest md, byte[] salt, byte[] data, int count)
 	{
 		var key = new byte[keyLength];
@@ -134,10 +140,7 @@ public final class AES
 			}
 
 			md.update(data);
-			if (salt != null)
-			{
-				md.update(salt, 0, 8);
-			}
+			md.update(salt, 0, 8);
 
 			mdBuf = md.digest();
 

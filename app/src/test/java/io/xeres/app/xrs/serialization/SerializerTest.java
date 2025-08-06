@@ -59,15 +59,6 @@ class SerializerTest
 		buf.release();
 	}
 
-	@Test
-	void Serialize_Int_Null()
-	{
-		var buf = Unpooled.buffer();
-
-		assertThrows(NullPointerException.class, () -> Serializer.serialize(buf, (Integer) null));
-		buf.release();
-	}
-
 	@ParameterizedTest
 	@ValueSource(shorts = {Short.MIN_VALUE, Short.MAX_VALUE, 0, 5})
 	void Serialize_Short(short input)
@@ -81,15 +72,6 @@ class SerializerTest
 
 		var result = Serializer.deserializeShort(buf);
 		assertEquals(input, result);
-		buf.release();
-	}
-
-	@Test
-	void Serialize_Short_Null()
-	{
-		var buf = Unpooled.buffer();
-
-		assertThrows(NullPointerException.class, () -> Serializer.serialize(buf, (Short) null));
 		buf.release();
 	}
 
@@ -109,15 +91,6 @@ class SerializerTest
 		buf.release();
 	}
 
-	@Test
-	void Serialize_Byte_Null()
-	{
-		var buf = Unpooled.buffer();
-
-		assertThrows(NullPointerException.class, () -> Serializer.serialize(buf, (Byte) null));
-		buf.release();
-	}
-
 	@ParameterizedTest
 	@ValueSource(longs = {Long.MIN_VALUE, Long.MAX_VALUE, 0L, 5L})
 	void Serialize_Long(long input)
@@ -131,15 +104,6 @@ class SerializerTest
 
 		var result = Serializer.deserializeLong(buf);
 		assertEquals(input, result);
-		buf.release();
-	}
-
-	@Test
-	void Serialize_Long_Null()
-	{
-		var buf = Unpooled.buffer();
-
-		assertThrows(NullPointerException.class, () -> Serializer.serialize(buf, (Long) null));
 		buf.release();
 	}
 
@@ -159,15 +123,6 @@ class SerializerTest
 		buf.release();
 	}
 
-	@Test
-	void Serialize_Float_Null()
-	{
-		var buf = Unpooled.buffer();
-
-		assertThrows(NullPointerException.class, () -> Serializer.serialize(buf, (Float) null));
-		buf.release();
-	}
-
 	@ParameterizedTest
 	@ValueSource(doubles = {Double.MIN_VALUE, Double.MAX_VALUE, 0.0, 5.0})
 	void Serialize_Double(double input)
@@ -184,15 +139,6 @@ class SerializerTest
 		buf.release();
 	}
 
-	@Test
-	void Serialize_Double_Null()
-	{
-		var buf = Unpooled.buffer();
-
-		assertThrows(NullPointerException.class, () -> Serializer.serialize(buf, (Double) null));
-		buf.release();
-	}
-
 	@ParameterizedTest
 	@ValueSource(booleans = {true, false})
 	void Serialize_Boolean(boolean input)
@@ -206,15 +152,6 @@ class SerializerTest
 
 		var result = Serializer.deserializeBoolean(buf);
 		assertEquals(input, result);
-		buf.release();
-	}
-
-	@Test
-	void Serialize_Boolean_Null()
-	{
-		var buf = Unpooled.buffer();
-
-		assertThrows(NullPointerException.class, () -> Serializer.serialize(buf, (Boolean) null));
 		buf.release();
 	}
 

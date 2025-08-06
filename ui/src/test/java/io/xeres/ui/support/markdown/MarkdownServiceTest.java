@@ -79,8 +79,8 @@ class MarkdownServiceTest extends FXTest
 
 				Line3
 				Line4
-								
-								
+				
+				
 				Line 5
 				""";
 
@@ -91,7 +91,7 @@ class MarkdownServiceTest extends FXTest
 
 				Line3
 				Line4
-								
+				
 				Line 5""";
 
 		assertEquals(wanted, markdownService.parse(text, Set.of(), null).stream()
@@ -129,14 +129,14 @@ class MarkdownServiceTest extends FXTest
 		var text = """
 				> Line1
 				> Line2
-								
+				
 				Line3
 				""";
 
 		var wanted = """
 				> Line1
 				> Line2
-								
+				
 				Line3""";
 
 		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()

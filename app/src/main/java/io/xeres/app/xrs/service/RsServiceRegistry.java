@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -83,7 +83,7 @@ public class RsServiceRegistry
 				var serviceClass = (Class<? extends RsService>) Class.forName(bean.getBeanClassName());
 				var serviceName = serviceClass.getSimpleName();
 				var propertyName = "xrs.service." + serviceName.substring(0, serviceName.length() - RS_SERVICE_CLASS_SUFFIX.length()).toLowerCase(Locale.ROOT) + ".enabled";
-				if (Boolean.TRUE.equals(environment.getProperty(propertyName, Boolean.class, false)))
+				if (environment.getProperty(propertyName, Boolean.class, false))
 				{
 					enabledServiceClasses.add(serviceName);
 				}
@@ -113,6 +113,7 @@ public class RsServiceRegistry
 
 				var item = (Item) itemClass.getConstructor().newInstance();
 
+				//noinspection StatementWithEmptyBody
 				if (GxsGroupItem.class.isAssignableFrom(itemClass) || GxsMessageItem.class.isAssignableFrom(itemClass))
 				{
 					// For GxsGroup and GxsMessage items, we ignore them because they can only be received within transactions

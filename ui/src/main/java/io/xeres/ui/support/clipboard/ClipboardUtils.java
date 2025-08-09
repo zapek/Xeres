@@ -104,7 +104,7 @@ public final class ClipboardUtils
 		}
 		catch (HeadlessException | IllegalStateException e)
 		{
-			log.warn("Clipboard not available: {}", e.getMessage());
+			log.warn("Clipboard not available to copy image: {}", e.getMessage());
 		}
 	}
 
@@ -145,7 +145,7 @@ public final class ClipboardUtils
 		}
 		catch (HeadlessException | IllegalStateException e)
 		{
-			log.warn("Clipboard not available: {}", e.getMessage());
+			log.warn("Clipboard not available to copy text: {}", e.getMessage());
 		}
 	}
 
@@ -157,7 +157,7 @@ public final class ClipboardUtils
 		}
 		catch (HeadlessException | IllegalStateException e)
 		{
-			log.warn("Clipboard not available: {}", e.getMessage());
+			log.warn("Clipboard not available to get transferable: {}", e.getMessage());
 			return null;
 		}
 	}

@@ -62,4 +62,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar --no-parallel --no-configuration-cache
+        run: ./gradlew sonar --no-parallel --no-configuration-cache # The 2 flags make sonar work with Gradle 9. Go figure...

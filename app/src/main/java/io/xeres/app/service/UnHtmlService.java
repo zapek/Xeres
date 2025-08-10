@@ -30,19 +30,18 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Safelist;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class UnHtmlService
 {
-	private static final Logger log = LoggerFactory.getLogger(UnHtmlService.class);
+	private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
 
 	private final MarkdownRenderer markdownRenderer;
 
@@ -165,21 +164,14 @@ public class UnHtmlService
 				if (element.childrenSize() == 1 && "code".equals(element.child(0).tagName().toLowerCase(Locale.ROOT)))
 				{
 					String classNames = element.child(0).className();
-					if (!classNames.isEmpty())
+					if (!classNames.isEmpty()) // This is always empty. JSoup bug?
 					{
-						String language = classNames.split("\\s+")[0];
+						String language = WHITESPACE_PATTERN.split(classNames)[0];
 						codeBlock.setInfo(language);
 					}
+					setFencedCodeBlockLiteralIfFound(codeBlock, element.child(0));
 				}
-				if (element.childNodeSize() == 1)
-				{
-					var node = element.childNode(0);
-					if (node instanceof TextNode textNode)
-					{
-						// FencedCodeBlock doesn't handle children
-						codeBlock.setLiteral(textNode.text());
-					}
-				}
+				setFencedCodeBlockLiteralIfFound(codeBlock, element);
 				yield codeBlock;
 			}
 			case "a" ->
@@ -200,6 +192,19 @@ public class UnHtmlService
 			}
 			default -> null; // For unsupported elements, return null to skip but still process children
 		};
+	}
+
+	private static void setFencedCodeBlockLiteralIfFound(FencedCodeBlock codeBlock, Element element)
+	{
+		if (element.childNodeSize() == 1)
+		{
+			var node = element.childNode(0);
+			if (node instanceof TextNode textNode)
+			{
+				// FencedCodeBlock doesn't handle children
+				codeBlock.setLiteral(textNode.text());
+			}
+		}
 	}
 
 	private static Heading createHeading(int level)

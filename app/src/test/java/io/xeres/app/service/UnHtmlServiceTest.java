@@ -97,4 +97,23 @@ class UnHtmlServiceTest
 
 		assertEquals("`flatpak install --user https://dl.flathub.org/build-repo/189725/cc.retroshare.retroshare-gui.flatpakref`\n", result);
 	}
+
+	@Test
+	void CodeWithLanguage()
+	{
+		var result = unHtmlService.cleanupMessage("""
+				<body>
+					<pre>
+						<code class="language-java">System.out.println("hello world");</code>
+					</pre>
+				</body>
+				"""
+		);
+
+		assertEquals("""
+				```
+				System.out.println("hello world");
+				```
+				""", result);
+	}
 }

@@ -90,7 +90,7 @@ class SoapTest
 	}
 
 	@Test
-	void SendRequest_Error() throws IOException, ParserConfigurationException, SAXException, XPathException
+	void SendRequest_Error()
 	{
 		String key1 = "NewExternalPort", key2 = "NewProtocol";
 		String value1 = "1234", value2 = "TCP";

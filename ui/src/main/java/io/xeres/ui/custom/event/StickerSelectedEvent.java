@@ -32,7 +32,7 @@ public class StickerSelectedEvent extends Event
 
 	public static final EventType<StickerSelectedEvent> STICKER_SELECTED = new EventType<>(ANY, "STICKER_SELECTED");
 
-	private final Path path;
+	private final transient Path path;
 
 	public StickerSelectedEvent(Path path)
 	{

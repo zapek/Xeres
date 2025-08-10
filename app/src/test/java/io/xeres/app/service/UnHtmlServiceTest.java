@@ -116,4 +116,59 @@ class UnHtmlServiceTest
 				```
 				""", result);
 	}
+
+	// This one is not aesthetically important because it will translate to JavaFX nodes later and is
+	// never visible to the user.
+	@Test
+	void AllTags()
+	{
+		var result = unHtmlService.cleanupMessage("""
+				<body>
+					<h1>header1</h1>
+					<h2>header2</h2>
+					<h3>header3</h3>
+					<h4>header4</h4>
+					<h5>header5</h5>
+					<h6>header6</h6>
+					<p>Some paragraph</p>
+					<hr>
+					<blockquote>Someone said...</blockquote>
+					<ul>
+						<li>First item
+						<li>Second item
+					</ul>
+					<ol>
+						<li>First item
+						<li>Second item
+					</ol>
+					<i>italic</i>, <b>bold</b>, <del>strikethrough</del>, link <a href="https://xeres.io">here</a>
+				</body>
+				""");
+
+		assertEquals("""
+				# header1
+				
+				## header2
+				
+				### header3
+				
+				#### header4
+				
+				##### header5
+				
+				###### header6
+				
+				Some paragraph
+				
+				___
+				
+				> Someone said...
+				
+				- First item - Second item\s
+				
+				1. First item 2. Second item\s
+				
+				*italic*, **bold**, ~strikethrough~, link [here](https://xeres.io "")
+				""", result);
+	}
 }

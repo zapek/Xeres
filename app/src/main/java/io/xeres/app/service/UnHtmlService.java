@@ -68,7 +68,8 @@ public class UnHtmlService
 				.addAttributes("img", "src", "title", "alt")
 				.addProtocols("img", "src", "data")
 				.addAttributes("a", "href", "title")
-				.addTags("p", "br", "ul", "li", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "blockquote", "ol", "em", "i", "strong", "b", "code", "pre", "del", "s")
+				.addAttributes("code", "class")
+				.addTags("p", "br", "ul", "li", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "blockquote", "ol", "em", "i", "strong", "b", "pre", "del", "s")
 				.preserveRelativeLinks(true));
 
 		document = cleaner.clean(document);
@@ -164,10 +165,10 @@ public class UnHtmlService
 				if (element.childrenSize() == 1 && "code".equals(element.child(0).tagName().toLowerCase(Locale.ROOT)))
 				{
 					String classNames = element.child(0).className();
-					if (!classNames.isEmpty()) // This is always empty. JSoup bug?
+					if (!classNames.isEmpty())
 					{
 						String language = WHITESPACE_PATTERN.split(classNames)[0];
-						codeBlock.setInfo(language);
+						codeBlock.setInfo(language.replace("language-", ""));
 					}
 					setFencedCodeBlockLiteralIfFound(codeBlock, element.child(0));
 				}

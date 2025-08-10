@@ -111,7 +111,7 @@ class UnHtmlServiceTest
 		);
 
 		assertEquals("""
-				```
+				```java
 				System.out.println("hello world");
 				```
 				""", result);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,7 +23,9 @@ import java.util.ResourceBundle;
 
 public final class I18nUtils
 {
-	public static final String BUNDLE = "i18n.messages";
+	private static final String BUNDLE = "i18n.messages";
+
+	private static ResourceBundle resourceBundle;
 
 	private I18nUtils()
 	{
@@ -31,14 +33,19 @@ public final class I18nUtils
 	}
 
 	/**
-	 * Gets the ResourceBundle. Prefer using the ResourceBundle bean instead as it's faster.
+	 * Gets the ResourceBundle.
 	 * <p>
-	 * This is mostly useful for non-spring components or static utility classes.
+	 * Note: prefer using the ResourceBundle bean for spring components and non-static methods.
 	 *
 	 * @return the resource bundle
 	 */
 	public static ResourceBundle getBundle()
 	{
-		return ResourceBundle.getBundle(BUNDLE);
+		if (resourceBundle == null)
+		{
+			//Locale.setDefault(Locale.FRANCE); // for testing
+			resourceBundle = ResourceBundle.getBundle(BUNDLE);
+		}
+		return resourceBundle;
 	}
 }

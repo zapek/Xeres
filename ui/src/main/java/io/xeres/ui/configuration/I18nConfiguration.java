@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,13 +19,11 @@
 
 package io.xeres.ui.configuration;
 
+import io.xeres.common.i18n.I18nUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Locale;
 import java.util.ResourceBundle;
-
-import static io.xeres.common.i18n.I18nUtils.BUNDLE;
 
 @Configuration
 public class I18nConfiguration
@@ -33,7 +31,6 @@ public class I18nConfiguration
 	@Bean
 	public ResourceBundle bundle()
 	{
-		//Locale.setDefault(Locale.FRANCE); // for testing
-		return ResourceBundle.getBundle(BUNDLE, Locale.getDefault());
+		return I18nUtils.getBundle();
 	}
 }

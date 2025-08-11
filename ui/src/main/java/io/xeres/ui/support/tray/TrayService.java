@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -100,7 +100,7 @@ public class TrayService
 		var peersMenu = new Menu(bundle.getString("tray.peers") + " >");
 		peersMenu.setEnabled(false);
 
-		var statusMenu = new Menu("Status >");
+		var statusMenu = new Menu(bundle.getString("tray.status") + " >");
 		statusMenu.add(createStateMenuItem(Availability.AVAILABLE));
 		statusMenu.add(createStateMenuItem(Availability.BUSY));
 		statusMenu.add(createStateMenuItem(Availability.AWAY));

@@ -719,6 +719,8 @@ public class ChatViewController implements Controller
 		{
 			var chatRoomId = roomInfoTreeItem.getValue().getRoomInfo().getId();
 			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache, windowManager, send);
+			chatListView.installClearHistoryContextMenu(() -> chatClient.deleteChatRoomBacklog(chatRoomId)
+					.subscribe());
 			var finalChatListView = chatListView;
 			chatClient.getChatRoomBacklog(chatRoomId).collectList()
 					.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(finalChatListView, backlogs)))

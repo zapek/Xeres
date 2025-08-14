@@ -152,6 +152,15 @@ public class ChatController
 				maxLines != null ? maxLines : ROOM_CHAT_DEFAULT_MAX_LINES));
 	}
 
+	@DeleteMapping("/rooms/{roomId}/messages")
+	@Operation(summary = "Clears the chat room messages backlog of a given chat room")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ApiResponse(responseCode = "404", description = "No chat room found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public void deleteChatRoomMessages(@PathVariable @Parameter(description = "The room's unique 64-bit identifier") long roomId)
+	{
+		chatBacklogService.deleteChatRoomMessages(roomId);
+	}
+
 	@GetMapping("/chats/{locationId}/messages")
 	@Operation(summary = "Gets the private chat messages backlog")
 	@ApiResponse(responseCode = "200", description = "OK")

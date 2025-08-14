@@ -79,6 +79,13 @@ public class ChatBacklogService
 	}
 
 	@Transactional
+	public void deleteChatRoomMessages(long chatRoomId)
+	{
+		var chatRoom = chatRoomRepository.findByRoomId(chatRoomId).orElseThrow();
+		chatRoomBacklogRepository.deleteAllByRoom(chatRoom);
+	}
+
+	@Transactional
 	public void storeIncomingMessage(LocationIdentifier from, String message)
 	{
 		var location = locationRepository.findByLocationIdentifier(from).orElseThrow();

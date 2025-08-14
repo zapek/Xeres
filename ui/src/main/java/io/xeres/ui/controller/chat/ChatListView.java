@@ -37,12 +37,12 @@ import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.uri.IdentityUri;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.image.ImageUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
@@ -77,7 +77,6 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private static final String INFO_MENU_ID = "info";
 	private static final String CHAT_MENU_ID = "chat";
-	private static final String CLEAR_HISTORY_MENU_ID = "clearHistory";
 
 	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
@@ -98,7 +97,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private final ChatListDragSelection dragSelection;
 
-	private ContextMenu contextMenu;
+	private final ChatListViewContextMenu contextMenu;
 
 	public enum AddUserOrigin
 	{
@@ -124,18 +123,16 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		addToAnchorPane(chatView, anchorPane);
 
 		userListView = createUserListView();
+
+		contextMenu = new ChatListViewContextMenu();
 	}
 
-	public void setOnClearHistory(Runnable action)
+	public void installClearHistoryContextMenu(Runnable action)
 	{
-		var clearItem = new MenuItem("Clear chat history");
-		clearItem.setId(CLEAR_HISTORY_MENU_ID);
-		clearItem.setOnAction(event -> {
+		contextMenu.installClearHistoryMenu(event -> UiUtils.alertConfirm("Do you really want to clear the history?", () -> {
 			action.run();
 			messages.clear();
-		});
-
-		contextMenu = new ContextMenu(clearItem);
+		}));
 	}
 
 	private VirtualizedScrollPane<VirtualFlow<ChatLine, ChatListCell>> createChatView(ChatListDragSelection selection)
@@ -144,19 +141,21 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		view.setFocusTraversable(false);
 		view.getStyleClass().add("chat-list");
 		view.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-			if (contextMenu != null)
+			contextMenu.hide();
+			if (!e.isSecondaryButtonDown())
 			{
-				contextMenu.hide();
+				selection.press(e);
+				contextMenu.removeSelectionMenu();
 			}
-			selection.press(e);
 		});
 		view.addEventFilter(MouseEvent.MOUSE_DRAGGED, selection::drag);
 		view.addEventFilter(MouseEvent.MOUSE_RELEASED, selection::release);
 		view.setOnContextMenuRequested(event -> {
-			if (contextMenu != null)
+			if (selection.isSelected())
 			{
-				contextMenu.show(view, event.getScreenX(), event.getScreenY());
+				contextMenu.installSelectionMenu(actionEvent -> selection.copy());
 			}
+			contextMenu.show(view, event.getScreenX(), event.getScreenY());
 			event.consume();
 		});
 

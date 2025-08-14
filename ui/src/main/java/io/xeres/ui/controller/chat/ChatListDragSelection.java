@@ -66,7 +66,7 @@ class ChatListDragSelection
 
 	private SelectionMode selectionMode;
 
-	private TextSelectRange textSelectRange;
+	private TextSelectRange textSelectRange; // This is used for one line of text
 
 	private Direction direction = Direction.SAME;
 
@@ -174,7 +174,7 @@ class ChatListDragSelection
 
 	public boolean isSelected()
 	{
-		return !textFlows.isEmpty();
+		return textFlows.size() > 1 || (textSelectRange != null && textSelectRange.isSelected());
 	}
 
 	private boolean handleMultilineSelect(VirtualFlow<ChatLine, ChatListCell> virtualFlow, VirtualFlowHit<ChatListCell> hitResult)
@@ -304,6 +304,7 @@ class ChatListDragSelection
 			var textFlow = textFlows.getLast();
 			removeVisibleSelection(textFlow);
 		}
+		textSelectRange = null;
 	}
 
 	private String getSelectionAsText()

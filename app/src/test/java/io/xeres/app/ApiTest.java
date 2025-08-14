@@ -221,7 +221,8 @@ class ApiTest
 			}
 			catch (IOException e)
 			{
-				throw new RuntimeException(e);
+				// Don't throw an exception because it's expected this might fail (file still in use, mostly)
+				System.out.println(e.getMessage());
 			}
 		}));
 	}

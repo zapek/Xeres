@@ -146,6 +146,14 @@ public class ChatClient
 				.map(ChatMapper::fromDTO);
 	}
 
+	public Mono<Void> deleteChatRoomBacklog(long id)
+	{
+		return webClient.delete()
+				.uri("/rooms/{roomId}/messages", id)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
 	public Flux<ChatBacklog> getChatBacklog(long id)
 	{
 		return webClient.get()

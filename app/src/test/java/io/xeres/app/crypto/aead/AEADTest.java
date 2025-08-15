@@ -28,6 +28,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AEADTest
 {
@@ -56,6 +57,16 @@ class AEADTest
 		var decryptedText = AEAD.decryptChaCha20Poly1305(key, nonce, cipherText, aad);
 
 		assertArrayEquals(plainText, decryptedText);
+	}
+
+	@Test
+	void EncryptChaCha20Poly1305_DecryptChaCha20Poly1305_BadNonce()
+	{
+		var nonce = RandomUtils.insecure().randomBytes(8);
+		var plainText = "hello world".getBytes(StandardCharsets.UTF_8);
+		var aad = RandomUtils.insecure().randomBytes(16);
+
+		assertThrows(IllegalArgumentException.class, () -> AEAD.encryptChaCha20Poly1305(key, nonce, plainText, aad));
 	}
 
 	@Test

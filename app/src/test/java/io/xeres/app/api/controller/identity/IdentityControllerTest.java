@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -220,5 +220,39 @@ class IdentityControllerTest extends AbstractControllerTest
 				.andExpect(jsonPath("$.[0].id").value(is(identity.getId()), Long.class));
 
 		verify(identityService).getAll();
+	}
+
+	@Test
+	void DownloadImageByGxsId_Found_Success() throws Exception
+	{
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
+		identity.setId(1L);
+		identity.setImage(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
+
+		when(identityService.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
+
+		mvc.perform(get(BASE_URL + "/image", MediaType.IMAGE_JPEG)
+						.param("gxsId", identity.getGxsId().toString())
+						.param("find", "true"))
+				.andExpect(status().isOk())
+				.andExpect(header().string(CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE));
+
+		verify(identityService).findByGxsId(identity.getGxsId());
+	}
+
+	@Test
+	void DownloadImageByGxsId_Identicon_Success() throws Exception
+	{
+		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
+		identity.setId(1L);
+
+		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
+
+		mvc.perform(get(BASE_URL + "/image", MediaType.IMAGE_JPEG)
+						.param("gxsId", identity.getGxsId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(header().string(CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE));
+
+		verify(identiconService).getIdenticon(any());
 	}
 }

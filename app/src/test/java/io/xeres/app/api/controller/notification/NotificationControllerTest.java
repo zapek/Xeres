@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -133,6 +133,17 @@ class NotificationControllerTest extends AbstractControllerTest
 		when(availabilityNotificationService.addClient()).thenReturn(sseEmitter);
 
 		mvc.perform(get(BASE_URL + "/availability", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void SetupFileTrendNotification_Success() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(fileTrendNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(get(BASE_URL + "/file-trend", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 }

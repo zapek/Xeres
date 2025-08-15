@@ -54,7 +54,7 @@ public class ForumMessageService
 	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromSummaries(List<ForumMessageItemSummary> forumMessages)
 	{
 		var authors = forumMessages.stream()
-				.map(ForumMessageItemSummary::getAuthorId)
+				.map(ForumMessageItemSummary::authorId)
 				.collect(Collectors.toSet());
 
 		return identityService.findAll(authors).stream()
@@ -74,12 +74,12 @@ public class ForumMessageService
 	public Map<MessageId, ForumMessageItem> getMessagesMapFromSummaries(long groupId, List<ForumMessageItemSummary> forumMessages)
 	{
 		var messageIds = forumMessages.stream()
-				.map(ForumMessageItemSummary::getMessageId)
+				.map(ForumMessageItemSummary::messageId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
 		var parentIds = forumMessages.stream()
-				.map(ForumMessageItemSummary::getParentId)
+				.map(ForumMessageItemSummary::parentId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 

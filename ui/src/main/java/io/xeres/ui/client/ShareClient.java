@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,8 @@ package io.xeres.ui.client;
 
 import io.xeres.common.dto.share.ShareDTO;
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.share.TemporaryShareRequest;
+import io.xeres.common.rest.share.TemporaryShareResponse;
 import io.xeres.common.rest.share.UpdateShareRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.share.Share;
@@ -76,12 +78,14 @@ public class ShareClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<String> createTemporaryShare(String filePath)
+	public Mono<TemporaryShareResponse> createTemporaryShare(String filePath)
 	{
+		var request = new TemporaryShareRequest(filePath);
+
 		return webClient.post()
 				.uri("/temporary")
-				.bodyValue(filePath)
+				.bodyValue(request)
 				.retrieve()
-				.bodyToMono(String.class);
+				.bodyToMono(TemporaryShareResponse.class);
 	}
 }

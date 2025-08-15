@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,30 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.forum;
+package io.xeres.common.rest.share;
 
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
-
-import java.time.Instant;
-
-public interface ForumMessageItemSummary
+public record TemporaryShareRequest(String filePath)
 {
-	long id();
-
-	GxsId gxsId();
-
-	MessageId messageId();
-
-	MessageId originalMessageId();
-
-	MessageId parentId();
-
-	GxsId authorId();
-
-	String name();
-
-	Instant published();
-
-	boolean read();
 }

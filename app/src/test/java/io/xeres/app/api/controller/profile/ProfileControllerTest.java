@@ -32,17 +32,16 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.id.Id;
+import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
 import static org.hamcrest.Matchers.is;
@@ -298,6 +297,137 @@ class ProfileControllerTest extends AbstractControllerTest
 		long id = 1;
 
 		mvc.perform(delete(BASE_URL + "/" + id))
+				.andExpect(status().isUnprocessableEntity());
+	}
+
+	@Test
+	void FindProfileKeyAttributes_Success() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 1);
+		var keyAttributes = mock(ProfileKeyAttributes.class);
+
+		when(profileService.findProfileById(expected.getId())).thenReturn(Optional.of(expected));
+		when(profileService.findProfileKeyAttributes(expected.getId())).thenReturn(keyAttributes);
+
+		mvc.perform(getJson(BASE_URL + "/" + expected.getId() + "/key-attributes"))
+				.andExpect(status().isOk());
+
+		verify(profileService).findProfileKeyAttributes(expected.getId());
+	}
+
+	@Test
+	void FindProfileKeyAttributes_NotFound() throws Exception
+	{
+		var id = 2L;
+
+		when(profileService.findProfileKeyAttributes(id)).thenThrow(new NoSuchElementException());
+
+		mvc.perform(getJson(BASE_URL + "/" + id + "/key-attributes"))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void DownloadImage_Success() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 1);
+
+		when(profileService.findProfileById(expected.getId())).thenReturn(Optional.of(expected));
+		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
+
+		mvc.perform(get(BASE_URL + "/" + expected.getId() + "/image", MediaType.IMAGE_JPEG))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.IMAGE_JPEG));
+
+		verify(identiconService).getIdenticon(any());
+	}
+
+	@Test
+	void DownloadImage_NotFound() throws Exception
+	{
+		var id = 2L;
+
+		when(profileService.findProfileById(id)).thenReturn(Optional.empty());
+
+		mvc.perform(get(BASE_URL + "/" + id + "/image", MediaType.IMAGE_JPEG))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void CheckProfileFromRsId_Success() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 1);
+		var profileRequest = new RsIdRequest(RSIdFakes.createShortInvite().getArmored());
+
+		when(profileService.getProfileFromRSId(any(RSId.class))).thenReturn(expected);
+
+		mvc.perform(postJson(BASE_URL + "/check", profileRequest))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.name", is(expected.getName())));
+
+		verify(profileService).getProfileFromRSId(any());
+	}
+
+	@Test
+	void CheckProfileFromRsId_Invalid() throws Exception
+	{
+		var profileRequest = new RsIdRequest("invalid id");
+
+		mvc.perform(postJson(BASE_URL + "/check", profileRequest))
+				.andExpect(status().isUnprocessableEntity());
+	}
+
+	@Test
+	void CheckProfileFromRsId_TooShort_BadRequest() throws Exception
+	{
+		var profileRequest = new RsIdRequest("invalid");
+
+		mvc.perform(postJson(BASE_URL + "/check", profileRequest))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void SetTrust_Success() throws Exception
+	{
+		var profile = ProfileFakes.createProfile("test", 2);
+
+		when(profileService.findProfileById(profile.getId())).thenReturn(Optional.of(profile));
+
+		mvc.perform(putJson(BASE_URL + "/" + profile.getId() + "/trust", "MARGINAL"))
+				.andExpect(status().isNoContent());
+
+		verify(profileService).createOrUpdateProfile(profile);
+	}
+
+	@Test
+	void SetTrust_OwnProfile_BadRequest() throws Exception
+	{
+		var profile = ProfileFakes.createOwnProfile();
+
+		when(profileService.findProfileById(profile.getId())).thenReturn(Optional.of(profile));
+
+		mvc.perform(putJson(BASE_URL + "/" + profile.getId() + "/trust", "MARGINAL"))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void SetTrust_Ultimate_BadRequest() throws Exception
+	{
+		var profile = ProfileFakes.createProfile("test", 2);
+
+		when(profileService.findProfileById(profile.getId())).thenReturn(Optional.of(profile));
+
+		mvc.perform(putJson(BASE_URL + "/" + profile.getId() + "/trust", "ULTIMATE"))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void SetTrust_NotFound() throws Exception
+	{
+		var id = 2L;
+
+		when(profileService.findProfileById(id)).thenReturn(Optional.empty());
+
+		mvc.perform(putJson(BASE_URL + "/" + id + "/trust", "MARGINAL"))
 				.andExpect(status().isUnprocessableEntity());
 	}
 }

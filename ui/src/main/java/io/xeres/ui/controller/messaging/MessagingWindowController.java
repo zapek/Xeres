@@ -258,7 +258,7 @@ public class MessagingWindowController implements WindowController
 	private void sendFile(File file)
 	{
 		shareClient.createTemporaryShare(file.getAbsolutePath())
-				.doOnSuccess(result -> sendMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result))))
+				.doOnSuccess(result -> sendMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result.hash()))))
 				.subscribe();
 	}
 

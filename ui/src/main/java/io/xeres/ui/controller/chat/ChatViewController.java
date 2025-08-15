@@ -332,7 +332,7 @@ public class ChatViewController implements Controller
 	private void sendFile(File file)
 	{
 		shareClient.createTemporaryShare(file.getAbsolutePath())
-				.doOnSuccess(result -> sendChatMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result))))
+				.doOnSuccess(result -> sendChatMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result.hash()))))
 				.subscribe();
 	}
 

@@ -52,28 +52,4 @@ public final class SettingsMapper
 		settings.setRemotePort(dto.remotePort());
 		return settings;
 	}
-
-	public static SettingsDTO toDTO(Settings settings)
-	{
-		if (settings == null)
-		{
-			return null;
-		}
-
-		return new SettingsDTO(
-				settings.getTorSocksHost(),
-				settings.getTorSocksPort(),
-				settings.getI2pSocksHost(),
-				settings.getI2pSocksPort(),
-				settings.isUpnpEnabled(),
-				settings.isBroadcastDiscoveryEnabled(),
-				settings.isDhtEnabled(),
-				settings.isAutoStartEnabled(),
-				settings.getIncomingDirectory(),
-				settings.getRemotePassword(),
-				settings.isRemoteEnabled(),
-				settings.isUpnpRemoteEnabled(),
-				settings.getRemotePort()
-		);
-	}
 }

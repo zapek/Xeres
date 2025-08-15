@@ -27,6 +27,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.exception.InternalServerErrorException;
 import io.xeres.app.service.file.FileService;
 import io.xeres.common.dto.share.ShareDTO;
+import io.xeres.common.rest.share.TemporaryShareRequest;
+import io.xeres.common.rest.share.TemporaryShareResponse;
 import io.xeres.common.rest.share.UpdateShareRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -77,16 +79,16 @@ public class ShareController
 	@PostMapping("/temporary")
 	@Operation(summary = "Adds a file to share temporarily")
 	@ApiResponse(responseCode = "200", description = "File added to temporary share successfully")
-	public String shareTemporarily(@Valid @RequestBody String filePath)
+	public TemporaryShareResponse shareTemporarily(@Valid @RequestBody TemporaryShareRequest temporaryShareRequest)
 	{
 		//noinspection JvmTaintAnalysis
-		var path = Paths.get(filePath);
+		var path = Paths.get(temporaryShareRequest.filePath());
 		var hash = fileService.calculateTemporaryFileHash(path);
 
 		if (hash == null)
 		{
 			throw new InternalServerErrorException("Cannot compute hash of file");
 		}
-		return hash.toString();
+		return new TemporaryShareResponse(hash.toString());
 	}
 }

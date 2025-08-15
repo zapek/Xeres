@@ -20,20 +20,25 @@
 package io.xeres.app.api.controller.forum;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
+import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.database.model.gxs.ForumGroupItemFakes;
+import io.xeres.app.database.model.gxs.ForumMessageItemFakes;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.service.ForumMessageService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,10 +48,10 @@ import java.util.Optional;
 
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ForumController.class)
@@ -129,5 +134,114 @@ class ForumControllerTest extends AbstractControllerTest
 				.andExpect(status().isOk());
 
 		verify(forumRsService).setForumMessagesAsRead(ids);
+	}
+
+	@Test
+	void GetForumUnreadCount_Success() throws Exception
+	{
+		long groupId = 1L;
+		int unreadCount = 5;
+
+		when(forumRsService.getUnreadCount(groupId)).thenReturn(unreadCount);
+
+		mvc.perform(getJson(BASE_URL + "/groups/" + groupId + "/unread-count"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(content().string(String.valueOf(unreadCount)));
+
+		verify(forumRsService).getUnreadCount(groupId);
+	}
+
+	@Test
+	void SubscribeToForumGroup_Success() throws Exception
+	{
+		long groupId = 1L;
+
+		mvc.perform(put(BASE_URL + "/groups/" + groupId + "/subscription"))
+				.andExpect(status().isNoContent());
+
+		verify(forumRsService).subscribeToForumGroup(groupId);
+	}
+
+	@Test
+	void UnsubscribeFromForumGroup_Success() throws Exception
+	{
+		long groupId = 1L;
+
+		mvc.perform(delete(BASE_URL + "/groups/" + groupId + "/subscription"))
+				.andExpect(status().isNoContent());
+
+		verify(forumRsService).unsubscribeFromForumGroup(groupId);
+	}
+
+	@Test
+	void GetForumMessages_Success() throws Exception
+	{
+		long groupId = 1L;
+		List<ForumMessageItemSummary> forumMessages = List.of(ForumMessageItemFakes.createForumMessageItemSummary(), ForumMessageItemFakes.createForumMessageItemSummary());
+
+		when(forumRsService.findAllMessagesSummary(groupId)).thenReturn(forumMessages);
+		when(forumMessageService.getAuthorsMapFromSummaries(forumMessages)).thenReturn(Map.of());
+		when(forumMessageService.getMessagesMapFromSummaries(groupId, forumMessages)).thenReturn(Map.of());
+
+		mvc.perform(getJson(BASE_URL + "/groups/" + groupId + "/messages"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.size()", is(forumMessages.size())));
+
+		verify(forumRsService).findAllMessagesSummary(groupId);
+		verify(forumMessageService).getAuthorsMapFromSummaries(forumMessages);
+		verify(forumMessageService).getMessagesMapFromSummaries(groupId, forumMessages);
+	}
+
+	@Test
+	void GetForumMessage_Success() throws Exception
+	{
+		long id = 1L;
+		ForumMessageItem forumMessage = ForumMessageItemFakes.createForumMessageItem();
+
+		when(forumRsService.findMessageById(id)).thenReturn(forumMessage);
+		when(identityService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
+		when(forumRsService.findAllMessages(any(GxsId.class), anySet())).thenReturn(List.of());
+
+		mvc.perform(getJson(BASE_URL + "/messages/" + id))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(is((int) forumMessage.getId())));
+
+		verify(forumRsService).findMessageById(id);
+		verify(identityService).findByGxsId(null);
+		verify(forumRsService).findAllMessages(any(GxsId.class), anySet());
+	}
+
+	@Test
+	void CreateForumMessage_Success() throws Exception
+	{
+		var ownIdentity = IdentityFakes.createOwn();
+
+		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(forumRsService.createForumMessage(
+				eq(ownIdentity),
+				anyLong(),
+				anyString(),
+				anyString(),
+				anyLong(),
+				anyLong()
+		)).thenReturn(1L);
+
+		String requestBody = "{\"forumId\":1,\"title\":\"Test Title\",\"content\":\"Test Content\"}";
+
+		mvc.perform(post(BASE_URL + "/messages")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestBody))
+				.andExpect(status().isCreated())
+				.andExpect(header().string("Location", "http://localhost" + FORUMS_PATH + "/messages/" + 1L));
+
+		verify(forumRsService).createForumMessage(
+				eq(ownIdentity),
+				anyLong(),
+				anyString(),
+				anyString(),
+				anyLong(),
+				anyLong()
+		);
 	}
 }

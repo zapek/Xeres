@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.app.crypto.rscrypto;
 
 import io.xeres.app.crypto.aead.AEAD;
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +37,12 @@ class RsCryptoTest
 	static void setup()
 	{
 		key = AEAD.generateKey();
+	}
+
+	@Test
+	void Instance_ThrowsException() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(RsCrypto.class);
 	}
 
 	@Test

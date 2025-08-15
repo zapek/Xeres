@@ -19,11 +19,15 @@
 
 package io.xeres.app.database.model.gxs;
 
+import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.testutils.IdFakes;
+import io.xeres.testutils.StringFakes;
 import org.apache.commons.lang3.RandomStringUtils;
+
+import java.time.Instant;
 
 public final class ForumMessageItemFakes
 {
@@ -40,5 +44,15 @@ public final class ForumMessageItemFakes
 	private static ForumMessageItem createForumMessageItem(GxsId gxsId, MessageId messageId, String name)
 	{
 		return new ForumMessageItem(gxsId, messageId, name);
+	}
+
+	public static ForumMessageItemSummary createForumMessageItemSummary()
+	{
+		return new ForumMessageItemSummaryFake(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createGxsId(), IdFakes.createMessageId(), IdFakes.createMessageId(), IdFakes.createMessageId(), IdFakes.createGxsId(), Instant.now(), false);
+	}
+
+	public static ForumMessageItemSummary createForumMessageItemSummary(MessageId messageId, GxsId authorId, MessageId parentId)
+	{
+		return new ForumMessageItemSummaryFake(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createGxsId(), messageId, IdFakes.createMessageId(), parentId, authorId, Instant.now(), false);
 	}
 }

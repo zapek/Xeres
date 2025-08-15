@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AESTest
 {
@@ -59,5 +60,21 @@ class AESTest
 		var decryptedText = AES.decrypt(aesKey, iv, cipherText);
 
 		assertArrayEquals(plainText, decryptedText);
+	}
+
+	@Test
+	void Encrypt_AES_BadKey()
+	{
+		var plainText = "Hello cruel world".getBytes(StandardCharsets.UTF_8);
+
+		assertThrows(IllegalArgumentException.class, () -> AES.encrypt(new byte[8], iv, plainText));
+	}
+
+	@Test
+	void Encrypt_AES_BadIv()
+	{
+		var plainText = "Hello cruel world".getBytes(StandardCharsets.UTF_8);
+
+		assertThrows(IllegalArgumentException.class, () -> AES.encrypt(aesKey, new byte[4], plainText));
 	}
 }

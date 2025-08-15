@@ -28,9 +28,11 @@ import io.xeres.app.service.*;
 import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.status.StatusRsService;
+import io.xeres.common.location.Availability;
 import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
 import io.xeres.common.rest.config.OwnProfileRequest;
+import io.xeres.common.rest.config.VerifyUpdateRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -38,6 +40,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -47,6 +52,7 @@ import java.util.Set;
 import static io.xeres.common.rest.PathConfig.*;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ConfigController.class)
@@ -290,5 +296,124 @@ class ConfigControllerTest extends AbstractControllerTest
 				.andExpect(jsonPath("$[0]", is(capability)));
 
 		verify(capabilityService).getCapabilities();
+	}
+
+	@Test
+	void CreateIdentity_Failure() throws Exception
+	{
+		var identityRequest = new OwnIdentityRequest("test identity", false);
+
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), true)).thenReturn(ResourceCreationState.FAILED);
+
+		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
+				.andExpect(status().isInternalServerError());
+
+		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true);
+	}
+
+	@Test
+	void CreateIdentity_AlreadyExists() throws Exception
+	{
+		var identityRequest = new OwnIdentityRequest("test identity", false);
+
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), true)).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+
+		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
+				.andExpect(status().isOk());
+
+		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true);
+	}
+
+	@Test
+	void ChangeAvailability_Success() throws Exception
+	{
+		var availability = Availability.AVAILABLE;
+		when(locationService.hasOwnLocation()).thenReturn(true);
+
+		mvc.perform(putJson(BASE_URL + "/location/availability", availability))
+				.andExpect(status().isOk());
+
+		verify(statusRsService).changeAvailability(availability);
+	}
+
+	@Test
+	void ChangeAvailability_NoLocation_Failure() throws Exception
+	{
+		var availability = Availability.AVAILABLE;
+		when(locationService.hasOwnLocation()).thenReturn(false);
+
+		mvc.perform(putJson(BASE_URL + "/location/availability", availability))
+				.andExpect(status().isBadRequest());
+
+		verifyNoInteractions(statusRsService);
+	}
+
+	@Test
+	void GetExport_Success() throws Exception
+	{
+		var backupData = "backup data".getBytes();
+		when(backupService.backup()).thenReturn(backupData);
+
+		mvc.perform(get(BASE_URL + "/export", MediaType.APPLICATION_XML))
+				.andExpect(status().isOk())
+				.andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"xeres_backup.xml\""))
+				.andExpect(content().bytes(backupData));
+
+		verify(backupService).backup();
+	}
+
+	@Test
+	void ImportBackup_Success() throws Exception
+	{
+		var file = new MockMultipartFile("file", "xeres_backup.xml", MediaType.APPLICATION_XML_VALUE, "backup data".getBytes());
+
+		mvc.perform(multipart(BASE_URL + "/import")
+						.file(file))
+				.andExpect(status().isOk());
+
+		verify(backupService).restore(any());
+		verify(networkService).checkReadiness();
+	}
+
+	@Test
+	void ImportProfileFromRs_Success() throws Exception
+	{
+		var file = new MockMultipartFile("file", "retroshare_secret_keyring.gpg", MediaType.APPLICATION_OCTET_STREAM_VALUE, "data".getBytes());
+		var locationName = "test location";
+		var password = "secret";
+
+		mvc.perform(multipart(BASE_URL + "/import-profile-from-rs")
+						.file(file)
+						.param("locationName", locationName)
+						.param("password", password))
+				.andExpect(status().isOk());
+
+		verify(backupService).importProfileFromRs(file, locationName, password);
+		verify(networkService).checkReadiness();
+	}
+
+	@Test
+	void ImportFriendsFromRs_Success() throws Exception
+	{
+		var file = new MockMultipartFile("file", "friends.xml", MediaType.APPLICATION_XML_VALUE, "data".getBytes());
+
+		mvc.perform(multipart(BASE_URL + "/import-friends-from-rs")
+						.file(file))
+				.andExpect(status().isOk());
+
+		verify(backupService).importFriendsFromRs(file);
+	}
+
+	@Test
+	void VerifyUpdate_Success() throws Exception
+	{
+		var request = new VerifyUpdateRequest("Xeres.msi", "signature".getBytes());
+		when(backupService.verifyUpdate(any(), eq(request.signature()))).thenReturn(true);
+
+		mvc.perform(postJson(BASE_URL + "/verify-update", request))
+				.andExpect(status().isOk())
+				.andExpect(content().string("true"));
+
+		verify(backupService).verifyUpdate(any(), eq(request.signature()));
 	}
 }

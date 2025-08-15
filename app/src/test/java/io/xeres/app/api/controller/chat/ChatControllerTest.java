@@ -23,6 +23,7 @@ import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.chat.ChatBacklog;
 import io.xeres.app.database.model.chat.ChatRoomBacklog;
 import io.xeres.app.database.model.chat.ChatRoomFakes;
+import io.xeres.app.database.model.chat.DistantChatBacklog;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.service.IdentityService;
@@ -240,4 +241,159 @@ class ChatControllerTest extends AbstractControllerTest
 
 		verify(chatBacklogService).getChatRoomMessages(chatRoom.getRoomId(), LocalDateTime.parse("2024-12-24T01:27").toInstant(ZoneOffset.UTC), 80);
 	}
+
+	@Test
+	void DeleteChatMessages_Success() throws Exception
+	{
+		var location = LocationFakes.createLocation();
+		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
+
+		mvc.perform(delete(BASE_URL + "/chats/" + location.getId() + "/messages"))
+				.andExpect(status().isNoContent());
+
+		verify(chatBacklogService).deleteMessages(location);
+	}
+
+	@Test
+	void DeleteChatMessages_NotFound() throws Exception
+	{
+		var locationId = 123L;
+		when(locationService.findLocationById(locationId)).thenReturn(Optional.empty());
+
+		mvc.perform(delete(BASE_URL + "/chats/" + locationId + "/messages"))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void DeleteChatRoomMessages_Success() throws Exception
+	{
+		var chatRoomId = 1L;
+
+		mvc.perform(delete(BASE_URL + "/rooms/" + chatRoomId + "/messages"))
+				.andExpect(status().isNoContent());
+
+		verify(chatBacklogService).deleteChatRoomMessages(chatRoomId);
+	}
+
+	@Test
+	void CreateDistantChat_Success() throws Exception
+	{
+		var identity = IdentityFakes.createOwn();
+		var request = new io.xeres.common.rest.chat.DistantChatRequest(identity.getId());
+		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
+		var location = LocationFakes.createLocation();
+		when(chatRsService.createDistantChat(identity)).thenReturn(location);
+
+		mvc.perform(postJson(BASE_URL + "/distant-chats", request))
+				.andExpect(status().isOk());
+
+		verify(chatRsService).createDistantChat(identity);
+	}
+
+	@Test
+	void CreateDistantChat_AlreadyExists() throws Exception
+	{
+		var identity = IdentityFakes.createOwn();
+		var request = new io.xeres.common.rest.chat.DistantChatRequest(identity.getId());
+		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
+		when(chatRsService.createDistantChat(identity)).thenReturn(null);
+
+		mvc.perform(postJson(BASE_URL + "/distant-chats", request))
+				.andExpect(status().isConflict());
+	}
+
+	@Test
+	void CreateDistantChat_IdentityNotFound() throws Exception
+	{
+		var identityId = 42L;
+		var request = new io.xeres.common.rest.chat.DistantChatRequest(identityId);
+		when(identityService.findById(identityId)).thenReturn(Optional.empty());
+
+		mvc.perform(postJson(BASE_URL + "/distant-chats", request))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void CloseDistantChat_Success() throws Exception
+	{
+		var identity = IdentityFakes.createOwn();
+		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
+		when(chatRsService.closeDistantChat(identity)).thenReturn(true);
+
+		mvc.perform(delete(BASE_URL + "/distant-chats/" + identity.getId()))
+				.andExpect(status().isNoContent());
+
+		verify(chatRsService).closeDistantChat(identity);
+	}
+
+	@Test
+	void CloseDistantChat_NotFound() throws Exception
+	{
+		var identity = IdentityFakes.createOwn();
+		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
+		when(chatRsService.closeDistantChat(identity)).thenReturn(false);
+
+		mvc.perform(delete(BASE_URL + "/distant-chats/" + identity.getId()))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void CloseDistantChat_IdentityNotFound() throws Exception
+	{
+		var identityId = 99L;
+		when(identityService.findById(identityId)).thenReturn(Optional.empty());
+
+		mvc.perform(delete(BASE_URL + "/distant-chats/" + identityId))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void GetDistantChatMessages_Success() throws Exception
+	{
+		var identity = IdentityFakes.createOwn();
+		var creation = Instant.now();
+		var chatBacklog = new DistantChatBacklog(identity, false, "hello");
+		chatBacklog.setCreated(creation);
+
+		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
+		when(chatBacklogService.getDistantMessages(eq(identity), any(Instant.class), anyInt())).thenReturn(List.of(chatBacklog));
+
+		mvc.perform(getJson(BASE_URL + "/distant-chats/" + identity.getId() + "/messages"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].created", is(creation.toString())))
+				.andExpect(jsonPath("$[0].message", is("hello")));
+	}
+
+	@Test
+	void GetDistantChatMessages_IdentityNotFound() throws Exception
+	{
+		var identityId = 77L;
+		when(identityService.findById(identityId)).thenReturn(Optional.empty());
+
+		mvc.perform(getJson(BASE_URL + "/distant-chats/" + identityId + "/messages"))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void DeleteDistantChatMessages_Success() throws Exception
+	{
+		var identity = IdentityFakes.createOwn();
+		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
+
+		mvc.perform(delete(BASE_URL + "/distant-chats/" + identity.getId() + "/messages"))
+				.andExpect(status().isNoContent());
+
+		verify(chatBacklogService).deleteDistantMessages(identity);
+	}
+
+	@Test
+	void DeleteDistantChatMessages_IdentityNotFound() throws Exception
+	{
+		var identityId = 88L;
+		when(identityService.findById(identityId)).thenReturn(Optional.empty());
+
+		mvc.perform(delete(BASE_URL + "/distant-chats/" + identityId + "/messages"))
+				.andExpect(status().isNotFound());
+	}
+
 }

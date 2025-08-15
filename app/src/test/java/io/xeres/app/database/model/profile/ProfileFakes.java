@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -64,6 +64,11 @@ public final class ProfileFakes
 	public static Profile createProfile(String name, long pgpIdentifier, ProfileFingerprint profileFingerprint, byte[] data)
 	{
 		return new Profile(getUniqueId(), name, pgpIdentifier, Instant.now(), profileFingerprint, data);
+	}
+
+	public static Profile createOwnProfile()
+	{
+		return new Profile(1L, StringFakes.createNickname(), ThreadLocalRandom.current().nextLong(), Instant.now(), new ProfileFingerprint(getRandomArray(20)), getRandomArray(200));
 	}
 
 	private static byte[] getRandomArray(int size)

@@ -198,23 +198,9 @@ final class PngUtils
 					continue;
 				}
 
-				// Find the channel with the greatest range
-				int[] min = {255, 255, 255};
-				int[] max = {0, 0, 0};
-				for (int[] pixel : bucket)
-				{
-					for (var i = 0; i < 3; i++)
-					{
-						min[i] = Math.min(min[i], pixel[i]);
-						max[i] = Math.max(max[i], pixel[i]);
-					}
-				}
+				int channel = findChannel(bucket);
 
-				// Sort and split
-				final int sortChannel = (max[0] - min[0] >= max[1] - min[1]) ?
-						((max[0] - min[0] >= max[2] - min[2]) ? 0 : 2) :
-						((max[1] - min[1] >= max[2] - min[2]) ? 1 : 2);
-				bucket.sort(Comparator.comparingInt(pixel -> pixel[sortChannel]));
+				bucket.sort(Comparator.comparingInt(pixel -> pixel[channel]));
 				int median = bucket.size() / 2;
 				newBuckets.add(bucket.subList(0, median));
 				newBuckets.add(bucket.subList(median, bucket.size()));
@@ -233,6 +219,50 @@ final class PngUtils
 			palette.add(getAverage(bucket));
 		}
 		return palette;
+	}
+
+	/**
+	 * Finds the channel with the greatest range.
+	 *
+	 * @param bucket the bucket of pixels
+	 * @return the channel with the greatest range (0, 1 or 2)
+	 */
+	private static int findChannel(List<int[]> bucket)
+	{
+		int[] min = {255, 255, 255};
+		int[] max = {0, 0, 0};
+		for (int[] pixel : bucket)
+		{
+			for (var i = 0; i < 3; i++)
+			{
+				min[i] = Math.min(min[i], pixel[i]);
+				max[i] = Math.max(max[i], pixel[i]);
+			}
+		}
+
+		// Sort and split
+		if (max[0] - min[0] >= max[1] - min[1])
+		{
+			if (max[0] - min[0] >= max[2] - min[2])
+			{
+				return 0;
+			}
+			else
+			{
+				return 2;
+			}
+		}
+		else
+		{
+			if (max[1] - min[1] >= max[2] - min[2])
+			{
+				return 1;
+			}
+			else
+			{
+				return 2;
+			}
+		}
 	}
 
 	private static int[] getAverage(List<int[]> bucket)

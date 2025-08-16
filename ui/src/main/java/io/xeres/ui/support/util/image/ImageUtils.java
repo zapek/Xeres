@@ -76,7 +76,7 @@ public final class ImageUtils
 				}
 				quality -= 1;
 			}
-			while (canPossiblyBeImproved(maximumSize, out, quality));
+			while (canCompressionPossiblyBeImproved(maximumSize, out, quality));
 
 			return DATA_IMAGE_PNG_BASE_64 + Base64.getEncoder().encodeToString(out);
 		}
@@ -113,12 +113,12 @@ public final class ImageUtils
 				}
 				quality -= 1;
 			}
-			while (canPossiblyBeImproved(maximumSize, out, quality));
+			while (canCompressionPossiblyBeImproved(maximumSize, out, quality));
 
 			quality = 4;
 
 			// If still too big, try to convert to indexed PNG and then optimize it again
-			if (canPossiblyBeImproved(maximumSize, out, quality))
+			if (canCompressionPossiblyBeImproved(maximumSize, out, quality))
 			{
 				bufferedImage = PngUtils.convertToIndexedPng(bufferedImage);
 				baseOut = PngUtils.compressBufferedImageToPngArray(bufferedImage);
@@ -132,7 +132,7 @@ public final class ImageUtils
 					}
 					quality -= 1;
 				}
-				while (canPossiblyBeImproved(maximumSize, out, quality));
+				while (canCompressionPossiblyBeImproved(maximumSize, out, quality));
 
 			}
 			return DATA_IMAGE_PNG_BASE_64 + Base64.getEncoder().encodeToString(out);
@@ -164,7 +164,7 @@ public final class ImageUtils
 				out = JpegUtils.compressBufferedImageToJpegArray(bufferedImage, quality);
 				quality -= 0.1f;
 			}
-			while (canPossiblyBeImproved(maximumSize, out, quality));
+			while (canCompressionPossiblyBeImproved(maximumSize, out, quality));
 
 			return DATA_IMAGE_JPEG_BASE_64 + Base64.getEncoder().encodeToString(out);
 		}
@@ -308,7 +308,7 @@ public final class ImageUtils
 				.orElse(Screen.getPrimary());
 	}
 
-	private static boolean canPossiblyBeImproved(int maximumSize, byte[] array, float quality)
+	private static boolean canCompressionPossiblyBeImproved(int maximumSize, byte[] array, float quality)
 	{
 		return maximumSize != 0 && Math.ceil((double) array.length / 3) * 4 > maximumSize - 200 && quality > 0; // 200 bytes to be safe as the message might contain tags and so on
 	}

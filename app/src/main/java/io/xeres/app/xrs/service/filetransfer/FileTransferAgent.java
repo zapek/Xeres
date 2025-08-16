@@ -178,9 +178,7 @@ class FileTransferAgent
 		{
 			case FileSeeder fileSeeder -> processSeeder(fileSeeder);
 			case FileLeecher fileLeecher -> processLeecher(fileLeecher);
-			case null, default ->
-			{
-			} // Can't happen
+			case null, default -> throw new IllegalStateException("Unhandled peer class");
 		}
 
 	}

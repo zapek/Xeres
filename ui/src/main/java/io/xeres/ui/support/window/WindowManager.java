@@ -124,7 +124,7 @@ public class WindowManager
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -673,6 +673,8 @@ public class WindowManager
 				stage.setResizable(false);
 			}
 
+			WindowResizer.ensureWindowIsVisible(stage);
+
 			stage.setOnShowing(event -> builder.controller.onShowing());
 			stage.setOnShown(event -> {
 				builder.controller.onShown();
@@ -687,7 +689,7 @@ public class WindowManager
 			scene.getWindow().setUserData(builder.controller);
 		}
 
-		private void loadWindowPreferences(Stage stage, Builder builder)
+		private static void loadWindowPreferences(Stage stage, Builder builder)
 		{
 			var id = builder.root.getId();
 
@@ -722,7 +724,7 @@ public class WindowManager
 			}
 		}
 
-		private void saveWindowPreferences(Stage stage, Builder builder)
+		private static void saveWindowPreferences(Stage stage, Builder builder)
 		{
 			var id = builder.root.getId();
 

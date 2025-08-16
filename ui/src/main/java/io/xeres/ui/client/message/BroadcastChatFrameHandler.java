@@ -61,6 +61,7 @@ public class BroadcastChatFrameHandler implements StompFrameHandler
 					{
 						case CHAT_BROADCAST_MESSAGE ->
 						{ /* handled as a notification */ }
+						default -> throw new IllegalStateException("Unexpected value: " + messageType);
 					}
 				}
 		);

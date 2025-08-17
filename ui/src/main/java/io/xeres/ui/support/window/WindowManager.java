@@ -223,57 +223,62 @@ public class WindowManager
 	private void openMessagingInternal(Identifier destinationIdentifier, ChatMessage chatMessage)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(MessagingWindowController.class, destinationIdentifier.toString()).ifPresentOrElse(window ->
-						{
-							if (chatMessage == null)
-							{
-								// The user opened the window, and it's already open somewhere. Focus it.
-								if (!isBusy)
-								{
-									window.requestFocus();
-								}
-							}
-							else
-							{
-								// If there's an incoming message, and we aren't working in another part of the
-								// app, this will make the taskbar blink if the window is in there.
-								if (!chatMessage.isEmpty() && !isAnyWindowFocused() && !isBusy)
-								{
-									if (!window.isFocused())
-									{
-										soundService.play(SoundType.MESSAGE);
-										window.requestFocus();
-									}
-								}
-							}
-							((MessagingWindowController) window.getUserData()).showMessage(chatMessage);
-						},
-						() ->
-						{
-							if (chatMessage == null || (!chatMessage.isEmpty() && !chatMessage.isOwn())) // Don't open a window for a typing notification, we're not psychic (but do open when we double-click). Don't open for messages sent by us but from another client either
-							{
-								var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, imageCache, chatMessage != null);
+				getOpenedWindow(MessagingWindowController.class, destinationIdentifier.toString()).ifPresentOrElse(window -> showMessageInExistingWindow(chatMessage, window),
+						() -> showMessageInNewWindow(destinationIdentifier, chatMessage)));
+	}
 
-								// There's no need to store the incoming message anywhere because it's retrieved by the chat backlog system
-								var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)
-										.setLocalId(destinationIdentifier.toString())
-										.setRememberEnvironment(true)
-										.build();
+	private void showMessageInExistingWindow(ChatMessage chatMessage, Window window)
+	{
+		if (chatMessage == null)
+		{
+			// The user opened the window, and it's already open somewhere. Focus it.
+			if (!isBusy)
+			{
+				window.requestFocus();
+			}
+		}
+		else
+		{
+			// If there's an incoming message, and we aren't working in another part of the
+			// app, this will make the taskbar blink if the window is in there.
+			if (!chatMessage.isEmpty() && !isAnyWindowFocused() && !isBusy)
+			{
+				if (!window.isFocused())
+				{
+					soundService.play(SoundType.MESSAGE);
+					window.requestFocus();
+				}
+			}
+		}
+		((MessagingWindowController) window.getUserData()).showMessage(chatMessage);
+	}
 
-								if (isBusy)
-								{
-									builder.openInTaskbar();
-								}
-								else
-								{
-									builder.open();
-									if (chatMessage != null)
-									{
-										soundService.play(SoundType.MESSAGE);
-									}
-								}
-							}
-						}));
+	private void showMessageInNewWindow(Identifier destinationIdentifier, ChatMessage chatMessage)
+	{
+		// Don't open a window for a typing notification, we're not psychic (but do open when we double-click). Don't open for messages sent by us but from another client either
+		if (chatMessage == null || (!chatMessage.isEmpty() && !chatMessage.isOwn()))
+		{
+			var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, imageCache, chatMessage != null);
+
+			// There's no need to store the incoming message anywhere because it's retrieved by the chat backlog system
+			var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)
+					.setLocalId(destinationIdentifier.toString())
+					.setRememberEnvironment(true)
+					.build();
+
+			if (isBusy)
+			{
+				builder.openInTaskbar();
+			}
+			else
+			{
+				builder.open();
+				if (chatMessage != null)
+				{
+					soundService.play(SoundType.MESSAGE);
+				}
+			}
+		}
 	}
 
 	public void openForumEditor(PostRequest postRequest)

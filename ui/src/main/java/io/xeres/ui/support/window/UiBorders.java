@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.window;
 
+import com.sun.javafx.stage.WindowHelper;
 import com.sun.jna.*;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
@@ -112,9 +113,24 @@ public final class UiBorders
 		findOpeningWindowHandle().ifPresent(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
 	}
 
+	public static void setDarkMode(Stage stage, boolean value)
+	{
+		findWindowHandle(stage).ifPresent(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
+	}
+
 	public static void setDarkModeAll(boolean value)
 	{
 		findAllWindowHandle().forEach(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
+	}
+
+	private static Optional<WindowHandle> findWindowHandle(Stage stage)
+	{
+		var peer = WindowHelper.getPeer(stage);
+		if (peer != null)
+		{
+			return Optional.of(new WindowHandle(new WinDef.HWND(new Pointer(peer.getRawHandle()))));
+		}
+		return Optional.empty();
 	}
 
 	private static Optional<WindowHandle> findOpeningWindowHandle()

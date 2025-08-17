@@ -678,12 +678,11 @@ public class WindowManager
 				stage.setResizable(false);
 			}
 
-			WindowResizer.ensureWindowIsVisible(stage);
-
 			stage.setOnShowing(event -> builder.controller.onShowing());
 			stage.setOnShown(event -> {
 				builder.controller.onShown();
-				UiBorders.setDarkModeOnOpeningWindow(appThemeManager.getCurrentTheme().isDark());
+				UiBorders.setDarkMode(stage, appThemeManager.getCurrentTheme().isDark());
+				WindowResizer.ensureWindowIsVisible(stage);
 			});
 			stage.setOnHiding(event -> {
 				saveWindowPreferences(stage, builder);

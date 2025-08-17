@@ -235,7 +235,7 @@
                                 <FontIcon iconLiteral="mdi2b-bug"/>
                             </graphic>
                         </MenuItem>
-                        <MenuItem fx:id="versionCheck" text="Check for updates...">
+                        <MenuItem fx:id="versionCheck" text="%main.menu.help.check-for-updates">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2u-update"/>
                             </graphic>

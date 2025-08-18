@@ -72,17 +72,17 @@ public final class ForumMapper
 		}
 
 		return new ForumMessageDTO(
-				forumMessageItemSummary.id(),
-				forumMessageItemSummary.gxsId(),
-				forumMessageItemSummary.messageId(),
+				forumMessageItemSummary.getId(),
+				forumMessageItemSummary.getGxsId(),
+				forumMessageItemSummary.getMessageId(),
 				originalId,
 				parentId,
-				forumMessageItemSummary.authorId(),
+				forumMessageItemSummary.getAuthorId(),
 				authorName,
-				forumMessageItemSummary.name(),
-				forumMessageItemSummary.published(),
+				forumMessageItemSummary.getName(),
+				forumMessageItemSummary.getPublished(),
 				null,
-				forumMessageItemSummary.read()
+				forumMessageItemSummary.isRead()
 		);
 	}
 
@@ -90,9 +90,9 @@ public final class ForumMapper
 	{
 		return emptyIfNull(forumMessageItemSummaries).stream()
 				.map(forumMessageItemSummary -> toDTO(forumMessageItemSummary,
-						authorsMap.getOrDefault(forumMessageItemSummary.authorId(), IdentityGroupItem.EMPTY).getName(),
-						messagesMap.getOrDefault(forumMessageItemSummary.originalMessageId(), ForumMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(forumMessageItemSummary.parentId(), ForumMessageItem.EMPTY).getId()
+						authorsMap.getOrDefault(forumMessageItemSummary.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(forumMessageItemSummary.getOriginalMessageId(), ForumMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(forumMessageItemSummary.getParentId(), ForumMessageItem.EMPTY).getId()
 				))
 				.toList();
 	}

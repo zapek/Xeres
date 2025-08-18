@@ -24,23 +24,28 @@ import io.xeres.common.id.MessageId;
 
 import java.time.Instant;
 
+/**
+ * A summary of message items.
+ * <p>
+ * Caution: the method names must match the ones in ForumMessageItem!
+ */
 public interface ForumMessageItemSummary
 {
-	long id();
+	long getId();
 
-	GxsId gxsId();
+	GxsId getGxsId();
 
-	MessageId messageId();
+	MessageId getMessageId();
 
-	MessageId originalMessageId();
+	MessageId getOriginalMessageId();
 
-	MessageId parentId();
+	MessageId getParentId();
 
-	GxsId authorId();
+	GxsId getAuthorId();
 
-	String name();
+	String getName();
 
-	Instant published();
+	Instant getPublished();
 
-	boolean read();
+	boolean isRead();
 }

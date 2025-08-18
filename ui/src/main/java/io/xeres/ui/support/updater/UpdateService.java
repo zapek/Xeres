@@ -155,7 +155,7 @@ public class UpdateService
 			else
 			{
 				log.debug("Couldn't download url and/or signing url");
-				UiUtils.alert(Alert.AlertType.ERROR, "Couldn't download url and/or signing url");
+				UiUtils.alert(Alert.AlertType.ERROR, bundle.getString("update.download-failure"));
 			}
 		}
 		else
@@ -182,7 +182,7 @@ public class UpdateService
 
 		var progressBar = new ProgressBar(0);
 		var dialogPane = new DialogPane();
-		dialogPane.setHeaderText("Downloading file...");
+		dialogPane.setHeaderText(bundle.getString("update.download-file"));
 		dialogPane.getButtonTypes().addAll(ButtonType.CANCEL); // XXX: how can I make it do something?
 		dialogPane.setContent(progressBar);
 		dialogPane.setMinHeight(Region.USE_PREF_SIZE);
@@ -195,7 +195,7 @@ public class UpdateService
 		dialog.setDialogPane(dialogPane);
 		dialog.setWidth(320);
 
-		dialog.setTitle("Xeres Updater");
+		dialog.setTitle(bundle.getString("update.download.title"));
 
 		var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
 		UiUtils.setDefaultIcon(stage);
@@ -212,12 +212,12 @@ public class UpdateService
 						.doOnComplete(() -> Platform.runLater(() -> {
 							log.debug("Download complete");
 							dialogPane.getButtonTypes().clear();
-							var installButtonType = new ButtonType("Install");
+							var installButtonType = new ButtonType(bundle.getString("update.download.install"));
 							dialogPane.getButtonTypes().addAll(installButtonType);
 
 							var installButton = dialogPane.lookupButton(installButtonType);
 							installButton.setDisable(true);
-							dialogPane.setHeaderText("Verifying file...");
+							dialogPane.setHeaderText(bundle.getString("update.download.verifying"));
 							progressBar.setProgress(-1);
 
 							UiUtils.setAbsent(progressBar);
@@ -227,13 +227,13 @@ public class UpdateService
 										if (TRUE.equals(signingResult))
 										{
 											log.debug("File verified successfully");
-											dialogPane.setHeaderText("Ready to install!");
+											dialogPane.setHeaderText(bundle.getString("update.download.install-ready"));
 											installButton.setDisable(false);
 											installButton.setOnMouseReleased(event -> install(tempFile.toFile()));
 										}
 										else
 										{
-											dialogPane.setHeaderText("Verification failed!");
+											dialogPane.setHeaderText(bundle.getString("update.download-verification-failed"));
 											log.debug("Verification failed!");
 											// XXX: set button as either retry or close...
 										}

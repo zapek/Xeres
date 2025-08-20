@@ -128,36 +128,12 @@ public final class MinimalUserInterface
 		scrollPane.setPreferredSize(new Dimension(640, 320));
 		scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
-		textArea.addMouseListener(new MouseListener()
+		textArea.addMouseListener(new MouseAdapter()
 		{
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
 				textArea.setCaretPosition(textArea.getDocument().getLength());
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e)
-			{
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e)
-			{
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e)
-			{
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e)
-			{
-
 			}
 		});
 
@@ -269,7 +245,7 @@ public final class MinimalUserInterface
 		shellFrame.pack();
 		shellFrame.setLocationRelativeTo(null);
 		shellFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		shellFrame.addWindowListener(new ShellWindowListener()
+		shellFrame.addWindowListener(new WindowAdapter()
 		{
 			@Override
 			public void windowClosing(WindowEvent e)

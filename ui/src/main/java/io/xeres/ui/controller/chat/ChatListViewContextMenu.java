@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.chat;
 
+import io.xeres.common.i18n.I18nUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -26,11 +27,14 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 class ChatListViewContextMenu
 {
 	private static final String CLEAR_HISTORY_MENU_ID = "clearHistory";
 	private static final String COPY_SELECTION_MENU_ID = "copySelection";
+
+	private final ResourceBundle bundle = I18nUtils.getBundle();
 
 	private final ContextMenu contextMenu;
 
@@ -56,7 +60,7 @@ class ChatListViewContextMenu
 			return;
 		}
 
-		var copySelectionItem = new MenuItem("Copy selection");
+		var copySelectionItem = new MenuItem(bundle.getString("chat.room.copy-selection"));
 		copySelectionItem.setId(COPY_SELECTION_MENU_ID);
 		copySelectionItem.setOnAction(eventHandler);
 
@@ -75,7 +79,7 @@ class ChatListViewContextMenu
 			return;
 		}
 
-		var clearItem = new MenuItem("Clear chat history");
+		var clearItem = new MenuItem(bundle.getString("chat.room.clear-chat-history"));
 		clearItem.setId(CLEAR_HISTORY_MENU_ID);
 		clearItem.setOnAction(eventHandler);
 

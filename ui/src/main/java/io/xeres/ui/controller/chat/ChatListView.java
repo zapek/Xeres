@@ -129,7 +129,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	public void installClearHistoryContextMenu(Runnable action)
 	{
-		contextMenu.installClearHistoryMenu(event -> UiUtils.alertConfirm("Do you really want to clear the history?", () -> {
+		contextMenu.installClearHistoryMenu(event -> UiUtils.alertConfirm(bundle.getString("chat.room.clear-history"), () -> {
 			action.run();
 			messages.clear();
 		}));

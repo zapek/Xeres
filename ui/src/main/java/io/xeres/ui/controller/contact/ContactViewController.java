@@ -1116,7 +1116,7 @@ public class ContactViewController implements Controller
 
 	private void createContactTableViewContextMenu()
 	{
-		// The chat menu item can morph betwen chat and distant chat
+		// The chat menu item can morph between chat and distant chat
 		var chatItem = new MenuItem(bundle.getString("contact-view.action.chat"));
 		chatItem.setId(CHAT_MENU_ID);
 		chatItem.setOnAction(event -> {

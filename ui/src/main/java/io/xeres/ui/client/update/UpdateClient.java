@@ -57,8 +57,8 @@ public class UpdateClient
 	{
 		webClient = webClientBuilder
 				.baseUrl("https://api.github.com/repos/zapek/Xeres")
-				.defaultHeaders(HttpHeaders::clear) // Do not let GitHub know our user/password
-				.clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true))) // XXX: this is needed if we want to follow redirects! which github uses...
+				.defaultHeaders(HttpHeaders::clear) // Do not let GitHub know our remote user/password
+				.clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true))) // This is needed if we want to follow redirects, which GitHub uses
 				.build();
 	}
 

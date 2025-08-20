@@ -17,49 +17,67 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service;
+package io.xeres.app.service.shell;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
-import static io.xeres.common.mui.ShellAction.*;
-
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import io.xeres.common.mui.MinimalUserInterface;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
+import io.xeres.common.util.ByteUnitUtils;
 import jakarta.annotation.PreDestroy;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.time.Duration;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.xeres.common.mui.ShellAction.*;
 
 @Service
 public class ShellService implements Shell
 {
+	private final History history = new History(20);
+
 	@Override
 	public ShellResult sendCommand(String input)
 	{
 		var args = new DefaultApplicationArguments(translateCommandline(input));
 		var arg = args.getNonOptionArgs().isEmpty() ? null : args.getNonOptionArgs().getFirst();
 
-		if (arg != null)
+		if (StringUtils.isAsciiPrintable(arg))
 		{
+			history.addCommand(input);
 			return switch (arg.toLowerCase(Locale.ROOT))
 			{
 				case "help", "?" -> new ShellResult(SUCCESS, """
 						Available commands:
 						  - help: displays this help
-						  - clear: clears the screen
 						  - avail: shows the available memory
+						  - clear: clears the screen
+						  - cpu: shows the CPU count
+						  - exit: closes the shell
+						  - gc: runs the garbage collector
+						  - loglevel [package] [level]: sets the log level of a package
+						  - properties: opens the properties window
 						  - pwd: shows the current directory
 						  - uname: shows the operating system
-						  - exit: closes the shell""");
+						  - uptime: shows the app uptime""");
 				case "exit", "endshell", "endcli" -> new ShellResult(EXIT);
 				case "clear", "cls" -> new ShellResult(CLS);
 				case "avail", "free" -> getMemorySpecs();
+				case "cpu" -> getCpuCount();
 				case "pwd", "cd" -> getWorkingDirectory();
+				case "properties", "props" -> getProperties();
 				case "uname" -> getOperatingSystem();
+				case "uptime" -> getUptime();
 				case "gc" -> runGc();
+				case "loglevel" -> setLogLevel(args.getNonOptionArgs().size() > 1 ? args.getNonOptionArgs().get(1) : null, args.getNonOptionArgs().size() > 2 ? args.getNonOptionArgs().get(2) : null);
 				case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
 				default -> new ShellResult(UNKNOWN_COMMAND, arg);
 			};
@@ -67,11 +85,86 @@ public class ShellService implements Shell
 		return new ShellResult(NO_OP);
 	}
 
+	@Override
+	public String getPreviousCommand()
+	{
+		return history.getPrevious();
+	}
+
+	@Override
+	public String getNextCommand()
+	{
+		return history.getNext();
+	}
+
+	private ShellResult getProperties()
+	{
+		var properties = System.getProperties();
+
+		var map = properties.entrySet().stream()
+				.collect(Collectors.toMap(k -> (String) k.getKey(), e -> (String) e.getValue()))
+				.entrySet().stream()
+				.sorted(Map.Entry.comparingByKey())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+						(oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+		var sb = new StringBuilder();
+		map.forEach((key, value) -> processProperty(sb, key, value));
+
+		return new ShellResult(SUCCESS, sb.toString());
+	}
+
+	private static void processProperty(StringBuilder sb, String key, String value)
+	{
+		if (key.endsWith(".path"))
+		{
+			value = String.join("\n", value.split(File.pathSeparator));
+		}
+		else
+		{
+			value = showLineSeparator(value);
+		}
+		sb.append(key).append(" = ").append(value).append("\n");
+	}
+
+	private static String showLineSeparator(String in)
+	{
+		in = in.replace("\n", "\\n");
+		in = in.replace("\r", "\\r");
+		return in;
+	}
+
 	private static ShellResult getMemorySpecs()
 	{
+		var totalMemory = Runtime.getRuntime().totalMemory();
 		return new ShellResult(SUCCESS,
-				"Memory allocated for the JVM: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + " MB\n" +
-						"Maximum allocatable memory: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + " MB");
+				"Memory allocated for the JVM: " + ByteUnitUtils.fromBytes(totalMemory) + "\n" +
+						"Used memory: " + ByteUnitUtils.fromBytes(totalMemory - Runtime.getRuntime().freeMemory()) + "\n" +
+						"Maximum allocatable memory: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().maxMemory()));
+	}
+
+	private static ShellResult getUptime()
+	{
+		var startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
+		var currentTime = System.currentTimeMillis();
+		var uptimeMillis = currentTime - startTime;
+
+		var duration = Duration.ofMillis(uptimeMillis);
+
+		var days = duration.toDays();
+		var hours = duration.toHours() % 24;
+		var minutes = duration.toMinutes() % 60;
+		var seconds = duration.getSeconds() % 60;
+
+		return new ShellResult(SUCCESS,
+				String.format("%d days, %d hours, %d minutes, %d seconds",
+						days, hours, minutes, seconds));
+	}
+
+	private static ShellResult getCpuCount()
+	{
+		return new ShellResult(SUCCESS,
+				"CPU count: " + Runtime.getRuntime().availableProcessors());
 	}
 
 	private static ShellResult getWorkingDirectory()
@@ -90,6 +183,29 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, "Done");
 	}
 
+	private static ShellResult setLogLevel(String packageName, String level)
+	{
+		if (StringUtils.isBlank(packageName))
+		{
+			return new ShellResult(SUCCESS, "Package name must be provided (eg. io.xeres.app.application.Startup)");
+		}
+		if (StringUtils.isBlank(level))
+		{
+			return new ShellResult(SUCCESS, "Log level must be provided (trace, debug, info, warn, error)");
+		}
+
+		var loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		var logger = loggerContext.exists(packageName);
+		if (logger == null)
+		{
+			return new ShellResult(SUCCESS, "No such logger");
+		}
+
+		logger.setLevel(Level.valueOf(level));
+
+		return new ShellResult(SUCCESS, "Level of " + logger.getName() + " changed to " + logger.getLevel());
+	}
+
 	/**
 	 * [code borrowed from ant.jar]
 	 * Crack a command line.
@@ -98,7 +214,7 @@ public class ShellService implements Shell
 	 * @return the command line broken into strings.
 	 * An empty or null toProcess parameter results in a zero sized array.
 	 */
-	public static String[] translateCommandline(String toProcess)
+	static String[] translateCommandline(String toProcess)
 	{
 		enum State
 		{

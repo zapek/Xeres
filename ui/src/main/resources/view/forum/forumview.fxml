@@ -41,7 +41,7 @@
                     </tooltip>
                 </Button>
             </HBox>
-            <TreeTableView fx:id="forumTree" minWidth="-Infinity" prefWidth="200.0" VBox.vgrow="ALWAYS">
+            <TreeTableView fx:id="forumTree" styleClass="no-header" minWidth="-Infinity" prefWidth="200.0" VBox.vgrow="ALWAYS">
                 <columnResizePolicy>
                     <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
                 </columnResizePolicy>

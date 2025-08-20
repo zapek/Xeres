@@ -34,6 +34,7 @@ import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.controller.file.FileMainController;
+import io.xeres.ui.controller.help.HelpWindowController;
 import io.xeres.ui.custom.DelayedAction;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
@@ -52,11 +53,16 @@ import jakarta.annotation.Nullable;
 import javafx.animation.*;
 import javafx.application.HostServices;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -93,6 +99,17 @@ public class MainWindowController implements WindowController
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
 	private static final String XERES_DOWNLOAD_URL = "https://xeres.io/download";
+
+	private static final KeyCombination SHELL_SHORTCUT = new KeyCodeCombination(
+			KeyCode.F12
+	);
+
+	private static final KeyCombination ONLINE_HELP_SHORTCUT = new KeyCodeCombination(
+			KeyCode.F1, KeyCombination.SHORTCUT_DOWN
+	);
+	private final HelpWindowController helpWindowController;
+
+	private EventHandler<KeyEvent> keyEventHandler;
 
 	@FXML
 	private StackPane stackPane;
@@ -179,13 +196,7 @@ public class MainWindowController implements WindowController
 	private MenuItem h2Console;
 
 	@FXML
-	private MenuItem systemProperties;
-
-	@FXML
 	private MenuItem openShell;
-
-	@FXML
-	private MenuItem openUiCheck;
 
 	@FXML
 	private MenuItem versionCheck;
@@ -242,7 +253,7 @@ public class MainWindowController implements WindowController
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Nullable HostServices hostServices, @Lazy UpdateService updateService, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Nullable HostServices hostServices, @Lazy UpdateService updateService, ResourceBundle bundle, HelpWindowController helpWindowController)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -254,6 +265,7 @@ public class MainWindowController implements WindowController
 		this.hostServices = hostServices;
 		this.updateService = updateService;
 		this.bundle = bundle;
+		this.helpWindowController = helpWindowController;
 	}
 
 	@Override
@@ -318,9 +330,7 @@ public class MainWindowController implements WindowController
 			debug.setVisible(true);
 			runGc.setOnAction(event -> System.gc());
 			h2Console.setOnAction(event -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
-			systemProperties.setOnAction(event -> windowManager.openSystemProperties());
 			openShell.setOnAction(event -> MinimalUserInterface.openShell());
-			openUiCheck.setOnAction(event -> windowManager.openUiCheck());
 		}
 
 		versionCheck.setOnAction(even -> updateService.checkForUpdate());
@@ -338,6 +348,19 @@ public class MainWindowController implements WindowController
 		setupAnimations();
 
 		updateService.startBackgroundChecksIfEnabled();
+
+		keyEventHandler = event -> {
+			if (SHELL_SHORTCUT.match(event))
+			{
+				MinimalUserInterface.openShell();
+				event.consume();
+			}
+			else if (ONLINE_HELP_SHORTCUT.match(event))
+			{
+				webHelpButton.fire();
+				event.consume();
+			}
+		};
 	}
 
 	@Override
@@ -351,12 +374,16 @@ public class MainWindowController implements WindowController
 	{
 		windowManager.setRootWindow(getWindow(titleLabel));
 		chatViewController.jumpToBottom();
+
+		getWindow(titleLabel).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 
 	@Override
 	public void onHiding()
 	{
 		fileMainController.suspend();
+
+		getWindow(titleLabel).removeEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 
 	@Override

@@ -20,13 +20,14 @@
 package io.xeres.common.mui;
 
 import io.xeres.common.AppName;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -38,6 +39,8 @@ import java.util.Objects;
  */
 public final class MinimalUserInterface
 {
+	private static final Logger log = LoggerFactory.getLogger(MinimalUserInterface.class);
+	public static final String PROMPT = "1.SYS:> ";
 	private static JFrame shellFrame;
 	private static JTextArea textArea;
 	private static Shell shell;
@@ -105,11 +108,21 @@ public final class MinimalUserInterface
 
 	private static void createShellFrame(Shell shell)
 	{
-		textArea = new JTextArea();
+		textArea = new JTextArea()
+		{
+			@Override
+			public void paste()
+			{
+				super.paste();
+				updateLastLine();
+			}
+		};
 		textArea.setEditable(true);
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
 		textArea.setMargin(new Insets(8, 8, 8, 8));
+		textArea.setBackground(Color.GRAY);
+		textArea.setForeground(Color.BLACK);
 
 		var scrollPane = new JScrollPane(textArea);
 		scrollPane.setPreferredSize(new Dimension(640, 320));
@@ -148,6 +161,17 @@ public final class MinimalUserInterface
 			}
 		});
 
+		try
+		{
+			var font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(MinimalUserInterface.class.getResourceAsStream("/topaz.ttf")));
+			var derivedFont = font.deriveFont(Font.PLAIN, 14f);
+			textArea.setFont(derivedFont);
+		}
+		catch (FontFormatException | IOException e)
+		{
+			log.error("Failed to set custom font, guru meditation: {}", e.getMessage());
+		}
+
 		textArea.addKeyListener(new KeyListener()
 		{
 			@Override
@@ -156,7 +180,6 @@ public final class MinimalUserInterface
 				if (e.getKeyChar() == '\n')
 				{
 					e.consume();
-					return;
 				}
 				else if (e.getKeyChar() == '\b')
 				{
@@ -164,9 +187,11 @@ public final class MinimalUserInterface
 					{
 						currentLine = currentLine.substring(0, currentLine.length() - 1);
 					}
-					return;
 				}
-				currentLine += e.getKeyChar();
+				else if (StringUtils.isAsciiPrintable(String.valueOf(e.getKeyChar()))) // Strip spurious ctrl-v char sequence
+				{
+					currentLine += e.getKeyChar();
+				}
 			}
 
 			@Override
@@ -189,7 +214,11 @@ public final class MinimalUserInterface
 						switch (result.getAction())
 						{
 							case UNKNOWN_COMMAND -> appendToTextArea(currentLine + ": Unknown command");
-							case CLS -> textArea.setText("");
+							case CLS ->
+							{
+								textArea.setText("");
+								appendToTextArea("");
+							}
 							case EXIT -> closeShell();
 							case NO_OP -> appendToTextArea("");
 							case SUCCESS -> appendToTextArea(result.getOutput());
@@ -201,6 +230,23 @@ public final class MinimalUserInterface
 					}
 					currentLine = "";
 				}
+				else if (e.getKeyCode() == KeyEvent.VK_UP)
+				{
+					var previous = shell.getPreviousCommand();
+					updateLineHistory(previous);
+					e.consume();
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_DOWN)
+				{
+					var next = shell.getNextCommand();
+					updateLineHistory(next);
+					e.consume();
+				}
+				else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)
+				{
+					return;
+				}
+
 				if (textArea != null) // We might have typed 'exit'
 				{
 					textArea.setCaretPosition(textArea.getDocument().getLength());
@@ -215,17 +261,67 @@ public final class MinimalUserInterface
 		});
 
 		shellFrame = new JFrame(AppName.NAME + " Shell");
+		shellFrame.setUndecorated(true);
+		shellFrame.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
 		shellFrame.setIconImage(new ImageIcon(Objects.requireNonNull(MinimalUserInterface.class.getResource("/image/icon.png"))).getImage());
 		shellFrame.getContentPane().setLayout(new BoxLayout(shellFrame.getContentPane(), BoxLayout.Y_AXIS));
 		shellFrame.add(scrollPane);
 		shellFrame.pack();
 		shellFrame.setLocationRelativeTo(null);
-		shellFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		shellFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		shellFrame.addWindowListener(new ShellWindowListener()
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				closeShell();
+			}
+		});
+	}
+
+	/**
+	 * Updates the last line. This is slow, only use it for paste operations or so.
+	 */
+	private static void updateLastLine()
+	{
+		String fullText = textArea.getText();
+		if (fullText.isEmpty())
+		{
+			currentLine = "";
+		}
+		else
+		{
+			// Split by line breaks and get the last non-empty line
+			String[] lines = fullText.split("\\r?\\n");
+			currentLine = lines[lines.length - 1]
+					.replace(PROMPT, "");
+		}
+	}
+
+	private static void updateLineHistory(String line)
+	{
+		if (line == null)
+		{
+			line = "";
+		}
+
+		var pos = textArea.getDocument().getLength();
+		textArea.replaceRange(null, pos - currentLine.length(), pos);
+		textArea.append(line);
+		currentLine = line;
 	}
 
 	private static void appendToTextArea(String text)
 	{
-		textArea.append("\n" + text + "\n1.SYS:> ");
+		if (!textArea.getText().isEmpty())
+		{
+			textArea.append("\n");
+		}
+		if (StringUtils.isNotEmpty(text))
+		{
+			textArea.append(text + "\n");
+		}
+		textArea.append(PROMPT);
 		textArea.setCaretPosition(textArea.getDocument().getLength());
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,13 +17,27 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.mui;
+package io.xeres.app.service.shell;
 
-public interface Shell
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class HistoryTest
 {
-	ShellResult sendCommand(String input);
+	@Test
+	void Add_And_Navigate()
+	{
+		var history = new History(20);
+		history.addCommand("foo");
+		history.addCommand("bar");
 
-	String getPreviousCommand();
-
-	String getNextCommand();
+		assertEquals("bar", history.getPrevious());
+		assertEquals("foo", history.getPrevious());
+		assertEquals("foo", history.getPrevious());
+		assertEquals("bar", history.getNext());
+		assertNull(history.getNext());
+		assertEquals("bar", history.getPrevious());
+	}
 }

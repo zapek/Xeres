@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,24 +17,51 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.debug;
+package io.xeres.common.mui;
 
-import io.xeres.ui.controller.WindowController;
-import io.xeres.ui.custom.WaveDotsView;
-import javafx.fxml.FXML;
-import net.rgielen.fxweaver.core.FxmlView;
-import org.springframework.stereotype.Component;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
-@Component
-@FxmlView(value = "/view/debug/uicheck.fxml")
-public class UiCheckWindowController implements WindowController
+class ShellWindowListener implements WindowListener
 {
-	@FXML
-	private WaveDotsView waveDotsView;
+	@Override
+	public void windowOpened(WindowEvent e)
+	{
 
+	}
 
 	@Override
-	public void initialize()
+	public void windowClosing(WindowEvent e)
+	{
+
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e)
+	{
+
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e)
+	{
+
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e)
+	{
+
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e)
+	{
+
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e)
 	{
 
 	}

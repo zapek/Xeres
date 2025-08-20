@@ -39,8 +39,6 @@ import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
-import io.xeres.ui.controller.debug.PropertiesWindowController;
-import io.xeres.ui.controller.debug.UiCheckWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
 import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
@@ -351,26 +349,6 @@ public class WindowManager
 				UiWindow.builder(ShareWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("share.window-title"))
-						.build()
-						.open());
-	}
-
-	public void openSystemProperties()
-	{
-		Platform.runLater(() ->
-				UiWindow.builder(PropertiesWindowController.class)
-						.setParent(rootWindow)
-						.setTitle("System Properties")
-						.build()
-						.open());
-	}
-
-	public void openUiCheck()
-	{
-		Platform.runLater(() ->
-				UiWindow.builder(UiCheckWindowController.class)
-						.setParent(rootWindow)
-						.setTitle("Custom UI")
 						.build()
 						.open());
 	}

@@ -32,6 +32,7 @@ import io.xeres.app.service.*;
 import io.xeres.app.service.UiBridgeService.SplashStatus;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
+import io.xeres.app.service.shell.ShellService;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.events.StartupEvent;

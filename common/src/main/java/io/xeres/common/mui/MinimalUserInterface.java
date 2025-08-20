@@ -127,6 +127,8 @@ public final class MinimalUserInterface
 		var scrollPane = new JScrollPane(textArea);
 		scrollPane.setPreferredSize(new Dimension(640, 320));
 		scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+		scrollPane.getVerticalScrollBar().setUI(new CustomScrollBarUI());
+		scrollPane.getHorizontalScrollBar().setUI(new CustomScrollBarUI());
 
 		textArea.addMouseListener(new MouseAdapter()
 		{

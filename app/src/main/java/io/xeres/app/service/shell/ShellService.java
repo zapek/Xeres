@@ -21,7 +21,7 @@ package io.xeres.app.service.shell;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import io.xeres.common.mui.MinimalUserInterface;
+import io.xeres.common.mui.MUI;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
 import io.xeres.common.util.ByteUnitUtils;
@@ -299,6 +299,6 @@ public class ShellService implements Shell
 	@PreDestroy
 	private void cleanup()
 	{
-		MinimalUserInterface.closeShell();
+		MUI.closeShell();
 	}
 }

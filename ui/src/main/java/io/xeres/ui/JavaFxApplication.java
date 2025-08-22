@@ -19,7 +19,7 @@
 
 package io.xeres.ui;
 
-import io.xeres.common.mui.MinimalUserInterface;
+import io.xeres.common.mui.MUI;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Application;
 import javafx.application.HostServices;
@@ -59,7 +59,7 @@ public class JavaFxApplication extends Application
 		}
 		catch (Exception e)
 		{
-			MinimalUserInterface.showError(e);
+			MUI.showError(e);
 			System.exit(1);
 		}
 	}

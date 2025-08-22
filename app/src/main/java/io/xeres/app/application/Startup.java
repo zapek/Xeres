@@ -36,7 +36,7 @@ import io.xeres.app.service.shell.ShellService;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.mui.MinimalUserInterface;
+import io.xeres.common.mui.MUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -135,7 +135,7 @@ public class Startup implements ApplicationRunner
 			statusNotificationService.setTotalUsers((int) locationService.countLocations());
 			networkService.start();
 		}
-		MinimalUserInterface.setShell(shellService);
+		MUI.setShell(shellService);
 		uiBridgeService.closeSplashScreen();
 	}
 

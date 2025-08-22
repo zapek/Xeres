@@ -22,7 +22,7 @@ package io.xeres.ui.controller;
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
-import io.xeres.common.mui.MinimalUserInterface;
+import io.xeres.common.mui.MUI;
 import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rsid.Type;
@@ -34,7 +34,6 @@ import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.controller.file.FileMainController;
-import io.xeres.ui.controller.help.HelpWindowController;
 import io.xeres.ui.custom.DelayedAction;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
@@ -107,7 +106,6 @@ public class MainWindowController implements WindowController
 	private static final KeyCombination ONLINE_HELP_SHORTCUT = new KeyCodeCombination(
 			KeyCode.F1, KeyCombination.SHORTCUT_DOWN
 	);
-	private final HelpWindowController helpWindowController;
 
 	private EventHandler<KeyEvent> keyEventHandler;
 
@@ -253,7 +251,7 @@ public class MainWindowController implements WindowController
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Nullable HostServices hostServices, @Lazy UpdateService updateService, ResourceBundle bundle, HelpWindowController helpWindowController)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, @Lazy UpdateService updateService, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -265,7 +263,6 @@ public class MainWindowController implements WindowController
 		this.hostServices = hostServices;
 		this.updateService = updateService;
 		this.bundle = bundle;
-		this.helpWindowController = helpWindowController;
 	}
 
 	@Override
@@ -330,7 +327,7 @@ public class MainWindowController implements WindowController
 			debug.setVisible(true);
 			runGc.setOnAction(event -> System.gc());
 			h2Console.setOnAction(event -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
-			openShell.setOnAction(event -> MinimalUserInterface.openShell());
+			openShell.setOnAction(event -> MUI.openShell());
 		}
 
 		versionCheck.setOnAction(even -> updateService.checkForUpdate());
@@ -352,7 +349,7 @@ public class MainWindowController implements WindowController
 		keyEventHandler = event -> {
 			if (SHELL_SHORTCUT.match(event))
 			{
-				MinimalUserInterface.openShell();
+				MUI.openShell();
 				event.consume();
 			}
 			else if (ONLINE_HELP_SHORTCUT.match(event))

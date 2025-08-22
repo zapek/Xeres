@@ -23,11 +23,12 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 
-public class CustomScrollBarUI extends BasicScrollBarUI
+public class MUIScrollBar extends BasicScrollBarUI
 {
 	@Override
 	protected void configureScrollBarColors()
 	{
+		super.configureScrollBarColors();
 		thumbColor = new Color(102, 136, 187);
 		trackColor = Color.DARK_GRAY;
 	}

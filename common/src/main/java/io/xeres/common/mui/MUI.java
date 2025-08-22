@@ -37,23 +37,24 @@ import java.util.Objects;
  * <p>
  * Without Xeres, MUI wouldn't exist :)
  */
-public final class MinimalUserInterface
+public final class MUI
 {
-	private static final Logger log = LoggerFactory.getLogger(MinimalUserInterface.class);
+	private static final Logger log = LoggerFactory.getLogger(MUI.class);
+
 	public static final String PROMPT = "1.SYS:> ";
 	private static JFrame shellFrame;
 	private static JTextArea textArea;
 	private static Shell shell;
 	private static String currentLine = "";
 
-	private MinimalUserInterface()
+	private MUI()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
 	public static void setShell(Shell shell)
 	{
-		MinimalUserInterface.shell = shell;
+		MUI.shell = shell;
 	}
 
 	public static void showInformation(String message)
@@ -127,8 +128,8 @@ public final class MinimalUserInterface
 		var scrollPane = new JScrollPane(textArea);
 		scrollPane.setPreferredSize(new Dimension(640, 320));
 		scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-		scrollPane.getVerticalScrollBar().setUI(new CustomScrollBarUI());
-		scrollPane.getHorizontalScrollBar().setUI(new CustomScrollBarUI());
+		scrollPane.getVerticalScrollBar().setUI(new MUIScrollBar());
+		scrollPane.getHorizontalScrollBar().setUI(new MUIScrollBar());
 
 		textArea.addMouseListener(new MouseAdapter()
 		{
@@ -141,7 +142,7 @@ public final class MinimalUserInterface
 
 		try
 		{
-			var font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(MinimalUserInterface.class.getResourceAsStream("/topaz.ttf")));
+			var font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(MUI.class.getResourceAsStream("/topaz.ttf")));
 			var derivedFont = font.deriveFont(Font.PLAIN, 14f);
 			textArea.setFont(derivedFont);
 		}
@@ -241,7 +242,7 @@ public final class MinimalUserInterface
 		shellFrame = new JFrame(AppName.NAME + " Shell");
 		shellFrame.setUndecorated(true);
 		shellFrame.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
-		shellFrame.setIconImage(new ImageIcon(Objects.requireNonNull(MinimalUserInterface.class.getResource("/image/icon.png"))).getImage());
+		shellFrame.setIconImage(new ImageIcon(Objects.requireNonNull(MUI.class.getResource("/image/icon.png"))).getImage());
 		shellFrame.getContentPane().setLayout(new BoxLayout(shellFrame.getContentPane(), BoxLayout.Y_AXIS));
 		shellFrame.add(scrollPane);
 		shellFrame.pack();

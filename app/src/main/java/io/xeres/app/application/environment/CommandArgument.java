@@ -20,7 +20,7 @@
 package io.xeres.app.application.environment;
 
 import io.xeres.common.AppName;
-import io.xeres.common.mui.MinimalUserInterface;
+import io.xeres.common.mui.MUI;
 import io.xeres.common.properties.StartupProperties;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.DefaultApplicationArguments;
@@ -207,7 +207,7 @@ public final class CommandArgument
 		}
 		else
 		{
-			MinimalUserInterface.showInformation(s);
+			MUI.showInformation(s);
 		}
 	}
 }

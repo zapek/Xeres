@@ -102,7 +102,7 @@ public class ForumViewController implements Controller
 	private TreeTableColumn<ForumGroup, String> forumNameColumn;
 
 	@FXML
-	private TreeTableColumn<ForumMessage, Long> forumCountColumn;
+	private TreeTableColumn<ForumGroup, Integer> forumCountColumn;
 
 	@FXML
 	private SplitPane splitPaneVertical;
@@ -172,8 +172,6 @@ public class ForumViewController implements Controller
 	private final TreeItem<ForumGroup> popularForums;
 	private final TreeItem<ForumGroup> otherForums;
 
-	private TextFlowDragSelection dragSelection;
-
 	private MessageId messageIdToSelect;
 
 	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService)
@@ -208,6 +206,7 @@ public class ForumViewController implements Controller
 		forumTree.setRowFactory(param -> new ForumCell());
 		forumNameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
 		forumCountColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("unreadCount"));
+		forumCountColumn.setCellFactory(param -> new ForumCellCount());
 		createForumTreeContextMenu();
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
@@ -251,12 +250,12 @@ public class ForumViewController implements Controller
 
 		setupTrees();
 
-		dragSelection = new TextFlowDragSelection(messageContent);
-		setupDragSelection(dragSelection);
+		setupDragSelection();
 	}
 
-	private void setupDragSelection(TextFlowDragSelection selection)
+	private void setupDragSelection()
 	{
+		var selection = new TextFlowDragSelection(messageContent);
 		messageContent.addEventFilter(MouseEvent.MOUSE_PRESSED, selection::press);
 		messageContent.addEventFilter(MouseEvent.MOUSE_DRAGGED, selection::drag);
 		messageContent.addEventFilter(MouseEvent.MOUSE_RELEASED, selection::release);

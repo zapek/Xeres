@@ -71,7 +71,7 @@ public class UpdateService
 	private final TrayService trayService;
 	private final ResourceBundle bundle;
 
-	public UpdateService(MainWindowController mainWindowController, UpdateClient updateClient, ConfigClient configClient, BuildProperties buildProperties, @Nullable HostServices hostServices, TrayService trayService, ResourceBundle bundle)
+	public UpdateService(MainWindowController mainWindowController, UpdateClient updateClient, ConfigClient configClient, BuildProperties buildProperties, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, TrayService trayService, ResourceBundle bundle)
 	{
 		this.mainWindowController = mainWindowController;
 		this.updateClient = updateClient;
@@ -126,7 +126,7 @@ public class UpdateService
 				.doOnSuccess(releaseResponse -> Platform.runLater(() -> {
 					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion()))
 					{
-						mainWindowController.showUpdate(MessageFormat.format(bundle.getString("update.new-version-auto"), releaseResponse.tagName().substring(1)), releaseResponse.tagName());
+						mainWindowController.showUpdate(MessageFormat.format(bundle.getString("update.new-version-auto"), releaseResponse.tagName().substring(1)), releaseResponse.tagName(), () -> download(releaseResponse));
 					}
 				}))
 				.subscribe();

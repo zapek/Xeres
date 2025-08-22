@@ -97,7 +97,6 @@ public class MainWindowController implements WindowController
 {
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
-	private static final String XERES_DOWNLOAD_URL = "https://xeres.io/download";
 
 	private static final KeyCombination SHELL_SHORTCUT = new KeyCodeCombination(
 			KeyCode.F12
@@ -404,7 +403,7 @@ public class MainWindowController implements WindowController
 		rsIdResponse.subscribe(reply -> Platform.runLater(() -> windowManager.openQrCode(reply)));
 	}
 
-	public void showUpdate(String message, String tagName)
+	public void showUpdate(String message, String tagName, Runnable downloadAction)
 	{
 		var msg = new Notification(message, new FontIcon(MaterialDesignI.INFORMATION));
 		msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_2);
@@ -413,7 +412,7 @@ public class MainWindowController implements WindowController
 
 		var downloadButton = new Button(bundle.getString("download"));
 		downloadButton.setDefaultButton(true);
-		downloadButton.setOnAction(actionEvent -> openUrl(XERES_DOWNLOAD_URL)); // XXX: or download...
+		downloadButton.setOnAction(actionEvent -> downloadAction.run());
 		var skipButton = new Button(bundle.getString("skip"));
 		skipButton.setOnAction(actionEvent -> updateService.skipUpdate(tagName));
 		msg.setPrimaryActions(downloadButton, skipButton);

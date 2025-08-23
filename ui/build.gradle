@@ -55,7 +55,7 @@ dependencies {
     implementation 'commons-io:commons-io:2.20.0'
     implementation 'net.rgielen:javafx-weaver-spring-boot-starter:2.0.1'
     implementation 'org.fxmisc.flowless:flowless:0.7.4'
-    implementation 'org.apache.commons:commons-lang3'
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"

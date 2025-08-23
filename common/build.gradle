@@ -1,7 +1,5 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -18,6 +16,10 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
  * You should have received a copy of the GNU General Public License
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+
 
 plugins {
     id 'java-test-fixtures'
@@ -45,7 +47,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-json'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.apache.commons:commons-lang3'
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:$springOpenApiVersion"
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

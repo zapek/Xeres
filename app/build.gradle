@@ -170,7 +170,7 @@ dependencies {
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation "net.harawata:appdirs:$appDirsVersion"
     implementation 'com.github.atomashpolskiy:bt-dht:1.10'
-    implementation 'org.apache.commons:commons-lang3'
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:$springOpenApiVersion"
     implementation 'net.coobird:thumbnailator:0.4.20'

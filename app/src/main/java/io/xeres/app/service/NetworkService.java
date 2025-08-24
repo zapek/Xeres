@@ -31,7 +31,7 @@ import io.xeres.app.net.upnp.UPNPService;
 import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ip.IP;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -358,7 +358,7 @@ public class NetworkService
 
 	private void applyTor(Settings oldSettings, Settings newSettings)
 	{
-		if (!StringUtils.equals(newSettings.getTorSocksHost(), oldSettings.getTorSocksHost()) || newSettings.getTorSocksPort() != oldSettings.getTorSocksPort())
+		if (!Strings.CS.equals(newSettings.getTorSocksHost(), oldSettings.getTorSocksHost()) || newSettings.getTorSocksPort() != oldSettings.getTorSocksPort())
 		{
 			peerService.restartTor();
 		}
@@ -366,7 +366,7 @@ public class NetworkService
 
 	private void applyI2p(Settings oldSettings, Settings newSettings)
 	{
-		if (!StringUtils.equals(newSettings.getI2pSocksHost(), oldSettings.getI2pSocksHost()) || newSettings.getI2pSocksPort() != oldSettings.getI2pSocksPort())
+		if (!Strings.CS.equals(newSettings.getI2pSocksHost(), oldSettings.getI2pSocksHost()) || newSettings.getI2pSocksPort() != oldSettings.getI2pSocksPort())
 		{
 			peerService.restartI2p();
 		}

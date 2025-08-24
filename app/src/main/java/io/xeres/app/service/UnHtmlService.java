@@ -19,7 +19,7 @@
 
 package io.xeres.app.service;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension;
 import org.commonmark.node.*;
@@ -56,9 +56,9 @@ public class UnHtmlService
 	{
 		// Only process HTML
 		if (isBlank(text) ||
-				(!StringUtils.startsWithIgnoreCase(text, "<body>") &&
-						!StringUtils.startsWithIgnoreCase(text, "<html>") &&
-						!StringUtils.startsWithIgnoreCase(text, "<a "))) // Also convert certificate links sent by Xeres to RS. One day we'll send them as Markdown too
+				(!Strings.CI.startsWith(text, "<body>") &&
+						!Strings.CI.startsWith(text, "<html>") &&
+						!Strings.CI.startsWith(text, "<a "))) // Also convert certificate links sent by Xeres to RS. One day we'll send them as Markdown too
 		{
 			return text;
 		}

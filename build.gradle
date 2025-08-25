@@ -28,7 +28,7 @@ buildscript {
         flywayDbVersion = "11.7.2" // Only used by the plugin, keep in sync with spring-boot from time to time
         jpackageVersion = "1.7.3"
         jsonPatchVersion = "1.13"
-        jsoupVersion = "1.21.1"
+        jsoupVersion = "1.21.2"
         junitVersion = "5.13.4"
         sonarqubeVersion = "6.2.0.5505"
         springBootVersion = "3.5.5"

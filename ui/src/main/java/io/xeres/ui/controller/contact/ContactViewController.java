@@ -27,6 +27,7 @@ import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
+import io.xeres.common.util.OsUtils;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
@@ -70,7 +71,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
-import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
@@ -86,7 +86,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Disposable;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
@@ -1282,7 +1281,7 @@ public class ContactViewController implements Controller
 	{
 		var fileChooser = new FileChooser();
 		fileChooser.setTitle(bundle.getString("main.select-avatar"));
-		fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
+		fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
 		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
 		var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 		if (selectedFile != null && selectedFile.canRead())

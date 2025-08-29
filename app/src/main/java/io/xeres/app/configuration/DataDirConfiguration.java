@@ -23,7 +23,7 @@ import io.xeres.app.application.SingleInstanceRun;
 import io.xeres.app.util.DevUtils;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
-import net.harawata.appdirs.AppDirsFactory;
+import io.xeres.common.util.OsUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -84,7 +84,7 @@ public class DataDirConfiguration
 		}
 		if (dataDir == null)
 		{
-			dataDir = getDataDirFromNativePlatform();
+			dataDir = OsUtils.getDataDir().toString();
 		}
 
 		Objects.requireNonNull(dataDir);
@@ -124,11 +124,5 @@ public class DataDirConfiguration
 			return portable.resolveSibling(LOCAL_DATA).toAbsolutePath().toString();
 		}
 		return null;
-	}
-
-	private static String getDataDirFromNativePlatform()
-	{
-		var appDirs = AppDirsFactory.getInstance();
-		return appDirs.getUserDataDir(AppName.NAME, null, null, true);
 	}
 }

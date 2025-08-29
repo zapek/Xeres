@@ -19,6 +19,8 @@
 
 package io.xeres.common.util;
 
+import io.xeres.common.AppName;
+import net.harawata.appdirs.AppDirsFactory;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,6 +369,36 @@ public final class OsUtils
 	{
 		var home = new ApplicationHome(OsUtils.class);
 		return home.getDir().toPath().toAbsolutePath();
+	}
+
+	/**
+	 * Gets the OS system cache directory of the app.
+	 *
+	 * @return the cache directory
+	 */
+	public static Path getCacheDir()
+	{
+		return Path.of(AppDirsFactory.getInstance().getUserCacheDir(AppName.NAME, null, null));
+	}
+
+	/**
+	 * Gets the OS data directory of the app.
+	 *
+	 * @return the data directory
+	 */
+	public static Path getDataDir()
+	{
+		return Path.of(AppDirsFactory.getInstance().getUserDataDir(AppName.NAME, null, null, true));
+	}
+
+	/**
+	 * Gets the OS download directory of the app.
+	 *
+	 * @return the download directory
+	 */
+	public static Path getDownloadDir()
+	{
+		return Path.of(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null));
 	}
 }
 

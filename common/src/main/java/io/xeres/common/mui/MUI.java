@@ -201,6 +201,7 @@ public final class MUI
 							case EXIT -> closeShell();
 							case NO_OP -> appendToTextArea("");
 							case SUCCESS -> appendToTextArea(result.getOutput());
+							case ERROR -> appendToTextArea("Error: " + result.getOutput());
 						}
 					}
 					else

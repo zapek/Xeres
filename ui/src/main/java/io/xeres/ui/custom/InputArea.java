@@ -19,7 +19,6 @@
 
 package io.xeres.ui.custom;
 
-import io.xeres.common.AppName;
 import io.xeres.common.util.OsUtils;
 import io.xeres.ui.custom.alias.PopupAlias;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
@@ -38,7 +37,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.PopupWindow;
-import net.harawata.appdirs.AppDirsFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Path;
@@ -138,7 +136,7 @@ public class InputArea extends TextArea
 		popup.show(UiUtils.getWindow(this));
 		stickerView.loadStickers(
 				Path.of(OsUtils.getApplicationHome().toString(), STICKERS_DIRECTORY),
-				Path.of(AppDirsFactory.getInstance().getUserDataDir(AppName.NAME, null, null, true), STICKERS_DIRECTORY));
+				Path.of(OsUtils.getDataDir().toString(), STICKERS_DIRECTORY));
 		popup.setAutoHide(true);
 		return true;
 	}

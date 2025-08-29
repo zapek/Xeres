@@ -61,8 +61,8 @@ dependencies {
     implementation "com.github.java-json-tools:json-patch:$jsonPatchVersion"
     implementation 'com.github.sarxos:webcam-capture:0.3.12'
     implementation "com.google.zxing:javase:$zxingVersion"
-    implementation "net.harawata:appdirs:$appDirsVersion"
     implementation 'io.github.mkpaz:atlantafx-base:2.1.0'
+    implementation "net.java.dev.jna:jna-platform:$jnaVersion"
     implementation platform('org.kordamp.ikonli:ikonli-bom:12.4.0')
     implementation 'org.kordamp.ikonli:ikonli-javafx'
     implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack'

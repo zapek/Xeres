@@ -25,6 +25,7 @@ import io.xeres.common.mui.MUI;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
 import io.xeres.common.util.ByteUnitUtils;
+import io.xeres.common.util.OsUtils;
 import jakarta.annotation.PreDestroy;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -64,6 +66,8 @@ public class ShellService implements Shell
 						  - exit: closes the shell
 						  - gc: runs the garbage collector
 						  - loglevel [package] [level]: sets the log level of a package
+						  - logs: shows the logs
+						  - open: opens a directory (app, cache, data or download)
 						  - properties: opens the properties window
 						  - pwd: shows the current directory
 						  - uname: shows the operating system
@@ -77,12 +81,26 @@ public class ShellService implements Shell
 				case "uname" -> getOperatingSystem();
 				case "uptime" -> getUptime();
 				case "gc" -> runGc();
-				case "loglevel" -> setLogLevel(args.getNonOptionArgs().size() > 1 ? args.getNonOptionArgs().get(1) : null, args.getNonOptionArgs().size() > 2 ? args.getNonOptionArgs().get(2) : null);
+				case "loglevel" -> setLogLevel(getArgument(args, 1), getArgument(args, 2));
+				case "logs" -> showLogs();
+				case "open" -> openDirectory(getArgument(args, 1));
 				case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
 				default -> new ShellResult(UNKNOWN_COMMAND, arg);
 			};
 		}
 		return new ShellResult(NO_OP);
+	}
+
+	/**
+	 * Gets the argument.
+	 *
+	 * @param args  the arguments
+	 * @param index the index of the argument, 0 for the command name, 1 for the first argument, etc...
+	 * @return the argument or null if it wasn't supplied
+	 */
+	private String getArgument(DefaultApplicationArguments args, int index)
+	{
+		return args.getNonOptionArgs().size() > index ? args.getNonOptionArgs().get(index) : null;
 	}
 
 	@Override
@@ -187,23 +205,59 @@ public class ShellService implements Shell
 	{
 		if (StringUtils.isBlank(packageName))
 		{
-			return new ShellResult(SUCCESS, "Package name must be provided (eg. io.xeres.app.application.Startup)");
+			return new ShellResult(ERROR, "package name must be provided (eg. io.xeres.app.application.Startup)");
 		}
 		if (StringUtils.isBlank(level))
 		{
-			return new ShellResult(SUCCESS, "Log level must be provided (trace, debug, info, warn, error)");
+			return new ShellResult(ERROR, "log level must be provided (trace, debug, info, warn, error)");
 		}
 
 		var loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 		var logger = loggerContext.exists(packageName);
 		if (logger == null)
 		{
-			return new ShellResult(SUCCESS, "No such logger");
+			return new ShellResult(ERROR, "no such logger");
 		}
 
 		logger.setLevel(Level.valueOf(level));
 
 		return new ShellResult(SUCCESS, "Level of " + logger.getName() + " changed to " + logger.getLevel());
+	}
+
+	private static ShellResult showLogs()
+	{
+		try
+		{
+			OsUtils.shellOpen(Path.of(OsUtils.getApplicationHome().toString(), "xeres.log").toFile());
+		}
+		catch (IllegalStateException e)
+		{
+			return new ShellResult(ERROR, "Unable to open logs: " + e.getMessage());
+		}
+		return new ShellResult(SUCCESS, "Showing logs in external viewer");
+	}
+
+	private static ShellResult openDirectory(String name)
+	{
+		Path directory;
+
+		directory = switch (name)
+		{
+			case "app" -> OsUtils.getApplicationHome();
+			case "cache" -> OsUtils.getCacheDir();
+			case "data" -> OsUtils.getDataDir();
+			case "download" -> OsUtils.getDownloadDir();
+			case null, default -> null;
+		};
+
+		if (directory == null)
+		{
+			return new ShellResult(ERROR, "Invalid directory name. Must be either 'app', 'cache, 'data' or 'download'");
+		}
+
+		OsUtils.showFolder(directory.toFile());
+
+		return new ShellResult(SUCCESS, "Opening " + name + " directory at " + directory + " ...");
 	}
 
 	/**

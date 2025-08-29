@@ -20,6 +20,7 @@
 package io.xeres.ui.support.contentline;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.util.OsUtils;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -43,13 +44,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import net.harawata.appdirs.AppDirsFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
 
 import javax.imageio.ImageIO;
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
@@ -155,7 +154,7 @@ public class ContentImage implements Content
 
 		var fileChooser = new FileChooser();
 		fileChooser.setTitle(bundle.getString("file-requester.save-image-title"));
-		fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
+		fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(saveFormat.format(), saveFormat.extensions()));
 		fileChooser.setInitialFileName("Image_" + DATE_TIME_FILENAME.format(Instant.now()) + saveFormat.getPrimaryExtension());
 

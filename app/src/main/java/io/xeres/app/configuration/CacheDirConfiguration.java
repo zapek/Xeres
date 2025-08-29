@@ -20,8 +20,7 @@
 package io.xeres.app.configuration;
 
 import io.xeres.app.util.DevUtils;
-import io.xeres.common.AppName;
-import net.harawata.appdirs.AppDirsFactory;
+import io.xeres.common.util.OsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -77,7 +76,7 @@ public class CacheDirConfiguration
 
 		if (cacheDir == null)
 		{
-			cacheDir = getCacheDirFromNativePlatform();
+			cacheDir = OsUtils.getCacheDir().toString();
 		}
 
 		var path = Path.of(cacheDir);
@@ -104,11 +103,5 @@ public class CacheDirConfiguration
 			return portable.resolveSibling("Cache").toAbsolutePath().toString();
 		}
 		return null;
-	}
-
-	private static String getCacheDirFromNativePlatform()
-	{
-		var appDirs = AppDirsFactory.getInstance();
-		return appDirs.getUserCacheDir(AppName.NAME, null, null);
 	}
 }

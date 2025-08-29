@@ -49,6 +49,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:$springOpenApiVersion"
+    implementation "net.harawata:appdirs:$appDirsVersion"
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

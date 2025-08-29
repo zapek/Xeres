@@ -27,6 +27,7 @@ import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.common.util.ByteUnitUtils;
+import io.xeres.common.util.OsUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ConfigClient;
@@ -68,7 +69,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
@@ -81,7 +81,6 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
@@ -293,7 +292,7 @@ public class MainWindowController implements WindowController
 		exportBackup.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("main.export-profile"));
-			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
+			fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
 			fileChooser.setInitialFileName("xeres_backup.xml");
 			var selectedFile = fileChooser.showSaveDialog(getWindow(event));
@@ -306,7 +305,7 @@ public class MainWindowController implements WindowController
 		importFriends.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("main.import-friends"));
-			fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
+			fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
 			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())

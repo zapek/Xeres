@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,7 +35,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.DirectoryChooser;
-import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignF;
@@ -156,11 +155,10 @@ public class ShareWindowController implements WindowController
 		tableBrowsable.setOnEditCommit(param -> getCurrentItem(param).setBrowsable(param.getNewValue()));
 
 		addButton.setOnAction(event -> {
-			var downloadDir = AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null);
-			var downloadPath = Paths.get(downloadDir);
+			var downloadPath = OsUtils.getDownloadDir();
 			var newShare = new Share();
 			newShare.setName(downloadPath.getName(downloadPath.getNameCount() - 1).toString());
-			newShare.setPath(downloadDir);
+			newShare.setPath(downloadPath.toString());
 			newShare.setSearchable(true);
 			newShare.setBrowsable(Trust.NEVER);
 			shareTableView.getItems().add(newShare);

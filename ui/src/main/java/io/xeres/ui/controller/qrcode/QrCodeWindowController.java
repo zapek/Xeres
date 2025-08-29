@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.ui.controller.qrcode;
 
 import io.xeres.common.AppName;
 import io.xeres.common.rest.location.RSIdResponse;
+import io.xeres.common.util.OsUtils;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.ResizeableImageView;
@@ -38,12 +39,10 @@ import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
-import net.harawata.appdirs.AppDirsFactory;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
-import java.io.File;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
@@ -164,7 +163,7 @@ public class QrCodeWindowController implements WindowController
 	{
 		var fileChooser = new FileChooser();
 		fileChooser.setTitle(bundle.getString("qr-code.save-as-png"));
-		fileChooser.setInitialDirectory(new File(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null)));
+		fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
 		fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.png"), "*.png"));
 		fileChooser.setInitialFileName(AppName.NAME + "ID_" + rsIdResponse.name() + "@" + rsIdResponse.location() + ".png");
 		var selectedFile = fileChooser.showSaveDialog(window);

@@ -110,16 +110,28 @@ public final class UiBorders
 
 	public static void setDarkModeOnOpeningWindow(boolean value)
 	{
+		if (Platform.getOSType() != Platform.WINDOWS)
+		{
+			return;
+		}
 		findOpeningWindowHandle().ifPresent(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
 	}
 
 	public static void setDarkMode(Stage stage, boolean value)
 	{
+		if (Platform.getOSType() != Platform.WINDOWS)
+		{
+			return;
+		}
 		findWindowHandle(stage).ifPresent(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
 	}
 
 	public static void setDarkModeAll(boolean value)
 	{
+		if (Platform.getOSType() != Platform.WINDOWS)
+		{
+			return;
+		}
 		findAllWindowHandle().forEach(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
 	}
 

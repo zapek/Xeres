@@ -71,7 +71,7 @@ public class AboutWindowController implements WindowController
 	private final HostServices hostServices;
 	private final ResourceBundle bundle;
 
-	public AboutWindowController(BuildProperties buildProperties, Environment environment, @Nullable HostServices hostServices, ResourceBundle bundle)
+	public AboutWindowController(BuildProperties buildProperties, Environment environment, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle)
 	{
 		this.buildProperties = buildProperties;
 		this.environment = environment;
@@ -98,7 +98,7 @@ public class AboutWindowController implements WindowController
 
 		UiUtils.setOnPrimaryMouseDoubleClicked(logo, event -> {
 			logo.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/egg.png"))));
-			TooltipUtils.install(logo, "Qrqvpngrq gb Nyvan".chars().mapToObj(v -> (char) v).map(c -> (char) ((c < 'a') ? ((c - 'A' + 13) % 26) + 'A' : ((c - 'a' + 13) % 26) + 'a')).map(String::valueOf).collect(Collectors.joining()).replace("-", " "));
+			TooltipUtils.install(logo, "Qrqvpngrq gb Lhyvn\u001F Nqevra\u001F Nyvan naq Kravn".chars().mapToObj(v -> (char) v).map(c -> (char) ((c < 'a') ? ((c - 'A' + 13) % 26) + 'A' : ((c - 'a' + 13) % 26) + 'a')).map(String::valueOf).collect(Collectors.joining()).replace("-", " "));
 		});
 
 		Platform.runLater(() -> closeWindow.requestFocus());

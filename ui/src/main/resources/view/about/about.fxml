@@ -162,6 +162,12 @@
                     <DisclosedHyperlink text="MIT license." uri="https://www.bouncycastle.org/about/license/#License"/>
                     <Text text="&#10;&#10;"/>
 
+                    <DisclosedHyperlink text="Commonmark Java" uri="https://github.com/commonmark/commonmark-java"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Robin Stocker. Licensed under the "/>
+                    <DisclosedHyperlink text="BSD 2-Clause license." uri="https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt"/>
+                    <Text text="&#10;&#10;"/>
+
                     <DisclosedHyperlink text="Contact Identicons" uri="https://github.com/davidhampgonsalves/Contact-Identicons"/>
                     <Text text="&#10;"/>
                     <Text text=" © David Hamp-Gonsalves. Licensed under the "/>

@@ -30,8 +30,6 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 
 import javax.sql.DataSource;
 import java.io.BufferedReader;
@@ -55,14 +53,12 @@ public class DataSourceConfiguration
 	private static final String H2_URL_PREFIX = "jdbc:h2:file:";
 	private static final String H2_USERNAME = "sa";
 
-	private final Environment environment;
 	private final DatabaseProperties databaseProperties;
 	private final DataDirConfiguration dataDirConfiguration;
 	private final UiBridgeService uiBridgeService;
 
-	public DataSourceConfiguration(Environment environment, DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, UiBridgeService uiBridgeService)
+	public DataSourceConfiguration(DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, UiBridgeService uiBridgeService)
 	{
-		this.environment = environment;
 		this.databaseProperties = databaseProperties;
 		this.dataDirConfiguration = dataDirConfiguration;
 		this.uiBridgeService = uiBridgeService;
@@ -74,12 +70,8 @@ public class DataSourceConfiguration
 	{
 		uiBridgeService.setSplashStatus(SplashStatus.DATABASE);
 
-		var useJMX = "";
-
-		if (environment.acceptsProfiles(Profiles.of("dev")))
-		{
-			useJMX = ";JMX=TRUE";
-		}
+		var useJMX = ";JMX=TRUE";
+		var disableTraces = ";TRACE_LEVEL_FILE=0"; // Set to 4 for verbose output using Slf4J
 
 		var dataDir = Path.of(dataDirConfiguration.getDataDir(), "userdata").toString();
 
@@ -97,7 +89,7 @@ public class DataSourceConfiguration
 			dbOpts += ";MAX_COMPACT_TIME=" + databaseProperties.getMaxCompactTime();
 		}
 
-		var url = H2_URL_PREFIX + dataDir + dbOpts + useJMX;
+		var url = H2_URL_PREFIX + dataDir + dbOpts + useJMX + disableTraces;
 
 		upgradeIfNeeded(url);
 

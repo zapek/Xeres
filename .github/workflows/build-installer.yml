@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Validate Gradle
         uses: gradle/actions/wrapper-validation@v4
@@ -52,6 +55,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Validate Gradle
         uses: gradle/actions/wrapper-validation@v4
@@ -85,6 +91,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Validate Gradle
         uses: gradle/actions/wrapper-validation@v4

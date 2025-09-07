@@ -75,18 +75,27 @@ bootBuildImage {
 }
 
 tasks.register('deletePortable', Delete) {
-    delete base.distsDirectory.get().dir(rootProject.name)
+    delete layout.buildDirectory.dir("distributions").get().dir(rootProject.name)
+}
+
+tasks.register('createPortableFile', Copy) {
+    doLast {
+        def portable = new File("${layout.buildDirectory.dir("distributions").get().dir(rootProject.name)}", "Portable") //.text = ""
+        portable.createNewFile()
+    }
 }
 
 tasks.register('packagePortable', Zip) {
+    dependsOn createPortableFile
+    finalizedBy deletePortable
     archiveFileName = "${rootProject.name}-${project.version}-portable.zip"
-    destinationDirectory = base.distsDirectory.get()
-    from base.distsDirectory.get().dir(rootProject.name)
+    destinationDirectory = layout.buildDirectory.dir("distributions")
+    from layout.buildDirectory.dir("distributions").get().dir(rootProject.name)
 }
 
 jpackage {
     dependsOn bootJar, copyInstaller
-    finalizedBy packagePortable, deletePortable
+    finalizedBy packagePortable
     appName = parent.project.name
     appVersion = "${project.version}".split("-")[0]
     vendor = "David Gerber"
@@ -97,7 +106,6 @@ jpackage {
     mainJar = tasks.bootJar.archiveFileName.get()
     if (project.hasProperty("jpackage.portable")) {
         type = ImageType.APP_IMAGE
-        new File("${base.distsDirectory.get().dir(rootProject.name)}", "Portable").text = ""
     } else {
         licenseFile = layout.settingsDirectory.file("LICENSE")
         aboutUrl = "https://xeres.io"

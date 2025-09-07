@@ -111,7 +111,7 @@ jobs:
       - name: Rename .deb file
         run: |
           # Extract filename
-          DEB_FILE=$(find . -name "./app/build/distributions/*.deb" -type f | head -n 1)
+          DEB_FILE=$(find ./app/build/distributions -name "*.deb" -type f | head -n 1)
           FILENAME=$(basename "$DEB_FILE" .deb)
           
           # Split into components

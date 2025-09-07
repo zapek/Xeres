@@ -256,6 +256,12 @@
                     <DisclosedHyperlink text="MPL 2.0." uri="https://www.mozilla.org/en-US/MPL/"/>
                     <Text text="&#10;&#10;"/>
 
+                    <DisclosedHyperlink text="Multi Platform Amiga Fonts" uri="https://github.com/rewtnull/amigafonts"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © dMG/t!s^dS!. Licensed under the "/>
+                    <DisclosedHyperlink text="GPL-FE license." uri="https://www.gnu.org/licenses/gpl-faq.html#FontException"/>
+                    <Text text="&#10;&#10;"/>
+
                     <DisclosedHyperlink text="Netty" uri="https://netty.io/"/>
                     <Text text="&#10;"/>
                     <Text text=" © The Netty project. Licensed under the "/>

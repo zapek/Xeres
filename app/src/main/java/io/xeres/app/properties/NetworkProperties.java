@@ -93,7 +93,7 @@ public class NetworkProperties
 		this.packetGrouping = packetGrouping;
 	}
 
-	@ManagedAttribute(description = "Get the encryption used for tunnels")
+	@ManagedAttribute(description = "The encryption used for tunnels")
 	public String getTunnelEncryption()
 	{
 		return tunnelEncryption;
@@ -104,7 +104,7 @@ public class NetworkProperties
 		this.tunnelEncryption = tunnelEncryption;
 	}
 
-	@ManagedAttribute(description = "Get the strategy used for file transfers")
+	@ManagedAttribute(description = "The file transfer strategy")
 	public String getFileTransferStrategy()
 	{
 		return fileTransferStrategy;

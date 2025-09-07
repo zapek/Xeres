@@ -77,8 +77,11 @@ jobs:
           retention-days: 1
 
   build-ubuntu-installer-deb:
-    name: Build Ubuntu x64 installer (DEB)
-    runs-on: ubuntu-24.04
+    name: Build ${{ matrix.ubuntu-version }} installer (DEB)
+    runs-on: ${{ matrix.ubuntu-version }}
+    strategy:
+      matrix:
+        ubuntu-version: [ ubuntu-22.04, ubuntu-22.04-arm, ubuntu-24.04, ubuntu-24.04-arm ]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -99,41 +102,18 @@ jobs:
       - name: Build
         run: ./gradlew jpackage
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          path: ./app/build/distributions/xeres_*.deb
-          name: ubuntu-installer-deb
-          retention-days: 1
-
-  build-ubuntu-arm-installer-deb:
-    name: Build Ubuntu ARM installer (DEB)
-    runs-on: ubuntu-24.04-arm
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Validate Gradle
-        uses: gradle/actions/wrapper-validation@v4
-
-      - name: Setup JDK 21
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Build
-        run: ./gradlew jpackage
+      - name: Rename .deb file
+        run: |
+          VERSION=$(git describe --tags)
+          OLD_NAME="xeres_${VERSION}_amd64.deb"
+          NEW_NAME="xeres_${VERSION}_${{ matrix.ubuntu-version }}_amd64.deb"
+          mv "./app/build/distributions/${OLD_NAME}" "./app/build/distributions/${NEW_NAME}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           path: ./app/build/distributions/xeres_*.deb
-          name: ubuntu-arm-installer-deb
+          name: ubuntu-installer-deb-${{ matrix.ubuntu-version }}
           retention-days: 1
 
   create-release:
@@ -141,8 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build-windows-installer-msi,
              build-windows-installer-portable,
-             build-ubuntu-installer-deb,
-             build-ubuntu-arm-installer-deb ]
+             build-ubuntu-installer-deb ]
     steps:
       - name: Download Windows x64 installer (MSI)
         uses: actions/download-artifact@v5
@@ -154,15 +133,25 @@ jobs:
         with:
           name: windows-installer-portable
 
-      - name: Download Ubuntu x64 installer (DEB)
+      - name: Download Ubuntu 22.04 x64 installer (DEB)
         uses: actions/download-artifact@v5
         with:
-          name: ubuntu-installer-deb
+          name: ubuntu-installer-deb-ubuntu-22.04
 
-      - name: Download Ubuntu ARM installer (DEB)
+      - name: Download Ubuntu 24.04 x64 installer (DEB)
         uses: actions/download-artifact@v5
         with:
-          name: ubuntu-arm-installer-deb
+          name: ubuntu-installer-deb-ubuntu-24.04
+
+      - name: Download Ubuntu 22.04 arm installer (DEB)
+        uses: actions/download-artifact@v5
+        with:
+          name: ubuntu-installer-deb-ubuntu-22.04-arm
+
+      - name: Download Ubuntu 24.04 arm installer (DEB)
+        uses: actions/download-artifact@v5
+        with:
+          name: ubuntu-installer-deb-ubuntu-24.04-arm
 
       - name: Generate checksum
         uses: jmgilman/actions-generate-checksum@v1

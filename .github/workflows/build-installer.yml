@@ -110,12 +110,20 @@ jobs:
 
       - name: Rename .deb file
         run: |
-          GIT_VERSION=$(git describe --tags)
-          # Remove the 'v' prefix and what is behind the '-' (included) if it's an intermediate version tag
-          VERSION=$(echo "$GIT_VERSION" | sed 's/^v//; s/-.*//')
-          OLD_NAME="xeres_${VERSION}_amd64.deb"
-          NEW_NAME="xeres_${VERSION}_${{ matrix.ubuntu-version }}_amd64.deb"
-          mv "./app/build/distributions/${OLD_NAME}" "./app/build/distributions/${NEW_NAME}"
+          # Extract filename
+          DEB_FILE=$(find . -name "./app/build/distributions/*.deb" -type f | head -n 1)
+          FILENAME=$(basename "$DEB_FILE" .deb)
+          
+          # Split into components
+          NAME_PART=$(echo "$FILENAME" | cut -d'_' -f1)        # xeres
+          VERSION_PART=$(echo "$FILENAME" | cut -d'_' -f2)     # 0.8.2
+          ARCH_PART=$(echo "$FILENAME" | cut -d'_' -f3-)       # amd64
+          
+          # Create new filename
+          NEW_FILENAME="${NAME_PART}_${VERSION_PART}_${{ matrix.ubuntu-version }}_${ARCH_PART}.deb"
+          
+          # Rename the file         
+          mv "./app/build/distributions/${FILENAME}.deb" "./app/build/distributions/${NEW_FILENAME}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

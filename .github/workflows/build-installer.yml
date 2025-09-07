@@ -1,3 +1,15 @@
+# This is the installer builder.
+#
+# It's triggered automatically when a version tag is pushed.
+#
+# For manual builds, add automatic_release_tag: "Nightly", otherwise the release creation will fail.
+# The previous steps will work though so this can be used to check that it builds the installers.
+# fetch-depth has been set to 0 so that manual builds will work, otherwise it might not find the version tag
+# as it only fetches the latest commit history by default.
+#
+# When setting the java version, always use x.y.z even if there's more numbers, otherwise @setup-java will fail.
+#
+
 name: Installer build
 
 on:
@@ -5,8 +17,6 @@ on:
   push:
     tags:
       - "v*"
-
-# When setting the java version, always use x.y.z even if there's more numbers, otherwise @setup-java will fail.
 
 jobs:
   build-windows-installer-msi:
@@ -195,4 +205,3 @@ jobs:
             *.dmg
             *.zip
 
-# For manual builds, add automatic_release_tag: "Nightly" above

@@ -192,6 +192,12 @@
                     <DisclosedHyperlink text="GeoLite 2 End User License Agreement" uri="https://www.maxmind.com/en/geolite2/eula"/>
                     <Text text="&#10;&#10;"/>
 
+                    <DisclosedHyperlink text="GraalVM" uri="https://www.graalvm.org/"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Oracle. Licensed under the "/>
+                    <DisclosedHyperlink text="GFTC license." uri="https://www.oracle.com/downloads/licenses/graal-free-license.html"/>
+                    <Text text="&#10;&#10;"/>
+
                     <DisclosedHyperlink text="H2 Database Engine" uri="https://h2database.com/"/>
                     <Text text="&#10;"/>
                     <Text text=" © H2 Group. Dual licensed under the "/>
@@ -202,12 +208,6 @@
                     <Text text="&#10;"/>
                     <Text text=" © Andres Almiray. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
-                    <Text text="&#10;&#10;"/>
-
-                    <DisclosedHyperlink text="Java" uri="https://www.oracle.com/java/"/>
-                    <Text text="&#10;"/>
-                    <Text text=" © Oracle. Licensed under the "/>
-                    <DisclosedHyperlink text="GPLv2 + classpath exception." uri="https://openjdk.org/legal/gplv2+ce.html"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="JavaFX" uri="https://openjfx.io/"/>

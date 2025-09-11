@@ -20,7 +20,7 @@ on:
 
 jobs:
   build-windows-installer-msi:
-    name: Build Windows x64 installer (MSI)
+    name: Build windows installer
     runs-on: windows-2025
     steps:
       - name: Checkout
@@ -59,7 +59,7 @@ jobs:
           retention-days: 1
 
   build-windows-installer-portable:
-    name: Build Windows x64 installer (Portable)
+    name: Build windows portable installer
     runs-on: windows-2025
     steps:
       - name: Checkout
@@ -142,7 +142,7 @@ jobs:
           retention-days: 1
 
   build-ubuntu-installer-deb:
-    name: Build ${{ matrix.ubuntu-version }} installer (DEB)
+    name: Build ${{ matrix.ubuntu-version }} installer
     runs-on: ${{ matrix.ubuntu-version }}
     strategy:
       matrix:
@@ -201,35 +201,47 @@ jobs:
              build-ubuntu-installer-deb,
              build-macos-installer ]
     steps:
-      - name: Download Windows x64 installer (MSI)
+      - name: Download windows installer
         uses: actions/download-artifact@v5
         with:
           name: windows-installer-msi
 
-      - name: Download Windows x64 installer (Portable)
+      - name: Download windows portable installer
         uses: actions/download-artifact@v5
         with:
           name: windows-installer-portable
 
-      - name: Download Ubuntu 22.04 x64 installer (DEB)
+      - name: Download ubuntu-22.04 installer
         uses: actions/download-artifact@v5
         with:
           name: ubuntu-installer-deb-ubuntu-22.04
 
-      - name: Download Ubuntu 24.04 x64 installer (DEB)
+      - name: Download ubuntu-24.04 installer
         uses: actions/download-artifact@v5
         with:
           name: ubuntu-installer-deb-ubuntu-24.04
 
-      - name: Download Ubuntu 22.04 arm installer (DEB)
+      - name: Download ubuntu-22.04-arm installer
         uses: actions/download-artifact@v5
         with:
           name: ubuntu-installer-deb-ubuntu-22.04-arm
 
-      - name: Download Ubuntu 24.04 arm installer (DEB)
+      - name: Download ubuntu-24.04-arm installer
         uses: actions/download-artifact@v5
         with:
           name: ubuntu-installer-deb-ubuntu-24.04-arm
+
+      # Intel
+      - name: Download macos-13 installer
+        uses: actions/download-artifact@v5
+        with:
+          name: macos-installer-macos-13
+
+      # ARM
+      - name: Download macos-15 installer
+        uses: actions/download-artifact@v5
+        with:
+          name: macos-installer-macos-15
 
       - name: Generate checksum
         uses: jmgilman/actions-generate-checksum@v1

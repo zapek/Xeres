@@ -137,7 +137,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ./app/build/dist/Xeres-*.dmg
+          path: ./app/build/distributions/Xeres-*.dmg
           name: macos-installer-${{ matrix.macos-version }}
           retention-days: 1
 

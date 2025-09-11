@@ -80,7 +80,7 @@ tasks.register('deletePortable', Delete) {
 
 tasks.register('createPortableFile', Copy) {
     doLast {
-        def portable = new File("${layout.buildDirectory.dir("distributions").get().dir(rootProject.name)}", "Portable") //.text = ""
+        def portable = new File("${layout.buildDirectory.dir("distributions").get().dir(rootProject.name)}", "Portable")
         portable.createNewFile()
     }
 }

@@ -21,7 +21,7 @@ on:
 jobs:
   build-windows-installer-msi:
     name: Build Windows x64 installer (MSI)
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -60,7 +60,7 @@ jobs:
 
   build-windows-installer-portable:
     name: Build Windows x64 installer (Portable)
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -88,6 +88,57 @@ jobs:
         with:
           path: ./app/build/distributions/Xeres-*.zip
           name: windows-installer-portable
+          retention-days: 1
+
+  build-macos-installer:
+    name: Build ${{ matrix.macos-version }} installer
+    runs-on: ${{ matrix.macos-version }}
+    strategy:
+      matrix:
+        macos-version: [ macos-13, macos-15 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Setup JDK 21
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew jpackage
+
+      - name: Rename .dmg file
+        run: |
+          # Extract filename
+          DMG_FILE=$(find ./app/build/distributions -name "*.dmg" -type f | head -n 1)
+          FILENAME=$(basename "$DMG_FILE" .dmg)
+          
+          # Split into components
+          NAME_PART=$(echo "$FILENAME" | cut -d'-' -f1)        # xeres
+          VERSION_PART=$(echo "$FILENAME" | cut -d'-' -f2)     # 6.6.6
+          
+          # Create new filename
+          NEW_FILENAME="${NAME_PART}-${VERSION_PART}-${{ matrix.macos-version }}.dmg"
+          
+          # Rename the file         
+          mv "./app/build/distributions/${FILENAME}.dmg" "./app/build/distributions/${NEW_FILENAME}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./app/build/dist/Xeres-*.dmg
+          name: macos-installer-${{ matrix.macos-version }}
           retention-days: 1
 
   build-ubuntu-installer-deb:
@@ -147,7 +198,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build-windows-installer-msi,
              build-windows-installer-portable,
-             build-ubuntu-installer-deb ]
+             build-ubuntu-installer-deb,
+             build-macos-installer ]
     steps:
       - name: Download Windows x64 installer (MSI)
         uses: actions/download-artifact@v5

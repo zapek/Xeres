@@ -345,7 +345,7 @@ public class TrayService
 
 	public void clearEvent()
 	{
-		if (trayIcon.getImage() != busyImage)
+		if (hasSystemTray && trayIcon.getImage() != busyImage)
 		{
 			trayIcon.setImage(image);
 		}
@@ -353,7 +353,7 @@ public class TrayService
 
 	public void setEventIfIconified()
 	{
-		if (trayIcon.getImage() != busyImage)
+		if (hasSystemTray && trayIcon.getImage() != busyImage)
 		{
 			trayIcon.setImage(eventImage);
 		}

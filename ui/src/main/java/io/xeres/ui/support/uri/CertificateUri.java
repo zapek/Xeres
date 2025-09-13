@@ -21,10 +21,10 @@ package io.xeres.ui.support.uri;
 
 public record CertificateUri(String radix, String name, String location) implements Uri
 {
-	static String AUTHORITY = "certificate";
-	static String PARAMETER_RADIX = "radix";
-	static String PARAMETER_NAME = "name";
-	static String PARAMETER_LOCATION = "location";
+	static final String AUTHORITY = "certificate";
+	static final String PARAMETER_RADIX = "radix";
+	static final String PARAMETER_NAME = "name";
+	static final String PARAMETER_LOCATION = "location";
 
 	@Override
 	public String toUriString()

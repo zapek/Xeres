@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -113,7 +113,7 @@ public final class SmileyUtils
 	 * </ul>
 	 *
 	 * @param s the string
-	 * @return a string with smileys replaced by unicode emojis
+	 * @return a string with smileys replaced by Unicode emojis
 	 */
 	public static String smileysToUnicode(String s)
 	{

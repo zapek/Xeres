@@ -32,6 +32,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.DirectoryChooser;
@@ -143,12 +144,8 @@ public class ShareWindowController implements WindowController
 		// XXX: when clicking outside tableName, the value isn't committed but the edited value stays on display anyway (which is wrong). but we get no event at all
 
 		// setOnEditCommit() doesn't work for CheckBoxes, so we have to do that
-		tableSearchable.setCellValueFactory(param -> {
-			var checkBox = new CheckBox();
-			checkBox.selectedProperty().setValue(param.getValue().isSearchable());
-			checkBox.selectedProperty().addListener((observableValue, oldValue, newValue) -> param.getValue().setSearchable(newValue));
-			return new SimpleObjectProperty(checkBox);
-		});
+		tableSearchable.setCellFactory(unused -> new CheckBoxTableCell<>());
+		tableSearchable.setCellValueFactory(param -> param.getValue().searchableProperty());
 
 		tableBrowsable.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getBrowsable()));
 		tableBrowsable.setCellFactory(ChoiceBoxTableCell.forTableColumn(new TrustConverter(), Trust.values()));

@@ -24,6 +24,7 @@ import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.SystemUtils;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -43,6 +44,10 @@ public class JavaFxApplication extends Application
 	static void start(Class<?> springApplicationClass, String[] args)
 	{
 		JavaFxApplication.springApplicationClass = springApplicationClass;
+		if (SystemUtils.IS_OS_MAC)
+		{
+			Thread.currentThread().setContextClassLoader(JavaFxApplication.class.getClassLoader());
+		}
 		Application.launch(JavaFxApplication.class, args);
 	}
 

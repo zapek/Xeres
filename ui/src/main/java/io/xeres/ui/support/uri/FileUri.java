@@ -23,11 +23,11 @@ import io.xeres.common.id.Sha1Sum;
 
 public record FileUri(String name, long size, Sha1Sum hash) implements Uri
 {
-	static String AUTHORITY = "file";
+	static final String AUTHORITY = "file";
 
-	static String PARAMETER_NAME = "name";
-	static String PARAMETER_SIZE = "size";
-	static String PARAMETER_HASH = "hash";
+	static final String PARAMETER_NAME = "name";
+	static final String PARAMETER_SIZE = "size";
+	static final String PARAMETER_HASH = "hash";
 
 	@Override
 	public String toUriString()

@@ -187,6 +187,7 @@ public class BroadcastDiscoveryService implements Runnable
 		}
 	}
 
+	@SuppressWarnings("EmptyMethod")
 	private void updateOwnInfo()
 	{
 		// For now, we do nothing; but we could implement something better if for

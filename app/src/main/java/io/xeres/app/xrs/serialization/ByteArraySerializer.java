@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -58,7 +58,7 @@ final class ByteArraySerializer
 
 	static int serialize(ByteBuf buf, byte[] array, int size)
 	{
-		log.trace("Writing byte array of size {}", size);
+		log.trace("Writing byte array of specific size {}", size);
 		buf.ensureWritable(size);
 		buf.writeBytes(array, 0, size);
 		return size;
@@ -66,7 +66,7 @@ final class ByteArraySerializer
 
 	static byte[] deserialize(ByteBuf buf, int size)
 	{
-		log.trace("Reading byte array of size {}", size);
+		log.trace("Reading byte array of specific size {}", size);
 		var out = new byte[size];
 		buf.readBytes(out);
 		return out;

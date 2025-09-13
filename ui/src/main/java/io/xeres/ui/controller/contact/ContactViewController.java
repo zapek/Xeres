@@ -86,7 +86,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Disposable;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -268,7 +267,7 @@ public class ContactViewController implements Controller
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		searchClear = new FontIcon(MaterialDesignC.CLOSE_CIRCLE);
 

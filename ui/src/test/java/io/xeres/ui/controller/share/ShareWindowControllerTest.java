@@ -48,7 +48,7 @@ class ShareWindowControllerTest
 	private ShareClient shareClient;
 
 	@Spy
-	private ResourceBundle resourceBundle = I18nUtils.getBundle();
+	private final ResourceBundle resourceBundle = I18nUtils.getBundle();
 
 	@InjectMocks
 	private ShareWindowController controller;

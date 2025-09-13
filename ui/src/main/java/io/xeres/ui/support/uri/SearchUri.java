@@ -21,9 +21,9 @@ package io.xeres.ui.support.uri;
 
 public record SearchUri(String keywords) implements Uri
 {
-	static String AUTHORITY = "search";
+	static final String AUTHORITY = "search";
 
-	static String PARAMETER_KEYWORDS = "keywords";
+	static final String PARAMETER_KEYWORDS = "keywords";
 
 	@Override
 	public String toUriString()

@@ -43,7 +43,7 @@ class ChatRoomCreationWindowControllerTest
 	private ChatClient chatClient;
 
 	@Spy
-	private ResourceBundle resourceBundle = I18nUtils.getBundle();
+	private final ResourceBundle resourceBundle = I18nUtils.getBundle();
 
 	@InjectMocks
 	private ChatRoomCreationWindowController controller;

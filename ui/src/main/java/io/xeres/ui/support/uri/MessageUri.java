@@ -24,10 +24,10 @@ import io.xeres.common.id.Identifier;
 
 public record MessageUri(Identifier identifier, String subject) implements Uri
 {
-	static String AUTHORITY = "message";
+	static final String AUTHORITY = "message";
 
-	static String PARAMETER_ID = "id";
-	static String PARAMETER_SUBJECT = "subject";
+	static final String PARAMETER_ID = "id";
+	static final String PARAMETER_SUBJECT = "subject";
 
 	@Override
 	public String toUriString()

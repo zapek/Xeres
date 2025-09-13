@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,8 +23,8 @@ import javafx.application.Platform;
 import org.junit.jupiter.api.BeforeAll;
 
 /**
- * Extend your test from this abstract class if you don't use testfx's ApplicationExtension.class
- * (for example you use Spring Boot's SpringExtension.class).<br>
+ * Extend your test from this abstract class if you don't use testfx's ApplicationExtension class
+ * (for example you use Spring Boot's SpringExtension class).<br>
  * Note that depending on how you run the tests, the platform might already be running.
  */
 public abstract class FXTest

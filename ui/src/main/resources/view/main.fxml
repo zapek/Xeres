@@ -197,19 +197,9 @@
                                     <FontIcon iconLiteral="mdi2d-database"/>
                                 </graphic>
                             </MenuItem>
-                            <MenuItem fx:id="systemProperties" text="System Properties">
-                                <graphic>
-                                    <FontIcon iconLiteral="mdi2f-format-list-bulleted-square"/>
-                                </graphic>
-                            </MenuItem>
                             <MenuItem fx:id="openShell" text="Shell">
                                 <graphic>
                                     <FontIcon iconLiteral="mdi2p-powershell"/>
-                                </graphic>
-                            </MenuItem>
-                            <MenuItem fx:id="openUiCheck" text="Ui Check">
-                                <graphic>
-                                    <FontIcon iconLiteral="mdi2d-dock-window"/>
                                 </graphic>
                             </MenuItem>
                             <MenuItem fx:id="runGc" text="_Run GC">

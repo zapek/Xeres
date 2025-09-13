@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,7 +29,7 @@ public enum ChatFlags
 	PUBLIC,
 	REQUEST_CUSTOM_STATE, // used for ChatStatusItem
 	CUSTOM_STATE_AVAILABLE, // used for ChatStatusItem
-	PARTIAL_MESSAGE, // "large" messages are splitted
+	PARTIAL_MESSAGE, // "large" messages are split
 	LOBBY, // XXX: might not be needed because we have a ChatRoomMessageItem
 	CLOSING_DISTANT_CONNECTION,
 	ACK_DISTANT_CONNECTION,

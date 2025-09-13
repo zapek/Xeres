@@ -23,10 +23,10 @@ import io.xeres.common.id.Id;
 
 public record ChatRoomUri(String name, long id) implements Uri
 {
-	static String AUTHORITY = "chat_room";
-	static String PARAMETER_NAME = "name";
-	static String PARAMETER_ID = "id";
-	static String CHAT_ROOM_PREFIX = "L";
+	static final String AUTHORITY = "chat_room";
+	static final String PARAMETER_NAME = "name";
+	static final String PARAMETER_ID = "id";
+	static final String CHAT_ROOM_PREFIX = "L";
 	static String PRIVATE_MESSAGE_PREFIX = "P";
 	static String DISTANT_CHAT_PREFIX = "D";
 	static String BROADCAST_PREFIX = "L";

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -51,9 +51,9 @@ final class MapSerializer
 			{
 				var entrySizeOffset = writeTlv(buf);
 				var entrySize = 0;
-				log.trace("Key class: {}", entry.getKey().getClass().getSimpleName());
+				log.trace("Writing Key class: {}", entry.getKey().getClass().getSimpleName());
 				entrySize += writeMapData(buf, entry.getKey());
-				log.trace("Value class: {}", entry.getValue().getClass().getSimpleName());
+				log.trace("Writing Value class: {}", entry.getValue().getClass().getSimpleName());
 				entrySize += writeMapData(buf, entry.getValue());
 				mapSize += writeTlvBack(buf, entrySizeOffset, entrySize);
 				log.trace("Writing total entry size of {}", entrySize);

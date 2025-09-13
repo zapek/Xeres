@@ -832,7 +832,7 @@ public class WindowManager
 			}
 
 			/**
-			 * Sets a custom window Id
+			 * Sets a custom window id
 			 *
 			 * @param id the window id
 			 * @return the builder

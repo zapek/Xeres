@@ -24,11 +24,11 @@ import io.xeres.common.id.Id;
 
 public record IdentityUri(String name, GxsId id, String groupData) implements Uri
 {
-	static String AUTHORITY = "identity";
+	static final String AUTHORITY = "identity";
 
-	static String PARAMETER_GXSID = "gxsid";
-	static String PARAMETER_NAME = "name";
-	static String PARAMETER_GROUPDATA = "groupdata";
+	static final String PARAMETER_GXSID = "gxsid";
+	static final String PARAMETER_NAME = "name";
+	static final String PARAMETER_GROUPDATA = "groupdata";
 
 	@Override
 	public String toUriString()

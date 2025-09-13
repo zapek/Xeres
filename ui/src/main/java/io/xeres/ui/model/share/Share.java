@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,8 @@
 package io.xeres.ui.model.share;
 
 import io.xeres.common.pgp.Trust;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 
 import java.time.Instant;
 
@@ -28,9 +30,9 @@ public class Share
 	private long id;
 	private String name;
 	private String path;
-	private boolean searchable;
 	private Trust browsable;
 	private Instant lastScanned;
+	private final BooleanProperty searchable = new SimpleBooleanProperty();
 
 	public long getId()
 	{
@@ -62,14 +64,19 @@ public class Share
 		this.path = path;
 	}
 
-	public boolean isSearchable()
+	public BooleanProperty searchableProperty()
 	{
 		return searchable;
 	}
 
+	public boolean isSearchable()
+	{
+		return searchable.get();
+	}
+
 	public void setSearchable(boolean searchable)
 	{
-		this.searchable = searchable;
+		this.searchable.set(searchable);
 	}
 
 	public Trust getBrowsable()

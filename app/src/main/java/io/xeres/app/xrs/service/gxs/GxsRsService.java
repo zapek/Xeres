@@ -338,7 +338,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void handleGxsSyncGroupRequestItem(PeerConnection peerConnection, GxsSyncGroupRequestItem item)
 	{
-		log.debug("{} sent {}", peerConnection, item);
+		log.debug("{} sent group {}", peerConnection, item);
 
 		var transactionId = getNextTransactionId(peerConnection);
 		var since = Instant.ofEpochSecond(item.getLastUpdated());
@@ -361,7 +361,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			});
 			// the items are included in a transaction (they all have the same transaction number)
 
-			log.debug("Calling transaction, number of items: {}", items.size());
+			log.debug("Calling transaction for group, number of items: {}", items.size());
 			gxsTransactionManager.startOutgoingTransactionForGroupIdResponse(
 					peerConnection,
 					items,
@@ -382,7 +382,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void handleGxsSyncMessageRequestItem(PeerConnection peerConnection, GxsSyncMessageRequestItem item)
 	{
-		log.debug("{} sent {}", peerConnection, item);
+		log.debug("{} sent message {}", peerConnection, item);
 
 		var transactionId = getNextTransactionId(peerConnection);
 		var lastUpdated = Instant.ofEpochSecond(item.getLastUpdated());
@@ -402,7 +402,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				items.add(gxsSyncMessageItem);
 			});
 
-			log.debug("Calling transaction, number of items: {}", items.size());
+			log.debug("Calling transaction for message, number of items: {}", items.size());
 			gxsTransactionManager.startOutgoingTransactionForMessageIdResponse(
 					peerConnection,
 					items,
@@ -793,7 +793,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				pendingGxsMessages.put(gxsMessageItem, newDelay);
 				if (newDelay < 0)
 				{
-					log.warn("Failed to validate group {}: timeout exceeded", gxsMessageItem);
+					log.warn("Failed to validate message {}: timeout exceeded", gxsMessageItem);
 				}
 			}
 			return VerificationStatus.DELAYED;

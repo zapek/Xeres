@@ -31,7 +31,6 @@ import javafx.scene.chart.XYChart;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -66,7 +65,7 @@ public class StatisticsRttController implements Controller
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		xAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(xAxis)
 		{

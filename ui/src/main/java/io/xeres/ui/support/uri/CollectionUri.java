@@ -21,12 +21,12 @@ package io.xeres.ui.support.uri;
 
 public record CollectionUri(String name, long size, String radix, int count) implements Uri
 {
-	static String AUTHORITY = "collection";
+	static final String AUTHORITY = "collection";
 
-	static String PARAMETER_NAME = "name";
-	static String PARAMETER_SIZE = "size";
-	static String PARAMETER_RADIX = "radix";
-	static String PARAMETER_FILES = "files";
+	static final String PARAMETER_NAME = "name";
+	static final String PARAMETER_SIZE = "size";
+	static final String PARAMETER_RADIX = "radix";
+	static final String PARAMETER_FILES = "files";
 
 	@Override
 	public String toUriString()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -75,12 +75,7 @@ final class TlvBinarySerializer
 
 	static byte[] deserialize(ByteBuf buf, TlvType type)
 	{
-		log.trace("Reading TLV binary");
-		var len = TlvUtils.checkTypeAndLength(buf, type);
-		log.trace("  of {} bytes", len);
-		var out = new byte[len];
-		buf.readBytes(out);
-		return out;
+		return deserialize(buf, type.getValue());
 	}
 
 	static byte[] deserialize(ByteBuf buf, int type)

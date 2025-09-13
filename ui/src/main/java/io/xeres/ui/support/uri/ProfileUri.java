@@ -23,10 +23,10 @@ import io.xeres.common.id.Id;
 
 public record ProfileUri(String name, long hash) implements Uri
 {
-	static String AUTHORITY = "person";
+	static final String AUTHORITY = "person";
 
-	static String PARAMETER_NAME = "name";
-	static String PARAMETER_HASH = "hash";
+	static final String PARAMETER_NAME = "name";
+	static final String PARAMETER_HASH = "hash";
 
 	@Override
 	public String toUriString()

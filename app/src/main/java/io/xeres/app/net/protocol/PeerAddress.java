@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -268,7 +268,7 @@ public final class PeerAddress
 	}
 
 	/**
-	 * Creates a PeerAddress from an onion address (ie. "jskljfksdjk.onion")
+	 * Creates a PeerAddress from an onion address (i.e. "jskljfksdjk.onion")
 	 *
 	 * @param onion the onion address
 	 * @return a PeerAddress

@@ -68,7 +68,7 @@ public class ShellService implements Shell
 						  - loglevel [package] [level]: sets the log level of a package
 						  - logs: shows the logs
 						  - open: opens a directory (app, cache, data or download)
-						  - properties: opens the properties window
+						  - properties: shows the properties
 						  - pwd: shows the current directory
 						  - uname: shows the operating system
 						  - uptime: shows the app uptime""");

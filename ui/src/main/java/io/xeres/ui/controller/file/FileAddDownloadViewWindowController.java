@@ -32,7 +32,6 @@ import javafx.scene.control.Button;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
@@ -65,7 +64,7 @@ public class FileAddDownloadViewWindowController implements WindowController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		cancelButton.setOnAction(UiUtils::closeWindow);
 

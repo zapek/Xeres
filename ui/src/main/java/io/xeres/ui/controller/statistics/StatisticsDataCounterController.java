@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -65,7 +64,7 @@ public class StatisticsDataCounterController implements Controller
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		in.setName(bundle.getString("statistics.turtle.data-in"));
 		out.setName(bundle.getString("statistics.turtle.data-out"));

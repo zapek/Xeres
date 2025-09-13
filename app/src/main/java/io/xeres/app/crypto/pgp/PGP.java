@@ -50,7 +50,6 @@ import static org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags.AES_128;
 import static org.bouncycastle.openpgp.PGPPublicKey.RSA_GENERAL;
 import static org.bouncycastle.openpgp.PGPSignature.BINARY_DOCUMENT;
 import static org.bouncycastle.openpgp.PGPSignature.DEFAULT_CERTIFICATION;
-import static org.bouncycastle.openpgp.PGPUtil.SHA256;
 
 /**
  * Utility class containing all PGP related methods.

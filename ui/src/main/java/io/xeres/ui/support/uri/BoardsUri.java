@@ -25,11 +25,11 @@ import io.xeres.common.id.MessageId;
 
 public record BoardsUri(String name, GxsId id, MessageId messageId) implements Uri
 {
-	static String AUTHORITY = "posted";
+	static final String AUTHORITY = "posted";
 
-	static String PARAMETER_NAME = "name";
-	static String PARAMETER_ID = "id";
-	static String PARAMETER_MSGID = "msgid";
+	static final String PARAMETER_NAME = "name";
+	static final String PARAMETER_ID = "id";
+	static final String PARAMETER_MSGID = "msgid";
 
 	@Override
 	public String toUriString()

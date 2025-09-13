@@ -32,7 +32,6 @@ import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 
@@ -100,7 +99,7 @@ public class SettingsSoundController implements SettingsController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		initializeSoundPath(messageEnabled, messageFile, messageFileSelector, messagePlay);
 		initializeSoundPath(highlightEnabled, highlightFile, highlightFileSelector, highlightPlay);

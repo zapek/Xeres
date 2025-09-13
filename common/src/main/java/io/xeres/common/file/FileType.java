@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -284,7 +284,7 @@ public enum FileType implements I18nEnum
 			"vob", // DVD Video Object File
 			"vp6", // TrueMotion VP6 Video File
 			"webm", // WebM
-			"wm", // Windows Media Video File"
+			"wm", // Windows Media Video File
 			"wmv", // Windows Media Video File
 			"xvid" // Xvid-Encoded Video File
 	)),

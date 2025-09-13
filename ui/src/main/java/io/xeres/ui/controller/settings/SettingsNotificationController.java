@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,8 +26,6 @@ import javafx.scene.control.CheckBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @FxmlView(value = "/view/settings/settings_notifications.fxml")
 public class SettingsNotificationController implements SettingsController
@@ -49,7 +47,7 @@ public class SettingsNotificationController implements SettingsController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 
 	}

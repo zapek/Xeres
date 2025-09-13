@@ -62,7 +62,7 @@ class MessagingWindowControllerTest
 	private UriService uriService;
 
 	@Spy
-	private ResourceBundle resourceBundle = I18nUtils.getBundle();
+	private final ResourceBundle resourceBundle = I18nUtils.getBundle();
 
 	@Mock
 	private MessageClient messageClient;

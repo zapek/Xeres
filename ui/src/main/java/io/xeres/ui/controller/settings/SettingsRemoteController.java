@@ -38,7 +38,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
@@ -79,7 +78,7 @@ public class SettingsRemoteController implements SettingsController
 	private final HostServices hostServices;
 	private final ResourceBundle bundle;
 
-	public SettingsRemoteController(TrayService trayService, @Nullable HostServices hostServices, ResourceBundle bundle)
+	public SettingsRemoteController(TrayService trayService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle)
 	{
 		this.trayService = trayService;
 		this.hostServices = hostServices;
@@ -87,7 +86,7 @@ public class SettingsRemoteController implements SettingsController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		TextFieldUtils.setNumeric(port, 0, 6);
 

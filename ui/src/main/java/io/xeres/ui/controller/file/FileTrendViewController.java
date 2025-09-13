@@ -37,7 +37,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.LinkedList;
 
@@ -75,7 +74,7 @@ public class FileTrendViewController implements Controller, TabActivation
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		trendTableView.setItems(trendResult);
 

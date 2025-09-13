@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -19,6 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<!--suppress JavaFxUnresolvedFxIdReference -->
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>

@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 /**
- * An utility class to parse outgoing commands.
+ * A utility class to parse outgoing commands.
  */
 public final class ChatCommand
 {

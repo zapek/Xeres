@@ -30,7 +30,7 @@ import java.util.prefs.Preferences;
  * Utility class to help get a proper preference so that multiple clients can run concurrently.
  * The path to check is:
  * <ul>
- *     <li>Windows: Registry, HKCU\Software\JavaSoft\Prefs (the '/' in front of capital letters in keys and values is an attempt by Sun to make the registry case sensitive)</li>
+ *     <li>Windows: Registry, HKCU\Software\JavaSoft\Prefs (the '/' in front of capital letters in keys and values is an attempt by Sun to make the registry case-sensitive)</li>
  *     <li>Linux: $HOME/.java</li>
  * </ul>
  */

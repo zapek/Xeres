@@ -70,7 +70,7 @@ class ContactViewControllerTest
 	private WindowManager windowManager;
 
 	@Spy
-	private ResourceBundle resourceBundle = I18nUtils.getBundle();
+	private final ResourceBundle resourceBundle = I18nUtils.getBundle();
 
 	@InjectMocks
 	private ContactViewController controller;

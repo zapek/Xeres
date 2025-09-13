@@ -184,7 +184,7 @@ public final class UiBorders
 			throw new IllegalStateException("implicit exit must not be set for window decoration calculation to work");
 		}
 
-		// An dummy scene with an invisible window is created then opened.
+		// A dummy scene with an invisible window is created then opened.
 		var root = new Region();
 		stage.setScene(new Scene(root));
 		stage.setOpacity(0.0);

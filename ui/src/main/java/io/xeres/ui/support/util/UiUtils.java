@@ -209,7 +209,7 @@ public final class UiUtils
 
 		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
 		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied
-		// Setting dark borders doesn't work because dialogs aren't in JavaFX' built-in windows list
+		// Setting dark borders doesn't work because dialogs aren't in JavaFX's built-in windows list
 		if (title != null)
 		{
 			alert.setTitle(title);

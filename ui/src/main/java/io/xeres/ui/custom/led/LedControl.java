@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,7 +30,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 
 /**
- * A led class. Strongly inspired from Gerrit Grunwald's JavaFXCustomControls <a href="https://github.com/HanSolo/JavaFXCustomControls">JavaFXCustomControls</a>.
+ * A LED class. Strongly inspired from Gerrit Grunwald's <a href="https://github.com/HanSolo/JavaFXCustomControls">JavaFXCustomControls</a>.
  */
 public class LedControl extends Control
 {

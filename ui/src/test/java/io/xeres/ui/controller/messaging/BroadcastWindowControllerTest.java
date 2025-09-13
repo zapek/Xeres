@@ -43,7 +43,7 @@ class BroadcastWindowControllerTest
 	private MessageClient messageClient;
 
 	@Spy
-	private ResourceBundle resourceBundle = I18nUtils.getBundle();
+	private final ResourceBundle resourceBundle = I18nUtils.getBundle();
 
 	@InjectMocks
 	private BroadcastWindowController controller;

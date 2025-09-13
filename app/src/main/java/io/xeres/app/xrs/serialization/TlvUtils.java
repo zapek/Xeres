@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,17 +39,7 @@ final class TlvUtils
 	 */
 	static int checkTypeAndLength(ByteBuf buf, TlvType tlvType)
 	{
-		var readType = buf.readUnsignedShort();
-		if (readType != tlvType.getValue())
-		{
-			throw new IllegalArgumentException("Type " + readType + " does not match " + tlvType);
-		}
-		var len = buf.readInt();
-		if (len < TLV_HEADER_SIZE)
-		{
-			throw new IllegalArgumentException("Length " + len + " is smaller than the header size (6)");
-		}
-		return len - TLV_HEADER_SIZE;
+		return checkTypeAndLength(buf, tlvType.getValue());
 	}
 
 	/**

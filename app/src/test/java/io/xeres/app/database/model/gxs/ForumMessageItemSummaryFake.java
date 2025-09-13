@@ -109,17 +109,17 @@ public final class ForumMessageItemSummaryFake implements ForumMessageItemSummar
 	public boolean equals(Object obj)
 	{
 		if (obj == this) return true;
-		if (obj == null || obj.getClass() != this.getClass()) return false;
+		if (obj == null || obj.getClass() != getClass()) return false;
 		var that = (ForumMessageItemSummaryFake) obj;
-		return this.id == that.id &&
-				Objects.equals(this.name, that.name) &&
-				Objects.equals(this.gxsId, that.gxsId) &&
-				Objects.equals(this.messageId, that.messageId) &&
-				Objects.equals(this.originalMessageId, that.originalMessageId) &&
-				Objects.equals(this.parentId, that.parentId) &&
-				Objects.equals(this.authorId, that.authorId) &&
-				Objects.equals(this.published, that.published) &&
-				this.read == that.read;
+		return id == that.id &&
+				Objects.equals(name, that.name) &&
+				Objects.equals(gxsId, that.gxsId) &&
+				Objects.equals(messageId, that.messageId) &&
+				Objects.equals(originalMessageId, that.originalMessageId) &&
+				Objects.equals(parentId, that.parentId) &&
+				Objects.equals(authorId, that.authorId) &&
+				Objects.equals(published, that.published) &&
+				read == that.read;
 	}
 
 	@Override

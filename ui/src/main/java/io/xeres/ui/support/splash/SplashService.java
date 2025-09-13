@@ -75,7 +75,7 @@ public final class SplashService
 			var y = dimension.getHeight() - LOADING_TEXT_DISTANCE;
 
 			g2d.clearRect(MARGINS, (int) y, (int) dimension.getWidth() - MARGINS * 2, LOADING_TEXT_DISTANCE - MARGINS);
-			drawStringCentered(getDescriptionFromStatus(status) + "\u2026", (int) y);
+			drawStringCentered(getDescriptionFromStatus(status) + "…", (int) y);
 			splashScreen.update();
 		}
 	}

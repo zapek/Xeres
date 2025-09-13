@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -71,7 +71,7 @@ class RsEmojiAlias
 	}
 
 	/**
-	 * Gets the unicode emoji for the alias.
+	 * Gets the Unicode emoji for the alias.
 	 *
 	 * @param alias the shortcode, for example <i>wink</i>
 	 * @return the unicode emoji

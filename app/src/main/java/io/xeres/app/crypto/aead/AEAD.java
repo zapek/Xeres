@@ -30,7 +30,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.spec.AlgorithmParameterSpec;
 import java.util.Objects;
 
 import static javax.crypto.Cipher.DECRYPT_MODE;
@@ -93,12 +92,7 @@ public final class AEAD
 
 		try
 		{
-			var cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION_CHACHA20_POLY1305);
-			var ivParameterSpec = new IvParameterSpec(nonce);
-			var keySpec = new SecretKeySpec(key.getEncoded(), ENCRYPTION_ALGORITHM_CHACHA20);
-			cipher.init(ENCRYPT_MODE, keySpec, ivParameterSpec);
-			cipher.updateAAD(additionalAuthenticatedData);
-			return cipher.doFinal(plainText); // size of plainText + 16 bytes of poly tag data appended
+			return doChaCha20Poly1305(key, ENCRYPT_MODE, nonce, plainText, additionalAuthenticatedData);
 		}
 		catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e)
 		{
@@ -128,17 +122,22 @@ public final class AEAD
 
 		try
 		{
-			var cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION_CHACHA20_POLY1305);
-			AlgorithmParameterSpec ivParameterSpec = new IvParameterSpec(nonce);
-			var keySpec = new SecretKeySpec(key.getEncoded(), ENCRYPTION_ALGORITHM_CHACHA20);
-			cipher.init(DECRYPT_MODE, keySpec, ivParameterSpec);
-			cipher.updateAAD(additionalAuthenticatedData);
-			return cipher.doFinal(cipherText);
+			return doChaCha20Poly1305(key, DECRYPT_MODE, nonce, cipherText, additionalAuthenticatedData);
 		}
 		catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e)
 		{
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	private static byte[] doChaCha20Poly1305(SecretKey key, int operation, byte[] nonce, byte[] dataIn, byte[] additionalAuthenticatedData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException
+	{
+		var cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION_CHACHA20_POLY1305);
+		var ivParameterSpec = new IvParameterSpec(nonce);
+		var keySpec = new SecretKeySpec(key.getEncoded(), ENCRYPTION_ALGORITHM_CHACHA20);
+		cipher.init(operation, keySpec, ivParameterSpec);
+		cipher.updateAAD(additionalAuthenticatedData);
+		return cipher.doFinal(dataIn);
 	}
 
 	/**
@@ -164,17 +163,8 @@ public final class AEAD
 
 		try
 		{
-			var tag = new byte[TAG_SIZE];
-			var cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION_CHACHA20);
-			var chaCha20ParameterSpec = new ChaCha20ParameterSpec(nonce, 1);
-			var keySpec = new SecretKeySpec(key.getEncoded(), ENCRYPTION_ALGORITHM_CHACHA20);
-			cipher.init(ENCRYPT_MODE, keySpec, chaCha20ParameterSpec);
-			var encryptedData = cipher.doFinal(plainText);
-
-			var hmac = new Sha256HMac(key);
-			hmac.update(additionalAuthenticatedData);
-			hmac.update(encryptedData);
-			System.arraycopy(hmac.getBytes(), 0, tag, 0, TAG_SIZE);
+			var encryptedData = doChaCha20(key, ENCRYPT_MODE, nonce, plainText);
+			var tag = doSha256Hash(key, encryptedData, additionalAuthenticatedData);
 
 			return ByteBuffer.allocate(encryptedData.length + TAG_SIZE)
 					.put(encryptedData)
@@ -210,7 +200,6 @@ public final class AEAD
 
 		var encryptedData = new byte[cipherText.length - TAG_SIZE];
 		var tag = new byte[TAG_SIZE];
-		var resultingTag = new byte[TAG_SIZE];
 
 		var buf = ByteBuffer.wrap(cipherText);
 		buf.get(encryptedData);
@@ -218,17 +207,9 @@ public final class AEAD
 
 		try
 		{
-			var cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION_CHACHA20);
-			var chaCha20ParameterSpecs = new ChaCha20ParameterSpec(nonce, 1);
-			var keySpec = new SecretKeySpec(key.getEncoded(), ENCRYPTION_ALGORITHM_CHACHA20);
-			cipher.init(DECRYPT_MODE, keySpec, chaCha20ParameterSpecs);
-			var decryptedData = cipher.doFinal(encryptedData);
-
-			// Verify the SHA256 tag, performed after the decryption to avoid timing attacks.
-			var hmac = new Sha256HMac(key);
-			hmac.update(additionalAuthenticatedData);
-			hmac.update(encryptedData);
-			System.arraycopy(hmac.getBytes(), 0, resultingTag, 0, TAG_SIZE);
+			var decryptedData = doChaCha20(key, DECRYPT_MODE, nonce, encryptedData);
+			// Verify the SHA256 tag, this is performed after the decryption to avoid timing attacks.
+			var resultingTag = doSha256Hash(key, encryptedData, additionalAuthenticatedData);
 
 			if (!MessageDigest.isEqual(tag, resultingTag))
 			{
@@ -240,5 +221,24 @@ public final class AEAD
 		{
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	private static byte[] doChaCha20(SecretKey key, int operation, byte[] nonce, byte[] dataIn) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException
+	{
+		var cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION_CHACHA20);
+		var chaCha20ParameterSpec = new ChaCha20ParameterSpec(nonce, 1);
+		var keySpec = new SecretKeySpec(key.getEncoded(), ENCRYPTION_ALGORITHM_CHACHA20);
+		cipher.init(operation, keySpec, chaCha20ParameterSpec);
+		return cipher.doFinal(dataIn);
+	}
+
+	private static byte[] doSha256Hash(SecretKey key, byte[] encryptedData, byte[] additionalAuthenticatedData)
+	{
+		var tag = new byte[TAG_SIZE];
+		var hmac = new Sha256HMac(key);
+		hmac.update(additionalAuthenticatedData);
+		hmac.update(encryptedData);
+		System.arraycopy(hmac.getBytes(), 0, tag, 0, TAG_SIZE);
+		return tag;
 	}
 }

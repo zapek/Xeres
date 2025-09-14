@@ -73,7 +73,8 @@ public class PrimaryStageInitializer
 					{
 						// This is needed because of https://bugs.openjdk.org/browse/JDK-8248127
 						// "AppKit Thread" has a null class loader which prevents resources from being loaded so
-						// we have to set it.
+						// we have to set it. The AppKit Thread seems to be related with AWT, so as soon as either
+						// a splash screen or a systray is being used, it will be there.
 						if (Thread.currentThread().getContextClassLoader() == null)
 						{
 							Thread.currentThread().setContextClassLoader(PrimaryStageInitializer.class.getClassLoader());

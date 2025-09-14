@@ -241,8 +241,6 @@ public final class MUI
 		});
 
 		shellFrame = new JFrame(AppName.NAME + " Shell");
-		shellFrame.setUndecorated(true);
-		shellFrame.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
 		shellFrame.setIconImage(new ImageIcon(Objects.requireNonNull(MUI.class.getResource("/image/icon.png"))).getImage());
 		shellFrame.getContentPane().setLayout(new BoxLayout(shellFrame.getContentPane(), BoxLayout.Y_AXIS));
 		shellFrame.add(scrollPane);

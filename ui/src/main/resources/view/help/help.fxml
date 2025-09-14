@@ -31,16 +31,25 @@
             <graphic>
                 <FontIcon iconLiteral="mdi2a-arrow-left-bold"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Go back in the history"/>
+            </tooltip>
         </Button>
         <Button fx:id="forward" disable="true">
             <graphic>
                 <FontIcon iconLiteral="mdi2a-arrow-right-bold"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Go forward in the history"/>
+            </tooltip>
         </Button>
         <Button fx:id="home">
             <graphic>
                 <FontIcon iconLiteral="mdi2h-home"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Go to the home section"/>
+            </tooltip>
         </Button>
     </ToolBar>
     <HBox VBox.vgrow="SOMETIMES">

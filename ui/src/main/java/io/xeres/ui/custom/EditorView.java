@@ -389,6 +389,8 @@ public class EditorView extends VBox
 		previewContent.getChildren().clear();
 		previewContent.getChildren().addAll(contents.stream()
 				.map(Content::getNode).toList());
+
+		previewPane.setVvalue(0.0); // Move to the top of the new page
 	}
 
 	/**

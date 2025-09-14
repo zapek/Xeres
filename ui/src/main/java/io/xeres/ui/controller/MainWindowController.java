@@ -371,6 +371,14 @@ public class MainWindowController implements WindowController
 		chatViewController.jumpToBottom();
 
 		getWindow(titleLabel).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
+
+		if (!trayService.hasSystemTray())
+		{
+			UiUtils.getWindow(titleLabel).setOnCloseRequest(event -> {
+				UiUtils.alertConfirm(bundle.getString("main.exit.confirm"), () -> UiUtils.getWindow(titleLabel).hide());
+				event.consume();
+			});
+		}
 	}
 
 	@Override

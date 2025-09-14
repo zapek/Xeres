@@ -94,6 +94,9 @@
                             <graphic>
                                 <FontIcon iconLiteral="mdi2a-account-plus"/>
                             </graphic>
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.add-peer.tip"/>
+                            </tooltip>
                         </Button>
                         <Label text="%main.home.need-help">
                             <VBox.margin>
@@ -104,6 +107,9 @@
                             <graphic>
                                 <FontIcon iconLiteral="mdi2e-earth"/>
                             </graphic>
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.online-help.tip"/>
+                            </tooltip>
                         </Button>
                         <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
                     </VBox>

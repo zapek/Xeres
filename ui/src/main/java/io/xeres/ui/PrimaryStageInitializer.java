@@ -27,6 +27,7 @@ import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -67,7 +68,19 @@ public class PrimaryStageInitializer
 		Platform.setImplicitExit(false);
 
 		profileClient.getOwn()
-				.doFirst(() -> Platform.runLater(() -> windowManager.calculateWindowDecorationSizes(event.getStage())))
+				.doFirst(() -> Platform.runLater(() -> {
+					if (SystemUtils.IS_OS_MAC)
+					{
+						// This is needed because of https://bugs.openjdk.org/browse/JDK-8248127
+						// "AppKit Thread" has a null class loader which prevents resources from being loaded so
+						// we have to set it.
+						if (Thread.currentThread().getContextClassLoader() == null)
+						{
+							Thread.currentThread().setContextClassLoader(PrimaryStageInitializer.class.getClassLoader());
+						}
+					}
+					windowManager.calculateWindowDecorationSizes(event.getStage());
+				}))
 				.doOnSuccess(profile -> windowManager.openMain(event.getStage(), profile, StartupProperties.getBoolean(ICONIFIED, false)))
 				.doOnError(WebClientResponseException.class, e -> {
 					if (e.getStatusCode() == HttpStatus.NOT_FOUND)

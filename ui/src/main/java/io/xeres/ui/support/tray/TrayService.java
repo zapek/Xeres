@@ -29,7 +29,6 @@ import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -85,9 +84,7 @@ public class TrayService
 			return;
 		}
 
-		// Only works properly on Windows. On Linux it depends, Java 21.0.3+ checks if it's supported.
-		// On MacOS it hangs on exit.
-		if (!SystemTray.isSupported() || SystemUtils.IS_OS_MAC)
+		if (!SystemTray.isSupported())
 		{
 			log.error("System tray not supported on that platform");
 			return;

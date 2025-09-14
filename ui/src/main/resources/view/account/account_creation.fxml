@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -31,7 +31,7 @@
                 <FontIcon iconLiteral="mdi2i-information"/>
             </graphic>
             <tooltip>
-                <Tooltip showDelay="0ms" showDuration="1m" maxWidth="400" wrapText="true" text="%account.welcome.tip"/>
+                <Tooltip showDelay="0ms" showDuration="5m" maxWidth="400" wrapText="true" text="%account.welcome.tip"/>
             </tooltip>
         </Button>
     </HBox>

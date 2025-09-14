@@ -324,7 +324,7 @@ public class WindowManager
 						.open());
 	}
 
-	public void openDocumentation()
+	public void openDocumentation(boolean rememberPosition)
 	{
 		Platform.runLater(() -> {
 			var help = getOpenedWindow(HelpWindowController.class).orElse(null);
@@ -335,7 +335,7 @@ public class WindowManager
 			else
 			{
 				UiWindow.builder(HelpWindowController.class)
-						.setRememberEnvironment(true)
+						.setRememberEnvironment(rememberPosition)
 						.setTitle("Help")
 						.build()
 						.open();

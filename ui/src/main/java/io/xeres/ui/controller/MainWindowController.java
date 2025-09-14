@@ -101,8 +101,8 @@ public class MainWindowController implements WindowController
 			KeyCode.F12
 	);
 
-	private static final KeyCombination ONLINE_HELP_SHORTCUT = new KeyCodeCombination(
-			KeyCode.F1, KeyCombination.SHORTCUT_DOWN
+	private static final KeyCombination HELP_SHORTCUT = new KeyCodeCombination(
+			KeyCode.F1, KeyCombination.SHORTCUT_DOWN // This is the online help, F1 alone is mapped to the built-in documentation
 	);
 
 	private EventHandler<KeyEvent> keyEventHandler;
@@ -276,7 +276,7 @@ public class MainWindowController implements WindowController
 		launchWebInterface.setOnAction(event -> openUrl(RemoteUtils.getControlUrl()));
 		launchSwagger.setOnAction(event -> openUrl(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
 
-		showDocumentation.setOnAction(event -> windowManager.openDocumentation());
+		showDocumentation.setOnAction(event -> windowManager.openDocumentation(true));
 		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));
 
 		reportBug.setOnAction(event -> openUrl(XERES_BUGS_URL));
@@ -350,7 +350,7 @@ public class MainWindowController implements WindowController
 				MUI.openShell();
 				event.consume();
 			}
-			else if (ONLINE_HELP_SHORTCUT.match(event))
+			else if (HELP_SHORTCUT.match(event))
 			{
 				webHelpButton.fire();
 				event.consume();

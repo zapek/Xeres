@@ -26,8 +26,13 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -43,6 +48,12 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @FxmlView(value = "/view/account/account_creation.fxml")
 public class AccountCreationWindowController implements WindowController
 {
+	private static final KeyCombination HELP_SHORTCUT = new KeyCodeCombination(
+			KeyCode.F1
+	);
+
+	private EventHandler<KeyEvent> keyEventHandler;
+
 	@FXML
 	private Button okButton;
 
@@ -146,12 +157,27 @@ public class AccountCreationWindowController implements WindowController
 				}
 			}
 		});
+
+		keyEventHandler = event -> {
+			if (HELP_SHORTCUT.match(event))
+			{
+				windowManager.openDocumentation(false);
+				event.consume();
+			}
+		};
 	}
 
 	@Override
 	public void onShown()
 	{
+		getWindow(okButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 		getWindow(okButton).setOnCloseRequest(event -> Platform.exit());
+	}
+
+	@Override
+	public void onHiding()
+	{
+		getWindow(okButton).removeEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 
 	/**

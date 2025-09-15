@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.help;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.UriService;
 import javafx.fxml.FXMLLoader;
@@ -27,12 +28,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.testfx.framework.junit5.ApplicationExtension;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -50,13 +53,16 @@ class HelpWindowControllerTest
 	@Mock
 	private UriService uriService;
 
+	@Spy
+	private final ResourceBundle resourceBundle = I18nUtils.getBundle();
+
 	@InjectMocks
 	private HelpWindowController controller;
 
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/help/help.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/help/help.fxml"), resourceBundle);
 
 		loader.setControllerFactory(applicationContext -> controller);
 

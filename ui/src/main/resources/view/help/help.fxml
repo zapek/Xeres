@@ -32,7 +32,7 @@
                 <FontIcon iconLiteral="mdi2a-arrow-left-bold"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Go back in the history"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%help.back"/>
             </tooltip>
         </Button>
         <Button fx:id="forward" disable="true">
@@ -40,7 +40,7 @@
                 <FontIcon iconLiteral="mdi2a-arrow-right-bold"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Go forward in the history"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%help.forward"/>
             </tooltip>
         </Button>
         <Button fx:id="home">
@@ -48,7 +48,7 @@
                 <FontIcon iconLiteral="mdi2h-home"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Go to the home section"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%help.home"/>
             </tooltip>
         </Button>
     </ToolBar>

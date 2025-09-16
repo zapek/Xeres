@@ -193,7 +193,7 @@ public class ProfileService
 			}
 			throw new IllegalArgumentException("No signature present in the key");
 		}
-		catch (InvalidKeyException e)
+		catch (InvalidKeyException _)
 		{
 			throw new IllegalArgumentException("PGP public key for profile is invalid");
 		}
@@ -274,7 +274,7 @@ public class ProfileService
 		{
 			return;
 		}
-		profilesToDelete.forEach((profile, locationIdentifiers) -> locationIdentifiers.removeIf(locationId -> locationId.equals(event.locationIdentifier())));
+		profilesToDelete.forEach((_, locationIdentifiers) -> locationIdentifiers.removeIf(locationId -> locationId.equals(event.locationIdentifier())));
 		var it = profilesToDelete.entrySet().iterator();
 		while (it.hasNext())
 		{
@@ -315,7 +315,7 @@ public class ProfileService
 					var pgpPublicKey = PGP.getPGPPublicKey(pgpPublicKeyData);
 					profile.setCreated(pgpPublicKey.getCreationTime().toInstant());
 				}
-				catch (InvalidKeyException e)
+				catch (InvalidKeyException _)
 				{
 					// Skip
 				}

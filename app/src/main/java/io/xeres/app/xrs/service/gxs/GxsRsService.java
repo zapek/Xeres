@@ -259,7 +259,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			switch (item)
 			{
-				case GxsSyncGroupStatsItem gxsSyncGroupStatsItem -> log.debug("Would handle group statistics item (not implemented yet)"); // XXX:
+				case GxsSyncGroupStatsItem _ -> log.debug("Would handle group statistics item (not implemented yet)"); // XXX:
 				case GxsSyncNotifyItem gxsSyncNotifyItem -> handleGxsSyncNotifyItem(sender, gxsSyncNotifyItem);
 				case null, default -> log.error("Not a GxsExchange item: {}, ignoring", item);
 			}
@@ -324,7 +324,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			{
 				TimeUnit.SECONDS.sleep(1);
 			}
-			catch (InterruptedException ignore)
+			catch (InterruptedException _)
 			{
 				Thread.currentThread().interrupt();
 				return;
@@ -588,7 +588,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			}
 
 			// If the group verification was delayed, remove it
-			pendingGxsGroups.computeIfPresent(gxsGroupItem, (group, delay) -> -1L);
+			pendingGxsGroups.computeIfPresent(gxsGroupItem, (_, _) -> -1L);
 		}
 
 		if (!savedGroups.isEmpty())
@@ -680,7 +680,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			//noinspection unchecked
 			gxsGroupItem = ((Class<G>) itemGroupClass).getDeclaredConstructor().newInstance();
 		}
-		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException _)
 		{
 			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemGroupClass).getSimpleName() + " missing empty constructor?");
 		}
@@ -765,7 +765,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			}
 
 			// If the message verification was delayed, remove it
-			pendingGxsMessages.computeIfPresent(gxsMessageItem, (message, delay) -> -1L);
+			pendingGxsMessages.computeIfPresent(gxsMessageItem, (_, _) -> -1L);
 		}
 
 		if (!savedMessages.isEmpty())
@@ -869,7 +869,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			//noinspection unchecked
 			gxsMessageItem = ((Class<M>) itemMessageClass).getDeclaredConstructor().newInstance();
 		}
-		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException _)
 		{
 			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemMessageClass).getSimpleName() + " missing empty constructor?");
 		}

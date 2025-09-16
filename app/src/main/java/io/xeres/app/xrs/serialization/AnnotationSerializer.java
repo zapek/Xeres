@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -60,7 +60,7 @@ final class AnnotationSerializer
 		{
 			instanceObject = javaClass.getDeclaredConstructor().newInstance();
 		}
-		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException _)
 		{
 			throw new IllegalArgumentException("Cannot instantiate object of class " + javaClass.getSimpleName());
 		}

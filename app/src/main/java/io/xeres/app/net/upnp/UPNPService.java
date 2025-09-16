@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -210,7 +210,7 @@ public class UPNPService implements Runnable
 				{
 					Thread.sleep(SERVICE_RETRY_DURATION);
 				}
-				catch (InterruptedException ignore)
+				catch (InterruptedException _)
 				{
 					Thread.currentThread().interrupt();
 					break;
@@ -270,7 +270,7 @@ public class UPNPService implements Runnable
 			}
 			cleanupDevice();
 		}
-		catch (ClosedByInterruptException e)
+		catch (ClosedByInterruptException _)
 		{
 			log.debug("Interrupted, bailing out...");
 		}

@@ -68,7 +68,7 @@ public final class RSA
 
 			return keyPairGenerator.generateKeyPair();
 		}
-		catch (NoSuchAlgorithmException e)
+		catch (NoSuchAlgorithmException _)
 		{
 			throw new IllegalArgumentException("Algorithm not supported");
 		}
@@ -146,7 +146,7 @@ public final class RSA
 			signer.update(data);
 			return signer.verify(signature);
 		}
-		catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e)
+		catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException _)
 		{
 			return false;
 		}

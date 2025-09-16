@@ -32,8 +32,6 @@ import javafx.scene.text.HitInfo;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualFlowHit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -41,9 +39,6 @@ import java.util.stream.Collectors;
 
 class ChatListDragSelection
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatListDragSelection.class);
-	public static final double VIEW_MARGIN = 8.0;
-
 	private final Node focusNode;
 
 	private enum SelectionMode
@@ -95,7 +90,7 @@ class ChatListDragSelection
 			startCellIndex = hitResult.getCellIndex();
 			textFlows.add(textFlow);
 
-			var hitInfo = textFlow.hitTest(hitResult.getCellOffset());
+			var hitInfo = textFlow.getHitInfo(hitResult.getCellOffset());
 			firstHitInfo = hitInfo;
 
 			switch (hitInfo.getCharIndex())
@@ -187,8 +182,8 @@ class ChatListDragSelection
 			if (direction == Direction.SAME)
 			{
 				// We're switching to multiline mode.
-				var pathElements = textFlows.getFirst().rangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlows.getFirst()));
-				TextFlowUtils.showSelection(textFlows.getFirst(), pathElements, VIEW_MARGIN);
+				var pathElements = textFlows.getFirst().getRangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlows.getFirst()), false);
+				TextFlowUtils.showSelection(textFlows.getFirst(), pathElements);
 
 				direction = cellIndex > startCellIndex ? Direction.DOWN : Direction.UP;
 				markSelection(virtualFlow, startCellIndex, cellIndex);
@@ -269,12 +264,12 @@ class ChatListDragSelection
 	{
 		var textFlow = hitResult.getCell().getNode();
 
-		textSelectRange = new TextSelectRange(firstHitInfo, textFlow.hitTest(hitResult.getCellOffset()));
+		textSelectRange = new TextSelectRange(firstHitInfo, textFlow.getHitInfo(hitResult.getCellOffset()));
 
 		if (textSelectRange.isSelected())
 		{
-			var pathElements = textFlow.rangeShape(textSelectRange.getStart(), textSelectRange.getEnd() + 1);
-			TextFlowUtils.showSelection(textFlow, pathElements, VIEW_MARGIN);
+			var pathElements = textFlow.getRangeShape(textSelectRange.getStart(), textSelectRange.getEnd() + 1, false);
+			TextFlowUtils.showSelection(textFlow, pathElements);
 		}
 		else
 		{
@@ -284,7 +279,7 @@ class ChatListDragSelection
 
 	private void addVisibleSelection(TextFlow textFlow)
 	{
-		TextFlowUtils.showSelection(textFlow, textFlow.rangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlow)), VIEW_MARGIN);
+		TextFlowUtils.showSelection(textFlow, textFlow.getRangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlow), false));
 		if (textFlows.getLast() != textFlow)
 		{
 			textFlows.add(textFlow);

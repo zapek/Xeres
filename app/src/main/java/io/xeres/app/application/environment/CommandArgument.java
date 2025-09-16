@@ -128,7 +128,7 @@ public final class CommandArgument
 		{
 			StartupProperties.setString(property, getValue(appArgs, arg), StartupProperties.Origin.ARGUMENT);
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException _)
 		{
 			throw new IllegalArgumentException("--" + arg + " does not contain a value");
 		}
@@ -140,7 +140,7 @@ public final class CommandArgument
 		{
 			StartupProperties.setPort(property, getValue(appArgs, arg), StartupProperties.Origin.ARGUMENT);
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException _)
 		{
 			throw new IllegalArgumentException("--" + arg + " must specify a port bigger than 0 and smaller than 65536");
 		}

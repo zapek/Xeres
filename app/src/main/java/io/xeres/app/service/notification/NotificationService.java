@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -142,7 +142,7 @@ public abstract class NotificationService
 			{
 				emitter.send(createEventBuilder(notification));
 			}
-			catch (IOException e)
+			catch (IOException _)
 			{
 				deadEmitters.add(emitter);
 			}
@@ -156,7 +156,7 @@ public abstract class NotificationService
 		{
 			emitter.send(createEventBuilder(notification));
 		}
-		catch (IOException e)
+		catch (IOException _)
 		{
 			emitters.remove(emitter);
 		}

@@ -83,7 +83,7 @@ class FileTransferAgent
 
 	public void addSeeder(Location peer)
 	{
-		seeders.computeIfAbsent(peer, k -> {
+		seeders.computeIfAbsent(peer, _ -> {
 			var fileSeeder = new FileSeeder(peer);
 			queue.add(fileSeeder);
 			return fileSeeder;
@@ -93,7 +93,7 @@ class FileTransferAgent
 
 	public void addLeecher(Location peer, long offset, int size)
 	{
-		leechers.computeIfAbsent(peer, k -> {
+		leechers.computeIfAbsent(peer, _ -> {
 			var fileLeecher = new FileLeecher(peer);
 			queue.add(fileLeecher);
 			return fileLeecher;
@@ -279,12 +279,12 @@ class FileTransferAgent
 				success = true;
 				path = newPath;
 			}
-			catch (FileAlreadyExistsException e)
+			catch (FileAlreadyExistsException _)
 			{
 				log.warn("File name {} already exists, renaming...", fileName);
 				fileName = FileNameUtils.rename(fileName);
 			}
-			catch (InvalidPathException e)
+			catch (InvalidPathException _)
 			{
 				log.warn("File name {} is invalid, trying to fix the characters...", fileName);
 				var newFileName = OsUtils.sanitizeFileName(fileName);

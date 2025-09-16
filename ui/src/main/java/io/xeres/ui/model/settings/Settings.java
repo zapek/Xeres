@@ -189,7 +189,7 @@ public class Settings implements Cloneable
 		{
 			return (Settings) super.clone();
 		}
-		catch (CloneNotSupportedException e)
+		catch (CloneNotSupportedException _)
 		{
 			throw new AssertionError();
 		}

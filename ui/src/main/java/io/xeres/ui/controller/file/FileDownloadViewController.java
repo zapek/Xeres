@@ -104,7 +104,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 		tableState.setCellValueFactory(new PropertyValueFactory<>("state"));
 		tableProgress.setCellFactory(ProgressBarTableCell.forTableColumn());
 		tableProgress.setCellValueFactory(new PropertyValueFactory<>("progress"));
-		tableTotalSize.setCellFactory(param -> new FileProgressSizeCell());
+		tableTotalSize.setCellFactory(_ -> new FileProgressSizeCell());
 		tableTotalSize.setCellValueFactory(new PropertyValueFactory<>("totalSize"));
 		tableHash.setCellValueFactory(new PropertyValueFactory<>("hash"));
 	}
@@ -134,7 +134,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 									it.remove();
 								}
 							}
-							incomingProgresses.forEach((s, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), fileProgress.completed() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
+							incomingProgresses.forEach((_, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), fileProgress.completed() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				1,
@@ -191,7 +191,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 			{
 				log.debug("Removing download of file {}", fileProgressDisplay.getName());
 				fileClient.removeDownload(fileProgressDisplay.getId())
-						.doOnSuccess(unused -> fileProgressDisplay.setState(REMOVING))
+						.doOnSuccess(_ -> fileProgressDisplay.setState(REMOVING))
 						.subscribe();
 			}
 		});

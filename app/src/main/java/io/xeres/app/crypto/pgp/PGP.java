@@ -301,7 +301,7 @@ public final class PGP
 			var pgpSignature = getSignature(signature);
 			return pgpSignature.getKeyID();
 		}
-		catch (SignatureException | IOException e)
+		catch (SignatureException | IOException _)
 		{
 			return 0L;
 		}

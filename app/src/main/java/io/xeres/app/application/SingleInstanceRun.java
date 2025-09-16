@@ -82,7 +82,7 @@ public final class SingleInstanceRun
 		{
 			log.debug("Couldn't enforce single instance: {}.", e.getMessage());
 		}
-		catch (SecurityException e)
+		catch (SecurityException _)
 		{
 			log.warn("Shutdown hook denied by SecurityManager; There will be a dangling lock file at {}", LOCK_FILE_NAME);
 		}
@@ -100,7 +100,7 @@ public final class SingleInstanceRun
 				randomAccessFile.close();
 				Files.delete(file.toPath());
 			}
-			catch (IOException | SecurityException e)
+			catch (IOException | SecurityException _)
 			{
 				// No logging in the shutdown hook because logback also uses one to clean up
 			}

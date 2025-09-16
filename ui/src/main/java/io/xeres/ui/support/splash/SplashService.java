@@ -51,7 +51,7 @@ public final class SplashService
 		{
 			splashScreen = SplashScreen.getSplashScreen();
 		}
-		catch (UnsupportedOperationException ignored)
+		catch (UnsupportedOperationException _)
 		{
 			// No splash screen supported
 		}

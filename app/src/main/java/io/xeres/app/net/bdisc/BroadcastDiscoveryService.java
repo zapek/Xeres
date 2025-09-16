@@ -242,7 +242,7 @@ public class BroadcastDiscoveryService implements Runnable
 				handleSelection(selector);
 			}
 		}
-		catch (ClosedByInterruptException e)
+		catch (ClosedByInterruptException _)
 		{
 			log.debug("Interrupted, bailing out...");
 		}

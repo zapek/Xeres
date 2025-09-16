@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -131,7 +131,7 @@ public final class IP
 				socket.bind(new InetSocketAddress("0.0.0.0", port));
 				return port;
 			}
-			catch (IOException e)
+			catch (IOException _)
 			{
 				if (bindErrorDetector > BINDING_ATTEMPTS_MAX)
 				{
@@ -169,7 +169,7 @@ public final class IP
 				return ip;
 			}
 		}
-		catch (IOException | UncheckedIOException e)
+		catch (IOException | UncheckedIOException _)
 		{
 			ip = null;
 		}
@@ -210,7 +210,7 @@ public final class IP
 		{
 			return isLanAddress(InetAddress.getByName(ip));
 		}
-		catch (UnknownHostException e)
+		catch (UnknownHostException _)
 		{
 			return false;
 		}
@@ -228,7 +228,7 @@ public final class IP
 		{
 			return isPublicAddress(InetAddress.getByName(ip));
 		}
-		catch (UnknownHostException e)
+		catch (UnknownHostException _)
 		{
 			return false;
 		}
@@ -246,7 +246,7 @@ public final class IP
 		{
 			return isLocalAddress(InetAddress.getByName(ip));
 		}
-		catch (UnknownHostException e)
+		catch (UnknownHostException _)
 		{
 			return false;
 		}

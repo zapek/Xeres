@@ -144,14 +144,14 @@ public class ShareWindowController implements WindowController
 		// XXX: when clicking outside tableName, the value isn't committed but the edited value stays on display anyway (which is wrong). but we get no event at all
 
 		// setOnEditCommit() doesn't work for CheckBoxes, so we have to do that
-		tableSearchable.setCellFactory(unused -> new CheckBoxTableCell<>());
+		tableSearchable.setCellFactory(_ -> new CheckBoxTableCell<>());
 		tableSearchable.setCellValueFactory(param -> param.getValue().searchableProperty());
 
 		tableBrowsable.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getBrowsable()));
 		tableBrowsable.setCellFactory(ChoiceBoxTableCell.forTableColumn(new TrustConverter(), Trust.values()));
 		tableBrowsable.setOnEditCommit(param -> getCurrentItem(param).setBrowsable(param.getNewValue()));
 
-		addButton.setOnAction(event -> {
+		addButton.setOnAction(_ -> {
 			var downloadPath = OsUtils.getDownloadDir();
 			var newShare = new Share();
 			newShare.setName(downloadPath.getName(downloadPath.getNameCount() - 1).toString());
@@ -167,7 +167,7 @@ public class ShareWindowController implements WindowController
 			if (validateShares())
 			{
 				shareClient.createAndUpdate(shareTableView.getItems())
-						.doOnSuccess(unused -> Platform.runLater(() -> UiUtils.closeWindow(event)))
+						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(event)))
 						.doOnError(UiUtils::showAlertError)
 						.subscribe();
 			}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -84,7 +84,7 @@ public interface Identifier
 			{
 				bytes = Id.toBytes(s);
 			}
-			catch (NumberFormatException e)
+			catch (NumberFormatException _)
 			{
 				bytes = createNullIdentifier(length);
 			}

@@ -37,7 +37,7 @@ public abstract class FXTest
 			Platform.startup(() -> {
 			});
 		}
-		catch (IllegalStateException e)
+		catch (IllegalStateException _)
 		{
 			// Platform already running, just ignore
 		}

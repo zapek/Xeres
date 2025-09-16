@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -65,7 +65,7 @@ public final class ExecutorUtils
 					log.warn("Executor {} failed to terminate during the waiting period", executorService);
 				}
 			}
-			catch (InterruptedException ignored)
+			catch (InterruptedException _)
 			{
 				Thread.currentThread().interrupt();
 			}

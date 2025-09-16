@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -66,7 +66,7 @@ final class ControlPoint
 
 			controlPointFound = hasServices(upnpDevice, services);
 		}
-		catch (FileNotFoundException e)
+		catch (FileNotFoundException _)
 		{
 			log.error("UPNP router's URL {} is not accessible", location);
 		}

@@ -91,8 +91,8 @@ public class AccountCreationWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		profileName.textProperty().addListener(observable -> okButton.setDisable(profileName.getText().isBlank()));
-		locationName.textProperty().addListener(observable -> okButton.setDisable(locationName.getText().isBlank()));
+		profileName.textProperty().addListener(_ -> okButton.setDisable(profileName.getText().isBlank()));
+		locationName.textProperty().addListener(_ -> okButton.setDisable(locationName.getText().isBlank()));
 
 		configClient.getUsername()
 				.doOnSuccess(usernameResult -> Platform.runLater(() -> profileName.setText(usernameResult.username())))
@@ -102,7 +102,7 @@ public class AccountCreationWindowController implements WindowController
 				.doOnSuccess(hostnameResult -> Platform.runLater(() -> locationName.setText(sanitizeHostname(hostnameResult.hostname()))))
 				.subscribe();
 
-		okButton.setOnAction(actionEvent ->
+		okButton.setOnAction(_ ->
 		{
 			var profileNameText = profileName.getText();
 			var locationNameText = locationName.getText();
@@ -125,7 +125,7 @@ public class AccountCreationWindowController implements WindowController
 					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
 					configClient.sendBackup(selectedFile)
-							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
+							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
 								UiUtils.showAlertError(throwable);
 								setInProgress(false);
@@ -143,7 +143,7 @@ public class AccountCreationWindowController implements WindowController
 					dialog.setContentText(bundle.getString("account.generation.import.confirm.prompt"));
 					dialog.initOwner(UiUtils.getWindow(event));
 					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), response)
-							.doOnSuccess(unused -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
+							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
 								UiUtils.showAlertError(throwable);
 								setInProgress(false);
@@ -171,7 +171,7 @@ public class AccountCreationWindowController implements WindowController
 	public void onShown()
 	{
 		getWindow(okButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
-		getWindow(okButton).setOnCloseRequest(event -> Platform.exit());
+		getWindow(okButton).setOnCloseRequest(_ -> Platform.exit());
 	}
 
 	@Override
@@ -208,7 +208,7 @@ public class AccountCreationWindowController implements WindowController
 
 		status.setText(bundle.getString("account.generation.profile-keys"));
 
-		configClient.createProfile(profileName).doOnSuccess(unused -> Platform.runLater(() -> generateLocation(profileName, locationName)))
+		configClient.createProfile(profileName).doOnSuccess(_ -> Platform.runLater(() -> generateLocation(profileName, locationName)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.showAlertError(e);
 					setInProgress(false);
@@ -223,7 +223,7 @@ public class AccountCreationWindowController implements WindowController
 
 		status.setText(bundle.getString("account.generation.location-keys-and-certificate"));
 
-		configClient.createLocation(locationName).doOnSuccess(unused -> Platform.runLater(() -> generateIdentity(profileName)))
+		configClient.createLocation(locationName).doOnSuccess(_ -> Platform.runLater(() -> generateIdentity(profileName)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.showAlertError(e);
 					setInProgress(false);
@@ -240,7 +240,7 @@ public class AccountCreationWindowController implements WindowController
 
 		status.setText(bundle.getString("account.generation.identity"));
 
-		result.doOnSuccess(identityResponse -> Platform.runLater(this::openDashboard))
+		result.doOnSuccess(_ -> Platform.runLater(this::openDashboard))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.showAlertError(e);
 					setInProgress(false);

@@ -109,7 +109,7 @@ class FileTransferManager implements Runnable
 				processDownloads();
 				processUploads();
 			}
-			catch (InterruptedException e)
+			catch (InterruptedException _)
 			{
 				log.debug("FileTransferManager thread interrupted");
 				cleanup();
@@ -195,13 +195,13 @@ class FileTransferManager implements Runnable
 
 	private void processDownloads()
 	{
-		downloads.forEach((hash, download) -> download.process());
+		downloads.forEach((_, download) -> download.process());
 	}
 
 	private void processUploads()
 	{
 		uploads.entrySet().removeIf(upload -> stopStalledUpload(upload.getValue()));
-		uploads.forEach((hash, upload) -> upload.process());
+		uploads.forEach((_, upload) -> upload.process());
 	}
 
 	private boolean stopStalledUpload(FileTransferAgent upload)

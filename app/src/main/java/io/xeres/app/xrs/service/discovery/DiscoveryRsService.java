@@ -446,7 +446,7 @@ public class DiscoveryRsService extends RsService
 						profileService.createOrUpdateProfile(newProfile);
 					});
 		}
-		catch (InvalidKeyException e)
+		catch (InvalidKeyException _)
 		{
 			log.warn("Invalid PGP public key for profile id {}", Id.toString(discoveryPgpKeyItem.getPgpIdentifier()));
 		}

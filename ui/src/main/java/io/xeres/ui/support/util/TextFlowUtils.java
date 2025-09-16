@@ -99,16 +99,15 @@ public final class TextFlowUtils
 	 * Shows the selected text visually.
 	 *
 	 * @param textFlow     the text flow
-	 * @param pathElements the path elements, retrieved with {@link TextFlow#rangeShape(int, int)}.
+	 * @param pathElements the path elements, retrieved with {@link TextFlow#getRangeShape(int, int, boolean)}.
 	 */
-	public static void showSelection(TextFlow textFlow, PathElement[] pathElements, double margin)
+	public static void showSelection(TextFlow textFlow, PathElement[] pathElements)
 	{
 		var path = new Path(pathElements);
 		path.setStroke(Color.TRANSPARENT);
 		path.setFill(Color.DODGERBLUE);
 		path.setOpacity(0.3);
 		path.setManaged(false); // This is needed so they show up above
-		path.setTranslateX(margin);
 		hideSelection(textFlow);
 		textFlow.getChildren().add(path);
 	}

@@ -161,7 +161,7 @@ public class SettingsService
 		{
 			Files.delete(path);
 		}
-		catch (IOException e)
+		catch (IOException _)
 		{
 			log.error("Couldn't delete old backup file: {}", path);
 		}

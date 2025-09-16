@@ -74,7 +74,7 @@ public class FakeHttpServer
 		{
 			return HttpServer.create(address, 0);
 		}
-		catch (BindException e)
+		catch (BindException _)
 		{
 			port++;
 			return createHttpServer();

@@ -203,30 +203,30 @@ public class ForumViewController implements Controller
 		root.setExpanded(true);
 		forumTree.setRoot(root);
 		forumTree.setShowRoot(false);
-		forumTree.setRowFactory(param -> new ForumCell());
+		forumTree.setRowFactory(_ -> new ForumCell());
 		forumNameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
 		forumCountColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("unreadCount"));
-		forumCountColumn.setCellFactory(param -> new ForumCellCount());
+		forumCountColumn.setCellFactory(_ -> new ForumCellCount());
 		createForumTreeContextMenu();
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
 		forumTree.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue())));
+				.addListener((_, _, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue())));
 
-		UiUtils.setOnPrimaryMouseDoubleClicked(forumTree, event -> {
+		UiUtils.setOnPrimaryMouseDoubleClicked(forumTree, _ -> {
 			if (isForumSelected())
 			{
 				subscribeToForumGroup(selectedForumGroup);
 			}
 		});
 
-		forumMessagesTreeTableView.setRowFactory(param -> new ForumMessageCell());
+		forumMessagesTreeTableView.setRowFactory(_ -> new ForumMessageCell());
 		createForumMessageTableViewContextMenu();
 		treeTableSubject.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
-		treeTableAuthor.setCellFactory(param -> new ForumCellAuthor(generalClient, imageCacheService));
+		treeTableAuthor.setCellFactory(_ -> new ForumCellAuthor(generalClient, imageCacheService));
 		treeTableAuthor.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
 
-		treeTableDate.setCellFactory(param -> new DateCell());
+		treeTableDate.setCellFactory(_ -> new DateCell());
 		treeTableDate.setCellValueFactory(new TreeItemPropertyValueFactory<>("published"));
 
 		forumMessagesRoot = new TreeItem<>(new ForumMessage());
@@ -238,11 +238,11 @@ public class ForumViewController implements Controller
 		treeTableDate.setSortable(true);
 
 		forumMessagesTreeTableView.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> changeSelectedForumMessage(newValue != null ? newValue.getValue() : null));
+				.addListener((_, _, newValue) -> changeSelectedForumMessage(newValue != null ? newValue.getValue() : null));
 
-		createForum.setOnAction(event -> windowManager.openForumCreation());
+		createForum.setOnAction(_ -> windowManager.openForumCreation());
 
-		newThread.setOnAction(event -> newForumPost(false));
+		newThread.setOnAction(_ -> newForumPost(false));
 
 		setupForumNotifications();
 
@@ -276,10 +276,10 @@ public class ForumViewController implements Controller
 		popularForums.setExpanded(node.getBoolean(OPEN_POPULAR, false));
 		otherForums.setExpanded(node.getBoolean(OPEN_OTHER, false));
 
-		ownForums.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_OWN, newValue));
-		subscribedForums.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_SUBSCRIBED, newValue));
-		popularForums.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_POPULAR, newValue));
-		otherForums.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_OTHER, newValue));
+		ownForums.expandedProperty().addListener((_, _, newValue) -> node.putBoolean(OPEN_OWN, newValue));
+		subscribedForums.expandedProperty().addListener((_, _, newValue) -> node.putBoolean(OPEN_SUBSCRIBED, newValue));
+		popularForums.expandedProperty().addListener((_, _, newValue) -> node.putBoolean(OPEN_POPULAR, newValue));
+		otherForums.expandedProperty().addListener((_, _, newValue) -> node.putBoolean(OPEN_OTHER, newValue));
 	}
 
 	@EventListener
@@ -377,7 +377,7 @@ public class ForumViewController implements Controller
 	{
 		var replyItem = new MenuItem(bundle.getString("forum.view.reply"));
 		replyItem.setGraphic(new FontIcon(MaterialDesignR.REPLY));
-		replyItem.setOnAction(event -> newForumPost(true));
+		replyItem.setOnAction(_ -> newForumPost(true));
 
 		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
@@ -483,7 +483,7 @@ public class ForumViewController implements Controller
 		forumGroups.forEach(forumGroup -> forumClient.getForumUnreadCount(forumGroup.getId())
 				.doOnSuccess(unreadCount -> Platform.runLater(() -> getSubscribedTreeItemByGxsId(forumGroup.getGxsId())
 						.ifPresent(forumGroupTreeItem -> forumGroupTreeItem.getValue().setUnreadCount(unreadCount))))
-				.doFinally(signalType -> Platform.runLater(() -> forumTree.refresh()))
+				.doFinally(_ -> Platform.runLater(() -> forumTree.refresh()))
 				.subscribe());
 	}
 
@@ -529,7 +529,7 @@ public class ForumViewController implements Controller
 		if (!alreadySubscribed)
 		{
 			forumClient.subscribeToForumGroup(forumGroup.getId())
-					.doOnSuccess(unused -> {
+					.doOnSuccess(_ -> {
 						forumGroup.setSubscribed(true);
 						addOrUpdate(subscribedForums, forumGroup);
 					})
@@ -542,8 +542,8 @@ public class ForumViewController implements Controller
 		subscribedForums.getChildren().stream()
 				.filter(forumHolderTreeItem -> forumHolderTreeItem.getValue().equals(forumGroup))
 				.findAny()
-				.ifPresent(forumHolderTreeItem -> forumClient.unsubscribeFromForumGroup(forumGroup.getId())
-						.doOnSuccess(unused -> {
+				.ifPresent(_ -> forumClient.unsubscribeFromForumGroup(forumGroup.getId())
+						.doOnSuccess(_ -> {
 							forumGroup.setSubscribed(false);
 							addOrUpdate(popularForums, forumGroup);
 						}) // XXX: wrong, could be something else then "otherForums"
@@ -555,7 +555,7 @@ public class ForumViewController implements Controller
 		selectedForumGroup = forumGroup;
 		selectedForumMessage = null;
 
-		getBrowsableTreeItem(forumGroup.getId()).ifPresentOrElse(forumGroupTreeItem -> forumClient.getForumMessages(forumGroup.getId()).collectList()
+		getBrowsableTreeItem(forumGroup.getId()).ifPresentOrElse(_ -> forumClient.getForumMessages(forumGroup.getId()).collectList()
 				.doFirst(() -> forumMessagesState(true))
 				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
 					forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
@@ -567,7 +567,7 @@ public class ForumViewController implements Controller
 					selectMessageIfNeeded();
 				}))
 				.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
-				.doFinally(signalType -> forumMessagesState(false))
+				.doFinally(_ -> forumMessagesState(false))
 				.subscribe(), () -> Platform.runLater(() -> {
 			// XXX: this is the case when there's no active forum selected. display some forum/tree group info in the message view
 			forumMessagesTreeTableView.getSelectionModel().clearSelection();
@@ -688,7 +688,7 @@ public class ForumViewController implements Controller
 			}
 		}
 
-		messageMap.forEach((aLong, aBoolean) -> {
+		messageMap.forEach((_, _) -> {
 			// XXX: implement... boring. not needed yet because we can't mark several entries at once
 		});
 	}
@@ -719,7 +719,7 @@ public class ForumViewController implements Controller
 	{
 		var infoItem = new MenuItem(bundle.getString("chat.room.user-menu"));
 		infoItem.setGraphic(new FontIcon(MaterialDesignA.ACCOUNT_BOX));
-		infoItem.setOnAction(event -> uriService.openUri(new IdentityUri(name, gxsId, null)));
+		infoItem.setOnAction(_ -> uriService.openUri(new IdentityUri(name, gxsId, null)));
 		messageAuthor.setContextMenu(new ContextMenu(infoItem));
 	}
 }

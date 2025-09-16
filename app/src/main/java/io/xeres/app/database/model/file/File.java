@@ -111,7 +111,7 @@ public class File
 		{
 			return Path.of(path.toFile().getCanonicalPath());
 		}
-		catch (IOException e)
+		catch (IOException _)
 		{
 			log.error("Failed to get canonical path: {}, using absolute path instead", path);
 			return path.toAbsolutePath();

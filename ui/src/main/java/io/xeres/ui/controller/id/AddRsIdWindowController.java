@@ -31,7 +31,6 @@ import io.xeres.ui.client.GeoIpClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.connection.Connection;
-import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -107,8 +106,6 @@ public class AddRsIdWindowController implements WindowController
 	private final ResourceBundle bundle;
 	private final WindowManager windowManager;
 
-	private Profile ownProfile;
-
 	public AddRsIdWindowController(ProfileClient profileClient, GeoIpClient geoIpClient, ResourceBundle bundle, WindowManager windowManager)
 	{
 		this.profileClient = profileClient;
@@ -120,22 +117,18 @@ public class AddRsIdWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		scanQrCode.setOnAction(event -> windowManager.openCamera(this));
-		addButton.setOnAction(event -> addPeer());
+		scanQrCode.setOnAction(_ -> windowManager.openCamera(this));
+		addButton.setOnAction(_ -> addPeer());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 
 		var debouncer = new PauseTransition(Duration.millis(250.0));
-		rsIdTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
-			debouncer.setOnFinished(event -> checkRsId(newValue));
+		rsIdTextArea.textProperty().addListener((_, _, newValue) -> {
+			debouncer.setOnFinished(_ -> checkRsId(newValue));
 			debouncer.playFromStart();
 		});
 		TextInputControlUtils.addEnhancedInputContextMenu(rsIdTextArea, null, null);
 
-		profileClient.getOwn()
-				.doOnSuccess(profile -> ownProfile = profile)
-				.subscribe();
-
-		certIps.setCellFactory(param -> new AddressCell());
+		certIps.setCellFactory(_ -> new AddressCell());
 		certIps.setConverter(new AddressConverter());
 
 		Platform.runLater(this::handleArgument);
@@ -166,7 +159,7 @@ public class AddRsIdWindowController implements WindowController
 	{
 		var profile = profileClient.create(rsIdTextArea.getText(), certIps.getSelectionModel().getSelectedIndex(), trust.getSelectionModel().getSelectedItem());
 
-		profile.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
+		profile.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
 				.doOnError(UiUtils::showAlertError)
 				.subscribe();
 	}
@@ -206,7 +199,7 @@ public class AddRsIdWindowController implements WindowController
 					setDefaultTrust(trust);
 					titledPane.setExpanded(true);
 				}))
-				.doOnError(throwable -> Platform.runLater(() ->
+				.doOnError(_ -> Platform.runLater(() ->
 				{
 					addButton.setDisable(true);
 					if (rsIdTextArea.getText().isBlank())
@@ -281,7 +274,7 @@ public class AddRsIdWindowController implements WindowController
 			{
 				return Country.valueOf(countryResponse.isoCountry().toUpperCase(Locale.ROOT));
 			}
-			catch (IllegalArgumentException e)
+			catch (IllegalArgumentException _)
 			{
 				log.warn("Country not found for iso {}", countryResponse.isoCountry());
 			}

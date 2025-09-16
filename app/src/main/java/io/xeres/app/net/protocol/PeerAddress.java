@@ -169,7 +169,7 @@ public final class PeerAddress
 		{
 			return new PeerAddress(new InetSocketAddress(InetAddress.getByName(ip), port), IPV4);
 		}
-		catch (UnknownHostException e)
+		catch (UnknownHostException _)
 		{
 			return fromInvalid(); // Won't happen anyway
 		}
@@ -188,7 +188,7 @@ public final class PeerAddress
 			var hostPort = HostPort.parse(ipAndPort);
 			return from(hostPort);
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException _)
 		{
 			return fromInvalid();
 		}
@@ -256,7 +256,7 @@ public final class PeerAddress
 			}
 			return fromHostname(hostPort.host(), hostPort.port());
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException _)
 		{
 			return fromInvalid();
 		}
@@ -480,7 +480,7 @@ public final class PeerAddress
 					.filter(i -> (i >= 0 && i <= 255))
 					.count() != 4 || !IP.isRoutableIp(address);
 		}
-		catch (NumberFormatException e)
+		catch (NumberFormatException _)
 		{
 			return true;
 		}

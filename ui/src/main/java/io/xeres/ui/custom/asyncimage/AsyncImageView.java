@@ -78,7 +78,7 @@ public class AsyncImageView extends ImageView
 		// setImage() is final and the listener is called *after* the
 		// property is set (and acted upon by ImageView) so this is the
 		// next best thing we can do.
-		imageProperty().addListener((observable, oldValue, newValue) -> {
+		imageProperty().addListener((_, _, _) -> {
 			if (!canCallSetImage)
 			{
 				var sb = new StringBuilder("setImage() has been called! This can cause problems like images being empty or having a wrong image. Use setImageProper() instead!\n");
@@ -274,7 +274,7 @@ public class AsyncImageView extends ImageView
 								onCompletion(decodeImage(data));
 							}
 						}
-						catch (InterruptedException e)
+						catch (InterruptedException _)
 						{
 							onCancel();
 							Thread.currentThread().interrupt();

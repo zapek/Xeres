@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -50,7 +50,7 @@ final class RsSerializableSerializer
 			((RsSerializable) instanceObject).readObject(buf);
 			return instanceObject;
 		}
-		catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
+		catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException _)
 		{
 			throw new IllegalStateException("Unhandled class " + javaClass.getSimpleName());
 		}

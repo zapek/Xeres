@@ -207,9 +207,9 @@ public class MessagingWindowController implements WindowController
 		});
 
 		lastTypingTimeline = new Timeline(
-				new KeyFrame(Duration.ZERO, event -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), destination.getName()))),
+				new KeyFrame(Duration.ZERO, _ -> notification.setText(MessageFormat.format(bundle.getString("chat.notification.typing"), destination.getName()))),
 				new KeyFrame(Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
-		lastTypingTimeline.setOnFinished(event -> notification.setText(""));
+		lastTypingTimeline.setOnFinished(_ -> notification.setText(""));
 
 		setupAnimations();
 	}
@@ -268,7 +268,7 @@ public class MessagingWindowController implements WindowController
 		{
 			return Files.size(path);
 		}
-		catch (IOException e)
+		catch (IOException _)
 		{
 			log.error("Failed to get the file size of {}", path);
 			return 0;
@@ -333,7 +333,7 @@ public class MessagingWindowController implements WindowController
 							else
 							{
 								chatClient.createDistantChat(identity.getId())
-										.doOnSuccess(chat -> Platform.runLater(() -> {
+										.doOnSuccess(_ -> Platform.runLater(() -> {
 											setAvailability(Availability.OFFLINE);
 											notification.setProgress(bundle.getString("messaging.tunneling"));
 										}))
@@ -569,7 +569,7 @@ public class MessagingWindowController implements WindowController
 		translateTransition.setAutoReverse(true);
 		translateTransition.setInterpolator(Interpolator.LINEAR);
 		translateTransition.setNode(send);
-		translateTransition.setOnFinished(actionEvent -> send.setTranslateX(0.0));
+		translateTransition.setOnFinished(_ -> send.setTranslateX(0.0));
 
 		var fadeTransition = new FadeTransition(javafx.util.Duration.millis(100));
 		fadeTransition.setByValue(-1.0);

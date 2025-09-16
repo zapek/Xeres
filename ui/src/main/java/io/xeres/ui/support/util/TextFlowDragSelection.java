@@ -51,7 +51,7 @@ public class TextFlowDragSelection
 		TextFlowUtils.hideSelection(textFlow);
 		textFlow.setCursor(Cursor.TEXT);
 
-		firstHitInfo = textFlow.hitTest(new Point2D(e.getX(), e.getY()));
+		firstHitInfo = textFlow.getHitInfo(new Point2D(e.getX(), e.getY()));
 	}
 
 	public void drag(MouseEvent e)
@@ -66,11 +66,11 @@ public class TextFlowDragSelection
 			throw new IllegalStateException("press() wasn't called prior to drag()");
 		}
 
-		textSelectRange = new TextSelectRange(firstHitInfo, textFlow.hitTest(new Point2D(e.getX(), e.getY())));
+		textSelectRange = new TextSelectRange(firstHitInfo, textFlow.getHitInfo(new Point2D(e.getX(), e.getY())));
 		if (textSelectRange.isSelected())
 		{
-			var pathElements = textFlow.rangeShape(textSelectRange.getStart(), textSelectRange.getEnd() + 1);
-			TextFlowUtils.showSelection(textFlow, pathElements, 0.0);
+			var pathElements = textFlow.getRangeShape(textSelectRange.getStart(), textSelectRange.getEnd() + 1, false);
+			TextFlowUtils.showSelection(textFlow, pathElements);
 		}
 		else
 		{

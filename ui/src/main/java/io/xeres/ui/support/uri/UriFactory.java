@@ -93,7 +93,7 @@ public final class UriFactory
 			}
 			return externalUriFactory.create(UriComponentsBuilder.fromUri(uri).build(), text, uriAction);
 		}
-		catch (URISyntaxException e)
+		catch (URISyntaxException _)
 		{
 			return new ContentText("");
 		}

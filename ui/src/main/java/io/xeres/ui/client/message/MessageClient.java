@@ -236,11 +236,11 @@ public class MessageClient
 				subscriptions.forEach(StompSession.Subscription::unsubscribe); // if the connection is already closed (likely when running on the same host), we catch the MessageDeliveryException below as well as IllegalStateException
 				sessionHandler.getFuture().get().disconnect();
 			}
-			catch (MessageDeliveryException | IllegalStateException | ExecutionException ignoredException)
+			catch (MessageDeliveryException | IllegalStateException | ExecutionException _)
 			{
 				// Nothing we can do
 			}
-			catch (InterruptedException e)
+			catch (InterruptedException _)
 			{
 				Thread.currentThread().interrupt();
 			}

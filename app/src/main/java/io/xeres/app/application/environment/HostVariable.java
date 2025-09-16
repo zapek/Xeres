@@ -97,7 +97,7 @@ public final class HostVariable
 		{
 			StartupProperties.setString(property, value, StartupProperties.Origin.ENVIRONMENT_VARIABLE);
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException _)
 		{
 			throw new IllegalArgumentException(ENVIRONMENT_VARIABLE_STRING + " " + name + " does not contain a value");
 		}
@@ -109,7 +109,7 @@ public final class HostVariable
 		{
 			StartupProperties.setBoolean(property, value, StartupProperties.Origin.ENVIRONMENT_VARIABLE);
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException _)
 		{
 			throw new IllegalArgumentException(ENVIRONMENT_VARIABLE_STRING + " " + name + " does not contain a boolean value (" + value + ")");
 		}
@@ -121,7 +121,7 @@ public final class HostVariable
 		{
 			StartupProperties.setPort(property, value, StartupProperties.Origin.ENVIRONMENT_VARIABLE);
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException _)
 		{
 			throw new IllegalArgumentException(ENVIRONMENT_VARIABLE_STRING + " " + name + " does not contain a valid port bigger than 0 and smaller than 65536 (" + value + ")");
 		}

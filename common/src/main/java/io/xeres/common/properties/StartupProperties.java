@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -185,7 +185,7 @@ public final class StartupProperties
 			property.setOrigin(origin);
 			System.setProperty(property.getKey(), String.valueOf(val));
 		}
-		catch (NumberFormatException e)
+		catch (NumberFormatException _)
 		{
 			throw new IllegalArgumentException("Property " + property.name() + " (" + property.getKey() + ") does not contain a port bigger than 0 and smaller than 65536 (" + value + ")");
 		}

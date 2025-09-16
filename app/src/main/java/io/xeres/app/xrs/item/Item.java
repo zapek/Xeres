@@ -164,7 +164,7 @@ public abstract class Item implements Cloneable
 			clone.buf = null;
 			return clone;
 		}
-		catch (CloneNotSupportedException e)
+		catch (CloneNotSupportedException _)
 		{
 			throw new AssertionError();
 		}

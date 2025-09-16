@@ -53,7 +53,7 @@ public abstract class AbstractUriFactory
 		{
 			return Long.parseUnsignedLong(s.toLowerCase(Locale.ROOT), 16);
 		}
-		catch (NumberFormatException e)
+		catch (NumberFormatException _)
 		{
 			return 0L;
 		}
@@ -65,7 +65,7 @@ public abstract class AbstractUriFactory
 		{
 			return Long.parseUnsignedLong(s);
 		}
-		catch (NumberFormatException e)
+		catch (NumberFormatException _)
 		{
 			return 0L;
 		}
@@ -77,7 +77,7 @@ public abstract class AbstractUriFactory
 		{
 			return Integer.parseInt(s);
 		}
-		catch (NumberFormatException e)
+		catch (NumberFormatException _)
 		{
 			return 0;
 		}

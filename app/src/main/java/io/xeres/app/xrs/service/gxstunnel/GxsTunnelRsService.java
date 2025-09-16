@@ -390,14 +390,14 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		{
 			commonSecret = DiffieHellman.generateCommonSecretKey(tunnelDhInfo.getKeyPair().getPrivate(), publicKey);
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException _)
 		{
 			log.error("DH: Cannot generate common secret key for {}", tunnelDhInfo);
 			return;
 		}
 		tunnelDhInfo.setStatus(TunnelDhInfo.Status.KEY_AVAILABLE);
 
-		var tunnelPeerInfo = contacts.computeIfAbsent(tunnelId, location -> new TunnelPeerInfo());
+		var tunnelPeerInfo = contacts.computeIfAbsent(tunnelId, _ -> new TunnelPeerInfo());
 		tunnelPeerInfo.activate(generateAesKey(commonSecret), virtualLocation, tunnelDhInfo.getDirection(), item.getSignature().getGxsId());
 
 		log.debug("Sending distant connection ack for tunnel {}", tunnelId);
@@ -418,7 +418,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			log.warn("Public key is in fact a private key, rejecting.");
 			return null;
 		}
-		catch (NoSuchAlgorithmException | InvalidKeySpecException e)
+		catch (NoSuchAlgorithmException | InvalidKeySpecException _)
 		{
 			// All good
 		}
@@ -668,7 +668,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		log.debug("Received new virtual peer {} for hash {}, direction {}", virtualLocation, hash, direction);
 
-		var tunnelDhInfo = dhPeers.computeIfAbsent(virtualLocation, location -> new TunnelDhInfo());
+		var tunnelDhInfo = dhPeers.computeIfAbsent(virtualLocation, _ -> new TunnelDhInfo());
 		tunnelDhInfo.clear();
 		tunnelDhInfo.setDirection(direction);
 		tunnelDhInfo.setHash(hash);
@@ -733,7 +733,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private void restartDhSession(Location virtualLocation)
 	{
-		var tunnelDhInfo = dhPeers.computeIfAbsent(virtualLocation, location -> new TunnelDhInfo());
+		var tunnelDhInfo = dhPeers.computeIfAbsent(virtualLocation, _ -> new TunnelDhInfo());
 		tunnelDhInfo.setStatus(UNINITIALIZED);
 		tunnelDhInfo.setKeyPair(DiffieHellman.generateKeys());
 		tunnelDhInfo.setStatus(HALF_KEY_DONE);

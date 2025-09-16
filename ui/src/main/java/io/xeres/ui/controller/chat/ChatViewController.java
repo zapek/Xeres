@@ -242,14 +242,14 @@ public class ChatViewController implements Controller
 		root.setExpanded(true);
 		roomTree.setRoot(root);
 		roomTree.setShowRoot(false);
-		roomTree.setCellFactory(param -> new ChatRoomCell());
+		roomTree.setCellFactory(_ -> new ChatRoomCell());
 		createRoomTreeContextMenu();
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
 		roomTree.getSelectionModel().selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> changeSelectedRoom(newValue.getValue().getRoomInfo())));
+				.addListener((_, _, newValue) -> Platform.runLater(() -> changeSelectedRoom(newValue.getValue().getRoomInfo())));
 
-		UiUtils.setOnPrimaryMouseDoubleClicked(roomTree, event -> {
+		UiUtils.setOnPrimaryMouseDoubleClicked(roomTree, _ -> {
 			if (isRoomSelected())
 			{
 				joinChatRoom(selectedRoom);
@@ -268,15 +268,15 @@ public class ChatViewController implements Controller
 		chatRoomInfoController = loader.getController();
 
 		lastTypingTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
-		lastTypingTimeline.setOnFinished(event -> typingNotification.setText(""));
+		lastTypingTimeline.setOnFinished(_ -> typingNotification.setText(""));
 
 		VBox.setVgrow(roomInfoView, Priority.ALWAYS);
 		switchChatContent(roomInfoView, null);
 		sendGroup.setVisible(false);
 		setPreviewGroupVisibility(false);
 
-		previewSend.setOnAction(event -> sendImage());
-		previewCancel.setOnAction(event -> cancelImage());
+		previewSend.setOnAction(_ -> sendImage());
+		previewCancel.setOnAction(_ -> cancelImage());
 
 		// Handle the events even if the InputArea widget isn't selected
 		content.addEventHandler(KeyEvent.KEY_PRESSED, this::handleInputKeys);
@@ -320,11 +320,11 @@ public class ChatViewController implements Controller
 			}
 		});
 
-		invite.setOnAction(event -> windowManager.openInvite(selectedRoom.getId()));
+		invite.setOnAction(_ -> windowManager.openInvite(selectedRoom.getId()));
 
 		getChatRoomContext();
 
-		createChatRoom.setOnAction(event -> windowManager.openChatRoomCreation());
+		createChatRoom.setOnAction(_ -> windowManager.openChatRoomCreation());
 
 		setupTrees();
 	}
@@ -343,7 +343,7 @@ public class ChatViewController implements Controller
 		{
 			return Files.size(path);
 		}
-		catch (IOException e)
+		catch (IOException _)
 		{
 			log.error("Failed to get the file size of {}", path);
 			return 0;
@@ -357,9 +357,9 @@ public class ChatViewController implements Controller
 		privateRooms.setExpanded(node.getBoolean(OPEN_PRIVATE, false));
 		publicRooms.setExpanded(node.getBoolean(OPEN_PUBLIC, false));
 
-		subscribedRooms.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_SUBSCRIBED, newValue));
-		privateRooms.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_PRIVATE, newValue));
-		publicRooms.expandedProperty().addListener((observable, oldValue, newValue) -> node.putBoolean(OPEN_PUBLIC, newValue));
+		subscribedRooms.expandedProperty().addListener((_, _, newValue) -> node.putBoolean(OPEN_SUBSCRIBED, newValue));
+		privateRooms.expandedProperty().addListener((_, _, newValue) -> node.putBoolean(OPEN_PRIVATE, newValue));
+		publicRooms.expandedProperty().addListener((_, _, newValue) -> node.putBoolean(OPEN_PUBLIC, newValue));
 	}
 
 	@EventListener
@@ -431,7 +431,7 @@ public class ChatViewController implements Controller
 		subscribedRooms.getChildren().stream()
 				.filter(roomHolderTreeItem -> roomHolderTreeItem.getValue().getRoomInfo().equals(chatRoomInfo))
 				.findAny()
-				.ifPresent(roomHolderTreeItem -> chatClient.leaveChatRoom(chatRoomInfo.getId())
+				.ifPresent(_ -> chatClient.leaveChatRoom(chatRoomInfo.getId())
 						.subscribe());
 	}
 

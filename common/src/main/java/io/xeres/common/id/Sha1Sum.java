@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -113,7 +113,7 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 			clone.identifier = identifier.clone();
 			return clone;
 		}
-		catch (CloneNotSupportedException e)
+		catch (CloneNotSupportedException _)
 		{
 			throw new AssertionError();
 		}

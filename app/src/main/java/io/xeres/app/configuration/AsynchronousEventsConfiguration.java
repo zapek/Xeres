@@ -59,7 +59,7 @@ public class AsynchronousEventsConfiguration
 						{
 							executor.execute(() -> invokeListener(listener, event));
 						}
-						catch (RejectedExecutionException e)
+						catch (RejectedExecutionException _)
 						{
 							invokeListener(listener, event);
 						}

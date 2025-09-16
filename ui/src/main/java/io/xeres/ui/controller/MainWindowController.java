@@ -266,28 +266,28 @@ public class MainWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		addPeer.setOnAction(event -> windowManager.openAddPeer());
-		addFriendButton.setOnAction(event -> windowManager.openAddPeer());
+		addPeer.setOnAction(_ -> windowManager.openAddPeer());
+		addFriendButton.setOnAction(_ -> windowManager.openAddPeer());
 
-		copyShortIdButton.setOnAction(event -> copyOwnId());
+		copyShortIdButton.setOnAction(_ -> copyOwnId());
 
-		showQrCodeButton.setOnAction(event -> showQrCode());
+		showQrCodeButton.setOnAction(_ -> showQrCode());
 
-		launchWebInterface.setOnAction(event -> openUrl(RemoteUtils.getControlUrl()));
-		launchSwagger.setOnAction(event -> openUrl(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
+		launchWebInterface.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl()));
+		launchSwagger.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
 
-		showDocumentation.setOnAction(event -> windowManager.openDocumentation(true));
-		webHelpButton.setOnAction(event -> openUrl(XERES_DOCS_URL));
+		showDocumentation.setOnAction(_ -> windowManager.openDocumentation(true));
+		webHelpButton.setOnAction(_ -> openUrl(XERES_DOCS_URL));
 
-		reportBug.setOnAction(event -> openUrl(XERES_BUGS_URL));
+		reportBug.setOnAction(_ -> openUrl(XERES_BUGS_URL));
 
-		showAboutWindow.setOnAction(event -> windowManager.openAbout());
+		showAboutWindow.setOnAction(_ -> windowManager.openAbout());
 
-		showBroadcastWindow.setOnAction(event -> windowManager.openBroadcast());
+		showBroadcastWindow.setOnAction(_ -> windowManager.openBroadcast());
 
-		showSettingsWindow.setOnAction(event -> windowManager.openSettings());
+		showSettingsWindow.setOnAction(_ -> windowManager.openSettings());
 
-		showSharesWindow.setOnAction(event -> windowManager.openShare());
+		showSharesWindow.setOnAction(_ -> windowManager.openShare());
 
 		exportBackup.setOnAction(event -> {
 			var fileChooser = new FileChooser();
@@ -311,26 +311,26 @@ public class MainWindowController implements WindowController
 			if (selectedFile != null && selectedFile.canRead())
 			{
 				configClient.sendRsFriends(selectedFile)
-						.doOnSuccess(unused -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.INFORMATION, bundle.getString("main.friends-import-successful"))))
+						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.alert(Alert.AlertType.INFORMATION, bundle.getString("main.friends-import-successful"))))
 						.doOnError(UiUtils::showAlertError)
 						.subscribe();
 			}
 		});
 
-		statistics.setOnAction(event -> windowManager.openStatistics());
+		statistics.setOnAction(_ -> windowManager.openStatistics());
 
 		if (environment.acceptsProfiles(Profiles.of("dev")))
 		{
 			debugSeparator.setVisible(true);
 			debug.setVisible(true);
-			runGc.setOnAction(event -> System.gc());
-			h2Console.setOnAction(event -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
-			openShell.setOnAction(event -> MUI.openShell());
+			runGc.setOnAction(_ -> System.gc());
+			h2Console.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
+			openShell.setOnAction(_ -> MUI.openShell());
 		}
 
-		versionCheck.setOnAction(even -> updateService.checkForUpdate());
+		versionCheck.setOnAction(_ -> updateService.checkForUpdate());
 
-		exitApplication.setOnAction(event -> trayService.exitApplication());
+		exitApplication.setOnAction(_ -> trayService.exitApplication());
 
 		setupNotifications();
 
@@ -419,16 +419,16 @@ public class MainWindowController implements WindowController
 
 		var downloadButton = new Button(bundle.getString("download"));
 		downloadButton.setDefaultButton(true);
-		downloadButton.setOnAction(actionEvent -> downloadAction.run());
+		downloadButton.setOnAction(_ -> downloadAction.run());
 		var skipButton = new Button(bundle.getString("skip"));
-		skipButton.setOnAction(actionEvent -> updateService.skipUpdate(tagName));
+		skipButton.setOnAction(_ -> updateService.skipUpdate(tagName));
 		msg.setPrimaryActions(downloadButton, skipButton);
 
 		StackPane.setAlignment(msg, Pos.TOP_RIGHT);
 		StackPane.setMargin(msg, new Insets(0, 10, 10, 0));
-		msg.setOnClose(event -> {
+		msg.setOnClose(_ -> {
 			var out = Animations.slideOutUp(msg, javafx.util.Duration.millis(250));
-			out.setOnFinished(f -> stackPane.getChildren().remove(msg));
+			out.setOnFinished(_ -> stackPane.getChildren().remove(msg));
 			out.playFromStart();
 		});
 
@@ -656,7 +656,7 @@ public class MainWindowController implements WindowController
 		sequentialTransition.setNode(shareId);
 		sequentialTransition.setCycleCount(Animation.INDEFINITE);
 
-		UiUtils.setOnPrimaryMouseDoubleClicked(logo, event -> {
+		UiUtils.setOnPrimaryMouseDoubleClicked(logo, _ -> {
 			if (rotateTransition.getStatus() == Animation.Status.RUNNING)
 			{
 				rotateTransition.jumpTo(javafx.util.Duration.millis(0));

@@ -53,7 +53,7 @@ public class AppThemeManager
 		{
 			rootPreferences = PreferenceUtils.getPreferences();
 		}
-		catch (IllegalStateException e)
+		catch (IllegalStateException _)
 		{
 			// This can be called when the preferences aren't fully setup (no LocationIdentifier known yet)
 			// so in that case we simply use the default theme.

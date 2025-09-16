@@ -62,7 +62,7 @@ public final class TextFieldUtils
 					return change;
 				}
 			}
-			catch (NumberFormatException ignored)
+			catch (NumberFormatException _)
 			{
 				// nothing to do
 			}
@@ -88,7 +88,7 @@ public final class TextFieldUtils
 		{
 			return Integer.parseInt(textField.getText());
 		}
-		catch (NumberFormatException e)
+		catch (NumberFormatException _)
 		{
 			return 0;
 		}

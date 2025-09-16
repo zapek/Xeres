@@ -138,7 +138,7 @@ public class CameraWindowController implements WindowController
 							log.warn("Empty image!?");
 						}
 					}
-					catch (NotFoundException e)
+					catch (NotFoundException _)
 					{
 						// No QR code was found on the image
 					}

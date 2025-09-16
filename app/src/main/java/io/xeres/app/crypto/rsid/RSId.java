@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -90,7 +90,7 @@ public abstract class RSId
 				rsId.checkRequiredFieldsAndThrow();
 				return Optional.of(rsId);
 			}
-			catch (NoSuchMethodException e)
+			catch (NoSuchMethodException _)
 			{
 				throw new IllegalArgumentException(engineClass.getSimpleName() + " requires an empty constructor");
 			}

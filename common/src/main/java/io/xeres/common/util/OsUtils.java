@@ -79,7 +79,7 @@ public final class OsUtils
 		{
 			upperFile = createFileSystemDetectionFile(path, true);
 		}
-		catch (FileAlreadyExistsException e)
+		catch (FileAlreadyExistsException _)
 		{
 			return false;
 		}

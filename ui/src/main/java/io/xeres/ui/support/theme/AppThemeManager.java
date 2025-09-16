@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,15 +39,15 @@ public class AppThemeManager
 	public static final String NODE_APPLICATION = "Application";
 	public static final String KEY_THEME = "Theme";
 
-	private final AppTheme defaultTheme;
-
-	public AppThemeManager()
-	{
-		defaultTheme = getDefaultTheme();
-	}
+	private AppTheme defaultTheme;
 
 	public AppTheme getCurrentTheme()
 	{
+		if (defaultTheme == null)
+		{
+			defaultTheme = getDefaultTheme();
+		}
+
 		Preferences rootPreferences;
 		try
 		{

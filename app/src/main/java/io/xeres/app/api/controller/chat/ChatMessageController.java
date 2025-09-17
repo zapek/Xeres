@@ -138,7 +138,7 @@ public class ChatMessageController
 	}
 
 	@MessageMapping(CHAT_BROADCAST_DESTINATION)
-	public void processBroadcastMessageFromProducer(@Header(DESTINATION_ID) String destinationId, @Header(MESSAGE_TYPE) MessageType messageType, @Payload @Valid ChatMessage chatMessage)
+	public void processBroadcastMessageFromProducer(@Header(MESSAGE_TYPE) MessageType messageType, @Payload @Valid ChatMessage chatMessage)
 	{
 		switch (messageType)
 		{

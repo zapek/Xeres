@@ -338,18 +338,20 @@ public class ForumViewController implements Controller
 		var subscribeItem = new MenuItem(bundle.getString("forum.tree.subscribe"));
 		subscribeItem.setId(SUBSCRIBE_MENU_ID);
 		subscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_ENTER));
-		subscribeItem.setOnAction(event -> subscribeToForumGroup((ForumGroup) event.getSource()));
+		//noinspection unchecked
+		subscribeItem.setOnAction(event -> subscribeToForumGroup(((TreeItem<ForumGroup>) event.getSource()).getValue()));
 
 		var unsubscribeItem = new MenuItem(bundle.getString("forum.tree.unsubscribe"));
 		unsubscribeItem.setId(UNSUBSCRIBE_MENU_ID);
 		unsubscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_EXIT));
-		unsubscribeItem.setOnAction(event -> unsubscribeFromForumGroups((ForumGroup) event.getSource()));
+		//noinspection unchecked
+		unsubscribeItem.setOnAction(event -> unsubscribeFromForumGroups(((TreeItem<ForumGroup>) event.getSource()).getValue()));
 
 		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
-			var forumGroup = ((ForumGroup) event.getSource());
+			@SuppressWarnings("unchecked") var forumGroup = ((TreeItem<ForumGroup>) event.getSource()).getValue();
 			var forumUri = new ForumUri(forumGroup.getName(), forumGroup.getGxsId(), null);
 			ClipboardUtils.copyTextToClipboard(forumUri.toUriString());
 		});

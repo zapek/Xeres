@@ -532,12 +532,13 @@ public class WindowManager
 
 	public void openAccountCreation(Stage stage)
 	{
-		appThemeManager.applyCurrentTheme();
-
-		Platform.runLater(() -> UiWindow.builder(AccountCreationWindowController.class)
-				.setStage(stage)
-				.build()
-				.open());
+		Platform.runLater(() -> {
+			appThemeManager.applyCurrentTheme();
+			UiWindow.builder(AccountCreationWindowController.class)
+					.setStage(stage)
+					.build()
+					.open();
+		});
 	}
 
 	/**
@@ -656,17 +657,17 @@ public class WindowManager
 				stage.setResizable(false);
 			}
 
-			stage.setOnShowing(event -> builder.controller.onShowing());
-			stage.setOnShown(event -> {
+			stage.setOnShowing(_ -> builder.controller.onShowing());
+			stage.setOnShown(_ -> {
 				builder.controller.onShown();
 				UiBorders.setDarkMode(stage, appThemeManager.getCurrentTheme().isDark());
 				WindowResizer.ensureWindowIsVisible(stage);
 			});
-			stage.setOnHiding(event -> {
+			stage.setOnHiding(_ -> {
 				saveWindowPreferences(stage, builder);
 				builder.controller.onHiding();
 			});
-			stage.setOnHidden(event -> builder.controller.onHidden());
+			stage.setOnHidden(_ -> builder.controller.onHidden());
 
 			scene.getWindow().setUserData(builder.controller);
 		}

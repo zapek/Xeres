@@ -182,11 +182,14 @@ class ChatListDragSelection
 			if (direction == Direction.SAME)
 			{
 				// We're switching to multiline mode.
-				var pathElements = textFlows.getFirst().getRangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlows.getFirst()), false);
-				TextFlowUtils.showSelection(textFlows.getFirst(), pathElements);
+				if (!textFlows.isEmpty())
+				{
+					var pathElements = textFlows.getFirst().getRangeShape(getOffsetFromSelectionMode(), TextFlowUtils.getTextFlowCount(textFlows.getFirst()), false);
+					TextFlowUtils.showSelection(textFlows.getFirst(), pathElements);
 
-				direction = cellIndex > startCellIndex ? Direction.DOWN : Direction.UP;
-				markSelection(virtualFlow, startCellIndex, cellIndex);
+					direction = cellIndex > startCellIndex ? Direction.DOWN : Direction.UP;
+					markSelection(virtualFlow, startCellIndex, cellIndex);
+				}
 			}
 			else
 			{

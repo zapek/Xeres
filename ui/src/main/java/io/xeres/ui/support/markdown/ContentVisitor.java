@@ -272,21 +272,21 @@ class ContentVisitor extends AbstractVisitor
 	@Override
 	public void visit(Code code)
 	{
-		content.add(new ContentCode(code.getLiteral()));
+		content.add(new ContentCode(stripLastLn(code.getLiteral())));
 	}
 
 	@Override
 	public void visit(IndentedCodeBlock indentedCodeBlock)
 	{
 		addEmptyLine();
-		content.add(new ContentCode(indentedCodeBlock.getLiteral()));
+		content.add(new ContentCode(stripLastLn(indentedCodeBlock.getLiteral())));
 	}
 
 	@Override
 	public void visit(FencedCodeBlock fencedCodeBlock)
 	{
 		addEmptyLine();
-		content.add(new ContentCode(fencedCodeBlock.getLiteral()));
+		content.add(new ContentCode(stripLastLn(fencedCodeBlock.getLiteral())));
 	}
 
 	@Override
@@ -459,5 +459,21 @@ class ContentVisitor extends AbstractVisitor
 	private static boolean mightContainEmojis(String s)
 	{
 		return !s.chars().allMatch(c -> c < 128); // Detects non-ASCII
+	}
+
+	/**
+	 * Removes the useless \n from the string. It can produce visual artifacts (for example, empty extra line)
+	 * with some formatting.
+	 *
+	 * @param in the input string
+	 * @return the string without a trailing '\n', if any
+	 */
+	private static String stripLastLn(String in)
+	{
+		if (in.endsWith("\n"))
+		{
+			return in.substring(0, in.length() - 1);
+		}
+		return in;
 	}
 }

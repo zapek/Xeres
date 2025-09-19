@@ -33,6 +33,7 @@ import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
 import io.xeres.common.rest.config.OwnProfileRequest;
 import io.xeres.common.rest.config.VerifyUpdateRequest;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -397,9 +399,25 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var file = new MockMultipartFile("file", "friends.xml", MediaType.APPLICATION_XML_VALUE, "data".getBytes());
 
+		when(backupService.importFriendsFromRs(file)).thenReturn(Pair.ofNonNull(1, 0));
+
 		mvc.perform(multipart(BASE_URL + "/import-friends-from-rs")
 						.file(file))
 				.andExpect(status().isOk());
+
+		verify(backupService).importFriendsFromRs(file);
+	}
+
+	@Test
+	void ImportFriendsFromRs_Errors() throws Exception
+	{
+		var file = new MockMultipartFile("file", "friends.xml", MediaType.APPLICATION_XML_VALUE, "data".getBytes());
+
+		when(backupService.importFriendsFromRs(file)).thenReturn(Pair.ofNonNull(1, 1));
+
+		mvc.perform(multipart(BASE_URL + "/import-friends-from-rs")
+						.file(file))
+				.andExpect(status().is(HttpStatus.MULTI_STATUS.value()));
 
 		verify(backupService).importFriendsFromRs(file);
 	}

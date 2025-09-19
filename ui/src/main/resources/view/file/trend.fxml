@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -30,15 +30,15 @@
     </padding>
     <TableView fx:id="trendTableView" VBox.vgrow="ALWAYS">
         <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
         </columnResizePolicy>
         <placeholder>
             <Label text="%trends.none"/>
         </placeholder>
         <columns>
-            <TableColumn fx:id="tableTerms" minWidth="100.0" prefWidth="180.0" text="%trends.list.terms" sortable="false"/>
-            <TableColumn fx:id="tableFrom" prefWidth="120.0" text="%trends.list.from" sortable="false"/>
-            <TableColumn fx:id="tableTime" prefWidth="100.0" text="%trends.list.time" sortable="false"/>
+            <TableColumn fx:id="tableTerms" minWidth="100.0" text="%trends.list.terms" sortable="false"/>
+            <TableColumn fx:id="tableFrom" minWidth="120.0" prefWidth="120.0" maxWidth="140.0" text="%trends.list.from" sortable="false"/>
+            <TableColumn fx:id="tableTime" minWidth="100.0" prefWidth="140.0" maxWidth="140.0" text="%trends.list.time" sortable="false"/>
         </columns>
     </TableView>
 </VBox>

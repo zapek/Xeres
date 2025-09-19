@@ -35,6 +35,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.helpers.DefaultValidationEventHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyPair;
 import org.bouncycastle.openpgp.PGPUtil;
@@ -216,7 +217,7 @@ public class BackupService
 	}
 
 	@Transactional
-	public void importFriendsFromRs(MultipartFile file) throws JAXBException, IOException
+	public Pair<Integer, Integer> importFriendsFromRs(MultipartFile file) throws JAXBException, IOException
 	{
 		if (file == null)
 		{
@@ -236,12 +237,30 @@ public class BackupService
 
 		var root = (Root) unmarshaller.unmarshal(file.getInputStream());
 
-		root.getPgpIDs().stream()
+		var certificates = root.getPgpIDs().stream()
 				.map(PgpId::getSslIDs)
 				.flatMap(Collection::stream)
 				.map(SslId::getCertificate)
 				.filter(Objects::nonNull)
-				.forEach(certificate -> RSId.parse(certificate, Type.CERTIFICATE).ifPresent(rsId -> profileService.createOrUpdateProfile(profileService.getProfileFromRSId(rsId))));
+				.toList();
+
+		var success = 0;
+		var errors = 0;
+
+		for (var certificate : certificates)
+		{
+			try
+			{
+				RSId.parse(certificate, Type.CERTIFICATE).ifPresent(rsId -> profileService.createOrUpdateProfile(profileService.getProfileFromRSId(rsId)));
+				success++;
+			}
+			catch (Exception e)
+			{
+				log.error("Error while adding friend {}", certificate, e);
+				errors++;
+			}
+		}
+		return Pair.ofNonNull(success, errors);
 	}
 
 	public boolean verifyUpdate(Path updateFile, byte[] signature)

@@ -42,6 +42,7 @@ import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
@@ -257,11 +258,13 @@ public class ConfigController
 	@PostMapping(value = "/import-friends-from-rs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Imports RS friends")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<Void> importFriendsFromRs(@RequestBody MultipartFile file) throws JAXBException, IOException
+	public ResponseEntity<ImportRsFriendsResponse> importFriendsFromRs(@RequestBody MultipartFile file) throws JAXBException, IOException
 	{
-		backupService.importFriendsFromRs(file);
+		var pair = backupService.importFriendsFromRs(file);
+		var response = new ImportRsFriendsResponse(pair.getLeft(), pair.getRight());
 
-		return ResponseEntity.ok().build();
+		return ResponseEntity.status(response.errors() > 0 ? HttpStatus.MULTI_STATUS : HttpStatus.OK)
+				.body(response);
 	}
 
 	@PostMapping("/verify-update")

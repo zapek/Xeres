@@ -182,7 +182,7 @@
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
                         </columnResizePolicy>
                         <columns>
-                            <TableColumn fx:id="locationTableNameColumn" prefWidth="180.0" text="%contact-view.column.name"/>
+                            <TableColumn fx:id="locationTableNameColumn" text="%contact-view.column.name"/>
                             <TableColumn fx:id="locationTablePresenceColumn" minWidth="35.0" prefWidth="35.0" maxWidth="35.0"/>
                             <TableColumn fx:id="locationTableIPColumn" minWidth="120.0" prefWidth="120.0" maxWidth="120.0" text="IP"/>
                             <TableColumn fx:id="locationTablePortColumn" minWidth="60.0" prefWidth="60.0" maxWidth="60.0" text="Port"/>

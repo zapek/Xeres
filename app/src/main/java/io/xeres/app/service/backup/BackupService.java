@@ -29,13 +29,13 @@ import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.rest.config.ImportRsFriendsResponse;
 import io.xeres.common.rsid.Type;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.helpers.DefaultValidationEventHandler;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyPair;
 import org.bouncycastle.openpgp.PGPUtil;
@@ -217,7 +217,7 @@ public class BackupService
 	}
 
 	@Transactional
-	public Pair<Integer, Integer> importFriendsFromRs(MultipartFile file) throws JAXBException, IOException
+	public ImportRsFriendsResponse importFriendsFromRs(MultipartFile file) throws JAXBException, IOException
 	{
 		if (file == null)
 		{
@@ -260,7 +260,7 @@ public class BackupService
 				errors++;
 			}
 		}
-		return Pair.ofNonNull(success, errors);
+		return new ImportRsFriendsResponse(success, errors);
 	}
 
 	public boolean verifyUpdate(Path updateFile, byte[] signature)

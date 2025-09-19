@@ -29,11 +29,7 @@ import io.xeres.app.service.backup.BackupService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.status.StatusRsService;
 import io.xeres.common.location.Availability;
-import io.xeres.common.rest.config.OwnIdentityRequest;
-import io.xeres.common.rest.config.OwnLocationRequest;
-import io.xeres.common.rest.config.OwnProfileRequest;
-import io.xeres.common.rest.config.VerifyUpdateRequest;
-import org.apache.commons.lang3.tuple.Pair;
+import io.xeres.common.rest.config.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -399,7 +395,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var file = new MockMultipartFile("file", "friends.xml", MediaType.APPLICATION_XML_VALUE, "data".getBytes());
 
-		when(backupService.importFriendsFromRs(file)).thenReturn(Pair.ofNonNull(1, 0));
+		when(backupService.importFriendsFromRs(file)).thenReturn(new ImportRsFriendsResponse(1, 0));
 
 		mvc.perform(multipart(BASE_URL + "/import-friends-from-rs")
 						.file(file))
@@ -413,7 +409,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var file = new MockMultipartFile("file", "friends.xml", MediaType.APPLICATION_XML_VALUE, "data".getBytes());
 
-		when(backupService.importFriendsFromRs(file)).thenReturn(Pair.ofNonNull(1, 1));
+		when(backupService.importFriendsFromRs(file)).thenReturn(new ImportRsFriendsResponse(1, 1));
 
 		mvc.perform(multipart(BASE_URL + "/import-friends-from-rs")
 						.file(file))

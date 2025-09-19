@@ -260,8 +260,7 @@ public class ConfigController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ResponseEntity<ImportRsFriendsResponse> importFriendsFromRs(@RequestBody MultipartFile file) throws JAXBException, IOException
 	{
-		var pair = backupService.importFriendsFromRs(file);
-		var response = new ImportRsFriendsResponse(pair.getLeft(), pair.getRight());
+		var response = backupService.importFriendsFromRs(file);
 
 		return ResponseEntity.status(response.errors() > 0 ? HttpStatus.MULTI_STATUS : HttpStatus.OK)
 				.body(response);

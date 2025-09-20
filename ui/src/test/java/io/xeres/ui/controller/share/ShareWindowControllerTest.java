@@ -56,9 +56,9 @@ class ShareWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/file/share.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(ShareWindowControllerTest.class.getResource("/view/file/share.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		var share = new Share();
 		share.setName("test");

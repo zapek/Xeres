@@ -172,14 +172,14 @@ public class EmojiService
 
 	private InputStream getExistingUnicodeResource(String unicode)
 	{
-		if (getClass().getResource(EMOJI_PATH + unicode + EMOJI_EXTENSION) == null)
+		if (EmojiService.class.getResource(EMOJI_PATH + unicode + EMOJI_EXTENSION) == null)
 		{
-			if (getClass().getResource(EMOJI_PATH + DEFAULT_UNICODE + EMOJI_EXTENSION) == null)
+			if (EmojiService.class.getResource(EMOJI_PATH + DEFAULT_UNICODE + EMOJI_EXTENSION) == null)
 			{
 				throw new IllegalArgumentException("Missing emoji default resource");
 			}
-			return getClass().getResourceAsStream(EMOJI_PATH + DEFAULT_UNICODE + EMOJI_EXTENSION);
+			return EmojiService.class.getResourceAsStream(EMOJI_PATH + DEFAULT_UNICODE + EMOJI_EXTENSION);
 		}
-		return getClass().getResourceAsStream(EMOJI_PATH + unicode + EMOJI_EXTENSION);
+		return EmojiService.class.getResourceAsStream(EMOJI_PATH + unicode + EMOJI_EXTENSION);
 	}
 }

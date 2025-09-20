@@ -62,9 +62,9 @@ class HelpWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/help/help.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(HelpWindowControllerTest.class.getResource("/view/help/help.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		when(resourcePatternResolver.getResources(anyString())).thenReturn(new Resource[]{});
 

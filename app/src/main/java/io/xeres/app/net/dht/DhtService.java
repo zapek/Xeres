@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -303,10 +303,9 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 	private void addBootstrappingNodes()
 	{
-		var reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/bdboot.txt"))));
 		var line = "";
 
-		try
+		try (var reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(DhtService.class.getResourceAsStream("/bdboot.txt")))))
 		{
 			while (reader.ready())
 			{

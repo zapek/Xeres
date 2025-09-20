@@ -51,9 +51,9 @@ class QrCodeWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/qrcode/qrcode.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(QrCodeWindowControllerTest.class.getResource("/view/qrcode/qrcode.fxml"), resourceBundle);
 
-		loader.setControllerFactory(param -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		Parent root = loader.load();
 

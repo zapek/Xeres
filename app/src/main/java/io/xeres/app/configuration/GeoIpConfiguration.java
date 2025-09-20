@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,7 +39,7 @@ public class GeoIpConfiguration
 	@Bean
 	public DatabaseReader getDatabaseReader()
 	{
-		var database = Objects.requireNonNull(getClass().getResourceAsStream("/GeoLite2-Country.mmdb"));
+		var database = Objects.requireNonNull(GeoIpConfiguration.class.getResourceAsStream("/GeoLite2-Country.mmdb"));
 		try
 		{
 			return new DatabaseReader.Builder(database).build();

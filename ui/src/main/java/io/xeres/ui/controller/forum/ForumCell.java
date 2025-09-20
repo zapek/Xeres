@@ -41,6 +41,7 @@ public class ForumCell extends TreeTableRow<ForumGroup>
 						return null;
 					}
 					return MessageFormat.format(bundle.getString("forum.tree.info"),
+							getItem().getName(),
 							getItem().getDescription(),
 							getItem().getGxsId()
 					);

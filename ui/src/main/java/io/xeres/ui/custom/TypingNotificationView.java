@@ -43,7 +43,7 @@ public class TypingNotificationView extends HBox
 
 	public TypingNotificationView()
 	{
-		var loader = new FXMLLoader(getClass().getResource("/view/custom/typingnotificationview.fxml"));
+		var loader = new FXMLLoader(TypingNotificationView.class.getResource("/view/custom/typingnotificationview.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
 

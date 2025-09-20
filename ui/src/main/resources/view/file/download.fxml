@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -34,11 +34,11 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
         </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableName" minWidth="320" prefWidth="550" maxWidth="1024" text="%download-view.list.name"/>
+            <TableColumn fx:id="tableName" minWidth="320" text="%download-view.list.name"/>
             <TableColumn fx:id="tableState" minWidth="120" prefWidth="120" maxWidth="120" text="%download-view.list.state"/>
-            <TableColumn fx:id="tableProgress" minWidth="100" prefWidth="140" text="%download-view.list.progress"/>
+            <TableColumn fx:id="tableProgress" minWidth="100" prefWidth="160" maxWidth="160" text="%download-view.list.progress"/>
             <TableColumn fx:id="tableTotalSize" minWidth="100" prefWidth="100" maxWidth="100" text="%download-view.list.total-size"/>
-            <TableColumn fx:id="tableHash" prefWidth="320.0" text="%download-view.list.hash"/>
+            <TableColumn fx:id="tableHash" minWidth="100" prefWidth="320.0" maxWidth="320" text="%download-view.list.hash"/>
         </columns>
     </TableView>
 </VBox>

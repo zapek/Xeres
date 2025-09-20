@@ -210,6 +210,12 @@
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
+                    <DisclosedHyperlink text="imgscalr" uri="https://github.com/rkalla/imgscalr"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Riyad Kalla. Licensed under the "/>
+                    <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
+                    <Text text="&#10;&#10;"/>
+
                     <DisclosedHyperlink text="JavaFX" uri="https://openjfx.io/"/>
                     <Text text="&#10;"/>
                     <Text text=" © Oracle. Licensed under the "/>
@@ -266,6 +272,12 @@
                     <Text text="&#10;"/>
                     <Text text=" © The Netty project. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
+                    <Text text="&#10;&#10;"/>
+
+                    <DisclosedHyperlink text="Pngtastic" uri="https://github.com/depsypher/pngtastic"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Ray Vanderborgh. Licensed under the "/>
+                    <DisclosedHyperlink text="MIT license." uri="https://github.com/depsypher/pngtastic/blob/master/LICENSE.txt"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Sound Effects" uri="https://pixabay.com/sound-effects"/>

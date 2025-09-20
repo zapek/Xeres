@@ -332,7 +332,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		var expected = ProfileFakes.createProfile("test", 1);
 
 		when(profileService.findProfileById(expected.getId())).thenReturn(Optional.of(expected));
-		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
+		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(ProfileControllerTest.class.getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
 		mvc.perform(get(BASE_URL + "/" + expected.getId() + "/image", MediaType.IMAGE_JPEG))
 				.andExpect(status().isOk())

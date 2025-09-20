@@ -256,7 +256,7 @@ public class ChatViewController implements Controller
 			}
 		});
 
-		var loader = new FXMLLoader(getClass().getResource("/view/chat/chat_roominfo.fxml"), bundle);
+		var loader = new FXMLLoader(ChatViewController.class.getResource("/view/chat/chat_roominfo.fxml"), bundle);
 		try
 		{
 			roomInfoView = loader.load();

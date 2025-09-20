@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -16,23 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
-plugins {
-    id 'com.gradle.develocity' version '4.2'
-}
 
-develocity {
-    buildScan {
-        publishing.onlyIf {
-            System.getenv("CI") != null
-        }
-        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
-        termsOfUseAgree = "yes"
-        tag "CI"
-        uploadInBackground = false
-    }
-}
+package io.xeres.common.rest.config;
 
-rootProject.name = 'Xeres'
-include 'ui'
-include 'app'
-include 'common'
+public record ImportRsFriendsResponse(int success, int errors)
+{
+}

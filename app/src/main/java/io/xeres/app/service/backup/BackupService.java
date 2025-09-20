@@ -29,6 +29,7 @@ import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.rest.config.ImportRsFriendsResponse;
 import io.xeres.common.rsid.Type;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -216,7 +217,7 @@ public class BackupService
 	}
 
 	@Transactional
-	public void importFriendsFromRs(MultipartFile file) throws JAXBException, IOException
+	public ImportRsFriendsResponse importFriendsFromRs(MultipartFile file) throws JAXBException, IOException
 	{
 		if (file == null)
 		{
@@ -236,12 +237,30 @@ public class BackupService
 
 		var root = (Root) unmarshaller.unmarshal(file.getInputStream());
 
-		root.getPgpIDs().stream()
+		var certificates = root.getPgpIDs().stream()
 				.map(PgpId::getSslIDs)
 				.flatMap(Collection::stream)
 				.map(SslId::getCertificate)
 				.filter(Objects::nonNull)
-				.forEach(certificate -> RSId.parse(certificate, Type.CERTIFICATE).ifPresent(rsId -> profileService.createOrUpdateProfile(profileService.getProfileFromRSId(rsId))));
+				.toList();
+
+		var success = 0;
+		var errors = 0;
+
+		for (var certificate : certificates)
+		{
+			try
+			{
+				RSId.parse(certificate, Type.CERTIFICATE).ifPresent(rsId -> profileService.createOrUpdateProfile(profileService.getProfileFromRSId(rsId)));
+				success++;
+			}
+			catch (Exception e)
+			{
+				log.error("Error while adding friend {}", certificate, e);
+				errors++;
+			}
+		}
+		return new ImportRsFriendsResponse(success, errors);
 	}
 
 	public boolean verifyUpdate(Path updateFile, byte[] signature)

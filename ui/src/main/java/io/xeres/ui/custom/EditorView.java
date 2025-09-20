@@ -165,7 +165,7 @@ public class EditorView extends VBox
 	{
 		bundle = I18nUtils.getBundle();
 
-		var loader = new FXMLLoader(getClass().getResource("/view/custom/editorview.fxml"), bundle);
+		var loader = new FXMLLoader(EditorView.class.getResource("/view/custom/editorview.fxml"), bundle);
 		loader.setRoot(this);
 		loader.setController(this);
 
@@ -183,23 +183,23 @@ public class EditorView extends VBox
 	private void initialize()
 	{
 		undo.disableProperty().bind(editor.undoableProperty().not());
-		undo.setOnAction(event -> editor.undo());
+		undo.setOnAction(_ -> editor.undo());
 
 		redo.disableProperty().bind(editor.redoableProperty().not());
-		redo.setOnAction(event -> editor.redo());
+		redo.setOnAction(_ -> editor.redo());
 
-		bold.setOnAction(event -> surround("**"));
-		italic.setOnAction(event -> surround("_"));
-		code.setOnAction(event -> makeCode());
-		quote.setOnAction(event -> prefixLines(">"));
-		unorderedList.setOnAction(event -> insertNextLine("-"));
-		orderedList.setOnAction(event -> insertNextLine("1."));
-		header1.setOnAction(event -> makeHeader(1));
-		header2.setOnAction(event -> makeHeader(2));
-		header3.setOnAction(event -> makeHeader(3));
-		header4.setOnAction(event -> makeHeader(4));
-		header5.setOnAction(event -> makeHeader(5));
-		header6.setOnAction(event -> makeHeader(6));
+		bold.setOnAction(_ -> surround("**"));
+		italic.setOnAction(_ -> surround("_"));
+		code.setOnAction(_ -> makeCode());
+		quote.setOnAction(_ -> prefixLines(">"));
+		unorderedList.setOnAction(_ -> insertNextLine("-"));
+		orderedList.setOnAction(_ -> insertNextLine("1."));
+		header1.setOnAction(_ -> makeHeader(1));
+		header2.setOnAction(_ -> makeHeader(2));
+		header3.setOnAction(_ -> makeHeader(3));
+		header4.setOnAction(_ -> makeHeader(4));
+		header5.setOnAction(_ -> makeHeader(5));
+		header6.setOnAction(_ -> makeHeader(6));
 		hyperlink.setOnAction(event -> insertUrl(UiUtils.getWindow(event)));
 
 		editor.addEventFilter(KeyEvent.KEY_PRESSED, this::handleInputKeys);
@@ -211,7 +211,7 @@ public class EditorView extends VBox
 			}
 		});
 
-		preview.setOnAction(event -> {
+		preview.setOnAction(_ -> {
 			if (preview.isSelected())
 			{
 				editor.setVisible(false);
@@ -232,7 +232,7 @@ public class EditorView extends VBox
 
 		lengthProperty.bind(editor.lengthProperty());
 
-		previewOnly.addListener((observable, oldValue, newValue) -> {
+		previewOnly.addListener((_, _, newValue) -> {
 			if (Boolean.TRUE.equals(newValue))
 			{
 				UiUtils.setAbsent(toolBar);

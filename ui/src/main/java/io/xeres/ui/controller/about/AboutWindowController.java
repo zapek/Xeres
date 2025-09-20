@@ -91,13 +91,13 @@ public class AboutWindowController implements WindowController
 		{
 			profile.setText("Profiles: " + String.join(", ", environment.getActiveProfiles()));
 		}
-		license.setText(UiUtils.getResourceFileAsString(getClass().getResourceAsStream("/LICENSE")));
+		license.setText(UiUtils.getResourceFileAsString(AboutWindowController.class.getResourceAsStream("/LICENSE")));
 
 		closeWindow.setOnAction(UiUtils::closeWindow);
 		UiUtils.linkify(infoPane, hostServices);
 
-		UiUtils.setOnPrimaryMouseDoubleClicked(logo, event -> {
-			logo.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/egg.png"))));
+		UiUtils.setOnPrimaryMouseDoubleClicked(logo, _ -> {
+			logo.setImage(new Image(Objects.requireNonNull(AboutWindowController.class.getResourceAsStream("/image/egg.png"))));
 			TooltipUtils.install(logo, "Qrqvpngrq gb Lhyvn\u001F Nqevra\u001F Nyvan naq Kravn".chars().mapToObj(v -> (char) v).map(c -> (char) ((c < 'a') ? ((c - 'A' + 13) % 26) + 'A' : ((c - 'a' + 13) % 26) + 'a')).map(String::valueOf).collect(Collectors.joining()).replace("-", " "));
 		});
 

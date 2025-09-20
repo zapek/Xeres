@@ -65,7 +65,7 @@ public class StickerView extends VBox
 
 	public StickerView()
 	{
-		var loader = new FXMLLoader(getClass().getResource("/view/custom/stickerview.fxml"));
+		var loader = new FXMLLoader(StickerView.class.getResource("/view/custom/stickerview.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
 
@@ -166,7 +166,7 @@ public class StickerView extends VBox
 		{
 			loadTab(tabPane.getSelectionModel().getSelectedIndex());
 		}
-		tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> loadTab(newValue.intValue()));
+		tabPane.getSelectionModel().selectedIndexProperty().addListener((_, _, newValue) -> loadTab(newValue.intValue()));
 	}
 
 	private void loadTab(int index)
@@ -197,7 +197,7 @@ public class StickerView extends VBox
 				{
 					if (Files.isDirectory(path))
 					{
-						try (var stream = Files.find(path, 1, (dirPath, bfa) -> bfa.isRegularFile()))
+						try (var stream = Files.find(path, 1, (_, bfa) -> bfa.isRegularFile()))
 						{
 							stream
 									.sorted(Comparator.comparing(filePath -> filePath.getFileName().toString()))
@@ -231,7 +231,7 @@ public class StickerView extends VBox
 
 	private static Image getStickerMainImage(Path directory)
 	{
-		try (var stream = Files.find(directory, 1, (path, bfa) -> bfa.isRegularFile()))
+		try (var stream = Files.find(directory, 1, (_, bfa) -> bfa.isRegularFile()))
 		{
 			return stream
 					.findFirst()

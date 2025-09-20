@@ -51,9 +51,9 @@ class BroadcastWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/messaging/broadcast.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(BroadcastWindowControllerTest.class.getResource("/view/messaging/broadcast.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		Parent root = loader.load();
 

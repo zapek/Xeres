@@ -93,7 +93,7 @@ public class TrayService
 		}
 
 		var launchItem = new MenuItem(MessageFormat.format(bundle.getString("tray.open"), AppName.NAME));
-		launchItem.addActionListener(e ->
+		launchItem.addActionListener(_ ->
 				windowManager.openMain(null, null, false));
 
 		var peersMenu = new Menu(bundle.getString("tray.peers") + " >");
@@ -105,7 +105,7 @@ public class TrayService
 		statusMenu.add(createStateMenuItem(Availability.AWAY));
 
 		var exitItem = new MenuItem(bundle.getString("tray.exit"));
-		exitItem.addActionListener(e -> exitApplication());
+		exitItem.addActionListener(_ -> exitApplication());
 
 		var popupMenu = new PopupMenu();
 		popupMenu.add(launchItem);
@@ -114,9 +114,9 @@ public class TrayService
 		popupMenu.addSeparator();
 		popupMenu.add(exitItem);
 
-		image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon.png"));
-		eventImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon_event.png"));
-		busyImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/image/trayicon_busy.png"));
+		image = Toolkit.getDefaultToolkit().getImage(TrayService.class.getResource("/image/trayicon.png"));
+		eventImage = Toolkit.getDefaultToolkit().getImage(TrayService.class.getResource("/image/trayicon_event.png"));
+		busyImage = Toolkit.getDefaultToolkit().getImage(TrayService.class.getResource("/image/trayicon_busy.png"));
 
 		tooltipTitle = title;
 		trayIcon = new TrayIcon(image, tooltipTitle, popupMenu);
@@ -143,7 +143,7 @@ public class TrayService
 	private MenuItem createStateMenuItem(Availability availability)
 	{
 		var menuItem = new MenuItem(availability.toString());
-		menuItem.addActionListener(e -> configClient.changeAvailability(availability).subscribe());
+		menuItem.addActionListener(_ -> configClient.changeAvailability(availability).subscribe());
 		return menuItem;
 	}
 
@@ -216,7 +216,7 @@ public class TrayService
 
 		var peerItem = new MenuItem(String.format("%s (%s)", profileName, locationName));
 		peerItem.setName(String.valueOf(locationId));
-		peerItem.addActionListener(e -> windowManager.openMessaging(locationId));
+		peerItem.addActionListener(_ -> windowManager.openMessaging(locationId));
 		peersMenu.insert(peerItem, findInsertionPoint(peersMenu, peerItem.getName()));
 	}
 

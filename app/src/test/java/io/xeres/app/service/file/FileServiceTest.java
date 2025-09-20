@@ -77,12 +77,12 @@ class FileServiceTest
 		var ioBuffer = new byte[FileService.SMALL_FILE_SIZE];
 
 		// mmap (> 16 KB file)
-		var hash = fileService.calculateFileHash(Path.of(Objects.requireNonNull(getClass().getResource("/image/leguman.jpg")).toURI()), ioBuffer);
+		var hash = fileService.calculateFileHash(Path.of(Objects.requireNonNull(FileServiceTest.class.getResource("/image/leguman.jpg")).toURI()), ioBuffer);
 		assertNotNull(hash);
 		assertEquals("0f02355b1b1e9a22801dddd85ded59fe7301698d", Id.toString(hash.getBytes()));
 
 		// non mmap (<= 16 KB file)
-		hash = fileService.calculateFileHash(Path.of(Objects.requireNonNull(getClass().getResource("/upnp/routers/RT-AC87U.xml")).toURI()), ioBuffer);
+		hash = fileService.calculateFileHash(Path.of(Objects.requireNonNull(FileServiceTest.class.getResource("/upnp/routers/RT-AC87U.xml")).toURI()), ioBuffer);
 		assertNotNull(hash);
 		assertEquals("a045c2c987b55e6c29082ded01a9abf33ad4cf9d", Id.toString(hash.getBytes()));
 	}
@@ -90,7 +90,7 @@ class FileServiceTest
 	@Test
 	void ScanShare_Success() throws URISyntaxException
 	{
-		var share = ShareFakes.createShare(Path.of(Objects.requireNonNull(getClass().getResource("/image")).toURI()));
+		var share = ShareFakes.createShare(Path.of(Objects.requireNonNull(FileServiceTest.class.getResource("/image")).toURI()));
 		fileService.scanShare(share);
 		verify(fileNotificationService).startScanning(share);
 		verify(fileNotificationService, times(2)).startScanningFile(any());
@@ -157,14 +157,12 @@ class FileServiceTest
 
 		// Share
 		var fileGreatGrandParent = FileFakes.createFile("share", fileRoot);
-		var share = ShareFakes.createShare(fileGreatGrandParent);
 
 		var fileGrandParent = FileFakes.createFile("media", fileGreatGrandParent);
 
 		var fileParent = FileFakes.createFile("images", fileGrandParent);
 
 		var file = FileFakes.createFile("foobar.jpg", fileParent);
-		var file2 = FileFakes.createFile("plop.jpg", fileParent);
 
 		// C:\share\media\images\foobar.jpg and plop.jpg
 
@@ -203,7 +201,6 @@ class FileServiceTest
 
 		// Share
 		var fileGreatGrandParent = FileFakes.createFile("share", fileRoot);
-		var share = ShareFakes.createShare(fileGreatGrandParent);
 
 		var fileGrandParent = FileFakes.createFile("media", fileGreatGrandParent);
 
@@ -211,7 +208,6 @@ class FileServiceTest
 		var fileParent2 = FileFakes.createFile("videos", fileGrandParent);
 
 		var file = FileFakes.createFile("foobar.jpg", fileParent);
-		var file2 = FileFakes.createFile("plop.avi", fileParent2);
 
 		// C:\share\media\images\foobar.jpg and plop.avi is in media\videos
 

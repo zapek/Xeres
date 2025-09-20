@@ -65,9 +65,9 @@ class AccountCreationWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/account/account_creation.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(AccountCreationWindowControllerTest.class.getResource("/view/account/account_creation.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		when(configClient.getUsername()).thenReturn(Mono.just(new UsernameResponse("username")));
 		when(configClient.getHostname()).thenReturn(Mono.just(new HostnameResponse("hostname")));

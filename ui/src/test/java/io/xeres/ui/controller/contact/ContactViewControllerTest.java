@@ -78,9 +78,9 @@ class ContactViewControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/contact/contactview.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(ContactViewControllerTest.class.getResource("/view/contact/contactview.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		var ownProfile = new Profile();
 		ownProfile.setName("foobar");

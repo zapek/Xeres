@@ -175,14 +175,14 @@ public class ConfigClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> sendRsFriends(File file)
+	public Mono<ImportRsFriendsResponse> sendRsFriends(File file)
 	{
 		return webClient.post()
 				.uri("/import-friends-from-rs")
 				.contentType(MediaType.MULTIPART_FORM_DATA)
 				.body(BodyInserters.fromMultipartData(fromFile(file)))
 				.retrieve()
-				.bodyToMono(Void.class);
+				.bodyToMono(ImportRsFriendsResponse.class);
 	}
 
 	public Mono<Boolean> verifyUpdate(String filePath, byte[] signature)

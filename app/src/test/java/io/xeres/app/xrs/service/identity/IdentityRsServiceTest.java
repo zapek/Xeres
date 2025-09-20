@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -140,7 +140,7 @@ class IdentityRsServiceTest
 	{
 		var id = 1L;
 		var identity = IdentityFakes.createOwn();
-		var file = new MockMultipartFile("file", getClass().getResourceAsStream("/image/leguman.jpg"));
+		var file = new MockMultipartFile("file", IdentityRsServiceTest.class.getResourceAsStream("/image/leguman.jpg"));
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
 		when(identityService.save(identity)).thenReturn(identity);

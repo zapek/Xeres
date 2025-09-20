@@ -85,7 +85,7 @@ public class FileResultView extends Tab
 
 		bundle = I18nUtils.getBundle();
 
-		var loader = new FXMLLoader(getClass().getResource("/view/custom/file_results_view.fxml"), bundle);
+		var loader = new FXMLLoader(FileResultView.class.getResource("/view/custom/file_results_view.fxml"), bundle);
 		loader.setRoot(this);
 		loader.setController(this);
 
@@ -104,9 +104,9 @@ public class FileResultView extends Tab
 	{
 		createFilesTableViewContextMenu();
 
-		tableName.setCellFactory(param -> new FileResultNameCell(this::getGraphicForType));
+		tableName.setCellFactory(_ -> new FileResultNameCell(this::getGraphicForType));
 		tableName.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-		tableSize.setCellFactory(param -> new FileResultSizeCell());
+		tableSize.setCellFactory(_ -> new FileResultSizeCell());
 		tableSize.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().size()));
 		tableType.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().type().toString()));
 		tableHash.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().hash()));
@@ -181,7 +181,7 @@ public class FileResultView extends Tab
 
 		var xContextMenu = new XContextMenu<FileResult>(downloadItem, new SeparatorMenuItem(), copyLinkItem);
 		xContextMenu.addToNode(filesTableView);
-		xContextMenu.setOnShowing((contextMenu, file) -> file != null);
+		xContextMenu.setOnShowing((_, file) -> file != null);
 	}
 
 	private void showProgress()

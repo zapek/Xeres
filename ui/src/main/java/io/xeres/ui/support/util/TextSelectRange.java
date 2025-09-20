@@ -69,6 +69,11 @@ public class TextSelectRange
 
 	private static int compare(HitInfo firstHit, HitInfo secondHit)
 	{
+		if (firstHit == null || secondHit == null)
+		{
+			return 0;
+		}
+
 		if (firstHit.getCharIndex() == secondHit.getCharIndex())
 		{
 			if (firstHit.isLeading() == secondHit.isLeading())

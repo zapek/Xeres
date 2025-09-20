@@ -26,12 +26,10 @@ import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -66,9 +64,6 @@ class IdentityControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private IdenticonService identiconService;
-
-	@Autowired
-	public MockMvc mvc;
 
 	@Test
 	void FindIdentityById_Success() throws Exception
@@ -105,7 +100,7 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
-		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
+		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(IdentityControllerTest.class.getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
 		mvc.perform(get(BASE_URL + "/" + id + "/image", MediaType.IMAGE_JPEG))
 				.andExpect(status().isOk())
@@ -119,7 +114,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	{
 		var id = 1L;
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
-		identity.setImage(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
+		identity.setImage(Objects.requireNonNull(IdentityControllerTest.class.getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
 
@@ -227,7 +222,7 @@ class IdentityControllerTest extends AbstractControllerTest
 	{
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
-		identity.setImage(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
+		identity.setImage(Objects.requireNonNull(IdentityControllerTest.class.getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
 		when(identityService.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
 
@@ -246,7 +241,7 @@ class IdentityControllerTest extends AbstractControllerTest
 		var identity = IdentityGroupItemFakes.createIdentityGroupItem();
 		identity.setId(1L);
 
-		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(getClass().getResourceAsStream("/image/leguman.jpg")).readAllBytes());
+		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(IdentityControllerTest.class.getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
 		mvc.perform(get(BASE_URL + "/image", MediaType.IMAGE_JPEG)
 						.param("gxsId", identity.getGxsId().toString()))

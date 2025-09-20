@@ -28,7 +28,7 @@
 - 🖥️ Modern looking desktop user interface with several themes including dark mode
 - 📶 Remote access, access your instance on the go (Android mobile client available [here](https://github.com/zapek/Xeres-Android))
 - 📖 Free software ([GPL](https://www.gnu.org/licenses/quick-guide-gplv3.html))
-- 😃 Available for Windows and Linux
+- 😃 Available for Windows, Linux and macOS
 
 ## Releases
 

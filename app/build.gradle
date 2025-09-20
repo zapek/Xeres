@@ -82,6 +82,9 @@ tasks.register('createPortableFile') {
     notCompatibleWithConfigurationCache("Uses execution-time configuration filtering")
     doLast {
         def portable = new File("${layout.buildDirectory.dir("distributions").get().dir(rootProject.name)}", "Portable")
+        if (!portable.getParentFile().exists()) {
+            portable.getParentFile().mkdirs()
+        }
         portable.createNewFile()
     }
 }

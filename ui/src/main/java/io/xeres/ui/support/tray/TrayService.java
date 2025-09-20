@@ -27,7 +27,6 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.support.notification.NotificationSettings;
 import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.window.WindowManager;
-import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
@@ -93,6 +92,7 @@ public class TrayService
 		}
 
 		var launchItem = new MenuItem(MessageFormat.format(bundle.getString("tray.open"), AppName.NAME));
+		launchItem.setFont(Font.decode(null).deriveFont(Font.BOLD));
 		launchItem.addActionListener(_ ->
 				windowManager.openMain(null, null, false));
 
@@ -152,6 +152,7 @@ public class TrayService
 	 */
 	public void exitApplication()
 	{
+		removeSystemTray();
 		windowManager.closeAllWindowsAndExit();
 	}
 
@@ -368,7 +369,6 @@ public class TrayService
 		};
 	}
 
-	@PreDestroy
 	private void removeSystemTray()
 	{
 		if (hasSystemTray)

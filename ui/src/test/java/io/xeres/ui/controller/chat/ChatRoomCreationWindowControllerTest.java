@@ -51,9 +51,9 @@ class ChatRoomCreationWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/chat/chatroom_create.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(ChatRoomCreationWindowControllerTest.class.getResource("/view/chat/chatroom_create.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		Parent root = loader.load();
 

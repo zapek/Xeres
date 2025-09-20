@@ -41,11 +41,9 @@ import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.InviteToChatRoomRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -82,9 +80,6 @@ class ChatControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private IdentityService identityService;
-
-	@Autowired
-	public MockMvc mvc;
 
 	@Test
 	void CreateChatRoom_Success() throws Exception

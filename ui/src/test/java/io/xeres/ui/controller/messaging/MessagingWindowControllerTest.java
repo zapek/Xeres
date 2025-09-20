@@ -96,11 +96,11 @@ class MessagingWindowControllerTest
 	@Test
 	void testFxmlLoading() throws Exception
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/messaging/messaging.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(MessagingWindowControllerTest.class.getResource("/view/messaging/messaging.fxml"), resourceBundle);
 
 		var controller = new MessagingWindowController(profileClient, identityClient, windowManager, uriService, messageClient, shareClient, markdownService, IdFakes.createLocationIdentifier(), resourceBundle, chatClient, generalClient, imageCache, false);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		Parent root = loader.load();
 

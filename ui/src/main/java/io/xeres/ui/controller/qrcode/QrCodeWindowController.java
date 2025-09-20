@@ -121,7 +121,7 @@ public class QrCodeWindowController implements WindowController
 	{
 		status.textProperty().bind(printerJob.jobStatusProperty().asString());
 
-		var loader = new FXMLLoader(getClass().getResource("/view/qrcode/qrprint.fxml"), bundle);
+		var loader = new FXMLLoader(QrCodeWindowController.class.getResource("/view/qrcode/qrprint.fxml"), bundle);
 
 		try
 		{

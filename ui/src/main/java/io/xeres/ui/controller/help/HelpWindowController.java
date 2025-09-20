@@ -90,8 +90,8 @@ public class HelpWindowController implements WindowController
 				.filter(resource -> !StringUtils.defaultString(resource.getFilename()).equals(INDEX_MD))
 				.toList();
 		indexList.getItems().addAll(resources);
-		indexList.setCellFactory(param -> new IndexCell());
-		indexList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+		indexList.setCellFactory(_ -> new IndexCell());
+		indexList.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			if (newValue != null)
 			{
 				navigator.navigate(new ExternalUri(newValue.getFilename()));
@@ -105,7 +105,7 @@ public class HelpWindowController implements WindowController
 
 				if (navigator.isNavigable(uri))
 				{
-					var resource = getClass().getResourceAsStream("/help/" + language + "/" + plain);
+					var resource = HelpWindowController.class.getResourceAsStream("/help/" + language + "/" + plain);
 					if (resource != null)
 					{
 						editorView.setMarkdown(resource);
@@ -132,9 +132,9 @@ public class HelpWindowController implements WindowController
 		back.disableProperty().bind(navigator.backProperty.not());
 		forward.disableProperty().bind(navigator.forwardProperty.not());
 
-		home.setOnAction(event -> navigator.navigate(new ExternalUri(INDEX_MD)));
-		back.setOnAction(event -> navigator.navigateBackwards());
-		forward.setOnAction(event -> navigator.navigateForwards());
+		home.setOnAction(_ -> navigator.navigate(new ExternalUri(INDEX_MD)));
+		back.setOnAction(_ -> navigator.navigateBackwards());
+		forward.setOnAction(_ -> navigator.navigateForwards());
 
 		editorView.setUriAction(navigator::navigate);
 		navigator.navigate(new ExternalUri(INDEX_MD));

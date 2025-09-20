@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -99,7 +99,7 @@ class LocationControllerTest extends AbstractControllerTest
 		var rsId = location.getRsId(Type.SHORT_INVITE).getArmored();
 
 		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
-		when(qrCodeService.generateQrCode(rsId)).thenReturn(ImageIO.read(new ByteArrayInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/image/abitbol.png")).readAllBytes())));
+		when(qrCodeService.generateQrCode(rsId)).thenReturn(ImageIO.read(new ByteArrayInputStream(Objects.requireNonNull(LocationControllerTest.class.getResourceAsStream("/image/abitbol.png")).readAllBytes())));
 
 		mvc.perform(get(BASE_URL + "/" + location.getId() + "/rs-id/qr-code", MediaType.IMAGE_PNG))
 				.andExpect(status().isOk())

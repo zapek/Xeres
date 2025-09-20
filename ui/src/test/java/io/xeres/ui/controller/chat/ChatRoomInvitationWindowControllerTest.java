@@ -57,9 +57,9 @@ class ChatRoomInvitationWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/chat/chatroom_invite.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(ChatRoomInvitationWindowControllerTest.class.getResource("/view/chat/chatroom_invite.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		when(connectionClient.getConnectedProfiles()).thenReturn(Flux.empty());
 

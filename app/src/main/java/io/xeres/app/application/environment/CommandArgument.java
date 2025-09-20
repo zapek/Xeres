@@ -26,6 +26,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.DefaultApplicationArguments;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
@@ -192,9 +193,19 @@ public final class CommandArgument
 		var buildInfo = CommandArgument.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties");
 		if (buildInfo != null)
 		{
-			var reader = new BufferedReader(new InputStreamReader(buildInfo));
-			reader.lines().filter(s -> s.startsWith("build.version="))
-					.forEach(s -> portableOutput(AppName.NAME + " " + s.substring(s.indexOf('=') + 1)));
+			try (var reader = new BufferedReader(new InputStreamReader(buildInfo)))
+			{
+				reader.lines().filter(s -> s.startsWith("build.version="))
+						.forEach(s -> portableOutput(AppName.NAME + " " + s.substring(s.indexOf('=') + 1)));
+			}
+			catch (IOException e)
+			{
+				portableOutput("Couldn't get version information: " + e.getMessage());
+			}
+		}
+		else
+		{
+			portableOutput("Couldn't get version information: resource not found");
 		}
 		System.exit(0);
 	}

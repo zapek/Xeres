@@ -103,9 +103,9 @@ class ChatViewControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/chat/chatview.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(ChatViewControllerTest.class.getResource("/view/chat/chatview.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		var ownProfile = new Profile();
 		ownProfile.setName("foobar");

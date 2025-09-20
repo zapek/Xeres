@@ -63,9 +63,9 @@ class AddRsIdWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/id/rsid_add.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(AddRsIdWindowControllerTest.class.getResource("/view/id/rsid_add.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		var ownProfile = new Profile();
 

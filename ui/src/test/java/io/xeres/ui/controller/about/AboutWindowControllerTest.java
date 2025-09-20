@@ -59,9 +59,9 @@ class AboutWindowControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/about/about.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(AboutWindowControllerTest.class.getResource("/view/about/about.fxml"), resourceBundle);
 
-		loader.setControllerFactory(applicationContext -> controller);
+		loader.setControllerFactory(_ -> controller);
 
 		Parent root = loader.load();
 

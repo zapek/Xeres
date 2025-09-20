@@ -48,7 +48,7 @@ class RsEmojiAlias
 	{
 		try
 		{
-			var loadedAliases = objectMapper.readValue(Objects.requireNonNull(getClass().getResourceAsStream(EMOTES_DATABASE)),
+			var loadedAliases = objectMapper.readValue(Objects.requireNonNull(RsEmojiAlias.class.getResourceAsStream(EMOTES_DATABASE)),
 					new TypeReference<List<AliasEntity>>()
 					{
 					});

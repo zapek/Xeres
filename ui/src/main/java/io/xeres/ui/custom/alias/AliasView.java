@@ -55,7 +55,7 @@ class AliasView extends VBox
 
 	public AliasView()
 	{
-		var loader = new FXMLLoader(getClass().getResource("/view/custom/aliasview.fxml"));
+		var loader = new FXMLLoader(AliasView.class.getResource("/view/custom/aliasview.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
 
@@ -68,7 +68,7 @@ class AliasView extends VBox
 			throw new RuntimeException(e);
 		}
 
-		aliasList.setCellFactory(aliasEntryListView -> new AliasCell());
+		aliasList.setCellFactory(_ -> new AliasCell());
 		addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 			if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.TAB)
 			{
@@ -126,14 +126,14 @@ class AliasView extends VBox
 
 	public void setAliasList(List<AliasEntry> entries)
 	{
-		filteredList = new FilteredList<>(FXCollections.observableArrayList(entries), p -> true);
+		filteredList = new FilteredList<>(FXCollections.observableArrayList(entries), _ -> true);
 		aliasList.setItems(filteredList);
 
 		if (!entries.isEmpty())
 		{
 			aliasList.getSelectionModel().selectFirst();
 		}
-		aliasList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+		aliasList.getSelectionModel().selectedItemProperty().addListener((_, oldValue, newValue) -> {
 			if (newValue == null && !aliasList.getItems().isEmpty())
 			{
 				Platform.runLater(() -> {

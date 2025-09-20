@@ -59,7 +59,7 @@ public class InputAreaGroup extends HBox
 	{
 		bundle = I18nUtils.getBundle();
 
-		var loader = new FXMLLoader(getClass().getResource("/view/custom/inputareagroup.fxml"), bundle);
+		var loader = new FXMLLoader(InputAreaGroup.class.getResource("/view/custom/inputareagroup.fxml"), bundle);
 		loader.setRoot(this);
 		loader.setController(this);
 
@@ -76,13 +76,13 @@ public class InputAreaGroup extends HBox
 	@FXML
 	private void initialize()
 	{
-		disabledProperty().addListener((observable, oldValue, newValue) -> {
+		disabledProperty().addListener((_, _, newValue) -> {
 			addImage.setDisable(newValue);
 			addFile.setDisable(newValue);
 			addSticker.setDisable(newValue);
 		});
 
-		addImage.setOnAction(event -> {
+		addImage.setOnAction(_ -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-picture"));
 			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
@@ -103,7 +103,7 @@ public class InputAreaGroup extends HBox
 			}
 		});
 
-		addSticker.setOnAction(event -> inputArea.openStickerSelector());
+		addSticker.setOnAction(_ -> inputArea.openStickerSelector());
 	}
 
 	public void clear()

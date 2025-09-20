@@ -78,7 +78,8 @@ tasks.register('deletePortable', Delete) {
     delete layout.buildDirectory.dir("distributions").get().dir(rootProject.name)
 }
 
-tasks.register('createPortableFile', Copy) {
+tasks.register('createPortableFile') {
+    notCompatibleWithConfigurationCache("Uses execution-time configuration filtering")
     doLast {
         def portable = new File("${layout.buildDirectory.dir("distributions").get().dir(rootProject.name)}", "Portable")
         portable.createNewFile()

@@ -19,6 +19,7 @@
 
 package io.xeres.ui.custom;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
@@ -41,10 +42,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.text.MessageFormat;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -63,8 +62,12 @@ public class StickerView extends VBox
 	@FXML
 	private TabPane tabPane;
 
+	private final ResourceBundle bundle;
+
 	public StickerView()
 	{
+		bundle = I18nUtils.getBundle();
+
 		var loader = new FXMLLoader(StickerView.class.getResource("/view/custom/stickerview.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
@@ -115,7 +118,7 @@ public class StickerView extends VBox
 
 			if (stickers.isEmpty())
 			{
-				tabPane.getTabs().add(new Tab("", new Label("Add your stickers into " + userPath + "\n\nOne directory per sticker collection, each containing PNGs or JPEGs.")));
+				tabPane.getTabs().add(new Tab("", new Label(MessageFormat.format(bundle.getString("stickers.instructions"), userPath))));
 			}
 
 			tabPane.getTabs().addAll(stickers.stream()

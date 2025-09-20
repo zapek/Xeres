@@ -110,7 +110,7 @@ public class ContentImage implements Content
 		if (parent != null)
 		{
 			syncImageWidth(node, parent.getWidth());
-			parent.widthProperty().addListener((observable, oldValue, newValue) -> syncImageWidth(node, newValue.doubleValue()));
+			parent.widthProperty().addListener((_, _, newValue) -> syncImageWidth(node, newValue.doubleValue()));
 
 			node.setPreserveRatio(true);
 		}
@@ -218,7 +218,7 @@ public class ContentImage implements Content
 		else
 		{
 			prefNode.putBoolean(FULL_SCREEN_HINT_DISPLAYED, true);
-			stage.setFullScreenExitHint("Press ESC or click to exit");
+			stage.setFullScreenExitHint(bundle.getString("content-image.exit"));
 		}
 		scene.setOnMouseClicked(mouseEvent -> {
 			if (mouseEvent.getButton() == MouseButton.PRIMARY)

@@ -19,10 +19,12 @@
 
 package io.xeres.ui.support.chat;
 
+import io.xeres.common.i18n.I18nUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
@@ -37,14 +39,14 @@ public final class ChatCommand
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s");
 
 	public static final List<AliasEntry> ALIASES = List.of(
-			new AliasEntry("code", "text", null, "Send the text as a block of code"),
-			new AliasEntry("flip", null, null, "Flip a coin"),
-			new AliasEntry("me", "message", null, "Send an action message in the third person"),
-			new AliasEntry("pre", "text", null, "Send the text as preformatted"),
-			new AliasEntry("quote", "text", null, "Send the text as a quote"),
-			new AliasEntry("random", null, "max | min-max", "Send a random number from 1 to 10"),
-			new AliasEntry("shrug", null, "target", "Send ¯\\_(ツ)_/¯"),
-			new AliasEntry("table", null, "target", "Send (╯°□°)╯︵ ┻━┻")
+			new AliasEntry("code", "text", null, I18nUtils.getBundle().getString("chat-command.code")),
+			new AliasEntry("flip", null, null, I18nUtils.getBundle().getString("chat-command.coin")),
+			new AliasEntry("me", "message", null, I18nUtils.getBundle().getString("chat-command.me")),
+			new AliasEntry("pre", "text", null, I18nUtils.getBundle().getString("chat-command.pre")),
+			new AliasEntry("quote", "text", null, I18nUtils.getBundle().getString("chat-command.quote")),
+			new AliasEntry("random", null, "max | min-max", I18nUtils.getBundle().getString("chat-command.random")),
+			new AliasEntry("shrug", null, "target", MessageFormat.format(I18nUtils.getBundle().getString("chat-command-send"), "¯\\_(ツ)_/¯")),
+			new AliasEntry("table", null, "target", MessageFormat.format(I18nUtils.getBundle().getString("chat-command-send"), "(╯°□°)╯︵ ┻━┻"))
 	);
 
 	private static final String COMMAND_CODE = "/code ";

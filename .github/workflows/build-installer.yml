@@ -126,7 +126,7 @@ jobs:
           
           # Split into components
           NAME_PART=$(echo "$FILENAME" | cut -d'-' -f1)        # xeres
-          VERSION_PART=$(echo "$FILENAME" | cut -d'-' -f2)     # 6.6.6
+          VERSION_PART=$(echo "$FILENAME" | cut -d'-' -f2)     # x.y.z
           
           # Create new filename
           NEW_FILENAME="${NAME_PART}-${VERSION_PART}-${{ matrix.macos-version }}.dmg"
@@ -177,7 +177,7 @@ jobs:
           
           # Split into components
           NAME_PART=$(echo "$FILENAME" | cut -d'_' -f1)        # xeres
-          VERSION_PART=$(echo "$FILENAME" | cut -d'_' -f2)     # 0.8.2
+          VERSION_PART=$(echo "$FILENAME" | cut -d'_' -f2)     # x.y.z
           ARCH_PART=$(echo "$FILENAME" | cut -d'_' -f3-)       # amd64
           
           # Create new filename

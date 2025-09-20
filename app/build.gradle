@@ -143,7 +143,6 @@ jpackage {
         icon = layout.settingsDirectory.file("icon.png")
     }
     mac {
-        appVersion = "6.6.6" // MacOS sucks, it wants no more than 3 numbers and the first one != 0
         icon = layout.settingsDirectory.file("icon.icns")
     }
 }

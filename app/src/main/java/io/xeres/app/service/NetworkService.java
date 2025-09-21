@@ -23,6 +23,8 @@ import io.xeres.app.application.events.IpChangedEvent;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.application.events.UpnpEvent;
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
 import io.xeres.app.net.dht.DhtService;
@@ -62,12 +64,13 @@ public class NetworkService
 	private final BroadcastDiscoveryService broadcastDiscoveryService;
 	private final DhtService dhtService;
 	private final SettingsService settingsService;
+	private final DatabaseSessionManager databaseSessionManager;
 	private final ApplicationEventPublisher publisher;
 
 	private final AtomicBoolean running = new AtomicBoolean();
 	private boolean startWhenPossible;
 
-	public NetworkService(ProfileService profileService, LocationService locationService, IdentityService identityService, PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, SettingsService settingsService, ApplicationEventPublisher publisher)
+	public NetworkService(ProfileService profileService, LocationService locationService, IdentityService identityService, PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, ApplicationEventPublisher publisher)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
@@ -77,6 +80,7 @@ public class NetworkService
 		this.broadcastDiscoveryService = broadcastDiscoveryService;
 		this.dhtService = dhtService;
 		this.settingsService = settingsService;
+		this.databaseSessionManager = databaseSessionManager;
 		this.publisher = publisher;
 	}
 
@@ -138,7 +142,10 @@ public class NetworkService
 			var ownAddress = PeerAddress.from(localIpAddress, localPort);
 			if (ownAddress.isValid())
 			{
-				locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), ownAddress);
+				try (var _ = new DatabaseSession(databaseSessionManager))
+				{
+					locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), ownAddress);
+				}
 				startHelperServices(ownAddress.isLAN(), false);
 
 				peerService.start(localPort);

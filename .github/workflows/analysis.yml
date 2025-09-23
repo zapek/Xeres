@@ -37,11 +37,12 @@ jobs:
           java-version: 25
           distribution: 'graalvm'
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: java
-          queries: security-and-quality
+      # Disabled for now, until it runs under java 25... not sure when
+      #      - name: Initialize CodeQL
+      #        uses: github/codeql-action/init@v3
+      #        with:
+      #          languages: java
+      #          queries: security-and-quality
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4

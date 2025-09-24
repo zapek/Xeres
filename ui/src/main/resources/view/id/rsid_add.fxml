@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -39,7 +39,7 @@
             </tooltip>
         </Button>
     </HBox>
-    <TextArea fx:id="rsIdTextArea" promptText="%rs-id.add.textarea.prompt" VBox.vgrow="SOMETIMES" styleClass="fixed-font">
+    <TextArea fx:id="rsIdTextArea" promptText="%rs-id.add.textarea.prompt" VBox.vgrow="SOMETIMES" styleClass="fixed-font" wrapText="true">
         <tooltip>
             <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rs-id.add.textarea.tip"/>
         </tooltip>

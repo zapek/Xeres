@@ -21,6 +21,7 @@ package io.xeres.app.service.script;
 
 import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.service.MessageService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.common.id.GxsId;
@@ -71,14 +72,16 @@ public class ScriptService
 	private final ChatRsService chatRsService;
 	private final MessageService messageService;
 	private final IdentityService identityService;
+	private final LocationService locationService;
 
-	public ScriptService(Environment environment, DataDirConfiguration dataDirConfiguration, @Lazy ChatRsService chatRsService, MessageService messageService, IdentityService identityService)
+	public ScriptService(Environment environment, DataDirConfiguration dataDirConfiguration, @Lazy ChatRsService chatRsService, MessageService messageService, IdentityService identityService, LocationService locationService)
 	{
 		this.environment = environment;
 		this.dataDirConfiguration = dataDirConfiguration;
 		this.chatRsService = chatRsService;
 		this.messageService = messageService;
 		this.identityService = identityService;
+		this.locationService = locationService;
 	}
 
 	@PostConstruct
@@ -300,6 +303,11 @@ public class ScriptService
 			var chatMessage = new ChatMessage(message);
 			chatMessage.setOwn(true);
 			messageService.sendToConsumers(chatDistantDestination(), MessageType.CHAT_PRIVATE_MESSAGE, gxsId, chatMessage);
+		}
+
+		public String getAvailability()
+		{
+			return locationService.findOwnLocation().orElseThrow().getAvailability().name();
 		}
 	}
 }

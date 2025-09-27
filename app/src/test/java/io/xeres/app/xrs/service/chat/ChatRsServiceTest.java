@@ -27,6 +27,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.MessageService;
 import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.chat.item.ChatMessageItem;
 import io.xeres.app.xrs.service.chat.item.ChatRoomListItem;
@@ -47,6 +48,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("unused")
 @ExtendWith(SpringExtension.class)
 class ChatRsServiceTest
 {
@@ -70,6 +72,9 @@ class ChatRsServiceTest
 
 	@Mock
 	private UnHtmlService unHtmlService;
+
+	@Mock
+	private ScriptService scriptService;
 
 	@InjectMocks
 	private ChatRsService chatRsService;

@@ -73,7 +73,7 @@ public class ChatMessageController
 				var locationIdentifier = LocationIdentifier.fromString(destinationId);
 				chatRsService.sendPrivateMessage(locationIdentifier, chatMessage.getContent());
 				chatMessage.setOwn(true);
-				messageService.sendToConsumers(BROKER_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION, messageType, locationIdentifier, chatMessage);
+				messageService.sendToConsumers(chatPrivateDestination(), messageType, locationIdentifier, chatMessage);
 			}
 			case CHAT_TYPING_NOTIFICATION ->
 			{
@@ -102,7 +102,7 @@ public class ChatMessageController
 				var gxsId = GxsId.fromString(destinationId);
 				chatRsService.sendPrivateMessage(gxsId, chatMessage.getContent());
 				chatMessage.setOwn(true);
-				messageService.sendToConsumers(BROKER_PREFIX + CHAT_ROOT + CHAT_DISTANT_DESTINATION, messageType, gxsId, chatMessage);
+				messageService.sendToConsumers(chatDistantDestination(), messageType, gxsId, chatMessage);
 			}
 			case CHAT_TYPING_NOTIFICATION ->
 			{
@@ -125,7 +125,7 @@ public class ChatMessageController
 				Objects.requireNonNull(destinationId);
 				var chatRoomId = Long.parseLong(destinationId);
 				chatRsService.sendChatRoomMessage(chatRoomId, chatRoomMessage.getContent());
-				messageService.sendToConsumers(BROKER_PREFIX + CHAT_ROOT + CHAT_ROOM_DESTINATION, messageType, chatRoomId, chatRoomMessage);
+				messageService.sendToConsumers(chatRoomDestination(), messageType, chatRoomId, chatRoomMessage);
 			}
 			case CHAT_ROOM_TYPING_NOTIFICATION ->
 			{

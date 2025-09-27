@@ -239,7 +239,6 @@ class FileTransferManager implements Runnable
 			{
 				// This is the return from a timeout. Nothing to do.
 			}
-			default -> throw new IllegalStateException("Unexpected action: " + action);
 		}
 	}
 

@@ -197,6 +197,8 @@ dependencies {
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
     implementation "org.commonmark:commonmark:$commonMarkVersion"
     implementation "org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion"
+    implementation "org.graalvm.polyglot:polyglot:$graalvmVersion"
+    implementation "org.graalvm.polyglot:js:$graalvmVersion"
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"

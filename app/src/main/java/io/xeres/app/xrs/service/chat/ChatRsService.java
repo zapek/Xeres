@@ -28,6 +28,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.*;
+import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemUtils;
@@ -177,11 +178,12 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private final ChatRoomService chatRoomService;
 	private final ChatBacklogService chatBacklogService;
 	private final UnHtmlService unHtmlService;
+	private final ScriptService scriptService;
 
 	private ScheduledExecutorService executorService;
 	private GxsTunnelRsService gxsTunnelRsService;
 
-	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService, UnHtmlService unHtmlService)
+	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService, UnHtmlService unHtmlService, ScriptService scriptService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
@@ -195,6 +197,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		this.chatBacklogService = chatBacklogService;
 		this.rsServiceRegistry = rsServiceRegistry;
 		this.unHtmlService = unHtmlService;
+		this.scriptService = scriptService;
 	}
 
 	@Override
@@ -276,7 +279,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 			return;
 		}
 
-		var distantLocation = distantChatContacts.computeIfAbsent(destination, gxsId -> new DistantLocation(tunnelId, destination));
+		var distantLocation = distantChatContacts.computeIfAbsent(destination, _ -> new DistantLocation(tunnelId, destination));
 
 		var item = ItemUtils.deserializeItem(data, rsServiceRegistry);
 		switch (item)
@@ -329,7 +332,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	@Override
 	public void shutdown()
 	{
-		chatRooms.forEach((id, chatRoom) -> {
+		chatRooms.forEach((_, chatRoom) -> {
 			chatRoomService.syncParticipatingLocations(chatRoom);
 			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_LEFT);
 		});
@@ -355,7 +358,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void manageChatRooms()
 	{
-		chatRooms.forEach((roomId, chatRoom) -> {
+		chatRooms.forEach((_, chatRoom) -> {
 			log.debug("Cleanup of room {}", chatRoom);
 
 			// Remove old messages
@@ -484,9 +487,9 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	{
 		var chatRoomLists = new ChatRoomLists();
 
-		chatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addSubscribed(chatRoom.getAsRoomInfo()));
-		availableChatRooms.forEach((aLong, chatRoom) -> chatRoomLists.addAvailable(chatRoom.getAsRoomInfo()));
-		invitedChatRooms.forEach((aLong, chatRoom) -> {
+		chatRooms.forEach((_, chatRoom) -> chatRoomLists.addSubscribed(chatRoom.getAsRoomInfo()));
+		availableChatRooms.forEach((_, chatRoom) -> chatRoomLists.addAvailable(chatRoom.getAsRoomInfo()));
+		invitedChatRooms.forEach((_, chatRoom) -> {
 			if (chatRoom.isPrivate()) // Public rooms can be invited to too, so skip them here
 			{
 				chatRoomLists.addAvailable(chatRoom.getAsRoomInfo());
@@ -591,6 +594,11 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		chatRoom.userActivity(user);
 		var message = parseIncomingText(item.getMessage());
 		chatBacklogService.storeIncomingChatRoomMessage(item.getRoomId(), user, item.getSenderNickname(), message);
+		scriptService.sendEvent("chatRoomMessage", Map.of(
+				"roomId", item.getRoomId(),
+				"gxsId", user,
+				"nickname", item.getSenderNickname(),
+				"content", message));
 		sendChatRoomMessageToConsumers(item.getRoomId(), user, item.getSenderNickname(), message);
 
 		chatRoom.incrementConnectionChallengeCount();
@@ -617,11 +625,21 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		if (item.getEventType() == ChatRoomEvent.PEER_LEFT.getCode())
 		{
 			chatRoom.removeUser(user);
+			scriptService.sendEvent("chatRoomLeave", Map.of(
+					"roomId", item.getRoomId(),
+					"gxsId", user,
+					"nickname", item.getSenderNickname()
+			));
 			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_LEAVE, user, item.getSenderNickname());
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_JOINED.getCode())
 		{
 			chatRoom.addUser(user);
+			scriptService.sendEvent("chatRoomJoin", Map.of(
+					"roomId", item.getRoomId(),
+					"gxsId", user,
+					"nickname", item.getSenderNickname()
+			));
 			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
 			chatRoom.setLastKeepAlivePacket(Instant.EPOCH); // send a keep alive event to the participant so that he knows we are in the room
 		}
@@ -758,6 +776,15 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 				invitedChatRooms.put(invitedChatRoom.getId(), invitedChatRoom);
 
 				refreshChatRoomsInClients();
+				scriptService.sendEvent("chatRoomInvite", Map.of(
+						"location", peerConnection.getLocation().getLocationIdentifier().toString(),
+						"roomId", item.getRoomId(),
+						"roomName", item.getRoomName(),
+						"roomTopic", item.getRoomTopic(),
+						"roomIsPublic", item.isPublic(),
+						"roomUserCount", 1,
+						"roomIsSigned", item.isSigned()
+				));
 			}
 		}
 	}
@@ -887,6 +914,10 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		var from = peerConnection.getLocation().getLocationIdentifier();
 		var chatMessage = new ChatMessage(parseIncomingText(message));
 		chatBacklogService.storeIncomingMessage(from, chatMessage.getContent());
+		scriptService.sendEvent("chatPrivateMessage", Map.of(
+				"location", from.toString(),
+				"content", chatMessage.getContent()
+		));
 		messageService.sendToConsumers(chatPrivateDestination(), CHAT_PRIVATE_MESSAGE, from, chatMessage);
 	}
 
@@ -902,6 +933,10 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		var from = distantLocation.getGxsId();
 		var chatMessage = new ChatMessage(parseIncomingText(message));
 		chatBacklogService.storeIncomingDistantMessage(from, chatMessage.getContent());
+		scriptService.sendEvent("chatDistantMessage", Map.of(
+				"gxsId", from.toString(),
+				"content", chatMessage.getContent()
+		));
 		messageService.sendToConsumers(chatDistantDestination(), CHAT_PRIVATE_MESSAGE, from, chatMessage);
 	}
 

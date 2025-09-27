@@ -21,6 +21,7 @@ package io.xeres.app.service.shell;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import io.xeres.app.service.script.ScriptService;
 import io.xeres.common.mui.MUI;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
@@ -28,11 +29,14 @@ import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.OsUtils;
 import jakarta.annotation.PreDestroy;
 import org.apache.commons.lang3.StringUtils;
+import org.graalvm.polyglot.PolyglotException;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -45,6 +49,13 @@ import static io.xeres.common.mui.ShellAction.*;
 public class ShellService implements Shell
 {
 	private final History history = new History(20);
+
+	private final ScriptService scriptService;
+
+	public ShellService(ScriptService scriptService)
+	{
+		this.scriptService = scriptService;
+	}
 
 	@Override
 	public ShellResult sendCommand(String input)
@@ -70,6 +81,7 @@ public class ShellService implements Shell
 						  - open: opens a directory (app, cache, data or download)
 						  - properties: shows the properties
 						  - pwd: shows the current directory
+						  - reload: reloads user scripts
 						  - uname: shows the operating system
 						  - uptime: shows the app uptime""");
 				case "exit", "endshell", "endcli" -> new ShellResult(EXIT);
@@ -85,6 +97,7 @@ public class ShellService implements Shell
 				case "logs" -> showLogs();
 				case "open" -> openDirectory(getArgument(args, 1));
 				case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
+				case "reload" -> reload();
 				default -> new ShellResult(UNKNOWN_COMMAND, arg);
 			};
 		}
@@ -124,7 +137,7 @@ public class ShellService implements Shell
 				.entrySet().stream()
 				.sorted(Map.Entry.comparingByKey())
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-						(oldValue, newValue) -> oldValue, LinkedHashMap::new));
+						(oldValue, _) -> oldValue, LinkedHashMap::new));
 
 		var sb = new StringBuilder();
 		map.forEach((key, value) -> processProperty(sb, key, value));
@@ -258,6 +271,22 @@ public class ShellService implements Shell
 		OsUtils.showFolder(directory.toFile());
 
 		return new ShellResult(SUCCESS, "Opening " + name + " directory at " + directory + " ...");
+	}
+
+	private ShellResult reload()
+	{
+		try
+		{
+			scriptService.reload();
+		}
+		catch (PolyglotException e)
+		{
+			var sw = new StringWriter();
+			var pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			return new ShellResult(ERROR, "Reload failed: " + sw);
+		}
+		return new ShellResult(SUCCESS, "Reloaded");
 	}
 
 	/**

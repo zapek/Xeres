@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,8 +17,16 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.filetransfer;
+package io.xeres.app.service.script;
 
-sealed interface Action permits ActionAddPeer, ActionDownload, ActionGetDownloadsProgress, ActionGetUploadsProgress, ActionReceiveChunkMap, ActionReceiveChunkMapRequest, ActionReceiveData, ActionReceiveDataRequest, ActionReceiveSingleChunkCrc, ActionReceiveSingleChunkCrcRequest, ActionRemoveDownload, ActionRemovePeer
+record ScriptEvent(String type, Object data)
 {
+	@Override
+	public String toString()
+	{
+		return "ScriptEvent{" +
+				"type='" + type + '\'' +
+				", data=" + data +
+				'}';
+	}
 }

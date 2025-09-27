@@ -18,8 +18,13 @@
  */
 
 // This is an example user script for Xeres.
-// All scripts use ECMA script version 2025 and up in strict mode.
-// It has to be placed in %APPDATA%\Xeres\Scripts\user.js
+//
+// Requirements: ECMA script version 2025 in strict mode.
+//
+// The script has to be placed in:
+//   Windows: %APPDATA%\Xeres\Scripts\user.js
+//   Linux: /home/<account>/.local/share/Xeres/Scripts/user.js
+//   macOS: /Users/<Account>/Library/Application Support/Xeres/Scripts/user.js
 
 // There are many events that you can register for below.
 
@@ -30,7 +35,7 @@ xeresAPI.registerEventHandler("chatRoomMessage", function (data)
 
 	if (data.content === '!f1')
 	{
-		xeresAPI.sendChatRoomMessage(data.roomId, `${data.nickname}: ${getRandomDriver()} ${getRandomAction()} ${getRandomDriver()}`);
+		xeresAPI.sendChatRoomMessage(data.roomId, `${data.nickname}: ${getF1Prediction()}`);
 	}
 	else if (data.content === '!bullshit')
 	{
@@ -52,7 +57,7 @@ xeresAPI.registerEventHandler("chatRoomMessage", function (data)
 			"For great justice.",
 			"It's you!!"
 		];
-		xeresAPI.sendChatRoomMessage(data.roomId, ayb[Math.floor(Math.random() * ayb.length)]);
+		xeresAPI.sendChatRoomMessage(data.roomId, getRandomString(ayb));
 	}
 
 	console.log(`availability: ${xeresAPI.getAvailability()}`);
@@ -113,26 +118,20 @@ xeresAPI.registerEventHandler("chatRoomInvite", function (data)
 // Initialization code
 console.log(`User script loaded and ready.\nECMA Script version: ${Graal.versionECMAScript}\nGraal version: ${Graal.versionGraalVM}\nHotCode: ${Graal.isGraalRuntime()}`);
 
-// Some helper functions
+//
+// Helper functions follows
+//
 
-function getRandomDriver()
+// Predicts the next F1 move using a very advanced and complex system
+function getF1Prediction()
 {
 	const drivers = ['Verstappen', 'Hamilton', 'Leclerc', 'Alonso', 'Norris', 'Russell', 'Gasly', 'Albon', 'Hadjar', 'Hülkenberg', 'Ocon', 'Tsunoda', 'Piastri', 'Antonelli', 'Stroll', 'Colapinto', 'Sainz', 'Lawson', 'Bortoleto', 'Bearman'];
-	return getRandomString(drivers);
-}
-
-function getRandomAction()
-{
 	const actions = ['overtakes', 'crashes into', 'blocks', 'dive bombs', 'undercuts', 'swaps position with']
-	return getRandomString(actions);
+
+	return getRandomString(drivers) + " " + getRandomString(actions) + " " + getRandomString(drivers);
 }
 
-function getRandomString(array)
-{
-	return array[Math.floor(Math.random() * array.length)];
-}
-
-// Great function to help create powerpoint slides
+// Great function to help create PowerPoint slides
 function generateBullshit()
 {
 	const fle0 = [
@@ -312,5 +311,10 @@ function generateBullshit()
 	];
 
 	return getRandomString(fle0) + " " + getRandomString(fle1) + " " + getRandomString(fle2);
+}
+
+function getRandomString(array)
+{
+	return array[Math.floor(Math.random() * array.length)];
 }
 

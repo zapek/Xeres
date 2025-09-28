@@ -56,8 +56,6 @@ import org.jsoup.Jsoup;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -70,8 +68,6 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ChatListView implements NicknameCompleter.UsernameFinder
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatListView.class);
-
 	private static final int SCROLL_BACK_MAX_LINES = 1000;
 	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
 
@@ -129,7 +125,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	public void installClearHistoryContextMenu(Runnable action)
 	{
-		contextMenu.installClearHistoryMenu(event -> UiUtils.alertConfirm(bundle.getString("chat.room.clear-history"), () -> {
+		contextMenu.installClearHistoryMenu(_ -> UiUtils.alertConfirm(bundle.getString("chat.room.clear-history"), () -> {
 			action.run();
 			messages.clear();
 		}));
@@ -153,7 +149,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		view.setOnContextMenuRequested(event -> {
 			if (selection.isSelected())
 			{
-				contextMenu.installSelectionMenu(actionEvent -> selection.copy());
+				contextMenu.installSelectionMenu(_ -> selection.copy());
 			}
 			contextMenu.show(view, event.getScreenX(), event.getScreenY());
 			event.consume();
@@ -169,7 +165,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		view.getStyleClass().add("chat-user-list");
 		VBox.setVgrow(view, Priority.ALWAYS);
 
-		view.setCellFactory(param -> new ChatUserCell(generalClient, imageCache));
+		view.setCellFactory(_ -> new ChatUserCell(generalClient, imageCache));
 		view.setItems(users);
 
 		createUsersListViewContextMenu(view);
@@ -437,6 +433,10 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, infoItem);
 		xContextMenu.setOnShowing((cm, chatRoomUser) -> {
+			if (chatRoomUser == null)
+			{
+				return false;
+			}
 			cm.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(chatRoomUser.identityId() == OWN_IDENTITY_ID));

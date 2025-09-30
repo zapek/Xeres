@@ -98,6 +98,7 @@ public class BandwidthRsService extends RsService
 		if (item instanceof BandwidthAllowedItem bandwidthAllowedItem)
 		{
 			log.debug("Allowed bandwidth for peer {}: {} bytes/s", sender, bandwidthAllowedItem.getAllowedBandwidth());
+			// XXX: store it on the peer
 		}
 	}
 

@@ -26,24 +26,53 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BandwidthUtilsTest
 {
 	@Test
-	void findBandwidthAnti()
+	void findBandwidthOnWindowsAnti()
 	{
+		// This one has an unplugged ethernet interface with a secondary connection
+		// The correct USB Wi-Fi dongle interface
+		// And an incorrect XBox adapter
 		var input = """
 				"(PDH-CSV 4.0)","\\\\VITAMINB12\\Network Interface(Intel[R] I211 Gigabit Network Connection)\\Current Bandwidth","\\\\VITAMINB12\\Network Interface(Intel[R] I211 Gigabit Network Connection _2)\\Current Bandwidth","\\\\VITAMINB12\\Network Interface(ASUS USB-AC68 USB Wireless adapter)\\Current Bandwidth","\\\\VITAMINB12\\Network Interface(Xbox Wireless Adapter for Windows)\\Current Bandwidth"
 				"03/23/2025 11:54:55.150","0.000000","0.000000","1300000000.000000","600000000.000000"
 				""";
 
-		assertEquals(1300000000L, BandwidthUtils.searchBandwidth(input));
+		assertEquals(1_300_000_000L, BandwidthUtils.searchBandwidthOnWindows(input));
 	}
 
 	@Test
-	void findBandwidthZapek()
+	void findBandwidthOnWindowsZapek()
 	{
+		// Mine only has one default ethernet interface
 		var input = """
 				"(PDH-CSV 4.0)","\\\\B650\\Network Interface(Realtek Gaming 2.5GbE Family Controller)\\Current Bandwidth"
 				"03/23/2025 08:36:48.197","2500000000.000000"
 				""";
 
-		assertEquals(2500000000L, BandwidthUtils.searchBandwidth(input));
+		assertEquals(2_500_000_000L, BandwidthUtils.searchBandwidthOnWindows(input));
+	}
+
+	@Test
+	void findBandwidthOnLinux()
+	{
+		var input = "1000";
+
+		assertEquals(1_000_000_000L, BandwidthUtils.searchBandwidthOnLinux(input));
+	}
+
+	@Test
+	void findBandwidthOnMac()
+	{
+		var input = """
+				en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+					options=40b<RXCSUM,TXCSUM,VLAN_HWTAGGING,CHANNEL_IO>
+					ether 00:0c:29:da:8c:2a\s
+					inet6 fe80::184a:e26f:63c5:df33%en0 prefixlen 64 secured scopeid 0x4\s
+					inet 192.168.136.128 netmask 0xffffff00 broadcast 192.168.136.255
+					nd6 options=201<PERFORMNUD,DAD>
+					media: autoselect (1000baseT <full-duplex>)
+					status: active
+				""";
+
+		assertEquals(1_000_000_000L, BandwidthUtils.searchBandwidthOnMac(input));
 	}
 }

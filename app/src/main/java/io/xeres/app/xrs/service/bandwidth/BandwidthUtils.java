@@ -35,26 +35,38 @@ final class BandwidthUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Tries to find the maximum bandwidth of a host.
-	 * <p>
-	 * Note: this doesn't take into account any possible router on the LAN. It also doesn't take into account
-	 * which interface is the default one.
-	 *
-	 * @return the maximum bandwidth or 0 if not found or not available
-	 */
+	/// Tries to find the maximum bandwidth of a host.
+	///
+	/// Note: this doesn't take into account any possible router on the LAN.
+	///
+	/// @return the maximum bandwidth in bps, or 0 if not found or not available
 	public static long findBandwidth()
 	{
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			var result = OsUtils.shellExecute("typeperf", "-sc", "1", "\"Network Interface(*)\\Current Bandwidth\"");
-			return searchBandwidth(result);
+			return searchBandwidthOnWindows(result);
 		}
-		// XXX: add Linux and MacOS
+		else if (SystemUtils.IS_OS_LINUX)
+		{
+			// Get default interface
+			var iface = OsUtils.shellExecute("sh", "-c", "ip route show default | awk '/default/ {print $5}'").trim();
+			if (!iface.isEmpty())
+			{
+				var result = OsUtils.shellExecute("cat", "/sys/class/net/" + iface + "/speed");
+				return searchBandwidthOnLinux(result);
+			}
+		}
+		else if (SystemUtils.IS_OS_MAC)
+		{
+			// Use en0 as default, or detect default interface
+			var result = OsUtils.shellExecute("ifconfig", "en0");
+			return searchBandwidthOnMac(result);
+		}
 		return 0L;
 	}
 
-	static long searchBandwidth(String input)
+	static long searchBandwidthOnWindows(String input)
 	{
 		if (!StringUtils.isBlank(input))
 		{
@@ -65,6 +77,35 @@ final class BandwidthUtils
 					.map(Double::parseDouble)
 					.max(Comparator.naturalOrder())
 					.orElse(0.0));
+		}
+		return 0L;
+	}
+
+	static long searchBandwidthOnLinux(String input)
+	{
+		if (!StringUtils.isBlank(input) && input.matches("\\d+"))
+		{
+			return Long.parseLong(input.trim()) * 1_000_000L; // Convert Mbps to bps
+		}
+		return 0L;
+	}
+
+	static long searchBandwidthOnMac(String input)
+	{
+		if (!StringUtils.isBlank(input))
+		{
+			// Find "media:" line and extract speed
+			var mediaLine = input.lines()
+					.filter(line -> line.contains("media:"))
+					.findFirst();
+			if (mediaLine.isPresent())
+			{
+				var matcher = Pattern.compile("(\\d+)baseT").matcher(mediaLine.get());
+				if (matcher.find())
+				{
+					return Long.parseLong(matcher.group(1)) * 1_000_000L; // Convert Mbps to bps
+				}
+			}
 		}
 		return 0L;
 	}

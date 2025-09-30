@@ -1,5 +1,5 @@
 <Configuration>
-<VGpu>Disable</VGpu><!-- fixes the hardware acceleration with JavaFX on the sandbox, or not... -->
+<vGPU>disable</vGPU>
 <Networking>Default</Networking>
 <MappedFolders>
     <MappedFolder>

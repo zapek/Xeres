@@ -27,7 +27,7 @@ buildscript {
         commonMarkVersion = "0.26.0"
         flywayDbVersion = "11.7.2" // Only used by the plugin, keep in sync with spring-boot from time to time
         graalvmVersion = "25.0.0"
-        jnaVersion = "5.18.0"
+        jnaVersion = "5.18.1"
         jpackageVersion = "1.7.6"
         jsonPatchVersion = "1.13"
         jsoupVersion = "1.21.2"

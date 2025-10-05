@@ -217,7 +217,7 @@ class FileDownload extends FileUpload
 	private void markBlockAsWritten(long offset)
 	{
 		int chunkKey = (int) (offset / CHUNK_SIZE);
-		var chunk = chunks.computeIfAbsent(chunkKey, k -> new Chunk(Math.min(CHUNK_SIZE, fileSize - offset)));
+		var chunk = chunks.computeIfAbsent(chunkKey, _ -> new Chunk(Math.min(CHUNK_SIZE, fileSize - offset)));
 		chunk.setBlockAsWritten(offset);
 
 		if (chunk.isComplete())
@@ -230,7 +230,7 @@ class FileDownload extends FileUpload
 	@Override
 	public Sha1Sum computeHash(long offset)
 	{
-		throw new IllegalStateException("Cannot compute hashes of file leechers");
+		throw new IllegalStateException("Cannot compute hashes of files being downloaded");
 	}
 
 	@Override

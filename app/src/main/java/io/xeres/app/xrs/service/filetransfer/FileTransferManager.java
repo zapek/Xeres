@@ -146,7 +146,7 @@ class FileTransferManager implements Runnable
 
 		for (var agent : agents)
 		{
-			minWaitingTime = Math.min(minWaitingTime, durationBetween(now, agent.getNextDelay()));
+			minWaitingTime = Math.min(minWaitingTime, durationBetween(now, agent.getNextProcessing()));
 			if (minWaitingTime == 0)
 			{
 				break;
@@ -158,6 +158,10 @@ class FileTransferManager implements Runnable
 
 	private static int durationBetween(Instant now, Instant nextDelay)
 	{
+		if (nextDelay == null)
+		{
+			return DEFAULT_TICK;
+		}
 		var duration = Duration.between(now, nextDelay);
 		if (duration.isNegative())
 		{

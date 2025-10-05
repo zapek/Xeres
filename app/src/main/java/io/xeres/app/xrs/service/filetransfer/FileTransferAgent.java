@@ -161,14 +161,19 @@ class FileTransferAgent
 		return done;
 	}
 
-	public Instant getNextDelay()
+	/**
+	 * Returns the next desired processing.
+	 *
+	 * @return when the next processing happens, null if there's no processing needed
+	 */
+	public Instant getNextProcessing()
 	{
 		var filePeer = queue.peek();
 		if (filePeer != null)
 		{
 			return filePeer.getNextScheduling();
 		}
-		return Instant.now().plusSeconds(1); // XXX: use a constant...
+		return null;
 	}
 
 	private void processPeers()

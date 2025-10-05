@@ -1,7 +1,23 @@
-package io.xeres.app.xrs.service.filetransfer;
+/*
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package io.xeres.app.xrs.service.filetransfer;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
@@ -11,11 +27,11 @@ import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_
  */
 class Chunk
 {
-	private static final Logger log = LoggerFactory.getLogger(Chunk.class);
-
+	// hiBlocks and lowBlocks aren't necessary, but they could be used to re-ask only for the missing block instead of the whole chunk
 	private long hiBlocks;
 	private long lowBlocks;
 	private final int totalBlocks;
+	private int remainingBlocks;
 
 	/**
 	 * Creates a chunk.
@@ -24,7 +40,12 @@ class Chunk
 	 */
 	public Chunk(long size)
 	{
+		if (size > CHUNK_SIZE)
+		{
+			throw new IllegalArgumentException("Chunk size is greater than " + CHUNK_SIZE);
+		}
 		totalBlocks = (int) (size / BLOCK_SIZE + (size % BLOCK_SIZE != 0 ? 1 : 0));
+		remainingBlocks = totalBlocks;
 	}
 
 	/**
@@ -43,12 +64,21 @@ class Chunk
 		var blockIndex = blockOffset / BLOCK_SIZE;
 		if (blockIndex < 64)
 		{
+			if ((lowBlocks & 1L << blockIndex) > 0)
+			{
+				return; // Already set
+			}
 			lowBlocks |= 1L << blockIndex;
 		}
 		else
 		{
+			if ((hiBlocks & 1L << blockIndex - 64) > 0)
+			{
+				return; // Already set
+			}
 			hiBlocks |= 1L << blockIndex - 64;
 		}
+		remainingBlocks--;
 	}
 
 	/**
@@ -58,24 +88,7 @@ class Chunk
 	 */
 	public boolean isComplete()
 	{
-		var total = 0;
-
-		for (var blockIndex = 0; blockIndex < 64; blockIndex++)
-		{
-			if ((lowBlocks & 1L << blockIndex) != 0)
-			{
-				total++;
-			}
-		}
-
-		for (var blockIndex = 0; blockIndex < 64; blockIndex++)
-		{
-			if ((hiBlocks & 1L << blockIndex) != 0)
-			{
-				total++;
-			}
-		}
-		return total == totalBlocks;
+		return remainingBlocks == 0;
 	}
 
 	@Override
@@ -85,6 +98,7 @@ class Chunk
 				"hiBlocks=" + hiBlocks +
 				", lowBlocks=" + lowBlocks +
 				", totalBlocks=" + totalBlocks +
+				", remainingBlocks=" + remainingBlocks +
 				'}';
 	}
 }

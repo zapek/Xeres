@@ -55,6 +55,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static io.xeres.app.net.peer.PeerConnection.KEY_GXS_TRANSACTION_ID;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.REQUEST;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
 import static java.util.stream.Collectors.toMap;
@@ -75,8 +76,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static final int GXS_KEY_SIZE = 2048; // The RSA size of Gxs keys. Do not change unless you want everything to break.
-	private static final int KEY_TRANSACTION_ID = 1; // This is stored per peer
-	private static final int KEY_LAST_SYNC = 2; // This is stored per peer and per service
+	private static final int KEY_LAST_SYNC = 1;
 
 	/**
 	 * When to perform synchronization run with a peer.
@@ -433,8 +433,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	protected synchronized int getNextTransactionId(PeerConnection peerConnection)
 	{
-		var transactionId = (int) peerConnection.getPeerData(KEY_TRANSACTION_ID).orElse(0) + 1;
-		peerConnection.putPeerData(KEY_TRANSACTION_ID, transactionId);
+		// The transaction id needs to be stored globally on the peer connection as multiple services can use them
+		var transactionId = (int) peerConnection.getPeerData(KEY_GXS_TRANSACTION_ID).orElse(0) + 1;
+		peerConnection.putPeerData(KEY_GXS_TRANSACTION_ID, transactionId);
 		return transactionId;
 	}
 

@@ -32,6 +32,16 @@ import java.util.concurrent.atomic.LongAdder;
 
 public class PeerConnection
 {
+	/**
+	 * Gxs transaction ID (int). Must be incremented and unique for each new transaction.
+	 */
+	public static final int KEY_GXS_TRANSACTION_ID = 1;
+
+	/**
+	 * The bandwidth advertised by the peer (long), in bytes/seconds.
+	 */
+	public static final int KEY_BANDWIDTH = 2;
+
 	private Location location;
 	private final ChannelHandlerContext ctx;
 	private final Set<RsService> services = new HashSet<>();
@@ -169,6 +179,13 @@ public class PeerConnection
 		schedules.add(scheduledFuture);
 	}
 
+	/**
+	 * Schedules a one-shot command that becomes active after a defined delay.
+	 *
+	 * @param command the command to execute
+	 * @param delay the delay after which to execute the command
+	 * @param unit the unit of the delay
+	 */
 	public void schedule(NoSuppressedRunnable command, long delay, TimeUnit unit)
 	{
 		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().schedule(command, delay, unit);
@@ -203,6 +220,11 @@ public class PeerConnection
 	public long getReceivedCounter()
 	{
 		return received.longValue();
+	}
+
+	public long getMaximumBandwidth()
+	{
+		return (long) getPeerData(KEY_BANDWIDTH).orElse(0L);
 	}
 
 	@Override

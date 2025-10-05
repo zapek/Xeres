@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static io.xeres.app.net.peer.PeerConnection.KEY_BANDWIDTH;
 import static io.xeres.app.xrs.service.RsServiceType.BANDWIDTH_CONTROL;
 
 @Component
@@ -98,7 +99,7 @@ public class BandwidthRsService extends RsService
 		if (item instanceof BandwidthAllowedItem bandwidthAllowedItem)
 		{
 			log.debug("Allowed bandwidth for peer {}: {} bytes/s", sender, bandwidthAllowedItem.getAllowedBandwidth());
-			// XXX: store it on the peer
+			sender.putPeerData(KEY_BANDWIDTH, bandwidthAllowedItem.getAllowedBandwidth());
 		}
 	}
 

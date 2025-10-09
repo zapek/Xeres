@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,7 +26,7 @@ import io.xeres.app.xrs.item.Item;
  * Is used when there's no service that maps to an item.
  * Will just be disposed by the pipeline.
  */
-public class DefaultItem extends Item
+public final class DefaultItem extends Item
 {
 	@Override
 	public int getServiceType()

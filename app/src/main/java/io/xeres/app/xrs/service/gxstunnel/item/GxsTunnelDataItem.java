@@ -101,4 +101,12 @@ public class GxsTunnelDataItem extends GxsTunnelItem implements Comparable<GxsTu
 	{
 		return lastSendingAttempt.compareTo(o.lastSendingAttempt);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "GxsTunnelDataItem{" +
+				"serviceId=" + serviceId +
+				'}';
+	}
 }

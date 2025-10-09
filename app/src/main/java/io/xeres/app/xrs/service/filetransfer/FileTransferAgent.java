@@ -36,12 +36,16 @@ import java.time.Instant;
 import java.util.*;
 
 /**
- * Responsible for sending/receiving a file.
+ * Responsible for sending/receiving one file.
+ * There can be several leechers or seeders per file.
  */
 class FileTransferAgent
 {
 	private static final Logger log = LoggerFactory.getLogger(FileTransferAgent.class);
 
+	/**
+	 * Time after which a download is considered stale.
+	 */
 	private static final long IDLE_TIME = Duration.ofMinutes(5).toNanos();
 
 	private final FileTransferRsService fileTransferRsService;
@@ -232,6 +236,8 @@ class FileTransferAgent
 		// Calculating the next computation would require guessing when we need to ask for the
 		// next chunk. Right now we ask for 1 MB, but we should ask for smaller and progressively bigger (up to 1 MB).
 		addNextScheduling(fileSeeder, Duration.ofMillis(250)); // XXX: use a real computation... not sure it needs to be done in each process*()... maybe in the processPeer() only? check...
+		// XXX: also to know the bandwidth, we have to know to which tunnelId the virtual location maps to, then to which peer the tunnelId maps to and we finally got a bandwidth.
+		// then we also need to take into account the number of tunnels that are shared through that peer... what a mess. maybe we should push that info when creating the FileSeeder/Leecher?
 	}
 
 	private void setFileSecurity(Path path)

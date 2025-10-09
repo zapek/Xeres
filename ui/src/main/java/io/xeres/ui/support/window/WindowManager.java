@@ -171,19 +171,19 @@ public class WindowManager
 			case CertificateUri certificateUri -> openAddPeer(certificateUri.radix());
 			case FileUri(String name, long size, Sha1Sum hash) -> openAddDownload(new AddDownloadRequest(name, size, hash, null));
 			case ExternalUri externalUri when hostServices != null -> hostServices.showDocument(externalUri.toUriString());
-			case ChatRoomUri ignored ->
+			case ChatRoomUri _ ->
 			{
 				// Nothing to do. This is handled in ChatViewController
 			}
-			case ForumUri ignored ->
+			case ForumUri _ ->
 			{
 				// Nothing to do. This is handled in ForumViewController
 			}
-			case SearchUri ignored ->
+			case SearchUri _ ->
 			{
 				// Nothing to do. This is handled in SearchViewController
 			}
-			case IdentityUri ignored ->
+			case IdentityUri _ ->
 			{
 				// Nothing to do. This is handled in ContactViewController
 			}

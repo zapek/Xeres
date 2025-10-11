@@ -36,6 +36,10 @@ import java.util.Set;
 
 import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 
+/**
+ * An item is the base class for the transmission of data within the RS protocol.
+ * They have a service type and a subtype within that service.
+ */
 public abstract class Item implements Cloneable
 {
 	private static final Logger log = LoggerFactory.getLogger(Item.class);

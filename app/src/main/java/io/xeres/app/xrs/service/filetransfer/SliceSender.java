@@ -29,7 +29,8 @@ import java.io.IOException;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 
 /**
- * Responsible for sending a slice to a remote location.
+ * Responsible for sending a slice (1 MB or less) to a remote location.
+ * It is sent by blocks of 8 KB (possibly less for the last one).
  */
 class SliceSender
 {

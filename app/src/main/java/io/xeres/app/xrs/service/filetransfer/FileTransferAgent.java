@@ -44,7 +44,7 @@ class FileTransferAgent
 	private static final Logger log = LoggerFactory.getLogger(FileTransferAgent.class);
 
 	/**
-	 * Time after which a download is considered stale.
+	 * Time after which a download or upload is considered stale.
 	 */
 	private static final long IDLE_TIME = Duration.ofMinutes(5).toNanos();
 
@@ -154,9 +154,14 @@ class FileTransferAgent
 		seeder.updateChunkMap(chunkMap);
 	}
 
+	/**
+	 * Tells if an agent idle. That is, nothing has been sent or received
+	 * for more than 5 minutes.
+	 *
+	 * @return true if idle
+	 */
 	public boolean isIdle()
 	{
-		// XXX: only works for uploads (seeders). Should also work for downloads but that's on the side of file provider.
 		return System.nanoTime() - lastActivity > IDLE_TIME;
 	}
 
@@ -200,6 +205,7 @@ class FileTransferAgent
 	{
 		if (fileSeeder.isReceiving())
 		{
+			lastActivity = System.nanoTime();
 			if (fileProvider.hasChunk(fileSeeder.getChunkNumber()))
 			{
 				log.debug("Chunk {} is complete", fileSeeder.getChunkNumber());

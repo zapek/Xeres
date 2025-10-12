@@ -53,7 +53,7 @@ import java.util.Optional;
 @OpenAPIDefinition(
 		info = @Info(
 				title = AppName.NAME,
-				version = "0.1",
+				version = "1.0",
 				summary = "A decentralized and secure application for communication and sharing",
 				license = @License(name = "GPL v3", url = "https://www.gnu.org/licenses/gpl-3.0.en.html"),
 				contact = @Contact(name = "Xeres", url = "https://xeres.io"),

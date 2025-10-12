@@ -329,6 +329,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		// nothing to do since we don't receive them
 	}
 
+	@Override
+	protected void syncMessages(PeerConnection recipient)
+	{
+		// Nothing to do
+	}
+
 	@Transactional
 	public ResourceCreationState generateOwnIdentity(String name, boolean signed)
 	{

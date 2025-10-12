@@ -204,6 +204,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	protected abstract AuthenticationRequirements getAuthenticationRequirements();
 
+	protected abstract void syncMessages(PeerConnection recipient);
+
 	@Override
 	public RsServiceType getServiceType()
 	{
@@ -315,6 +317,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		log.debug("Got {} from {}", item, peerConnection);
 
 		syncNow(peerConnection);
+		syncMessages(peerConnection);
 	}
 
 	protected void sendSyncNotification(PeerConnection peerConnection)

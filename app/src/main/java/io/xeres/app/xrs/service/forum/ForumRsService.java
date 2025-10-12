@@ -105,7 +105,8 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		);
 	}
 
-	private void syncMessages(PeerConnection peerConnection)
+	@Override
+	public void syncMessages(PeerConnection peerConnection)
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{

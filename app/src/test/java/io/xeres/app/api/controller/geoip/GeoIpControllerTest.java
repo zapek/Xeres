@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,11 +23,9 @@ import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.service.GeoIpService;
 import io.xeres.common.geoip.Country;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Locale;
 
@@ -45,9 +43,6 @@ class GeoIpControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private GeoIpService geoIpService;
-
-	@Autowired
-	public MockMvc mvc;
 
 	@Test
 	void GetIsoCountry_Success() throws Exception

@@ -32,6 +32,7 @@ import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Set;
 
 import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
@@ -71,7 +72,7 @@ public abstract class Item implements Cloneable
 		// Handle items that are shared between service and hence have no intrinsic service type
 		if (DynamicServiceType.class.isAssignableFrom(getClass()))
 		{
-			((DynamicServiceType) this).setServiceType(service.getServiceType().getType());
+			((DynamicServiceType) this).setServiceType(Objects.requireNonNull(service, "Service cannot be null for a DynamicServiceType").getServiceType().getType());
 		}
 		buf.writeShort(getServiceType());
 		buf.writeByte(getSubType());

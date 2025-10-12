@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,11 +25,9 @@ import io.xeres.app.database.model.settings.SettingsFakes;
 import io.xeres.app.database.model.settings.SettingsMapper;
 import io.xeres.app.service.SettingsService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -48,9 +46,6 @@ class SettingsControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private SettingsService settingsService;
-
-	@Autowired
-	public MockMvc mvc;
 
 	@Test
 	void GetSettings_Success() throws Exception

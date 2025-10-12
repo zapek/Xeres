@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,6 +25,7 @@ import io.xeres.ui.model.location.Location;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
@@ -123,7 +124,12 @@ public class Profile
 
 	public List<Location> getLocations()
 	{
-		return locations;
+		return Collections.unmodifiableList(locations);
+	}
+
+	public void addLocations(List<Location> locations)
+	{
+		this.locations.addAll(locations);
 	}
 
 	public boolean isPartial()

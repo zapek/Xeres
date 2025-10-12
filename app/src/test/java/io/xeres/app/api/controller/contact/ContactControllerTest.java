@@ -24,11 +24,9 @@ import io.xeres.app.service.ContactService;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.contact.Contact;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -46,9 +44,6 @@ class ContactControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private ContactService contactService;
-
-	@Autowired
-	public MockMvc mvc;
 
 	@Test
 	void GetContacts_Success() throws Exception

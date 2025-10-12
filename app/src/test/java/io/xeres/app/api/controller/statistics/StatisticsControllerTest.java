@@ -29,11 +29,9 @@ import io.xeres.common.rest.statistics.DataCounterStatisticsResponse;
 import io.xeres.common.rest.statistics.RttPeer;
 import io.xeres.common.rest.statistics.RttStatisticsResponse;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -58,9 +56,6 @@ class StatisticsControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private BandwidthRsService bandwidthRsService;
-
-	@Autowired
-	public MockMvc mvc;
 
 	@Test
 	void GetTurtleStatistics_Success() throws Exception

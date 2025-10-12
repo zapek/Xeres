@@ -671,7 +671,7 @@ public final class Serializer
 		else
 		{
 			checkForNonAllowedType(javaClass);
-			return AnnotationSerializer.deserialize(buf, javaClass);
+			return AnnotationSerializer.deserializeForClass(buf, javaClass);
 		}
 	}
 

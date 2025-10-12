@@ -185,7 +185,7 @@ public final class UiUtils
 		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
 		alert.showAndWait()
 				.filter(response -> response == ButtonType.OK)
-				.ifPresent(response -> runnable.run());
+				.ifPresent(_ -> runnable.run());
 	}
 
 	private static void alert(AlertType alertType, String title, String message, String stackTrace)
@@ -227,7 +227,7 @@ public final class UiUtils
 			copyButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
 			TooltipUtils.install(copyButton, "Copy as a bug report to the clipboard");
 			hbox.getChildren().add(copyButton);
-			copyButton.setOnAction(event -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, title, message, stackTrace)));
+			copyButton.setOnAction(_ -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, title, message, stackTrace)));
 		}
 
 		var textArea = new TextArea();
@@ -265,19 +265,26 @@ public final class UiUtils
 	private static String generateAlertErrorString(AlertType alertType, String title, String message, String stackTrace)
 	{
 		String version;
-		var resource = UiUtils.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties");
-
-		if (resource != null)
+		try (var resource = UiUtils.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties"))
 		{
-			var buildInfo = new BufferedReader(new InputStreamReader(resource));
-			version = buildInfo.lines()
-					.filter(s -> s.startsWith("build.version="))
-					.map(s -> s.substring("build.version=".length()))
-					.findFirst().orElse("unknown");
+			if (resource != null)
+			{
+				try (var buildInfo = new BufferedReader(new InputStreamReader(resource)))
+				{
+					version = buildInfo.lines()
+							.filter(s -> s.startsWith("build.version="))
+							.map(s -> s.substring("build.version=".length()))
+							.findFirst().orElse("unknown");
+				}
+			}
+			else
+			{
+				version = "unknown";
+			}
 		}
-		else
+		catch (IOException e)
 		{
-			version = "unknown";
+			throw new RuntimeException(e);
 		}
 
 		return AppName.NAME + " Requester Error Report\n\nVersion: " + version +
@@ -393,12 +400,12 @@ public final class UiUtils
 		{
 			if (disclosedHyperlink.getOnAction() == null)
 			{
-				disclosedHyperlink.setOnAction(event -> hostServices.showDocument(disclosedHyperlink.getUri()));
+				disclosedHyperlink.setOnAction(_ -> hostServices.showDocument(disclosedHyperlink.getUri()));
 			}
 		}
 		else if (rootNode instanceof Hyperlink hyperlink && hyperlink.getOnAction() == null)
 		{
-			hyperlink.setOnAction(event -> hostServices.showDocument(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
+			hyperlink.setOnAction(_ -> hostServices.showDocument(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
 		}
 	}
 

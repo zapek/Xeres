@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -53,7 +53,7 @@ public class FileMainController implements Controller
 	public void initialize()
 	{
 		tabPane.getSelectionModel().selectedItemProperty()
-				.addListener((observableValue, oldValue, newValue) -> Platform.runLater(() -> {
+				.addListener((_, oldValue, newValue) -> Platform.runLater(() -> {
 					idToController(oldValue.getId()).deactivate();
 					idToController(newValue.getId()).activate();
 				}));
@@ -62,7 +62,7 @@ public class FileMainController implements Controller
 	@EventListener
 	public void handleOpenUriEvents(OpenUriEvent event)
 	{
-		if (event.uri() instanceof SearchUri ignored)
+		if (event.uri() instanceof SearchUri _)
 		{
 			tabPane.getSelectionModel().select(0);
 		}

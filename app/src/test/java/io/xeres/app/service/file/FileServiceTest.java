@@ -205,7 +205,7 @@ class FileServiceTest
 		var fileGrandParent = FileFakes.createFile("media", fileGreatGrandParent);
 
 		var fileParent = FileFakes.createFile("images", fileGrandParent);
-		var fileParent2 = FileFakes.createFile("videos", fileGrandParent);
+		FileFakes.createFile("videos", fileGrandParent);
 
 		var file = FileFakes.createFile("foobar.jpg", fileParent);
 

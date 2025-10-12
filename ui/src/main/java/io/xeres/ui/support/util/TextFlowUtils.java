@@ -219,7 +219,7 @@ public final class TextFlowUtils
 					var imageUserData = image.getUserData();
 					return imageUserData != null ? (String) imageUserData : "";
 				}
-				case Path ignored ->
+				case Path _ ->
 				{
 					return "";
 				}

@@ -109,6 +109,8 @@ public final class MUI
 
 	private static void createShellFrame(Shell shell)
 	{
+		Objects.requireNonNull(shell, "a shell is required");
+
 		textArea = new JTextArea()
 		{
 			@Override
@@ -187,26 +189,19 @@ public final class MUI
 				else if (e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
 					e.consume();
-					if (shell != null)
+					var result = shell.sendCommand(currentLine);
+					switch (result.getAction())
 					{
-						var result = shell.sendCommand(currentLine);
-						switch (result.getAction())
+						case UNKNOWN_COMMAND -> appendToTextArea(currentLine + ": Unknown command");
+						case CLS ->
 						{
-							case UNKNOWN_COMMAND -> appendToTextArea(currentLine + ": Unknown command");
-							case CLS ->
-							{
-								textArea.setText("");
-								appendToTextArea("");
-							}
-							case EXIT -> closeShell();
-							case NO_OP -> appendToTextArea("");
-							case SUCCESS -> appendToTextArea(result.getOutput());
-							case ERROR -> appendToTextArea("Error: " + result.getOutput());
+							textArea.setText("");
+							appendToTextArea("");
 						}
-					}
-					else
-					{
-						appendToTextArea("No shell interface available");
+						case EXIT -> closeShell();
+						case NO_OP -> appendToTextArea("");
+						case SUCCESS -> appendToTextArea(result.getOutput());
+						case ERROR -> appendToTextArea("Error: " + result.getOutput());
 					}
 					currentLine = "";
 				}

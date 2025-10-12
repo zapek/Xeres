@@ -26,13 +26,11 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.QrCodeService;
 import io.xeres.common.rsid.Type;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
@@ -58,9 +56,6 @@ class LocationControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private QrCodeService qrCodeService;
-
-	@Autowired
-	public MockMvc mvc;
 
 	@Test
 	void FindLocationById_Success() throws Exception

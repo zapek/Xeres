@@ -28,12 +28,10 @@ import io.xeres.app.service.notification.file.FileTrendNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import static io.xeres.common.rest.PathConfig.NOTIFICATIONS_PATH;
@@ -66,9 +64,6 @@ class NotificationControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private FileTrendNotificationService fileTrendNotificationService;
-
-	@Autowired
-	public MockMvc mvc;
 
 	@Test
 	void SetupStatusNotification_Success() throws Exception

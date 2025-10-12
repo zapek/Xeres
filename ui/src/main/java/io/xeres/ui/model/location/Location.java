@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Location
@@ -82,7 +83,12 @@ public class Location
 
 	public List<Connection> getConnections()
 	{
-		return connections;
+		return Collections.unmodifiableList(connections);
+	}
+
+	public void addConnections(List<Connection> connections)
+	{
+		this.connections.addAll(connections);
 	}
 
 	public boolean isConnected()

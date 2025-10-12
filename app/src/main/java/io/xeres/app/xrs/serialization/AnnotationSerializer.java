@@ -53,7 +53,7 @@ final class AnnotationSerializer
 		return size;
 	}
 
-	static Object deserialize(ByteBuf buf, Class<?> javaClass)
+	static Object deserializeForClass(ByteBuf buf, Class<?> javaClass)
 	{
 		Object instanceObject;
 		try

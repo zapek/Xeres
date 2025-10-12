@@ -27,6 +27,7 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Id;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -82,7 +83,7 @@ public class DiscoveryPgpListItem extends Item implements RsSerializable
 
 	public Set<Long> getPgpIds()
 	{
-		return pgpIds;
+		return Collections.unmodifiableSet(pgpIds);
 	}
 
 	@Override

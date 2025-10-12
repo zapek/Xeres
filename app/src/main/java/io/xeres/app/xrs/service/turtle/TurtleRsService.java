@@ -713,7 +713,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		log.debug("Received search result from peer {}: {}", sender, item);
 
-		if (item instanceof TurtleFileSearchResultItem turtleFileSearchResultItem)
+		if (item instanceof TurtleFileSearchResultItem _)
 		{
 			// XXX: remove all the isBanned() files from the result set
 		}
@@ -909,7 +909,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		}
 		lastSpeedEstimation = now;
 
-		localTunnels.forEach((id, tunnel) -> {
+		localTunnels.forEach((_, tunnel) -> {
 			var speedEstimate = tunnel.getTransferredBytes() / (double) SPEED_ESTIMATE_TIME.toSeconds();
 			tunnel.setSpeedBps(0.75 * tunnel.getSpeedBps() + 0.25 * speedEstimate);
 			tunnel.clearTransferredBytes();

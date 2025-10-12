@@ -602,10 +602,10 @@ public class MainWindowController implements WindowController
 	{
 		switch (event.uri())
 		{
-			case ChatRoomUri ignored -> tabPane.getSelectionModel().select(chatTab);
-			case ForumUri ignored -> tabPane.getSelectionModel().select(forumTab);
-			case SearchUri ignored -> tabPane.getSelectionModel().select(fileTab);
-			case IdentityUri ignored -> tabPane.getSelectionModel().select(contactTab);
+			case ChatRoomUri _ -> tabPane.getSelectionModel().select(chatTab);
+			case ForumUri _ -> tabPane.getSelectionModel().select(forumTab);
+			case SearchUri _ -> tabPane.getSelectionModel().select(fileTab);
+			case IdentityUri _ -> tabPane.getSelectionModel().select(contactTab);
 			default ->
 			{
 				// Nothing to do

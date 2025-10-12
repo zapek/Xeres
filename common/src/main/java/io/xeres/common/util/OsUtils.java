@@ -127,11 +127,13 @@ public final class OsUtils
 		{
 			var processBuilder = new ProcessBuilder(args);
 			var process = processBuilder.start();
-			var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line;
-			while ((line = reader.readLine()) != null)
+			try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream())))
 			{
-				sb.append(line).append("\n");
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					sb.append(line).append("\n");
+				}
 			}
 		}
 		catch (IOException e)

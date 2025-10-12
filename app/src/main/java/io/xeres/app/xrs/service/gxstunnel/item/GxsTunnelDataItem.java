@@ -42,9 +42,9 @@ public class GxsTunnelDataItem extends GxsTunnelItem implements Comparable<GxsTu
 	private Instant lastSendingAttempt = Instant.EPOCH;
 	private Location location;
 
+	@SuppressWarnings("unused")
 	public GxsTunnelDataItem()
 	{
-		// Needed
 	}
 
 	public GxsTunnelDataItem(long counter, int serviceId, byte[] tunnelData)
@@ -100,6 +100,12 @@ public class GxsTunnelDataItem extends GxsTunnelItem implements Comparable<GxsTu
 	public int compareTo(GxsTunnelDataItem o)
 	{
 		return lastSendingAttempt.compareTo(o.lastSendingAttempt);
+	}
+
+	@Override
+	public GxsTunnelDataItem clone()
+	{
+		return (GxsTunnelDataItem) super.clone();
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -105,6 +105,12 @@ public class ChatMessageItem extends Item
 	public boolean isAvatarRequest()
 	{
 		return flags.contains(REQUEST_AVATAR);
+	}
+
+	@Override
+	public ChatMessageItem clone()
+	{
+		return (ChatMessageItem) super.clone();
 	}
 
 	@Override

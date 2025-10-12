@@ -67,4 +67,18 @@ public class GxsTunnelStatusItem extends GxsTunnelItem
 		// XXX: we should add some warning when a status we don't know is wedged in there
 		return status.stream().findFirst().orElse(Status.UNUSED_1);
 	}
+
+	@Override
+	public GxsTunnelStatusItem clone()
+	{
+		return (GxsTunnelStatusItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "GxsTunnelStatusItem{" +
+				"status=" + status +
+				'}';
+	}
 }

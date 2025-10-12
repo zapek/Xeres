@@ -155,7 +155,7 @@ public abstract class Item implements Cloneable
 	 * To clone an item's subclass. Override the clone() method so that it returns the right type (so that calling clone()
 	 * on the subclass, will not return the superclass' type, which is {@link #Item}). There's no need to implement the {@link Cloneable} method in the subclass and
 	 * there's no need to deep copy any field either as the only use of clone() in an item's subclass is for sending it to multiple recipient
-	 * and nothing will modify any mutable data.
+	 * and nothing will modify any data (mutable or not) data.
 	 *
 	 * @return an Item's clone
 	 */

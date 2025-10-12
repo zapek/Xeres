@@ -32,6 +32,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -184,5 +185,26 @@ public class IdentityGroupItem extends GxsGroupItem
 		{
 			oldVersion = true;
 		}
+	}
+
+	@Override
+	public IdentityGroupItem clone()
+	{
+		return (IdentityGroupItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "IdentityGroupItem{" +
+				"profile=" + profile +
+				", profileHash=" + profileHash +
+				", profileSignature=" + Arrays.toString(profileSignature) +
+				", nextValidation=" + nextValidation +
+				", recognitionTags=" + recognitionTags +
+				", image=" + Arrays.toString(image) +
+				", type=" + type +
+				", oldVersion=" + oldVersion +
+				'}';
 	}
 }

@@ -231,7 +231,7 @@ public final class TextFlowUtils
 					{
 						start = beginIndex - currentIndex;
 					}
-					if (endIndex > currentIndex && endIndex <= currentIndex + size)
+					if (endIndex <= currentIndex + size) // endIndex is always past currentIndex, see above
 					{
 						end = endIndex - currentIndex;
 					}

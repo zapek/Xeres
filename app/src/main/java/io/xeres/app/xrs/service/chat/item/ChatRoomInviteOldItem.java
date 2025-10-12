@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.chat.item;
 
+import io.xeres.app.xrs.RsDeprecated;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
@@ -36,6 +37,7 @@ import static io.xeres.app.xrs.service.chat.RoomFlags.*;
  * Note that Retroshare still sends it for compatibility reasons. We don't do it, though.
  * This class solely exists to avoid warnings in the logs.
  */
+@RsDeprecated(since = "0.6.5")
 public class ChatRoomInviteOldItem extends Item
 {
 	@RsSerialized
@@ -98,6 +100,12 @@ public class ChatRoomInviteOldItem extends Item
 	public boolean isSigned()
 	{
 		return roomFlags.contains(PGP_SIGNED);
+	}
+
+	@Override
+	public ChatRoomInviteOldItem clone()
+	{
+		return (ChatRoomInviteOldItem) super.clone();
 	}
 
 	@Override

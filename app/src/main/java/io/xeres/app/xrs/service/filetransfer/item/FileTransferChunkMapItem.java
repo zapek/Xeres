@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -81,5 +81,21 @@ public class FileTransferChunkMapItem extends Item
 	public List<Integer> getCompressedChunks()
 	{
 		return compressedChunks;
+	}
+
+	@Override
+	public FileTransferChunkMapItem clone()
+	{
+		return (FileTransferChunkMapItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "FileTransferChunkMapItem{" +
+				"isClient=" + isClient +
+				", hash=" + hash +
+				", compressedChunks=" + compressedChunks +
+				'}';
 	}
 }

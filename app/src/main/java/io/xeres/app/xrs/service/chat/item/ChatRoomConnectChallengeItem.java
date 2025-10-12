@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -62,6 +62,12 @@ public class ChatRoomConnectChallengeItem extends Item
 	public long getChallengeCode()
 	{
 		return challengeCode;
+	}
+
+	@Override
+	public ChatRoomConnectChallengeItem clone()
+	{
+		return (ChatRoomConnectChallengeItem) super.clone();
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -65,6 +65,12 @@ public class StatusItem extends Item
 	public ChatStatus getStatus()
 	{
 		return status;
+	}
+
+	@Override
+	public StatusItem clone()
+	{
+		return (StatusItem) super.clone();
 	}
 
 	@Override

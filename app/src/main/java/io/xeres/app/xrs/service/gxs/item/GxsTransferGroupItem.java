@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -126,6 +126,12 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 		groupId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
 		group = Serializer.deserializeTlvBinary(buf, getServiceType());
 		meta = Serializer.deserializeTlvBinary(buf, getServiceType());
+	}
+
+	@Override
+	public GxsTransferGroupItem clone()
+	{
+		return (GxsTransferGroupItem) super.clone();
 	}
 
 	@Override

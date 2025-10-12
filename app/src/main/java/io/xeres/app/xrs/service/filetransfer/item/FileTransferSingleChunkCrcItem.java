@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -79,5 +79,21 @@ public class FileTransferSingleChunkCrcItem extends Item
 	public Sha1Sum getCheckSum()
 	{
 		return checkSum;
+	}
+
+	@Override
+	public FileTransferSingleChunkCrcItem clone()
+	{
+		return (FileTransferSingleChunkCrcItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "FileTransferSingleChunkCrcItem{" +
+				"hash=" + hash +
+				", chunkNumber=" + chunkNumber +
+				", checkSum=" + checkSum +
+				'}';
 	}
 }

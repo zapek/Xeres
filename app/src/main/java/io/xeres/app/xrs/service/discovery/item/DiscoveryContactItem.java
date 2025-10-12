@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -298,6 +298,12 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	public List<PeerAddress> getExternalAddressList()
 	{
 		return externalAddressList;
+	}
+
+	@Override
+	public DiscoveryContactItem clone()
+	{
+		return (DiscoveryContactItem) super.clone();
 	}
 
 	@Override

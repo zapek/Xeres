@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -105,5 +105,26 @@ public class SubscribedChatRoomConfigItem extends Item
 	public long getLastActivity()
 	{
 		return lastActivity;
+	}
+
+	@Override
+	public SubscribedChatRoomConfigItem clone()
+	{
+		return (SubscribedChatRoomConfigItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "SubscribedChatRoomConfigItem{" +
+				"roomId=" + roomId +
+				", roomName='" + roomName + '\'' +
+				", roomTopic='" + roomTopic + '\'' +
+				", participatingLocations=" + participatingLocations +
+				", gxsId=" + gxsId +
+				", flags=" + flags +
+				", gxsIds=" + gxsIds +
+				", lastActivity=" + lastActivity +
+				'}';
 	}
 }

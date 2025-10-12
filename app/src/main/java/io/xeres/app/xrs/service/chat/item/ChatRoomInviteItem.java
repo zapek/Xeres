@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -110,6 +110,12 @@ public class ChatRoomInviteItem extends Item
 	public boolean isSigned()
 	{
 		return roomFlags.contains(PGP_SIGNED);
+	}
+
+	@Override
+	public ChatRoomInviteItem clone()
+	{
+		return (ChatRoomInviteItem) super.clone();
 	}
 
 	@Override

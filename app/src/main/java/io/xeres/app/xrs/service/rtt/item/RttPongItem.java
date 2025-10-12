@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -73,6 +73,12 @@ public class RttPongItem extends Item
 	public long getPongTimestamp()
 	{
 		return pongTimestamp;
+	}
+
+	@Override
+	public RttPongItem clone()
+	{
+		return (RttPongItem) super.clone();
 	}
 
 	@Override

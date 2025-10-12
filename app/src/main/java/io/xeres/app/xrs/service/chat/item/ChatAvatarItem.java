@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -61,6 +61,12 @@ public class ChatAvatarItem extends Item
 	public byte[] getImageData()
 	{
 		return imageData;
+	}
+
+	@Override
+	public ChatAvatarItem clone()
+	{
+		return (ChatAvatarItem) super.clone();
 	}
 
 	@Override

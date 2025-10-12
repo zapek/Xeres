@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -93,5 +93,24 @@ public class PrivateChatMessageConfigItem extends Item
 	public int getReceiveTime()
 	{
 		return receiveTime;
+	}
+
+	@Override
+	public PrivateChatMessageConfigItem clone()
+	{
+		return (PrivateChatMessageConfigItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "PrivateChatMessageConfigItem{" +
+				"locationIdentifier=" + locationIdentifier +
+				", chatFlags=" + chatFlags +
+				", configFlags=" + configFlags +
+				", sendTime=" + sendTime +
+				", message='" + message + '\'' +
+				", receiveTime=" + receiveTime +
+				'}';
 	}
 }

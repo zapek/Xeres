@@ -36,4 +36,16 @@ public abstract class GxsTunnelItem extends Item
 	{
 		return ItemPriority.INTERACTIVE.getPriority(); // Same as Chat service
 	}
+
+	@Override
+	public GxsTunnelItem clone()
+	{
+		return (GxsTunnelItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "GxsTunnelItem{}";
+	}
 }

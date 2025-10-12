@@ -556,6 +556,33 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	}
 
 	@Override
+	public GxsGroupItem clone()
+	{
+		return (GxsGroupItem) super.clone();
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		GxsGroupItem that = (GxsGroupItem) o;
+		return Objects.equals(gxsId, that.gxsId);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(gxsId);
+	}
+
+	@Override
 	public String toString()
 	{
 		return "GxsGroupItem{" +
@@ -579,26 +606,5 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 				", originator=" + originator +
 				", internalCircle=" + internalCircle +
 				'}';
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		GxsGroupItem that = (GxsGroupItem) o;
-		return Objects.equals(gxsId, that.gxsId);
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(gxsId);
 	}
 }

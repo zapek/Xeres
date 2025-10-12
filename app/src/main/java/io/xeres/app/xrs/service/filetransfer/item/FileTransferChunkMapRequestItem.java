@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -70,5 +70,20 @@ public class FileTransferChunkMapRequestItem extends Item
 	public Sha1Sum getHash()
 	{
 		return hash;
+	}
+
+	@Override
+	public FileTransferChunkMapRequestItem clone()
+	{
+		return (FileTransferChunkMapRequestItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "FileTransferChunkMapRequestItem{" +
+				"isLeecher=" + isLeecher +
+				", hash=" + hash +
+				'}';
 	}
 }

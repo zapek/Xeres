@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -43,6 +43,12 @@ public class ChatRoomListRequestItem extends Item
 	public int getPriority()
 	{
 		return ItemPriority.INTERACTIVE.getPriority();
+	}
+
+	@Override
+	public ChatRoomListRequestItem clone()
+	{
+		return (ChatRoomListRequestItem) super.clone();
 	}
 
 	@Override

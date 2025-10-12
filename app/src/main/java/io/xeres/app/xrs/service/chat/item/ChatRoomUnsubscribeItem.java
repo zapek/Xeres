@@ -63,6 +63,12 @@ public class ChatRoomUnsubscribeItem extends Item
 	}
 
 	@Override
+	public ChatRoomUnsubscribeItem clone()
+	{
+		return (ChatRoomUnsubscribeItem) super.clone();
+	}
+
+	@Override
 	public String toString()
 	{
 		return "ChatRoomUnsubscribeItem{" +

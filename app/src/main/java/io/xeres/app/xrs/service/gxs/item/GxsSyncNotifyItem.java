@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -52,6 +52,12 @@ public class GxsSyncNotifyItem extends Item implements DynamicServiceType
 	public void setServiceType(int serviceType)
 	{
 		this.serviceType = serviceType;
+	}
+
+	@Override
+	public GxsSyncNotifyItem clone()
+	{
+		return (GxsSyncNotifyItem) super.clone();
 	}
 
 	@Override

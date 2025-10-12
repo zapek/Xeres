@@ -39,4 +39,16 @@ public final class DefaultItem extends Item
 	{
 		return 0;
 	}
+
+	@Override
+	public DefaultItem clone()
+	{
+		return (DefaultItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "DefaultItem{}";
+	}
 }

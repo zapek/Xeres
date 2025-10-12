@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -107,5 +107,22 @@ public class ForumGroupItem extends GxsGroupItem
 		{
 			oldVersion = true;
 		}
+	}
+
+	@Override
+	public ForumGroupItem clone()
+	{
+		return (ForumGroupItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ForumGroupItem{" +
+				"description='" + description + '\'' +
+				", admins=" + admins +
+				", pinnedPosts=" + pinnedPosts +
+				", oldVersion=" + oldVersion +
+				'}';
 	}
 }

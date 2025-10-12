@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -84,6 +84,12 @@ public class GxsTransactionItem extends GxsExchange
 	public int getTimestamp()
 	{
 		return timestamp;
+	}
+
+	@Override
+	public GxsTransactionItem clone()
+	{
+		return (GxsTransactionItem) super.clone();
 	}
 
 	@Override

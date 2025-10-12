@@ -76,6 +76,12 @@ public class BandwidthAllowedItem extends Item
 	}
 
 	@Override
+	public BandwidthAllowedItem clone()
+	{
+		return (BandwidthAllowedItem) super.clone();
+	}
+
+	@Override
 	public String toString()
 	{
 		return "BandwidthAllowedItem{" +

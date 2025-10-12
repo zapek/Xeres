@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -44,8 +44,14 @@ public class HeartbeatItem extends Item
 	}
 
 	@Override
+	public HeartbeatItem clone()
+	{
+		return (HeartbeatItem) super.clone();
+	}
+
+	@Override
 	public String toString()
 	{
-		return "HeartbeatItem";
+		return "HeartbeatItem{}";
 	}
 }

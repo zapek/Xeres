@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -62,6 +62,12 @@ public class ServiceListItem extends Item
 	public Map<Integer, ServiceInfo> getServices()
 	{
 		return services;
+	}
+
+	@Override
+	public ServiceListItem clone()
+	{
+		return (ServiceListItem) super.clone();
 	}
 
 	@Override

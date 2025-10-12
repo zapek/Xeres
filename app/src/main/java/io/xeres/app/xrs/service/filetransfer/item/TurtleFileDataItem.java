@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,8 @@ package io.xeres.app.xrs.service.filetransfer.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
+
+import java.util.Arrays;
 
 import static io.xeres.app.xrs.service.turtle.item.TunnelDirection.CLIENT;
 
@@ -70,5 +72,14 @@ public class TurtleFileDataItem extends TurtleGenericTunnelItem
 	public TurtleFileDataItem clone()
 	{
 		return (TurtleFileDataItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TurtleFileDataItem{" +
+				"chunkOffset=" + chunkOffset +
+				", chunkData=" + Arrays.toString(chunkData) +
+				'}';
 	}
 }

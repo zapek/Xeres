@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -78,6 +78,12 @@ public class GxsSyncGroupItem extends GxsExchange
 	public int getPublishTimestamp()
 	{
 		return publishTimestamp;
+	}
+
+	@Override
+	public GxsSyncGroupItem clone()
+	{
+		return (GxsSyncGroupItem) super.clone();
 	}
 
 	@Override

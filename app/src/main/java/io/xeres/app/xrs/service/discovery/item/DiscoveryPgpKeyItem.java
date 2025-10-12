@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -70,6 +70,12 @@ public class DiscoveryPgpKeyItem extends Item
 	public byte[] getKeyData()
 	{
 		return keyData;
+	}
+
+	@Override
+	public DiscoveryPgpKeyItem clone()
+	{
+		return (DiscoveryPgpKeyItem) super.clone();
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -59,5 +59,14 @@ public abstract class TurtleSearchResultItem extends Item
 	public TurtleSearchResultItem clone()
 	{
 		return (TurtleSearchResultItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TurtleSearchResultItem{" +
+				"requestId=" + requestId +
+				", depth=" + depth +
+				'}';
 	}
 }

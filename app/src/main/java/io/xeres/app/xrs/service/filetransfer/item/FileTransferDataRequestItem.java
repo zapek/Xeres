@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -83,6 +83,12 @@ public class FileTransferDataRequestItem extends Item
 	public FileItem getFileItem()
 	{
 		return fileItem;
+	}
+
+	@Override
+	public FileTransferDataRequestItem clone()
+	{
+		return (FileTransferDataRequestItem) super.clone();
 	}
 
 	@Override

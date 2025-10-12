@@ -39,6 +39,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.GeneralCodingRules.ACCESS_STANDARD_STREAMS;
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
 
+@SuppressWarnings("unused")
 @AnalyzeClasses(packagesOf = XeresApplication.class, importOptions = ImportOption.DoNotIncludeTests.class)
 class AppCodingRulesTest
 {
@@ -59,10 +60,11 @@ class AppCodingRulesTest
 			.should().haveSimpleNameEndingWith("RsService");
 
 	/**
-	 * Items should have a public no-arg constructor.
+	 * Items should have a public no-arg constructor and have an empty clone method
+	 * that returns their own type.
 	 */
 	@ArchTest
-	private final ArchRule rsItemEmptyConstructor = classes()
+	private final ArchRule rsItem = classes()
 			.that().areAssignableTo(Item.class)
 			.and().doNotBelongToAnyOf(Item.class)
 			.should(new ArchCondition<>("have a public constructor without parameters")
@@ -77,6 +79,40 @@ class AppCodingRulesTest
 							);
 					String message = javaClass.getDescription() + (satisfied ? " has" : " does not have")
 							+ " a public constructor without parameters";
+					events.add(new SimpleConditionEvent(javaClass, satisfied, message));
+				}
+			})
+			.andShould(new ArchCondition<>("have a clone() method that returns their class")
+			{
+				@Override
+				public void check(JavaClass javaClass, ConditionEvents events)
+				{
+					boolean satisfied = javaClass.getMethods().stream()
+							.anyMatch(method ->
+									method.getName().equals("clone")
+											&& method.getParameters().isEmpty()
+											&& method.getReturnType().equals(javaClass)
+											&& method.getModifiers().contains(JavaModifier.PUBLIC));
+					String message = javaClass.getDescription() + (satisfied ? " has" : " does not have")
+							+ " a clone() method returning its own type";
+					events.add(new SimpleConditionEvent(javaClass, satisfied, message));
+				}
+			})
+			.andShould(new ArchCondition<>("have a toString() method that returns a meaningful description")
+			{
+				@Override
+				public void check(JavaClass javaClass, ConditionEvents events)
+				{
+					boolean satisfied = javaClass.getMethods().stream()
+							.anyMatch(method ->
+									method.getName().equals("toString")
+											&& method.getParameters().isEmpty()
+											&& method.getModifiers().contains(JavaModifier.PUBLIC)
+											&& method.getReturnType().getName().equals("java.lang.String")
+											&& method.getOwner().equals(javaClass)
+							);
+					String message = javaClass.getDescription() + (satisfied ? " has" : " does not have")
+							+ " a toString() method returning a meaningful description";
 					events.add(new SimpleConditionEvent(javaClass, satisfied, message));
 				}
 			});

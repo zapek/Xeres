@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -60,16 +60,22 @@ public class ChatRoomListItem extends Item
 		return ItemPriority.INTERACTIVE.getPriority();
 	}
 
+	public List<VisibleChatRoomInfo> getChatRooms()
+	{
+		return chatRooms;
+	}
+
+	@Override
+	public ChatRoomListItem clone()
+	{
+		return (ChatRoomListItem) super.clone();
+	}
+
 	@Override
 	public String toString()
 	{
 		return "ChatRoomListItem{" +
 				"chatRooms=" + chatRooms +
 				'}';
-	}
-
-	public List<VisibleChatRoomInfo> getChatRooms()
-	{
-		return chatRooms;
 	}
 }

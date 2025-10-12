@@ -46,4 +46,18 @@ public class GxsTunnelDataAckItem extends GxsTunnelItem
 	{
 		return counter;
 	}
+
+	@Override
+	public GxsTunnelDataAckItem clone()
+	{
+		return (GxsTunnelDataAckItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "GxsTunnelDataAckItem{" +
+				"counter=" + counter +
+				'}';
+	}
 }

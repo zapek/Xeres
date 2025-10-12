@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -91,5 +91,20 @@ public class ForumMessageItem extends GxsMessageItem
 	public void readDataObject(ByteBuf buf)
 	{
 		content = (String) Serializer.deserialize(buf, STR_MSG);
+	}
+
+	@Override
+	public ForumMessageItem clone()
+	{
+		return (ForumMessageItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ForumMessageItem{" +
+				"content='" + content + '\'' +
+				", read=" + read +
+				'}';
 	}
 }

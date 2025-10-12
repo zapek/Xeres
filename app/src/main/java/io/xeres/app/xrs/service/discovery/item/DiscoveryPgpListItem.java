@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -101,6 +101,12 @@ public class DiscoveryPgpListItem extends Item implements RsSerializable
 	{
 		mode = deserializeEnum(buf, Mode.class);
 		pgpIds = (Set<Long>) deserialize(buf, SET_PGP_ID);
+	}
+
+	@Override
+	public DiscoveryPgpListItem clone()
+	{
+		return (DiscoveryPgpListItem) super.clone();
 	}
 
 	@Override

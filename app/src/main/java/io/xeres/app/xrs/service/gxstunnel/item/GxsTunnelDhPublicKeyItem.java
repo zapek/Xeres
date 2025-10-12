@@ -43,9 +43,9 @@ public class GxsTunnelDhPublicKeyItem extends GxsTunnelItem
 		return 2;
 	}
 
+	@SuppressWarnings("unused")
 	public GxsTunnelDhPublicKeyItem()
 	{
-		// Required
 	}
 
 	public GxsTunnelDhPublicKeyItem(BigInteger publicKey, Signature signature, SecurityKey signerPublicKey)
@@ -68,5 +68,21 @@ public class GxsTunnelDhPublicKeyItem extends GxsTunnelItem
 	public SecurityKey getSignerPublicKey()
 	{
 		return signerPublicKey;
+	}
+
+	@Override
+	public GxsTunnelDhPublicKeyItem clone()
+	{
+		return (GxsTunnelDhPublicKeyItem) super.clone();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "GxsTunnelDhPublicKeyItem{" +
+				"publicKey=" + publicKey +
+				", signature=" + signature +
+				", signerPublicKey=" + signerPublicKey +
+				'}';
 	}
 }

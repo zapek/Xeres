@@ -29,7 +29,6 @@ import io.xeres.common.rsid.Type;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.OsUtils;
 import io.xeres.common.util.RemoteUtils;
-import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
@@ -39,13 +38,12 @@ import io.xeres.ui.custom.DelayedAction;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
+import io.xeres.ui.event.OpenUriEvent;
+import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.updater.UpdateService;
-import io.xeres.ui.support.uri.ChatRoomUri;
-import io.xeres.ui.support.uri.ForumUri;
-import io.xeres.ui.support.uri.IdentityUri;
-import io.xeres.ui.support.uri.SearchUri;
+import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -365,6 +363,13 @@ public class MainWindowController implements WindowController
 				event.consume();
 			}
 		};
+
+		tabPane.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			if (chatTab.equals(newValue))
+			{
+				addOrRemoveTabHighlight(chatTab, false);
+			}
+		});
 	}
 
 	@Override
@@ -605,11 +610,44 @@ public class MainWindowController implements WindowController
 			case ChatRoomUri _ -> tabPane.getSelectionModel().select(chatTab);
 			case ForumUri _ -> tabPane.getSelectionModel().select(forumTab);
 			case SearchUri _ -> tabPane.getSelectionModel().select(fileTab);
-			case IdentityUri _ -> tabPane.getSelectionModel().select(contactTab);
+			case IdentityUri _, ProfileUri _ -> tabPane.getSelectionModel().select(contactTab);
 			default ->
 			{
 				// Nothing to do
 			}
+		}
+	}
+
+	@EventListener
+	public void handleUnreadEvents(UnreadEvent event)
+	{
+		switch (event.element())
+		{
+			case CHAT_ROOM ->
+			{
+				if (!tabPane.getSelectionModel().getSelectedItem().equals(chatTab))
+				{
+					addOrRemoveTabHighlight(chatTab, event.unread());
+				}
+			}
+			case FORUM -> addOrRemoveTabHighlight(forumTab, event.unread());
+			case FILE -> addOrRemoveTabHighlight(fileTab, event.unread());
+		}
+	}
+
+	private void addOrRemoveTabHighlight(Tab tab, boolean add)
+	{
+		var styleClass = tab.getStyleClass();
+		if (add)
+		{
+			if (!styleClass.contains("tab-bold"))
+			{
+				styleClass.add("tab-bold");
+			}
+		}
+		else
+		{
+			styleClass.remove("tab-bold");
 		}
 	}
 

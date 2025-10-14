@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -121,6 +121,19 @@ public class ProfileClient
 				.uri(uriBuilder -> uriBuilder
 						.path("")
 						.queryParam("locationIdentifier", locationIdentifier.toString())
+						.queryParam("withLocations", withLocations)
+						.build())
+				.retrieve()
+				.bodyToFlux(ProfileDTO.class)
+				.map(ProfileMapper::fromDeepDTO);
+	}
+
+	public Flux<Profile> findByPgpIdentifier(long pgpIdentifier, boolean withLocations)
+	{
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path("")
+						.queryParam("pgpIdentifier", Long.toUnsignedString(pgpIdentifier, 16))
 						.queryParam("withLocations", withLocations)
 						.build())
 				.retrieve()

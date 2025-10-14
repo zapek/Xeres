@@ -263,3 +263,7 @@
     -fx-scale-y: 1.05;
     -fx-cursor: hand;
 }
+
+.tab-bold {
+    -fx-font-weight: bold;
+}

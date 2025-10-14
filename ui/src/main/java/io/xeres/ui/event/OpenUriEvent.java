@@ -17,34 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.uri;
+package io.xeres.ui.event;
 
-import io.xeres.ui.event.OpenUriEvent;
-import io.xeres.ui.support.markdown.UriAction;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
+import io.xeres.common.events.SynchronousEvent;
+import io.xeres.ui.support.uri.Uri;
 
-/**
- * This service is responsible for opening URIs within the application.
- */
-@Service
-public class UriService implements UriAction
+public record OpenUriEvent(Uri uri) implements SynchronousEvent
 {
-	private final ApplicationEventPublisher eventPublisher;
-
-	public UriService(ApplicationEventPublisher eventPublisher)
-	{
-		this.eventPublisher = eventPublisher;
-	}
-
-	/**
-	 * Opens a URI to show within the application.
-	 *
-	 * @param uri the URI to open.
-	 */
-	@Override
-	public void openUri(Uri uri)
-	{
-		eventPublisher.publishEvent(new OpenUriEvent(uri));
-	}
 }

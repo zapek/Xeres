@@ -20,6 +20,7 @@
 package io.xeres.ui;
 
 import io.xeres.common.mui.MUI;
+import io.xeres.ui.event.StageReadyEvent;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Application;
 import javafx.application.HostServices;

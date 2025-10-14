@@ -24,6 +24,7 @@ import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.*;
 import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.event.StageReadyEvent;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,11 +17,19 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui;
+package io.xeres.ui.event;
 
 import io.xeres.common.events.SynchronousEvent;
-import io.xeres.ui.support.uri.Uri;
 
-public record OpenUriEvent(Uri uri) implements SynchronousEvent
+public record UnreadEvent(Element element, boolean unread) implements SynchronousEvent
 {
+	public enum Element
+	{
+		HOME,
+		CONTACT,
+		CHAT_ROOM,
+		FORUM,
+		FILE,
+		CHAT
+	}
 }

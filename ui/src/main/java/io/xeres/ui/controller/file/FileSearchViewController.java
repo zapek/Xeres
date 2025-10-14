@@ -19,11 +19,11 @@
 
 package io.xeres.ui.controller.file;
 
-import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
+import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.uri.SearchUri;

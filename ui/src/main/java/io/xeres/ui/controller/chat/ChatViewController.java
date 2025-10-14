@@ -21,7 +21,6 @@ package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.*;
-import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
@@ -32,6 +31,8 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.event.FileSelectedEvent;
 import io.xeres.ui.custom.event.ImageSelectedEvent;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
+import io.xeres.ui.event.OpenUriEvent;
+import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
@@ -41,6 +42,7 @@ import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.sound.SoundService.SoundType;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.UriService;
@@ -185,6 +187,7 @@ public class ChatViewController implements Controller
 	private final ImageCache imageCache;
 	private final SoundService soundService;
 	private final ShareClient shareClient;
+	private final UnreadService unreadService;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -204,7 +207,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ShareClient shareClient)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ShareClient shareClient, UnreadService unreadService)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -219,6 +222,7 @@ public class ChatViewController implements Controller
 		this.imageCache = imageCache;
 		this.soundService = soundService;
 		this.shareClient = shareClient;
+		this.unreadService = unreadService;
 
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
@@ -685,6 +689,7 @@ public class ChatViewController implements Controller
 			{
 				lastTypingTimeline.jumpTo(javafx.util.Duration.INDEFINITE);
 			}
+			unreadService.sendUnreadEvent(UnreadEvent.Element.CHAT_ROOM, true);
 		}
 	}
 

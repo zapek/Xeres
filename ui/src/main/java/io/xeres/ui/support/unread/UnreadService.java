@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,34 +17,25 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.uri;
+package io.xeres.ui.support.unread;
 
-import io.xeres.ui.event.OpenUriEvent;
-import io.xeres.ui.support.markdown.UriAction;
+import io.xeres.ui.event.UnreadEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-/**
- * This service is responsible for opening URIs within the application.
- */
 @Service
-public class UriService implements UriAction
+public class UnreadService
 {
 	private final ApplicationEventPublisher eventPublisher;
 
-	public UriService(ApplicationEventPublisher eventPublisher)
+	public UnreadService(ApplicationEventPublisher eventPublisher)
 	{
 		this.eventPublisher = eventPublisher;
 	}
 
-	/**
-	 * Opens a URI to show within the application.
-	 *
-	 * @param uri the URI to open.
-	 */
-	@Override
-	public void openUri(Uri uri)
+	public void sendUnreadEvent(UnreadEvent.Element element, boolean unread)
 	{
-		eventPublisher.publishEvent(new OpenUriEvent(uri));
+		eventPublisher.publishEvent(new UnreadEvent(element, unread));
 	}
+
 }

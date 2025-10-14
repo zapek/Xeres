@@ -47,7 +47,7 @@
                 </columnResizePolicy>
                 <columns>
                     <TreeTableColumn fx:id="forumNameColumn" sortable="false"/>
-                    <TreeTableColumn fx:id="forumCountColumn" sortable="false" minWidth="35" prefWidth="35" maxWidth="40"/>
+                    <TreeTableColumn fx:id="forumCountColumn" sortable="false" minWidth="40" prefWidth="40" maxWidth="45"/>
                 </columns>
             </TreeTableView>
         </VBox>

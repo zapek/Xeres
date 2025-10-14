@@ -28,11 +28,11 @@ import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.util.OsUtils;
-import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.model.connection.Connection;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
@@ -280,16 +280,16 @@ public class ContactViewController implements Controller
 
 		setupMenuFilters();
 
-		contactImageView.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
-		contactImageView.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
-		contactImageSelectButton.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
-		contactImageSelectButton.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
-		contactImageDeleteButton.setOnMouseEntered(event -> setContactActionImagesOpacity(0.8));
-		contactImageDeleteButton.setOnMouseExited(event -> setContactActionImagesOpacity(0.0));
+		contactImageView.setOnMouseEntered(_ -> setContactActionImagesOpacity(0.8));
+		contactImageView.setOnMouseExited(_ -> setContactActionImagesOpacity(0.0));
+		contactImageSelectButton.setOnMouseEntered(_ -> setContactActionImagesOpacity(0.8));
+		contactImageSelectButton.setOnMouseExited(_ -> setContactActionImagesOpacity(0.0));
+		contactImageDeleteButton.setOnMouseEntered(_ -> setContactActionImagesOpacity(0.8));
+		contactImageDeleteButton.setOnMouseExited(_ -> setContactActionImagesOpacity(0.0));
 		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
-		contactImageDeleteButton.setOnAction(event -> UiUtils.alertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
+		contactImageDeleteButton.setOnAction(_ -> UiUtils.alertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
-		chatButton.setOnAction(event -> startChat(displayedContact.getValue()));
+		chatButton.setOnAction(_ -> startChat(displayedContact.getValue()));
 
 		setupOwnContact();
 
@@ -330,7 +330,7 @@ public class ContactViewController implements Controller
 				.subscribe();
 		displayOwnContactImage();
 
-		UiUtils.setOnPrimaryMouseClicked(ownContactGroup, event -> displayOwnContact());
+		UiUtils.setOnPrimaryMouseClicked(ownContactGroup, _ -> displayOwnContact());
 
 		createStateContextMenu();
 	}
@@ -354,11 +354,11 @@ public class ContactViewController implements Controller
 	private void setupContactSearch()
 	{
 		searchClear.setCursor(Cursor.HAND);
-		UiUtils.setOnPrimaryMouseClicked(searchClear, event -> searchTextField.clear());
+		UiUtils.setOnPrimaryMouseClicked(searchClear, _ -> searchTextField.clear());
 
 		TextInputControlUtils.addEnhancedInputContextMenu(searchTextField, null, null);
-		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> contactFilter.setNameFilter(newValue));
-		searchTextField.lengthProperty().addListener((observable, oldValue, newValue) -> {
+		searchTextField.textProperty().addListener((_, _, newValue) -> contactFilter.setNameFilter(newValue));
+		searchTextField.lengthProperty().addListener((_, _, newValue) -> {
 			if (newValue.intValue() > 0)
 			{
 				searchTextField.setRight(searchClear);
@@ -372,14 +372,14 @@ public class ContactViewController implements Controller
 
 	private void setupContactTreeTableView()
 	{
-		contactTreeTableNameColumn.setCellFactory(param -> new ContactCellName(generalClient, imageCacheService));
+		contactTreeTableNameColumn.setCellFactory(_ -> new ContactCellName(generalClient, imageCacheService));
 		contactTreeTableNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
 
-		contactTreeTablePresenceColumn.setCellFactory(param -> new AvailabilityTreeCellStatus<>());
+		contactTreeTablePresenceColumn.setCellFactory(_ -> new AvailabilityTreeCellStatus<>());
 		contactTreeTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue().availability()));
 
 		// Sort by connected first then name
-		contactTreeTableView.setSortPolicy(table -> true); // This is needed otherwise the default sorting will break everything
+		contactTreeTableView.setSortPolicy(_ -> true); // This is needed otherwise the default sorting will break everything
 		contactTreeTablePresenceColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
 		contactTreeTablePresenceColumn.setSortable(true);
 		contactTreeTableNameColumn.setSortType(TreeTableColumn.SortType.ASCENDING);
@@ -388,7 +388,7 @@ public class ContactViewController implements Controller
 		// Do not allow selection of multiple entries
 		contactTreeTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-		contactTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+		contactTreeTableView.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			if (contactListLocked)
 			{
 				return;
@@ -406,7 +406,7 @@ public class ContactViewController implements Controller
 		// Because of JDK-8248217 (and others), we have
 		// to save the selection before the sortedList (and then filteredList) are
 		// updated.
-		sortedList.addListener((InvalidationListener) c -> {
+		sortedList.addListener((InvalidationListener) _ -> {
 			//log.debug("Sorting invalidated, selected index: {}", contactTreeTableView.getSelectionModel().getSelectedIndex());
 			if (!sortedList.isEmpty()) // Empty lists don't get passed on to filtered list and would get locked forever
 			{
@@ -417,7 +417,7 @@ public class ContactViewController implements Controller
 
 		// Then we restore the selection after filteredList has been
 		// updated.
-		filteredList.addListener((ListChangeListener<? super TreeItem<Contact>>) c -> {
+		filteredList.addListener((ListChangeListener<? super TreeItem<Contact>>) _ -> {
 			//log.debug("FilteredList changed, actions: {}", c);
 
 			// We must call this otherwise the selection is lost
@@ -443,10 +443,10 @@ public class ContactViewController implements Controller
 
 	private void setupLocationTableView()
 	{
-		locationTableView.setRowFactory(param -> new LocationRow());
+		locationTableView.setRowFactory(_ -> new LocationRow());
 
 		locationTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-		locationTablePresenceColumn.setCellFactory(param -> new AvailabilityCellStatus<>());
+		locationTablePresenceColumn.setCellFactory(_ -> new AvailabilityCellStatus<>());
 		locationTablePresenceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(getLocationAvailability(param.getValue())));
 		locationTableIPColumn.setCellValueFactory(param -> {
 			var hostPort = getConnectedAddress(param.getValue());
@@ -475,7 +475,7 @@ public class ContactViewController implements Controller
 	private void setupMenuFilters()
 	{
 		var prefsNode = PreferenceUtils.getPreferences().node(CONTACTS);
-		showAllContacts.selectedProperty().addListener((observable, oldValue, newValue) -> {
+		showAllContacts.selectedProperty().addListener((_, _, newValue) -> {
 			contactFilter.setShowAllContacts(newValue);
 			prefsNode.putBoolean(SHOW_ALL_CONTACTS, newValue);
 		});
@@ -847,7 +847,7 @@ public class ContactViewController implements Controller
 		trust.getItems().addAll(Arrays.stream(Trust.values()).filter(t -> profile.isOwn() == (t == Trust.ULTIMATE)).toList());
 		trust.getSelectionModel().select(profile.getTrust());
 		trust.setDisable(profile.isOwn());
-		trust.setOnAction(event -> profileClient.setTrust(profile.getId(), trust.getSelectionModel().getSelectedItem()).subscribe());
+		trust.setOnAction(_ -> profileClient.setTrust(profile.getId(), trust.getSelectionModel().getSelectedItem()).subscribe());
 	}
 
 	private void clearTrust()
@@ -1089,7 +1089,7 @@ public class ContactViewController implements Controller
 						contactImageSelectButton.setVisible(true);
 					}
 				}))
-				.doOnError(throwable -> Platform.runLater(this::clearSelection))
+				.doOnError(_ -> Platform.runLater(this::clearSelection))
 				.subscribe();
 	}
 
@@ -1267,7 +1267,7 @@ public class ContactViewController implements Controller
 	{
 		var menuItem = new MenuItem(availability.toString());
 		menuItem.setGraphic(AvailabilityCellUtil.updateAvailability(null, availability));
-		menuItem.setOnAction(event -> configClient.changeAvailability(availability).subscribe());
+		menuItem.setOnAction(_ -> configClient.changeAvailability(availability).subscribe());
 		return menuItem;
 	}
 
@@ -1358,6 +1358,32 @@ public class ContactViewController implements Controller
 											contactTreeTableView.getSelectionModel().select(contact);
 											scrollToSelectedContact();
 										}, () -> UiUtils.alert(WARNING, bundle.getString("contact-view.open.identity-not-found")));
+							});
+						}
+					})
+					.subscribe();
+		}
+		else if (event.uri() instanceof ProfileUri profileUri)
+		{
+			profileClient.findByPgpIdentifier(profileUri.hash(), true).collectList()
+					.doOnSuccess(profiles -> {
+						if (!profiles.isEmpty())
+						{
+							Platform.runLater(() -> {
+								var profile = profiles.getFirst();
+								if (profile.getId() == OWN_IDENTITY_ID)
+								{
+									// This is our own profile.
+									displayOwnContact();
+								}
+
+								contactObservableList.stream()
+										.filter(contact -> contact.getValue().profileId() == profile.getId())
+										.findFirst()
+										.ifPresentOrElse(contact -> {
+											contactTreeTableView.getSelectionModel().select(contact);
+											scrollToSelectedContact();
+										}, () -> UiUtils.alert(WARNING, bundle.getString("contact-view.open.profile-not-found")));
 							});
 						}
 					})

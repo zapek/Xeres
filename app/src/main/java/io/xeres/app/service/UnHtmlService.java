@@ -80,10 +80,18 @@ public class UnHtmlService
 	private String convertToMarkdown(org.jsoup.nodes.Document jsoupDocument)
 	{
 		var commonMarkDocument = new org.commonmark.node.Document();
+		String render;
 
-		convertNodes(jsoupDocument.body().childNodes(), commonMarkDocument);
-
-		return markdownRenderer.render(commonMarkDocument);
+		try
+		{
+			convertNodes(jsoupDocument.body().childNodes(), commonMarkDocument);
+			render = markdownRenderer.render(commonMarkDocument);
+		}
+		catch (IllegalArgumentException e)
+		{
+			render = "## Invalid HTML document\n\n### Error\n\n" + e.getMessage() + "\n\n### Original message\n\n```html" + jsoupDocument.body().html() + "\n```\n";
+		}
+		return render;
 	}
 
 	private static void convertNodes(List<Node> jsoupNodes, org.commonmark.node.Node commonMarkParent)
@@ -204,7 +212,12 @@ public class UnHtmlService
 			{
 				// FencedCodeBlock doesn't handle children
 				codeBlock.setLiteral(textNode.text());
+				return;
 			}
+		}
+		if (codeBlock.getLiteral() == null)
+		{
+			codeBlock.setLiteral("");
 		}
 	}
 

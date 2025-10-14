@@ -32,15 +32,19 @@
 
 ## Releases
 
-Latest release [here](https://github.com/zapek/Xeres/releases/latest).
+[Latest release](https://github.com/zapek/Xeres/releases/latest)
 
-The mobile client for Android is [here](https://github.com/zapek/Xeres-Android/releases/latest).
+[Android mobile client](https://github.com/zapek/Xeres-Android/releases/latest)
 
-The docker image for headless installations is [here](https://hub.docker.com/r/zapek/xeres)
+[Docker image](https://hub.docker.com/r/zapek/xeres) (for headless installations)
 
 ## Quick try
 
 Install Xeres then connect to a [ChatServer](https://retroshare.ch).
+
+## Running from source
+
+[Install JDK 25](https://github.com/zapek/Xeres/wiki/Java) then type `.\gradlew bootRun`
 
 ## Getting Help
 

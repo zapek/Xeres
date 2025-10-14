@@ -30,7 +30,6 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
-import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.MainWindowController;
@@ -52,6 +51,7 @@ import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.controller.share.ShareWindowController;
 import io.xeres.ui.controller.statistics.StatisticsMainWindowController;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceUtils;
@@ -183,9 +183,9 @@ public class WindowManager
 			{
 				// Nothing to do. This is handled in SearchViewController
 			}
-			case IdentityUri _ ->
+			case IdentityUri _, ProfileUri _ ->
 			{
-				// Nothing to do. This is handled in ContactViewController
+				// Nothing to do. Those are handled in ContactViewController
 			}
 			default -> UiUtils.alert(WARNING, "The link for '" + event.uri().getClass().getSimpleName().replace("Uri", "") + "' is not supported yet.");
 		}

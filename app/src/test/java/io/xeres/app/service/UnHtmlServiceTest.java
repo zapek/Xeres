@@ -25,6 +25,7 @@ import org.mockito.InjectMocks;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 class UnHtmlServiceTest
@@ -170,5 +171,20 @@ class UnHtmlServiceTest
 				
 				*italic*, **bold**, ~strikethrough~, link [here](https://xeres.io "")
 				""", result);
+	}
+
+	@Test
+	void BrokenHtml()
+	{
+		// Parent of <pre> must be a block, like <pre>, but it's an inline tag. Seen in some RS generated posts.
+		var result = unHtmlService.cleanupMessage("""
+				<html>
+				 <body>
+				  <a><pre>foo</pre></a>
+				 </body>
+				</html>
+				"""
+		);
+		assertTrue(result.startsWith("## Invalid HTML document"));
 	}
 }

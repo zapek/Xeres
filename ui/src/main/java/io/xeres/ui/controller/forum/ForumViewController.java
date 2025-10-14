@@ -26,13 +26,14 @@ import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
-import io.xeres.ui.OpenUriEvent;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.event.OpenUriEvent;
+import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.forum.ForumGroup;
 import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.model.forum.ForumMessage;
@@ -42,6 +43,7 @@ import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.preference.PreferenceUtils;
+import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.UriService;
@@ -159,6 +161,7 @@ public class ForumViewController implements Controller
 	private final UriService uriService;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCacheService;
+	private final UnreadService unreadService;
 
 	private ForumGroup selectedForumGroup;
 	private ForumMessage selectedForumMessage;
@@ -174,7 +177,7 @@ public class ForumViewController implements Controller
 
 	private MessageId messageIdToSelect;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -190,6 +193,7 @@ public class ForumViewController implements Controller
 		this.uriService = uriService;
 		this.generalClient = generalClient;
 		this.imageCacheService = imageCacheService;
+		this.unreadService = unreadService;
 	}
 
 	@Override
@@ -485,7 +489,7 @@ public class ForumViewController implements Controller
 		forumGroups.forEach(forumGroup -> forumClient.getForumUnreadCount(forumGroup.getId())
 				.doOnSuccess(unreadCount -> Platform.runLater(() -> getSubscribedTreeItemByGxsId(forumGroup.getGxsId())
 						.ifPresent(forumGroupTreeItem -> forumGroupTreeItem.getValue().setUnreadCount(unreadCount))))
-				.doFinally(_ -> Platform.runLater(() -> forumTree.refresh()))
+				.doFinally(_ -> Platform.runLater(this::refreshForumTree))
 				.subscribe());
 	}
 
@@ -685,7 +689,7 @@ public class ForumViewController implements Controller
 				selectedForumMessage.setRead(message.getValue());
 				selectedForumGroup.subtractUnreadCount(1);
 				forumMessagesTreeTableView.refresh();
-				forumTree.refresh();
+				refreshForumTree();
 				return;
 			}
 		}
@@ -705,7 +709,36 @@ public class ForumViewController implements Controller
 	private void addUnreadCount(TreeItem<ForumGroup> forumGroupTreeItem, int unreadCount)
 	{
 		forumGroupTreeItem.getValue().addUnreadCount(unreadCount);
+		refreshForumTree();
+	}
+
+	private void refreshForumTree()
+	{
+		boolean hasUnreadMessages = hasUnreadMessages();
 		forumTree.refresh();
+		unreadService.sendUnreadEvent(UnreadEvent.Element.FORUM, hasUnreadMessages);
+	}
+
+	private boolean hasUnreadMessages()
+	{
+		return hasUnreadMessagesRecursive(forumTree.getRoot());
+	}
+
+	private static boolean hasUnreadMessagesRecursive(TreeItem<ForumGroup> item)
+	{
+		ForumGroup group = item.getValue();
+		if (group != null && group.hasNewMessages())
+		{
+			return true;
+		}
+		for (TreeItem<ForumGroup> child : item.getChildren())
+		{
+			if (hasUnreadMessagesRecursive(child))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@EventListener

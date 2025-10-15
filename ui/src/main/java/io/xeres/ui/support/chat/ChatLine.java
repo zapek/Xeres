@@ -22,6 +22,7 @@ package io.xeres.ui.support.chat;
 import io.xeres.common.id.GxsId;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
+import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,5 +101,10 @@ public class ChatLine
 	public boolean isRich()
 	{
 		return contents.size() > 1 || (contents.size() == 1 && !(contents.getFirst() instanceof ContentText));
+	}
+
+	public boolean isQuote()
+	{
+		return !contents.isEmpty() && contents.getFirst() instanceof ContentText text && ((Text) text.getNode()).getText().startsWith("> ");
 	}
 }

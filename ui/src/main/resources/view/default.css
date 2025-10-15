@@ -48,6 +48,11 @@
     -fx-fill: -color-fg-subtle;
 }
 
+/*noinspection CssInvalidPseudoSelector,CssUnusedSymbol*/
+.chat-list .list-cell:quoted > Text {
+    -fx-fill: -color-accent-fg;
+}
+
 .chat-list .list-cell .time {
     -fx-padding: 0px 0.25em 0px 0px;
     -fx-text-fill: -color-fg-muted;

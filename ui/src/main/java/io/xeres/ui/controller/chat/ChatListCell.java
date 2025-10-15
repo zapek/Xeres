@@ -27,8 +27,6 @@ import javafx.scene.control.Label;
 import javafx.scene.shape.Path;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -36,9 +34,8 @@ import static io.xeres.ui.support.util.DateUtils.TIME_DISPLAY;
 
 class ChatListCell implements Cell<ChatLine, TextFlow>
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatListCell.class);
-
 	private static final PseudoClass passivePseudoClass = PseudoClass.getPseudoClass("passive");
+	private static final PseudoClass quotedPseudoClass = PseudoClass.getPseudoClass("quoted");
 
 	private static final List<String> allColors = ColorGenerator.getAllColors();
 
@@ -107,6 +104,7 @@ class ChatListCell implements Cell<ChatLine, TextFlow>
 				.toList();
 
 		content.pseudoClassStateChanged(passivePseudoClass, !line.isActiveAction());
+		content.pseudoClassStateChanged(quotedPseudoClass, line.isQuote());
 
 		content.getChildren().addAll(nodes);
 	}

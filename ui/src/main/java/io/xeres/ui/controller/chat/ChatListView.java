@@ -121,6 +121,9 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		userListView = createUserListView();
 
 		contextMenu = new ChatListViewContextMenu();
+
+		// Make sure we stick to the bottom even when we resize the chatview (user typing multiple lines, other user offline, ...)
+		anchorPane.heightProperty().addListener((_, _, _) -> jumpToBottom(false));
 	}
 
 	public void installClearHistoryContextMenu(Runnable action)
@@ -396,10 +399,15 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		addMessageLine(chatLine);
 	}
 
+	/**
+	 * Jumps to the bottom of the chat listview.
+	 *
+	 * @param force always jumps, otherwise it will only jump if it was already at the bottom at the last layout
+	 */
 	public void jumpToBottom(boolean force)
 	{
 		var lastIndex = messages.size() - 1;
-		if (force || chatView.getContent().getLastVisibleIndex() == lastIndex - 1) // XXX: why -1?!
+		if (force || chatView.getContent().getLastVisibleIndex() == lastIndex)
 		{
 			chatView.getContent().showAsFirst(lastIndex);
 		}

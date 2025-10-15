@@ -1,8 +1,8 @@
-${AnsiColor.RED}__   __${AnsiColor.DEFAULT}
-${AnsiColor.RED}\ \ / /${AnsiColor.DEFAULT}
-${AnsiColor.RED} \ V /${AnsiColor.DEFAULT}  ___ _ __ ___  ___
-${AnsiColor.RED} /   \ ${AnsiColor.DEFAULT}/ _ \ '__/ _ \/ __|
-${AnsiColor.RED}/ /^\ \ ${AnsiColor.DEFAULT} __/ | |  __/\__ \
-${AnsiColor.RED}\/   \/${AnsiColor.DEFAULT}\___|_|  \___||___/
+${AnsiColor.GREEN}__   __${AnsiColor.DEFAULT}
+${AnsiColor.GREEN}\ \ / /${AnsiColor.DEFAULT}
+${AnsiColor.GREEN} \ V /${AnsiColor.DEFAULT}  ___ _ __ ___  ___
+${AnsiColor.GREEN} /   \ ${AnsiColor.DEFAULT}/ _ \ '__/ _ \/ __|
+${AnsiColor.GREEN}/ /^\ \ ${AnsiColor.DEFAULT} __/ | |  __/\__ \
+${AnsiColor.GREEN}\/   \/${AnsiColor.DEFAULT}\___|_|  \___||___/
 :: ${AnsiColor.YELLOW}Uncensorable Friend-to-Friend${AnsiColor.DEFAULT} ::
 :: https://xeres.io ::

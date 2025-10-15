@@ -32,7 +32,7 @@ buildscript {
         jsonPatchVersion = "1.13"
         jsoupVersion = "1.21.2"
         junitVersion = "6.0.0"
-        sonarqubeVersion = "6.3.1.5724"
+        sonarqubeVersion = "7.0.0.6105"
         springBootVersion = "3.5.6"
         springOpenApiVersion = "2.8.13"
         zxingVersion = "3.5.3"

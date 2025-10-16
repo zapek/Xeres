@@ -406,10 +406,9 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	 */
 	public void jumpToBottom(boolean force)
 	{
-		var lastIndex = messages.size() - 1;
-		if (force || chatView.getContent().getLastVisibleIndex() == lastIndex)
+		if (force || messages.size() - chatView.getContent().getLastVisibleIndex() <= 2)
 		{
-			chatView.getContent().showAsFirst(lastIndex);
+			chatView.getContent().showAsFirst(messages.size());
 		}
 	}
 

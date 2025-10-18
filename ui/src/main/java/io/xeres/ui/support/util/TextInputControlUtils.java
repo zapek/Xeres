@@ -36,12 +36,26 @@ import org.kordamp.ikonli.materialdesign2.*;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 
 public final class TextInputControlUtils
 {
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
+
+	private static final Pattern CODE_PATTERN = Pattern.compile(
+			"(?mi)\\b(class|interface|enum|package|import|public|private|protected|static|final|synchronized|volatile|abstract|def|function|var|let|const|using|namespace)\\b"
+					+ "|\\b(if|for|while|switch|case|return)\\b"
+					+ "|\\w+\\s*\\([^)]*\\)\\s*\\{"
+					+ "|=>|->|#include\\s*<|System\\.out\\.println|console\\.log\\(|printf\\(|std::",
+			Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern SQL_PATTERN = Pattern.compile(
+			"\\b(SELECT\\s+.+?FROM|INSERT\\s+INTO|UPDATE\\s+\\w+\\s+SET|DELETE\\s+FROM|CREATE\\s+TABLE|ALTER\\s+TABLE|DROP\\s+TABLE|WHERE\\s+[^=]++=)\\b",
+			Pattern.CASE_INSENSITIVE | Pattern.DOTALL
+	);
+
 
 	private TextInputControlUtils()
 	{
@@ -54,7 +68,7 @@ public final class TextInputControlUtils
 	 *
 	 * @param textInputControl the text input control
 	 * @param locationClient   the location client, if null, then there will be no "Paste own ID" menu item
-	 * @param pasteAction the action on paste, if null, there will be no action performed
+	 * @param pasteAction      the action on paste, if null, there will be no action performed
 	 */
 	public static void addEnhancedInputContextMenu(TextInputControl textInputControl, LocationClient locationClient, Consumer<TextInputControl> pasteAction)
 	{
@@ -65,10 +79,26 @@ public final class TextInputControlUtils
 		{
 			var pasteId = new MenuItem(bundle.getString("paste-id"));
 			pasteId.setGraphic(new FontIcon(MaterialDesignC.CARD_ACCOUNT_DETAILS));
-			pasteId.setOnAction(event -> appendOwnId(textInputControl, locationClient));
+			pasteId.setOnAction(_ -> appendOwnId(textInputControl, locationClient));
 			contextMenu.getItems().addAll(new SeparatorMenuItem(), pasteId);
 		}
 		textInputControl.setContextMenu(contextMenu);
+	}
+
+	public static void pasteGuessedContent(TextInputControl textInputControl, String content)
+	{
+		if (textInputControl.getText().isBlank())
+		{
+			if (isSourceCode(content))
+			{
+				content = "```\n" + content + "\n```";
+			}
+			else if (isCitation(content))
+			{
+				content = "> " + content;
+			}
+		}
+		textInputControl.insertText(textInputControl.getCaretPosition(), content);
 	}
 
 	private static void appendOwnId(TextInputControl textInputControl, LocationClient locationClient)
@@ -87,23 +117,23 @@ public final class TextInputControlUtils
 	{
 		var undo = new MenuItem(bundle.getString("undo"));
 		undo.setGraphic(new FontIcon(MaterialDesignU.UNDO_VARIANT));
-		undo.setOnAction(event -> textInputControl.undo());
+		undo.setOnAction(_ -> textInputControl.undo());
 
 		var redo = new MenuItem(bundle.getString("redo"));
 		redo.setGraphic(new FontIcon(MaterialDesignR.REDO_VARIANT));
-		redo.setOnAction(event -> textInputControl.redo());
+		redo.setOnAction(_ -> textInputControl.redo());
 
 		var cut = new MenuItem(bundle.getString("cut"));
 		cut.setGraphic(new FontIcon(MaterialDesignC.CONTENT_CUT));
-		cut.setOnAction(event -> textInputControl.cut());
+		cut.setOnAction(_ -> textInputControl.cut());
 
 		var copy = new MenuItem(bundle.getString("copy"));
 		copy.setGraphic(new FontIcon(MaterialDesignC.CONTENT_COPY));
-		copy.setOnAction(event -> textInputControl.copy());
+		copy.setOnAction(_ -> textInputControl.copy());
 
 		var paste = new MenuItem(bundle.getString("paste"));
 		paste.setGraphic(new FontIcon(MaterialDesignC.CONTENT_PASTE));
-		paste.setOnAction(event -> {
+		paste.setOnAction(_ -> {
 			if (pasteAction != null)
 			{
 				pasteAction.accept(textInputControl);
@@ -116,11 +146,11 @@ public final class TextInputControlUtils
 
 		var delete = new MenuItem(bundle.getString("delete"));
 		delete.setGraphic(new FontIcon(MaterialDesignT.TRASH_CAN));
-		delete.setOnAction(event -> textInputControl.deleteText(textInputControl.getSelection()));
+		delete.setOnAction(_ -> textInputControl.deleteText(textInputControl.getSelection()));
 
 		var selectAll = new MenuItem(bundle.getString("select-all"));
 		selectAll.setGraphic(new FontIcon(MaterialDesignS.SELECT_ALL));
-		selectAll.setOnAction(event -> textInputControl.selectAll());
+		selectAll.setOnAction(_ -> textInputControl.selectAll());
 
 		var emptySelection = Bindings.createBooleanBinding(() -> textInputControl.getSelection().getLength() == 0, textInputControl.selectionProperty());
 
@@ -139,5 +169,66 @@ public final class TextInputControlUtils
 		redo.disableProperty().bind(canRedo);
 
 		return List.of(undo, redo, cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
+	}
+
+	// Visible for testing
+	static boolean isSourceCode(String text)
+	{
+		String trimmed = text.trim();
+
+		// Fenced code block (Markdown), but not if it's at the start
+		if (trimmed.contains("```"))
+		{
+			return !trimmed.startsWith("```");
+		}
+
+		// Multi-line indented block (typical pasted code)
+		String[] lines = trimmed.split("\\R");
+		var indentedLines = 0;
+		for (String line : lines)
+		{
+			if (line.startsWith("    ") || line.startsWith("\t"))
+			{
+				indentedLines++;
+			}
+		}
+		if (indentedLines >= 2)
+		{
+			return true;
+		}
+
+		// Common language keywords, function/method signatures and includes/prints
+		if (CODE_PATTERN.matcher(trimmed).find())
+		{
+			return true;
+		}
+
+		if (SQL_PATTERN.matcher(trimmed).find())
+		{
+			return true;
+		}
+
+		// Semicolon frequency (common in C/Java/JS) and presence of multiple lines
+		long semicolons = trimmed.chars().filter(c -> c == ';').count();
+		if (semicolons >= 2 && trimmed.contains("\n"))
+		{
+			return true;
+		}
+
+		// Symbol density heuristic (braces, parentheses, angle brackets, equals, hashes, etc.)
+		var symbols = ";{}()[]<>#=\\*%+-|";
+		long specialCount = trimmed.chars().filter(c -> symbols.indexOf(c) >= 0).count();
+		double density = (double) specialCount / Math.max(1, trimmed.length());
+		if (density > 0.03 && trimmed.contains("\n"))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// Visible for testing
+	static boolean isCitation(String text)
+	{
+		return text.trim().length() >= 30;
 	}
 }

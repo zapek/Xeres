@@ -47,6 +47,7 @@ import io.xeres.ui.support.uri.FileUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.image.ImageUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -539,7 +540,7 @@ public class MessagingWindowController implements WindowController
 			}
 			case String string ->
 			{
-				textInputControl.insertText(textInputControl.getCaretPosition(), string);
+				TextInputControlUtils.pasteGuessedContent(textInputControl, string);
 				yield true;
 			}
 			default -> false;

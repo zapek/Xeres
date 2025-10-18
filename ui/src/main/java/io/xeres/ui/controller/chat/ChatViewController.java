@@ -46,6 +46,7 @@ import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.image.ImageUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -833,7 +834,7 @@ public class ChatViewController implements Controller
 			}
 			case String string ->
 			{
-				textInputControl.insertText(textInputControl.getCaretPosition(), string);
+				TextInputControlUtils.pasteGuessedContent(textInputControl, string);
 				yield true;
 			}
 			default -> false;

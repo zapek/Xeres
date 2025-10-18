@@ -180,8 +180,11 @@ jobs:
           VERSION_PART=$(echo "$FILENAME" | cut -d'_' -f2)     # x.y.z
           ARCH_PART=$(echo "$FILENAME" | cut -d'_' -f3-)       # amd64
           
+          # Make sure we don't include the '-arm' ending as it's redundant
+          UBUNTU_VERSION=$(echo "${{ matrix.ubuntu-version }}" | sed 's/-arm$//')
+          
           # Create new filename
-          NEW_FILENAME="${NAME_PART}_${VERSION_PART}_${{ matrix.ubuntu-version }}_${ARCH_PART}.deb"
+          NEW_FILENAME="${NAME_PART}_${VERSION_PART}_${UBUNTU_VERSION}_${ARCH_PART}.deb"
           
           # Rename the file         
           mv "./app/build/distributions/${FILENAME}.deb" "./app/build/distributions/${NEW_FILENAME}"

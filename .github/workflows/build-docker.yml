@@ -1,0 +1,51 @@
+# Docker image builder
+#
+# Is run manually for now
+
+name: build-docker.yml
+
+on:
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '25'
+  JAVA_DISTRIBUTION: 'graalvm'
+
+jobs:
+  build-docker-release:
+    name: Build ${{ matrix.ubuntu-version }} release
+    runs-on: ${{ matrix.ubuntu-version }}
+    strategy:
+      matrix:
+        ubuntu-version: [ ubuntu-24.04, ubuntu-24.04-arm ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Setup JDK
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build Docker image
+        run: ./gradlew bootBuildImage
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/xeres:latest

@@ -18,6 +18,10 @@ on:
     tags:
       - "v*"
 
+env:
+  JAVA_VERSION: '25'
+  JAVA_DISTRIBUTION: 'graalvm'
+
 jobs:
   build-windows-installer-msi:
     name: Build windows installer
@@ -31,11 +35,11 @@ jobs:
       - name: Validate Gradle
         uses: gradle/actions/wrapper-validation@v5
 
-      - name: Setup JDK 25
+      - name: Setup JDK
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '25'
-          distribution: 'graalvm'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Gradle
@@ -70,11 +74,11 @@ jobs:
       - name: Validate Gradle
         uses: gradle/actions/wrapper-validation@v5
 
-      - name: Setup JDK 25
+      - name: Setup JDK
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '25'
-          distribution: 'graalvm'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Gradle
@@ -105,11 +109,11 @@ jobs:
       - name: Validate Gradle
         uses: gradle/actions/wrapper-validation@v5
 
-      - name: Setup JDK 25
+      - name: Setup JDK
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '25'
-          distribution: 'graalvm'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Gradle
@@ -156,11 +160,11 @@ jobs:
       - name: Validate Gradle
         uses: gradle/actions/wrapper-validation@v5
 
-      - name: Setup JDK 25
+      - name: Setup JDK
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '25'
-          distribution: 'graalvm'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Gradle

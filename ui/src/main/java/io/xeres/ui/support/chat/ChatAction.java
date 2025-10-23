@@ -56,8 +56,8 @@ public class ChatAction
 	{
 		return switch (type)
 				{
-					case JOIN -> "-->";
-					case LEAVE, TIMEOUT -> "<--";
+					case JOIN -> "–>";
+					case LEAVE, TIMEOUT -> "<–";
 					case SAY, SAY_OWN -> "<" + nickname + ">";
 					case ACTION -> "*";
 				};

@@ -22,16 +22,41 @@
 
 <?import atlantafx.base.controls.Spacer?>
 <?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
-<VBox alignment="CENTER" minHeight="160.0" minWidth="200.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.voip.VoipWindowController" styleClass="base-spacing">
+<?import org.kordamp.ikonli.javafx.*?>
+<VBox alignment="CENTER" minHeight="160.0" minWidth="220.0" prefHeight="360.0" prefWidth="560.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.voip.VoipWindowController" styleClass="base-spacing">
     <StackPane VBox.vgrow="ALWAYS">
         <VBox alignment="CENTER">
             <AsyncImageView fx:id="imageView" fitWidth="128" fitHeight="128"/>
-            <Label fx:id="nameLabel" styleClass="title-1"/>
+            <Label fx:id="nameLabel" styleClass="title-1">
+                <padding>
+                    <Insets top="4.0"/>
+                </padding>
+            </Label>
             <Label fx:id="statusLabel" styleClass="title-4"/>
             <Label fx:id="timerLabel" visible="false"/>
+            <HBox alignment="CENTER" spacing="12.0">
+                <padding>
+                    <Insets bottom="8.0" top="12.0"/>
+                </padding>
+                <Button fx:id="messageButton" text="Message" managed="false" visible="false" styleClass="rounded">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2m-message"/>
+                    </graphic>
+                </Button>
+                <Button fx:id="recallButton" text="Call again" managed="false" visible="false" styleClass="rounded, success">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-phone"/>
+                    </graphic>
+                </Button>
+                <Button fx:id="closeButton" text="Close" managed="false" visible="false" styleClass="rounded">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2c-close"/>
+                    </graphic>
+                </Button>
+            </HBox>
         </VBox>
     </StackPane>
     <HBox>

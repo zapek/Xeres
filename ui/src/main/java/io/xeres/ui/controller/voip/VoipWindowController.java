@@ -30,6 +30,7 @@ import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.support.contact.ContactUtils;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
@@ -71,6 +72,15 @@ public class VoipWindowController implements WindowController
 	private Label timerLabel;
 
 	@FXML
+	private Button messageButton;
+
+	@FXML
+	private Button recallButton;
+
+	@FXML
+	private Button closeButton;
+
+	@FXML
 	private Button answerButton;
 
 	@FXML
@@ -79,16 +89,18 @@ public class VoipWindowController implements WindowController
 	private final MessageClient messageClient;
 	private final GeneralClient generalClient;
 	private final ProfileClient profileClient;
+	private final WindowManager windowManager;
 
 	private LocationIdentifier destinationIdentifier;
 	private Status status;
 	private final TimeCounter timeCounter;
 
-	public VoipWindowController(MessageClient messageClient, GeneralClient generalClient, ProfileClient profileClient)
+	public VoipWindowController(MessageClient messageClient, GeneralClient generalClient, ProfileClient profileClient, WindowManager windowManager)
 	{
 		this.messageClient = messageClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
+		this.windowManager = windowManager;
 
 		timeCounter = new TimeCounter(duration -> timerLabel.setText(DateUtils.TIME_DISPLAY_WITH_SECONDS.format(LocalTime.ofSecondOfDay(duration.getSeconds() % (24 * 3600)))));
 	}
@@ -108,6 +120,13 @@ public class VoipWindowController implements WindowController
 			status = Status.ENDED;
 			updateState();
 		});
+		messageButton.setOnAction(_ -> windowManager.openMessaging(destinationIdentifier));
+		recallButton.setOnAction(_ -> {
+			messageClient.sendToDestination(destinationIdentifier, new VoipMessage(VoipAction.RING));
+			status = Status.OUTGOING_CALL;
+			updateState();
+		});
+		closeButton.setOnAction(_ -> UiUtils.getWindow(nameLabel).hide());
 	}
 
 	@Override
@@ -175,6 +194,11 @@ public class VoipWindowController implements WindowController
 				rejectButton.setDisable(false);
 				rejectButton.setText("Reject");
 				timerLabel.setVisible(false);
+				UiUtils.setAbsent(messageButton);
+				UiUtils.setAbsent(recallButton);
+				UiUtils.setAbsent(closeButton);
+				UiUtils.setPresent(answerButton);
+				UiUtils.setPresent(rejectButton);
 			}
 			case OUTGOING_CALL ->
 			{
@@ -184,10 +208,15 @@ public class VoipWindowController implements WindowController
 				rejectButton.setDisable(false);
 				rejectButton.setText("Cancel");
 				timerLabel.setVisible(false);
+				UiUtils.setAbsent(messageButton);
+				UiUtils.setAbsent(recallButton);
+				UiUtils.setAbsent(closeButton);
+				UiUtils.setPresent(answerButton);
+				UiUtils.setPresent(rejectButton);
 			}
 			case IN_CALL ->
 			{
-				statusLabel.setText("In Call...");
+				statusLabel.setText("In call");
 				timeCounter.start();
 				answerButton.setVisible(false);
 				rejectButton.setVisible(true);
@@ -201,6 +230,11 @@ public class VoipWindowController implements WindowController
 				timeCounter.stop();
 				answerButton.setVisible(false);
 				rejectButton.setVisible(false);
+				UiUtils.setPresent(messageButton);
+				UiUtils.setPresent(recallButton);
+				UiUtils.setPresent(closeButton);
+				UiUtils.setAbsent(answerButton);
+				UiUtils.setAbsent(rejectButton);
 			}
 		}
 	}
@@ -212,7 +246,7 @@ public class VoipWindowController implements WindowController
 		var scene = imageView.getScene();
 
 		BooleanBinding showImage = scene.widthProperty().greaterThan(300)
-				.and(scene.heightProperty().greaterThan(250));
+				.and(scene.heightProperty().greaterThan(280));
 
 		imageView.managedProperty().bind(showImage);
 		imageView.visibleProperty().bind(showImage);

@@ -24,6 +24,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.message.voip.VoipMessage;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.util.RemoteUtils;
 import jakarta.websocket.ContainerProvider;
@@ -155,11 +156,30 @@ public class MessageClient
 		}
 	}
 
+	public void sendToDestination(Identifier identifier, VoipMessage message)
+	{
+		Objects.requireNonNull(stompSession);
+
+		switch (identifier)
+		{
+			case LocationIdentifier locationIdentifier -> sendToLocation(locationIdentifier, message);
+			default -> throw new IllegalStateException("Unexpected value: " + identifier);
+		}
+	}
+
 	private void sendToLocation(LocationIdentifier locationIdentifier, ChatMessage message)
 	{
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, message.isEmpty() ? CHAT_TYPING_NOTIFICATION.name() : CHAT_PRIVATE_MESSAGE.name());
+		headers.set(DESTINATION_ID, locationIdentifier.toString());
+		stompSession.send(headers, message);
+	}
+
+	private void sendToLocation(LocationIdentifier locationIdentifier, VoipMessage message)
+	{
+		var headers = new StompHeaders();
+		headers.setDestination(APP_PREFIX + VOIP_ROOT + VOIP_PRIVATE_DESTINATION);
 		headers.set(DESTINATION_ID, locationIdentifier.toString());
 		stompSession.send(headers, message);
 	}

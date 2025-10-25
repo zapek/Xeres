@@ -50,7 +50,7 @@ public abstract class Item implements Cloneable
 	protected ByteBuf buf;
 	private ByteBuf backupBuf;
 
-	public abstract int getServiceType();
+	public abstract int getServiceType(); // returns an int so that it's easier to externalize plugins later on
 
 	public abstract int getSubType();
 
@@ -122,7 +122,7 @@ public abstract class Item implements Cloneable
 		return rawItem;
 	}
 
-	public int getPriority()
+	public int getPriority() // returns an int so that it's easier to externalize plugins later on
 	{
 		return ItemPriority.DEFAULT.getPriority();
 	}

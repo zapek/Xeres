@@ -64,6 +64,11 @@
             "name" : "xrs.service.bandwidth.enabled",
             "type" : "java.lang.Boolean",
             "description" : "Enable the bandwidth control service, used to advertise our bandwidth."
+        },
+        {
+            "name" : "xrs.service.voip.enabled",
+            "type" : "java.lang.Boolean",
+            "description" : "Enable the VoIP service, used to voice chat with direct peers."
         }
     ]
 }

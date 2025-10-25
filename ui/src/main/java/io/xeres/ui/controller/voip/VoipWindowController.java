@@ -42,6 +42,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalTime;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 @Component
 @FxmlView(value = "/view/voip/voip.fxml")
@@ -90,17 +91,19 @@ public class VoipWindowController implements WindowController
 	private final GeneralClient generalClient;
 	private final ProfileClient profileClient;
 	private final WindowManager windowManager;
+	private final ResourceBundle bundle;
 
 	private LocationIdentifier destinationIdentifier;
 	private Status status;
 	private final TimeCounter timeCounter;
 
-	public VoipWindowController(MessageClient messageClient, GeneralClient generalClient, ProfileClient profileClient, WindowManager windowManager)
+	public VoipWindowController(MessageClient messageClient, GeneralClient generalClient, ProfileClient profileClient, WindowManager windowManager, ResourceBundle bundle)
 	{
 		this.messageClient = messageClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
 		this.windowManager = windowManager;
+		this.bundle = bundle;
 
 		timeCounter = new TimeCounter(duration -> timerLabel.setText(DateUtils.TIME_DISPLAY_WITH_SECONDS.format(LocalTime.ofSecondOfDay(duration.getSeconds() % (24 * 3600)))));
 	}
@@ -160,7 +163,7 @@ public class VoipWindowController implements WindowController
 		UiUtils.getWindow(nameLabel).setOnCloseRequest(event -> {
 			if (status != Status.ENDED)
 			{
-				UiUtils.alertConfirm("Are you sure you want to abort the call?", () -> {
+				UiUtils.alertConfirm(bundle.getString("voip.action.window-quit"), () -> {
 					messageClient.sendToDestination(destinationIdentifier, new VoipMessage(VoipAction.CLOSE));
 					UiUtils.getWindow(nameLabel).hide();
 				});
@@ -187,12 +190,8 @@ public class VoipWindowController implements WindowController
 		{
 			case INCOMING_CALL ->
 			{
-				statusLabel.setText("Incoming call...");
-				answerButton.setVisible(true);
-				answerButton.setDisable(false);
-				rejectButton.setVisible(true);
-				rejectButton.setDisable(false);
-				rejectButton.setText("Reject");
+				statusLabel.setText(bundle.getString("voip.status.incoming"));
+				rejectButton.setText(bundle.getString("voip.action.reject"));
 				timerLabel.setVisible(false);
 				UiUtils.setAbsent(messageButton);
 				UiUtils.setAbsent(recallButton);
@@ -202,34 +201,27 @@ public class VoipWindowController implements WindowController
 			}
 			case OUTGOING_CALL ->
 			{
-				statusLabel.setText("Calling...");
-				answerButton.setVisible(false);
-				rejectButton.setVisible(true);
-				rejectButton.setDisable(false);
-				rejectButton.setText("Cancel");
+				statusLabel.setText(bundle.getString("voip.status.calling"));
 				timerLabel.setVisible(false);
 				UiUtils.setAbsent(messageButton);
 				UiUtils.setAbsent(recallButton);
 				UiUtils.setAbsent(closeButton);
-				UiUtils.setPresent(answerButton);
+				UiUtils.setAbsent(answerButton);
 				UiUtils.setPresent(rejectButton);
 			}
 			case IN_CALL ->
 			{
-				statusLabel.setText("In call");
+				statusLabel.setText(bundle.getString("voip.status.ongoing"));
 				timeCounter.start();
-				answerButton.setVisible(false);
-				rejectButton.setVisible(true);
-				rejectButton.setDisable(false);
-				rejectButton.setText("Hang up");
+				rejectButton.setText(bundle.getString("voip.action.hangup"));
 				timerLabel.setVisible(true);
+				UiUtils.setAbsent(answerButton);
+				UiUtils.setPresent(rejectButton);
 			}
 			case ENDED ->
 			{
-				statusLabel.setText("Call ended");
+				statusLabel.setText(bundle.getString("voip.status.ended"));
 				timeCounter.stop();
-				answerButton.setVisible(false);
-				rejectButton.setVisible(false);
 				UiUtils.setPresent(messageButton);
 				UiUtils.setPresent(recallButton);
 				UiUtils.setPresent(closeButton);

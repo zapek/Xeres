@@ -315,16 +315,14 @@ public class WindowManager
 		);
 	}
 
-	// XXX: if voipMessage is null, then it's ourself that are opening it (ringing someone...)
 	public void doVoip(String identifier, VoipMessage voipMessage)
 	{
-		// XXX: implement... only one window.. it can be reused, the logic is mostly in the service, though
 		Platform.runLater(() -> getOpenedWindow(VoipWindowController.class).ifPresentOrElse(window -> {
 					window.requestFocus();
 					((VoipWindowController) window.getUserData()).doAction(identifier, voipMessage);
 				},
 				() -> UiWindow.builder(VoipWindowController.class)
-						.setTitle("VoIP") // XXX: localize
+						.setTitle(bundle.getString("voip.window-title"))
 						.setUserData(new VoipWindowController.Parameters(identifier, voipMessage))
 						.build()
 						.open()));

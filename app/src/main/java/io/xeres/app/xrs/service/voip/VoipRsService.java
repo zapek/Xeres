@@ -144,6 +144,7 @@ public class VoipRsService extends RsService
 
 	private void handleProtocolItem(PeerConnection sender, VoipProtocolItem item)
 	{
+		log.debug("Got protocol item {}, status: {}", item, status);
 		switch (item.getProtocol())
 		{
 			case RING ->
@@ -173,7 +174,7 @@ public class VoipRsService extends RsService
 			}
 			case CLOSE ->
 			{
-				if (sender.getLocation().getLocationIdentifier().equals(remoteLocationIdentifier) && (status == Status.ONGOING || status == Status.CALLED))
+				if (sender.getLocation().getLocationIdentifier().equals(remoteLocationIdentifier) && (status == Status.ONGOING || status == Status.CALLED || status == Status.CALLING))
 				{
 					log.debug("Call closed by {}", sender);
 					remoteLocationIdentifier = null;

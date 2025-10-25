@@ -41,32 +41,41 @@
                 <padding>
                     <Insets bottom="8.0" top="12.0"/>
                 </padding>
-                <Button fx:id="messageButton" text="Message" managed="false" visible="false" styleClass="rounded">
+                <Button fx:id="messageButton" text="%voip.action.message" managed="false" visible="false" styleClass="rounded">
                     <graphic>
                         <FontIcon iconLiteral="mdi2m-message"/>
                     </graphic>
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%voip.action.message.tip"/>
+                    </tooltip>
                 </Button>
-                <Button fx:id="recallButton" text="Call again" managed="false" visible="false" styleClass="rounded, success">
+                <Button fx:id="recallButton" text="%voip.action.recall" managed="false" visible="false" styleClass="rounded, success">
                     <graphic>
                         <FontIcon iconLiteral="mdi2p-phone"/>
                     </graphic>
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%voip.action.recall.tip"/>
+                    </tooltip>
                 </Button>
-                <Button fx:id="closeButton" text="Close" managed="false" visible="false" styleClass="rounded">
+                <Button fx:id="closeButton" text="%close" managed="false" visible="false" styleClass="rounded">
                     <graphic>
                         <FontIcon iconLiteral="mdi2c-close"/>
                     </graphic>
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%voip.action.close.tip"/>
+                    </tooltip>
                 </Button>
             </HBox>
         </VBox>
     </StackPane>
     <HBox>
-        <Button fx:id="answerButton" text="Answer" styleClass="success" visible="false">
+        <Button fx:id="answerButton" text="%voip.action.answer" styleClass="success" visible="false">
             <graphic>
                 <FontIcon iconLiteral="mdi2p-phone"/>
             </graphic>
         </Button>
         <Spacer HBox.hgrow="ALWAYS"/>
-        <Button fx:id="rejectButton" text="Reject" styleClass="danger" visible="false">
+        <Button fx:id="rejectButton" text="%voip.action.reject" styleClass="danger" visible="false">
             <graphic>
                 <FontIcon iconLiteral="mdi2p-phone-hangup"/>
             </graphic>

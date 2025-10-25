@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,24 +20,16 @@
 package io.xeres.ui.controller.contact;
 
 import io.xeres.common.rest.contact.Contact;
-import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.support.contact.ContactUtils;
 import javafx.scene.control.TreeTableCell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
-import static io.xeres.common.dto.profile.ProfileConstants.NO_PROFILE_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
-import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
-import static io.xeres.common.rest.PathConfig.PROFILES_PATH;
 
 class ContactCellName extends TreeTableCell<Contact, Contact>
 {
-	private static final Logger log = LoggerFactory.getLogger(ContactCellName.class);
-
 	private static final int CONTACT_WIDTH = 32;
 	private static final int CONTACT_HEIGHT = 32;
 
@@ -71,7 +63,7 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 			asyncImageView.setFitHeight(CONTACT_HEIGHT);
 		}
 
-		asyncImageView.setUrl(getIdentityImageUrl(contact));
+		asyncImageView.setUrl(ContactUtils.getIdentityImageUrl(contact));
 
 		if (contact.profileId() == OWN_PROFILE_ID)
 		{
@@ -86,19 +78,5 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 			setStyle("");
 		}
 		return asyncImageView;
-	}
-
-	public static String getIdentityImageUrl(Contact contact)
-	{
-		if (contact.identityId() != NO_IDENTITY_ID)
-		{
-			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + contact.identityId() + "/image";
-		}
-		else if (contact.profileId() != NO_PROFILE_ID)
-		{
-			return RemoteUtils.getControlUrl() + PROFILES_PATH + "/" + contact.profileId() + "/image";
-		}
-		log.error("Contact {} is empty", contact);
-		return null;
 	}
 }

@@ -173,7 +173,7 @@ public class AudioService
 		while (isRecording)
 		{
 			bytesRead = inputLine.read(buffer, 0, buffer.length);
-			if (bytesRead > 0)
+			if (bytesRead == buffer.length) // Only use full buffers, otherwise that's not enough to process a frame and the encoder will complain
 			{
 				audioBuffer.reset();
 				audioBuffer.write(buffer, 0, bytesRead);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -60,6 +60,12 @@ public class ContactService
 				getAvailability(identity.getProfile()),
 				isAccepted(identity.getProfile()))));
 		return contacts;
+	}
+
+	public List<Contact> getContactsForProfileId(long profileId)
+	{
+		var contacts = identityService.findAllByProfileId(profileId);
+		return toContacts(contacts);
 	}
 
 	public List<Contact> toContacts(List<IdentityGroupItem> identities)

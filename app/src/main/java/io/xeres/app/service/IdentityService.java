@@ -90,6 +90,11 @@ public class IdentityService
 		return gxsIdentityRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
+	public List<IdentityGroupItem> findAllByProfileId(long id)
+	{
+		return gxsIdentityRepository.findAllByProfileId(id);
+	}
+
 	@Transactional
 	public IdentityGroupItem save(IdentityGroupItem identityGroupItem)
 	{

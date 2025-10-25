@@ -37,6 +37,7 @@ import io.xeres.ui.model.connection.Connection;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
+import io.xeres.ui.support.contact.ContactUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.IdentityUri;
@@ -346,7 +347,7 @@ public class ContactViewController implements Controller
 
 	private void displayOwnContactImage()
 	{
-		ownContactImageView.setUrl(ContactCellName.getIdentityImageUrl(Contact.OWN));
+		ownContactImageView.setUrl(ContactUtils.getIdentityImageUrl(Contact.OWN));
 	}
 
 	private void setupContactSearch()
@@ -638,7 +639,7 @@ public class ContactViewController implements Controller
 
 	private void clearCachedImages(TreeItem<Contact> contact)
 	{
-		imageCacheService.evictImage(ContactCellName.getIdentityImageUrl(contact.getValue()));
+		imageCacheService.evictImage(ContactUtils.getIdentityImageUrl(contact.getValue()));
 
 		// Make sure AsyncImageView doesn't refuse to load the
 		// url because it thinks it's already loaded.
@@ -911,7 +912,7 @@ public class ContactViewController implements Controller
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.getValue().name());
 		setChatButtonVisual(contact.getValue());
-		contactImageView.setUrl(ContactCellName.getIdentityImageUrl(contact.getValue()));
+		contactImageView.setUrl(ContactUtils.getIdentityImageUrl(contact.getValue()));
 		if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
 			typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile"));

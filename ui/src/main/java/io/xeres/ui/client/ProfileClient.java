@@ -23,6 +23,7 @@ import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
 import io.xeres.common.util.RemoteUtils;
@@ -113,6 +114,14 @@ public class ProfileClient
 				.uri("/{id}/key-attributes", id)
 				.retrieve()
 				.bodyToMono(ProfileKeyAttributes.class);
+	}
+
+	public Flux<Contact> findContactsForProfile(long id)
+	{
+		return webClient.get()
+				.uri("/{id}/contacts", id)
+				.retrieve()
+				.bodyToFlux(Contact.class);
 	}
 
 	public Flux<Profile> findByLocationIdentifier(LocationIdentifier locationIdentifier, boolean withLocations)

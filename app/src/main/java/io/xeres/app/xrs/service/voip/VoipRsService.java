@@ -173,7 +173,7 @@ public class VoipRsService extends RsService
 			}
 			case CLOSE ->
 			{
-				if (sender.getLocation().getLocationIdentifier().equals(remoteLocationIdentifier) && status == Status.ONGOING)
+				if (sender.getLocation().getLocationIdentifier().equals(remoteLocationIdentifier) && (status == Status.ONGOING || status == Status.CALLING))
 				{
 					log.debug("Call closed by {}", sender);
 					remoteLocationIdentifier = null;

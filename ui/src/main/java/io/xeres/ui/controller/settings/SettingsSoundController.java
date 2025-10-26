@@ -52,6 +52,9 @@ public class SettingsSoundController implements SettingsController
 	private CheckBox downloadEnabled;
 
 	@FXML
+	private CheckBox ringingEnabled;
+
+	@FXML
 	private TextField messageFile;
 
 	@FXML
@@ -62,6 +65,9 @@ public class SettingsSoundController implements SettingsController
 
 	@FXML
 	private TextField downloadFile;
+
+	@FXML
+	private TextField ringingFile;
 
 	@FXML
 	private Button messageFileSelector;
@@ -76,6 +82,9 @@ public class SettingsSoundController implements SettingsController
 	private Button downloadFileSelector;
 
 	@FXML
+	private Button ringingFileSelector;
+
+	@FXML
 	private Button messagePlay;
 
 	@FXML
@@ -86,6 +95,9 @@ public class SettingsSoundController implements SettingsController
 
 	@FXML
 	private Button downloadPlay;
+
+	@FXML
+	private Button ringingPlay;
 
 	private final ResourceBundle bundle;
 	private final SoundSettings soundSettings;
@@ -105,11 +117,12 @@ public class SettingsSoundController implements SettingsController
 		initializeSoundPath(highlightEnabled, highlightFile, highlightFileSelector, highlightPlay);
 		initializeSoundPath(friendEnabled, friendFile, friendFileSelector, friendPlay);
 		initializeSoundPath(downloadEnabled, downloadFile, downloadFileSelector, downloadPlay);
+		initializeSoundPath(ringingEnabled, ringingFile, ringingFileSelector, ringingPlay);
 	}
 
 	private void initializeSoundPath(CheckBox checkbox, TextField path, Button pathSelector, Button playButton)
 	{
-		checkbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+		checkbox.selectedProperty().addListener((_, _, newValue) -> {
 			path.setDisable(!newValue);
 			pathSelector.setDisable(!newValue);
 			playButton.setDisable(!newValue);
@@ -129,7 +142,7 @@ public class SettingsSoundController implements SettingsController
 				path.setText(selectedFile.getAbsolutePath());
 			}
 		});
-		playButton.setOnAction(actionEvent -> soundService.play(path.getText()));
+		playButton.setOnAction(_ -> soundService.play(path.getText()));
 	}
 
 	private void setInitialDirectoryIfExists(FileChooser fileChooser, String filePath)
@@ -160,11 +173,13 @@ public class SettingsSoundController implements SettingsController
 		highlightEnabled.setSelected(soundSettings.isHighlightEnabled());
 		friendEnabled.setSelected(soundSettings.isFriendEnabled());
 		downloadEnabled.setSelected(soundSettings.isDownloadEnabled());
+		ringingEnabled.setSelected(soundSettings.isRingingEnabled());
 
 		messageFile.setText(soundSettings.getMessageFile());
 		highlightFile.setText(soundSettings.getHighlightFile());
 		friendFile.setText(soundSettings.getFriendFile());
 		downloadFile.setText(soundSettings.getDownloadFile());
+		ringingFile.setText(soundSettings.getRingingFile());
 	}
 
 	@Override
@@ -174,11 +189,13 @@ public class SettingsSoundController implements SettingsController
 		soundSettings.setHighlightEnabled(highlightEnabled.isSelected());
 		soundSettings.setFriendEnabled(friendEnabled.isSelected());
 		soundSettings.setDownloadEnabled(downloadEnabled.isSelected());
+		soundSettings.setRingingEnabled(ringingEnabled.isSelected());
 
 		soundSettings.setMessageFile(messageFile.getText());
 		soundSettings.setHighlightFile(highlightFile.getText());
 		soundSettings.setFriendFile(friendFile.getText());
 		soundSettings.setDownloadFile(downloadFile.getText());
+		soundSettings.setRingingFile(ringingFile.getText());
 
 		soundSettings.save();
 		return null;

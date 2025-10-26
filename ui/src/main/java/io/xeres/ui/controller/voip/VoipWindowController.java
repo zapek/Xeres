@@ -28,6 +28,7 @@ import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.support.contact.ContactUtils;
+import io.xeres.ui.support.sound.SoundService;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -36,6 +37,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.media.AudioClip;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
@@ -43,6 +45,8 @@ import reactor.core.scheduler.Schedulers;
 import java.time.LocalTime;
 import java.util.Objects;
 import java.util.ResourceBundle;
+
+import static io.xeres.ui.support.sound.SoundService.SoundType;
 
 @Component
 @FxmlView(value = "/view/voip/voip.fxml")
@@ -92,18 +96,21 @@ public class VoipWindowController implements WindowController
 	private final ProfileClient profileClient;
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
+	private final SoundService soundService;
 
 	private LocationIdentifier destinationIdentifier;
 	private Status status;
 	private final TimeCounter timeCounter;
+	private AudioClip audioClip;
 
-	public VoipWindowController(MessageClient messageClient, GeneralClient generalClient, ProfileClient profileClient, WindowManager windowManager, ResourceBundle bundle)
+	public VoipWindowController(MessageClient messageClient, GeneralClient generalClient, ProfileClient profileClient, WindowManager windowManager, ResourceBundle bundle, SoundService soundService)
 	{
 		this.messageClient = messageClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
 		this.windowManager = windowManager;
 		this.bundle = bundle;
+		this.soundService = soundService;
 
 		timeCounter = new TimeCounter(duration -> timerLabel.setText(DateUtils.TIME_DISPLAY_WITH_SECONDS.format(LocalTime.ofSecondOfDay(duration.getSeconds() % (24 * 3600)))));
 	}
@@ -164,6 +171,7 @@ public class VoipWindowController implements WindowController
 			if (status != Status.ENDED)
 			{
 				UiUtils.alertConfirm(bundle.getString("voip.action.window-quit"), () -> {
+					stopRingingSound();
 					messageClient.sendToDestination(destinationIdentifier, new VoipMessage(VoipAction.CLOSE));
 					UiUtils.getWindow(nameLabel).hide();
 				});
@@ -198,6 +206,7 @@ public class VoipWindowController implements WindowController
 				UiUtils.setAbsent(closeButton);
 				UiUtils.setPresent(answerButton);
 				UiUtils.setPresent(rejectButton);
+				playRingingSound();
 			}
 			case OUTGOING_CALL ->
 			{
@@ -208,6 +217,7 @@ public class VoipWindowController implements WindowController
 				UiUtils.setAbsent(closeButton);
 				UiUtils.setAbsent(answerButton);
 				UiUtils.setPresent(rejectButton);
+				playRingingSound();
 			}
 			case IN_CALL ->
 			{
@@ -217,6 +227,7 @@ public class VoipWindowController implements WindowController
 				timerLabel.setVisible(true);
 				UiUtils.setAbsent(answerButton);
 				UiUtils.setPresent(rejectButton);
+				stopRingingSound();
 			}
 			case ENDED ->
 			{
@@ -227,6 +238,7 @@ public class VoipWindowController implements WindowController
 				UiUtils.setPresent(closeButton);
 				UiUtils.setAbsent(answerButton);
 				UiUtils.setAbsent(rejectButton);
+				stopRingingSound();
 			}
 		}
 	}
@@ -242,5 +254,20 @@ public class VoipWindowController implements WindowController
 
 		imageView.managedProperty().bind(showImage);
 		imageView.visibleProperty().bind(showImage);
+	}
+
+	private void playRingingSound()
+	{
+		stopRingingSound();
+		audioClip = soundService.playRepeated(SoundType.RINGING);
+	}
+
+	private void stopRingingSound()
+	{
+		if (audioClip != null)
+		{
+			audioClip.stop();
+			audioClip = null;
+		}
 	}
 }

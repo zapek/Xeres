@@ -32,21 +32,25 @@ public class SoundSettings
 	private static final String ENABLE_HIGHLIGHT = "EnableHighlight";
 	private static final String ENABLE_FRIEND = "EnableFriend";
 	private static final String ENABLE_DOWNLOAD = "EnableDownload";
+	private static final String ENABLE_RINGING = "EnableRinging";
 
 	private static final String MESSAGE_FILE = "MessageFile";
 	private static final String HIGHLIGHT_FILE = "HighlightFile";
 	private static final String FRIEND_FILE = "FriendFile";
 	private static final String DOWNLOAD_FILE = "DownloadFile";
+	private static final String RINGING_FILE = "RingingFile";
 
 	private boolean messageEnabled;
 	private boolean highlightEnabled;
 	private boolean friendEnabled;
 	private boolean downloadEnabled;
+	private boolean ringingEnabled;
 
 	private String messageFile;
 	private String highlightFile;
 	private String friendFile;
 	private String downloadFile;
+	private String ringingFile;
 
 	private boolean loaded;
 
@@ -138,6 +142,27 @@ public class SoundSettings
 		this.downloadFile = downloadFile;
 	}
 
+	public boolean isRingingEnabled()
+	{
+		loadIfNeeded();
+		return ringingEnabled;
+	}
+
+	public void setRingingEnabled(boolean ringingEnabled)
+	{
+		this.ringingEnabled = ringingEnabled;
+	}
+
+	public String getRingingFile()
+	{
+		return ringingFile;
+	}
+
+	public void setRingingFile(String ringingFile)
+	{
+		this.ringingFile = ringingFile;
+	}
+
 	private void loadIfNeeded()
 	{
 		if (loaded)
@@ -149,6 +174,7 @@ public class SoundSettings
 		highlightEnabled = node.getBoolean(ENABLE_HIGHLIGHT, false);
 		friendEnabled = node.getBoolean(ENABLE_FRIEND, false);
 		downloadEnabled = node.getBoolean(ENABLE_DOWNLOAD, false);
+		ringingEnabled = node.getBoolean(ENABLE_RINGING, true); // Important enough to be enabled by default
 
 		var prefixPath = SystemUtils.IS_OS_LINUX ? "/opt/xeres/lib/" : "";
 
@@ -156,6 +182,7 @@ public class SoundSettings
 		highlightFile = node.get(HIGHLIGHT_FILE, prefixPath + "sounds/notification-4-126507.mp3");
 		friendFile = node.get(FRIEND_FILE, prefixPath + "sounds/notification-20-270145.mp3");
 		downloadFile = node.get(DOWNLOAD_FILE, prefixPath + "sounds/achive-sound-132273.mp3");
+		ringingFile = node.get(RINGING_FILE, prefixPath + "sounds/ringtone-023-376906.mp3");
 
 		loaded = true;
 	}
@@ -167,10 +194,12 @@ public class SoundSettings
 		node.putBoolean(ENABLE_HIGHLIGHT, highlightEnabled);
 		node.putBoolean(ENABLE_FRIEND, friendEnabled);
 		node.putBoolean(ENABLE_DOWNLOAD, downloadEnabled);
+		node.putBoolean(ENABLE_RINGING, ringingEnabled);
 
 		node.put(MESSAGE_FILE, messageFile);
 		node.put(HIGHLIGHT_FILE, highlightFile);
 		node.put(FRIEND_FILE, friendFile);
 		node.put(DOWNLOAD_FILE, downloadFile);
+		node.put(RINGING_FILE, ringingFile);
 	}
 }

@@ -37,7 +37,8 @@ public class SoundService
 		MESSAGE,
 		HIGHLIGHT,
 		FRIEND,
-		DOWNLOAD
+		DOWNLOAD,
+		RINGING
 	}
 
 	public SoundService(SoundSettings soundSettings)
@@ -77,14 +78,41 @@ public class SoundService
 					play(soundSettings.getDownloadFile());
 				}
 			}
+			case RINGING ->
+			{
+				if (soundSettings.isRingingEnabled())
+				{
+					play(soundSettings.getRingingFile());
+				}
+			}
 		}
+	}
+
+	public AudioClip playRepeated(SoundType soundType)
+	{
+		switch (soundType)
+		{
+			case RINGING ->
+			{
+				if (soundSettings.isRingingEnabled())
+				{
+					return play(soundSettings.getRingingFile(), true);
+				}
+			}
+		}
+		return null;
 	}
 
 	public void play(String file)
 	{
+		play(file, false);
+	}
+
+	private AudioClip play(String file, boolean repeat)
+	{
 		if (StringUtils.isEmpty(file))
 		{
-			return;
+			return null;
 		}
 
 		var path = Path.of(file);
@@ -110,8 +138,14 @@ public class SoundService
 
 		if (Files.exists(path))
 		{
-			var player = new AudioClip("file:" + path.toString().replace("\\", "/")); // URIs require a '/' for path and Windows uses '\' for path
-			player.play();
+			var clip = new AudioClip("file:" + path.toString().replace("\\", "/")); // URIs require a '/' for path and Windows uses '\' for path
+			if (repeat)
+			{
+				clip.setCycleCount(AudioClip.INDEFINITE);
+			}
+			clip.play();
+			return clip;
 		}
+		return null;
 	}
 }

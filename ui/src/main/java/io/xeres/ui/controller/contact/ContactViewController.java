@@ -1161,13 +1161,12 @@ public class ContactViewController implements Controller
 			}
 		});
 
-		var voipItem = new MenuItem("Voice Chat"); // XXX: localize
+		var voipItem = new MenuItem(bundle.getString("voip.context-menu.chat"));
 		voipItem.setId(VOICE_CHAT_MENU_ID);
 		voipItem.setGraphic(new FontIcon(MaterialDesignP.PHONE));
 		voipItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
 			startVoip(contact.getValue());
-
 		});
 
 		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, distantChatItem, voipItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
@@ -1251,6 +1250,14 @@ public class ContactViewController implements Controller
 			startChat(location.getLocationIdentifier());
 		});
 
+		var voipItem = new MenuItem(bundle.getString("voip.context-menu.chat"));
+		voipItem.setId(VOICE_CHAT_MENU_ID);
+		voipItem.setGraphic(new FontIcon(MaterialDesignP.PHONE));
+		voipItem.setOnAction(event -> {
+			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
+			startVoip(contact.getValue());
+		});
+
 		var connectItem = new MenuItem(bundle.getString("contact-view.action.connect"));
 		connectItem.setId(CONNECT_MENU_ID);
 		connectItem.setGraphic(new FontIcon(MaterialDesignC.CONNECTION));
@@ -1260,11 +1267,15 @@ public class ContactViewController implements Controller
 					.subscribe();
 		});
 
-		var xContextMenu = new XContextMenu<Location>(chatItem, connectItem);
+		var xContextMenu = new XContextMenu<Location>(chatItem, voipItem, connectItem);
 		xContextMenu.setOnShowing((contextMenu, location) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(location == null || location.getId() == OWN_LOCATION_ID));
+
+			contextMenu.getItems().stream()
+					.filter(menuItem -> VOICE_CHAT_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(location == null || location.getId() == OWN_LOCATION_ID || !location.isConnected()));
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CONNECT_MENU_ID.equals(menuItem.getId()))

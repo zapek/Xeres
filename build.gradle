@@ -33,7 +33,7 @@ buildscript {
         jsoupVersion = "1.21.2"
         junitVersion = "6.0.0"
         sonarqubeVersion = "7.0.1.6134"
-        springBootVersion = "3.5.6"
+        springBootVersion = "3.5.7"
         springOpenApiVersion = "2.8.13"
         zxingVersion = "3.5.3"
         // Gradle wrapper version is below (do not put it here otherwise it won't upgrade)

@@ -89,7 +89,12 @@ public final class TextInputControlUtils
 	{
 		if (textInputControl.getText().isBlank())
 		{
-			if (isSourceCode(content))
+			//noinspection StatementWithEmptyBody
+			if (isUri(content))
+			{
+				// Don't do anything
+			}
+			else if (isSourceCode(content))
 			{
 				content = "```\n" + content + "\n```";
 			}
@@ -230,5 +235,11 @@ public final class TextInputControlUtils
 	static boolean isCitation(String text)
 	{
 		return text.trim().length() >= 30;
+	}
+
+	static boolean isUri(String text)
+	{
+		var trimmed = text.trim();
+		return trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("retroshare://");
 	}
 }

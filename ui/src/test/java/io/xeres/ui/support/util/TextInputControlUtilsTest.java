@@ -135,4 +135,18 @@ class TextInputControlUtilsTest
 	{
 		assertTrue(TextInputControlUtils.isCitation("Flying Pigs Reported That a Cow Managed to Stop Global Warming by Eating Using Only One Stomach"));
 	}
+
+	@Test
+	void pasteGuessedContent_Uri_False()
+	{
+		assertFalse(TextInputControlUtils.isUri("not an url"));
+	}
+
+	@Test
+	void pasteGuessedContent_Uri_True()
+	{
+		assertTrue(TextInputControlUtils.isUri("https://example.com"));
+		assertTrue(TextInputControlUtils.isUri("http://example.com"));
+		assertTrue(TextInputControlUtils.isUri("retroshare://foo"));
+	}
 }

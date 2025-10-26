@@ -115,7 +115,6 @@ public class AudioService
 
 		if (inputLine != null)
 		{
-			// XXX: no microphone.drain()? it would block though so what happens with the data? maybe close() is enough
 			inputLine.stop();
 			inputLine.close();
 		}
@@ -151,7 +150,6 @@ public class AudioService
 
 		if (outputLine != null)
 		{
-			// XXX: no outputLine.drain()? I guess not
 			outputLine.stop();
 			outputLine.close();
 		}

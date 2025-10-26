@@ -112,6 +112,7 @@ public class PrimaryStageInitializer
 				.subscribe(chatRoomDestination(), new ChatRoomFrameHandler(chatViewController))
 				.subscribe(chatDistantDestination(), new DistantChatFrameHandler(windowManager))
 				.subscribe(chatBroadcastDestination(), new BroadcastChatFrameHandler())
+				.subscribe(voipPrivateDestination(), new VoipFrameHandler(windowManager))
 				.connect();
 	}
 }

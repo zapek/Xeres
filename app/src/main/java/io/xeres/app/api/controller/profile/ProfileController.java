@@ -29,6 +29,7 @@ import io.xeres.app.api.exception.UnprocessableEntityException;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.job.PeerConnectionJob;
+import io.xeres.app.service.ContactService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
@@ -37,6 +38,7 @@ import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
 import io.xeres.common.util.ImageDetectionUtils;
@@ -67,16 +69,18 @@ public class ProfileController
 	private final ProfileService profileService;
 	private final IdentityService identityService;
 	private final LocationService locationService;
+	private final ContactService contactService;
 
 	private final PeerConnectionJob peerConnectionJob;
 	private final StatusNotificationService statusNotificationService;
 	private final IdenticonService identiconService;
 
-	public ProfileController(ProfileService profileService, IdentityService identityService, LocationService locationService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService, IdenticonService identiconService)
+	public ProfileController(ProfileService profileService, IdentityService identityService, LocationService locationService, ContactService contactService, PeerConnectionJob peerConnectionJob, StatusNotificationService statusNotificationService, IdenticonService identiconService)
 	{
 		this.profileService = profileService;
 		this.identityService = identityService;
 		this.locationService = locationService;
+		this.contactService = contactService;
 		this.peerConnectionJob = peerConnectionJob;
 		this.statusNotificationService = statusNotificationService;
 		this.identiconService = identiconService;
@@ -99,6 +103,13 @@ public class ProfileController
 	public ProfileKeyAttributes findProfileKeyAttributes(@PathVariable long id)
 	{
 		return profileService.findProfileKeyAttributes(id);
+	}
+
+	@GetMapping("/{id}/contacts")
+	@Operation(summary = "Returns the profile's identities as contacts")
+	public List<Contact> findContactsForProfile(@PathVariable long id)
+	{
+		return contactService.getContactsForProfileId(id);
 	}
 
 	@GetMapping(value = "/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})

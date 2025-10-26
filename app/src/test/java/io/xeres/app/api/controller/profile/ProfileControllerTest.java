@@ -26,6 +26,7 @@ import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.job.PeerConnectionJob;
+import io.xeres.app.service.ContactService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
@@ -70,6 +71,9 @@ class ProfileControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private LocationService locationService;
+
+	@MockitoBean
+	private ContactService contactService;
 
 	@SuppressWarnings("unused")
 	@MockitoBean

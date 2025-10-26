@@ -27,6 +27,7 @@ import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.message.voip.VoipMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
@@ -50,6 +51,7 @@ import io.xeres.ui.controller.qrcode.QrCodeWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.controller.share.ShareWindowController;
 import io.xeres.ui.controller.statistics.StatisticsMainWindowController;
+import io.xeres.ui.controller.voip.VoipWindowController;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.model.profile.Profile;
@@ -313,9 +315,21 @@ public class WindowManager
 		);
 	}
 
+	public void doVoip(String identifier, VoipMessage voipMessage)
+	{
+		Platform.runLater(() -> getOpenedWindow(VoipWindowController.class).ifPresentOrElse(window -> {
+					window.requestFocus();
+					((VoipWindowController) window.getUserData()).doAction(identifier, voipMessage);
+				},
+				() -> UiWindow.builder(VoipWindowController.class)
+						.setTitle(bundle.getString("voip.window-title"))
+						.setUserData(new VoipWindowController.Parameters(identifier, voipMessage))
+						.build()
+						.open()));
+	}
+
 	public void openAbout()
 	{
-
 		Platform.runLater(() ->
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(rootWindow)
@@ -336,7 +350,7 @@ public class WindowManager
 			{
 				UiWindow.builder(HelpWindowController.class)
 						.setRememberEnvironment(rememberPosition)
-						.setTitle("Help")
+						.setTitle(bundle.getString("help.window-title"))
 						.build()
 						.open();
 			}

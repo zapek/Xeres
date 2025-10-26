@@ -31,6 +31,9 @@ public final class MessagePath
 	public static final String CHAT_BROADCAST_DESTINATION = "/broadcast";
 	public static final String CHAT_DISTANT_DESTINATION = "/distant";
 
+	public static final String VOIP_ROOT = "/voip";
+	public static final String VOIP_PRIVATE_DESTINATION = "/private";
+
 	private MessagePath()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -54,5 +57,10 @@ public final class MessagePath
 	public static String chatDistantDestination()
 	{
 		return BROKER_PREFIX + CHAT_ROOT + CHAT_DISTANT_DESTINATION;
+	}
+
+	public static String voipPrivateDestination()
+	{
+		return BROKER_PREFIX + VOIP_ROOT + VOIP_PRIVATE_DESTINATION;
 	}
 }

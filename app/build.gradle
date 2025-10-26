@@ -199,6 +199,7 @@ dependencies {
     implementation "org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion"
     implementation "org.graalvm.polyglot:polyglot:$graalvmVersion"
     implementation "org.graalvm.polyglot:js:$graalvmVersion"
+    implementation 'com.tianscar.javasound:javasound-speex:0.9.8'
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"

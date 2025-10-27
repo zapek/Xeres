@@ -19,10 +19,17 @@
 
 package io.xeres.common.i18n;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.IllformedLocaleException;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public final class I18nUtils
 {
+	private static final Logger log = LoggerFactory.getLogger(I18nUtils.class);
+
 	private static final String BUNDLE = "i18n.messages";
 
 	private static ResourceBundle resourceBundle;
@@ -43,7 +50,18 @@ public final class I18nUtils
 	{
 		if (resourceBundle == null)
 		{
-			//Locale.setDefault(Locale.FRANCE); // for testing
+			var envLanguage = System.getenv("XERES_LANGUAGE");
+			if (envLanguage != null)
+			{
+				try
+				{
+					Locale.setDefault(new Locale.Builder().setLanguage(envLanguage).build());
+				}
+				catch (IllformedLocaleException e)
+				{
+					log.error("Locale {} is ill formed: {}", envLanguage, e.getMessage());
+				}
+			}
 			resourceBundle = ResourceBundle.getBundle(BUNDLE);
 		}
 		return resourceBundle;

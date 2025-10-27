@@ -52,7 +52,7 @@
                     </tooltip>
                 </CheckBox>
 
-                <DisclosedHyperlink GridPane.halignment="RIGHT" fx:id="viewApi" GridPane.columnIndex="1" text="View API" styleClass="text-small"/>
+                <DisclosedHyperlink GridPane.halignment="RIGHT" fx:id="viewApi" GridPane.columnIndex="1" text="%settings.remote.view-api" styleClass="text-small"/>
 
                 <Label text="%settings.network.port" GridPane.rowIndex="1">
                     <GridPane.margin>

@@ -30,7 +30,7 @@
       fx:controller="io.xeres.ui.controller.settings.SettingsSoundController">
     <Card>
         <header>
-            <Label text="Sounds" styleClass="title-4"/>
+            <Label text="%settings.sound" styleClass="title-4"/>
         </header>
         <body>
             <GridPane hgap="8" vgap="8">

@@ -35,7 +35,7 @@
                 <FontIcon iconLiteral="mdi2q-qrcode-scan"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Scan the QR Code using the camera."/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rs-id.add.scan"/>
             </tooltip>
         </Button>
     </HBox>

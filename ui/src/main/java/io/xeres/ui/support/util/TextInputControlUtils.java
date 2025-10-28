@@ -45,7 +45,7 @@ public final class TextInputControlUtils
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
 	private static final Pattern CODE_PATTERN = Pattern.compile(
-			"(?mi)\\b(class|interface|enum|package|import|public|private|protected|static|final|synchronized|volatile|abstract|def|function|var|let|const|using|namespace)\\b"
+			"\\b(class|interface|enum|package|import|public|private|protected|static|final|synchronized|volatile|abstract|def|function|var|let|const|using|namespace)\\b"
 					+ "|\\b(if|for|while|switch|case|return)\\b"
 					+ "|\\w+\\s*\\([^)]*\\)\\s*\\{"
 					+ "|=>|->|#include\\s*<|System\\.out\\.println|console\\.log\\(|printf\\(|std::",
@@ -181,6 +181,12 @@ public final class TextInputControlUtils
 	{
 		String trimmed = text.trim();
 
+		// Code should only contain ASCII
+		if (!trimmed.chars().allMatch(c -> c <= 127))
+		{
+			return false;
+		}
+
 		// Fenced code block (Markdown), but not if it's at the start
 		if (trimmed.contains("```"))
 		{
@@ -234,7 +240,7 @@ public final class TextInputControlUtils
 	// Visible for testing
 	static boolean isCitation(String text)
 	{
-		return text.trim().length() >= 30;
+		return text.trim().length() >= 40;
 	}
 
 	static boolean isUri(String text)

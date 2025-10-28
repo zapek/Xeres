@@ -133,7 +133,7 @@ public class PeerConnectionManager
 
 	public void shutdown()
 	{
-		peers.forEach((id, peerConnection) -> peerConnection.shutdown());
+		peers.forEach((_, peerConnection) -> peerConnection.shutdown());
 		availabilityNotificationService.shutdown();
 	}
 
@@ -181,7 +181,7 @@ public class PeerConnectionManager
 	 */
 	public void doForAllPeers(Consumer<PeerConnection> action, RsService rsService)
 	{
-		peers.forEach((peerId, peerConnection) ->
+		peers.forEach((_, peerConnection) ->
 		{
 			if (rsService == null || peerConnection.isServiceSupported(rsService))
 			{
@@ -203,6 +203,16 @@ public class PeerConnectionManager
 				.filter(peerConnection -> !peerConnection.equals(sender))
 				.filter(peerConnection -> rsService == null || peerConnection.isServiceSupported(rsService))
 				.forEach(action);
+	}
+
+	public boolean isServiceSupported(Location location, int serviceId)
+	{
+		var peer = peers.get(location.getId());
+		if (peer != null)
+		{
+			return peer.isServiceSupported(serviceId);
+		}
+		return false;
 	}
 
 	/**

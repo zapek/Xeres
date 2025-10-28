@@ -68,7 +68,7 @@ public class StickerView extends VBox
 	{
 		bundle = I18nUtils.getBundle();
 
-		var loader = new FXMLLoader(StickerView.class.getResource("/view/custom/stickerview.fxml"));
+		var loader = new FXMLLoader(StickerView.class.getResource("/view/custom/sticker_view.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
 

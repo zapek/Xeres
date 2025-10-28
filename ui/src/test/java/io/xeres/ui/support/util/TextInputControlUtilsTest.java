@@ -125,6 +125,18 @@ class TextInputControlUtilsTest
 	}
 
 	@Test
+	void pasteGuessedContent_CitationButNotCode()
+	{
+		// Would detect a "for " in there if we didn't check for the text to not contain UTF-8
+		var input = """
+				La RTS a commis un "crime contre l'humanité" en forçant les gens à lire des conneries, selon un rapport d'enquêteurs mandatés par l'ONU, publié lundi.
+				""";
+
+		assertFalse(TextInputControlUtils.isSourceCode(input));
+		assertTrue(TextInputControlUtils.isCitation(input));
+	}
+
+	@Test
 	void pasteGuessedContent_Citation_False()
 	{
 		assertFalse(TextInputControlUtils.isCitation("this is just some text"));

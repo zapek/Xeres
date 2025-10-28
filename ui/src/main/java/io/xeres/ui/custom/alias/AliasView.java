@@ -55,7 +55,7 @@ class AliasView extends VBox
 
 	public AliasView()
 	{
-		var loader = new FXMLLoader(AliasView.class.getResource("/view/custom/aliasview.fxml"));
+		var loader = new FXMLLoader(AliasView.class.getResource("/view/custom/alias_view.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
 

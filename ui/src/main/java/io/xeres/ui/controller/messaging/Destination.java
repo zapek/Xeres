@@ -27,6 +27,7 @@ class Destination
 	private final Identifier identifier;
 	private String name;
 	private String place;
+	private long locationId;
 
 	public Destination(Identifier identifier)
 	{
@@ -61,5 +62,15 @@ class Destination
 	public void setPlace(String place)
 	{
 		this.place = place;
+	}
+
+	public long getLocationId()
+	{
+		return locationId;
+	}
+
+	public void setLocationId(long locationId)
+	{
+		this.locationId = locationId;
 	}
 }

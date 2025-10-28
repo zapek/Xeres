@@ -24,14 +24,21 @@ import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.custom.event.FileSelectedEvent;
 import io.xeres.ui.custom.event.ImageSelectedEvent;
 import io.xeres.ui.support.util.TextInputControlUtils;
+import io.xeres.ui.support.util.UiUtils;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignF;
 
 import java.io.IOException;
 import java.util.ResourceBundle;
@@ -45,13 +52,13 @@ public class InputAreaGroup extends HBox
 	private InputArea inputArea;
 
 	@FXML
-	private Button addImage;
-
-	@FXML
-	private Button addFile;
+	private Button addMedia;
 
 	@FXML
 	private Button addSticker;
+
+	@FXML
+	private Button callButton;
 
 	private final ResourceBundle bundle;
 
@@ -59,7 +66,7 @@ public class InputAreaGroup extends HBox
 	{
 		bundle = I18nUtils.getBundle();
 
-		var loader = new FXMLLoader(InputAreaGroup.class.getResource("/view/custom/inputareagroup.fxml"), bundle);
+		var loader = new FXMLLoader(InputAreaGroup.class.getResource("/view/custom/input_area_group.fxml"), bundle);
 		loader.setRoot(this);
 		loader.setController(this);
 
@@ -73,37 +80,22 @@ public class InputAreaGroup extends HBox
 		}
 	}
 
+	public ReadOnlyBooleanProperty callPressedProperty()
+	{
+		return callButton.pressedProperty();
+	}
+
 	@FXML
 	private void initialize()
 	{
 		disabledProperty().addListener((_, _, newValue) -> {
-			addImage.setDisable(newValue);
-			addFile.setDisable(newValue);
+			addMedia.setDisable(newValue);
 			addSticker.setDisable(newValue);
 		});
 
-		addImage.setOnAction(_ -> {
-			var fileChooser = new FileChooser();
-			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-picture"));
-			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
-			var selectedFile = fileChooser.showOpenDialog(getWindow(this));
-			if (selectedFile != null)
-			{
-				fireEvent(new ImageSelectedEvent(selectedFile));
-			}
-		});
-
-		addFile.setOnAction(event -> {
-			var fileChooser = new FileChooser();
-			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-file"));
-			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
-			if (selectedFile != null)
-			{
-				fireEvent(new FileSelectedEvent(selectedFile));
-			}
-		});
-
 		addSticker.setOnAction(_ -> inputArea.openStickerSelector());
+
+		createAddMediaContextMenu();
 	}
 
 	public void clear()
@@ -145,8 +137,44 @@ public class InputAreaGroup extends HBox
 	 */
 	public void setOffline(boolean offline)
 	{
-		addImage.setDisable(offline);
-		addFile.setDisable(offline);
+		addMedia.setDisable(offline);
 		addSticker.setDisable(offline);
+	}
+
+	public void setVoipCapable(boolean voipCapable)
+	{
+		UiUtils.setPresent(callButton, voipCapable);
+	}
+
+	private void createAddMediaContextMenu()
+	{
+		var addImageItem = new MenuItem(bundle.getString("messaging.action.send-inline"));
+		addImageItem.setGraphic(new FontIcon(MaterialDesignF.FILE_IMAGE_OUTLINE));
+		addImageItem.setOnAction(event -> {
+			var fileChooser = new FileChooser();
+			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-picture"));
+			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
+			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
+			if (selectedFile != null)
+			{
+				fireEvent(new ImageSelectedEvent(selectedFile));
+			}
+		});
+
+		var addFileItem = new MenuItem(bundle.getString("messaging.action.send-file"));
+		addFileItem.setGraphic(new FontIcon(MaterialDesignA.ATTACHMENT));
+		addFileItem.setOnAction(event -> {
+			var fileChooser = new FileChooser();
+			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-file"));
+			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
+			if (selectedFile != null)
+			{
+				fireEvent(new FileSelectedEvent(selectedFile));
+			}
+		});
+
+		var contextMenu = new ContextMenu(addImageItem, addFileItem);
+		addMedia.setOnContextMenuRequested(event -> contextMenu.show(addMedia, event.getScreenX(), event.getScreenY()));
+		UiUtils.setOnPrimaryMouseClicked(addMedia, event -> contextMenu.show(addMedia, event.getScreenX(), event.getScreenY()));
 	}
 }

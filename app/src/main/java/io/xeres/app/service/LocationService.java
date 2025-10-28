@@ -26,6 +26,7 @@ import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.repository.LocationRepository;
+import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.util.NetworkMode;
 import io.xeres.common.id.LocationIdentifier;
@@ -68,16 +69,18 @@ public class LocationService
 
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
+	private final PeerConnectionManager peerConnectionManager;
 	private final LocationRepository locationRepository;
 
 	private Slice<Location> locations;
 	private int pageIndex;
 	private int connectionIndex = -1;
 
-	public LocationService(SettingsService settingsService, ProfileService profileService, LocationRepository locationRepository)
+	public LocationService(SettingsService settingsService, ProfileService profileService, PeerConnectionManager peerConnectionManager, LocationRepository locationRepository)
 	{
 		this.settingsService = settingsService;
 		this.profileService = profileService;
+		this.peerConnectionManager = peerConnectionManager;
 		this.locationRepository = locationRepository;
 	}
 
@@ -178,6 +181,11 @@ public class LocationService
 	public Optional<Location> findLocationById(long id)
 	{
 		return locationRepository.findById(id);
+	}
+
+	public boolean isServiceSupported(Location location, int serviceId)
+	{
+		return peerConnectionManager.isServiceSupported(location, serviceId);
 	}
 
 	public boolean hasOwnLocation()

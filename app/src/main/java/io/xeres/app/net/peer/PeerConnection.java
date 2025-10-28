@@ -86,6 +86,12 @@ public class PeerConnection
 		return services.contains(rsService);
 	}
 
+	public boolean isServiceSupported(int serviceId)
+	{
+		return services.stream()
+				.anyMatch(rsService -> rsService.getServiceType().getType() == serviceId);
+	}
+
 	public boolean canSendServices()
 	{
 		return servicesSent.compareAndSet(false, true);
@@ -132,7 +138,7 @@ public class PeerConnection
 	 */
 	public void putServiceData(RsService service, int key, Object data)
 	{
-		serviceData.computeIfAbsent(service.getServiceType().getType(), k -> new HashMap<>()).put(key, data);
+		serviceData.computeIfAbsent(service.getServiceType().getType(), _ -> new HashMap<>()).put(key, data);
 	}
 
 	/**

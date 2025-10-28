@@ -132,6 +132,7 @@ public class MessagingWindowController implements WindowController
 	private final ChatClient chatClient;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
+	private final LocationClient locationClient;
 
 	private Instant lastTypingNotification = Instant.EPOCH;
 
@@ -141,7 +142,7 @@ public class MessagingWindowController implements WindowController
 
 	private final boolean isIncoming;
 
-	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache, boolean isIncoming)
+	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache, LocationClient locationClient, boolean isIncoming)
 	{
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
@@ -155,6 +156,7 @@ public class MessagingWindowController implements WindowController
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		destination = new Destination(destinationIdentifier);
+		this.locationClient = locationClient;
 		this.isIncoming = isIncoming;
 	}
 
@@ -204,6 +206,13 @@ public class MessagingWindowController implements WindowController
 			if (event.getFile().canRead())
 			{
 				sendFile(event.getFile());
+			}
+		});
+
+		send.callPressedProperty().addListener((_, _, newValue) -> {
+			if (Boolean.TRUE.equals(newValue))
+			{
+				windowManager.doVoip(destination.getIdentifier().toString(), null);
 			}
 		});
 
@@ -303,6 +312,7 @@ public class MessagingWindowController implements WindowController
 							setAvailability(location.isConnected() ? location.getAvailability() : Availability.OFFLINE);
 							destination.setName(profile.getName());
 							destination.setPlace(location.getName());
+							destination.setLocationId(location.getId());
 							updateTitle();
 							receive.installClearHistoryContextMenu(() -> chatClient.deleteChatBacklog(location.getId()).subscribe());
 							chatClient.getChatBacklog(location.getId()).collectList()
@@ -482,6 +492,18 @@ public class MessagingWindowController implements WindowController
 	{
 		UiUtils.setPresent(notice, !online);
 		send.setOffline(!online);
+
+		if (online && destination.hasPlace())
+		{
+			locationClient.isServiceSupported(destination.getLocationId(), 0xA021) // VoIP service
+					.doOnSuccess(_ -> Platform.runLater(() -> send.setVoipCapable(true)))
+					.doOnError(_ -> Platform.runLater(() -> send.setVoipCapable(false)))
+					.subscribe();
+		}
+		else
+		{
+			send.setVoipCapable(false);
+		}
 	}
 
 	private void handleInputKeys(KeyEvent event)

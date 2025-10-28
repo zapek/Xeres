@@ -165,7 +165,7 @@ public class EditorView extends VBox
 	{
 		bundle = I18nUtils.getBundle();
 
-		var loader = new FXMLLoader(EditorView.class.getResource("/view/custom/editorview.fxml"), bundle);
+		var loader = new FXMLLoader(EditorView.class.getResource("/view/custom/editor_view.fxml"), bundle);
 		loader.setRoot(this);
 		loader.setController(this);
 

@@ -258,7 +258,7 @@ public class WindowManager
 		// Don't open a window for a typing notification, we're not psychic (but do open when we double-click). Don't open for messages sent by us but from another client either
 		if (chatMessage == null || (!chatMessage.isEmpty() && !chatMessage.isOwn()))
 		{
-			var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, imageCache, chatMessage != null);
+			var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, imageCache, locationClient, chatMessage != null);
 
 			// There's no need to store the incoming message anywhere because it's retrieved by the chat backlog system
 			var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)

@@ -44,7 +44,7 @@ public class WaveDotsView extends HBox
 
 	public WaveDotsView()
 	{
-		var loader = new FXMLLoader(WaveDotsView.class.getResource("/view/custom/wavedotsview.fxml"));
+		var loader = new FXMLLoader(WaveDotsView.class.getResource("/view/custom/wave_dots_view.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
 

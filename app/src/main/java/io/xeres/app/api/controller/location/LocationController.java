@@ -86,4 +86,23 @@ public class LocationController
 
 		return ResponseEntity.ok(qrCodeService.generateQrCode(location.getRsId(Type.SHORT_INVITE).getArmored()));
 	}
+
+	@GetMapping("/{id}/service/{serviceId}")
+	@Operation(summary = "Returns if a location supports a service")
+	@ApiResponse(responseCode = "200", description = "Service supported")
+	@ApiResponse(responseCode = "404", description = "Service not supported")
+	public ResponseEntity<Void> isServiceSupported(@PathVariable long id, @PathVariable int serviceId)
+	{
+		var location = locationService.findLocationById(id).orElseThrow();
+		var supported = locationService.isServiceSupported(location, serviceId);
+
+		if (supported)
+		{
+			return ResponseEntity.ok().build();
+		}
+		else
+		{
+			return ResponseEntity.notFound().build();
+		}
+	}
 }

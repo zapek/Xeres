@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -71,5 +71,13 @@ public class LocationClient
 						.build(id))
 				.retrieve()
 				.bodyToMono(RSIdResponse.class);
+	}
+
+	public Mono<Void> isServiceSupported(long id, int serviceId)
+	{
+		return webClient.get()
+				.uri("/{id}/service/{serviceId}", id, serviceId)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

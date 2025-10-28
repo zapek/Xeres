@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <fx:root type="HBox" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-    <Button fx:id="addFile" styleClass="button-icon, flat, accent">
+    <Button fx:id="addMedia" styleClass="button-icon, flat, accent">
         <graphic>
             <FontIcon iconLiteral="mdi2p-paperclip"/>
         </graphic>
@@ -40,12 +40,12 @@
             <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="%messaging.send-sticker"/>
         </tooltip>
     </Button>
-    <Button fx:id="addImage" styleClass="button-icon, flat, accent">
+    <Button fx:id="callButton" styleClass="button-icon, flat, accent" visible="false" managed="false">
         <graphic>
-            <FontIcon iconLiteral="mdi2i-image-plus"/>
+            <FontIcon iconLiteral="mdi2p-phone"/>
         </graphic>
         <tooltip>
-            <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="%messaging.send-picture"/>
+            <Tooltip maxWidth="300" wrapText="true" showDuration="1m" text="%messaging.action.call"/>
         </tooltip>
     </Button>
 </fx:root>

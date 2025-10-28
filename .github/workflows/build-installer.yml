@@ -56,7 +56,7 @@ jobs:
             ./app/build/distributions/Xeres-*.msi
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           path: ./app/build/distributions/Xeres-*.msi
           name: windows-installer-msi
@@ -88,7 +88,7 @@ jobs:
         run: .\gradlew.bat jpackage -P"jpackage.portable=true"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           path: ./app/build/distributions/Xeres-*.zip
           name: windows-installer-portable
@@ -139,7 +139,7 @@ jobs:
           mv "./app/build/distributions/${FILENAME}.dmg" "./app/build/distributions/${NEW_FILENAME}"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           path: ./app/build/distributions/Xeres-*.dmg
           name: macos-installer-${{ matrix.macos-version }}
@@ -194,7 +194,7 @@ jobs:
           mv "./app/build/distributions/${FILENAME}.deb" "./app/build/distributions/${NEW_FILENAME}"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           path: ./app/build/distributions/xeres_*.deb
           name: ubuntu-installer-deb-${{ matrix.ubuntu-version }}
@@ -209,44 +209,44 @@ jobs:
              build-macos-installer ]
     steps:
       - name: Download windows installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: windows-installer-msi
 
       - name: Download windows portable installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: windows-installer-portable
 
       - name: Download ubuntu-22.04 installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ubuntu-installer-deb-ubuntu-22.04
 
       - name: Download ubuntu-24.04 installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ubuntu-installer-deb-ubuntu-24.04
 
       - name: Download ubuntu-22.04-arm installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ubuntu-installer-deb-ubuntu-22.04-arm
 
       - name: Download ubuntu-24.04-arm installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ubuntu-installer-deb-ubuntu-24.04-arm
 
       # Intel
       - name: Download macos-15-intel installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: macos-installer-macos-15-intel
 
       # ARM
       - name: Download macos-15 installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: macos-installer-macos-15
 

@@ -28,7 +28,7 @@ import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.support.contact.ContactUtils;
-import io.xeres.ui.support.sound.SoundService;
+import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -46,7 +46,7 @@ import java.time.LocalTime;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-import static io.xeres.ui.support.sound.SoundService.SoundType;
+import static io.xeres.ui.support.sound.SoundPlayerService.SoundType;
 
 @Component
 @FxmlView(value = "/view/voip/voip.fxml")
@@ -96,21 +96,21 @@ public class VoipWindowController implements WindowController
 	private final ProfileClient profileClient;
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
-	private final SoundService soundService;
+	private final SoundPlayerService soundPlayerService;
 
 	private LocationIdentifier destinationIdentifier;
 	private Status status;
 	private final TimeCounter timeCounter;
 	private AudioClip audioClip;
 
-	public VoipWindowController(MessageClient messageClient, GeneralClient generalClient, ProfileClient profileClient, WindowManager windowManager, ResourceBundle bundle, SoundService soundService)
+	public VoipWindowController(MessageClient messageClient, GeneralClient generalClient, ProfileClient profileClient, WindowManager windowManager, ResourceBundle bundle, SoundPlayerService soundPlayerService)
 	{
 		this.messageClient = messageClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
 		this.windowManager = windowManager;
 		this.bundle = bundle;
-		this.soundService = soundService;
+		this.soundPlayerService = soundPlayerService;
 
 		timeCounter = new TimeCounter(duration -> timerLabel.setText(DateUtils.TIME_DISPLAY_WITH_SECONDS.format(LocalTime.ofSecondOfDay(duration.getSeconds() % (24 * 3600)))));
 	}
@@ -259,7 +259,7 @@ public class VoipWindowController implements WindowController
 	private void playRingingSound()
 	{
 		stopRingingSound();
-		audioClip = soundService.playRepeated(SoundType.RINGING);
+		audioClip = soundPlayerService.playRepeated(SoundType.RINGING);
 	}
 
 	private void stopRingingSound()

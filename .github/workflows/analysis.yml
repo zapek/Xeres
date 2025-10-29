@@ -31,10 +31,10 @@ jobs:
       - name: Check gradle wrapper
         uses: gradle/actions/wrapper-validation@v5
 
-      - name: Set up JDK 25
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          java-version: 25
+          java-version: 25.0.1
           distribution: 'graalvm'
 
       - name: Initialize CodeQL

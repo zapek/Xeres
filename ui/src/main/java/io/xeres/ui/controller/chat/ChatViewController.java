@@ -39,8 +39,8 @@ import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceUtils;
-import io.xeres.ui.support.sound.SoundService;
-import io.xeres.ui.support.sound.SoundService.SoundType;
+import io.xeres.ui.support.sound.SoundPlayerService;
+import io.xeres.ui.support.sound.SoundPlayerService.SoundType;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChatRoomUri;
@@ -100,7 +100,7 @@ import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
-@FxmlView(value = "/view/chat/chatview.fxml")
+@FxmlView(value = "/view/chat/chat_view.fxml")
 public class ChatViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
@@ -186,7 +186,7 @@ public class ChatViewController implements Controller
 	private final UriService uriService;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
-	private final SoundService soundService;
+	private final SoundPlayerService soundPlayerService;
 	private final ShareClient shareClient;
 	private final UnreadService unreadService;
 
@@ -208,7 +208,7 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, ShareClient shareClient, UnreadService unreadService)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ShareClient shareClient, UnreadService unreadService)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -221,7 +221,7 @@ public class ChatViewController implements Controller
 		this.uriService = uriService;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
-		this.soundService = soundService;
+		this.soundPlayerService = soundPlayerService;
 		this.shareClient = shareClient;
 		this.unreadService = unreadService;
 
@@ -704,7 +704,7 @@ public class ChatViewController implements Controller
 	{
 		if (message.startsWith(nickname) || message.startsWith("@" + nickname) || message.contains(" " + nickname))
 		{
-			soundService.play(SoundType.HIGHLIGHT);
+			soundPlayerService.play(SoundType.HIGHLIGHT);
 			trayService.setEventIfIconified();
 		}
 	}

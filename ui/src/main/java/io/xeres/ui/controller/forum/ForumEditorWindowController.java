@@ -39,7 +39,7 @@ import java.util.ResourceBundle;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
-@FxmlView(value = "/view/forum/forumeditorview.fxml")
+@FxmlView(value = "/view/forum/forum_editor_view.fxml")
 public class ForumEditorWindowController implements WindowController
 {
 	@FXML
@@ -74,12 +74,12 @@ public class ForumEditorWindowController implements WindowController
 	{
 		Platform.runLater(() -> title.requestFocus());
 
-		editorView.lengthProperty.addListener((observable, oldValue, newValue) -> checkSendable((Integer) newValue));
+		editorView.lengthProperty.addListener((_, _, newValue) -> checkSendable((Integer) newValue));
 		editorView.setInputContextMenu(locationClient);
 		editorView.setMarkdownService(markdownService);
-		title.setOnKeyTyped(event -> checkSendable(editorView.lengthProperty.getValue()));
+		title.setOnKeyTyped(_ -> checkSendable(editorView.lengthProperty.getValue()));
 
-		send.setOnAction(event -> postMessage());
+		send.setOnAction(_ -> postMessage());
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class ForumEditorWindowController implements WindowController
 	private void postMessage()
 	{
 		forumClient.createForumMessage(postRequest.forumId(), title.getText(), editorView.getText(), postRequest.replyToId(), postRequest.originalId())
-				.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
+				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
 				.subscribe();
 	}
 }

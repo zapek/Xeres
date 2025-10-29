@@ -78,7 +78,7 @@ class ContactViewControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(ContactViewControllerTest.class.getResource("/view/contact/contactview.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(ContactViewControllerTest.class.getResource("/view/contact/contact_view.fxml"), resourceBundle);
 
 		loader.setControllerFactory(_ -> controller);
 

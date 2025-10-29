@@ -25,7 +25,7 @@ import io.xeres.common.tray.TrayNotificationType;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.support.notification.NotificationSettings;
-import io.xeres.ui.support.sound.SoundService;
+import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import org.apache.commons.lang3.SystemUtils;
@@ -62,18 +62,18 @@ public class TrayService
 	private final NotificationClient notificationClient;
 	private final ConfigClient configClient;
 	private final NotificationSettings notificationSettings;
-	private final SoundService soundService;
+	private final SoundPlayerService soundPlayerService;
 	private final ResourceBundle bundle;
 
 	private Disposable availabilityNotificationDisposable;
 
-	public TrayService(WindowManager windowManager, NotificationClient notificationClient, ConfigClient configClient, NotificationSettings notificationSettings, SoundService soundService, ResourceBundle bundle)
+	public TrayService(WindowManager windowManager, NotificationClient notificationClient, ConfigClient configClient, NotificationSettings notificationSettings, SoundPlayerService soundPlayerService, ResourceBundle bundle)
 	{
 		this.windowManager = windowManager;
 		this.notificationClient = notificationClient;
 		this.configClient = configClient;
 		this.notificationSettings = notificationSettings;
-		this.soundService = soundService;
+		this.soundPlayerService = soundPlayerService;
 		this.bundle = bundle;
 	}
 
@@ -318,7 +318,7 @@ public class TrayService
 			trayIcon.displayMessage(AppName.NAME, message, TrayIcon.MessageType.NONE);
 			if (type == TrayNotificationType.CONNECTION)
 			{
-				soundService.play(SoundService.SoundType.FRIEND);
+				soundPlayerService.play(SoundPlayerService.SoundType.FRIEND);
 			}
 		}
 	}

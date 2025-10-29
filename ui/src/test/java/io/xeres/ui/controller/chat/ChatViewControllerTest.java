@@ -31,7 +31,7 @@ import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceUtils;
-import io.xeres.ui.support.sound.SoundService;
+import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.window.WindowManager;
@@ -92,7 +92,7 @@ class ChatViewControllerTest
 	private ImageCache imageCache;
 
 	@Mock
-	private SoundService soundService;
+	private SoundPlayerService soundPlayerService;
 
 	@Mock
 	private ShareClient shareClient;
@@ -103,7 +103,7 @@ class ChatViewControllerTest
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(ChatViewControllerTest.class.getResource("/view/chat/chatview.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(ChatViewControllerTest.class.getResource("/view/chat/chat_view.fxml"), resourceBundle);
 
 		loader.setControllerFactory(_ -> controller);
 

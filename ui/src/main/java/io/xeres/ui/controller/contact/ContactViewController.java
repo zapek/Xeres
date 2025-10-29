@@ -74,7 +74,10 @@ import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.*;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -98,7 +101,7 @@ import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
-@FxmlView(value = "/view/contact/contactview.fxml")
+@FxmlView(value = "/view/contact/contact_view.fxml")
 public class ContactViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
@@ -110,7 +113,6 @@ public class ContactViewController implements Controller
 	private static final String CONNECT_MENU_ID = "connect";
 	private static final String DELETE_MENU_ID = "delete";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
-	private static final String VOICE_CHAT_MENU_ID = "voiceChat";
 
 	private final ConfigClient configClient;
 	private final ConnectionClient connectionClient;
@@ -1161,15 +1163,7 @@ public class ContactViewController implements Controller
 			}
 		});
 
-		var voipItem = new MenuItem(bundle.getString("voip.context-menu.chat"));
-		voipItem.setId(VOICE_CHAT_MENU_ID);
-		voipItem.setGraphic(new FontIcon(MaterialDesignP.PHONE));
-		voipItem.setOnAction(event -> {
-			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
-			startVoip(contact.getValue());
-		});
-
-		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, distantChatItem, voipItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
+		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, distantChatItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
 		xContextMenu.setOnShowing((contextMenu, contact) -> {
 			if (contact == null)
 			{
@@ -1213,10 +1207,6 @@ public class ContactViewController implements Controller
 					});
 
 			contextMenu.getItems().stream()
-					.filter(menuItem -> VOICE_CHAT_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setVisible(contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID && contact.getValue().availability() != Availability.OFFLINE));
-
-			contextMenu.getItems().stream()
 					.filter(menuItem -> COPY_LINK_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact.getValue().profileId() == NO_PROFILE_ID && contact.getValue().identityId() == NO_IDENTITY_ID));
 
@@ -1250,14 +1240,6 @@ public class ContactViewController implements Controller
 			startChat(location.getLocationIdentifier());
 		});
 
-		var voipItem = new MenuItem(bundle.getString("voip.context-menu.chat"));
-		voipItem.setId(VOICE_CHAT_MENU_ID);
-		voipItem.setGraphic(new FontIcon(MaterialDesignP.PHONE));
-		voipItem.setOnAction(event -> {
-			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
-			startVoip(contact.getValue());
-		});
-
 		var connectItem = new MenuItem(bundle.getString("contact-view.action.connect"));
 		connectItem.setId(CONNECT_MENU_ID);
 		connectItem.setGraphic(new FontIcon(MaterialDesignC.CONNECTION));
@@ -1267,15 +1249,11 @@ public class ContactViewController implements Controller
 					.subscribe();
 		});
 
-		var xContextMenu = new XContextMenu<Location>(chatItem, voipItem, connectItem);
+		var xContextMenu = new XContextMenu<Location>(chatItem, connectItem);
 		xContextMenu.setOnShowing((contextMenu, location) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> menuItem.setDisable(location == null || location.getId() == OWN_LOCATION_ID));
-
-			contextMenu.getItems().stream()
-					.filter(menuItem -> VOICE_CHAT_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(location == null || location.getId() == OWN_LOCATION_ID || !location.isConnected()));
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CONNECT_MENU_ID.equals(menuItem.getId()))
@@ -1340,19 +1318,6 @@ public class ContactViewController implements Controller
 		identityClient.findById(contact.identityId())
 				.doOnSuccess(identity -> windowManager.openMessaging(identity.getGxsId()))
 				.subscribe();
-	}
-
-	private void startVoip(Contact contact)
-	{
-		if (contact.profileId() != NO_PROFILE_ID)
-		{
-			profileClient.findById(contact.profileId())
-					.doOnSuccess(profile -> profile.getLocations().stream()
-							.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
-							.ifPresent(location -> windowManager.doVoip(location.getLocationIdentifier().toString(), null))
-					)
-					.subscribe();
-		}
 	}
 
 	@EventListener

@@ -21,7 +21,7 @@ package io.xeres.ui.controller.settings;
 
 import io.xeres.common.util.OsUtils;
 import io.xeres.ui.model.settings.Settings;
-import io.xeres.ui.support.sound.SoundService;
+import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.sound.SoundSettings;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
@@ -101,13 +101,13 @@ public class SettingsSoundController implements SettingsController
 
 	private final ResourceBundle bundle;
 	private final SoundSettings soundSettings;
-	private final SoundService soundService;
+	private final SoundPlayerService soundPlayerService;
 
-	public SettingsSoundController(ResourceBundle bundle, SoundSettings soundSettings, SoundService soundService)
+	public SettingsSoundController(ResourceBundle bundle, SoundSettings soundSettings, SoundPlayerService soundPlayerService)
 	{
 		this.bundle = bundle;
 		this.soundSettings = soundSettings;
-		this.soundService = soundService;
+		this.soundPlayerService = soundPlayerService;
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public class SettingsSoundController implements SettingsController
 				path.setText(selectedFile.getAbsolutePath());
 			}
 		});
-		playButton.setOnAction(_ -> soundService.play(path.getText()));
+		playButton.setOnAction(_ -> soundPlayerService.play(path.getText()));
 	}
 
 	private void setInitialDirectoryIfExists(FileChooser fileChooser, String filePath)

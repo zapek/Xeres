@@ -81,7 +81,7 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
-@FxmlView(value = "/view/forum/forumview.fxml")
+@FxmlView(value = "/view/forum/forum_view.fxml")
 public class ForumViewController implements Controller
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);

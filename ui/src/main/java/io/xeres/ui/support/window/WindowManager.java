@@ -57,8 +57,8 @@ import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.preference.PreferenceUtils;
-import io.xeres.ui.support.sound.SoundService;
-import io.xeres.ui.support.sound.SoundService.SoundType;
+import io.xeres.ui.support.sound.SoundPlayerService;
+import io.xeres.ui.support.sound.SoundPlayerService.SoundType;
 import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.UiUtils;
@@ -108,7 +108,7 @@ public class WindowManager
 	private final NotificationClient notificationClient;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
-	private final SoundService soundService;
+	private final SoundPlayerService soundPlayerService;
 	private final HostServices hostServices;
 	private static ResourceBundle bundle;
 	private static AppThemeManager appThemeManager;
@@ -124,7 +124,7 @@ public class WindowManager
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundService soundService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -139,7 +139,7 @@ public class WindowManager
 		this.notificationClient = notificationClient;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
-		this.soundService = soundService;
+		this.soundPlayerService = soundPlayerService;
 		this.hostServices = hostServices;
 		WindowManager.bundle = bundle;
 		WindowManager.appThemeManager = appThemeManager;
@@ -245,7 +245,7 @@ public class WindowManager
 			{
 				if (!window.isFocused())
 				{
-					soundService.play(SoundType.MESSAGE);
+					soundPlayerService.play(SoundType.MESSAGE);
 					window.requestFocus();
 				}
 			}
@@ -275,7 +275,7 @@ public class WindowManager
 				builder.open();
 				if (chatMessage != null)
 				{
-					soundService.play(SoundType.MESSAGE);
+					soundPlayerService.play(SoundType.MESSAGE);
 				}
 			}
 		}
@@ -288,7 +288,7 @@ public class WindowManager
 						() -> {
 							var forumEditor = new ForumEditorWindowController(forumClient, locationClient, markdownService, bundle);
 
-							UiWindow.builder("/view/forum/forumeditorview.fxml", forumEditor)
+							UiWindow.builder("/view/forum/forum_editor_view.fxml", forumEditor)
 									.setLocalId(postRequest.toString())
 									.setTitle(bundle.getString("forum.new-message.window-title"))
 									.setUserData(postRequest)

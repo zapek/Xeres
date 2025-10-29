@@ -28,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Service
-public class SoundService
+public class SoundPlayerService
 {
 	private final SoundSettings soundSettings;
 
@@ -41,7 +41,7 @@ public class SoundService
 		RINGING
 	}
 
-	public SoundService(SoundSettings soundSettings)
+	public SoundPlayerService(SoundSettings soundSettings)
 	{
 		this.soundSettings = soundSettings;
 	}

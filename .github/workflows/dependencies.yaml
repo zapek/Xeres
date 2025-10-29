@@ -17,10 +17,10 @@ jobs:
         with:
           fetch-depth: 0 # A tag is needed for git version generation to work
 
-      - name: Setup JDK 25
+      - name: Setup JDK
         uses: actions/setup-java@v5
         with:
-          java-version: 25
+          java-version: 25.0.1
           distribution: 'graalvm'
 
       - name: Generate and submit dependency graph

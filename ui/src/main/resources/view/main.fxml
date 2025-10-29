@@ -118,21 +118,21 @@
                     <graphic>
                         <FontIcon iconLiteral="mdi2a-account-group"/>
                     </graphic>
-                    <fx:include fx:id="contactsView" source="contact/contactview.fxml"/>
+                    <fx:include fx:id="contactsView" source="contact/contact_view.fxml"/>
                 </Tab>
                 <Tab fx:id="chatTab" text="%main.chats">
                     <graphic>
                         <FontIcon iconLiteral="mdi2c-chat"/>
                     </graphic>
                     <!--suppress Annotator -->
-                    <fx:include fx:id="chatView" source="chat/chatview.fxml"/>
+                    <fx:include fx:id="chatView" source="chat/chat_view.fxml"/>
                 </Tab>
                 <Tab fx:id="forumTab" text="%main.forums">
                     <graphic>
                         <FontIcon iconLiteral="mdi2b-bullhorn"/>
                     </graphic>
                     <!--suppress Annotator -->
-                    <fx:include fx:id="forumsView" source="forum/forumview.fxml"/>
+                    <fx:include fx:id="forumsView" source="forum/forum_view.fxml"/>
                 </Tab>
                 <Tab fx:id="fileTab" text="%main.files">
                     <graphic>

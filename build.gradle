@@ -48,7 +48,7 @@ plugins {
 }
 
 wrapper {
-    gradleVersion = "9.1.0" // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
+    gradleVersion = "9.2.0" // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
 }
 
 // This gives a git-like version for git builds but a proper version

@@ -137,6 +137,17 @@ class TextInputControlUtilsTest
 	}
 
 	@Test
+	void pasteGuessedContent_CitationButNotCode2()
+	{
+		var input = """
+				As an extra layer of security, Android is requiring all apps to be registered by verified developers in order to be installed on certified Android devices. Most Play developers likely already completed these steps and will be able to register additional apps in Play Console. Sign up for early access.
+				""";
+
+		assertFalse(TextInputControlUtils.isSourceCode(input));
+		assertTrue(TextInputControlUtils.isCitation(input));
+	}
+
+	@Test
 	void pasteGuessedContent_Citation_False()
 	{
 		assertFalse(TextInputControlUtils.isCitation("this is just some text"));

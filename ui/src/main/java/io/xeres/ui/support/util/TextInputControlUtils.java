@@ -208,15 +208,18 @@ public final class TextInputControlUtils
 			return true;
 		}
 
-		// Common language keywords, function/method signatures and includes/prints
-		if (CODE_PATTERN.matcher(trimmed).find())
+		// SQL statement
+		if (SQL_PATTERN.matcher(trimmed).find())
 		{
 			return true;
 		}
 
-		if (SQL_PATTERN.matcher(trimmed).find())
+		var heuristic = 0;
+
+		// Code detector has many false positives so don't use it alone
+		if (CODE_PATTERN.matcher(trimmed).find())
 		{
-			return true;
+			heuristic++;
 		}
 
 		// Semicolon frequency (common in C/Java/JS) and presence of multiple lines
@@ -230,7 +233,7 @@ public final class TextInputControlUtils
 		var symbols = ";{}()[]<>#=\\*%+-|";
 		long specialCount = trimmed.chars().filter(c -> symbols.indexOf(c) >= 0).count();
 		double density = (double) specialCount / Math.max(1, trimmed.length());
-		if (density > 0.03 && trimmed.contains("\n"))
+		if ((density > 0.03 && trimmed.contains("\n")) || (specialCount >= 2 && heuristic > 0))
 		{
 			return true;
 		}

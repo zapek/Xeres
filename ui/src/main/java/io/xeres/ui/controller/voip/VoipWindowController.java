@@ -182,6 +182,12 @@ public class VoipWindowController implements WindowController
 
 	public void doAction(String identifier, VoipMessage voipMessage)
 	{
+		if (voipMessage == null)
+		{
+			// We ignore outgoing calls if the window is already open
+			UiUtils.getWindow(nameLabel).requestFocus();
+			return;
+		}
 		destinationIdentifier = LocationIdentifier.fromString(identifier);
 		switch (voipMessage.getAction())
 		{

@@ -478,8 +478,16 @@ public class MessagingWindowController implements WindowController
 				setUserOnline(true);
 				yield "";
 			}
-			case AWAY -> "(" + Availability.AWAY + ")";
-			case BUSY -> "(" + Availability.BUSY + ")";
+			case AWAY ->
+			{
+				setUserOnline(true);
+				yield "(" + Availability.AWAY + ")";
+			}
+			case BUSY ->
+			{
+				setUserOnline(true);
+				yield "(" + Availability.BUSY + ")";
+			}
 			case OFFLINE ->
 			{
 				setUserOnline(false);

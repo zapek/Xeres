@@ -244,6 +244,12 @@
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
+                    <DisclosedHyperlink text="JSpeex" uri="https://github.com/SourceUtils/jspeex"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Wimba S.A. Licensed under the "/>
+                    <DisclosedHyperlink text="BSD license." uri="https://github.com/SourceUtils/jspeex?tab=License-1-ov-file#readme"/>
+                    <Text text="&#10;&#10;"/>
+
                     <DisclosedHyperlink text="jsoup" uri="https://jsoup.org/"/>
                     <Text text="&#10;"/>
                     <Text text=" © Jonathan Hedley. Licensed under the "/>

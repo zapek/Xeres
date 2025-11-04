@@ -22,6 +22,7 @@
 - 🚫 No censorship. Cannot be censored
 - 💬 Chat directly with your friends or in chat rooms
 - 📢 Participate in forums and discuss any topic
+- 📞 Make voice calls with your friends
 - 📂 Share and search files anonymously
 - 👋 Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
 - 🛠️ Hardware accelerated encryption

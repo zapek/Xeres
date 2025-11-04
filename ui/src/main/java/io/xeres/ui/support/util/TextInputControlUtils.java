@@ -233,7 +233,7 @@ public final class TextInputControlUtils
 		var symbols = ";{}()[]<>#=\\*%+-|";
 		long specialCount = trimmed.chars().filter(c -> symbols.indexOf(c) >= 0).count();
 		double density = (double) specialCount / Math.max(1, trimmed.length());
-		if ((density > 0.03 && trimmed.contains("\n")) || (specialCount >= 2 && heuristic > 0))
+		if ((density > 0.03 && trimmed.contains("\n")) || (specialCount > 2 && heuristic > 0))
 		{
 			return true;
 		}

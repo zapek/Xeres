@@ -215,7 +215,7 @@ public class ForumViewController implements Controller
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
 		forumTree.getSelectionModel().selectedItemProperty()
-				.addListener((_, _, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue.getValue())));
+				.addListener((_, _, newValue) -> Platform.runLater(() -> changeSelectedForumGroup(newValue)));
 
 		UiUtils.setOnPrimaryMouseDoubleClicked(forumTree, _ -> {
 			if (isForumSelected())
@@ -556,25 +556,29 @@ public class ForumViewController implements Controller
 						.subscribe());
 	}
 
-	private void changeSelectedForumGroup(ForumGroup forumGroup)
+	private void changeSelectedForumGroup(TreeItem<ForumGroup> treeItem)
 	{
+		var forumGroup = treeItem != null ? treeItem.getValue() : null;
 		selectedForumGroup = forumGroup;
 		selectedForumMessage = null;
 
-		getBrowsableTreeItem(forumGroup.getId()).ifPresentOrElse(_ -> forumClient.getForumMessages(forumGroup.getId()).collectList()
-				.doFirst(() -> forumMessagesState(true))
-				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
-					forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
-					forumMessagesRoot.getChildren().clear();
-					forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(forumMessages));
-					forumMessagesTreeTableView.sort();
-					clearMessage();
-					newThread.setDisable(false);
-					selectMessageIfNeeded();
-				}))
-				.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
-				.doFinally(_ -> forumMessagesState(false))
-				.subscribe(), () -> Platform.runLater(() -> {
+		getBrowsableTreeItem(forumGroup != null ? forumGroup.getId() : 0L).ifPresentOrElse(_ -> {
+			assert forumGroup != null;
+			forumClient.getForumMessages(forumGroup.getId()).collectList()
+					.doFirst(() -> forumMessagesState(true))
+					.doOnSuccess(forumMessages -> Platform.runLater(() -> {
+						forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
+						forumMessagesRoot.getChildren().clear();
+						forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(forumMessages));
+						forumMessagesTreeTableView.sort();
+						clearMessage();
+						newThread.setDisable(false);
+						selectMessageIfNeeded();
+					}))
+					.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
+					.doFinally(_ -> forumMessagesState(false))
+					.subscribe();
+		}, () -> Platform.runLater(() -> {
 			// XXX: this is the case when there's no active forum selected. display some forum/tree group info in the message view
 			forumMessagesTreeTableView.getSelectionModel().clearSelection();
 			forumMessagesRoot.getChildren().clear();

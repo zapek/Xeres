@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -61,7 +61,7 @@ public class ChatRoomInfoController implements Controller
 
 	public void setRoomInfo(ChatRoomInfo chatRoomInfo)
 	{
-		if (chatRoomInfo.isReal())
+		if (chatRoomInfo != null && chatRoomInfo.isReal())
 		{
 			roomGroup.setVisible(true);
 			roomName.setText(chatRoomInfo.getName());

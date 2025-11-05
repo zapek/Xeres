@@ -252,7 +252,7 @@ public class ChatViewController implements Controller
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
 		roomTree.getSelectionModel().selectedItemProperty()
-				.addListener((_, _, newValue) -> Platform.runLater(() -> changeSelectedRoom(newValue.getValue().getRoomInfo())));
+				.addListener((_, _, newValue) -> Platform.runLater(() -> changeSelectedRoom(newValue)));
 
 		UiUtils.setOnPrimaryMouseDoubleClicked(roomTree, _ -> {
 			if (isRoomSelected())
@@ -613,11 +613,13 @@ public class ChatViewController implements Controller
 				.anyMatch(roomHolder -> roomHolder.getRoomInfo().equals(chatRoomInfo));
 	}
 
-	private void changeSelectedRoom(ChatRoomInfo chatRoomInfo)
+	private void changeSelectedRoom(TreeItem<RoomHolder> treeItem)
 	{
+		var chatRoomInfo = treeItem != null ? treeItem.getValue().getRoomInfo() : null;
 		selectedRoom = chatRoomInfo;
 
-		getSubscribedTreeItem(chatRoomInfo.getId()).ifPresentOrElse(roomInfoTreeItem -> {
+		getSubscribedTreeItem(chatRoomInfo != null ? chatRoomInfo.getId() : 0L).ifPresentOrElse(roomInfoTreeItem -> {
+			assert chatRoomInfo != null;
 			var chatListView = getChatListViewOrCreate(roomInfoTreeItem);
 			selectedChatListView = chatListView;
 			switchChatContent(chatListView.getChatView(), chatListView.getUserListView());

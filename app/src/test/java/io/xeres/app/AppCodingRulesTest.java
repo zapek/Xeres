@@ -33,11 +33,10 @@ import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import jakarta.persistence.Entity;
+import org.slf4j.Logger;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-import static com.tngtech.archunit.library.GeneralCodingRules.ACCESS_STANDARD_STREAMS;
-import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
+import static com.tngtech.archunit.library.GeneralCodingRules.*;
 
 @SuppressWarnings("unused")
 @AnalyzeClasses(packagesOf = XeresApplication.class, importOptions = ImportOption.DoNotIncludeTests.class)
@@ -49,6 +48,17 @@ class AppCodingRulesTest
 			.andShould()
 			.notBe(CommandArgument.class)
 			.because("We use loggers");
+
+	@ArchTest
+	private final ArchRule noJavaUtilLogging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
+
+	@ArchTest
+	private final ArchRule loggersShouldBeFinalAndStatic =
+			fields().that().haveRawType(Logger.class)
+					.should().bePrivate().orShould().beProtected()
+					.andShould().beStatic().orShould().beProtected()
+					.andShould().beFinal()
+					.because("we agreed on this convention");
 
 	@ArchTest
 	private final ArchRule noFieldInjection = NO_CLASSES_SHOULD_USE_FIELD_INJECTION

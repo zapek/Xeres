@@ -30,11 +30,10 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import io.xeres.ui.controller.WindowController;
+import org.slf4j.Logger;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-import static com.tngtech.archunit.library.GeneralCodingRules.ACCESS_STANDARD_STREAMS;
-import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
+import static com.tngtech.archunit.library.GeneralCodingRules.*;
 
 @SuppressWarnings("unused")
 @AnalyzeClasses(packagesOf = JavaFxApplication.class, importOptions = ImportOption.DoNotIncludeTests.class)
@@ -50,6 +49,17 @@ class UiCodingRulesTest
 			.because("Constructor injection allow detection of cyclic dependencies");
 
 	@ArchTest
+	private final ArchRule noJavaUtilLogging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
+
+	@ArchTest
+	private final ArchRule loggersShouldBeFinalAndStatic =
+			fields().that().haveRawType(Logger.class)
+					.should().bePrivate().orShould().beProtected()
+					.andShould().beStatic().orShould().beProtected()
+					.andShould().beFinal()
+					.because("we agreed on this convention");
+
+	@ArchTest
 	private final ArchRule windowNaming = classes()
 			.that().implement(WindowController.class)
 			.should().haveSimpleNameEndingWith("WindowController");
@@ -57,7 +67,7 @@ class UiCodingRulesTest
 	@ArchTest
 	private final ArchRule utilityClass = classes()
 			.that().haveSimpleNameEndingWith("Utils")
-			.should(new ArchCondition<>("have a private constructor without parameters")
+			.should(new ArchCondition<>("have a private constructor without parameters, that throws UnsupportedOperationException")
 			        {
 				        @Override
 				        public void check(JavaClass javaClass, ConditionEvents events)
@@ -77,7 +87,7 @@ class UiCodingRulesTest
 
 	@ArchTest
 	private final ArchRule noDirectInitialDirectoryCalls = noClasses()
-			.should(new ArchCondition<>("not call FileChooser or DirectoryChooser's setInitialDirectory() directly but use ChooserUtils")
+			.should(new ArchCondition<>("call FileChooser or DirectoryChooser's setInitialDirectory() directly but use ChooserUtils")
 			        {
 				        @Override
 				        public void check(JavaClass javaClass, ConditionEvents events)

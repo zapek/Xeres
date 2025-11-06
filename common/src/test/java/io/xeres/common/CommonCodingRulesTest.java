@@ -29,12 +29,19 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import io.xeres.common.id.Identifier;
+import org.slf4j.Logger;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
+import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
 
+@SuppressWarnings("unused")
 @AnalyzeClasses(packagesOf = AppName.class, importOptions = ImportOption.DoNotIncludeTests.class)
 class CommonCodingRulesTest
 {
+	@ArchTest
+	private final ArchRule noJavaUtilLogging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
+
 	/**
 	 * The serializer uses the 'LENGTH' field of identifiers to be able to deserialize them.
 	 * Make sure they all implement one.
@@ -54,6 +61,14 @@ class CommonCodingRulesTest
 					events.add(new SimpleConditionEvent(javaClass, satisfied, message));
 				}
 			});
+
+	@ArchTest
+	private final ArchRule loggersShouldBeFinalAndStatic =
+			fields().that().haveRawType(Logger.class)
+					.should().bePrivate().orShould().beProtected()
+					.andShould().beStatic().orShould().beProtected()
+					.andShould().beFinal()
+					.because("we agreed on this convention");
 
 	@ArchTest
 	private final ArchRule utilityClass = classes()

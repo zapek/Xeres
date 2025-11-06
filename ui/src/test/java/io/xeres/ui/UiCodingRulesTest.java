@@ -20,6 +20,7 @@
 package io.xeres.ui;
 
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
@@ -35,6 +36,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.GeneralCodingRules.ACCESS_STANDARD_STREAMS;
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
 
+@SuppressWarnings("unused")
 @AnalyzeClasses(packagesOf = JavaFxApplication.class, importOptions = ImportOption.DoNotIncludeTests.class)
 class UiCodingRulesTest
 {
@@ -72,4 +74,34 @@ class UiCodingRulesTest
 			        }
 			)
 			.andShould().haveModifier(JavaModifier.FINAL);
+
+	@ArchTest
+	private final ArchRule noDirectInitialDirectoryCalls = noClasses()
+			.should(new ArchCondition<>("not call FileChooser or DirectoryChooser's setInitialDirectory() directly but use ChooserUtils")
+			        {
+				        @Override
+				        public void check(JavaClass javaClass, ConditionEvents events)
+				        {
+					        for (JavaMethodCall call : javaClass.getMethodCallsFromSelf())
+					        {
+						        String targetName = call.getTarget().getName();
+						        if (!"setInitialDirectory".equals(targetName))
+						        {
+							        continue;
+						        }
+						        String owner = call.getTargetOwner().getFullName();
+						        if ("javafx.stage.FileChooser".equals(owner) || "javafx.stage.DirectoryChooser".equals(owner))
+						        {
+							        if ("ChooserUtils".equals(javaClass.getSimpleName()))
+							        {
+								        continue;
+							        }
+							        String message = javaClass.getDescription() + " calls " + owner + ".setInitialDirectory";
+							        events.add(new SimpleConditionEvent(javaClass, true, message));
+						        }
+					        }
+				        }
+			        }
+			)
+			.because("the Chooser would fail to open if the directory doesn't exist");
 }

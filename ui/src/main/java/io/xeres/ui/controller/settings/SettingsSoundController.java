@@ -23,6 +23,7 @@ import io.xeres.common.util.OsUtils;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.sound.SoundSettings;
+import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -159,10 +160,7 @@ public class SettingsSoundController implements SettingsController
 		if (parent != null)
 		{
 			var file = parent.toFile();
-			if (file.isDirectory())
-			{
-				fileChooser.setInitialDirectory(file);
-			}
+			ChooserUtils.setInitialDirectory(fileChooser, file);
 		}
 	}
 

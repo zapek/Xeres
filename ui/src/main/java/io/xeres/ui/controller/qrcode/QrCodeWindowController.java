@@ -25,6 +25,7 @@ import io.xeres.common.util.OsUtils;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.ResizeableImageView;
+import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -163,7 +164,7 @@ public class QrCodeWindowController implements WindowController
 	{
 		var fileChooser = new FileChooser();
 		fileChooser.setTitle(bundle.getString("qr-code.save-as-png"));
-		fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
+		ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 		fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.png"), "*.png"));
 		fileChooser.setInitialFileName(AppName.NAME + "ID_" + rsIdResponse.name() + "@" + rsIdResponse.location() + ".png");
 		var selectedFile = fileChooser.showSaveDialog(window);

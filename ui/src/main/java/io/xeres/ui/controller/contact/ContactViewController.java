@@ -42,10 +42,7 @@ import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.ProfileUri;
-import io.xeres.ui.support.util.PublicKeyUtils;
-import io.xeres.ui.support.util.TextInputControlUtils;
-import io.xeres.ui.support.util.TooltipUtils;
-import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.util.*;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -1281,7 +1278,7 @@ public class ContactViewController implements Controller
 	{
 		var fileChooser = new FileChooser();
 		fileChooser.setTitle(bundle.getString("main.select-avatar"));
-		fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
+		ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
 		var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 		if (selectedFile != null && selectedFile.canRead())

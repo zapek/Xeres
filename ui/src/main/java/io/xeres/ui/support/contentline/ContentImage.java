@@ -23,6 +23,7 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.OsUtils;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.preference.PreferenceUtils;
+import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.image.ImageUtils;
 import javafx.embed.swing.SwingFXUtils;
@@ -154,7 +155,7 @@ public class ContentImage implements Content
 
 		var fileChooser = new FileChooser();
 		fileChooser.setTitle(bundle.getString("file-requester.save-image-title"));
-		fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
+		ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(saveFormat.format(), saveFormat.extensions()));
 		fileChooser.setInitialFileName("Image_" + DATE_TIME_FILENAME.format(Instant.now()) + saveFormat.getPrimaryExtension());
 

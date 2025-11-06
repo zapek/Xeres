@@ -23,6 +23,7 @@ import io.xeres.common.util.OsUtils;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -115,7 +116,7 @@ public class AccountCreationWindowController implements WindowController
 		importBackup.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("account.generation.profile-load"));
-			fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
+			ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.profiles"), "*.xml", "*.gpg", "*.asc"));
 			var selectedFile = fileChooser.showOpenDialog(UiUtils.getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())

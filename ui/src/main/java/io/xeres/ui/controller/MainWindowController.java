@@ -44,6 +44,7 @@ import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.updater.UpdateService;
 import io.xeres.ui.support.uri.*;
+import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -290,7 +291,7 @@ public class MainWindowController implements WindowController
 		exportBackup.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("main.export-profile"));
-			fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
+			ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
 			fileChooser.setInitialFileName("xeres_backup.xml");
 			var selectedFile = fileChooser.showSaveDialog(getWindow(event));
@@ -303,7 +304,7 @@ public class MainWindowController implements WindowController
 		importFriends.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("main.import-friends"));
-			fileChooser.setInitialDirectory(OsUtils.getDownloadDir().toFile());
+			ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(bundle.getString("file-requester.xml"), "*.xml"));
 			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null && selectedFile.canRead())

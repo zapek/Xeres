@@ -266,7 +266,7 @@ public class WindowManager
 					.setRememberEnvironment(true)
 					.build();
 
-			if (isBusy)
+			if (chatMessage != null && isBusy)
 			{
 				builder.openInTaskbar();
 			}
@@ -317,6 +317,12 @@ public class WindowManager
 
 	public void doVoip(String identifier, VoipMessage voipMessage)
 	{
+		if (isBusy && voipMessage != null) // XXX: this will fail if we place a call while being busy (we won't get the answer)
+		{
+			log.info("Ignored VoIP call from {} because we are busy", identifier);
+			return;
+		}
+
 		Platform.runLater(() -> getOpenedWindow(VoipWindowController.class).ifPresentOrElse(window -> {
 					window.requestFocus();
 					((VoipWindowController) window.getUserData()).doAction(identifier, voipMessage);

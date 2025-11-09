@@ -27,6 +27,7 @@ import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.message.voip.VoipAction;
 import io.xeres.common.message.voip.VoipMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.rest.forum.PostRequest;
@@ -317,10 +318,20 @@ public class WindowManager
 
 	public void doVoip(String identifier, VoipMessage voipMessage)
 	{
-		if (isBusy && voipMessage != null) // XXX: this will fail if we place a call while being busy (we won't get the answer)
+		if (isBusy && voipMessage != null)
 		{
-			log.info("Ignored VoIP call from {} because we are busy", identifier);
-			return;
+			// We ignore incoming calls
+			if (voipMessage.getAction() == VoipAction.RING)
+			{
+				log.info("Ignored VoIP call from {} because we are busy", identifier);
+				return;
+			}
+			// But if this was a call from us (while being busy), honor the close event, without making the window active, though (we're "busy")
+			else if (voipMessage.getAction() == VoipAction.CLOSE)
+			{
+				Platform.runLater(() -> getOpenedWindow(VoipWindowController.class).ifPresent(window -> ((VoipWindowController) window.getUserData()).doAction(identifier, voipMessage)));
+				return;
+			}
 		}
 
 		Platform.runLater(() -> getOpenedWindow(VoipWindowController.class).ifPresentOrElse(window -> {

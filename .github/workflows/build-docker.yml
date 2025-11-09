@@ -59,7 +59,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          fetch-depth: 5 # XXX: set to 0 later on...
+          fetch-depth: 0
 
       - name: Get version from git tag
         id: get_version

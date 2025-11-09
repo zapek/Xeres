@@ -89,7 +89,7 @@ public class AboutWindowController implements WindowController
 		}
 		else
 		{
-			profile.setText("Profiles: " + String.join(", ", environment.getActiveProfiles()));
+			profile.setText(bundle.getString("about.profiles") + " " + String.join(", ", environment.getActiveProfiles()));
 		}
 		license.setText(UiUtils.getResourceFileAsString(AboutWindowController.class.getResourceAsStream("/LICENSE")));
 

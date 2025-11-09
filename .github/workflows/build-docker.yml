@@ -1,44 +1,12 @@
 # Docker image builder
-#
-# Is run manually for now
-#
-# ARM64 is not available yet because it requires building 2 images with
-# different tags, so something like:
-#
-#  ./gradlew bootBuildImage --imageName=yourusername/your-app:1.0.0-amd64
-#  ./gradlew bootBuildImage --imageName=yourusername/your-app:1.0.0-arm64
-#
-#  # Push both
-#  docker push yourusername/your-app:1.0.0-amd64
-#  docker push yourusername/your-app:1.0.0-arm64
-#
-#  # Create manifest for 'latest' and version tag
-#  docker manifest create yourusername/your-app:1.0.0 \
-#  yourusername/your-app:1.0.0-amd64 \
-#  yourusername/your-app:1.0.0-arm64
-#
-#  docker manifest create yourusername/your-app:latest \
-#  yourusername/your-app:1.0.0-amd64 \
-#  yourusername/your-app:1.0.0-arm64
-#
-#  docker manifest push yourusername/your-app:1.0.0
-#  docker manifest push yourusername/your-app:latest
-#
-# Also I'm not sure about the last push (it has "latest", not the version)
-# I think I need the version in there
-#
-# To verify:>
-#
-# See what architecture was pulled on your current machine
-#  docker image inspect yourusername/your-app:latest --format='{{.Architecture}}'
-#
-#  # Check the manifest list
-#  docker manifest inspect -v yourusername/your-app:latest
 
 name: build-docker.yml
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
 env:
   JAVA_VERSION: '25.0.1'

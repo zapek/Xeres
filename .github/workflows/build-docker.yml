@@ -46,16 +46,24 @@ env:
 
 jobs:
   build-docker-release:
-    name: Build ${{ matrix.ubuntu-version }} release
-    runs-on: ${{ matrix.ubuntu-version }}
+    name: Build ${{ matrix.arch }} release
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        ubuntu-version: [ ubuntu-24.04 ]
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 5 # XXX: set to 0 later on...
+
+      - name: Get version from git tag
+        id: get_version
+        run: echo "VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')" >> $GITHUB_OUTPUT
 
       - name: Validate Gradle
         uses: gradle/actions/wrapper-validation@v5
@@ -71,7 +79,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Build Docker image
-        run: ./gradlew bootBuildImage
+        run: ./gradlew bootBuildImage --imageName=${{ secrets.DOCKERHUB_USERNAME }}/xeres:${{ steps.get_version.outputs.VERSION }}-${{ matrix.arch }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -81,4 +89,33 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/xeres:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/xeres:${{ steps.get_version.outputs.VERSION }}-${{ matrix.arch }}
+
+  create-manifest:
+    needs: build-docker-release
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Get version from git tag
+        id: get_version
+        run: |
+          git fetch --tags
+          echo "VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create and push manifest
+        run: |
+          docker manifest create ${{ secrets.DOCKERHUB_USERNAME }}/xeres:${{ steps.get_version.outputs.VERSION }} \
+            ${{ secrets.DOCKERHUB_USERNAME }}/xeres:${{ steps.get_version.outputs.VERSION }}-amd64 \
+            ${{ secrets.DOCKERHUB_USERNAME }}/xeres:${{ steps.get_version.outputs.VERSION }}-arm64
+
+          docker manifest create ${{ secrets.DOCKERHUB_USERNAME }}/xeres:latest \
+            ${{ secrets.DOCKERHUB_USERNAME }}/xeres:${{ steps.get_version.outputs.VERSION }}-amd64 \
+            ${{ secrets.DOCKERHUB_USERNAME }}/xeres:${{ steps.get_version.outputs.VERSION }}-arm64
+
+          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}/xeres:${{ steps.get_version.outputs.VERSION }}
+          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}/xeres:latest

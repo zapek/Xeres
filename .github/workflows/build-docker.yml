@@ -95,6 +95,11 @@ jobs:
     needs: build-docker-release
     runs-on: ubuntu-24.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
       - name: Get version from git tag
         id: get_version
         run: |

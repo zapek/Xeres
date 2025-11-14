@@ -25,8 +25,11 @@ import io.xeres.common.properties.StartupProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.net.ssl.SSLException;
 
@@ -38,13 +41,27 @@ import javax.net.ssl.SSLException;
 @Configuration
 public class WebClientConfiguration
 {
+	public static final int MAX_IN_MEMORY = 300 * 1024;
+
+	private final JsonMapper jsonMapper;
+
+	public WebClientConfiguration(JsonMapper jsonMapper)
+	{
+		this.jsonMapper = jsonMapper;
+	}
+
 	@Bean
 	public WebClient.Builder webClientBuilder() throws SSLException
 	{
 		var webClientBuilder = createWebClientBuilder();
 		// Allow bigger message sizes (default is 256 KB). Not used yet but potentially
 		// a private message can be around 300 KB.
-		webClientBuilder.codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs().maxInMemorySize(300 * 1024));
+		webClientBuilder.codecs(clientCodecConfigurer -> {
+			var defaultCodecs = clientCodecConfigurer.defaultCodecs();
+			defaultCodecs.maxInMemorySize(MAX_IN_MEMORY);
+			defaultCodecs.jacksonJsonDecoder(new JacksonJsonDecoder(jsonMapper));
+			defaultCodecs.jacksonJsonEncoder(new JacksonJsonEncoder(jsonMapper));
+		});
 		return webClientBuilder;
 	}
 

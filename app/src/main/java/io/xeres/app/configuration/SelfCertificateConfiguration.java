@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,8 +30,8 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
+import org.springframework.boot.tomcat.TomcatConnectorCustomizer;
+import org.springframework.boot.web.server.autoconfigure.ServerProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
@@ -48,6 +48,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Strongly inspired from <a href="https://valb3r.github.io/letsencrypt-helper/">let's encrypt helper</a> by Valentyn Berezin.
@@ -70,7 +71,9 @@ public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 			return;
 		}
 
-		serverProperties.getSsl().setKeyStore("file:" + Path.of(dataDirConfiguration.getDataDir(), "keystore.pfx").toAbsolutePath());
+		Objects.requireNonNull(this.serverProperties.getSsl(), "Missing 'server.ssl.enabled' property");
+
+		this.serverProperties.getSsl().setKeyStore("file:" + Path.of(dataDirConfiguration.getDataDir(), "keystore.pfx").toAbsolutePath());
 
 		createKeystoreIfNeeded();
 	}
@@ -92,6 +95,7 @@ public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 
 	private File getKeystoreFile()
 	{
+		//noinspection DataFlowIssue
 		return new File(parseCertificateKeystoreFilePath(serverProperties.getSsl().getKeyStore()));
 	}
 
@@ -105,6 +109,7 @@ public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 		try
 		{
 			var domainKey = RSA.generateKeys(KEY_SIZE);
+			//noinspection DataFlowIssue
 			var newKeystore = KeyStore.getInstance(serverProperties.getSsl().getKeyStoreType());
 			newKeystore.load(null, null);
 			var signedDomain = selfSign(domainKey, Instant.EPOCH, Instant.EPOCH);
@@ -117,7 +122,7 @@ public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 		}
 	}
 
-	private Certificate selfSign(KeyPair keyPair, Instant notBefore, Instant notAfter)
+	private Certificate selfSign(KeyPair keyPair, @SuppressWarnings("SameParameterValue") Instant notBefore, @SuppressWarnings("SameParameterValue") Instant notAfter)
 	{
 		var dnName = new X500Name("CN=Xeres");
 		var serialNumber = BigInteger.valueOf(Instant.now().toEpochMilli());
@@ -144,6 +149,7 @@ public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 
 	private String keyPassword()
 	{
+		//noinspection DataFlowIssue
 		return serverProperties.getSsl().getKeyPassword() != null ? serverProperties.getSsl().getKeyPassword() : serverProperties.getSsl().getKeyStorePassword();
 	}
 
@@ -151,6 +157,7 @@ public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 	{
 		try (var out = Files.newOutputStream(keystoreFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING))
 		{
+			//noinspection DataFlowIssue
 			keystore.store(out, serverProperties.getSsl().getKeyStorePassword().toCharArray());
 		}
 		catch (CertificateException | IOException | NoSuchAlgorithmException | KeyStoreException e)

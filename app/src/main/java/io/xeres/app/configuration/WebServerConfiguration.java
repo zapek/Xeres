@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,10 +22,8 @@ package io.xeres.app.configuration;
 import io.xeres.app.application.environment.LocalPortFinder;
 import io.xeres.app.service.SettingsService;
 import io.xeres.common.properties.StartupProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.boot.web.server.servlet.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.InetAddress;
@@ -37,8 +35,6 @@ import static io.xeres.common.properties.StartupProperties.Property.CONTROL_PORT
 @Configuration
 public class WebServerConfiguration implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>
 {
-	private static final Logger log = LoggerFactory.getLogger(WebServerConfiguration.class);
-
 	private final SettingsService settingsService;
 
 	public WebServerConfiguration(SettingsService settingsService)

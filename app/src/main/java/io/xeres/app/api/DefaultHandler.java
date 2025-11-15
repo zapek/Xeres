@@ -90,7 +90,7 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 	public ErrorResponse handleUnprocessableEntityException(UnprocessableEntityException e)
 	{
 		logError(e, log.isDebugEnabled());
-		return ErrorResponse.builder(e, HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage())
+		return ErrorResponse.builder(e, HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage())
 				.property(TRACE, ExceptionUtils.getStackTrace(e))
 				.build();
 	}

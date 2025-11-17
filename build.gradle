@@ -20,7 +20,7 @@
 buildscript {
     ext {
         apacheCommonsCollectionsVersion = "4.5.0"
-        apacheCommonsLangVersion = "3.19.0"
+        apacheCommonsLangVersion = "3.20.0"
         appDirsVersion = "1.5.0"
         archunitVersion = "1.4.1"
         bouncycastleVersion = "1.82"

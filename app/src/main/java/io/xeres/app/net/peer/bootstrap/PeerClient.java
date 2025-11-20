@@ -21,7 +21,8 @@ package io.xeres.app.net.peer.bootstrap;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.resolver.AddressResolverGroup;
 import io.xeres.app.database.DatabaseSessionManager;
@@ -80,7 +81,7 @@ abstract class PeerClient
 	public void start()
 	{
 		log.info("Starting peer client...");
-		group = new NioEventLoopGroup();
+		group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
 
 		bootstrap = new Bootstrap();
 		setAddressResolver();

@@ -169,18 +169,19 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor' // handles @ConfigurationProperties
     implementation project(':common')
     implementation project(':ui')
-    implementation 'org.springframework.boot:spring-boot-starter-json'
+    implementation 'org.springframework.boot:spring-boot-starter-jackson'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'com.h2database:h2'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation('org.springframework.boot:spring-boot-starter-webflux') { // to bring in netty
+    implementation('org.springframework.boot:spring-boot-starter-webclient') { // to bring in netty, but also the WebClient that we configure
         exclude group: 'io.netty', module: 'netty-transport-native-epoll'
     }
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-messaging' // seems to be missing from spring-boot-starter-security
-    implementation "org.flywaydb:flyway-core"
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    implementation 'org.springframework.boot:spring-boot-jackson2' // Temporary until we migrate everything to Jackson 3
     implementation "org.bouncycastle:bcpg-jdk18on:$bouncycastleVersion" // use bcpg-debug-jdk18on for debugger support
     implementation "org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion" // use bcpkix-debug-jkd18on for debugger support
     implementation "org.jsoup:jsoup:$jsoupVersion"
@@ -207,6 +208,9 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
     testImplementation(testFixtures(project(":common")))
     testImplementation "com.tngtech.archunit:archunit-junit5:$archunitVersion"
 }

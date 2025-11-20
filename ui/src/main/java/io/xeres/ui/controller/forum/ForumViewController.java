@@ -19,7 +19,6 @@
 
 package io.xeres.ui.controller.forum;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.forum.PostRequest;
@@ -70,6 +69,7 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.*;
@@ -156,7 +156,7 @@ public class ForumViewController implements Controller
 	private final ForumClient forumClient;
 	private final NotificationClient notificationClient;
 	private final WindowManager windowManager;
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
 	private final GeneralClient generalClient;
@@ -177,7 +177,7 @@ public class ForumViewController implements Controller
 
 	private MessageId messageIdToSelect;
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, ObjectMapper objectMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, JsonMapper jsonMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -188,7 +188,7 @@ public class ForumViewController implements Controller
 		otherForums = new TreeItem<>(new ForumGroup(bundle.getString("forum.tree.other")));
 		this.notificationClient = notificationClient;
 		this.windowManager = windowManager;
-		this.objectMapper = objectMapper;
+		this.jsonMapper = jsonMapper;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
 		this.generalClient = generalClient;
@@ -429,7 +429,7 @@ public class ForumViewController implements Controller
 
 						if (idName.equals(AddForumGroups.class.getSimpleName()))
 						{
-							var action = objectMapper.convertValue(sse.data().action(), AddForumGroups.class);
+							var action = jsonMapper.convertValue(sse.data().action(), AddForumGroups.class);
 
 							addForumGroups(action.forumGroups().stream()
 									.map(ForumMapper::fromDTO)
@@ -437,7 +437,7 @@ public class ForumViewController implements Controller
 						}
 						else if (idName.equals(AddForumMessages.class.getSimpleName()))
 						{
-							var action = objectMapper.convertValue(sse.data().action(), AddForumMessages.class);
+							var action = jsonMapper.convertValue(sse.data().action(), AddForumMessages.class);
 
 							addForumMessages(action.forumMessages().stream()
 									.map(ForumMapper::fromDTO)
@@ -445,7 +445,7 @@ public class ForumViewController implements Controller
 						}
 						else if (idName.equals(MarkForumMessagesAsRead.class.getSimpleName()))
 						{
-							var action = objectMapper.convertValue(sse.data().action(), MarkForumMessagesAsRead.class);
+							var action = jsonMapper.convertValue(sse.data().action(), MarkForumMessagesAsRead.class);
 
 							markForumMessagesAsRead(action.messageMap());
 						}

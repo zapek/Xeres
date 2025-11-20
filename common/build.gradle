@@ -45,7 +45,7 @@ dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     testFixturesImplementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-json'
+    implementation 'org.springframework.boot:spring-boot-starter-jackson'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:$springOpenApiVersion"

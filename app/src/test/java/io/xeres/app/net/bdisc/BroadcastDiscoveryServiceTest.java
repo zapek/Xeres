@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,24 +22,22 @@ package io.xeres.app.net.bdisc;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.service.LocationService;
-import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.ip.IP;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class BroadcastDiscoveryServiceTest
 {
 	@Mock
@@ -56,7 +54,6 @@ class BroadcastDiscoveryServiceTest
 	{
 		var ownLocation = LocationFakes.createOwnLocation();
 		when(locationService.findOwnLocation()).thenReturn(Optional.of(ownLocation));
-		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.empty());
 
 		broadcastDiscoveryService.start(IP.getLocalIpAddress(), 36406); // nothing should reply in there, hopefully. We can't use localhost because linux has no broadcast in it
 		await().atMost(Duration.ofSeconds(10)).until(() -> broadcastDiscoveryService.isRunning());

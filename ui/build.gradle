@@ -48,7 +48,7 @@ javadoc {
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation project(':common')
-    implementation('org.springframework.boot:spring-boot-starter-webflux') { // for the client
+    implementation('org.springframework.boot:spring-boot-starter-webclient') {
         exclude group: 'io.netty', module: 'netty-transport-native-epoll'
     }
     implementation 'org.springframework.boot:spring-boot-starter-websocket'

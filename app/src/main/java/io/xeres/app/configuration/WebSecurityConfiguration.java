@@ -41,7 +41,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class WebSecurityConfiguration
 {
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http, SettingsService settingsService) throws Exception
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, SettingsService settingsService)
 	{
 		http
 				.csrf(AbstractHttpConfigurer::disable)

@@ -31,6 +31,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -49,6 +50,7 @@ import static org.springframework.boot.test.context.SpringBootTest.UseMainMethod
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(args = {"--no-gui", "--no-https", "--no-control-password", "--fast-shutdown", "--data-dir=" + DATADIR_PATH}, useMainMethod = ALWAYS, webEnvironment = RANDOM_PORT) // Do not add --server-only, or it'll break PeerConnectionJob
+@AutoConfigureWebTestClient
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ApiTest
 {

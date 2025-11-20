@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,7 +41,7 @@ public final class AuthenticationRequirements
 		publicRequirements = builder.publicRequirements;
 		restrictedRequirements = builder.restrictedRequirements;
 		privateRequirements = builder.privateRequirements;
-		optionalAuthor = builder.optionalRequirements;
+		optionalAuthor = builder.optionalAuthor;
 	}
 
 	public Set<Flags> getPublicRequirements()
@@ -69,7 +69,7 @@ public final class AuthenticationRequirements
 		private Set<Flags> publicRequirements;
 		private Set<Flags> restrictedRequirements;
 		private Set<Flags> privateRequirements;
-		private boolean optionalRequirements;
+		private boolean optionalAuthor;
 
 		public Builder()
 		{
@@ -94,9 +94,9 @@ public final class AuthenticationRequirements
 			return this;
 		}
 
-		public Builder withOptional(boolean val)
+		public Builder withOptionalAuthor(boolean val)
 		{
-			optionalRequirements = val;
+			optionalAuthor = val;
 			return this;
 		}
 

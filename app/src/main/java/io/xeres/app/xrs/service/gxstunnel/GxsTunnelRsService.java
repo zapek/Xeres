@@ -441,8 +441,6 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		{
 			// RS used to generate those keys. They're still accepted, but they
 			// will be removed one day.
-
-			//noinspection deprecation
 			if (!securityKey.getKeyId().equals(RSA.getGxsIdInsecure(publicKey)))
 			{
 				log.warn("Old style key has wrong fingerprint, rejecting.");

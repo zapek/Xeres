@@ -21,7 +21,6 @@ package io.xeres.ui.model.settings;
 
 import io.xeres.common.dto.settings.SettingsDTO;
 
-@SuppressWarnings("DuplicatedCode")
 public final class SettingsMapper
 {
 	private SettingsMapper()

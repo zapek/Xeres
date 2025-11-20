@@ -213,6 +213,10 @@
                                     <FontIcon iconLiteral="mdi2t-trash-can"/>
                                 </graphic>
                             </MenuItem>
+                            <Menu text="Requesters">
+                                <MenuItem fx:id="showErrorException" text="Show Exception Error"/>
+                                <MenuItem fx:id="showError" text="Show Error"/>
+                            </Menu>
                         </Menu>
                     </Menu>
                     <SeparatorMenuItem mnemonicParsing="false"/>

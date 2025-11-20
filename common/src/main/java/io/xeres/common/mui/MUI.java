@@ -57,11 +57,24 @@ public final class MUI
 		MUI.shell = shell;
 	}
 
+	/**
+	 * Shows an informational message.
+	 * <p>
+	 * Only use this when JavaFX is not available (for example displaying command arguments on Windows).
+	 *
+	 * @param message the message to display to the user
+	 */
 	public static void showInformation(String message)
 	{
 		JOptionPane.showMessageDialog(null, message, AppName.NAME + " Output", JOptionPane.INFORMATION_MESSAGE);
 	}
 
+	/**
+	 * Shows an error.
+	 * <p>
+	 * Only use this when JavaFX is not available. Typically, when its initialization goes wrong.
+	 * @param e the Exception
+	 */
 	public static void showError(Exception e)
 	{
 		Throwable exception = e;
@@ -71,10 +84,9 @@ public final class MUI
 			exception = exception.getCause();
 		}
 		showError(exception.getMessage());
-
 	}
 
-	public static void showError(String message)
+	private static void showError(String message)
 	{
 		var scrollPane = new JScrollPane();
 		scrollPane.setPreferredSize(new Dimension(640, 240));

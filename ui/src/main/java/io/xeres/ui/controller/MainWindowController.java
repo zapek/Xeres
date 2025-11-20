@@ -194,6 +194,12 @@ public class MainWindowController implements WindowController
 	private MenuItem openShell;
 
 	@FXML
+	private MenuItem showErrorException;
+
+	@FXML
+	private MenuItem showError;
+
+	@FXML
 	private MenuItem versionCheck;
 
 	@FXML
@@ -334,6 +340,8 @@ public class MainWindowController implements WindowController
 			runGc.setOnAction(_ -> System.gc());
 			h2Console.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
 			openShell.setOnAction(_ -> MUI.openShell());
+			showErrorException.setOnAction(_ -> UiUtils.showAlertError(new IllegalArgumentException("Dummy error")));
+			showError.setOnAction(_ -> UiUtils.alert(Alert.AlertType.ERROR, "This is some error blabla"));
 		}
 
 		versionCheck.setOnAction(_ -> updateService.checkForUpdate());

@@ -27,12 +27,12 @@ import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.identity.Type;
+import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -199,10 +199,10 @@ public class IdentityGroupItem extends GxsGroupItem
 		return "IdentityGroupItem{" +
 				"profile=" + profile +
 				", profileHash=" + profileHash +
-				", profileSignature=" + Arrays.toString(profileSignature) +
+				", profileSignature=" + (profileSignature != null ? ("yes, " + ByteUnitUtils.fromBytes(profileSignature.length)) : "no") +
 				", nextValidation=" + nextValidation +
 				", recognitionTags=" + recognitionTags +
-				", image=" + Arrays.toString(image) +
+				", image=" + (image != null ? ("yes, " + ByteUnitUtils.fromBytes(image.length)) : "no") +
 				", type=" + type +
 				", oldVersion=" + oldVersion +
 				'}';

@@ -73,6 +73,6 @@ class TlvTypeTest
 		assertEquals(0x1072, ADDRESS.getValue());
 		assertEquals(0xffff, UNKNOWN.getValue());
 
-		assertEquals(43, values().length);
+		assertEquals(44, values().length);
 	}
 }

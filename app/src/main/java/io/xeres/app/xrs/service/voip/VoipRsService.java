@@ -71,7 +71,7 @@ public class VoipRsService extends RsService
 	private SpeexEncoder speexEncoder;
 	private SpeexDecoder speexDecoder;
 
-	LockBasedSingleEntrySupplier audioSupplier = new LockBasedSingleEntrySupplier();
+	private final LockBasedSingleEntrySupplier audioSupplier = new LockBasedSingleEntrySupplier();
 
 	private LocationIdentifier remoteLocationIdentifier;
 	private Status status = Status.OFF;

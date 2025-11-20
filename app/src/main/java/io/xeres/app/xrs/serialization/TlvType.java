@@ -31,6 +31,7 @@ public enum TlvType
 	STR_PATH(0x52),
 	STR_VALUE(0x54),
 	STR_MSG(0x57),
+	STR_LINK(0x59),
 	STR_GENID(0x5a),
 	STR_LOCATION(0x5c),
 	STR_VERSION(0x5f),

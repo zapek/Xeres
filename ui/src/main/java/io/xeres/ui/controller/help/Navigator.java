@@ -96,10 +96,7 @@ class Navigator
 	{
 		if (uri instanceof ExternalUri externalUri)
 		{
-			if (externalUri.toUriString().endsWith(".md"))
-			{
-				return true;
-			}
+			return externalUri.toUriString().endsWith(".md");
 		}
 		return false;
 	}

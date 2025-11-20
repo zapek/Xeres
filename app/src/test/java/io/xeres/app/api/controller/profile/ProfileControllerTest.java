@@ -37,8 +37,8 @@ import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -301,7 +301,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		long id = 1;
 
 		mvc.perform(delete(BASE_URL + "/" + id))
-				.andExpect(status().isUnprocessableEntity());
+				.andExpect(status().isUnprocessableContent());
 	}
 
 	@Test
@@ -377,7 +377,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		var profileRequest = new RsIdRequest("invalid id");
 
 		mvc.perform(postJson(BASE_URL + "/check", profileRequest))
-				.andExpect(status().isUnprocessableEntity());
+				.andExpect(status().isUnprocessableContent());
 	}
 
 	@Test
@@ -432,6 +432,6 @@ class ProfileControllerTest extends AbstractControllerTest
 		when(profileService.findProfileById(id)).thenReturn(Optional.empty());
 
 		mvc.perform(putJson(BASE_URL + "/" + id + "/trust", "MARGINAL"))
-				.andExpect(status().isUnprocessableEntity());
+				.andExpect(status().isUnprocessableContent());
 	}
 }

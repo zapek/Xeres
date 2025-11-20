@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,7 +27,7 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import reactor.core.publisher.Mono;
@@ -39,7 +39,7 @@ import java.util.Objects;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({ApplicationExtension.class, SpringExtension.class})
+@ExtendWith({ApplicationExtension.class, MockitoExtension.class})
 class AsyncImageViewTest
 {
 	private AsyncImageView asyncImageView;

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.MessageDeliveryException;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.JacksonJsonMessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.net.ssl.SSLContext;
 import java.security.KeyManagementException;
@@ -72,6 +73,13 @@ public class MessageClient
 	private final List<PendingSubscription> pendingSubscriptions = new ArrayList<>();
 	private final List<StompSession.Subscription> subscriptions = new ArrayList<>();
 
+	private final JsonMapper jsonMapper;
+
+	public MessageClient(JsonMapper jsonMapper)
+	{
+		this.jsonMapper = jsonMapper;
+	}
+
 	public MessageClient connect()
 	{
 		var useHttps = StartupProperties.getBoolean(StartupProperties.Property.HTTPS, true);
@@ -100,7 +108,7 @@ public class MessageClient
 		}
 
 		var stompClient = new WebSocketStompClient(client);
-		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+		stompClient.setMessageConverter(new JacksonJsonMessageConverter(jsonMapper));
 		stompClient.setInboundMessageSizeLimit(MAXIMUM_MESSAGE_SIZE);
 
 		var httpHeaders = new WebSocketHttpHeaders();

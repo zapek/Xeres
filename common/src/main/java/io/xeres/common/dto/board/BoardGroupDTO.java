@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,15 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.configuration;
+package io.xeres.common.dto.board;
 
-import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.stereotype.Component;
+import io.xeres.common.id.GxsId;
 
-/**
- * The following disables WebSocket's CSRF.
- */
-@Component("csrfChannelInterceptor")
-public class CustomCsrfChannelInterceptor implements ChannelInterceptor
+public record BoardGroupDTO(
+		long id,
+		GxsId gxsId,
+		String name,
+		String description,
+		boolean hasImage,
+		boolean subscribed,
+		boolean external
+)
 {
 }

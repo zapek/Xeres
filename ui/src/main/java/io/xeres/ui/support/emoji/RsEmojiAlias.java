@@ -19,12 +19,12 @@
 
 package io.xeres.ui.support.emoji;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -44,11 +44,11 @@ class RsEmojiAlias
 	{
 	}
 
-	RsEmojiAlias(ObjectMapper objectMapper)
+	RsEmojiAlias(JsonMapper jsonMapper)
 	{
 		try
 		{
-			var loadedAliases = objectMapper.readValue(Objects.requireNonNull(RsEmojiAlias.class.getResourceAsStream(EMOTES_DATABASE)),
+			var loadedAliases = jsonMapper.readValue(Objects.requireNonNull(RsEmojiAlias.class.getResourceAsStream(EMOTES_DATABASE)),
 					new TypeReference<List<AliasEntity>>()
 					{
 					});
@@ -62,7 +62,7 @@ class RsEmojiAlias
 					.max(Comparator.comparingInt(String::length))
 					.orElseThrow().length();
 		}
-		catch (IOException e)
+		catch (JacksonException e)
 		{
 			log.error("Couldn't load Retroshare emoji alias database", e);
 			aliasesMap = Map.of();

@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.EnumSet;
 
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unused")
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class ChatRsServiceTest
 {
 	@Mock

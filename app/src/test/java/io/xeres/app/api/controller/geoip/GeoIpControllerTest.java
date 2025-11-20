@@ -23,8 +23,8 @@ import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.service.GeoIpService;
 import io.xeres.common.geoip.Country;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Locale;

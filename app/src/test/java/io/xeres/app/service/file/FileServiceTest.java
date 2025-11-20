@@ -31,9 +31,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.logging.LoggingSystem;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class FileServiceTest
 {
 	@Mock
@@ -125,9 +125,6 @@ class FileServiceTest
 		when(fileRepository.countByParent(fileGreatGrandParent)).thenReturn(1);
 		when(shareRepository.findShareByFile(fileGreatGrandParent)).thenReturn(Optional.of(share));
 
-		when(fileRepository.countByParent(fileRoot)).thenReturn(0);
-		when(shareRepository.findShareByFile(fileRoot)).thenReturn(Optional.empty());
-
 		fileService.deleteFile(file);
 
 		verify(fileRepository, never()).countByParent(file);
@@ -167,10 +164,6 @@ class FileServiceTest
 		// C:\share\media\images\foobar.jpg and plop.jpg
 
 		when(fileRepository.countByParent(fileParent)).thenReturn(2);
-		when(shareRepository.findShareByFile(fileParent)).thenReturn(Optional.empty());
-
-		when(fileRepository.countByParent(fileGrandParent)).thenReturn(1);
-		when(shareRepository.findShareByFile(fileGrandParent)).thenReturn(Optional.empty());
 
 		fileService.deleteFile(file);
 
@@ -215,7 +208,6 @@ class FileServiceTest
 		when(shareRepository.findShareByFile(fileParent)).thenReturn(Optional.empty());
 
 		when(fileRepository.countByParent(fileGrandParent)).thenReturn(2);
-		when(shareRepository.findShareByFile(fileGrandParent)).thenReturn(Optional.empty());
 
 		fileService.deleteFile(file);
 
@@ -255,9 +247,6 @@ class FileServiceTest
 
 		when(fileRepository.countByParent(fileParent)).thenReturn(1);
 		when(shareRepository.findShareByFile(fileParent)).thenReturn(Optional.of(share));
-
-		when(fileRepository.countByParent(fileRoot)).thenReturn(1);
-		when(shareRepository.findShareByFile(fileRoot)).thenReturn(Optional.empty());
 
 		fileService.deleteFile(file);
 

@@ -25,8 +25,8 @@ import io.xeres.app.database.model.settings.SettingsFakes;
 import io.xeres.app.database.model.settings.SettingsMapper;
 import io.xeres.app.service.SettingsService;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -36,11 +36,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -59,7 +59,7 @@ import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class LocationServiceTest
 {
 	@Mock
@@ -106,6 +106,8 @@ class LocationServiceTest
 	{
 		when(settingsService.getLocationPrivateKeyData()).thenReturn(new byte[]{1});
 
+		assertNull(locationService.generateLocationKeys());
+
 		verify(settingsService, never()).saveLocationKeys(any(KeyPair.class));
 	}
 
@@ -127,7 +129,6 @@ class LocationServiceTest
 		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 		when(settingsService.getLocationCertificate()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		doNothing().when(publisher).publishEvent(any());
 
 		locationService.generateOwnLocation("test");
 

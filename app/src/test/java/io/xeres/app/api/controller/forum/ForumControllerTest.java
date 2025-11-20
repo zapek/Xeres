@@ -35,8 +35,8 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 

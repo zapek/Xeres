@@ -31,8 +31,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -43,12 +43,11 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({MockitoExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MarkdownServiceTest extends FXTest
 {
-	@Mock
-	private EmojiService emojiService;
+	private final EmojiService emojiService = Mockito.mock(EmojiService.class);
 
 	// We cannot use @InjectMocks because MarkdownService performs
 	// computations that requires mocks in the constructor and that
@@ -72,11 +71,11 @@ class MarkdownServiceTest extends FXTest
 
 		var text = """
 				Line1
-
-
-
+				
+				
+				
 				Line2 with trails  \s
-
+				
 				Line3
 				Line4
 				
@@ -86,9 +85,9 @@ class MarkdownServiceTest extends FXTest
 
 		var wanted = """
 				Line1
-
+				
 				Line2 with trails
-
+				
 				Line3
 				Line4
 				
@@ -151,11 +150,11 @@ class MarkdownServiceTest extends FXTest
 
 		var text = """
 				Line1
-
-
-
+				
+				
+				
 				Line2 with trails  \s
-
+				
 				Line3
 				Line4
 				""";
@@ -180,20 +179,20 @@ class MarkdownServiceTest extends FXTest
 
 		var text = """
 				Line1
-
-
-
+				
+				
+				
 				Line2 with trails  \s
-
+				
 				Line3
 				Line4
 				""";
 
 		var wanted = """
 				Line1
-
+				
 				Line2 with trails
-
+				
 				Line3 Line4""";
 
 		var result = markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()

@@ -29,6 +29,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
+
 /**
  * Utility class to handle user supplied command line arguments.
  */
@@ -89,7 +91,7 @@ public final class CommandArgument
 				case SERVER_ADDRESS -> setString(StartupProperties.Property.SERVER_ADDRESS, appArgs, arg);
 				case SERVER_PORT -> setPort(StartupProperties.Property.SERVER_PORT, appArgs, arg);
 				case REMOTE_CONNECT -> {
-					var ipAndPort = appArgs.getOptionValues(arg).stream()
+					var ipAndPort = emptyIfNull(appArgs.getOptionValues(arg)).stream()
 							.findFirst()
 							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:6232'"));
 					StartupProperties.setUiRemoteConnect(ipAndPort, StartupProperties.Origin.ARGUMENT);
@@ -107,7 +109,7 @@ public final class CommandArgument
 
 	private static void setBoolean(StartupProperties.Property property, ApplicationArguments appArgs, String arg)
 	{
-		if (!appArgs.getOptionValues(arg).isEmpty())
+		if (!emptyIfNull(appArgs.getOptionValues(arg)).isEmpty())
 		{
 			throw new IllegalArgumentException("--" + arg + " doesn't expect a value");
 		}
@@ -116,7 +118,7 @@ public final class CommandArgument
 
 	private static void setBooleanInverted(StartupProperties.Property property, ApplicationArguments appArgs, String arg)
 	{
-		if (!appArgs.getOptionValues(arg).isEmpty())
+		if (!emptyIfNull(appArgs.getOptionValues(arg)).isEmpty())
 		{
 			throw new IllegalArgumentException("--" + arg + " doesn't expect a value");
 		}
@@ -149,7 +151,7 @@ public final class CommandArgument
 
 	private static String getValue(ApplicationArguments appArgs, String arg)
 	{
-		var optionValues = appArgs.getOptionValues(arg);
+		var optionValues = emptyIfNull(appArgs.getOptionValues(arg));
 		if (optionValues.isEmpty())
 		{
 			throw new IllegalArgumentException("--" + arg + " expects a value");

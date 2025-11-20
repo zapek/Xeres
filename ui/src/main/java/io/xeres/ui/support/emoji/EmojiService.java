@@ -19,11 +19,11 @@
 
 package io.xeres.ui.support.emoji;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xeres.ui.properties.UiClientProperties;
 import io.xeres.ui.support.util.SmileyUtils;
 import javafx.scene.image.Image;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,13 +47,13 @@ public class EmojiService
 	private final Map<String, WeakReference<Image>> imageCacheMap = new ConcurrentHashMap<>();
 	private final Pattern aliasPattern;
 
-	public EmojiService(UiClientProperties uiClientProperties, ObjectMapper objectMapper)
+	public EmojiService(UiClientProperties uiClientProperties, JsonMapper jsonMapper)
 	{
 		this.uiClientProperties = uiClientProperties;
 
 		if (uiClientProperties.isRsEmojisAliases())
 		{
-			rsEmojiAlias = new RsEmojiAlias(objectMapper);
+			rsEmojiAlias = new RsEmojiAlias(jsonMapper);
 			aliasPattern = Pattern.compile("\\w{1," + rsEmojiAlias.getLongestAlias() + "}");
 		}
 		else

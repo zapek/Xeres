@@ -301,7 +301,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		long id = 1;
 
 		mvc.perform(delete(BASE_URL + "/" + id))
-				.andExpect(status().isUnprocessableEntity());
+				.andExpect(status().isUnprocessableContent());
 	}
 
 	@Test
@@ -377,7 +377,7 @@ class ProfileControllerTest extends AbstractControllerTest
 		var profileRequest = new RsIdRequest("invalid id");
 
 		mvc.perform(postJson(BASE_URL + "/check", profileRequest))
-				.andExpect(status().isUnprocessableEntity());
+				.andExpect(status().isUnprocessableContent());
 	}
 
 	@Test
@@ -432,6 +432,6 @@ class ProfileControllerTest extends AbstractControllerTest
 		when(profileService.findProfileById(id)).thenReturn(Optional.empty());
 
 		mvc.perform(putJson(BASE_URL + "/" + id + "/trust", "MARGINAL"))
-				.andExpect(status().isUnprocessableEntity());
+				.andExpect(status().isUnprocessableContent());
 	}
 }

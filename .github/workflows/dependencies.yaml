@@ -13,7 +13,7 @@ jobs:
       contents: write # Dependency Submission API
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # A tag is needed for git version generation to work
 

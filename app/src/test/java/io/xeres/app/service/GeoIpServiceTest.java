@@ -52,7 +52,7 @@ class GeoIpServiceTest
 		var address = "1.1.1.1";
 		var inetAddress = InetAddress.getByName(address);
 
-		when(databaseReader.country(inetAddress)).thenReturn(new CountryResponse(null, new Country(null, null, null, null, "CH", null), null, null, null, null));
+		when(databaseReader.country(inetAddress)).thenReturn(new CountryResponse(null, new Country(null, null, null, false, "CH", null), null, null, null, null));
 
 		var country = geoIpService.getCountry(address);
 

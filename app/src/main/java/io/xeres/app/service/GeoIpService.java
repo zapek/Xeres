@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -45,7 +45,7 @@ public class GeoIpService
 		try
 		{
 			var country = databaseReader.country(InetAddress.getByName(ipAddress));
-			return Country.valueOf(country.getCountry().getIsoCode());
+			return Country.valueOf(country.country().isoCode());
 		}
 		catch (IOException | GeoIp2Exception | IllegalArgumentException e)
 		{

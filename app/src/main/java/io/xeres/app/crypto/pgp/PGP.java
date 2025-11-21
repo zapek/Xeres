@@ -183,8 +183,7 @@ public final class PGP
 	 * The key is a PGP <b>V4</b> format, <b>RSA</b> key with a <b>default certification</b>,
 	 * <b>SHA-256</b> integrity checksum and encrypted with <b>AES-128</b>. The packet sizes are encoded using the original format.
 	 * <p>
-	 * This was changed from the previous key format that used SHA-1 because RNP which will be used by the next Retroshare doesn't
-	 * support those. The previous version also used CAST5 as encryption.
+	 * This was changed from the previous key format that used SHA-1 because RNP which will be used by the next Retroshare uses SHA-256. The previous version also used CAST5 as encryption.
 	 *
 	 * @param id     the id of the key
 	 * @param suffix the suffix appended to the id

@@ -21,6 +21,7 @@ package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.*;
+import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
@@ -46,14 +47,15 @@ import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
-import io.xeres.ui.support.util.image.ImageUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -293,7 +295,7 @@ public class ChatViewController implements Controller
 			try
 			{
 				var bufferedImage = ImageIO.read(event.getPath().toFile());
-				Platform.runLater(() -> sendStickerToMessageOptimized(bufferedImage));
+				Platform.runLater(() -> sendStickerToMessage(bufferedImage));
 			}
 			catch (IOException e)
 			{
@@ -845,16 +847,16 @@ public class ChatViewController implements Controller
 
 	private void sendImage()
 	{
-		sendChatMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imagePreview.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		sendChatMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imagePreview.getImage(), null), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 
 		resetPreviewImage();
 		jumpToBottom();
 	}
 
-	private void sendStickerToMessageOptimized(BufferedImage image)
+	private void sendStickerToMessage(BufferedImage image)
 	{
 		image = ImageUtils.limitMaximumImageSize(image, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
-		sendChatMessage("<img src=\"" + ImageUtils.writeImageAsPngData(image, MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		sendChatMessage("<img src=\"" + ImageUtils.writeImage(image, MESSAGE_MAXIMUM_SIZE) + "\"/>");
 	}
 
 	private void cancelImage()
@@ -866,7 +868,7 @@ public class ChatViewController implements Controller
 	{
 		imagePreview.setImage(image);
 
-		ImageUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
+		ImageViewUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
 
 		setPreviewGroupVisibility(true);
 	}

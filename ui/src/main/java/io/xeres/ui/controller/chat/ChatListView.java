@@ -37,8 +37,8 @@ import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.uri.IdentityUri;
+import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.UiUtils;
-import io.xeres.ui.support.util.image.ImageUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -236,7 +236,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 			if (isNotEmpty(data) && data.startsWith("data:")) // the core only allows 'data' already but better safe than sorry
 			{
 				var image = new Image(data);
-				if (!image.isError() && !ImageUtils.isExaggeratedAspectRatio(image))
+				if (!image.isError() && !ImageViewUtils.isExaggeratedAspectRatio(image))
 				{
 					addMessageLine(time, chatAction, image);
 				}

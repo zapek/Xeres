@@ -41,7 +41,7 @@ import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
-import io.xeres.common.util.ImageDetectionUtils;
+import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -122,7 +122,7 @@ public class ProfileController
 		var image = identiconService.getIdenticon(ByteBuffer.wrap(new byte[8]).putLong(profile.getPgpIdentifier()).array());
 		return ResponseEntity.ok()
 				.contentLength(image.length)
-				.contentType(ImageDetectionUtils.getImageMimeType(image))
+				.contentType(ImageUtils.getImageMimeType(image))
 				.body(new InputStreamResource(new ByteArrayInputStream(image)));
 	}
 

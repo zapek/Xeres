@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.util.image;
+package io.xeres.common.util.image;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;

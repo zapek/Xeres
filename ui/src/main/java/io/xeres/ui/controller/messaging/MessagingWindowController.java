@@ -30,6 +30,7 @@ import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.util.RemoteUtils;
+import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.WindowController;
@@ -47,12 +48,13 @@ import io.xeres.ui.support.uri.FileUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
-import io.xeres.ui.support.util.image.ImageUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.*;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputControl;
@@ -579,15 +581,15 @@ public class MessagingWindowController implements WindowController
 
 	private void sendImageViewToMessage(ImageView imageView)
 	{
-		ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
-		sendMessage("<img src=\"" + ImageUtils.writeImageAsJpegData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
+		sendMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 		imageView.setImage(null);
 	}
 
 	private void sendStickerToMessage(ImageView imageView)
 	{
-		ImageUtils.limitMaximumImageSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
-		sendMessage("<img src=\"" + ImageUtils.writeImageAsPngData(imageView.getImage(), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		ImageViewUtils.limitMaximumImageSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
+		sendMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 		imageView.setImage(null);
 	}
 

@@ -21,9 +21,9 @@ package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
+import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
-import io.xeres.ui.support.util.image.ImageUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -84,7 +84,7 @@ public class StickerView extends VBox
 
 	public void loadStickers(Path localPath, Path userPath)
 	{
-		var screen = ImageUtils.getScreen(tabPane);
+		var screen = ImageViewUtils.getScreen(tabPane);
 		Task<List<StickerCollectionEntry>> task = new Task<>()
 		{
 			@Override
@@ -130,7 +130,7 @@ public class StickerView extends VBox
 							tab.setTooltip(new Tooltip(buildStickerName(sticker.name())));
 							var imageView = new ImageView(sticker.image());
 							imageView.setPickOnBounds(true); // make transparent areas clickable
-							ImageUtils.limitMaximumImageSize(imageView, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT);
+							ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT);
 							imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
 							imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());
 							tab.setGraphic(imageView);
@@ -178,7 +178,7 @@ public class StickerView extends VBox
 
 		if (tab.getContent() == null)
 		{
-			var screen = ImageUtils.getScreen(tabPane);
+			var screen = ImageViewUtils.getScreen(tabPane);
 			var path = (Path) tab.getUserData();
 			var textFlow = new TextFlow();
 			textFlow.setPrefWidth(600.0);
@@ -211,7 +211,7 @@ public class StickerView extends VBox
 											Platform.runLater(() -> {
 												var imageView = new ImageView(image);
 												imageView.setPickOnBounds(true); // make transparent areas clickable
-												ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
+												ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
 												imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
 												imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());
 												imageView.setUserData(filePath);

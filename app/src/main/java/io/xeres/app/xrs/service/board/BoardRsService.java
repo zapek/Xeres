@@ -40,9 +40,15 @@ import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -52,10 +58,14 @@ import java.util.stream.Collectors;
 
 import static io.xeres.app.xrs.service.RsServiceType.POSTED;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
+import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
 
 @Component
 public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageItem>
 {
+	private static final int IMAGE_GROUP_WIDTH = 64;
+	private static final int IMAGE_GROUP_HEIGHT = 64;
+
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(60);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
@@ -289,5 +299,35 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		gxsUpdateService.setLastServiceGroupsUpdateNow(POSTED);
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 		return savedForum;
+	}
+
+	@Transactional
+	public BoardGroupItem saveBoardGroupImage(long id, MultipartFile file) throws IOException
+	{
+		if (file == null)
+		{
+			throw new IllegalArgumentException("Image is null");
+		}
+
+		if (file.getSize() >= IMAGE_MAX_SIZE)
+		{
+			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+		}
+
+		var board = findById(id).orElseThrow();
+
+		var out = new ByteArrayOutputStream();
+		Thumbnails.of(file.getInputStream())
+				.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
+				.crop(Positions.CENTER)
+				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.toOutputStream(out);
+
+		// XXX: resulting image has to be a certain size too... how to do it?
+
+		board.setImage(out.toByteArray());
+		board.updatePublished();
+
+		return saveBoard(board);
 	}
 }

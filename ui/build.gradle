@@ -66,8 +66,6 @@ dependencies {
     implementation platform('org.kordamp.ikonli:ikonli-bom:12.4.0')
     implementation 'org.kordamp.ikonli:ikonli-javafx'
     implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack'
-    implementation 'com.github.depsypher:pngtastic:1.8'
-    implementation 'dev.mccue:imgscalr:2023.09.03'
     implementation "org.commonmark:commonmark:$commonMarkVersion"
     implementation "org.commonmark:commonmark-ext-autolink:$commonMarkVersion"
     implementation "org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion"

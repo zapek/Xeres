@@ -20,6 +20,7 @@
 package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
@@ -27,12 +28,13 @@ import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.markdown.UriAction;
+import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
-import io.xeres.ui.support.util.image.ImageUtils;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -637,9 +639,9 @@ public class EditorView extends VBox
 			case Image image ->
 			{
 				var imageView = new ImageView(image);
-				ImageUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
+				ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
 
-				var imgData = ImageUtils.writeImageAsJpegData(imageView.getImage(), IMAGE_MAXIMUM_SIZE);
+				var imgData = ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), IMAGE_MAXIMUM_SIZE);
 				textInputControl.insertText(textInputControl.getCaretPosition(), "![](" + imgData + ")");
 
 				yield true;

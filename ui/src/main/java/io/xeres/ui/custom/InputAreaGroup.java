@@ -23,6 +23,7 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.custom.event.FileSelectedEvent;
 import io.xeres.ui.custom.event.ImageSelectedEvent;
+import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -153,7 +154,7 @@ public class InputAreaGroup extends HBox
 		addImageItem.setOnAction(event -> {
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("messaging.file-requester.send-picture"));
-			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(bundle.getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif"));
+			ChooserUtils.setSupportedLoadImageFormats(fileChooser);
 			var selectedFile = fileChooser.showOpenDialog(getWindow(event));
 			if (selectedFile != null)
 			{

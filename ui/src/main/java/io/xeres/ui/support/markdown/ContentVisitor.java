@@ -23,8 +23,8 @@ import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.uri.UriFactory;
+import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.Range;
-import io.xeres.ui.support.util.image.ImageUtils;
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
 import org.commonmark.node.*;
 import org.jsoup.Jsoup;
@@ -412,7 +412,7 @@ class ContentVisitor extends AbstractVisitor
 		try
 		{
 			image = new javafx.scene.image.Image(data);
-			if (image.isError() || ImageUtils.isExaggeratedAspectRatio(image))
+			if (image.isError() || ImageViewUtils.isExaggeratedAspectRatio(image))
 			{
 				image = null;
 			}

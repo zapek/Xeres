@@ -17,23 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.util.image;
+package io.xeres.common.util.image;
 
 import dev.mccue.imgscalr.Scalr;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
-import javafx.stage.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.stream.IntStream;
 
 /**
  * Provides utility methods for working with images.
@@ -42,8 +37,13 @@ public final class ImageUtils
 {
 	private static final Logger log = LoggerFactory.getLogger(ImageUtils.class);
 
+	public static final long IMAGE_MAX_SIZE = 1024 * 1024 * 10L; // 10 MB;
+
 	private static final String DATA_IMAGE_PNG_BASE_64 = "data:image/png;base64,";
 	private static final String DATA_IMAGE_JPEG_BASE_64 = "data:image/jpeg;base64,";
+
+	private static final byte[] JPEG_HEADER = new byte[]{(byte) 0xff, (byte) 0xd8, (byte) 0xff};
+	private static final byte[] PNG_HEADER = new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a};
 
 	private ImageUtils()
 	{
@@ -51,39 +51,23 @@ public final class ImageUtils
 	}
 
 	/**
-	 * Writes an image as a PNG data URL. The image is optimized
-	 * trying to fit the size without lowering its quality.
+	 * Writes a buffered image as a PNG or JPEG data URL, depending on the needs,
+	 * that is, a transparent image will be PNG and the rest will be JPEG. A transparent
+	 * image that is effectively opaque will still result as a JPEG.
 	 *
-	 * @param image       the image
+	 * @param bufferedImage the image
 	 * @param maximumSize the maximum size of the image in bytes. If 0, no limit is applied.
-	 * @return the image as a PNG data URL, or an empty string if the image couldn't be written.
+	 * @return the image as a PNG or JPEG data URL, or an empty string if the image couldn't be written.
 	 */
-	public static String writeImageAsPngData(Image image, int maximumSize)
+	public static String writeImage(BufferedImage bufferedImage, int maximumSize)
 	{
-		try
+		if (isTransparent(bufferedImage))
 		{
-			byte[] out;
-			var quality = 4;
-			var bufferedImage = SwingFXUtils.fromFXImage(image, null);
-			var baseOut = PngUtils.compressBufferedImageToPngArray(bufferedImage);
-
-			do
-			{
-				out = baseOut;
-				if (quality < 4)
-				{
-					out = PngUtils.optimizePng(baseOut, quality);
-				}
-				quality -= 1;
-			}
-			while (canCompressionPossiblyBeImproved(maximumSize, out, quality));
-
-			return DATA_IMAGE_PNG_BASE_64 + Base64.getEncoder().encodeToString(out);
+			return writeImageAsPngData(bufferedImage, maximumSize);
 		}
-		catch (IOException e)
+		else
 		{
-			log.error("Couldn't save image as PNG: {}", e.getMessage());
-			return "";
+			return writeImageAsJpegData(bufferedImage, maximumSize);
 		}
 	}
 
@@ -148,17 +132,17 @@ public final class ImageUtils
 	 * Writes an image as a JPEG data URL. The image is optimized and its quality reduced
 	 * until it fits the size.
 	 *
-	 * @param image       the image
+	 * @param bufferedImage the image
 	 * @param maximumSize the maximum size of the image in bytes. If 0, no limit is applied.
 	 * @return the image as a JPEG data URL, or an empty string if the image couldn't be written.
 	 */
-	public static String writeImageAsJpegData(Image image, int maximumSize)
+	public static String writeImageAsJpegData(BufferedImage bufferedImage, int maximumSize)
 	{
 		try
 		{
 			byte[] out;
 			var quality = 0.7f;
-			var bufferedImage = JpegUtils.stripAlphaIfNeeded(SwingFXUtils.fromFXImage(image, null));
+			bufferedImage = JpegUtils.stripAlphaIfNeeded(bufferedImage);
 			do
 			{
 				out = JpegUtils.compressBufferedImageToJpegArray(bufferedImage, quality);
@@ -175,63 +159,9 @@ public final class ImageUtils
 		}
 	}
 
-	/**
-	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
-	 *
-	 * @param imageView     the image to modify
-	 * @param maximumWidth  the maximum width of the image
-	 * @param maximumHeight the maximum height of the image
-	 */
-	public static void limitMaximumImageSize(ImageView imageView, int maximumWidth, int maximumHeight)
-	{
-		var width = imageView.getImage().getWidth();
-		var height = imageView.getImage().getHeight();
 
-		if (width > maximumWidth || height > maximumHeight)
-		{
-			var scaleImageView = new ImageView(imageView.getImage());
-			scaleImageView.setPreserveRatio(true);
-			scaleImageView.setSmooth(true);
-			if (width > height)
-			{
-				scaleImageView.setFitWidth(maximumWidth);
-			}
-			else
-			{
-				scaleImageView.setFitHeight(maximumHeight);
-			}
-			var parameters = new SnapshotParameters();
-			parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
-			imageView.setImage(scaleImageView.snapshot(parameters, null));
-		}
-	}
 
-	/**
-	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
-	 *
-	 * @param imageView   the image to modify
-	 * @param maximumSize the maximum size of the image in total number of pixels
-	 */
-	public static void limitMaximumImageSize(ImageView imageView, int maximumSize)
-	{
-		var width = imageView.getImage().getWidth();
-		var height = imageView.getImage().getHeight();
 
-		var actualSize = width * height;
-
-		if (actualSize > maximumSize)
-		{
-			var ratio = Math.sqrt(maximumSize / actualSize);
-			var scaleImageView = new ImageView(imageView.getImage());
-			scaleImageView.setFitWidth(width * ratio);
-			scaleImageView.setFitHeight(height * ratio);
-			scaleImageView.setSmooth(true);
-
-			var parameters = new SnapshotParameters();
-			parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
-			imageView.setImage(scaleImageView.snapshot(parameters, null));
-		}
-	}
 
 	/**
 	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
@@ -260,56 +190,83 @@ public final class ImageUtils
 	}
 
 	/**
-	 * Checks if an image has an exaggerated aspect ratio, that is, excessive horizontal
-	 * or vertical length to try to mess up the UI.
+	 * Detects the type of the image.
+	 * <p>
+	 * Currently supported:
+	 * <ul>
+	 *     <li>PNG</li>
+	 *     <li>JPEG</li>
+	 * </ul>
 	 *
-	 * @param image the image to check
-	 * @return true if the aspect ratio is excessive
+	 * @param image the byte array containing the image data
+	 * @return the {@link MediaType} of the image
 	 */
-	public static boolean isExaggeratedAspectRatio(Image image)
+	public static MediaType getImageMimeType(byte[] image)
 	{
-		var width = image.getWidth();
-		var height = image.getHeight();
-
-		double aspectRatio;
-
-		if (width > height)
+		if (image == null)
 		{
-			aspectRatio = height / width;
+			return null;
 		}
-		else
+
+		if (isStartingWith(PNG_HEADER, image))
 		{
-			aspectRatio = width / height;
+			return MediaType.IMAGE_PNG;
 		}
-		return aspectRatio < 0.0014285714;
+		else if (isStartingWith(JPEG_HEADER, image))
+		{
+			return MediaType.IMAGE_JPEG;
+		}
+		return null;
 	}
 
-	/**
-	 * Determines the {@link Screen} on which a {@link Node} is displayed.
-	 *
-	 * @param node the node for which to determine the associated screen, can be null
-	 * @return the screen where the node is located, or the primary screen if the node is null or not associated with a specific screen
-	 */
-	public static Screen getScreen(Node node)
+	private static boolean isStartingWith(byte[] header, byte[] image)
 	{
-		if (node == null)
-		{
-			return Screen.getPrimary();
-		}
-		var bounds = node.localToScreen(node.getLayoutBounds());
-		if (bounds == null)
-		{
-			return Screen.getPrimary();
-		}
-		var rect = new Rectangle2D(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(), bounds.getHeight());
-		return Screen.getScreens().stream()
-				.filter(screen -> screen.getBounds().intersects(rect))
-				.findFirst()
-				.orElse(Screen.getPrimary());
+		return image.length >= header.length && IntStream.range(0, header.length).allMatch(i -> header[i] == image[i]);
 	}
 
 	private static boolean canCompressionPossiblyBeImproved(int maximumSize, byte[] array, float quality)
 	{
 		return maximumSize != 0 && Math.ceil((double) array.length / 3) * 4 > maximumSize - 200 && quality > 0; // 200 bytes to be safe as the message might contain tags and so on
+	}
+
+	private static boolean isTransparent(BufferedImage bufferedImage)
+	{
+		var cm = bufferedImage.getColorModel();
+
+		// IndexColorModel may define a single transparent palette index
+		if (cm instanceof IndexColorModel icm)
+		{
+			if (icm.getTransparentPixel() != -1)
+			{
+				return true;
+			}
+			// if no transparent palette index and no alpha, it's opaque
+			if (!icm.hasAlpha())
+			{
+				return false;
+			}
+		}
+		else
+		{
+			// If color model reports no alpha channel, image is opaque
+			if (!cm.hasAlpha())
+			{
+				return false;
+			}
+		}
+
+		// Now check pixel alpha values. Use a single getRGB call for speed.
+		int w = bufferedImage.getWidth();
+		int h = bufferedImage.getHeight();
+		int[] pixels = bufferedImage.getRGB(0, 0, w, h, null, 0, w);
+		for (int argb : pixels)
+		{
+			int alpha = (argb >>> 24) & 0xff;
+			if (alpha != 0xff)
+			{ // any value less than 255 means transparent or semi-transparent
+				return true;
+			}
+		}
+		return false;
 	}
 }

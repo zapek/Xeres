@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.common.i18n.I18nUtils;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
@@ -94,5 +95,10 @@ public final class ChooserUtils
 		{
 			chooser.setInitialDirectory(initialDirectory);
 		}
+	}
+
+	public static void setSupportedLoadImageFormats(FileChooser chooser)
+	{
+		chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(I18nUtils.getBundle().getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif", "*.webp", "*.gif", "*.bmp", "*.ico", "*.iff"));
 	}
 }

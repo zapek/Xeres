@@ -24,8 +24,8 @@ import io.xeres.common.util.OsUtils;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.util.ChooserUtils;
+import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.UiUtils;
-import io.xeres.ui.support.util.image.ImageUtils;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -95,7 +95,7 @@ public class ContentImage implements Content
 	public ContentImage(Image image, Region parent)
 	{
 		node = new ImageView();
-		var screen = ImageUtils.getScreen(parent);
+		var screen = ImageViewUtils.getScreen(parent);
 
 		// Remove ImageView's output scaling so that it's not zoomed in on 4K monitors.
 		node.setFitWidth(image.getWidth() / screen.getOutputScaleX());

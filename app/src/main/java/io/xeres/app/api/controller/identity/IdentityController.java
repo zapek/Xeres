@@ -31,7 +31,7 @@ import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.dto.identity.IdentityDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
-import io.xeres.common.util.ImageDetectionUtils;
+import io.xeres.common.util.image.ImageUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -87,13 +87,13 @@ public class IdentityController
 	public ResponseEntity<InputStreamResource> downloadIdentityImage(@PathVariable long id)
 	{
 		var identity = identityService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
-		var imageType = ImageDetectionUtils.getImageMimeType(identity.getImage());
+		var imageType = ImageUtils.getImageMimeType(identity.getImage());
 		if (imageType == null)
 		{
 			var image = identiconService.getIdenticon(identity.getGxsId().getBytes());
 			return ResponseEntity.ok()
 					.contentLength(image.length)
-					.contentType(ImageDetectionUtils.getImageMimeType(image))
+					.contentType(ImageUtils.getImageMimeType(image))
 					.body(new InputStreamResource(new ByteArrayInputStream(image)));
 		}
 		return ResponseEntity.ok()
@@ -114,7 +114,7 @@ public class IdentityController
 		if (Boolean.TRUE.equals(find))
 		{
 			var identity = identityService.findByGxsId(gxs).orElse(null);
-			if (identity != null && ImageDetectionUtils.getImageMimeType(identity.getImage()) != null)
+			if (identity != null && ImageUtils.getImageMimeType(identity.getImage()) != null)
 			{
 				image = identity.getImage();
 			}
@@ -125,7 +125,7 @@ public class IdentityController
 		}
 		return ResponseEntity.ok()
 				.contentLength(image.length)
-				.contentType(ImageDetectionUtils.getImageMimeType(image))
+				.contentType(ImageUtils.getImageMimeType(image))
 				.body(new InputStreamResource(new ByteArrayInputStream(image)));
 	}
 

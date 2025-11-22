@@ -52,6 +52,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -73,11 +74,11 @@ import static io.xeres.app.service.ResourceCreationState.*;
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.CHILD_AUTHOR;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.ROOT_AUTHOR;
+import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
 
 @Component
 public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessageItem>
 {
-	private static final long IMAGE_MAX_SIZE = 1024 * 1024 * 10L; // 10 MB
 	private static final int IMAGE_WIDTH = 128;
 	private static final int IMAGE_HEIGHT = 128;
 
@@ -472,7 +473,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_WIDTH, IMAGE_HEIGHT)
 				.crop(Positions.CENTER)
-				.outputFormat("JPEG")
+				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
 		identity.setImage(out.toByteArray());

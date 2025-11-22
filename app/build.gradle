@@ -201,6 +201,10 @@ dependencies {
     implementation "org.graalvm.polyglot:polyglot:$graalvmVersion"
     implementation "org.graalvm.polyglot:js:$graalvmVersion"
     implementation 'com.tianscar.javasound:javasound-speex:0.9.8'
+    implementation "com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion"
+    implementation "com.twelvemonkeys.imageio:imageio-jpeg:$twelveMonkeysVersion" // Improved formats
+    implementation "com.twelvemonkeys.imageio:imageio-bmp:$twelveMonkeysVersion" // Adds .ico support
+    implementation "com.twelvemonkeys.imageio:imageio-iff:$twelveMonkeysVersion" // A blast from the past :)
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"

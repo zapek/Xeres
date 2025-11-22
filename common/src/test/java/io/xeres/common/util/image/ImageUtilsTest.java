@@ -17,11 +17,9 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.util;
+package io.xeres.common.util.image;
 
 import io.xeres.testutils.TestUtils;
-import io.xeres.ui.support.util.image.ImageUtils;
-import javafx.scene.image.Image;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -34,14 +32,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImageUtilsTest
 {
-	private static Image image;
-	private static BufferedImage bufferedImage;
+	private static BufferedImage image;
+	private static BufferedImage transparentImage;
 
 	@BeforeAll
 	static void setup() throws IOException
 	{
-		image = new Image(Objects.requireNonNull(ImageUtilsTest.class.getResourceAsStream("/image/ours.png")));
-		bufferedImage = ImageIO.read(Objects.requireNonNull(ImageUtilsTest.class.getResourceAsStream("/image/ours.png")));
+		image = ImageIO.read(Objects.requireNonNull(ImageUtilsTest.class.getResourceAsStream("/image/ours.png")));
+		transparentImage = ImageIO.read(Objects.requireNonNull(ImageUtilsTest.class.getResourceAsStream("/image/logo_transparent.png")));
 	}
 
 	@Test
@@ -55,15 +53,7 @@ class ImageUtilsTest
 	{
 		var pngImage = ImageUtils.writeImageAsPngData(image, 2048);
 
-		assertTrue(pngImage.startsWith("data:image/png;base64,iVBOR"), pngImage);
-	}
-
-	@Test
-	void WriteImageAsPngData_BufferedImage_Success()
-	{
-		var pngImage = ImageUtils.writeImageAsPngData(bufferedImage, 2048);
-
-		assertTrue(pngImage.startsWith("data:image/png;base64,iVBOR"), pngImage);
+		assertTrue(pngImage.startsWith("data:image/png;base64,iVBOR"));
 	}
 
 	@Test
@@ -71,7 +61,7 @@ class ImageUtilsTest
 	{
 		var jpegImage = ImageUtils.writeImageAsJpegData(image, 2048);
 
-		assertTrue(jpegImage.startsWith("data:image/jpeg;base64,/9j/"), jpegImage);
+		assertTrue(jpegImage.startsWith("data:image/jpeg;base64,/9j/"));
 	}
 
 	@Test
@@ -79,13 +69,30 @@ class ImageUtilsTest
 	{
 		var jpegImage = ImageUtils.writeImageAsJpegData(image, 256);
 
-		assertTrue(jpegImage.startsWith("data:image/jpeg;base64,/9j/"), jpegImage);
+		assertTrue(jpegImage.startsWith("data:image/jpeg;base64,/9j/"));
+	}
+
+	@Test
+	void WriteImageAsBestPossibleWhichIsJpeg_Success()
+	{
+		var bestImage = ImageUtils.writeImage(image, 2048);
+
+		assertTrue(bestImage.startsWith("data:image/jpeg;base64,/9j/"));
+	}
+
+	@Test
+	void WriteImageAsBestPossibleWhichIsPng_Success()
+	{
+		// This image is effectively transparent and must be written as so.
+		var bestImage = ImageUtils.writeImage(transparentImage, 2048);
+
+		assertTrue(bestImage.startsWith("data:image/png;base64,iVBOR"));
 	}
 
 	@Test
 	void LimitMaximumImageSize_Success()
 	{
-		var scaledImage = ImageUtils.limitMaximumImageSize(bufferedImage, 128);
+		var scaledImage = ImageUtils.limitMaximumImageSize(image, 128);
 
 		assertTrue(scaledImage.getWidth() * scaledImage.getHeight() <= 128);
 	}

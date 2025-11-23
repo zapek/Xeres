@@ -17,31 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service.notification.board;
+package io.xeres.app.database.repository;
 
-import io.xeres.app.service.notification.NotificationService;
-import io.xeres.app.xrs.service.board.item.BoardGroupItem;
-import io.xeres.app.xrs.service.board.item.BoardMessageItem;
-import org.springframework.stereotype.Service;
+import io.xeres.app.xrs.common.CommentMessageItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-@Service
-public class BoardNotificationService extends NotificationService
+@Transactional(readOnly = true)
+public interface GxsCommentMessageRepository extends JpaRepository<CommentMessageItem, Long>
 {
-
-	public void addOrUpdateBoardGroups(List<BoardGroupItem> boardGroups)
-	{
-		// XXX
-	}
-
-	public void addBoardMessages(List<BoardMessageItem> boardMessages)
-	{
-		// XXX
-	}
-
-	public void markBoardMessagesAsRead(List<BoardMessageItem> boardMessages)
-	{
-		// XXX
-	}
 }

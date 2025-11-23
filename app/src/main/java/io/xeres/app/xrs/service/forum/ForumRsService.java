@@ -28,6 +28,8 @@ import io.xeres.app.database.repository.GxsForumMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
+import io.xeres.app.xrs.common.CommentMessageItem;
+import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -193,6 +195,30 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	protected void onMessagesSaved(List<ForumMessageItem> items)
 	{
 		forumNotificationService.addForumMessages(items);
+	}
+
+	@Override
+	protected boolean onCommentReceived(CommentMessageItem item)
+	{
+		return false;
+	}
+
+	@Override
+	protected void onCommentsSaved(List<CommentMessageItem> items)
+	{
+		// Nothing to do
+	}
+
+	@Override
+	protected boolean onVoteReceived(VoteMessageItem item)
+	{
+		return false;
+	}
+
+	@Override
+	protected void onVotesSaved(List<VoteMessageItem> items)
+	{
+		// Nothing to do
 	}
 
 	@Transactional

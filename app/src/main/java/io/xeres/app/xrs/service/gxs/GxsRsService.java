@@ -27,6 +27,8 @@ import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.xrs.common.CommentMessageItem;
+import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
@@ -44,7 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -94,16 +95,17 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private final GxsUpdateService<G, M> gxsUpdateService;
 	private final DatabaseSessionManager databaseSessionManager;
 
-	private final Type itemGroupClass;
-	private final Type itemMessageClass;
+	private final Class<G> itemGroupClass;
+	private final Class<M> itemMessageClass;
 
 	private ScheduledExecutorService executorService;
 
 	private final Map<G, Long> pendingGxsGroups = new ConcurrentHashMap<>();
-	private final Map<M, Long> pendingGxsMessages = new ConcurrentHashMap<>();
+	private final Map<GxsMessageItem, Long> pendingGxsMessages = new ConcurrentHashMap<>();
 
 	private AuthenticationRequirements authenticationRequirements;
 
+	@SuppressWarnings("unchecked")
 	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<G, M> gxsUpdateService)
 	{
 		super(rsServiceRegistry);
@@ -114,8 +116,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		this.gxsUpdateService = gxsUpdateService;
 
 		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of G
-		itemGroupClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-		itemMessageClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1]; // and M
+		itemGroupClass = (Class<G>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+		itemMessageClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1]; // and M
 	}
 
 	protected enum VerificationStatus
@@ -197,13 +199,59 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * Called when a message has been received.
 	 *
 	 * @param item the received message
+	 * @return true if we want to save it
 	 */
 	protected abstract boolean onMessageReceived(M item);
 
+	/**
+	 * Called when the messages have been saved.
+	 *
+	 * @param items the list of saved messages
+	 */
 	protected abstract void onMessagesSaved(List<M> items);
 
+	/**
+	 * Called when a comment has been received.
+	 *
+	 * @param item the received comment
+	 * @return true if we want to save it
+	 */
+	protected abstract boolean onCommentReceived(CommentMessageItem item);
+
+	/**
+	 * Called when the comments have been saved.
+	 *
+	 * @param items the list of saved comments
+	 */
+	protected abstract void onCommentsSaved(List<CommentMessageItem> items);
+
+	/**
+	 * Called when a vote has been received.
+	 *
+	 * @param item the received vote
+	 * @return true if we want to save it
+	 */
+	protected abstract boolean onVoteReceived(VoteMessageItem item);
+
+	/**
+	 * Called when the votes have been saved.
+	 *
+	 * @param items the list of saved votes
+	 */
+	protected abstract void onVotesSaved(List<VoteMessageItem> items);
+
+	/**
+	 * Called to gather the authentication requirements for the service.
+	 *
+	 * @return the authentication requirements
+	 */
 	protected abstract AuthenticationRequirements getAuthenticationRequirements();
 
+	/**
+	 * Called periodically (normally each minute, or when receiving a {@link GxsSyncNotifyItem}) to sync messages.
+	 *
+	 * @param recipient the peer to sync messages with
+	 */
 	protected abstract void syncMessages(PeerConnection recipient);
 
 	@Override
@@ -539,6 +587,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGES))
 		{
+			// This contains the message items, the votes and the comments
 			@SuppressWarnings("unchecked")
 			var gxsMessageItems = ((List<GxsTransferMessageItem>) transaction.getItems()).stream()
 					.map(this::convertTransferGroupToGxsMessage)
@@ -681,12 +730,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		try
 		{
-			//noinspection unchecked
-			gxsGroupItem = ((Class<G>) itemGroupClass).getDeclaredConstructor().newInstance();
+			gxsGroupItem = itemGroupClass.getDeclaredConstructor().newInstance();
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException _)
 		{
-			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemGroupClass).getSimpleName() + " missing empty constructor?");
+			throw new IllegalArgumentException("Failed to instantiate " + itemGroupClass.getSimpleName() + " missing empty constructor?");
 		}
 		return gxsGroupItem;
 	}
@@ -729,9 +777,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}
 
-	private void verifyAndStoreMessages(PeerConnection peerConnection, Collection<M> gxsMessageItems)
+	private void verifyAndStoreMessages(PeerConnection peerConnection, Collection<GxsMessageItem> gxsMessageItems)
 	{
 		List<M> savedMessages = new ArrayList<>(gxsMessageItems.size());
+		List<CommentMessageItem> savedComments = new ArrayList<>();
+		List<VoteMessageItem>   savedVotes = new ArrayList<>();
 
 		for (var gxsMessageItem : gxsMessageItems)
 		{
@@ -765,7 +815,14 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// Save the message if everything is OK
 			if (validation == VerificationStatus.OK)
 			{
-				gxsUpdateService.saveMessage(gxsMessageItem, this::onMessageReceived).ifPresent(savedMessages::add);
+				switch (gxsMessageItem)
+				{
+					case CommentMessageItem commentMessageItem -> gxsUpdateService.saveComment(commentMessageItem, this::onCommentReceived).ifPresent(savedComments::add);
+					case VoteMessageItem voteMessageItem -> gxsUpdateService.saveVote(voteMessageItem, this::onVoteReceived).ifPresent(savedVotes::add);
+					default ->
+						//noinspection unchecked
+							gxsUpdateService.saveMessage((M) gxsMessageItem, this::onMessageReceived).ifPresent(savedMessages::add);
+				}
 			}
 
 			// If the message verification was delayed, remove it
@@ -776,9 +833,17 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			onMessagesSaved(savedMessages);
 		}
+		if (!savedComments.isEmpty())
+		{
+			onCommentsSaved(savedComments);
+		}
+		if (!savedVotes.isEmpty())
+		{
+			onVotesSaved(savedVotes);
+		}
 	}
 
-	private VerificationStatus verifyMessage(PeerConnection peerConnection, M gxsMessageItem)
+	private VerificationStatus verifyMessage(PeerConnection peerConnection, GxsMessageItem gxsMessageItem)
 	{
 		if (gxsMessageItem.getAuthorSignature() == null)
 		{
@@ -817,7 +882,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private boolean validateMessage(M gxsMessageItem, PublicKey publicKey, byte[] signature)
+	private boolean validateMessage(GxsMessageItem gxsMessageItem, PublicKey publicKey, byte[] signature)
 	{
 		// Clear messageId and possibly originalMessageId because they're created after the signature
 		// is made (they depend on the content)
@@ -870,23 +935,25 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		try
 		{
-			//noinspection unchecked
-			gxsMessageItem = ((Class<M>) itemMessageClass).getDeclaredConstructor().newInstance();
+			gxsMessageItem = itemMessageClass.getDeclaredConstructor().newInstance();
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException _)
 		{
-			throw new IllegalArgumentException("Failed to instantiate " + ((Class<?>) itemMessageClass).getSimpleName() + " missing empty constructor?");
+			throw new IllegalArgumentException("Failed to instantiate " + itemMessageClass.getSimpleName() + " missing empty constructor?");
 		}
 		return gxsMessageItem;
 	}
 
-	private M convertTransferGroupToGxsMessage(GxsTransferMessageItem fromItem)
+	private GxsMessageItem convertTransferGroupToGxsMessage(GxsTransferMessageItem fromItem)
 	{
-		var toItem = createGxsMessageItem();
-
-		fromItem.toGxsMessageItem(toItem);
-
-		return toItem;
+		var subType = fromItem.getMessageType();
+		var toItem = switch (subType)
+		{
+			case CommentMessageItem.SUBTYPE -> new CommentMessageItem();
+			case VoteMessageItem.SUBTYPE -> new VoteMessageItem();
+			default -> createGxsMessageItem();
+		};
+		return fromItem.toGxsMessageItem(toItem);
 	}
 
 	protected G createGroup(String name)

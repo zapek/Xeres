@@ -70,7 +70,7 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 		metaBuf.release();
 	}
 
-	public void toGxsMessageItem(GxsMessageItem gxsMessageItem)
+	public GxsMessageItem toGxsMessageItem(GxsMessageItem gxsMessageItem)
 	{
 		var buf = Unpooled.copiedBuffer(meta, message);
 
@@ -79,6 +79,15 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 		gxsMessageItem.readDataObject(buf);
 
 		buf.release();
+		return gxsMessageItem;
+	}
+
+	public int getMessageType()
+	{
+		var buf = Unpooled.wrappedBuffer(message);
+		var subType = ItemHeader.getSubType(buf);
+		buf.release();
+		return subType;
 	}
 
 	@Override

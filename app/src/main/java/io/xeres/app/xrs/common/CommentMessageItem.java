@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.common;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.GxsId;
@@ -28,15 +28,17 @@ import jakarta.persistence.Entity;
 
 import java.util.Set;
 
-@Entity(name = "gxs_comment")
-public class CommentMessageItem extends GxsGroupItem
+@Entity(name = "comment_message")
+public class CommentMessageItem extends GxsMessageItem
 {
+	public static final int SUBTYPE = 0xf1;
+
 	private String comment;
 
 	@Override
 	public int getSubType()
 	{
-		return 0xf1;
+		return SUBTYPE;
 	}
 
 	public CommentMessageItem()

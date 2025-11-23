@@ -26,10 +26,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.notification.board.BoardNotificationService;
 import io.xeres.app.xrs.service.board.BoardRsService;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.rest.board.CreateBoardGroupRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
@@ -40,6 +42,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.util.List;
 
+import static io.xeres.app.database.model.board.BoardMapper.toDTO;
 import static io.xeres.app.database.model.board.BoardMapper.toDTOs;
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 
@@ -50,11 +53,13 @@ public class BoardController
 {
 	private final BoardRsService boardRsService;
 	private final IdentityService identityService;
+	private final BoardNotificationService boardNotificationService;
 
-	public BoardController(BoardRsService boardRsService, IdentityService identityService)
+	public BoardController(BoardRsService boardRsService, IdentityService identityService, BoardNotificationService boardNotificationService)
 	{
 		this.boardRsService = boardRsService;
 		this.identityService = identityService;
+		this.boardNotificationService = boardNotificationService;
 	}
 
 	@GetMapping("/groups")
@@ -69,7 +74,6 @@ public class BoardController
 	@ApiResponse(responseCode = "201", description = "Board created successfully", headers = @Header(name = "Board", description = "The location of the created board", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createBoardGroup(@Valid @RequestBody CreateBoardGroupRequest createBoardGroupRequest)
 	{
-		// XXX: like forums... and how do I supply the image? you can't... upload the image in a separate endpoint, see below. the client has to take care of it
 		var ownIdentity = identityService.getOwnIdentity();
 		var id = boardRsService.createBoardGroup(ownIdentity.getGxsId(), createBoardGroupRequest.name(), createBoardGroupRequest.description());
 
@@ -85,11 +89,41 @@ public class BoardController
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> uploadBoardGroupImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
 	{
-		// XXX: add, like identityRsService.saveOwnIdentityImage(id, file);
-		// XXX: and call the notifications...
+		var board = boardRsService.saveBoardGroupImage(id, file);
+		boardNotificationService.addOrUpdateBoardGroups(List.of(board));
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/groups/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
 	}
 
+	@GetMapping("/groups/{groupId}")
+	@Operation(summary = "Gets the details of a board")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public BoardGroupDTO getBoardGroupById(@PathVariable long groupId)
+	{
+		return toDTO(boardRsService.findById(groupId).orElseThrow());
+	}
+
+	@GetMapping("/groups/{groupId}/unread-count")
+	@Operation(summary = "Get the unread count of a board")
+	public int getBoardUnreadCount(@PathVariable long groupId)
+	{
+		return boardRsService.getUnreadCount(groupId);
+	}
+
+	@PutMapping("/groups/{groupId}/subscription")
+	@Operation(summary = "Subscribes to a board")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void subscribeToBoardGroup(@PathVariable long groupId)
+	{
+		boardRsService.subscribeToBoardGroup(groupId);
+	}
+
+	@DeleteMapping("/groups/{groupId}/subscription")
+	@Operation(summary = "Unsubscribes from a board")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void unsubscribeFromBoardGroup(@PathVariable long groupId)
+	{
+		boardRsService.unsubscribeFromBoardGroup(groupId);
+	}
 }

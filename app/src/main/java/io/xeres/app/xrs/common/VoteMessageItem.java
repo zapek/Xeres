@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.common;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
@@ -29,8 +29,8 @@ import jakarta.persistence.Entity;
 
 import java.util.Set;
 
-@Entity(name = "gxs_vote")
-public class VoteMessageItem extends GxsGroupItem
+@Entity(name = "vote_message")
+public class VoteMessageItem extends GxsMessageItem
 {
 	public enum Type
 	{
@@ -47,6 +47,8 @@ public class VoteMessageItem extends GxsGroupItem
 		 */
 		UP
 	}
+
+	public static final int SUBTYPE = 0xf2;
 
 	private Set<Type> type;
 
@@ -65,7 +67,7 @@ public class VoteMessageItem extends GxsGroupItem
 	@Override
 	public int getSubType()
 	{
-		return 0xf2;
+		return SUBTYPE;
 	}
 
 	public Set<Type> getType()

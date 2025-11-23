@@ -17,31 +17,31 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service.notification.board;
+package io.xeres.ui.model.board;
 
-import io.xeres.app.service.notification.NotificationService;
-import io.xeres.app.xrs.service.board.item.BoardGroupItem;
-import io.xeres.app.xrs.service.board.item.BoardMessageItem;
-import org.springframework.stereotype.Service;
+import io.xeres.common.dto.board.BoardGroupDTO;
 
-import java.util.List;
-
-@Service
-public class BoardNotificationService extends NotificationService
+public final class BoardMapper
 {
-
-	public void addOrUpdateBoardGroups(List<BoardGroupItem> boardGroups)
+	private BoardMapper()
 	{
-		// XXX
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public void addBoardMessages(List<BoardMessageItem> boardMessages)
+	public static BoardGroup fromDTO(BoardGroupDTO dto)
 	{
-		// XXX
-	}
+		if (dto == null)
+		{
+			return null;
+		}
 
-	public void markBoardMessagesAsRead(List<BoardMessageItem> boardMessages)
-	{
-		// XXX
+		var boardGroup = new BoardGroup();
+		boardGroup.setId(dto.id());
+		boardGroup.setName(dto.name());
+		boardGroup.setGxsId(dto.gxsId());
+		boardGroup.setDescription(dto.description());
+		boardGroup.setSubscribed(dto.subscribed());
+		boardGroup.setExternal(dto.external());
+		return boardGroup;
 	}
 }

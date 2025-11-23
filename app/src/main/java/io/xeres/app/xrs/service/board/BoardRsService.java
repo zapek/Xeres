@@ -27,6 +27,8 @@ import io.xeres.app.database.repository.GxsBoardMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.notification.board.BoardNotificationService;
+import io.xeres.app.xrs.common.CommentMessageItem;
+import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -206,8 +208,31 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected void onMessagesSaved(List<BoardMessageItem> items)
 	{
-		// XXX
-		//boardNotificationService.addForumMessages(items);
+		boardNotificationService.addBoardMessages(items);
+	}
+
+	@Override
+	protected boolean onCommentReceived(CommentMessageItem item)
+	{
+		return true;
+	}
+
+	@Override
+	protected void onCommentsSaved(List<CommentMessageItem> items)
+	{
+		// XXX: boardNotificationService.addBoardComments(items);
+	}
+
+	@Override
+	protected boolean onVoteReceived(VoteMessageItem item)
+	{
+		return true;
+	}
+
+	@Override
+	protected void onVotesSaved(List<VoteMessageItem> items)
+	{
+		// XXX: boardNotificationService.addBoardVotes(items);
 	}
 
 	@Transactional
@@ -286,7 +311,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		var savedBoardId = saveBoard(boardGroupItem).getId();
 
 		boardGroupItem.setId(savedBoardId);
-		boardNotificationService.addBoardGroups(List.of(boardGroupItem));
+		boardNotificationService.addOrUpdateBoardGroups(List.of(boardGroupItem));
 
 		return savedBoardId;
 	}
@@ -329,5 +354,22 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		board.updatePublished();
 
 		return saveBoard(board);
+	}
+
+	@Transactional
+	public void subscribeToBoardGroup(long id)
+	{
+		var boardGroupItem = findById(id).orElseThrow();
+		boardGroupItem.setSubscribed(true);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(POSTED);
+		// We don't need to send a sync notify here because it's not urgent.
+		// The peers will poll normally to show if there's a new group available.
+	}
+
+	@Transactional
+	public void unsubscribeFromBoardGroup(long id)
+	{
+		var boardGroupItem = findById(id).orElseThrow();
+		boardGroupItem.setSubscribed(false);
 	}
 }

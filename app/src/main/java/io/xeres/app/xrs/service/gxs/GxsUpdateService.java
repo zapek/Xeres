@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,6 +28,8 @@ import io.xeres.app.database.repository.GxsClientUpdateRepository;
 import io.xeres.app.database.repository.GxsGroupItemRepository;
 import io.xeres.app.database.repository.GxsMessageItemRepository;
 import io.xeres.app.database.repository.GxsServiceSettingRepository;
+import io.xeres.app.xrs.common.CommentMessageItem;
+import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import org.springframework.stereotype.Service;
@@ -156,6 +158,28 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 		if (confirmation.test(gxsMessageItem) /*&& gxsMessageItem.isExternal()*/) // Don't overwrite our own messages (XXX: find a way to do the check)
 		{
 			return Optional.of(gxsMessageItemRepository.save(gxsMessageItem));
+		}
+		return Optional.empty();
+	}
+
+	@Transactional
+	public Optional<CommentMessageItem> saveComment(CommentMessageItem commentMessageItem, Predicate<CommentMessageItem> confirmation)
+	{
+		commentMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMessageId(commentMessageItem.getGxsId(), commentMessageItem.getMessageId()).orElse(commentMessageItem).getId());
+		if (confirmation.test(commentMessageItem) /*&& gxsMessageItem.isExternal()*/) // Don't overwrite our own messages (XXX: find a way to do the check)
+		{
+			return Optional.of(gxsMessageItemRepository.save(commentMessageItem));
+		}
+		return Optional.empty();
+	}
+
+	@Transactional
+	public Optional<VoteMessageItem> saveVote(VoteMessageItem voteMessageItem, Predicate<VoteMessageItem> confirmation)
+	{
+		voteMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMessageId(voteMessageItem.getGxsId(), voteMessageItem.getMessageId()).orElse(voteMessageItem).getId());
+		if (confirmation.test(voteMessageItem) /*&& gxsMessageItem.isExternal()*/) // Don't overwrite our own messages (XXX: find a way to do the check)
+		{
+			return Optional.of(gxsMessageItemRepository.save(voteMessageItem));
 		}
 		return Optional.empty();
 	}

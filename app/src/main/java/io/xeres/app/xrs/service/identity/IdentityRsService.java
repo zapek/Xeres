@@ -35,6 +35,8 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.ResourceCreationState;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
+import io.xeres.app.xrs.common.CommentMessageItem;
+import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -329,6 +331,30 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	protected void onMessagesSaved(List<GxsMessageItem> items)
 	{
 		// nothing to do since we don't receive them
+	}
+
+	@Override
+	protected boolean onCommentReceived(CommentMessageItem item)
+	{
+		return false;
+	}
+
+	@Override
+	protected void onCommentsSaved(List<CommentMessageItem> items)
+	{
+		// Nothing to do
+	}
+
+	@Override
+	protected boolean onVoteReceived(VoteMessageItem item)
+	{
+		return false;
+	}
+
+	@Override
+	protected void onVotesSaved(List<VoteMessageItem> items)
+	{
+		// Nothing to do
 	}
 
 	@Override

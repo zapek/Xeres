@@ -19,11 +19,18 @@
 
 package io.xeres.app.xrs.service.channel;
 
+import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.database.model.gxs.GxsMessageItem;
+import io.xeres.app.database.repository.GxsChannelGroupRepository;
+import io.xeres.app.database.repository.GxsChannelMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.notification.channel.ChannelNotificationService;
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
+import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
@@ -32,20 +39,29 @@ import io.xeres.app.xrs.service.gxs.AuthenticationRequirements;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
+import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static io.xeres.app.xrs.service.RsServiceType.CHANNELS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
+import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
 
 @Component
 public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMessageItem>
@@ -56,12 +72,21 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(90);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
-	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService)
+	private final GxsChannelGroupRepository gxsChannelGroupRepository;
+	private final GxsChannelMessageRepository gxsChannelMessageRepository;
+	private final GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService;
+	private final DatabaseSessionManager databaseSessionManager;
+	private final ChannelNotificationService channelNotificationService;
+
+	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
-		// XXX
+		this.gxsChannelGroupRepository = gxsChannelGroupRepository;
+		this.gxsChannelMessageRepository = gxsChannelMessageRepository;
+		this.gxsUpdateService = gxsUpdateService1;
+		this.databaseSessionManager = databaseSessionManager1;
+		this.channelNotificationService = channelNotificationService;
 	}
-
 
 	// XXX: don't forget about the comments and votes!
 
@@ -84,93 +109,243 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Override
+	public void initialize(PeerConnection peerConnection)
+	{
+		super.initialize(peerConnection);
+		peerConnection.scheduleWithFixedDelay(
+				() -> syncMessages(peerConnection),
+				SYNCHRONIZATION_INITIAL_DELAY.toSeconds(),
+				SYNCHRONIZATION_DELAY.toSeconds(),
+				TimeUnit.SECONDS
+		);
+	}
+
+	@Override
 	protected void syncMessages(PeerConnection recipient)
 	{
-
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			// Request new messages for all subscribed groups
+			findAllSubscribedGroups().forEach(channelGroupItem -> {
+				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(channelGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(recipient.getLocation(), channelGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
+				log.debug("Asking {} for new messages in {} since {} for {}", recipient, gxsSyncMessageRequestItem.getGroupId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
+				peerConnectionManager.writeItem(recipient, gxsSyncMessageRequestItem, this);
+			});
+		}
 	}
 
 	@Override
 	protected List<ChannelGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
 	{
-		return List.of();
-	}
-
-	@Override
-	protected Set<GxsId> onAvailableGroupListResponse(Map<GxsId, Instant> ids)
-	{
-		return Set.of();
+		return findAllGroupsSubscribedAndPublishedSince(since);
 	}
 
 	@Override
 	protected List<ChannelGroupItem> onGroupListRequest(Set<GxsId> ids)
 	{
-		return List.of();
+		return findAllGroups(ids);
+	}
+
+	@Override
+	protected Set<GxsId> onAvailableGroupListResponse(Map<GxsId, Instant> ids)
+	{
+		// We want new channels as well as updated ones
+		var existingMap = findAllGroups(ids.keySet()).stream()
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, channelGroupItem -> channelGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
+
+		ids.entrySet().removeIf(gxsIdInstantEntry -> {
+			var existing = existingMap.get(gxsIdInstantEntry.getKey());
+			return existing != null && !gxsIdInstantEntry.getValue().isAfter(existing);
+		});
+		return ids.keySet();
 	}
 
 	@Override
 	protected boolean onGroupReceived(ChannelGroupItem item)
 	{
-		return false;
+		log.debug("Received {}, saving/updating...", item);
+		return true;
 	}
 
 	@Override
 	protected void onGroupsSaved(List<ChannelGroupItem> items)
 	{
-
+		//channelNotificationService.addChannelGroups(items); XXX
 	}
 
 	@Override
 	protected List<ChannelMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
 	{
-		return List.of();
+		return findAllMessagesInGroupSince(groupId, since);
 	}
 
 	@Override
 	protected List<ChannelMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
 	{
-		return List.of();
+		// XXX: as well as comments!
+		return findAllMessages(groupId, messageIds);
 	}
 
 	@Override
 	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
 	{
-		return List.of();
+		// XXX: comments too?
+		var existing = findAllMessages(groupId, messageIds).stream()
+				.map(GxsMessageItem::getMessageId)
+				.collect(Collectors.toSet());
+
+		messageIds.removeAll(existing);
+
+		return messageIds.stream().toList();
 	}
 
 	@Override
 	protected boolean onMessageReceived(ChannelMessageItem item)
 	{
-		return false;
+		log.debug("Received message {}, saving...", item);
+		return true;
 	}
 
 	@Override
 	protected void onMessagesSaved(List<ChannelMessageItem> items)
 	{
-
+		channelNotificationService.addChannelMessages(items);
 	}
 
 	@Override
 	protected boolean onCommentReceived(CommentMessageItem item)
 	{
-		return false;
+		return true;
 	}
 
 	@Override
 	protected void onCommentsSaved(List<CommentMessageItem> items)
 	{
-
+		// XXX: channelNotificationService.addChannelComments(items);
 	}
 
 	@Override
 	protected boolean onVoteReceived(VoteMessageItem item)
 	{
-		return false;
+		return true;
 	}
 
 	@Override
 	protected void onVotesSaved(List<VoteMessageItem> items)
 	{
-
+		// XXX: channelNotificationService.addChannelVotes(items);
 	}
 
+	@Transactional
+	@Override
+	public void handleItem(PeerConnection sender, Item item)
+	{
+		super.handleItem(sender, item); // This is required for the @Transactional to work
+	}
+
+	public Optional<ChannelGroupItem> findById(long id)
+	{
+		return gxsChannelGroupRepository.findById(id);
+	}
+
+	public List<ChannelGroupItem> findAllGroups()
+	{
+		return gxsChannelGroupRepository.findAll();
+	}
+
+	public List<ChannelGroupItem> findAllSubscribedGroups()
+	{
+		return gxsChannelGroupRepository.findAllBySubscribedIsTrue();
+	}
+
+	public List<ChannelGroupItem> findAllGroups(Set<GxsId> gxsIds)
+	{
+		return gxsChannelGroupRepository.findAllByGxsIdIn(gxsIds);
+	}
+
+	public List<ChannelGroupItem> findAllGroupsSubscribedAndPublishedSince(Instant since)
+	{
+		return gxsChannelGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
+	}
+
+	public List<ChannelMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
+	{
+		return gxsChannelMessageRepository.findAllByGxsIdAndPublishedAfter(groupId, since);
+	}
+
+	public List<ChannelMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
+	{
+		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+	}
+
+	public List<ChannelMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
+	{
+		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();
+		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(channelGroup.getGxsId(), messageIds);
+	}
+
+	public int getUnreadCount(long groupId)
+	{
+		var channelGroupItem = gxsChannelGroupRepository.findById(groupId).orElseThrow();
+		return gxsChannelMessageRepository.countUnreadMessages(channelGroupItem.getGxsId());
+	}
+
+	// XXX: createChannelGroup..
+
+	@Transactional
+	public ChannelGroupItem saveChannel(ChannelGroupItem channelGroupItem)
+	{
+		signGroupIfNeeded(channelGroupItem);
+		var savedChannel = gxsChannelGroupRepository.save(channelGroupItem);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(CHANNELS);
+		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
+		return savedChannel;
+	}
+
+	@Transactional
+	public ChannelGroupItem saveChannelGroupImage(long id, MultipartFile file) throws IOException
+	{
+		if (file == null)
+		{
+			throw new IllegalArgumentException("Image is null");
+		}
+
+		if (file.getSize() >= IMAGE_MAX_SIZE)
+		{
+			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+		}
+
+		var channel = findById(id).orElseThrow();
+
+		var out = new ByteArrayOutputStream();
+		Thumbnails.of(file.getInputStream())
+				.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
+				.crop(Positions.CENTER)
+				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.toOutputStream(out);
+
+		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
+
+		channel.setImage(out.toByteArray());
+		channel.updatePublished();
+
+		return saveChannel(channel);
+	}
+
+	@Transactional
+	public void subscribeToChannelGroup(long id)
+	{
+		var channelGroupItem = findById(id).orElseThrow();
+		channelGroupItem.setSubscribed(true);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(CHANNELS);
+		// We don't need to send a sync notify here because it's not urgent.
+		// The peers will poll normally to show if there's a new group available.
+	}
+
+	@Transactional
+	public void unsubscribeFromChannelGroup(long id)
+	{
+		var channelGroupItem = findById(id).orElseThrow();
+		channelGroupItem.setSubscribed(false);
+	}
 }

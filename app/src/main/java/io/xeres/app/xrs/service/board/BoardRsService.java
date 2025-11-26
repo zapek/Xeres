@@ -279,14 +279,14 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 	public List<BoardMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
 	{
-		var forumGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
-		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(forumGroup.getGxsId(), messageIds);
+		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
+		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(boardGroup.getGxsId(), messageIds);
 	}
 
 	public int getUnreadCount(long groupId)
 	{
-		var forumGroupItem = gxsBoardGroupRepository.findById(groupId).orElseThrow();
-		return gxsBoardMessageRepository.countUnreadMessages(forumGroupItem.getGxsId());
+		var boardGroupItem = gxsBoardGroupRepository.findById(groupId).orElseThrow();
+		return gxsBoardMessageRepository.countUnreadMessages(boardGroupItem.getGxsId());
 	}
 
 	@Transactional
@@ -320,10 +320,10 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	public BoardGroupItem saveBoard(BoardGroupItem boardGroupItem)
 	{
 		signGroupIfNeeded(boardGroupItem);
-		var savedForum = gxsBoardGroupRepository.save(boardGroupItem);
+		var savedBoard = gxsBoardGroupRepository.save(boardGroupItem);
 		gxsUpdateService.setLastServiceGroupsUpdateNow(POSTED);
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
-		return savedForum;
+		return savedBoard;
 	}
 
 	@Transactional

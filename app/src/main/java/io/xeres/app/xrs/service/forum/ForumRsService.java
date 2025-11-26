@@ -90,8 +90,8 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		return new AuthenticationRequirements.Builder()
 				.withPublic(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
-				.withRestricted(EnumSet.of(ROOT_PUBLISH, CHILD_PUBLISH))
-				.withPrivate(EnumSet.of(ROOT_PUBLISH, CHILD_PUBLISH))
+				.withRestricted(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR, ROOT_PUBLISH, CHILD_PUBLISH))
+				.withPrivate(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR, ROOT_PUBLISH, CHILD_PUBLISH))
 				.build();
 	}
 

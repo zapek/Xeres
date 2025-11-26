@@ -30,7 +30,7 @@ import org.springframework.web.util.UriComponents;
 
 import java.util.stream.Stream;
 
-import static io.xeres.ui.support.uri.BoardsUri.*;
+import static io.xeres.ui.support.uri.BoardUri.*;
 
 public class BoardsUriFactory extends AbstractUriFactory
 {
@@ -52,7 +52,7 @@ public class BoardsUriFactory extends AbstractUriFactory
 			return new ContentText("");
 		}
 
-		var boardsUri = new BoardsUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
+		var boardsUri = new BoardUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
 
 		return new ContentUri(boardsUri, StringUtils.isNotBlank(text) ? text : name, uriAction::openUri);
 	}

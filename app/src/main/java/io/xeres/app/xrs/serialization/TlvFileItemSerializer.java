@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -51,7 +51,6 @@ final class TlvFileItemSerializer
 		buf.writeInt(len);
 		buf.writeLong(fileItem.size());
 		Serializer.serialize(buf, fileItem.hash());
-		// XXX: the following are optional if empty... (length = 0, "" or 0)
 		if (StringUtils.isNotEmpty(fileItem.name()))
 		{
 			TlvSerializer.serialize(buf, STR_NAME, fileItem.name());
@@ -108,7 +107,7 @@ final class TlvFileItemSerializer
 		var age = 0;
 		var pieceSize = 0;
 		Set<Sha1Sum> chunkHashes = Set.of();
-		while (buf.readerIndex() < index + totalSize && (tlvType = TlvUtils.peekTlvType(buf)) != null) // XXX: how to detect when we are done??
+		while (buf.readerIndex() < index + totalSize && (tlvType = TlvUtils.peekTlvType(buf)) != null)
 		{
 			switch (tlvType)
 			{

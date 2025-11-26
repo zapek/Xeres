@@ -125,6 +125,12 @@ public class MainWindowController implements WindowController
 	private Tab forumTab;
 
 	@FXML
+	private Tab channelTab;
+
+	@FXML
+	private Tab boardTab;
+
+	@FXML
 	private Tab fileTab;
 
 	@FXML
@@ -618,6 +624,8 @@ public class MainWindowController implements WindowController
 		{
 			case ChatRoomUri _ -> tabPane.getSelectionModel().select(chatTab);
 			case ForumUri _ -> tabPane.getSelectionModel().select(forumTab);
+			case BoardUri _ -> tabPane.getSelectionModel().select(boardTab);
+			case ChannelUri _ -> tabPane.getSelectionModel().select(channelTab);
 			case SearchUri _ -> tabPane.getSelectionModel().select(fileTab);
 			case IdentityUri _, ProfileUri _ -> tabPane.getSelectionModel().select(contactTab);
 			default ->
@@ -641,6 +649,8 @@ public class MainWindowController implements WindowController
 			}
 			case FORUM -> addOrRemoveTabHighlight(forumTab, event.unread());
 			case FILE -> addOrRemoveTabHighlight(fileTab, event.unread());
+			case BOARD -> addOrRemoveTabHighlight(boardTab, event.unread());
+			case CHANNEL -> addOrRemoveTabHighlight(channelTab, event.unread());
 		}
 	}
 

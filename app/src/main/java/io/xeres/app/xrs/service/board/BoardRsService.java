@@ -98,8 +98,8 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		return new AuthenticationRequirements.Builder()
 				.withPublic(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
-				.withRestricted(EnumSet.of(ROOT_PUBLISH, CHILD_PUBLISH))
-				.withPrivate(EnumSet.of(ROOT_PUBLISH, CHILD_PUBLISH))
+				.withRestricted(EnumSet.of(ROOT_AUTHOR, ROOT_PUBLISH, CHILD_AUTHOR, CHILD_PUBLISH))
+				.withPrivate(EnumSet.of(ROOT_AUTHOR, ROOT_PUBLISH, CHILD_AUTHOR, CHILD_PUBLISH))
 				.build();
 	}
 
@@ -131,7 +131,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 	// XXX: don't forget about the comments and votes!
 
-	// XXX: also beware, other users cannot write messages on a group we own (well, they can actually... I'm thinking of channels!)
+	// XXX: also beware, other users can write messages on a group we own, like forums
 
 	@Override
 	protected List<BoardGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
@@ -348,7 +348,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
-		// XXX: resulting image has to be a certain size too... how to do it?
+		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
 
 		board.setImage(out.toByteArray());
 		board.updatePublished();

@@ -24,7 +24,7 @@ import org.springframework.web.util.UriUtils;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public sealed interface Uri permits BoardsUri, CertificateUri, ChannelUri, ChatRoomUri, CollectionUri, ExternalUri, FileUri, ForumUri, IdentityUri, MessageUri, ProfileUri, SearchUri
+public sealed interface Uri permits BoardUri, CertificateUri, ChannelUri, ChatRoomUri, CollectionUri, ExternalUri, FileUri, ForumUri, IdentityUri, MessageUri, ProfileUri, SearchUri
 {
 	String toUriString();
 

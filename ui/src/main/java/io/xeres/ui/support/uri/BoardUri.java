@@ -23,7 +23,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.MessageId;
 
-public record BoardsUri(String name, GxsId id, MessageId messageId) implements Uri
+public record BoardUri(String name, GxsId id, MessageId messageId) implements Uri
 {
 	static final String AUTHORITY = "posted";
 

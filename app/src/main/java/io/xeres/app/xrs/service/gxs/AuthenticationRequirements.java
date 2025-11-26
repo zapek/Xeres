@@ -25,9 +25,21 @@ public final class AuthenticationRequirements
 {
 	public enum Flags
 	{
+		/**
+		 * New threads need to be signed by the author of the message. Typical use: forums, since posts are signed.
+		 */
 		ROOT_AUTHOR,
+		/**
+		 * All messages need to be signed by the author of the message. Typical use: forums since response to posts are signed, and signed comments in channels.
+		 */
 		CHILD_AUTHOR,
+		/**
+		 * New threads need to be signed by the publish signature of the group. Typical use: posts in channels.
+		 */
 		ROOT_PUBLISH,
+		/**
+		 * All messages need to be signed by the publish signature of the group. Typical use: channels were comments are restricted to the publisher.
+		 */
 		CHILD_PUBLISH
 	}
 

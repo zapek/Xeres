@@ -341,6 +341,11 @@ public final class Serializer
 		return ListSerializer.serialize(buf, list);
 	}
 
+	public static int serialize(ByteBuf buf, List<Object> list, TlvType tlvType)
+	{
+		return ListSerializer.serialize(buf, list, tlvType);
+	}
+
 	/**
 	 * Deserializes a list.
 	 *
@@ -351,6 +356,11 @@ public final class Serializer
 	public static List<Object> deserializeList(ByteBuf buf, ParameterizedType type)
 	{
 		return ListSerializer.deserialize(buf, null, type);
+	}
+
+	public static List<Object> deserializeList(ByteBuf buf, TlvType tlvType)
+	{
+		return ListSerializer.deserialize(buf, null, tlvType);
 	}
 
 	/**

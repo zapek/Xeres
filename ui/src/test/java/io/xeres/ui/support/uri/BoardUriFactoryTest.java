@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @ExtendWith(ApplicationExtension.class)
-class BoardsUriFactoryTest
+class BoardUriFactoryTest
 {
 	@Test
 	void BoardsUri_WrongParams_MissingGxsId_Fail()
@@ -39,7 +39,7 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=test";
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.create(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertInstanceOf(ContentText.class, content);
@@ -52,7 +52,7 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?id=" + gxsId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.create(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertInstanceOf(ContentText.class, content);
@@ -66,7 +66,7 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=test&id=" + gxsId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.create(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
@@ -81,7 +81,7 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=test&id=" + gxsId + "&msgid=" + msgId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.create(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
@@ -96,7 +96,7 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.create(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertEquals("Fun Board", content.asText());
@@ -111,7 +111,7 @@ class BoardsUriFactoryTest
 		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
 
 		var factory = new BoardsUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "Test", uri -> {
+		var content = factory.create(createUriComponentsFromUri(url), "Test", _ -> {
 		});
 
 		assertEquals("Test", content.asText());

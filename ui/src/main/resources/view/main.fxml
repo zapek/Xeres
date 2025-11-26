@@ -134,6 +134,20 @@
                     <!--suppress Annotator -->
                     <fx:include fx:id="forumsView" source="forum/forum_view.fxml"/>
                 </Tab>
+                <Tab fx:id="channelTab" text="%main.channels">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-play-box"/>
+                    </graphic>
+                    <!--suppress Annotator -->
+                    <fx:include fx:id="channelsView" source="channel/channel_view.fxml"/>
+                </Tab>
+                <Tab fx:id="boardTab" text="%main.boards">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2v-view-dashboard-outline"/>
+                    </graphic>
+                    <!--suppress Annotator -->
+                    <fx:include fx:id="boardsView" source="board/board_view.fxml"/>
+                </Tab>
                 <Tab fx:id="fileTab" text="%main.files">
                     <graphic>
                         <FontIcon iconLiteral="mdi2f-folder-network"/>

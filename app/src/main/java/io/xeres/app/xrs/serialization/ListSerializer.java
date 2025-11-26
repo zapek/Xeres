@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -57,6 +57,27 @@ final class ListSerializer
 		return size;
 	}
 
+	static int serialize(ByteBuf buf, List<Object> list, TlvType tlvType)
+	{
+		var size = Integer.BYTES;
+
+		buf.ensureWritable(size);
+		if (list != null)
+		{
+			log.trace("Entries in List: {}", list.size());
+			buf.writeInt(list.size());
+			for (var data : list)
+			{
+				size += TlvSerializer.serialize(buf, tlvType, data);
+			}
+		}
+		else
+		{
+			buf.writeInt(0);
+		}
+		return size;
+	}
+
 	static List<Object> deserialize(ByteBuf buf, List<Object> list, ParameterizedType type)
 	{
 		if (list == null)
@@ -71,6 +92,24 @@ final class ListSerializer
 		while (entries-- > 0)
 		{
 			var dataObject = Serializer.deserialize(buf, dataClass);
+			log.trace("result: {}", dataObject);
+			list.add(dataObject);
+		}
+		return list;
+	}
+
+	static List<Object> deserialize(ByteBuf buf, List<Object> list, TlvType tlvType)
+	{
+		if (list == null)
+		{
+			list = new ArrayList<>();
+		}
+
+		var entries = buf.readInt();
+
+		while (entries-- > 0)
+		{
+			var dataObject = TlvSerializer.deserialize(buf, tlvType);
 			log.trace("result: {}", dataObject);
 			list.add(dataObject);
 		}

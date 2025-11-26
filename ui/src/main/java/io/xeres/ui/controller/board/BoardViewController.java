@@ -17,21 +17,20 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.event;
+package io.xeres.ui.controller.board;
 
-import io.xeres.common.events.SynchronousEvent;
+import io.xeres.ui.controller.Controller;
+import net.rgielen.fxweaver.core.FxmlView;
+import org.springframework.stereotype.Component;
 
-public record UnreadEvent(Element element, boolean unread) implements SynchronousEvent
+@Component
+@FxmlView(value = "/view/board/board_view.fxml")
+public class BoardViewController implements Controller
 {
-	public enum Element
+
+	@Override
+	public void initialize()
 	{
-		HOME,
-		CONTACT,
-		CHAT_ROOM,
-		FORUM,
-		FILE,
-		CHAT,
-		BOARD,
-		CHANNEL
+
 	}
 }

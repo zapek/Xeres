@@ -21,8 +21,7 @@ package io.xeres.app.xrs.service.channel;
 
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
-import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.database.model.gxs.GxsMessageItem;
+import io.xeres.app.database.model.gxs.*;
 import io.xeres.app.database.repository.GxsChannelGroupRepository;
 import io.xeres.app.database.repository.GxsChannelMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
@@ -290,7 +289,32 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		return gxsChannelMessageRepository.countUnreadMessages(channelGroupItem.getGxsId());
 	}
 
-	// XXX: createChannelGroup..
+	@Transactional
+	public long createChannelGroup(GxsId identity, String name, String description)
+	{
+		var channelGroupItem = createGroup(name);
+		channelGroupItem.setDescription(description);
+
+		if (identity != null)
+		{
+			channelGroupItem.setAuthor(identity);
+		}
+
+		channelGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: implement "YOUR_FRIENDS_ONLY"? but based on trust instead
+		channelGroupItem.setSignatureFlags(Set.of(GxsSignatureFlags.NONE_REQUIRED, GxsSignatureFlags.AUTHENTICATION_REQUIRED));
+		channelGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
+
+		//channelGroupItem.setInternalCircle(); XXX: needs that for "YOUR_FRIENDS_ONLY". check what RS does for createBoardV2(), how it is called
+
+		channelGroupItem.setSubscribed(true);
+
+		var savedChannelId = saveChannel(channelGroupItem).getId();
+
+		channelGroupItem.setId(savedChannelId);
+		channelNotificationService.addOrUpdateChannelGroups(List.of(channelGroupItem));
+
+		return savedChannelId;
+	}
 
 	@Transactional
 	public ChannelGroupItem saveChannel(ChannelGroupItem channelGroupItem)

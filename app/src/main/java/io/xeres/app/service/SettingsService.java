@@ -192,6 +192,19 @@ public class SettingsService
 		return settings;
 	}
 
+	@Transactional
+	public Settings applySettings(Settings newSettings)
+	{
+		// Those 5 are not transfered in the UI
+		newSettings.setPgpPrivateKeyData(settings.getPgpPrivateKeyData());
+		newSettings.setLocationPrivateKeyData(settings.getLocationPrivateKeyData());
+		newSettings.setLocationPublicKeyData(settings.getLocationPublicKeyData());
+		newSettings.setLocationCertificate(settings.getLocationCertificate());
+		newSettings.setLocalPort(settings.getLocalPort());
+
+		updateSettings(newSettings);
+		return newSettings;
+	}
 
 	private void updateSettings(Settings settings)
 	{

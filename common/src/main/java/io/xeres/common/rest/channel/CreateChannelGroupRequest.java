@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,19 +17,16 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common;
+package io.xeres.common.rest.channel;
 
-public final class Features
+import jakarta.validation.constraints.NotBlank;
+
+public record CreateChannelGroupRequest(
+		@NotBlank(message = "Name must not be empty")
+		String name,
+
+		@NotBlank(message = "Description must not be empty")
+		String description
+)
 {
-	/**
-	 * Enable experimental generation of Elliptic Curve keys.
-	 */
-	public static final boolean EXPERIMENTAL_EC = false;
-
-	public static final boolean USE_PATCH_SETTINGS = false;
-
-	private Features()
-	{
-		throw new UnsupportedOperationException("Utility class");
-	}
 }

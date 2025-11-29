@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,19 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common;
+package io.xeres.common.dto.channel;
 
-public final class Features
+import io.xeres.common.id.GxsId;
+
+public record ChannelGroupDTO(
+		long id,
+		GxsId gxsId,
+		String name,
+		String description,
+		boolean hasImage,
+		boolean subscribed,
+		boolean external
+)
 {
-	/**
-	 * Enable experimental generation of Elliptic Curve keys.
-	 */
-	public static final boolean EXPERIMENTAL_EC = false;
-
-	public static final boolean USE_PATCH_SETTINGS = false;
-
-	private Features()
-	{
-		throw new UnsupportedOperationException("Utility class");
-	}
 }

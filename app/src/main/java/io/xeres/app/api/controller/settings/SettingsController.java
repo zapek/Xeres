@@ -28,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static io.xeres.app.database.model.settings.SettingsMapper.fromDTO;
 import static io.xeres.app.database.model.settings.SettingsMapper.toDTO;
 import static io.xeres.common.rest.PathConfig.SETTINGS_PATH;
 
@@ -54,7 +55,16 @@ public class SettingsController
 	@Operation(summary = "Updates the settings")
 	public ResponseEntity<SettingsDTO> updateSettings(@RequestBody JsonPatch jsonPatch)
 	{
+		// XXX: needs updated JsonPatch that supports Jackson 3
 		var newSettings = settingsService.applyPatchToSettings(jsonPatch);
+		return ResponseEntity.ok(toDTO(newSettings));
+	}
+
+	@PutMapping
+	@Operation(summary = "Updates the settings")
+	public ResponseEntity<SettingsDTO> updateSettings(@RequestBody SettingsDTO settingsDTO)
+	{
+		var newSettings = settingsService.applySettings(fromDTO(settingsDTO));
 		return ResponseEntity.ok(toDTO(newSettings));
 	}
 }

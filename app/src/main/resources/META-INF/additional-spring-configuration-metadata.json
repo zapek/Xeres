@@ -69,6 +69,16 @@
             "name" : "xrs.service.voip.enabled",
             "type" : "java.lang.Boolean",
             "description" : "Enable the VoIP service, used to voice chat with direct peers."
+        },
+        {
+            "name" : "xrs.service.board.enabled",
+            "type" : "java.lang.Boolean",
+            "description" : "Enable the boards service."
+        },
+        {
+            "name" : "xrs.service.channel.enabled",
+            "type" : "java.lang.Boolean",
+            "description" : "Enable the channel service."
         }
     ]
 }

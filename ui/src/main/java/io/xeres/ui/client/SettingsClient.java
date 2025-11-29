@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -68,6 +68,7 @@ public class SettingsClient
 
 	public Mono<Settings> patchSettings(Settings originalSettings, Settings newSettings)
 	{
+		// XXX: needs updated JsonPatch that handles Jackson 3 interface
 		var target = objectMapper.convertValue(newSettings, JsonNode.class);
 		var source = objectMapper.convertValue(originalSettings, JsonNode.class);
 		var patch = JsonDiff.asJsonPatch(source, target);
@@ -76,6 +77,16 @@ public class SettingsClient
 				.uri("")
 				.contentType(MediaType.valueOf("application/json-patch+json"))
 				.bodyValue(patch)
+				.retrieve()
+				.bodyToMono(SettingsDTO.class)
+				.map(SettingsMapper::fromDTO);
+	}
+
+	public Mono<Settings> putSettings(Settings newSettings)
+	{
+		return webClient.put()
+				.uri("")
+				.bodyValue(newSettings)
 				.retrieve()
 				.bodyToMono(SettingsDTO.class)
 				.map(SettingsMapper::fromDTO);

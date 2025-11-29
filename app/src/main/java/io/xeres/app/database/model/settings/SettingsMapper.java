@@ -51,4 +51,28 @@ public final class SettingsMapper
 				settings.getRemotePort()
 		);
 	}
+
+	public static Settings fromDTO(SettingsDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		var settings = new Settings();
+		settings.setTorSocksHost(dto.torSocksHost());
+		settings.setTorSocksPort(dto.torSocksPort());
+		settings.setI2pSocksHost(dto.i2pSocksHost());
+		settings.setI2pSocksPort(dto.i2pSocksPort());
+		settings.setUpnpEnabled(dto.upnpEnabled());
+		settings.setBroadcastDiscoveryEnabled(dto.broadcastDiscoveryEnabled());
+		settings.setDhtEnabled(dto.dhtEnabled());
+		settings.setAutoStartEnabled(dto.autoStartEnabled());
+		settings.setIncomingDirectory(dto.incomingDirectory());
+		settings.setRemotePassword(dto.remotePassword());
+		settings.setRemoteEnabled(dto.remoteEnabled());
+		settings.setUpnpRemoteEnabled(dto.upnpRemoteEnabled());
+		settings.setRemotePort(dto.remotePort());
+		return settings;
+	}
 }

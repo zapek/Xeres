@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,7 +35,7 @@ public class Settings
 
 	private int version;
 
-	// The following 4 should not be exposed by JSON. The mapper must ignore them.
+	// The following 5 should not be exposed by JSON. The mapper must ignore them.
 	private byte[] pgpPrivateKeyData;
 
 	private byte[] locationPrivateKeyData;

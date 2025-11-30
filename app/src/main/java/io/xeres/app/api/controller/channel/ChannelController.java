@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.IdentityService;
-import io.xeres.app.service.notification.channel.ChannelNotificationService;
 import io.xeres.app.xrs.service.channel.ChannelRsService;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.rest.channel.CreateChannelGroupRequest;
@@ -53,13 +52,11 @@ public class ChannelController
 {
 	private final ChannelRsService channelRsService;
 	private final IdentityService identityService;
-	private final ChannelNotificationService channelNotificationService;
 
-	public ChannelController(ChannelRsService channelRsService, IdentityService identityService, ChannelNotificationService channelNotificationService)
+	public ChannelController(ChannelRsService channelRsService, IdentityService identityService)
 	{
 		this.channelRsService = channelRsService;
 		this.identityService = identityService;
-		this.channelNotificationService = channelNotificationService;
 	}
 
 	@GetMapping("/groups")
@@ -89,8 +86,7 @@ public class ChannelController
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> uploadChannelGroupImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
 	{
-		var channel = channelRsService.saveChannelGroupImage(id, file);
-		channelNotificationService.addOrUpdateChannelGroups(List.of(channel));
+		channelRsService.saveChannelGroupImage(id, file);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(CHANNELS_PATH + "/groups/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();

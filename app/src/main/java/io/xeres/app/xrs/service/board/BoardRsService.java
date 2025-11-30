@@ -277,6 +277,12 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
 	}
 
+	public List<BoardMessageItem> findAllMessages(long groupId)
+	{
+		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
+		return gxsBoardMessageRepository.findAllByGxsId(boardGroup.getGxsId());
+	}
+
 	/**
 	 * Finds all messages. Prefer the other variants as this one is slower.
 	 *
@@ -364,7 +370,9 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		board.setImage(out.toByteArray());
 		board.updatePublished();
 
-		return saveBoard(board);
+		var savedBoard = saveBoard(board);
+		boardNotificationService.addOrUpdateBoardGroups(List.of(board));
+		return savedBoard;
 	}
 
 	@Transactional

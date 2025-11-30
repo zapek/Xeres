@@ -19,29 +19,19 @@
 
 package io.xeres.app.service.notification.board;
 
-import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.BoardMessageService;
 import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
-import io.xeres.app.xrs.service.board.BoardRsService;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
-import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.notification.board.AddBoardMessages;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.BoardNotification;
 import io.xeres.common.rest.notification.board.MarkBoardMessagesAsRead;
-import org.apache.commons.collections4.SetUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static io.xeres.app.database.model.board.BoardMapper.toBoardMessageDTOs;
 import static io.xeres.app.database.model.board.BoardMapper.toDTOs;
@@ -49,15 +39,13 @@ import static io.xeres.app.database.model.board.BoardMapper.toDTOs;
 @Service
 public class BoardNotificationService extends NotificationService
 {
-	private final BoardRsService boardRsService;
-	private final IdentityService identityService;
 	private final UnHtmlService unHtmlService;
+	private final BoardMessageService boardMessageService;
 
-	public BoardNotificationService(@Lazy BoardRsService boardRsService, IdentityService identityService, UnHtmlService unHtmlService)
+	public BoardNotificationService(UnHtmlService unHtmlService, BoardMessageService boardMessageService)
 	{
-		this.boardRsService = boardRsService;
-		this.identityService = identityService;
 		this.unHtmlService = unHtmlService;
+		this.boardMessageService = boardMessageService;
 	}
 
 	public void addOrUpdateBoardGroups(List<BoardGroupItem> boardGroups)
@@ -69,8 +57,8 @@ public class BoardNotificationService extends NotificationService
 	public void addBoardMessages(List<BoardMessageItem> boardMessages)
 	{
 		var action = new AddBoardMessages(toBoardMessageDTOs(unHtmlService, boardMessages,
-				getAuthorsMapFromMessages(boardMessages),
-				getMessagesMapFromMessages(boardMessages),
+				boardMessageService.getAuthorsMapFromMessages(boardMessages),
+				boardMessageService.getMessagesMapFromMessages(boardMessages),
 				false));
 
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
@@ -80,31 +68,5 @@ public class BoardNotificationService extends NotificationService
 	{
 		var action = new MarkBoardMessagesAsRead(messageMap);
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
-	}
-
-	private Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(List<BoardMessageItem> boardMessages)
-	{
-		var authors = boardMessages.stream()
-				.map(BoardMessageItem::getAuthorId)
-				.collect(Collectors.toSet());
-
-		return identityService.findAll(authors).stream()
-				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
-	}
-
-	private Map<MessageId, BoardMessageItem> getMessagesMapFromMessages(List<BoardMessageItem> boardMessages)
-	{
-		var messageIds = boardMessages.stream()
-				.map(BoardMessageItem::getMessageId)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toSet());
-
-		var parentIds = boardMessages.stream()
-				.map(BoardMessageItem::getParentId)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toSet());
-
-		return boardRsService.findAllMessages(SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(BoardMessageItem::getMessageId, Function.identity()));
 	}
 }

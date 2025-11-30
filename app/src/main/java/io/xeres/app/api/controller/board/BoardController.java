@@ -25,10 +25,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.service.BoardMessageService;
 import io.xeres.app.service.IdentityService;
-import io.xeres.app.service.notification.board.BoardNotificationService;
 import io.xeres.app.xrs.service.board.BoardRsService;
 import io.xeres.common.dto.board.BoardGroupDTO;
+import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.rest.board.CreateBoardGroupRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -42,8 +43,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.util.List;
 
-import static io.xeres.app.database.model.board.BoardMapper.toDTO;
-import static io.xeres.app.database.model.board.BoardMapper.toDTOs;
+import static io.xeres.app.database.model.board.BoardMapper.*;
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 
 @Tag(name = "Boards", description = "Boards")
@@ -53,13 +53,13 @@ public class BoardController
 {
 	private final BoardRsService boardRsService;
 	private final IdentityService identityService;
-	private final BoardNotificationService boardNotificationService;
+	private final BoardMessageService boardMessageService;
 
-	public BoardController(BoardRsService boardRsService, IdentityService identityService, BoardNotificationService boardNotificationService)
+	public BoardController(BoardRsService boardRsService, IdentityService identityService, BoardMessageService boardMessageService)
 	{
 		this.boardRsService = boardRsService;
 		this.identityService = identityService;
-		this.boardNotificationService = boardNotificationService;
+		this.boardMessageService = boardMessageService;
 	}
 
 	@GetMapping("/groups")
@@ -89,8 +89,7 @@ public class BoardController
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<Void> uploadBoardGroupImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
 	{
-		var board = boardRsService.saveBoardGroupImage(id, file);
-		boardNotificationService.addOrUpdateBoardGroups(List.of(board));
+		boardRsService.saveBoardGroupImage(id, file);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/groups/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -125,5 +124,16 @@ public class BoardController
 	public void unsubscribeFromBoardGroup(@PathVariable long groupId)
 	{
 		boardRsService.unsubscribeFromBoardGroup(groupId);
+	}
+
+	@GetMapping("/groups/{groupId}/messages")
+	@Operation(summary = "Gets the summary of messages in a group")
+	public List<BoardMessageDTO> getForumMessages(@PathVariable long groupId)
+	{
+		var boardMessages = boardRsService.findAllMessages(groupId);
+
+		return toSummaryMessageDTOs(boardMessages,
+				boardMessageService.getAuthorsMapFromMessages(boardMessages),
+				boardMessageService.getMessagesMapFromSummaries(groupId, boardMessages));
 	}
 }

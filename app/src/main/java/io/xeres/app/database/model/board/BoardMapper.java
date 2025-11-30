@@ -65,6 +65,41 @@ public final class BoardMapper
 				.toList();
 	}
 
+	public static BoardMessageDTO toDTO(BoardMessageItem item, String authorName, long originalId, long parentId)
+	{
+		if (item == null)
+		{
+			return null;
+		}
+
+		return new BoardMessageDTO(
+				item.getId(),
+				item.getGxsId(),
+				item.getMessageId(),
+				originalId,
+				parentId,
+				item.getAuthorId(),
+				authorName,
+				item.getName(),
+				item.getPublished(),
+				item.getLink(),
+				null,
+				item.hasImage(),
+				item.isRead()
+		);
+	}
+
+	public static List<BoardMessageDTO> toSummaryMessageDTOs(List<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, BoardMessageItem> messagesMap)
+	{
+		return emptyIfNull(items).stream()
+				.map(item -> toDTO(item,
+						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMessageId(), BoardMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentId(), BoardMessageItem.EMPTY).getId()
+				))
+				.toList();
+	}
+
 	public static BoardMessageDTO toDTO(UnHtmlService unHtmlService, BoardMessageItem item, String authorName, long originalId, long parentId, boolean withMessageContent)
 	{
 		if (item == null)

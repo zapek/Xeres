@@ -19,29 +19,92 @@
 
 package io.xeres.app.service.notification.channel;
 
+import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
+import io.xeres.app.xrs.service.channel.ChannelRsService;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
+import io.xeres.common.rest.notification.channel.AddChannelMessages;
+import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
+import io.xeres.common.rest.notification.channel.ChannelNotification;
+import io.xeres.common.rest.notification.channel.MarkChannelMessagesAsRead;
+import org.apache.commons.collections4.SetUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static io.xeres.app.database.model.channel.ChannelMapper.toChannelMessageDTOs;
+import static io.xeres.app.database.model.channel.ChannelMapper.toDTOs;
 
 @Service
 public class ChannelNotificationService extends NotificationService
 {
+	private final ChannelRsService channelRsService;
+	private final IdentityService identityService;
+	private final UnHtmlService unHtmlService;
 
-	public void addOrUpdateChannelGroups(List<ChannelGroupItem> ChannelGroups)
+	public ChannelNotificationService(@Lazy ChannelRsService channelRsService, IdentityService identityService, UnHtmlService unHtmlService)
 	{
-		// XXX
+		this.channelRsService = channelRsService;
+		this.identityService = identityService;
+		this.unHtmlService = unHtmlService;
 	}
 
-	public void addChannelMessages(List<ChannelMessageItem> ChannelMessages)
+	public void addOrUpdateChannelGroups(List<ChannelGroupItem> channelGroups)
 	{
-		// XXX
+		var action = new AddOrUpdateChannelGroups(toDTOs(channelGroups));
+		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void markChannelMessagesAsRead(List<ChannelMessageItem> ChannelMessages)
+	public void addChannelMessages(List<ChannelMessageItem> channelMessages)
 	{
-		// XXX
+		var action = new AddChannelMessages(toChannelMessageDTOs(unHtmlService, channelMessages,
+				getAuthorsMapFromMessages(channelMessages),
+				getMessagesMapFromMessages(channelMessages),
+				false));
+
+		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
+	}
+
+	public void markChannelMessagesAsRead(Map<Long, Boolean> messageMap)
+	{
+		var action = new MarkChannelMessagesAsRead(messageMap);
+		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
+	}
+
+	private Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(List<ChannelMessageItem> channelMessages)
+	{
+		var authors = channelMessages.stream()
+				.map(ChannelMessageItem::getAuthorId)
+				.collect(Collectors.toSet());
+
+		return identityService.findAll(authors).stream()
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
+	}
+
+	private Map<MessageId, ChannelMessageItem> getMessagesMapFromMessages(List<ChannelMessageItem> channelMessages)
+	{
+		var messageIds = channelMessages.stream()
+				.map(ChannelMessageItem::getMessageId)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		var parentIds = channelMessages.stream()
+				.map(ChannelMessageItem::getParentId)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		return channelRsService.findAllMessages(SetUtils.union(messageIds, parentIds)).stream()
+				.collect(Collectors.toMap(ChannelMessageItem::getMessageId, Function.identity()));
 	}
 }

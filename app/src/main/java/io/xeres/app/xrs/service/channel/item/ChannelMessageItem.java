@@ -29,6 +29,7 @@ import io.xeres.common.id.MessageId;
 import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,14 +42,17 @@ import static io.xeres.app.xrs.serialization.TlvType.*;
 @Entity(name = "channel_message")
 public class ChannelMessageItem extends GxsMessageItem
 {
+	@Transient
+	public static final ChannelMessageItem EMPTY = new ChannelMessageItem();
+
 	private String content;
 
 	@ElementCollection
 	private List<FileItem> files;
 
-	private String title;
+	private String title; // Optional field related to fileset. Not used in practice?
 
-	private String comment;
+	private String comment; // Optional field related to fileset. Not used in practice?
 
 	private byte[] image;
 
@@ -118,6 +122,10 @@ public class ChannelMessageItem extends GxsMessageItem
 		return image != null;
 	}
 
+	public boolean hasFiles()
+	{
+		return files != null && !files.isEmpty();
+	}
 
 	public byte[] getImage()
 	{

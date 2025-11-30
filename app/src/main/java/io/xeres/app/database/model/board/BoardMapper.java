@@ -19,10 +19,17 @@
 
 package io.xeres.app.database.model.board;
 
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
+import io.xeres.app.xrs.service.board.item.BoardMessageItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.board.BoardGroupDTO;
+import io.xeres.common.dto.board.BoardMessageDTO;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
@@ -55,6 +62,43 @@ public final class BoardMapper
 	{
 		return emptyIfNull(items).stream()
 				.map(BoardMapper::toDTO)
+				.toList();
+	}
+
+	public static BoardMessageDTO toDTO(UnHtmlService unHtmlService, BoardMessageItem item, String authorName, long originalId, long parentId, boolean withMessageContent)
+	{
+		if (item == null)
+		{
+			return null;
+		}
+
+		return new BoardMessageDTO(
+				item.getId(),
+				item.getGxsId(),
+				item.getMessageId(),
+				originalId,
+				parentId,
+				item.getAuthorId(),
+				authorName,
+				item.getName(),
+				item.getPublished(),
+				item.getLink(),
+				withMessageContent ? unHtmlService.cleanupMessage(item.getContent()) : "",
+				item.hasImage(),
+				item.isRead()
+		);
+	}
+
+	public static List<BoardMessageDTO> toBoardMessageDTOs(UnHtmlService unHtmlService, List<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, BoardMessageItem> messagesMap, boolean withMessageContent)
+	{
+		return emptyIfNull(items).stream()
+				.map(item -> toDTO(unHtmlService,
+						item,
+						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMessageId(), BoardMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentId(), BoardMessageItem.EMPTY).getId(),
+						withMessageContent
+				))
 				.toList();
 	}
 }

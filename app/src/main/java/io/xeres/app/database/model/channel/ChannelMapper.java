@@ -19,10 +19,17 @@
 
 package io.xeres.app.database.model.channel;
 
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
+import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
+import io.xeres.common.dto.channel.ChannelMessageDTO;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
@@ -55,6 +62,43 @@ public final class ChannelMapper
 	{
 		return emptyIfNull(items).stream()
 				.map(ChannelMapper::toDTO)
+				.toList();
+	}
+
+	public static ChannelMessageDTO toDTO(UnHtmlService unHtmlService, ChannelMessageItem item, String authorName, long originalId, long parentId, boolean withMessageContent)
+	{
+		if (item == null)
+		{
+			return null;
+		}
+
+		return new ChannelMessageDTO(
+				item.getId(),
+				item.getGxsId(),
+				item.getMessageId(),
+				originalId,
+				parentId,
+				item.getAuthorId(),
+				authorName,
+				item.getName(),
+				item.getPublished(),
+				withMessageContent ? unHtmlService.cleanupMessage(item.getContent()) : "",
+				item.hasImage(),
+				item.hasFiles(),
+				item.isRead()
+		);
+	}
+
+	public static List<ChannelMessageDTO> toChannelMessageDTOs(UnHtmlService unHtmlService, List<ChannelMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ChannelMessageItem> messagesMap, boolean withMessageContent)
+	{
+		return emptyIfNull(items).stream()
+				.map(item -> toDTO(unHtmlService,
+						item,
+						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMessageId(), ChannelMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentId(), ChannelMessageItem.EMPTY).getId(),
+						withMessageContent
+				))
 				.toList();
 	}
 }

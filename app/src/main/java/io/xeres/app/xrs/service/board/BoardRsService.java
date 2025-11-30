@@ -277,6 +277,17 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
 	}
 
+	/**
+	 * Finds all messages. Prefer the other variants as this one is slower.
+	 *
+	 * @param messageIds the list of message ids
+	 * @return the messages
+	 */
+	public List<BoardMessageItem> findAllMessages(Set<MessageId> messageIds)
+	{
+		return gxsBoardMessageRepository.findAllByMessageIdIn(messageIds);
+	}
+
 	public List<BoardMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
 	{
 		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();

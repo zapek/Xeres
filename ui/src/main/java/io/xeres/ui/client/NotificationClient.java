@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.notification.availability.AvailabilityNotification;
+import io.xeres.common.rest.notification.board.BoardNotification;
 import io.xeres.common.rest.notification.contact.ContactNotification;
 import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
@@ -71,6 +72,17 @@ public class NotificationClient
 	{
 		return webClient.get()
 				.uri("/forum")
+				.retrieve()
+				.bodyToFlux(new ParameterizedTypeReference<>()
+				{
+				});
+	}
+
+
+	public Flux<ServerSentEvent<BoardNotification>> getBoardNotifications()
+	{
+		return webClient.get()
+				.uri("/board")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

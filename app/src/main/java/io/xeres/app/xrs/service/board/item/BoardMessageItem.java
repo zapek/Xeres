@@ -27,6 +27,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Set;
@@ -39,6 +40,9 @@ import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 @Entity(name = "board_message")
 public class BoardMessageItem extends GxsMessageItem
 {
+	@Transient
+	public static final BoardMessageItem EMPTY = new BoardMessageItem();
+
 	private String link;
 
 	private String content;

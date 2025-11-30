@@ -277,6 +277,17 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
 	}
 
+	/**
+	 * Finds all messages. Prefer the other variants as this one is slower.
+	 *
+	 * @param messageIds the list of message ids
+	 * @return the messages
+	 */
+	public List<ChannelMessageItem> findAllMessages(Set<MessageId> messageIds)
+	{
+		return gxsChannelMessageRepository.findAllByMessageIdIn(messageIds);
+	}
+
 	public List<ChannelMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
 	{
 		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();

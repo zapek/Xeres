@@ -54,7 +54,7 @@ public class BoardNotificationService extends NotificationService
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void addBoardMessages(List<BoardMessageItem> boardMessages)
+	public void addOrUpdateBoardMessages(List<BoardMessageItem> boardMessages)
 	{
 		var action = new AddBoardMessages(toBoardMessageDTOs(unHtmlService, boardMessages,
 				boardMessageService.getAuthorsMapFromMessages(boardMessages),

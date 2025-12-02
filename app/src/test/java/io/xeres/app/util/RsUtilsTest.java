@@ -17,13 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service.forum;
+package io.xeres.app.util;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ForumRsServiceTest
+class RsUtilsTest
 {
 	@Test
 	void testImageLineReplacer()
@@ -38,7 +38,7 @@ class ForumRsServiceTest
 				And this is the rest.
 				""";
 
-		var output = ForumRsService.replaceImageLines(input);
+		var output = RsUtils.replaceImageLines(input);
 
 		assertEquals("""
 				# Markdown test

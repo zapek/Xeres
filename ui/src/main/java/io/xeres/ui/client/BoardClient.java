@@ -20,11 +20,15 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.board.BoardGroupDTO;
+import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.board.CreateBoardGroupRequest;
+import io.xeres.common.rest.board.CreateBoardMessageRequest;
+import io.xeres.common.rest.board.UpdateBoardMessagesReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
+import io.xeres.ui.model.board.BoardMessage;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -34,6 +38,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
+import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.util.ClientUtils.fromFile;
@@ -90,5 +95,86 @@ public class BoardClient
 
 	// XXX: delete boardImage too?
 
+	public Mono<BoardGroup> getBoardGroupById(long groupId)
+	{
+		return webClient.get()
+				.uri("/groups/{groupId}", groupId)
+				.retrieve()
+				.bodyToMono(BoardGroupDTO.class)
+				.map(BoardMapper::fromDTO);
+	}
 
+	public Mono<Integer> getBoardUnreadCount(long groupId)
+	{
+		return webClient.get()
+				.uri("/groups/{groupId}/unread-count", groupId)
+				.retrieve()
+				.bodyToMono(Integer.class);
+	}
+
+	public Mono<Void> subscribeToBoardGroup(long groupId)
+	{
+		return webClient.put()
+				.uri("/groups/{groupId}/subscription", groupId)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> unsubscribeFromBoardGroup(long groupId)
+	{
+		return webClient.delete()
+				.uri("/groups/{groupId}/subscription", groupId)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Flux<BoardMessage> getBoardMessages(long groupId)
+	{
+		return webClient.get()
+				.uri("/groups/{groupId}/messages", groupId)
+				.retrieve()
+				.bodyToFlux(BoardMessageDTO.class)
+				.map(BoardMapper::fromDTO);
+	}
+
+	public Mono<BoardMessage> getBoardMessage(long messageId)
+	{
+		return webClient.get()
+				.uri("/messages/{messageId}", messageId)
+				.retrieve()
+				.bodyToMono(BoardMessageDTO.class)
+				.map(BoardMapper::fromDTO);
+	}
+
+	public Mono<Void> createBoardMessage(long boardId, String title, String content, String link, long parentId, long originalId)
+	{
+		var request = new CreateBoardMessageRequest(boardId, title, content, link, parentId, originalId);
+
+		return webClient.post()
+				.uri("/messages")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> uploadBoardMessageImage(long id, File file)
+	{
+		return webClient.post()
+				.uri("/messages/{id}/image", id)
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(fromFile(file)))
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> updateBoardMessagesRead(Map<Long, Boolean> messages)
+	{
+		var request = new UpdateBoardMessagesReadRequest(messages);
+
+		return webClient.patch()
+				.uri("/messages")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
 }

@@ -40,10 +40,12 @@ import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +60,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.POSTED;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
@@ -67,6 +70,9 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 {
 	private static final int IMAGE_GROUP_WIDTH = 64;
 	private static final int IMAGE_GROUP_HEIGHT = 64;
+
+	private static final int IMAGE_MESSAGE_WIDTH = 320; // XXX: how much?!
+	private static final int IMAGE_MESSAGE_HEIGHT = 240; // XXX: ditto...
 
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(60);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
@@ -208,7 +214,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected void onMessagesSaved(List<BoardMessageItem> items)
 	{
-		boardNotificationService.addBoardMessages(items);
+		boardNotificationService.addOrUpdateBoardMessages(items);
 	}
 
 	@Override
@@ -281,6 +287,11 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
 		return gxsBoardMessageRepository.findAllByGxsId(boardGroup.getGxsId());
+	}
+
+	public BoardMessageItem findMessageById(long id)
+	{
+		return gxsBoardMessageRepository.findById(id).orElseThrow();
 	}
 
 	/**
@@ -376,6 +387,84 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Transactional
+	public long createBoardMessage(IdentityGroupItem author, long boardId, String title, String content, String link, long parentId, long originalId)
+	{
+		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsBoardGroupRepository.findById(boardId).orElseThrow().getGxsId(), title)
+				.authorId(author.getGxsId());
+
+		if (parentId != 0L)
+		{
+			builder.parentId(gxsBoardMessageRepository.findById(parentId).orElseThrow().getMessageId());
+		}
+
+		if (originalId != 0L)
+		{
+			builder.originalMessageId(gxsBoardMessageRepository.findById(originalId).orElseThrow().getMessageId());
+		}
+
+		builder.getMessageItem().setContent(replaceImageLines(content));
+
+		var boardMessageItem = builder.build();
+
+		if (StringUtils.isNotEmpty(link))
+		{
+			boardMessageItem.setLink(link);
+		}
+
+		var savedMessageId = saveMessage(boardMessageItem).getId();
+
+		boardMessageItem.setId(savedMessageId);
+		boardNotificationService.addOrUpdateBoardMessages(List.of(boardMessageItem));
+
+		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
+
+		return savedMessageId;
+	}
+
+	@Transactional
+	public BoardMessageItem saveBoardMessageImage(long id, MultipartFile file) throws IOException
+	{
+		if (file == null)
+		{
+			throw new IllegalArgumentException("Image is null");
+		}
+
+		if (file.getSize() >= IMAGE_MAX_SIZE)
+		{
+			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+		}
+
+		var message = findMessageById(id);
+
+		var out = new ByteArrayOutputStream();
+		Thumbnails.of(file.getInputStream())
+				.size(IMAGE_MESSAGE_WIDTH, IMAGE_MESSAGE_HEIGHT)
+				.crop(Positions.CENTER)
+				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.toOutputStream(out);
+
+		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
+
+		message.setImage(out.toByteArray());
+		message.updatePublished();
+
+		var savedMessage = saveMessage(message);
+		boardNotificationService.addOrUpdateBoardMessages(List.of(message));
+		return savedMessage;
+	}
+
+	@Transactional
+	public BoardMessageItem saveMessage(BoardMessageItem boardMessageItem)
+	{
+		boardMessageItem.setId(gxsBoardMessageRepository.findByGxsIdAndMessageId(boardMessageItem.getGxsId(), boardMessageItem.getMessageId()).orElse(boardMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
+		var savedMessage = gxsBoardMessageRepository.save(boardMessageItem);
+		var boardGroupItem = gxsBoardGroupRepository.findByGxsId(boardMessageItem.getGxsId()).orElseThrow();
+		boardGroupItem.setLastPosted(Instant.now());
+		gxsBoardGroupRepository.save(boardGroupItem);
+		return savedMessage;
+	}
+
+	@Transactional
 	public void subscribeToBoardGroup(long id)
 	{
 		var boardGroupItem = findById(id).orElseThrow();
@@ -390,5 +479,18 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		var boardGroupItem = findById(id).orElseThrow();
 		boardGroupItem.setSubscribed(false);
+	}
+
+	@Transactional
+	public void setBoardMessagesAsRead(Map<Long, Boolean> messageMap)
+	{
+		gxsBoardMessageRepository.findAllById(messageMap.keySet()).forEach(boardMessageItem -> boardMessageItem.setRead(messageMap.get(boardMessageItem.getId())));
+		boardNotificationService.markBoardMessagesAsRead(messageMap);
+	}
+
+	@Override
+	public void shutdown()
+	{
+		boardNotificationService.shutdown();
 	}
 }

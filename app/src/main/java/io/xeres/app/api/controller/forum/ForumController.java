@@ -180,8 +180,8 @@ public class ForumController
 	@PatchMapping("/messages")
 	@Operation(summary = "Modifies forum messages read flag")
 	@ResponseStatus(HttpStatus.OK)
-	public void updateMessagesReadFlags(@Valid @RequestBody UpdateForumMessagesReadRequest updateForumMessagesReadRequest)
+	public void updateMessagesReadFlags(@Valid @RequestBody UpdateForumMessagesReadRequest updateMessagesReadRequest)
 	{
-		forumRsService.setForumMessagesAsRead(updateForumMessagesReadRequest.messageMap());
+		forumRsService.setForumMessagesAsRead(updateMessagesReadRequest.messageMap());
 	}
 }

@@ -29,6 +29,7 @@ public class BoardGroup
 	private String name;
 	private GxsId gxsId;
 	private String description;
+	private boolean hasImage;
 	private boolean subscribed;
 	private boolean external;
 	private final IntegerProperty unreadCount = new SimpleIntegerProperty(0);
@@ -85,6 +86,16 @@ public class BoardGroup
 	public void setDescription(String description)
 	{
 		this.description = description;
+	}
+
+	public boolean isHasImage()
+	{
+		return hasImage;
+	}
+
+	public void setHasImage(boolean hasImage)
+	{
+		this.hasImage = hasImage;
 	}
 
 	public boolean isSubscribed()

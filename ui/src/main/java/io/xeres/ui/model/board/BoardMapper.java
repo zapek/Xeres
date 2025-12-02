@@ -20,6 +20,7 @@
 package io.xeres.ui.model.board;
 
 import io.xeres.common.dto.board.BoardGroupDTO;
+import io.xeres.common.dto.board.BoardMessageDTO;
 
 public final class BoardMapper
 {
@@ -40,8 +41,33 @@ public final class BoardMapper
 		boardGroup.setName(dto.name());
 		boardGroup.setGxsId(dto.gxsId());
 		boardGroup.setDescription(dto.description());
+		boardGroup.setHasImage(dto.hasImage());
 		boardGroup.setSubscribed(dto.subscribed());
 		boardGroup.setExternal(dto.external());
 		return boardGroup;
+	}
+
+	public static BoardMessage fromDTO(BoardMessageDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		var boardMessage = new BoardMessage();
+		boardMessage.setId(dto.id());
+		boardMessage.setGxsId(dto.gxsId());
+		boardMessage.setMessageId(dto.messageId());
+		boardMessage.setOriginalId(dto.originalId());
+		boardMessage.setParentId(dto.parentId());
+		boardMessage.setAuthorId(dto.authorId());
+		boardMessage.setAuthorName(dto.authorName());
+		boardMessage.setName(dto.name());
+		boardMessage.setPublished(dto.published());
+		boardMessage.setContent(dto.content());
+		boardMessage.setLink(dto.link());
+		boardMessage.setHasImage(dto.hasImage());
+		boardMessage.setRead(dto.read());
+		return boardMessage;
 	}
 }

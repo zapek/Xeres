@@ -100,9 +100,6 @@ public class LocationController
 		{
 			return ResponseEntity.ok().build();
 		}
-		else
-		{
-			return ResponseEntity.notFound().build();
-		}
+		return ResponseEntity.notFound().build();
 	}
 }

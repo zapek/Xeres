@@ -47,12 +47,10 @@ public class XeresApplication
 		{
 			log.info("no gui mode");
 			SpringApplication.run(XeresApplication.class, args);
+			return;
 		}
-		else
-		{
-			log.info("gui mode");
-			UiStarter.start(XeresApplication.class, args); // this starts spring as well
-		}
+		log.info("gui mode");
+		UiStarter.start(XeresApplication.class, args); // this starts spring as well
 	}
 
 	public static boolean isRemoteUiClient()

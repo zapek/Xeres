@@ -190,11 +190,9 @@ class RSCertificate extends RSId
 			if (externalIp != null && externalIp.isValid())
 			{
 				dnsName = PeerAddress.fromHostname(dnsName.getAddress().orElseThrow(), ((InetSocketAddress) externalIp.getSocketAddress()).getPort());
+				return;
 			}
-			else
-			{
-				dnsName = PeerAddress.fromInvalid();
-			}
+			dnsName = PeerAddress.fromInvalid();
 		}
 	}
 

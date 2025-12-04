@@ -52,25 +52,18 @@ public class WebSecurityConfiguration
 						if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
 						{
 							authorize.anyRequest().authenticated();
+							return;
 						}
-						else
-						{
-							authorize.anyRequest().anonymous();
-						}
+						authorize.anyRequest().anonymous();
+						return;
 					}
-					else
+					if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
 					{
-						if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
-						{
-							authorize.anyRequest().access(new WebExpressionAuthorizationManager("isAuthenticated() && hasIpAddress('127.0.0.1')"));
-						}
-						else
-						{
-							authorize.anyRequest().access(new WebExpressionAuthorizationManager("isAnonymous() && hasIpAddress('127.0.0.1')"));
-						}
-							}
-						}
-				)
+						authorize.anyRequest().access(new WebExpressionAuthorizationManager("isAuthenticated() && hasIpAddress('127.0.0.1')"));
+						return;
+					}
+					authorize.anyRequest().access(new WebExpressionAuthorizationManager("isAnonymous() && hasIpAddress('127.0.0.1')"));
+				})
 				.httpBasic(Customizer.withDefaults())
 				.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 		return http.build();

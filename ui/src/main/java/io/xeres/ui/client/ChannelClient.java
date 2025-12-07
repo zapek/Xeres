@@ -20,11 +20,15 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.dto.channel.ChannelGroupDTO;
+import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.channel.CreateChannelGroupRequest;
+import io.xeres.common.rest.channel.CreateChannelMessageRequest;
+import io.xeres.common.rest.channel.UpdateChannelMessagesReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.model.channel.ChannelMapper;
+import io.xeres.ui.model.channel.ChannelMessage;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -34,6 +38,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
+import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 import static io.xeres.ui.support.util.ClientUtils.fromFile;
@@ -89,4 +94,87 @@ public class ChannelClient
 	}
 
 	// XXX: delete ChannelImage too?
+
+	public Mono<ChannelGroup> getChannelGroupById(long groupId)
+	{
+		return webClient.get()
+				.uri("/groups/{groupId}", groupId)
+				.retrieve()
+				.bodyToMono(ChannelGroupDTO.class)
+				.map(ChannelMapper::fromDTO);
+	}
+
+	public Mono<Integer> getChannelUnreadCount(long groupId)
+	{
+		return webClient.get()
+				.uri("/groups/{groupId}/unread-count", groupId)
+				.retrieve()
+				.bodyToMono(Integer.class);
+	}
+
+	public Mono<Void> subscribeToChannelGroup(long groupId)
+	{
+		return webClient.put()
+				.uri("/groups/{groupId}/subscription", groupId)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> unsubscribeFromChannelGroup(long groupId)
+	{
+		return webClient.delete()
+				.uri("/groups/{groupId}/subscription", groupId)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Flux<ChannelMessage> getChannelMessages(long groupId)
+	{
+		return webClient.get()
+				.uri("/groups/{groupId}/messages", groupId)
+				.retrieve()
+				.bodyToFlux(ChannelMessageDTO.class)
+				.map(ChannelMapper::fromDTO);
+	}
+
+	public Mono<ChannelMessage> getChannelMessage(long messageId)
+	{
+		return webClient.get()
+				.uri("/messages/{messageId}", messageId)
+				.retrieve()
+				.bodyToMono(ChannelMessageDTO.class)
+				.map(ChannelMapper::fromDTO);
+	}
+
+	public Mono<Void> createChannelMessage(long channelId, String title, String content, long parentId, long originalId)
+	{
+		var request = new CreateChannelMessageRequest(channelId, title, content, parentId, originalId);
+
+		return webClient.post()
+				.uri("/messages")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> uploadChannelMessageImage(long id, File file)
+	{
+		return webClient.post()
+				.uri("/messages/{id}/image", id)
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(fromFile(file)))
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> updateChannelMessagesRead(Map<Long, Boolean> messages)
+	{
+		var request = new UpdateChannelMessagesReadRequest(messages);
+
+		return webClient.patch()
+				.uri("/messages")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
 }

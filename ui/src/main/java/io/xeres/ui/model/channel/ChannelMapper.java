@@ -20,6 +20,7 @@
 package io.xeres.ui.model.channel;
 
 import io.xeres.common.dto.channel.ChannelGroupDTO;
+import io.xeres.common.dto.channel.ChannelMessageDTO;
 
 public final class ChannelMapper
 {
@@ -43,5 +44,28 @@ public final class ChannelMapper
 		channelGroup.setSubscribed(dto.subscribed());
 		channelGroup.setExternal(dto.external());
 		return channelGroup;
+	}
+
+	public static ChannelMessage fromDTO(ChannelMessageDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+
+		var channelMessage = new ChannelMessage();
+		channelMessage.setId(dto.id());
+		channelMessage.setGxsId(dto.gxsId());
+		channelMessage.setMessageId(dto.messageId());
+		channelMessage.setOriginalId(dto.originalId());
+		channelMessage.setParentId(dto.parentId());
+		channelMessage.setAuthorId(dto.authorId());
+		channelMessage.setAuthorName(dto.authorName());
+		channelMessage.setName(dto.name());
+		channelMessage.setPublished(dto.published());
+		channelMessage.setContent(dto.content());
+		channelMessage.setHasImage(dto.hasImage());
+		channelMessage.setRead(dto.read());
+		return channelMessage;
 	}
 }

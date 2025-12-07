@@ -40,6 +40,7 @@ import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import net.coobird.thumbnailator.Thumbnails;
@@ -58,6 +59,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.CHANNELS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
@@ -67,6 +69,9 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 {
 	private static final int IMAGE_GROUP_WIDTH = 64; // XXX: to verify..
 	private static final int IMAGE_GROUP_HEIGHT = 64;
+
+	private static final int IMAGE_MESSAGE_WIDTH = 320; // XXX: how much?!
+	private static final int IMAGE_MESSAGE_HEIGHT = 240; // XXX: ditto...
 
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(90);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
@@ -208,7 +213,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Override
 	protected void onMessagesSaved(List<ChannelMessageItem> items)
 	{
-		channelNotificationService.addChannelMessages(items);
+		channelNotificationService.addOrUpdateChannelMessages(items);
 	}
 
 	@Override
@@ -294,6 +299,17 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(channelGroup.getGxsId(), messageIds);
 	}
 
+	public List<ChannelMessageItem> findAllMessages(long groupId)
+	{
+		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();
+		return gxsChannelMessageRepository.findAllByGxsId(channelGroup.getGxsId());
+	}
+
+	public ChannelMessageItem findMessageById(long id)
+	{
+		return gxsChannelMessageRepository.findById(id).orElseThrow();
+	}
+
 	public int getUnreadCount(long groupId)
 	{
 		var channelGroupItem = gxsChannelGroupRepository.findById(groupId).orElseThrow();
@@ -370,6 +386,79 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Transactional
+	public long createChannelMessage(IdentityGroupItem author, long channelId, String title, String content, long parentId, long originalId)
+	{
+		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsChannelGroupRepository.findById(channelId).orElseThrow().getGxsId(), title)
+				.authorId(author.getGxsId());
+
+		if (parentId != 0L)
+		{
+			builder.parentId(gxsChannelMessageRepository.findById(parentId).orElseThrow().getMessageId());
+		}
+
+		if (originalId != 0L)
+		{
+			builder.originalMessageId(gxsChannelMessageRepository.findById(originalId).orElseThrow().getMessageId());
+		}
+
+		builder.getMessageItem().setContent(replaceImageLines(content));
+
+		var channelMessageItem = builder.build();
+
+		var savedMessageId = saveMessage(channelMessageItem).getId();
+
+		channelMessageItem.setId(savedMessageId);
+		channelNotificationService.addOrUpdateChannelMessages(List.of(channelMessageItem));
+
+		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
+
+		return savedMessageId;
+	}
+
+	@Transactional
+	public ChannelMessageItem saveChannelMessageImage(long id, MultipartFile file) throws IOException
+	{
+		if (file == null)
+		{
+			throw new IllegalArgumentException("Image is null");
+		}
+
+		if (file.getSize() >= IMAGE_MAX_SIZE)
+		{
+			throw new IllegalArgumentException("Channel image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+		}
+
+		var message = findMessageById(id);
+
+		var out = new ByteArrayOutputStream();
+		Thumbnails.of(file.getInputStream())
+				.size(IMAGE_MESSAGE_WIDTH, IMAGE_MESSAGE_HEIGHT)
+				.crop(Positions.CENTER)
+				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.toOutputStream(out);
+
+		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
+
+		message.setImage(out.toByteArray());
+		message.updatePublished();
+
+		var savedMessage = saveMessage(message);
+		channelNotificationService.addOrUpdateChannelMessages(List.of(message));
+		return savedMessage;
+	}
+
+	@Transactional
+	public ChannelMessageItem saveMessage(ChannelMessageItem channelMessageItem)
+	{
+		channelMessageItem.setId(gxsChannelMessageRepository.findByGxsIdAndMessageId(channelMessageItem.getGxsId(), channelMessageItem.getMessageId()).orElse(channelMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
+		var savedMessage = gxsChannelMessageRepository.save(channelMessageItem);
+		var channelGroupItem = gxsChannelGroupRepository.findByGxsId(channelMessageItem.getGxsId()).orElseThrow();
+		channelGroupItem.setLastPosted(Instant.now());
+		gxsChannelGroupRepository.save(channelGroupItem);
+		return savedMessage;
+	}
+
+	@Transactional
 	public void subscribeToChannelGroup(long id)
 	{
 		var channelGroupItem = findById(id).orElseThrow();
@@ -384,5 +473,18 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		var channelGroupItem = findById(id).orElseThrow();
 		channelGroupItem.setSubscribed(false);
+	}
+
+	@Transactional
+	public void setChannelMessagesAsRead(Map<Long, Boolean> messageMap)
+	{
+		gxsChannelMessageRepository.findAllById(messageMap.keySet()).forEach(channelMessageItem -> channelMessageItem.setRead(messageMap.get(channelMessageItem.getId())));
+		channelNotificationService.markChannelMessagesAsRead(messageMap);
+	}
+
+	@Override
+	public void shutdown()
+	{
+		channelNotificationService.shutdown();
 	}
 }

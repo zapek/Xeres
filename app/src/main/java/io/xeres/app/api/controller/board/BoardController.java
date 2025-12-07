@@ -140,7 +140,7 @@ public class BoardController
 
 	@GetMapping("/groups/{groupId}/messages")
 	@Operation(summary = "Gets the summary of messages in a group")
-	public List<BoardMessageDTO> getForumMessages(@PathVariable long groupId)
+	public List<BoardMessageDTO> getBoardMessages(@PathVariable long groupId)
 	{
 		var boardMessages = boardRsService.findAllMessages(groupId);
 

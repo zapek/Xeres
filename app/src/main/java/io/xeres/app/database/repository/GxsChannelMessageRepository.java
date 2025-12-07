@@ -36,6 +36,8 @@ public interface GxsChannelMessageRepository extends JpaRepository<ChannelMessag
 {
 	Optional<ChannelMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);
 
+	List<ChannelMessageItem> findAllByGxsId(GxsId groupId);
+
 	List<ChannelMessageItem> findAllByGxsIdAndPublishedAfter(GxsId groupId, Instant since);
 
 	List<ChannelMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);

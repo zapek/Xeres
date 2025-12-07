@@ -65,6 +65,41 @@ public final class ChannelMapper
 				.toList();
 	}
 
+	public static ChannelMessageDTO toDTO(ChannelMessageItem item, String authorName, long originalId, long parentId)
+	{
+		if (item == null)
+		{
+			return null;
+		}
+
+		return new ChannelMessageDTO(
+				item.getId(),
+				item.getGxsId(),
+				item.getMessageId(),
+				originalId,
+				parentId,
+				item.getAuthorId(),
+				authorName,
+				item.getName(),
+				item.getPublished(),
+				null,
+				item.hasImage(),
+				item.hasFiles(),
+				item.isRead()
+		);
+	}
+
+	public static List<ChannelMessageDTO> toSummaryMessageDTOs(List<ChannelMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ChannelMessageItem> messagesMap)
+	{
+		return emptyIfNull(items).stream()
+				.map(item -> toDTO(item,
+						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMessageId(), ChannelMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentId(), ChannelMessageItem.EMPTY).getId()
+				))
+				.toList();
+	}
+
 	public static ChannelMessageDTO toDTO(UnHtmlService unHtmlService, ChannelMessageItem item, String authorName, long originalId, long parentId, boolean withMessageContent)
 	{
 		if (item == null)

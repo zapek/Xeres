@@ -403,13 +403,12 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		}
 
 		builder.getMessageItem().setContent(replaceImageLines(content));
-
-		var boardMessageItem = builder.build();
-
 		if (StringUtils.isNotEmpty(link))
 		{
-			boardMessageItem.setLink(link);
+			builder.getMessageItem().setLink(link);
 		}
+
+		var boardMessageItem = builder.build();
 
 		var savedMessageId = saveMessage(boardMessageItem).getId();
 
@@ -431,7 +430,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		if (file.getSize() >= IMAGE_MAX_SIZE)
 		{
-			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException("Board image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
 		}
 
 		var message = findMessageById(id);

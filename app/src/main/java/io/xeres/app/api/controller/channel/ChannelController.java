@@ -25,11 +25,20 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.service.ChannelMessageService;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.channel.ChannelRsService;
+import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
+import io.xeres.common.dto.channel.ChannelMessageDTO;
+import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.channel.CreateChannelGroupRequest;
+import io.xeres.common.rest.channel.CreateChannelMessageRequest;
+import io.xeres.common.rest.channel.UpdateChannelMessagesReadRequest;
 import jakarta.validation.Valid;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,10 +48,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static io.xeres.app.database.model.channel.ChannelMapper.toDTO;
-import static io.xeres.app.database.model.channel.ChannelMapper.toDTOs;
+import static io.xeres.app.database.model.channel.ChannelMapper.*;
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 
 @Tag(name = "Channels", description = "Channels")
@@ -52,11 +63,15 @@ public class ChannelController
 {
 	private final ChannelRsService channelRsService;
 	private final IdentityService identityService;
+	private final ChannelMessageService channelMessageService;
+	private final UnHtmlService unHtmlService;
 
-	public ChannelController(ChannelRsService channelRsService, IdentityService identityService)
+	public ChannelController(ChannelRsService channelRsService, IdentityService identityService, ChannelMessageService channelMessageService, UnHtmlService unHtmlService)
 	{
 		this.channelRsService = channelRsService;
 		this.identityService = identityService;
+		this.channelMessageService = channelMessageService;
+		this.unHtmlService = unHtmlService;
 	}
 
 	@GetMapping("/groups")
@@ -121,5 +136,86 @@ public class ChannelController
 	public void unsubscribeFromChannelGroup(@PathVariable long groupId)
 	{
 		channelRsService.unsubscribeFromChannelGroup(groupId);
+	}
+
+	@GetMapping("/groups/{groupId}/messages")
+	@Operation(summary = "Gets the summary of messages in a group")
+	public List<ChannelMessageDTO> getChannelMessages(@PathVariable long groupId)
+	{
+		var channelMessages = channelRsService.findAllMessages(groupId);
+
+		return toSummaryMessageDTOs(channelMessages,
+				channelMessageService.getAuthorsMapFromMessages(channelMessages),
+				channelMessageService.getMessagesMapFromSummaries(groupId, channelMessages));
+	}
+
+	@GetMapping("/messages/{messageId}")
+	@Operation(summary = "Gets a message")
+	@ApiResponse(responseCode = "200", description = "Request successful")
+	public ChannelMessageDTO getChannelMessage(@PathVariable long messageId)
+	{
+		var channelMessage = channelRsService.findMessageById(messageId);
+		Objects.requireNonNull(channelMessage, "MessageId " + messageId + " not found");
+
+		var author = identityService.findByGxsId(channelMessage.getAuthorId());
+
+		HashSet<MessageId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
+		CollectionUtils.addIgnoreNull(messageSet, channelMessage.getOriginalMessageId());
+		CollectionUtils.addIgnoreNull(messageSet, channelMessage.getParentId());
+
+		var messages = channelRsService.findAllMessages(channelMessage.getGxsId(), messageSet).stream()
+				.collect(Collectors.toMap(ChannelMessageItem::getMessageId, ChannelMessageItem::getId));
+
+		return toDTO(
+				unHtmlService,
+				channelMessage,
+				author.map(GxsGroupItem::getName).orElse(null),
+				messages.getOrDefault(channelMessage.getOriginalMessageId(), 0L),
+				messages.getOrDefault(channelMessage.getParentId(), 0L),
+				true
+		);
+	}
+
+	@PostMapping("/messages")
+	@Operation(summary = "Creates a channel message")
+	@ApiResponse(responseCode = "201", description = "Channel message created successfully", headers = @Header(name = "Message", description = "The location of the created message", schema = @Schema(type = "string")))
+	public ResponseEntity<Void> createChannelMessage(@Valid @RequestBody CreateChannelMessageRequest createMessageRequest)
+	{
+		var ownIdentity = identityService.getOwnIdentity();
+		var id = channelRsService.createChannelMessage(
+				ownIdentity,
+				createMessageRequest.channelId(),
+				createMessageRequest.title(),
+				createMessageRequest.content(),
+				createMessageRequest.parentId(),
+				createMessageRequest.originalId()
+		);
+
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(CHANNELS_PATH + "/messages/{id}").buildAndExpand(id).toUri();
+		return ResponseEntity.created(location).build();
+	}
+
+	// XXX: endpoint to add files (all at the same time? one by one?)
+
+	@PostMapping(value = "/messages/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@Operation(summary = "Add/Change a channel message's image")
+	@ApiResponse(responseCode = "201", description = "Channel message image created")
+	@ApiResponse(responseCode = "404", description = "Channel message not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "415", description = "Image's media type unsupported", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public ResponseEntity<Void> uploadChannelMessageGroupImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
+	{
+		channelRsService.saveChannelMessageImage(id, file);
+
+		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(CHANNELS_PATH + "/messages/{id}/image").buildAndExpand(id).toUri();
+		return ResponseEntity.created(location).build();
+	}
+
+	@PatchMapping("/messages")
+	@Operation(summary = "Modifies channel messages read flag")
+	@ResponseStatus(HttpStatus.OK)
+	public void updateMessagesReadFlags(@Valid @RequestBody UpdateChannelMessagesReadRequest updateMessagesReadRequest)
+	{
+		channelRsService.setChannelMessagesAsRead(updateMessagesReadRequest.messageMap());
 	}
 }

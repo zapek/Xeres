@@ -217,10 +217,8 @@ public final class CommandArgument
 		if (System.console() != null)
 		{
 			System.out.print(s);
+			return;
 		}
-		else
-		{
-			MUI.showInformation(s);
-		}
+		MUI.showInformation(s);
 	}
 }

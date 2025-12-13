@@ -66,19 +66,21 @@
     -fx-border-width: 0 1 1 1;
 }
 
+.foo-view {
+    -fx-table-cell-border-color: transparent;
+}
+
 .chat-dot-wait {
     -fx-fill: -color-fg-default;
 }
 
-/* remove the header from treetableviews */
-.no-header .column-header-background {
-    -fx-max-height: 0;
-    -fx-pref-height: 0;
-    -fx-min-height: 0;
-}
-
 .forum-header-title {
     -fx-text-fill: -color-fg-subtle;
+}
+
+/* Remove horizontal lines between entries in TreeTableView, keep it consistent with TreeView */
+.no-horizontal-lines .tree-table-row-cell {
+    -fx-background-insets: 0, 0 0 0 0;
 }
 
 .alert-textarea {

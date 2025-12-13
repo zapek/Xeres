@@ -20,10 +20,11 @@
 package io.xeres.ui.model.forum;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.ui.controller.common.GxsGroupAttribute;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class ForumGroup
+public class ForumGroup implements GxsGroupAttribute
 {
 	private long id;
 	private String name;
@@ -52,6 +53,7 @@ public class ForumGroup
 		this.id = id;
 	}
 
+	@Override
 	public boolean isReal()
 	{
 		return id != 0L;
@@ -87,6 +89,7 @@ public class ForumGroup
 		this.description = description;
 	}
 
+	@Override
 	public boolean isSubscribed()
 	{
 		return subscribed;
@@ -97,6 +100,7 @@ public class ForumGroup
 		this.subscribed = subscribed;
 	}
 
+	@Override
 	public boolean isExternal()
 	{
 		return external;

@@ -20,10 +20,11 @@
 package io.xeres.ui.model.board;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.ui.controller.common.GxsGroupAttribute;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class BoardGroup
+public class BoardGroup implements GxsGroupAttribute
 {
 	private long id;
 	private String name;
@@ -53,6 +54,7 @@ public class BoardGroup
 		this.id = id;
 	}
 
+	@Override
 	public boolean isReal()
 	{
 		return id != 0L;
@@ -98,6 +100,7 @@ public class BoardGroup
 		this.hasImage = hasImage;
 	}
 
+	@Override
 	public boolean isSubscribed()
 	{
 		return subscribed;
@@ -108,6 +111,7 @@ public class BoardGroup
 		this.subscribed = subscribed;
 	}
 
+	@Override
 	public boolean isExternal()
 	{
 		return external;

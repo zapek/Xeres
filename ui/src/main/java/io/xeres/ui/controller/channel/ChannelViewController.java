@@ -19,17 +19,81 @@
 
 package io.xeres.ui.controller.channel;
 
+import io.xeres.ui.client.ChannelClient;
+import io.xeres.ui.client.GeneralClient;
+import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
+import io.xeres.ui.controller.common.GxsGroupTreeTableView;
+import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.model.channel.ChannelGroup;
+import javafx.fxml.FXML;
+import javafx.scene.control.SplitPane;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.ResourceBundle;
+
+import static io.xeres.ui.support.preference.PreferenceUtils.CHANNELS;
 
 @Component
 @FxmlView(value = "/view/channel/channel_view.fxml")
-public class ChannelViewController implements Controller
+public class ChannelViewController implements Controller, GxsGroupTreeTableAction<ChannelGroup>
 {
+	private static final Logger log = LoggerFactory.getLogger(ChannelViewController.class);
+
+	@FXML
+	private GxsGroupTreeTableView<ChannelGroup> channelTree;
+
+	@FXML
+	private SplitPane splitPaneVertical;
+
+	private final ResourceBundle bundle;
+
+	private final ChannelClient channelClient;
+	private final NotificationClient notificationClient;
+	private final GeneralClient generalClient;
+	private final ImageCache imageCache;
+
+	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache)
+	{
+		this.channelClient = channelClient;
+		this.bundle = bundle;
+
+		this.notificationClient = notificationClient;
+		this.generalClient = generalClient;
+		this.imageCache = imageCache;
+	}
 
 	@Override
 	public void initialize()
+	{
+		log.debug("Trying to get channel list...");
+		channelTree.initialize(CHANNELS, ChannelGroup::new, () -> new ChannelCell(generalClient, imageCache), this);
+	}
+
+	@Override
+	public void onSubscribe(ChannelGroup group)
+	{
+
+	}
+
+	@Override
+	public void onUnsubscribe(ChannelGroup group)
+	{
+
+	}
+
+	@Override
+	public void onCopyLink(ChannelGroup group)
+	{
+
+	}
+
+	@Override
+	public void onSelect(ChannelGroup group)
 	{
 
 	}

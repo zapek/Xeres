@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.scene.control.*?>
+<fx:root type="TreeTableView" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" styleClass="no-header" minWidth="-Infinity" prefWidth="200.0">
+    <columnResizePolicy>
+        <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+    </columnResizePolicy>
+    <columns>
+        <TreeTableColumn fx:id="groupNameColumn" sortable="false"/>
+        <TreeTableColumn fx:id="groupCountColumn" sortable="false" minWidth="40" prefWidth="40" maxWidth="45"/>
+    </columns>
+</fx:root>

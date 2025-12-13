@@ -19,6 +19,7 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.controller.common.GxsGroupTreeTableView?>
 <?import io.xeres.ui.custom.ProgressPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
@@ -41,15 +42,7 @@
                     </tooltip>
                 </Button>
             </HBox>
-            <TreeTableView fx:id="forumTree" styleClass="no-header" minWidth="-Infinity" prefWidth="200.0" VBox.vgrow="ALWAYS">
-                <columnResizePolicy>
-                    <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
-                </columnResizePolicy>
-                <columns>
-                    <TreeTableColumn fx:id="forumNameColumn" sortable="false"/>
-                    <TreeTableColumn fx:id="forumCountColumn" sortable="false" minWidth="40" prefWidth="40" maxWidth="45"/>
-                </columns>
-            </TreeTableView>
+            <GxsGroupTreeTableView fx:id="forumTree" VBox.vgrow="ALWAYS"/>
         </VBox>
         <VBox minWidth="200.0" VBox.vgrow="ALWAYS">
             <HBox>

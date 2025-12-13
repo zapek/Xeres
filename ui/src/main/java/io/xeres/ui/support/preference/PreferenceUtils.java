@@ -39,6 +39,8 @@ public final class PreferenceUtils
 	public static final String CONTACTS = "Contacts";
 	public static final String CHAT_ROOMS = "Chatrooms";
 	public static final String FORUMS = "Forums";
+	public static final String BOARDS = "Boards";
+	public static final String CHANNELS = "Channels";
 	public static final String NOTIFICATIONS = "Notifications";
 	public static final String UPDATE_CHECK = "UpdateCheck";
 	public static final String SOUND = "Sound";

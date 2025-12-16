@@ -44,7 +44,7 @@ import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.util.ClientUtils.fromFile;
 
 @Component
-public class BoardClient
+public class BoardClient implements GxsGroupClient<BoardGroup>
 {
 	private final WebClient.Builder webClientBuilder;
 
@@ -63,7 +63,8 @@ public class BoardClient
 				.build();
 	}
 
-	public Flux<BoardGroup> getBoardGroups()
+	@Override
+	public Flux<BoardGroup> getGroups()
 	{
 		return webClient.get()
 				.uri("/groups")
@@ -104,7 +105,8 @@ public class BoardClient
 				.map(BoardMapper::fromDTO);
 	}
 
-	public Mono<Integer> getBoardUnreadCount(long groupId)
+	@Override
+	public Mono<Integer> getUnreadCount(long groupId)
 	{
 		return webClient.get()
 				.uri("/groups/{groupId}/unread-count", groupId)
@@ -112,7 +114,8 @@ public class BoardClient
 				.bodyToMono(Integer.class);
 	}
 
-	public Mono<Void> subscribeToBoardGroup(long groupId)
+	@Override
+	public Mono<Void> subscribeToGroup(long groupId)
 	{
 		return webClient.put()
 				.uri("/groups/{groupId}/subscription", groupId)
@@ -120,7 +123,8 @@ public class BoardClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> unsubscribeFromBoardGroup(long groupId)
+	@Override
+	public Mono<Void> unsubscribeFromGroup(long groupId)
 	{
 		return webClient.delete()
 				.uri("/groups/{groupId}/subscription", groupId)

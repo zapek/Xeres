@@ -44,7 +44,7 @@ import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 import static io.xeres.ui.support.util.ClientUtils.fromFile;
 
 @Component
-public class ChannelClient
+public class ChannelClient implements GxsGroupClient<ChannelGroup>
 {
 	private final WebClient.Builder webClientBuilder;
 
@@ -63,7 +63,8 @@ public class ChannelClient
 				.build();
 	}
 
-	public Flux<ChannelGroup> getChannelGroups()
+	@Override
+	public Flux<ChannelGroup> getGroups()
 	{
 		return webClient.get()
 				.uri("/groups")
@@ -104,7 +105,8 @@ public class ChannelClient
 				.map(ChannelMapper::fromDTO);
 	}
 
-	public Mono<Integer> getChannelUnreadCount(long groupId)
+	@Override
+	public Mono<Integer> getUnreadCount(long groupId)
 	{
 		return webClient.get()
 				.uri("/groups/{groupId}/unread-count", groupId)
@@ -112,7 +114,8 @@ public class ChannelClient
 				.bodyToMono(Integer.class);
 	}
 
-	public Mono<Void> subscribeToChannelGroup(long groupId)
+	@Override
+	public Mono<Void> subscribeToGroup(long groupId)
 	{
 		return webClient.put()
 				.uri("/groups/{groupId}/subscription", groupId)
@@ -120,7 +123,8 @@ public class ChannelClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> unsubscribeFromChannelGroup(long groupId)
+	@Override
+	public Mono<Void> unsubscribeFromGroup(long groupId)
 	{
 		return webClient.delete()
 				.uri("/groups/{groupId}/subscription", groupId)

@@ -20,11 +20,11 @@
 package io.xeres.ui.model.forum;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.ui.controller.common.GxsGroupAttribute;
+import io.xeres.ui.controller.common.GxsGroup;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class ForumGroup implements GxsGroupAttribute
+public class ForumGroup implements GxsGroup
 {
 	private long id;
 	private String name;
@@ -43,6 +43,7 @@ public class ForumGroup implements GxsGroupAttribute
 		this.name = name;
 	}
 
+	@Override
 	public long getId()
 	{
 		return id;
@@ -59,6 +60,7 @@ public class ForumGroup implements GxsGroupAttribute
 		return id != 0L;
 	}
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -69,6 +71,7 @@ public class ForumGroup implements GxsGroupAttribute
 		this.name = name;
 	}
 
+	@Override
 	public GxsId getGxsId()
 	{
 		return gxsId;
@@ -79,6 +82,7 @@ public class ForumGroup implements GxsGroupAttribute
 		this.gxsId = gxsId;
 	}
 
+	@Override
 	public String getDescription()
 	{
 		return description;
@@ -95,6 +99,7 @@ public class ForumGroup implements GxsGroupAttribute
 		return subscribed;
 	}
 
+	@Override
 	public void setSubscribed(boolean subscribed)
 	{
 		this.subscribed = subscribed;
@@ -111,6 +116,7 @@ public class ForumGroup implements GxsGroupAttribute
 		this.external = external;
 	}
 
+	@Override
 	public boolean hasNewMessages()
 	{
 		return unreadCount.get() > 0 && gxsId != null;
@@ -121,16 +127,19 @@ public class ForumGroup implements GxsGroupAttribute
 		return unreadCount.get();
 	}
 
+	@Override
 	public void setUnreadCount(int unreadCount)
 	{
 		this.unreadCount.set(unreadCount);
 	}
 
+	@Override
 	public void addUnreadCount(int value)
 	{
 		unreadCount.set(unreadCount.get() + value);
 	}
 
+	@Override
 	public void subtractUnreadCount(int value)
 	{
 		unreadCount.set(unreadCount.get() - value);

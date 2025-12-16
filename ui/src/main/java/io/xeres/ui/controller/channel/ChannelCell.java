@@ -26,7 +26,7 @@ import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.support.util.TooltipUtils;
-import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.ImageView;
 
 import java.text.MessageFormat;
@@ -34,7 +34,7 @@ import java.util.ResourceBundle;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 
-public class ChannelCell extends TreeTableRow<ChannelGroup>
+public class ChannelCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 {
 	private static final int IMAGE_WIDTH = 32;
 	private static final int IMAGE_HEIGHT = 32;
@@ -70,9 +70,9 @@ public class ChannelCell extends TreeTableRow<ChannelGroup>
 					url -> generalClient.getImage(url).block(),
 					null,
 					imageCache);
-			asyncImageView.setFitWidth(IMAGE_WIDTH);
-			asyncImageView.setFitHeight(IMAGE_HEIGHT);
 		}
+		asyncImageView.setFitWidth(item.isReal() ? IMAGE_WIDTH : 0);
+		asyncImageView.setFitHeight(item.isReal() ? IMAGE_HEIGHT : 0);
 
 		asyncImageView.setUrl(getImageUrl(item));
 
@@ -81,9 +81,9 @@ public class ChannelCell extends TreeTableRow<ChannelGroup>
 
 	private String getImageUrl(ChannelGroup item)
 	{
-		if (item.getId() != 0L)
+		if (item.isReal())
 		{
-			return RemoteUtils.getControlUrl() + CHANNELS_PATH + "/" + item.getId() + "/image";
+			return RemoteUtils.getControlUrl() + CHANNELS_PATH + "/groups/" + item.getId() + "/image";
 		}
 		return null;
 	}

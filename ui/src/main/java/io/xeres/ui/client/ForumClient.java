@@ -40,7 +40,7 @@ import java.util.Map;
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
 @Component
-public class ForumClient
+public class ForumClient implements GxsGroupClient<ForumGroup>
 {
 	private final WebClient.Builder webClientBuilder;
 
@@ -59,7 +59,8 @@ public class ForumClient
 				.build();
 	}
 
-	public Flux<ForumGroup> getForumGroups()
+	@Override
+	public Flux<ForumGroup> getGroups()
 	{
 		return webClient.get()
 				.uri("/groups")
@@ -88,7 +89,8 @@ public class ForumClient
 				.map(ForumMapper::fromDTO);
 	}
 
-	public Mono<Integer> getForumUnreadCount(long groupId)
+	@Override
+	public Mono<Integer> getUnreadCount(long groupId)
 	{
 		return webClient.get()
 				.uri("/groups/{groupId}/unread-count", groupId)
@@ -96,7 +98,8 @@ public class ForumClient
 				.bodyToMono(Integer.class);
 	}
 
-	public Mono<Void> subscribeToForumGroup(long groupId)
+	@Override
+	public Mono<Void> subscribeToGroup(long groupId)
 	{
 		return webClient.put()
 				.uri("/groups/{groupId}/subscription", groupId)
@@ -104,7 +107,8 @@ public class ForumClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> unsubscribeFromForumGroup(long groupId)
+	@Override
+	public Mono<Void> unsubscribeFromGroup(long groupId)
 	{
 		return webClient.delete()
 				.uri("/groups/{groupId}/subscription", groupId)

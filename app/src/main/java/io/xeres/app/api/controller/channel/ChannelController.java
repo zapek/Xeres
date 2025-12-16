@@ -37,16 +37,20 @@ import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.channel.CreateChannelGroupRequest;
 import io.xeres.common.rest.channel.CreateChannelMessageRequest;
 import io.xeres.common.rest.channel.UpdateChannelMessagesReadRequest;
+import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -105,6 +109,26 @@ public class ChannelController
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(CHANNELS_PATH + "/groups/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
+	}
+
+	@GetMapping(value = "/groups/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+	@Operation(summary = "Returns a channel's image")
+	@ApiResponse(responseCode = "200", description = "Channel's image found")
+	@ApiResponse(responseCode = "204", description = "Channel's image is empty")
+	@ApiResponse(responseCode = "404", description = "Board not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public ResponseEntity<InputStreamResource> downloadChannelGroupImage(@PathVariable long id)
+	{
+		var group = channelRsService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
+		var imageType = ImageUtils.getImageMimeType(group.getImage());
+		if (imageType == null)
+		{
+			// XXX: do we want an identicon?!
+			return null; // XXX
+		}
+		return ResponseEntity.ok()
+				.contentLength(group.getImage().length)
+				.contentType(imageType)
+				.body(new InputStreamResource(new ByteArrayInputStream(group.getImage())));
 	}
 
 	@GetMapping("/groups/{groupId}")

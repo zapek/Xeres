@@ -20,11 +20,11 @@
 package io.xeres.ui.model.channel;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.ui.controller.common.GxsGroupAttribute;
+import io.xeres.ui.controller.common.GxsGroup;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class ChannelGroup implements GxsGroupAttribute
+public class ChannelGroup implements GxsGroup
 {
 	private long id;
 	private String name;
@@ -69,6 +69,7 @@ public class ChannelGroup implements GxsGroupAttribute
 		this.name = name;
 	}
 
+	@Override
 	public GxsId getGxsId()
 	{
 		return gxsId;
@@ -79,6 +80,7 @@ public class ChannelGroup implements GxsGroupAttribute
 		this.gxsId = gxsId;
 	}
 
+	@Override
 	public String getDescription()
 	{
 		return description;
@@ -95,6 +97,7 @@ public class ChannelGroup implements GxsGroupAttribute
 		return subscribed;
 	}
 
+	@Override
 	public void setSubscribed(boolean subscribed)
 	{
 		this.subscribed = subscribed;
@@ -111,6 +114,7 @@ public class ChannelGroup implements GxsGroupAttribute
 		this.external = external;
 	}
 
+	@Override
 	public boolean hasNewMessages()
 	{
 		return unreadCount.get() > 0 && gxsId != null;
@@ -121,16 +125,19 @@ public class ChannelGroup implements GxsGroupAttribute
 		return unreadCount.get();
 	}
 
+	@Override
 	public void setUnreadCount(int unreadCount)
 	{
 		this.unreadCount.set(unreadCount);
 	}
 
+	@Override
 	public void addUnreadCount(int value)
 	{
 		unreadCount.set(unreadCount.get() + value);
 	}
 
+	@Override
 	public void subtractUnreadCount(int value)
 	{
 		unreadCount.set(unreadCount.get() - value);

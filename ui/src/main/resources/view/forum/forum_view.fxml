@@ -59,6 +59,8 @@
                 </Button>
             </HBox>
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+                <StackPane>
+                    <VBox VBox.vgrow="ALWAYS" style="-fx-border-color: -color-border-default; -fx-border-width: 1px;"/><!-- Keep a border at all times -->
                 <ProgressPane fx:id="forumMessagesProgress">
                     <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0" styleClass="dense">
                         <placeholder>
@@ -74,8 +76,9 @@
                         </columns>
                     </TreeTableView>
                 </ProgressPane>
+                </StackPane>
                 <VBox>
-                    <GridPane fx:id="messageHeader" visible="false" hgap="8" vgap="4">
+                    <GridPane fx:id="messageHeader" visible="false" managed="false" hgap="8" vgap="4">
                         <columnConstraints>
                             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>

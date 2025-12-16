@@ -22,12 +22,12 @@ package io.xeres.ui.controller.forum;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.model.forum.ForumGroup;
 import io.xeres.ui.support.util.TooltipUtils;
-import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.TreeTableCell;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
-public class ForumCell extends TreeTableRow<ForumGroup>
+public class ForumCell extends TreeTableCell<ForumGroup, ForumGroup>
 {
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
@@ -42,7 +42,6 @@ public class ForumCell extends TreeTableRow<ForumGroup>
 					}
 					return MessageFormat.format(bundle.getString("forum.tree.info"),
 							getItem().getName(),
-							getItem().getDescription(),
 							getItem().getGxsId()
 					);
 				},
@@ -55,10 +54,12 @@ public class ForumCell extends TreeTableRow<ForumGroup>
 		super.updateItem(item, empty);
 		if (empty)
 		{
+			setText(null);
 			clearStyle();
 		}
 		else
 		{
+			setText(item.getName());
 			if (item.hasNewMessages())
 			{
 				setStyle("-fx-font-weight: bold;");

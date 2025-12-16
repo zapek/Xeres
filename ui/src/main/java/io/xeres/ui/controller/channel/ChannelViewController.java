@@ -26,7 +26,9 @@ import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.channel.ChannelGroup;
+import io.xeres.ui.support.unread.UnreadService;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -56,8 +58,9 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private final NotificationClient notificationClient;
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
+	private final UnreadService unreadService;
 
-	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache)
+	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, UnreadService unreadService)
 	{
 		this.channelClient = channelClient;
 		this.bundle = bundle;
@@ -65,13 +68,19 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		this.notificationClient = notificationClient;
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
+		this.unreadService = unreadService;
 	}
 
 	@Override
 	public void initialize()
 	{
 		log.debug("Trying to get channel list...");
-		channelTree.initialize(CHANNELS, ChannelGroup::new, () -> new ChannelCell(generalClient, imageCache), this);
+		channelTree.initialize(CHANNELS,
+				channelClient,
+				ChannelGroup::new,
+				() -> new ChannelCell(generalClient, imageCache),
+				this,
+				hasUnreadMessages -> unreadService.sendUnreadEvent(UnreadEvent.Element.CHANNEL, hasUnreadMessages));
 	}
 
 	@Override
@@ -93,7 +102,19 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	}
 
 	@Override
-	public void onSelect(ChannelGroup group)
+	public void onSelectSubscribed(ChannelGroup group)
+	{
+
+	}
+
+	@Override
+	public void onSelectUnsubscribed(ChannelGroup group)
+	{
+
+	}
+
+	@Override
+	public void onUnselect()
 	{
 
 	}

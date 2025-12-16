@@ -19,11 +19,31 @@
 
 package io.xeres.ui.controller.common;
 
-public interface GxsGroupAttribute
+import io.xeres.common.id.GxsId;
+
+public interface GxsGroup
 {
 	boolean isReal();
+
+	long getId();
+
+	GxsId getGxsId();
+
+	String getName();
+
+	String getDescription();
 
 	boolean isExternal();
 
 	boolean isSubscribed();
+
+	void setSubscribed(boolean subscribed);
+
+	boolean hasNewMessages();
+
+	void setUnreadCount(int unreadCount);
+
+	void addUnreadCount(int value);
+
+	void subtractUnreadCount(int value);
 }

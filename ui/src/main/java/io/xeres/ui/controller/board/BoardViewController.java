@@ -26,7 +26,9 @@ import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.board.BoardGroup;
+import io.xeres.ui.support.unread.UnreadService;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -55,16 +57,18 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	private final BoardClient boardClient;
 	private final NotificationClient notificationClient;
 	private final GeneralClient generalClient;
-	private final ImageCache imageCache;
+	private final ImageCache imageCacheService;
+	private final UnreadService unreadService;
 
-	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache)
+	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService)
 	{
 		this.boardClient = boardClient;
 		this.bundle = bundle;
 
 		this.notificationClient = notificationClient;
 		this.generalClient = generalClient;
-		this.imageCache = imageCache;
+		this.imageCacheService = imageCacheService;
+		this.unreadService = unreadService;
 	}
 
 
@@ -72,10 +76,15 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	public void initialize()
 	{
 		log.debug("Trying to get boards list...");
-		boardTree.initialize(BOARDS, BoardGroup::new, () -> new BoardCell(generalClient, imageCache), this);
+		boardTree.initialize(BOARDS,
+				boardClient,
+				BoardGroup::new,
+				() -> new BoardCell(generalClient, imageCacheService),
+				this,
+				hasUnreadMessages -> unreadService.sendUnreadEvent(UnreadEvent.Element.BOARD, hasUnreadMessages)
+		);
 
 		// XXX: add the rest...
-
 	}
 
 	@Override
@@ -97,7 +106,19 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
-	public void onSelect(BoardGroup group)
+	public void onSelectSubscribed(BoardGroup group)
+	{
+
+	}
+
+	@Override
+	public void onSelectUnsubscribed(BoardGroup group)
+	{
+
+	}
+
+	@Override
+	public void onUnselect()
 	{
 
 	}

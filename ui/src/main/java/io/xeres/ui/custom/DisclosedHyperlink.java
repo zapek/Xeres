@@ -22,6 +22,7 @@ package io.xeres.ui.custom;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.beans.NamedArg;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.event.ActionEvent;
@@ -47,13 +48,7 @@ public class DisclosedHyperlink extends Text
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
-	@SuppressWarnings("unused") // Used by FXML
-	public DisclosedHyperlink()
-	{
-		this("", "");
-	}
-
-	public DisclosedHyperlink(String text, String uri)
+	public DisclosedHyperlink(@NamedArg(value = "text") String text, @NamedArg(value = "url") String uri)
 	{
 		super(text);
 		setUri(uri);

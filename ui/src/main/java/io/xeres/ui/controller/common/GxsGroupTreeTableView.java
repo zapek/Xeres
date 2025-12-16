@@ -20,10 +20,14 @@
 package io.xeres.ui.controller.common;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.id.GxsId;
+import io.xeres.ui.client.GxsGroupClient;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -32,11 +36,13 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 
 import java.io.IOException;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-public class GxsGroupTreeTableView<T extends GxsGroupAttribute> extends TreeTableView<T>
+public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 {
 	private static final String SUBSCRIBE_MENU_ID = "subscribe";
 	private static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
@@ -48,12 +54,13 @@ public class GxsGroupTreeTableView<T extends GxsGroupAttribute> extends TreeTabl
 	private static final String OPEN_OTHER = "OpenOther";
 
 	@FXML
-	private TreeTableColumn<T, String> groupNameColumn;
+	private TreeTableColumn<T, T> groupNameColumn;
 
 	@FXML
 	private TreeTableColumn<T, Integer> groupCountColumn;
 
 	private GxsGroupTreeTableAction<T> action;
+	private Consumer<Boolean> unreadCountUpdater;
 
 	private TreeItem<T> ownGroups;
 	private TreeItem<T> subscribedGroups;
@@ -61,6 +68,8 @@ public class GxsGroupTreeTableView<T extends GxsGroupAttribute> extends TreeTabl
 	private TreeItem<T> otherGroups;
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
+
+	private GxsGroupClient<T> groupClient;
 
 	private T selectedGroup;
 
@@ -85,29 +94,164 @@ public class GxsGroupTreeTableView<T extends GxsGroupAttribute> extends TreeTabl
 		return selectedGroup;
 	}
 
-	public TreeItem<T> getOwnGroups()
+	public Stream<TreeItem<T>> getAllGroups()
 	{
-		return ownGroups;
+		return Stream.of(ownGroups.getChildren().stream(), // Concat all streams
+				subscribedGroups.getChildren().stream(),
+				popularGroups.getChildren().stream(),
+				otherGroups.getChildren().stream()
+		).reduce(Stream.empty(), Stream::concat);
 	}
 
-	public TreeItem<T> getSubscribedGroups()
+	public Stream<TreeItem<T>> getSubscribedGroups()
 	{
-		return subscribedGroups;
+		return Stream.concat(subscribedGroups.getChildren().stream(), ownGroups.getChildren().stream());
 	}
 
-	public TreeItem<T> getPopularGroups()
+	public void subtractUnreadCountFromSelected(int unreadCount)
 	{
-		return popularGroups;
+		getSelectedGroup().subtractUnreadCount(1); // XXX: could this fail? null check?
+		refreshTree();
 	}
 
-	public TreeItem<T> getOtherGroups()
+	public void addUnreadCount(Map<GxsId, Integer> groups)
 	{
-		return otherGroups;
+		groups.forEach((gxsId, unreadCount) -> getSubscribedTreeItemByGxsId(gxsId).ifPresent(groupTreeItem -> groupTreeItem.getValue().addUnreadCount(unreadCount)));
+		refreshTree();
 	}
 
-	public void initialize(String preferenceNodeName, Function<String, T> groupCreator, Supplier<TreeTableRow<T>> cellCreator, GxsGroupTreeTableAction<T> action)
+	public void addGroups(List<T> groups)
+	{
+		groups.forEach(group -> {
+			if (!group.isExternal())
+			{
+				addOrUpdate(ownGroups, group);
+			}
+			else if (group.isSubscribed())
+			{
+				addOrUpdate(subscribedGroups, group);
+			}
+			else
+			{
+				addOrUpdate(popularGroups, group);
+			}
+		});
+		updateGroupsUnreadCount(groups);
+	}
+
+	public void addOrUpdate(TreeItem<T> parent, T group)
+	{
+		var tree = parent.getChildren();
+
+		if (tree.stream()
+				.map(TreeItem::getValue)
+				.noneMatch(existingBoard -> existingBoard.equals(group)))
+		{
+			tree.add(new TreeItem<>(group));
+			parent.getValue().addUnreadCount(1);
+			sortByName(tree);
+			removeFromOthers(parent, group);
+		}
+	}
+
+	private void subscribeToGroup(T group)
+	{
+		var alreadySubscribed = subscribedGroups.getChildren().stream()
+				.anyMatch(holderTreeItem -> holderTreeItem.getValue().equals(group));
+
+		if (!alreadySubscribed)
+		{
+			groupClient.subscribeToGroup(group.getId())
+					.doOnSuccess(_ -> {
+						group.setSubscribed(true);
+						addOrUpdate(subscribedGroups, group);
+					})
+					.subscribe();
+		}
+	}
+
+	private void unsubscribeFromGroup(T group)
+	{
+		subscribedGroups.getChildren().stream()
+				.filter(holderTreeItem -> holderTreeItem.getValue().equals(group))
+				.findAny()
+				.ifPresent(_ -> groupClient.unsubscribeFromGroup(group.getId())
+						.doOnSuccess(_ -> {
+							group.setSubscribed(false);
+							addOrUpdate(popularGroups, group);
+						}) // XXX: wrong, could be something else then "others"
+						.subscribe());
+	}
+
+	private void updateGroupsUnreadCount(List<T> groups)
+	{
+		groups.forEach(group -> groupClient.getUnreadCount(group.getId())
+				.doOnSuccess(unreadCount -> Platform.runLater(() -> getSubscribedTreeItemByGxsId(group.getGxsId())
+						.ifPresent(groupTreeItem -> groupTreeItem.getValue().setUnreadCount(unreadCount))))
+				.doFinally(_ -> Platform.runLater(this::refreshTree))
+				.subscribe());
+	}
+
+	private Optional<TreeItem<T>> getSubscribedTreeItemByGxsId(GxsId gxsId)
+	{
+		return Stream.concat(subscribedGroups.getChildren().stream(), ownGroups.getChildren().stream())
+				.filter(groupTreeItem -> groupTreeItem.getValue().getGxsId().equals(gxsId))
+				.findFirst();
+	}
+
+	private void refreshTree()
+	{
+		boolean hasUnreadMessages = hasUnreadMessages();
+		refresh();
+		unreadCountUpdater.accept(hasUnreadMessages);
+	}
+
+	private boolean hasUnreadMessages()
+	{
+		return hasUnreadMessagesRecursive(getRoot());
+	}
+
+	private boolean hasUnreadMessagesRecursive(TreeItem<T> item)
+	{
+		var group = item.getValue();
+		if (group != null && group.hasNewMessages())
+		{
+			return true;
+		}
+		for (TreeItem<T> child : item.getChildren())
+		{
+			if (hasUnreadMessagesRecursive(child))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void sortByName(ObservableList<TreeItem<T>> children)
+	{
+		children.sort((o1, o2) -> o1.getValue().getName().compareToIgnoreCase(o2.getValue().getName()));
+	}
+
+	private void removeFromOthers(TreeItem<T> parent, T group)
+	{
+		var removalList = new ArrayList<>(List.of(ownGroups, subscribedGroups, popularGroups, otherGroups));
+		removalList.remove(parent);
+
+		removalList.forEach(treeItems -> treeItems.getChildren().stream()
+				.filter(boardHolderTreeItem -> boardHolderTreeItem.getValue().equals(group))
+				.findFirst()
+				.ifPresent(boardGroupTreeItem -> {
+					treeItems.getChildren().remove(boardGroupTreeItem);
+					treeItems.getValue().subtractUnreadCount(1);
+				}));
+	}
+
+	public void initialize(String preferenceNodeName, GxsGroupClient<T> groupClient, Function<String, T> groupCreator, Supplier<TreeTableCell<T, T>> cellCreator, GxsGroupTreeTableAction<T> action, Consumer<Boolean> unreadCountUpdater)
 	{
 		this.action = action;
+		this.unreadCountUpdater = unreadCountUpdater;
+		this.groupClient = groupClient;
 
 		ownGroups = new TreeItem<>(groupCreator.apply(bundle.getString("gxs-group.tree.own")));
 		subscribedGroups = new TreeItem<>(groupCreator.apply(bundle.getString("gxs-group.tree.subscribed")));
@@ -120,27 +264,41 @@ public class GxsGroupTreeTableView<T extends GxsGroupAttribute> extends TreeTabl
 		root.setExpanded(true);
 		setRoot(root);
 		setShowRoot(false);
-		setRowFactory(_ -> cellCreator.get());
-		groupNameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
-		groupCountColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("unreadCount"));
+		groupNameColumn.setCellFactory(_ -> cellCreator.get());
+		groupNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
 		groupCountColumn.setCellFactory(_ -> new GxsGroupCellCount<>());
+		groupCountColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("unreadCount"));
 		createTreeContextMenu();
 
 		// We need Platform.runLater() because when an entry is moved, the selection can change
 		getSelectionModel().selectedItemProperty()
 				.addListener((_, _, newValue) -> Platform.runLater(() -> {
 					selectedGroup = newValue != null ? newValue.getValue() : null;
-					action.onSelect(selectedGroup);
+
+					if (selectedGroup == null)
+					{
+						action.onUnselect();
+					}
+					else
+					{
+						getSubscribedGroups()
+								.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == selectedGroup.getId())
+								.findFirst()
+								.ifPresentOrElse(_ -> action.onSelectSubscribed(selectedGroup),
+										() -> action.onSelectUnsubscribed(selectedGroup));
+					}
 				}));
 
 		UiUtils.setOnPrimaryMouseDoubleClicked(this, _ -> {
 			if (isGroupSelected())
 			{
-				action.onSelect(selectedGroup);
+				subscribeToGroup(selectedGroup);
 			}
 		});
 
 		setupTrees(preferenceNodeName);
+
+		getGroups();
 	}
 
 	private void setupTrees(String nodeName)
@@ -157,6 +315,13 @@ public class GxsGroupTreeTableView<T extends GxsGroupAttribute> extends TreeTabl
 		otherGroups.expandedProperty().addListener((_, _, newValue) -> node.putBoolean(OPEN_OTHER, newValue));
 	}
 
+	private void getGroups()
+	{
+		groupClient.getGroups().collectList()
+				.doOnSuccess(this::addGroups)
+				.subscribe();
+	}
+
 	private boolean isGroupSelected()
 	{
 		return selectedGroup != null && selectedGroup.isReal();
@@ -167,14 +332,22 @@ public class GxsGroupTreeTableView<T extends GxsGroupAttribute> extends TreeTabl
 		var subscribeItem = new MenuItem(bundle.getString("gxs-group.tree.subscribe"));
 		subscribeItem.setId(SUBSCRIBE_MENU_ID);
 		subscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_ENTER));
-		//noinspection unchecked
-		subscribeItem.setOnAction(event -> action.onSubscribe(((TreeItem<T>) event.getSource()).getValue()));
+		subscribeItem.setOnAction(event -> {
+			//noinspection unchecked
+			var group = ((TreeItem<T>) event.getSource()).getValue();
+			subscribeToGroup(group);
+			action.onSubscribe(group);
+		});
 
 		var unsubscribeItem = new MenuItem(bundle.getString("gxs-group.tree.unsubscribe"));
 		unsubscribeItem.setId(UNSUBSCRIBE_MENU_ID);
 		unsubscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_EXIT));
-		//noinspection unchecked
-		unsubscribeItem.setOnAction(event -> action.onUnsubscribe(((TreeItem<T>) event.getSource()).getValue()));
+		unsubscribeItem.setOnAction(event -> {
+			//noinspection unchecked
+			var group = ((TreeItem<T>) event.getSource()).getValue();
+			unsubscribeFromGroup(group);
+			action.onUnsubscribe(group);
+		});
 
 		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);

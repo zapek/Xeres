@@ -17,19 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.common;
+package io.xeres.ui.client;
 
-public interface GxsGroupTreeTableAction<T>
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+public interface GxsGroupClient<T>
 {
-	void onSubscribe(T group);
+	Flux<T> getGroups();
 
-	void onUnsubscribe(T group);
+	Mono<Integer> getUnreadCount(long groupId);
 
-	void onCopyLink(T group);
+	Mono<Void> subscribeToGroup(long groupId);
 
-	void onSelectSubscribed(T group);
-
-	void onSelectUnsubscribed(T group);
-
-	void onUnselect();
+	Mono<Void> unsubscribeFromGroup(long groupId);
 }

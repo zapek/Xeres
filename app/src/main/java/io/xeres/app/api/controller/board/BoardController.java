@@ -37,16 +37,20 @@ import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.board.CreateBoardGroupRequest;
 import io.xeres.common.rest.board.CreateBoardMessageRequest;
 import io.xeres.common.rest.board.UpdateBoardMessagesReadRequest;
+import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -91,6 +95,26 @@ public class BoardController
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
+	}
+
+	@GetMapping(value = "/groups/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+	@Operation(summary = "Returns an board's image")
+	@ApiResponse(responseCode = "200", description = "Board's avatar image found")
+	@ApiResponse(responseCode = "204", description = "Board's avatar image is empty")
+	@ApiResponse(responseCode = "404", description = "Board not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public ResponseEntity<InputStreamResource> downloadBoardGroupImage(@PathVariable long id)
+	{
+		var group = boardRsService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
+		var imageType = ImageUtils.getImageMimeType(group.getImage());
+		if (imageType == null)
+		{
+			// XXX: do we want an identicon?!
+			return null; // XXX
+		}
+		return ResponseEntity.ok()
+				.contentLength(group.getImage().length)
+				.contentType(imageType)
+				.body(new InputStreamResource(new ByteArrayInputStream(group.getImage())));
 	}
 
 	@PostMapping(value = "/groups/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

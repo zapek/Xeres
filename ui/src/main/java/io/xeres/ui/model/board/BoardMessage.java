@@ -19,6 +19,7 @@
 
 package io.xeres.ui.model.board;
 
+import io.micrometer.common.util.StringUtils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 
@@ -145,6 +146,11 @@ public class BoardMessage
 		this.content = content;
 	}
 
+	public boolean hasLink()
+	{
+		return StringUtils.isNotBlank(link);
+	}
+
 	public String getLink()
 	{
 		return link;
@@ -155,7 +161,7 @@ public class BoardMessage
 		this.link = link;
 	}
 
-	public boolean isHasImage()
+	public boolean hasImage()
 	{
 		return hasImage;
 	}

@@ -28,14 +28,26 @@ import io.xeres.ui.controller.common.GxsGroupTreeTableView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.board.BoardGroup;
+import io.xeres.ui.model.board.BoardMessage;
 import io.xeres.ui.support.unread.UnreadService;
+import io.xeres.ui.support.util.UiUtils;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.fxmisc.flowless.VirtualFlow;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.ResourceBundle;
 
 import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
@@ -51,6 +63,16 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	@FXML
 	private SplitPane splitPaneVertical;
+
+	@FXML
+	private Button newBoard;
+
+	@FXML
+	private StackPane contentGroup;
+
+	private final ObservableList<BoardMessage> messages = FXCollections.observableArrayList();
+
+	VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView;
 
 	private final ResourceBundle bundle;
 
@@ -79,12 +101,24 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		boardTree.initialize(BOARDS,
 				boardClient,
 				BoardGroup::new,
-				() -> new BoardCell(generalClient, imageCacheService),
+				() -> new BoardGroupCell(generalClient, imageCacheService),
 				this,
 				hasUnreadMessages -> unreadService.sendUnreadEvent(UnreadEvent.Element.BOARD, hasUnreadMessages)
 		);
 
 		// XXX: add the rest...
+
+		messagesView = createMessageView();
+		//messagesView.getStyleClass().add("panel-border");
+		VBox.setVgrow(messagesView, Priority.ALWAYS);
+		contentGroup.getChildren().add(messagesView);
+	}
+
+	private VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> createMessageView()
+	{
+		// VirtualizedScrollPane doesn't work from FXML so we add it manually
+		var view = VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient));
+		return new VirtualizedScrollPane<>(view);
 	}
 
 	@Override
@@ -108,13 +142,21 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onSelectSubscribed(BoardGroup group)
 	{
-
+		boardClient.getBoardMessages(group.getId()).collectList()
+				// XXX: progress bar too?
+				.doOnSuccess(receivedMessages -> Platform.runLater(() -> {
+					messages.clear();
+					messages.addAll(receivedMessages.stream().sorted(Comparator.comparing(BoardMessage::getPublished).reversed()).toList());
+				}))
+				.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
+				// XXX: finally state?
+				.subscribe();
 	}
 
 	@Override
 	public void onSelectUnsubscribed(BoardGroup group)
 	{
-
+		messages.clear();
 	}
 
 	@Override

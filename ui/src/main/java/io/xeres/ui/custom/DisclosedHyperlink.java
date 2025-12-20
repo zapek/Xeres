@@ -29,6 +29,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
@@ -43,6 +45,8 @@ import java.util.ResourceBundle;
  */
 public class DisclosedHyperlink extends Text
 {
+	private static final Logger log = LoggerFactory.getLogger(DisclosedHyperlink.class);
+
 	private String uri;
 	private boolean malicious;
 
@@ -54,9 +58,19 @@ public class DisclosedHyperlink extends Text
 		setUri(uri);
 		setUnderline(true);
 		setStyle("-fx-fill: -color-accent-fg");
-		setOnMouseEntered(event -> setCursor(Cursor.HAND));
-		setOnMouseExited(event -> setCursor(Cursor.DEFAULT));
-		UiUtils.setOnPrimaryMouseClicked(this, event -> onAction.get().handle(new ActionEvent()));
+		setOnMouseEntered(_ -> setCursor(Cursor.HAND));
+		setOnMouseExited(_ -> setCursor(Cursor.DEFAULT));
+		UiUtils.setOnPrimaryMouseClicked(this, _ -> {
+			var action = onAction.get();
+			if (action != null)
+			{
+				onAction.get().handle(new ActionEvent());
+			}
+			else
+			{
+				log.warn("No action defined for hyperlink");
+			}
+		});
 	}
 
 	public final ObjectProperty<EventHandler<ActionEvent>> onActionProperty()

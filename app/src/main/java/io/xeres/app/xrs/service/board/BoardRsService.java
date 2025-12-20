@@ -289,9 +289,9 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		return gxsBoardMessageRepository.findAllByGxsId(boardGroup.getGxsId());
 	}
 
-	public BoardMessageItem findMessageById(long id)
+	public Optional<BoardMessageItem> findMessageById(long id)
 	{
-		return gxsBoardMessageRepository.findById(id).orElseThrow();
+		return gxsBoardMessageRepository.findById(id);
 	}
 
 	/**
@@ -433,7 +433,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 			throw new IllegalArgumentException("Board image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
 		}
 
-		var message = findMessageById(id);
+		var message = findMessageById(id).orElseThrow();
 
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())

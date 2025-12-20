@@ -34,7 +34,7 @@ import java.util.ResourceBundle;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 
-public class BoardCell extends TreeTableCell<BoardGroup, BoardGroup>
+public class BoardGroupCell extends TreeTableCell<BoardGroup, BoardGroup>
 {
 	private static final int IMAGE_WIDTH = 32;
 	private static final int IMAGE_HEIGHT = 32;
@@ -44,14 +44,16 @@ public class BoardCell extends TreeTableCell<BoardGroup, BoardGroup>
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
-	public BoardCell(GeneralClient generalClient, ImageCache imageCache)
+	public BoardGroupCell(GeneralClient generalClient, ImageCache imageCache)
 	{
 		super();
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		TooltipUtils.install(this,
-				() -> MessageFormat.format(bundle.getString("board.tree.info"), super.getItem().getName(), super.getItem().getDescription(), super.getItem().getGxsId()),
-				() -> new ImageView(((ImageView) super.getGraphic()).getImage()));
+				() -> MessageFormat.format(bundle.getString("gxs-group.tree.info"),
+						getItem().getName(),
+						getItem().getGxsId()),
+				() -> new ImageView(((ImageView) getGraphic()).getImage()));
 	}
 
 	@Override

@@ -60,19 +60,19 @@ public class ItemHeader
 		{
 			throw new IllegalArgumentException("Packet version is not 0x2");
 		}
-		if (buf.readShort() != serviceType)
+		if (buf.readUnsignedShort() != serviceType)
 		{
 			throw new IllegalArgumentException("Packet type is not " + serviceType);
 		}
-		if (buf.readByte() != subType)
+		if (buf.readUnsignedByte() != subType)
 		{
 			throw new IllegalArgumentException("Packet subtype is not " + subType);
 		}
 		buf.readInt(); // size
 	}
 
-	public static byte getSubType(ByteBuf buf)
+	public static int getSubType(ByteBuf buf)
 	{
-		return buf.getByte(5);
+		return buf.getUnsignedByte(3);
 	}
 }

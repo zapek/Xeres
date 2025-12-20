@@ -274,3 +274,16 @@
 .tab-bold {
     -fx-font-weight: bold;
 }
+
+.board-cell {
+    -fx-padding: 4px 4px 20px 4px;
+}
+
+.board-cell > #titleGroup {
+    -fx-padding: 0px 0px 4px 0px;
+}
+
+.panel-border {
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px;
+}

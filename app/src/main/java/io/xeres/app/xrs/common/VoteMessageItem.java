@@ -21,7 +21,6 @@ package io.xeres.app.xrs.common;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
-import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.GxsId;
@@ -50,7 +49,7 @@ public class VoteMessageItem extends GxsMessageItem
 
 	public static final int SUBTYPE = 0xf2;
 
-	private Set<Type> type;
+	private Type type;
 
 	public VoteMessageItem()
 	{
@@ -70,12 +69,12 @@ public class VoteMessageItem extends GxsMessageItem
 		return SUBTYPE;
 	}
 
-	public Set<Type> getType()
+	public Type getType()
 	{
 		return type;
 	}
 
-	public void setType(Set<Type> type)
+	public void setType(Type type)
 	{
 		this.type = type;
 	}
@@ -83,13 +82,13 @@ public class VoteMessageItem extends GxsMessageItem
 	@Override
 	public int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
-		return Serializer.serialize(buf, type, FieldSize.INTEGER);
+		return Serializer.serialize(buf, type);
 	}
 
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		type = Serializer.deserializeEnumSet(buf, Type.class, FieldSize.INTEGER);
+		type = Serializer.deserializeEnum(buf, Type.class);
 	}
 
 	@Override

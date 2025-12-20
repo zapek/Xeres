@@ -50,7 +50,9 @@ public class ChannelCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		TooltipUtils.install(this,
-				() -> MessageFormat.format(bundle.getString("channel.tree.info"), super.getItem().getName(), super.getItem().getDescription(), super.getItem().getGxsId()),
+				() -> MessageFormat.format(bundle.getString("gxs-group.tree.info"),
+						getItem().getName(),
+						getItem().getGxsId()),
 				() -> new ImageView(((ImageView) super.getGraphic()).getImage()));
 	}
 

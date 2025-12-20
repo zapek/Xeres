@@ -60,22 +60,22 @@
             </HBox>
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
                 <StackPane>
-                    <VBox VBox.vgrow="ALWAYS" style="-fx-border-color: -color-border-default; -fx-border-width: 1px;"/><!-- Keep a border at all times -->
-                <ProgressPane fx:id="forumMessagesProgress">
-                    <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0" styleClass="dense">
-                        <placeholder>
-                            <Label/>
-                        </placeholder>
-                        <columnResizePolicy>
-                            <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
-                        </columnResizePolicy>
-                        <columns>
-                            <TreeTableColumn fx:id="treeTableSubject" prefWidth="220" text="%forum.view.header.subject"/>
-                            <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="180" text="%forum.view.header.author"/>
-                            <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="140" maxWidth="140" text="%forum.view.header.date"/>
-                        </columns>
-                    </TreeTableView>
-                </ProgressPane>
+                    <VBox VBox.vgrow="ALWAYS" styleClass="panel-border"/><!-- Keep a border at all times -->
+                    <ProgressPane fx:id="forumMessagesProgress">
+                        <TreeTableView fx:id="forumMessagesTreeTableView" minHeight="50.0" prefHeight="150.0" styleClass="dense">
+                            <placeholder>
+                                <Label/>
+                            </placeholder>
+                            <columnResizePolicy>
+                                <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                            </columnResizePolicy>
+                            <columns>
+                                <TreeTableColumn fx:id="treeTableSubject" prefWidth="220" text="%forum.view.header.subject"/>
+                                <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="180" text="%forum.view.header.author"/>
+                                <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="140" maxWidth="140" text="%forum.view.header.date"/>
+                            </columns>
+                        </TreeTableView>
+                    </ProgressPane>
                 </StackPane>
                 <VBox>
                     <GridPane fx:id="messageHeader" visible="false" managed="false" hgap="8" vgap="4">

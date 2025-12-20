@@ -144,7 +144,7 @@ public class ChannelMessage
 		this.content = content;
 	}
 
-	public boolean isHasImage()
+	public boolean hasImage()
 	{
 		return hasImage;
 	}

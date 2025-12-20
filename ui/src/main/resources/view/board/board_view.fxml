@@ -21,9 +21,7 @@
 
 <?import io.xeres.ui.controller.common.GxsGroupTreeTableView?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.board.BoardViewController">
@@ -44,7 +42,21 @@
             </HBox>
             <GxsGroupTreeTableView fx:id="boardTree" VBox.vgrow="ALWAYS"/>
         </VBox>
-        <VBox minWidth="200.0" VBox.vgrow="ALWAYS">
+        <VBox VBox.vgrow="ALWAYS">
+            <HBox>
+                <VBox.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </VBox.margin>
+                <Button fx:id="newBoard" disable="true">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-pencil-plus"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.view.new-message.tip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <StackPane fx:id="contentGroup" VBox.vgrow="ALWAYS" styleClass="panel-border"/>
         </VBox>
     </SplitPane>
 </VBox>

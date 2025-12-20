@@ -44,6 +44,7 @@ public final class ImageUtils
 
 	private static final byte[] JPEG_HEADER = new byte[]{(byte) 0xff, (byte) 0xd8, (byte) 0xff};
 	private static final byte[] PNG_HEADER = new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a};
+	private static final byte[] GIF_HEADER = new byte[]{'G', 'I', 'F'};
 
 	private ImageUtils()
 	{
@@ -215,6 +216,10 @@ public final class ImageUtils
 		else if (isStartingWith(JPEG_HEADER, image))
 		{
 			return MediaType.IMAGE_JPEG;
+		}
+		else if (isStartingWith(GIF_HEADER, image))
+		{
+			return MediaType.IMAGE_GIF;
 		}
 		return null;
 	}

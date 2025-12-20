@@ -99,8 +99,8 @@ public class BoardController
 
 	@GetMapping(value = "/groups/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
 	@Operation(summary = "Returns an board's image")
-	@ApiResponse(responseCode = "200", description = "Board's avatar image found")
-	@ApiResponse(responseCode = "204", description = "Board's avatar image is empty")
+	@ApiResponse(responseCode = "200", description = "Board image found")
+	@ApiResponse(responseCode = "204", description = "Board image is empty")
 	@ApiResponse(responseCode = "404", description = "Board not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<InputStreamResource> downloadBoardGroupImage(@PathVariable long id)
 	{
@@ -178,7 +178,7 @@ public class BoardController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public BoardMessageDTO getBoardMessage(@PathVariable long messageId)
 	{
-		var boardMessage = boardRsService.findMessageById(messageId);
+		var boardMessage = boardRsService.findMessageById(messageId).orElseThrow();
 		Objects.requireNonNull(boardMessage, "MessageId " + messageId + " not found");
 
 		var author = identityService.findByGxsId(boardMessage.getAuthorId());
@@ -232,6 +232,25 @@ public class BoardController
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/messages/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
+	}
+
+	@GetMapping(value = "/messages/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
+	@Operation(summary = "Returns an board message's image")
+	@ApiResponse(responseCode = "200", description = "Board message image found")
+	@ApiResponse(responseCode = "204", description = "Board message image is empty")
+	@ApiResponse(responseCode = "404", description = "Board not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public ResponseEntity<InputStreamResource> downloadBoardMessageImage(@PathVariable long id)
+	{
+		var group = boardRsService.findMessageById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
+		var imageType = ImageUtils.getImageMimeType(group.getImage());
+		if (imageType == null)
+		{
+			return null;
+		}
+		return ResponseEntity.ok()
+				.contentLength(group.getImage().length)
+				.contentType(imageType)
+				.body(new InputStreamResource(new ByteArrayInputStream(group.getImage())));
 	}
 
 	@PatchMapping("/messages")

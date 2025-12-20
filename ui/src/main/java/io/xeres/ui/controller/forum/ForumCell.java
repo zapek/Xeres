@@ -40,7 +40,7 @@ public class ForumCell extends TreeTableCell<ForumGroup, ForumGroup>
 					{
 						return null;
 					}
-					return MessageFormat.format(bundle.getString("forum.tree.info"),
+					return MessageFormat.format(bundle.getString("gxs-group.tree.info"),
 							getItem().getName(),
 							getItem().getGxsId()
 					);

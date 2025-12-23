@@ -523,7 +523,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 
 	int generatePersonalFilePrint(Sha1Sum hash, int bias, boolean symmetrical)
 	{
-		var buf = hash.toString() + ownLocation.toString();
+		var buf = hash.toString() + ownLocation.getLocationIdentifier().toString();
 		int result = bias;
 		var decal = 0;
 

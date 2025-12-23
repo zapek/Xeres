@@ -21,6 +21,8 @@ package io.xeres.app.api.controller.notification;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.service.notification.availability.AvailabilityNotificationService;
+import io.xeres.app.service.notification.board.BoardNotificationService;
+import io.xeres.app.service.notification.channel.ChannelNotificationService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
@@ -65,6 +67,12 @@ class NotificationControllerTest extends AbstractControllerTest
 	@MockitoBean
 	private FileTrendNotificationService fileTrendNotificationService;
 
+	@MockitoBean
+	private BoardNotificationService boardNotificationService;
+
+	@MockitoBean
+	private ChannelNotificationService channelNotificationService;
+
 	@Test
 	void SetupStatusNotification_Success() throws Exception
 	{
@@ -84,6 +92,28 @@ class NotificationControllerTest extends AbstractControllerTest
 		when(forumNotificationService.addClient()).thenReturn(sseEmitter);
 
 		mvc.perform(get(BASE_URL + "/forum", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void SetupBoardNotification_Success() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(boardNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(get(BASE_URL + "/board", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void SetupChannelNotification_Success() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(channelNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(get(BASE_URL + "/channel", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 

@@ -54,7 +54,7 @@ class MarkdownServiceTest extends FXTest
 	// is executed before "when" statements can be done.
 	private MarkdownService createMarkdownService()
 	{
-		return new MarkdownService(emojiService);
+		return new MarkdownService(emojiService, null);
 	}
 
 	@BeforeAll

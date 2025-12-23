@@ -133,6 +133,7 @@ public abstract class Item implements Cloneable
 		{
 			assert buf.refCnt() == 1 : "buffer refCount is " + buf.refCnt();
 			ReferenceCountUtil.release(buf);
+			buf = null;
 		}
 	}
 

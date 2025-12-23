@@ -548,7 +548,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void addMessageContent(String input)
 	{
-		messageContent.getChildren().addAll(markdownService.parse(input, EnumSet.of(ParsingMode.PARAGRAPH), uriService).stream()
+		messageContent.getChildren().addAll(markdownService.parse(input, EnumSet.of(ParsingMode.PARAGRAPH)).stream()
 				.map(Content::getNode).toList());
 	}
 }

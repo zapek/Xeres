@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.channel.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.common.FileItem;
+import io.xeres.app.xrs.common.FileSet;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
@@ -31,13 +32,14 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.*;
-import static io.xeres.app.xrs.serialization.TlvType.*;
+import static io.xeres.app.xrs.serialization.Serializer.deserialize;
+import static io.xeres.app.xrs.serialization.Serializer.serialize;
+import static io.xeres.app.xrs.serialization.TlvType.FILE_SET;
+import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 
 @Entity(name = "channel_message")
 public class ChannelMessageItem extends GxsMessageItem
@@ -55,6 +57,10 @@ public class ChannelMessageItem extends GxsMessageItem
 	private String comment; // Optional field related to fileset. Not used in practice?
 
 	private byte[] image;
+
+	private int imageWidth;
+
+	private int imageHeight;
 
 	private boolean read;
 
@@ -144,6 +150,26 @@ public class ChannelMessageItem extends GxsMessageItem
 		}
 	}
 
+	public int getImageWidth()
+	{
+		return imageWidth;
+	}
+
+	public void setImageWidth(int imageWidth)
+	{
+		this.imageWidth = imageWidth;
+	}
+
+	public int getImageHeight()
+	{
+		return imageHeight;
+	}
+
+	public void setImageHeight(int imageHeight)
+	{
+		this.imageHeight = imageHeight;
+	}
+
 	public boolean isRead()
 	{
 		return read;
@@ -160,16 +186,8 @@ public class ChannelMessageItem extends GxsMessageItem
 		var size = 0;
 
 		size += serialize(buf, STR_MSG, content);
-		//noinspection unchecked
-		size += serialize(buf, (List<Object>) (List<?>) files, FILE_ITEM);
-		if (StringUtils.isNotEmpty(title))
-		{
-			size += serialize(buf, STR_TITLE, title);
-		}
-		if (StringUtils.isNotEmpty(comment))
-		{
-			size += serialize(buf, STR_COMMENT, comment);
-		}
+
+		size += serialize(buf, FILE_SET, new FileSet(files, title, comment));
 
 		if (hasImage())
 		{
@@ -184,17 +202,10 @@ public class ChannelMessageItem extends GxsMessageItem
 	{
 		content = (String) deserialize(buf, STR_MSG);
 
-		//noinspection unchecked
-		files = (List<FileItem>) (List<?>) deserializeList(buf, FILE_ITEM);
-
-		if (buf.isReadable())
-		{
-			title = (String) deserialize(buf, STR_TITLE);
-		}
-		if (buf.isReadable())
-		{
-			comment = (String) deserialize(buf, STR_COMMENT);
-		}
+		var fileSet = (FileSet) deserialize(buf, FILE_SET);
+		files = fileSet.fileItems();
+		title = fileSet.title();
+		comment = fileSet.comment();
 
 		if (buf.isReadable())
 		{

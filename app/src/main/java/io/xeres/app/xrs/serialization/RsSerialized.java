@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,7 +37,7 @@ public @interface RsSerialized
 	 *
 	 * @return the TLV type (default: NONE)
 	 */
-	TlvType tlvType() default TlvType.NONE;
+	TlvType tlvType() default TlvType.STR_NONE;
 
 	/**
 	 * Sets the EnumSet's type size.

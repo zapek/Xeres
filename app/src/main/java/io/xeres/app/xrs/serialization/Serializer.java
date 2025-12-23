@@ -514,7 +514,7 @@ public final class Serializer
 
 		log.trace("Serializing...");
 
-		if (annotation != null && annotation.tlvType() != TlvType.NONE)
+		if (annotation != null && annotation.tlvType() != TlvType.STR_NONE)
 		{
 			size += TlvSerializer.serialize(buf, annotation.tlvType(), object);
 		}
@@ -610,7 +610,7 @@ public final class Serializer
 	@SuppressWarnings("unchecked")
 	private static Object deserialize(ByteBuf buf, Class<?> javaClass, Field field, Object object, RsSerialized annotation)
 	{
-		if (annotation != null && annotation.tlvType() != TlvType.NONE)
+		if (annotation != null && annotation.tlvType() != TlvType.STR_NONE)
 		{
 			return TlvSerializer.deserialize(buf, annotation.tlvType());
 		}

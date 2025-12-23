@@ -86,6 +86,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private static final Duration SYNCHRONIZATION_DELAY_INITIAL_MAX = Duration.ofSeconds(15);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
+	private static final int MESSAGES_PER_TRANSACTIONS = 20;
+
 	private static final Duration PENDING_VERIFICATION_MAX = Duration.ofMinutes(1);
 	private static final Duration PENDING_VERIFICATION_DELAY = Duration.ofSeconds(10);
 
@@ -102,6 +104,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private final Map<G, Long> pendingGxsGroups = new ConcurrentHashMap<>();
 	private final Map<GxsMessageItem, Long> pendingGxsMessages = new ConcurrentHashMap<>();
+
+	private final Set<GxsId> ongoingGxsMessageTransfers = ConcurrentHashMap.newKeySet();
 
 	private AuthenticationRequirements authenticationRequirements;
 
@@ -184,7 +188,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * @param messageIds the ids of messages that the peer wants
 	 * @return the messages that we have available within the requested set
 	 */
-	protected abstract List<M> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds);
+	protected abstract List<? extends GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds);
 
 	/**
 	 * Called when a peer sends the list of new messages that might interest us, within a group.
@@ -462,10 +466,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 					this
 			);
 		}
-		else
-		{
-			log.debug("No new messages");
-		}
 
 		// XXX: maybe some more to do, check rsgxsnetservice.cc/handleRecvSyncMsg
 	}
@@ -528,6 +528,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		if (isEmpty(transaction.getItems()))
 		{
+			log.debug("{} has no items in the transaction", peerConnection);
 			return; // nothing to do
 		}
 
@@ -572,7 +573,13 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			var messageIds = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
 					.map(GxsSyncMessageItem::getMessageId).collect(toSet());
 			log.debug("{} has the following message ids for group {} (new) for us (total: {}): {} ...", peerConnection, groupId, messageIds.size(), messageIds.stream().limit(10).toList());
-			requestGxsMessages(peerConnection, groupId, onMessageListResponse(groupId, messageIds));
+			var messagesWanted = onMessageListResponse(groupId, messageIds);
+			requestGxsMessages(peerConnection, groupId, messagesWanted);
+			if (messagesWanted.isEmpty())
+			{
+				// If there was no message, it means we got them all already (from another peer, etc...). We can set the timestamp.
+				setLastMessageUpdate(peerConnection, groupId, transaction.getUpdated());
+			}
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_REQUEST))
 		{
@@ -596,12 +603,27 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			verifyAndStoreMessages(peerConnection, gxsMessageItems);
 			if (!gxsMessageItems.isEmpty())
 			{
-				log.debug("{} sent messages", peerConnection);
-				gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), gxsMessageItems.getFirst().getGxsId(), transaction.getUpdated(), getServiceType());
-				//setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
-				peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
+				var group = gxsMessageItems.getFirst().getGxsId();
+
+				log.debug("{} sent messages for group {}", peerConnection, group);
+				if (!ongoingGxsMessageTransfers.contains(group))
+				{
+					// If there's no more ongoing transfer for those messages, we can mark them as finished.
+					setLastMessageUpdate(peerConnection, group, transaction.getUpdated());
+				}
 			}
 		}
+		else
+		{
+			log.debug("Unknown transaction {}", transaction);
+		}
+	}
+
+	private void setLastMessageUpdate(PeerConnection peerConnection, GxsId group, Instant when)
+	{
+		gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), group, when, getServiceType());
+		//setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
+		peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
 	}
 
 	private void verifyAndStoreGroups(PeerConnection peerConnection, Collection<G> gxsGroupItems)
@@ -900,7 +922,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return RSA.verify(publicKey, signature, data);
 	}
 
-	public void sendGxsMessages(PeerConnection peerConnection, List<M> gxsMessageItems)
+	public void sendGxsMessages(PeerConnection peerConnection, List<? extends GxsMessageItem> gxsMessageItems)
 	{
 		var transactionId = getNextTransactionId(peerConnection);
 		List<GxsTransferMessageItem> items = new ArrayList<>();
@@ -921,10 +943,33 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			return;
 		}
+
 		var transactionId = getNextTransactionId(peerConnection);
 		List<GxsSyncMessageItem> items = new ArrayList<>();
 
-		messageIds.forEach(messageId -> items.add(new GxsSyncMessageItem(GxsSyncMessageItem.REQUEST, groupId, messageId, transactionId)));
+		// Ask for MESSAGES_PER_TRANSACTIONS messages at a time. This is done to avoid
+		// overflowing the peer's queue.
+		var count = 0;
+		for (var messageId : messageIds)
+		{
+			items.add(new GxsSyncMessageItem(GxsSyncMessageItem.REQUEST, groupId, messageId, transactionId));
+
+			if (++count == MESSAGES_PER_TRANSACTIONS)
+			{
+				break;
+			}
+		}
+
+		// Mark/unmark as ongoing transaction to make sure
+		// we update the peer timestamp when needed.
+		if (count == MESSAGES_PER_TRANSACTIONS && messageIds.size() > MESSAGES_PER_TRANSACTIONS)
+		{
+			ongoingGxsMessageTransfers.add(groupId);
+		}
+		else
+		{
+			ongoingGxsMessageTransfers.remove(groupId);
+		}
 
 		gxsTransactionManager.startOutgoingTransactionForMessageIdRequest(peerConnection, items, transactionId, this);
 	}

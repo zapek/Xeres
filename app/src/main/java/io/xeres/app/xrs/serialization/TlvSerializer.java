@@ -21,10 +21,7 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.app.xrs.common.FileData;
-import io.xeres.app.xrs.common.FileItem;
-import io.xeres.app.xrs.common.SecurityKey;
-import io.xeres.app.xrs.common.Signature;
+import io.xeres.app.xrs.common.*;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.id.MessageId;
@@ -56,7 +53,7 @@ final class TlvSerializer
 	{
 		return switch (type)
 				{
-					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE -> TlvStringSerializer.serialize(buf, type, (String) value);
+					case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, STR_GXS_MESSAGE_COMMENT -> TlvStringSerializer.serialize(buf, type, (String) value);
 					case INT_AGE, INT_POPULARITY, INT_SIZE, INT_BANDWIDTH -> TlvUint32Serializer.serialize(buf, type, (int) value);
 					case LONG_OFFSET -> TlvUint64Serializer.serialize(buf, type, (long) value);
 					case ADDRESS -> TlvAddressSerializer.serialize(buf, (PeerAddress) value);
@@ -70,10 +67,10 @@ final class TlvSerializer
 					case SECURITY_KEY -> TlvSecurityKeySerializer.serialize(buf, (SecurityKey) value);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.serialize(buf, (Set<SecurityKey>) value);
 					case IMAGE -> TlvImageSerializer.serialize(buf, (byte[]) value);
+					case FILE_SET -> TlvFileSetSerializer.serialize(buf, (FileSet) value);
 					case FILE_ITEM -> TlvFileItemSerializer.serialize(buf, (FileItem) value);
 					case FILE_DATA -> TlvFileDataSerializer.serialize(buf, (FileData) value);
 					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE, BIN_FILE_DATA -> TlvBinarySerializer.serialize(buf, type, (byte[]) value);
-					case NONE -> TlvStringSerializer.serialize(buf, TlvType.NONE, (String) value);
 					case IPV4, IPV6, ADDRESS_INFO, UNKNOWN -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV serialization");
 				};
 	}
@@ -82,7 +79,7 @@ final class TlvSerializer
 	{
 		return switch (type)
 				{
-					case STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE -> TlvStringSerializer.deserialize(buf, type);
+					case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, STR_GXS_MESSAGE_COMMENT -> TlvStringSerializer.deserialize(buf, type);
 					case INT_AGE, INT_POPULARITY, INT_SIZE, INT_BANDWIDTH -> TlvUint32Serializer.deserialize(buf, type);
 					case LONG_OFFSET -> TlvUint64Serializer.deserialize(buf, type);
 					case ADDRESS -> TlvAddressSerializer.deserialize(buf);
@@ -98,10 +95,10 @@ final class TlvSerializer
 					case SECURITY_KEY -> TlvSecurityKeySerializer.deserialize(buf);
 					case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.deserialize(buf);
 					case IMAGE -> TlvImageSerializer.deserialize(buf);
+					case FILE_SET -> TlvFileSetSerializer.deserialize(buf);
 					case FILE_ITEM -> TlvFileItemSerializer.deserialize(buf);
 					case FILE_DATA -> TlvFileDataSerializer.deserialize(buf);
 					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE, BIN_FILE_DATA -> TlvBinarySerializer.deserialize(buf, type);
-					case NONE -> TlvStringSerializer.deserialize(buf, TlvType.NONE);
 					case IPV4, IPV6, ADDRESS_INFO, UNKNOWN -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV deserialization");
 				};
 	}

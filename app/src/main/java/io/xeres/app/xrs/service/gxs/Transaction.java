@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -123,7 +123,7 @@ public class Transaction<T extends GxsExchange>
 
 	public boolean hasAllItems()
 	{
-		log.debug("expected number of items: {}, current number of items: {}", itemCount, items.size());
+		log.trace("expected number of items: {}, current number of items: {}", itemCount, items.size());
 		return itemCount == items.size();
 	}
 
@@ -152,6 +152,7 @@ public class Transaction<T extends GxsExchange>
 	{
 		return "Transaction{" +
 				"id=" + id +
+				", flags=" + transactionFlags +
 				", state=" + state +
 				", type=" + direction +
 				", itemCount=" + itemCount +

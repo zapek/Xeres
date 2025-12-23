@@ -22,6 +22,8 @@ package io.xeres.app.api.controller.notification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.notification.availability.AvailabilityNotificationService;
+import io.xeres.app.service.notification.board.BoardNotificationService;
+import io.xeres.app.service.notification.channel.ChannelNotificationService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
@@ -48,8 +50,10 @@ public class NotificationController
 	private final FileTrendNotificationService fileTrendNotificationService;
 	private final ContactNotificationService contactNotificationService;
 	private final AvailabilityNotificationService availabilityNotificationService;
+	private final BoardNotificationService boardNotificationService;
+	private final ChannelNotificationService channelNotificationService;
 
-	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, ContactNotificationService contactNotificationService, AvailabilityNotificationService availabilityNotificationService)
+	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, ContactNotificationService contactNotificationService, AvailabilityNotificationService availabilityNotificationService, BoardNotificationService boardNotificationService, ChannelNotificationService channelNotificationService)
 	{
 		this.statusNotificationService = statusNotificationService;
 		this.forumNotificationService = forumNotificationService;
@@ -58,6 +62,8 @@ public class NotificationController
 		this.fileTrendNotificationService = fileTrendNotificationService;
 		this.contactNotificationService = contactNotificationService;
 		this.availabilityNotificationService = availabilityNotificationService;
+		this.boardNotificationService = boardNotificationService;
+		this.channelNotificationService = channelNotificationService;
 	}
 
 	@GetMapping("/status")
@@ -72,6 +78,20 @@ public class NotificationController
 	public SseEmitter setupForumNotification()
 	{
 		return forumNotificationService.addClient();
+	}
+
+	@GetMapping("/board")
+	@Operation(summary = "Subscribes to board notifications")
+	public SseEmitter setupBoardNotification()
+	{
+		return boardNotificationService.addClient();
+	}
+
+	@GetMapping("/channel")
+	@Operation(summary = "Subscribes to channel notifications")
+	public SseEmitter setupChannelNotification()
+	{
+		return channelNotificationService.addClient();
 	}
 
 	@GetMapping("/file")

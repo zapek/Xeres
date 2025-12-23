@@ -384,7 +384,7 @@ public class Location implements Comparable<Location>
 	@Override
 	public String toString()
 	{
-		return locationIdentifier.toString();
+		return name + " (" + locationIdentifier + ")";
 	}
 
 	private static String getConnectionAsIpv4(Connection connection)

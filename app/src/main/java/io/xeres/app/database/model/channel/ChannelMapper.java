@@ -84,6 +84,8 @@ public final class ChannelMapper
 				item.getPublished(),
 				null,
 				item.hasImage(),
+				item.getImageWidth(),
+				item.getImageHeight(),
 				item.hasFiles(),
 				item.isRead()
 		);
@@ -119,6 +121,8 @@ public final class ChannelMapper
 				item.getPublished(),
 				withMessageContent ? unHtmlService.cleanupMessage(item.getContent()) : "",
 				item.hasImage(),
+				item.getImageWidth(),
+				item.getImageHeight(),
 				item.hasFiles(),
 				item.isRead()
 		);

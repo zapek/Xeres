@@ -21,7 +21,8 @@ package io.xeres.app.xrs.serialization;
 
 public enum TlvType
 {
-	NONE(0x0), // Used to write strings without TLVs
+	STR_NONE(0x0), // Used to write strings without TLVs
+	STR_GXS_MESSAGE_COMMENT(0x1), // Used only by GxS comment messages
 	INT_SIZE(0x30),
 	INT_POPULARITY(0x31),
 	INT_AGE(0x32),
@@ -51,6 +52,7 @@ public enum TlvType
 	BIN_IMAGE(0x130),
 	BIN_FILE_DATA(0x140),
 	FILE_ITEM(0x1000),
+	FILE_SET(0x1001),
 	FILE_DATA(0x1002),
 	SET_HASH(0x1022),
 	SET_PGP_ID(0x1023),
@@ -90,7 +92,7 @@ public enum TlvType
 	{
 		for (TlvType tlvType : values())
 		{
-			if (tlvType.getValue() == value && tlvType != NONE)
+			if (tlvType.getValue() == value && tlvType != STR_NONE)
 			{
 				return tlvType;
 			}

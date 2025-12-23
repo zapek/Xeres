@@ -157,10 +157,12 @@ public class DiscoveryRsService extends RsService
 		builder.setVsDht(aboutLocation.isDht() ? 2 : 0);
 		builder.setLastContact((int) (aboutLocation.getLastConnected() != null ? aboutLocation.getLastConnected().getEpochSecond() : Instant.now().getEpochSecond())); // RS uses Instant.now() XXX: find out if there is any issue with that change. it tells since how long we've been connected
 		aboutLocation.getConnections().stream()
+				.filter(connection -> connection.getType() == PeerAddress.Type.IPV4)
 				.filter(not(Connection::isExternal))
 				.findFirst()
 				.ifPresent(connection -> builder.setLocalAddressV4(PeerAddress.fromAddress(connection.getAddress())));
 		aboutLocation.getConnections().stream()
+				.filter(connection -> connection.getType() == PeerAddress.Type.IPV4)
 				.filter(Connection::isExternal)
 				.findFirst()
 				.ifPresent(connection -> builder.setExternalAddressV4(PeerAddress.fromAddress(connection.getAddress())));
@@ -369,7 +371,7 @@ public class DiscoveryRsService extends RsService
 			log.debug("Received peer's list of friends: {}", discoveryPgpListItem);
 
 			// Only ask for the ones we don't already have, including partial profiles
-			var pgpIds = discoveryPgpListItem.getPgpIds();
+			var pgpIds = new HashSet<>(discoveryPgpListItem.getPgpIds());
 			profileService.findAllCompleteProfilesByPgpIdentifiers(pgpIds).stream()
 					.map(Profile::getPgpIdentifier)
 					.forEach(pgpIds::remove);

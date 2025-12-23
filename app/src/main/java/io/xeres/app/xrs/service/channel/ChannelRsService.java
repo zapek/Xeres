@@ -43,6 +43,7 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import io.xeres.common.util.image.ImageUtils;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.springframework.http.MediaType;
@@ -50,6 +51,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
@@ -184,7 +186,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Override
-	protected List<ChannelMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
 	{
 		// XXX: as well as comments!
 		return findAllMessages(groupId, messageIds);
@@ -206,6 +208,17 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Override
 	protected boolean onMessageReceived(ChannelMessageItem item)
 	{
+		if (item.hasImage())
+		{
+			// Set the dimensions in the database so that images don't cause layout
+			// problems when displaying them in long lists without fixed size.
+			var dimension = ImageUtils.getImageDimension(new ByteArrayInputStream(item.getImage()));
+			if (dimension != null)
+			{
+				item.setImageWidth((int) dimension.getWidth());
+				item.setImageHeight((int) dimension.getHeight());
+			}
+		}
 		log.debug("Received message {}, saving...", item);
 		return true;
 	}

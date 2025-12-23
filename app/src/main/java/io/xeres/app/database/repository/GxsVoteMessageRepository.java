@@ -20,10 +20,16 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.xrs.common.VoteMessageItem;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 @Transactional(readOnly = true)
 public interface GxsVoteMessageRepository extends JpaRepository<VoteMessageItem, Long>
 {
+	List<VoteMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
 }

@@ -24,10 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.stream.IntStream;
 
 /**
@@ -45,6 +50,8 @@ public final class ImageUtils
 	private static final byte[] JPEG_HEADER = new byte[]{(byte) 0xff, (byte) 0xd8, (byte) 0xff};
 	private static final byte[] PNG_HEADER = new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a};
 	private static final byte[] GIF_HEADER = new byte[]{'G', 'I', 'F'};
+	private static final byte[] RIFF_HEADER = new byte[]{'R', 'I', 'F', 'F'};
+	private static final byte[] WEBP_SIGNATURE = new byte[]{'W', 'E', 'B', 'P'};
 
 	private ImageUtils()
 	{
@@ -57,7 +64,7 @@ public final class ImageUtils
 	 * image that is effectively opaque will still result as a JPEG.
 	 *
 	 * @param bufferedImage the image
-	 * @param maximumSize the maximum size of the image in bytes. If 0, no limit is applied.
+	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
 	 * @return the image as a PNG or JPEG data URL, or an empty string if the image couldn't be written.
 	 */
 	public static String writeImage(BufferedImage bufferedImage, int maximumSize)
@@ -134,7 +141,7 @@ public final class ImageUtils
 	 * until it fits the size.
 	 *
 	 * @param bufferedImage the image
-	 * @param maximumSize the maximum size of the image in bytes. If 0, no limit is applied.
+	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
 	 * @return the image as a JPEG data URL, or an empty string if the image couldn't be written.
 	 */
 	public static String writeImageAsJpegData(BufferedImage bufferedImage, int maximumSize)
@@ -159,9 +166,6 @@ public final class ImageUtils
 			return "";
 		}
 	}
-
-
-
 
 
 	/**
@@ -221,12 +225,56 @@ public final class ImageUtils
 		{
 			return MediaType.IMAGE_GIF;
 		}
+		else if (isStartingWith(RIFF_HEADER, image) && contains(WEBP_SIGNATURE, 8, image))
+		{
+			return MediaType.parseMediaType("image/webp");
+		}
+		return null;
+	}
+
+	/**
+	 * Gets an image dimension without decoding the image data.
+	 *
+	 * @param inputStream the input stream
+	 * @return the image dimension or null if there was an error
+	 */
+	public static Dimension getImageDimension(InputStream inputStream)
+	{
+		try (var in = ImageIO.createImageInputStream(inputStream))
+		{
+			Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
+			if (readers.hasNext())
+			{
+				ImageReader reader = readers.next();
+				try
+				{
+					reader.setInput(in);
+					int width = reader.getWidth(0);
+					int height = reader.getHeight(0);
+					return new Dimension(width, height);
+				}
+				finally
+				{
+					reader.dispose();
+				}
+			}
+			log.warn("Unsupported image format");
+		}
+		catch (IOException e)
+		{
+			log.warn("Invalid image file: {}", e.getMessage());
+		}
 		return null;
 	}
 
 	private static boolean isStartingWith(byte[] header, byte[] image)
 	{
-		return image.length >= header.length && IntStream.range(0, header.length).allMatch(i -> header[i] == image[i]);
+		return contains(header, 0, image);
+	}
+
+	private static boolean contains(byte[] signature, int offset, byte[] image)
+	{
+		return image.length >= signature.length + offset && IntStream.range(offset, signature.length).allMatch(i -> signature[i] == image[i]);
 	}
 
 	private static boolean canCompressionPossiblyBeImproved(int maximumSize, byte[] array, float quality)

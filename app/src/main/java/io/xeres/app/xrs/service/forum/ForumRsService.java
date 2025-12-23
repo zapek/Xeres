@@ -168,7 +168,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected List<ForumMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
 	{
 		return findAllMessages(groupId, messageIds);
 	}

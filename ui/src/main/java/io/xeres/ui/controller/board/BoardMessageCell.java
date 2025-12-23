@@ -21,9 +21,11 @@ package io.xeres.ui.controller.board;
 
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.model.board.BoardMessage;
+import io.xeres.ui.support.contentline.Content;
+import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
@@ -31,9 +33,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 
@@ -43,10 +47,7 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 	private VBox groupView;
 
 	@FXML
-	private Label titleLabel;
-
-	@FXML
-	private DisclosedHyperlink linkView;
+	private TextFlow titleFlow;
 
 	@FXML
 	private Label authorLabel;
@@ -57,8 +58,12 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 	@FXML
 	private AsyncImageView imageView;
 
-	public BoardMessageCell(BoardMessage boardMessage, GeneralClient generalClient)
+	private final MarkdownService markdownService;
+
+	public BoardMessageCell(BoardMessage boardMessage, GeneralClient generalClient, MarkdownService markdownService)
 	{
+		this.markdownService = markdownService;
+
 		var loader = new FXMLLoader(BoardMessageCell.class.getResource("/view/board/message_cell.fxml"));
 		loader.setController(this);
 
@@ -73,9 +78,6 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 
 		imageView.setLoader(url -> generalClient.getImage(url).block());
 		// XXX: set image cache? it will have to be bigger I think, too
-
-		// XXX: linkView must have a proper action! both for retroshare:// and external ones...
-
 
 		updateItem(boardMessage);
 	}
@@ -101,22 +103,25 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 	@Override
 	public void updateItem(BoardMessage item)
 	{
+		titleFlow.getChildren().clear();
 		if (item.hasLink())
 		{
-			linkView.setText(item.getName());
-			linkView.setUri(item.getLink());
-			UiUtils.setPresent(linkView);
-			UiUtils.setAbsent(titleLabel);
+			titleFlow.getChildren().addAll(markdownService.parse(item.getLink(), Set.of(ParsingMode.PARAGRAPH)).stream()
+					.map(Content::getNode).toList());
 		}
 		else
 		{
-			titleLabel.setText(item.getName());
-			UiUtils.setPresent(titleLabel);
-			UiUtils.setAbsent(linkView);
+			titleFlow.getChildren().add(new Label(item.getName()));
 		}
 		authorLabel.setText(item.getAuthorName());
 		postInstantLabel.setText(DateUtils.DATE_TIME_DISPLAY.format(item.getPublished()));
 		UiUtils.setPresent(imageView, item.hasImage());
+		if (item.hasImage() && item.getImageWidth() > 0 && item.getImageHeight() > 0)
+		{
+			// Improve layout by knowing the dimension in advance.
+			imageView.setFitWidth(item.getImageWidth());
+			imageView.setFitHeight(item.getImageHeight());
+		}
 		imageView.setUrl(getImageUrl(item));
 	}
 

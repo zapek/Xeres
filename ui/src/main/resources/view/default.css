@@ -276,10 +276,12 @@
 }
 
 .board-cell {
-    -fx-padding: 4px 4px 20px 4px;
+    -fx-padding: 4px 4px 14px 4px;
+    -fx-border-color: -color-neutral-emphasis;
+    -fx-border-width: 0px 0px 1px 0px;
 }
 
-.board-cell > #titleGroup {
+.board-cell > #titleFlow {
     -fx-padding: 0px 0px 4px 0px;
 }
 

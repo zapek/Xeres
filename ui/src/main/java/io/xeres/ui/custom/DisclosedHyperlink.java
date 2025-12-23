@@ -22,12 +22,14 @@ package io.xeres.ui.custom;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.application.HostServices;
 import javafx.beans.NamedArg;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,8 @@ import java.util.ResourceBundle;
  * <li>can be reflowed when put on a TextFlow
  * </ul>
  * On the other hand, it doesn't support the "visited" feature of normal hyperlinks.
+ * <p>
+ * Note: you most certainly want to use {@link UiUtils#linkify(Node, HostServices)} to have the link's action perform something.
  */
 public class DisclosedHyperlink extends Text
 {

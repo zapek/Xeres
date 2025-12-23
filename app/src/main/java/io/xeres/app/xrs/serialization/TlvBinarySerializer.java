@@ -36,7 +36,7 @@ final class TlvBinarySerializer
 
 	static int serialize(ByteBuf buf, byte[] data)
 	{
-		return serialize(buf, TlvType.NONE, data);
+		return serialize(buf, TlvType.STR_NONE, data);
 	}
 
 	static int serialize(ByteBuf buf, TlvType type, byte[] data)
@@ -70,7 +70,7 @@ final class TlvBinarySerializer
 
 	static byte[] deserialize(ByteBuf buf)
 	{
-		return deserialize(buf, TlvType.NONE);
+		return deserialize(buf, TlvType.STR_NONE);
 	}
 
 	static byte[] deserialize(ByteBuf buf, TlvType type)

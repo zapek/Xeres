@@ -68,6 +68,8 @@ public final class BoardMapper
 		boardMessage.setLink(dto.link());
 		boardMessage.setHasImage(dto.hasImage());
 		boardMessage.setRead(dto.read());
+		boardMessage.setImageWidth(dto.imageWidth());
+		boardMessage.setImageHeight(dto.imageHeight());
 		return boardMessage;
 	}
 }

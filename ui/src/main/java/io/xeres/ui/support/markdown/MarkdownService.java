@@ -21,6 +21,7 @@ package io.xeres.ui.support.markdown;
 
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.emoji.EmojiService;
+import io.xeres.ui.support.uri.UriService;
 import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension;
 import org.commonmark.parser.Parser;
@@ -42,11 +43,13 @@ public class MarkdownService
 	}
 
 	private final EmojiService emojiService;
+	private final UriService uriService;
 	private final Parser parser;
 
-	public MarkdownService(EmojiService emojiService)
+	public MarkdownService(EmojiService emojiService, UriService uriService)
 	{
 		this.emojiService = emojiService;
+		this.uriService = uriService;
 
 		parser = Parser.builder()
 				.extensions(List.of(
@@ -56,15 +59,27 @@ public class MarkdownService
 	}
 
 	/**
+	 * Parses text and generates a Markdown content from it. A default action will be
+	 * performed when clicking on a link.
+	 *
+	 * @param input the incoming text, possibly annotated with Markdown
+	 * @return a list of content nodes
+	 */
+	public List<Content> parse(String input, Set<ParsingMode> modes)
+	{
+		return parse(input, modes, uriService);
+	}
+
+	/**
 	 * Parses text and generates a Markdown content from it.
 	 *
 	 * @param input the incoming text, possibly annotated with Markdown
-	 * @param uriAction the action to perform when clicking on a url, can be null
+	 * @param uriAction the action to perform when clicking on a url, can be null for no action
 	 * @return a list of content nodes
 	 */
 	public List<Content> parse(String input, Set<ParsingMode> modes, UriAction uriAction)
 	{
-		var contentRenderer = new ContentRenderer(emojiService, modes.contains(ParsingMode.PARAGRAPH), uriAction != null ? uriAction : uri -> {
+		var contentRenderer = new ContentRenderer(emojiService, modes.contains(ParsingMode.PARAGRAPH), uriAction != null ? uriAction : _ -> {
 		});
 		return contentRenderer.render(parser.parse(input));
 	}

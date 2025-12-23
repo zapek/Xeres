@@ -36,6 +36,8 @@ public record ChannelMessageDTO(
 		Instant published,
 		String content,
 		boolean hasImage,
+		int imageWidth,
+		int imageHeight,
 		boolean hasFiles,
 		boolean read
 )

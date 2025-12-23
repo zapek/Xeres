@@ -125,7 +125,8 @@ public class BoardGroupItem extends GxsGroupItem
 	public String toString()
 	{
 		return "BoardGroupItem{" +
-				"description='" + description + '\'' +
+				"name='" + getName() + '\'' +
+				"gxsId=" + getGxsId() +
 				", image=" + (image != null ? ("yes, " + ByteUnitUtils.fromBytes(image.length)) : "no") +
 				'}';
 	}

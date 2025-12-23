@@ -65,6 +65,8 @@ public final class ChannelMapper
 		channelMessage.setPublished(dto.published());
 		channelMessage.setContent(dto.content());
 		channelMessage.setHasImage(dto.hasImage());
+		channelMessage.setImageWidth(dto.imageWidth());
+		channelMessage.setImageHeight(dto.imageHeight());
 		channelMessage.setRead(dto.read());
 		return channelMessage;
 	}

@@ -121,7 +121,7 @@ public class PeerHandler extends ChannelDuplexHandler
 				log.warn("Unknown item (service: {}, subtype: {}). Ignoring.", item.getServiceType(), item.getSubType());
 			}
 		}
-		catch (IllegalArgumentException | NoSuchMethodException e)
+		catch (Exception e) // NOSONAR: We need to catch all exceptions here otherwise it's invisible
 		{
 			log.error("Failed to deserialize item {}", item, e);
 			rawItem.dispose();

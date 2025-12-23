@@ -17,29 +17,23 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.board;
+package io.xeres.app.xrs.common;
 
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import java.util.List;
 
-import java.time.Instant;
-
-public record BoardMessageDTO(
-		long id,
-		GxsId gxsId,
-		MessageId messageId,
-		long originalId,
-		long parentId,
-		GxsId authorId,
-		String authorName,
-		String name,
-		Instant published,
-		String link,
-		String content,
-		boolean hasImage,
-		int imageWidth,
-		int imageHeight,
-		boolean read
+public record FileSet(
+		List<FileItem> fileItems,
+		String title,
+		String comment
 )
 {
+	@Override
+	public String toString()
+	{
+		return "FileSet{" +
+				"fileItems=" + fileItems +
+				", title='" + title + '\'' +
+				", comment='" + comment + '\'' +
+				'}';
+	}
 }

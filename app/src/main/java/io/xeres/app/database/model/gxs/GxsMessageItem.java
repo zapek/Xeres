@@ -230,7 +230,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		size += serialize(buf, originalMessageId, MessageId.class);
 		size += serialize(buf, authorId, GxsId.class);
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
-		size += serialize(buf, TlvType.NONE, name);
+		size += serialize(buf, TlvType.STR_NONE, name);
 		size += serialize(buf, (int) published.getEpochSecond());
 		size += serialize(buf, flags); // XXX: or diffusionFlags/messageFlags, FieldSize.INTEGER, see how groups does it
 		buf.setInt(sizeOffset, size); // write total size
@@ -258,7 +258,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		originalMessageId = (MessageId) deserializeIdentifier(buf, MessageId.class);
 		authorId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignature(buf);
-		name = (String) deserialize(buf, TlvType.NONE);
+		name = (String) deserialize(buf, TlvType.STR_NONE);
 		published = Instant.ofEpochSecond(deserializeInt(buf));
 		flags = deserializeInt(buf); // XXX: or use enumset, etc...
 	}

@@ -85,6 +85,8 @@ public final class BoardMapper
 				item.getLink(),
 				null,
 				item.hasImage(),
+				item.getImageWidth(),
+				item.getImageHeight(),
 				item.isRead()
 		);
 	}
@@ -120,6 +122,8 @@ public final class BoardMapper
 				item.getLink(),
 				withMessageContent ? unHtmlService.cleanupMessage(item.getContent()) : "",
 				item.hasImage(),
+				item.getImageWidth(),
+				item.getImageHeight(),
 				item.isRead()
 		);
 	}

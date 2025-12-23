@@ -24,6 +24,8 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.*;
 import io.xeres.app.database.repository.GxsBoardGroupRepository;
 import io.xeres.app.database.repository.GxsBoardMessageRepository;
+import io.xeres.app.database.repository.GxsCommentMessageRepository;
+import io.xeres.app.database.repository.GxsVoteMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.notification.board.BoardNotificationService;
@@ -43,6 +45,7 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import io.xeres.common.util.image.ImageUtils;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +54,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
@@ -59,6 +63,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.POSTED;
@@ -68,11 +73,11 @@ import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
 @Component
 public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageItem>
 {
-	private static final int IMAGE_GROUP_WIDTH = 64;
+	private static final int IMAGE_GROUP_WIDTH = 64; // XXX: I saw more I think... check...
 	private static final int IMAGE_GROUP_HEIGHT = 64;
 
-	private static final int IMAGE_MESSAGE_WIDTH = 320; // XXX: how much?!
-	private static final int IMAGE_MESSAGE_HEIGHT = 240; // XXX: ditto...
+	private static final int IMAGE_MESSAGE_WIDTH = 640; // XXX: how much?! I think it's 640x480... RSS seems to be able to put anything
+	private static final int IMAGE_MESSAGE_HEIGHT = 480; // XXX: ditto...
 
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(60);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
@@ -82,8 +87,10 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	private final GxsUpdateService<BoardGroupItem, BoardMessageItem> gxsUpdateService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final BoardNotificationService boardNotificationService;
+	private final GxsCommentMessageRepository gxsCommentMessageRepository;
+	private final GxsVoteMessageRepository gxsVoteMessageRepository;
 
-	public BoardRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsBoardGroupRepository gxsBoardGroupRepository, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsBoardMessageRepository gxsBoardMessageRepository, GxsUpdateService<BoardGroupItem, BoardMessageItem> gxsUpdateService, BoardNotificationService boardNotificationService)
+	public BoardRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsBoardGroupRepository gxsBoardGroupRepository, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsBoardMessageRepository gxsBoardMessageRepository, GxsUpdateService<BoardGroupItem, BoardMessageItem> gxsUpdateService, BoardNotificationService boardNotificationService, GxsCommentMessageRepository gxsCommentMessageRepository, GxsVoteMessageRepository gxsVoteMessageRepository)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsBoardGroupRepository = gxsBoardGroupRepository;
@@ -91,6 +98,8 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		this.gxsUpdateService = gxsUpdateService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.boardNotificationService = boardNotificationService;
+		this.gxsCommentMessageRepository = gxsCommentMessageRepository;
+		this.gxsVoteMessageRepository = gxsVoteMessageRepository;
 	}
 
 	@Override
@@ -129,7 +138,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(boardGroupItem -> {
 				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(boardGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(recipient.getLocation(), boardGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} since {} for {}", recipient, gxsSyncMessageRequestItem.getGroupId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
+				log.debug("Asking {} for new messages in {} ({}) since {} for {}", recipient, boardGroupItem.getName(), boardGroupItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
 				peerConnectionManager.writeItem(recipient, gxsSyncMessageRequestItem, this);
 			});
 		}
@@ -175,7 +184,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected void onGroupsSaved(List<BoardGroupItem> items)
 	{
-		//boardNotificationService.addBoardGroups(items); XXX
+		boardNotificationService.addOrUpdateBoardGroups(items);
 	}
 
 	@Override
@@ -185,17 +194,16 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Override
-	protected List<BoardMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
 	{
-		// XXX: as well as comments!
-		return findAllMessages(groupId, messageIds);
+		return findAllMessagesVotesAndComments(groupId, messageIds);
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
 	{
-		// XXX: comments too?
-		var existing = findAllMessages(groupId, messageIds).stream()
+		var existing = findAllMessagesVotesAndComments(groupId, messageIds).stream()
 				.map(GxsMessageItem::getMessageId)
 				.collect(Collectors.toSet());
 
@@ -207,6 +215,17 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected boolean onMessageReceived(BoardMessageItem item)
 	{
+		if (item.hasImage())
+		{
+			// Set the dimensions in the database so that images don't cause layout
+			// problems when displaying them in long lists without fixed size.
+			var dimension = ImageUtils.getImageDimension(new ByteArrayInputStream(item.getImage()));
+			if (dimension != null)
+			{
+				item.setImageWidth((int) dimension.getWidth());
+				item.setImageHeight((int) dimension.getHeight());
+			}
+		}
 		log.debug("Received message {}, saving...", item);
 		return true;
 	}
@@ -281,6 +300,17 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	public List<BoardMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
 	{
 		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+	}
+
+	public List<GxsMessageItem> findAllMessagesVotesAndComments(GxsId groupId, Set<MessageId> messageIds)
+	{
+		var messages = findAllMessages(groupId, messageIds);
+		var votes = gxsVoteMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+		var comments = gxsCommentMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+
+		return Stream.of(messages.stream(), votes.stream(), comments.stream())
+				.flatMap(stream -> stream)
+				.collect(Collectors.toList());
 	}
 
 	public List<BoardMessageItem> findAllMessages(long groupId)

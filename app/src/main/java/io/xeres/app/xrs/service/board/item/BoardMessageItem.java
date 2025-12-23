@@ -49,6 +49,10 @@ public class BoardMessageItem extends GxsMessageItem
 
 	private byte[] image;
 
+	private int imageWidth;
+
+	private int imageHeight;
+
 	private boolean read;
 
 	public BoardMessageItem()
@@ -110,6 +114,26 @@ public class BoardMessageItem extends GxsMessageItem
 		{
 			this.image = null;
 		}
+	}
+
+	public int getImageWidth()
+	{
+		return imageWidth;
+	}
+
+	public void setImageWidth(int imageWidth)
+	{
+		this.imageWidth = imageWidth;
+	}
+
+	public int getImageHeight()
+	{
+		return imageHeight;
+	}
+
+	public void setImageHeight(int imageHeight)
+	{
+		this.imageHeight = imageHeight;
 	}
 
 	public boolean isRead()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -257,13 +257,13 @@ public class GxsTransactionManager
 	 */
 	public void addIncomingItemToTransaction(PeerConnection peerConnection, GxsExchange item, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
-		log.debug("Adding transaction item: {}", item);
+		log.trace("Adding transaction item: {}", item);
 		var transaction = getTransaction(peerConnection, item.getTransactionId(), INCOMING);
 		transaction.addItem(item);
 
 		if (transaction.hasAllItems())
 		{
-			log.debug("Transaction successful, sending COMPLETED");
+			log.debug("Received all items of {}, sending COMPLETED", transaction);
 			transaction.setState(State.COMPLETED);
 			var successTransactionItem = new GxsTransactionItem(
 					EnumSet.of(END_SUCCESS),

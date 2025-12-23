@@ -19,11 +19,13 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import atlantafx.base.controls.Spacer?>
 <?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
-<?import io.xeres.ui.custom.DisclosedHyperlink?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.TextFlow?>
 <VBox fx:id="groupView" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="board-cell">
     <HBox>
         <Label text="Posted by"/>
@@ -32,9 +34,9 @@
         <Label text=" on "/>
         <Label fx:id="postInstantLabel"/>
     </HBox>
-    <HBox fx:id="titleGroup">
-        <Label fx:id="titleLabel" styleClass="title-4"/>
-        <DisclosedHyperlink fx:id="linkView" styleClass="title-4"/>
-    </HBox>
-    <AsyncImageView fx:id="imageView" managed="false"/>
+    <TextFlow fx:id="titleFlow" styleClass="title-4"/>
+    <StackPane alignment="CENTER_LEFT">
+        <Spacer minHeight="80"/>
+        <AsyncImageView fx:id="imageView" managed="false"/>
+    </StackPane>
 </VBox>

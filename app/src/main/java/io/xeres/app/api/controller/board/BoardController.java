@@ -234,7 +234,7 @@ public class BoardController
 		return ResponseEntity.created(location).build();
 	}
 
-	@GetMapping(value = "/messages/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
+	@GetMapping(value = "/messages/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/webp"})
 	@Operation(summary = "Returns an board message's image")
 	@ApiResponse(responseCode = "200", description = "Board message image found")
 	@ApiResponse(responseCode = "204", description = "Board message image is empty")

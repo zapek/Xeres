@@ -39,6 +39,8 @@ public class BoardMessage
 	private String content;
 	private String link;
 	private boolean hasImage;
+	private int imageWidth;
+	private int imageHeight;
 	private boolean read;
 
 	public BoardMessage()
@@ -169,6 +171,26 @@ public class BoardMessage
 	public void setHasImage(boolean hasImage)
 	{
 		this.hasImage = hasImage;
+	}
+
+	public int getImageWidth()
+	{
+		return imageWidth;
+	}
+
+	public void setImageWidth(int imageWidth)
+	{
+		this.imageWidth = imageWidth;
+	}
+
+	public int getImageHeight()
+	{
+		return imageHeight;
+	}
+
+	public void setImageHeight(int imageHeight)
+	{
+		this.imageHeight = imageHeight;
 	}
 
 	public boolean isRead()

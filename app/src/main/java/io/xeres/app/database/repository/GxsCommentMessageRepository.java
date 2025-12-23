@@ -20,10 +20,16 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.xrs.common.CommentMessageItem;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 @Transactional(readOnly = true)
 public interface GxsCommentMessageRepository extends JpaRepository<CommentMessageItem, Long>
 {
+	List<CommentMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
 }

@@ -394,7 +394,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		channel.updatePublished();
 
 		var savedChannel = saveChannel(channel);
-		channelNotificationService.addOrUpdateChannelGroups(List.of(channel));
+		channelNotificationService.addOrUpdateChannelGroups(List.of(savedChannel));
 		return savedChannel;
 	}
 

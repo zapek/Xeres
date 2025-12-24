@@ -145,7 +145,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 
 		if (tree.stream()
 				.map(TreeItem::getValue)
-				.noneMatch(existingBoard -> existingBoard.equals(group)))
+				.noneMatch(existingBoard -> existingBoard.getId() == group.getId()))
 		{
 			tree.add(new TreeItem<>(group));
 			parent.getValue().addUnreadCount(1);
@@ -157,7 +157,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 	private void subscribeToGroup(T group)
 	{
 		var alreadySubscribed = subscribedGroups.getChildren().stream()
-				.anyMatch(holderTreeItem -> holderTreeItem.getValue().equals(group));
+				.anyMatch(holderTreeItem -> holderTreeItem.getValue().getId() == group.getId());
 
 		if (!alreadySubscribed)
 		{
@@ -173,7 +173,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 	private void unsubscribeFromGroup(T group)
 	{
 		subscribedGroups.getChildren().stream()
-				.filter(holderTreeItem -> holderTreeItem.getValue().equals(group))
+				.filter(holderTreeItem -> holderTreeItem.getValue().getId() == group.getId())
 				.findAny()
 				.ifPresent(_ -> groupClient.unsubscribeFromGroup(group.getId())
 						.doOnSuccess(_ -> {
@@ -239,7 +239,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		removalList.remove(parent);
 
 		removalList.forEach(treeItems -> treeItems.getChildren().stream()
-				.filter(boardHolderTreeItem -> boardHolderTreeItem.getValue().equals(group))
+				.filter(boardHolderTreeItem -> boardHolderTreeItem.getValue().getId() == group.getId())
 				.findFirst()
 				.ifPresent(boardGroupTreeItem -> {
 					treeItems.getChildren().remove(boardGroupTreeItem);

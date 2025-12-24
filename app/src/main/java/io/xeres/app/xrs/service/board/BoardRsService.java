@@ -412,7 +412,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		board.updatePublished();
 
 		var savedBoard = saveBoard(board);
-		boardNotificationService.addOrUpdateBoardGroups(List.of(board));
+		boardNotificationService.addOrUpdateBoardGroups(List.of(savedBoard));
 		return savedBoard;
 	}
 

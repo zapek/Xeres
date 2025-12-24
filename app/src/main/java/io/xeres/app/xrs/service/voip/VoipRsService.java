@@ -30,6 +30,7 @@ import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.voip.item.VoipDataItem;
+import io.xeres.app.xrs.service.voip.item.VoipPingItem;
 import io.xeres.app.xrs.service.voip.item.VoipProtocolItem;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
@@ -98,6 +99,9 @@ public class VoipRsService extends RsService
 		{
 			case VoipProtocolItem voipProtocolItem -> handleProtocolItem(sender, voipProtocolItem);
 			case VoipDataItem voipDataItem -> handleDataItem(sender, voipDataItem);
+			case VoipPingItem _ ->
+			{
+			} // We just ignore those. We already have enough pinging systems (rtt, heartbeat, ...)
 			default -> log.debug("Unhandled item {}", item);
 		}
 	}

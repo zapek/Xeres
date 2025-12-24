@@ -43,6 +43,7 @@ public class ChannelGroup implements GxsGroup
 		this.name = name;
 	}
 
+	@Override
 	public long getId()
 	{
 		return id;
@@ -59,6 +60,7 @@ public class ChannelGroup implements GxsGroup
 		return id != 0L;
 	}
 
+	@Override
 	public String getName()
 	{
 		return name;

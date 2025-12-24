@@ -44,6 +44,7 @@ public class BoardGroup implements GxsGroup
 		this.name = name;
 	}
 
+	@Override
 	public long getId()
 	{
 		return id;

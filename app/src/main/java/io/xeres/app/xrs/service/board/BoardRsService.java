@@ -49,6 +49,8 @@ import io.xeres.common.util.image.ImageUtils;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -313,10 +315,10 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 				.collect(Collectors.toList());
 	}
 
-	public List<BoardMessageItem> findAllMessages(long groupId)
+	public Page<BoardMessageItem> findAllMessages(long groupId, Pageable pageable)
 	{
 		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
-		return gxsBoardMessageRepository.findAllByGxsId(boardGroup.getGxsId());
+		return gxsBoardMessageRepository.findAllByGxsId(boardGroup.getGxsId(), pageable);
 	}
 
 	public Optional<BoardMessageItem> findMessageById(long id)

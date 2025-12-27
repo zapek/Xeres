@@ -28,6 +28,7 @@ import io.xeres.common.rest.notification.board.AddBoardMessages;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.BoardNotification;
 import io.xeres.common.rest.notification.board.MarkBoardMessagesAsRead;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,10 +57,10 @@ public class BoardNotificationService extends NotificationService
 
 	public void addOrUpdateBoardMessages(List<BoardMessageItem> boardMessages)
 	{
-		var action = new AddBoardMessages(toBoardMessageDTOs(unHtmlService, boardMessages,
-				boardMessageService.getAuthorsMapFromMessages(boardMessages),
-				boardMessageService.getMessagesMapFromMessages(boardMessages),
-				false));
+		var page = new PageImpl<>(boardMessages);
+		var action = new AddBoardMessages(toBoardMessageDTOs(unHtmlService, page,
+				boardMessageService.getAuthorsMapFromMessages(page),
+				boardMessageService.getMessagesMapFromMessages(boardMessages)));
 
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
 	}

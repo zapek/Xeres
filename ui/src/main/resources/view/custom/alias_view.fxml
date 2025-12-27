@@ -19,6 +19,6 @@
 
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
-<fx:root type="VBox" minWidth="200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" styleClass="popup-window">
+<fx:root type="VBox" minWidth="200.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="popup-window">
     <ListView fx:id="aliasList" VBox.vgrow="ALWAYS" prefHeight="320.0"/>
 </fx:root>

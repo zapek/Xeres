@@ -41,6 +41,11 @@ import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -163,14 +168,18 @@ public class BoardController
 	}
 
 	@GetMapping("/groups/{groupId}/messages")
-	@Operation(summary = "Gets the summary of messages in a group")
-	public List<BoardMessageDTO> getBoardMessages(@PathVariable long groupId)
+	@Operation(summary = "Gets the messages from a group")
+	public Page<BoardMessageDTO> getBoardMessages(@PathVariable long groupId, @PageableDefault(size = 50, sort = {"published"}, direction = Direction.DESC) Pageable pageable)
 	{
-		var boardMessages = boardRsService.findAllMessages(groupId);
+		var boardMessages = boardRsService.findAllMessages(groupId, pageable);
 
-		return toSummaryMessageDTOs(boardMessages,
+		// XXX: use new PagedModel()... but how? I can't use my mapper with it...
+		return new PageImpl<>(toBoardMessageDTOs(unHtmlService,
+				boardMessages,
 				boardMessageService.getAuthorsMapFromMessages(boardMessages),
-				boardMessageService.getMessagesMapFromSummaries(groupId, boardMessages));
+				boardMessageService.getMessagesMapFromSummaries(groupId, boardMessages)),
+				pageable,
+				boardMessages.getTotalElements());
 	}
 
 	@GetMapping("/messages/{messageId}")
@@ -195,8 +204,7 @@ public class BoardController
 				boardMessage,
 				author.map(GxsGroupItem::getName).orElse(null),
 				messages.getOrDefault(boardMessage.getOriginalMessageId(), 0L),
-				messages.getOrDefault(boardMessage.getParentId(), 0L),
-				true
+				messages.getOrDefault(boardMessage.getParentId(), 0L)
 		);
 	}
 

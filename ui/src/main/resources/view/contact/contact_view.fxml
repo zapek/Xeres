@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Circle?>
 <?import org.kordamp.ikonli.javafx.*?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.contact.ContactViewController">
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.contact.ContactViewController">
     <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
         <VBox SplitPane.resizableWithParent="false" VBox.vgrow="NEVER">
             <HBox fx:id="ownContactGroup" styleClass="group-emphasis, group-frame" alignment="CENTER_LEFT">

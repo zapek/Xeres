@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2024 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -22,7 +22,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<VBox minWidth="800.0" minHeight="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.share.ShareWindowController" styleClass="base-spacing">
+<VBox minWidth="800.0" minHeight="600.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.share.ShareWindowController" styleClass="base-spacing">
     <TableView fx:id="shareTableView" VBox.vgrow="ALWAYS" editable="true">
         <columns>
             <TableColumn fx:id="tableDirectory" prefWidth="350.0" text="%share.list.directory"/>

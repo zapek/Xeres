@@ -23,7 +23,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<VBox minWidth="320.0" minHeight="260.0" prefWidth="800.0" prefHeight="600.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.statistics.StatisticsMainWindowController">
+<VBox minWidth="320.0" minHeight="260.0" prefWidth="800.0" prefHeight="600.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.statistics.StatisticsMainWindowController">
     <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <Tab text="Turtle">
             <graphic>

@@ -22,6 +22,8 @@ package io.xeres.app.database.repository;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +38,7 @@ public interface GxsBoardMessageRepository extends JpaRepository<BoardMessageIte
 {
 	Optional<BoardMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);
 
-	List<BoardMessageItem> findAllByGxsId(GxsId groupId);
+	Page<BoardMessageItem> findAllByGxsId(GxsId groupId, Pageable pageable);
 
 	List<BoardMessageItem> findAllByGxsIdAndPublishedAfter(GxsId groupId, Instant since);
 

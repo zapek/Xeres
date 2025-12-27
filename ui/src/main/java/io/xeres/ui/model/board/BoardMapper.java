@@ -21,6 +21,7 @@ package io.xeres.ui.model.board;
 
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
+import io.xeres.ui.client.PaginatedResponse;
 
 public final class BoardMapper
 {
@@ -71,5 +72,22 @@ public final class BoardMapper
 		boardMessage.setImageWidth(dto.imageWidth());
 		boardMessage.setImageHeight(dto.imageHeight());
 		return boardMessage;
+	}
+
+	public static PaginatedResponse<BoardMessage> fromDTO(PaginatedResponse<BoardMessageDTO> dto)
+	{
+		return new PaginatedResponse<>(
+				dto.content().stream()
+						.map(BoardMapper::fromDTO)
+						.toList(),
+				dto.totalElements(),
+				dto.totalPages(),
+				dto.empty(),
+				dto.first(),
+				dto.last(),
+				dto.number(),
+				dto.size(),
+				dto.numberOfElements()
+		);
 	}
 }

@@ -22,7 +22,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<VBox minWidth="640" minHeight="480" prefWidth="800" prefHeight="600" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.help.HelpWindowController">
+<VBox minWidth="640" minHeight="480" prefWidth="800" prefHeight="600" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.help.HelpWindowController">
     <ToolBar>
         <VBox.margin>
             <Insets top="4.0"/>

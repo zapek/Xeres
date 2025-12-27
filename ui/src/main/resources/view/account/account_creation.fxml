@@ -24,7 +24,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<VBox alignment="CENTER" minHeight="380.0" minWidth="280.0" prefHeight="380.0" prefWidth="360.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.account.AccountCreationWindowController" styleClass="base-spacing">
+<VBox alignment="CENTER" minHeight="380.0" minWidth="280.0" prefHeight="380.0" prefWidth="360.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.account.AccountCreationWindowController" styleClass="base-spacing">
     <HBox alignment="BASELINE_RIGHT">
         <Button styleClass="button-icon, flat, accent">
             <graphic>

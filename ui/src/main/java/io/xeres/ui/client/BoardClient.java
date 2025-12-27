@@ -30,6 +30,7 @@ import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
 import io.xeres.ui.model.board.BoardMessage;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -44,7 +45,7 @@ import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.util.ClientUtils.fromFile;
 
 @Component
-public class BoardClient implements GxsGroupClient<BoardGroup>
+public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient<BoardMessage>
 {
 	private final WebClient.Builder webClientBuilder;
 
@@ -132,12 +133,20 @@ public class BoardClient implements GxsGroupClient<BoardGroup>
 				.bodyToMono(Void.class);
 	}
 
-	public Flux<BoardMessage> getBoardMessages(long groupId)
+	@Override
+	public Mono<PaginatedResponse<BoardMessage>> getMessages(long groupId, int page, int size)
 	{
 		return webClient.get()
-				.uri("/groups/{groupId}/messages", groupId)
+				.uri(uriBuilder -> uriBuilder
+						.path("/groups/{groupId}/messages")
+						.queryParam("page", page)
+						.queryParam("size", size)
+						.queryParam("sort", "published,desc")
+						.build(groupId))
 				.retrieve()
-				.bodyToFlux(BoardMessageDTO.class)
+				.bodyToMono(new ParameterizedTypeReference<PaginatedResponse<BoardMessageDTO>>()
+				{
+				})
 				.map(BoardMapper::fromDTO);
 	}
 

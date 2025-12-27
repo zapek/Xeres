@@ -26,7 +26,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
-<VBox alignment="CENTER" minHeight="160.0" minWidth="220.0" prefHeight="360.0" prefWidth="560.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.voip.VoipWindowController" styleClass="base-spacing">
+<VBox alignment="CENTER" minHeight="160.0" minWidth="220.0" prefHeight="360.0" prefWidth="560.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.voip.VoipWindowController" styleClass="base-spacing">
     <StackPane VBox.vgrow="ALWAYS">
         <VBox alignment="CENTER">
             <AsyncImageView fx:id="imageView" fitWidth="128" fitHeight="128"/>

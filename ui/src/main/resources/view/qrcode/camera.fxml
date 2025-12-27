@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -22,7 +22,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.StackPane?>
-<StackPane prefWidth="640.0" prefHeight="480.0" minWidth="640.0" minHeight="480.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.qrcode.CameraWindowController">
+<StackPane prefWidth="640.0" prefHeight="480.0" minWidth="640.0" minHeight="480.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.qrcode.CameraWindowController">
     <ImageView fx:id="capturedImage" fitWidth="640" fitHeight="480" pickOnBounds="true" preserveRatio="true"/>
     <Label fx:id="error" visible="false"/>
 </StackPane>

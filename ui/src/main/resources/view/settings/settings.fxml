@@ -2,7 +2,7 @@
 
 
 <!--
-  ~ Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -23,7 +23,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.*?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="422.0" minWidth="640.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsWindowController" styleClass="base-spacing">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="422.0" minWidth="640.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.settings.SettingsWindowController" styleClass="base-spacing">
     <HBox layoutX="173.0" layoutY="137.0" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <ListView fx:id="listView" minWidth="200" prefHeight="200.0" prefWidth="200.0"/>
         <AnchorPane fx:id="content" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">

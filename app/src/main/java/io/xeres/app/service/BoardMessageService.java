@@ -27,6 +27,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class BoardMessageService
 		this.identityService = identityService;
 	}
 
-	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(List<BoardMessageItem> boardMessages)
+	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(Page<BoardMessageItem> boardMessages)
 	{
 		var authors = boardMessages.stream()
 				.map(BoardMessageItem::getAuthorId)
@@ -57,7 +58,7 @@ public class BoardMessageService
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	public Map<MessageId, BoardMessageItem> getMessagesMapFromSummaries(long groupId, List<BoardMessageItem> boardMessages)
+	public Map<MessageId, BoardMessageItem> getMessagesMapFromSummaries(long groupId, Page<BoardMessageItem> boardMessages)
 	{
 		var messageIds = boardMessages.stream()
 				.map(BoardMessageItem::getMessageId)

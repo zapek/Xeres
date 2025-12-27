@@ -27,6 +27,7 @@ import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Map;
@@ -65,7 +66,7 @@ public final class BoardMapper
 				.toList();
 	}
 
-	public static BoardMessageDTO toDTO(BoardMessageItem item, String authorName, long originalId, long parentId)
+	public static BoardMessageDTO toDTO(UnHtmlService unHtmlService, BoardMessageItem item, String authorName, long originalId, long parentId)
 	{
 		if (item == null)
 		{
@@ -83,7 +84,7 @@ public final class BoardMapper
 				item.getName(),
 				item.getPublished(),
 				item.getLink(),
-				null,
+				unHtmlService.cleanupMessage(item.getContent()),
 				item.hasImage(),
 				item.getImageWidth(),
 				item.getImageHeight(),
@@ -91,52 +92,14 @@ public final class BoardMapper
 		);
 	}
 
-	public static List<BoardMessageDTO> toSummaryMessageDTOs(List<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, BoardMessageItem> messagesMap)
+	public static List<BoardMessageDTO> toBoardMessageDTOs(UnHtmlService unHtmlService, Page<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, BoardMessageItem> messagesMap)
 	{
-		return emptyIfNull(items).stream()
-				.map(item -> toDTO(item,
-						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
-						messagesMap.getOrDefault(item.getOriginalMessageId(), BoardMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(item.getParentId(), BoardMessageItem.EMPTY).getId()
-				))
-				.toList();
-	}
-
-	public static BoardMessageDTO toDTO(UnHtmlService unHtmlService, BoardMessageItem item, String authorName, long originalId, long parentId, boolean withMessageContent)
-	{
-		if (item == null)
-		{
-			return null;
-		}
-
-		return new BoardMessageDTO(
-				item.getId(),
-				item.getGxsId(),
-				item.getMessageId(),
-				originalId,
-				parentId,
-				item.getAuthorId(),
-				authorName,
-				item.getName(),
-				item.getPublished(),
-				item.getLink(),
-				withMessageContent ? unHtmlService.cleanupMessage(item.getContent()) : "",
-				item.hasImage(),
-				item.getImageWidth(),
-				item.getImageHeight(),
-				item.isRead()
-		);
-	}
-
-	public static List<BoardMessageDTO> toBoardMessageDTOs(UnHtmlService unHtmlService, List<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, BoardMessageItem> messagesMap, boolean withMessageContent)
-	{
-		return emptyIfNull(items).stream()
+		return items.stream()
 				.map(item -> toDTO(unHtmlService,
 						item,
 						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
 						messagesMap.getOrDefault(item.getOriginalMessageId(), BoardMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(item.getParentId(), BoardMessageItem.EMPTY).getId(),
-						withMessageContent
+						messagesMap.getOrDefault(item.getParentId(), BoardMessageItem.EMPTY).getId()
 				))
 				.toList();
 	}

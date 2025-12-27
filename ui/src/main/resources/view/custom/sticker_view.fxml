@@ -19,6 +19,6 @@
 
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.VBox?>
-<fx:root type="VBox" minWidth="600.0" minHeight="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" styleClass="base-spacing, popup-window">
+<fx:root type="VBox" minWidth="600.0" minHeight="400.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="base-spacing, popup-window">
     <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" side="BOTTOM" VBox.vgrow="ALWAYS" maxWidth="600"/>
 </fx:root>

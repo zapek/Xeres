@@ -24,7 +24,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.HBox?>
-<fx:root type="HBox" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="HBox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
     <ProgressIndicator fx:id="progressIndicator" prefWidth="16.0" prefHeight="16.0" managed="false">
         <HBox.margin>
             <Insets right="4.0"/>

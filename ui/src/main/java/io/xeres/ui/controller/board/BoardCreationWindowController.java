@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,9 +17,9 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.forum;
+package io.xeres.ui.controller.board;
 
-import io.xeres.ui.client.ForumClient;
+import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
@@ -30,8 +30,8 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 @Component
-@FxmlView(value = "/view/forum/forum_create.fxml")
-public class ForumCreationWindowController implements WindowController
+@FxmlView(value = "/view/board/board_create.fxml")
+public class BoardCreationWindowController implements WindowController
 {
 	@FXML
 	private Button createButton;
@@ -40,33 +40,38 @@ public class ForumCreationWindowController implements WindowController
 	private Button cancelButton;
 
 	@FXML
-	private TextField forumName;
+	private TextField boardName;
 
 	@FXML
-	private TextField forumDescription;
+	private TextField boardDescription;
 
-	private final ForumClient forumClient;
+	@FXML
+	private Button boardLogo;
 
-	public ForumCreationWindowController(ForumClient forumClient)
+	private final BoardClient boardClient;
+
+	public BoardCreationWindowController(BoardClient boardClient)
 	{
-		this.forumClient = forumClient;
+		this.boardClient = boardClient;
 	}
 
 	@Override
 	public void initialize()
 	{
-		forumName.textProperty().addListener(_ -> checkCreatable());
-		forumDescription.textProperty().addListener(_ -> checkCreatable());
+		boardName.textProperty().addListener(_ -> checkCreatable());
+		boardDescription.textProperty().addListener(_ -> checkCreatable());
 
-		createButton.setOnAction(_ -> forumClient.createForumGroup(forumName.getText(),
-						forumDescription.getText())
-				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
+		// XXX: add image support
+
+		createButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
+						boardDescription.getText())
+				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
 				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 	}
 
 	private void checkCreatable()
 	{
-		createButton.setDisable(forumName.getText().isBlank() || forumDescription.getText().isBlank());
+		createButton.setDisable(boardName.getText().isBlank() || boardDescription.getText().isBlank());
 	}
 }

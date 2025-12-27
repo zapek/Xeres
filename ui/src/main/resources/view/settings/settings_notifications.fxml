@@ -22,7 +22,7 @@
 <?import atlantafx.base.controls.Card?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<ScrollPane fitToWidth="true" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsNotificationController">
+<ScrollPane fitToWidth="true" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.settings.SettingsNotificationController">
     <Card>
         <header>
             <Label text="%settings.notifications" styleClass="title-4"/>

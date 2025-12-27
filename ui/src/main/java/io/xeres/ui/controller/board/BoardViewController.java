@@ -34,6 +34,7 @@ import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
 import io.xeres.ui.model.board.BoardMessage;
+import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.util.UiUtils;
@@ -81,7 +82,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private final ObservableList<BoardMessage> messages = FXCollections.observableArrayList();
 
-	VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView;
+	private VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView;
+	private OnDemandLoader<BoardGroup, BoardMessage> onDemandLoader;
 
 	private final ResourceBundle bundle;
 
@@ -123,26 +125,14 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 		// XXX: add the rest...
 
-		messagesView = createMessageView();
+		// VirtualizedScrollPane doesn't work from FXML so we add it manually
+		messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, markdownService)));
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
 		contentGroup.getChildren().add(messagesView);
 
-		// XXX: dynamic loading can be done with the following:
-//		messagesView.getContent().needsLayoutProperty().addListener((observable, oldValue, newValue) -> {
-//			if (newValue)
-//			{
-//				log.debug("layout, first index: {}, last index: {}", messagesView.getContent().getFirstVisibleIndex(), messagesView.getContent().getLastVisibleIndex());
-//			}
-//		});
+		onDemandLoader = new OnDemandLoader<>(messagesView, messages, boardClient);
 
 		setupBoardNotifications();
-	}
-
-	private VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> createMessageView()
-	{
-		// VirtualizedScrollPane doesn't work from FXML so we add it manually
-		var view = VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, markdownService));
-		return new VirtualizedScrollPane<>(view);
 	}
 
 	@Override
@@ -166,28 +156,19 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onSelectSubscribed(BoardGroup group)
 	{
-		boardClient.getBoardMessages(group.getId()).collectList()
-				// XXX: progress bar too?
-				.doOnSuccess(receivedMessages -> Platform.runLater(() -> {
-					messages.clear();
-					messages.addAll(receivedMessages.stream().sorted(Comparator.comparing(BoardMessage::getPublished).reversed()).toList());
-					messagesView.getContent().showAsFirst(0);
-				}))
-				.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
-				// XXX: finally state?
-				.subscribe();
+		onDemandLoader.changeSelection(group);
 	}
 
 	@Override
 	public void onSelectUnsubscribed(BoardGroup group)
 	{
-		messages.clear();
+		onDemandLoader.changeSelection(group);
 	}
 
 	@Override
 	public void onUnselect()
 	{
-
+		onDemandLoader.changeSelection(null);
 	}
 
 	@EventListener
@@ -263,7 +244,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			if (selectedBoardGroup != null && boardMessage.getGxsId().equals(selectedBoardGroup.getGxsId()))
 			{
-				add(boardMessage);
+				messages.addFirst(boardMessage);
 				needsSorting = true;
 			}
 			boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
@@ -274,10 +255,5 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 			messages.sort(Comparator.comparing(BoardMessage::getPublished).reversed());
 		}
 		boardTree.addUnreadCount(boardsToSetCount);
-	}
-
-	private void add(BoardMessage boardMessage)
-	{
-		messages.addFirst(boardMessage);
 	}
 }

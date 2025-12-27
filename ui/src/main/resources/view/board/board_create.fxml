@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -22,8 +22,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox alignment="CENTER" prefHeight="180.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="io.xeres.ui.controller.forum.ForumCreationWindowController">
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<VBox alignment="CENTER" prefHeight="180.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.board.BoardCreationWindowController">
     <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -32,19 +32,29 @@
         <rowConstraints>
             <RowConstraints vgrow="ALWAYS"/>
             <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="%forum.create.name"/>
-        <TextField fx:id="forumName" promptText="%forum.create.name.prompt" GridPane.columnIndex="1">
+        <TextField fx:id="boardName" promptText="%board.create.name.prompt" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.create.name.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.name.tip"/>
             </tooltip>
         </TextField>
-        <Label text="%forum.create.description" GridPane.rowIndex="1"/>
-        <TextField fx:id="forumDescription" promptText="%forum.create.description.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <Label text="%board.create.description" GridPane.rowIndex="1"/>
+        <TextField fx:id="boardDescription" promptText="%board.create.description.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.create.description.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.description.tip"/>
             </tooltip>
         </TextField>
+        <Label text="%board.create.logo" GridPane.rowIndex="2"/>
+        <Button fx:id="boardLogo">
+            <graphic>
+                <FontIcon iconLiteral="mdi2i-image-plus"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.logo.tip"/>
+            </tooltip>
+        </Button>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>
     <HBox alignment="TOP_RIGHT">
@@ -60,3 +70,4 @@
         </Button>
     </HBox>
 </VBox>
+

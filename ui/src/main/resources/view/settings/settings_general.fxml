@@ -22,7 +22,7 @@
 <?import atlantafx.base.controls.Card?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="12.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.xeres.ui.controller.settings.SettingsGeneralController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="12.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.settings.SettingsGeneralController">
     <Card>
         <header>
             <Label text="%settings.general.theme" styleClass="title-4"/>

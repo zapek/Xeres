@@ -24,7 +24,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.*?>
-<fx:root prefHeight="480" prefWidth="640" type="VBox" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root prefHeight="480" prefWidth="640" type="VBox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
     <ToolBar fx:id="toolBar" style="-fx-spacing: 2;">
         <VBox.margin>
             <Insets top="4.0"/>

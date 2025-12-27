@@ -20,7 +20,7 @@
   -->
 
 <?import javafx.scene.control.*?>
-<fx:root type="TreeTableView" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" styleClass="no-header" minWidth="-Infinity" prefWidth="200.0">
+<fx:root type="TreeTableView" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="no-header" minWidth="-Infinity" prefWidth="200.0">
     <columnResizePolicy>
         <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
     </columnResizePolicy>

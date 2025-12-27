@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -174,6 +174,7 @@ public class FileService
 	{
 		emptyIfNull(shares).forEach(share -> {
 			saveFullPath(share.getFile());
+			setLastUpdated(share);
 			shareRepository.save(share);
 		});
 
@@ -191,6 +192,25 @@ public class FileService
 				fileRepository.delete(sharedDirectory);
 			}
 		});
+	}
+
+	/**
+	 * Sets the last updated field properly. Try to keep the old one if possible and it definitely
+	 * must not be null.
+	 *
+	 * @param share the share to set the last updated field
+	 */
+	private void setLastUpdated(Share share)
+	{
+		if (share.getId() != 0L)
+		{
+			var oldShare = shareRepository.findById(share.getId()).orElseThrow(() -> new IllegalStateException("Share ID not found. Concurrent modification?"));
+			share.setLastScanned(oldShare.getLastScanned());
+		}
+		else
+		{
+			share.setLastScanned(Instant.EPOCH);
+		}
 	}
 
 	/**
@@ -376,7 +396,13 @@ public class FileService
 	private void saveFullPath(File file)
 	{
 		var tree = getFullPath(file);
-		fileRepository.saveAll(tree);
+		// Only save the new file paths
+		tree.forEach(f -> {
+			if (f.getId() == 0L)
+			{
+				fileRepository.save(f);
+			}
+		});
 	}
 
 	private List<File> getFullPath(File file)
@@ -388,7 +414,6 @@ public class FileService
 		{
 			var parent = file.getParent();
 			tree.add(parent);
-			parent.getChildren().add(file);
 			file = parent;
 		}
 		Collections.reverse(tree);

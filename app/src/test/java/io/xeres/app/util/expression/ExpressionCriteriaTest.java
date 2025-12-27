@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -96,8 +96,8 @@ class ExpressionCriteriaTest
 
 		assertTrue(fileService.searchFiles(List.of(expressionNotSupported)).isEmpty());
 
-		fileRepository.delete(file);
 		fileRepository.delete(parent);
+		fileRepository.delete(file);
 	}
 
 	@Test

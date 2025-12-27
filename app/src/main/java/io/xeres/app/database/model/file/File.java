@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class File
@@ -49,8 +49,8 @@ public class File
 	@JoinColumn(name = "parent_id")
 	private File parent;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "parent", orphanRemoval = true)
-	private List<File> children = new ArrayList<>();
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent", orphanRemoval = true)
+	private Set<File> children = new HashSet<>();
 
 	@NotNull
 	@Size(min = NAME_SIZE_MIN, max = NAME_SIZE_MAX)
@@ -153,15 +153,15 @@ public class File
 	public void setParent(File parent)
 	{
 		this.parent = parent;
-		parent.getChildren().add(parent);
+		parent.getChildren().add(this);
 	}
 
-	public List<File> getChildren()
+	public Set<File> getChildren()
 	{
 		return children;
 	}
 
-	public void setChildren(List<File> children)
+	public void setChildren(Set<File> children)
 	{
 		this.children = children;
 	}

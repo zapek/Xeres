@@ -155,6 +155,7 @@ public class OnDemandLoader<G extends GxsGroup, M>
 	{
 		selectedGroup = group;
 		messages.clear();
+		locked = false;
 		if (selectedGroup != null)
 		{
 			if (selectedGroup.isSubscribed())
@@ -187,6 +188,10 @@ public class OnDemandLoader<G extends GxsGroup, M>
 
 		switch (fetchMode)
 		{
+			case ALL ->
+			{
+				basePage = 0;
+			}
 			case BEFORE ->
 			{
 				if (basePage == 0)
@@ -198,7 +203,7 @@ public class OnDemandLoader<G extends GxsGroup, M>
 			}
 			case AFTER ->
 			{
-				if (basePage + messages.size() / PAGE_SIZE > lastPage) // XXX: double check...
+				if (messages.size() < PAGE_SIZE || basePage + messages.size() / PAGE_SIZE > lastPage) // XXX: double check... added messages.size() smaller condition...
 				{
 					log.debug("Already on the last page, not fetching anything");
 					return;
@@ -217,13 +222,6 @@ public class OnDemandLoader<G extends GxsGroup, M>
 				.doOnSuccess(paginatedResponse -> Platform.runLater(() -> {
 					assert paginatedResponse != null;
 
-					if (paginatedResponse.empty())
-					{
-						log.warn("Nothing was fetched, ignoring");
-						locked = false;
-						return;
-					}
-
 					lastPage = paginatedResponse.totalPages() - 1; // This keeps the lastPage up to date
 
 					switch (fetchMode)
@@ -231,8 +229,11 @@ public class OnDemandLoader<G extends GxsGroup, M>
 						case ALL ->
 						{
 							log.debug("Fetched all ({})", paginatedResponse.numberOfElements());
-							messages.addAll(paginatedResponse.content());
-							virtualizedScrollPane.getContent().showAsFirst(0);
+							if (!paginatedResponse.empty())
+							{
+								messages.addAll(paginatedResponse.content());
+								virtualizedScrollPane.getContent().showAsFirst(0);
+							}
 						}
 						case BEFORE ->
 						{

@@ -83,4 +83,9 @@ public class MarkdownService
 		});
 		return contentRenderer.render(parser.parse(input));
 	}
+
+	public UriService getUriService()
+	{
+		return uriService;
+	}
 }

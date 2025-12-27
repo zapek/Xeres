@@ -138,6 +138,11 @@ public class BoardMessage
 		this.published = published;
 	}
 
+	public boolean hasContent()
+	{
+		return StringUtils.isNotBlank(content);
+	}
+
 	public String getContent()
 	{
 		return content;

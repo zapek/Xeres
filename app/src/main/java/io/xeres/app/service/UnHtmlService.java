@@ -57,6 +57,7 @@ public class UnHtmlService
 		// Only process HTML
 		if (isBlank(text) ||
 				(!Strings.CI.startsWith(text, "<body>") &&
+						!Strings.CI.startsWith(text, "<!DOCTYPE") &&
 						!Strings.CI.startsWith(text, "<html>") &&
 						!Strings.CI.startsWith(text, "<a "))) // Also convert certificate links sent by Xeres to RS. One day we'll send them as Markdown too
 		{

@@ -26,6 +26,7 @@ import io.xeres.ui.model.board.BoardMessage;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
+import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
@@ -48,6 +49,9 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 
 	@FXML
 	private TextFlow titleFlow;
+
+	@FXML
+	private TextFlow contentFlow;
 
 	@FXML
 	private Label authorLabel;
@@ -106,13 +110,26 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 		titleFlow.getChildren().clear();
 		if (item.hasLink())
 		{
-			titleFlow.getChildren().addAll(markdownService.parse(item.getLink(), Set.of(ParsingMode.PARAGRAPH)).stream()
-					.map(Content::getNode).toList());
+			var content = UriFactory.createContent(item.getLink(), item.getName(), markdownService.getUriService());
+			titleFlow.getChildren().addAll(content.getNode());
 		}
 		else
 		{
 			titleFlow.getChildren().add(new Label(item.getName()));
 		}
+
+		contentFlow.getChildren().clear();
+		if (item.hasContent())
+		{
+			contentFlow.getChildren().addAll(markdownService.parse(item.getContent(), Set.of(ParsingMode.PARAGRAPH)).stream()
+					.map(Content::getNode).toList());
+			UiUtils.setPresent(contentFlow);
+		}
+		else
+		{
+			UiUtils.setAbsent(contentFlow);
+		}
+
 		authorLabel.setText(item.getAuthorName());
 		postInstantLabel.setText(DateUtils.DATE_TIME_DISPLAY.format(item.getPublished()));
 		UiUtils.setPresent(imageView, item.hasImage());

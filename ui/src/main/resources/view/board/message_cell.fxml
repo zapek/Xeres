@@ -35,6 +35,7 @@
         <Label fx:id="postInstantLabel"/>
     </HBox>
     <TextFlow fx:id="titleFlow" styleClass="title-4"/>
+    <TextFlow fx:id="contentFlow" managed="false"/>
     <StackPane alignment="CENTER_LEFT">
         <Spacer minHeight="80"/>
         <AsyncImageView fx:id="imageView" managed="false"/>

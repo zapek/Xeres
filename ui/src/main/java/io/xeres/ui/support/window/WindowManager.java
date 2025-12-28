@@ -38,6 +38,7 @@ import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
+import io.xeres.ui.controller.board.BoardCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
@@ -500,6 +501,16 @@ public class WindowManager
 				UiWindow.builder(ForumCreationWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("forum.create.window-title"))
+						.build()
+						.open());
+	}
+
+	public void openBoardCreation()
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(BoardCreationWindowController.class)
+						.setParent(rootWindow)
+						.setTitle(bundle.getString("board.create.window-title"))
 						.build()
 						.open());
 	}

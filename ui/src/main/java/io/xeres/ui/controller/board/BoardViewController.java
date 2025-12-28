@@ -38,6 +38,7 @@ import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -67,6 +68,7 @@ import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
 public class BoardViewController implements Controller, GxsGroupTreeTableAction<BoardGroup>
 {
 	private static final Logger log = LoggerFactory.getLogger(BoardViewController.class);
+	private final WindowManager windowManager;
 
 	@FXML
 	private GxsGroupTreeTableView<BoardGroup> boardTree;
@@ -75,7 +77,10 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	private SplitPane splitPaneVertical;
 
 	@FXML
-	private Button newBoard;
+	private Button createBoard;
+
+	@FXML
+	private Button newPost;
 
 	@FXML
 	private StackPane contentGroup;
@@ -97,7 +102,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private Disposable notificationDisposable;
 
-	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, JsonMapper jsonMapper, MarkdownService markdownService)
+	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, JsonMapper jsonMapper, MarkdownService markdownService, WindowManager windowManager)
 	{
 		this.boardClient = boardClient;
 		this.bundle = bundle;
@@ -108,6 +113,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		this.unreadService = unreadService;
 		this.jsonMapper = jsonMapper;
 		this.markdownService = markdownService;
+		this.windowManager = windowManager;
 	}
 
 
@@ -131,6 +137,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		contentGroup.getChildren().add(messagesView);
 
 		onDemandLoader = new OnDemandLoader<>(messagesView, messages, boardClient);
+
+		createBoard.setOnAction(_ -> windowManager.openBoardCreation());
 
 		setupBoardNotifications();
 	}

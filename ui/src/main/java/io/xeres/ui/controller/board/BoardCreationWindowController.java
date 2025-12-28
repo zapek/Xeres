@@ -21,6 +21,7 @@ package io.xeres.ui.controller.board;
 
 import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.custom.ImageSelectorView;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -46,7 +47,7 @@ public class BoardCreationWindowController implements WindowController
 	private TextField boardDescription;
 
 	@FXML
-	private Button boardLogo;
+	private ImageSelectorView boardLogo;
 
 	private final BoardClient boardClient;
 
@@ -61,7 +62,9 @@ public class BoardCreationWindowController implements WindowController
 		boardName.textProperty().addListener(_ -> checkCreatable());
 		boardDescription.textProperty().addListener(_ -> checkCreatable());
 
-		// XXX: add image support
+		// XXX: add image support. we need a way to display a default image/placeholder when needed...
+		// XXX: try to find out if it's not possible to do it with AsyncImageView because it might be desirable when scrolling groups that have no logo... but how?
+		//boardLogo.setImage(new Image(Objects.requireNonNull(BoardCreationWindowController.class.getResourceAsStream("/image/egg.png"))));
 
 		createButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
 						boardDescription.getText())

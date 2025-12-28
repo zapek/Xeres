@@ -30,6 +30,7 @@ import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.util.OsUtils;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.custom.ImageSelectorView;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
@@ -134,13 +135,7 @@ public class ContactViewController implements Controller
 	private CustomTextField searchTextField;
 
 	@FXML
-	private Button contactImageSelectButton;
-
-	@FXML
-	private Button contactImageDeleteButton;
-
-	@FXML
-	private AsyncImageView contactImageView;
+	private ImageSelectorView contactImageSelectorView;
 
 	@FXML
 	private AsyncImageView ownContactImageView;
@@ -269,8 +264,8 @@ public class ContactViewController implements Controller
 	{
 		searchClear = new FontIcon(MaterialDesignC.CLOSE_CIRCLE);
 
-		contactImageView.setLoader(url -> generalClient.getImage(url).block());
-		contactImageView.setImageCache(imageCacheService);
+		contactImageSelectorView.setImageLoader(url -> generalClient.getImage(url).block());
+		contactImageSelectorView.setImageCache(imageCacheService);
 
 		setupContactSearch();
 		setupContactTreeTableView();
@@ -278,14 +273,8 @@ public class ContactViewController implements Controller
 
 		setupMenuFilters();
 
-		contactImageView.setOnMouseEntered(_ -> setContactActionImagesOpacity(0.8));
-		contactImageView.setOnMouseExited(_ -> setContactActionImagesOpacity(0.0));
-		contactImageSelectButton.setOnMouseEntered(_ -> setContactActionImagesOpacity(0.8));
-		contactImageSelectButton.setOnMouseExited(_ -> setContactActionImagesOpacity(0.0));
-		contactImageDeleteButton.setOnMouseEntered(_ -> setContactActionImagesOpacity(0.8));
-		contactImageDeleteButton.setOnMouseExited(_ -> setContactActionImagesOpacity(0.0));
-		contactImageSelectButton.setOnAction(this::selectOwnContactImage);
-		contactImageDeleteButton.setOnAction(_ -> UiUtils.alertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
+		contactImageSelectorView.setOnSelectAction(this::selectOwnContactImage);
+		contactImageSelectorView.setOnDeleteAction(_ -> UiUtils.alertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
 		chatButton.setOnAction(_ -> startChat(displayedContact.getValue()));
 
@@ -295,15 +284,6 @@ public class ContactViewController implements Controller
 		setupConnectionNotifications();
 
 		getContacts();
-	}
-
-	private void setContactActionImagesOpacity(double opacity)
-	{
-		contactImageSelectButton.setOpacity(opacity);
-		if (contactImageView.getImage() != null)
-		{
-			contactImageDeleteButton.setOpacity(opacity);
-		}
 	}
 
 	private void setupOwnContact()
@@ -644,7 +624,7 @@ public class ContactViewController implements Controller
 		// url because it thinks it's already loaded.
 		if (displayedContact != null && displayedContact.getValue().equals(contact.getValue()))
 		{
-			contactImageView.setImageProper(null);
+			contactImageSelectorView.setImage(null);
 		}
 	}
 
@@ -906,12 +886,12 @@ public class ContactViewController implements Controller
 		clearTrust();
 		TooltipUtils.uninstall(idLabel);
 		TooltipUtils.uninstall(typeLabel);
-		setImageEditButtonsVisibility(false);
+		contactImageSelectorView.setEditable(false);
 		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.getValue().name());
 		setChatButtonVisual(contact.getValue());
-		contactImageView.setUrl(ContactUtils.getIdentityImageUrl(contact.getValue()));
+		contactImageSelectorView.setImageUrl(ContactUtils.getIdentityImageUrl(contact.getValue()));
 		if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
 			typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile"));
@@ -960,7 +940,7 @@ public class ContactViewController implements Controller
 
 	private void clearSelection()
 	{
-		setImageEditButtonsVisibility(false);
+		contactImageSelectorView.setEditable(false);
 		detailsHeader.setVisible(false);
 		detailsView.setVisible(false);
 		nameLabel.setText(null);
@@ -969,15 +949,9 @@ public class ContactViewController implements Controller
 		typeLabel.setText(null);
 		TooltipUtils.uninstall(typeLabel);
 		createdLabel.setText(null);
-		contactImageView.setImageProper(null);
+		contactImageSelectorView.setImage(null);
 		profilePane.setVisible(false);
 		hideTableLocations();
-	}
-
-	private void setImageEditButtonsVisibility(boolean visible)
-	{
-		contactImageSelectButton.setVisible(visible);
-		contactImageDeleteButton.setVisible(visible);
 	}
 
 	private void fetchProfile(long profileId, Information information, boolean isLeaf)
@@ -1080,11 +1054,7 @@ public class ContactViewController implements Controller
 					}
 					if (identityId == OWN_IDENTITY_ID)
 					{
-						if (identity.hasImage())
-						{
-							contactImageDeleteButton.setVisible(true);
-						}
-						contactImageSelectButton.setVisible(true);
+						contactImageSelectorView.setEditable(true, identity.hasImage());
 					}
 				}))
 				.doOnError(_ -> Platform.runLater(this::clearSelection))

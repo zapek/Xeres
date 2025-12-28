@@ -47,7 +47,7 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <Button fx:id="newBoard" disable="true">
+                <Button fx:id="newPost" disable="true">
                     <graphic>
                         <FontIcon iconLiteral="mdi2p-pencil-plus"/>
                     </graphic>

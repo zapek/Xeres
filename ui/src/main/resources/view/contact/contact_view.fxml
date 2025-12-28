@@ -20,6 +20,7 @@
 <?import atlantafx.base.controls.CustomTextField?>
 <?import atlantafx.base.controls.Spacer?>
 <?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
+<?import io.xeres.ui.custom.ImageSelectorView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -74,15 +75,7 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="8.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <StackPane alignment="TOP_LEFT">
-                    <AsyncImageView fx:id="contactImageView" fitWidth="128" fitHeight="128"/>
-                    <Button fx:id="contactImageSelectButton" text="%contact-view.avatar.change-image" visible="false" opacity="0.0" styleClass="small" StackPane.alignment="CENTER"/>
-                    <Button fx:id="contactImageDeleteButton" opacity="0.0" styleClass="flat, small, danger, button-circle" StackPane.alignment="TOP_RIGHT">
-                        <graphic>
-                            <FontIcon iconLiteral="mdi2c-close-circle"/>
-                        </graphic>
-                    </Button>
-                </StackPane>
+                <ImageSelectorView fx:id="contactImageSelectorView" fitWidth="128.0" fitHeight="128.0"/>
                 <HBox HBox.hgrow="ALWAYS">
                     <HBox.margin>
                         <Insets left="8.0"/>

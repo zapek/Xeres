@@ -19,10 +19,11 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import atlantafx.base.controls.Spacer?>
+<?import io.xeres.ui.custom.ImageSelectorView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" prefHeight="180.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.board.BoardCreationWindowController">
     <GridPane hgap="8" vgap="8">
         <columnConstraints>
@@ -34,7 +35,7 @@
             <RowConstraints vgrow="ALWAYS"/>
             <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="%forum.create.name"/>
+        <Label text="%board.create.name"/>
         <TextField fx:id="boardName" promptText="%board.create.name.prompt" GridPane.columnIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.name.tip"/>
@@ -47,14 +48,10 @@
             </tooltip>
         </TextField>
         <Label text="%board.create.logo" GridPane.rowIndex="2"/>
-        <Button fx:id="boardLogo">
-            <graphic>
-                <FontIcon iconLiteral="mdi2i-image-plus"/>
-            </graphic>
-            <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.logo.tip"/>
-            </tooltip>
-        </Button>
+        <HBox GridPane.rowIndex="2" GridPane.columnIndex="1">
+            <ImageSelectorView fx:id="boardLogo"/>
+            <Spacer/>
+        </HBox>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>
     <HBox alignment="TOP_RIGHT">

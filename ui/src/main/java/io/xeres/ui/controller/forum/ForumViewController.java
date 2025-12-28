@@ -55,7 +55,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -84,8 +83,6 @@ import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 public class ForumViewController implements Controller, GxsGroupTreeTableAction<ForumGroup>
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);
-
-	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
 
 	private static final String COPY_LINK_MENU_ID = "copyLink";
 
@@ -211,22 +208,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 		setupForumNotifications();
 
-		setupDragSelection();
-	}
-
-	private void setupDragSelection()
-	{
-		var selection = new TextFlowDragSelection(messageContent);
-		messageContent.addEventFilter(MouseEvent.MOUSE_PRESSED, selection::press);
-		messageContent.addEventFilter(MouseEvent.MOUSE_DRAGGED, selection::drag);
-		messageContent.addEventFilter(MouseEvent.MOUSE_RELEASED, selection::release);
-		messagePane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-			if (COPY_KEY.match(event))
-			{
-				selection.copy();
-				event.consume();
-			}
-		});
+		TextFlowDragSelection.enableSelection(messageContent, messagePane);
 	}
 
 	@EventListener

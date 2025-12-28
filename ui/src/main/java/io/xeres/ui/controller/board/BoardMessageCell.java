@@ -28,6 +28,7 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.DateUtils;
+import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -82,6 +83,7 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 
 		imageView.setLoader(url -> generalClient.getImage(url).block());
 		// XXX: set image cache? it will have to be bigger I think, too
+		TextFlowDragSelection.enableSelection(contentFlow, null);
 
 		updateItem(boardMessage);
 	}

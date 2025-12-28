@@ -20,25 +20,73 @@
 package io.xeres.ui.support.util;
 
 import io.micrometer.common.util.StringUtils;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.util.TextFlowUtils.Options;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.*;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.TextFlow;
 
 public class TextFlowDragSelection
 {
+	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
+
 	private final TextFlow textFlow;
 
 	private HitInfo firstHitInfo;
 
 	private TextSelectRange textSelectRange;
 
+	private ContextMenu contextMenu;
+
+	/**
+	 * Enables the selection.
+	 *
+	 * @param textFlow     the textflow to enable the selection for, a context menu with "Copy" is automatically added
+	 * @param keyContainer the optional container (usually a pane) that can handle the key presses to enable CTRL-C, can be null
+	 */
+	public static void enableSelection(TextFlow textFlow, Node keyContainer)
+	{
+		var selection = new TextFlowDragSelection(textFlow);
+		textFlow.addEventFilter(MouseEvent.MOUSE_PRESSED, selection::press);
+		textFlow.addEventFilter(MouseEvent.MOUSE_DRAGGED, selection::drag);
+		textFlow.addEventFilter(MouseEvent.MOUSE_RELEASED, selection::release);
+		if (keyContainer != null)
+		{
+			keyContainer.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+				if (COPY_KEY.match(event))
+				{
+					selection.copy();
+					event.consume();
+				}
+			});
+		}
+		var copyItem = new MenuItem(I18nUtils.getBundle().getString("copy"));
+		copyItem.setOnAction(_ -> selection.copy());
+		var contextMenu = new ContextMenu(copyItem);
+		textFlow.setOnContextMenuRequested(event -> {
+			if (selection.textSelectRange != null && selection.textSelectRange.isSelected())
+			{
+				contextMenu.show(textFlow, event.getScreenX(), event.getScreenY());
+				event.consume();
+			}
+		});
+		selection.setContextMenu(contextMenu);
+	}
+
 	public TextFlowDragSelection(TextFlow textFlow)
 	{
 		this.textFlow = textFlow;
+	}
+
+	private void setContextMenu(ContextMenu contextMenu)
+	{
+		this.contextMenu = contextMenu;
 	}
 
 	public void press(MouseEvent e)
@@ -48,10 +96,18 @@ public class TextFlowDragSelection
 			throw new IllegalArgumentException("Event must be a MOUSE_PRESSED event");
 		}
 
-		TextFlowUtils.hideSelection(textFlow);
-		textFlow.setCursor(Cursor.TEXT);
+		if (e.getButton() == MouseButton.PRIMARY)
+		{
+			if (contextMenu != null)
+			{
+				contextMenu.hide();
+			}
+			TextFlowUtils.hideSelection(textFlow);
+			textSelectRange = null;
+			textFlow.setCursor(Cursor.TEXT);
 
-		firstHitInfo = textFlow.getHitInfo(new Point2D(e.getX(), e.getY()));
+			firstHitInfo = textFlow.getHitInfo(new Point2D(e.getX(), e.getY()));
+		}
 	}
 
 	public void drag(MouseEvent e)
@@ -85,12 +141,15 @@ public class TextFlowDragSelection
 			throw new IllegalArgumentException("Event must be a MOUSE_RELEASED event");
 		}
 
-		textFlow.setCursor(Cursor.DEFAULT);
-
-		if (textSelectRange == null || !textSelectRange.isSelected())
+		if (e.getButton() == MouseButton.PRIMARY)
 		{
-			TextFlowUtils.hideSelection(textFlow);
-			textSelectRange = null;
+			textFlow.setCursor(Cursor.DEFAULT);
+
+			if (textSelectRange == null || !textSelectRange.isSelected())
+			{
+				TextFlowUtils.hideSelection(textFlow);
+				textSelectRange = null;
+			}
 		}
 	}
 

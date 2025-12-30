@@ -220,7 +220,6 @@ public class BoardController
 				createMessageRequest.title(),
 				createMessageRequest.content(),
 				createMessageRequest.link(),
-				createMessageRequest.parentId(),
 				createMessageRequest.originalId()
 		);
 

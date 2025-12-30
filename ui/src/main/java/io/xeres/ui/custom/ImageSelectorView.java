@@ -117,6 +117,11 @@ public class ImageSelectorView extends StackPane
 		deleteButton.setOnAction(value);
 	}
 
+	public boolean isEmpty()
+	{
+		return imageView.getImage() == null;
+	}
+
 	/**
 	 * Shows the edit buttons.
 	 *

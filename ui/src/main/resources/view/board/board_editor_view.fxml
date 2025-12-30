@@ -62,7 +62,11 @@
 
     </GridPane>
 
-    <EditorView fx:id="editorView" prompt="Body text (optional)"/>
+    <EditorView fx:id="editorView" prompt="Body text (optional)" VBox.vgrow="SOMETIMES">
+        <VBox.margin>
+            <Insets top="8.0"/>
+        </VBox.margin>
+    </EditorView>
 
     <HBox alignment="TOP_RIGHT">
         <Button fx:id="send" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%send">

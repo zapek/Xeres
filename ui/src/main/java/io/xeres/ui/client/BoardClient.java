@@ -159,15 +159,14 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 				.map(BoardMapper::fromDTO);
 	}
 
-	public Mono<Void> createBoardMessage(long boardId, String title, String content, String link, long parentId, long originalId)
+	public Mono<Long> createBoardMessage(long boardId, String title, String content, String link, long originalId)
 	{
-		var request = new CreateBoardMessageRequest(boardId, title, content, link, parentId, originalId);
+		var request = new CreateBoardMessageRequest(boardId, title, content, link, originalId);
 
 		return webClient.post()
 				.uri("/messages")
 				.bodyValue(request)
-				.retrieve()
-				.bodyToMono(Void.class);
+				.exchangeToMono(ClientUtils::getCreatedId);
 	}
 
 	public Mono<Void> uploadBoardMessageImage(long id, File file)

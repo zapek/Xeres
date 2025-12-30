@@ -47,7 +47,6 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.image.ImageUtils;
 import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -404,7 +403,6 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
-				.crop(Positions.CENTER)
 				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
@@ -419,15 +417,10 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Transactional
-	public long createBoardMessage(IdentityGroupItem author, long boardId, String title, String content, String link, long parentId, long originalId)
+	public long createBoardMessage(IdentityGroupItem author, long boardId, String title, String content, String link, long originalId)
 	{
 		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsBoardGroupRepository.findById(boardId).orElseThrow().getGxsId(), title)
 				.authorId(author.getGxsId());
-
-		if (parentId != 0L)
-		{
-			builder.parentId(gxsBoardMessageRepository.findById(parentId).orElseThrow().getMessageId());
-		}
 
 		if (originalId != 0L)
 		{
@@ -470,7 +463,6 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_MESSAGE_WIDTH, IMAGE_MESSAGE_HEIGHT)
-				.crop(Positions.CENTER)
 				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 

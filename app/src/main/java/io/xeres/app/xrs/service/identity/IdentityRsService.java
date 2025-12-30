@@ -51,7 +51,6 @@ import io.xeres.common.identity.Type;
 import io.xeres.common.util.ExecutorUtils;
 import jakarta.persistence.EntityNotFoundException;
 import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.geometry.Positions;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.springframework.http.MediaType;
@@ -498,7 +497,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_WIDTH, IMAGE_HEIGHT)
-				.crop(Positions.CENTER)
 				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 

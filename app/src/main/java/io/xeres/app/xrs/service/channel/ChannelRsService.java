@@ -45,7 +45,6 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.image.ImageUtils;
 import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.geometry.Positions;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -384,7 +383,6 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
-				.crop(Positions.CENTER)
 				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
@@ -446,7 +444,6 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_MESSAGE_WIDTH, IMAGE_MESSAGE_HEIGHT)
-				.crop(Positions.CENTER)
 				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 

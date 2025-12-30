@@ -24,8 +24,8 @@ import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
-import io.xeres.common.rest.notification.board.AddBoardMessages;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
+import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.BoardNotification;
 import io.xeres.common.rest.notification.board.MarkBoardMessagesAsRead;
 import org.springframework.data.domain.PageImpl;
@@ -58,7 +58,7 @@ public class BoardNotificationService extends NotificationService
 	public void addOrUpdateBoardMessages(List<BoardMessageItem> boardMessages)
 	{
 		var page = new PageImpl<>(boardMessages);
-		var action = new AddBoardMessages(toBoardMessageDTOs(unHtmlService, page,
+		var action = new AddOrUpdateBoardMessages(toBoardMessageDTOs(unHtmlService, page,
 				boardMessageService.getAuthorsMapFromMessages(page),
 				boardMessageService.getMessagesMapFromMessages(boardMessages)));
 

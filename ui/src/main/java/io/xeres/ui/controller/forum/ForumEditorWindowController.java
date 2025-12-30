@@ -128,6 +128,7 @@ public class ForumEditorWindowController implements WindowController
 
 	private void postMessage()
 	{
+		// XXX: add a spinner delay, then clear it on error
 		forumClient.createForumMessage(forumPostRequest.forumId(), title.getText(), editorView.getText(), forumPostRequest.replyToId(), forumPostRequest.originalId())
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
 				.subscribe();

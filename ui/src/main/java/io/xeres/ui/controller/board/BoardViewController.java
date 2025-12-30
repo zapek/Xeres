@@ -20,8 +20,8 @@
 package io.xeres.ui.controller.board;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.rest.notification.board.AddBoardMessages;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
+import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.MarkBoardMessagesAsRead;
 import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.client.GeneralClient;
@@ -208,9 +208,9 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 									.map(BoardMapper::fromDTO)
 									.toList());
 						}
-						else if (idName.equals(AddBoardMessages.class.getSimpleName()))
+						else if (idName.equals(AddOrUpdateBoardMessages.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddBoardMessages.class);
+							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateBoardMessages.class);
 
 							addBoardMessages(action.boardMessages().stream()
 									.map(BoardMapper::fromDTO)
@@ -260,10 +260,20 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			if (selectedBoardGroup != null && boardMessage.getGxsId().equals(selectedBoardGroup.getGxsId()))
 			{
-				messages.addFirst(boardMessage);
+				var existingMessage = messages.stream()
+						.filter(existing -> existing.getId() == boardMessage.getId())
+						.findFirst();
+				if (existingMessage.isPresent())
+				{
+					messages.set(messages.indexOf(existingMessage.get()), boardMessage);
+				}
+				else
+				{
+					messages.addFirst(boardMessage);
+					boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
+				}
 				needsSorting = true;
 			}
-			boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
 		}
 
 		if (needsSorting)

@@ -23,6 +23,6 @@ import io.xeres.common.dto.board.BoardMessageDTO;
 
 import java.util.List;
 
-public record AddBoardMessages(List<BoardMessageDTO> boardMessages)
+public record AddOrUpdateBoardMessages(List<BoardMessageDTO> boardMessages)
 {
 }

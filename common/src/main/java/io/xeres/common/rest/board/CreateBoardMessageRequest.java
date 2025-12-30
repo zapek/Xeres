@@ -27,12 +27,9 @@ public record CreateBoardMessageRequest(
 		@NotBlank(message = "Title must not be empty")
 		String title,
 
-		@NotBlank(message = "Content must not be empty")
 		String content,
 
 		String link,
-
-		long parentId,
 
 		long originalId
 )

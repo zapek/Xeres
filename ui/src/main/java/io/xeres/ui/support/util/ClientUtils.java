@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import reactor.core.publisher.Mono;
 
 import java.io.File;
 
@@ -38,5 +40,40 @@ public final class ClientUtils
 		var builder = new MultipartBodyBuilder();
 		builder.part("file", new FileSystemResource(file));
 		return builder.build();
+	}
+
+	/**
+	 * Gets the ID from a client's POST creation request by using the Location: header.
+	 *
+	 * @param response the response of the WebClient
+	 * @return the ID
+	 */
+	public static Mono<Long> getCreatedId(ClientResponse response)
+	{
+		if (response.statusCode().is2xxSuccessful())
+		{
+			String location = response.headers().asHttpHeaders().getFirst("Location");
+			if (location != null)
+			{
+				// Extract ID from location header (assumes format like "/foo/bar/123")
+				int lastSlashIndex = location.lastIndexOf('/');
+				if (lastSlashIndex > 0)
+				{
+					try
+					{
+						return Mono.just(Long.parseLong(location.substring(lastSlashIndex + 1)));
+					}
+					catch (NumberFormatException e)
+					{
+						return Mono.error(new IllegalArgumentException("Failed to parse ID from location header: " + location, e));
+					}
+				}
+			}
+			return Mono.error(new IllegalArgumentException("Location header not found in response"));
+		}
+		else
+		{
+			return Mono.error(new IllegalStateException("Failed to create resource, status: " + response.statusCode()));
+		}
 	}
 }

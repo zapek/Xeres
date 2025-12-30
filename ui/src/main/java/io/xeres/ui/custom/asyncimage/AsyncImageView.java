@@ -42,7 +42,7 @@ import java.util.function.Function;
  * its argument constructor. The difference is that this class can use any function for doing so
  * and not just load from a public URL.
  * <p>
- * Important: always use {@link #setImageProper} instead of {@link #setImage}.
+ * Important: always use {@link #updateImage} instead of {@link #setImage} (which is final).
  */
 public class AsyncImageView extends ImageView
 {
@@ -81,7 +81,7 @@ public class AsyncImageView extends ImageView
 		imageProperty().addListener((_, _, _) -> {
 			if (!canCallSetImage)
 			{
-				var sb = new StringBuilder("setImage() has been called! This can cause problems like images being empty or having a wrong image. Use setImageProper() instead!\n");
+				var sb = new StringBuilder("setImage() has been called on AsyncImageView! This can cause problems like images being empty or wrong. Use updateImage() instead!\n");
 				var trace = Thread.currentThread().getStackTrace();
 				for (var stackTraceElement : trace)
 				{
@@ -98,7 +98,7 @@ public class AsyncImageView extends ImageView
 		{
 			cancel();
 			this.url = null;
-			setImageProper(null);
+			updateImage(null);
 		}
 		else
 		{
@@ -113,7 +113,7 @@ public class AsyncImageView extends ImageView
 					}
 					return;
 				}
-				setImageProper(null);
+				updateImage(null);
 			}
 			this.url = url;
 			LoaderTask.loadImage(this, url, loader, onSuccess, imageCache);
@@ -126,7 +126,7 @@ public class AsyncImageView extends ImageView
 	 *
 	 * @param image the image, can be null
 	 */
-	public void setImageProper(Image image)
+	public void updateImage(Image image)
 	{
 		setLoaderTask(null);
 		canCallSetImage = true;
@@ -193,7 +193,7 @@ public class AsyncImageView extends ImageView
 
 		private final FutureTask<byte[]> future;
 
-		public static void loadImage(AsyncImageView imageView, String url, Function<String, byte[]> loader, Runnable onSuccess, ImageCache imageCache)
+		private static void loadImage(AsyncImageView imageView, String url, Function<String, byte[]> loader, Runnable onSuccess, ImageCache imageCache)
 		{
 			if (useFromCache(url, imageView, imageCache))
 			{
@@ -237,7 +237,7 @@ public class AsyncImageView extends ImageView
 				var image = imageCache.getImage(url);
 				if (image != null)
 				{
-					imageView.setImageProper(image);
+					imageView.updateImage(image);
 					return true;
 				}
 			}
@@ -305,7 +305,7 @@ public class AsyncImageView extends ImageView
 					var imageView = imageViewReference.get();
 					runIfSameTask(imageView, () -> {
 						assert imageView != null;
-						imageView.setImageProper(image);
+						imageView.updateImage(image);
 						if (onSuccess != null)
 						{
 							onSuccess.run();
@@ -321,12 +321,12 @@ public class AsyncImageView extends ImageView
 			cycleTasks();
 		}
 
-		public void onCancel()
+		private void onCancel()
 		{
 			cycleTasks();
 		}
 
-		public void onException(Exception e)
+		private void onException(Exception e)
 		{
 			log.error("Couldn't load image: {}", e.getMessage());
 			cycleTasks();
@@ -341,12 +341,12 @@ public class AsyncImageView extends ImageView
 			}
 		}
 
-		public void start()
+		private void start()
 		{
 			BACKGROUND_EXECUTOR.execute(future);
 		}
 
-		public void cancel()
+		private void cancel()
 		{
 			future.cancel(true);
 		}

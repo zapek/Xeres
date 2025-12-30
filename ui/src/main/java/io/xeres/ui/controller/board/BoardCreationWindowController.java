@@ -19,16 +19,31 @@
 
 package io.xeres.ui.controller.board;
 
+import io.xeres.common.util.OsUtils;
 import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.ImageSelectorView;
+import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+
+import static io.xeres.ui.support.util.UiUtils.getWindow;
 
 @Component
 @FxmlView(value = "/view/board/board_create.fxml")
@@ -51,9 +66,14 @@ public class BoardCreationWindowController implements WindowController
 
 	private final BoardClient boardClient;
 
-	public BoardCreationWindowController(BoardClient boardClient)
+	private final ResourceBundle bundle;
+
+	private File logoFile;
+
+	public BoardCreationWindowController(BoardClient boardClient, ResourceBundle bundle)
 	{
 		this.boardClient = boardClient;
+		this.bundle = bundle;
 	}
 
 	@Override
@@ -61,14 +81,23 @@ public class BoardCreationWindowController implements WindowController
 	{
 		boardName.textProperty().addListener(_ -> checkCreatable());
 		boardDescription.textProperty().addListener(_ -> checkCreatable());
-
-		// XXX: add image support. we need a way to display a default image/placeholder when needed...
-		// XXX: try to find out if it's not possible to do it with AsyncImageView because it might be desirable when scrolling groups that have no logo... but how?
-		//boardLogo.setImage(new Image(Objects.requireNonNull(BoardCreationWindowController.class.getResourceAsStream("/image/egg.png"))));
+		boardLogo.setOnSelectAction(this::selectGroupImage);
+		boardLogo.setOnDeleteAction(this::clearGroupImage);
 
 		createButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
 						boardDescription.getText())
-				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+				.doOnSuccess(boardId -> Platform.runLater(() -> {
+					if (logoFile != null)
+					{
+						boardClient.uploadBoardGroupImage(boardId, logoFile)
+								.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+								.subscribe();
+					}
+					else
+					{
+						UiUtils.closeWindow(boardName);
+					}
+				}))
 				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 	}
@@ -76,5 +105,38 @@ public class BoardCreationWindowController implements WindowController
 	private void checkCreatable()
 	{
 		createButton.setDisable(boardName.getText().isBlank() || boardDescription.getText().isBlank());
+	}
+
+	private void selectGroupImage(ActionEvent event)
+	{
+		var fileChooser = new FileChooser();
+		fileChooser.setTitle(bundle.getString("board.select-logo"));
+		ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
+		ChooserUtils.setSupportedLoadImageFormats(fileChooser);
+		var selectedFile = fileChooser.showOpenDialog(getWindow(event));
+		if (selectedFile != null && selectedFile.canRead())
+		{
+			CompletableFuture.runAsync(() -> {
+				try (var inputStream = new FileInputStream(selectedFile))
+				{
+					var image = new Image(inputStream);
+					Platform.runLater(() -> {
+						boardLogo.setImage(image);
+						logoFile = selectedFile;
+					});
+				}
+				catch (IOException e)
+				{
+					logoFile = null;
+					UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), selectedFile, e.getMessage()));
+				}
+			});
+		}
+	}
+
+	private void clearGroupImage(ActionEvent event)
+	{
+		logoFile = null;
+		boardLogo.setImage(null);
 	}
 }

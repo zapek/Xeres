@@ -19,15 +19,15 @@
 
 package io.xeres.ui.custom;
 
+import io.micrometer.common.util.StringUtils;
 import io.xeres.common.i18n.I18nUtils;
-import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.custom.asyncimage.PlaceholderImageView;
 import javafx.beans.NamedArg;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
@@ -37,14 +37,15 @@ import java.util.ResourceBundle;
 import java.util.function.Function;
 
 /**
- * An image placeholder that allows to select/remove the image.
+ * A class that allows to select/remove an image. It can be supplied with a placeholder to show when there's
+ * no image selected yet. The placeholder is an iconLiteral from FontIcon (for example mdi2i-image-plus).
  */
 public class ImageSelectorView extends StackPane
 {
 	private static final double BUTTON_OPACITY = 0.8;
 
 	@FXML
-	private AsyncImageView imageView;
+	private PlaceholderImageView imageView;
 
 	@FXML
 	private Button selectButton;
@@ -52,17 +53,26 @@ public class ImageSelectorView extends StackPane
 	@FXML
 	private Button deleteButton;
 
-	private boolean deletable;
+	private boolean deletable = true;
 
 	private final Double fitWidth;
 	private final Double fitHeight;
+	private final String placeholder;
+	private final Boolean preserveRatio;
 
-	public ImageSelectorView(@NamedArg(value = "fitWidth", defaultValue = "64.0") Double fitWidth, @NamedArg(value = "fitHeight", defaultValue = "64.0") Double fitHeight)
+	private final ResourceBundle bundle;
+
+	public ImageSelectorView(@NamedArg(value = "fitWidth", defaultValue = "64.0") Double fitWidth, @NamedArg(value = "fitHeight", defaultValue = "64.0") Double fitHeight, @NamedArg(value = "placeholder") String placeholder, @NamedArg(value = "preserveRatio", defaultValue = "false") Boolean preserveRatio)
 	{
 		super();
-		ResourceBundle bundle = I18nUtils.getBundle();
 
-		setAlignment(Pos.TOP_LEFT);
+		bundle = I18nUtils.getBundle();
+
+		this.fitWidth = fitWidth;
+		this.fitHeight = fitHeight;
+		this.placeholder = placeholder;
+		this.preserveRatio = preserveRatio;
+
 		var loader = new FXMLLoader(ImageSelectorView.class.getResource("/view/custom/image_selector_view.fxml"), bundle);
 		loader.setRoot(this);
 		loader.setController(this);
@@ -75,9 +85,6 @@ public class ImageSelectorView extends StackPane
 		{
 			throw new RuntimeException(e);
 		}
-
-		this.fitWidth = fitWidth;
-		this.fitHeight = fitHeight;
 	}
 
 	public void setImageLoader(Function<String, byte[]> loader)
@@ -97,7 +104,7 @@ public class ImageSelectorView extends StackPane
 
 	public void setImage(Image image)
 	{
-		imageView.setImageProper(image);
+		imageView.updateImage(image);
 	}
 
 	public void setOnSelectAction(EventHandler<ActionEvent> value)
@@ -171,6 +178,17 @@ public class ImageSelectorView extends StackPane
 		{
 			imageView.setFitHeight(fitHeight);
 		}
+		if (preserveRatio != null)
+		{
+			imageView.setPreserveRatio(preserveRatio);
+		}
+		if (StringUtils.isNotBlank(placeholder))
+		{
+			imageView.setIconLiteral(placeholder);
+			imageView.showDefault();
+		}
+
+		computeActionText();
 
 		imageView.setOnMouseEntered(_ -> setImageOpacity(BUTTON_OPACITY));
 		imageView.setOnMouseExited(_ -> setImageOpacity(0.0));
@@ -194,6 +212,33 @@ public class ImageSelectorView extends StackPane
 					deleteButton.setVisible(false);
 				}
 			}
+			computeActionText();
 		});
+	}
+
+	private void computeActionText()
+	{
+		if (imageView.getImage() == null)
+		{
+			if (fitWidth <= 64)
+			{
+				selectButton.setText(bundle.getString("image-selector-view.add-image-short"));
+			}
+			else
+			{
+				selectButton.setText(bundle.getString("image-selector-view.add-image"));
+			}
+		}
+		else
+		{
+			if (fitWidth <= 64)
+			{
+				selectButton.setText(bundle.getString("image-selector-view.change-image-short"));
+			}
+			else
+			{
+				selectButton.setText(bundle.getString("image-selector-view.change-image"));
+			}
+		}
 	}
 }

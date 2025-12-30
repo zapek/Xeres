@@ -21,7 +21,7 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.rest.forum.PostRequest;
+import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
 import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
@@ -292,7 +292,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			//originalId = selectedForumMessage.getOriginalId(); // XXX: means edit. if desired, set it to its current id
 		}
 
-		var postRequest = new PostRequest(forumTree.getSelectedGroup().getId(), originalId, replyToId);
+		var postRequest = new ForumPostRequest(forumTree.getSelectedGroup().getId(), originalId, replyToId);
 		windowManager.openForumEditor(postRequest);
 	}
 

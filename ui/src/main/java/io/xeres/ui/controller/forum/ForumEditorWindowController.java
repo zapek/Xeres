@@ -19,7 +19,7 @@
 
 package io.xeres.ui.controller.forum;
 
-import io.xeres.common.rest.forum.PostRequest;
+import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.controller.WindowController;
@@ -54,7 +54,7 @@ public class ForumEditorWindowController implements WindowController
 	@FXML
 	private Button send;
 
-	private PostRequest postRequest;
+	private ForumPostRequest forumPostRequest;
 
 	private final ForumClient forumClient;
 	private final LocationClient locationClient;
@@ -91,16 +91,16 @@ public class ForumEditorWindowController implements WindowController
 			throw new IllegalArgumentException("Missing PostRequest");
 		}
 
-		postRequest = (PostRequest) userData;
+		forumPostRequest = (ForumPostRequest) userData;
 
-		forumClient.getForumGroupById(postRequest.forumId())
+		forumClient.getForumGroupById(forumPostRequest.forumId())
 				.doOnSuccess(forumGroup -> Platform.runLater(() -> forumName.setText(forumGroup.getName())))
 				.subscribe();
 
-		if (postRequest.replyToId() != 0L)
+		if (forumPostRequest.replyToId() != 0L)
 		{
 			title.setDisable(true);
-			forumClient.getForumMessage(postRequest.replyToId())
+			forumClient.getForumMessage(forumPostRequest.replyToId())
 					.doOnSuccess(forumMessage -> Platform.runLater(() -> addReply(forumMessage)))
 					.subscribe();
 		}
@@ -128,7 +128,7 @@ public class ForumEditorWindowController implements WindowController
 
 	private void postMessage()
 	{
-		forumClient.createForumMessage(postRequest.forumId(), title.getText(), editorView.getText(), postRequest.replyToId(), postRequest.originalId())
+		forumClient.createForumMessage(forumPostRequest.forumId(), title.getText(), editorView.getText(), forumPostRequest.replyToId(), forumPostRequest.originalId())
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
 				.subscribe();
 	}

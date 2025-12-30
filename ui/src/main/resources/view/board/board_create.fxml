@@ -24,7 +24,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox alignment="CENTER" prefHeight="180.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.board.BoardCreationWindowController">
+<VBox alignment="CENTER" prefHeight="290.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.board.BoardCreationWindowController">
     <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -49,7 +49,7 @@
         </TextField>
         <Label text="%board.create.logo" GridPane.rowIndex="2"/>
         <HBox GridPane.rowIndex="2" GridPane.columnIndex="1">
-            <ImageSelectorView fx:id="boardLogo"/>
+            <ImageSelectorView fx:id="boardLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image" preserveRatio="true"/>
             <Spacer/>
         </HBox>
     </GridPane>

@@ -94,7 +94,7 @@ public class BoardGroup implements GxsGroup
 		this.description = description;
 	}
 
-	public boolean isHasImage()
+	public boolean hasImage()
 	{
 		return hasImage;
 	}

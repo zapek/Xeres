@@ -30,7 +30,7 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.voip.VoipAction;
 import io.xeres.common.message.voip.VoipMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
-import io.xeres.common.rest.forum.PostRequest;
+import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
@@ -39,6 +39,7 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.board.BoardCreationWindowController;
+import io.xeres.ui.controller.board.BoardEditorWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
@@ -102,6 +103,7 @@ public class WindowManager
 	private final IdentityClient identityClient;
 	private final MessageClient messageClient;
 	private final ForumClient forumClient;
+	private final BoardClient boardClient;
 	private final LocationClient locationClient;
 	private final ShareClient shareClient;
 	private final MarkdownService markdownService;
@@ -126,13 +128,14 @@ public class WindowManager
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
 		this.messageClient = messageClient;
 		this.forumClient = forumClient;
+		this.boardClient = boardClient;
 		this.locationClient = locationClient;
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
@@ -283,20 +286,37 @@ public class WindowManager
 		}
 	}
 
-	public void openForumEditor(PostRequest postRequest)
+	public void openForumEditor(ForumPostRequest forumPostRequest)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(ForumEditorWindowController.class, postRequest.toString()).ifPresentOrElse(Window::requestFocus,
+				getOpenedWindow(ForumEditorWindowController.class, forumPostRequest.toString()).ifPresentOrElse(Window::requestFocus,
 						() -> {
 							var forumEditor = new ForumEditorWindowController(forumClient, locationClient, markdownService, bundle);
 
 							UiWindow.builder("/view/forum/forum_editor_view.fxml", forumEditor)
-									.setLocalId(postRequest.toString())
+									.setLocalId(forumPostRequest.toString())
 									.setTitle(bundle.getString("forum.new-message.window-title"))
-									.setUserData(postRequest)
+									.setUserData(forumPostRequest)
 									.build()
 									.open();
 						}));
+	}
+
+	public void openBoardEditor(long boardId)
+	{
+		Platform.runLater(() ->
+				getOpenedWindow(BoardEditorWindowController.class, String.valueOf(boardId)).ifPresentOrElse(Window::requestFocus,
+						() -> {
+							var boardEditor = new BoardEditorWindowController(boardClient, locationClient, markdownService, bundle);
+
+							UiWindow.builder("/view/board/board_editor_view.fxml", boardEditor)
+									.setLocalId(String.valueOf(boardId))
+									.setTitle(bundle.getString("board.new-message.window-title"))
+									.setUserData(boardId)
+									.build()
+									.open();
+						})
+		);
 	}
 
 	public void sendMessaging(String identifier, ChatAvatar chatAvatar)

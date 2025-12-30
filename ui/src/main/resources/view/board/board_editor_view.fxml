@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import atlantafx.base.controls.Tab?>
+<?import atlantafx.base.controls.TabLine?>
+<?import io.xeres.ui.custom.EditorView?>
+<?import io.xeres.ui.custom.ReadOnlyTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox alignment="CENTER" prefWidth="640.0" prefHeight="480.0" minWidth="320.0" minHeight="460.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <GridPane fx:id="gridPane" hgap="8" vgap="8">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+        </rowConstraints>
+        <Label text="%board.editor.name"/>
+        <ReadOnlyTextField fx:id="boardName" GridPane.columnIndex="1">
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.editor.name.prompt"/>
+            </tooltip>
+        </ReadOnlyTextField>
+
+        <TabLine fx:id="tabLine" GridPane.rowIndex="1" GridPane.columnIndex="1">
+            <tabs>
+                <Tab fx:id="textTab" text="Text"/>
+                <Tab fx:id="imageTab" text="Image"/>
+                <Tab fx:id="linkTab" text="Link"/>
+            </tabs>
+        </TabLine>
+
+        <Label text="%forum.editor.thread.title" GridPane.rowIndex="2"/>
+        <TextField fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.editor.post.description"/>
+            </tooltip>
+        </TextField>
+
+        <!-- variable content here -->
+
+    </GridPane>
+
+    <EditorView fx:id="editorView" prompt="Body text (optional)"/>
+
+    <HBox alignment="TOP_RIGHT">
+        <Button fx:id="send" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%send">
+            <HBox.margin>
+                <Insets top="8.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
+</VBox>

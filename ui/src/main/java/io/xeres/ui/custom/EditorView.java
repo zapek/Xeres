@@ -447,6 +447,16 @@ public class EditorView extends VBox
 		this.previewOnly.set(previewOnly);
 	}
 
+	public void setPrompt(String text)
+	{
+		editor.setPromptText(text);
+	}
+
+	public String getPrompt()
+	{
+		return editor.getPromptText();
+	}
+
 	// XXX: remove!
 	private void surround(String text)
 	{

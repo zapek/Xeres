@@ -289,3 +289,7 @@
     -fx-border-color: -color-border-default;
     -fx-border-width: 1px;
 }
+
+.image-selector-close {
+    -fx-padding: 1px;
+}

@@ -22,8 +22,8 @@ package io.xeres.ui.controller.board;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.custom.asyncimage.PlaceholderImageView;
 import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TreeTableCell;
@@ -53,7 +53,7 @@ public class BoardGroupCell extends TreeTableCell<BoardGroup, BoardGroup>
 				() -> MessageFormat.format(bundle.getString("gxs-group.tree.info"),
 						getItem().getName(),
 						getItem().getGxsId()),
-				() -> new ImageView(((ImageView) getGraphic()).getImage()));
+				() -> new ImageView(((PlaceholderImageView) getGraphic()).getImage()));
 	}
 
 	@Override
@@ -61,29 +61,37 @@ public class BoardGroupCell extends TreeTableCell<BoardGroup, BoardGroup>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.getName());
-		setGraphic(empty ? null : updateImage((AsyncImageView) getGraphic(), item));
+		setGraphic(empty ? null : updateImage((PlaceholderImageView) getGraphic(), item));
 	}
 
-	private AsyncImageView updateImage(AsyncImageView asyncImageView, BoardGroup item)
+	private PlaceholderImageView updateImage(PlaceholderImageView placeholderImageView, BoardGroup item)
 	{
-		if (asyncImageView == null)
+		if (placeholderImageView == null)
 		{
-			asyncImageView = new AsyncImageView(
+			placeholderImageView = new PlaceholderImageView(
 					url -> generalClient.getImage(url).block(),
-					null,
+					"mdi2v-view-dashboard-outline",
 					imageCache);
 		}
-		asyncImageView.setFitWidth(item.isReal() ? IMAGE_WIDTH : 0);
-		asyncImageView.setFitHeight(item.isReal() ? IMAGE_HEIGHT : 0);
-
-		asyncImageView.setUrl(getImageUrl(item));
-
-		return asyncImageView;
+		if (item.isReal())
+		{
+			placeholderImageView.setFitWidth(IMAGE_WIDTH);
+			placeholderImageView.setFitHeight(IMAGE_HEIGHT);
+			placeholderImageView.setUrl(getImageUrl(item));
+		}
+		else
+		{
+			placeholderImageView.setFitWidth(0);
+			placeholderImageView.setFitHeight(0);
+			placeholderImageView.setUrl(null);
+			placeholderImageView.hideDefault(); // SetUrl(null) shows a default, but we don't want one as we're tree group nodes
+		}
+		return placeholderImageView;
 	}
 
 	private String getImageUrl(BoardGroup item)
 	{
-		if (item.isReal())
+		if (item.isReal() && item.hasImage())
 		{
 			return RemoteUtils.getControlUrl() + BOARDS_PATH + "/groups/" + item.getId() + "/image";
 		}

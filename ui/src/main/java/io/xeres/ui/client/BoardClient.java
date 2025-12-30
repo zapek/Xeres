@@ -29,6 +29,7 @@ import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
 import io.xeres.ui.model.board.BoardMessage;
+import io.xeres.ui.support.util.ClientUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -74,15 +75,14 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 				.map(BoardMapper::fromDTO);
 	}
 
-	public Mono<Void> createBoardGroup(String name, String description)
+	public Mono<Long> createBoardGroup(String name, String description)
 	{
 		var request = new CreateBoardGroupRequest(name, description);
 
 		return webClient.post()
 				.uri("/groups")
 				.bodyValue(request)
-				.retrieve()
-				.bodyToMono(Void.class);
+				.exchangeToMono(ClientUtils::getCreatedId);
 	}
 
 	public Mono<Void> uploadBoardGroupImage(long id, File file)

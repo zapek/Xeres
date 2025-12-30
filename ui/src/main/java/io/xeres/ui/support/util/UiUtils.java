@@ -376,7 +376,7 @@ public final class UiUtils
 	/**
 	 * Makes Hyperlinks actually do something. Slightly recursive.
 	 *
-	 * @param rootNode the parent node where the hyperlinks are
+	 * @param rootNode     the parent node where the hyperlinks are
 	 * @param hostServices the host services
 	 */
 	public static void linkify(Node rootNode, HostServices hostServices)
@@ -451,7 +451,7 @@ public final class UiUtils
 	/**
 	 * Sets the presence of a node, that is, if it's visible and takes up space.
 	 *
-	 * @param node the node
+	 * @param node    the node
 	 * @param present true if visible, false if gone
 	 */
 	public static void setPresent(Node node, boolean present)
@@ -526,5 +526,34 @@ public final class UiUtils
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Sets the size of a {@link FontIcon}.
+	 * <p>ikonli and AtlantaFX don't work well together so this utility method has to be used instead.
+	 * <p>
+	 * See {@link <a href="https://github.com/kordamp/ikonli/issues/150">this issue</a>}.
+	 *
+	 * @param icon the FontIcon
+	 * @param size the size
+	 */
+	public static void setIconSize(FontIcon icon, int size)
+	{
+		String normalizedStyle = normalizeStyle(icon.getStyle(), "-fx-font-size", size + "px");
+		normalizedStyle = normalizeStyle(normalizedStyle, "-fx-icon-size", size + "px");
+		icon.setStyle(normalizedStyle);
+	}
+
+	// Taken from FontIcon()
+	private static String normalizeStyle(String style, String key, String value)
+	{
+		int start = style.indexOf(key);
+		if (start != -1)
+		{
+			int end = style.indexOf(";", start);
+			end = end >= start ? end : style.length() - 1;
+			style = style.substring(0, start) + style.substring(end + 1);
+		}
+		return style + key + ": " + value + ";";
 	}
 }

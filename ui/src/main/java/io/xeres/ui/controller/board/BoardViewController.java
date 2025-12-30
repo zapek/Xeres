@@ -129,8 +129,6 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 				hasUnreadMessages -> unreadService.sendUnreadEvent(UnreadEvent.Element.BOARD, hasUnreadMessages)
 		);
 
-		// XXX: add the rest...
-
 		// VirtualizedScrollPane doesn't work from FXML so we add it manually
 		messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, markdownService)));
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
@@ -139,6 +137,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		onDemandLoader = new OnDemandLoader<>(messagesView, messages, boardClient);
 
 		createBoard.setOnAction(_ -> windowManager.openBoardCreation());
+
+		newPost.setOnAction(_ -> newBoardPost());
 
 		setupBoardNotifications();
 	}
@@ -165,18 +165,21 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	public void onSelectSubscribed(BoardGroup group)
 	{
 		onDemandLoader.changeSelection(group);
+		newPost.setDisable(false);
 	}
 
 	@Override
 	public void onSelectUnsubscribed(BoardGroup group)
 	{
 		onDemandLoader.changeSelection(group);
+		newPost.setDisable(true);
 	}
 
 	@Override
 	public void onUnselect()
 	{
 		onDemandLoader.changeSelection(null);
+		newPost.setDisable(true);
 	}
 
 	@EventListener
@@ -240,6 +243,11 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		messageMap.forEach((_, _) -> {
 			// XXX: implement... boring. not needed yet because we can't mark several entries at once
 		});
+	}
+
+	private void newBoardPost()
+	{
+		windowManager.openBoardEditor(boardTree.getSelectedGroup().getId());
 	}
 
 	private void addBoardMessages(List<BoardMessage> boardMessages)

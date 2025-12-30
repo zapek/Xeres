@@ -36,26 +36,12 @@ import org.kordamp.ikonli.materialdesign2.*;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 
 public final class TextInputControlUtils
 {
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
-
-	private static final Pattern CODE_PATTERN = Pattern.compile(
-			"\\b(class|interface|enum|package|import|public|private|protected|static|final|synchronized|volatile|abstract|def|function|var|let|const|using|namespace)\\b"
-					+ "|\\b(if|for|while|switch|case|return)\\b"
-					+ "|\\w+\\s*\\([^)]*\\)\\s*\\{"
-					+ "|=>|->|#include\\s*<|System\\.out\\.println|console\\.log\\(|printf\\(|std::",
-			Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
-
-	private static final Pattern SQL_PATTERN = Pattern.compile(
-			"\\b(SELECT\\s+.+?FROM|INSERT\\s+INTO|UPDATE\\s+\\w+\\s+SET|DELETE\\s+FROM|CREATE\\s+TABLE|ALTER\\s+TABLE|DROP\\s+TABLE|WHERE\\s+[^=]++=)\\b",
-			Pattern.CASE_INSENSITIVE | Pattern.DOTALL
-	);
-
 
 	private TextInputControlUtils()
 	{
@@ -208,20 +194,6 @@ public final class TextInputControlUtils
 			return true;
 		}
 
-		// SQL statement
-		if (SQL_PATTERN.matcher(trimmed).find())
-		{
-			return true;
-		}
-
-		var heuristic = 0;
-
-		// Code detector has many false positives so don't use it alone
-		if (CODE_PATTERN.matcher(trimmed).find())
-		{
-			heuristic++;
-		}
-
 		// Semicolon frequency (common in C/Java/JS) and presence of multiple lines
 		long semicolons = trimmed.chars().filter(c -> c == ';').count();
 		if (semicolons >= 2 && trimmed.contains("\n"))
@@ -233,7 +205,7 @@ public final class TextInputControlUtils
 		var symbols = ";{}()[]<>#=\\*%+-|";
 		long specialCount = trimmed.chars().filter(c -> symbols.indexOf(c) >= 0).count();
 		double density = (double) specialCount / Math.max(1, trimmed.length());
-		return (density > 0.03 && trimmed.contains("\n")) || (specialCount > 2 && heuristic > 0);
+		return density > 0.03 && trimmed.contains("\n");
 	}
 
 	// Visible for testing

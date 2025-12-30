@@ -41,9 +41,6 @@ class TextInputControlUtilsTest
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-			"const result = await fetch('/api/data');",
-			"if (user && user.isActive) return true;",
-			"console.log(`Hello ${name}!`);",
 			"""
 					class TextInputControlUtilsTest {
 					    @ParameterizedTest
@@ -94,12 +91,6 @@ class TextInputControlUtilsTest
 					}
 					""",
 			"""
-					const mapped = arr.map(x => x * 2).filter(x => x > 10);
-					""",
-			"""
-					INSERT INTO users (name, email) VALUES ('john', 'john@example.com');
-					""",
-			"""
 					{
 					  "user": {
 					    "id": 123,
@@ -108,43 +99,13 @@ class TextInputControlUtilsTest
 					}
 					""",
 			"""
-					import React, { useState, useEffect } from 'react';
-					""",
-			"""
 					let counter: number = 0;
 					const MAX_RETRIES: number = 3;
-					""",
-			"""
-					const url = `${baseUrl}/api/v1/users/${userId}/profile`;
-					""",
-			"SELECT * FROM users WHERE active = 1;"
+					"""
 	})
 	void pasteGuessedContent_Code_True(String input)
 	{
 		assertTrue(TextInputControlUtils.isSourceCode(input));
-	}
-
-	@Test
-	void pasteGuessedContent_CitationButNotCode()
-	{
-		// Would detect a "for " in there if we didn't check for the text to not contain UTF-8
-		var input = """
-				La RTS a commis un "crime contre l'humanité" en forçant les gens à lire des conneries, selon un rapport d'enquêteurs mandatés par l'ONU, publié lundi.
-				""";
-
-		assertFalse(TextInputControlUtils.isSourceCode(input));
-		assertTrue(TextInputControlUtils.isCitation(input));
-	}
-
-	@Test
-	void pasteGuessedContent_CitationButNotCode2()
-	{
-		var input = """
-				As an extra layer of security, Android is requiring all apps to be registered by verified developers in order to be installed on certified Android devices. Most Play developers likely already completed these steps and will be able to register additional apps in Play Console. Sign up for early access.
-				""";
-
-		assertFalse(TextInputControlUtils.isSourceCode(input));
-		assertTrue(TextInputControlUtils.isCitation(input));
 	}
 
 	@Test

@@ -253,32 +253,17 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	private void addBoardMessages(List<BoardMessage> boardMessages)
 	{
 		Map<GxsId, Integer> boardsToSetCount = new HashMap<>();
-		var needsSorting = false;
 		var selectedBoardGroup = boardTree.getSelectedGroup();
 
 		for (BoardMessage boardMessage : boardMessages)
 		{
 			if (selectedBoardGroup != null && boardMessage.getGxsId().equals(selectedBoardGroup.getGxsId()))
 			{
-				var existingMessage = messages.stream()
-						.filter(existing -> existing.getId() == boardMessage.getId())
-						.findFirst();
-				if (existingMessage.isPresent())
+				if (onDemandLoader.insertMessage(boardMessage))
 				{
-					messages.set(messages.indexOf(existingMessage.get()), boardMessage);
-				}
-				else
-				{
-					messages.addFirst(boardMessage);
 					boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
 				}
-				needsSorting = true;
 			}
-		}
-
-		if (needsSorting)
-		{
-			messages.sort(Comparator.comparing(BoardMessage::getPublished).reversed());
 		}
 		boardTree.addUnreadCount(boardsToSetCount);
 	}

@@ -22,10 +22,11 @@ package io.xeres.ui.model.board;
 import io.micrometer.common.util.StringUtils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import io.xeres.ui.controller.common.GxsMessage;
 
 import java.time.Instant;
 
-public class BoardMessage
+public class BoardMessage implements GxsMessage
 {
 	private long id;
 	private GxsId gxsId;
@@ -48,6 +49,7 @@ public class BoardMessage
 		// Needed
 	}
 
+	@Override
 	public long getId()
 	{
 		return id;
@@ -58,6 +60,7 @@ public class BoardMessage
 		this.id = id;
 	}
 
+	@Override
 	public GxsId getGxsId()
 	{
 		return gxsId;
@@ -128,6 +131,7 @@ public class BoardMessage
 		this.name = name;
 	}
 
+	@Override
 	public Instant getPublished()
 	{
 		return published;

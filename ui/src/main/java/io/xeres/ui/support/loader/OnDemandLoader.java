@@ -21,6 +21,7 @@ package io.xeres.ui.support.loader;
 
 import io.xeres.ui.client.GxsMessageClient;
 import io.xeres.ui.controller.common.GxsGroup;
+import io.xeres.ui.controller.common.GxsMessage;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -35,11 +36,13 @@ import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class OnDemandLoader<G extends GxsGroup, M>
+public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 {
 	private static final Logger log = LoggerFactory.getLogger(OnDemandLoader.class);
 
 	private static final int PAGE_SIZE = 20;
+
+	private static final int MAXIMUM_PAGES = 3;
 
 	/// How close to a border to start prefetching.
 	private static final int BORDER_PREFETCH = 0; // XXX: untested...
@@ -82,13 +85,9 @@ public class OnDemandLoader<G extends GxsGroup, M>
 		var vbar = getScrollBar();
 		if (vbar != null)
 		{
-			vbar.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-				log.debug("*** MOUSE PRESSED");
-				locked = true;
-			});
+			vbar.addEventFilter(MouseEvent.MOUSE_PRESSED, _ -> locked = true);
 
-			vbar.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
-				log.debug("*** MOUSE RELEASED");
+			vbar.addEventFilter(MouseEvent.MOUSE_RELEASED, _ -> {
 				locked = false;
 				doLayout();
 			});
@@ -165,9 +164,43 @@ public class OnDemandLoader<G extends GxsGroup, M>
 		}
 	}
 
-	private int getPage(int offset)
+	public boolean insertMessage(M message)
 	{
-		return offset / PAGE_SIZE;
+		var existingMessage = messages.stream()
+				.filter(existing -> existing.getId() == message.getId())
+				.findFirst();
+		if (existingMessage.isPresent())
+		{
+			messages.set(messages.indexOf(existingMessage.get()), message);
+			return false;
+		}
+		else
+		{
+			var size = messages.size();
+			if (size == 0)
+			{
+				messages.add(message);
+				return true;
+			}
+
+			for (var i = 0; i < size; i++)
+			{
+				if (message.getPublished().isBefore(messages.get(i).getPublished()))
+				{
+					messages.add(i, message);
+					return true;
+				}
+			}
+
+			if (size < MAXIMUM_PAGES)
+			{
+				messages.addLast(message);
+				return true;
+			}
+
+			// We are after, no need to insert
+			return false;
+		}
 	}
 
 	private void fetchMessages(FetchMode fetchMode)
@@ -268,9 +301,9 @@ public class OnDemandLoader<G extends GxsGroup, M>
 		}
 
 		int messagesToRemove;
-		while ((messagesToRemove = messages.size() - PAGE_SIZE * 3) > 0)
+		while ((messagesToRemove = messages.size() - PAGE_SIZE * MAXIMUM_PAGES) > 0)
 		{
-			log.debug("Trimming message size from {} to {}", messages.size(), PAGE_SIZE * 3);
+			log.debug("Trimming message size from {} to {}", messages.size(), PAGE_SIZE * MAXIMUM_PAGES);
 
 			var sliceToRemove = Math.min(PAGE_SIZE, messagesToRemove);
 

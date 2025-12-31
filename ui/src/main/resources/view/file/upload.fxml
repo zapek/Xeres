@@ -34,7 +34,7 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
         </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableName" minWidth="320" text="%download-view.list.name"/>
+            <TableColumn fx:id="tableName" minWidth="320" text="%name"/>
             <TableColumn fx:id="tableTotalSize" minWidth="100" prefWidth="100" maxWidth="100" text="%download-view.list.total-size"/>
             <TableColumn fx:id="tableHash" minWidth="100" prefWidth="320.0" text="%download-view.list.hash"/>
         </columns>

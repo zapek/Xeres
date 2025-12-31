@@ -59,7 +59,7 @@
                 <RowConstraints vgrow="ALWAYS"/>
                 <RowConstraints vgrow="ALWAYS"/>
             </rowConstraints>
-            <Label text="%rs-id.add.name"/>
+            <Label text="%name"/>
             <ReadOnlyTextField fx:id="certName" GridPane.columnIndex="1">
                 <tooltip>
                     <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rs-id.add.name.tip"/>

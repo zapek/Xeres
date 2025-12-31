@@ -38,7 +38,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
         </rowConstraints>
-        <Label text="%chat.room.name"/>
+        <Label text="%name"/>
         <Label fx:id="roomName" GridPane.columnIndex="1"/>
         <Label text="%chat.room.id" GridPane.rowIndex="1"/>
         <Label fx:id="roomId" GridPane.columnIndex="1" GridPane.rowIndex="1"/>

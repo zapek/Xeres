@@ -33,7 +33,7 @@
             <RowConstraints vgrow="ALWAYS"/>
             <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="%forum.create.name"/>
+        <Label text="%name"/>
         <TextField fx:id="forumName" promptText="%forum.create.name.prompt" GridPane.columnIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.create.name.tip"/>

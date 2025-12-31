@@ -35,7 +35,7 @@
             <RowConstraints vgrow="ALWAYS"/>
             <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="%chat.room.name"/>
+        <Label text="%name"/>
         <TextField fx:id="roomName" promptText="%chat.room.create.name.prompt" GridPane.columnIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%chat.room.create.name.tip"/>

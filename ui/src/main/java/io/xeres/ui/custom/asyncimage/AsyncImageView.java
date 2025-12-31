@@ -61,19 +61,18 @@ public class AsyncImageView extends ImageView
 
 	public AsyncImageView()
 	{
-		this(null, null, null);
+		this(null, null);
 	}
 
 	public AsyncImageView(Function<String, byte[]> loader)
 	{
-		this(loader, null, null);
+		this(loader, null);
 	}
 
-	public AsyncImageView(Function<String, byte[]> loader, Runnable success, ImageCache imageCache)
+	public AsyncImageView(Function<String, byte[]> loader, ImageCache imageCache)
 	{
 		super();
 		setLoader(loader);
-		setOnSuccess(success);
 		setImageCache(imageCache);
 		// setImage() is final and the listener is called *after* the
 		// property is set (and acted upon by ImageView) so this is the

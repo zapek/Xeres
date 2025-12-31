@@ -30,8 +30,7 @@ import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 
 class ContactCellName extends TreeTableCell<Contact, Contact>
 {
-	private static final int CONTACT_WIDTH = 32;
-	private static final int CONTACT_HEIGHT = 32;
+	private static final int CONTACT_SIZE = 32;
 
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
@@ -57,10 +56,9 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 		{
 			asyncImageView = new AsyncImageView(
 					url -> generalClient.getImage(url).block(),
-					null,
 					imageCache);
-			asyncImageView.setFitWidth(CONTACT_WIDTH);
-			asyncImageView.setFitHeight(CONTACT_HEIGHT);
+			asyncImageView.setFitWidth(CONTACT_SIZE);
+			asyncImageView.setFitHeight(CONTACT_SIZE);
 		}
 
 		asyncImageView.setUrl(ContactUtils.getIdentityImageUrl(contact));

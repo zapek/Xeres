@@ -72,7 +72,6 @@ class ForumCellAuthor extends TreeTableCell<ForumMessage, ForumMessage>
 		{
 			asyncImageView = new AsyncImageView(
 					url -> generalClient.getImage(url).block(),
-					null,
 					imageCache);
 			asyncImageView.setFitWidth(AUTHOR_WIDTH);
 			asyncImageView.setFitHeight(AUTHOR_HEIGHT);

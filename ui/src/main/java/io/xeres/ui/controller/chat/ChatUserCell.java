@@ -67,7 +67,6 @@ class ChatUserCell extends ListCell<ChatRoomUser>
 		{
 			asyncImageView = new AsyncImageView(
 					url -> generalClient.getImage(url).block(),
-					null,
 					imageCache);
 			asyncImageView.setFitWidth(AVATAR_WIDTH);
 			asyncImageView.setFitHeight(AVATAR_HEIGHT);

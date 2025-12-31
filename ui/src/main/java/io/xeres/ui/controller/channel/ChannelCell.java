@@ -70,7 +70,6 @@ public class ChannelCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 		{
 			asyncImageView = new AsyncImageView(
 					url -> generalClient.getImage(url).block(),
-					null,
 					imageCache);
 		}
 		asyncImageView.setFitWidth(item.isReal() ? IMAGE_WIDTH : 0);

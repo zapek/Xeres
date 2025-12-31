@@ -25,8 +25,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.function.Function;
 
@@ -36,8 +34,6 @@ import java.util.function.Function;
  */
 public class PlaceholderImageView extends StackPane
 {
-	private static final Logger log = LoggerFactory.getLogger(PlaceholderImageView.class);
-
 	private final AsyncImageView asyncImageView;
 	private String iconLiteral;
 	private FontIcon defaultIcon;
@@ -47,7 +43,7 @@ public class PlaceholderImageView extends StackPane
 		super();
 
 		this.iconLiteral = iconLiteral;
-		asyncImageView = new AsyncImageView(loader, null, imageCache)
+		asyncImageView = new AsyncImageView(loader, imageCache)
 		{
 			@Override
 			public void updateImage(Image image)

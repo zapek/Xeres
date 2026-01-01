@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -205,6 +205,8 @@ dependencies {
     implementation "com.twelvemonkeys.imageio:imageio-jpeg:$twelveMonkeysVersion" // Improved formats
     implementation "com.twelvemonkeys.imageio:imageio-bmp:$twelveMonkeysVersion" // Adds .ico support
     implementation "com.twelvemonkeys.imageio:imageio-iff:$twelveMonkeysVersion" // A blast from the past :)
+    implementation("com.twelvemonkeys.imageio:imageio-batik:$twelveMonkeysVersion")
+    implementation("org.apache.xmlgraphics:batik-all:1.19")
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"

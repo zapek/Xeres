@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,8 @@ package io.xeres.common.util.image;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
 
 import javax.imageio.ImageIO;
@@ -29,8 +31,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ImageUtilsTest
 {
@@ -125,5 +126,20 @@ class ImageUtilsTest
 	{
 		var webpArray = Objects.requireNonNull(ImageUtilsTest.class.getResourceAsStream("/image/gaudie.webp")).readAllBytes();
 		assertEquals(MediaType.parseMediaType("image/webp"), ImageUtils.getImageMimeType(webpArray));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"image/png", "image/webp", "image/svg+xml", "image/gif", "image/x-icon"})
+	void isPossiblyTransparent_Yes(String input)
+	{
+		assertTrue(ImageUtils.isPossiblyTransparent(input));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"image/jpeg", "image/bmp", "image/iff"})
+		// Supported mime types by WebClient are looked up from the file extension and are there: https://github.com/spring-projects/spring-framework/blob/main/spring-web/src/main/resources/org/springframework/http/mime.types
+	void isPossiblyTransparent_No(String input)
+	{
+		assertFalse(ImageUtils.isPossiblyTransparent(input));
 	}
 }

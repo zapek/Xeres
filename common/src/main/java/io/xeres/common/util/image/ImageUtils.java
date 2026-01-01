@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -167,7 +167,6 @@ public final class ImageUtils
 		}
 	}
 
-
 	/**
 	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
 	 * It uses a high-quality incremental scaling algorithm.
@@ -265,6 +264,22 @@ public final class ImageUtils
 			log.warn("Invalid image file: {}", e.getMessage());
 		}
 		return null;
+	}
+
+	/**
+	 * Finds out if a media format is possibly transparent. This focuses more on the intent
+	 * of the format and is thus unreliable because some formats support both modes.
+	 *
+	 * @param contentType the MIME content type (for example "image/jpeg")
+	 * @return true if possibly transparent
+	 */
+	public static boolean isPossiblyTransparent(String contentType)
+	{
+		return MediaType.IMAGE_PNG_VALUE.equals(contentType) ||
+				MediaType.IMAGE_GIF_VALUE.equals(contentType) ||
+				"image/webp".equals(contentType) ||
+				"image/svg+xml".equals(contentType) ||
+				"image/x-icon".equals(contentType);
 	}
 
 	private static boolean isStartingWith(byte[] header, byte[] image)

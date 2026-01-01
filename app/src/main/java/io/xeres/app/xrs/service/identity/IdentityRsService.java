@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -49,11 +49,11 @@ import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.id.*;
 import io.xeres.common.identity.Type;
 import io.xeres.common.util.ExecutorUtils;
+import io.xeres.common.util.image.ImageUtils;
 import jakarta.persistence.EntityNotFoundException;
 import net.coobird.thumbnailator.Thumbnails;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -497,7 +497,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_WIDTH, IMAGE_HEIGHT)
-				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
 		identity.setImage(out.toByteArray());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -45,7 +45,6 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.image.ImageUtils;
 import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -375,7 +374,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		if (file.getSize() >= IMAGE_MAX_SIZE)
 		{
-			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException("Channel group image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
 		}
 
 		var channel = findById(id).orElseThrow();
@@ -383,7 +382,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
-				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
 		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
@@ -436,7 +435,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		if (file.getSize() >= IMAGE_MAX_SIZE)
 		{
-			throw new IllegalArgumentException("Channel image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException("Channel message image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
 		}
 
 		var message = findMessageById(id);
@@ -444,7 +443,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_MESSAGE_WIDTH, IMAGE_MESSAGE_HEIGHT)
-				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
 		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -99,6 +99,6 @@ public final class ChooserUtils
 
 	public static void setSupportedLoadImageFormats(FileChooser chooser)
 	{
-		chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(I18nUtils.getBundle().getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif", "*.webp", "*.gif", "*.bmp", "*.ico", "*.iff"));
+		chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(I18nUtils.getBundle().getString("file-requester.images"), "*.png", "*.jpg", "*.jpeg", "*.jfif", "*.webp", "*.gif", "*.bmp", "*.ico", "*.iff", "*.svg"));
 	}
 }

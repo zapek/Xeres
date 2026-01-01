@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -238,7 +238,8 @@ public class StickerView extends VBox
 		{
 			return stream
 					.findFirst()
-					.map(path -> openImage(path, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT))
+					//.map(path -> openImage(path, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT))
+					.map(StickerView::openImage) // XXX: workaround for JavaFX's bug not handling scaling for images loaded with ImageIO (eg. WebP stickers)
 					.orElse(null);
 		}
 		catch (IOException e)

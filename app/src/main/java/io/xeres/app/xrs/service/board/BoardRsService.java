@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -50,7 +50,6 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -395,7 +394,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		if (file.getSize() >= IMAGE_MAX_SIZE)
 		{
-			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException("Board group image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
 		}
 
 		var board = findById(id).orElseThrow();
@@ -403,7 +402,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
-				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
 		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
@@ -455,7 +454,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		if (file.getSize() >= IMAGE_MAX_SIZE)
 		{
-			throw new IllegalArgumentException("Board image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException("Board message image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
 		}
 
 		var message = findMessageById(id).orElseThrow();
@@ -463,7 +462,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		var out = new ByteArrayOutputStream();
 		Thumbnails.of(file.getInputStream())
 				.size(IMAGE_MESSAGE_WIDTH, IMAGE_MESSAGE_HEIGHT)
-				.outputFormat(MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()) ? "PNG" : "JPEG")
+				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
 				.toOutputStream(out);
 
 		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?

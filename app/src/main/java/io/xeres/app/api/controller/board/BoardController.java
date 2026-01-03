@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -113,8 +113,7 @@ public class BoardController
 		var imageType = ImageUtils.getImageMimeType(group.getImage());
 		if (imageType == null)
 		{
-			// XXX: do we want an identicon?!
-			return null; // XXX
+			return null;
 		}
 		return ResponseEntity.ok()
 				.contentLength(group.getImage().length)
@@ -173,7 +172,6 @@ public class BoardController
 	{
 		var boardMessages = boardRsService.findAllMessages(groupId, pageable);
 
-		// XXX: use new PagedModel()... but how? I can't use my mapper with it...
 		return new PageImpl<>(toBoardMessageDTOs(unHtmlService,
 				boardMessages,
 				boardMessageService.getAuthorsMapFromMessages(boardMessages),

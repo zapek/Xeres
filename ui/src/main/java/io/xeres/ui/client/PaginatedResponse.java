@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,8 @@
 
 package io.xeres.ui.client;
 
+import org.apache.commons.collections4.ListUtils;
+
 import java.util.List;
 
 /**
@@ -27,24 +29,55 @@ import java.util.List;
  * @param content          the page content as a {@link List}
  * @param totalElements    the total amount of elements
  * @param totalPages       the number of total pages
- * @param empty            if the page has no content at all
- * @param first            if the page is the first one
- * @param last             if the page is the last one
  * @param number           the number of the current page. Is always non-negative.
  * @param size             the size of the page
- * @param numberOfElements the number of elements currently on this page
  * @param <T>              the element's type
  */
 public record PaginatedResponse<T>(
 		List<T> content,
 		int totalElements,
 		int totalPages,
-		boolean empty,
-		boolean first,
-		boolean last,
 		int number,
-		int size,
-		int numberOfElements
+		int size
 )
 {
+	/**
+	 * Checks if the page has any content at all.
+	 *
+	 * @return true if the page has no content at all
+	 */
+	public boolean empty()
+	{
+		return ListUtils.emptyIfNull(content).isEmpty();
+	}
+
+	/**
+	 * Checks if the page is the first one.
+	 *
+	 * @return true if the page is the first one
+	 */
+	public boolean first()
+	{
+		return number == 0;
+	}
+
+	/**
+	 * Checks if the page is the last one.
+	 *
+	 * @return true if the page is the last one
+	 */
+	public boolean last()
+	{
+		return number == totalPages;
+	}
+
+	/**
+	 * Gets the number of elements in the page.
+	 *
+	 * @return the number of elements in the current page.
+	 */
+	public int numberOfElements()
+	{
+		return ListUtils.emptyIfNull(content).size();
+	}
 }

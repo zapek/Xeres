@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -82,12 +82,8 @@ public final class BoardMapper
 						.toList(),
 				dto.totalElements(),
 				dto.totalPages(),
-				dto.empty(),
-				dto.first(),
-				dto.last(),
 				dto.number(),
-				dto.size(),
-				dto.numberOfElements()
+				dto.size()
 		);
 	}
 }

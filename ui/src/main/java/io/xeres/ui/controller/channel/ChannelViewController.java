@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -115,6 +115,12 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	@Override
 	public void onUnselect()
+	{
+
+	}
+
+	@Override
+	public void onEdit(ChannelGroup group)
 	{
 
 	}

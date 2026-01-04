@@ -20,7 +20,9 @@
 package io.xeres.ui.controller.board;
 
 import io.xeres.common.util.OsUtils;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.BoardClient;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.ImageSelectorView;
 import io.xeres.ui.support.util.ChooserUtils;
@@ -43,6 +45,7 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
+import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 
 @Component
@@ -65,14 +68,18 @@ public class BoardGroupWindowController implements WindowController
 	private ImageSelectorView boardLogo;
 
 	private final BoardClient boardClient;
+	private final GeneralClient generalClient;
 
 	private final ResourceBundle bundle;
 
+	private long boardId;
+
 	private File logoFile;
 
-	public BoardGroupWindowController(BoardClient boardClient, ResourceBundle bundle)
+	public BoardGroupWindowController(BoardClient boardClient, GeneralClient generalClient, ResourceBundle bundle)
 	{
 		this.boardClient = boardClient;
+		this.generalClient = generalClient;
 		this.bundle = bundle;
 	}
 
@@ -83,13 +90,49 @@ public class BoardGroupWindowController implements WindowController
 		boardDescription.textProperty().addListener(_ -> checkCreatable());
 		boardLogo.setOnSelectAction(this::selectGroupImage);
 		boardLogo.setOnDeleteAction(this::clearGroupImage);
+		boardLogo.setImageLoader(url -> generalClient.getImage(url).block());
 
-		createButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
-						boardDescription.getText(),
-						logoFile)
-				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
-				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);
+	}
+
+	@Override
+	public void onShown()
+	{
+		var userData = UiUtils.getUserData(boardName);
+		if (userData != null)
+		{
+			boardId = (long) userData;
+		}
+
+		if (boardId != 0L)
+		{
+			boardClient.getBoardGroupById(boardId)
+					.doOnSuccess(boardGroup -> Platform.runLater(() -> {
+						boardName.setText(boardGroup.getName());
+						boardDescription.setText(boardGroup.getDescription());
+						if (boardGroup.hasImage())
+						{
+							boardLogo.setImageUrl(RemoteUtils.getControlUrl() + BOARDS_PATH + "/groups/" + boardGroup.getId() + "/image");
+						}
+					}))
+					.subscribe();
+			createButton.setText("Update");
+			createButton.setOnAction(_ -> boardClient.updateBoardGroup(boardId,
+							boardName.getText(),
+							boardDescription.getText(),
+							logoFile,
+							logoFile != null) // XXX: it depends on the initial state (set an image listener? how do I detect the change?). also checkCreateable() should be checkEdited() or so...
+					.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+					.subscribe());
+		}
+		else
+		{
+			createButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
+							boardDescription.getText(),
+							logoFile)
+					.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+					.subscribe());
+		}
 	}
 
 	private void checkCreatable()

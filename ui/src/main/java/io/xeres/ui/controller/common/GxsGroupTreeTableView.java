@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -47,6 +47,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 	private static final String SUBSCRIBE_MENU_ID = "subscribe";
 	private static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
+	private static final String EDIT_MENU_ID = "edit";
 
 	private static final String OPEN_OWN = "OpenOwn";
 	private static final String OPEN_SUBSCRIBED = "OpenSubscribed";
@@ -143,15 +144,16 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 	{
 		var tree = parent.getChildren();
 
-		if (tree.stream()
-				.map(TreeItem::getValue)
-				.noneMatch(existingBoard -> existingBoard.getId() == group.getId()))
-		{
-			tree.add(new TreeItem<>(group));
-			parent.getValue().addUnreadCount(1);
-			sortByName(tree);
-			removeFromOthers(parent, group);
-		}
+		tree.stream()
+				.filter(existingTree -> existingTree.getValue().getId() == group.getId())
+				.findAny().ifPresentOrElse(found -> {
+					found.setValue(group); // XXX: doesn't refresh the image... why? because of the cache? (url is the same after all...)
+				}, () -> {
+					tree.add(new TreeItem<>(group));
+					parent.getValue().addUnreadCount(1);
+					sortByName(tree);
+					removeFromOthers(parent, group);
+				});
 	}
 
 	private void subscribeToGroup(T group)
@@ -329,6 +331,15 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 
 	private void createTreeContextMenu()
 	{
+		var editItem = new MenuItem("Edit");
+		editItem.setId(EDIT_MENU_ID);
+		// XXX: find fonticon
+		editItem.setOnAction(event -> {
+			//noinspection unchecked
+			var group = ((TreeItem<T>) event.getSource()).getValue();
+			action.onEdit(group);
+		});
+
 		var subscribeItem = new MenuItem(bundle.getString("gxs-group.tree.subscribe"));
 		subscribeItem.setId(SUBSCRIBE_MENU_ID);
 		subscribeItem.setGraphic(new FontIcon(MaterialDesignL.LOCATION_ENTER));
@@ -355,22 +366,45 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		//noinspection unchecked
 		copyLinkItem.setOnAction(event -> action.onCopyLink(((TreeItem<T>) event.getSource()).getValue()));
 
-		var xContextMenu = new XContextMenu<TreeItem<T>>(subscribeItem, unsubscribeItem, new SeparatorMenuItem(), copyLinkItem);
+		var xContextMenu = new XContextMenu<TreeItem<T>>(subscribeItem, unsubscribeItem, editItem, new SeparatorMenuItem(), copyLinkItem);
 		xContextMenu.addToNode(this);
 		xContextMenu.setOnShowing((contextMenu, treeItem) -> {
 			if (treeItem == null)
 			{
 				return false;
 			}
-			contextMenu.getItems().stream()
-					.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(treeItem.getValue().isSubscribed()));
 
-			contextMenu.getItems().stream()
-					.filter(menuItem -> UNSUBSCRIBE_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(!treeItem.getValue().isSubscribed()));
+			if (!treeItem.getValue().isReal())
+			{
+				return false;
+			}
 
-			return treeItem.getValue().isReal() && treeItem.getValue().isExternal();
+			if (treeItem.getValue().isExternal())
+			{
+				contextMenu.getItems().stream()
+						.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
+						.findFirst().ifPresent(menuItem -> menuItem.setDisable(treeItem.getValue().isSubscribed()));
+
+				contextMenu.getItems().stream()
+						.filter(menuItem -> UNSUBSCRIBE_MENU_ID.equals(menuItem.getId()))
+						.findFirst().ifPresent(menuItem -> menuItem.setDisable(!treeItem.getValue().isSubscribed()));
+
+				contextMenu.getItems().stream()
+						.filter(menuItem -> EDIT_MENU_ID.equals(menuItem.getId()))
+						.findFirst().ifPresent(menuItem -> menuItem.setVisible(false));
+				return true;
+			}
+			else
+			{
+				contextMenu.getItems().stream()
+						.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
+						.findFirst().ifPresent(menuItem -> menuItem.setVisible(false));
+
+				contextMenu.getItems().stream()
+						.filter(menuItem -> UNSUBSCRIBE_MENU_ID.equals(menuItem.getId()))
+						.findFirst().ifPresent(menuItem -> menuItem.setVisible(false));
+				return true;
+			}
 		});
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,4 +32,6 @@ public interface GxsGroupTreeTableAction<T>
 	void onSelectUnsubscribed(T group);
 
 	void onUnselect();
+
+	void onEdit(T group);
 }

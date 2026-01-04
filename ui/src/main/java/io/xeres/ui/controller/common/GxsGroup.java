@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,11 @@ import io.xeres.common.id.GxsId;
 
 public interface GxsGroup
 {
+	/**
+	 * Checks if it's a real Gxs Group, that means not a tree directory.
+	 *
+	 * @return true if it's a real gxs group
+	 */
 	boolean isReal();
 
 	long getId();
@@ -33,6 +38,10 @@ public interface GxsGroup
 
 	String getDescription();
 
+	/**
+	 * Checks if the group comes from other people than us.
+	 * @return true if it's an external group, that is now a group created by us
+	 */
 	boolean isExternal();
 
 	boolean isSubscribed();

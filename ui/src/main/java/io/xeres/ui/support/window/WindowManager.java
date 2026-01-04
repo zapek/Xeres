@@ -302,7 +302,7 @@ public class WindowManager
 						}));
 	}
 
-	public void openBoardEditor(long boardId)
+	public void openBoardMessage(long boardId)
 	{
 		Platform.runLater(() ->
 				getOpenedWindow(BoardMessageWindowController.class, String.valueOf(boardId)).ifPresentOrElse(Window::requestFocus,
@@ -525,12 +525,13 @@ public class WindowManager
 						.open());
 	}
 
-	public void openBoardCreation()
+	public void openBoardCreation(long groupId)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(BoardGroupWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("board.create.window-title"))
+						.setUserData(groupId)
 						.build()
 						.open());
 	}

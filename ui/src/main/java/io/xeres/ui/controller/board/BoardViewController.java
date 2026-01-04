@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -136,7 +136,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 		onDemandLoader = new OnDemandLoader<>(messagesView, messages, boardClient);
 
-		createBoard.setOnAction(_ -> windowManager.openBoardCreation());
+		createBoard.setOnAction(_ -> windowManager.openBoardCreation(0L));
 
 		newPost.setOnAction(_ -> newBoardPost());
 
@@ -180,6 +180,12 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		onDemandLoader.changeSelection(null);
 		newPost.setDisable(true);
+	}
+
+	@Override
+	public void onEdit(BoardGroup group)
+	{
+		windowManager.openBoardCreation(group.getId());
 	}
 
 	@EventListener
@@ -247,7 +253,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void newBoardPost()
 	{
-		windowManager.openBoardEditor(boardTree.getSelectedGroup().getId());
+		windowManager.openBoardMessage(boardTree.getSelectedGroup().getId());
 	}
 
 	private void addBoardMessages(List<BoardMessage> boardMessages)

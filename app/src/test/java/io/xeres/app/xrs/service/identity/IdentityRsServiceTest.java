@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -176,6 +176,8 @@ class IdentityRsServiceTest
 		var id = 1L;
 		var file = mock(MultipartFile.class);
 		when(file.getSize()).thenReturn(1024 * 1024 * 11L);
+
+		when(identityService.findById(id)).thenReturn(Optional.of(IdentityFakes.createOwn()));
 
 		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveOwnIdentityImage(id, file), "Avatar image size is bigger than " + (1024 * 1024 * 10) + " bytes");
 	}

@@ -51,7 +51,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -103,9 +102,10 @@ public class ChannelController
 	@ApiResponse(responseCode = "404", description = "Channel not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "415", description = "Image's media type unsupported", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	public ResponseEntity<Void> uploadChannelGroupImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
+	public ResponseEntity<Void> uploadChannelGroupImage(@PathVariable long id, @RequestBody MultipartFile file)
 	{
-		channelRsService.saveChannelGroupImage(id, file);
+		// XXX
+		//channelRsService.saveChannelGroupImage(id, file);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(CHANNELS_PATH + "/groups/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -226,9 +226,10 @@ public class ChannelController
 	@ApiResponse(responseCode = "404", description = "Channel message not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "415", description = "Image's media type unsupported", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	public ResponseEntity<Void> uploadChannelMessageGroupImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
+	public ResponseEntity<Void> uploadChannelMessageGroupImage(@PathVariable long id, @RequestBody MultipartFile file)
 	{
-		channelRsService.saveChannelMessageImage(id, file);
+		// XXX:
+		//channelRsService.saveChannelMessageImage(id, file);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(CHANNELS_PATH + "/messages/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();

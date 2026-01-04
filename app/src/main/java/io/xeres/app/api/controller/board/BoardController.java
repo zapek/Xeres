@@ -102,6 +102,18 @@ public class BoardController
 		return ResponseEntity.created(location).build();
 	}
 
+	@PutMapping(value = "/groups/{groupId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@Operation(summary = "Updates a board")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void updateBoardGroup(@PathVariable long groupId,
+	                             @RequestParam(value = "name") String name,
+	                             @RequestParam(value = "description") String description,
+	                             @RequestParam(value = "image", required = false) MultipartFile imageFile,
+	                             @RequestParam(value = "updateImage", required = false) Boolean updateImage) throws IOException
+	{
+		boardRsService.updateBoardGroup(groupId, name, description, imageFile, updateImage != null ? updateImage : false);
+	}
+
 	@GetMapping(value = "/groups/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
 	@Operation(summary = "Returns an board's image")
 	@ApiResponse(responseCode = "200", description = "Board image found")

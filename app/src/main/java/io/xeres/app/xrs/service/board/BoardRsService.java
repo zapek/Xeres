@@ -29,6 +29,7 @@ import io.xeres.app.database.repository.GxsVoteMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.notification.board.BoardNotificationService;
+import io.xeres.app.util.GxsUtils;
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
@@ -46,7 +47,6 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.image.ImageUtils;
-import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -66,21 +66,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
+import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
 import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.POSTED;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
-import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_INPUT_SIZE;
 
 @Component
 public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageItem>
 {
-	private static final int IMAGE_GROUP_WIDTH = 64; // XXX: I saw more I think... check...
-	private static final int IMAGE_GROUP_HEIGHT = 64;
+	private static final int IMAGE_GROUP_SIDE_SIZE = 64;
 
 	private static final int IMAGE_MESSAGE_WIDTH = 640;
 	private static final int IMAGE_MESSAGE_HEIGHT = 480;
-
-	private static final int MAXIMUM_MESSAGE_SIZE = 199_000;
 
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(60);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
@@ -358,20 +356,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		if (imageFile != null && !imageFile.isEmpty())
 		{
-			if (imageFile.getSize() >= IMAGE_MAX_INPUT_SIZE)
-			{
-				throw new IllegalArgumentException("Board group image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
-			}
-
-			var out = new ByteArrayOutputStream();
-			Thumbnails.of(imageFile.getInputStream())
-					.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
-					.outputFormat(ImageUtils.isPossiblyTransparent(imageFile.getContentType()) ? "PNG" : "JPEG")
-					.toOutputStream(out);
-
-			// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
-
-			boardGroupItem.setImage(out.toByteArray());
+			boardGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
 		}
 
 		if (identity != null)
@@ -392,6 +377,31 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		boardNotificationService.addOrUpdateBoardGroups(List.of(boardGroupItem));
 
 		return boardGroupItem.getId();
+	}
+
+	@Transactional
+	public void updateBoardGroup(long groupId, String name, String description, MultipartFile imageFile, boolean updateImage) throws IOException
+	{
+		var boardGroupItem = gxsBoardGroupRepository.findById(groupId).orElseThrow();
+		boardGroupItem.setName(name);
+		boardGroupItem.setDescription(description);
+		if (updateImage)
+		{
+			if (imageFile != null)
+			{
+				if (!imageFile.isEmpty())
+				{
+					boardGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+				}
+			}
+			else
+			{
+				boardGroupItem.setImage(null); // Remove the image
+			}
+		}
+
+		boardGroupItem = saveBoard(boardGroupItem);
+		boardNotificationService.addOrUpdateBoardGroups(List.of(boardGroupItem));
 	}
 
 	@Transactional
@@ -438,7 +448,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 			var image = ImageUtils.limitMaximumImageSize(ImageIO.read(imageFile.getInputStream()), IMAGE_MESSAGE_WIDTH * IMAGE_MESSAGE_HEIGHT);
 			var imageOut = new ByteArrayOutputStream();
-			if (!ImageUtils.writeImageAsJpeg(image, MAXIMUM_MESSAGE_SIZE - size, imageOut))
+			if (!ImageUtils.writeImageAsJpeg(image, MAXIMUM_GXS_MESSAGE_SIZE - size, imageOut))
 			{
 				throw new IllegalArgumentException("Couldn't write the image. Unsupported format?");
 			}
@@ -448,7 +458,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 			size += data.length;
 		}
 
-		if (size >= MAXIMUM_MESSAGE_SIZE)
+		if (size >= MAXIMUM_GXS_MESSAGE_SIZE)
 		{
 			throw new IllegalArgumentException("The message is too large. Reduce the content and/or the image.");
 		}
@@ -463,8 +473,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 	// XXX: same for forums and channels...
 
-	@Transactional
-	public BoardMessageItem saveMessage(MessageBuilder messageBuilder)
+	private BoardMessageItem saveMessage(MessageBuilder messageBuilder)
 	{
 		var boardMessageItem = messageBuilder.build();
 

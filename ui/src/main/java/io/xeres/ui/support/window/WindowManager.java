@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,8 +38,8 @@ import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
-import io.xeres.ui.controller.board.BoardCreationWindowController;
-import io.xeres.ui.controller.board.BoardEditorWindowController;
+import io.xeres.ui.controller.board.BoardGroupWindowController;
+import io.xeres.ui.controller.board.BoardMessageWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
@@ -305,11 +305,11 @@ public class WindowManager
 	public void openBoardEditor(long boardId)
 	{
 		Platform.runLater(() ->
-				getOpenedWindow(BoardEditorWindowController.class, String.valueOf(boardId)).ifPresentOrElse(Window::requestFocus,
+				getOpenedWindow(BoardMessageWindowController.class, String.valueOf(boardId)).ifPresentOrElse(Window::requestFocus,
 						() -> {
-							var boardEditor = new BoardEditorWindowController(boardClient, locationClient, markdownService, bundle);
+							var boardEditor = new BoardMessageWindowController(boardClient, locationClient, markdownService, bundle);
 
-							UiWindow.builder("/view/board/board_editor_view.fxml", boardEditor)
+							UiWindow.builder("/view/board/board_message_view.fxml", boardEditor)
 									.setLocalId(String.valueOf(boardId))
 									.setTitle(bundle.getString("board.new-message.window-title"))
 									.setUserData(boardId)
@@ -528,7 +528,7 @@ public class WindowManager
 	public void openBoardCreation()
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(BoardCreationWindowController.class)
+				UiWindow.builder(BoardGroupWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("board.create.window-title"))
 						.build()

@@ -35,6 +35,7 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.ResourceCreationState;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
+import io.xeres.app.util.GxsUtils;
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
@@ -49,9 +50,7 @@ import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.id.*;
 import io.xeres.common.identity.Type;
 import io.xeres.common.util.ExecutorUtils;
-import io.xeres.common.util.image.ImageUtils;
 import jakarta.persistence.EntityNotFoundException;
-import net.coobird.thumbnailator.Thumbnails;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.springframework.stereotype.Component;
@@ -75,13 +74,11 @@ import static io.xeres.app.service.ResourceCreationState.*;
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.CHILD_AUTHOR;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.ROOT_AUTHOR;
-import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_INPUT_SIZE;
 
 @Component
 public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessageItem>
 {
-	private static final int IMAGE_WIDTH = 128;
-	private static final int IMAGE_HEIGHT = 128;
+	private static final int IMAGE_GROUP_SIDE_SIZE = 128;
 
 	private static final Duration PENDING_VALIDATION_START = Duration.ofSeconds(60);
 	private static final Duration PENDING_VALIDATION_DELAY = Duration.ofSeconds(2);
@@ -487,20 +484,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			throw new IllegalArgumentException("Avatar image is empty");
 		}
 
-		if (file.getSize() >= IMAGE_MAX_INPUT_SIZE)
-		{
-			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
-		}
-
 		var identity = identityService.findById(id).orElseThrow();
 
-		var out = new ByteArrayOutputStream();
-		Thumbnails.of(file.getInputStream())
-				.size(IMAGE_WIDTH, IMAGE_HEIGHT)
-				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
-				.toOutputStream(out);
-
-		identity.setImage(out.toByteArray());
+		identity.setImage(GxsUtils.getScaledGroupImage(file, IMAGE_GROUP_SIDE_SIZE));
 		identity.updatePublished();
 
 		return saveIdentity(identity, true);

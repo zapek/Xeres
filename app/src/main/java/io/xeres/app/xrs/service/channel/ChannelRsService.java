@@ -44,14 +44,10 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.image.ImageUtils;
-import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -62,7 +58,6 @@ import java.util.stream.Collectors;
 import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.CHANNELS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
-import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_INPUT_SIZE;
 
 @Component
 public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMessageItem>
@@ -365,37 +360,6 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Transactional
-	public ChannelGroupItem saveChannelGroupImage(long id, MultipartFile file) throws IOException
-	{
-		if (file == null)
-		{
-			throw new IllegalArgumentException("Image is null");
-		}
-
-		if (file.getSize() >= IMAGE_MAX_INPUT_SIZE)
-		{
-			throw new IllegalArgumentException("Channel group image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
-		}
-
-		var channel = findById(id).orElseThrow();
-
-		var out = new ByteArrayOutputStream();
-		Thumbnails.of(file.getInputStream())
-				.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
-				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
-				.toOutputStream(out);
-
-		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
-
-		channel.setImage(out.toByteArray());
-		channel.updatePublished();
-
-		var savedChannel = saveChannel(channel);
-		channelNotificationService.addOrUpdateChannelGroups(List.of(savedChannel));
-		return savedChannel;
-	}
-
-	@Transactional
 	public long createChannelMessage(IdentityGroupItem author, long channelId, String title, String content, long parentId, long originalId)
 	{
 		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsChannelGroupRepository.findById(channelId).orElseThrow().getGxsId(), title)
@@ -423,37 +387,6 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 
 		return savedMessageId;
-	}
-
-	@Transactional
-	public ChannelMessageItem saveChannelMessageImage(long id, MultipartFile file) throws IOException
-	{
-		if (file == null)
-		{
-			throw new IllegalArgumentException("Image is null");
-		}
-
-		if (file.getSize() >= IMAGE_MAX_INPUT_SIZE)
-		{
-			throw new IllegalArgumentException("Channel message image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
-		}
-
-		var message = findMessageById(id);
-
-		var out = new ByteArrayOutputStream();
-		Thumbnails.of(file.getInputStream())
-				.size(IMAGE_MESSAGE_WIDTH, IMAGE_MESSAGE_HEIGHT)
-				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
-				.toOutputStream(out);
-
-		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
-
-		message.setImage(out.toByteArray());
-		message.updatePublished();
-
-		var savedMessage = saveMessage(message);
-		channelNotificationService.addOrUpdateChannelMessages(List.of(message));
-		return savedMessage;
 	}
 
 	@Transactional

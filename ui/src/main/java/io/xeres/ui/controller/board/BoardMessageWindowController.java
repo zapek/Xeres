@@ -43,8 +43,6 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -59,11 +57,9 @@ import java.util.concurrent.CompletableFuture;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 
 @Component
-@FxmlView(value = "/view/board/board_editor_view.fxml")
-public class BoardEditorWindowController implements WindowController
+@FxmlView(value = "/view/board/board_message_view.fxml")
+public class BoardMessageWindowController implements WindowController
 {
-	private static final Logger log = LoggerFactory.getLogger(BoardEditorWindowController.class);
-
 	@FXML
 	private GridPane gridPane;
 
@@ -107,7 +103,7 @@ public class BoardEditorWindowController implements WindowController
 	private final MarkdownService markdownService;
 	private final ResourceBundle bundle;
 
-	public BoardEditorWindowController(BoardClient boardClient, LocationClient locationClient, MarkdownService markdownService, ResourceBundle bundle)
+	public BoardMessageWindowController(BoardClient boardClient, LocationClient locationClient, MarkdownService markdownService, ResourceBundle bundle)
 	{
 		this.boardClient = boardClient;
 		this.locationClient = locationClient;

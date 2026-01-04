@@ -304,12 +304,6 @@
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://github.com/springdoc/springdoc-openapi/blob/main/LICENSE"/>
                     <Text text="&#10;&#10;"/>
 
-                    <DisclosedHyperlink text="Thumbnailator" uri="https://github.com/coobird/thumbnailator"/>
-                    <Text text="&#10;"/>
-                    <Text text=" © Chris Kroells. Licensed under the "/>
-                    <DisclosedHyperlink text="MIT license" uri="https://github.com/coobird/thumbnailator?tab=MIT-1-ov-file#readme"/>
-                    <Text text="&#10;&#10;"/>
-
                     <DisclosedHyperlink text="TwelveMonkeys" uri="https://github.com/haraldk/TwelveMonkeys"/>
                     <Text text="&#10;"/>
                     <Text text=" © Harald Kuhr. Licensed under the "/>

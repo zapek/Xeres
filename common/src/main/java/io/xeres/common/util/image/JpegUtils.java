@@ -37,7 +37,7 @@ final class JpegUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static void compressBufferedImageToJpegArray(BufferedImage image, float quality, OutputStream outputStream) throws IOException
+	static void writeBufferedImageToJpeg(BufferedImage image, float quality, OutputStream outputStream) throws IOException
 	{
 		var jpegWriter = ImageIO.getImageWritersByFormatName("JPEG").next();
 		var jpegWriteParam = jpegWriter.getDefaultWriteParam();

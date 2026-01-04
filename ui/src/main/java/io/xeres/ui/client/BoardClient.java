@@ -77,6 +77,33 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 
 	public Mono<Long> createBoardGroup(String name, String description, File image)
 	{
+		var builder = createGroupBuilder(name, description, image);
+
+		return webClient.post()
+				.uri("/groups")
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(builder.build()))
+				.exchangeToMono(ClientUtils::getCreatedId);
+	}
+
+	public Mono<Void> updateBoardGroup(long groupId, String name, String description, File image, boolean updateImage)
+	{
+		var builder = createGroupBuilder(name, description, image);
+		if (updateImage)
+		{
+			builder.part("updateImage", updateImage);
+		}
+
+		return webClient.put()
+				.uri("/groups/{groupId}", groupId)
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(builder.build()))
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	private MultipartBodyBuilder createGroupBuilder(String name, String description, File image)
+	{
 		var builder = new MultipartBodyBuilder();
 		if (StringUtils.isBlank(name))
 		{
@@ -92,12 +119,7 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 		{
 			builder.part("image", new FileSystemResource(image));
 		}
-
-		return webClient.post()
-				.uri("/groups")
-				.contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(BodyInserters.fromMultipartData(builder.build()))
-				.exchangeToMono(ClientUtils::getCreatedId);
+		return builder;
 	}
 
 	public Mono<BoardGroup> getBoardGroupById(long groupId)

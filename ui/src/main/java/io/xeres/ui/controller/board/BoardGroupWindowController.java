@@ -46,8 +46,8 @@ import java.util.concurrent.CompletableFuture;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 
 @Component
-@FxmlView(value = "/view/board/board_create.fxml")
-public class BoardCreationWindowController implements WindowController
+@FxmlView(value = "/view/board/board_group_view.fxml")
+public class BoardGroupWindowController implements WindowController
 {
 	@FXML
 	private Button createButton;
@@ -70,7 +70,7 @@ public class BoardCreationWindowController implements WindowController
 
 	private File logoFile;
 
-	public BoardCreationWindowController(BoardClient boardClient, ResourceBundle bundle)
+	public BoardGroupWindowController(BoardClient boardClient, ResourceBundle bundle)
 	{
 		this.boardClient = boardClient;
 		this.bundle = bundle;

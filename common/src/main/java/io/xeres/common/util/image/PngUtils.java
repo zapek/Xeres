@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,8 +29,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.PackedColorModel;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -298,44 +298,38 @@ final class PngUtils
 	 *
 	 * @param in      the PNG image as a byte array
 	 * @param quality the quality (3, 2 and 1, 1 being best but most CPU intensive)
-	 * @return the optimized PNG image as a byte array
+	 * @param outputStream the output stream to write the image to
 	 * @throws IOException if an I/O error occurs
 	 */
-	static byte[] optimizePng(byte[] in, int quality) throws IOException
+	static void optimizePng(byte[] in, int quality, OutputStream outputStream) throws IOException
 	{
 		int compressionLevel = qualityToCompressionLevel(quality);
 		var pngImage = new PngImage(in);
 		var optimizer = new PngOptimizer();
 		var pngOut = optimizer.optimize(pngImage, true, compressionLevel);
-		var outputStream = new ByteArrayOutputStream();
 		pngOut.writeDataOutputStream(outputStream);
-		return outputStream.toByteArray();
 	}
 
 	/**
-	 * Compresses the given image to PNG using the default compression level.
+	 * Writes the given image to PNG using the default compression level.
 	 * <p>
 	 * This compressor doesn't compress very well, and it's a good idea to run it through an optimizer.
 	 *
 	 * @param image the image to compress
-	 * @return the compressed image as a byte array
+	 * @param outputStream the output stream to write the image to
 	 * @throws IOException if an I/O error occurs
 	 */
-	static byte[] compressBufferedImageToPngArray(BufferedImage image) throws IOException
+	static void writeBufferedImageToPng(BufferedImage image, OutputStream outputStream) throws IOException
 	{
 		var pngWriter = ImageIO.getImageWritersByFormatName("PNG").next();
 		var pngWriteParam = pngWriter.getDefaultWriteParam();
 		pngWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		pngWriteParam.setCompressionQuality(0.5f); // This compressor is actually pretty bad and doesn't change much depending on the quality
 
-		var out = new ByteArrayOutputStream();
-
-		var ios = ImageIO.createImageOutputStream(out);
+		var ios = ImageIO.createImageOutputStream(outputStream);
 		pngWriter.setOutput(ios);
 		var outputImage = new IIOImage(image, null, null);
 		pngWriter.write(null, outputImage, pngWriteParam);
-		var result = out.toByteArray();
 		pngWriter.dispose();
-		return result;
 	}
 }

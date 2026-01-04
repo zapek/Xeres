@@ -44,8 +44,6 @@ public final class ImageUtils
 {
 	private static final Logger log = LoggerFactory.getLogger(ImageUtils.class);
 
-	public static final long IMAGE_MAX_INPUT_SIZE = 1024 * 1024 * 10L; // 10 MB;
-
 	private static final String DATA_IMAGE_PNG_BASE_64 = "data:image/png;base64,";
 	private static final String DATA_IMAGE_JPEG_BASE_64 = "data:image/jpeg;base64,";
 
@@ -82,6 +80,75 @@ public final class ImageUtils
 	}
 
 	/**
+	 * Writes a buffered image as a PNG file. The image is optimized
+	 * trying to fit the size. If needed, the image is converted to indexed PNG.
+	 *
+	 * @param bufferedImage the buffered image
+	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
+	 * @param outputStream  the output stream
+	 * @return true if the image could be written, false otherwise
+	 */
+	public static boolean writeImageAsPng(BufferedImage bufferedImage, int maximumSize, OutputStream outputStream)
+	{
+		try
+		{
+			var baseOut = new ByteArrayOutputStream();
+			var quality = 4;
+			PngUtils.writeBufferedImageToPng(bufferedImage, baseOut);
+
+			// Try true color reduction first
+			ByteArrayOutputStream newOut;
+			do
+			{
+				newOut = new ByteArrayOutputStream();
+				if (quality < 4)
+				{
+					PngUtils.optimizePng(baseOut.toByteArray(), quality, newOut);
+				}
+				quality -= 1;
+			}
+			while (canCompressionPossiblyBeImproved(maximumSize, newOut.toByteArray(), quality));
+
+			quality = 4;
+
+			if (newOut.size() == 0)
+			{
+				newOut = baseOut;
+			}
+
+			ByteArrayOutputStream newIndexedOut = null;
+
+			// If still too big, try to convert to indexed PNG and then optimize it again
+			if (canCompressionPossiblyBeImproved(maximumSize, newOut.toByteArray(), quality))
+			{
+				newOut = new ByteArrayOutputStream();
+				bufferedImage = PngUtils.convertToIndexedPng(bufferedImage);
+				PngUtils.writeBufferedImageToPng(bufferedImage, newOut);
+
+
+				do
+				{
+					newIndexedOut = new ByteArrayOutputStream();
+					if (quality < 4)
+					{
+						PngUtils.optimizePng(newOut.toByteArray(), quality, newIndexedOut);
+					}
+					quality -= 1;
+				}
+				while (canCompressionPossiblyBeImproved(maximumSize, newIndexedOut.toByteArray(), quality));
+
+			}
+			outputStream.write((newIndexedOut != null && newIndexedOut.size() > 0) ? newIndexedOut.toByteArray() : newOut.toByteArray());
+			return true;
+		}
+		catch (IOException e)
+		{
+			log.error("Couldn't save buffered image as PNG: {}", e.getMessage());
+			return false;
+		}
+	}
+
+	/**
 	 * Writes a buffered image as a PNG data URL. The image is optimized
 	 * trying to fit the size. If needed, the image is converted to indexed PNG.
 	 *
@@ -91,49 +158,13 @@ public final class ImageUtils
 	 */
 	public static String writeImageAsPngData(BufferedImage bufferedImage, int maximumSize)
 	{
-		try
+		var out = new ByteArrayOutputStream();
+		if (writeImageAsPng(bufferedImage, maximumSize, out))
 		{
-			byte[] out;
-			var quality = 4;
-			var baseOut = PngUtils.compressBufferedImageToPngArray(bufferedImage);
-
-			// Try true color reduction first
-			do
-			{
-				out = baseOut;
-				if (quality < 4)
-				{
-					out = PngUtils.optimizePng(baseOut, quality);
-				}
-				quality -= 1;
-			}
-			while (canCompressionPossiblyBeImproved(maximumSize, out, quality));
-
-			quality = 4;
-
-			// If still too big, try to convert to indexed PNG and then optimize it again
-			if (canCompressionPossiblyBeImproved(maximumSize, out, quality))
-			{
-				bufferedImage = PngUtils.convertToIndexedPng(bufferedImage);
-				baseOut = PngUtils.compressBufferedImageToPngArray(bufferedImage);
-
-				do
-				{
-					out = baseOut;
-					if (quality < 4)
-					{
-						out = PngUtils.optimizePng(baseOut, quality);
-					}
-					quality -= 1;
-				}
-				while (canCompressionPossiblyBeImproved(maximumSize, out, quality));
-
-			}
-			return DATA_IMAGE_PNG_BASE_64 + Base64.getEncoder().encodeToString(out);
+			return DATA_IMAGE_PNG_BASE_64 + Base64.getEncoder().encodeToString(out.toByteArray());
 		}
-		catch (IOException e)
+		else
 		{
-			log.error("Couldn't save buffered image as PNG: {}", e.getMessage());
 			return "";
 		}
 	}
@@ -157,7 +188,7 @@ public final class ImageUtils
 			bufferedImage = JpegUtils.stripAlphaIfNeeded(bufferedImage);
 			do
 			{
-				JpegUtils.compressBufferedImageToJpegArray(bufferedImage, quality, out);
+				JpegUtils.writeBufferedImageToJpeg(bufferedImage, quality, out);
 				array = out.toByteArray();
 				quality -= 0.1f;
 			}
@@ -197,7 +228,7 @@ public final class ImageUtils
 
 	/**
 	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
-	 * It uses a high-quality incremental scaling algorithm.
+	 * Uses a highquality incremental scaling algorithm.
 	 *
 	 * @param image       the image
 	 * @param maximumSize the maximum size of the image in total number of pixels
@@ -208,30 +239,162 @@ public final class ImageUtils
 		var width = image.getWidth();
 		var height = image.getHeight();
 
-		var actualSize = width * height;
+		var size = width * height;
 
-		if (actualSize > maximumSize)
+		if (size > maximumSize)
 		{
-			var ratio = Math.sqrt((double) maximumSize / actualSize);
-			var destWidth = (int) (width * ratio);
+			var reductionRatio = Math.sqrt((double) maximumSize / size);
+			var destWidth = (int) (width * reductionRatio);
+			var destHeight = (int) (height * reductionRatio);
 
 			// This uses incremental scaling, which is the best one
-			return Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, destWidth);
+			return Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, destWidth, destHeight);
 		}
 		return image;
 	}
 
 	/**
-	 * Detects the type of the image.
+	 * Scales an image up or down. The aspect ratio is always preserved, thus the target width and height might be smaller than
+	 * the parameters given. Uses a high quality incremental scaling algorithm.
+	 *
+	 * @param image        the image
+	 * @param targetWidth  the target width
+	 * @param targetHeight the target height
+	 * @return the scaled image
+	 */
+	public static BufferedImage setImageSize(BufferedImage image, int targetWidth, int targetHeight)
+	{
+		var width = image.getWidth();
+		var height = image.getHeight();
+
+		// Calculate the scaling factor to fit within target dimensions
+		double scaleX = (double) targetWidth / width;
+		double scaleY = (double) targetHeight / height;
+
+		// Use the smaller scale to ensure the image fits within both dimensions
+		double scale = Math.min(scaleX, scaleY);
+
+		// Calculate the resulting dimensions
+		int newWidth = (int) Math.round(width * scale);
+		int newHeight = (int) Math.round(height * scale);
+
+		// Apply the scaling using imgscalr
+		return Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, newWidth, newHeight);
+	}
+
+	/**
+	 * Scales an image up or down. The aspect ratio is always preserved. If the source image is not square, the
+	 * background is filled either by a transparent background or a white background depending on the source image.
+	 *
+	 * @param image    the image
+	 * @param sideSize the side size
+	 * @return the scaled image
+	 */
+	public static BufferedImage setImageSquareAndFill(BufferedImage image, int sideSize)
+	{
+		var scaledImage = setImageSize(image, sideSize, sideSize);
+
+		// Determine if we need a transparent background
+		boolean hasTransparency = isTransparent(image);
+
+		// Create a new image with the specified side size
+		int imageType = hasTransparency ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
+		var result = new BufferedImage(sideSize, sideSize, imageType);
+
+		// Create a graphics context to draw on the new image
+		var graphics = result.createGraphics();
+
+		// Set background color based on transparency
+		if (hasTransparency)
+		{
+			// For transparent backgrounds, we'll use alpha to create transparency
+			graphics.setComposite(AlphaComposite.Clear);
+			graphics.fillRect(0, 0, sideSize, sideSize);
+			graphics.setComposite(AlphaComposite.SrcOver);
+		}
+		else
+		{
+			// For non-transparent images, use white background
+			graphics.setColor(Color.WHITE);
+			graphics.fillRect(0, 0, sideSize, sideSize);
+		}
+
+		// Calculate position to center the scaled image
+		int x = (sideSize - scaledImage.getWidth()) / 2;
+		int y = (sideSize - scaledImage.getHeight()) / 2;
+
+		// Draw the scaled image centered on the new image
+		graphics.drawImage(scaledImage, x, y, null);
+
+		// Clean up
+		graphics.dispose();
+
+		return result;
+	}
+
+	/**
+	 * Scales an image up or down. The aspect ratio is always preserved. If the source image is not square, its
+	 * largest dimension is cropped.
+	 *
+	 * @param image    the image
+	 * @param sideSize the side size
+	 * @return the scaled image
+	 */
+	public static BufferedImage setImageSquareAndCrop(BufferedImage image, int sideSize)
+	{
+		// Determine if we need a transparent background
+		boolean hasTransparency = isTransparent(image);
+
+		var width = image.getWidth();
+		var height = image.getHeight();
+
+		// Calculate the scaling factor to fit within target dimensions
+		double scaleX = (double) sideSize / width;
+		double scaleY = (double) sideSize / height;
+
+		// Use the smaller scale to ensure the image fits within both dimensions
+		double scale = Math.max(scaleX, scaleY);
+
+		// Calculate the resulting dimensions
+		int newWidth = (int) Math.round(width * scale);
+		int newHeight = (int) Math.round(height * scale);
+
+		// Apply the scaling using imgscalr
+		var scaledImage = Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, newWidth, newHeight);
+
+		// Create a new image with the specified side size
+		int imageType = hasTransparency ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
+		var result = new BufferedImage(sideSize, sideSize, imageType);
+
+		// Create a graphics context to draw on the new image
+		var graphics = result.createGraphics();
+
+		// Calculate position to center the scaled image
+		int x = (sideSize - scaledImage.getWidth()) / 2;
+		int y = (sideSize - scaledImage.getHeight()) / 2;
+
+		// Draw the scaled image centered on the new image
+		graphics.drawImage(scaledImage, x, y, null);
+
+		// Clean up
+		graphics.dispose();
+
+		return result;
+	}
+
+	/**
+	 * Detects the format of the image without decoding the whole.
 	 * <p>
 	 * Currently supported:
 	 * <ul>
 	 *     <li>PNG</li>
 	 *     <li>JPEG</li>
+	 *     <li>GIF</li>
+	 *     <li>WebP</li>
 	 * </ul>
 	 *
 	 * @param image the byte array containing the image data
-	 * @return the {@link MediaType} of the image
+	 * @return the {@link MediaType} of the image or null if unknown
 	 */
 	public static MediaType getImageMimeType(byte[] image)
 	{

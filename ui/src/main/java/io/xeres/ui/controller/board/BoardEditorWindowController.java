@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -195,19 +195,8 @@ public class BoardEditorWindowController implements WindowController
 	private void postMessage()
 	{
 		// XXX: add a spinner delay, then clear it on error, also display errors
-		boardClient.createBoardMessage(boardId, title.getText(), editorView.getText(), linkTextField.getText(), 0L)
-				.doOnSuccess(messageId -> Platform.runLater(() -> {
-					if (!imageSelectorView.isEmpty())
-					{
-						boardClient.uploadBoardMessageImage(messageId, imageFile)
-								.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(send)))
-								.subscribe();
-					}
-					else
-					{
-						UiUtils.closeWindow(send);
-					}
-				}))
+		boardClient.createBoardMessage(boardId, title.getText(), editorView.getText(), linkTextField.getText(), imageFile, 0L)
+				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(send)))
 				.subscribe();
 	}
 

@@ -29,8 +29,10 @@ import javax.imageio.ImageReader;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.stream.IntStream;
@@ -42,7 +44,7 @@ public final class ImageUtils
 {
 	private static final Logger log = LoggerFactory.getLogger(ImageUtils.class);
 
-	public static final long IMAGE_MAX_SIZE = 1024 * 1024 * 10L; // 10 MB;
+	public static final long IMAGE_MAX_INPUT_SIZE = 1024 * 1024 * 10L; // 10 MB;
 
 	private static final String DATA_IMAGE_PNG_BASE_64 = "data:image/png;base64,";
 	private static final String DATA_IMAGE_JPEG_BASE_64 = "data:image/jpeg;base64,";
@@ -137,6 +139,42 @@ public final class ImageUtils
 	}
 
 	/**
+	 * Writes an image as a JPEG file. The image is optimized and its quality reduced
+	 * until it fits the size.
+	 *
+	 * @param bufferedImage the image
+	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
+	 * @param outputStream  the output stream
+	 * @return true if the image could be written, false otherwise
+	 */
+	public static boolean writeImageAsJpeg(BufferedImage bufferedImage, int maximumSize, OutputStream outputStream)
+	{
+		try
+		{
+			var out = new ByteArrayOutputStream();
+			var quality = 0.7f;
+			byte[] array;
+			bufferedImage = JpegUtils.stripAlphaIfNeeded(bufferedImage);
+			do
+			{
+				JpegUtils.compressBufferedImageToJpegArray(bufferedImage, quality, out);
+				array = out.toByteArray();
+				quality -= 0.1f;
+			}
+			while (canCompressionPossiblyBeImproved(maximumSize, array, quality));
+
+			outputStream.write(array);
+
+			return true;
+		}
+		catch (IOException e)
+		{
+			log.error("Couldn't save image as JPEG: {}", e.getMessage());
+			return false;
+		}
+	}
+
+	/**
 	 * Writes an image as a JPEG data URL. The image is optimized and its quality reduced
 	 * until it fits the size.
 	 *
@@ -146,23 +184,13 @@ public final class ImageUtils
 	 */
 	public static String writeImageAsJpegData(BufferedImage bufferedImage, int maximumSize)
 	{
-		try
+		var out = new ByteArrayOutputStream();
+		if (writeImageAsJpeg(bufferedImage, maximumSize, out))
 		{
-			byte[] out;
-			var quality = 0.7f;
-			bufferedImage = JpegUtils.stripAlphaIfNeeded(bufferedImage);
-			do
-			{
-				out = JpegUtils.compressBufferedImageToJpegArray(bufferedImage, quality);
-				quality -= 0.1f;
-			}
-			while (canCompressionPossiblyBeImproved(maximumSize, out, quality));
-
-			return DATA_IMAGE_JPEG_BASE_64 + Base64.getEncoder().encodeToString(out);
+			return DATA_IMAGE_JPEG_BASE_64 + Base64.getEncoder().encodeToString(out.toByteArray());
 		}
-		catch (IOException e)
+		else
 		{
-			log.error("Couldn't save image as JPEG: {}", e.getMessage());
 			return "";
 		}
 	}

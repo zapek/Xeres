@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -85,19 +85,9 @@ public class BoardCreationWindowController implements WindowController
 		boardLogo.setOnDeleteAction(this::clearGroupImage);
 
 		createButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
-						boardDescription.getText())
-				.doOnSuccess(boardId -> Platform.runLater(() -> {
-					if (logoFile != null)
-					{
-						boardClient.uploadBoardGroupImage(boardId, logoFile)
-								.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
-								.subscribe();
-					}
-					else
-					{
-						UiUtils.closeWindow(boardName);
-					}
-				}))
+						boardDescription.getText(),
+						logoFile)
+				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
 				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 	}

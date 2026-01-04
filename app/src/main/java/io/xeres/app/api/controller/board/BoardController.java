@@ -34,8 +34,6 @@ import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.rest.board.CreateBoardGroupRequest;
-import io.xeres.common.rest.board.CreateBoardMessageRequest;
 import io.xeres.common.rest.board.UpdateBoardMessagesReadRequest;
 import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
@@ -90,13 +88,15 @@ public class BoardController
 		return toDTOs(boardRsService.findAllGroups());
 	}
 
-	@PostMapping("/groups")
+	@PostMapping(value = "/groups", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Creates a board")
 	@ApiResponse(responseCode = "201", description = "Board created successfully", headers = @Header(name = "Board", description = "The location of the created board", schema = @Schema(type = "string")))
-	public ResponseEntity<Void> createBoardGroup(@Valid @RequestBody CreateBoardGroupRequest createBoardGroupRequest)
+	public ResponseEntity<Void> createBoardGroup(@RequestParam(value = "name") String name,
+	                                             @RequestParam(value = "description") String description,
+	                                             @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException
 	{
 		var ownIdentity = identityService.getOwnIdentity();
-		var id = boardRsService.createBoardGroup(ownIdentity.getGxsId(), createBoardGroupRequest.name(), createBoardGroupRequest.description());
+		var id = boardRsService.createBoardGroup(ownIdentity.getGxsId(), name, description, imageFile);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
@@ -119,20 +119,6 @@ public class BoardController
 				.contentLength(group.getImage().length)
 				.contentType(imageType)
 				.body(new InputStreamResource(new ByteArrayInputStream(group.getImage())));
-	}
-
-	@PostMapping(value = "/groups/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	@Operation(summary = "Add/Change a board's image")
-	@ApiResponse(responseCode = "201", description = "Board's image created")
-	@ApiResponse(responseCode = "404", description = "Board not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@ApiResponse(responseCode = "415", description = "Image's media type unsupported", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	public ResponseEntity<Void> uploadBoardGroupImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
-	{
-		boardRsService.saveBoardGroupImage(id, file);
-
-		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/groups/{id}/image").buildAndExpand(id).toUri();
-		return ResponseEntity.created(location).build();
 	}
 
 	@GetMapping("/groups/{groupId}")
@@ -206,36 +192,28 @@ public class BoardController
 		);
 	}
 
-	@PostMapping("/messages")
+	@PostMapping(value = "/messages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Creates a board message")
 	@ApiResponse(responseCode = "201", description = "Board message created successfully", headers = @Header(name = "Message", description = "The location of the created message", schema = @Schema(type = "string")))
-	public ResponseEntity<Void> createBoardMessage(@Valid @RequestBody CreateBoardMessageRequest createMessageRequest)
+	public ResponseEntity<Void> createBoardMessage(@RequestParam(value = "boardId") long boardId,
+	                                               @RequestParam(value = "title") String title,
+	                                               @RequestParam(value = "content", required = false) String content,
+	                                               @RequestParam(value = "link", required = false) String link,
+	                                               @RequestParam(value = "originalId", required = false) Long originalId,
+	                                               @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException
 	{
 		var ownIdentity = identityService.getOwnIdentity();
 		var id = boardRsService.createBoardMessage(
 				ownIdentity,
-				createMessageRequest.boardId(),
-				createMessageRequest.title(),
-				createMessageRequest.content(),
-				createMessageRequest.link(),
-				createMessageRequest.originalId()
+				boardId,
+				title,
+				content,
+				link,
+				imageFile,
+				originalId != null ? originalId : 0L
 		);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/messages/{id}").buildAndExpand(id).toUri();
-		return ResponseEntity.created(location).build();
-	}
-
-	@PostMapping(value = "/messages/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	@Operation(summary = "Add/Change a board message's image")
-	@ApiResponse(responseCode = "201", description = "Board message image created")
-	@ApiResponse(responseCode = "404", description = "Board message not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@ApiResponse(responseCode = "415", description = "Image's media type unsupported", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@ApiResponse(responseCode = "422", description = "Image unprocessable", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	public ResponseEntity<Void> uploadBoardMessageGroupImage(@PathVariable long id, @RequestBody MultipartFile file) throws IOException
-	{
-		boardRsService.saveBoardMessageImage(id, file);
-
-		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/messages/{id}/image").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
 	}
 

@@ -54,6 +54,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,7 +69,7 @@ import java.util.stream.Stream;
 import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.POSTED;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
-import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
+import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_INPUT_SIZE;
 
 @Component
 public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageItem>
@@ -76,8 +77,10 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	private static final int IMAGE_GROUP_WIDTH = 64; // XXX: I saw more I think... check...
 	private static final int IMAGE_GROUP_HEIGHT = 64;
 
-	private static final int IMAGE_MESSAGE_WIDTH = 640; // XXX: how much?! I think it's 640x480... RSS seems to be able to put anything
-	private static final int IMAGE_MESSAGE_HEIGHT = 480; // XXX: ditto...
+	private static final int IMAGE_MESSAGE_WIDTH = 640;
+	private static final int IMAGE_MESSAGE_HEIGHT = 480;
+
+	private static final int MAXIMUM_MESSAGE_SIZE = 199_000;
 
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(60);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
@@ -348,10 +351,28 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Transactional
-	public long createBoardGroup(GxsId identity, String name, String description)
+	public long createBoardGroup(GxsId identity, String name, String description, MultipartFile imageFile) throws IOException
 	{
 		var boardGroupItem = createGroup(name);
 		boardGroupItem.setDescription(description);
+
+		if (imageFile != null && !imageFile.isEmpty())
+		{
+			if (imageFile.getSize() >= IMAGE_MAX_INPUT_SIZE)
+			{
+				throw new IllegalArgumentException("Board group image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
+			}
+
+			var out = new ByteArrayOutputStream();
+			Thumbnails.of(imageFile.getInputStream())
+					.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
+					.outputFormat(ImageUtils.isPossiblyTransparent(imageFile.getContentType()) ? "PNG" : "JPEG")
+					.toOutputStream(out);
+
+			// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
+
+			boardGroupItem.setImage(out.toByteArray());
+		}
 
 		if (identity != null)
 		{
@@ -366,12 +387,11 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		boardGroupItem.setSubscribed(true);
 
-		var savedBoardId = saveBoard(boardGroupItem).getId();
+		boardGroupItem = saveBoard(boardGroupItem);
 
-		boardGroupItem.setId(savedBoardId);
 		boardNotificationService.addOrUpdateBoardGroups(List.of(boardGroupItem));
 
-		return savedBoardId;
+		return boardGroupItem.getId();
 	}
 
 	@Transactional
@@ -385,39 +405,10 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Transactional
-	public BoardGroupItem saveBoardGroupImage(long id, MultipartFile file) throws IOException
+	public long createBoardMessage(IdentityGroupItem author, long boardId, String title, String content, String link, MultipartFile imageFile, long originalId) throws IOException
 	{
-		if (file == null)
-		{
-			throw new IllegalArgumentException("Image is null");
-		}
+		int size = title.length();
 
-		if (file.getSize() >= IMAGE_MAX_SIZE)
-		{
-			throw new IllegalArgumentException("Board group image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
-		}
-
-		var board = findById(id).orElseThrow();
-
-		var out = new ByteArrayOutputStream();
-		Thumbnails.of(file.getInputStream())
-				.size(IMAGE_GROUP_WIDTH, IMAGE_GROUP_HEIGHT)
-				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
-				.toOutputStream(out);
-
-		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
-
-		board.setImage(out.toByteArray());
-		board.updatePublished();
-
-		var savedBoard = saveBoard(board);
-		boardNotificationService.addOrUpdateBoardGroups(List.of(savedBoard));
-		return savedBoard;
-	}
-
-	@Transactional
-	public long createBoardMessage(IdentityGroupItem author, long boardId, String title, String content, String link, long originalId)
-	{
 		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsBoardGroupRepository.findById(boardId).orElseThrow().getGxsId(), title)
 				.authorId(author.getGxsId());
 
@@ -426,58 +417,57 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 			builder.originalMessageId(gxsBoardMessageRepository.findById(originalId).orElseThrow().getMessageId());
 		}
 
-		builder.getMessageItem().setContent(replaceImageLines(content));
+		if (StringUtils.isNotBlank(content))
+		{
+			var replacedContent = replaceImageLines(content);
+			builder.getMessageItem().setContent(replacedContent);
+			size += replacedContent.length();
+		}
 		if (StringUtils.isNotEmpty(link))
 		{
 			builder.getMessageItem().setLink(link);
+			size += link.length();
 		}
 
-		var boardMessageItem = builder.build();
+		if (imageFile != null && !imageFile.isEmpty())
+		{
+			if (imageFile.getSize() >= IMAGE_MAX_INPUT_SIZE)
+			{
+				throw new IllegalArgumentException("Board message image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
+			}
 
-		var savedMessageId = saveMessage(boardMessageItem).getId();
+			var image = ImageUtils.limitMaximumImageSize(ImageIO.read(imageFile.getInputStream()), IMAGE_MESSAGE_WIDTH * IMAGE_MESSAGE_HEIGHT);
+			var imageOut = new ByteArrayOutputStream();
+			if (!ImageUtils.writeImageAsJpeg(image, MAXIMUM_MESSAGE_SIZE - size, imageOut))
+			{
+				throw new IllegalArgumentException("Couldn't write the image. Unsupported format?");
+			}
 
-		boardMessageItem.setId(savedMessageId);
+			var data = imageOut.toByteArray();
+			builder.getMessageItem().setImage(data);
+			size += data.length;
+		}
+
+		if (size >= MAXIMUM_MESSAGE_SIZE)
+		{
+			throw new IllegalArgumentException("The message is too large. Reduce the content and/or the image.");
+		}
+
+		var boardMessageItem = saveMessage(builder);
+
 		boardNotificationService.addOrUpdateBoardMessages(List.of(boardMessageItem));
 
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 
-		return savedMessageId;
+		return boardMessageItem.getId();
 	}
+	// XXX: same for forums and channels...
 
 	@Transactional
-	public BoardMessageItem saveBoardMessageImage(long id, MultipartFile file) throws IOException
+	public BoardMessageItem saveMessage(MessageBuilder messageBuilder)
 	{
-		if (file == null)
-		{
-			throw new IllegalArgumentException("Image is null");
-		}
+		var boardMessageItem = messageBuilder.build();
 
-		if (file.getSize() >= IMAGE_MAX_SIZE)
-		{
-			throw new IllegalArgumentException("Board message image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
-		}
-
-		var message = findMessageById(id).orElseThrow();
-
-		var out = new ByteArrayOutputStream();
-		Thumbnails.of(file.getInputStream())
-				.size(IMAGE_MESSAGE_WIDTH, IMAGE_MESSAGE_HEIGHT)
-				.outputFormat(ImageUtils.isPossiblyTransparent(file.getContentType()) ? "PNG" : "JPEG")
-				.toOutputStream(out);
-
-		// XXX: resulting image has to be restricted to a certain byte size too... how to do it?
-
-		message.setImage(out.toByteArray());
-		message.updatePublished();
-
-		var savedMessage = saveMessage(message);
-		boardNotificationService.addOrUpdateBoardMessages(List.of(message));
-		return savedMessage;
-	}
-
-	@Transactional
-	public BoardMessageItem saveMessage(BoardMessageItem boardMessageItem)
-	{
 		boardMessageItem.setId(gxsBoardMessageRepository.findByGxsIdAndMessageId(boardMessageItem.getGxsId(), boardMessageItem.getMessageId()).orElse(boardMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsBoardMessageRepository.save(boardMessageItem);
 		var boardGroupItem = gxsBoardGroupRepository.findByGxsId(boardMessageItem.getGxsId()).orElseThrow();

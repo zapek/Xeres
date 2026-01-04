@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,6 +24,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
@@ -52,21 +53,20 @@ public final class ClientUtils
 	{
 		if (response.statusCode().is2xxSuccessful())
 		{
-			String location = response.headers().asHttpHeaders().getFirst("Location");
+			var location = response.headers().asHttpHeaders().getLocation();
+
 			if (location != null)
 			{
-				// Extract ID from location header (assumes format like "/foo/bar/123")
-				int lastSlashIndex = location.lastIndexOf('/');
-				if (lastSlashIndex > 0)
+				var uriComponents = UriComponentsBuilder.fromUri(location).build();
+				String lastPathSegment = uriComponents.getPathSegments().getLast();
+
+				try
 				{
-					try
-					{
-						return Mono.just(Long.parseLong(location.substring(lastSlashIndex + 1)));
-					}
-					catch (NumberFormatException e)
-					{
-						return Mono.error(new IllegalArgumentException("Failed to parse ID from location header: " + location, e));
-					}
+					return Mono.just(Long.parseLong(lastPathSegment));
+				}
+				catch (NumberFormatException e)
+				{
+					return Mono.error(new IllegalArgumentException("Failed to parse ID from location header: " + location, e));
 				}
 			}
 			return Mono.error(new IllegalArgumentException("Location header not found in response"));

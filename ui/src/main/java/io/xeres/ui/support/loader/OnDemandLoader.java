@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -185,7 +185,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 			for (var i = 0; i < size; i++)
 			{
-				if (message.getPublished().isBefore(messages.get(i).getPublished()))
+				if (message.getPublished().isAfter(messages.get(i).getPublished()))
 				{
 					messages.add(i, message);
 					return true;

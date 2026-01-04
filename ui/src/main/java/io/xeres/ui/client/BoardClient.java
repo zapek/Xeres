@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,17 +22,18 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.rest.board.CreateBoardGroupRequest;
-import io.xeres.common.rest.board.CreateBoardMessageRequest;
 import io.xeres.common.rest.board.UpdateBoardMessagesReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
 import io.xeres.ui.model.board.BoardMessage;
 import io.xeres.ui.support.util.ClientUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -43,7 +44,6 @@ import java.io.File;
 import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
-import static io.xeres.ui.support.util.ClientUtils.fromFile;
 
 @Component
 public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient<BoardMessage>
@@ -75,27 +75,30 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 				.map(BoardMapper::fromDTO);
 	}
 
-	public Mono<Long> createBoardGroup(String name, String description)
+	public Mono<Long> createBoardGroup(String name, String description, File image)
 	{
-		var request = new CreateBoardGroupRequest(name, description);
+		var builder = new MultipartBodyBuilder();
+		if (StringUtils.isBlank(name))
+		{
+			throw new IllegalArgumentException("Name is required");
+		}
+		builder.part("name", name);
+		if (StringUtils.isBlank(description))
+		{
+			throw new IllegalArgumentException("Description is required");
+		}
+		builder.part("description", description);
+		if (image != null)
+		{
+			builder.part("image", new FileSystemResource(image));
+		}
 
 		return webClient.post()
 				.uri("/groups")
-				.bodyValue(request)
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(builder.build()))
 				.exchangeToMono(ClientUtils::getCreatedId);
 	}
-
-	public Mono<Void> uploadBoardGroupImage(long id, File file)
-	{
-		return webClient.post()
-				.uri("/groups/{id}/image", id)
-				.contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(BodyInserters.fromMultipartData(fromFile(file)))
-				.retrieve()
-				.bodyToMono(Void.class);
-	}
-
-	// XXX: delete boardImage too?
 
 	public Mono<BoardGroup> getBoardGroupById(long groupId)
 	{
@@ -159,24 +162,42 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 				.map(BoardMapper::fromDTO);
 	}
 
-	public Mono<Long> createBoardMessage(long boardId, String title, String content, String link, long originalId)
+	public Mono<Long> createBoardMessage(long boardId, String title, String content, String link, File image, long originalId)
 	{
-		var request = new CreateBoardMessageRequest(boardId, title, content, link, originalId);
+		var builder = new MultipartBodyBuilder();
+		if (boardId == 0L)
+		{
+			throw new IllegalArgumentException("BoardId is required");
+		}
+		builder.part("boardId", boardId);
+		if (StringUtils.isBlank(title))
+		{
+			throw new IllegalArgumentException("Title is required");
+		}
+		builder.part("title", title);
+		if (StringUtils.isNotBlank(content))
+		{
+			builder.part("content", content);
+		}
+		if (StringUtils.isNotBlank(link))
+		{
+			builder.part("link", link);
+		}
+		if (originalId != 0L)
+		{
+			builder.part("originalId", originalId);
+		}
+		if (image != null)
+		{
+			builder.part("image", new FileSystemResource(image));
+		}
 
 		return webClient.post()
 				.uri("/messages")
-				.bodyValue(request)
-				.exchangeToMono(ClientUtils::getCreatedId);
-	}
-
-	public Mono<Void> uploadBoardMessageImage(long id, File file)
-	{
-		return webClient.post()
-				.uri("/messages/{id}/image", id)
 				.contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(BodyInserters.fromMultipartData(fromFile(file)))
-				.retrieve()
-				.bodyToMono(Void.class);
+				.body(BodyInserters.fromMultipartData(builder.build()))
+				.exchangeToMono(ClientUtils::getCreatedId);
+
 	}
 
 	public Mono<Void> updateBoardMessagesRead(Map<Long, Boolean> messages)

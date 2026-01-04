@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,8 +24,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * This class contains private utility methods for working with JPEG images.
@@ -37,22 +37,18 @@ final class JpegUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static byte[] compressBufferedImageToJpegArray(BufferedImage image, float quality) throws IOException
+	static void compressBufferedImageToJpegArray(BufferedImage image, float quality, OutputStream outputStream) throws IOException
 	{
 		var jpegWriter = ImageIO.getImageWritersByFormatName("JPEG").next();
 		var jpegWriteParam = jpegWriter.getDefaultWriteParam();
 		jpegWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		jpegWriteParam.setCompressionQuality(quality);
 
-		var out = new ByteArrayOutputStream();
-
-		var ios = ImageIO.createImageOutputStream(out);
+		var ios = ImageIO.createImageOutputStream(outputStream);
 		jpegWriter.setOutput(ios);
 		var outputImage = new IIOImage(image, null, null);
 		jpegWriter.write(null, outputImage, jpegWriteParam);
-		var result = out.toByteArray();
 		jpegWriter.dispose();
-		return result;
 	}
 
 	static BufferedImage stripAlphaIfNeeded(BufferedImage originalImage)

@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.CHANNELS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
-import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
+import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_INPUT_SIZE;
 
 @Component
 public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMessageItem>
@@ -372,9 +372,9 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 			throw new IllegalArgumentException("Image is null");
 		}
 
-		if (file.getSize() >= IMAGE_MAX_SIZE)
+		if (file.getSize() >= IMAGE_MAX_INPUT_SIZE)
 		{
-			throw new IllegalArgumentException("Channel group image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException("Channel group image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
 		}
 
 		var channel = findById(id).orElseThrow();
@@ -433,9 +433,9 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 			throw new IllegalArgumentException("Image is null");
 		}
 
-		if (file.getSize() >= IMAGE_MAX_SIZE)
+		if (file.getSize() >= IMAGE_MAX_INPUT_SIZE)
 		{
-			throw new IllegalArgumentException("Channel message image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException("Channel message image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
 		}
 
 		var message = findMessageById(id);

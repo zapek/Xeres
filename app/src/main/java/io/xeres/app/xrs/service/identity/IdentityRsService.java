@@ -75,7 +75,7 @@ import static io.xeres.app.service.ResourceCreationState.*;
 import static io.xeres.app.xrs.service.RsServiceType.GXSID;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.CHILD_AUTHOR;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.ROOT_AUTHOR;
-import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_SIZE;
+import static io.xeres.common.util.image.ImageUtils.IMAGE_MAX_INPUT_SIZE;
 
 @Component
 public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessageItem>
@@ -482,14 +482,14 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			throw new EntityNotFoundException("Identity " + id + " is not our own");
 		}
 
-		if (file == null)
+		if (file == null || file.isEmpty())
 		{
 			throw new IllegalArgumentException("Avatar image is empty");
 		}
 
-		if (file.getSize() >= IMAGE_MAX_SIZE)
+		if (file.getSize() >= IMAGE_MAX_INPUT_SIZE)
 		{
-			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException("Avatar image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
 		}
 
 		var identity = identityService.findById(id).orElseThrow();
